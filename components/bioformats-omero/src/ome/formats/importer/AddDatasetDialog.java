@@ -148,8 +148,7 @@ public class AddDatasetDialog extends JDialog implements ActionListener
             dataset.setName(name);
         if (description.length() != 0)
             dataset.setDescription(description);
-        Project p = new Project(project.getId());
-        p.unload();
+        Project p = new Project(project.getId(), false);
         dataset.linkProject(p);
         
         Dataset storedDataset = null;

@@ -161,7 +161,7 @@ public class OMEROWrapper extends MinMaxCalculator
                 (OMEROMetadataStore) reader.getMetadataStore();
             int series = reader.getSeries();
             Pixels p = store.getPixels(series);
-            Channel c = (Channel) p.getChannels().get(p.getSizeC() - 1);
+            Channel c = (Channel) p.getChannel(p.getSizeC() - 1);
             if (c.getStatsInfo() == null)
             {
                 minMaxSet = false;

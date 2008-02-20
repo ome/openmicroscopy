@@ -203,24 +203,24 @@ public class OMEROMetadataStore implements MetadataStore
     }
 
     /*
-	 * (non-Javadoc)
-	 * 
-	 * @see loci.formats.MetadataStore#createRoot()
-	 */
-	public void createRoot()
-	{
-	    imageList = new ArrayList<Image>();
-	    pixelsList = new ArrayList<Pixels>();
-	    planeInfoCache = new HashMap<Pixels, List<PlaneInfo>>();
-	}
+     * (non-Javadoc)
+     * 
+     * @see loci.formats.MetadataStore#createRoot()
+     */
+    public void createRoot()
+    {
+        imageList = new ArrayList<Image>();
+        pixelsList = new ArrayList<Pixels>();
+        planeInfoCache = new HashMap<Pixels, List<PlaneInfo>>();
+    }
 
-	/*
+    /*
      * (non-Javadoc)
      * 
      * @see loci.formats.MetadataStore#setRoot(java.lang.Object)
      */
     @SuppressWarnings("unchecked")
-	public void setRoot(Object root) throws IllegalArgumentException
+    public void setRoot(Object root) throws IllegalArgumentException
     {
         if (!(root instanceof List))
             throw new IllegalArgumentException("'root' object of type '"
@@ -262,7 +262,7 @@ public class OMEROMetadataStore implements MetadataStore
      *      java.lang.Double, java.lang.Double, java.lang.Integer)
      */
     @SuppressWarnings("unchecked")
-	public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
+    public void setChannelGlobalMinMax(int channelIdx, Double globalMin,
             Double globalMax, Integer pixelsIndex)
     {
         log.debug(String.format(
@@ -270,18 +270,16 @@ public class OMEROMetadataStore implements MetadataStore
                 pixelsIndex, channelIdx, globalMin, globalMax));
         if (globalMin != null)
         {
-        	globalMin = new Double(Math.floor(globalMin.doubleValue()));
+            globalMin = new Double(Math.floor(globalMin.doubleValue()));
         }
         if (globalMax != null)
         {
-        	globalMax = new Double(Math.ceil(globalMax.doubleValue()));
+            globalMax = new Double(Math.ceil(globalMax.doubleValue()));
         }
-
-        List<Channel> channels = getPixels(pixelsIndex).getChannels();
         StatsInfo statsInfo = new StatsInfo();
         statsInfo.setGlobalMin(globalMin);
         statsInfo.setGlobalMax(globalMax);
-        channels.get(channelIdx).setStatsInfo(statsInfo);
+        getPixels(pixelsIndex).getChannel(channelIdx).setStatsInfo(statsInfo);
     }
 
     /**
@@ -325,11 +323,8 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void addImageToDataset(Image image, Dataset dataset)
     {
-        Image unloadedImage = new Image(image.getId());
-        unloadedImage.unload();
-
-        Dataset unloadedDataset = new Dataset(dataset.getId());
-        unloadedDataset.unload();
+        Image unloadedImage = new Image(image.getId(), false);
+        Dataset unloadedDataset = new Dataset(dataset.getId(), false);
         DatasetImageLink link = new DatasetImageLink();
         link.setParent(unloadedDataset);
         link.setChild(unloadedImage);
@@ -423,8 +418,8 @@ public class OMEROMetadataStore implements MetadataStore
     {
         for (File file: files)
         {
-        	// FIXME: This is **incorrect** quite obviously, not every file
-        	// is of format "DV".
+            // FIXME: This is **incorrect** quite obviously, not every file
+            // is of format "DV".
             Format f = iQuery.findByString(Format.class, "value", "DV");
             OriginalFile oFile = new OriginalFile();
             oFile.setName(file.getName());
@@ -479,23 +474,21 @@ public class OMEROMetadataStore implements MetadataStore
            
     }
 
-	/**
+    /**
      * Check the MinMax values stored in the DB and sync them with the new values
      * we generate in the channelMinMax reader, then save them to the DB. 
-	 * @param id The <code>Pixels</code> id.
-	 */
-	@SuppressWarnings("unchecked")
-	public void populateMinMax(Long id, Integer i)
+     * @param id The <code>Pixels</code> id.
+     */
+    @SuppressWarnings("unchecked")
+    public void populateMinMax(Long id, Integer i)
     {
         Pixels p = iQuery.findByQuery(
                 "select p from Pixels as p left join fetch p.channels " +
                 "where p.id = :id", new Parameters().addId(id));
-        List<Channel> channels = p.getChannels();
-        List<Channel> readerChannels = getPixels(i).getChannels();
         for (int j=0; j < p.getSizeC(); j++)
         {
-            Channel channel = channels.get(j);
-            Channel readerChannel = readerChannels.get(j);
+            Channel channel = p.getChannel(j);
+            Channel readerChannel = getPixels(i).getChannel(j);
             channel.setStatsInfo(readerChannel.getStatsInfo());
         }
         iUpdate.saveObject(p);
@@ -521,1150 +514,1133 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public Image getImage(int imageIndex)
     {
-    	if (imageList.size() < (imageIndex + 1))
-    	{
-    		for (int i = imageList.size(); i < imageIndex; i++)
-    		{
-    			// Inserting null here so that we don't place potentially bogus
-    			// Images into the list which will eventually be saved into
-    			// the database.
-    			imageList.add(null);
-    		}
-    		imageList.add(new Image());
-    	}
-    	
-    	// We're going to check to see if the image list has a null value and
-    	// update it as required.
-    	Image i = imageList.get(imageIndex);
-    	if (i == null)
-    	{
-    		i = new Image();
-    		imageList.set(imageIndex, i);
-    	}
-    	return i;
+        if (imageList.size() < (imageIndex + 1))
+        {
+            for (int i = imageList.size(); i < imageIndex; i++)
+            {
+                // Inserting null here so that we don't place potentially bogus
+                // Images into the list which will eventually be saved into
+                // the database.
+                imageList.add(null);
+            }
+            imageList.add(new Image());
+        }
+        
+        // We're going to check to see if the image list has a null value and
+        // update it as required.
+        Image i = imageList.get(imageIndex);
+        if (i == null)
+        {
+            i = new Image();
+            imageList.set(imageIndex, i);
+        }
+        return i;
     }
 
-	/**
-	 * Returns a Pixels from a given Image's indexed pixels list. The indexed
-	 * pixels list is extended as required and the Pixels object itself is
-	 * created as required. This also invalidates the PlaneInfo ordered cache
-	 * if the pixelsIndex is different than the one currently stored. You 
-	 * <b>must not</b> attempt to retrieve two different Pixels instances and 
-	 * expect to have planeIndexes maintained.
-	 * 
-	 * @param imageIndex The image index.
-	 * @param pixelsIndex The pixels index within <code>imageIndex</code>.
-	 * @return See above.
-	 */
-	@SuppressWarnings("unchecked")
-	public Pixels getPixels(int imageIndex, int pixelsIndex)
-	{
-		Image image = getImage(imageIndex);
-		
-    	if (image.sizeOfPixels() < (pixelsIndex + 1))
-    	{
-    		for (int i = image.sizeOfPixels(); i <= pixelsIndex; i++)
-    		{
-    			// Since OMERO model objects prevent us from inserting nulls
-    			// here we must insert a Pixels object. We also need to ensure
-    			// that the OMERO specific "sha1" field is filled.
-    			Pixels p = new Pixels();
-    			// FIXME: We *really* should deal with this properly... finally.
-    			p.setSha1("foo");
-    			image.addPixels(p);
-    		}
-    	}
-    	
-    	Iterator<Pixels> i = image.iteratePixels();
-    	int j = 0;
-    	while (i.hasNext())
-    	{
-    		Pixels p = i.next();
-    		if (j == pixelsIndex)
-    		{
-    			// Ensure that we have at least one default pixels
-    			if (pixelsIndex == 0)
-    			{
-    				p.setDefaultPixels(Boolean.TRUE);
-    			}
-    			// This ensures that we can lookup the Pixels set at a later
-    			// time based upon its "series" in Bio-Formats terms.
-    			// FIXME: Note that there is no way to really ensure that
-    			// "series" acurately maps to index in the List.
-    			if (!pixelsList.contains(p))
-    			{
-    				pixelsList.add(p);
-    			}
-    			return p;
-    		}
-    		j++;
-    	}
-    	throw new RuntimeException(
-    			"Unable to locate pixels index: " + pixelsIndex);
-	}
-	
-	/**
-	 * Returns a Pixels from the internal "series" indexed pixels list. FIXME: 
-	 * Note that there is no way to really ensure that <code>series</code> 
-	 * accurately maps to index in the List.
-	 * @param series The Bio-Formats series to lookup.
-	 * @return See above.
-	 */
-	@SuppressWarnings("unchecked")
-	public Pixels getPixels(int series)
-	{
-		return pixelsList.get(series);
-	}
-	
-	/**
-	 * Returns a PlaneInfo from a given Image's, Pixels' indexed  plane info
-	 * list. The indexed plane info list is extended as required and the 
-	 * PlaneInfo object itself is created as required.
-	 * 
-	 * @param imageIndex The image index.
-	 * @param pixelsIndex The pixels index within <code>imageIndex</code>.
-	 * @param planeIndex The plane info index within <code>pixelsIndex</code>.
-	 * @return See above.
-	 */
-	@SuppressWarnings("unchecked")
-	public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
-			int planeIndex)
-	{
-		Pixels pixels = getPixels(imageIndex, pixelsIndex);
+    /**
+     * Returns a Pixels from a given Image's indexed pixels list. The indexed
+     * pixels list is extended as required and the Pixels object itself is
+     * created as required. This also invalidates the PlaneInfo ordered cache
+     * if the pixelsIndex is different than the one currently stored. You 
+     * <b>must not</b> attempt to retrieve two different Pixels instances and 
+     * expect to have planeIndexes maintained.
+     * 
+     * @param imageIndex The image index.
+     * @param pixelsIndex The pixels index within <code>imageIndex</code>.
+     * @return See above.
+     */
+    @SuppressWarnings("unchecked")
+    public Pixels getPixels(int imageIndex, int pixelsIndex)
+    {
+        Image image = getImage(imageIndex);
+        
+        if (image.sizeOfPixels() < (pixelsIndex + 1))
+        {
+            for (int i = image.sizeOfPixels(); i <= pixelsIndex; i++)
+            {
+                // Since OMERO model objects prevent us from inserting nulls
+                // here we must insert a Pixels object. We also need to ensure
+                // that the OMERO specific "sha1" field is filled.
+                Pixels p = new Pixels();
+                // FIXME: We *really* should deal with this properly... finally.
+                p.setSha1("foo");
+                image.addPixels(p);
+            }
+        }
+        
+        Iterator<Pixels> i = image.iteratePixels();
+        int j = 0;
+        while (i.hasNext())
+        {
+            Pixels p = i.next();
+            if (j == pixelsIndex)
+            {
+                // This ensures that we can lookup the Pixels set at a later
+                // time based upon its "series" in Bio-Formats terms.
+                // FIXME: Note that there is no way to really ensure that
+                // "series" accurately maps to index in the List.
+                if (!pixelsList.contains(p))
+                {
+                    pixelsList.add(p);
+                }
+                return p;
+            }
+            j++;
+        }
+        throw new RuntimeException(
+                "Unable to locate pixels index: " + pixelsIndex);
+    }
+    
+    /**
+     * Returns a Pixels from the internal "series" indexed pixels list. FIXME: 
+     * Note that there is no way to really ensure that <code>series</code> 
+     * accurately maps to index in the List.
+     * @param series The Bio-Formats series to lookup.
+     * @return See above.
+     */
+    @SuppressWarnings("unchecked")
+    public Pixels getPixels(int series)
+    {
+        return pixelsList.get(series);
+    }
+    
+    /**
+     * Returns a PlaneInfo from a given Image's, Pixels' indexed  plane info
+     * list. The indexed plane info list is extended as required and the 
+     * PlaneInfo object itself is created as required.
+     * 
+     * @param imageIndex The image index.
+     * @param pixelsIndex The pixels index within <code>imageIndex</code>.
+     * @param planeIndex The plane info index within <code>pixelsIndex</code>.
+     * @return See above.
+     */
+    @SuppressWarnings("unchecked")
+    public PlaneInfo getPlaneInfo(int imageIndex, int pixelsIndex,
+            int planeIndex)
+    {
+        Pixels pixels = getPixels(imageIndex, pixelsIndex);
         if (!planeInfoCache.containsKey(pixels))
         {
             planeInfoCache.put(pixels, new ArrayList<PlaneInfo>());
         }
         
         List<PlaneInfo> cache = planeInfoCache.get(pixels);
-    	if (cache.size() < (planeIndex + 1))
-    	{
-    		for (int i = cache.size(); i <= planeIndex; i++)
-    		{
-    			// Since OMERO model objects prevent us from inserting nulls
-    			// here we must insert a PlaneInfo object. Also, we need an
-    			// ordered list of PlaneInfo objects for later reference so
-    			// we're populating the cache here which will be invalidated
-    			// upon a call to createRoot().
-    			PlaneInfo info = new PlaneInfo();
+        if (cache.size() < (planeIndex + 1))
+        {
+            for (int i = cache.size(); i <= planeIndex; i++)
+            {
+                // Since OMERO model objects prevent us from inserting nulls
+                // here we must insert a PlaneInfo object. Also, we need an
+                // ordered list of PlaneInfo objects for later reference so
+                // we're populating the cache here which will be invalidated
+                // upon a call to createRoot().
+                PlaneInfo info = new PlaneInfo();
                 // FIXME: Time stamp needs fixing.
-    			info.setTimestamp(0.0f);
-    			cache.add(info);
-    			pixels.addPlaneInfo(info);
-    		}
-    	}
-    	return cache.get(planeIndex);
-	}
-	
+                info.setTimestamp(0.0f);
+                cache.add(info);
+                pixels.addPlaneInfo(info);
+            }
+        }
+        return cache.get(planeIndex);
+    }
+    
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
-	 */
-	public void setImageName(String name, int imageIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
+     */
+    public void setImageName(String name, int imageIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] name: '%s'", imageIndex, name));
+                "Setting Image[%d] name: '%s'", imageIndex, name));
         Image i = getImage(imageIndex);
-		i.setName(name);
-	}
+        i.setName(name);
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setImageCreationDate(java.lang.String, int)
-	 */
-	public void setImageCreationDate(String creationDate, int imageIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageCreationDate(java.lang.String, int)
+     */
+    public void setImageCreationDate(String creationDate, int imageIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] creation date: '%s'", imageIndex, creationDate));
+                "Setting Image[%d] creation date: '%s'", imageIndex, creationDate));
         log.debug("FIXME: Creation date is ignored.");
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setImageDescription(java.lang.String, int)
-	 */
-	public void setImageDescription(String description, int imageIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageDescription(java.lang.String, int)
+     */
+    public void setImageDescription(String description, int imageIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] description: '%s'", imageIndex, description));
+                "Setting Image[%d] description: '%s'", imageIndex, description));
         Image i = getImage(imageIndex);
         i.setDescription(description);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsSizeX(java.lang.Integer, int, int)
-	 */
-	public void setPixelsSizeX(Integer sizeX, int imageIndex, int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeX(java.lang.Integer, int, int)
+     */
+    public void setPixelsSizeX(Integer sizeX, int imageIndex, int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] sizeX: '%d'",
-        		imageIndex, pixelsIndex, sizeX));
-		Pixels p = getPixels(imageIndex, pixelsIndex);
-		p.setSizeX(sizeX);
-	}
+                "Setting Image[%d] Pixels[%d] sizeX: '%d'",
+                imageIndex, pixelsIndex, sizeX));
+        Pixels p = getPixels(imageIndex, pixelsIndex);
+        p.setSizeX(sizeX);
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsSizeY(java.lang.Integer, int, int)
-	 */
-	public void setPixelsSizeY(Integer sizeY, int imageIndex, int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeY(java.lang.Integer, int, int)
+     */
+    public void setPixelsSizeY(Integer sizeY, int imageIndex, int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] sizeY: '%d'",
-        		imageIndex, pixelsIndex, sizeY));
-		Pixels p = getPixels(imageIndex, pixelsIndex);
-		p.setSizeY(sizeY);
-	}
+                "Setting Image[%d] Pixels[%d] sizeY: '%d'",
+                imageIndex, pixelsIndex, sizeY));
+        Pixels p = getPixels(imageIndex, pixelsIndex);
+        p.setSizeY(sizeY);
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(java.lang.Integer, int, int)
-	 */
-	public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeZ(java.lang.Integer, int, int)
+     */
+    public void setPixelsSizeZ(Integer sizeZ, int imageIndex, int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] sizeZ: '%d'",
-        		imageIndex, pixelsIndex, sizeZ));
-		Pixels p = getPixels(imageIndex, pixelsIndex);
-		p.setSizeZ(sizeZ);
-	}
+                "Setting Image[%d] Pixels[%d] sizeZ: '%d'",
+                imageIndex, pixelsIndex, sizeZ));
+        Pixels p = getPixels(imageIndex, pixelsIndex);
+        p.setSizeZ(sizeZ);
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsSizeC(java.lang.Integer, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setPixelsSizeC(Integer sizeC, int imageIndex, int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeC(java.lang.Integer, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setPixelsSizeC(Integer sizeC, int imageIndex, int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] sizeC: '%d'",
-        		imageIndex, pixelsIndex, sizeC));
+                "Setting Image[%d] Pixels[%d] sizeC: '%d'",
+                imageIndex, pixelsIndex, sizeC));
         Pixels p = getPixels(imageIndex, pixelsIndex);
         p.setSizeC(sizeC);
-        List<Channel> channels = p.getChannels();
-        if (channels.size() != 0)
+        if (p.sizeOfChannels() != 0)
         {
-            channels.clear();
+            p.clearChannels();
         }
         for (int i = 0; i < sizeC; i++)
         {
             Channel c = new Channel();
             c.setLogicalChannel(new LogicalChannel());
-            channels.add(c);
+            p.addChannel(c);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsSizeT(java.lang.Integer, int, int)
-	 */
-	public void setPixelsSizeT(Integer sizeT, int imageIndex, int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsSizeT(java.lang.Integer, int, int)
+     */
+    public void setPixelsSizeT(Integer sizeT, int imageIndex, int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] sizeT: '%d'",
-        		imageIndex, pixelsIndex, sizeT));
-		Pixels p = getPixels(imageIndex, pixelsIndex);
-		p.setSizeT(sizeT);
-	}
+                "Setting Image[%d] Pixels[%d] sizeT: '%d'",
+                imageIndex, pixelsIndex, sizeT));
+        Pixels p = getPixels(imageIndex, pixelsIndex);
+        p.setSizeT(sizeT);
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsPixelType(java.lang.String, int, int)
-	 */
-	public void setPixelsPixelType(String pixelType, int imageIndex,
-			int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsPixelType(java.lang.String, int, int)
+     */
+    public void setPixelsPixelType(String pixelType, int imageIndex,
+            int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] pixel type: '%s'",
-        		imageIndex, pixelsIndex, pixelType));
+                "Setting Image[%d] Pixels[%d] pixel type: '%s'",
+                imageIndex, pixelsIndex, pixelType));
         
         // Retrieve enumerations from the server               
         PixelsType type =
-        	(PixelsType) getEnumeration(PixelsType.class, pixelType);
+            (PixelsType) getEnumeration(PixelsType.class, pixelType);
         
         Pixels p = getPixels(imageIndex, pixelsIndex);
         p.setPixelsType(type);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean, int, int)
-	 */
-	public void setPixelsBigEndian(Boolean bigEndian, int imageIndex,
-			int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsBigEndian(java.lang.Boolean, int, int)
+     */
+    public void setPixelsBigEndian(Boolean bigEndian, int imageIndex,
+            int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] big-endian?: '%s'",
-        		imageIndex, pixelsIndex, bigEndian));
+                "Setting Image[%d] Pixels[%d] big-endian?: '%s'",
+                imageIndex, pixelsIndex, bigEndian));
         log.debug("NOTE: This field is unsupported/unused.");
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(java.lang.String, int, int)
-	 */
-	public void setPixelsDimensionOrder(String dimensionOrder, int imageIndex,
-			int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPixelsDimensionOrder(java.lang.String, int, int)
+     */
+    public void setPixelsDimensionOrder(String dimensionOrder, int imageIndex,
+            int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] dimension order: '%s'",
-        		imageIndex, pixelsIndex, dimensionOrder));
+                "Setting Image[%d] Pixels[%d] dimension order: '%s'",
+                imageIndex, pixelsIndex, dimensionOrder));
         DimensionOrder order =
-        	(DimensionOrder) getEnumeration(DimensionOrder.class, dimensionOrder);
+            (DimensionOrder) getEnumeration(DimensionOrder.class, dimensionOrder);
         Pixels p = getPixels(imageIndex, pixelsIndex);
         p.setDimensionOrder(order);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeX(java.lang.Float, int, int)
-	 */
-	public void setDimensionsPhysicalSizeX(Float physicalSizeX, int imageIndex,
-			int pixelsIndex)
-	{
-	    if (physicalSizeX == null || physicalSizeX <= 0.000001)
-	    {
-	        log.warn("physicalSizeX is <= 0.000001f, setting to 1.0f");
-	        physicalSizeX = 1.0f;
-	    } else {
-	        log.debug(String.format(
-	                "Setting Image[%d] Pixels[%d] physical size X: '%f'",
-	                imageIndex, pixelsIndex, physicalSizeX));
-	    }
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeX(java.lang.Float, int, int)
+     */
+    public void setDimensionsPhysicalSizeX(Float physicalSizeX, int imageIndex,
+            int pixelsIndex)
+    {
+        if (physicalSizeX == null || physicalSizeX <= 0.000001)
+        {
+            log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
+            physicalSizeX = 1.0f;
+        } else {
+            log.debug(String.format(
+                    "Setting Image[%d] Pixels[%d] physical size X: '%f'",
+                    imageIndex, pixelsIndex, physicalSizeX));
+        }
         //if (physicalSizeX == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
         {
-        	dims = new PixelsDimensions();
-        	dims.setSizeX(0.0f);
+            dims = new PixelsDimensions();
+            dims.setSizeX(0.0f);
             dims.setSizeY(0.0f);
             dims.setSizeZ(0.0f);
-        	p.setPixelsDimensions(dims);
+            p.setPixelsDimensions(dims);
         }
         dims.setSizeX(physicalSizeX);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeY(java.lang.Float, int, int)
-	 */
-	public void setDimensionsPhysicalSizeY(Float physicalSizeY, int imageIndex,
-			int pixelsIndex)
-	{
-	    if (physicalSizeY == null || physicalSizeY <= 0.000001)
-	    {
-	        log.warn("physicalSizeY is <= 0.000001f, setting to 1.0f");
-	        physicalSizeY = 1.0f;
-	    } else {
-	        log.debug(String.format(
-	                "Setting Image[%d] Pixels[%d] physical size Y: '%f'",
-	                imageIndex, pixelsIndex, physicalSizeY));
-	    }
-	    //if (physicalSizeY == null) return;
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeY(java.lang.Float, int, int)
+     */
+    public void setDimensionsPhysicalSizeY(Float physicalSizeY, int imageIndex,
+            int pixelsIndex)
+    {
+        if (physicalSizeY == null || physicalSizeY <= 0.000001)
+        {
+            log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
+            physicalSizeY = 1.0f;
+        } else {
+            log.debug(String.format(
+                    "Setting Image[%d] Pixels[%d] physical size Y: '%f'",
+                    imageIndex, pixelsIndex, physicalSizeY));
+        }
+        //if (physicalSizeY == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
         {
-        	dims = new PixelsDimensions();
+            dims = new PixelsDimensions();
             dims.setSizeX(0.0f);
             dims.setSizeY(0.0f);
             dims.setSizeZ(0.0f);
-        	p.setPixelsDimensions(dims);
+            p.setPixelsDimensions(dims);
         }
         dims.setSizeY(physicalSizeY);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeZ(java.lang.Float, int, int)
-	 */
-	public void setDimensionsPhysicalSizeZ(Float physicalSizeZ, int imageIndex,
-			int pixelsIndex)
-	{
-	    if (physicalSizeZ == null || physicalSizeZ <= 0.000001)
-	    {
-	        log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
-	        physicalSizeZ = 1.0f;
-	    } else {
-	        log.debug(String.format(
-	                "Setting Image[%d] Pixels[%d] physical size Z: '%f'",
-	                imageIndex, pixelsIndex, physicalSizeZ));
-	    }
-	    if (physicalSizeZ == null) return;
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsPhysicalSizeZ(java.lang.Float, int, int)
+     */
+    public void setDimensionsPhysicalSizeZ(Float physicalSizeZ, int imageIndex,
+            int pixelsIndex)
+    {
+        if (physicalSizeZ == null || physicalSizeZ <= 0.000001)
+        {
+            log.warn("physicalSizeZ is <= 0.000001f, setting to 1.0f");
+            physicalSizeZ = 1.0f;
+        } else {
+            log.debug(String.format(
+                    "Setting Image[%d] Pixels[%d] physical size Z: '%f'",
+                    imageIndex, pixelsIndex, physicalSizeZ));
+        }
+        //if (physicalSizeZ == null) return;
         Pixels p = getPixels(imageIndex, pixelsIndex);
         PixelsDimensions dims = p.getPixelsDimensions();
         if (dims == null)
         {
-        	dims = new PixelsDimensions();
+            dims = new PixelsDimensions();
             dims.setSizeX(0.0f);
             dims.setSizeY(0.0f);
             dims.setSizeZ(0.0f);
-        	p.setPixelsDimensions(dims);
+            p.setPixelsDimensions(dims);
         }
         dims.setSizeZ(physicalSizeZ);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDimensionsTimeIncrement(java.lang.Float, int, int)
-	 */
-	public void setDimensionsTimeIncrement(Float timeIncrement, int imageIndex,
-			int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsTimeIncrement(java.lang.Float, int, int)
+     */
+    public void setDimensionsTimeIncrement(Float timeIncrement, int imageIndex,
+            int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] time increment: '%f'",
-        		imageIndex, pixelsIndex, timeIncrement));
+                "Setting Image[%d] Pixels[%d] time increment: '%f'",
+                imageIndex, pixelsIndex, timeIncrement));
         log.debug("NOTE: This field is unsupported/unused.");
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDimensionsWaveIncrement(java.lang.Integer, int, int)
-	 */
-	public void setDimensionsWaveIncrement(Integer waveIncrement,
-			int imageIndex, int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsWaveIncrement(java.lang.Integer, int, int)
+     */
+    public void setDimensionsWaveIncrement(Integer waveIncrement,
+            int imageIndex, int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] wave increment: '%d'",
-        		imageIndex, pixelsIndex, waveIncrement));
+                "Setting Image[%d] Pixels[%d] wave increment: '%d'",
+                imageIndex, pixelsIndex, waveIncrement));
         log.debug("NOTE: This field is unsupported/unused.");
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setDimensionsWaveStart(java.lang.Integer, int, int)
-	 */
-	public void setDimensionsWaveStart(Integer waveStart, int imageIndex,
-			int pixelsIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setDimensionsWaveStart(java.lang.Integer, int, int)
+     */
+    public void setDimensionsWaveStart(Integer waveStart, int imageIndex,
+            int pixelsIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] wave start: '%d'",
-        		imageIndex, pixelsIndex, waveStart));
+                "Setting Image[%d] Pixels[%d] wave start: '%d'",
+                imageIndex, pixelsIndex, waveStart));
         log.debug("NOTE: This field is unsupported/unused.");
-	}
+    }
 
-	public void setImagingEnvironmentTemperature(Float temperature,
-			int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setImagingEnvironmentTemperature(Float temperature,
+            int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setImagingEnvironmentAirPressure(Float airPressure,
-			int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setImagingEnvironmentAirPressure(Float airPressure,
+            int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setImagingEnvironmentHumidity(Float humidity, int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setImagingEnvironmentHumidity(Float humidity, int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setImagingEnvironmentCO2Percent(Float percent, int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setImagingEnvironmentCO2Percent(Float percent, int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int, int)
-	 */
-	public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
-			int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int, int)
+     */
+    public void setPlaneTheZ(Integer theZ, int imageIndex, int pixelsIndex,
+            int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] theZ: '%d'",
-        		imageIndex, pixelsIndex, planeIndex, theZ));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] theZ: '%d'",
+                imageIndex, pixelsIndex, planeIndex, theZ));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setTheZ(theZ);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int, int)
-	 */
-	public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
-			int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheC(java.lang.Integer, int, int, int)
+     */
+    public void setPlaneTheC(Integer theC, int imageIndex, int pixelsIndex,
+            int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] theC: '%d'",
-        		imageIndex, pixelsIndex, planeIndex, theC));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] theC: '%d'",
+                imageIndex, pixelsIndex, planeIndex, theC));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setTheC(theC);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int, int)
-	 */
-	public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
-			int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTheT(java.lang.Integer, int, int, int)
+     */
+    public void setPlaneTheT(Integer theT, int imageIndex, int pixelsIndex,
+            int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] theT: '%d'",
-        		imageIndex, pixelsIndex, planeIndex, theT));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] theT: '%d'",
+                imageIndex, pixelsIndex, planeIndex, theT));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setTheT(theT);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPlaneTimingDeltaT(java.lang.Float, int, int, int)
-	 */
-	public void setPlaneTimingDeltaT(Float deltaT, int imageIndex,
-			int pixelsIndex, int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTimingDeltaT(java.lang.Float, int, int, int)
+     */
+    public void setPlaneTimingDeltaT(Float deltaT, int imageIndex,
+            int pixelsIndex, int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] deltaT: '%f'",
-        		imageIndex, pixelsIndex, planeIndex, deltaT));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] deltaT: '%f'",
+                imageIndex, pixelsIndex, planeIndex, deltaT));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setTimestamp(deltaT);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setPlaneTimingExposureTime(java.lang.Float, int, int, int)
-	 */
-	public void setPlaneTimingExposureTime(Float exposureTime, int imageIndex,
-			int pixelsIndex, int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlaneTimingExposureTime(java.lang.Float, int, int, int)
+     */
+    public void setPlaneTimingExposureTime(Float exposureTime, int imageIndex,
+            int pixelsIndex, int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] exposure time: '%f'",
-        		imageIndex, pixelsIndex, planeIndex, exposureTime));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] exposure time: '%f'",
+                imageIndex, pixelsIndex, planeIndex, exposureTime));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setExposureTime(exposureTime);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setStagePositionPositionX(java.lang.Float, int, int, int)
-	 */
-	public void setStagePositionPositionX(Float positionX, int imageIndex,
-			int pixelsIndex, int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStagePositionPositionX(java.lang.Float, int, int, int)
+     */
+    public void setStagePositionPositionX(Float positionX, int imageIndex,
+            int pixelsIndex, int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] position X: '%f'",
-        		imageIndex, pixelsIndex, planeIndex, positionX));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position X: '%f'",
+                imageIndex, pixelsIndex, planeIndex, positionX));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setPositionX(positionX);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setStagePositionPositionY(java.lang.Float, int, int, int)
-	 */
-	public void setStagePositionPositionY(Float positionY, int imageIndex,
-			int pixelsIndex, int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStagePositionPositionY(java.lang.Float, int, int, int)
+     */
+    public void setStagePositionPositionY(Float positionY, int imageIndex,
+            int pixelsIndex, int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Y: '%f'",
-        		imageIndex, pixelsIndex, planeIndex, positionY));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Y: '%f'",
+                imageIndex, pixelsIndex, planeIndex, positionY));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setPositionY(positionY);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setStagePositionPositionZ(java.lang.Float, int, int, int)
-	 */
-	public void setStagePositionPositionZ(Float positionZ, int imageIndex,
-			int pixelsIndex, int planeIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setStagePositionPositionZ(java.lang.Float, int, int, int)
+     */
+    public void setStagePositionPositionZ(Float positionZ, int imageIndex,
+            int pixelsIndex, int planeIndex)
+    {
         log.debug(String.format(
-        		"Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Z: '%f'",
-        		imageIndex, pixelsIndex, planeIndex, positionZ));
+                "Setting Image[%d] Pixels[%d] PlaneInfo[%d] position Z: '%f'",
+                imageIndex, pixelsIndex, planeIndex, positionZ));
         PlaneInfo p = getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
         p.setPositionZ(positionZ);
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelName(java.lang.String, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelName(String name, int imageIndex,
-			int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelName(java.lang.String, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelName(String name, int imageIndex,
+            int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] name: '%s'",
-            		imageIndex, p, logicalChannelIndex, name));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] name: '%s'",
+                    imageIndex, p, logicalChannelIndex, name));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setName(name);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelSamplesPerPixel(java.lang.Integer, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelSamplesPerPixel(Integer samplesPerPixel,
-			int imageIndex, int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelSamplesPerPixel(java.lang.Integer, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelSamplesPerPixel(Integer samplesPerPixel,
+            int imageIndex, int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] samples per pixel: '%d'",
-            		imageIndex, p, logicalChannelIndex, samplesPerPixel));
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] samples per pixel: '%d'",
+                    imageIndex, p, logicalChannelIndex, samplesPerPixel));
             log.debug("NOTE: This field is unsupported/unused.");
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelIlluminationType(java.lang.String, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelIlluminationType(String illuminationType,
-			int imageIndex, int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelIlluminationType(java.lang.String, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelIlluminationType(String illuminationType,
+            int imageIndex, int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] illumination type: '%s'",
-            		imageIndex, p, logicalChannelIndex, illuminationType));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] illumination type: '%s'",
+                    imageIndex, p, logicalChannelIndex, illuminationType));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             Illumination iType = (Illumination) getEnumeration(
                     AcquisitionMode.class, illuminationType);
             lc.setIllumination(iType);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Integer, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelPinholeSize(Integer pinholeSize,
-			int imageIndex, int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPinholeSize(java.lang.Integer, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelPinholeSize(Integer pinholeSize,
+            int imageIndex, int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] pinhole size: '%d'",
-            		imageIndex, p, logicalChannelIndex, pinholeSize));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] pinhole size: '%d'",
+                    imageIndex, p, logicalChannelIndex, pinholeSize));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setPinHoleSize(pinholeSize);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelPhotometricInterpretation(java.lang.String, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelPhotometricInterpretation(
-			String photometricInterpretation, int imageIndex,
-			int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPhotometricInterpretation(java.lang.String, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelPhotometricInterpretation(
+            String photometricInterpretation, int imageIndex,
+            int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"photometric interpretation: '%s'",
-            		imageIndex, p, logicalChannelIndex, photometricInterpretation));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "photometric interpretation: '%s'",
+                    imageIndex, p, logicalChannelIndex, photometricInterpretation));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             PhotometricInterpretation pi = 
-            	(PhotometricInterpretation) getEnumeration(
+                (PhotometricInterpretation) getEnumeration(
                     PhotometricInterpretation.class, photometricInterpretation);
             lc.setPhotometricInterpretation(pi);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelMode(java.lang.String, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelMode(String mode, int imageIndex,
-			int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelMode(java.lang.String, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelMode(String mode, int imageIndex,
+            int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"channel mode: '%s'",
-            		imageIndex, p, logicalChannelIndex, mode));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "channel mode: '%s'",
+                    imageIndex, p, logicalChannelIndex, mode));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             AcquisitionMode m = 
-            	(AcquisitionMode) getEnumeration(AcquisitionMode.class, mode);
+                (AcquisitionMode) getEnumeration(AcquisitionMode.class, mode);
             lc.setMode(m);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelContrastMethod(java.lang.String, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelContrastMethod(String contrastMethod,
-			int imageIndex, int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelContrastMethod(java.lang.String, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelContrastMethod(String contrastMethod,
+            int imageIndex, int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"contrast method: '%s'",
-            		imageIndex, p, logicalChannelIndex, contrastMethod));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "contrast method: '%s'",
+                    imageIndex, p, logicalChannelIndex, contrastMethod));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             ContrastMethod m = (ContrastMethod) 
-            	getEnumeration(ContrastMethod.class, contrastMethod);
+                getEnumeration(ContrastMethod.class, contrastMethod);
             lc.setContrastMethod(m);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelExWave(java.lang.Integer, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelExWave(Integer exWave, int imageIndex,
-			int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelExWave(java.lang.Integer, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelExWave(Integer exWave, int imageIndex,
+            int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"excitation wavelength: '%d'",
-            		imageIndex, p, logicalChannelIndex, exWave));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "excitation wavelength: '%d'",
+                    imageIndex, p, logicalChannelIndex, exWave));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setExcitationWave(exWave);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelEmWave(java.lang.Integer, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelEmWave(Integer emWave, int imageIndex,
-			int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelEmWave(java.lang.Integer, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelEmWave(Integer emWave, int imageIndex,
+            int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"emission wavelength: '%d'",
-            		imageIndex, p, logicalChannelIndex, emWave));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "emission wavelength: '%d'",
+                    imageIndex, p, logicalChannelIndex, emWave));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setEmissionWave(emWave);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelFluor(java.lang.String, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelFluor(String fluor, int imageIndex,
-			int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelFluor(java.lang.String, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelFluor(String fluor, int imageIndex,
+            int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"fluor: '%s'",
-            		imageIndex, p, logicalChannelIndex, fluor));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "fluor: '%s'",
+                    imageIndex, p, logicalChannelIndex, fluor));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setFluor(fluor);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelNdFilter(java.lang.Float, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelNdFilter(Float ndFilter, int imageIndex,
-			int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelNdFilter(java.lang.Float, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelNdFilter(Float ndFilter, int imageIndex,
+            int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"ndFilter: '%f'",
-            		imageIndex, p, logicalChannelIndex, ndFilter));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "ndFilter: '%f'",
+                    imageIndex, p, logicalChannelIndex, ndFilter));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setNdFilter(ndFilter);
         }
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see loci.formats.meta.MetadataStore#setLogicalChannelPockelCellSetting(java.lang.Integer, int, int)
-	 */
-	@SuppressWarnings("unchecked")
-	public void setLogicalChannelPockelCellSetting(Integer pockelCellSetting,
-			int imageIndex, int logicalChannelIndex)
-	{
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setLogicalChannelPockelCellSetting(java.lang.Integer, int, int)
+     */
+    @SuppressWarnings("unchecked")
+    public void setLogicalChannelPockelCellSetting(Integer pockelCellSetting,
+            int imageIndex, int logicalChannelIndex)
+    {
         Image image = getImage(imageIndex);
         Iterator<Pixels> i = image.iteratePixels();
         while (i.hasNext())
         {
-        	Pixels p = i.next();
+            Pixels p = i.next();
             log.debug(String.format(
-            		"Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
-            		"pockel cell setting: '%d'",
-            		imageIndex, p, logicalChannelIndex, pockelCellSetting));
-            List<Channel> channels = p.getChannels();
+                    "Setting Image[%d] Pixels[%s] LogicalChannel[%d] " +
+                    "pockel cell setting: '%d'",
+                    imageIndex, p, logicalChannelIndex, pockelCellSetting));
             LogicalChannel lc = 
-            	channels.get(logicalChannelIndex).getLogicalChannel();
+                p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setPockelCellSetting(pockelCellSetting.toString());
             // FIXME: Should pockel cell be String or Integer?
         }
-	}
+    }
 
-	public void setArcPower(Float power, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setArcPower(Float power, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setArcType(String type, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setArcType(String type, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorGain(Float gain, int instrumentIndex,
-			int detectorIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorGain(Float gain, int instrumentIndex,
+            int detectorIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorManufacturer(String manufacturer,
-			int instrumentIndex, int detectorIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorManufacturer(String manufacturer,
+            int instrumentIndex, int detectorIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorModel(String model, int instrumentIndex,
-			int detectorIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorModel(String model, int instrumentIndex,
+            int detectorIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorOffset(Float offset, int instrumentIndex,
-			int detectorIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorOffset(Float offset, int instrumentIndex,
+            int detectorIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorSerialNumber(String serialNumber,
-			int instrumentIndex, int detectorIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorSerialNumber(String serialNumber,
+            int instrumentIndex, int detectorIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorSettingsGain(Float gain, int imageIndex,
-			int logicalChannelIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorSettingsGain(Float gain, int imageIndex,
+            int logicalChannelIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorSettingsOffset(Float offset, int imageIndex,
-			int logicalChannelIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorSettingsOffset(Float offset, int imageIndex,
+            int logicalChannelIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorType(String type, int instrumentIndex,
-			int detectorIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorType(String type, int instrumentIndex,
+            int detectorIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setDetectorVoltage(Float voltage, int instrumentIndex,
-			int detectorIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setDetectorVoltage(Float voltage, int instrumentIndex,
+            int detectorIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setExperimenterDataDirectory(String dataDirectory,
-			int experimenterIndex) {
+    public void setExperimenterDataDirectory(String dataDirectory,
+            int experimenterIndex) {
         log.debug(String.format(
                 "Admin only function: Ignoring dataDirectory[%s] experimenterIndex[%d] ",
                 dataDirectory, experimenterIndex)); 
-	}
+    }
 
-	public void setExperimenterEmail(String email, int experimenterIndex) {
+    public void setExperimenterEmail(String email, int experimenterIndex) {
         log.debug(String.format(
                 "Admin only function: Ignoring email[%s] experimenterIndex[%d] ",
                 email, experimenterIndex)); 
-	}
+    }
 
-	public void setExperimenterFirstName(String firstName, int experimenterIndex) {
+    public void setExperimenterFirstName(String firstName, int experimenterIndex) {
         log.debug(String.format(
                 "Admin only function: Ignoring firstName[%s] experimenterIndex[%d] ",
-                firstName, experimenterIndex));	
-	}
+                firstName, experimenterIndex)); 
+    }
 
-	public void setExperimenterInstitution(String institution,
-			int experimenterIndex) {
-	    log.debug(String.format(
+    public void setExperimenterInstitution(String institution,
+            int experimenterIndex) {
+        log.debug(String.format(
                 "Admin only function: Ignoring institution[%s] experimenterIndex[%d] ",
                 institution, experimenterIndex));
-	}
+    }
 
-	public void setExperimenterLastName(String lastName, int experimenterIndex) {
+    public void setExperimenterLastName(String lastName, int experimenterIndex) {
         log.debug(String.format(
                 "Admin only function: Ignoring lastName[%s] experimenterIndex[%d] ",
                 lastName, experimenterIndex)); 
-	}
+    }
 
-	public void setFilamentPower(Float power, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setFilamentPower(Float power, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setFilamentType(String type, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setFilamentType(String type, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLaserFrequencyMultiplication(
-			Integer frequencyMultiplication, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLaserFrequencyMultiplication(
+            Integer frequencyMultiplication, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLaserLaserMedium(String laserMedium, int instrumentIndex,
-			int lightSourceIndex) {
+    public void setLaserLaserMedium(String laserMedium, int instrumentIndex,
+            int lightSourceIndex) {
         log.debug(String.format(
                 "FIXME: Ignoring laserMedium[%s] instrumentIndex[%d] lightsourceMedium[%d] ",
                 laserMedium, instrumentIndex, lightSourceIndex));
-        // FIXME: Needs to be implemented when the model is relaxed.	
-	}
+        // FIXME: Needs to be implemented when the model is relaxed.    
+    }
 
-	public void setLaserPower(Float power, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLaserPower(Float power, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLaserPulse(String pulse, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLaserPulse(String pulse, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLaserTuneable(Boolean tuneable, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLaserTuneable(Boolean tuneable, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLaserType(String type, int instrumentIndex,
-			int lightSourceIndex) {
+    public void setLaserType(String type, int instrumentIndex,
+            int lightSourceIndex) {
         log.debug(String.format(
                 "FIXME: Ignoring type[%s] instrumentIndex[%d] lightsourceMedium[%d] ",
         type, instrumentIndex, lightSourceIndex));
         // FIXME: Needs to be implemented when the model is relaxed.
-	}
+    }
 
-	public void setLaserWavelength(Integer wavelength, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLaserWavelength(Integer wavelength, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLightSourceManufacturer(String manufacturer,
-			int instrumentIndex, int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLightSourceManufacturer(String manufacturer,
+            int instrumentIndex, int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLightSourceModel(String model, int instrumentIndex,
-			int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLightSourceModel(String model, int instrumentIndex,
+            int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLightSourceSerialNumber(String serialNumber,
-			int instrumentIndex, int lightSourceIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLightSourceSerialNumber(String serialNumber,
+            int instrumentIndex, int lightSourceIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLightSourceSettingsAttenuation(Float attenuation,
-			int imageIndex, int logicalChannelIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLightSourceSettingsAttenuation(Float attenuation,
+            int imageIndex, int logicalChannelIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setLightSourceSettingsWavelength(Integer wavelength,
-			int imageIndex, int logicalChannelIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setLightSourceSettingsWavelength(Integer wavelength,
+            int imageIndex, int logicalChannelIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
-			int instrumentIndex, int otfIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setOTFOpticalAxisAveraged(Boolean opticalAxisAveraged,
+            int instrumentIndex, int otfIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setOTFPath(String path, int instrumentIndex, int otfIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setOTFPath(String path, int instrumentIndex, int otfIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setOTFPixelType(String pixelType, int instrumentIndex,
-			int otfIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setOTFPixelType(String pixelType, int instrumentIndex,
+            int otfIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setOTFSizeX(Integer sizeX, int instrumentIndex, int otfIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setOTFSizeX(Integer sizeX, int instrumentIndex, int otfIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setOTFSizeY(Integer sizeY, int instrumentIndex, int otfIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setOTFSizeY(Integer sizeY, int instrumentIndex, int otfIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveCalibratedMagnification(
-			Float calibratedMagnification, int instrumentIndex,
-			int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveCalibratedMagnification(
+            Float calibratedMagnification, int instrumentIndex,
+            int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveCorrection(String correction, int instrumentIndex,
-			int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveCorrection(String correction, int instrumentIndex,
+            int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveImmersion(String immersion, int instrumentIndex,
-			int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveImmersion(String immersion, int instrumentIndex,
+            int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveLensNA(Float lensNA, int instrumentIndex,
-			int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveLensNA(Float lensNA, int instrumentIndex,
+            int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveManufacturer(String manufacturer,
-			int instrumentIndex, int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveManufacturer(String manufacturer,
+            int instrumentIndex, int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveModel(String model, int instrumentIndex,
-			int objectiveIndex) {
+    public void setObjectiveModel(String model, int instrumentIndex,
+            int objectiveIndex) {
         log.debug(String.format(
                 "FIXME: Ignoring model[%s] instrumentIndex[%d] objectiveIndex[%d] ",
                 model, instrumentIndex, objectiveIndex));
         // FIXME: Needs to be implemented when the model is relaxed.
-	}
+    }
 
-	public void setObjectiveNominalMagnification(Integer nominalMagnification,
-			int instrumentIndex, int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveNominalMagnification(Integer nominalMagnification,
+            int instrumentIndex, int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveSerialNumber(String serialNumber,
-			int instrumentIndex, int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveSerialNumber(String serialNumber,
+            int instrumentIndex, int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setObjectiveWorkingDistance(Float workingDistance,
-			int instrumentIndex, int objectiveIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setObjectiveWorkingDistance(Float workingDistance,
+            int instrumentIndex, int objectiveIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIT0(Integer t0, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIT0(Integer t0, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIT1(Integer t1, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIT1(Integer t1, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIX0(Integer x0, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIX0(Integer x0, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIX1(Integer x1, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIX1(Integer x1, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIY0(Integer y0, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIY0(Integer y0, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIY1(Integer y1, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIY1(Integer y1, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIZ0(Integer z0, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIZ0(Integer z0, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setROIZ1(Integer z1, int imageIndex, int roiIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setROIZ1(Integer z1, int imageIndex, int roiIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setStageLabelName(String name, int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setStageLabelName(String name, int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setStageLabelX(Float x, int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setStageLabelX(Float x, int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setStageLabelY(Float y, int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setStageLabelY(Float y, int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
-	public void setStageLabelZ(Float z, int imageIndex) {
-		throw new RuntimeException("Un-implemented.");
-		
-	}
+    public void setStageLabelZ(Float z, int imageIndex) {
+        throw new RuntimeException("Un-implemented.");
+        
+    }
 
     public void setDetectorSettingsDetector(Object detector, int imageIndex,
             int logicalChannelIndex)

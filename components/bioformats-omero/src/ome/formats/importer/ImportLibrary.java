@@ -233,8 +233,7 @@ public class ImportLibrary implements IObservable
             if (reader.getImageReader().isRGB())
             {
                 log.debug("Setting color channels to RGB format.");
-                List<Channel> c = pix.getChannels();
-                if (c.size() == 3)
+                if (pix.sizeOfChannels() == 3)
                 {
                     Color red = new Color();
                     red.setRed(255);
@@ -254,9 +253,9 @@ public class ImportLibrary implements IObservable
                     blue.setRed(0);
                     blue.setAlpha(255);            
                     
-                    c.get(0).setColorComponent(red);
-                    c.get(1).setColorComponent(green);
-                    c.get(2).setColorComponent(blue);
+                    pix.getChannel(0).setColorComponent(red);
+                    pix.getChannel(1).setColorComponent(green);
+                    pix.getChannel(2).setColorComponent(blue);
                 }
                 
             }
