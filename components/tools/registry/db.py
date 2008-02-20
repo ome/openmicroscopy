@@ -55,7 +55,7 @@ class iter:
 
     def __init__(self, conn):
         self.cursor = conn.cursor()
-        self.cursor.execute('SELECT ip.latitude, ip.longitude, hit.* FROM IP ip, HIT hit where hit.ip = ip.id')
+        self.cursor.execute('SELECT ip.latitude, ip.longitude, count(hit.ip), hit.ip FROM IP ip, HIT hit where hit.ip = ip.id group by hit.ip')
 
     def __iter__(self):
         return self.cursor

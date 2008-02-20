@@ -16,19 +16,18 @@ template = """
 
 def gethits():
     accessdb = db.accessdb()
-    hits = []
+    hits = {}
     try:
         for hit in accessdb:
             if hit[0] != "unknown":
-                hits.append("new YGeoPoint(%s, %s)" % (hit[0], hit[1]))
+                hits["new YGeoPoint(%s, %s)" % (hit[0], hit[1])] = hit[2]
     finally:
         accessdb.close()
     return hits
 
 
-def yahoo(locations = ["Dundee, Scotland"]):
+def yahoo(locations = {"Dundee, Scotland":1}):
     # Corey Goldberg, April 2007 (corey@goldb.org)
-    marker_size = 13
     zoom_level = 15
     height = '550px'
     width = '800px'
@@ -64,7 +63,15 @@ def yahoo(locations = ["Dundee, Scotland"]):
             map.addZoomLong();
             map.drawZoomAndCenter("%s", %d);""" % (height, width, map_type, center, zoom_level))
 
-    for location in locations:
+    for location, count in locations.iteritems():
+    	if count < 10:
+		marker_size = 13
+	elif count < 50:
+		marker_size = 16
+	elif count < 100:
+		marker_size = 20
+	else:
+		marker_size = 25
         fh.write("""
             map.addOverlay(new createYahooMarker(%s, %s));""" % (location.strip(), marker_size))
 
