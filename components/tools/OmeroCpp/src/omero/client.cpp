@@ -64,7 +64,14 @@ namespace omero {
     }
 
     Ice::RouterPrx prx = ic->getDefaultRouter();
+    if (!prx) {
+	throw omero::ClientError(__FILE__,__LINE__,"No default router found.")
+    }
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);
+    if (!router) {
+	throw omero::ClientError(__FILE__,__LINE__,"Error obtaining Glacier2 router.");
+    }
+
     Glacier2::SessionPrx session;
     session = router->createSession(username, password);
     sf = omero::api::ServiceFactoryPrx::checkedCast(session);
