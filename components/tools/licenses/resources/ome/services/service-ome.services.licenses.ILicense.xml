@@ -37,7 +37,7 @@
        SessionManager). Therefore, it is okay for the listener to have an
        internal proxy -->
   <bean id="licenseSessionListener" class="ome.services.licenses.LicenseSessionListener">
-    <property name="service" ref="internal:ome.services.licenses.ILicense"/>
+    <property name="service" ref="managed:ome.services.licenses.ILicense"/>
     <property name="securitySystem" ref="securitySystem"/>
     <property name="licenseWiring" ref="licenseWiring"/>
   </bean>

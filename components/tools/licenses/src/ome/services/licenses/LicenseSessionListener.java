@@ -72,7 +72,7 @@ public class LicenseSessionListener implements ApplicationListener {
     }
 
     protected void login(AbstractSessionMessage event) {
-        this.sec.login(new Principal(event.getSessionId(), "user", "Licenses"));
+        this.sec.login(new Principal(event.getSessionId(), "user", "Internal"));
     }
 
     protected void logout() {
