@@ -43,6 +43,8 @@ import omero.api.IPojosPrx;
 import omero.api.IPojosPrxHelper;
 import omero.api.IQueryPrx;
 import omero.api.IQueryPrxHelper;
+import omero.api.IRenderingSettingsPrx;
+import omero.api.IRenderingSettingsPrxHelper;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRepositoryInfoPrxHelper;
 import omero.api.ISessionPrx;
@@ -78,6 +80,7 @@ import omero.constants.QUERYSERVICE;
 import omero.constants.RAWFILESTORE;
 import omero.constants.RAWPIXELSSTORE;
 import omero.constants.RENDERINGENGINE;
+import omero.constants.RENDERINGSETTINGS;
 import omero.constants.REPOSITORYINFO;
 import omero.constants.SEARCH;
 import omero.constants.SESSIONSERVICE;
@@ -214,6 +217,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public IUpdatePrx getUpdateService(Ice.Current current) throws ServerError {
         return IUpdatePrxHelper.uncheckedCast(getByName(UPDATESERVICE.value,
                 current));
+    }
+
+    public IRenderingSettingsPrx getRenderingSettingsService(Ice.Current current)
+            throws ServerError {
+        return IRenderingSettingsPrxHelper.uncheckedCast(getByName(
+                RENDERINGSETTINGS.value, current));
     }
 
     public IRepositoryInfoPrx getRepositoryInfoService(Ice.Current current)

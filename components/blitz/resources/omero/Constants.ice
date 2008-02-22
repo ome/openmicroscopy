@@ -42,6 +42,7 @@ module omero {
     const string SEARCH           = "omero.api.Search";
     const string THUMBNAILSTORE   = "omero.api.ThumbnailStore";
     const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";
+    const string RENDERINGSETTINGS= "omero.api.IRenderingSettings";
 
     // User context for logging in
     const string USERNAME = "omero.user";

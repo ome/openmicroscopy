@@ -263,6 +263,22 @@ module omero {
 	void indexObject(omero::model::IObject row) throws ServerError;
       };
 
+    dictionary<bool, omero::sys::LongList> BooleanIdListMap;
+    interface IRenderingSettings extends ServiceInterface
+      {
+        omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
+        void resetDefaultsInImage(long imageId) throws ServerError;
+        omero::sys::LongList resetDefaultsInCategory(long categoryId) throws ServerError;
+        omero::sys::LongList resetDefaultsInDataset(long dataSetId) throws ServerError;
+        omero::sys::LongList resetDefaultsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
+        void applySettingsToSet(long from, string toType, IObjectList to) throws ServerError;
+        BooleanIdListMap applySettingsToProject(long from, long to) throws ServerError;
+        BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
+        BooleanIdListMap applySettingsToCategory(long from, long to) throws ServerError;
+        bool applySettingsToImage(long from, long to) throws ServerError;
+        bool applySettingsToPixel(long from, long to) throws ServerError;
+      };
+
     interface IRepositoryInfo extends ServiceInterface
       {
 	idempotent long getUsedSpaceInKilobytes() throws ServerError;
@@ -475,6 +491,7 @@ module omero {
 	IPixels*   getPixelsService() throws ServerError;
 	IPojos*    getPojosService() throws ServerError;
 	IQuery*    getQueryService() throws ServerError;
+        IRenderingSettings* getRenderingSettingsService() throws ServerError;
 	IRepositoryInfo* getRepositoryInfoService() throws ServerError;
 	ISession*  getSessionService() throws ServerError;
 	ITypes*    getTypesService() throws ServerError;
