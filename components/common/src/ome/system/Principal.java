@@ -39,13 +39,13 @@ public class Principal implements java.security.Principal, Serializable {
     protected Permissions umask;
 
     /**
-     * Creates a Principal with group name of "user" and event type of
-     * "Default".
+     * Creates a Principal with null group and event type. These must be taken
+     * from the session.
      * 
      * @param name
      */
     public Principal(String name) {
-        this(name, "user", "Default");
+        this(name, null, null);
     }
 
     public Principal(String name, String group, String eventType) {
