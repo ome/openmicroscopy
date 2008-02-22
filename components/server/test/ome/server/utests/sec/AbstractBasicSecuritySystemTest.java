@@ -74,6 +74,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         sec.setSessionManager(mgr);
         sec.setUpdateService((LocalUpdate) sf.getUpdateService());
         sec.setQueryService((LocalQuery) sf.getQueryService());
+        sec.setAdminService((LocalAdmin) sf.getAdminService());
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {
@@ -105,10 +106,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr.expects(atLeastOnce()).method("getEventContext").will(
                 returnValue(ec));
 
-        if (!readOnly) {
-            sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
-                    returnValue(event));
-        }
+        doReadOnly(readOnly);
 
     }
 
@@ -141,7 +139,15 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr.expects(atLeastOnce()).method("getEventContext").will(
                 returnValue(ec));
 
+        doReadOnly(readOnly);
+    }
+
+    protected void doReadOnly(boolean readOnly) {
         if (!readOnly) {
+            sf.mockAdmin.expects(once()).method("userProxy").will(
+                    returnValue(user));
+            sf.mockAdmin.expects(once()).method("groupProxy").will(
+                    returnValue(group));
             sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
                     returnValue(event));
         }

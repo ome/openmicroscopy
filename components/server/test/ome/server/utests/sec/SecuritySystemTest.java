@@ -80,12 +80,13 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         } catch (ApiUsageException api) {
         }
         ;
-        try {
-            sec.disableReadFilter(null);
-            fail("Should throw ApiUsage");
-        } catch (ApiUsageException api) {
-        }
-        ;
+        // See documentation in method. No longer throws
+        // try {
+        // sec.disableReadFilter(null);
+        // fail("Should throw ApiUsage");
+        // } catch (ApiUsageException api) {
+        // }
+        // ;
         try {
             sec.newTransientDetails(null);
             fail("Should throw ApiUsage");
@@ -465,11 +466,12 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         } catch (ApiUsageException api) {
         }
         ;
-        try {
-            sec.disableReadFilter(null);
-            fail("Should throw ApiUsage");
-        } catch (ApiUsageException api) {
-        }
+        // See documentation in method. No longer throws.
+        // try {
+        // sec.disableReadFilter(null);
+        // fail("Should throw ApiUsage");
+        // } catch (ApiUsageException api) {
+        // }
         ;
         try {
             sec.newTransientDetails(null);

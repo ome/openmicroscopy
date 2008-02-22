@@ -9,11 +9,13 @@ package ome.server.itests;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 import javax.ejb.SessionContext;
 import javax.interceptor.InvocationContext;
 
+import ome.logic.HardWiredInterceptor;
 import ome.logic.QueryImpl;
 import ome.services.RenderingBean;
 import ome.services.util.OmeroAroundInvoke;
@@ -59,12 +61,32 @@ public class Wrap extends OmeroAroundInvoke {
 
     final Principal p;
 
+    final Backdoor backdoor;
+
     public Wrap(final String user, final Backdoor backdoor) throws Exception {
         this(new Principal(user, "user", "Test"), backdoor);
     }
 
+    public Wrap(List<HardWiredInterceptor> cptors, String user,
+            Backdoor backdoor) throws Exception {
+        this(cptors, new Principal(user, "user", "Test"), backdoor);
+    }
+
     public Wrap(final Principal p, final Backdoor backdoor) throws Exception {
         this.p = p;
+        this.backdoor = backdoor;
+        init();
+    }
+
+    public Wrap(final List<HardWiredInterceptor> cptors, final Principal p,
+            final Backdoor backdoor) throws Exception {
+        super(cptors);
+        this.p = p;
+        this.backdoor = backdoor;
+        init();
+    }
+
+    public void init() throws Exception {
         sessionContext();
         InvocationContext ic = new InvocationContext() {
             public Object getTarget() {
