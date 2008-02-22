@@ -51,14 +51,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
     Parameters noFilter;
 
     public void testQueryReturnsCounts() throws Exception {
-        Dataset d = new Dataset("name");
-        Image i = new Image("name");
-        TextAnnotation t = new TextAnnotation();
-        t.setName("");
-        t.setTextValue("t");
-        d.linkImage(i);
-        d.linkAnnotation(t);
-        d = iUpdate.saveAndReturnObject(d);
+        Dataset d = createDataset();
 
         long self = iAdmin.getEventContext().getCurrentUserId();
 
@@ -70,16 +63,13 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
     }
 
     public void testQueryReturnsCountsForTwoLevels() throws Exception {
+        Dataset d = createDataset();
         Project p = new Project("name");
-        Dataset d = new Dataset("name");
-        Image i = new Image("name");
         TextAnnotation t = new TextAnnotation();
         t.setName("");
         t.setTextValue("t");
         p.linkDataset(d);
         p.linkAnnotation(t);
-        d.linkImage(i);
-        d.linkAnnotation(t);
         p = iUpdate.saveAndReturnObject(p);
 
         long self = iAdmin.getEventContext().getCurrentUserId();
@@ -96,4 +86,42 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         assertTrue(d.getImageLinksCountPerOwner().get(self).longValue() == 1L);
 
     }
+
+    @Test(groups = "ticket:882")
+    public void testDatasetImageCounts() throws Exception {
+        Dataset d = createDataset();
+        Set<Dataset> ds = this.iPojos.loadContainerHierarchy(Dataset.class,
+                Collections.singleton(d.getId()), null);
+        assertTrue(ds.size() == 1);
+        d = ds.iterator().next();
+        assertTrue(d.getImageLinksCountPerOwner() != null);
+        assertTrue(d.getAnnotationLinksCountPerOwner() != null);
+
+        // With leaves
+        ds = this.iPojos.loadContainerHierarchy(Dataset.class, Collections
+                .singleton(d.getId()), new PojoOptions().leaves().map());
+        assertTrue(ds.size() == 1);
+        d = ds.iterator().next();
+        assertTrue(d.getImageLinksCountPerOwner() != null);
+        assertTrue(d.getAnnotationLinksCountPerOwner() != null);
+        Image i = d.linkedImageIterator().next();
+        assertTrue(i.toString(), i.getAnnotationLinksCountPerOwner() != null);
+    }
+
+    // Helpers
+    // =======================================
+
+    private Dataset createDataset() {
+        Dataset d = new Dataset("name");
+        Image i = new Image("name");
+        TextAnnotation t = new TextAnnotation();
+        t.setName("");
+        t.setTextValue("t");
+        i.linkAnnotation(t);
+        d.linkImage(i);
+        d.linkAnnotation(t);
+        d = iUpdate.saveAndReturnObject(d);
+        return d;
+    }
+
 }

@@ -7,7 +7,9 @@
 package ome.server.itests.query.pojos;
 
 import java.util.Collections;
+import java.util.Set;
 
+import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -22,14 +24,14 @@ import org.testng.annotations.Test;
 public class FindContainersQueryTest extends AbstractManagedContextTest {
     PojosLoadHierarchyQueryDefinition q;
 
-    @Test(groups = "ticket;735")
+    @Test(groups = "ticket:735")
     public void testCheckWithoutPixels() throws Exception {
         long id = createImage();
         this.iPojos.findContainerHierarchies(Project.class, Collections
                 .singleton(id), null);
     }
 
-    @Test(groups = "ticket;735")
+    @Test(groups = "ticket:735")
     public void testCheckWithPixels() throws Exception {
         long id = createImage();
         createPixelsFromImage(id, false);
@@ -37,7 +39,7 @@ public class FindContainersQueryTest extends AbstractManagedContextTest {
                 .singleton(id), null);
     }
 
-    @Test(groups = "ticket;735")
+    @Test(groups = "ticket:735")
     public void testCheckWithDefaultPixels() throws Exception {
         long id = createImage();
         createPixelsFromImage(id, true);

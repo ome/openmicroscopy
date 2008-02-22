@@ -91,6 +91,13 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
     // ~ READ
     // =========================================================================
 
+    final static String loadCountsImages = "select img from Image img "
+            + "left outer join fetch img.annotationLinksCountPerOwner iac "
+            + "where img in (:list)";
+    final static String loadCountsDatasets = "select d from Dataset d "
+            + "left outer join fetch d.annotationLinksCountPerOwner "
+            + "left outer join fetch d.imageLinksCountPerOwner where d in (:list)";
+
     @RolesAllowed("user")
     @Transactional(readOnly = true)
     public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIds,
@@ -119,6 +126,8 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 new Parameters().addClass(rootNodeType).addIds(rootNodeIds)
                         .addOptions(po.map()));
         List<IObject> l = iQuery.execute(q);
+
+        // WORKAROUND ticket:882
         if (Project.class.equals(rootNodeType)) {
             Set<Dataset> datasets = new HashSet<Dataset>();
             for (IObject o : l) {
@@ -126,12 +135,18 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 datasets.addAll(p.linkedDatasetList());
             }
             if (datasets.size() > 0) {
-                iQuery
-                        .findAllByQuery(
-                                "select d from Dataset d "
-                                        + "left outer join fetch d.annotationLinksCountPerOwner "
-                                        + "left outer join fetch d.imageLinksCountPerOwner where d in (:list)",
-                                new Parameters().addSet("list", datasets));
+                iQuery.findAllByQuery(loadCountsDatasets, new Parameters()
+                        .addSet("list", datasets));
+            }
+        } else if (Dataset.class.isAssignableFrom(rootNodeType)) {
+            Set<Image> images = new HashSet<Image>();
+            for (IObject o : l) {
+                Dataset d = (Dataset) o;
+                images.addAll(d.linkedImageList());
+            }
+            if (images.size() > 0) {
+                iQuery.findAllByQuery(loadCountsImages, new Parameters()
+                        .addSet("list", images));
             }
         }
         return new HashSet<IObject>(l);
