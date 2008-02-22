@@ -38,37 +38,41 @@ import org.springframework.context.ApplicationContextAware;
 /**
  * Used to configure this instance in Spring. This is the first non-service
  * component which has needed self-configuration. These needs to be cleaned up.
+ * 
  * @DEV.TODO Should all make a ComponentInterface and SelfConfigurableComponent.
  *           compare to {@link HardWiredInterceptor}
  */
-interface OmeroAroundInvokeName extends ServiceInterface {}
+interface OmeroAroundInvokeName extends ServiceInterface {
+}
 
 /**
- * JavaEE interceptor which applies {@link HardWiredInterceptor}
- * instances to every invocation. These instances are compiled in via
- * server/build.xml.  See etc/*.properties for information on which
- * interceptors are configured.
- *
+ * JavaEE interceptor which applies {@link HardWiredInterceptor} instances to
+ * every invocation. These instances are compiled in via server/build.xml. See
+ * etc/*.properties for information on which interceptors are configured.
+ * 
  * @author Josh Moore, josh.moore at gmx.de
  * @since 3.0-Beta2
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationContextAware {
+public class OmeroAroundInvoke implements SelfConfigurableService,
+        ApplicationContextAware {
 
-    private transient BeanHelper beanHelper = new BeanHelper(this.getClass());
-    
-    /** Interceptors that are determinined at compile time by server/build.xml
-     *  The string "ome.security.basic.BasicSecurityWiring" may be replaced by a
-     *  comma separated list of strings representing the class names of 
-     *  HardWiredInterceptor subclasses which are prepended to the list of
-     *  interceptors for each call. Note: these interceptors will NOT be applied
-     *  to server internal calls.
+    private transient final BeanHelper beanHelper = new BeanHelper(this
+            .getClass());
+
+    /**
+     * Interceptors that are determinined at compile time by server/build.xml
+     * The string "ome.security.basic.BasicSecurityWiring" may be replaced by a
+     * comma separated list of strings representing the class names of
+     * HardWiredInterceptor subclasses which are prepended to the list of
+     * interceptors for each call. Note: these interceptors will NOT be applied
+     * to server internal calls.
      */
     private final static List<HardWiredInterceptor> CPTORS = HardWiredInterceptor
-            .parse(new String[] { "ome.security.basic.BasicSecurityWiring"});
+            .parse(new String[] { "ome.security.basic.BasicSecurityWiring" });
 
-    private transient Log logger = LogFactory.getLog(this.getClass());
+    private transient final Log logger = LogFactory.getLog(this.getClass());
 
     private transient OmeroContext applicationContext;
 
@@ -77,6 +81,8 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
     private transient SecuritySystem securitySystem;
 
     private transient QueryFactory queryFactory;
+
+    private transient final List<HardWiredInterceptor> cptors;
 
     private @Resource
     SessionContext sessionContext;
@@ -88,10 +94,20 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
      * call {@link #selfConfigure()} in the constructor.
      */
     public OmeroAroundInvoke() {
-        selfConfigure();
-        HardWiredInterceptor.configure(CPTORS, applicationContext);
+        this(CPTORS);
     }
-    
+
+    /**
+     * Constructor mainly for testing. Takes a {@link List} of
+     * {@link HardWiredInterceptor} instances, which are normally compiled into
+     * this class as {@link #CPTORS}.
+     */
+    public OmeroAroundInvoke(List<HardWiredInterceptor> cptors) {
+        this.cptors = cptors;
+        selfConfigure();
+        HardWiredInterceptor.configure(cptors, applicationContext);
+    }
+
     public void selfConfigure() {
         beanHelper.configure(this);
     }
@@ -99,7 +115,7 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
     public Class<? extends ServiceInterface> getServiceInterface() {
         return OmeroAroundInvokeName.class;
     }
-    
+
     // ~ Invocation.
     // =========================================================================
 
@@ -127,20 +143,21 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
         Object bean = context.getTarget();
         if (bean instanceof SelfConfigurableService) {
             SelfConfigurableService service = (SelfConfigurableService) bean;
-            String factoryName = "&managed:" + service.getServiceInterface().getName();
+            String factoryName = "&managed:"
+                    + service.getServiceInterface().getName();
             AOPAdapter adapter = AOPAdapter.create(
                     (ProxyFactoryBean) applicationContext.getBean(factoryName),
-                    context, CPTORS);
+                    context, cptors);
             Object o = sessionContext.getCallerPrincipal();
             if (!(o instanceof ome.system.Principal)) {
                 throw new ApiUsageException("Callers must provide an instance "
                         + "of ome.system.Principal for login.");
             }
-            
+
             HardWiredInterceptor.initializeUserAttributes(adapter,
                     serviceFactory, (Principal) sessionContext
-                    .getCallerPrincipal());
-            
+                            .getCallerPrincipal());
+
             return adapter.proceed();
         } else {
             throw new InternalException("Bean is not self-configurable.");
@@ -150,14 +167,17 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
 
     // ~ Injection
     // =========================================================================
-    
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        beanHelper.throwIfAlreadySet(this.applicationContext, applicationContext);
+
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        beanHelper.throwIfAlreadySet(this.applicationContext,
+                applicationContext);
         this.applicationContext = (OmeroContext) applicationContext;
     }
 
     /**
-     * @param queryFactory the queryFactory to set
+     * @param queryFactory
+     *            the queryFactory to set
      */
     public void setQueryFactory(QueryFactory queryFactory) {
         beanHelper.throwIfAlreadySet(this.queryFactory, queryFactory);
@@ -165,7 +185,8 @@ public class OmeroAroundInvoke implements SelfConfigurableService, ApplicationCo
     }
 
     /**
-     * @param securitySystem the securitySystem to set
+     * @param securitySystem
+     *            the securitySystem to set
      */
     public void setSecuritySystem(SecuritySystem securitySystem) {
         beanHelper.throwIfAlreadySet(this.securitySystem, securitySystem);
