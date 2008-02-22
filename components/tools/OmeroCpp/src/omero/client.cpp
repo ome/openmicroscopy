@@ -65,7 +65,7 @@ namespace omero {
 
     Ice::RouterPrx prx = ic->getDefaultRouter();
     if (!prx) {
-	throw omero::ClientError(__FILE__,__LINE__,"No default router found.")
+	throw omero::ClientError(__FILE__,__LINE__,"No default router found.");
     }
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);
     if (!router) {
