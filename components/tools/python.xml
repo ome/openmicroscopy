@@ -2,8 +2,9 @@
 <project name="python" default="install" basedir=".">
 
     <property environment="py"/>
-    <property name="py.DESTDIR"  value="${up-two}/target/"/>
-    <property name="py.ICE_HOME" value="/usr/share/Ice"/>
+    <property name="py.DESTDIR"    value="${up-two}/target/"/>
+    <property name="py.ICE_HOME"   value="/usr/share/Ice"/>
+    <property name="py.ICE_CONFIG" value="${basedir}/../../blitz/resources/ice.config,${basedir}/../../../etc/local.properties"/>
 
     <macrodef name="setup_py">
         <element name="args" implicit="true"/>
@@ -48,7 +49,7 @@
 
     <target name="python-integration" unless="py.NOPYTHON">
         <setup_py>
-            <env key="ICE_CONFIG" value="${basedir}/../../blitz/resources/ice.config,${basedir}/../../../etc/local.properties"/>
+            <env key="ICE_CONFIG" value="${py.ICE_CONFIG}"/>
             <arg value="test"/>
             <arg value="-s"/>
             <arg value="test.integration.suite"/>
