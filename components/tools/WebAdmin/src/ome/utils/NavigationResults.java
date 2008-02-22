@@ -36,5 +36,10 @@ public interface NavigationResults {
      * Logout
      */
     public static final String LOGOUT = "logout";
+    
+    /**
+     * Expired
+     */
+    public static final String EXPIRED = "expired";
 
 }

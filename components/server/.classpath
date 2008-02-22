@@ -79,5 +79,7 @@
 	<classpathentry kind="lib" path="target/libs/jug.jar"/>
 	<classpathentry kind="lib" path="target/libs/mule.jar"/>
 	<classpathentry kind="lib" path="target/libs/smack.jar"/>
+	<classpathentry kind="lib" path="target/libs/activation.jar"/>
+	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

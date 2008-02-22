@@ -32,6 +32,9 @@ import ome.model.enums.PixelsType;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.system.Login;
+import ome.system.Server;
+import ome.system.ServiceFactory;
 
 import org.apache.log4j.Logger;
 
@@ -97,17 +100,31 @@ public class ConnectionDB {
         this.userid = lb.getId();
 
         try {
-            adminService = lb.getAdminServices();
-            typesService = lb.getTypesServices();
-            queryService = lb.getQueryServices();
-            repService = lb.getRepServices();
-            ldapService = lb.getLdapServices();
+            this.adminService = lb.getAdminServices();
+            this.typesService = lb.getTypesServices();
+            this.queryService = lb.getQueryServices();
+            this.repService = lb.getRepServices();
+            this.ldapService = lb.getLdapServices();
         } catch (Exception e) {
             logger.error("ConnectionDB exception: " + e.getMessage());
 
         }
     }
-
+    
+    /**
+     * Creates a new instance of ConnectionDB for guest.
+     */
+    public ConnectionDB(String server, int port) {
+        try {
+            Login l = new Login("guest", "guest", "guest", "User");
+            Server s = new Server(server, port);
+            ServiceFactory sf = new ServiceFactory(s, l);
+            this.adminService = sf.getAdminService();
+        } catch (Exception e) {
+            logger.error("ConnectionDB Guest exception: " + e.getMessage());
+        }
+    }
+    
     // -----------------------------------------------------------------------
 
     /**
@@ -456,6 +473,10 @@ public class ConnectionDB {
      * IAdmin interface
      */
 
+    public void reportForgottenPassword(String omeName, String email) {
+            adminService.reportForgottenPassword(omeName, email);
+    }
+    
     /**
      * Changs the password for current {@link ome.model.meta.Experimenter}.
      * 

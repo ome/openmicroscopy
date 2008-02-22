@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.jboss.security.Util;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -48,6 +49,31 @@ public abstract class PasswordUtil {
         System.out.println(preparePassword(args[0]));
     }
 
+    public static String generateRandomPasswd() {
+        StringBuffer buffer = new StringBuffer();
+        Random random = new Random();
+        char[] chars = new char[] { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+                'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
+                'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'c',
+                'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r',
+                's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+        for ( int i = 0; i < 10; i++ ) {
+            buffer.append(chars[random.nextInt(chars.length)]);
+        }
+        return buffer.toString();
+    }
+    
+    public static String getDnById(SimpleJdbcOperations jdbc, Long id) {
+        String expire;
+        try {
+            expire = jdbc.queryForObject("select dn from password " +
+                "where experimenter_id = ? ", String.class, id);
+        } catch (EmptyResultDataAccessException e) {
+            expire = null; // This means there's not one.
+        }
+        return expire;
+    }
+    
     public static void changeUserPasswordById(SimpleJdbcOperations jdbc, Long id,
             String password) {
         int results = jdbc.update("update password set hash = ? "

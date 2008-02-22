@@ -78,6 +78,9 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -152,7 +155,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     protected transient SessionFactory sf;
 
     protected transient OmeroContext context;
-
+    
+    protected transient MailSender mailSender;
+    
+    protected transient SimpleMailMessage templateMessage;
+    
     /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
         getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
@@ -170,6 +177,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.context = (OmeroContext) ctx;
     }
 
+    public void setMailSender(MailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
+    public void setTemplateMessage(SimpleMailMessage templateMessage) {
+        this.templateMessage = templateMessage;
+    }
+    
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IAdmin.class;
     }
@@ -889,20 +904,50 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         sec.runAsAdmin(new AdminAction() {
             public void runAsAdmin() {
                 Experimenter e = iQuery.findByString(Experimenter.class,
-                        "name", name);
+                        "omeName", name);
                 if (e.getEmail() == null) {
                     throw new AuthenticationException(
                             "User has no email address.");
                 } else if (!e.getEmail().equals(email)) {
                     throw new AuthenticationException(
                             "Email address does not match.");
+                } else if (isDnById(e.getId())) {
+                    throw new AuthenticationException(
+                            "User is authenticated by LDAP server you cannot reset this password.");
                 } else {
-                    throw new UnsupportedOperationException(
-                            "Not yet implemented.");
+                    String passwd = PasswordUtil.generateRandomPasswd();
+                    sendEmail(e, passwd);  
+                    changeUserPassword(e.getOmeName(), passwd);
                 }
             }
         });
+    }   
 
+    private boolean isDnById(long id) {
+        String dn = PasswordUtil.getDnById(jdbc, id);
+        if (dn != null)
+            return true;    
+        else 
+            return false;
+    }
+    
+    private boolean sendEmail(Experimenter e, String newPassword) {
+        // Create a thread safe "copy" of the template message and customize it
+        SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
+        msg.setSubject("OMERO - Reset password");
+        msg.setTo(e.getEmail());
+        msg.setText("Dear " + e.getFirstName() + " " + e.getLastName() + " ("
+                + e.getOmeName() + ")" + " your new password is: "
+                + newPassword);
+        try {
+            this.mailSender.send(msg);
+        } catch (Exception ex) {
+            throw new RuntimeException("Password was not changed because email " +
+                    "could not be sent to the " + e.getOmeName()+". Please turn on " +
+                    "the debuge mode in omero.properties by the: " +
+                    "omero.resetpassword.mail.debug=true");
+        }
+        return true;
     }
 
     @PermitAll

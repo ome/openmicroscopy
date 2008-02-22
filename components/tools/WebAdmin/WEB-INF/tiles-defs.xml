@@ -20,6 +20,20 @@
 		<put name="footer" value="/WEB-INF/layout/footer.jsp" />
 	</definition>
 	
+	<definition name=".forgottenPassword" path="/WEB-INF/layout/login.jsp">
+		<put name="title" value="OMERO Admin Panel - Forgotten Password" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/forgottenPassword.jsp" />
+		<put name="footer" value="/WEB-INF/layout/footer.jsp" />
+	</definition>
+	
+	<definition name=".expiredPassword" path="/WEB-INF/layout/login.jsp">
+		<put name="title" value="OMERO Admin Panel - Expired Password" />
+		<put name="content" type="page"
+			value="/WEB-INF/pages/expiredPassword.jsp" />
+		<put name="footer" value="/WEB-INF/layout/footer.jsp" />
+	</definition>
+	
 	<definition name=".mainLayout" path="/WEB-INF/layout/layout.jsp">
 		<put name="header" value="/WEB-INF/layout/header.jsp" />
 		<put name="content" value="/WEB-INF/layout/center.jsp" />

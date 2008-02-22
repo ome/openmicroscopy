@@ -93,7 +93,7 @@
 		</navigation-case>
 	</navigation-rule>
 
-	<!-- enumerationAddForm.jsp navigation -->
+	<!-- enumerationEditForm.jsp navigation -->
 	<navigation-rule>
 		<from-view-id>/enumerationEditForm.jsp</from-view-id>
 		<navigation-case>
@@ -108,7 +108,7 @@
 		</navigation-case>
 	</navigation-rule>
 	
-		<!-- enumerationAddForm.jsp navigation -->
+	<!-- enumerationAddForm.jsp navigation -->
 	<navigation-rule>
 		<from-view-id>/enumerationAddForm.jsp</from-view-id>
 		<navigation-case>
@@ -252,6 +252,31 @@
 			<from-outcome>account</from-outcome>
 			<to-view-id>/myAccount.jsp</to-view-id>
 		</navigation-case>
+		<navigation-case>
+			<from-action>#{LoginBean.login}</from-action>
+			<from-outcome>expired</from-outcome>
+			<to-view-id>/expiredPassword.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+	<!-- forgottenPassword.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/forgottenPassword.jsp</from-view-id>
+		<navigation-case>
+		    <from-action>#{PasswordBean.resetPassword}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/login.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+	
+	<!-- expiredPassword.jsp navigation -->
+	<navigation-rule>
+		<from-view-id>/expiredPassword.jsp</from-view-id>
+		<navigation-case>
+		    <from-action>#{PasswordBean.expiredPassword}</from-action>
+			<from-outcome>success</from-outcome>
+			<to-view-id>/experimenters.jsp</to-view-id>
+		</navigation-case>		
 	</navigation-rule>
 	
 	<!-- login.jsp navigation -->
@@ -399,7 +424,7 @@
 		</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
-
+	
 	<!-- ImportConntroller -->
 	<managed-bean>
 		<managed-bean-name>TreeBean</managed-bean-name>
@@ -407,6 +432,15 @@
 			ome.admin.controller.ImportController
 		</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
+		
+	<!--ExpirePasswordBean -->
+	<managed-bean>
+		<managed-bean-name>PasswordBean</managed-bean-name>
+		<managed-bean-class>
+			ome.admin.controller.PasswordController
+		</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
 
 </faces-config>

@@ -25,6 +25,7 @@ import ome.api.IQuery;
 import ome.api.IRepositoryInfo;
 import ome.api.ISession;
 import ome.api.ITypes;
+import ome.client.OutOfService;
 import ome.model.meta.Session;
 import ome.system.EventContext;
 import ome.system.Login;
@@ -79,7 +80,7 @@ public class LoginBean implements java.io.Serializable {
      * Not null
      */
     private Long sessionId;
-    
+
     /**
      * Not null.
      */
@@ -94,7 +95,7 @@ public class LoginBean implements java.io.Serializable {
      * IAdmin
      */
     private IAdmin adminService;
-    
+
     /**
      * ISession
      */
@@ -119,7 +120,7 @@ public class LoginBean implements java.io.Serializable {
      * ILdap
      */
     private ILdap ldapService;
-    
+
     /**
      * log4j logger
      */
@@ -207,12 +208,13 @@ public class LoginBean implements java.io.Serializable {
 
     /**
      * Gets session id
+     * 
      * @return Long
      */
     public Long getSessionId() {
         return this.sessionId;
     }
-    
+
     /**
      * Gets server
      * 
@@ -298,7 +300,7 @@ public class LoginBean implements java.io.Serializable {
     public ISession getSessionServices() {
         return this.sessionService;
     }
-    
+
     /**
      * Get {@link ome.api.IType}
      * 
@@ -325,7 +327,7 @@ public class LoginBean implements java.io.Serializable {
     public IRepositoryInfo getRepServices() {
         return this.repService;
     }
-    
+
     /**
      * Get {@link ome.api.ILdap}
      * 
@@ -362,14 +364,23 @@ public class LoginBean implements java.io.Serializable {
                 this.queryService = sf.getQueryService();
                 this.repService = sf.getRepositoryInfoService();
                 this.ldapService = sf.getLdapService();
-                if(!ldapService.getSetting())
+                if (!ldapService.getSetting())
                     ldapService = null;
-                
+
                 jsfnav = NavigationResults.SUCCESS;
                 logger.info("Admin role for user "
                         + adminService.getEventContext().getCurrentUserId());
+            } catch (OutOfService ex) {
+                logger
+                        .info("Authentication not succesfule - cannot create session:"
+                                + ex.getMessage());
+                FacesContext context = FacesContext.getCurrentInstance();
+                FacesMessage message = new FacesMessage(
+                        "Cannot create session: " + ex.getMessage());
+                context.addMessage("loginForm", message);
+                this.mode = false;
+                return NavigationResults.FALSE;
             } catch (Exception e) {
-
                 Login l = new Login(username, password, "user", "User");
                 Server s = new Server(server, port);
                 ServiceFactory sf = new ServiceFactory(s, l);
@@ -379,14 +390,13 @@ public class LoginBean implements java.io.Serializable {
                 jsfnav = NavigationResults.ACCOUNT;
                 logger.info("User role for user "
                         + adminService.getEventContext().getCurrentUserId());
-
             }
 
             EventContext ctx = this.adminService.getEventContext();
             this.id = ctx.getCurrentUserId().toString();
             this.sessionId = ctx.getCurrentSessionId();
             this.role = ctx.isCurrentUserAdmin();
-            this.mode = true;            
+            this.mode = true;
             logger.info("Authentication succesfule");
             return jsfnav;
         } catch (EJBAccessException e) {
@@ -411,7 +421,7 @@ public class LoginBean implements java.io.Serializable {
         }
 
     }
-    
+
     /**
      * Provides action for navigation rule "logout" what is described in the
      * faces-config.xml file.
@@ -420,17 +430,22 @@ public class LoginBean implements java.io.Serializable {
      */
     public String logout() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
-        
+
         LoginBean lb = (LoginBean) facesContext.getApplication()
-        .getVariableResolver().resolveVariable(facesContext,
-                "LoginBean");
+                .getVariableResolver().resolveVariable(facesContext,
+                        "LoginBean");
         Session s = queryService.find(Session.class, lb.getSessionId());
         lb.getSessionServices().closeSession(s);
-        
-        HttpSession session = (HttpSession)facesContext.getExternalContext().getSession(false);
 
-        if (session != null) 
+        HttpSession session = (HttpSession) facesContext.getExternalContext()
+                .getSession(false);
+
+        if (session != null)
             session.invalidate();
+
+        FacesMessage message = new FacesMessage("Loged out.");
+        facesContext.addMessage("loginForm", message);
+
         return NavigationResults.LOGOUT;
     }
 
