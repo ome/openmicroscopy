@@ -555,22 +555,19 @@ public class BasicSecuritySystem implements SecuritySystem {
                     previousDetails, currentDetails, newDetails);
 
             // implies that Permissions dosn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) 
-            {
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
                 altered |= managedPermissions(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
 
             // implies that owner doesn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass()))
-            {
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
                 altered |= managedOwner(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
-         
+
             // implies that group doesn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass()))
-            {
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
                 altered |= managedGroup(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
@@ -579,8 +576,7 @@ public class BasicSecuritySystem implements SecuritySystem {
             // whether or not it is necessary to change the updateEvent
             // (i.e. last modification)
             // implies that event doesn't matter
-            if (!IGlobal.class.isAssignableFrom(iobj.getClass()))
-            {
+            if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
                 altered |= managedEvent(locked, privileged, iobj,
                         previousDetails, currentDetails, newDetails);
             }
@@ -1003,7 +999,11 @@ public class BasicSecuritySystem implements SecuritySystem {
         }
 
         // Event
-        EventType type = new EventType(p.getEventType());
+        String t = p.getEventType();
+        if (t == null) {
+            t = ec.getCurrentEventType();
+        }
+        EventType type = new EventType(t);
         type.getGraphHolder().setToken(token, token);
         cd.newEvent(ec.getCurrentSessionId().longValue(), type, token);
 

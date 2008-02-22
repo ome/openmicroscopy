@@ -447,6 +447,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new ApiUsageException("Null principal name.");
         }
 
+        String type = p.getEventType();
+        if (type == null) {
+            type = "User";
+        }
+
         // Null or bad event type values as well as umasks are handled
         // within the SessionManager and EventHandler. It is necessary
         String group = p.getGroup();
@@ -459,7 +464,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             // Throws an exception if no properly defined default group
             group = executeDefaultGroup(p.getName()).getName();
         }
-        Principal copy = new Principal(p.getName(), group, p.getEventType());
+        Principal copy = new Principal(p.getName(), group, type);
         Permissions umask = p.getUmask();
         if (umask == null) {
             umask = Permissions.DEFAULT;

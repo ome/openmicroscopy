@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
@@ -139,16 +140,22 @@ public class SessionCache {
     public SessionContext getSessionContext(String uuid) {
         blockingUpdate();
 
+        if (uuid == null) {
+            throw new ApiUsageException("Uuid cannot be null.");
+        }
+
         //
         // All times are in milliseconds
         //
 
         // Getting quiet so that we have the previous access and hit info
         Element elt = sessions.getQuiet(uuid);
+
         if (elt == null) {
             internalRemove(uuid);
             throw new RemovedSessionException("No context for " + uuid);
         }
+
         long lastAccess = elt.getLastAccessTime();
         long hits = elt.getHitCount();
         // Up'ing access time

@@ -21,8 +21,8 @@ import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.ISession;
 import ome.api.ServiceInterface;
-import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
+import ome.conditions.RootException;
 import ome.conditions.SessionException;
 import ome.logic.SimpleLifecycle;
 import ome.model.meta.Session;
@@ -156,9 +156,12 @@ public class SessionBean implements ISession, SelfConfigurableService {
     RuntimeException creationExceptionHandler(Exception e) {
         if (e instanceof SessionException) {
             return (SessionException) e;
-        } else if (e instanceof ApiUsageException) {
-            return new AuthenticationException("Invalid principal:"
-                    + e.getMessage());
+        } else if (e instanceof RootException) {
+            // This may should be more specific or need to use an event-based
+            // conversion routine like in blitz, to allow exceptions like
+            // NoAvailableLicenseException to be propagated to the client.
+            return (AuthenticationException) new AuthenticationException(
+                    "Error creating session.").initCause(e);
         } else {
             return new AuthenticationException("Unknown error ("
                     + e.getClass().getName() + "):" + e.getMessage());
