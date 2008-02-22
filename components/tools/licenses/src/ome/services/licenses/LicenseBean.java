@@ -29,6 +29,7 @@ import ome.api.ServiceInterface;
 import ome.logic.AbstractLevel2Service;
 import ome.logic.SimpleLifecycle;
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.Principal;
 
@@ -93,6 +94,10 @@ public class LicenseBean extends AbstractLevel2Service implements LicenseStore {
      */
     public void setStaticSecuritySystem(SecuritySystem security) {
         STORE.setStaticSecuritySystem(security);
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        STORE.setSessionManager(sessionManager);
     }
 
     // ~ Service methods

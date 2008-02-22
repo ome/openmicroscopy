@@ -8,6 +8,7 @@
 package ome.services.licenses;
 
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.system.Principal;
 
 // Java imports
@@ -60,4 +61,12 @@ public interface LicenseStore extends ILicense {
      *           will hopefully go away in the future.
      */
     void setStaticSecuritySystem(SecuritySystem securitySystem);
+
+    /**
+     * Starting with OmeroSessions, the {@link LicenseStore} needs to have
+     * access more to the {@link SessionManager} rather than the
+     * {@link SecuritySystem} since during session-creation, no user is logged
+     * in.
+     */
+    void setSessionManager(SessionManager sessionManager);
 }

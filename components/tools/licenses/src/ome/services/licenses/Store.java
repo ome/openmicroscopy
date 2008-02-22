@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Random;
 
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
 import ome.system.Principal;
 
 import org.apache.commons.logging.Log;
@@ -62,6 +63,11 @@ public class Store implements LicenseStore {
 
     /** See {@link LicenseStore#setStaticSecuritySystem(SecuritySystem)} */
     public void setStaticSecuritySystem(SecuritySystem securitySystem) {
+        // does nothing in this simple example
+    }
+
+    /** See {@link LicenseStore#setSessionManager(SessionManager)  */
+    public void setSessionManager(SessionManager sessionManager) {
         // does nothing in this simple example
     }
 
