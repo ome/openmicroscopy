@@ -9,6 +9,7 @@ package ome.client;
 
 import java.util.Properties;
 
+import ome.conditions.RootException;
 import ome.model.IObject;
 import ome.system.Principal;
 import ome.system.SessionInitializer;
@@ -99,6 +100,8 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
         } catch (Exception e) {
             if (e instanceof OutOfService) {
                 throw (OutOfService) e;
+            } else if (e instanceof RootException) {
+                throw (RootException) e;
             } else {
                 final String msg = "Cannot initialize service proxy";
                 logger.error(msg, e);
