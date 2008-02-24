@@ -14,12 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import ome.api.Search;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.services.fulltext.FileParser;
 import ome.testing.FileUploader;
 
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext", "fileparser" })
@@ -78,4 +80,38 @@ public class FileParserTest extends AbstractTest {
         assertTrue(imgs.get(0).getId().equals(i.getId()));
 
     }
+
+    @Test()
+    public void testPdfFile() throws Exception {
+
+        // Test data
+
+        // Upload
+        File file = ResourceUtils
+                .getFile("classpath:ome/server/utests/fileparsers/ABC123.pdf");
+        FileUploader upload = new FileUploader(this.factory, file);
+        upload.setFormat("application/pdf");
+        try {
+            upload.run();
+        } catch (Exception e) {
+            // This seems to be throwing an exception
+            // when run in the server
+        }
+
+        i = new Image();
+        i.setName("annotated"); // Don't put ABC123 here.
+        FileAnnotation fa = new FileAnnotation();
+        fa.setFile(new OriginalFile(upload.getId(), false));
+        i.linkAnnotation(fa);
+        i = iUpdate.saveAndReturnObject(i);
+        iUpdate.indexObject(i);
+
+        loginRoot();
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.onlyIds(i.getId());
+        search.byFullText("annotation:ABC123");
+        assertTrue(search.hasNext());
+    }
+
 }

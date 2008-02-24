@@ -53,14 +53,16 @@
   <bean id="fileParsers" class="java.util.HashMap">
     <constructor-arg>
       <map>
-        <entry key="text/plain" value-ref="fileParser"/>
-        <entry key="text/csv"   value-ref="fileParser"/>
-        <entry key="text/xml"   value-ref="fileParser"/>
+        <entry key="text/plain"        value-ref="fileParser"/>
+        <entry key="text/csv"          value-ref="fileParser"/>
+        <entry key="text/xml"          value-ref="fileParser"/>
+        <entry key="application/pdf"   value-ref="pdfParser"/>
       </map>
     </constructor-arg>
   </bean>
   
   <bean id="fileParser" class="ome.services.fulltext.FileParser"/>
+  <bean id="pdfParser" class="ome.services.fulltext.PdfParser"/>
 
   <alias name="persistentEventLogLoader" alias="eventLogLoader"/>
 

@@ -240,12 +240,14 @@ public class FullTextBridge implements FieldBridge {
             d.add(f);
         }
 
+        // However, we're not copying Reader information to the combined field
+        // here, because can only read from a reader once.
+
         // Never storing in combined fields, since it's duplicated
-        f = new Field(COMBINED, reader);
-        if (boost != null) {
-            f.setBoost(boost);
-        }
-        d.add(f);
+        /*
+         * f = new Field(COMBINED, reader); if (boost != null) {
+         * f.setBoost(boost); } d.add(f);
+         */
     }
 
     /**

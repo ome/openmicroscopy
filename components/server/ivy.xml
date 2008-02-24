@@ -42,6 +42,7 @@
     <dependency org="xml-apis" name="xml-apis" rev="1.0.b2" conf="build->default"/>
     <dependency org="mail" name="mail" rev="1.4.1" conf="build->default"/>
     <dependency org="activation" name="activation" rev="1.1.1" conf="build->default"/>
+    <dependency org="PDFBox" name="PDFBox" rev="0.7.3" conf="build->default"/>
     <!-- Duplicated with client/ivy.xml -->
     <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>

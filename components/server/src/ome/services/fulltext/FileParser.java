@@ -37,7 +37,7 @@ public class FileParser implements ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(FileParser.class);
 
-    private OmeroContext context;
+    protected OmeroContext context;
 
     public void setApplicationContext(ApplicationContext arg0)
             throws BeansException {
@@ -100,7 +100,7 @@ public class FileParser implements ApplicationContextAware {
                 return it;
             }
         } catch (Exception e) {
-            log.debug("Implementation threw an exception.");
+            log.warn("Implementation threw an exception.", e);
             return EMPTY;
         }
 
@@ -132,7 +132,7 @@ public class FileParser implements ApplicationContextAware {
                     Reader r = (Reader) resource;
                     r.close();
                 } catch (Exception e) {
-                    // May not throw exception
+                    log.debug("Error closing " + resource, e);
                 }
             }
         });
@@ -154,6 +154,13 @@ public class FileParser implements ApplicationContextAware {
             return EMPTY;
         }
         return new IteratorWrapper(it);
+    }
+
+    public Iterable<Reader> wrap(Reader r) {
+        if (r == null) {
+            return EMPTY;
+        }
+        return wrap(new SingleIterator(r));
     }
 
     private static class SingleIterator implements Iterator<Reader> {

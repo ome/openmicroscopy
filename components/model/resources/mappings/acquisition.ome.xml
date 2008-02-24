@@ -476,6 +476,7 @@
 		<entry name="text/plain"/>
 		<entry name="text/xml"/>
 		<entry name="text/x-python"/>
+		<entry name="application/pdf"/>
 	</enum>
 
   <!-- Pixels Entity -->

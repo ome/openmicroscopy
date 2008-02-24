@@ -116,5 +116,8 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/xml-apis.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/c3p0.jar"/>
+	<classpathentry kind="lib" path="target/libs/activation.jar"/>
+	<classpathentry kind="lib" path="target/libs/mail.jar"/>
+	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
