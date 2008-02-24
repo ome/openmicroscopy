@@ -50,8 +50,11 @@ public class client {
     public client(Properties p) {
         Ice.InitializationData id = new Ice.InitializationData();
         id.properties = Ice.Util.createProperties();
-        for (Object key : p.keySet()) {
-            id.properties.setProperty(key.toString(), p.get(key).toString());
+        if (p != null) {
+            for (Object key : p.keySet()) {
+                id.properties
+                        .setProperty(key.toString(), p.get(key).toString());
+            }
         }
         ic = Ice.Util.initialize(id);
         init();
