@@ -35,14 +35,21 @@ class client(object):
         self.of = ObjectFactory()
         self.of.registerObjectFactory(ic)
         self.ic = ic
+        self.close_on_destroy = False
+
+    def closeOnDestroy(self):
+        self.close_on_destroy = True
 
     def __del__(self):
+        if self.close_on_destroy:
+            self.closeSession()
         if self.ic:
             try:
                 self.ic.destroy()
             except (), msg:
                 pysys.stderr.write("Ice exception while destroying communicator:")
                 pysys.stderr.write(msg)
+            self.ic = None
 
     def getCommunicator(self):
         return self.ic
@@ -196,9 +203,12 @@ class client(object):
             return
         # But even if we do have 'sf', the connection may have been lost and 'close' will fail
         try:
-            self.sf.close()
-        except:
-            pass
+            try:
+                self.sf.close()
+            except:
+                pass
+        finally:
+            self.sf = None
         # Now destroy the actual session, which will always trigger an exception, regardless of
         # actually being connected or not
         prx = self.ic.getDefaultRouter()

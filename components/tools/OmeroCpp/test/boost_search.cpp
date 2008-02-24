@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE( RootSearch )
         Fixture f;
 
 	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession(); 
+	ServiceFactoryPrx sf = (*client).getSession();
         SearchPrx search = sf->createSearchService();
         search->onlyType("Experimenter");
         search->byFullText("root");

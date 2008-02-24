@@ -37,9 +37,20 @@ Fixture::Fixture()
 
 Fixture::~Fixture()
 {
-  //    results_reporter::detailed_report();
-  //    printUnexpected();
-  //    show_stackframe();
+    //    results_reporter::detailed_report();
+    //    printUnexpected();
+    //    show_stackframe();
+    std::vector<omero::client*>::iterator beg = clients.begin();
+    std::vector<omero::client*>::iterator end = clients.end();
+    while (beg != end) {
+        try {
+            omero::client* client = *beg;
+            delete client;
+            beg++;
+        } catch (const std::exception& ex) {
+            std::cout << "Error while closing clients: " << ex.what() << std::endl;
+        }
+    }
 }
 
 void Fixture::show_stackframe() {
@@ -85,21 +96,23 @@ b_ut::unit_test_log_t& Fixture::log() {
 }
 
 const omero::client* Fixture::login(const std::string& username, const std::string& password) {
-    int argc = 0;
-    char** argv = new char*[0];
-    omero::client* client = new omero::client(argc, argv);
-    client->createSession(username, password);
-    clients.push_back(client);
-    return client;
+    try {
+        int argc = 0;
+        char** argv = new char*[0];
+        omero::client* client = new omero::client(argc, argv);
+        client->createSession(username, password);
+        client->closeOnDestroy();
+        clients.push_back(client);
+        return client;
+    } catch (const Glacier2::CannotCreateSessionException& ccse) {
+        BOOST_FAIL("Threw CannotCreateSessionException:" + ccse.reason);
+    }
 }
 
 const omero::client* Fixture::root_login() {
-    int argc = 0;
-    char** argv = new char*[0];
-    omero::client* root = new omero::client(argc, argv);
-    std::string rootpass = (*root).getProperty("omero.rootpass");
-    root->createSession("root", rootpass);
-    clients.push_back(root);
-    return root;
+    Ice::CommunicatorPtr ic = Ice::initialize();
+    std::string rootpass = ic->getProperties()->getProperty("omero.rootpass");
+    return login("root", rootpass);
 }
+
 

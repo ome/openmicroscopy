@@ -104,6 +104,11 @@ public class Run extends ome.util.tasks.Run {
             } catch (Exception e) {
                 // ignore. will timeout eventually
             }
+            try {
+                bt.getBlitzServiceFactory().getCommunicator().shutdown();
+            } catch (Exception e) {
+                // Have to shutdown the communicator or we'll hang.
+            }
         } else {
             final ServiceFactory sf = getServiceFactory();
             sf.getSessionService().closeSession(sf.getSession());

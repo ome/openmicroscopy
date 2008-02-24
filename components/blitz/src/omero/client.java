@@ -7,7 +7,10 @@
 package omero;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
@@ -21,14 +24,44 @@ import Glacier2.PermissionDeniedException;
  * and should be in sync with the OmeroPy omero.client class as well as the
  * OmeroCpp omero::client class.
  * 
+ * In order to more closely map the destructors in Python and C++, this class
+ * keeps a {@link #CLIENTS collection} of {@link omero.client} instances, which
+ * are destroyed on program termination.
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public class client {
 
-    final Ice.Communicator ic;
+    private final static Set<client> CLIENTS = Collections
+            .synchronizedSet(new HashSet<client>());
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                Set<client> clients = new HashSet<client>(CLIENTS);
+                for (client client : clients) {
+                    try {
+                        client.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
+    }
+
+    Ice.Communicator ic;
 
     ServiceFactoryPrx sf;
+
+    boolean close_on_destroy = false;
+
+    boolean closed = false;
+
+    // Creation
+    // =========================================================================
 
     public client(String[] args) {
         ic = Ice.Util.initialize(args);
@@ -60,15 +93,12 @@ public class client {
         init();
     }
 
-    protected static String filesToString(File... files) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < files.length; i++) {
-            if (i > 0) {
-                sb.append(",");
-            }
-            sb.append(files[i].getAbsolutePath());
-        }
-        return sb.toString();
+    public client(String name, String password) {
+        final Ice.InitializationData id = new Ice.InitializationData();
+        id.properties.setProperty(omero.constants.USERNAME.value, name);
+        id.properties.setProperty(omero.constants.PASSWORD.value, password);
+        this.ic = Ice.Util.initialize(id);
+        init();
     }
 
     private void init() {
@@ -77,13 +107,34 @@ public class client {
         }
         ObjectFactoryRegistrar.registerObjectFactory(ic,
                 ObjectFactoryRegistrar.INSTANCE);
+        CLIENTS.add(this);
     }
 
-    public client(String name, String password) {
-        final Ice.InitializationData id = new Ice.InitializationData();
-        id.properties.setProperty(omero.constants.USERNAME.value, name);
-        id.properties.setProperty(omero.constants.PASSWORD.value, password);
-        this.ic = Ice.Util.initialize(id);
+    // Destruction
+    // =========================================================================
+
+    public void closeOnDestroy() {
+        close_on_destroy = true;
+    }
+
+    public void close() {
+        if (close_on_destroy) {
+            try {
+                closeSession();
+            } catch (Exception e) {
+                // ok.
+            }
+        }
+        if (ic != null) {
+            try {
+                ic.getLogger()
+                        .trace("omero.client.destroy", "Destroying " + ic);
+                ic.destroy();
+                ic = null;
+            } catch (Exception e) {
+                // ok
+            }
+        }
     }
 
     public Ice.Communicator getCommunicator() {
@@ -153,6 +204,7 @@ public class client {
 
         try {
             sf.close();
+            sf = null;
         } catch (Exception e) {
             // what can we do
         }
@@ -181,4 +233,19 @@ public class client {
     public void setOutput(String key, Object value) {
         throw new UnsupportedOperationException();
     }
+
+    // Helpers
+    // =========================================================================
+
+    protected static String filesToString(File... files) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < files.length; i++) {
+            if (i > 0) {
+                sb.append(",");
+            }
+            sb.append(files[i].getAbsolutePath());
+        }
+        return sb.toString();
+    }
+
 }

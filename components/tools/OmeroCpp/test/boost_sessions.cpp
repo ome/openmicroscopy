@@ -16,8 +16,8 @@ BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )
 
   int argc = 0;
   char** argv = new char*[0];
-  omero::client root(argc, argv);
-  omero::api::ServiceFactoryPrx sf = root.createSession("root","ome");
+  const omero::client* root = f.root_login();
+  omero::api::ServiceFactoryPrx sf = (*root).getSession();
   omero::api::ISessionPrx sess = sf->getSessionService();
 
   omero::model::ExperimenterIPtr e = new omero::model::ExperimenterI();
@@ -34,7 +34,8 @@ BOOST_AUTO_TEST_CASE( RootCanCreateSessionForUser )
 
   omero::client user(argc, argv);
   user.createSession(e->omeName->val,session->uuid->val);
-  omero::api::ServiceFactoryPrx sf2 = root.getSession();
+  user.closeOnDestroy();
+  omero::api::ServiceFactoryPrx sf2 = (*root).getSession();
   sf2->getQueryService()->get("Experimenter",0L);
 }
 

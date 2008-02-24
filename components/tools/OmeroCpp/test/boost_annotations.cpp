@@ -20,7 +20,7 @@ using namespace omero::sys;
 BOOST_AUTO_TEST_CASE( tagAnnotation )
 {
     try {
-	
+
 	Fixture f;
 	const omero::client* client = f.login();
 	ServiceFactoryPrx sf = (*client).getSession();
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 BOOST_AUTO_TEST_CASE( annotationImmutability )
 {
     try {
-	
+
 	Fixture f;
 	const omero::client* client = f.login();
 	ServiceFactoryPrx sf = (*client).getSession();
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( annotationImmutability )
 	// tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
 	// tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->id->val) );
 
-	BOOST_CHECK_MESSAGE( ! tag->name, tag->name->val );
+	BOOST_CHECK_MESSAGE( ! tag->name, tag->name );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;
