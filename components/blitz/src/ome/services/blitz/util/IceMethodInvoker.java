@@ -31,6 +31,7 @@ import ome.system.Roles;
 import ome.util.Filterable;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
+import omero.ApiUsageException;
 import omero.RType;
 import omero.ServerError;
 import omero.util.IceMapper;
@@ -253,6 +254,8 @@ public class IceMethodInvoker {
             return arg;
         } else if (p.equals(Class.class)) {
             return mapper.omeroClass((String) arg, true);
+        } else if (ome.model.internal.Details.class.isAssignableFrom(p)) {
+            return mapper.reverse((ModelBased) arg);
         } else if (ome.model.IObject.class.isAssignableFrom(p)) {
             return mapper.reverse((ModelBased) arg);
         } else if (p.equals(Filter.class)) {
@@ -276,11 +279,12 @@ public class IceMethodInvoker {
         } else if (Filterable[].class.isAssignableFrom(p)) {
             return mapper.reverseArray((List) arg, p);
         } else {
-            throw new IllegalStateException("Can't handle input " + p);
+            throw new ApiUsageException(null, null, "Can't handle input " + p);
         }
     }
 
-    public Object handleOutput(IceMapper mapper, Class type, Object o) {
+    public Object handleOutput(IceMapper mapper, Class type, Object o)
+            throws ServerError {
         if (void.class.isAssignableFrom(type)) {
             assert o == null;
             return null;
@@ -306,7 +310,8 @@ public class IceMethodInvoker {
         } else if (Filterable[].class.isAssignableFrom(type)) {
             return mapper.map((Filterable[]) o);
         } else {
-            throw new IllegalStateException("Can't handle output " + type);
+            throw new ApiUsageException(null, null, "Can't handle output "
+                    + type);
         }
     }
 
