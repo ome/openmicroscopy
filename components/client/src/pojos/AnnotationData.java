@@ -46,7 +46,7 @@ public class AnnotationData extends DataObject {
         }
         try {
             Annotation a = annotationClass.newInstance();
-            a.setName("");
+            a.setNs("");
             setWrapper(a);
             setValue(a);
         } catch (Exception e) {
@@ -83,16 +83,16 @@ public class AnnotationData extends DataObject {
      * unwrapped {@link Annotation} the name is initialized to the empty string
      * for backwards compatibility.
      */
-    public void setName(String name) {
-        wrapper.setName(name);
+    public void setNs(String name) {
+        wrapper.setNs(name);
     }
 
     /**
      * Retrieves the {@link Annotation#getName() name} of the underlying
      * {@link Annotation} instance.
      */
-    public String getName() {
-        return wrapper.getName();
+    public String getNs() {
+        return wrapper.getNs();
     }
 
     /**
@@ -151,9 +151,9 @@ public class AnnotationData extends DataObject {
     // =========================================================================
 
     public static interface Ann {
-        public void setName(String name);
+        public void setNs(String name);
 
-        public String getName();
+        public String getNs();
 
         public void setContent(Object o);
 
@@ -176,12 +176,12 @@ public class AnnotationData extends DataObject {
             return TextAnnotation.class;
         }
 
-        public String getName() {
-            return ann.getName();
+        public String getNs() {
+            return ann.getNs();
         }
 
-        public void setName(String name) {
-            ann.setName(name);
+        public void setNs(String name) {
+            ann.setNs(name);
         }
 
         public Object getContent() {

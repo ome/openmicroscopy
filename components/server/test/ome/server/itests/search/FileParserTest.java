@@ -66,7 +66,7 @@ public class FileParserTest extends AbstractTest {
         i = new Image();
         i.setName("annotated with file");
         FileAnnotation fa = new FileAnnotation();
-        fa.setName("");
+        fa.setNs("");
         fa.setFile(new OriginalFile(upload.getId(), false));
         i.linkAnnotation(fa);
         i = iUpdate.saveAndReturnObject(i);

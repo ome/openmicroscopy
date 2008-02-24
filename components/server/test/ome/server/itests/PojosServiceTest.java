@@ -94,14 +94,14 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         d.setName("ticket:657");
         TextAnnotation da = new TextAnnotation();
         da.setTextValue("ticket:657");
-        da.setName("");
+        da.setNs("");
         d.linkAnnotation(da);
         Image i = new Image();
         i.setName("ticket:657");
         i.linkDataset(d);
         TextAnnotation ia = new TextAnnotation();
         ia.setTextValue("ticket:657");
-        ia.setName("");
+        ia.setNs("");
         i.linkAnnotation(ia);
 
         d = iUpdate.saveAndReturnObject(d);
@@ -178,7 +178,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         p.setName("uEv");
         p.linkDataset(ds);
         ds.setName("uEv");
-        da.setName("");
+        da.setNs("");
         da.setTextValue("uEv");
         ds.linkAnnotation(da);
         ds = iPojos.createDataObject(ds, null);

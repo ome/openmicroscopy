@@ -456,7 +456,7 @@ public class GetImagesQueryTest extends AbstractManagedContextTest {
         Image i = new Image();
         i.setName("CollectionCounts");
         TimestampAnnotation ta = new TimestampAnnotation();
-        ta.setName("CollectionCounts");
+        ta.setNs("CollectionCounts");
         ta.setTimeValue(new Timestamp(System.currentTimeMillis()));
 
         i.linkAnnotation(ta);

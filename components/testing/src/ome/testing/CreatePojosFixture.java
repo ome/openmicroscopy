@@ -382,7 +382,7 @@ public class CreatePojosFixture {
     protected DatasetAnnotationLink datasetann(Experimenter user, Dataset d,
             String name) {
         TextAnnotation dann = new TextAnnotation();
-        dann.setName(name);
+        dann.setNs(name);
         dann.getDetails().setOwner(user);
         DatasetAnnotationLink link = new DatasetAnnotationLink();
         link.link(d.proxy(), dann);
@@ -393,7 +393,7 @@ public class CreatePojosFixture {
     protected ImageAnnotationLink imageann(Experimenter user, Image i,
             String name) {
         TextAnnotation iann = new TextAnnotation();
-        iann.setName(name);
+        iann.setNs(name);
         iann.getDetails().setOwner(user);
         ImageAnnotationLink link = new ImageAnnotationLink();
         link.link(i.proxy(), iann);

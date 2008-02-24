@@ -45,7 +45,7 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
         Image i = new Image();
         i.setName("ticket:172");
         TextAnnotation a = new TextAnnotation();
-        a.setName("");
+        a.setNs("");
         a.setTextValue("ticket:172");
         i.linkAnnotation(a);
         i = iUpdate.saveAndReturnObject(i);

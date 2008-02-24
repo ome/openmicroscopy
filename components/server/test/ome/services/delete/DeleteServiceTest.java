@@ -43,7 +43,7 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
     public void testDeleteWithAnnotation() throws Exception {
         Image i = makeImage();
         TextAnnotation ta = new TextAnnotation();
-        ta.setName("");
+        ta.setNs("");
         ta.setTextValue("");
         ImageAnnotationLink link = new ImageAnnotationLink();
         link.link(i.proxy(), ta);

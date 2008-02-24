@@ -831,7 +831,7 @@ public class PojosServiceTest extends TestCase {
                 .asIObject(), null);
         // Dataset m = new Dataset( original.getId(), false);
         TextAnnotation annotation = new TextAnnotation();
-        annotation.setName("");
+        annotation.setNs("");
         annotation.setTextValue(" two rows content ");
 
         // CGLIB
@@ -865,7 +865,7 @@ public class PojosServiceTest extends TestCase {
         original.setDescription(desc);
 
         TextAnnotation annotation = new TextAnnotation();
-        annotation.setName("");
+        annotation.setNs("");
         annotation.setTextValue(text);
         original.linkAnnotation(annotation);
 
@@ -960,7 +960,7 @@ public class PojosServiceTest extends TestCase {
         d.setName(string);
 
         TextAnnotation a = new TextAnnotation();
-        a.setName("");
+        a.setNs("");
         a.setTextValue(string);
         d.linkAnnotation(a);
 

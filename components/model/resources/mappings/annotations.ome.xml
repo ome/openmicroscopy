@@ -13,7 +13,7 @@
   <!-- Structured Annotations -->
   <abstract id="ome.model.annotations.Annotation" discriminator="/" annotated="true" immutable="true">
     <properties>
-        <optional name="name" type="string"/>
+        <optional name="ns" type="string"/>
     </properties>
   </abstract>
 

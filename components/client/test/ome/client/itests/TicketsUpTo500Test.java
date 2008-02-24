@@ -365,7 +365,7 @@ public class TicketsUpTo500Test extends TestCase {
         Image i = new Image();
         i.setName("ticket:435");
         TextAnnotation ann = new TextAnnotation();
-        ann.setName("ticket:435");
+        ann.setNs("ticket:435");
         ann.setTextValue("ticket:435");
         ImageAnnotationLink link = i.linkAnnotation(ann);
         link = sf1.getUpdateService().saveAndReturnObject(link);

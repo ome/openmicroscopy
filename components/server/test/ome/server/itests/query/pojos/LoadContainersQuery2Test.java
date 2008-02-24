@@ -66,7 +66,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         Dataset d = createDataset();
         Project p = new Project("name");
         TextAnnotation t = new TextAnnotation();
-        t.setName("");
+        t.setNs("");
         t.setTextValue("t");
         p.linkDataset(d);
         p.linkAnnotation(t);
@@ -115,7 +115,7 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         Dataset d = new Dataset("name");
         Image i = new Image("name");
         TextAnnotation t = new TextAnnotation();
-        t.setName("");
+        t.setNs("");
         t.setTextValue("t");
         i.linkAnnotation(t);
         d.linkImage(i);

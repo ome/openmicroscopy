@@ -96,7 +96,7 @@ public class HibernateTest extends TestCase {
     @Test
     public void testFirstAnnotationTests() throws Exception {
         TextAnnotation ann = new TextAnnotation();
-        ann.setName("ENVPROP");
+        ann.setNs("ENVPROP");
         ann.setTextValue("value");
 
         createEvent();
@@ -117,10 +117,10 @@ public class HibernateTest extends TestCase {
     @Test
     public void testAnnotatingAnnotations() throws Exception {
         TextAnnotation tag = new TextAnnotation();
-        tag.setName("tag");
+        tag.setNs("tag");
         tag.setTextValue("value");
         TextAnnotation group = new TextAnnotation();
-        group.setName("taggroup");
+        group.setNs("taggroup");
         tag.setTextValue("value");
 
         createEvent();

@@ -32,7 +32,7 @@ public class CountTest extends AbstractManagedContextTest {
         assertNull(i.getAnnotationLinksCountPerOwner().get(self));
 
         TextAnnotation ta = new TextAnnotation();
-        ta.setName("");
+        ta.setNs("");
         ta.setTextValue("counts");
 
         ILink link = i.linkAnnotation(ta);

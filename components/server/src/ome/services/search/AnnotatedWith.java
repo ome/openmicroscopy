@@ -191,7 +191,7 @@ public class AnnotatedWith extends SearchAction {
             // Main criteria
             if (useNamespace) {
                 notNullOrLikeOrEqual(qb, ann + ".name", type[j], annotation[j]
-                        .getName(), useLike, values.caseSensitive);
+                        .getNs(), useLike, values.caseSensitive);
             }
 
             notNullOrLikeOrEqual(qb, ann[j] + "." + path[j], type[j], value[j],

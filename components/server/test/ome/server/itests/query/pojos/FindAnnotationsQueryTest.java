@@ -123,7 +123,7 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
         Image i = new Image();
         i.setName("ticket:172");
         TextAnnotation a = new TextAnnotation();
-        a.setName("");
+        a.setNs("");
         a.setTextValue("ticket:172");
         i.linkAnnotation(a);
         i = iUpdate.saveAndReturnObject(i);
@@ -139,8 +139,8 @@ public class FindAnnotationsQueryTest extends AbstractManagedContextTest {
             assertNotNull(annotated.getDetails().getUpdateEvent().getTime());
             assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
                     .getCreationEvent().getTime());
-//            assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
-//                    .getUpdateEvent().getTime());
+            // assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
+            // .getUpdateEvent().getTime());
         }
     }
 
