@@ -41,6 +41,8 @@ public class FullTextThread extends ExecutionThread {
     final protected FullTextIndexer indexer;
     final protected FullTextBridge bridge;
 
+    private volatile Boolean active = Boolean.TRUE;
+
     /**
      * Uses default {@link Principal} for indexing
      */
@@ -83,6 +85,13 @@ public class FullTextThread extends ExecutionThread {
     }
 
     /**
+     * Called by Spring on creation. Currently a no-op.
+     */
+    public void start() {
+        log.info("Initializing Full-Text Indexer");
+    }
+
+    /**
      * Passes the {@link FullTextIndexer} instance to
      * {@link Executor.Work#doWork(org.springframework.transaction.TransactionStatus, org.hibernate.Session, ome.system.ServiceFactory)}
      * between calls to {@link DetailsFieldBridge#lock()} and
@@ -92,6 +101,14 @@ public class FullTextThread extends ExecutionThread {
      */
     @Override
     public void doRun() {
+
+        synchronized (active) {
+            if (!active.booleanValue()) {
+                log.info("Inactive; skipping");
+                return;
+            }
+        }
+
         if (waitForLock) {
             DetailsFieldBridge.lock();
             try {
@@ -108,7 +125,22 @@ public class FullTextThread extends ExecutionThread {
                 } finally {
                     DetailsFieldBridge.unlock();
                 }
+            } else {
+                log.info("Currently running; skipping");
             }
+        }
+    }
+
+    /**
+     * Called by Spring on destruction. Waits for the global lock on
+     * {@link DetailsFieldBridge} then marks this thread as inactive.
+     */
+    public void stop() {
+        log.info("Shutting down Full-Text Indexer");
+        synchronized (active) {
+            DetailsFieldBridge.lock();
+            active = Boolean.FALSE;
+            DetailsFieldBridge.unlock();
         }
     }
 }
