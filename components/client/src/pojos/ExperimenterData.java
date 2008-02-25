@@ -9,9 +9,7 @@ package pojos;
 
 // Java imports
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 // Third-party libraries
 
@@ -19,7 +17,6 @@ import java.util.Set;
 import ome.model.IObject;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.GroupExperimenterMap;
 import ome.util.CBlock;
 
 /**

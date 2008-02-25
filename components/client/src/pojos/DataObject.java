@@ -51,23 +51,39 @@ import ome.model.meta.ExperimenterGroup;
  */
 public abstract class DataObject {
 
+	/**
+     * Converts the collection of {@link IObject}s into the corresponding
+     * {@link DataObject}s
+     * 
+     * @param iObjects The map to handle.
+     * @return See above.
+     */
     public static Set asPojos(Collection iObjects) {
-        Set result = new HashSet();
+        Set<DataObject> result = new HashSet<DataObject>();
+        IObject obj;
         for (Iterator it = iObjects.iterator(); it.hasNext();) {
-            IObject obj = (IObject) it.next();
-            DataObject converted = asPojo(obj);
-            result.add(converted);
+        	obj = (IObject) it.next();
+            result.add(asPojo(obj));
         }
         return result;
     }
 
+    /**
+     * Converts the map of {@link IObject}s into the corresponding
+     * {@link DataObject}s
+     * 
+     * @param iObjects The map to handle.
+     * @return See above.
+     */
     public static Map asPojos(Map iObjects) {
         Map result = new HashMap();
+        Object key, value;
+        Object convertedKey, convertedValue;
         for (Iterator it = iObjects.keySet().iterator(); it.hasNext();) {
-            Object key = it.next();
-            Object value = iObjects.get(key);
-
-            Object convertedKey = null, convertedValue = null;
+            key = it.next();
+            value = iObjects.get(key);
+            convertedKey = null;
+            convertedValue = null;
             if (key instanceof IObject) {
                 convertedKey = asPojo((IObject) key);
             } else if (key instanceof Collection) {
@@ -90,6 +106,13 @@ public abstract class DataObject {
         return result;
     }
 
+    /**
+     * Converts the passed {@link IObject}  into its corresponding 
+     * Pojo object.
+     * 
+     * @param obj	The  object to convert.
+     * @return See above.
+     */
     public static DataObject asPojo(IObject obj) {
         DataObject converted = null;
         if (obj instanceof Project) {
@@ -97,7 +120,7 @@ public abstract class DataObject {
         } else if (obj instanceof Dataset) {
             converted = new DatasetData((Dataset) obj);
         } else if (obj instanceof Annotation) {
-            converted = new AnnotationData((Annotation) obj);
+            converted = null;//new AnnotationData((Annotation) obj);
         } else if (obj instanceof Image) {
             converted = new ImageData((Image) obj);
         } else if (obj instanceof CategoryGroup) {
@@ -132,6 +155,11 @@ public abstract class DataObject {
      */
     private boolean dirty = false;
 
+    /**
+     * Sets the {@link IObject}.
+     * 
+     * @param value The value to set.
+     */
     protected void setValue(IObject value) {
         if (value == null) {
             throw new IllegalArgumentException(
@@ -141,36 +169,67 @@ public abstract class DataObject {
         this.value = value;
     }
 
-    /** if true, setter value has modified the value of the stored IObject */
+    /** 
+     * Returns <code>true</code> if setter value has modified the value of 
+     * the stored IObject, <code>false</code> otherwise.
+     * 
+     *  @return See above.
+     */
     public boolean isDirty() {
         return dirty;
     }
 
+    /**
+     * Sets to <code>true</code> if the value has been modified, 
+     * <false> otherwise.
+     * 
+     * @param dirty The value to set.
+     */
     protected void setDirty(boolean dirty) {
         this.dirty = dirty;
     }
 
     // Common properties
 
-    /** database id of the IObject or -1 if null */
+    /** 
+     * Returns the database id of the IObject or <code>-1</code>
+     * if <code>null</code> 
+     * 
+     * @return See above.
+     */
     public long getId() {
         return value.getId() == null ? -1 : value.getId().longValue();
     }
 
+    /**
+     * Sets the database id.
+     * 
+     * @param id The value to set.
+     */
     public void setId(long id) {
         setDirty(true);
         value.setId(new Long(id));
     }
 
+    /**
+     * Returns the version of the object if the object is immutable, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
     protected int getVersion() {
         if (value instanceof IMutable) {
             IMutable m = (IMutable) value;
             return m.getVersion() == null ? 0 : m.getVersion().intValue();
-        } else {
-            return 0;
         }
+        return 0;
     }
 
+    /**
+     * Sets the version of the object if it is immutable.
+     * 
+     * @param version The value to set.
+     */
     protected void setVersion(int version) {
         if (value instanceof IMutable) {
             IMutable m = (IMutable) value;
@@ -179,14 +238,32 @@ public abstract class DataObject {
         }
     }
 
+    /**
+     * Returns <code>true</code> if the object is loaded, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
     public boolean isLoaded() {
         return value.isLoaded();
     }
 
+    /**
+     * Returns the collection of filters.
+     * 
+     * @return See above.
+     */
     protected Set getFiltered() {
         return new HashSet(value.getDetails().filteredSet());
     }
 
+    /**
+     * Returns <code>true</code> if the passed value is a filter,
+     * <code>false</code> otherwise.
+     * 
+     * @param fieldName The value to handle.
+     * @return See above.
+     */
     public boolean isFiltered(String fieldName) {
         if (fieldName == null) {
             return false;
@@ -195,6 +272,11 @@ public abstract class DataObject {
                 .getDetails().filteredSet().contains(fieldName);
     }
 
+    /**
+     * Returns the owner of the object.
+     * 
+     * @return See above.
+     */
     public ExperimenterData getOwner() {
         if (owner == null) {
             owner = new ExperimenterData(asIObject().getDetails().getOwner());
@@ -202,6 +284,11 @@ public abstract class DataObject {
         return owner;
     }
 
+    /**
+     * Returns the permission of the object.
+     * 
+     * @return See above.
+     */
     public PermissionData getPermissions() {
         if (permissions == null) {
             permissions = new PermissionData(getDetails().getPermissions());
@@ -209,7 +296,10 @@ public abstract class DataObject {
         return permissions;
     }
 
-    @Override
+    /**
+     * Overridden to return the name of the class and the object id.
+     * @see Object#toString()
+     */
     public String toString() {
         return getClass().getName() + " (id=" + getId() + ")";
     }

@@ -17,6 +17,8 @@ import java.util.Set;
 // Application-internal dependencies
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
@@ -58,21 +60,21 @@ public class DatasetData extends DataObject {
      * {@link ImageData} objects. If this Dataset contains no Images, then this
      * set will be empty &#151; but never <code>null</code>.
      */
-    private Set images;
+    private Set<ImageData> 		images;
 
     /**
      * All the Projects that contain this Dataset. The elements of this set are
      * {@link ProjectData} objects. If this Dataset is not contained in any
      * Project, then this set will be empty &#151; but never <code>null</code>.
      */
-    private Set projects;
+    private Set<ProjectData>	projects;
 
     /**
      * All the annotations related to this Dataset. The elements of the set are
      * {@link AnnotationData} objetcs. If this Dataset hasn't been annotated,
      * then this set will be empty &#151; but never <code>null</code>.
      */
-    private Set annotations;
+    private Set<AnnotationData>	annotations;
 
     /**
      * The number of annotations attached to this Dataset. This field may be
@@ -253,17 +255,22 @@ public class DatasetData extends DataObject {
      * @return See Above
      */
     public Set getAnnotations() {
-
         if (annotations == null) {
             int size = asDataset().sizeOfAnnotationLinks();
             if (size >= 0) {
-                annotations = new HashSet(size);
+                annotations = new HashSet<AnnotationData>(size);
                 for (Annotation a : asDataset().linkedAnnotationList()) {
-                    annotations.add(new AnnotationData(a));
+                	if (a instanceof TextAnnotation)
+                		annotations.add(new TextualAnnotationData(
+                							(TextAnnotation) a));
+                	else if (a instanceof LongAnnotation)
+                		annotations.add(new RatingAnnotationData(
+    							(LongAnnotation) a));
                 }
             }
         }
-        return annotations == null ? null : new HashSet(annotations);
+        return annotations == null ? null : 
+        		new HashSet<AnnotationData>(annotations);
     }
 
     /**
@@ -274,7 +281,8 @@ public class DatasetData extends DataObject {
      */
     public void setAnnotations(Set newValue) {
         Set<AnnotationData> currentValue = getAnnotations();
-        SetMutator<AnnotationData> m = new SetMutator<AnnotationData>(currentValue, newValue);
+        SetMutator<AnnotationData> 
+        	m = new SetMutator<AnnotationData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);

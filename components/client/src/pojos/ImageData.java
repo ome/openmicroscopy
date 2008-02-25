@@ -20,6 +20,8 @@ import java.util.Set;
 // Application-internal dependencies
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Category;
 import ome.model.containers.Dataset;
@@ -337,7 +339,8 @@ public class ImageData extends DataObject {
      */
     public void setCategories(Set newValue) {
         Set<CategoryData> currentValue = getCategories();
-        SetMutator<CategoryData> m = new SetMutator<CategoryData>(currentValue, newValue);
+        SetMutator<CategoryData> 
+        	m = new SetMutator<CategoryData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);
@@ -366,12 +369,18 @@ public class ImageData extends DataObject {
             int size = asImage().sizeOfAnnotationLinks();
             if (size >= 0) {
                 annotations = new HashSet<AnnotationData>(size);
-                for (Annotation annotation : asImage().linkedAnnotationList()) {
-                    annotations.add(new AnnotationData(annotation));
+                for (Annotation a : asImage().linkedAnnotationList()) {
+                	if (a instanceof TextAnnotation)
+                		annotations.add(new TextualAnnotationData(
+                							(TextAnnotation) a));
+                	else if (a instanceof LongAnnotation)
+                		annotations.add(new RatingAnnotationData(
+    							(LongAnnotation) a));
                 }
             }
         }
-        return annotations == null ? null : new HashSet<AnnotationData>(annotations);
+        return annotations == null ? null : 
+        	new HashSet<AnnotationData>(annotations);
     }
 
     /**
@@ -382,7 +391,8 @@ public class ImageData extends DataObject {
      */
     public void setAnnotations(Set newValue) {
         Set<AnnotationData> currentValue = getAnnotations();
-        SetMutator<AnnotationData> m = new SetMutator<AnnotationData>(currentValue, newValue);
+        SetMutator<AnnotationData> 
+        	m = new SetMutator<AnnotationData>(currentValue, newValue);
 
         while (m.moreDeletions()) {
             setDirty(true);

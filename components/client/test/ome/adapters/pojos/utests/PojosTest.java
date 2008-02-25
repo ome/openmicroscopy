@@ -43,6 +43,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 public class PojosTest extends TestCase {
 
@@ -351,7 +352,7 @@ public class PojosTest extends TestCase {
         Details d = tag.getDetails();
         d.setOwner(new Experimenter(1L, false));
         d.setGroup(new ExperimenterGroup(2L, false));
-        AnnotationData aData = new AnnotationData(tag);
+        AnnotationData aData = new TagAnnotationData(tag);
         assertNotNull(aData.getOwner());
         aData = (AnnotationData) DataObject.asPojo(tag);
         assertNotNull(aData.getOwner());

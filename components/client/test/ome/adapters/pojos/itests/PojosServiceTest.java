@@ -62,6 +62,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TextualAnnotationData;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -836,7 +837,7 @@ public class PojosServiceTest extends TestCase {
 
         // CGLIB
         TextAnnotation object = iPojos.createDataObject(annotation, null);
-        DataObject returnedToUser = new AnnotationData(object);
+        DataObject returnedToUser = new TextualAnnotationData(object);
 
         // Now working but iPojos is still returning a CGLIB class.
         assertTrue(String.format("Class %s should equal class %s", object
@@ -1019,9 +1020,8 @@ public class PojosServiceTest extends TestCase {
         d = iPojos.createDataObject(d, null);
         annotatedObject = new DatasetData(d);
 
-        data = new AnnotationData(TextAnnotation.class);
-        data.setContent(" update_annotation ");
-
+        data = new TextualAnnotationData(" update_annotation ");
+       
         IObject updated = iPojos.updateDataObject(annotatedObject.asIObject(),
                 null);
 
@@ -1029,7 +1029,8 @@ public class PojosServiceTest extends TestCase {
         link = iPojos.updateDataObject(link, null);
         link.getChild().unload();
 
-        DataObject toReturn = new AnnotationData((Annotation) link.getChild());
+        DataObject toReturn = 
+        	new TextualAnnotationData((TextAnnotation) link.getChild());
 
     }
 

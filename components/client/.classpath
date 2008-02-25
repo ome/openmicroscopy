@@ -4,7 +4,7 @@
 	<classpathentry excluding="**/.svn" kind="src" path="resources"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/src"/>
 	<classpathentry excluding="**/.svn" kind="src" path="target/generated/resources"/>
-	<classpathentry excluding="**/.svn" kind="src" output="target/test-classes" path="test"/>
+	<classpathentry excluding="**/.svn" kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="target/libs/ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
@@ -49,5 +49,6 @@
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-validator.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
