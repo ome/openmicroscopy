@@ -78,4 +78,33 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
         assertTrue(ann.getDetails().getCreationEvent().isLoaded());
     }
 
+    @Test(groups = "ticket:884")
+    public void testFindImageAnnotationsWithOwnerIds() throws Exception {
+        Image i = new Image();
+        i.setName("ticket:172");
+        TextAnnotation a = new TextAnnotation();
+        a.setNs("");
+        a.setTextValue("ticket:172");
+        i.linkAnnotation(a);
+        i = iUpdate.saveAndReturnObject(i);
+
+        long user = iAdmin.getEventContext().getCurrentUserId();
+
+        ids = new HashSet(Arrays.asList(i.getId()));
+        q = new PojosFindAnnotationsQueryDefinition(new Parameters()
+                .addIds(ids).addOptions(null).addClass(Image.class).addSet(
+                        "annotatorIds", Collections.singleton(user)));
+
+        Collection<IAnnotated> results = (Collection) iQuery.execute(q);
+        assertTrue(results.size() > 0);
+        for (IAnnotated annotated : results) {
+            assertNotNull(annotated.getDetails().getCreationEvent().getTime());
+            assertNotNull(annotated.getDetails().getUpdateEvent().getTime());
+            assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
+                    .getCreationEvent().getTime());
+            // assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
+            // .getUpdateEvent().getTime());
+        }
+    }
+
 }

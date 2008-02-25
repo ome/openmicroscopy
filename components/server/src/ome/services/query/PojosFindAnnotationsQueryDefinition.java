@@ -56,15 +56,17 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
         Criteria links = obj.createCriteria("annotationLinks", "links",
                 LEFT_JOIN);
         Criteria ann = links.createCriteria("child", LEFT_JOIN);
-        Criteria annotator = ann.createAlias("details.owner", "ann_owner");
+        Criteria ann_owner = ann.createAlias("details.owner", "ann_owner",
+                LEFT_JOIN);
+        Criteria ann_create = ann.createAlias("details.creationEvent",
+                "ann_create", LEFT_JOIN);
 
-        ann.createAlias("details.creationEvent", "ann_create");
-        ann.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+        obj.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
         if (check("annotatorIds")) {
             Collection annotatorIds = (Collection) value("annotatorIds");
             if (annotatorIds != null && annotatorIds.size() > 0) {
-                annotator.add(Restrictions.in("id", annotatorIds));
+                ann.add(Restrictions.in("details.owner.id", annotatorIds));
             }
         }
         setCriteria(obj);
