@@ -26,6 +26,7 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.services.fulltext.EventLogLoader;
 import ome.services.fulltext.FileParser;
 import ome.services.fulltext.FullTextBridge;
 import ome.services.fulltext.FullTextIndexer;
@@ -108,6 +109,42 @@ public class FullTextTest extends AbstractTest {
     public void testSimpleCreation() throws Exception {
         ftb = new FullTextBridge();
         fti = new FullTextIndexer(getLogs());
+        ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
+        ftt.run();
+    }
+
+    // These two types of bad event logs should not throw exceptions. They can
+    // occur especially during databse upgrades. In that case, the entry should
+    // be skipped.
+    public void testBadEventLog() throws Exception {
+        ftb = new FullTextBridge();
+        fti = new FullTextIndexer(new EventLogLoader() {
+
+            int count = 3;
+
+            @Override
+            protected EventLog query() {
+                count--;
+                EventLog l = new EventLog();
+                l.setEntityId(0L);
+                switch (count) {
+                case 3:
+                    l.setAction("INSERT"); // good
+                    l.setEntityType("BAD");
+                    break;
+                case 2:
+                    l.setAction("BAD");
+                    l.setEntityType("ome.model.meta.Experimenter"); // good
+                    break;
+                case 1:
+                    l.setAction("INSERT"); // good
+                    l.setEntityType("ome.model.meta.Experimenter"); // good
+                case 0:
+                    l = null;
+                }
+                return l;
+            }
+        });
         ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
         ftt.run();
     }

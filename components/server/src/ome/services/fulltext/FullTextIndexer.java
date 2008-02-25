@@ -106,48 +106,46 @@ public class FullTextIndexer implements Work {
         int count = 0;
 
         for (EventLog eventLog : loader) {
-            // Three retries
-            while (count < 3 && eventLog != null) {
-                try {
-                    String act = eventLog.getAction();
-                    Class type = asClassOrThrow(eventLog.getEntityType());
+            if (eventLog != null) {
+                String act = eventLog.getAction();
+                Class type = asClassOrNull(eventLog.getEntityType());
+                if (type != null) {
                     long id = eventLog.getEntityId();
 
-                    Action action;
+                    Action action = null;
                     if ("DELETE".equals(act)) {
                         action = new Purge(type, id);
                     } else if ("UPDATE".equals(act) || "INSERT".equals(act)) {
                         action = new Index(get(session, type, id));
                     } else {
-                        throw new InternalException("Unknown action type: "
-                                + act);
+                        log.error("Unknown action type: " + act);
                     }
 
-                    action.go(session);
-                    action.log(log);
-                    eventLog = null;
-                    count = 0;
-                } catch (Exception e) {
-                    log.error(String.format("Failed to index %s %d times",
-                            eventLog, count), e);
+                    if (action != null) {
+                        try {
+                            action.go(session);
+                        } catch (Exception e) {
+                            loader.rollback(eventLog);
+                            throw new InternalException(
+                                    "FullTextIndexer stuck! "
+                                            + "Failed to index EventLog: "
+                                            + eventLog);
+                        }
+                        action.log(log);
+                    }
                 }
             }
 
-            // Failed; Giving up
-            if (count > 0) {
-                loader.rollback(eventLog);
-                throw new InternalException("Failed to index entry. Giving up.");
-            }
         }
 
     }
 
-    protected Class asClassOrThrow(String str) {
+    protected Class asClassOrNull(String str) {
         try {
             return Class.forName(str);
         } catch (ClassNotFoundException e) {
-            throw new InternalException("Unknown entity type in database: "
-                    + str);
+            log.warn("Unknown entity type found in database: " + str);
+            return null;
         }
     }
 
