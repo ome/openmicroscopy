@@ -74,11 +74,6 @@
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry kind="lib" path="target/libs/xerces.jar"/>
 	<classpathentry kind="lib" path="target/libs/xml-apis.jar"/>
-	<classpathentry kind="lib" path="target/libs/backport-util-concurrent.jar"/>
-	<classpathentry kind="lib" path="target/libs/commons-discovery.jar"/>
-	<classpathentry kind="lib" path="target/libs/jug.jar"/>
-	<classpathentry kind="lib" path="target/libs/mule.jar"/>
-	<classpathentry kind="lib" path="target/libs/smack.jar"/>
 	<classpathentry kind="lib" path="target/libs/activation.jar"/>
 	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="output" path="target/classes"/>

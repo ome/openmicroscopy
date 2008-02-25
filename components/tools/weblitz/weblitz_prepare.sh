@@ -18,7 +18,7 @@ cd .build
 ############
 ## PySQLite
 ############
-wget http://initd.org/pub/software/pysqlite/releases/2.3/2.3.5/pysqlite-2.3.5.tar.gz
+wget http://gentoo.virginmedia.com/distfiles/pysqlite-2.3.5.tar.gz
 tar xvzf pysqlite-2.3.5.tar.gz
 cd pysqlite-2.3.5
 python setup.py build

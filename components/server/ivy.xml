@@ -55,5 +55,6 @@
     <dependency org="jivesoftware" name="smack" rev="2.2.1" conf="build->default"/>
     <dependency org="org/mule" name="mule" rev="1.4.1-embedded" conf="build->default"/>
     <dependency org="org/safehaus/jug" name="jug" rev="2.0.0" conf="build->default"/>
+    <dependency org="nanoxml" name="nanoxml" rev="2.2.3" conf="build->default"/>
   </dependencies>
 </ivy-module>
