@@ -658,7 +658,7 @@ BEGIN
     INSERT INTO annotation
         (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
         VALUES
-        ('/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+        ('/basic/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
          mviews.permissions, mviews.external_id, mviews.content, '');
 
     INSERT INTO imageannotationlink
@@ -679,7 +679,7 @@ BEGIN
     INSERT INTO annotation
       (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
       VALUES
-      ('/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+      ('/basic/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.content, '');
     INSERT INTO datasetannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
@@ -699,7 +699,7 @@ BEGIN
     INSERT INTO annotation
       (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
       VALUES
-      ('/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+      ('/basic/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
       mviews.permissions, mviews.external_id, mviews.content, '');
     INSERT INTO projectannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
