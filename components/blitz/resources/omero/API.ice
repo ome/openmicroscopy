@@ -141,6 +141,16 @@ module omero {
 	idempotent omero::sys::EventContext getEventContext() throws ServerError;
       };
 
+	interface IScript extends ServiceInterface
+	{
+ 	idempotent StringSet getScripts() throws ServerError;
+	idempotent long getScriptID(string scriptName) throws  ServerError;
+	long uploadScript(string script) throws ServerError;
+	idempotent string getScript(string name) throws ServerError;
+	idempotent RTypeDict getParams(string script) throws ServerError;
+	RTypeDict runScript(string script, RTypeDict map) throws ServerError;
+	};
+
     interface IConfig extends ServiceInterface
       {
 	idempotent string getVersion() throws ServerError;
@@ -486,6 +496,7 @@ module omero {
     interface ServiceFactory extends Glacier2::Session
       {
 	// Central OMERO.blitz stateless services.
+	IScript*	getScriptService() throws ServerError;
 	IAdmin*    getAdminService() throws ServerError;
 	IConfig*   getConfigService() throws ServerError;
 	IPixels*   getPixelsService() throws ServerError;

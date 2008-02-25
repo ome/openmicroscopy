@@ -33,6 +33,8 @@ import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
+import omero.api.IScriptPrx;
+import omero.api.IScriptPrxHelper;
 import omero.api.IConfigPrx;
 import omero.api.IConfigPrxHelper;
 import omero.api.ILdapPrx;
@@ -70,6 +72,7 @@ import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
 import omero.api._ServiceFactoryDisp;
+import omero.constants.SCRIPTSERVICE;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CONFIGSERVICE;
 import omero.constants.JOBHANDLE;
@@ -177,6 +180,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public IAdminPrx getAdminService(Ice.Current current) throws ServerError {
         return IAdminPrxHelper.uncheckedCast(getByName(ADMINSERVICE.value,
                 current));
+    }
+
+    public IScriptPrx getScriptService(Ice.Current current) throws ServerError {
+    	return IScriptPrxHelper.uncheckedCast(
+    			getByName(SCRIPTSERVICE.value, current));
     }
 
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {

@@ -19,6 +19,12 @@
 
 <beans>
 
+  <bean id="omero.api.IScript" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IScriptOperations"/>
+    <property name="serviceClass" value="ome.api.IScript"/>
+    <property name="tieClass" value="omero.api._IScriptTie"/>
+  </bean>
+
   <bean class="ome.services.blitz.util.ApiConsistencyCheck"/>
 
   <bean id="omero.api.IAdmin" class="ome.services.blitz.util.ServantDefinition">

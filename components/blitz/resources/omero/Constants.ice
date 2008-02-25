@@ -24,6 +24,7 @@ module omero {
      * Server-side names used for each of the services
      * defined in API.ice
      */
+    const string SCRIPTSERVICE     = "omero.api.IScript";
     const string ADMINSERVICE     = "omero.api.IAdmin";
     const string ANALYSISSERVICE  = "omero.api.IAnalysis";
     const string CONFIGSERVICE    = "omero.api.IConfig";
