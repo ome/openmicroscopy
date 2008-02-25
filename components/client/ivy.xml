@@ -17,5 +17,6 @@
     <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test"/>
     <!-- Not included above -->
     <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/>
+    <dependency org="webadmin" name="commons-validator" rev="${versions.commons-validator}" />
   </dependencies>
 </ivy-module>
