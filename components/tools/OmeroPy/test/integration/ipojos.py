@@ -10,7 +10,7 @@
 """
 
 import test.integration.library as lib
-import omero
+import omero, unittest
 import omero_RTypes_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI

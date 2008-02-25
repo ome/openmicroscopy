@@ -237,9 +237,11 @@ public class IceMethodInvoker {
                 || p.equals(double.class) || p.equals(double[].class)
                 || p.equals(float.class) || p.equals(float[].class)
                 || p.equals(boolean.class) || p.equals(boolean[].class)
-                || p.equals(Integer.class) || p.equals(Long.class)
-                || p.equals(Double.class) || p.equals(Float.class)
-                || p.equals(String.class)) {
+                || p.equals(Integer.class) || p.equals(Integer[].class)
+                || p.equals(Long.class) || p.equals(Long[].class)
+                || p.equals(Double.class) || p.equals(Double[].class)
+                || p.equals(Float.class) || p.equals(Float[].class)
+                || p.equals(String.class) || p.equals(String[].class)) {
             return true;
         }
         return false;

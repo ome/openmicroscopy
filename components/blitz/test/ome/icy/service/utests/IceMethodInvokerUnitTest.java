@@ -829,6 +829,11 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         rv = invoke(new omero.model.DetailsI());
         ServantHelper.throwIfNecessary(rv);
 
+        init(Search.class, "onlyIds");
+        method();
+        rv = invoke((Object) new Long[] { 1L });
+        ServantHelper.throwIfNecessary(rv);
+
     }
 
     // ~ Exceptions

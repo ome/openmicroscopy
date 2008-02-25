@@ -14,7 +14,7 @@ void stringHandler(std::string str) {
   std::cout << "Handling:" << str << std::endl;
 }
 
-Fixture::Fixture() 
+Fixture::Fixture()
 {
   /*     log_successful_tests     = 0,
 	 log_test_suites          = 1,
@@ -110,8 +110,8 @@ const omero::client* Fixture::login(const std::string& username, const std::stri
 }
 
 const omero::client* Fixture::root_login() {
-    Ice::CommunicatorPtr ic = Ice::initialize();
-    std::string rootpass = ic->getProperties()->getProperty("omero.rootpass");
+    const omero::client* tmp = login();
+    std::string rootpass = (*tmp).getProperty("omero.rootpass");
     return login("root", rootpass);
 }
 
