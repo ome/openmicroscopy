@@ -237,11 +237,18 @@ public class IceMethodInvoker {
                 || p.equals(double.class) || p.equals(double[].class)
                 || p.equals(float.class) || p.equals(float[].class)
                 || p.equals(boolean.class) || p.equals(boolean[].class)
-                || p.equals(Integer.class) || p.equals(Integer[].class)
-                || p.equals(Long.class) || p.equals(Long[].class)
-                || p.equals(Double.class) || p.equals(Double[].class)
-                || p.equals(Float.class) || p.equals(Float[].class)
-                || p.equals(String.class) || p.equals(String[].class)) {
+                || p.equals(Integer.class) || p.equals(Long.class)
+                || p.equals(Double.class) || p.equals(Float.class)
+                || p.equals(String.class)) {
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean isWrapperArray(Class<?> p) {
+        if (p.equals(Integer[].class) || p.equals(Long[].class)
+                || p.equals(Double[].class) || p.equals(Float[].class)
+                || p.equals(String[].class)) {
             return true;
         }
         return false;
@@ -254,6 +261,8 @@ public class IceMethodInvoker {
             return mapper.fromRType(rt);
         } else if (isPrimitive(p)) { // FIXME use findTarget for Immutable.
             return arg;
+        } else if (isWrapperArray(p)) {
+            return mapper.reverseArray((List) arg, p);
         } else if (p.equals(Class.class)) {
             return mapper.omeroClass((String) arg, true);
         } else if (ome.model.internal.Details.class.isAssignableFrom(p)) {

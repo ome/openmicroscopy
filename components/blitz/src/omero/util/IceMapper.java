@@ -548,7 +548,7 @@ public class IceMapper extends ome.util.ModelMapper implements
      * @return
      * @throws omero.ServerError
      */
-    public Filterable[] reverseArray(List list, Class type)
+    public Object[] reverseArray(List list, Class type)
             throws omero.ServerError {
 
         if (list == null) {
@@ -556,12 +556,12 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
 
         Class component = type.getComponentType();
-        Filterable[] array = null;
+        Object[] array = null;
         try {
 
-            array = (Filterable[]) Array.newInstance(component, list.size());
+            array = (Object[]) Array.newInstance(component, list.size());
             for (int i = 0; i < array.length; i++) {
-                array[i] = (Filterable) reverse(list.get(i));
+                array[i] = reverse(list.get(i));
             }
         } catch (Exception e) {
             String msg = "Cannot create filterable array from type " + type;

@@ -831,7 +831,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         init(Search.class, "onlyIds");
         method();
-        rv = invoke((Object) new Long[] { 1L });
+        rv = invoke(Arrays.asList(1L));
         ServantHelper.throwIfNecessary(rv);
 
     }
