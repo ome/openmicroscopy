@@ -92,6 +92,12 @@ public class BlitzServerFixture extends MockObjectTestCase {
         this.sessionTimeout = sessionTimeout;
 
         // Set property before the OmeroContext is created
+        try {
+            File ice_config = ResourceUtils.getFile("classpath:ice.config");
+            System.setProperty("ICE_CONFIG", ice_config.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         System.setProperty("omero.blitz.cache.timeToIdle", "" + serviceTimeout);
 
         ctx = OmeroContext.getInstance(name);

@@ -141,15 +141,15 @@ module omero {
 	idempotent omero::sys::EventContext getEventContext() throws ServerError;
       };
 
-	interface IScript extends ServiceInterface
-	{
- 	idempotent StringSet getScripts() throws ServerError;
+    interface IScript extends ServiceInterface
+      {
+	idempotent StringSet getScripts() throws ServerError;
 	idempotent long getScriptID(string scriptName) throws  ServerError;
 	long uploadScript(string script) throws ServerError;
 	idempotent string getScript(string name) throws ServerError;
 	idempotent RTypeDict getParams(string script) throws ServerError;
 	RTypeDict runScript(string script, RTypeDict map) throws ServerError;
-	};
+     };
 
     interface IConfig extends ServiceInterface
       {
@@ -235,16 +235,19 @@ module omero {
     interface ISession extends ServiceInterface
       {
         omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
+        omero::model::Session getSession(string sessionUuid) throws ServerError;
         omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
         void closeSession(omero::model::Session sess) throws ServerError;
         // System users
         omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long seconds) throws ServerError;
-        
+
         // Environment
         omero::RType getInput(string sess, string key) throws ServerError;
         omero::RType getOutput(string sess, string key) throws ServerError;
-        void setInput(string sess, string key, omero::RType value) throws ServerError; 
-        void setOutput(string sess, string key, omero::RType value) throws ServerError; 
+        void setInput(string sess, string key, omero::RType value) throws ServerError;
+        void setOutput(string sess, string key, omero::RType value) throws ServerError;
+        StringSet getInputKeys(string sess) throws ServerError;
+        StringSet getOutputKeys(string sess) throws ServerError;
       };
 
     interface ITypes extends ServiceInterface
@@ -496,7 +499,7 @@ module omero {
     interface ServiceFactory extends Glacier2::Session
       {
 	// Central OMERO.blitz stateless services.
-	IScript*	getScriptService() throws ServerError;
+	IScript*   getScriptService() throws ServerError;
 	IAdmin*    getAdminService() throws ServerError;
 	IConfig*   getConfigService() throws ServerError;
 	IPixels*   getPixelsService() throws ServerError;

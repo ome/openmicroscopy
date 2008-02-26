@@ -28,6 +28,7 @@ class client(object):
 
     def __init__(self, args = pysys.argv, id = Ice.InitializationData()):
 
+        self.sf = None
         self.ic = None
         ic = Ice.initialize(args,id)
         if not ic:
@@ -62,6 +63,11 @@ class client(object):
 
     def getProperty(self,key):
         return self.getProperties().getProperty(key)
+
+    def joinSession(self, session):
+        """Uses the given session uuid as name
+        and password to rejoin a running session"""
+        return self.createSession(session, session)
 
     def createSession(self, username=None, password=None):
         import omero
@@ -218,40 +224,35 @@ class client(object):
         except Ice.ConnectionLostException:
             pass
 
-    # The following {get,set}{Input,Output} methods
-    # are temporary and only unintended to allow
-    # script development while OmeroSessions are
-    # being developed.
+    def _env(self, method, *args):
+        """ Helper method to access session environment"""
+        session = self.getSession()
+        if not session:
+            raise ClientError("No session active")
+        a = session.getAdminService()
+        u = a.getEventContext().sessionUuid
+        s = session.getSessionService()
+        m = getattr(s, method)
+        return apply(m, (u,)+args)
 
     def getInput(self, key):
-        if not hasattr(self, "inputs"):
-            self.inputs = {}
-        try:
-            rv = self.inputs[key]
-        except KeyError, ke:
-            rv = self.getProperty(key)
-        return rv
+        return self._env("getInput", key)
 
     def setInput(self, key, value):
-        s = self.getSession().getSessionService()
-        
-        if not hasattr(self, "inputs"):
-            self.inputs = {}
-        self.inputs[key] = value
+        self._env("setInput", key, value)
 
     def getOutput(self, key):
-        if not hasattr(self, "outputs"):
-            self.outputs = {}
-        try:
-            rv = self.outputs[key]
-        except KeyError, ke:
-            rv = self.getProperty(key)
-        return rv
+        return self._env("getOutput", key)
 
     def setOutput(self, key, value):
-        if not hasattr(self, "outputs"):
-            self.outputs = {}
-        self.outputs[key] = value
+        self._env("setOutput", key, value)
+
+    def getInputKeys(self):
+        return self._env("getInputKeys")
+
+    def getOutputKeys(self):
+        return self._env("getOutputKeys")
+
 
 import util.FactoryMap
 class ObjectFactory(Ice.ObjectFactory):

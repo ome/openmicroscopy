@@ -46,11 +46,27 @@ class TestProcess(unittest.TestCase):
         self.assert_( None == process.wait() )
         popen._wait = 1
         self.assert_( 1 == process.wait() )
-        
+
         callback = Callback()
         process.registerCallback(callback)
         process.allcallbacks("cancel", True)
         self.asseert_( callback._cancelled )
+
+    def testPopen(self):
+
+        class log:
+            def warning(self, string):
+                print string
+
+        p = {"name":"name","pasw":"pass", "conn":"conn"}
+        process = omero.processor.ProcessI("python",p,log())
+        f = open(process.script_name, "w")
+        f.write("""
+print "Hello"
+        """)
+        process.activate()
+        process.wait()
+        process.poll()
 
 if __name__ == '__main__':
     unittest.main()

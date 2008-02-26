@@ -296,7 +296,9 @@ public class IceMethodInvoker {
 
     public Object handleOutput(IceMapper mapper, Class type, Object o)
             throws ServerError {
-        if (void.class.isAssignableFrom(type)) {
+        if (RType.class.isAssignableFrom(type)) {
+            return o;
+        } else if (void.class.isAssignableFrom(type)) {
             assert o == null;
             return null;
         } else if (isPrimitive(type)) {

@@ -7,6 +7,8 @@
 
 package ome.services.sessions;
 
+import java.util.Set;
+
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -120,6 +122,12 @@ public class SessionBean implements ISession, SelfConfigurableService {
     }
 
     @RolesAllowed( { "user", "guest" })
+    public Session getSession(@NotNull
+    String sessionUuid) {
+        return mgr.find(sessionUuid);
+    }
+
+    @RolesAllowed( { "user", "guest" })
     public Session updateSession(@NotNull
     Session session) {
         return mgr.update(session);
@@ -134,20 +142,34 @@ public class SessionBean implements ISession, SelfConfigurableService {
     // ~ Environment
     // =========================================================================
 
+    @RolesAllowed( { "user", "guest" })
     public Object getInput(String session, String key) {
         return mgr.getInput(session, key);
     }
 
+    @RolesAllowed( { "user", "guest" })
     public Object getOutput(String session, String key) {
         return mgr.getOutput(session, key);
     }
 
+    @RolesAllowed( { "user", "guest" })
     public void setInput(String session, String key, Object object) {
         mgr.setInput(session, key, object);
     }
 
+    @RolesAllowed( { "user", "guest" })
     public void setOutput(String session, String key, Object object) {
         mgr.setOutput(session, key, object);
+    }
+
+    @RolesAllowed( { "user", "guest" })
+    public Set<String> getInputKeys(String session) {
+        return mgr.inputEnvironment(session).keySet();
+    }
+
+    @RolesAllowed( { "user", "guest" })
+    public Set<String> getOutputKeys(String session) {
+        return mgr.outputEnvironment(session).keySet();
     }
 
     // ~ Helpers

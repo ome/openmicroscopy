@@ -148,14 +148,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
             Map<String, Object> env = mgr.outputEnvironment(session.getUuid());
             IceMapper mapper = new IceMapper();
             for (String key : env.keySet()) {
-                try {
-                    RType rt = mapper.toRType(env.get(key));
-                    output.val.put(key, rt);
-                } catch (ApiUsageException aue) {
-                    // Ignoring for now.
-                    // This simply means there was something in the output
-                    // environment that we don't know how to handle.
-                }
+                RType rt = mapper.toRType(env.get(key));
+                output.val.put(key, rt);
             }
             currentProcess = null;
             obtainResults = false;

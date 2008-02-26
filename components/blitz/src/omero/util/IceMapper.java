@@ -160,10 +160,18 @@ public class IceMapper extends ome.util.ModelMapper implements
             Date date = (Date) o;
             omero.RTime time = new omero.JTime(date.getTime());
             return time;
+        } else if (o instanceof Integer) {
+            Integer i = (Integer) o;
+            omero.RInt rint = new omero.JInt(i);
+            return rint;
         } else if (o instanceof Long) {
             Long lng = (Long) o;
             omero.RLong rlng = new omero.JLong(lng.longValue());
             return rlng;
+        } else if (o instanceof Float) {
+            Float flt = (Float) o;
+            omero.RFloat rflt = new omero.JFloat(flt);
+            return rflt;
         } else if (o instanceof Double) {
             Double dbl = (Double) o;
             omero.RDouble rdbl = new omero.JDouble(dbl.doubleValue());
@@ -172,12 +180,18 @@ public class IceMapper extends ome.util.ModelMapper implements
             String str = (String) o;
             omero.RString rstr = new omero.JString(str);
             return rstr;
+        } else if (o instanceof IObject) {
+            IObject obj = (IObject) o;
+            omero.model.IObject omero = (omero.model.IObject) map(obj);
+            omero.RObject robj = new omero.RObject(omero);
+            return robj;
+        } else if (o instanceof Collection) {
+            return new omero.JList(map((Collection) o));
         } else if (o instanceof Map) {
-            Map map = (Map) o;
-            omero.RMap rmap = new omero.RMap();
-            throw new ApiUsageException(null, null, "NYI");
+            return new omero.RMap(map((Map) o));
         } else {
-            throw new ApiUsageException(null, null, "NYI");
+            throw new ApiUsageException(null, null,
+                    "Unsupported conversion to rtype from:" + o);
         }
     }
 

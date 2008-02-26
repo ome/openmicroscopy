@@ -162,6 +162,13 @@ public interface SessionManager extends ApplicationListener {
             throws RemovedSessionException;
 
     /**
+     * Returns a copy of the input environment.
+     * 
+     * @return Not null
+     */
+    public Map<String, Object> inputEnvironment(String session);
+
+    /**
      * Returns a copy of the output environment.
      * 
      * @return Not null.

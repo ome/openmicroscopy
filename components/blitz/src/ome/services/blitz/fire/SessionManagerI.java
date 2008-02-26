@@ -89,24 +89,31 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         }
 
         try {
+            Ice.ObjectPrx _prx;
             Principal p = new Principal(userId, group, event);
             ome.model.meta.Session s = sessionManager.create(p);
             Principal sp = new Principal(s.getUuid(), group, event);
 
-            ServiceFactoryI session = new ServiceFactoryI(context,
-                    sessionManager, sp, CPTORS);
-
             Ice.Identity id = ServiceFactoryI.sessionId(s.getUuid());
-            Ice.ObjectPrx _prx = current.adapter.add(session, id);
-            Glacier2.SessionPrx prx = Glacier2.SessionPrxHelper
-                    .uncheckedCast(_prx);
+            Ice.Object servant = current.adapter.find(id);
+            if (servant == null) {
+                ServiceFactoryI session = new ServiceFactoryI(context,
+                        sessionManager, sp, CPTORS);
 
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Created session %s for user %s",
-                        id.name, userId));
+                _prx = current.adapter.add(session, id);
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Created session %s for user %s",
+                            id.name, userId));
+                }
+            } else {
+                if (log.isDebugEnabled()) {
+                    log.debug(String.format("Rejoined session %s for user %s",
+                            id.name, userId));
+                }
+                _prx = current.adapter.createProxy(id);
             }
+            return Glacier2.SessionPrxHelper.uncheckedCast(_prx);
 
-            return prx;
         } catch (RuntimeException t) {
             ConvertToBlitzExceptionMessage convert = new ConvertToBlitzExceptionMessage(
                     this, t);

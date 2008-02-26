@@ -19,6 +19,7 @@ import ome.api.IAdmin;
 import ome.api.IConfig;
 import ome.api.IPojos;
 import ome.api.IQuery;
+import ome.api.ISession;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
@@ -332,6 +333,42 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         ServantHelper.throwIfNecessary(rv);
         assertNull(rv);
+    }
+
+    // Session
+
+    @Test
+    public void testSessionsWorks() throws Exception {
+
+        ISession s;
+
+        init(ISession.class, "getInput");
+        method().will(returnValue(new omero.RInt()));
+
+        Object rv = invoke("a", "a");
+        ServantHelper.throwIfNecessary(rv);
+        assertNotNull(rv);
+
+        init(ISession.class, "setInput");
+        method();
+
+        rv = invoke("a", "a", new omero.RInt());
+        ServantHelper.throwIfNecessary(rv);
+
+    }
+
+    @Test
+    public void testSessionEnvironment() throws Exception {
+        // Used by InteractiveProcessorI
+
+        Map m = new HashMap();
+        m.put("string", new ome.model.core.Image());
+
+        mapper.toRType(1);
+        mapper.toRType(new omero.RInt(1));
+        mapper.toRType(m);
+        mapper.toRType(new ome.model.core.Image());
+        mapper.toRType(Arrays.asList(m));
     }
 
     // Admin

@@ -6,7 +6,7 @@
 #
 
 import omero, Ice
-import os, signal, subprocess, sys, threading, tempfile
+import os, signal, subprocess, sys, threading, tempfile, time, traceback
 
 CONFIG="""
 omero.user=%s
@@ -24,7 +24,7 @@ class ProcessI(omero.grid.Process):
     """
     Wrapper around a subprocess.Popen instance. Returned by ProcessorI
     when a job is submitted. This implementation uses the given
-    interpreter to call a file that must be named "script" in the 
+    interpreter to call a file that must be named "script" in the
     generated temporary directory.
 
     Call is equivalent to:
@@ -44,8 +44,12 @@ class ProcessI(omero.grid.Process):
         self.dir = tempfile.mkdtemp()
         self.script_name = os.path.join(self.dir, "script")
         self.config_name = os.path.join(self.dir, "config")
+        self.stdout_name = os.path.join(self.dir, "out")
+        self.stderr_name = os.path.join(self.dir, "err")
         self.env = {}
         self.env["ICE_CONFIG"] = self.config_name
+        self.env["PATH"] = os.environ["PATH"]
+        self.env["PYTHONPATH"] = os.path.join(os.getcwd(), "lib")
         self.make_config()
 
     def activate(self):
@@ -53,32 +57,36 @@ class ProcessI(omero.grid.Process):
         Process creation has to wait until all external downloads, etc
         are finished.
         """
-        self.popen = subprocess.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env)
+        self.stdout = open(self.stdout_name, "w")
+        self.stderr = open(self.stderr_name, "w")
+        self.popen = subprocess.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env, stdout=self.stdout, stderr=self.stderr)
+        print self.popen
 
     def __del__(self):
         """
         Cleans up the temporary directory used by the process, and terminates
         the Popen process if running.
         """
-        if not self.proc.poll():
-            self.log.warning("Sending %s SIGTERM." % str(proc.pid))
-            os.kill(proc.pid, signal.SIGTERM)
+
+        if hasattr(self, "popen") and None == self.popen.poll():
+            self.cancel()
 
             for i in range(5,0,-1):
                 time.sleep(6)
-                if proc.poll():
-                    self.log.warning("Process %s terminated cleanly." % str(proc.pid))
+                if self.popen.poll():
+                    self.log.warning("Process %s terminated cleanly." % str(self.popen.pid))
                     break
-                self.log.warning("%s still active. Killing in %s seconds." % (str(proc.pid),6*(i-1)+1))
+                else:
+                    self.log.warning("%s still active. Killing in %s seconds." % (str(self.popen.pid),6*(i-1)+1))
+            self.kill()
 
-        os.removedirs(self.dir)
-
-        if not proc.poll():
-            self.log.error("Killing %s..." % str(proc.pid))
-            try:
-                os.kill(proc.pid, signal.SIGKILL)
-            except OSError, oserr:
-                pass
+        if hasattr(self, "stderr"):
+            self.stderr.flush()
+            self.stderr.close()
+        if hasattr(self, "stdout"):
+            self.stdout.flush()
+            self.stdout.close()
+        # os.removedirs(self.dir)
 
     def make_config(self):
         config_file = open(self.config_name, "w")
@@ -92,7 +100,7 @@ class ProcessI(omero.grid.Process):
 
     def poll(self, current = None):
         rv = self.popen.poll()
-        if not rv:
+        if None == rv:
             return None
 
         rv = omero.RInt(rv)
@@ -104,13 +112,22 @@ class ProcessI(omero.grid.Process):
         self.allcallbacks("processFinished",rv)
         return rv
 
+    def _send(self, sig):
+        if not self.popen.poll():
+            try:
+                os.kill(self.popen.pid, sig)
+            except OSError, oserr:
+                # Already gone
+                pass
+        return True
+
     def cancel(self, current = None):
-        os.kill(self.popen.pid)
-        self.allcallbacks("processCancelled", True)
+        rv = self._send(signal.SIGTERM)
+        self.allcallbacks("processCancelled", rv)
 
     def kill(self, current = None):
-        os.kill(self.popen.pid)
-        self.allcallbacks("processKilled", True)
+        rv = self._send(signal.SIGKILL)
+        self.allcallbacks("processKilled", rv)
 
     def registerCallback(self, callback, current = None):
         self.lock.acquire()
@@ -129,9 +146,12 @@ class ProcessI(omero.grid.Process):
     def allcallbacks(self, method, arg):
         self.lock.acquire()
         try:
-            for cb in self.callbacks:
-                m = getattr(cb,method)
-                m(arg)
+                for cb in self.callbacks:
+                    try:
+                        m = getattr(cb,method)
+                        m(arg)
+                    except:
+                        print "Error calling callback " + str(cb)
         finally:
             self.lock.release()
 
@@ -161,9 +181,9 @@ class ProcessorI(omero.grid.Processor):
         file = job.originalFileLinks[0].child
         file = sf.getQueryService().findByQuery(\
             """select o from OriginalFile o
-             join fetch o.format where o.id = %d 
+             join fetch o.format where o.id = %d
              and o.details.owner.id = 0
-             and o.format.value = 'text/x-python' 
+             and o.format.value = 'text/x-python'
              """ % file.id.val, None)
 
         if not file:
@@ -171,7 +191,7 @@ class ProcessorI(omero.grid.Processor):
                 None, None, "File does not match processor criteria")
 
         properties = {}
-        properties["name"] = ec.userName
+        properties["name"] = session
         properties["pasw"] = session
         properties["conn"] = client.getProperty("Ice.Default.Router")
 

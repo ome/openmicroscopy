@@ -330,9 +330,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return getEnvironmentVariable(session, key, OUTPUT_ENVIRONMENT);
     }
 
+    public Map<String, Object> inputEnvironment(String session) {
+        return environment(session, INPUT_ENVIRONMENT);
+    }
+
     public Map<String, Object> outputEnvironment(String session) {
+        return environment(session, OUTPUT_ENVIRONMENT);
+    }
+
+    protected Map<String, Object> environment(String session, String env) {
         Map<String, Object> rv = new HashMap<String, Object>();
-        Element elt = inMemoryCache(session).get(OUTPUT_ENVIRONMENT);
+        Element elt = inMemoryCache(session).get(env);
         if (elt == null) {
             return rv;
         }

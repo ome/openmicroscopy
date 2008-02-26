@@ -7,28 +7,30 @@
 
 package ome.api;
 
+import java.util.Set;
+
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
-import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
-import ome.conditions.AuthenticationException;
 import ome.conditions.SecurityViolation;
 import ome.model.meta.Session;
 import ome.system.Principal;
 
 /**
+ * <em>Start here</em>: {@link Session} creation service for OMERO. Access to
+ * all other services is dependent upon a properly created and still active
+ * {@link Session}.
+ * 
+ * The {@link Session session's} {@link Session#getUuid() uuid} can be
+ * considered a capability token, or temporary single use password Simply by
+ * possessing it the client has access to all information available to the
+ * {@link Session}.
+ * 
  * Is not stateful because of the timeouts. Easier to control Responsible for
  * validating inputs (including authentication) and creating sessions by
  * properly using the PermissionsVerifer and SessionManager
  * 
- * The Session which is returned can be considered a capability token. Simply by
- * possessing it the client has access to all information available to the
- * {@link Session}
  * 
- * The {@link ISession} implementation is responsible for all traditional
- * security concerns, while the {@link SessionManager} is responsible for the
- * creation and destruction of {@link Session} instances as well as responding
- * to events within the server.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
@@ -55,7 +57,7 @@ public interface ISession extends ServiceInterface {
      *            timeToLive to be used; but timeToIdle will be disabled.
      */
     Session createSessionWithTimeout(@NotNull
-    Principal principal, long seconds);
+    Principal principal, long milliseconds);
 
     /**
      * Creates a new session and returns it to the user.
@@ -87,6 +89,9 @@ public interface ISession extends ServiceInterface {
     Session updateSession(@NotNull
     Session session);
 
+    Session getSession(@NotNull
+    String sessionUuid);
+
     void closeSession(@NotNull
     Session session);
 
@@ -104,9 +109,30 @@ public interface ISession extends ServiceInterface {
     // Environment contents
     // =========================================================================
 
+    /**
+     * Retrieves an entry from the given {@link Session session's} cache.
+     */
     Object getInput(String session, String key);
 
+    /**
+     * Retrieves
+     * 
+     * @param session
+     * @return
+     */
+    Set<String> getInputKeys(String session);
+
+    /**
+     * Places an entry in the given {@link Session session's} cache. If the
+     * value is null, the key will be removed.
+     * 
+     * @param session
+     * @param key
+     * @param objection
+     */
     void setInput(String session, String key, Object objection);
+
+    Set<String> getOutputKeys(String session);
 
     Object getOutput(String session, String key);
 
