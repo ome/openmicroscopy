@@ -75,6 +75,35 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
         this.session = UNINITIALIZED;
     }
 
+    public JobParams params(Current __current) throws ServerError {
+
+        rwl.writeLock().lock();
+
+        try {
+
+            if (stop) {
+                throw new ApiUsageException(null, null,
+                        "This processor is stopped.");
+            }
+
+            // Setup new user session
+            if (session == UNINITIALIZED) {
+                session = newSession(__current);
+            }
+
+            try {
+                return prx.parseJob(session.getUuid(), job);
+            } catch (ServerError se) {
+                log.debug("Error while parsing job", se);
+                throw se;
+            }
+
+        } finally {
+            rwl.writeLock().unlock();
+        }
+
+    }
+
     public ProcessPrx execute(RMap inputs, Current __current)
             throws ServerError {
 

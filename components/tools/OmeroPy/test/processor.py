@@ -11,6 +11,10 @@
 import unittest
 import omero.processor
 
+class log:
+    def warning(self, string):
+        print string
+
 class TestProcess(unittest.TestCase):
 
     def testMockPopen(self):
@@ -54,15 +58,25 @@ class TestProcess(unittest.TestCase):
 
     def testPopen(self):
 
-        class log:
-            def warning(self, string):
-                print string
-
         p = {"name":"name","pasw":"pass", "conn":"conn"}
         process = omero.processor.ProcessI("python",p,log())
         f = open(process.script_name, "w")
         f.write("""
 print "Hello"
+        """)
+        process.activate()
+        process.wait()
+        process.poll()
+
+    def testParameters(self):
+
+        p = {"name":"name","pasw":"pass", "conn":"conn"}
+        p["omero.scripts.parse"] = "1"
+        process = omero.processor.ProcessI("python",p,log())
+        f = open(process.script_name, "w")
+        f.write("""
+import omero, omero.scripts s
+client = s.client("name","description",s.Long("l"))
         """)
         process.activate()
         process.wait()

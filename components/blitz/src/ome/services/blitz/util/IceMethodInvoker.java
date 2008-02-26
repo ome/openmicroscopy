@@ -32,6 +32,7 @@ import ome.util.Filterable;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 import omero.ApiUsageException;
+import omero.RInternal;
 import omero.RType;
 import omero.ServerError;
 import omero.util.IceMapper;
@@ -296,8 +297,12 @@ public class IceMethodInvoker {
 
     public Object handleOutput(IceMapper mapper, Class type, Object o)
             throws ServerError {
-        if (RType.class.isAssignableFrom(type)) {
+        if (o == null) {
+            return null;
+        } else if (RType.class.isAssignableFrom(type)) {
             return o;
+        } else if (omero.Internal.class.isAssignableFrom(type)) {
+            return new RInternal((omero.Internal) o);
         } else if (void.class.isAssignableFrom(type)) {
             assert o == null;
             return null;

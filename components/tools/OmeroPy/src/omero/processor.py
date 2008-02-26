@@ -9,9 +9,6 @@ import omero, Ice
 import os, signal, subprocess, sys, threading, tempfile, time, traceback
 
 CONFIG="""
-omero.user=%s
-omero.pass=%s
-Ice.Default.Router=%s
 Ice.ACM.Client=0
 Ice.MonitorConnections=60
 Ice.RetryIntervals=-1
@@ -91,10 +88,9 @@ class ProcessI(omero.grid.Process):
     def make_config(self):
         config_file = open(self.config_name, "w")
         try:
-            name = self.properties["name"]
-            pasw = self.properties["pasw"]
-            conn = self.properties["conn"]
-            config_file.write(CONFIG % (name,pasw,conn))
+            config_file.write(CONFIG)
+            for key in self.properties.iterkeys():
+                config_file.write("%s=%s\n"%(key, self.properties[key]))
         finally:
             config_file.close()
 
@@ -163,15 +159,28 @@ class ProcessorI(omero.grid.Processor):
         self.cfg = os.path.abspath(self.cfg)
         print "init"
 
+    def parseJob(self, session, job, current = None):
+        properties = {}
+        properties["omero.scripts.parse"] = "true"
+        process = self.process(session, job, current, properties)
+        process.wait()
+        client = omero.client(["--Ice.Config=%s" % (self.cfg)])
+        client.joinSession(session)
+        rv = client.getOutput("omero.scripts.parse")
+        if rv != None:
+            return rv.val
+        return None
+
     def processJob(self, session, job, current = None):
         """
         """
-        print "process"
+        return self.process(session, job, current)
+
+    def process(self, session, job, current, properties = {}):
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         sf = client.createSession(session, session)
         ec = sf.getAdminService().getEventContext()
 
-        print "checking"
         # Should actually reload the Job here.
         if not job.originalFileLinksLoaded or \
                 len(job.originalFileLinks) != 1:
@@ -190,12 +199,10 @@ class ProcessorI(omero.grid.Processor):
             raise omero.ApiUsageException(\
                 None, None, "File does not match processor criteria")
 
-        properties = {}
-        properties["name"] = session
-        properties["pasw"] = session
-        properties["conn"] = client.getProperty("Ice.Default.Router")
+        properties["omero.user"] = session
+        properties["omero.pass"] = session
+        properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-        print "creating process"
         process = ProcessI("python", properties, self.log)
         client.download(file, process.script_name)
         process.activate()

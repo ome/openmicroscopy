@@ -17,30 +17,36 @@
 
 """
 
-import exceptions, omero
+import sys, exceptions, omero
 
 class Type:
     def __init__(self, name, optional = False):
         self.name = name
         self.type = None
         self.optional = False
-        self.out = False
+        self._in = True
+        self._out = False
     def out(self):
-        self.out = true
+        self._in = False
+        self._out = True
+        return self
+    def inout(self):
+        self._in = True
+        self._out = True
         return self
 
 class Long(Type):
     def __init__(self, name, optional = False):
         Type.__init__(self, name, optional)
-        self.type = "long"
+        self.type = omero.RLong()
 class String(Type):
     def __init__(self, name, optional = False):
         Type.__init__(self, name, optional)
-        self.type = "string"
+        self.type = omero.RString()
 class Bool(Type):
     def __init__(self, name, optional = False):
         Type.__init__(self, name, optional)
-        self.type = "bool"
+        self.type = omero.RBool()
 
 def client(name, description = None, *args):
     """
@@ -59,11 +65,26 @@ def client(name, description = None, *args):
 
     """
     c = omero.client()
-    if "true" == c.getProperty("omero.script.parse"): # Add to omero/Constants.ice
-        print "Name:       ", name
-        print "Description:", description
-        print "Parameters:\n",args
-        return args
+    if len(c.getProperty("omero.scripts.parse")) > 0: # Add to omero/Constants.ice
+        params = omero.grid.JobParams()
+        params.name = name
+        params.description = description
+        params.inputs = {}
+        params.outputs = {}
+        for p in args:
+            param = omero.grid.Param()
+            param.name = p.name
+            param.optional = p.optional
+            param.prototype = p.type
+            if p._in:
+                params.inputs[p.name] = param
+            if p._out:
+                params.outputs[p.name] = param
+        print params
+
+        c.createSession()
+        c.setOutput("omero.scripts.parse", omero.RInternal(params))
+        sys.exit(0)
     else:
         return c
 

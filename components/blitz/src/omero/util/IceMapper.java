@@ -53,6 +53,7 @@ import omero.RClass;
 import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
+import omero.RInternal;
 import omero.RList;
 import omero.RLong;
 import omero.RObject;
@@ -61,6 +62,7 @@ import omero.RString;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
+import omero.grid.JobParams;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
 import omero.romio.RedBand;
@@ -189,6 +191,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             return new omero.JList(map((Collection) o));
         } else if (o instanceof Map) {
             return new omero.RMap(map((Map) o));
+        } else if (o instanceof JobParams) {
+            return new omero.grid.JobParamsType((JobParams) o);
         } else {
             throw new ApiUsageException(null, null,
                     "Unsupported conversion to rtype from:" + o);
@@ -214,7 +218,10 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
 
         // Next round of conversions on the value itself.
-        if (RTime.class.isAssignableFrom(rt.getClass())) {
+        if (RInternal.class.isAssignableFrom(rt.getClass())) {
+            // Do nothing. RInternal is intended for us with blitz.
+            // See Scripts.ice to explain the temporary solution.
+        } else if (RTime.class.isAssignableFrom(rt.getClass())) {
             rv = new Timestamp((Long) rv);
         } else if (RClass.class.isAssignableFrom(rt.getClass())) {
             rv = omeroClass((String) rv, true);

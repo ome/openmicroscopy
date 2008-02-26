@@ -14,11 +14,56 @@
 #include <omero/model/Job.ice>
 
 /*
- * The Processor API is intended to provide an Ice-implementation
- * of the ome.services.procs.Processor interface.
+ * The Processor API is intended to provide an script runner
+ * implementation, for use by the server and via the
+ * InteractiveProcessor wrapper by clients.
+ *
+ * See https://trac.openmicroscopy.org.uk/omero/wiki/OmeroGrid
  */
 module omero {
+
+    class Internal{};
+
+    /*
+     * Base type for RTypes whose contents will not be parsed by
+     * the server. This is an intermediate solution while
+     * conversion between Blitz/JBoss types is necessary.
+     *
+     * Direct references to RType2 should be minimized.
+     */
+    class RInternal extends omero::RType {
+        Internal val;
+    };
+
     module grid {
+
+	/*
+	 * A single parameter to a Job. For example, used by
+	 * ScriptJobs to define what the input and output
+	 * environment variables should be.
+	 */
+	class Param {
+	    string name;
+	    string description;
+	    bool optional;
+	    omero::RType prototype;
+	};
+
+	dictionary<string, Param> ParamMap;
+
+	/*
+	 * Complete job description with all input
+	 * and output Params. See above.
+	 */
+	class JobParams extends Internal {
+
+	    string name;
+	    string description;
+
+	    ParamMap inputs;
+	    ParamMap outputs;
+
+	};
 
 	/*
 	 * Callback which can be attached to a Process
@@ -106,6 +151,12 @@ module omero {
              */
             ["ami"] Process* processJob(string session, omero::model::Job j) throws ServerError;
 
+	    /*
+	     * Parses a job and returns metadata definition required
+	     * for properly submitting the job.
+	     */
+            ["ami"] JobParams parseJob(string session, omero::model::Job j) throws ServerError;
+
         };
 
 
@@ -131,6 +182,12 @@ module omero {
             omero::model::Job getJob();
 
 	    /*
+	     * Retrieves the parameters needed to be passed in an execution
+             * and the results which will be passed back out.
+	     */
+	    JobParams params() throws ServerError;
+
+	    /*
 	     * Executes an instance of the job returned by getJob() using
 	     * the given map as inputs.
 	     */
@@ -139,7 +196,8 @@ module omero {
 	    /*
 	     * Retrieve the results for the given process. This will throw
 	     * an ApiUsageException if called before the process has returned.
-	     * Use either process.poll() or process.wait() to 
+	     * Use either process.poll() or process.wait() or a ProcessCallback
+             * to wait for completion before calling.
 	     */
             ["ami"] omero::RMap getResults(Process* proc) throws ServerError;
 
