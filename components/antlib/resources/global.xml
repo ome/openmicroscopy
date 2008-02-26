@@ -32,6 +32,7 @@
 	<!-- Where to find things. It is assume that to have imported this 
 	file any build script will have had to define the import.dir variable-->
 	<import file="${import.dir}/directories.xml"/>
+	<import file="${import.dir}/release.xml"/>
 
 	<!-- Define properties :
 		The user's environment (env) overrides all other
