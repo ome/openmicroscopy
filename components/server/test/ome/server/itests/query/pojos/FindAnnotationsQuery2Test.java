@@ -62,6 +62,8 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
             assertNotNull(annotated.getDetails().getUpdateEvent().getTime());
             assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
                     .getCreationEvent().getTime());
+            assertNotNullOrUnloaded(annotated.linkedAnnotationList().get(0)
+                    .getDetails().getOwner());
             // assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
             // .getUpdateEvent().getTime());
         }
@@ -76,6 +78,8 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
                 .next();
         assertNotNull(ann.getDetails().getCreationEvent());
         assertTrue(ann.getDetails().getCreationEvent().isLoaded());
+        assertNotNullOrUnloaded(ann.getDetails().getOwner());
+
     }
 
     @Test(groups = "ticket:884")
@@ -102,9 +106,19 @@ public class FindAnnotationsQuery2Test extends AbstractManagedContextTest {
             assertNotNull(annotated.getDetails().getUpdateEvent().getTime());
             assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
                     .getCreationEvent().getTime());
+            assertNotNullOrUnloaded(annotated.linkedAnnotationList().get(0)
+                    .getDetails().getOwner());
+
             // assertNotNull(annotated.linkedAnnotationList().get(0).getDetails()
             // .getUpdateEvent().getTime());
         }
+    }
+
+    // Helpers
+
+    void assertNotNullOrUnloaded(IObject obj) {
+        assertNotNull(obj);
+        assertTrue(obj.isLoaded());
     }
 
 }
