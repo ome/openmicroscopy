@@ -46,7 +46,7 @@ class ProcessI(omero.grid.Process):
         self.env = {}
         self.env["ICE_CONFIG"] = self.config_name
         self.env["PATH"] = os.environ["PATH"]
-        self.env["PYTHONPATH"] = os.path.join(os.getcwd(), "lib")
+        self.env["PYTHONPATH"] = os.environ["PYTHONPATH"]
         self.make_config()
 
     def activate(self):

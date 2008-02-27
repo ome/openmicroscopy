@@ -86,7 +86,7 @@
       <parameter name="exe" default="python"/>
       <server id="Processor${index}" exe="${exe}" activation="always">
         <option>lib/omero/processor.py</option>
-        <env>PYTHONPATH=lib</env>
+        <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="ProcessorAdapter" replica-group="ProcessorAdapters" register-process="true" endpoints="tcp"/>
         <distrib/>
         <properties>
