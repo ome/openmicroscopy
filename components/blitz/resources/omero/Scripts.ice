@@ -12,6 +12,7 @@
 #include <omero/RTypes.ice>
 #include <omero/ServerErrors.ice>
 #include <omero/model/Job.ice>
+#include <Ice/BuiltinSequences.ice>
 
 /*
  * The Processor API is intended to provide an script runner
@@ -33,6 +34,21 @@ module omero {
      */
     class RInternal extends omero::RType {
         Internal val;
+    };
+
+    /*
+     * Types using the "Internal" infrastructure to allow storing
+     * useful types in the input/output environments of scripts.
+     */
+    sequence<Ice::ByteSeq> Bytes2D;
+
+    class Plane extends Internal {
+        Bytes2D data;
+    };
+
+    class Point extends Internal {
+        int x;
+        int y;
     };
 
     module grid {

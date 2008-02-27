@@ -20,12 +20,12 @@
 import sys, exceptions, omero
 
 class Type:
-    def __init__(self, name, optional = False):
+    def __init__(self, name, optional = False, out = False):
         self.name = name
         self.type = None
         self.optional = False
         self._in = True
-        self._out = False
+        self._out = out
     def out(self):
         self._in = False
         self._out = True
@@ -34,19 +34,38 @@ class Type:
         self._in = True
         self._out = True
         return self
+    def optional(self):
+        self.optional = True
+        return self
 
 class Long(Type):
-    def __init__(self, name, optional = False):
-        Type.__init__(self, name, optional)
+    def __init__(self, name, optional = False, out = False):
+        Type.__init__(self, name, optional, out)
         self.type = omero.RLong()
 class String(Type):
-    def __init__(self, name, optional = False):
-        Type.__init__(self, name, optional)
+    def __init__(self, name, optional = False, out = False):
+        Type.__init__(self, name, optional, out)
         self.type = omero.RString()
 class Bool(Type):
-    def __init__(self, name, optional = False):
-        Type.__init__(self, name, optional)
+    def __init__(self, name, optional = False, out = False):
+        Type.__init__(self, name, optional, out)
         self.type = omero.RBool()
+class Point(Type):
+    def __init__(self, name, optional = False, out = False):
+        Type.__init__(self, name, optional, out)
+        self.type = omero.RInternal(omero.Point())
+class Plane(Type):
+    def __init__(self, name, optional = False, out = False):
+        Type.__init__(self, name, optional, out)
+        self.type = omero.RInternal(omero.Plane())
+class Set(Type):
+    def __init__(self, name, optional = False, out = False, *contents):
+        Type.__init__(self, name, optional, out)
+        self.type = omero.RSet(contents)
+class Map(Type):
+    def __init__(self, name, optional = False, out = False, **contents):
+        Type.__init__(self, name, optional, out)
+        self.type = omero.RMap(contents)
 
 def client(name, description = None, *args):
     """

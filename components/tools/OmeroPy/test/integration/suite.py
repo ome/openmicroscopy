@@ -28,5 +28,6 @@ def additional_tests():
     suite.addTest(load("test.integration.scripts"))
     suite.addTest(load("test.integration.files"))
     suite.addTest(load("test.integration.ping"))
+    suite.addTest(load("test.integration.proj"))
     suite.addTest(load("test.integration.tickets1000"))
     return suite
