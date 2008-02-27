@@ -354,14 +354,13 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         ServantHelper.throwIfNecessary(rv);
 
         init(ISession.class, "getOutput");
-        method().will(returnValue(new omero.grid.JobParams()));
+        method().will(returnValue(new omero.Point()));
         rv = invoke("a", "a");
         ServantHelper.throwIfNecessary(rv);
 
         init(ISession.class, "setOutput");
         method();
-        rv = invoke("a", "a", new omero.grid.JobParamsType(
-                new omero.grid.JobParams()));
+        rv = invoke("a", "a", new omero.RInternal(new omero.grid.JobParams()));
         ServantHelper.throwIfNecessary(rv);
 
     }

@@ -62,7 +62,6 @@ import omero.RString;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
-import omero.grid.JobParams;
 import omero.romio.BlueBand;
 import omero.romio.GreenBand;
 import omero.romio.RedBand;
@@ -191,8 +190,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             return new omero.JList(map((Collection) o));
         } else if (o instanceof Map) {
             return new omero.RMap(map((Map) o));
-        } else if (o instanceof JobParams) {
-            return new omero.grid.JobParamsType((JobParams) o);
+        } else if (o instanceof omero.Internal) {
+            return new omero.RInternal((omero.Internal) o);
         } else {
             throw new ApiUsageException(null, null,
                     "Unsupported conversion to rtype from:" + o);
