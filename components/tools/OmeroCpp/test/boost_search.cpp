@@ -8,6 +8,7 @@
 #include <IceUtil/UUID.h>
 #include <Glacier2/Glacier2.h>
 #include <boost_fixture.h>
+#include <time.h>
 
 using namespace std;
 using namespace omero;
@@ -15,19 +16,105 @@ using namespace omero::api;
 using namespace omero::model;
 using namespace omero::sys;
 
+void byAnnotatedWith(SearchPrx search, AnnotationPtr a) {
+    omero::api::AnnotationList list;
+    list.push_back(a);
+    search->byAnnotatedWith(list);
+}
+LongList ids(long id){
+    LongList ll;
+    ll.push_back(id);
+    return ll;
+}
+LongList ids(long id, long id2){
+    LongList ll = ids(id);
+    ll.push_back(id2);
+    return ll;
+}
+StringSet stringSet(string s) {
+    StringSet ss;
+    ss.push_back(s);
+    return ss;
+}
+StringSet stringSet(string s, string s2){
+    StringSet ss = stringSet(s);
+    ss.push_back(s2);
+    return ss;
+}
+
+class SearchFixture {
+    string _name;
+    Fixture f;
+    const omero::client* client;
+    ServiceFactoryPrx sf;
+public:
+    SearchFixture() {
+    }
+    SearchFixture(string name) {
+	_name = name;
+    }
+    void init() {
+	if (!sf) {
+	    if (_name.empty()) {
+		client = f.login();
+	    } else if (_name == "root") {
+		client = f.root_login();
+	    } else {
+		client = f.login(_name);
+	    }
+	    sf = (*client).getSession();
+	}
+    }
+    SearchPrx search() {
+	init();
+	return sf->createSearchService();
+    }
+    IAdminPrx admin() {
+	init();
+	return sf->getAdminService();
+    }
+    IQueryPrx query() {
+	init();
+	return sf->getQueryService();
+    }
+    IUpdatePrx update() {
+	init();
+	return sf->getUpdateService();
+    }
+    string uuid() {
+	return f.uuid();
+    }
+    OriginalFileIPtr createFile() {
+	OriginalFileIPtr file = new OriginalFileI();
+	return file;
+    }
+    ExperimenterIPtr newUser() {
+	ExperimenterIPtr e = new ExperimenterI();
+	e->omeName = new omero::RString(uuid());
+	e->firstName = new omero::RString("name");
+	e->lastName = new omero::RString("name");
+	long id = admin()->createUser(e, "default");
+	return ExperimenterIPtr::dynamicCast(query()->get("Experimenter",id));
+    }
+};
+
 /*
  * Clears one result from the current queue.
  */
-#define assertResults(count, search) _assertResults(__LINE__, count, search) 
-
-void _assertResults(int line, int count, SearchPrx search) {
+#define assertResults(count, search) _assertResults(__LINE__, count, search, true) 
+#define assertAtLeastResults(count, search) _assertResults(__LINE__, count, search, false) 
+void _assertResults(int line, int count, SearchPrx search, bool exact) {
     stringstream out;
     out << "line " << line << ":";
     if (count  > 0) {
 	out << "Search should have results" << endl;
         BOOST_CHECK_MESSAGE( search->hasNext(), out.str());
         if (search->hasNext()) {
-            BOOST_CHECK_EQUAL( count, search->results().size() );
+	    if (exact) {
+		BOOST_CHECK_EQUAL( count, search->results().size() );
+	    } else {
+		BOOST_CHECK_MESSAGE( search->results().size() > count, "Not enough results");
+	    }
         }
     } else {
 	out << "Search shouldn't have results. Found";
@@ -42,11 +129,9 @@ void _assertResults(int line, int count, SearchPrx search) {
 BOOST_AUTO_TEST_CASE( RootSearch )
 {
     try {
-        Fixture f;
+        SearchFixture f;
 
-	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession();
-        SearchPrx search = sf->createSearchService();
+        SearchPrx search = f.search();
         search->onlyType("Experimenter");
         search->byFullText("root");
         if (search->hasNext()) {
@@ -65,13 +150,11 @@ BOOST_AUTO_TEST_CASE( RootSearch )
 BOOST_AUTO_TEST_CASE( IQuerySearch )
 {
     try {
-        Fixture f;
+        SearchFixture f;
+	SearchFixture root("root");
+        IUpdatePrx update = f.update();
 
-	const omero::client* client = f.login();
-	ServiceFactoryPrx sf = (*client).getSession();
-        IUpdatePrx update = sf->getUpdateService();
-
-        string uuid(IceUtil::generateUUID());
+	string uuid = f.uuid();
         ImageIPtr i = new ImageI();
         i->setName(new omero::RString(uuid));
 	i = ImageIPtr::dynamicCast( update->saveAndReturnObject(i) );
@@ -80,8 +163,7 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 	 *
 	 */
 	try {
-	    const omero::client* root = f.root_login();
-	    (*root).getSession()->getUpdateService()->indexObject(i);
+	    root.update()->indexObject(i);
 	} catch (const Glacier2::PermissionDeniedException& pde) {
 	    BOOST_ERROR("permission denied:"+pde.reason);
 	}
@@ -90,7 +172,7 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 	 * IQuery provides a simple, stateless method for search
 	 */
         IObjectList list;
-        list = sf->getQueryService()->findAllByFullText("Image",uuid,0);
+        list = f.query()->findAllByFullText("Image",uuid,0);
 	BOOST_CHECK_EQUAL( 1, list.size() );
 	
     } catch (const omero::ApiUsageException& aue) {
@@ -106,21 +188,17 @@ BOOST_AUTO_TEST_CASE( IQuerySearch )
 BOOST_AUTO_TEST_CASE( Filtering )
 {
     try {
-        Fixture f;
-
-	const omero::client* client = f.login();
-        const omero::client* root = f.root_login();
-
-	ServiceFactoryPrx sf = (*client).getSession();
+        SearchFixture f;
+	SearchFixture root;
 
 	string uuid = f.uuid();
 	ImageIPtr i = new ImageI();
-        i->name = new RString(uuid);
+        i->name = new omero::RString(uuid);
 
-        IObjectPtr obj =  sf->getUpdateService()->saveAndReturnObject(i);
-        (*root).getSession()->getUpdateService()->indexObject(obj);
+        IObjectPtr obj =  f.update()->saveAndReturnObject(i);
+        root.update()->indexObject(obj);
 
-        SearchPrx search = sf->createSearchService();
+        SearchPrx search = f.search();
         search->onlyType("Image");
 
         // Search without filter
@@ -170,313 +248,303 @@ BOOST_AUTO_TEST_CASE( Filtering )
 // Below this point is an exact copy of SearchTest.java from r2265
 // ===============================================================
 
-/*
-BOOST_AUTO_TEST_CASE ( testSerialization ) {
-    Fixture f;
-    const omero::client* client = f.login();
-    SearchPrx search = (*client).getSession()->createSearchService();
-
-    search->onlyType("Experimenter");
-    search.byFullText("root");
-    search.hasNext();
-    Search internal = search;
-    while (internal instanceof Advised) {
-	internal = (Search) ((Advised) search).getTargetSource()
-	    .getTarget();
-    }
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(baos);
-    oos.writeObject(internal);
-}
-
 // by<Query>
 // =========================================================================
 // This section tests each query method with various combinations of
 // restrictions
 
 BOOST_AUTO_TEST_CASE ( testByGroupForTags ) {
-    String groupStr = uuid();
-    String tagStr = uuid();
+    SearchFixture f;
+    SearchFixture root("root");
+    string groupStr = f.uuid();
+    string tagStr = f.uuid();;
 
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(tagStr);
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(tagStr));
 
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(groupStr);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(groupStr));
 
-    tag.linkAnnotation(grp);
-    tag = iUpdate.saveAndReturnObject(tag);
+    tag->linkAnnotation(grp);
+    tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
-    Fixture f;
-    const omero::client* client = f.login();
-    SearchPrx search = (*client).getSession()->createSearchService();
-    search.byGroupForTags(groupStr);
-    assertEquals(1, search.results().size());
+    SearchPrx search = f.search();
+    search->byGroupForTags(groupStr);
+    assertResults(1, search);
 
     // Make another one
-    groupStr = uuid();
-    grp = new TagAnnotation();
-    tag.linkAnnotation(grp);
-    tag = iUpdate.saveAndReturnObject(tag);
+    groupStr = f.uuid();;
+    grp = new TagAnnotationI();
+    tag->linkAnnotation(grp);
+    tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
     // Now we are sure that there are two taggroups in the db;
     // this should return all two then
-    search.byGroupForTags(null);
-    search.setBatchSize(2);
-    assertEquals(2, search.results().size());
-    while (search.hasNext()) {
-	search.results(); // Clear search
+    search->byGroupForTags(string()); // ERROR Need to pass null
+    search->setBatchSize(2);
+    assertResults(2, search);
+    while (search->hasNext()) {
+	search->results(); // Clear search
     }
 
     // Let's now add the tag to another tag group as another user
     // and try to filter out those results
 
-    long oldUser = iAdmin.getEventContext().getCurrentUserId();
-    Details d = Details.create();
-    d.setOwner(new Experimenter(oldUser, false));
+    long oldUser = f.admin()->getEventContext()->userId;
+    DetailsIPtr d = new DetailsI();
+    d->setOwner(new ExperimenterI(new omero::RLong(oldUser), false));
 
-    Experimenter e = loginNewUser();
-    grp = new TagAnnotation();
-    groupStr = uuid();
-    grp.setTextValue(groupStr);
-    tag.linkAnnotation(grp);
-    tag = iUpdate.saveAndReturnObject(tag);
+    ExperimenterIPtr e = root.newUser();
+    SearchFixture f2(e->omeName->val);
+    grp = new TagAnnotationI();
+    groupStr = f2.uuid();;
+    grp->setTextValue(new omero::RString(groupStr));
+    tag->linkAnnotation(grp);
+    tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
     // All queries finished?
-    assertEquals(0, search.activeQueries());
-    assertFalse(search.hasNext());
+    BOOST_CHECK_EQUAL(0, search->activeQueries());
+    assertResults(0, search);
 
-    search.onlyOwnedBy(d);
-    search.byGroupForTags(groupStr);
-    assertFalse(search.hasNext());
+    search->onlyOwnedBy(d);
+    search->byGroupForTags(groupStr);
+    BOOST_CHECK( ! search->hasNext());
 
-    d.setOwner(e);
-    search.onlyOwnedBy(d);
-    search.byGroupForTags(groupStr);
-    assertEquals(1, search.results().size());
+    d->setOwner(e);
+    search->onlyOwnedBy(d);
+    search->byGroupForTags(groupStr);
+    assertResults(1, search);
 
-    search.onlyOwnedBy(null);
-    search.byGroupForTags(groupStr);
-    assertEquals(1, search.results().size());
+    search->onlyOwnedBy(DetailsIPtr());
+    search->byGroupForTags(groupStr);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testByTagForGroup ) {
-    String groupStr = uuid();
-    String tagStr = uuid();
+    SearchFixture f;
+    string groupStr = f.uuid();;
+    string tagStr = f.uuid();;
 
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(tagStr);
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(tagStr));
 
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(groupStr);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(groupStr));
 
-    tag.linkAnnotation(grp);
-    tag = iUpdate.saveAndReturnObject(tag);
+    tag->linkAnnotation(grp);
+    tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.byTagForGroups(tagStr);
-    assertEquals(1, search.results().size());
+    SearchPrx search = f.search();
+    search->byTagForGroups(tagStr);
+    assertResults(1, search);
 
     // Make another one
-    tagStr = uuid();
-    tag = new TagAnnotation();
-    tag.linkAnnotation(grp);
-    tag = iUpdate.saveAndReturnObject(tag);
+    tagStr = f.uuid();
+    tag = new TagAnnotationI();
+    tag->linkAnnotation(grp);
+    tag = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(tag));
 
     // Now we are sure that there are two tags for the one group;
     // this should return all two then
-    search.byTagForGroups(null);
-    search.setBatchSize(2);
-    assertEquals(2, search.results().size());
-    while (search.hasNext()) {
-	search.results(); // Clear search
+    search->byTagForGroups(string()); // ERROR
+    search->setBatchSize(2);
+    assertResults(2, search);
+    while (search->hasNext()) {
+	search->results(); // Clear search
     }
 
     // Let's now add another tag to the tag group as another user
     // and try to filter out those results
 
-    long oldUser = iAdmin.getEventContext().getCurrentUserId();
-    Details d = Details.create();
-    d.setOwner(new Experimenter(oldUser, false));
+    long oldUser = f.admin()->getEventContext()->userId;
+    DetailsIPtr d = new DetailsI();
+    d->setOwner(new ExperimenterI(new omero::RLong(oldUser), false));
 
-    Experimenter e = loginNewUser();
-    tag = new TagAnnotation();
-    tagStr = uuid();
-    tag.setTextValue(tagStr);
-    tag.linkAnnotation(grp.proxy());
-    tag = iUpdate.saveAndReturnObject(tag);
+    SearchFixture root("root");
+    ExperimenterIPtr e = root.newUser();
+    SearchFixture f2(e->omeName->val);
+    tag = new TagAnnotationI();
+    tagStr = f2.uuid();;
+    tag->setTextValue(new omero::RString(tagStr));
+    tag->linkAnnotation(new TagAnnotationI(grp->id, false));
+    tag = TagAnnotationIPtr::dynamicCast(f2.update()->saveAndReturnObject(tag));
 
     // All queries finished?
-    assertEquals(0, search.activeQueries());
-    assertFalse(search.hasNext());
+    BOOST_CHECK_EQUAL(0, search->activeQueries());
+    assertResults(0, search);
 
-    search.onlyOwnedBy(d);
-    search.byTagForGroups(tagStr);
-    assertFalse(search.hasNext());
+    search->onlyOwnedBy(d);
+    search->byTagForGroups(tagStr);
+    assertResults(0, search);
 
-    d.setOwner(e);
-    search.onlyOwnedBy(d);
-    search.byTagForGroups(tagStr);
-    assertEquals(1, search.results().size());
+    d->setOwner(e);
+    search->onlyOwnedBy(d);
+    search->byTagForGroups(tagStr);
+    assertResults(1, search);
 
-    search.onlyOwnedBy(null);
-    search.byTagForGroups(tagStr);
-    assertEquals(1, search.results().size());
+    search->onlyOwnedBy(DetailsIPtr());
+    search->byTagForGroups(tagStr);
+    assertResults(1, search);
 
 }
 
 BOOST_AUTO_TEST_CASE( testSimpleFullTextSearch ) {
+    
+    SearchFixture f;
+    SearchFixture root("root");
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(f.uuid()));
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
-    Image i = new Image();
-    i.setName(uuid());
-    i = iUpdate.saveAndReturnObject(i);
+    root.update()->indexObject(i);
 
-    iUpdate.indexObject(i);
-    loginRoot();
-
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
-    search.byFullText(i.getName());
+    SearchPrx search = f.search();
+    search->onlyType("Image");
+    search->byFullText(i->getName()->val);
     int count = 0;
-    while (search.hasNext()) {
-	IObject obj = search.next();
+    IObjectPtr obj;
+    while (search->hasNext()) {
+	obj = search->next();
 	count++;
-	assertNotNull(obj);
+	BOOST_CHECK( obj );
     }
-    assertTrue(count == 1);
-    search.close();
+    BOOST_CHECK(count == 1);
+    search->close();
 
-    search.onlyType(Image.class);
-    search.byFullText(i.getName());
-    assertResults(search, 1);
+    search->onlyType("Image");
+    search->byFullText(i->getName()->val);
+    assertResults(1, search);
 
-    search.close();
+    search->close();
 }
 
-String[] sa(String... arr) {
-    return arr;
+/*
+
+vector<string> sa(string array...) {
+    vector<string> v;
+    static const unsigned int arraySize = sizeof array / sizeof *array ;
+    for(int x=0; x < arraySize; x++) {
+	v.push_back(array[x]);
+    }
+    return v;
 }
 
 BOOST_AUTO_TEST_CASE( testSomeMustNone ) {
-    final String[] contained = new String[] { "abc", "def", "ghi", "123" };
-    final String[] missing = new String[] { "jkl", "mno", "pqr", "456" };
+    string contained[] = { "abc", "def", "ghi", "123" };
+    string missing[] =  { "jkl", "mno", "pqr", "456" };
 
-    Image i = new Image();
-    i.setName("abc def ghi");
-    i = iUpdate.saveAndReturnObject(i);
-    iUpdate.indexObject(i);
-    loginRoot();
+    SearchFixture f;
+    SearchFixture root("root");
 
-    final Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString("abc def ghi"));
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    root.update()->indexObject(i);
+
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // Make sure we can find it simply
-    search.bySomeMustNone(sa("abc"), sa(), sa());
-    assertTrue(search.results().size() >= 1);
+    search->bySomeMustNone(sa("abc"), sa(), sa());
+    BOOST_CHECK(search->results().size() >= 1);
 
     //
     // Now we'll try more complicated queries
     //
 
     // This should return nothing since none is contained
-    search.bySomeMustNone(sa("abc"), sa(), sa("def"));
+    search->bySomeMustNone(sa("abc"), sa(), sa("def"));
     assertResults(search, 0);
 
     // but if the none is not contained should be ok.
-    search.bySomeMustNone(sa("abc"), sa("abc"), sa("jkl"));
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("abc"), sa("abc"), sa("jkl"));
+    assertAtLeastResults(1, search);
 
     // Simple must query
-    search.bySomeMustNone(sa(), sa("abc"), sa());
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa(), sa("abc"), sa());
+    assertAtLeastResults(1, search);
 
     // same, but with a matching none
-    search.bySomeMustNone(sa(), sa("abc"), sa("def"));
+    search->bySomeMustNone(sa(), sa("abc"), sa("def"));
     assertResults(search, 0);
 
     // same again, but with non-matching none
-    search.bySomeMustNone(sa(), sa("abc"), sa("jkl"));
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa(), sa("abc"), sa("jkl"));
+    assertAtLeastResults(1, search);
 
     //
     // Mixing some and must
     //
 
     // Present must
-    search.bySomeMustNone(sa("abc"), sa("def"), sa());
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("abc"), sa("def"), sa());
+    assertAtLeastResults(1, search);
 
     // Missing must
-    search.bySomeMustNone(sa("abc"), sa("jkl"), sa());
+    search->bySomeMustNone(sa("abc"), sa("jkl"), sa());
     assertResults(search, 0);
 
     // Present must, missing some
-    search.bySomeMustNone(sa("jkl"), sa("def"), sa());
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("jkl"), sa("def"), sa());
+    assertAtLeastResults(1, search);
 
     //
     // Using wildcards
     //
 
     // some with wildcard
-    search.bySomeMustNone(sa("ab*"), sa(), sa());
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("ab*"), sa(), sa());
+    assertAtLeastResults(1, search);
 
     // must with wildcard
-    search.bySomeMustNone(sa(), sa("ab*"), sa());
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa(), sa("ab*"), sa());
+    assertAtLeastResults(1, search);
 
     // none with wildcard
-    search.bySomeMustNone(sa(), sa(), sa("ab*"));
-    assertResults(search, 0);
+    search->bySomeMustNone(sa(), sa(), sa("ab*"));
+    assertResults(0, search);
 
     //
     // Multiterms
     //
 
-    search.bySomeMustNone(sa("abc", "def"), null, null);
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("abc", "def"), null, null);
+    assertAtLeastResults(1, search);
 
-    search.bySomeMustNone(null, sa("abc", "def"), null);
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(null, sa("abc", "def"), null);
+    assertAtLeastResults(1, search);
 
-    search.bySomeMustNone(null, null, sa("abc", "def"));
-    assertResults(search, 0);
+    search->bySomeMustNone(null, null, sa("abc", "def"));
+    assertResults(0, search);
 
-    search.bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), null);
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), null);
+    assertAtLeastResults(1, search);
 
-    search.bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), sa("456"));
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), sa("456"));
+    assertAtLeastResults(1, search);
 
-    search.bySomeMustNone(sa("ghi", "123"), sa("abc", "456"), sa("456"));
-    assertResults(search, 0);
+    search->bySomeMustNone(sa("ghi", "123"), sa("abc", "456"), sa("456"));
+    assertResults(0, search);
 
     //
     // Completely empty
     //
     try {
-	search.bySomeMustNone(null, null, null);
+	search->bySomeMustNone(null, null, null);
 	fail("Should throw");
     } catch (ApiUsageException aue) {
 	// ok
     }
 
     try {
-	search.bySomeMustNone(sa(), null, null);
+	search->bySomeMustNone(sa(), null, null);
 	fail("Should throw");
     } catch (ApiUsageException aue) {
 	// ok
     }
 
     try {
-	search.bySomeMustNone(sa(""), null, null);
+	search->bySomeMustNone(sa(""), null, null);
 	fail("Should throw");
     } catch (ApiUsageException aue) {
 	// ok
@@ -487,100 +555,104 @@ SearchPrx search = (*client).getSession()->createSearchService();
     // For the moment these return as expected since the parser splits into
     // keywords.
     //
-    search.bySomeMustNone(sa("\"abc def\""), null, null);
-    assertAtLeastResults(search, 1);
+    search->bySomeMustNone(sa("\"abc def\""), null, null);
+    assertAtLeastResults(1, search);
 }
 
+*/
+
 BOOST_AUTO_TEST_CASE( testAnnotatedWith ) {
+    SearchFixture f;
+    SearchFixture root("root");
+    string uuid = f.uuid();;
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(uuid));
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
+    i->linkAnnotation(tag);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    root.update()->indexObject(i);
 
-    String uuid = uuid();
-    Image i = new Image(uuid);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(uuid);
-    i.linkAnnotation(tag);
-    i = iUpdate.saveAndReturnObject(i);
-    iUpdate.indexObject(i);
-    loginRoot();
+    SearchPrx search = f.search();
+    search->onlyType("Image");
+    TagAnnotationIPtr example = new TagAnnotationI();
+    example->setTextValue(new omero::RString(uuid));
+    byAnnotatedWith(search, example);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
-    TagAnnotation example = new TagAnnotation();
-    example.setTextValue(uuid);
-    search.byAnnotatedWith(example);
+    assertResults(1, search);
 
-    assertResults(search, 1);
-
-    OriginalFile file1 = ObjectFactory.createFile();
-    file1 = iUpdate.saveAndReturnObject(file1);
-    OriginalFile file2 = ObjectFactory.createFile();
-    file2 = iUpdate.saveAndReturnObject(file2);
-    FileAnnotation fa1 = new FileAnnotation();
-    fa1.setFile(file1);
-    i.linkAnnotation(fa1);
-    FileAnnotation fa2 = new FileAnnotation();
-    fa2.setFile(file2);
-    i.linkAnnotation(fa2);
-    i = iUpdate.saveAndReturnObject(i);
-    iUpdate.indexObject(i);
-    loginRoot();
+    OriginalFileIPtr file1 = f.createFile();
+    file1 = OriginalFileIPtr::dynamicCast(f.update()->saveAndReturnObject(file1));
+    OriginalFileIPtr file2 = f.createFile();
+    file2 = OriginalFileIPtr::dynamicCast(f.update()->saveAndReturnObject(file2));
+    FileAnnotationIPtr fa1 = new FileAnnotationI();
+    fa1->setFile(file1);
+    i->linkAnnotation(fa1);
+    FileAnnotationIPtr fa2 = new FileAnnotationI();
+    fa2->setFile(file2);
+    i->linkAnnotation(fa2);
+    i =  ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    root.update()->indexObject(i);
 
     // Properly uses the id
-    FileAnnotation ex2 = new FileAnnotation();
-    ex2.setFile(new OriginalFile(file2.getId(), false));
-    search.byAnnotatedWith(ex2);
-    assertResults(search, 1);
+    FileAnnotationIPtr ex2 = new FileAnnotationI();
+    ex2->setFile(new OriginalFileI(file2->id, false));
+    byAnnotatedWith(search, ex2);
+    assertResults(1, search);
 
     // Now check if an empty example return results
-    search.byAnnotatedWith(new FileAnnotation());
-    assertAtLeastResults(search, 1);
+    byAnnotatedWith(search, new FileAnnotationI());
+    assertAtLeastResults(1, search);
 
     // Finding by superclass
-    TextAnnotation txtAnn = new TextAnnotation();
-    txtAnn.setTextValue(uuid);
-    search.byAnnotatedWith(txtAnn);
-    assertResults(search, 1);
+    TextAnnotationIPtr txtAnn = new TextAnnotationI();
+    txtAnn->setTextValue(new omero::RString(uuid));
+    byAnnotatedWith(search, txtAnn);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWithNamespace ) {
-    fail("via namespace");
+    BOOST_CHECK_MESSAGE( false, "via namespace");
 }
 
 BOOST_AUTO_TEST_CASE( testAnnotatedWithMultiple ) {
-    Image i1 = new Image("i1");
-    Image i2 = new Image("i2");
+    ImageIPtr i1 = new ImageI();
+    i1->name = new omero::RString("i1");
+    ImageIPtr i2 = new ImageI();
+    i2->name = new omero::RString("i2");
 
-    String uuid = uuid();
-    TagAnnotation ta = new TagAnnotation();
-    ta.setTextValue(uuid);
-    BooleanAnnotation ba = new BooleanAnnotation();
-    ba.setBoolValue(false);
-    i1.linkAnnotation(ta);
-    i2.linkAnnotation(ta);
-    i2.linkAnnotation(ba);
+    SearchFixture f;
+    string uuid = f.uuid();;
+    TagAnnotationIPtr ta = new TagAnnotationI();
+    ta->setTextValue(new omero::RString(uuid));
+    BooleanAnnotationIPtr ba = new BooleanAnnotationI();
+    ba->setBoolValue(false);
+    i1->linkAnnotation(ta);
+    i2->linkAnnotation(ta);
+    i2->linkAnnotation(ba);
 
-    i1 = iUpdate.saveAndReturnObject(i1);
-    i2 = iUpdate.saveAndReturnObject(i2);
+    i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
+    i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
 
-    ta = new TagAnnotation();
-    ta.setTextValue(uuid);
-    ba = new BooleanAnnotation();
-    ba.setBoolValue(false);
+    ta = new TagAnnotationI();
+    ta->setTextValue(new omero::RString(uuid));
+    ba = new BooleanAnnotationI();
+    ba->setBoolValue(false);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
-    search.byAnnotatedWith(ta);
-    assertResults(search, 2);
+    byAnnotatedWith(search, ta);
+    assertResults(2, search);
 
-    search.byAnnotatedWith(ba);
-    assertAtLeastResults(search, 1);
+    byAnnotatedWith(search, ba);
+    assertAtLeastResults(1, search);
 
-    search.byAnnotatedWith(ta, ba);
-    assertResults(search, 1);
+    omero::api::AnnotationList list;
+    list.push_back(ta);
+    list.push_back(ba);
+    search->byAnnotatedWith(list);
+    assertResults(1, search);
 
 }
 
@@ -594,414 +666,426 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     // ignored by
     // byTagForGroups, byGroupForTags
 
-    String uuid = uuid();
-    Image i1 = new Image(uuid);
-    Image i2 = new Image(uuid);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(uuid);
-    i1.linkAnnotation(tag);
-    i2.linkAnnotation(tag);
-    i1 = iUpdate.saveAndReturnObject(i1);
-    i2 = iUpdate.saveAndReturnObject(i2);
-    tag = new TagAnnotation();
-    tag.setTextValue(uuid);
-    iUpdate.indexObject(i1);
-    iUpdate.indexObject(i2);
-    loginRoot();
+    SearchFixture f;
+    SearchFixture root("root");
+    string uuid = f.uuid();;
+    ImageIPtr i1 = new ImageI();
+    i1->name = new omero::RString(uuid);
+    ImageIPtr i2 = new ImageI();
+    i2->setName(new omero::RString(uuid));
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
+    i1->linkAnnotation(tag);
+    i2->linkAnnotation(tag);
+    i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
+    i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
+    root.update()->indexObject(i1);
+    root.update()->indexObject(i2);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // Regular search
     // full text
-    search.byFullText(uuid);
-    assertResults(search, 2);
+    search->byFullText(uuid);
+    assertResults(2, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 2);
+    byAnnotatedWith(search, tag);
+    assertResults(2, search);
 
     // Restrict to one id
-    search.onlyIds(i1.getId());
+    search->onlyIds(ids(i1->getId()));
     // full text
-    search.byFullText(uuid);
-    assertResults(search, 1);
+    search->byFullText(uuid);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
 
     // Restrict to both ids
-    search.onlyIds(i1.getId(), i2.getId());
+    search->onlyIds(ids(i1->getId(), i2->getId()));
     // full text
-    search.byFullText(uuid);
-    assertResults(search, 2);
+    search->byFullText(uuid);
+    assertResults(2, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 2);
+    byAnnotatedWith(search, tag);
+    assertResults(2, search);
 
     // Restrict to unknown ids
-    search.onlyIds(-1L, -2L, -3L);
+    search->onlyIds(ids(-1L, -2L));
     // full text
-    search.byFullText(uuid);
-    assertResults(search, 0);
+    search->byFullText(uuid);
+    assertResults(0, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
 
     // unrestrict
-    search.onlyIds(null);
+    search->onlyIds(LongList()); // ERROR
     // full text
-    search.byFullText(uuid);
-    assertResults(search, 2);
+    search->byFullText(uuid);
+    assertResults(2, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 2);
+    byAnnotatedWith(search, tag);
+    assertResults(2, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyOwnedByOwner ) {
 
-    Experimenter e = loginNewUser();
-    Details user = Details.create();
-    user.setOwner(e);
+    SearchFixture root("root");
+    ExperimenterIPtr e = root.newUser();
+    SearchFixture f(e->omeName->val);
+    DetailsIPtr user = new DetailsI();
+    user->setOwner(e);
 
-    String name = uuid();
-    Image i = new Image(name);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(name);
-    i.linkAnnotation(tag);
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(name);
-    tag.linkAnnotation(grp);
-    i = iUpdate.saveAndReturnObject(i);
+    string name = f.uuid();;
+    ImageIPtr i = new ImageI();
+    i->name = new omero::RString(name);
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    i->linkAnnotation(tag);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(name));
+    tag->linkAnnotation(grp);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     // Recreating instance as example
-    tag = new TagAnnotation();
-    tag.setTextValue(name);
-    iUpdate.indexObject(i);
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    root.update()->indexObject(i);
 
-    loginRoot();
-    long id = iAdmin.getEventContext().getCurrentUserId();
-    Experimenter self = new Experimenter(id, false);
-    Details root = Details.create();
-    root.setOwner(self);
+    long id = f.admin()->getEventContext()->userId;
+    ExperimenterIPtr self = new ExperimenterI(new omero::RLong(id), false);
+    DetailsIPtr rootd = new DetailsI();
+    rootd->setOwner(self);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // With no restriction it should be found.
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tag
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Restrict only to root, and then shouldn't be found
-    search.notOwnedBy(null);
-    search.onlyOwnedBy(root);
+    search->notOwnedBy(DetailsIPtr());
+    search->onlyOwnedBy(rootd);
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // Restrict to not root, and then should be found again.
-    search.onlyOwnedBy(null);
-    search.notOwnedBy(root);
+    search->onlyOwnedBy(DetailsIPtr());
+    search->notOwnedBy(rootd);
     // full text
-    search.byFullText(name);
-    assertResults(search, 1);
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Now restrict to the user, and again one
-    search.notOwnedBy(null);
-    search.onlyOwnedBy(user);
+    search->notOwnedBy(DetailsIPtr());
+    search->onlyOwnedBy(user);
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // But not-user should return nothing
-    search.notOwnedBy(user);
-    search.onlyOwnedBy(null);
+    search->notOwnedBy(user);
+    search->onlyOwnedBy(DetailsIPtr());
     // full text
-    search.byFullText(name);
-    assertResults(search, 0);
+    search->byFullText(name);
+    assertResults(0, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyOwnedByGroup ) {
-
-    Experimenter e = loginNewUser();
-    ExperimenterGroup g = new ExperimenterGroup(iAdmin.getEventContext()
-						.getCurrentGroupId(), false);
-    Details user = Details.create();
-    user.setGroup(g);
-
-    String name = uuid();
-    Image i = new Image(name);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(name);
-    i.linkAnnotation(tag);
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(name);
-    tag.linkAnnotation(grp);
-    i = iUpdate.saveAndReturnObject(i);
+    
+    SearchFixture root("root");
+    ExperimenterIPtr e = root.newUser();
+    SearchFixture f(e->omeName->val);
+    ExperimenterGroupIPtr g = new ExperimenterGroupI
+	(new omero::RLong(f.admin()->getEventContext()->groupId), false);
+    
+    DetailsIPtr user = new DetailsI();
+    user->group = g;
+    
+    string name = f.uuid();
+    ImageIPtr i = new ImageI();
+    i->name = new omero::RString(name);
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    i->linkAnnotation(tag);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(name));
+    tag->linkAnnotation(grp);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
     // Recreating instance as example
-    tag = new TagAnnotation();
-    tag.setTextValue(name);
-    iUpdate.indexObject(i);
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    root.update()->indexObject(i);
 
-    loginRoot();
-    long id = iAdmin.getEventContext().getCurrentGroupId();
-    ExperimenterGroup self = new ExperimenterGroup(id, false);
-    Details root = Details.create();
-    root.setGroup(self);
+    long id = f.admin()->getEventContext()->groupId;
+    ExperimenterGroupIPtr self = new ExperimenterGroupI(new omero::RLong(id), false);
+    DetailsIPtr rootd = new DetailsI();
+    rootd->setGroup(self);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // With no restriction it should be found.
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Restrict only to root, and then shouldn't be found
-    search.onlyOwnedBy(root);
-    search.notOwnedBy(null);
+    search->onlyOwnedBy(rootd);
+    search->notOwnedBy(DetailsIPtr());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // Restrict to not root, and then should be found again.
-    search.onlyOwnedBy(null);
-    search.notOwnedBy(root);
+    search->onlyOwnedBy(DetailsIPtr());
+    search->notOwnedBy(rootd);
     // full text
-    search.byFullText(name);
-    assertResults(search, 1);
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Now restrict to the user, and again one
-    search.onlyOwnedBy(user);
-    search.notOwnedBy(null);
+    search->onlyOwnedBy(user);
+    search->notOwnedBy(DetailsIPtr());
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // But not-user should return nothing
-    search.notOwnedBy(user);
-    search.onlyOwnedBy(null);
+    search->notOwnedBy(user);
+    search->onlyOwnedBy(DetailsIPtr());
     // full text
-    search.byFullText(name);
-    assertResults(search, 0);
+    search->byFullText(name);
+    assertResults(0, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 }
 
-static Timestamp oneHourAgo, inOneHour, now;
-static {
-    Calendar today = Calendar.getInstance();
-    today.set(Calendar.HOUR, today.get(Calendar.HOUR) - 1);
-    oneHourAgo = new Timestamp(today.getTimeInMillis());
-    today = Calendar.getInstance();
-    today.set(Calendar.HOUR, today.get(Calendar.HOUR) + 1);
-    inOneHour = new Timestamp(today.getTimeInMillis());
-    now = new Timestamp(System.currentTimeMillis());
+omero::RTimePtr oneHourAgo() {
+    time_t start = time (NULL);
+    tm* mn = localtime(&start);
+    mn->tm_hour = mn->tm_hour - 1;
+    Ice::Long millis = mktime(mn) * 1000;
+    return new omero::RTime(millis);
+}
+
+omero::RTimePtr inOneHour() {
+    time_t start = time (NULL);
+    tm* mn = localtime(&start);
+    mn->tm_hour = mn->tm_hour + 1;
+    Ice::Long millis = mktime(mn) * 1000;
+    return new omero::RTime(millis);
+}
+
+omero::RTimePtr now() {
+    time_t start = time (NULL);
+    tm* mn = localtime(&start);
+    Ice::Long millis = mktime(mn) * 1000;
+    return new omero::RTime(millis);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyCreateBetween ) {
+    SearchFixture f;
+    SearchFixture root("root");
+    string name = f.uuid();;
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(name));
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    i->linkAnnotation(tag);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(name));
+    tag->linkAnnotation(grp);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    root.update()->indexObject(i);
 
-    String name = uuid();
-    Image i = new Image();
-    i.setName(name);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(name);
-    i.linkAnnotation(tag);
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(name);
-    tag.linkAnnotation(grp);
-    i = iUpdate.saveAndReturnObject(i);
-    tag = new TagAnnotation();
-    tag.setTextValue(name);
-    iUpdate.indexObject(i);
-    loginRoot();
-
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // Find the Image
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Now restrict the search to past
-    search.onlyCreatedBetween(null, oneHourAgo);
+    search->onlyCreatedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // Future
-    search.onlyCreatedBetween(inOneHour, null);
+    search->onlyCreatedBetween(inOneHour(), omero::RTimePtr());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // 2 hour period around now
-    search.onlyCreatedBetween(oneHourAgo, inOneHour);
+    search->onlyCreatedBetween(oneHourAgo(), inOneHour());
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Starting at now old 'now'
-    search.onlyCreatedBetween(null, now);
+    search->onlyCreatedBetween(omero::RTimePtr(), now());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // Open them up again and should be found
-    search.onlyCreatedBetween(null, null);
+    search->onlyCreatedBetween(omero::RTimePtr(), omero::RTimePtr());
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
@@ -1009,298 +1093,296 @@ BOOST_AUTO_TEST_CASE( testOnlyModifiedBetween ) {
     // Ignored by
     // byTagForGroups, byGroupForTags (tags are immutable) results always 1
 
-    String name = uuid();
-    Image i = new Image();
-    i.setName(name);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(name);
-    i.linkAnnotation(tag);
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(name);
-    tag.linkAnnotation(grp);
-    i = iUpdate.saveAndReturnObject(i);
-    tag = new TagAnnotation();
-    tag.setTextValue(name);
-    iUpdate.indexObject(i);
-    loginRoot();
+    SearchFixture f;
+    SearchFixture root("root");
+    string name = f.uuid();;
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(name));
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    i->linkAnnotation(tag);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(name));
+    tag->linkAnnotation(grp);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    root.update()->indexObject(i);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // Find the Image
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Now restrict the search to past
-    search.onlyModifiedBetween(null, oneHourAgo);
+    search->onlyModifiedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
 
     // Future
-    search.onlyModifiedBetween(inOneHour, null);
+    search->onlyModifiedBetween(inOneHour(), omero::RTimePtr());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // 2 hour period around now
-    search.onlyModifiedBetween(oneHourAgo, inOneHour);
+    search->onlyModifiedBetween(oneHourAgo(), inOneHour());
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Starting at now old 'now'
-    search.onlyModifiedBetween(null, now);
+    search->onlyModifiedBetween(omero::RTimePtr(), now());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Open them up again and should be found
-    search.onlyModifiedBetween(null, null);
+    search->onlyModifiedBetween(omero::RTimePtr(), omero::RTimePtr());
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBetween ) {
 
-    String name = uuid();
-    Image i = new Image();
-    i.setName(name);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(name);
-    i.linkAnnotation(tag);
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(name);
-    tag.linkAnnotation(grp);
-    i = iUpdate.saveAndReturnObject(i);
-    tag = new TagAnnotation();
-    tag.setTextValue(name);
-    iUpdate.indexObject(i);
-    loginRoot();
+    SearchFixture f;
+    SearchFixture root("root");
+    string name = f.uuid();;
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(name));
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    i->linkAnnotation(tag);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(name));
+    tag->linkAnnotation(grp);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(name));
+    root.update()->indexObject(i);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // Find the Image
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
     // Now restrict the search to past
-    search.onlyAnnotatedBetween(null, oneHourAgo);
+    search->onlyAnnotatedBetween(omero::RTimePtr(), oneHourAgo());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // Future
-    search.onlyAnnotatedBetween(inOneHour, null);
+    search->onlyAnnotatedBetween(inOneHour(), omero::RTimePtr());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // 2 hour period around now
-    search.onlyAnnotatedBetween(oneHourAgo, inOneHour);
+    search->onlyAnnotatedBetween(oneHourAgo(), inOneHour());
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 
-    // Starting at now old 'now'
-    search.onlyAnnotatedBetween(null, now);
+    // Starting at now old 'now()'
+    search->onlyAnnotatedBetween(omero::RTimePtr(), now());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 0);
+    search->byTagForGroups(name);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 0);
+    search->byGroupForTags(name);
+    assertResults(0, search);
 
     // Open them up again and should be found
-    search.onlyAnnotatedBetween(null, null);
+    search->onlyAnnotatedBetween(omero::RTimePtr(), omero::RTimePtr());
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 1);
+    byAnnotatedWith(search, tag);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(name);
-    assertResults(search, 1);
+    search->byTagForGroups(name);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(name);
-    assertResults(search, 1);
+    search->byGroupForTags(name);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedBy ) {
-    String name = uuid();
-    String tag = uuid();
-    Image i = new Image();
-    i.setName(name);
-    TagAnnotation t = new TagAnnotation();
-    t.setTextValue(tag);
-    i.linkAnnotation(t);
-    TagAnnotation grp = new TagAnnotation();
-    grp.setTextValue(tag);
-    t.linkAnnotation(grp);
-    i = iUpdate.saveAndReturnObject(i);
-    t = new TagAnnotation();
-    t.setTextValue(tag);
-    iUpdate.indexObject(i);
-    loginRoot();
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchFixture f;
+    SearchFixture root("root");
+    string name = f.uuid();
+    string tag = f.uuid();
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(name));
+    TagAnnotationIPtr t = new TagAnnotationI();
+    t->setTextValue(new omero::RString(tag));
+    i->linkAnnotation(t);
+    TagAnnotationIPtr grp = new TagAnnotationI();
+    grp->setTextValue(new omero::RString(tag));
+    t->linkAnnotation(grp);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    t = new TagAnnotationI();
+    t->setTextValue(new omero::RString(tag));
+    root.update()->indexObject(i);
+
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // Find the annotation
     // full text
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(t);
-    assertResults(search, 1);
+    byAnnotatedWith(search, t);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(tag);
-    assertResults(search, 1);
+    search->byTagForGroups(tag);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(tag);
-    assertResults(search, 1);
+    search->byGroupForTags(tag);
+    assertResults(1, search);
 
     // But if we restrict it to another user, there should be none
-    Experimenter e = loginNewUser();
-    Details d = Details.create();
-    d.setOwner(e);
-    search.onlyAnnotatedBy(d);
-    search.notAnnotatedBy(null);
+    ExperimenterIPtr e = root.newUser();
+    DetailsIPtr d = new DetailsI();
+    d->setOwner(e);
+    search->onlyAnnotatedBy(d);
+    search->notAnnotatedBy(DetailsIPtr());
     // full text
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
     // annotated with
-    search.byAnnotatedWith(t);
-    assertResults(search, 0);
+    byAnnotatedWith(search, t);
+    assertResults(0, search);
     // tag for group
-    search.byTagForGroups(tag);
-    assertResults(search, 0);
+    search->byTagForGroups(tag);
+    assertResults(0, search);
     // group for tags
-    search.byGroupForTags(tag);
-    assertResults(search, 0);
+    search->byGroupForTags(tag);
+    assertResults(0, search);
 
     // Reversing the ownership should give results
-    search.onlyAnnotatedBy(null);
-    search.notAnnotatedBy(d);
+    search->onlyAnnotatedBy(DetailsIPtr());
+    search->notAnnotatedBy(d);
     // full text
-    search.byFullText(name);
-    assertResults(search, 1);
+    search->byFullText(name);
+    assertResults(1, search);
     // annotated with
-    search.byAnnotatedWith(t);
-    assertResults(search, 1);
+    byAnnotatedWith(search, t);
+    assertResults(1, search);
     // tag for group
-    search.byTagForGroups(tag);
-    assertResults(search, 1);
+    search->byTagForGroups(tag);
+    assertResults(1, search);
     // group for tags
-    search.byGroupForTags(tag);
-    assertResults(search, 1);
+    search->byGroupForTags(tag);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
@@ -1308,90 +1390,98 @@ BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWith ) {
     // ignored by byAnnotatedWith
     // ignored by byTagForGroups, byGroupForTags
 
-    String name = uuid();
-    Image i = new Image();
-    i.setName(name);
-    i = iUpdate.saveAndReturnObject(i);
+    SearchFixture f;
+    SearchFixture root("root");
+    string name = f.uuid();
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(name));
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
 
-    iUpdate.indexObject(i);
-    loginRoot();
+    root.update()->indexObject(i);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
+    SearchPrx search = f.search();
 
     // Search for tagged image, which shouldn't be there
-    search.onlyAnnotatedWith(TagAnnotation.class);
-    search.onlyType(Image.class);
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->onlyAnnotatedWith(stringSet("TagAnnotation"));
+    search->onlyType("Image");
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
 
     // But if we ask for Images which aren't annotated it should appear
-    search.onlyAnnotatedWith(new Class[] {});
-    search.onlyType(Image.class);
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->onlyAnnotatedWith(StringSet());
+    search->onlyType("Image");
+    search->byFullText(name);
+    assertResults(1, search);
 
     // Now let's tag it and see if it shows up
-    TagAnnotation t = new TagAnnotation();
-    t.setTextValue(uuid());
-    t = iUpdate.saveAndReturnObject(t);
+    TagAnnotationIPtr t = new TagAnnotationI();
+    t->setTextValue(new omero::RString(f.uuid()));
+    t = TagAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(t));
 
-    ImageAnnotationLink link = new ImageAnnotationLink(i, t);
-    iUpdate.saveObject(link);
+    ImageAnnotationLinkIPtr link = new ImageAnnotationLinkI();
+    link->child = t;
+    link->parent = i;
+    f.update()->saveObject(link);
 
-    iUpdate.indexObject(i);
-    loginRoot();
+    root.update()->indexObject(i);
 
     // Since we're looking for "no annotations" there should be no results
-    search.byFullText(name);
-    assertFalse(search.hasNext());
+    search->byFullText(name);
+    BOOST_CHECK( ! search->hasNext());
 
     // And if we turn the annotations back on?
-    search.onlyAnnotatedWith(TagAnnotation.class);
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->onlyAnnotatedWith(stringSet("TagAnnotation"));
+    search->byFullText(name);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testOnlyAnnotatedWithMultiple ) {
-    String name = uuid();
-    Image onlyTag = new Image(name);
-    Image onlyBool = new Image(name);
-    Image both = new Image(name);
 
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue("tag");
-    BooleanAnnotation bool = new BooleanAnnotation();
-    bool.setBoolValue(false);
+    SearchFixture f;
+    SearchFixture root("root");
+    
+    string name = f.uuid();;
+    ImageIPtr onlyTag = new ImageI();
+    onlyTag->name = new omero::RString(name);
+    ImageIPtr onlyBool = new ImageI();
+    onlyBool->name = new omero::RString(name);
+    ImageIPtr both = new ImageI();
+    both->name = new omero::RString(name);
 
-    onlyTag.linkAnnotation(tag);
-    both.linkAnnotation(tag);
-    both.linkAnnotation(bool);
-    onlyBool.linkAnnotation(bool);
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString("tag"));
+    BooleanAnnotationIPtr b = new BooleanAnnotationI();
+    b->setBoolValue(new omero::RBool(false));
 
-    IObject[] arr = iUpdate.saveAndReturnArray(new IObject[] { onlyTag,
-                onlyBool, both });
-    for (IObject object : arr) {
-	iUpdate.indexObject(object);
+    onlyTag->linkAnnotation(tag);
+    both->linkAnnotation(tag);
+    both->linkAnnotation(b);
+    onlyBool->linkAnnotation(b);
+
+    IObjectList arr;
+    arr.push_back(onlyTag);
+    arr.push_back(onlyBool);
+    arr.push_back(both);
+    arr = f.update()->saveAndReturnArray(arr);
+    IObjectList::iterator beg = arr.begin();
+    while (beg != arr.end()) {
+	root.update()->indexObject(*beg++);
     }
-    loginRoot();
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
-    search.onlyAnnotatedWith(TagAnnotation.class);
-    search.byFullText(name);
-    assertEquals(2, search.results().size());
+    search->onlyAnnotatedWith(stringSet("TagAnnotation"));
+    search->byFullText(name);
+    BOOST_CHECK_EQUAL(2, search->results().size());
 
-    search.onlyAnnotatedWith(BooleanAnnotation.class);
-    search.byFullText(name);
-    assertEquals(2, search.results().size());
+    search->onlyAnnotatedWith(stringSet("BooleanAnnotation"));
+    search->byFullText(name);
+    BOOST_CHECK_EQUAL(2, search->results().size());
 
-    search.onlyAnnotatedWith(BooleanAnnotation.class, TagAnnotation.class);
-    search.byFullText(name);
-    assertEquals(1, search.results().size());
+    search->onlyAnnotatedWith(stringSet("BooleanAnnotation", "TagAnnotation"));
+    search->byFullText(name);
+    assertResults(1, search);
 
 }
 
@@ -1399,336 +1489,342 @@ SearchPrx search = (*client).getSession()->createSearchService();
 // =========================================================================
 
 BOOST_AUTO_TEST_CASE( testMergedBatches ) {
-    String uuid1 = uuid(), uuid2 = uuid();
-    Image i1 = new Image(uuid1);
-    Image i2 = new Image(uuid2);
-    i1 = iUpdate.saveAndReturnObject(i1);
-    i2 = iUpdate.saveAndReturnObject(i2);
-    iUpdate.indexObject(i1);
-    iUpdate.indexObject(i2);
-    loginRoot();
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
-    search.byFullText(uuid1);
-    assertResults(search, 1);
+    SearchFixture f;
+    SearchFixture root("root");
+    string uuid1 = f.uuid();
+    string uuid2 = f.uuid();
+    ImageIPtr i1 = new ImageI();
+    i1->name = new omero::RString(uuid1);
+    ImageIPtr i2 = new ImageI();
+    i2->name = new omero::RString(uuid2);
+    i1 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i1) );
+    i2 = ImageIPtr::dynamicCast( f.update()->saveAndReturnObject(i2) );
+    root.update()->indexObject(i1);
+    root.update()->indexObject(i2);
 
-    search.byFullText(uuid2);
-    assertResults(search, 1);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
+    search->byFullText(uuid1);
+    assertResults(1, search);
 
-    search.bySomeMustNone(sa(uuid1, uuid2), null, null);
-    assertResults(search, 2);
+    search->byFullText(uuid2);
+    assertResults(1, search);
+
+    // FIXME search->bySomeMustNone(sa(uuid1, uuid2), null, null);
+    assertResults(2, search);
 
     // Everything looks ok, now try with batch
-    search.setMergedBatches(true);
-    search.byFullText(uuid1);
-    search.byFullText(uuid2);
-    assertResults(search, 2);
+    search->setMergedBatches(true);
+    search->byFullText(uuid1);
+    search->byFullText(uuid2);
+    assertResults(2, search);
 }
 
-BOOSTXXX testOrderBy() ) {
-    String uuid = uuid();
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(uuid);
-    Image i1 = new Image(uuid);
-    i1.setDescription("a");
-    i1.linkAnnotation(tag);
-    Image i2 = new Image(uuid);
-    i2.setDescription("b");
-    i2.linkAnnotation(tag);
-    i1 = iUpdate.saveAndReturnObject(i1);
-    Thread.sleep(2000L); // Waiting to test creation time ordering better
-    i2 = iUpdate.saveAndReturnObject(i2);
-    iUpdate.indexObject(i1);
-    iUpdate.indexObject(i2);
-    loginRoot();
-    tag = new TagAnnotation();
-    tag.setTextValue(uuid);
+/* FIXME
+BOOST_AUTO_TEST_CASE ( testOrderBy ) {
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchFixture f;
+    SearchFixture root("root");
+    string uuid = f.uuid();
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
+    ImageIPtr i1 = new ImageI();
+    i1->setName(new omero::RString(uuid));
+    i1->setDescription(new omero::RString("a"));
+    i1->linkAnnotation(tag);
+    ImageIPtr i2 = new ImageI();
+    i2->setName(new omero::RString(uuid));
+    i2->setDescription(new omero::RString("b"));
+    i2->linkAnnotation(tag);
+    i1 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i1));
+    // FIXME Thread.sleep(2000L); // Waiting to test creation time ordering better
+    i2 = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i2));
+    root.update()->indexObject(i1);
+    root.update()->indexObject(i2);
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
+
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // Order by description desc
-    search.unordered();
-    search.addOrderByDesc("description");
+    search->unordered();
+    search->addOrderByDesc("description");
     // full text
-    search.byFullText(uuid);
-    List<String> desc = new ArrayList<String>();
-    desc.add(i2.getDescription());
-    desc.add(i1.getDescription());
-    while (search.hasNext()) {
-	assertEquals(desc.remove(0), ((Image) search.next())
+    search->byFullText(uuid);
+    StringSet desc;
+    desc.push_back(i2->getDescription()->val);
+    desc.push_back(i1->getDescription()->val);
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(desc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
     // annotated with
-    search.byAnnotatedWith(tag);
-    desc = new ArrayList<String>();
+    byAnnotatedWith(search, tag);
+    desc = new ArrayList<string>();
     desc.add(i2.getDescription());
     desc.add(i1.getDescription());
-    while (search.hasNext()) {
-	assertEquals(desc.remove(0), ((Image) search.next())
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(desc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
 
     // Order by descript asc
-    search.unordered();
-    search.addOrderByAsc("description");
+    search->unordered();
+    search->addOrderByAsc("description");
     // full text
-    search.byFullText(uuid);
-    List<String> asc = new ArrayList<String>();
+    search->byFullText(uuid);
+    List<string> asc = new ArrayList<string>();
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
-    while (search.hasNext()) {
-	assertEquals(asc.remove(0), ((Image) search.next())
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(asc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
     // annotated with
-    search.byAnnotatedWith(tag);
-    asc = new ArrayList<String>();
+    byAnnotatedWith(search, tag);
+    asc = new ArrayList<string>();
     asc.add(i1.getDescription());
     asc.add(i2.getDescription());
-    while (search.hasNext()) {
-	assertEquals(asc.remove(0), ((Image) search.next())
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(asc.remove(0), ((Image) search->next())
 		     .getDescription());
     }
 
     // Ordered by id
-    search.unordered();
-    search.addOrderByDesc("id");
+    search->unordered();
+    search->addOrderByDesc("id");
     // full text
-    search.byFullText(uuid);
+    search->byFullText(uuid);
     List<Long> ids = new ArrayList<Long>();
     ids.add(i2.getId());
     ids.add(i1.getId());
-    while (search.hasNext()) {
-	assertEquals(ids.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
     }
     // annotated with
-    search.byAnnotatedWith(tag);
+    byAnnotatedWith(search, tag);
     ids = new ArrayList<Long>();
     ids.add(i2.getId());
     ids.add(i1.getId());
-    while (search.hasNext()) {
-	assertEquals(ids.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
     }
 
     // Ordered by creation event id
-    search.unordered();
-    search.addOrderByDesc("details.creationEvent.id");
+    search->unordered();
+    search->addOrderByDesc("details.creationEvent.id");
     // full text
-    search.byFullText(uuid);
+    search->byFullText(uuid);
     ids = new ArrayList<Long>();
     ids.add(i2.getId());
     ids.add(i1.getId());
-    while (search.hasNext()) {
-	assertEquals(ids.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
     }
     // annotated with
-    search.byAnnotatedWith(tag);
+    byAnnotatedWith(search, tag);
     ids = new ArrayList<Long>();
     ids.add(i2.getId());
     ids.add(i1.getId());
-    while (search.hasNext()) {
-	assertEquals(ids.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
     }
 
     // ordered by creation event time
-    search.unordered();
-    search.addOrderByDesc("details.creationEvent.time");
+    search->unordered();
+    search->addOrderByDesc("details.creationEvent.time");
     // full text
-    search.byFullText(uuid);
+    search->byFullText(uuid);
     ids = new ArrayList<Long>();
     ids.add(i2.getId());
     ids.add(i1.getId());
-    while (search.hasNext()) {
-	assertEquals(ids.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
     }
     // annotated with
-    search.byAnnotatedWith(tag);
+    byAnnotatedWith(search, tag);
     ids = new ArrayList<Long>();
     ids.add(i2.getId());
     ids.add(i1.getId());
-    while (search.hasNext()) {
-	assertEquals(ids.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(ids.remove(0), search->next().getId());
     }
 
     // To test multiple sort fields, we add another image with an "a"
     // description, which should could before the other image with the "a"
     // description if we reverse the id order
 
-    Image i3 = new Image(uuid);
-    i3.setDescription("a");
-    i3.linkAnnotation(tag);
-    i3 = iUpdate.saveAndReturnObject(i3);
-    iUpdate.indexObject(i3);
+    Image i3 = new ImageI();
+    i3->setName(new omero::RString(uuid));
+    i3->setDescription("a");
+    i3->linkAnnotation(tag);
+    i3 = f.update()->saveAndReturnObject(i3);
+    root.update()->indexObject(i3);
     loginRoot();
-    tag = new TagAnnotation();
-    tag.setTextValue(uuid);
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
 
     // multi-ordering
-    search.unordered();
-    search.addOrderByAsc("description");
-    search.addOrderByDesc("id");
+    search->unordered();
+    search->addOrderByAsc("description");
+    search->addOrderByDesc("id");
     // annotated with
-    search.byAnnotatedWith(tag);
+    byAnnotatedWith(search, tag);
     List<Long> multi = new ArrayList<Long>();
     multi.add(i3.getId());
     multi.add(i1.getId());
     multi.add(i2.getId());
-    while (search.hasNext()) {
-	assertEquals(multi.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(multi.remove(0), search->next().getId());
     }
     // full text
-    search.byFullText(uuid);
+    search->byFullText(uuid);
     multi = new ArrayList<Long>();
     multi.add(i3.getId());
     multi.add(i1.getId());
     multi.add(i2.getId());
-    while (search.hasNext()) {
-	assertEquals(multi.remove(0), search.next().getId());
+    while (search->hasNext()) {
+	BOOST_CHECK_EQUAL(multi.remove(0), search->next().getId());
     }
 
-			 }
+}
+*/
 
 BOOST_AUTO_TEST_CASE( testFetchAnnotations ) {
-    String uuid = uuid();
-    Image i = new Image(uuid);
-    TagAnnotation tag = new TagAnnotation();
-    tag.setTextValue(uuid);
-    LongAnnotation la = new LongAnnotation();
-    la.setLongValue(1L);
-    DoubleAnnotation da = new DoubleAnnotation();
-    da.setDoubleValue(0.0);
-    i.linkAnnotation(tag);
-    i.linkAnnotation(la);
-    i.linkAnnotation(da);
-    i = iUpdate.saveAndReturnObject(i);
-    tag = new TagAnnotation();
-    tag.setTextValue(uuid);
-    iUpdate.indexObject(i);
-    loginRoot();
+    SearchFixture f;
+    SearchFixture root("root");
+    string uuid = f.uuid();;
+    ImageIPtr i = new ImageI();
+    i->setName(new omero::RString(uuid));
+    TagAnnotationIPtr tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
+    LongAnnotationIPtr la = new LongAnnotationI();
+    la->setLongValue(new omero::RLong(1L));
+    DoubleAnnotationIPtr da = new DoubleAnnotationI();
+    da->setDoubleValue(new omero::RDouble(0.0));
+    i->linkAnnotation(tag);
+    i->linkAnnotation(la);
+    i->linkAnnotation(da);
+    i = ImageIPtr::dynamicCast(f.update()->saveAndReturnObject(i));
+    tag = new TagAnnotationI();
+    tag->setTextValue(new omero::RString(uuid));
+    root.update()->indexObject(i);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(Image.class);
+    SearchPrx search = f.search();
+    search->onlyType("Image");
 
     // No fetch returns empty annotations
     // full text
-    search.byFullText(uuid);
-    Image t = (Image) search.results().get(0);
-    assertEquals(-1, t.sizeOfAnnotationLinks());
+    search->byFullText(uuid);
+    ImageIPtr t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(-1, t->annotationLinks.size());
     // annotated with
-    search.byAnnotatedWith(tag);
-    t = (Image) search.results().get(0);
-    assertEquals(-1, t.sizeOfAnnotationLinks());
+    byAnnotatedWith(search, tag);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(-1, t->annotationLinks.size());
 
     // Fetch only a given type
-    search.fetchAnnotations(TagAnnotation.class);
+    search->fetchAnnotations(stringSet("TagAnnotation"));
     // annotated with
-    search.byAnnotatedWith(tag);
-    t = (Image) search.results().get(0);
-    assertEquals(1, t.sizeOfAnnotationLinks());
+    byAnnotatedWith(search, tag);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(1, t->annotationLinks.size());
     // full text
-    search.byFullText(uuid);
-    t = (Image) search.results().get(0);
-    assertEquals(3, t.sizeOfAnnotationLinks());
+    search->byFullText(uuid);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
 
     // fetch only a given type different from annotated-with type
-    search.fetchAnnotations(DoubleAnnotation.class);
+    search->fetchAnnotations(stringSet("DoubleAnnotation"));
     // annotated with
-    search.byAnnotatedWith(tag);
-    t = (Image) search.results().get(0);
-    assertEquals(1, t.sizeOfAnnotationLinks());
+    byAnnotatedWith(search, tag);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(1, t->annotationLinks.size());
     // full text
-    search.byFullText(uuid);
-    t = (Image) search.results().get(0);
-    assertEquals(3, t.sizeOfAnnotationLinks());
+    search->byFullText(uuid);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
 
     // fetch two types
-    search.fetchAnnotations(TagAnnotation.class, DoubleAnnotation.class);
+    search->fetchAnnotations(stringSet("TagAnnotation", "DoubleAnnotation"));
     // annotated with
-    search.byAnnotatedWith(tag);
-    t = (Image) search.results().get(0);
-    assertEquals(2, t.sizeOfAnnotationLinks());
+    byAnnotatedWith(search, tag);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(2, t->annotationLinks.size());
     // full text
-    search.byFullText(uuid);
-    t = (Image) search.results().get(0);
-    assertEquals(3, t.sizeOfAnnotationLinks());
+    search->byFullText(uuid);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
 
     // Fetch all
-    search.fetchAnnotations(Annotation.class);
+    search->fetchAnnotations(stringSet("Annotation"));
     // annotated with
-    search.byAnnotatedWith(tag);
-    assertResults(search, 0);
-    // TODO t = (Image) search.results().get(0);
-    // TODO assertEquals(3, t.sizeOfAnnotationLinks());
+    byAnnotatedWith(search, tag);
+    assertResults(0, search);
+    // TODO t = ImageIPtr::dynamicCast( search->results().get(0) );
+    // TODO BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
     // full text
-    search.byFullText(uuid);
-    t = (Image) search.results().get(0);
-    assertEquals(3, t.sizeOfAnnotationLinks());
+    search->byFullText(uuid);
+    t = ImageIPtr::dynamicCast( search->results().at(0) );
+    BOOST_CHECK_EQUAL(3, t->annotationLinks.size());
 
     // resave and see if there is data loss
-    search.fetchAnnotations(TagAnnotation.class);
-    search.byAnnotatedWith(tag);
-    t = (Image) search.next();
-    FileAnnotation f = new FileAnnotation();
-    t.linkAnnotation(f);
-    iUpdate.saveObject(t);
-    t = iQuery
-	.findByQuery(
-		     "select t from Image t join fetch t.annotationLinks where t.id = :id",
-		     new Parameters().addId(t.getId()));
-    assertEquals(4, t.sizeOfAnnotationLinks());
+    search->fetchAnnotations(stringSet("TagAnnotation"));
+    byAnnotatedWith(search, tag);
+    t = ImageIPtr::dynamicCast(search->next());
+    FileAnnotationIPtr fa = new FileAnnotationI();
+    t->linkAnnotation(fa);
+    f.update()->saveObject(t);
+    ParametersPtr params = new Parameters();
+    params->map = ParamMap();
+    params->map["id"] = t->id;
+    t = ImageIPtr::dynamicCast(f.query()->findByQuery
+	("select t from Image t join fetch t.annotationLinks where t.id = :id",
+	 params));
+    BOOST_CHECK_EQUAL(4, t->annotationLinks.size());
 }
 
 // bugs
 // =========================================================================
 
 BOOST_AUTO_TEST_CASE( testTextAnnotationDoesntTryToLoadUpdateEvent ) {
-    String uuid = uuid();
-    TextAnnotation ta = new TextAnnotation();
-    ta.setTextValue(uuid);
-    ta = iUpdate.saveAndReturnObject(ta);
-    iUpdate.indexObject(ta);
-    loginRoot();
+    SearchFixture f;
+    SearchFixture root("root");
+    string uuid = f.uuid();;
+    TextAnnotationIPtr ta = new TextAnnotationI();
+    ta->setTextValue(new omero::RString(uuid));
+    ta = TextAnnotationIPtr::dynamicCast(f.update()->saveAndReturnObject(ta));
+    root.update()->indexObject(ta);
 
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
-    search.onlyType(TextAnnotation.class);
-    search.byFullText(uuid);
-    assertResults(search, 1);
+    SearchPrx search = f.search();
+    search->onlyType("TextAnnotation");
+    search->byFullText(uuid);
+    assertResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testExperimenterDoesntTryToLoadOwner ) {
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
+    SearchFixture f;
+    SearchPrx search = f.search();
     search->onlyType("Experimenter");
-	search->byFullText("root");
-    assertAtLeastResults(search, 1);
+    search->byFullText("root");
+    assertAtLeastResults(1, search);
 }
 
 BOOST_AUTO_TEST_CASE( testLookingForExperimenterWithOwner ) {
-    Fixture f;
-const omero::client* client = f.login();
-SearchPrx search = (*client).getSession()->createSearchService();
+    SearchFixture f;
+    SearchPrx search = f.search();
     search->onlyType("Experimenter");
-
+    
     // Just root should work
-	search->byFullText("root");
-    search.next();
+    search->byFullText("root");
+    search->next();
 
     // And filtered on "owner" (experimenter has none) should work, too.
-    Details d = Details.create();
-    d.setOwner(new Experimenter(0L, false));
-    search.onlyOwnedBy(d);
-	search->byFullText("root");
-    search.next();
-    }
-*/
+    DetailsIPtr d = new DetailsI();
+    d->setOwner(new ExperimenterI(0L, false));
+    search->onlyOwnedBy(d);
+    search->byFullText("root");
+    search->next();
+}
