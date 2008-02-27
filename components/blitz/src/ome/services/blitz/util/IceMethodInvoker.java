@@ -10,30 +10,11 @@ package ome.services.blitz.util;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import ome.api.ServiceInterface;
-import ome.model.IObject;
-import ome.model.ModelBased;
-import ome.parameters.Filter;
-import ome.parameters.Parameters;
-import ome.system.EventContext;
 import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.Roles;
-import ome.util.Filterable;
-import omeis.providers.re.RGBBuffer;
-import omeis.providers.re.data.PlaneDef;
-import omero.ApiUsageException;
-import omero.RInternal;
-import omero.RType;
 import omero.ServerError;
 import omero.util.IceMapper;
 
@@ -168,7 +149,7 @@ public class IceMethodInvoker {
         for (int i = 0; i < params.length; i++) {
             Class p = params[i];
             Object arg = args[i];
-            objs[i] = handleInput(mapper, p, arg);
+            objs[i] = mapper.handleInput(p, arg);
             // This check duplicates what should be in handleInput
             // if (null != objs[i] && !isPrimitive(p) && // FIXME need way to
             // check autoboxing.
@@ -220,7 +201,7 @@ public class IceMethodInvoker {
         if (retType == Object.class && retVal != null) {
             retType = retVal.getClass();
         }
-        return handleOutput(mapper, retType, retVal);
+        return mapper.handleOutput(retType, retVal);
     }
 
     /** For testing the cached method. */
@@ -230,108 +211,6 @@ public class IceMethodInvoker {
 
     // ~ Helpers
     // =========================================================================
-
-    protected boolean isPrimitive(Class<?> p) {
-        if (p.equals(byte.class) || p.equals(byte[].class)
-                || p.equals(int.class) || p.equals(int[].class)
-                || p.equals(long.class) || p.equals(long[].class)
-                || p.equals(double.class) || p.equals(double[].class)
-                || p.equals(float.class) || p.equals(float[].class)
-                || p.equals(boolean.class) || p.equals(boolean[].class)
-                || p.equals(Integer.class) || p.equals(Long.class)
-                || p.equals(Double.class) || p.equals(Float.class)
-                || p.equals(String.class)) {
-            return true;
-        }
-        return false;
-    }
-
-    protected boolean isWrapperArray(Class<?> p) {
-        if (p.equals(Integer[].class) || p.equals(Long[].class)
-                || p.equals(Double[].class) || p.equals(Float[].class)
-                || p.equals(String[].class)) {
-            return true;
-        }
-        return false;
-    }
-
-    public Object handleInput(IceMapper mapper, Class<?> p, Object arg)
-            throws ServerError {
-        if (arg instanceof RType) {
-            RType rt = (RType) arg;
-            return mapper.fromRType(rt);
-        } else if (isPrimitive(p)) { // FIXME use findTarget for Immutable.
-            return arg;
-        } else if (isWrapperArray(p)) {
-            return mapper.reverseArray((List) arg, p);
-        } else if (p.equals(Class.class)) {
-            return mapper.omeroClass((String) arg, true);
-        } else if (ome.model.internal.Details.class.isAssignableFrom(p)) {
-            return mapper.reverse((ModelBased) arg);
-        } else if (ome.model.IObject.class.isAssignableFrom(p)) {
-            return mapper.reverse((ModelBased) arg);
-        } else if (p.equals(Filter.class)) {
-            return mapper.convert((omero.sys.Filter) arg);
-        } else if (p.equals(Principal.class)) {
-            return mapper.convert((omero.sys.Principal) arg);
-        } else if (p.equals(Parameters.class)) {
-            return mapper.convert((omero.sys.Parameters) arg);
-        } else if (List.class.isAssignableFrom(p)) {
-            return mapper.reverse((Collection) arg);
-        } else if (Set.class.isAssignableFrom(p)) {
-            return mapper.reverse(new HashSet((Collection) arg)); // Necessary
-            // since Ice
-            // doesn't
-            // support
-            // Sets.
-        } else if (Map.class.isAssignableFrom(p)) {
-            return mapper.reverse((Map) arg);
-        } else if (PlaneDef.class.isAssignableFrom(p)) {
-            return mapper.convert((omero.romio.PlaneDef) arg);
-        } else if (Filterable[].class.isAssignableFrom(p)) {
-            return mapper.reverseArray((List) arg, p);
-        } else {
-            throw new ApiUsageException(null, null, "Can't handle input " + p);
-        }
-    }
-
-    public Object handleOutput(IceMapper mapper, Class type, Object o)
-            throws ServerError {
-        if (o == null) {
-            return null;
-        } else if (RType.class.isAssignableFrom(type)) {
-            return o;
-        } else if (omero.Internal.class.isAssignableFrom(type)) {
-            return new RInternal((omero.Internal) o);
-        } else if (void.class.isAssignableFrom(type)) {
-            assert o == null;
-            return null;
-        } else if (isPrimitive(type)) {
-            return o;
-        } else if (RGBBuffer.class.isAssignableFrom(type)) {
-            return mapper.convert((RGBBuffer) o);
-        } else if (Roles.class.isAssignableFrom(type)) {
-            return mapper.convert((Roles) o);
-        } else if (Date.class.isAssignableFrom(type)) {
-            return mapper.convert((Date) o);
-        } else if (EventContext.class.isAssignableFrom(type)) {
-            return mapper.convert((EventContext) o);
-        } else if (Set.class.isAssignableFrom(type)) {
-            return mapper.map(new ArrayList((Set) o)); // Necessary since Ice
-            // doesn't support Sets.
-        } else if (Collection.class.isAssignableFrom(type)) {
-            return mapper.map((Collection) o);
-        } else if (IObject.class.isAssignableFrom(type)) {
-            return mapper.map((Filterable) o);
-        } else if (Map.class.isAssignableFrom(type)) {
-            return mapper.map((Map) o);
-        } else if (Filterable[].class.isAssignableFrom(type)) {
-            return mapper.map((Filterable[]) o);
-        } else {
-            throw new ApiUsageException(null, null, "Can't handle output "
-                    + type);
-        }
-    }
 
     public Ice.UserException handleException(Throwable t) {
 

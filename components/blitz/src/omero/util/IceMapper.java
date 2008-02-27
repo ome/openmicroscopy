@@ -581,10 +581,10 @@ public class IceMapper extends ome.util.ModelMapper implements
 
             array = (Object[]) Array.newInstance(component, list.size());
             for (int i = 0; i < array.length; i++) {
-                array[i] = reverse(list.get(i));
+                array[i] = this.handleInput(component, list.get(i));
             }
         } catch (Exception e) {
-            String msg = "Cannot create filterable array from type " + type;
+            String msg = "Cannot create array from type " + type;
             if (log.isErrorEnabled()) {
                 log.error(msg, e);
             }
@@ -684,4 +684,106 @@ public class IceMapper extends ome.util.ModelMapper implements
         ie.setStackTrace(aue.getStackTrace());
     }
 
+    // ~ Methods from IceMethodInvoker
+    // =========================================================================
+
+    protected boolean isPrimitive(Class<?> p) {
+        if (p.equals(byte.class) || p.equals(byte[].class)
+                || p.equals(int.class) || p.equals(int[].class)
+                || p.equals(long.class) || p.equals(long[].class)
+                || p.equals(double.class) || p.equals(double[].class)
+                || p.equals(float.class) || p.equals(float[].class)
+                || p.equals(boolean.class) || p.equals(boolean[].class)
+                || p.equals(Integer.class) || p.equals(Long.class)
+                || p.equals(Double.class) || p.equals(Float.class)
+                || p.equals(String.class)) {
+            return true;
+        }
+        return false;
+    }
+
+    protected boolean isWrapperArray(Class<?> p) {
+        if (p.equals(Integer[].class) || p.equals(Long[].class)
+                || p.equals(Double[].class) || p.equals(Float[].class)
+                || p.equals(String[].class)) {
+            return true;
+        }
+        return false;
+    }
+
+    public Object handleInput(Class<?> p, Object arg) throws ServerError {
+        if (arg instanceof RType) {
+            RType rt = (RType) arg;
+            return fromRType(rt);
+        } else if (isPrimitive(p)) { // FIXME use findTarget for Immutable.
+            return arg;
+        } else if (isWrapperArray(p)) {
+            return reverseArray((List) arg, p);
+        } else if (p.equals(Class.class)) {
+            return omeroClass((String) arg, true);
+        } else if (ome.model.internal.Details.class.isAssignableFrom(p)) {
+            return reverse((ModelBased) arg);
+        } else if (ome.model.IObject.class.isAssignableFrom(p)) {
+            return reverse((ModelBased) arg);
+        } else if (p.equals(ome.parameters.Filter.class)) {
+            return convert((omero.sys.Filter) arg);
+        } else if (p.equals(ome.system.Principal.class)) {
+            return convert((omero.sys.Principal) arg);
+        } else if (p.equals(ome.parameters.Parameters.class)) {
+            return convert((omero.sys.Parameters) arg);
+        } else if (List.class.isAssignableFrom(p)) {
+            return reverse((Collection) arg);
+        } else if (Set.class.isAssignableFrom(p)) {
+            return reverse(new HashSet((Collection) arg)); // Necessary
+            // since Ice
+            // doesn't
+            // support
+            // Sets.
+        } else if (Map.class.isAssignableFrom(p)) {
+            return reverse((Map) arg);
+        } else if (PlaneDef.class.isAssignableFrom(p)) {
+            return convert((omero.romio.PlaneDef) arg);
+        } else if (Object[].class.isAssignableFrom(p)) {
+            return reverseArray((List) arg, p);
+        } else {
+            throw new ApiUsageException(null, null, "Can't handle input " + p);
+        }
+    }
+
+    public Object handleOutput(Class type, Object o) throws ServerError {
+        if (o == null) {
+            return null;
+        } else if (RType.class.isAssignableFrom(type)) {
+            return o;
+        } else if (omero.Internal.class.isAssignableFrom(type)) {
+            return new RInternal((omero.Internal) o);
+        } else if (void.class.isAssignableFrom(type)) {
+            assert o == null;
+            return null;
+        } else if (isPrimitive(type)) {
+            return o;
+        } else if (RGBBuffer.class.isAssignableFrom(type)) {
+            return convert((RGBBuffer) o);
+        } else if (Roles.class.isAssignableFrom(type)) {
+            return convert((Roles) o);
+        } else if (Date.class.isAssignableFrom(type)) {
+            return convert((Date) o);
+        } else if (ome.system.EventContext.class.isAssignableFrom(type)) {
+            return convert((ome.system.EventContext) o);
+        } else if (Set.class.isAssignableFrom(type)) {
+            return map(new ArrayList((Set) o)); // Necessary since Ice
+            // doesn't support Sets.
+        } else if (Collection.class.isAssignableFrom(type)) {
+            return map((Collection) o);
+        } else if (IObject.class.isAssignableFrom(type)) {
+            return map((Filterable) o);
+        } else if (Map.class.isAssignableFrom(type)) {
+            return map((Map) o);
+        } else if (Filterable[].class.isAssignableFrom(type)) {
+            return map((Filterable[]) o);
+        } else {
+            throw new ApiUsageException(null, null, "Can't handle output "
+                    + type);
+        }
+    }
 }

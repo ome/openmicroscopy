@@ -54,6 +54,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.TagAnnotationI;
 import omero.romio.XY;
 import omero.sys.Filter;
 import omero.util.IceMapper;
@@ -104,7 +105,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     void testDetailsAreMappedToOmero() throws Exception {
         ome.model.core.Image i = new ome.model.core.Image();
         assertNotNull(i.getDetails());
-        Object o = invoker.handleOutput(mapper, ome.model.core.Image.class, i);
+        Object o = mapper.handleOutput(ome.model.core.Image.class, i);
         ServantHelper.throwIfNecessary(o);
         Image rv = (Image) o;
         assertNotNull(rv.details);
@@ -114,7 +115,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     void testDetailsAreMappedFromOmero() throws Exception {
         Image i = new ImageI();
         i.details = new DetailsI();
-        Object o = invoker.handleInput(mapper, ome.model.core.Image.class, i);
+        Object o = mapper.handleInput(ome.model.core.Image.class, i);
         ServantHelper.throwIfNecessary(o);
         ome.model.core.Image rv = (ome.model.core.Image) o;
         assertNotNull(rv.getDetails());
@@ -877,6 +878,26 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(Search.class, "onlyIds");
         method();
         rv = invoke(Arrays.asList(1L));
+        ServantHelper.throwIfNecessary(rv);
+
+        init(Search.class, "byAnnotatedWith");
+        method();
+        rv = invoke(Arrays.asList(new TagAnnotationI()));
+        ServantHelper.throwIfNecessary(rv);
+
+        init(Search.class, "fetchAlso");
+        method();
+        rv = invoke(Arrays.asList("a", "b"));
+        ServantHelper.throwIfNecessary(rv);
+
+        init(Search.class, "fetchAnnotations");
+        method();
+        rv = invoke(Arrays.asList("Image", "Project"));
+        ServantHelper.throwIfNecessary(rv);
+
+        init(Search.class, "currentMetadataList");
+        method().will(returnValue(Collections.singletonList(new HashMap())));
+        rv = invoke();
         ServantHelper.throwIfNecessary(rv);
 
     }
