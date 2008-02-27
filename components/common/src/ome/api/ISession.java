@@ -12,7 +12,9 @@ import java.util.Set;
 import ome.annotations.Hidden;
 import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
+import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
 import ome.system.Principal;
 
@@ -22,27 +24,22 @@ import ome.system.Principal;
  * {@link Session}.
  * 
  * The {@link Session session's} {@link Session#getUuid() uuid} can be
- * considered a capability token, or temporary single use password Simply by
+ * considered a capability token, or temporary single use password. Simply by
  * possessing it the client has access to all information available to the
  * {@link Session}.
  * 
- * Is not stateful because of the timeouts. Easier to control Responsible for
- * validating inputs (including authentication) and creating sessions by
- * properly using the PermissionsVerifer and SessionManager
- * 
- * 
+ * Note: Both the RMI {@link ome.system.ServiceFactory} as well as the Ice
+ * {@link omero.api.ServiceFactoryPrx} use {@link ISession} to acquire a
+ * {@link Session}. In the RMI case, the {@link ISession} instance is the first
+ * remote proxy accessed. In the Ice case, Glacier2 contacts {@link ISession}
+ * itself and returns a ServiceFactory remote proxy. From both ServiceFactory
+ * instances, it is possible but not necessary to access {@link ISession}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public interface ISession extends ServiceInterface {
 
-    /*
-     * Not called ServiceFactory because it doesn't return proxies. perhaps
-     * ServiceFactoryI should extends SessionhandleI
-     */
-    // where principal has a session field for use in joining a disconnect
-    // session
     /**
      * Allows an admin to create a {@link Session} for the give
      * {@link Principal}
@@ -89,9 +86,21 @@ public interface ISession extends ServiceInterface {
     Session updateSession(@NotNull
     Session session);
 
+    /**
+     * Retrieves the session associated with this uuid. Throws a
+     * {@link RemovedSessionException} if not present, or a
+     * {@link SessionTimeoutException} if expired.
+     * 
+     * This method can be used as a {@link Session} ping.
+     */
     Session getSession(@NotNull
     String sessionUuid);
 
+    /**
+     * Closes session and releases all resources. It is preferred that all
+     * clients call this method as soon as possible to free memory, but it is
+     * possible to not call close, and rejoin a session later.
+     */
     void closeSession(@NotNull
     Session session);
 
@@ -110,12 +119,13 @@ public interface ISession extends ServiceInterface {
     // =========================================================================
 
     /**
-     * Retrieves an entry from the given {@link Session session's} cache.
+     * Retrieves an entry from the given {@link Session session's} input
+     * environment. If the value is null, the key will be removed.
      */
     Object getInput(String session, String key);
 
     /**
-     * Retrieves
+     * Retrieves all keys in the {@link Session sesson's} input environment.
      * 
      * @param session
      * @return
@@ -123,18 +133,24 @@ public interface ISession extends ServiceInterface {
     Set<String> getInputKeys(String session);
 
     /**
-     * Places an entry in the given {@link Session session's} cache. If the
-     * value is null, the key will be removed.
-     * 
-     * @param session
-     * @param key
-     * @param objection
+     * Places an entry in the given {@link Session session's} input environment.
+     * If the value is null, the key will be removed.
      */
     void setInput(String session, String key, Object objection);
 
+    /**
+     * Retrieves all keys in the {@link Session sesson's} output environment.
+     */
     Set<String> getOutputKeys(String session);
 
+    /**
+     * Retrieves an entry from the {@link Session session's} output environment.
+     */
     Object getOutput(String session, String key);
 
+    /**
+     * Places an entry in the given {@link Session session's} output
+     * environment. If the value is null, the key will be removed.
+     */
     void setOutput(String session, String key, Object objection);
 }
