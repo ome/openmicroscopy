@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( fileAnnotation )
 	    in.seekg(0, ios_base::end);
 	    ifstream::pos_type end = in.tellg();
 	    size = static_cast<long>(end - beg);
-	  
+
 	    in.seekg(0, ios_base::beg);
 	    istream_iterator<Ice::Byte> b(in), e;
 	    vector<Ice::Byte> v (b, e);
@@ -160,11 +160,12 @@ BOOST_AUTO_TEST_CASE( annotationImmutability )
 	BOOST_CHECK_MESSAGE( tag->textValue->val == "immutable-tag", tag->textValue->val );
 
 	// See #878
-	// tag->name = new omero::RString("modified-name");
-	// tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
-	// tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->id->val) );
+        // Annotation.ns is currently modifiable.
+	tag->ns = new omero::RString("modified-name");
+	tag = TagAnnotationIPtr::dynamicCast( u->saveAndReturnObject( tag ) );
+	tag = TagAnnotationIPtr::dynamicCast( q->get("TagAnnotation", tag->id->val) );
 
-	BOOST_CHECK_MESSAGE( ! tag->name, tag->name );
+	BOOST_CHECK_MESSAGE( tag->ns->val == "modified-name", tag->ns );
 
     } catch (omero::ApiUsageException& aue) {
 	cout << aue.message <<endl;

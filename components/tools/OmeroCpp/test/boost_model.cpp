@@ -12,6 +12,12 @@ using namespace omero::model;
 using namespace omero;
 using namespace std;
 
+BOOST_AUTO_TEST_CASE( DetailsPtrIsNull )
+{
+    DetailsIPtr p;
+    BOOST_CHECK( ! p );
+}
+
 BOOST_AUTO_TEST_CASE( Virtual )
 {
   ImagePtr img = new ImageI();
