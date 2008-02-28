@@ -273,9 +273,9 @@ class XmlReport(object):
 		except etree.XMLSchemaValidateError:
 			self.isXsdValid = False
 			self.errorList.append(ParseMessage(None, None, None, "XML", None, "Processing the XML data has generated an unspecified error in the XML sub-system. This is usually a result of an incorrect top level block. Please check the OME block is well-formed and that the schemaLocation is specified correctly. This may also be caused by a missing namespace prefix or incorrect xmlns attribute."))
-	
+
 	def checkOldSchemas(self, inDocument):
-		for thePossibleSchema in [["ome-2007-07-V2.xsd","September 2007 V2"],["ome-2007-07-V1.xsd","June 2007 V1"],["ome-fc-tiff.xsd","2003 - Tiff Variant"], ["ome-fc.xsd","2003 - Standard version"]]:
+		for thePossibleSchema in [["ome-2008-02-V1.xsd","February 2008 V2"],["ome-2007-06-V2.xsd","September 2007 V2"],["ome-2007-06-V1.xsd","June 2007 V1"],["ome-fc-tiff.xsd","2003 - Tiff Variant"], ["ome-fc.xsd","2003 - Standard version"]]:
 			# skip current one
 			if not thePossibleSchema[0] == self.theSchemaFile:
 				# load each old schema
@@ -297,7 +297,7 @@ class XmlReport(object):
 	def loadChoosenSchema(self):
 		# choose the schema source
 		# assume the new schema
-		self.theSchemaFile = "ome-2007-07-V2.xsd"
+		self.theSchemaFile = "ome-2008-02-V1.xsd"
 		# if old schema
 		if self.theNamespace == "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd":
 			# check if used by tiff
@@ -307,6 +307,11 @@ class XmlReport(object):
 			else:
 				# use normal version of old schema
 				self.theSchemaFile = "ome-fc.xsd"
+		else:
+			if self.theNamespace == "http://www.openmicroscopy.org/Schemas/OME/2007-06":
+				# use September 2007 schema
+				self.theSchemaFile = "ome-2007-06-V2.xsd"
+
 		
 		# loading the OME schema to validate against
 		try:
@@ -597,8 +602,14 @@ class ElementAggregator(sax.ContentHandler):
 				else:
 					if name[-5:] == "Image":
 						try:
-							# in Image - ID is an ID and DefaultPixels is a Reference
+							# in Image - ID is an ID 
+							# and DefaultPixels is a Reference
 							self.references.append(attribs.getValue("DefaultPixels"))
+						except KeyError:
+							pass
+						try:
+							# and AcquiredPixels is a Reference
+							self.references.append(attribs.getValue("AcquiredPixels"))
 						except KeyError:
 							pass
 					if name[-16:] == "ChannelComponent":
@@ -747,7 +758,8 @@ class NamespaceSearcher(sax.ContentHandler):
 if __name__ == '__main__':
 	for aFilename in ["samples/completesamplenopre.xml","samples/completesample.xml","samples/completesamplenoenc.xml",
 			"samples/sdub.ome", "samples/sdub-fix.ome", "samples/sdub-fix-pre.ome", 
-			"samples/tiny.ome", "samples/broke.ome"]:
+			"samples/tiny.ome", "samples/broke.ome",
+			"samples/tiny2008-02-V1.ome"]:
 			print "============ XML file %s ============ " % aFilename
 			print XmlReport.validateFile(aFilename)
 	
