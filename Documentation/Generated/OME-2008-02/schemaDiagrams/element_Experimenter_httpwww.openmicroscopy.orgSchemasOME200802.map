@@ -1,0 +1,98 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Experimenter_httpwww.openmicroscopy.orgSchemasOME200802'>
+ <area
+  shape='rect'
+  alt='element_FirstName'
+  coords='456,0,575,26'
+  href='ome.xsd.html#element_FirstName'/>
+
+ <area
+  shape='rect'
+  alt='element_LastName'
+  coords='456,36,568,78'
+  href='ome.xsd.html#element_LastName'/>
+
+ <area
+  shape='rect'
+  alt='element_Email'
+  coords='456,88,547,130'
+  href='ome.xsd.html#element_Email'/>
+
+ <area
+  shape='rect'
+  alt='element_Institution'
+  coords='456,140,589,182'
+  href='ome.xsd.html#element_Institution'/>
+
+ <area
+  shape='rect'
+  alt='element_OMEName'
+  coords='456,192,561,234'
+  href='ome.xsd.html#element_OMEName'/>
+
+ <area
+  shape='rect'
+  alt='element_LastName'
+  coords='456,244,568,270'
+  href='ome.xsd.html#element_LastName'/>
+
+ <area
+  shape='rect'
+  alt='element_Email'
+  coords='456,280,547,322'
+  href='ome.xsd.html#element_Email'/>
+
+ <area
+  shape='rect'
+  alt='element_Institution'
+  coords='456,332,589,374'
+  href='ome.xsd.html#element_Institution'/>
+
+ <area
+  shape='rect'
+  alt='element_OMEName'
+  coords='456,384,561,426'
+  href='ome.xsd.html#element_OMEName'/>
+
+ <area
+  shape='rect'
+  alt='element_Email'
+  coords='456,436,547,462'
+  href='ome.xsd.html#element_Email'/>
+
+ <area
+  shape='rect'
+  alt='element_Institution'
+  coords='456,472,589,514'
+  href='ome.xsd.html#element_Institution'/>
+
+ <area
+  shape='rect'
+  alt='element_OMEName'
+  coords='456,524,561,566'
+  href='ome.xsd.html#element_OMEName'/>
+
+ <area
+  shape='rect'
+  alt='element_Institution'
+  coords='456,576,589,618'
+  href='ome.xsd.html#element_Institution'/>
+
+ <area
+  shape='rect'
+  alt='element_OMEName'
+  coords='456,628,561,654'
+  href='ome.xsd.html#element_OMEName'/>
+
+ <area
+  shape='rect'
+  alt='element_GroupRef'
+  coords='298,664,410,706'
+  href='ome.xsd.html#element_GroupRef'/>
+
+ <area
+  shape='rect'
+  alt='type_ExperimenterID'
+  coords='212,716,306,742'
+  href='ome.xsd.html#type_ExperimenterID'/>
+
+</map>

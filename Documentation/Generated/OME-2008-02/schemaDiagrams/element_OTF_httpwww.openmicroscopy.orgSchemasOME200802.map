@@ -1,0 +1,32 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_OTF_httpwww.openmicroscopy.orgSchemasOME200802'>
+ <area
+  shape='rect'
+  alt='element_ObjectiveRef'
+  coords='235,0,375,26'
+  href='ome.xsd.html#element_ObjectiveRef'/>
+
+ <area
+  shape='rect'
+  alt='element_FilterSetRef'
+  coords='235,36,375,78'
+  href='ome.xsd.html#element_FilterSetRef'/>
+
+ <area
+  shape='rect'
+  alt='element_BinaryFile'
+  coords='235,88,389,114'
+  href='BinaryFile.xsd.html#element_BinaryFile'/>
+
+ <area
+  shape='rect'
+  alt='type_OTFID'
+  coords='149,124,243,150'
+  href='ome.xsd.html#type_OTFID'/>
+
+ <area
+  shape='rect'
+  alt='type_ExtendedPixelTypes'
+  coords='149,160,286,186'
+  href='ome.xsd.html#type_ExtendedPixelTypes'/>
+
+</map>

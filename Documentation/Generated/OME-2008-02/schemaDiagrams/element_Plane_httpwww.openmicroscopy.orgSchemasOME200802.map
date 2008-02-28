@@ -1,0 +1,20 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_Plane_httpwww.openmicroscopy.orgSchemasOME200802'>
+ <area
+  shape='rect'
+  alt='type_PlaneTiming'
+  coords='249,0,382,42'
+  href='ome.xsd.html#type_PlaneTiming'/>
+
+ <area
+  shape='rect'
+  alt='type_StagePosition'
+  coords='249,52,396,94'
+  href='ome.xsd.html#type_StagePosition'/>
+
+ <area
+  shape='rect'
+  alt='type_Hex40'
+  coords='321,104,433,130'
+  href='ome.xsd.html#type_Hex40'/>
+
+</map>

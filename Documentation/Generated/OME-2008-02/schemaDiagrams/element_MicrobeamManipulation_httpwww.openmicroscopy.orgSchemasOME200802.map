@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='element_MicrobeamManipulation_httpwww.openmicroscopy.orgSchemasOME200802'>
+ <area
+  shape='rect'
+  alt='element_ROIRef'
+  coords='361,0,459,42'
+  href='ome.xsd.html#element_ROIRef'/>
+
+ <area
+  shape='rect'
+  alt='element_ExperimenterRef'
+  coords='361,52,522,78'
+  href='ome.xsd.html#element_ExperimenterRef'/>
+
+ <area
+  shape='rect'
+  alt='element_LightSourceRef'
+  coords='361,88,515,130'
+  href='ome.xsd.html#element_LightSourceRef'/>
+
+ <area
+  shape='rect'
+  alt='type_MicrobeamManipulationID'
+  coords='275,140,369,166'
+  href='ome.xsd.html#type_MicrobeamManipulationID'/>
+
+</map>
