@@ -37,7 +37,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * 
+ * The rating component. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,8 +53,20 @@ public class RatingComponent
 	extends JPanel
 {
 
+	/** Index corresponding to 16x16 icons. */
+	public static final int		HIGH_SIZE = 0;
+	
+	/** Index corresponding to 12x12 icons. */
+	public static final int		MEDIUM_SIZE = 1;
+	
+	/** Index corresponding to 8x8 icons. */
+	public static final int		SMALL_SIZE = 2;
+	
+	/** Bound property indicating that the value has changed. */
+	public static final String	RATE_PROPERTY = "rate";
+	
 	/** The maximum number of value. */
-	public static final int MAX = 5;
+	public static final int 	MAX = 5;
 	
 	/** The collection of selected stars. */
 	private List<Image>			plus;
@@ -73,6 +85,9 @@ public class RatingComponent
 	
 	/** The canvas hosting the rating starts. */
 	private RatingCanvas		canvas;
+	
+	/** The selected size. */
+	private int					size;
 	
 	/** Fills the {@link #plus} and {@link #minus} lists. */
 	private void fillLists()
@@ -93,9 +108,22 @@ public class RatingComponent
 		plus = new ArrayList<Image>();
 		minus = new ArrayList<Image>();
 		IconManager icons = IconManager.getInstance();
-		selected = icons.getImageIcon(IconManager.START_SELECTED).getImage();
-		unselected = 
-				icons.getImageIcon(IconManager.START_UNSELECTED).getImage();
+		switch (size) {
+			case HIGH_SIZE:
+				selected = icons.getImageIcon(IconManager.START_SELECTED).getImage();
+				unselected = 
+						icons.getImageIcon(IconManager.START_UNSELECTED).getImage();
+				break;
+			case MEDIUM_SIZE:
+				selected = icons.getImageIcon(IconManager.START_SELECTED_12).getImage();
+				unselected = 
+						icons.getImageIcon(IconManager.START_UNSELECTED_12).getImage();
+				break;
+			case SMALL_SIZE:
+				selected = icons.getImageIcon(IconManager.START_SELECTED_8).getImage();
+				unselected = 
+						icons.getImageIcon(IconManager.START_UNSELECTED_8).getImage();
+		}
 		int w = selected.getWidth(null);
 		int h = selected.getHeight(null);
 		canvas.setPreferredSize(
@@ -107,54 +135,72 @@ public class RatingComponent
 	/** 
 	 * Builds and lays out the UI.
 	 * 
-	 * @param showSpinner	Pass <code>true</code> if the spinner is shown
+	 * @param hasListeners 	Pass <code>true</code> to install the listeners,
 	 * 						<code>false</code> otherwise. 
 	 */
-	private void buildGUI(boolean showSpinner)
+	private void buildGUI(boolean hasListeners)
 	{
 		add(canvas);
 		add(Box.createHorizontalStrut(5));
-		if (!showSpinner) canvas.uninstallListeners();
+		if (!hasListeners) canvas.uninstallListeners();
 	}
 	
 	/** Creates a default instance. */
 	public RatingComponent()
 	{
-		this(0, true);
+		this(0, HIGH_SIZE, true);
 	}
 	
 	/** 
 	 * Creates a default instance. 
 	 * 
 	 * @param selected	The number of stars.
+	 * @param size		The size of the stars. One of the constants
+	 * 					defined by this class.
 	 */
-	public RatingComponent(int selected)
+	public RatingComponent(int selected, int size)
 	{
-		this(selected, true);
+		this(selected, size, true);
 	}
+	
 	/**
+	 * Creates a new instance with default value equals to <code>0</code>
 	 * 
-	 * @param showSpinner
+	 * @param size			The size of the stars. One of the constants
+	 * 						defined by this class.
+	 * @param hasListeners 	Pass <code>true</code> to install the listeners,
+	 * 						<code>false</code> otherwise.
 	 */
-	public RatingComponent(boolean showSpinner)
+	public RatingComponent(int size, boolean hasListeners)
 	{
-		this(0, showSpinner);
+		this(0, size, hasListeners);
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param selected		The number of stars.
-	 * @param showSpinner	Pass <code>true</code> if the spinner is shown
+	 * @param size			The size of the stars. One of the constants
+	 * 						defined by this class.
+	 * @param hasListeners 	Pass <code>true</code> to install the listeners,
 	 * 						<code>false</code> otherwise.
 	 */
-	public RatingComponent(int selected, boolean showSpinner)
+	public RatingComponent(int selected, int size, boolean hasListeners)
 	{
 		if (selected < 0) selected = 0;
 		if (selected > MAX) selected = MAX;
+		switch (size) {
+			case HIGH_SIZE:
+			case MEDIUM_SIZE:
+			case SMALL_SIZE:
+				this.size = size;
+				break;
+			default:
+				this.size = SMALL_SIZE;
+		}
 		currentValue = selected;
 		initialize();
-		buildGUI(showSpinner);
+		buildGUI(hasListeners);
 	}
 	
 	/** 
@@ -170,40 +216,20 @@ public class RatingComponent
 	 * @return See above.
 	 */
 	List<Image> getMinus() { return minus; }
-
+	
 	/**
 	 * Sets the value.
 	 * 
 	 * @param value The current value.
 	 */
-	void setValue(int value)
+	public void setValue(int value)
 	{
 		if (value < 0 || value > MAX) return;
+		int oldValue = currentValue;
 		currentValue = value;
 		fillLists();
 		canvas.repaint();
-	}
-	
-	/** Decreases the number of selected stars. */
-	void decrease()
-	{
-		int v = currentValue;
-		v--;
-		if (v < 0) return;
-		currentValue = v;
-		fillLists();
-		canvas.repaint();
-	}
-	
-	/** Increases the number of selected stars. */
-	void increase()
-	{
-		int v = currentValue;
-		v++;
-		if (v > MAX) return;
-		currentValue = v;
-		fillLists();
-		canvas.repaint();
+		firePropertyChange(RATE_PROPERTY, oldValue, currentValue);
 	}
 	
 }

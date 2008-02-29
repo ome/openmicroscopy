@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.util.ui;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
@@ -305,11 +304,41 @@ public class IconManager
     /** The <code>Start unselected</code> icon. */
     public static final int	BROKEN_FILE96 = 83;
     
+    /** ID of the <code>RightArrow</code> icon for the slider. */
+    public static final int DOUBLE_RIGHT_ARROW = 84;
+    
+    /** ID of the <code>Double</code> icon for the slider. */
+    public static final int DOUBLE_LEFT_ARROW = 85;
+    
+    /** ID of the <code>RightArrow</code> icon for the slider. */
+    public static final int RIGHT_ARROW_16 = 86;
+    
+    /** ID of the <code>Double</code> icon for the slider. */
+    public static final int LEFT_ARROW_16 = 87;
+    
+    /** The <code>Tag</code> icon. */
+    public static final int	TAG_OWNER = 88;
+    
+    /** The <code>Wizard</code> icon. */
+    public static final int	WIZARD = 89;
+    
+    /** The <code>Start selected</code> icon. */
+    public static final int START_SELECTED_12 = 90;
+    
+    /** The <code>Start unselected</code> icon. */
+    public static final int	START_UNSELECTED_12 = 91;
+    
+    /** The <code>Start selected</code> icon. */
+    public static final int START_SELECTED_8 = 92;
+    
+    /** The <code>Start unselected</code> icon. */
+    public static final int	START_UNSELECTED_8 = 93;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 83;
+    private static int      MAX_ID = 93;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -344,8 +373,8 @@ public class IconManager
     	relPaths[CONFIG] = "config.png";
     	relPaths[CONFIG_PRESSED] = "config_pressed.png";
     	relPaths[CONFIG_48] = "nuvola_configure48.png";
-    	relPaths[REMOVE] = "nuvola_edit_remove16.png";
-    	relPaths[ADD] = "nuvola_edit_add16.png";
+    	relPaths[REMOVE] = "remove_grayscale16.png";//nuvola_edit_remove16.png";
+    	relPaths[ADD] = "add_grayscale16.png";//"nuvola_edit_add16.png";
     	relPaths[INFO_32] = "nuvola_messagebox_info32.png";
     	relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
     	relPaths[MINUS] = "minus.png";
@@ -392,7 +421,7 @@ public class IconManager
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
         relPaths[CLOSE] = "nuvola_fileclose16.png";
-        relPaths[CLOSE_OVER] = "fileCloseRed16.png";
+        relPaths[CLOSE_OVER] = "filecloseRed16.png";
         relPaths[HELP] = "nuvola_help16.png";
         relPaths[HELP_48] ="nuvola_kdmconfig48.png";
         relPaths[ANNOTATION] ="nuvola_kwrite16.png";
@@ -401,6 +430,16 @@ public class IconManager
         relPaths[START_SELECTED] = "nuvola_mozilla16.png";
         relPaths[START_UNSELECTED] = "mozilla_grey16.png";
         relPaths[BROKEN_FILE96] = "nuvola_file_broken96.png";
+        relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow16.png";
+        relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow16.png";
+        relPaths[LEFT_ARROW_16] = "nuvola_1leftarrow16.png";
+        relPaths[RIGHT_ARROW_16] = "nuvola_1rightarrow16.png";
+        relPaths[TAG_OWNER] = "nuvola_1rightarrow16.png";
+        relPaths[WIZARD] ="nuvola_wizard48.png";
+        relPaths[START_SELECTED_12] = "nuvola_mozilla12.png";
+        relPaths[START_UNSELECTED_12] = "mozilla_grey12.png";
+        relPaths[START_SELECTED_8] = "nuvola_mozilla8.png";
+        relPaths[START_UNSELECTED_8] = "mozilla_grey8.png";
     }
     
     /** 

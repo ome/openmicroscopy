@@ -44,7 +44,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 /** 
- * 
+ * The component where the rating levels are painted.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

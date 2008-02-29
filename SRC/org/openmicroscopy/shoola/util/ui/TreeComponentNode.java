@@ -57,7 +57,7 @@ class TreeComponentNode
 {
 
 	/** Bound property indicating the displayed component. */
-	static final String EXPANDED_PROPERTY = "expanded";
+	static final String EXPANDED_NODE_PROPERTY = "expandedNode";
 	
 	/** The label hosting the selected icon. */
 	private JLabel 		iconLabel;
@@ -82,7 +82,7 @@ class TreeComponentNode
 		buildGUI();
 		validate();
 		repaint();
-		firePropertyChange(EXPANDED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(EXPANDED_NODE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -158,5 +158,13 @@ class TreeComponentNode
 		if (expanded) iconLabel.setIcon(elapseIcon);
 		else iconLabel.setIcon(collapseIcon);
 	}
+	
+	/**
+	 * Returns <code>true</code> if the node is expanded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isExpanded() { return expanded; }
 	
 }

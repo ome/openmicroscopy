@@ -140,7 +140,8 @@ public class TreeComponent
 		TreeComponentNode node = new TreeComponentNode(elapse, collapse, 
 														expanded);
 		node.setIcons(collapseIcon, elapseIcon);
-		node.addPropertyChangeListener(this);
+		node.addPropertyChangeListener(TreeComponentNode.EXPANDED_NODE_PROPERTY,
+										this);
 		add(node);
 	}
 	
@@ -176,8 +177,13 @@ public class TreeComponent
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
+		TreeComponentNode node = (TreeComponentNode) evt.getSource();
+		node.setIcons(collapseIcon, elapseIcon);
 		revalidate();
-		firePropertyChange(EXPANDED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		if (node.isExpanded())
+			firePropertyChange(EXPANDED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		else 
+			firePropertyChange(EXPANDED_PROPERTY, Boolean.TRUE, Boolean.FALSE);
 	}
 	
 }

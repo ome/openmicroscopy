@@ -599,7 +599,7 @@ public class UIUtilities
     public static void setTextAreaDefault(JComponent area)
     {
         area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        area.setForeground(STEELBLUE);
+        //area.setForeground(STEELBLUE);
         area.setBackground(Color.WHITE);
         area.setOpaque(true);
         if (area instanceof JTextComponent) 
@@ -929,6 +929,26 @@ public class UIUtilities
 		TitledBorder border = new TitledBorder(title);
 		border.setTitleFont(p.getFont().deriveFont(Font.BOLD));
 		p.setBorder(border);
+	}
+	
+	/**
+	 * Formats the passed URL.
+	 * 
+	 * @param url The value to format.
+	 * @return See above.
+	 */
+	public static String formatURL(String url)
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append("<html><body>");
+		buf.append("<a href=\"");
+		buf.append(url);
+		buf.append("\"");
+		buf.append(">");
+		buf.append(url);
+		buf.append("</a>");
+		buf.append("</body></html>");
+		return buf.toString();
 	}
 	
 }

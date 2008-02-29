@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -40,6 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import layout.TableLayout;
@@ -201,10 +203,13 @@ public class ServerEditor
 		table = new ServerTable(this, servers, 
 				icons.getIcon(IconManager.SERVER));
 		removeButton = new JButton(icons.getIcon(IconManager.REMOVE));
+		UIUtilities.unifiedButtonLookAndFeel(removeButton);
 		removeButton.setToolTipText("Remove the selected server " +
 									"from the list of servers.");
 		addButton = new JButton(icons.getIcon(IconManager.ADD));
 		addButton.setToolTipText("Add a new server to the list of servers.");
+		addButton.setBorder(new TitledBorder(""));
+		UIUtilities.unifiedButtonLookAndFeel(addButton);
 		removeButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) 
 			{ 
