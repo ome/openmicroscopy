@@ -135,14 +135,14 @@
   License: Apache Software License, Version 1.1
   License File: apache-v1.1.txt
   
-  Project: The JUnit Testing Framework.  A framework for unit-testing.  All our
+  Project: The JUnit Testing Framework. A framework for unit-testing.  All our
   		regression tests make use of this framework in a way or another.
   Web Site: http://www.junit.org/
   Artifacts: The junit-* files under build/tools/ and under LIB/test/
   License: Common Public License (CPL) v1.0
   License File: cpl-v10.html
   
-  Project: The Log4j Project.  The logging framework used by OMERO.insight.
+  Project: The Log4j Project. The logging framework used by OMERO.insight.
   Web Site: http://logging.apache.org/log4j/
   Artifacts: The log4j-* file under LIB/
   License: Apache License, Version 2.0
@@ -219,3 +219,14 @@
   License: Lesser General Public License (LGPL)
   License File: lgpl.txt
   
+  Project: Commons validator. Validate data.
+  Web Site: http://commons.apache.org/validator/
+  Artifacts: The commons-* file under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: Jakarta oro. Set of text-processing classes.
+  Web Site: http://jakarta.apache.org/oro/
+  Artifacts: The jakarta-* file under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
