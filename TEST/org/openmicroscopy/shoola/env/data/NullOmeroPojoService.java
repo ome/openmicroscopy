@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchResult;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
@@ -152,17 +152,6 @@ public class NullOmeroPojoService
      * @see OmeroDataService#createAnnotationFor(DataObject, AnnotationData)
      */
     public DataObject createAnnotationFor(DataObject annotatedObject,
-                                            AnnotationData data)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#removeAnnotationFrom(DataObject, AnnotationData)
-     */
-    public DataObject removeAnnotationFrom(DataObject annotatedObject,
                                             AnnotationData data)
             throws DSOutOfServiceException, DSAccessException
     {
@@ -442,19 +431,6 @@ public class NullOmeroPojoService
 
 	/**
 	 * No-op implementation
-	 * @see OmeroDataService#advancedSearchFor(List, List, List, Timestamp, 
-	 * 											Timestamp, String, boolean)
-	 */
-	public SearchResult advancedSearchFor(List<Class> scope, List<String> values, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end, String
-			separator, boolean caseSensitive)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
 	 * @see OmeroDataService#tagImagesIncontainers(Set, Class, Set)
 	 */
 	public Set tagImagesIncontainers(Set<Long> ids, Class rootType, 
@@ -474,35 +450,6 @@ public class NullOmeroPojoService
 		return null;
 	}
 
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#loadAttachments(Class, long, long)
-	 */
-	public Collection loadAttachments(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#loadTags(Class, long, long)
-	 */
-	public Collection loadTags(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#loadUrls(Class, long, long)
-	 */
-	public Collection loadUrls(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
 
 	/**
 	 * No-op implementation
@@ -513,15 +460,5 @@ public class NullOmeroPojoService
 	{
 		return null;
 	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#loadRatings(Class, long, long)
-	 */
-	public Collection loadRatings(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
+	
 }

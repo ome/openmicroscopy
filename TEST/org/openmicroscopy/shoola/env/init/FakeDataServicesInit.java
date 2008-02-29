@@ -94,7 +94,7 @@ public class FakeDataServicesInit
     {   
         //Link services to the container's registry.
         Registry reg = container.getRegistry();
-        RegistryFactory.linkRDS(rds, reg); 
+        RegistryFactory.linkIS(rds, reg); 
         RegistryFactory.linkOS(os, reg); 
     }
     

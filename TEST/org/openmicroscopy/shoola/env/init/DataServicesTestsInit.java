@@ -101,11 +101,9 @@ public class DataServicesTestsInit
                                      DataServicesFactory.getInstance(container);
             
             //Link them to the container's registry.
-            OmeroImageService ps = factory.getRDS();
-            RegistryFactory.linkRDS(ps, reg);
-            
-            OmeroDataService ops = factory.getOS();
-            RegistryFactory.linkOS(ops, reg);
+            RegistryFactory.linkIS(factory.getIS(), reg);
+            RegistryFactory.linkOS(factory.getOS(), reg);
+            RegistryFactory.linkMS(factory.getMS(), reg);
             
             //Finally create and bind the factory used by the async data views
             //to create exec monitors.
