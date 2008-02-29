@@ -31,6 +31,7 @@ import java.util.HashMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -78,8 +79,11 @@ class RegistryImpl
 	/** Reference to container's service. */
    	private UserNotifier            un;
    	
-    /** Reference to the container's rendering service. */
-    private OmeroImageService		rds;
+    /** Reference to the image service. */
+    private OmeroImageService		is;
+    
+    /** Reference to the metadata service. */
+    private OmeroMetadataService	ms;
     
     /** Reference to the Omero service. */
     private OmeroDataService		os;
@@ -143,13 +147,19 @@ class RegistryImpl
      * Implemented as specified by {@link Registry}.
      * @see Registry#getImageService()
      */
-    public OmeroImageService getImageService() { return rds; }
+    public OmeroImageService getImageService() { return is; }
     
     /** 
      * Implemented as specified by {@link Registry}.
      * @see Registry#getDataService()
      */
     public OmeroDataService getDataService() { return os; }
+    
+    /** 
+     * Implemented as specified by {@link Registry}.
+     * @see Registry#getMetadataService()
+     */
+    public OmeroMetadataService getMetadataService() { return ms; }
     
     /** 
      * Implemented as specified by {@link Registry}.
@@ -178,10 +188,17 @@ class RegistryImpl
     /**
      * Stores a reference to the {@link OmeroImageService}.
      * 
-     * @param rds The {@link OmeroImageService}.
+     * @param is The {@link OmeroImageService}.
      */
-    void setRenderingService(OmeroImageService rds) { this.rds = rds; }
+    void setImageService(OmeroImageService is) { this.is = is; }
    	
+    /**
+     * Stores a reference to the {@link OmeroMetadataService}.
+     * 
+     * @param ms The {@link OmeroMetadataService}.
+     */
+    void setMetadataService(OmeroMetadataService ms) { this.ms = ms; }
+    
 	/**
 	 * Stores a reference to the {@link TaskBar}.
 	 * 
@@ -209,5 +226,5 @@ class RegistryImpl
      * @param os    The {@link OmeroDataService}.
      */
     void setOS(OmeroDataService os) { this.os = os; }
-	
+    
 }

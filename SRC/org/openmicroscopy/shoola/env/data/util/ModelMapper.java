@@ -36,10 +36,13 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.ImageAnnotationLink;
+import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.UrlAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.CategoryGroupCategoryLink;
@@ -59,6 +62,9 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.RatingAnnotationData;
+import pojos.TextualAnnotationData;
+import pojos.URLAnnotationData;
 
 /** 
  * Helper class to map {@link DataObject}s into their corresponding
@@ -423,13 +429,26 @@ public class ModelMapper
      * @param data              The annotation to create.
      * @return See above.
      */
-    public static IObject createAnnotation(IObject annotatedObject,
+    public static ILink createAnnotation(IObject annotatedObject,
                                     AnnotationData data)
     {
+    	Annotation annotation = null;
+    	if (data instanceof TextualAnnotationData) {
+    		annotation = new TextAnnotation();
+    		((TextAnnotation) annotation).setTextValue(
+    										data.getContentAsString());
+    	} else if (data instanceof RatingAnnotationData) {
+    		annotation = new LongAnnotation();
+    		((LongAnnotation) annotation).setLongValue(
+    											(Long) data.getContent());
+    	} else if (data instanceof URLAnnotationData) {
+    		annotation = new UrlAnnotation();
+    		((UrlAnnotation) annotation).setTextValue(
+    									data.getContentAsString());
+    	}
+    	if (annotation == null) return null;
     	if (annotatedObject instanceof Dataset) {
     		Dataset m = (Dataset) annotatedObject;
-    		TextAnnotation annotation = new TextAnnotation();
-    		annotation.setTextValue(data.getContentAsString());
     		DatasetAnnotationLink l = new DatasetAnnotationLink();
     		l.setParent(m);
     		l.setChild(annotation);
@@ -437,8 +456,6 @@ public class ModelMapper
     		return l;
     	} else if (annotatedObject instanceof Image) {
     		Image m = (Image) annotatedObject;
-    		TextAnnotation annotation = new TextAnnotation();
-    		annotation.setTextValue(data.getContentAsString());
     		ImageAnnotationLink l = new ImageAnnotationLink();
     		l.setParent(m);
     		l.setChild(annotation);
@@ -446,32 +463,14 @@ public class ModelMapper
     		return l;
     	} else if (annotatedObject instanceof Project) {
     		Project m = (Project) annotatedObject;
-    		TextAnnotation annotation = new TextAnnotation();
-    		annotation.setTextValue(data.getContentAsString());
     		ProjectAnnotationLink l = new ProjectAnnotationLink();
     		l.setParent(m);
     		l.setChild(annotation);
-    		
     		return l;
     	}
-    	/*
-        if (annotatedObject instanceof Dataset) {
-            Dataset m = (Dataset) annotatedObject; 
-            DatasetAnnotation annotation = new DatasetAnnotation();
-            annotation.setContent(data.getText());
-            annotation.setDataset(m);
-            return annotation;
-        } else if (annotatedObject instanceof Image) {
-            Image m = (Image) annotatedObject; 
-            ImageAnnotation annotation = new ImageAnnotation();
-            annotation.setContent(data.getText());
-            annotation.setImage(m);
-            return annotation;
-        }
-        throw new IllegalArgumentException("DataObject cannot be annotated.");
-        */
     	return null;
     }
+    
     
     /**
      * Links the annotated object and its annotation.

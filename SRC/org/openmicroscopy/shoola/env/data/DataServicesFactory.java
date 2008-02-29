@@ -89,10 +89,13 @@ public class DataServicesFactory
     private OMEROGateway            omeroGateway;
 	
     /** The omero service adapter. */
-    private OmeroDataService           ops;
+    private OmeroDataService		ds;
     
-    /** The rendering service adapter. */
-    private OmeroImageService        rds;
+    /** The image service adapter. */
+    private OmeroImageService		is;
+    
+    /** The metadata service adapter. */
+    private OmeroMetadataService 	ms;
     
 	/**
 	 * Attempts to create a new instance.
@@ -108,8 +111,9 @@ public class DataServicesFactory
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
         omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
 		//Create the adapters.
-        ops = new OmeroDataServiceImpl(omeroGateway, registry);
-        rds = new OmeroImageServiceImpl(omeroGateway, registry);
+        ds = new OmeroDataServiceImpl(omeroGateway, registry);
+        is = new OmeroImageServiceImpl(omeroGateway, registry);
+        ms = new OmeroMetadataServiceImpl(omeroGateway, registry);
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
 	}
@@ -143,14 +147,21 @@ public class DataServicesFactory
      * 
      * @return See above.
      */
-    public OmeroDataService getOS() { return ops; }
+    public OmeroDataService getOS() { return ds; }
     
     /**
      * Returns the {@link OmeroImageService}.
      * 
      * @return See above.
      */
-    public OmeroImageService getRDS() { return rds; }
+    public OmeroImageService getIS() { return is; }
+    
+    /**
+     * Returns the {@link OmeroMetadataService}.
+     * 
+     * @return See above.
+     */
+    public OmeroMetadataService getMS() { return ms; }
     
     /**
      * Returns the {@link LoginService}. 
@@ -214,7 +225,7 @@ public class DataServicesFactory
     /** Shuts down the connection. */
 	public void shutdown()
     { 
-        ((OmeroImageServiceImpl) rds).shutDown();
+        ((OmeroImageServiceImpl) is).shutDown();
         omeroGateway.logout(); 
     }
 	

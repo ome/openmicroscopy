@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -132,6 +133,13 @@ public interface Registry
      * @return See above.
      */
     public OmeroDataService getDataService();
+    
+    /**
+     * Returns a reference to the {@link OmeroMetaDataService}.
+     * 
+     * @return See above.
+     */
+    public OmeroMetadataService getMetadataService();
     
     /**
      * Returns an implementation of the specified <code>view</code>.

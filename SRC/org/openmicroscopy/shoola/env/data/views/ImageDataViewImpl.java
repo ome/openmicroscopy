@@ -39,11 +39,10 @@ import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 /** 
- * Implementation of the {@link ImageDataViewImpl} interface.
+ * Implementation of the {@link ImageDataView} interface.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

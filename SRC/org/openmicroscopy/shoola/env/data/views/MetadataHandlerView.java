@@ -24,14 +24,15 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
-import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -54,7 +55,22 @@ public interface MetadataHandlerView
 	/**
 	 * Loads the tags related to the object identified the the passed type
 	 * and ID. Retrieves the tags created by the specified user if the 
-	 * id is not <code>-1</code>.
+	 * userID is not <code>-1</code>.
+	 * 
+	 * @param rootType	The class identifying the object.
+	 * 					Mustn't be <code>null</code>.
+	 * @param rootID	The id of the node.
+	 * @param userID	Pass <code>-1</code> if no user specified.
+	 * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadTextualAnnotations(Class rootType, long rootID, 
+									long userID, AgentEventListener observer);
+	
+	/**
+	 * Loads the tags related to the object identified the the passed type
+	 * and ID. Retrieves the tags created by the specified user if the 
+	 * userID is not <code>-1</code>.
 	 * 
 	 * @param rootType	The class identifying the object.
 	 * 					Mustn't be <code>null</code>.
@@ -66,23 +82,101 @@ public interface MetadataHandlerView
 	public CallHandle loadTags(Class rootType, long rootID, long userID,
 			AgentEventListener observer);
 	
+	/**
+	 * Loads all the files attached by a given user to the specified object.
+	 * Retrieves the files if the userID is not <code>-1</code>.
+	 * 
+	 * @param rootType	The class identifying the object.
+	 * 					Mustn't be <code>null</code>.
+	 * @param rootID	The id of the node.
+	 * @param userID	Pass <code>-1</code> if no user specified.
+	 * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
 	public CallHandle loadAttachments(Class rootType, long rootID, long userID,
 			AgentEventListener observer);
 
+	/**
+	 * Loads all the containers containing the specified object.
+	 * Retrieves the files if the userID is not <code>-1</code>.
+	 * 
+	 * @param imageID	The image's id. 
+	 * @param pixelsID	The id of the pixels set.
+	 * @param userID	Pass <code>-1</code> if no user specified.
+	 * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
 	public CallHandle loadViewedBy(long imageID, long pixelsID,
 									AgentEventListener observer);
 
-	public CallHandle loadContainers(Class type, long id, long userID,
+	/**
+	 * Loads all the containers containing the specified object.
+	 * Retrieves the files if the userID is not <code>-1</code>.
+	 * 
+	 * @param rootType	The class identifying the object.
+	 * 					Mustn't be <code>null</code>.
+	 * @param rootID	The id of the node.
+	 * @param userID	Pass <code>-1</code> if no user specified.
+	 * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadContainers(Class rootType, long rootID, long userID,
 							AgentEventListener observer);
 
-	public CallHandle loadUrls(Class type, long id, int i, 
+	/**
+	 * Loads all the Urls attached by a given user to the specified object.
+	 * Retrieves the files if the userID is not <code>-1</code>.
+	 * 
+	 * @param rootType	The class identifying the object.
+	 * 					Mustn't be <code>null</code>.
+	 * @param rootID	The id of the node.
+	 * @param userID	Pass <code>-1</code> if no user specified.
+	 * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadUrls(Class rootType, long rootID, long userID, 
 					AgentEventListener observer);
+	
+	/**
+	 * Loads all the ratings attached by a given user to the specified object.
+	 * Retrieves the files if the userID is not <code>-1</code>.
+	 * 
+	 * @param rootType	The class identifying the object.
+	 * 					Mustn't be <code>null</code>.
+	 * @param rootID	The id of the node.
+	 * @param userID	Pass <code>-1</code> if no user specified.
+	 * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadRatings(Class rootType, long rootID, long userID, 
+			AgentEventListener observer);
 
 	public CallHandle loadThumbnails(ImageData image, Set<Long> userIDs, 
 						int thumbWidth, int thumbHeight, 
 						AgentEventListener observer);
 
-	public CallHandle loadStructuredData(Object dataObject, long userID,
+	/**
+	 * Loads all annotations related the specified object.
+	 * Retrieves the files if the userID is not <code>-1</code>.
+	 * 
+	 * @param dataObject	The object to handle. Mustn't be <code>null</code>.
+	 * @param userID		Pass <code>-1</code> if no user specified.
+	 * @param observer  	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadStructuredData(DataObject dataObject, long userID,
 										AgentEventListener observer);
+	
+	/**
+	 * Annotates the object identified by the passed type and id.
+	 * 
+	 * @param type			The type of object to annotate.
+	 * @param id			The id of the object.
+	 * @param annotation	The annotation to create.
+	 * @param observer  	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle annotate(Class type, long id, AnnotationData annotation,
+							AgentEventListener observer);
 	
 }

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -93,6 +94,10 @@ public class ThumbnailLoader
     /** Helper reference to the image service. */
     private OmeroImageService	service;
     
+    private Map					thumbnails;
+    
+    private boolean				single;
+    
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
      * 
@@ -154,7 +159,6 @@ public class ThumbnailLoader
             }
         };
     } 
-    
     /**
      * Adds a {@link BatchCall} to the tree for each thumbnail to retrieve.
      * The batch call simply invokes {@link #loadThumbail(int)}.

@@ -68,7 +68,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public RenderingControl loadRenderingControl(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
 
 	/**
 	 * Renders the specified 2D-plane. 

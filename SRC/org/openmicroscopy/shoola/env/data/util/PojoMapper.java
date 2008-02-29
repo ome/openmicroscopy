@@ -37,8 +37,9 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
-import ome.model.annotations.Annotation;
+import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.UrlAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -47,7 +48,6 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -57,6 +57,9 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ProjectData;
+import pojos.RatingAnnotationData;
+import pojos.TextualAnnotationData;
+import pojos.URLAnnotationData;
 
 /** 
  * Helper methods to convert {@link IObject}s into their corresponding
@@ -109,14 +112,14 @@ public class PojoMapper
             return new CategoryGroupData((CategoryGroup) object);
         else if (object instanceof Category) 
             return new CategoryData((Category) object);
-        else if (object instanceof Image) {
-        	Image img = (Image) object;
-        	System.err.println(img.getPrimaryPixels());
+        else if (object instanceof Image) 
         	return new ImageData((Image) object);
-        }
-        else if (object instanceof TextAnnotation)
-        	return new AnnotationData((Annotation) object);
-        	//return new AnnotationData(TextAnnotation.class);
+        else if (object instanceof TextAnnotation) 
+        	return new TextualAnnotationData((TextAnnotation) object);
+        else if (object instanceof UrlAnnotation)
+        	return new URLAnnotationData((UrlAnnotation) object);
+        else if (object instanceof LongAnnotation) 
+        	return new RatingAnnotationData((LongAnnotation) object);
         else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
         else if (object instanceof Experimenter) 

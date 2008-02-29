@@ -83,27 +83,22 @@ public class RenderingControlLoader
 		return new BatchCall("Loading rendering control: ") {
 			public void doCall() throws Exception
 			{
-				//try {
-					OmeroImageService rds = context.getImageService();
-					switch (index) {
-						default:
-						case LOAD:
-							result = rds.loadRenderingControl(pixelsID);
-							break;
-						case RELOAD:
-							result = rds.reloadRenderingService(pixelsID);
-							break;
-						case RESET:
-							result = rds.resetRenderingService(pixelsID);
-					}
-					if (result == null) {
-						throw new DSOutOfServiceException("Cannot start the " +
-								"rendering engine for pixelsID "+pixelsID);
-					}
-				//} catch (Exception e) {
-				//	throw new DSOutOfServiceException("Cannot start the " +
-				//			"rendering engine for pixelsID "+pixelsID, e);
-				//}
+				OmeroImageService rds = context.getImageService();
+				switch (index) {
+					default:
+					case LOAD:
+						result = rds.loadRenderingControl(pixelsID);
+						break;
+					case RELOAD:
+						result = rds.reloadRenderingService(pixelsID);
+						break;
+					case RESET:
+						result = rds.resetRenderingService(pixelsID);
+				}
+				if (result == null) {
+					throw new DSOutOfServiceException("Cannot start the " +
+							"rendering engine for pixelsID "+pixelsID);
+				}
 			}
 		};
 	} 

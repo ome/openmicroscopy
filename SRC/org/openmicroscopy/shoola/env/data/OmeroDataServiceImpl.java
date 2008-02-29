@@ -56,7 +56,6 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.util.SearchResult;
-
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -1158,169 +1157,6 @@ class OmeroDataServiceImpl
 		return loadContainerHierarchy(CategoryData.class, ids, leaves, userID);
 	}
 	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#advancedSearchFor(List, List, List, Timestamp, 
-	 * 											Timestamp, String)
-	 */
-	public SearchResult advancedSearchFor(List<Class> scope, List<String> terms, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end, 
-			String separator, boolean caseSensitive) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		
-		Class[] ann = new Class[1];
-		ann[0] = AnnotationData.class;
-		String[] some = new String[1];
-		some[0] = "annotation";
-		Class[] types = new Class[2];
-		types[0] = DatasetData.class;
-		types[1] = ProjectData.class;
-	
-		SearchResult result = new SearchResult();
-		
-		if (terms == null) return result;
-		Set<Long> ids = new HashSet<Long>();
-		Iterator i = scope.iterator();
-		List l = new ArrayList();
-		Iterator j;
-		IObject object;
-		Class type;
-		String s = "";
-		if (separator == null) s = "or"; //default
-		else {
-			separator = separator.toLowerCase();
-			separator = separator.trim();
-			if (separator.equals("and") || separator.equals("or"))
-				s = separator;
-			else s = "or"; //default
-		}
-		if ((users == null || users.size() == 0)) {
-			ExperimenterData exp = getUserDetails();
-			if (s.equals("and")) {
-				List<List> nodes = new ArrayList<List>();
-				Iterator k;
-				while (i.hasNext()) {
-					type = (Class) i.next();
-					if (type.equals(CategoryData.class) || 
-						type.equals(CategoryGroupData.class)) {
-						k = terms.iterator();
-						while (k.hasNext()) {
-							nodes.add(gateway.searchFor(type, (String) k.next(), 
-									start, end, exp, s, caseSensitive));
-						}
-						
-					} else {
-						l.addAll(gateway.searchFor(type, terms, start, end, 
-								exp, s, caseSensitive));
-					}
-				}
-				
-				
-				if (nodes.size() != 0) {
-					List nodeIds = new ArrayList();
-					List n = nodes.remove(0);
-					k = n.iterator();
-					while (k.hasNext()) {
-						nodeIds.add(((ILink) k.next()).getChild().getId());
-					}
-					k = nodes.iterator();
-					Iterator link;
-					long id;
-					Set<Long> intersection = new HashSet<Long>();
-					while (k.hasNext()) {
-						n = (List) k.next();
-						link = n.iterator();
-						while (link.hasNext()) {
-							id = ((ILink) link.next()).getChild().getId();
-							if (nodeIds.contains(id))
-								intersection.add(id);
-							else nodeIds.remove(id);
-						}
-					}
-					
-					ids.addAll(intersection);
-				}
-			} else {
-				while (i.hasNext()) {
-					type = (Class) i.next();
-					l.addAll(gateway.searchFor(type, terms, start, end, 
-									exp, s, caseSensitive));
-				}
-			}
-			
-		} else {
-			if (s.equals("and")) {
-				List<List> nodes = new ArrayList();
-				Iterator k;
-				while (i.hasNext()) {
-					type = (Class) i.next();
-					if (type.equals(CategoryData.class) || 
-						type.equals(CategoryGroupData.class)) {
-						k = terms.iterator();
-						while (k.hasNext()) {
-							nodes.add(gateway.searchFor(type, (String) k.next(), 
-									start, end, users, s, caseSensitive));
-						}
-						
-					} else {
-						l.addAll(gateway.searchFor(type, terms, start, end, 
-								users, s, caseSensitive));
-					}
-				}
-				
-				
-				if (nodes.size() != 0) {
-					List nodeIds = new ArrayList();
-					List n = nodes.remove(0);
-					k = n.iterator();
-					while (k.hasNext()) {
-						nodeIds.add(((ILink) k.next()).getChild().getId());
-					}
-					k = nodes.iterator();
-					Iterator link;
-					long id;
-					Set<Long> intersection = new HashSet<Long>();
-					while (k.hasNext()) {
-						n = (List) k.next();
-						link = n.iterator();
-						while (link.hasNext()) {
-							id = ((ILink) link.next()).getChild().getId();
-							if (nodeIds.contains(id))
-								intersection.add(id);
-							else nodeIds.remove(id);
-						}
-					}
-					
-					ids.addAll(intersection);
-				}
-			} else {
-				while (i.hasNext()) {
-					type = (Class) i.next();
-					l.addAll(gateway.searchFor(type, terms, start, end, users, 
-							s, caseSensitive));
-				}
-			}
-		}
-		
-		if (l != null) {
-			j = l.iterator();
-			while (j.hasNext()) {
-				object = (IObject) j.next();
-				/*
-				if (object instanceof ImageAnnotation)
-					ids.add(((ImageAnnotation) object).getImage().getId());
-				else if (object instanceof ILink) 
-					ids.add(((ILink) object).getChild().getId());
-				else 
-				*/
-				ids.add(object.getId());
-			}
-		}
-		
-		result.setNodeIDs(ids);
-		return result;
-	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
@@ -1337,46 +1173,6 @@ class OmeroDataServiceImpl
 		return null;
 	}
 
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#loadAttachments(Class, long, long)
-	 */
-	public Collection loadAttachments(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return new ArrayList();
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#loadTags(Class, long, long)
-	 */
-	public Collection loadTags(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return new ArrayList();
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#loadRatings(Class, long, long)
-	 */
-	public Collection loadRatings(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-	// TODO Auto-generated method stub
-		return new ArrayList();
-	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#loadUrls(Class, long, long)
-	 */
-	public Collection loadUrls(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return new ArrayList();
-	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
@@ -1408,9 +1204,6 @@ class OmeroDataServiceImpl
 		} catch (Exception e) {
 			throw new DSAccessException(e.getMessage());
 		}
-		//return new ArrayList();
 	}
-
-
 
 }

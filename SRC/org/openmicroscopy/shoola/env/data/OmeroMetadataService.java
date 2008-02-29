@@ -1,0 +1,312 @@
+/*
+ * org.openmicroscopy.shoola.env.data.OmeroMetadataService 
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.env.data;
+
+
+
+//Java imports
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import pojos.AnnotationData;
+import pojos.DataObject;
+
+/** 
+ * 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+public interface OmeroMetadataService
+{
+
+	/**
+	 * Retrieves the textual annotations
+	 * 
+	 * @param type		The type of object the annotations are related to.
+	 * @param id		The id of the object.
+	 * @param userID	The id of the user, or <code>-1</code> if no user
+	 * 					specified. 
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Collection loadTextualAnnotations(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the tags linked to an object identifying by the specified
+	 * type and id.
+	 * 
+	 * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who tagged the object or 
+     * 					<code>-1</code> if the user is not specified.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadTags(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the attachments linked to an object identifying by the specified
+	 * type and id.
+	 * 
+	 * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadAttachments(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the urls linked to an object identifying by the specified
+	 * type and id.
+	 * 
+	 * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadUrls(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the ratings linked to an object identifying by the specified
+	 * type and id.
+	 * 
+	 * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadRatings(Class type, long id, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads all annotations related to the object specified by the class
+	 * type and the id.
+	 * 
+	 * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadStructuredAnnotations(Class type, long id, 
+												long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads data related to the specified object
+	 * 
+	 * @param object 	The object to handle.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public StructuredDataResults loadStructuredData(DataObject object, 
+													long userID)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Loads the collection of objects containing information about the 
+	 * user who viewed the image i.e. rating, rendering settings.
+	 * 
+	 * @param imageID	The id of the image.
+	 * @param pixelsID	The id of the pixels set.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadViewedBy(long imageID, long pixelsID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Annotates the specified data object and returns the annotated object.
+	 * 
+	 * @param toAnnotate	The object to annotate. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param annotation 	The annotation to create. 
+	 * 						Mustn't be <code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public DataObject annotate(DataObject toAnnotate, AnnotationData annotation)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Annotates the object and returns the annotated object.
+	 * 
+	 * @param type  		The type of object to annotate. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param id			The id of the object to annotate. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param annotation 	The annotation to create. 
+	 * 						Mustn't be <code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public DataObject annotate(Class type, long id, AnnotationData annotation)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Annotates the specified data objects.
+	 * 
+	 * @param toAnnotate	The collection of objects to annotate. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param annotation 	The annotation to create. 
+	 * 						Mustn't be <code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<DataObject> annotate(Set<DataObject> toAnnotate, 
+									AnnotationData annotation)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Removes the specified annotation from the object.
+	 * Returns the updated object.
+	 * @param annotation	The annotation to create. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param object		The object to handle. Mustn't be <code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public DataObject removeAnnotation(AnnotationData annotation, 
+									DataObject object)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Removes the specified annotation from the collection of objects.
+	 * Returns the updated objects.
+	 * @param annotation	The annotation to create. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param objects		The collection of objects to handle.
+	 * 						Mustn't be <code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<DataObject> removeAnnotation(AnnotationData annotation, 
+									Set<DataObject> objects)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	
+	/**
+	 * Removes all annotations of a given type from the specified object.
+	 * 
+	 * @param object			The object to handle. 
+	 * 							Mustn't be <code>null</code>.
+	 * @param annotationType	The type of annotation to clear.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public void clearAnnotation(DataObject object, Class annotationType)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Removes all annotations from the specified object.
+	 * 
+	 * @param object	The object to handle. Mustn't be <code>null</code>.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public void clearAnnotation(DataObject object)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Clears the annotation related to a given type object.
+	 * 
+	 * @param type				The type of object the annotations are 
+	 * 							related to. 
+	 * @param id				The object's id.
+	 * @param annotationType	The type of annotation to delete.
+	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public void clearAnnotation(Class type, long id, Class annotationType)
+		throws DSOutOfServiceException, DSAccessException;
+	
+}

@@ -25,15 +25,14 @@ package org.openmicroscopy.shoola.env.data.util;
 
 //Java imports
 import java.util.Collection;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.ExperimenterData;
+import pojos.DataObject;
 
 /** 
- * 
+ * Helper class storing the various data related to a given object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,39 +47,86 @@ import pojos.ExperimenterData;
 public class StructuredDataResults
 {
 
-	/** The ratings related to the object. */
-	private Map<ExperimenterData, Collection> 	ratings;
+	/** 
+	 * The collection of objects hosting info about the experimenters
+	 * who viewed a given image.
+	 */
+	private Collection<ViewedByDef>		viewedBy;
 	
 	/** The tags related to the object. */
-	private Collection							tags;
+	private Collection					tags;
 	
 	/** The attachments related to the object. */
-	private Collection							attachments;
+	private Collection					attachments;
 	
 	/** The urls related to the object. */
-	private Collection							urls;
+	private Collection					urls;
 	
-	/** The annotations. */
-	private Map									annotations;
+	/** The textual annotations. */
+	private Collection					textualAnnotations;
 
 	/** The object the results are for. */
-	private Object								relatedObject;
+	private DataObject					relatedObject;
+	
+	/** 
+	 * Collection of parents. 
+	 * Filled when the related object is an <code>image</code> or
+	 * <code>dataset</code>.
+	 */
+	private Collection					parents;
+	
+	/** The ratings of the objects. */
+	private Collection					ratings;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param relatedObject The object the results are for. 
+	 * 						Mustn't be <code>null</code>.
+	 */
+	public StructuredDataResults(DataObject	relatedObject)
+	{
+		if (relatedObject == null)
+			throw new IllegalArgumentException("No object related.");
+		this.relatedObject = relatedObject;
+	}
+	
+	/**
+	 * Returns the object the results are for.
+	 * 
+	 * @return See above.
+	 */
+	public Object getRelatedObject() { return relatedObject; }
+	
+	/**
+	 * Returns the collection of parents.
+	 * 
+	 * @return See above.
+	 */
+	public Collection getParents() { return parents; }
+	
+	/** 
+	 * Sets the collection of parents.
+	 * 
+	 * @param parents The value to set.
+	 */
+	public void setParents(Collection parents) { this.parents = parents; }
 	
 	/**
 	 * Returns the annotations.
 	 * 
 	 * @return See above.
 	 */
-	public Map getAnnotations() { return annotations; }
+	public Collection getTextualAnnotations() { return textualAnnotations; }
 
 	/**
-	 * Sets the collections of annotations.
+	 * Sets the collection of annotations.
 	 * 
 	 * @param annotations The value to set.
 	 */
-	public void setAnnotations(Map annotations)
+	public void setTextualAnnotations(Collection annotations)
 	{
-		this.annotations = annotations;
+		this.textualAnnotations = annotations;
 	}
 
 	/**
@@ -105,20 +151,14 @@ public class StructuredDataResults
 	 * 
 	 * @return See above.
 	 */
-	public Map<ExperimenterData, Collection> getRatings() 
-	{
-		return ratings;
-	}
+	public Collection getRatings() { return ratings; }
 
 	/**
 	 * Sets the ratings.
 	 * 
 	 * @param ratings The value to set.
 	 */
-	public void setRatings(Map<ExperimenterData, Collection> ratings) 
-	{
-		this.ratings = ratings;
-	}
+	public void setRatings(Collection ratings) { this.ratings = ratings; }
 
 	/**
 	 * Returns the collection of tags.
@@ -147,5 +187,22 @@ public class StructuredDataResults
 	 * @param urls The value to set.
 	 */
 	public void setUrls(Collection urls) { this.urls = urls; }
+	
+	/**
+	 * Sets the collection of objects.
+	 * 
+	 * @param viewedBy The value to set.
+	 */
+	public void setViewedBy(Collection<ViewedByDef> viewedBy)
+	{ 
+		this.viewedBy = viewedBy;
+	}
+	
+	/**
+	 * Returns the collection of {@link ViewedByDef} objects.
+	 * 
+	 * @return See above.
+	 */
+	public Collection getViewedBy() { return viewedBy; }
 	
 }

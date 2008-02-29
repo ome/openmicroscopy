@@ -117,13 +117,13 @@ public final class AgentsInit
 					containerReg = container.getRegistry();
 		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);
 		RegistryFactory.linkLogger(containerReg.getLogger(), agentReg);
-        RegistryFactory.linkRDS(containerReg.getImageService(),
+        RegistryFactory.linkIS(containerReg.getImageService(),
                                agentReg);
 		RegistryFactory.linkTaskBar(containerReg.getTaskBar(), agentReg);
 		RegistryFactory.linkUserNotifier(containerReg.getUserNotifier(),
 											agentReg);
         RegistryFactory.linkOS(containerReg.getDataService(), agentReg);
-        
+        RegistryFactory.linkMS(containerReg.getMetadataService(), agentReg);
         
         String omeroDir = (String) 
         	containerReg.lookup(LookupNames.USER_HOME_OMERO);

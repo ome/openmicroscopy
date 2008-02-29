@@ -37,15 +37,13 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
 * Command to save the annotation.
@@ -75,10 +73,10 @@ public class AnnotationSaver
 	public static final int DELETE = 2;
 
 	/** The save call. */
-	private BatchCall       saveCall;
+	private BatchCall	saveCall;
 
 	/** The result of the query. */
-	private List      result;
+	private List      	result;
 
 	/**
 	 * Creates a {@link BatchCall} to create and update the specified 
@@ -133,8 +131,8 @@ public class AnnotationSaver
 		return new BatchCall("Create dataset annotation.") {
 			public void doCall() throws Exception
 			{
-				OmeroDataService os = context.getDataService();
-				result = os.createAnnotationFor(objects, data);
+				OmeroMetadataService ms = context.getMetadataService();
+				result = ms.annotate(objects, data);
 			}
 		};
 	}
@@ -152,30 +150,32 @@ public class AnnotationSaver
 		return new BatchCall("Remove dataset annotation.") {
 			public void doCall() throws Exception
 			{
-				OmeroDataService os = context.getDataService();
+				//OmeroDataService os = context.getDataService();
+				OmeroMetadataService ms = context.getMetadataService();
 				result = new ArrayList(1);
-				result.add(os.removeAnnotationFrom(object, data));
+				//result.add(ms.removeAnnotation(data, object);
 			}
 		};
 	}
 
 	/**
-	 * Creates a {@link BatchCall} to update the specified annotation.
+	 * Creates a {@link BatchCall} to remove the specified annotation.
 	 * 
 	 * @param object    The annotated <code>DataObject</code>.
-	 * @param data      The annotation to update.
+	 * @param data      The annotation to remove.
 	 * @return The {@link BatchCall}.
 	 */
-	private BatchCall updateAnnotation(final DataObject object,
+	private BatchCall removeAnnotation(final DataObject object,
 			final AnnotationData data)
 	{
-		return new BatchCall("Update image annotation.") {
+		return new BatchCall("Remove dataset annotation.") {
 			public void doCall() throws Exception
 			{
-				OmeroDataService os = context.getDataService();
+				//OmeroDataService os = context.getDataService();
+				OmeroMetadataService ms = context.getMetadataService();
 				result = new ArrayList(1);
-				result.add(os.updateAnnotationFor(object, data));
-			}     
+				result.add(ms.removeAnnotation(data, object));
+			}
 		};
 	}
 
@@ -189,16 +189,37 @@ public class AnnotationSaver
 	private BatchCall createAnnotation(final DataObject object,
 			final AnnotationData data)
 	{
-		return new BatchCall("Create dataset annotation.") {
+		return new BatchCall("Create annotation.") {
 			public void doCall() throws Exception
 			{
-				OmeroDataService os = context.getDataService();
+				OmeroMetadataService service = context.getMetadataService();
 				result = new ArrayList(1);
-				result.add(os.createAnnotationFor(object, data));
+				result.add(service.annotate(object, data));
 			}
 		};
 	}
 
+	/**
+	 * Creates a {@link BatchCall} to create an annotation.
+	 * 
+	 * @param type	The type of object to annotate.
+	 * @param id	The id of the object to annotate.
+	 * @param data  The annotation to create.
+	 * @return The {@link BatchCall}.
+	 */
+	private BatchCall createAnnotation(final Class type, final long id,
+			final AnnotationData data)
+	{
+		return new BatchCall("Create dataset annotation.") {
+			public void doCall() throws Exception
+			{
+				OmeroMetadataService service = context.getMetadataService();
+				result = new ArrayList(1);
+				result.add(service.annotate(type, id, data));
+			}
+		};
+	}
+	
 	/**
 	 * Creates a {@link BatchCall} to annotate the images contained
 	 * in the passed folders.
@@ -276,23 +297,40 @@ public class AnnotationSaver
 		if (data == null) throw new IllegalArgumentException("No annotation.");
 		if (annotatedObject == null) 
 			throw new IllegalArgumentException("No DataObject to annotate.");
-		if (!(annotatedObject instanceof DatasetData) &&
-				!(annotatedObject instanceof ImageData))
-			throw new IllegalArgumentException("DataObject cannot be " +
-			"annotated.");
 		switch (algorithm) {
 			case UPDATE: 
-				saveCall = updateAnnotation(annotatedObject, data);
-				break;
 			case CREATE:
 				saveCall = createAnnotation(annotatedObject, data);
 				break;
+			case DELETE:
+				saveCall = removeAnnotation(annotatedObject, data);
+				break;
 			default: 
-				throw new IllegalArgumentException("Constructor should only" +
-						"be invoked to update or delete annotation.");
+				throw new IllegalArgumentException("Index not supported.");
 		}
 	}
 
+	/**
+	 * Creates a new instance.
+	 * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+	 * 
+	 * @param type 		The type of object to annotate.
+	 * @param id		The id of the objec to annotate.
+	 * @param data      The Annotation object. Mustn't be <code>null</code>.
+	 * @param algorithm	One of the constants defined by this class.
+	 */
+	public AnnotationSaver(Class type, long id, AnnotationData data, 
+			int algorithm)
+	{
+		if (data == null) throw new IllegalArgumentException("No annotation.");
+		switch (algorithm) {
+			case CREATE:
+				saveCall = createAnnotation(type, id, data);
+				break;
+		}
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * If bad arguments are passed, we throw a runtime
@@ -310,18 +348,13 @@ public class AnnotationSaver
 		if (data == null) throw new IllegalArgumentException("No annotation.");
 		if (annotatedObject == null) 
 			throw new IllegalArgumentException("No DataObject to annotate.");
-		if (!(annotatedObject instanceof DatasetData ||
-				annotatedObject instanceof ImageData ||
-				annotatedObject instanceof ProjectData))
-			throw new IllegalArgumentException("DataObject cannot be " +
-			"annotated.");
 		switch (algorithm) {
-		case DELETE:
-			saveCall = removeAnnotation(annotatedObject, data);
-			break;
-		default: 
-			throw new IllegalArgumentException("Constructor should only" +
-			"be invoked to update or delete annotation.");
+			case DELETE:
+				saveCall = removeAnnotation(annotatedObject, data);
+				break;
+			default: 
+				throw new IllegalArgumentException("Constructor should only" +
+				"be invoked to update or delete annotation.");
 		}
 	}
 

@@ -31,12 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchResult;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
@@ -317,41 +317,6 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public DataObject createAnnotationFor(DataObject annotatedObject,
-			AnnotationData data)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Removes the specified annotation from the specified
-	 * <code>DataObject</code>. The updated <code>DataObject</code> is
-	 * then returned.
-	 * 
-	 * @param annotatedObject   The object to annotate.
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              Collection of annotation data to remove. 
-	 *                          Mustn't be <code>null</code>.
-	 * @return See above.                  
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public DataObject removeAnnotationFrom(DataObject annotatedObject, 
-			List data)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Updates the specified annotation. The updated <code>DataObject</code> is
-	 * then returned.
-	 * 
-	 * @param annotatedObject   The object to annotate.
-	 *                          Mustn't be <code>null</code>.
-	 * @param data              The annotation data to update. 
-	 *                          Mustn't be <code>null</code>.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public DataObject updateAnnotationFor(DataObject annotatedObject, 
 			AnnotationData data)
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -736,31 +701,6 @@ public interface OmeroDataService
 	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
 			long userID)
 		throws DSOutOfServiceException, DSAccessException; 
-
-	/**
-	 * Retrieves the objects specified by the context of the search
-	 * and returns an object hosting various elements used for the display.
-	 * 	
-	 * @param scope			The scope of the search.
-	 * @param values		The terms to find.
-	 * @param users			The users' name.
-	 * @param start			The start of the time interval.
-	 * @param end			The end of the time interval.
-	 * @param separator		The separator between words, either <code>and</code>
-	 * 						or <code>or</code>.
-	 * @param caseSensitive Pass <code>true</code> to take into account the
-	 * 						case sensitivity while searching, 
-	 * 						<code>false</code> otherwise.	
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public SearchResult advancedSearchFor(List<Class> scope, List<String> values, 
-			List<ExperimenterData> users, Timestamp start, Timestamp end,
-			String separator, boolean caseSensitive)
-		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Retrieves the objects specified by the context of the search
@@ -775,19 +715,22 @@ public interface OmeroDataService
 	 */
 	public SearchResult advancedSearchFor(SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException;
+
 	
-	public Collection loadTags(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	public Collection loadAttachments(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	public Collection loadUrls(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
-	public Collection loadRatings(Class type, long id, long userID)
-		throws DSOutOfServiceException, DSAccessException;
-	
+	/**
+	 * Finds the objects containg the object identifying by the specified
+	 * type and id e.g. find the datasets containing a given image.
+	 * 
+	 * @param type 		The type of the object.
+     * @param id		The id of the object.
+     * @param userID	The id of the user who added attachments to the object 
+     * 					or <code>-1</code> if the user is not specified.
+     * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	public Collection findContainerPaths(Class type, long id, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	

@@ -237,7 +237,6 @@ class OmeroImageServiceImpl
 			return PixelsServicesFactory.resetRenderingControl(context, 
 					pixelsID, re, def);
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new RenderingServiceException("Cannot restart the " +
 					"rendering engine for : "+pixelsID, e);
 		}

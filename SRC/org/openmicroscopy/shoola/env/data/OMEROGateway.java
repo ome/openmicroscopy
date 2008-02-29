@@ -322,25 +322,6 @@ class OMEROGateway
 	}
 
 	/**
-	 * Converts the specified POJO into the corresponding model.
-	 *  
-	 * @param nodeType The POJO class.
-	 * @return The corresponding class.
-	 */
-	private Class convertPojos(Class nodeType)
-	{
-		if (nodeType.equals(ProjectData.class)) return Project.class;
-		else if (nodeType.equals(DatasetData.class)) return Dataset.class;
-		else if (nodeType.equals(ImageData.class)) return Image.class;
-		else if (nodeType.equals(CategoryData.class)) return Category.class;
-		else if (nodeType.equals(CategoryGroupData.class))
-			return CategoryGroup.class;
-		else if (nodeType.equals(AnnotationData.class)) 
-			return TextAnnotation.class;
-		else throw new IllegalArgumentException("NodeType not supported");
-	}
-
-	/**
 	 * Formats the specified string.
 	 * 
 	 * @param term			The value to format.
@@ -639,6 +620,25 @@ class OMEROGateway
 	}
 
 	/**
+	 * Converts the specified POJO into the corresponding model.
+	 *  
+	 * @param nodeType The POJO class.
+	 * @return The corresponding class.
+	 */
+	Class convertPojos(Class nodeType)
+	{
+		if (nodeType.equals(ProjectData.class)) return Project.class;
+		else if (nodeType.equals(DatasetData.class)) return Dataset.class;
+		else if (nodeType.equals(ImageData.class)) return Image.class;
+		else if (nodeType.equals(CategoryData.class)) return Category.class;
+		else if (nodeType.equals(CategoryGroupData.class))
+			return CategoryGroup.class;
+		else if (nodeType.equals(AnnotationData.class)) 
+			return TextAnnotation.class;
+		else throw new IllegalArgumentException("NodeType not supported");
+	}
+	
+	/**
 	 * Tells whether the communication channel to <i>OMERO</i> is currently
 	 * connected.
 	 * This means that we have established a connection and have sucessfully
@@ -879,7 +879,6 @@ class OMEROGateway
 		} catch (Throwable t) {
 			handleException(t, "Cannot find CGC paths.");
 		}
-		new Long(1);
 		return new HashSet();
 	}
 
@@ -1122,12 +1121,6 @@ class OMEROGateway
 		try {
 			Pixels pixs = getPixels(pixelsID);
 			return pixs.getPixelsDimensions();
-			/*
-			IQuery service = getQueryService();
-			Pixels pixs = service.get(Pixels.class, pixelsID);
-			return service.get(PixelsDimensions.class,
-					pixs.getPixelsDimensions().getId().longValue());
-					*/
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the dimension of " +
 								"the pixels set.");
@@ -1315,6 +1308,39 @@ class OMEROGateway
 	/**
 	 * Finds the link if any between the specified parent and child.
 	 * 
+	 * @param parentType    The type of parent to handle.
+	 * @param parentID		The id of the parent to handle.
+	 * @param children     	Collection of the ids.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	List findAnnotationLinks(Class parentType, long parentID, 
+								List<Long> children)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			String table = getTableForAnnotationLink(parentType);
+			if (table == null) return null;
+			String sql = "select link from "+table+" as link where " +
+			"link.parent.id = :parentID and link.child.id in " +
+			"(:childIDs)";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("parentID", parentID);
+			param.addList("childIDs", children);
+			return service.findAllByQuery(sql, param);
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the annotation links for "+
+					"parent ID: "+parentID);
+		}
+		return null;
+	}	
+	
+	/**
+	 * Finds the link if any between the specified parent and child.
+	 * 
 	 * @param parent    The parent.
 	 * @param child     The child.
 	 * @return See above.
@@ -1354,7 +1380,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	List findLinks(IObject parent, List children)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			String table = getTableForLink(parent.getClass());
@@ -1386,7 +1412,7 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 */
 	List findLinks(Class parentClass, Set children, long userID)
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			String table = getTableForLink(parentClass);
@@ -1482,6 +1508,7 @@ class OMEROGateway
 		}
 		return null;
 	} 
+	
 	/**
 	 * Retrieves the available experimenter groups.
 	 * 
@@ -2173,9 +2200,7 @@ class OMEROGateway
 		}
 		return new ArrayList();
 	}
-	
-	
-	
+
 	/**
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.

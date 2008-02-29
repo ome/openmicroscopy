@@ -35,7 +35,6 @@ import java.util.List;
 
 //Application-internal dependencies
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
 import ome.model.display.ChannelBinding;
 import ome.model.display.Color;
 import ome.model.display.QuantumDef;
@@ -93,7 +92,7 @@ public class PixelsServicesFactory
 		proxy.setBitResolution(def.getBitResolution());
 		
 		ChannelBinding c;
-		Collection bindings = rndDef.unmodifiableWaveRendering();//rndDef.getWaveRendering();
+		Collection bindings = rndDef.unmodifiableWaveRendering();
 		
 		Color color;
 		Iterator k = bindings.iterator();

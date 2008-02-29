@@ -35,7 +35,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.AnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
@@ -45,8 +44,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.TagSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.util.ui.search.SearchContext;
-
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
@@ -113,13 +110,15 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadAnnotations(Class, int, 
-	 *                                          AgentEventListener)
+	 * @see DataHandlerView#deleteAnnotation(DataObject, AnnotationData,
+	 *                                       AgentEventListener)
 	 */
-	public CallHandle loadAnnotations(Class nodeType, long nodeID,
-			AgentEventListener observer)
+	public CallHandle deleteAnnotation(DataObject annotatedObject,
+										AnnotationData data,
+											AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AnnotationLoader(nodeType, nodeID, false);
+		BatchCallTree cmd = new AnnotationSaver(annotatedObject, data, 
+				AnnotationSaver.DELETE);
 		return cmd.exec(observer);
 	}
 
@@ -132,17 +131,6 @@ public class DataHandlerViewImpl
 			AnnotationData d, AgentEventListener observer) 
 	{
 		BatchCallTree cmd = new AnnotationSaver(annotatedObjects, d, false);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadAnnotations(Class, Set, AgentEventListener)
-	 */
-	public CallHandle loadAnnotations(Class nodeType, Set<Long> nodeIDs, 
-			AgentEventListener observer) 
-	{
-		BatchCallTree cmd = new AnnotationLoader(nodeType, nodeIDs, true);
 		return cmd.exec(observer);
 	}
 

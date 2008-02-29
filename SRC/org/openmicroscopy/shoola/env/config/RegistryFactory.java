@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.config;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -114,14 +115,26 @@ public class RegistryFactory
      * Adds the {@link OmeroImageService} instance to the specified
      * {@link Registry}.
      * 
-     * @param rds   The {@link OmeroImageService} instance.
-     * @param reg   The {@link Registry}.
+     * @param is	The {@link OmeroImageService} instance.
+     * @param reg	The {@link Registry}.
      */
-    public static void linkRDS(OmeroImageService rds, Registry reg)
+    public static void linkIS(OmeroImageService is, Registry reg)
     {
-        ((RegistryImpl) reg).setRenderingService(rds);
+        ((RegistryImpl) reg).setImageService(is);
     }
 	
+    /**
+     * Adds the {@link OmeroMetadataService} instance to the specified
+     * {@link Registry}.
+     * 
+     * @param ms	The {@link OmeroMetadataService} instance.
+     * @param reg   The {@link Registry}.
+     */
+    public static void linkMS(OmeroMetadataService ms, Registry reg)
+    {
+    	((RegistryImpl) reg).setMetadataService(ms);
+    }
+    
 	/**
 	 * Adds the {@link TaskBar} instance to the specified {@link Registry}.
 	 * 

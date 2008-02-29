@@ -84,11 +84,12 @@ public final class DataServicesInit
 			DataServicesFactory 
 				factory = DataServicesFactory.getInstance(container);
 			//Retrieve them.
-			OmeroImageService rds = factory.getRDS();
+			OmeroImageService rds = factory.getIS();
 			//Link them to the container's registry.
 			Registry reg = container.getRegistry();
-			RegistryFactory.linkRDS(rds, reg);
+			RegistryFactory.linkIS(rds, reg);
             RegistryFactory.linkOS(factory.getOS(), reg);
+            RegistryFactory.linkMS(factory.getMS(), reg);
             
             //Finally create and bind the factory used by the async data views
             //to create exec monitors.
