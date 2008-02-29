@@ -46,18 +46,8 @@ import java.awt.image.BufferedImage;
 public interface ThumbnailView
 {
 
-	 /** The width of the thumbnail. */
-    public static final int            THUMB_MAX_WIDTH = 96; 
-    
-    /** The maximum height of the thumbnail. */
-    public static final int            THUMB_MAX_HEIGHT = 96;
 	
-    /**
-     * 
-     * @param thumb
-     * @param imageID
-     * @param userID
-     */
-	public void setThumbnail(BufferedImage thumb, long imageID, long userID);
+	
+   
 	
 }

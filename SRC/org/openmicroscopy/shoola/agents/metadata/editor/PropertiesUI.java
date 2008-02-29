@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -34,8 +33,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -51,6 +48,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -61,7 +60,9 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.ObjectTranslator;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -83,27 +84,28 @@ import pojos.PermissionData;
  * @since OME3.0
  */
 class PropertiesUI   
-	extends JPanel
+	extends AnnotationUI
+	implements ActionListener
 {
     
-    /** Title of the annotation pane. */
-    static final String     	ANNOTATION = "Annotation";
-    
-    /** Title of the classification pane. */
-    static final String     	CLASSIFICATION = "Tag";   
-    
+	/** The title associated to this component. */
+	static final String			TITLE = "Properties";
+
     private static final String DETAILS = "Details";
     
-    private static final String INFO = "Info";
-    
-    /** Text of the {@link #download} button. */
-    private static final String	DOWNLOAD = "Download";
-    
-    /** Description of the {@link #download} button. */
+    /** Description of the {@link #infoButton} button. */
+    private static final String INFO_DESCRIPTION = "View image's info.";
+  
+    /** Description of the {@link #downloadButton} button. */
     private static final String	DOWNLOAD_DESCRIPTION = "Download the " +
     												"archived files";
     
    
+    /** Action commnand ID indicating to dowload the archived files if any. */
+    private static final int	DOWNLOAD_ACTION = 0;
+    
+    /** Action command ID indicating to display the info of the image. */
+    private static final int	INFO_ACTION = 1;
     
     /** Area where to enter the name of the <code>DataObject</code>. */
     private JTextField          nameArea;
@@ -112,89 +114,24 @@ class PropertiesUI
     private JTextArea          	descriptionArea;
     
     /** Button to download the archived files. */
-    private JButton				download;
+    private JButton				downloadButton;
     
-    /** The tabbed pane hosting the annotation pane or classified pane. */
-    private JTabbedPane         tabbedPane;
-    
-    /** 
-     * The component hosting the annotation, <code>null</code> if the data 
-     * object is not annotable.
-     */
-    //private AnnotatorEditor		annotator;
-    
-    /** 
-     * The component hosting the classification. <code>null</code> if the data 
-     * object hasn't been clasified.
-     */
-    //private DOClassification    classifier;
-    
-    /** Component hosting the additional information. */
-    private JComponent			informationPanel;
+    /** Button to download the archived files. */
+    private JButton				infoButton;
 
     /** Panel hosting the main display. */
     private JComponent			contentPanel;
 
-    /** Panel hosting the information about the image. */
-    private JComponent			imageInfoPanel;
-    
-    /** A {@link DocumentListener} for the {@link #nameArea}. */
-    private DocumentListener    nameAreaListener;
-
-    /** Reference to the Model. */
-    private PropertiesView         model;
-    
     /** Downloads the archived files. */
-    void download()
+    private void download()
     { 
     	
     }
     
-    private void handleDescriptionAreaInsert()
-    {
+    /** Shows the image's info. */
+    private void showInfo()
+    { 
     	
-    }
-    private void handleNameAreaInsert()
-    {
-    	
-    }
-    
-    private void handleNameAreaRemove(int length)
-    {
-    	
-    }
-    
-    private JPanel buildInfoPane( Map details)
-    {
-    	double[][] tl = {{TableLayout.FILL}, {200}}; 
-    	setLayout(new TableLayout(tl));
-    	JScrollPane pane = new JScrollPane(contentPanel); 
-    	JPanel panel = new JPanel();
-		panel.setLayout(new TableLayout(tl));
-		panel.add(pane, "0, 0, f, t");
-    	return panel;
-    }
-    
-    private JPanel buildPermissionPane(Map details)
-    {
-    	contentPanel = layoutDetails(details);
-    	double[][] tl = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
-		
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-		p.add(new JSeparator());
-		p.add(Box.createRigidArea(PropertiesView.SMALL_V_SPACER_SIZE));
-		if (model.isPermissionsShowable()) {
-			 p.add(buildPermissions(model.getRefObjectPermissions()));
-		     p.add(Box.createVerticalGlue());
-		}
-		JPanel panel = new JPanel();
-		panel.setLayout(new TableLayout(tl));
-		panel.add(contentPanel, "0, 0, f, t");
-		panel.add(p, "0, 1, f, t");
-		return panel;
     }
     
     /**
@@ -326,6 +263,12 @@ class PropertiesUI
         return content;
     }
     
+    /**
+     * Lays out the key/value (String, String) pairs.
+     * 
+     * @param details The map to handle.
+     * @return See above.
+     */
     private JPanel layoutDetails(Map details)
     {
     	JPanel content = new JPanel();
@@ -334,7 +277,7 @@ class PropertiesUI
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
+        //c.insets = new Insets(3, 3, 3, 3);
         Iterator i = details.keySet().iterator();
         JLabel label;
         JTextField area;
@@ -362,151 +305,25 @@ class PropertiesUI
         return content;
     }
     
-    private void finish()
-    {
-    	
-    }
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	tabbedPane = new JTabbedPane();
         nameArea = new JTextField();
         UIUtilities.setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         UIUtilities.setTextAreaDefault(descriptionArea);
-        if (model.getType() == PropertiesView.EDITION) {
-            nameArea.setText(model.getRefObjectName());
-            descriptionArea.setText(model.getRefObjectDescription());
-            boolean b = model.isWritable();
-            nameArea.setEnabled(b);
-            descriptionArea.setEnabled(b);
-            descriptionArea.getDocument().addDocumentListener(
-                    new DocumentListener() {
-
-                /** 
-                 * Handles text insert. 
-                 * @see DocumentListener#insertUpdate(DocumentEvent)
-                 */
-                public void insertUpdate(DocumentEvent de)
-                {
-                    handleDescriptionAreaInsert();
-                }
-                
-                /** 
-                 * Handles text removal. 
-                 * @see DocumentListener#removeUpdate(DocumentEvent)
-                 */
-                public void removeUpdate(DocumentEvent de)
-                {
-                    handleDescriptionAreaInsert();
-                }
-
-                /** 
-                 * Required by I/F but no-op implementation in our case. 
-                 * @see DocumentListener#changedUpdate(DocumentEvent)
-                 */
-                public void changedUpdate(DocumentEvent de) {}
-                
-            });
-            Map details;
-            Object ho = model.getRefObject();
-            if (ho instanceof ImageData) {
-            	download = new JButton(DOWNLOAD);
-            	download.setToolTipText(DOWNLOAD_DESCRIPTION);
-            	download.setEnabled(model.isReadable());
-            	download.addActionListener(new ActionListener() {
-            		public void actionPerformed(ActionEvent e)
-            		{ 
-            			download(); 
-            		}
-				});
-            	/*
-            	details = EditorUtil.transformImageData((ImageData) ho);
-            	imageInfoPanel = new DOInfo(view, model, details, false, 
-            								DOInfo.INFO_TYPE);
-            								*/
-            }
-            ExperimenterData exp = model.getRefObjectOwner();
-            /*
-            details = EditorUtil.transformExperimenterData(exp);
-            informationPanel = new DOInfo(view, model, details, true, 
-                                DOInfo.OWNER_TYPE);
-                                */
-            
-        } //end if editor type
-        nameAreaListener = new DocumentListener() {
-            
-            /** 
-             * Updates the editor's controls when some text is inserted. 
-             * @see DocumentListener#insertUpdate(DocumentEvent)
-             */
-            public void insertUpdate(DocumentEvent de)
-            {
-                handleNameAreaInsert();
-            }
-            
-            /** 
-             * Displays an error message when the data object has no name. 
-             * @see DocumentListener#removeUpdate(DocumentEvent)
-             */
-            public void removeUpdate(DocumentEvent de)
-            {
-                handleNameAreaRemove(de.getDocument().getLength());
-            }
-
-            /** 
-             * Required by I/F but no-op implementation in our case. 
-             * @see DocumentListener#changedUpdate(DocumentEvent)
-             */
-            public void changedUpdate(DocumentEvent de) {}
-            
-        };
-        nameArea.getDocument().addDocumentListener(nameAreaListener);
-        nameArea.addKeyListener(new KeyAdapter() {
-
-            /** Finds the phrase. */
-            public void keyPressed(KeyEvent e)
-            {
-                if ((e.getKeyCode() == KeyEvent.VK_ENTER)) {
-                    Object source = e.getSource();
-                    if (source instanceof JTextField) {
-                        JTextField field = (JTextField) source;
-                        if (field.getText() != null && 
-                                field.getText().length() > 0)
-                            finish();
-                    }
-                }
-            }
-        });
-        if (tabbedPane == null) return;
-        tabbedPane.addChangeListener(new ChangeListener() {
-            
-            /**
-             * Retrieves the classification when the classification tabbed pane
-             * is selected for the first time.
-             * @see ChangeListener#stateChanged(ChangeEvent)
-             */
-            public void stateChanged(ChangeEvent ce)
-            {
-            	/*
-                JTabbedPane pane = (JTabbedPane) ce.getSource();
-                int index = pane.getSelectedIndex();
-                EditorFactory.setSubSelectedPane(index);
-                switch (index) {
-					case Editor.ANNOTATION_INDEX:
-						if (model.isAnnotatable()) 
-	                        controller.retrieveAnnotations();
-						break;
-					case Editor.CLASSIFICATION_INDEX:
-						if (model.isClassified()) {
-	                        if (!model.isClassificationLoaded())
-	                            controller.loadClassifications();
-	                    }
-						break;
-				}
-				*/
-            };
-        });
+        IconManager icons = IconManager.getInstance();
+        downloadButton = new JButton(icons.getIcon(IconManager.DOWNLOAD));
+    	downloadButton.setToolTipText(DOWNLOAD_DESCRIPTION);
+    	downloadButton.addActionListener(this);
+    	downloadButton.setActionCommand(""+DOWNLOAD_ACTION);
+    	
+    	infoButton = new JButton(icons.getIcon(IconManager.INFO));
+    	infoButton.setToolTipText(INFO_DESCRIPTION);
+    	infoButton.addActionListener(this);
+    	infoButton.setActionCommand(""+INFO_ACTION);
+    	UIUtilities.unifiedButtonLookAndFeel(downloadButton);
+    	UIUtilities.unifiedButtonLookAndFeel(infoButton);
     }   
     
     /**
@@ -523,18 +340,16 @@ class PropertiesUI
         int height = 100;
         //if (model.isAnnotatable()) height = 50;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{0, TableLayout.PREFERRED, 5, 0, height} }; //rows
+        				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 0,
+        				height} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        //content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         JLabel l;
-        if (model.getType() != PropertiesView.CREATION) { 
-            layout.setRow(0, TableLayout.PREFERRED);
-            content.add(UIUtilities.setTextFont("ID"), "0, 0, l, c");
-            l = new JLabel(""+model.getRefObjectID());
-            l.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5));
-            content.add(l, "1, 0, f, c");
-        }
+        content.add(UIUtilities.setTextFont("ID"), "0, 0, l, c");
+        l = new JLabel(""+model.getRefObjectID());
+        //l.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5));
+        content.add(l, "1, 0, f, c");
         content.add(UIUtilities.setTextFont("Name"), "0, 1, l, c");
         content.add(nameArea, "1, 1, f, c");
         content.add(new JLabel(), "0, 2, 1, 2");
@@ -547,6 +362,22 @@ class PropertiesUI
         return content;
     }
     
+    /** 
+     * Builds and lays out the controls buttons in a tool bar.
+     * 
+     * @return See above.
+     */
+    private JComponent buildToolBar()
+    {
+    	JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(infoButton); 
+        bar.add(downloadButton); 
+        return UIUtilities.buildComponentPanel(bar);
+    }
+    
     /**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}.
@@ -554,131 +385,82 @@ class PropertiesUI
     private void buildGUI()
     {
         setLayout(new BorderLayout());
-        if (informationPanel != null) {
-        	UIUtilities.setBoldTitledBorder(DETAILS, informationPanel);
-        	TreeComponent tree = new TreeComponent();
-        	tree.insertNode(informationPanel, 
-        				UIUtilities.buildCollapsePanel(DETAILS), false);
-        	/*
-        	TreeComponentNode c = new TreeComponentNode(informationPanel, 
-        			UIUtilities.buildCollapsePanel(DETAILS), false);
-        	c.addPropertyChangeListener(this);
-        	*/
-        	contentPanel = new JPanel();
-        	contentPanel.setLayout(new BoxLayout(contentPanel, 
-        								BoxLayout.Y_AXIS));
-        	contentPanel.add(buildContentPanel());
-        	//contentPanel.add(c);
-        	if (imageInfoPanel != null) {
-        		UIUtilities.setBoldTitledBorder(INFO, imageInfoPanel);
-        		tree.insertNode(imageInfoPanel, 
-        				UIUtilities.buildCollapsePanel(INFO));
-        		/*
-        		c = new TreeComponentNode(imageInfoPanel, 
-            			UIUtilities.buildCollapsePanel(INFO));
-            	c.addPropertyChangeListener(this);
-            	contentPanel.add(c);
-            	*/
+        contentPanel = new JPanel();
+    	contentPanel.setLayout(new BoxLayout(contentPanel, 
+    								BoxLayout.Y_AXIS));
+    	contentPanel.add(buildContentPanel());
+        ExperimenterData exp = model.getRefObjectOwner();
+        if (exp != null) {
+        	JPanel p = new JPanel();
+        	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        	JPanel details = layoutDetails(
+        				EditorUtil.transformExperimenterData(exp));
+        	PermissionData perm = model.getRefObjectPermissions();
+        	p.add(details);
+        	if (perm != null && !(model.getRefObject() instanceof ImageData)) {
+        		p.add(buildPermissions(perm));
         	}
+        	UIUtilities.setBoldTitledBorder(DETAILS, p);
+        	TreeComponent tree = new TreeComponent();
+        	tree.insertNode(p, UIUtilities.buildCollapsePanel(DETAILS), 
+        					false);
         	contentPanel.add(tree);
             contentPanel.add(new JPanel());
-            add(contentPanel, BorderLayout.NORTH);
-        } else add(buildContentPanel(), BorderLayout.NORTH);
-        //add(view.buildBasicToolBar(download), BorderLayout.SOUTH);
+        }
+        if (model.getRefObject() instanceof ImageData) {
+        	contentPanel.add(buildToolBar());
+        }
+        add(contentPanel, BorderLayout.NORTH);
     }
 
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the {@link PropertiesView}.
+     * @param model Reference to the {@link EditorModel}.
      * 				Mustn't be <code>null</code>.                            
      */
-    PropertiesUI(PropertiesView model)
+    PropertiesUI(EditorModel model)
     {
-        if (model == null)  throw new IllegalArgumentException("No Model.");
-        this.model = model;
-        initComponents();
-        buildGUI();
+       super(model);
+       initComponents();
+       UIUtilities.setBoldTitledBorder(getComponentTitle(), this);
     }   
 
     /**
-     * Returns the value of the {@link #nameArea}.
-     * 
-     * @return See above.
-     */
-    String getNameText() { return nameArea.getText().trim(); }
-    
-    /**
-     * Returns the value of the {@link #descriptionArea}.
-     * 
-     * @return See above.
-     */
-    String getDescriptionText() { return descriptionArea.getText().trim(); }
-    
-    /** 
-     * Sets the text to <code>null</code> but we first need to remove the 
-     * {@link DocumentListener} attached to the {@link #nameArea}.
-     * This method is invoked when the user tries to save a object which 
-     * name is only made of spaces.
-     */
-    void resetNameArea()
-    {
-        nameArea.getDocument().removeDocumentListener(nameAreaListener);
-        nameArea.setText(null);
-        nameArea.getDocument().addDocumentListener(nameAreaListener);
-    }
-
-    /** Shows the tags. */
-    void showTags()
-    {
-    	/*
-    	if (!model.isImage()) return;
-    	contentPanel.remove(contentPanel.getComponentCount()-1);
-    	SingleTagEditor editor = new SingleTagEditor(model.getTags(), 
-    					model.getTagSets(), model.getAvailableTags());
-    	editor.addPropertyChangeListener(controller);
-    	contentPanel.add(UIUtilities.buildComponentPanel(editor));
-    	validate();
-    	repaint();
-    	*/
-    }
-
-    /** 
-     * Resets the value of the {@link #nameArea} when a wrong value 
-     * has been entered.
-     */
-    void resetName()
-    {
-    	nameArea.getDocument().removeDocumentListener(nameAreaListener);
-    	if (model.getType() == PropertiesView.EDITION) 
-            nameArea.setText(model.getRefObjectName());
-        else nameArea.setText("");
-    	nameArea.getDocument().addDocumentListener(nameAreaListener);
-    }
-    
-    /**
-     * Checks if the name and/or description have been modified.
-     * Returns <code>true</code> if modified, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    boolean hasDataToSave()
-    {
-    	// heck if the name and the description have been modified first.
-    	/*
-    	String s = getNameText();
-    	String name = model.getDataObjectName();
-    	if (!(name.equals(s))) return true;
-    	String d = getDescriptionText();
-    	String description = model.getDataObjectDescription();
-    	
-    	if (d == null) return (description != null);
-    	return (!(d.equals(description)));
-    	*/
-    	return false;
-    }
-
+	 * Overridden to lay out the tags.
+	 * @see AnnotationUI#buildUI()
+	 */
+	protected void buildUI()
+	{
+		removeAll();
+		nameArea.setText(model.getRefObjectName());
+        descriptionArea.setText(model.getRefObjectDescription());
+        boolean b = model.isCurrentUserOwner(model.getRefObject());
+        nameArea.setEnabled(b);
+        descriptionArea.setEnabled(b);
+        buildGUI();
+	}
+	
     /** Sets the focus on the name area. */
 	void setFocusOnName() { nameArea.requestFocus(); }
    
+	/**
+	 * Overridden to set the title of the component.
+	 * @see AnnotationUI#getComponentTitle()
+	 */
+	protected String getComponentTitle() { return TITLE; }
+
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case DOWNLOAD_ACTION:
+				download();
+				break;
+			case INFO_ACTION:
+				showInfo();
+		}
+		
+	}
+	
 }

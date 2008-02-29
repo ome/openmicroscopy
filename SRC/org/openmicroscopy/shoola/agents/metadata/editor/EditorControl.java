@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
+ * org.openmicroscopy.shoola.agents.metadata.editor.EditorControl 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,9 +20,12 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.view;
+package org.openmicroscopy.shoola.agents.metadata.editor;
 
-import pojos.DataObject;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import org.openmicroscopy.shoola.util.ui.TreeComponent;
 
 
 //Java imports
@@ -32,7 +35,7 @@ import pojos.DataObject;
 //Application-internal dependencies
 
 /** 
- * Factory to create {@link MetadataViewer} component.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,43 +47,30 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class MetadataViewerFactory 
+class EditorControl
 {
 
-	/** The sole instance. */
-	private static final MetadataViewerFactory  
-						singleton = new MetadataViewerFactory();
+    /** Reference to the Model. */
+    private Editor		model;
+    
+    /** Reference to the View. */
+    private EditorUI	view;
+    
+	/**
+     * Links this Controller to its Model and its View.
+     * 
+     * @param model	Reference to the Model. Mustn't be <code>null</code>.
+     * @param view	Reference to the View. Mustn't be <code>null</code>.
+     */
+    void initialize(Editor model, EditorUI view)
+    {
+        if (view == null) throw new NullPointerException("No view.");
+        if (model == null) throw new NullPointerException("No model.");
+        this.model = model;
+        this.view = view;
+    }
 
-	/**
-	 * Returns the {@link MetadataViewer}.
-	 * 
-	 * @param refObject	The object viewed as the root of the browser.
-	 * @return See above.
-	 */
-	public static MetadataViewer getViewer(Object refObject)
-	{
-		MetadataViewerModel model = new MetadataViewerModel(refObject);
-		return singleton.createViewer(model);
-	}
-	
-	/** Creates a new instance. */
-	private MetadataViewerFactory()
-	{
-		
-	}
-	
-	/**
-	 * Creates and returns a {@link MetadataViewer}.
-	 * 
-	 * @param model	The Model.
-	 * @return See above.
-	 */
-	private MetadataViewer createViewer(MetadataViewerModel model)
-	{
-		MetadataViewerComponent comp = new MetadataViewerComponent(model);
-		model.initialize(comp);
-		comp.initialize();
-		return comp;
-	}
-	
+    /** Loads the thumbnails, forwards call the model. */
+	void loadThumbnails() { model.loadThumbnails(); }
+
 }

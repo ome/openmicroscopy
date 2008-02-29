@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
+ * org.openmicroscopy.shoola.agents.metadata.editor.Editor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,9 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.view;
-
-import pojos.DataObject;
+package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
@@ -30,9 +28,16 @@ import pojos.DataObject;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.image.BufferedImage;
+import java.util.Map;
+
+import javax.swing.JComponent;
+
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
- * Factory to create {@link MetadataViewer} component.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,43 +49,41 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class MetadataViewerFactory 
+public interface Editor 
+	extends ObservableComponent
 {
 
-	/** The sole instance. */
-	private static final MetadataViewerFactory  
-						singleton = new MetadataViewerFactory();
-
 	/**
-	 * Returns the {@link MetadataViewer}.
+	 * Feeds the metadata back to the editor.
 	 * 
-	 * @param refObject	The object viewed as the root of the browser.
-	 * @return See above.
+	 * @param result	The result to feed back.
 	 */
-	public static MetadataViewer getViewer(Object refObject)
-	{
-		MetadataViewerModel model = new MetadataViewerModel(refObject);
-		return singleton.createViewer(model);
-	}
-	
-	/** Creates a new instance. */
-	private MetadataViewerFactory()
-	{
-		
-	}
+	public void setStructuredDataResults(StructuredDataResults result);
 	
 	/**
-	 * Creates and returns a {@link MetadataViewer}.
+	 * Returns the View.
 	 * 
-	 * @param model	The Model.
 	 * @return See above.
 	 */
-	private MetadataViewer createViewer(MetadataViewerModel model)
-	{
-		MetadataViewerComponent comp = new MetadataViewerComponent(model);
-		model.initialize(comp);
-		comp.initialize();
-		return comp;
-	}
+	public JComponent getUI();
+	
+	/**
+	 * Sets the root of the tree.
+	 * 
+	 * @param refObject The object hosted by the root node of the tree.
+	 * 					Mustn't be <code>null</code>.
+	 */
+	public void setRootObject(Object refObject);
+	
+	/** Loads the thumbnails. */
+	public void loadThumbnails();
+	
+	/**
+	 * 
+	 * @param thumbnails
+	 * @param imageID
+	 */
+	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
+							long imageID);
 	
 }

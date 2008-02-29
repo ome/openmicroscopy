@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.DataObject;
@@ -105,7 +106,7 @@ class MetadataViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				view.setOnScreen();
+				//view.setOnScreen();
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -188,9 +189,19 @@ class MetadataViewerComponent
 		if (node == null)
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
+		Browser browser = model.getBrowser();
+		if (result instanceof StructuredDataResults) {
+			browser.setStructuredDataResults(node, 
+											(StructuredDataResults) result);
+			model.getEditor().setStructuredDataResults( 
+								(StructuredDataResults) result);
+			view.setOnScreen();
+			return;
+		}
+			
 		if (!(userObject instanceof String)) return;
 		String name = (String) userObject;
-		Browser browser = model.getBrowser();
+		
 		if (browser == null) return;
 		if (Browser.TAGS.equals(name)) 
 			browser.setTags((TreeBrowserSet) node, (Collection) result);

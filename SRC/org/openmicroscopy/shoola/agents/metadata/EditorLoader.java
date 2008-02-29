@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.MetadataLoader 
+ * org.openmicroscopy.shoola.agents.metadata.EditorLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -28,24 +28,14 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
- * Parent of all classes that load data asynchronously for a 
- * {@link MetadataViewer}.
- * All these classes invoke methods of the {@link MetadataHandlerView},
- * which this class makes available through a <code>protected</code> field.
- * Also, this class extends {@link DSCallAdapter} so that subclasses
- * automatically become observers to an asynchronous call. This class provides
- * default implementations of some of the callbacks to notify the 
- * {@link MetadataViewer} of the progress and the user in the case of errors. 
- * Subclasses should at least implement the <code>handleResult</code> method 
- * to feed the {@link MetadataViewer} back with the results.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,15 +47,12 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
  * </small>
  * @since OME3.0
  */
-public abstract class MetadataLoader
+public abstract class EditorLoader
 	extends DSCallAdapter
 {
 
-	/** The node of reference i.e. where to feed back the results. */
-	protected final TreeBrowserDisplay	refNode;
-	
 	/** The viewer this data loader is for. */
-    protected final MetadataViewer		viewer;
+    protected final Editor				viewer;
     
 	/** Convenience reference for subclasses. */
     protected final Registry        	registry;
@@ -74,27 +61,16 @@ public abstract class MetadataLoader
     protected final MetadataHandlerView	mhView;
     
     /**
-     * Checks if the specified type is supported.
-     * 
-     * @param type	The value to control.
-     */
-    protected void checkType(Class type)
-    {
-    	//TODO
-    }
-    
-    /**
      * Creates a new instance.
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param refNode	The node of reference. Mustn't be <code>null</code>.
      */
-    public MetadataLoader(MetadataViewer viewer, TreeBrowserDisplay refNode)
+    public EditorLoader(Editor viewer)
     {
     	 if (viewer == null) throw new NullPointerException("No viewer.");
          this.viewer = viewer;
-         this.refNode = refNode;
          registry = MetadataViewerAgent.getRegistry();
          mhView = (MetadataHandlerView) 
          	registry.getDataServicesView(MetadataHandlerView.class);
@@ -132,7 +108,6 @@ public abstract class MetadataLoader
         registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Retrieval Failure", 
                                                s, exc);
-        viewer.cancel(refNode);
     }
     
     /** Fires an asynchrnonous data loading. */

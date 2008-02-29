@@ -22,29 +22,22 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-import java.util.List;
-import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.hiviewer.DataLoader;
-import org.openmicroscopy.shoola.agents.hiviewer.ThumbnailProvider;
-import org.openmicroscopy.shoola.agents.hiviewer.view.HiViewer;
-import org.openmicroscopy.shoola.agents.metadata.util.ThumbnailView;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
-import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
-
-import pojos.ImageData;
 
 //Java imports
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ImageData;
 
 /** 
  * 
@@ -60,104 +53,80 @@ import pojos.ImageData;
  * @since OME3.0
  */
 public class ThumbnailLoader 
-	extends DSCallAdapter
+	extends EditorLoader
 {
 
-	/** The viewer this data loader is for. */
-    protected final ThumbnailView		viewer;
+	 /** The width of the thumbnail. */
+    public static final int            THUMB_MAX_WIDTH = 96; 
     
-	/** Convenience reference for subclasses. */
-    protected final Registry        	registry;
-    
-    /** Convenience reference for subclasses. */
-    protected final MetadataHandlerView	mhView;
-    
+    /** The maximum height of the thumbnail. */
+    public static final int            THUMB_MAX_HEIGHT = 96;
+  
+    /** The object the thumbnails are for. */
     private ImageData					image;
     
+    /** Collection of users who viewed the image. */
     private Set<Long>					userIDs;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  				handle;
     
-    /**
+    private Map<Long, BufferedImage>	thumbnails;
+    
+    /**	
      * Creates a new instance.
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param image		The id of the image.
+     * @param image		The image.
      * @param userIDs	The node of reference. Mustn't be <code>null</code>.
      */
-    public ThumbnailLoader(ThumbnailView viewer, ImageData image, 
+    public ThumbnailLoader(Editor viewer, ImageData image, 
     						Set<Long> userIDs)
     {
-    	 if (viewer == null) throw new NullPointerException("No viewer.");
-         this.viewer = viewer;
-         registry = MetadataViewerAgent.getRegistry();
-         mhView = (MetadataHandlerView) 
-         	registry.getDataServicesView(MetadataHandlerView.class);
+    	 super(viewer);
          this.image = image;
          this.userIDs = userIDs;
+         thumbnails = new HashMap<Long, BufferedImage>();
+    }
+
+    /**
+     * Retrieves the thumbnails.
+     * @see EditorLoader#load()
+     */
+    public void load()
+    {
+        handle = mhView.loadThumbnails(image, userIDs, THUMB_MAX_WIDTH,
+                                	THUMB_MAX_HEIGHT, this);
+    }
+    
+    /** 
+     * Cancels the data loading. 
+     * @see EditorLoader#cancel()
+     */
+    public void cancel() { handle.cancel(); }
+    
+    /** 
+     * Feeds the thumbnails back to the viewer, as they arrive. 
+     * @see EditorLoader#update(DSCallFeedbackEvent)
+     */
+    public void update(DSCallFeedbackEvent fe) 
+    {
+        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+        if (td != null)  {
+        	//Last fe has null object.
+        	thumbnails.put(td.getUserID(), td.getThumbnail());
+        } 
+        if (thumbnails.size() == userIDs.size())
+        	viewer.setThumbnails(thumbnails, image.getId());
     }
     
     /**
      * Does nothing as the async call returns <code>null</code>.
      * The actual payload (thumbnails) is delivered progressively
      * during the updates.
+     * @see EditorLoader#handleNullResult()
      */
     public void handleNullResult() {}
-    
-    /** Notifies the user that the data retrieval has been cancelled. */
-    public void handleCancellation() 
-    {
-        String info = "The thumbnails retrieval has been cancelled.";
-        registry.getLogger().info(this, info);
-    }
-    
-    /**
-     * Notifies the user that an error has occurred and discards the 
-     * {@link #viewer}.
-     * @see DSCallAdapter#handleException(Throwable)
-     */
-    public void handleException(Throwable exc) 
-    {
-    	String s = "Data Retrieval Failure: ";
-        LogMessage msg = new LogMessage();
-        msg.print(s);
-        msg.print(exc);
-        registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
-                                               s, exc);
-    }
-    
-    /**
-     * Retrieves the thumbnails.
-     * @see DSCallAdapter#load()
-     */
-    public void load()
-    {
-        handle = mhView.loadThumbnails(image, userIDs, 
-                                ThumbnailView.THUMB_MAX_WIDTH,
-                                ThumbnailView.THUMB_MAX_HEIGHT, this);
-    }
-    
-    /** 
-     * Cancels the data loading. 
-     * @see DSCallAdapter#cancel()
-     */
-    public void cancel() { handle.cancel(); }
-    
-    /** 
-     * Feeds the thumbnails back to the viewer, as they arrive. 
-     * @see DSCallAdapter#update(DSCallFeedbackEvent)
-     */
-    public void update(DSCallFeedbackEvent fe) 
-    {
-        //if (viewer.getState() == HiViewer.DISCARDED) return;  //Async cancel.
-        
-        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-        if (td != null)  //Last fe has null object.
-            viewer.setThumbnail(td.getThumbnail(), td.getImageID(), 
-            					td.getUserID());
-    }
     
 }

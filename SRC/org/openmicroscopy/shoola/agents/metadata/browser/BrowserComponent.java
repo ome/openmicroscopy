@@ -30,13 +30,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.viewedby.ViewedByComponent;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.ImageData;
@@ -142,6 +140,7 @@ class BrowserComponent
 			throw new IllegalArgumentException("Root object not valid.");
 		model.setRootObject(refObject);
 		view.setRootNode();
+		loadMetadata(model.getLastSelectedNode());
 	}
 
 	/** 
@@ -161,8 +160,9 @@ class BrowserComponent
 	 */
 	public void loadMetadata(TreeBrowserDisplay node)
 	{
+		if (node == null) 
+			throw new IllegalArgumentException("No node to handle.");
 		model.loadMetadata(node);
-		
 	}
 
 	/** 
@@ -205,11 +205,6 @@ class BrowserComponent
 		view.setNodes(node, nodes);
 		TreeBrowserDisplay parent = node.getParentDisplay();
 		ImageData img = (ImageData) parent.getUserObject();
-		//Test find a solution
-		JDialog d = new JDialog();
-		d.getContentPane().add(new ViewedByComponent(values, img));
-		d.setSize(200, 200);
-		UIUtilities.centerAndShow(d);
 	}
 
 	/** 
@@ -269,6 +264,62 @@ class BrowserComponent
 		while (i.hasNext()) {
 			nodes.add(new TreeBrowserNode(i.next()));
 		}
+		view.setNodes(node, nodes);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setStructuredDataResults(TreeBrowserDisplay, 
+	 * 										StructuredDataResults)
+	 */
+	public void setStructuredDataResults(TreeBrowserDisplay node, 
+									StructuredDataResults results)
+	{
+		if (node == null) 
+			throw new IllegalArgumentException("No node to handle.");
+		Object userObject = node.getUserObject();
+		if (userObject != results.getRelatedObject()) return;
+		if (results == null) {
+			//Tags
+			//Remove everything from display
+			return;
+		}
+		Iterator i;
+		List<TreeBrowserDisplay> nodes = new ArrayList<TreeBrowserDisplay>();
+		Collection collection = results.getTags();
+		
+		//Tags
+		if (collection != null && collection.size() > 0) {
+			i = collection.iterator();
+			while (i.hasNext()) {
+				nodes.add(new TreeBrowserNode(i.next()));
+			}
+		}
+		//attachments
+		collection = results.getAttachments();
+		if (collection != null && collection.size() > 0) {
+			i = collection.iterator();
+			while (i.hasNext()) {
+				nodes.add(new TreeBrowserNode(i.next()));
+			}
+		}
+		//urls
+		collection = results.getUrls();
+		if (collection != null && collection.size() > 0) {
+			i = collection.iterator();
+			while (i.hasNext()) {
+				nodes.add(new TreeBrowserNode(i.next()));
+			}
+		}
+		//parents
+		collection = results.getParents();
+		if (collection != null && collection.size() > 0) {
+			i = collection.iterator();
+			while (i.hasNext()) {
+				nodes.add(new TreeBrowserSet(i.next()));
+			}
+		}
+		
 		view.setNodes(node, nodes);
 	}
 	

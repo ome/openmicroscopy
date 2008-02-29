@@ -42,6 +42,9 @@ import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
+
 import pojos.DataObject;
 import pojos.ImageData;
 
@@ -67,19 +70,22 @@ class MetadataViewerModel
 {
 	
 	/** Holds one of the state flags defined by {@link MetadataViewer}. */
-	private int									state;
+	private int										state;
 
 	/** Reference to the component that embeds this model. */
-	private MetadataViewer						component;
+	private MetadataViewer							component;
 
 	/** The ref object for the viewer i.e. the root. */
-	private Object								refObject;
+	private Object									refObject;
 	
 	/** Reference to the browser. */
-	private Browser								browser;
+	private Browser									browser;
+	
+	/** Reference to the editor. */
+	private Editor									editor;
 	
 	/** The active data loaders. */
-	private Map<TreeBrowserSet, MetadataLoader>	loaders;
+	private Map<TreeBrowserDisplay, MetadataLoader>	loaders;
 	
 	/**
 	 * Returns the parent object of the passed node.
@@ -103,7 +109,7 @@ class MetadataViewerModel
 	{
 		state = MetadataViewer.NEW;
 		this.refObject = refObject;
-		loaders = new HashMap<TreeBrowserSet, MetadataLoader>();
+		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
 	}
 
 	/**
@@ -116,6 +122,7 @@ class MetadataViewerModel
 	{ 
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component, refObject);
+		editor = EditorFactory.createEditor(component, refObject);
 	}
 	
 	/**
@@ -132,7 +139,7 @@ class MetadataViewerModel
 	void discard()
 	{
 		state = MetadataViewer.DISCARDED;
-		Iterator<TreeBrowserSet> i = loaders.keySet().iterator();
+		Iterator<TreeBrowserDisplay> i = loaders.keySet().iterator();
 		MetadataLoader loader;
 		while (i.hasNext()) {
 			loader = loaders.get(i.next());
@@ -150,6 +157,7 @@ class MetadataViewerModel
 	{ 
 		this.refObject = refObject; 
 		browser.setRootObject(refObject);
+		editor.setRootObject(refObject);
 	}
 	
 	/** 
@@ -165,6 +173,13 @@ class MetadataViewerModel
 	 * @return See above.
 	 */
 	Browser getBrowser() { return browser; }
+	
+	/**
+	 * Returns the <code>Editor</code> displaying the metadata.
+	 * 
+	 * @return See above.
+	 */
+	Editor getEditor() { return editor; }
 	
 	/**
 	 * 
@@ -295,8 +310,12 @@ class MetadataViewerModel
 	void fireStructuredDataLoading(TreeBrowserDisplay refNode)
 	{
 		cancel(refNode);
-		StructuredDataLoader loader = new StructuredDataLoader(component, refNode, refNode.getUserObject());
+		Object uo = refNode.getUserObject();
+		if (!(uo instanceof DataObject)) return;
+		StructuredDataLoader loader = new StructuredDataLoader(component, 
+								refNode, (DataObject) uo);
+		loaders.put(refNode, loader);
+		loader.load();
 	}
-
 	
 }

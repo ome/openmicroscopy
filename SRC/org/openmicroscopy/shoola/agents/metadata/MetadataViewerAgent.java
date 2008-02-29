@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -90,8 +91,9 @@ public class MetadataViewerAgent
     private void handleViewMetadata(ViewMetadata evt)
     {
     	Object refObject = evt.getRefObject();
-    	if (refObject == null) return;
-    	MetadataViewer viewer = MetadataViewerFactory.getViewer(refObject);
+    	if (refObject == null || (refObject instanceof String)) return;
+    	MetadataViewer viewer = 
+    			MetadataViewerFactory.getViewer((DataObject) refObject);
     	viewer.activate();
     }
     

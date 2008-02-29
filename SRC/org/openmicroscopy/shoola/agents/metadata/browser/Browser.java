@@ -32,6 +32,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -175,5 +176,15 @@ public interface Browser
 	 * @param urls	Collection of urls to display.
 	 */
 	public void setUrls(TreeBrowserSet node, Collection urls);
+
+	/**
+	 * Converts the results into the corresponding UI components.
+	 * and adds them to the display.
+	 * 
+	 * @param node		The node to handle. Mustn't be <code>null</code>.
+	 * @param results	The results to handle.
+	 */
+	public void setStructuredDataResults(TreeBrowserDisplay node,
+										StructuredDataResults results);
 	
 }

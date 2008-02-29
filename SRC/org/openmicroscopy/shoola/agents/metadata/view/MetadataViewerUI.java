@@ -31,6 +31,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 
+import javax.swing.JPanel;
+
 
 //Third-party libraries
 
@@ -61,12 +63,15 @@ class MetadataViewerUI
 	/** Reference to the Model. */
 	private MetadataViewerModel   		model;
 	
+	/** The component hosting the UI components. */
+	private JPanel						uiDelegate;
+	
 	/** Builds and lays out the GUI. */
     private void buildGUI()
     {
     	Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
-        //c.add(model.getBrowser().getUI());
+        c.add(model.getEditor().getUI());
     }
     
 	/**
@@ -121,5 +126,5 @@ class MetadataViewerUI
         setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
         UIUtilities.centerAndShow(this);
     }
-    
+
 }

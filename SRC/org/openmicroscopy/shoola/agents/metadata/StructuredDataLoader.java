@@ -29,9 +29,9 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
-import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.DataObject;
 
 /** 
  * 
@@ -51,7 +51,7 @@ public class StructuredDataLoader
 {
 
 	/** The object the data are related to. */
-	private Object 		dataObject;
+	private DataObject	dataObject;
 
 	
 	/** Handle to the async call so that we can cancel it. */
@@ -66,7 +66,7 @@ public class StructuredDataLoader
 	 * @param dataObject	The object the data are related to.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, TreeBrowserDisplay node,
-								Object dataObject)
+								DataObject dataObject)
 	{
 		super(viewer, node);
 		if (dataObject == null)

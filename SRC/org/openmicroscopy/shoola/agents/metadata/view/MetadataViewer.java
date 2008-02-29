@@ -35,6 +35,8 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
+import pojos.DataObject;
+
 /** 
  * Defines the interface provided by the viewer component. 
  * The Viewer provides a component hosting a browser for metadata.

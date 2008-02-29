@@ -50,20 +50,19 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
  * @since OME3.0
  */
 class BrowserModel
-
 {
 
 	/** Position of the last pop-up trigger within the browser. */
-    private Point           		popupPoint;
+    private Point           			popupPoint;
     
 	/** The selected node. */
 	private List<TreeBrowserDisplay>	selectedNodes;
 	
 	/** The parent of this browser. */
-	private  MetadataViewer 		parent;
+	private  MetadataViewer 			parent;
 	
 	/** Reference to the component that embeds this model. */
-	private Browser 				component;
+	private Browser 					component;
 	
 	/**
 	 * Creates a new instance.
@@ -150,14 +149,20 @@ class BrowserModel
 	{
 		selectedNodes.clear();
 		selectedNodes.add(new TreeBrowserSet(refObject));
-		
 	}
 
-	void cancel(TreeBrowserDisplay node) {
-		parent.cancel(node);
-		
-	}
+	/**
+	 * Cancels any on-going data loading for the specified node.
+	 * 
+	 * @param node The node to handle.
+	 */
+	void cancel(TreeBrowserDisplay node) { parent.cancel(node); }
 
+	/**
+	 * Loads the data for the specified node.
+	 * 
+	 * @param node The node to handle.
+	 */
 	void loadMetadata(TreeBrowserDisplay node)
 	{
 		parent.loadMetadata(node);

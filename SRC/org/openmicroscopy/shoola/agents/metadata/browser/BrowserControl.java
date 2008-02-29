@@ -134,6 +134,7 @@ class BrowserControl
     							icons.getIcon(IconManager.PROPERTIES), true));
     	nodes.add(new TreeBrowserNode(Browser.ANNOTATIONS, 
     							icons.getIcon(IconManager.ANNOTATION), true));
+    	/*
     	nodes.add(new TreeBrowserSet(Browser.TAGS, 
     							icons.getIcon(IconManager.TAG), true));
     	nodes.add(new TreeBrowserSet(Browser.ATTACHMENTS, 
@@ -149,7 +150,7 @@ class BrowserControl
     		nodes.add(new TreeBrowserSet(Browser.PROJECTS, 
     				icons.getIcon(IconManager.PROJECT), true));
     	} 
-    		
+    	*/	
     	return nodes;
     }
     
@@ -220,7 +221,7 @@ class BrowserControl
     		return;
     	}
 		model.setSelectedNode(node);
-		if (node.isChildrenLoaded() || !node.isMenuNode()) return;
+		if (node.isChildrenLoaded()) return;
 		view.addDefaultNode(node, BrowserUI.LOADING_MSG);
 		model.loadMetadata(node);
 		/*

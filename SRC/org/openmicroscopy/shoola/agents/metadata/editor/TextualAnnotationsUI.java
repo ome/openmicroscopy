@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
+ * org.openmicroscopy.shoola.agents.metadata.editor.TextualAnnotationsUI 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,19 +20,21 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.view;
-
-import pojos.DataObject;
+package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import javax.swing.border.Border;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 
 /** 
- * Factory to create {@link MetadataViewer} component.
+ * UI component displaying the textual annotations.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,43 +46,41 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class MetadataViewerFactory 
+class TextualAnnotationsUI 
+	extends AnnotationUI
 {
-
-	/** The sole instance. */
-	private static final MetadataViewerFactory  
-						singleton = new MetadataViewerFactory();
-
-	/**
-	 * Returns the {@link MetadataViewer}.
-	 * 
-	 * @param refObject	The object viewed as the root of the browser.
-	 * @return See above.
-	 */
-	public static MetadataViewer getViewer(Object refObject)
-	{
-		MetadataViewerModel model = new MetadataViewerModel(refObject);
-		return singleton.createViewer(model);
-	}
+    
+	/** The title associated to this component. */
+	static final String TITLE = "Annotations";
 	
-	/** Creates a new instance. */
-	private MetadataViewerFactory()
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 */
+	TextualAnnotationsUI(EditorModel model)
 	{
-		
+		super(model);
 	}
 	
 	/**
-	 * Creates and returns a {@link MetadataViewer}.
-	 * 
-	 * @param model	The Model.
-	 * @return See above.
+	 * Overridden to lay out the annotations.
+	 * @see AnnotationUI#buildUI()
 	 */
-	private MetadataViewer createViewer(MetadataViewerModel model)
+	protected void buildUI()
 	{
-		MetadataViewerComponent comp = new MetadataViewerComponent(model);
-		model.initialize(comp);
-		comp.initialize();
-		return comp;
+		removeAll();
+		int n = model.getTextualAnnotationCount();
+		title = TITLE+LEFT+n+RIGHT;
+		Border border = new TitledLineBorder(title, getBackground());
+		setBorder(border);
+		getCollapseComponent().setBorder(border);
 	}
+	
+	/**
+	 * Overridden to set the title of the component.
+	 * @see AnnotationUI#getComponentTitle()
+	 */
+	protected String getComponentTitle() { return TITLE; }
 	
 }

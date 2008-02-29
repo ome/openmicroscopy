@@ -322,9 +322,9 @@ class BrowserUI
 					}
 				}
 			}
-        	tm.reload(root);
+        	
         }
-       
+        tm.reload(root);
 	}
 	
     /**
@@ -356,6 +356,7 @@ class BrowserUI
 		parent.removeAllChildrenDisplay();
 		Iterator i = sortedNodes.iterator();
 		TreeBrowserDisplay child;
+		addMenuToNode(parent);
 		while (i.hasNext()) {
 			child = (TreeBrowserDisplay) i.next();
 			if (!(child instanceof TreeBrowserNode))

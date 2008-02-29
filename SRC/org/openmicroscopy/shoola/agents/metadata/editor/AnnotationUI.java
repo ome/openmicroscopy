@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory 
+ * org.openmicroscopy.shoola.agents.metadata.editor.AnnotationUI 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,19 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.view;
-
-import pojos.DataObject;
+package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
- * Factory to create {@link MetadataViewer} component.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,43 +44,60 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class MetadataViewerFactory 
+abstract class AnnotationUI 
+	extends JPanel
 {
 
-	/** The sole instance. */
-	private static final MetadataViewerFactory  
-						singleton = new MetadataViewerFactory();
-
-	/**
-	 * Returns the {@link MetadataViewer}.
-	 * 
-	 * @param refObject	The object viewed as the root of the browser.
-	 * @return See above.
-	 */
-	public static MetadataViewer getViewer(Object refObject)
-	{
-		MetadataViewerModel model = new MetadataViewerModel(refObject);
-		return singleton.createViewer(model);
-	}
+	/** The symbol inserted before the number of annotations. */
+	static final String		LEFT = "[";
 	
-	/** Creates a new instance. */
-	private MetadataViewerFactory()
-	{
-		
-	}
+	/** The symbol inserted after the number of annotations. */
+	static final String		RIGHT = "]";
+	
+	/** The collapse version of this component. */
+	private JPanel			collapseComponent;
+	
+	/** Reference to the model. */
+	protected EditorModel 	model;
+	
+	/** The title associated to the component. */
+	protected String		title;
 	
 	/**
-	 * Creates and returns a {@link MetadataViewer}.
+	 * Creates a new instance.
 	 * 
-	 * @param model	The Model.
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 */
+	AnnotationUI(EditorModel model)
+	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		this.model = model;
+	}
+	
+	/**
+	 * Returns the {@link #collapseComponent}. Creates it if not.
+	 * 
 	 * @return See above.
 	 */
-	private MetadataViewer createViewer(MetadataViewerModel model)
+	protected JPanel getCollapseComponent()
 	{
-		MetadataViewerComponent comp = new MetadataViewerComponent(model);
-		model.initialize(comp);
-		comp.initialize();
-		return comp;
+		if (collapseComponent != null)
+			return collapseComponent;
+		collapseComponent = new JPanel();
+		collapseComponent.setBorder(new TitledLineBorder(title, 
+						collapseComponent.getBackground()));
+		return collapseComponent;
 	}
+	
+	/** Builds and lays out the UI. */
+	protected abstract void buildUI();
+	
+	/** 
+	 * Returns the title of the component.
+	 * 
+	 * @return See above.
+	 */
+	protected abstract String getComponentTitle();
 	
 }

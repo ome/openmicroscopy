@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.viewedby.ViewedItemCanvas 
+ * org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,22 +20,17 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.viewedby;
-
+package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
 /** 
- * Customizes <code>JPanel</code> to paint an image.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,40 +42,24 @@ import javax.swing.JPanel;
  * </small>
  * @since OME3.0
  */
-class ViewedItemCanvas 
-	extends JPanel
+public class EditorFactory
 {
 
-	/** The image to paint. */
-	private BufferedImage image;
-	
-	/** Creates a new instance. */
-	ViewedItemCanvas()
-    {
-        setDoubleBuffered(true);
-        setBackground(Color.BLACK);
-    }
-    
 	/**
-	 * Sets the image to paint.
-	 * 
-	 * @param image The value to set.
-	 */
-	void setImage(BufferedImage image)
-	{
-		this.image = image;
-		repaint();
-	}
-	
-    /** 
-     * Overridden to paint the image. 
-     * @see javax.swing.JComponent#paintComponent(Graphics)
+     * Creates a new {@link Browser}.
+     * 
+     * @param parent
+     * @param refObject   
+     * @return See above.
      */
-    public void paintComponent(Graphics g)
+    public static Editor createEditor(MetadataViewer parent, 
+    									Object refObject)
     {
-        super.paintComponent(g);
-        if (image == null) return;
-        ((Graphics2D) g).drawImage(image, null, 0, 0);
+    	EditorModel model = new EditorModel(refObject, parent);
+    	EditorComponent component = new EditorComponent(model);
+    	model.initialize(component);
+    	component.initialize();
+    	return component;
     }
     
 }
