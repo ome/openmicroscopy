@@ -1828,13 +1828,16 @@ class ImViewerUI
 		}
 	}
     
-    /**
-	 * Returns the rate image level. One of the constants defined by this class.
-	 * 
-	 * @return See above.
-	 */
-    int getRatingLevel() { return model.getRatingLevel(); }
+    void setRatingValue(int value) {
+    	model.setRatingLevel(value);
+    }
     
+    /** Sets the value of the rating. */
+	void setRating()
+	{
+		toolBar.setRating(model.getOriginalRating());
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -1869,4 +1872,5 @@ class ImViewerUI
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
 	}
+
 }

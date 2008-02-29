@@ -136,29 +136,6 @@ class AnnotatorEditorControl
 	AnnotatorEditorAction getAction(Integer id) { return actionsMap.get(id); }
 	
 	/**
-	 * Deletes the annotation.
-	 * 
-	 * @param data The annotation to delete.
-	 */
-	void deleteAnnotation(AnnotationData data)
-	{
-		List<AnnotationData> l = new ArrayList<AnnotationData>(1);
-		l.add(data);
-		model.delete(l);
-	}
-	
-	/**
-	 * Updates the annotation.
-	 * 
-	 * @param data The annotation to delete.
-	 */
-	void updateAnnotation(String data)
-	{
-		System.err.println("data: "+data);
-		model.save(data);
-	}
-	
-	/**
 	 * Reacts to property changes fired by {@link AnnotatorSavingDialog}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -169,7 +146,14 @@ class AnnotatorEditorControl
 			model.save(Annotator.SELECT_ONE);
 		} else if (AnnotatorSavingDialog.ANNOTATE_ALL_PROPERTY.equals(name)) {
 			model.save(Annotator.SELECT_ALL);
-		} 	
+		} else if (AnnotationComponent.DELETE_PROPERTY.equals(name)) {
+			AnnotationData data = (AnnotationData) evt.getNewValue();
+			List<AnnotationData> l = new ArrayList<AnnotationData>(1);
+			l.add(data);
+			model.delete(l);
+		} else if (AnnotationComponent.SAVE_PROPERTY.equals(name)) {
+			model.save((String) evt.getNewValue());
+		}
 	}
 
 }

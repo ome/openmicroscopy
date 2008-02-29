@@ -26,17 +26,11 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,17 +41,14 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.Border;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
@@ -95,19 +86,10 @@ import pojos.ExperimenterData;
 class AnnotatorEditorView 
 	extends JPanel
 {
-
-	/** Button to finish the operation. */
-    private JButton             		saveButton;
-    
-    /** Button to clear the annotation text. */
-    private JButton             		clearButton;
     
     /** Area where to annotate the <code>DataObject</code>. */
-    private MultilineLabel           	annotationArea; 
-    
-    /** Component delete the annotation. */
-    private JButton           			deleteButton;
-    
+    //private MultilineLabel           	annotationArea; 
+
     /** The UI component hosting the display. */
     private JPanel						pane;
 
@@ -156,11 +138,8 @@ class AnnotatorEditorView
 	/** Listener added to the vertical scrollBar. */
 	private AdjustmentListener 			adjustementlistener;
 	
-	/** The height of the font. */
-	private int							areaFontHeight;
-	
 	/** Annotations are immutable, excepted the ones added to the map. */
-	private Map<JComponent, Integer>	mutableAnnotation;
+	//private Map<JComponent, Integer>	mutableAnnotation;
     
     /** Handles the selection of a node in the tree. */
     private void handleNodeSelection()
@@ -208,16 +187,18 @@ class AnnotatorEditorView
 	    	vBar.addAdjustmentListener(adjustementlistener);
 			hBar.setValue(x);
         } 
+		/*
 		if (c == annotationArea) {
 			c.setVisible(true);
 			c.requestFocus();
 		}
+		*/
     }
    
     /** Initializes the UI components. */
     private void initComponents()
     {
-    	mutableAnnotation = new HashMap<JComponent, Integer>();
+    	//mutableAnnotation = new HashMap<JComponent, Integer>();
     	commentLabel = new JLabel();
     	listAnnotations = new JPanel();
     	listAnnotations.setLayout(new BoxLayout(listAnnotations, 
@@ -257,17 +238,7 @@ class AnnotatorEditorView
             			new TreePath(e.getPath().getLastPathComponent()));
             }
         });
-            
-        saveButton = new JButton(
-        			controller.getAction(AnnotatorEditorControl.SAVE));
-        clearButton = new JButton("Clear");
-        clearButton.setToolTipText("Clear the annotation text.");
-        clearButton.setEnabled(false);
-        clearButton.addActionListener(new ActionListener() {
-		
-			public void actionPerformed(ActionEvent e) { clear(); }
-		
-		});
+       /*
         annotationArea = new MultilineLabel();
         annotationArea.setBorder(BorderFactory.createEtchedBorder());
         annotationArea.setRows(AnnotatorUtil.ROWS);
@@ -276,54 +247,8 @@ class AnnotatorEditorView
         annotationAreaPane.setVerticalScrollBarPolicy(
         				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         annotationAreaPane.getVerticalScrollBar().setVisible(true);
-        areaFontHeight = 3+
-        	annotationArea.getFontMetrics(annotationArea.getFont()).getHeight();
-        deleteButton = new JButton(
-    			controller.getAction(AnnotatorEditorControl.DELETE));
-
-        listener = new DocumentListener() {
-            
-            /** 
-             * Indicates that the object is annotated. 
-             * @see DocumentListener#insertUpdate(DocumentEvent)
-             */
-            public void insertUpdate(DocumentEvent de)
-            {
-            	model.setAnnotated(true);
-            	saveButton.setEnabled(true);
-            	clearButton.setEnabled(true);
-            	int v = areaFontHeight*annotationArea.getLineCount();
-            	Rectangle rec = annotationAreaPane.getViewport().getBounds();
-            	if (v > rec.height) {
-            		Dimension d = new Dimension(annotationArea.getSize().width, 
-            									v);
-            		annotationArea.setSize(d);
-            		annotationArea.setPreferredSize(d);
-            		annotationAreaPane.getVerticalScrollBar().setValue(v);
-            	}
-            }
-            
-            /** 
-             * Indicates that the object is annotated. 
-             * @see DocumentListener#removeUpdate(DocumentEvent)
-             */
-            public void removeUpdate(DocumentEvent de)
-            {
-                model.setAnnotated(true);
-            }
-
-            /** 
-             * Required by I/F but no-op implementation in our case. 
-             * @see DocumentListener#changedUpdate(DocumentEvent)
-             */
-            public void changedUpdate(DocumentEvent de) {}
-            
-        };
-        annotationArea.getDocument().addDocumentListener(listener);
+        */
     }
-    
-    /** Clears the annotation text. */
-    private void clear() { annotationArea.setText(""); }
     
     /**
      * Builds a panel hosting the {@link #annotationArea} and the list of users
@@ -368,21 +293,14 @@ class AnnotatorEditorView
      */
     private JPanel buildToolBar()
     {
-    	JPanel p = new JPanel();
-        p.add(deleteButton);
-        p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
-        p.add(clearButton);
-        //p.add(Box.createRigidArea(AnnotatorUtil.SMALL_H_SPACER_SIZE));
-        //p.add(saveButton);
-        p.setOpaque(true);
         JPanel bar = new JPanel();
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL, 
         				TableLayout.PREFERRED}, 
 				{TableLayout.PREFERRED}};
         bar.setLayout(new TableLayout(tl));
         bar.add(UIUtilities.buildComponentPanel(commentLabel), "0, 0");
-        bar.add(UIUtilities.buildComponentPanelRight(p), "2, 0");
-        return bar;
+        return UIUtilities.buildComponentPanel(commentLabel);
+        //return bar;
     }
     
     /** Builds and lays out the GUI. */
@@ -405,20 +323,10 @@ class AnnotatorEditorView
 		listAnnotations.removeAll();
 		List l = areas.get(new Long(ownerID));
 		Iterator i = l.iterator();
-		MultilineLabel c;
 		//JScrollPane pane;
-		while (i.hasNext()) {
-			c = (MultilineLabel) i.next();
-			if (c != annotationArea) {
-				c.setBackground(c.getOriginalBackground());
-				listAnnotations.add(c);
-			} else {
-				c.setBackground(c.getOriginalBackground());
-				listAnnotations.add(annotationAreaPane);
-			}
-		}
-		setComponentsEnabled(false);
-    	//setComponentsEnabled(ownerID == model.getUserDetails().getId());
+		while (i.hasNext()) 
+			listAnnotations.add((AnnotationComponent) i.next());
+
     }
     
     /**
@@ -430,35 +338,18 @@ class AnnotatorEditorView
     private void showDateAnnotation(long ownerID, int index)
     {
     	List l = areas.get(new Long(ownerID));
-    	MultilineLabel c;
+    	AnnotationComponent comp;
     	int j = index; 
-    	long userID = model.getUserDetails().getId();
-    	if (ownerID == userID) j++;
     	for (int i = 0; i < l.size(); i++) {
-			c = (MultilineLabel) l.get(i);
-			c.setBackground(c.getOriginalBackground());
-			//if (j == i && c != annotationArea) 
-			if (j == i) {
-				clearButton.setEnabled(c == annotationArea);
-				c.setBackground(UIUtilities.HIGHLIGHT);
-			}
+    		comp = (AnnotationComponent) l.get(i);
+    		comp.setAreaBackground(null);
+			if (j == i)
+				comp.setAreaBackground(UIUtilities.HIGHLIGHT);
 		}
-    	c = (MultilineLabel) l.get(j);
-    	scrollToNode(c);
-    	if (ownerID == userID) {
-    		if (index == -1) {
-    			clearButton.setEnabled(true);
-    			saveButton.setEnabled(true);
-    			deleteButton.setEnabled(false);
-    		} else {
-    			clearButton.setEnabled(false);
-    			saveButton.setEnabled(false);
-    			deleteButton.setEnabled(true);
-    		}
-    	} else {
-    		setComponentsEnabled(false);
-    	}
+    	comp = (AnnotationComponent) l.get(j);
+    	scrollToNode(comp);
     }
+    
     
     /**
      * Creates child nodes and adds to the passed parent.
@@ -472,52 +363,40 @@ class AnnotatorEditorView
     {
     	long ownerID = parent.getOwnerID();
     	Long id = new Long(ownerID);
-    	boolean user = model.getUserDetails().getId() == ownerID;
+    	boolean editable = model.getUserDetails().getId() == ownerID;
     	TimeNode node = new TimeNode(ownerID, -1, null);
-    	if (user) {
-    		dtm.insertNodeInto(node, parent, parent.getChildCount());
-    		AnnotatorUtil.setAnnotationAreaDefault(annotationArea, 
-    												node.toString());
-    		annotationArea.setBorder(
-        			CustomizedBorderFactory.
-        				createEditableTitledLineBorder(
-        					node.toString()));
-        	
-    		annotationArea.addMouseListener(new MouseAdapter() {
-			
-				/**
-				 * Deletes the annotation.
-				 * @see MouseAdapter#mouseReleased(MouseEvent)
-				 */
-				public void mouseReleased(MouseEvent e) {
-					Component c = e.getComponent();
-					if (c instanceof JComponent) 
-						handleAnnotation((JComponent) c, e.getPoint());
-				}
-			
-			});
-    	}
-    	if ((annotations == null || annotations.size() == 0) && user) {
-    		List<JTextArea> l = new ArrayList<JTextArea>(1);
-    		l.add(annotationArea);
+    	
+    	if ((annotations == null || annotations.size() == 0) && editable) {
+    		//dtm.insertNodeInto(node, parent, parent.getChildCount());
+    		//AnnotatorUtil.setAnnotationAreaDefault(annotationArea, 
+    		//										node.toString());
+    		AnnotationComponent comp = new AnnotationComponent(null, 
+    														editable, false);
+    		comp.addPropertyChangeListener(controller);
+        	comp.setAreaBorder(node.toString());
+        	comp.setAreaColor(UIUtilities.BACKGROUND);
+    		List<JComponent> l = new ArrayList<JComponent>(1);
+    		l.add(comp);
     		areas.put(id, l);
     		return;
     	}
 
         List<JComponent> l;
         int row = 0;
-        if (user) {
-        	l = new ArrayList<JComponent>(annotations.size()+1);
-        	l.add(annotationArea);
+        if (editable && annotations.size() == 0) {
+        	//l = new ArrayList<JComponent>(1);
+        	//l.add(annotationArea);
         	row = 1;
         } else {
-        	l = new ArrayList<JComponent>(annotations.size());
+        	
         }
+        l = new ArrayList<JComponent>();
         Iterator i = annotations.iterator();
         int index = 0;
-        MultilineLabel area;
+        //MultilineLabel area;
         Timestamp date;
         AnnotationData data;
+        AnnotationComponent comp;
         while (i.hasNext()) {
         	data = (AnnotationData) i.next();
         	date = data.getLastModified();
@@ -525,87 +404,16 @@ class AnnotatorEditorView
         	node = new TimeNode(ownerID, index, date);
         	data = (AnnotationData) annotations.get(index);
         	dtm.insertNodeInto(node, parent, parent.getChildCount());
-        	area = new MultilineLabel();
-            area.setEditable(false);
-            area.setOpaque(true);
-            area.setText(data.getContentAsString());
-            if (ownerID == model.getUserDetails().getId()) {
-            	area.setEditable(true);
-            	mutableAnnotation.put(area, index);
-            	area.setBorder(
-            			CustomizedBorderFactory.
-            				createClosableAndEditableTitledLineBorder(
-            					node.toString()));
-            	
-            	area.addMouseListener(new MouseAdapter() {
-    			
-    				/**
-    				 * Deletes the annotation.
-    				 * @see MouseAdapter#mouseReleased(MouseEvent)
-    				 */
-    				public void mouseReleased(MouseEvent e) {
-    					//super.mouseReleased(e);
-    					Component c = e.getComponent();
-    					if (c instanceof JComponent) 
-    						handleAnnotation((JComponent) c, e.getPoint());
-    				}
-    			
-    			});
-            } else 
-            	area.setBorder(new TitledLineBorder(node.toString()));
-        	
-        	
-        	if (index%2 == row) area.setOriginalBackground(
-        			UIUtilities.BACKGROUND);
-            else area.setOriginalBackground(UIUtilities.BACKGROUND_ONE);
-        	l.add(area);
+        	comp = new AnnotationComponent(data, editable);
+        	comp.addPropertyChangeListener(controller);
+        	comp.setAreaBorder(node.toString());
+        	if (index%2 == row) 
+        		comp.setAreaColor(UIUtilities.BACKGROUND);
+            else comp.setAreaColor(UIUtilities.BACKGROUND_ONE);
+        	l.add(comp);
         	index++;
 		}
         areas.put(id, l);
-    }
-    
-    /**
-     * Deletes the selected annotation.
-     * 
-     * @param area 	The area displaying the annotation.
-     * @param p		The location of the mouse clicked.
-     */
-    private void handleAnnotation(JComponent area, Point p)
-    {
-    	if (model.getState() != AnnotatorEditor.READY) return;
-    	Border b = area.getBorder();
-    	if (!(b instanceof TitledLineBorder)) return;
-    	List<Rectangle> rectangles = ((TitledLineBorder) b).getImagesBounds();
-    	Rectangle r = rectangles.get(CustomizedBorderFactory.EDIT_INDEX);
-		if (r != null && r.contains(p)) {
-			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			String text = ((MultilineLabel) area).getText();
-			if (text == null || text.trim().length() == 0) return;
-			Integer index = mutableAnnotation.get(area);
-			if (index != null) {
-				AnnotationData data = model.getAnnotationData(index);
-				String ann = data.getContentAsString();
-				if (!text.equals(ann)) {
-					controller.updateAnnotation(text); 
-				}
-			} else {
-				controller.updateAnnotation(text); 
-				
-			}
-		}
-		
-		if (rectangles.size() > 1) {
-			r = rectangles.get(CustomizedBorderFactory.CLOSE_INDEX);
-			if (r != null && r.contains(p)) {
-				Integer index = mutableAnnotation.get(area);
-				AnnotationData data = model.getAnnotationData(index);
-				if (data != null) {
-					setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-					controller.deleteAnnotation(data);
-				}
-			}
-		}
-		
     }
     
     /**
@@ -638,23 +446,6 @@ class AnnotatorEditorView
 		buildGUI();
 	}
 	
-	/** 
-     * Sets the UI components enabled.
-     * 
-     * @param b The enabled flag. 
-     */
-    void setComponentsEnabled(boolean b)
-    {
-        saveButton.setEnabled(b);
-        clearButton.setEnabled(b);
-        deleteButton.setEnabled(b);
-        //annotationArea.setEditable(b);
-        //if (b) {
-        //    annotationArea.requestFocus();
-        //    annotationArea.selectAll();
-        //}
-    }
-	
     /** Shows the annotations. */
     void showAnnotations()
     {
@@ -664,7 +455,6 @@ class AnnotatorEditorView
     	dtm.reload(root);
     	listAnnotations.removeAll();
     	areas.clear();
-    	deleteButton.setSelected(false);
     	ExperimenterData userDetails = model.getUserDetails();
         if (userDetails == null) return;
         Map annotations = model.getAnnotations();
@@ -706,16 +496,17 @@ class AnnotatorEditorView
     /** Reacts to a new selection in the browser. */
     void onSelectedDisplay()
     {
-        setComponentsEnabled(false);
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
     	DefaultMutableTreeNode root = (DefaultMutableTreeNode) dtm.getRoot();
     	root.removeAllChildren();
     	dtm.reload(root);
     	listAnnotations.removeAll();
     	areas.clear();
+    	/*
     	annotationArea.getDocument().removeDocumentListener(listener);
     	annotationArea.setText("");
     	annotationArea.getDocument().addDocumentListener(listener);
+    	*/
     	model.setAnnotated(false);
     	commentLabel.setText("");
         repaint();
@@ -751,9 +542,12 @@ class AnnotatorEditorView
      */
     String getAnnotationText()
     { 
+    	return "";
+    	/*
     	String s = annotationArea.getText();
     	if (s == null) return "";
     	return s.trim(); 
+    	*/
     }
 
 	/**

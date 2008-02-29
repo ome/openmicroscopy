@@ -222,21 +222,21 @@ public class AnnotationsSaver
 		if (mode == Annotator.ANNOTATE_MODE) {
 			switch (index) {
 				case CREATE:
-					handle = aView.createAnnotation(toAnnotate, annotation, 
+					handle = dhView.createAnnotation(toAnnotate, annotation, 
 													this);
 					break;
 				case UPDATE:
-					handle = aView.updateAnnotation(toUpdate, this);
+					handle = dhView.updateAnnotation(toUpdate, this);
 					break;
 				case UPDATE_AND_CREATE:
-					handle = aView.updateAndCreateAnnotation(toUpdate, 
+					handle = dhView.updateAndCreateAnnotation(toUpdate, 
 											toAnnotate, annotation, this);
 			}
 		} else {
 			if (timeRef == null)
-				handle = aView.annotateChildren(toAnnotate, annotation, this);
+				handle = dhView.annotateChildren(toAnnotate, annotation, this);
 			else 
-				handle = aView.annotateChildren(timeRef, annotation, this);
+				handle = dhView.annotateChildren(timeRef, annotation, this);
 		}
 	}
 	

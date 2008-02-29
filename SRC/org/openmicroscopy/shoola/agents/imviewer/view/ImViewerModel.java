@@ -46,8 +46,10 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.CategorySaver;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.RateImageLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
+import org.openmicroscopy.shoola.agents.imviewer.StructuredAnnotationSaver;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -70,6 +73,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.ExperimenterData;
+import pojos.RatingAnnotationData;
 
 /** 
 * The Model component in the <code>ImViewer</code> MVC triad.
@@ -116,6 +120,15 @@ class ImViewerModel
 	/** The maximum height of the thumbnail. */
 	private static final int    THUMB_MAX_HEIGHT = 48;
 
+	/** Index of the <code>RenderingSettings</code> loader. */
+	private static final int	SETTINGS = 0;
+	
+	/** Index of the <code>RenderingControlLoader</code> loader. */
+	private static final int	RND = 1;
+	
+	/** Index of the <code>Rating</code> loader. */
+	private static final int	RATING = 2;
+	
 	/** The id of the set of pixels. */
 	private long               		 	pixelsID;
 
@@ -135,8 +148,11 @@ class ImViewerModel
 	 * Will either be a data loader or
 	 * <code>null</code> depending on the current state. 
 	 */
-	private DataLoader          		currentLoader;
+	//private DataLoader          		currentLoader;
 
+	/** Map hosting the various loaders. */
+	private Map<Integer, DataLoader>	loaders;
+	
 	/** The sub-component that hosts the display. */
 	private Browser             		browser;
 
@@ -192,7 +208,7 @@ class ImViewerModel
 	private boolean						historyItemReplacement;
 
 	/** Collection of categories the image belongs to. */
-	private List						categories;
+	//private List						categories;
 
 	/** Collection of available categories.*/
 	private List						availableCategories;
@@ -219,13 +235,14 @@ class ImViewerModel
 	private long						ownerID;
 	
 	/** Flag indicating that the image has been rated. */
-	private boolean						rated;
+	private int							ratedValue;	
 	
-	/** 
-	 * The list hosting the various rendering controls.
-	 */
-	private List<RenderingControlDef>	renderingControls;
+	/** The rating annotation. */
+	private RatingAnnotationData		rating;
 
+	/** Sorts the rated data. */
+	private ViewerSorter				sorter;
+	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -266,8 +283,9 @@ class ImViewerModel
 		textVisible = true;
 		movieIndex = -1;
 		this.ownerID = ownerID;
-		
-		renderingControls = new ArrayList<RenderingControlDef>();
+		loaders = new HashMap<Integer, DataLoader>();
+		sorter = new ViewerSorter();
+		ratedValue = -1;
 	}
 
 	/**
@@ -332,10 +350,13 @@ class ImViewerModel
 		state = ImViewer.DISCARDED;
 		//Shut down the service
 		ImViewerAgent.getRegistry().getImageService().shutDown(pixelsID);
-		if (currentLoader != null) {
-			currentLoader.cancel();
-			currentLoader = null;
+		Iterator i = loaders.keySet().iterator();
+		Integer index;
+		while (i.hasNext()) {
+			index =  (Integer) i.next();
+			(loaders.get(index)).cancel();
 		}
+		
 		if (renderer != null) renderer.discard();
 		if (player == null) return;
 		player.setPlayerState(Player.STOP);
@@ -392,24 +413,19 @@ class ImViewerModel
 	String getColorModel() { return rndControl.getModel(); }
 
 	/**
-	 * Returns the rate image level. One of the constants defined by this class.
+	 * Returns the selected rating level or <code>-1</code> if the image 
+	 * has not been rated.
 	 * 
 	 * @return See above.
 	 */
-	int getRatingLevel()
-	{
-		return 0; //TODO retrieve from DB.
-	}
+	int getRatingLevel() { return ratedValue; }
 
 	/**
-	 * Sets the rating level.
+	 * Sets the rating level i.e. the value modified by the user.
 	 * 
 	 * @param value The value to set.
 	 */
-	void setRatingLevel(int value)
-	{
-		rated = true;
-	}
+	void setRatingLevel(int value) { ratedValue = value; }
 	
 	/**
 	 * Returns <code>true</code> if the image has been rated,
@@ -419,7 +435,8 @@ class ImViewerModel
 	 */
 	boolean hasBeenRated()
 	{
-		return rated; // Need to check if the value has actually changed.
+		if (rating == null) return ratedValue != -1;
+		return rating.getRating() != ratedValue;
 	}
 	
 	/**
@@ -461,27 +478,37 @@ class ImViewerModel
 	/** Fires an asynchronous retrieval of the rendering control. */
 	void fireRenderingControlLoading()
 	{
-		currentLoader = new RenderingControlLoader(component, pixelsID, 
+		DataLoader loader = new RenderingControlLoader(component, pixelsID, 
 												RenderingControlLoader.LOAD);
-		currentLoader.load();
+		loader.load();
+		if (loaders.get(RND) != null)
+			loaders.get(RND).cancel();
+		loaders.put(RND, loader);
 		state = ImViewer.LOADING_RENDERING_CONTROL;
 	}
 
 	/** Fires an asynchronous retrieval of the rendering control. */
 	void fireRenderingControlReloading()
 	{
-		currentLoader = new RenderingControlLoader(component, pixelsID, 
+		
+		DataLoader loader = new RenderingControlLoader(component, pixelsID, 
 										RenderingControlLoader.RELOAD);
-		currentLoader.load();
+		loader.load();
+		if (loaders.get(RND) != null)
+			loaders.get(RND).cancel();
+		loaders.put(RND, loader);
 		state = ImViewer.LOADING_RENDERING_CONTROL;
 	}
 
 	/** Fires an asynchronous retrieval of the rendering control. */
 	void fireRenderingControlResetting()
 	{
-		currentLoader = new RenderingControlLoader(component, pixelsID, 
+		DataLoader loader = new RenderingControlLoader(component, pixelsID, 
 										RenderingControlLoader.RESET);
-		currentLoader.load();
+		loader.load();
+		if (loaders.get(RND) != null)
+			loaders.get(RND).cancel();
+		loaders.put(RND, loader);
 		state = ImViewer.LOADING_RENDERING_CONTROL;
 	}
 	
@@ -529,12 +556,11 @@ class ImViewerModel
 	 */
 	void setRenderingControl(RenderingControl rndControl)
 	{
+		loaders.remove(RND);
 		this.rndControl = rndControl;
 		if (renderer == null) {
 			renderer = RendererFactory.createRenderer(component, rndControl,
 					ImViewerFactory.getPreferences());
-			
-				
 			state = ImViewer.RENDERING_CONTROL_LOADED;
 		} else {
 			renderer.setRenderingControl(rndControl);
@@ -1176,7 +1202,6 @@ class ImViewerModel
 	 */
 	void setCategories(List categories, List available, List categoryGroups)
 	{
-		this.categories = categories;
 		availableCategories = available;
 		this.categoryGroups = categoryGroups;
 		state = ImViewer.READY;
@@ -1242,51 +1267,9 @@ class ImViewerModel
 		data.setId(categoryID);
 		Set<CategoryData> categories = new HashSet<CategoryData>(1);
 		categories.add(data);
-		currentLoader = new CategorySaver(component, imageID, categories, 
+		DataLoader loader = new CategorySaver(component, imageID, categories, 
 				CategorySaver.DECLASSIFY);
-		currentLoader.load();
-	}
-
-	/**
-	 * Classifies the image into the specified categories.
-	 * 
-	 * @param categories	The categories to add the image to.
-	 */
-	void classify(Set<CategoryData> categories)
-	{
-		state = ImViewer.CLASSIFICATION;
-		currentLoader = new CategorySaver(component, imageID, categories, 
-				CategorySaver.CLASSIFY);
-		currentLoader.load();
-	}
-
-	/**
-	 * Creates new categories and adds the image to the categories.
-	 * 
-	 * @param categories	The categories to create.
-	 */
-	void createAndClassify(Set<CategoryData> categories)
-	{
-		state = ImViewer.CLASSIFICATION;
-		currentLoader = new CategorySaver(component, imageID, categories, 
-				CategorySaver.CREATE);
-		currentLoader.load();
-	}
-
-	/**
-	 * Creates new categories and adds the image to the categories,
-	 * then adds the image to the existing categories.
-	 * 
-	 * @param toCreate	The categories to create.
-	 * @param toUpdate	The categories to update.
-	 */
-	void createAndClassify(Set<CategoryData> toCreate, 
-			Set<CategoryData> toUpdate)
-	{
-		state = ImViewer.CLASSIFICATION;
-		currentLoader = new CategorySaver(component, imageID, toCreate, 
-				toUpdate);
-		currentLoader.load();
+		loader.load();
 	}
 
 	/**
@@ -1332,8 +1315,38 @@ class ImViewerModel
 	 */
 	void fireRenderingSettingsRetrieval()
 	{
-		currentLoader = new RenderingSettingsLoader(component, pixelsID);
-		currentLoader.load();
+		DataLoader loader = new RenderingSettingsLoader(component, pixelsID);
+		loader.load();
+		if (loaders.get(SETTINGS) != null)
+			loaders.get(SETTINGS).cancel();
+		loaders.put(SETTINGS, loader);
+	}
+	
+	/**
+	 * Fires an asynchronous retrieval of the rendering settings 
+	 * linked to the currently viewed set of pixels.
+	 */
+	void fireRatingRetrieval()
+	{
+		DataLoader loader = new RateImageLoader(component, imageID, pixelsID);
+		loader.load();
+		if (loaders.get(RATING) != null)
+			loaders.get(RATING).cancel();
+		loaders.put(RATING, loader);
+	}
+	
+	/** Saves the rating. */
+	void fireRatingSaving()
+	{
+		if (!hasBeenRated()) return;
+		RatingAnnotationData annotation = new RatingAnnotationData(
+									getRatingLevel());
+		DataLoader loader = new StructuredAnnotationSaver(component, imageID, 
+								annotation, StructuredAnnotationSaver.RATING);
+		loader.load();
+		//if (loaders.get(RATING) != null)
+			//loaders.get(RATING).cancel();
+		//loaders.put(RATING, loader);
 	}
 	
 	/**
@@ -1353,6 +1366,7 @@ class ImViewerModel
 	void setRenderingSettings(Map map)
 	{
 		renderingSettings = map;
+		loaders.remove(SETTINGS);
 	}
 
 	/**
@@ -1383,5 +1397,28 @@ class ImViewerModel
 	 * @return See above.
 	 */
 	long getOwnerID() { return ownerID; }
+	
+	/**
+	 * Sets the {@link RatingAnnotationData rating}.
+	 * 
+	 * @param ratings The collection of values.
+	 */
+	void setRating(List ratings)
+	{
+		List l = sorter.sort(ratings);
+		System.err.println(l.size());
+		rating = (RatingAnnotationData) l.get(l.size()-1);
+	}
+	
+	/**
+	 * Returns the original rating.
+	 * 
+	 * @return See above.
+	 */
+	int getOriginalRating()
+	{
+		if (rating != null) return rating.getRating();
+		return ratedValue;
+	}
 	
 }

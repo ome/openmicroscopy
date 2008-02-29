@@ -25,19 +25,22 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+
+
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ImageData;
 
 
 /** 
  * Loads the rate image annotation.
- * This class calls <code></code> method in the
- * <code>ImViewerView</code>.
+ * This class calls <code>loadRatings</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,6 +61,8 @@ public class RateImageLoader
     /** The ID of the image. */
     private long        imageID;
     
+    /** The ID of the image. */
+    private long        pixelsID;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -68,37 +73,39 @@ public class RateImageLoader
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
      * @param imageID   The id of the image.
+     * @param pixelsID	The id of the pixels set.
      */
-    public RateImageLoader(ImViewer viewer, long imageID)
+    public RateImageLoader(ImViewer viewer, long imageID, long pixelsID)
     {
         super(viewer);
         this.imageID = imageID;
+        this.pixelsID = pixelsID;
     }
     
     /**
      * Retrieves the rate image annotation related to the image.
-     * @see DataBrowserLoader#load()
+     * @see DataLoader#load()
      */
     public void load()
     {
-        // TODO Auto-generated method stub
-        
+    	handle = mhView.loadRatings(ImageData.class, imageID, 
+    										getCurrentUserID(), this);
     }
 
     /**
      * Cancels the ongoing data retrieval.
-     * @see DataBrowserLoader#cancel()
+     * @see DataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /** 
      * Feeds the result back to the viewer. 
-     * @see DataBrowserLoader#handleResult(Object)
+     * @see DataLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        //viewer.setChannelMetadata((Set) result);
+        viewer.setRating((List) result);
     }
     
 }

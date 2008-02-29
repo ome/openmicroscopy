@@ -93,6 +93,7 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
+import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
@@ -789,6 +790,8 @@ class ImViewerControl
 			model.setUserRndSettings(exp);
 		} else if (Tagger.TAG_LOADED_PROPERTY.equals(propName)) {
 			view.showMenu(ImViewer.CATEGORY_MENU);
+		} else if (RatingComponent.RATE_PROPERTY.equals(propName)) {
+			view.setRatingValue((Integer) pce.getNewValue());
 		}
 	}
 

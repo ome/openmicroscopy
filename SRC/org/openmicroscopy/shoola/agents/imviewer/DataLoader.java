@@ -31,11 +31,15 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import pojos.ExperimenterData;
 
 /** 
  * 
@@ -57,16 +61,19 @@ public abstract class DataLoader
 {
 
     /** The viewer this data loader is for. */
-    protected final ImViewer            viewer;
+    protected final ImViewer            	viewer;
     
     /** Convenience reference for subclasses. */
-    protected final Registry            registry;
+    protected final Registry            	registry;
     
     /** Convenience reference for subclasses. */
-    protected final ImageDataView        ivView;
+    protected final ImageDataView        	ivView;
     
     /** Convenience reference for subclasses. */
-    protected final DataHandlerView		dhView;
+    protected final DataHandlerView			dhView;
+    
+    /** Convenience reference for subclasses. */
+    protected final MetadataHandlerView		mhView;
     
     /**
      * Creates a new instance.
@@ -83,7 +90,21 @@ public abstract class DataLoader
                     registry.getDataServicesView(ImageDataView.class);
         dhView = (DataHandlerView) 
 					registry.getDataServicesView(DataHandlerView.class);
+        mhView = (MetadataHandlerView) 
+					registry.getDataServicesView(MetadataHandlerView.class);
     }
+    
+	/**
+     * Helper method to return the ID of the currently logged in user.
+     * 
+     * @return See above.
+     */
+    protected long getCurrentUserID()
+    {
+    	return ((ExperimenterData) registry.lookup(
+		        LookupNames.CURRENT_USER_DETAILS)).getId();
+    }
+    
     
     /**
      * Notifies the {@link #viewer} one last time.

@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
 import pojos.DatasetData;
@@ -69,7 +70,10 @@ public abstract class AnnotatorLoader
 	protected final Registry            registry;
 	
 	/** Convenience reference for subclasses. */
-	protected final DataHandlerView		aView;
+	protected final DataHandlerView		dhView;
+	
+	/** Convenience reference for subclasses. */
+	protected final MetadataHandlerView	mhView;
 	
 	/**
 	 * Controls if the annotation type is supported. Returns <code>true</code>
@@ -96,8 +100,10 @@ public abstract class AnnotatorLoader
 	    if (viewer == null) throw new NullPointerException("No viewer.");
 	    this.viewer = viewer;
 	    registry = AnnotatorFactory.getRegistry();
-	    aView = (DataHandlerView) 
+	    dhView = (DataHandlerView) 
 	    		registry.getDataServicesView(DataHandlerView.class);
+	    mhView = (MetadataHandlerView) 
+			registry.getDataServicesView(MetadataHandlerView.class);
 	}
 	
 	/** Notifies the {@link #viewer} that the data retrieval is finished. */

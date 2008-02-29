@@ -168,7 +168,8 @@ class ToolBar
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
-    	rating = new RatingComponent(view.getRatingLevel());
+    	rating = new RatingComponent();
+    	rating.addPropertyChangeListener(controller);
     	compressionBox = new JComboBox(compression);
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
@@ -261,6 +262,8 @@ class ToolBar
     	//}
     	buildGUI(); 
     }
+    
+    void setRating(int value) { rating.setValue(value); }
     
     /** Cancels any ongoing search. */
     void discard()

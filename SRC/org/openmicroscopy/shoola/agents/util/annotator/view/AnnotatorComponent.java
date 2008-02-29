@@ -30,10 +30,10 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.TextAnnotation;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+import pojos.TextualAnnotationData;
 
 /** 
 * Implements the {@link Annotator} interface to provide the functionality
@@ -175,9 +175,9 @@ class AnnotatorComponent
 		if (model.getState() != READY)
 			throw new IllegalStateException("This method can only be " +
 			"invoked in the READY state.");
-		//AnnotationData d = model.getAnnotationType();
-		TextAnnotation d = new TextAnnotation(view.getAnnotationText());
 		
+		TextualAnnotationData d = new TextualAnnotationData(
+					view.getAnnotationText());
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		controller.getAction(AnnotatorControl.FINISH).setEnabled(false);
 		switch (index) {

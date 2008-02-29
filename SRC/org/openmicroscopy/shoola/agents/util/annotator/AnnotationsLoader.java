@@ -95,7 +95,7 @@ public class AnnotationsLoader
 	 */
 	public void load()
 	{
-		handle = aView.loadAnnotations(type, nodeIds, this);
+		//handle = dhView.loadAnnotations(type, nodeIds, this);
 	}
 	
 	/** 

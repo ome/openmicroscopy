@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.util.annotator;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -80,11 +79,10 @@ public class AnnotationsEditorSaver
     /** The annotation to create. */
     private AnnotationData  data;
     
-    /** Collection of annotation to remove. */
-    private List			toRemove;
-    
     /** The annotated object. */
     private DataObject		annotatedObject;
+    
+    private List			toRemove;
     
     /**
      * Controls if the specified operation is supported.
@@ -130,10 +128,6 @@ public class AnnotationsEditorSaver
 		this.index = index;
 		this.data = data;
 		toAnnotate = objects;
-		if (index == DELETE) {
-			toRemove = new ArrayList(1);
-			toRemove.add(data);
-		}
 	}
 	
 	/**
@@ -160,12 +154,9 @@ public class AnnotationsEditorSaver
 			throw new IllegalArgumentException("Data object not supported.");
 		this.index = index;
 		this.data = data;
-		toAnnotate = new HashSet(1);
-		toAnnotate.add(object);
-		if (index == DELETE) {
-			toRemove = new ArrayList(1);
-			toRemove.add(data);
-		}
+		annotatedObject = object;
+		//toAnnotate = new HashSet(1);
+		//toAnnotate.add(object);
 	}
 	
 	/**
@@ -206,14 +197,22 @@ public class AnnotationsEditorSaver
 		switch (index) {
 			case UPDATE:
 	        case CREATE:
-	            handle = dhView.createAnnotation(toAnnotate, data, this);
+	        	if (toAnnotate == null)
+	        		handle = dhView.createAnnotation(annotatedObject, data, 
+	        										this);
+	        	else 
+	        		handle = dhView.createAnnotation(toAnnotate, data, this);
 	            break;
 	        //case UPDATE:
 	         //   handle = dhView.updateAnnotation(annotatedObject, data, this);
 	         //   break;
 	        case DELETE:
-	            handle = dhView.deleteAnnotation(annotatedObject, toRemove, 
+	        	if (toRemove != null)
+	        		handle = dhView.deleteAnnotation(annotatedObject, toRemove, 
 	            								this);
+	        	else 
+	        		handle = dhView.deleteAnnotation(annotatedObject, data, 
+													this);
 		}
 	}
 	

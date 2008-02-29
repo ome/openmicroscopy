@@ -118,6 +118,9 @@ class ImViewerComponent
 	/** The message if rendering setting to annotation. */
 	static final String						ANNOTATION = "The annotations";
 	
+	/** The message if rendering setting to annotation. */
+	static final String						RATING = "The rating";
+	
 	/** The Model sub-component. */
 	private ImViewerModel       			model;
 
@@ -506,6 +509,7 @@ class ImViewerComponent
 				break;
 			default:
 				controller.setPreferences();
+				model.fireRatingSaving();
 				if (!saveOnClose()) return;
 				postViewerState(ViewerState.CLOSE);
 				model.discard();
@@ -897,7 +901,7 @@ class ImViewerComponent
 					"This method can't be invoked in the " +
 					"LOADING_RENDERING_CONTROL.");
 		model.setRenderingControl(result);
-
+		model.fireRatingRetrieval();
 		fireStateChange();
 		//Register the renderer
 		model.getRenderer().addPropertyChangeListener(controller);
@@ -2439,4 +2443,17 @@ class ImViewerComponent
 		view.showView(index);
 	}
     
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setRating(List)
+	 */
+	public void setRating(List rating)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (rating != null && rating.size() > 0) {
+			model.setRating(rating);
+			view.setRating();
+		}
+	}
+	
 }

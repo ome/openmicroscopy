@@ -232,13 +232,6 @@ public interface ImViewer
 	public boolean isZoomFitToWindow();
 
 	/**
-	 * Sets the image rate.
-	 * 
-	 * @param level The value to set.
-	 */
-	public void setRateImage(int level);
-
-	/**
 	 * Sets the color model. 
 	 * 
 	 * @param m The index corresponding to the color model.
@@ -860,5 +853,7 @@ public interface ImViewer
 	 * @param index The index identifying the view.
 	 */
 	public void showView(int index);
+
+	public void setRating(List list);
 	
 }

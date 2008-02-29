@@ -33,6 +33,7 @@ import java.awt.Rectangle;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 /** 
  * Event to retrieve and view a given image.
@@ -68,6 +69,10 @@ public class ViewImage
     /** The bounds of the component posting the event. */
     private Rectangle   requesterBounds;
     
+    private RndProxyDef	settings;
+    
+    private long		selectedUserID;
+    
     /**
      * Creates a new instance.
      * 
@@ -90,6 +95,26 @@ public class ViewImage
         this.name = name;
         requesterBounds = bounds;
     }
+    
+    /**
+     * Sets the rendering settings set by the selected user.
+     * 
+     * @param settings			The settings to set.
+     * @param selectedUserID	The id of the user who set the
+     * 							the rendering settings.
+     */
+    public void setSettings(RndProxyDef	settings, long selectedUserID)
+    {
+    	this.settings = settings;
+    	this.selectedUserID = selectedUserID;
+    }
+    
+    /**
+     * Returns the ID of the user the settings are related to.
+     * 
+     * @return See above. 
+     */
+    public long getSelectedID() { return selectedUserID; }
     
     /**
      * Returns the ID of the owner.

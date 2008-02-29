@@ -37,6 +37,8 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeViewNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+
+import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -294,9 +296,12 @@ public class ViewerSorter
         	return exp.getLastName()+" "+exp.getFirstName();
         }  else if (obj instanceof GroupData) 
             return ((GroupData) obj).getName();
+        else if (obj instanceof AnnotationData)
+        	return ((AnnotationData) obj).getContentAsString();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
+    
     
     /**
      * Compares two {@link Object}s.

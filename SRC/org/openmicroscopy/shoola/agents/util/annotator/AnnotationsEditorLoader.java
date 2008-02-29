@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.util.annotator;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Map;
 
 //Third-party libraries
@@ -35,9 +36,6 @@ import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Retrieves the annotations linked to a given <code>DataObject</code>.
@@ -87,15 +85,8 @@ public class AnnotationsEditorLoader
 	 */
 	public void load()
 	{
-		if (object instanceof DatasetData) 
-	           handle = dhView.loadAnnotations(DatasetData.class, 
-	        		   object.getId(), this);
-	     else if (object instanceof ImageData) 
-	           handle = dhView.loadAnnotations(ImageData.class, 
-	        		   				object.getId(), this);
-	     else if (object instanceof ProjectData) 
-	           handle = dhView.loadAnnotations(ProjectData.class, 
-	        		   object.getId(), this);
+		 handle = mhView.loadTextualAnnotations(object.getClass(), 
+				 						object.getId(), -1, this);
 	}
 	
 	/** 
@@ -111,6 +102,6 @@ public class AnnotationsEditorLoader
 	public void handleResult(Object result)
 	{
 	    if (viewer.getState() == DataHandler.DISCARDED) return; 
-	    viewer.setAnnotations((Map) result);
+	    viewer.setAnnotations((Collection) result);
 	}
 }

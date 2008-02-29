@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -93,11 +94,11 @@ public interface AnnotatorEditor
 	
 	/**
 	 * Sets the annotations retrieved for the annotated 
-	 * <code>DataObject</code>s.
+	 * <code>DataObject</code>.
 	 * 
 	 * @param annotations The value to set.
 	 */
-	public void setAnnotations(Map annotations);
+	public void setAnnotations(Collection annotations);
 
 	/** 
 	 * Indicates that the annotation has been saved. 

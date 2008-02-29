@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -40,11 +41,11 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.TextAnnotation;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.TextualAnnotationData;
 
 /** 
  * Implements the {@link AnnotatorEditor} interface to provide the functionality
@@ -179,9 +180,9 @@ class AnnotatorEditorComponent
 
     /**
      * Implemented as specified by the {@link Annotator} interface.
-     * @see AnnotatorEditor#setAnnotations(Map)
+     * @see AnnotatorEditor#setAnnotations(Collection)
      */
-	public void setAnnotations(Map annotations)
+	public void setAnnotations(Collection annotations)
 	{
 		if (model.getState() != LOADING) {
 			firePropertyChange(ANNOTATION_LOADED_PROPERTY, Boolean.FALSE, 
@@ -340,8 +341,8 @@ class AnnotatorEditorComponent
 		if (model.getState() != READY)
 			throw new IllegalStateException("This method can only be invoked "+
 			"in the READY state.");
-		TextAnnotation data = new TextAnnotation();
-		data.setText(view.getAnnotationText());
+		TextualAnnotationData data = new TextualAnnotationData(
+									view.getAnnotationText());
 		model.fireAnnotationUpdate(data);
 		fireStateChange();
 	}
@@ -352,9 +353,8 @@ class AnnotatorEditorComponent
      */
 	public void save(String text)
 	{
-		TextAnnotation newData = new TextAnnotation();
-		newData.setText(text);
-		model.fireAnnotationUpdate(newData);
+		TextualAnnotationData data = new TextualAnnotationData(text);
+		model.fireAnnotationUpdate(data);
 		fireStateChange();
 	}
 	

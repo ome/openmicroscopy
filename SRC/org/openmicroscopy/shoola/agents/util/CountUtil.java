@@ -68,12 +68,14 @@ public class CountUtil
 	{
 		if (object == null) return false;
 		Map<Long, Long> counts = null;
-		if (object instanceof ImageData) 
-			counts = ((ImageData) object).getAnnotationsCounts();
-		else if (object instanceof DatasetData) 
+		if (object instanceof DatasetData) 
 			counts = ((DatasetData) object).getAnnotationsCounts();
 		else if (object instanceof ProjectData)
 			counts = ((ProjectData) object).getAnnotationsCounts();
+		else if (object instanceof ImageData) {
+			counts = ((ImageData) object).getAnnotationsCounts();
+		}
+			
 		if (counts == null || counts.size() == 0) return false;
 		return counts.keySet().contains(userID);
 	}

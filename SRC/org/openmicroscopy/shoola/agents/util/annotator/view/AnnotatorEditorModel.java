@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.util.annotator.view;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -164,32 +165,24 @@ class AnnotatorEditorModel
     /**
      * Sorts and sets the retrieved annotations.
      * 
-     * @param map The annotations to set.
+     * @param set The annotations to set.
      */
-    void setAnnotations(Map map)
+    void setAnnotations(Collection set)
     {
     	HashMap<Long, List> sortedAnnotations = new HashMap<Long, List>();
-        Set set;
-        Long index;
-        Iterator i = map.keySet().iterator();
-        Iterator j;
+        Iterator i = set.iterator();
         AnnotationData annotation;
         Long ownerID;
         List<AnnotationData> userAnnos;
         while (i.hasNext()) {
-            index = (Long) i.next();
-            set = (Set) map.get(index);
-            j = set.iterator();
-            while (j.hasNext()) {
-                annotation = (AnnotationData) j.next();
-                ownerID = new Long(annotation.getOwner().getId());
-                userAnnos = (List) sortedAnnotations.get(ownerID);
-                if (userAnnos == null) {
-                    userAnnos = new ArrayList<AnnotationData>();
-                    sortedAnnotations.put(ownerID, userAnnos);
-                }
-                userAnnos.add(annotation);
+            annotation = (AnnotationData) i.next();
+            ownerID = new Long(annotation.getOwner().getId());
+            userAnnos = sortedAnnotations.get(ownerID);
+            if (userAnnos == null) {
+                userAnnos = new ArrayList<AnnotationData>();
+                sortedAnnotations.put(ownerID, userAnnos);
             }
+            userAnnos.add(annotation);
         }
         i = sortedAnnotations.keySet().iterator();
         List annotations;
