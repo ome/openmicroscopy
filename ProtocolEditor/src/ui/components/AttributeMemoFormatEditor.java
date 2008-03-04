@@ -162,6 +162,6 @@ public class AttributeMemoFormatEditor extends JPanel{
 	
 	// don't want to save the start and end <html> tags and <body> tags.
 	public String getText() {
-		return editorPane.getTextNoBodyTagOrHtmlTag();
+		return editorPane.getTextNoBodyTagOrHtmlTag().trim();
 	}
 }

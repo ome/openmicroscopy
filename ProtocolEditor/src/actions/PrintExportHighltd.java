@@ -31,7 +31,7 @@ import javax.swing.event.ChangeEvent;
 import tree.DataFieldNode;
 import ui.IModel;
 import cmd.ActionCmd;
-import cmd.PrintExportCmd;
+import cmd.ExportHtmlCmd;
 
 public class PrintExportHighltd extends ProtocolEditorAction {
 	
@@ -48,7 +48,7 @@ public class PrintExportHighltd extends ProtocolEditorAction {
 		
 		List<DataFieldNode> rootNodes = model.getHighlightedFields();
 		
-		ActionCmd printAll = new PrintExportCmd(rootNodes);
+		ActionCmd printAll = new ExportHtmlCmd(rootNodes);
 		printAll.execute();
 	}
 	

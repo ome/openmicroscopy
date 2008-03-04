@@ -28,7 +28,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
 import cmd.ActionCmd;
-import cmd.PrintExportCmd;
+import cmd.ExportHtmlCmd;
 
 import tree.DataFieldNode;
 import ui.IModel;
@@ -48,7 +48,7 @@ public class PrintExportAllAction extends ProtocolEditorAction {
 		
 		DataFieldNode rootNode = model.getRootNode();
 		
-		ActionCmd printAll = new PrintExportCmd(rootNode);
+		ActionCmd printAll = new ExportHtmlCmd(rootNode);
 		printAll.execute();
 	}
 	

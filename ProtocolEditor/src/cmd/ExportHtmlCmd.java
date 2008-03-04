@@ -26,6 +26,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -34,20 +35,25 @@ import javax.swing.filechooser.FileFilter;
 
 import tree.DataFieldNode;
 import ui.components.ExportDialog;
-import util.HtmlOutputter;
+import util.BareBonesBrowserLaunch;
+import util.DefaultExport;
+import util.HtmlExport;
+import util.IExport;
 import util.PreferencesManager;
 
-public class PrintExportCmd implements ActionCmd {
+public class ExportHtmlCmd implements ActionCmd {
+	
+	String fileExtension = ".html";
 	
 	JFrame frame = null;
 	
 	List<DataFieldNode> rootNodes;
 	
-	public PrintExportCmd(List<DataFieldNode> rootNodes) {
+	public ExportHtmlCmd(List<DataFieldNode> rootNodes) {
 		this.rootNodes = rootNodes;
 	}
 	
-	public PrintExportCmd(DataFieldNode rootNode) {
+	public ExportHtmlCmd(DataFieldNode rootNode) {
 		rootNodes = new ArrayList<DataFieldNode>();
 		rootNodes.add(rootNode);
 	}
@@ -73,12 +79,12 @@ public void printToHtml() {
 
 		fc.setFileFilter(new FileFilter() {
 			public boolean accept(File f) {
-				if (f.getName().endsWith(".html") || (f.isDirectory()))
+				if (f.getName().endsWith(fileExtension) || (f.isDirectory()))
 					return true;
 				return false;
 			}
 			public String getDescription() {
-				return ".html files";
+				return fileExtension + " files";
 			}
 		});
 		int returnVal = fc.showSaveDialog(null);
@@ -96,20 +102,22 @@ public void printToHtml() {
 		// remember where the user last exported a file
 		PreferencesManager.setPreference(PreferencesManager.CURRENT_EXPORT_FOLDER, file.getParent());
 		
-		// now, make sure the filename ends .html
+		// now, make sure the filename ends with correct file extension. 
         String filePathAndName = file.getAbsolutePath();
-        if (!(filePathAndName.endsWith(".html"))) {	// if not..
-        	filePathAndName = filePathAndName + ".html";
+        if (!(filePathAndName.endsWith(fileExtension))) {	// if not..
+        	filePathAndName = filePathAndName + fileExtension;
         	file = new File(filePathAndName);
         }
 		
+        
+        // set up a Map of output options - used to create a dialog
 		LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
-		booleanMap.put("Show every field (include collapsed fields)", true);
-		booleanMap.put("Show descriptions", true);
-		booleanMap.put("Show default values", true);
-		booleanMap.put("Show Url", true);
-		booleanMap.put("Show Table Data", true);
-		booleanMap.put("Show all other attributes", true);
+		booleanMap.put(DefaultExport.SHOW_ALL_FIELDS, false);
+		booleanMap.put(DefaultExport.SHOW_DESCRIPTIONS, true);
+		booleanMap.put(DefaultExport.SHOW_DEFAULT_VALUES, true);
+		booleanMap.put(DefaultExport.SHOW_URL, true);
+		booleanMap.put(DefaultExport.SHOW_TABLE_DATA, true);
+		booleanMap.put(DefaultExport.SHOW_OTHER_ATTRIBUTES, false);
 	
 		
 		ExportDialog printDialog = new ExportDialog(frame, null, "Print Options", booleanMap);
@@ -119,17 +127,31 @@ public void printToHtml() {
 		if (printDialog.getValue().equals(JOptionPane.OK_OPTION)) {
 		
 			booleanMap = printDialog.getBooleanMap();
-			boolean showEveryField = booleanMap.get("Show every field (include collapsed fields)");
-			boolean	showDescriptions = booleanMap.get("Show descriptions");
-			boolean	showDefaultValues = booleanMap.get("Show default values");
-			boolean	showUrl = booleanMap.get("Show Url");
-			boolean	showAllOtherAttributes = booleanMap.get("Show all other attributes");
-			boolean printTableData = booleanMap.get("Show Table Data");
 		
-			HtmlOutputter.outputHTML(file, rootNodes, showEveryField, 
-					showDescriptions, showDefaultValues, 
-					showUrl, showAllOtherAttributes, printTableData);
+			export(file, booleanMap);
+			
+			displayOutput(file);
 		}
+	}
+
+	public void export(File file, Map<String, Boolean> booleanMap) {
+		IExport exporter = new HtmlExport();
+		exporter.export(file, rootNodes, booleanMap);
+	}
+
+	public void displayOutput(File file) {
+		String outputFilePath = file.getAbsolutePath();
+        
+        if (System.getProperty("os.name").startsWith("Mac OS")) {
+        	outputFilePath = "file://" + outputFilePath;
+        } else {
+        	outputFilePath = "file:///" + outputFilePath;
+        }
+        
+        outputFilePath = outputFilePath.replaceAll(" ", "%20");
+
+        
+        BareBonesBrowserLaunch.openURL(outputFilePath);
 	}
 
 }
