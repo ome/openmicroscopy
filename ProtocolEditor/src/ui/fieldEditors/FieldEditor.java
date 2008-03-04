@@ -74,6 +74,10 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 
 	protected JButton colourSelectButton;
 	
+	protected JButton childLayoutToggleButton;
+	Icon rotateHorizontalIcon;
+	Icon rotateVerticalIcon;
+	
 	//XMLView xmlView; 	// the UI container for displaying this panel
 	
 	public FieldEditor() {	// a blank 
@@ -154,19 +158,18 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		/*
 		 * Child Display Orientation button
 		 */
-		Icon rotateIcon = ImageFactory.getInstance().getIcon(ImageFactory.ROTATE_ICON);
-		JButton toggleChildLayoutButton = new JButton(rotateIcon);
-		toggleChildLayoutButton.setToolTipText("Display this field's children horizontally");
-		toggleChildLayoutButton.addActionListener(new ActionListener() {
+		rotateHorizontalIcon = ImageFactory.getInstance().getIcon(ImageFactory.ROTATE_HORIZONTAL_ICON);
+		rotateVerticalIcon = ImageFactory.getInstance().getIcon(ImageFactory.ROTATE_VERTICAL_ICON);
+		childLayoutToggleButton = new JButton(rotateHorizontalIcon);
+		childLayoutToggleButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Boolean childHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
-				// toggle
-				childHorizontal = !childHorizontal;
-				dataField.setAttribute
-					(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY, childHorizontal.toString(), true);
+				toggleChildLayout();
 			}
 		});
-		nameFieldEditor.addToToolBar(toggleChildLayoutButton);
+		nameFieldEditor.addToToolBar(childLayoutToggleButton);
+		// set Icon and toolTipText
+		boolean childHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
+		refreshChildLayoutButton(childHorizontal);
 		
 		
 			
@@ -176,6 +179,21 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		this.setPreferredSize(MINIMUM_SIZE);
 		this.setMinimumSize(MINIMUM_SIZE);
 		this.validate();
+	}
+	
+	public void toggleChildLayout() {
+		Boolean childHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
+		// toggle
+		childHorizontal = !childHorizontal;
+		dataField.setAttribute
+			(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY, childHorizontal.toString(), true);
+		refreshChildLayoutButton(childHorizontal);
+	}
+	
+	public void refreshChildLayoutButton(boolean childrenHorizontal) {
+		childLayoutToggleButton.setIcon(childrenHorizontal ? rotateVerticalIcon : rotateHorizontalIcon);
+		childLayoutToggleButton.setToolTipText("Display this field's children " + 
+				(childrenHorizontal ? "vertically." : "horizontally.") );
 	}
 	
 	class PopupListener extends MouseAdapter {

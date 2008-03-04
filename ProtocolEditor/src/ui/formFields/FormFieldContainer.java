@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -41,22 +42,37 @@ import javax.swing.border.EtchedBorder;
 import tree.DataFieldNode;
 
 /**
- * This vertical box contains the parent FormField at the top, then the children.
- * (Each child is in it's own <code>FormFieldContainer</code>, with any children below it)
+ * This container lays out a <code>FormField</code> panel and it's child panels.
+ * Each child panel will be within another instance of this <code>FormFieldContainer</code> class,
+ * in order to display any children of that panel etc. 
+ * 
+ * Instead of using getParent() and getComponents() to traverse the hierarchy,
+ * getParentContainer() is implemented in order to return the parent <code>FormFieldContainer</code>
+ * and getChildContainers() returns an array of components that are the child <code>FormFieldContainer</code>s.
+ * This means that the layout of the children and parent within the panel can be changed
+ * without affecting the tree traversal, as long as getParentContainer()  and
+ * getChildContainers() are implemented correctly. 
+ * 
+ * Note, traversal of the UI tree via this class is intended for UI operations, such as 
+ * collapsing or expanding every node, or finding the position of a field for scrolling to view. 
+ * 
  * @author will
  *
  */
 public class FormFieldContainer extends JPanel {
 
-	DataFieldNode parent;
+	DataFieldNode dataFieldNode;
+	FormField formField;
+	
 	JToolBar childContainer;
+	
 	
 	protected static int childLeftIndent = 40;
 
 	
-	public FormFieldContainer(DataFieldNode parent) {
+	public FormFieldContainer(DataFieldNode dataFieldNode) {
 		
-		this.parent = parent;
+		this.dataFieldNode = dataFieldNode;
 		
 		setLayout(new BorderLayout());
 		//setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
@@ -64,26 +80,23 @@ public class FormFieldContainer extends JPanel {
 		// Handy for debugging layout
 		// setBorder(BorderFactory.createLineBorder(Color.red));
 		
+		
+		formField = (FormField)dataFieldNode.getFormField();
+		add(formField, BorderLayout.NORTH);
+		
+		
 		childContainer = new JToolBar(JToolBar.VERTICAL);
 		//childContainer.setBorder(new EtchedBorder());
 		childContainer.setFloatable(false);
 		childContainer.setBorder(BorderFactory.createEmptyBorder(0, childLeftIndent, 0, 0));
-		
-		
-		/*
-		Dimension min = new Dimension(0,0);
-		Dimension pref = new Dimension(0, 0);
-		Dimension max = new Dimension(1000,1000);
-		add(new Box.Filler(min, pref, max), BorderLayout.SOUTH);
-		*/
-		
-		//System.out.println("FormFieldContainer Constructor FieldName = " + parent.getName());
-		
-		FormField formField = (FormField)parent.getFormField();
-		addParent(formField);
+	
+		// formField manages visibility of it's children, and lazy loading, via a reference to childContainer.
 		formField.setChildContainer(childContainer);
 		
-		add(childContainer, BorderLayout.CENTER);
+		JPanel nicerLayoutPanel = new JPanel(new BorderLayout());
+		nicerLayoutPanel.add(childContainer, BorderLayout.NORTH);
+		
+		add(nicerLayoutPanel, BorderLayout.CENTER);
 		
 		//add(Box.createVerticalGlue());
 		
@@ -92,10 +105,6 @@ public class FormFieldContainer extends JPanel {
 	
 	public JComponent getChildContainer() {
 		return childContainer;
-	}
-	
-	public void addParent(Component parent) {
-		add(parent, BorderLayout.NORTH);
 	}
 
 	
@@ -106,12 +115,32 @@ public class FormFieldContainer extends JPanel {
 		
 	}
 	
+	/**
+	 *  This method needs to be implemented wrt the number of containers within each "level"
+	 *  of the UI hierarchy. 
+	 */
+	// getParent() = toolBar -> getParent() = layoutPanel -> getParent() = FormFieldContainer!
+	public FormFieldContainer getParentContainer() {
+		if (getParent().getParent().getParent() instanceof FormFieldContainer)
+			return (FormFieldContainer)getParent().getParent().getParent();
+		else return null;
+	}
+	
+	/**
+	 * This method needs to return an array of child containers
+	 * that are instances of this <code>FormFieldContainer</code> class. 
+	 * @return
+	 */
+	public Component[] getChildContainers() {
+		return childContainer.getComponents();
+	}
+	
 	
 	public Component getParentOfRootContainer() {
 		if (isRootContainer()) {
 			return getParent();
-		} else if (getParent() instanceof FormFieldContainer){
-			return ((FormFieldContainer)getParent()).getParentOfRootContainer();
+		} else if (getParentContainer() != null){
+			return getParentContainer().getParentOfRootContainer();
 		} else
 			return null;
 	}
@@ -129,27 +158,33 @@ public class FormFieldContainer extends JPanel {
 			 * the getY() (within childBox) + childBox.getY() (within FormFieldContainer) +
 			 * the recursive getY() of the FormFieldContainer...
 			 */
-			int y = getY() + getParent().getY() + ((FormFieldContainer)getParent().getParent()).getYPositionWithinRootContainer();
+			int y = getY() + getParent().getParent().getY() + (getParentContainer()).getYPositionWithinRootContainer();
 			return y;
 		}
 	}
 	
-	public void collapseAllFormFieldChildrn(boolean collapsed) {
+	/**
+	 * Expands or collapses the whole tree, starting at this root.
+	 * Calls setSubStepsCollapsed() on the <code>formField</code> of this level,
+	 * then delegates to all the child <code>FormFieldContainers</code>.
+	 * 
+	 * @param collapsed		True if the children are collapsed (hidden);
+	 */
+	public void collapseAllFormFieldChildren(boolean collapsed) {
 		
-		Component[] children = getComponents();
+		formField.setSubStepsCollapsed(collapsed);
+		
+		Component[] children = getChildContainers();
 		for (int i=0; i< children.length; i++) {
-			if (children[i] instanceof FormField) {
-				((FormField)children[i]).setSubStepsCollapsed(collapsed);
-			} 
-			else if (children[i] instanceof FormFieldContainer) {
-				((FormFieldContainer)children[i]).collapseAllFormFieldChildrn(collapsed);
+			if (children[i] instanceof FormFieldContainer) {
+				((FormFieldContainer)children[i]).collapseAllFormFieldChildren(collapsed);
 			}
 		}
 	}
 	
 	public String toString() {
-		if (parent != null) 
-			return "FormFieldContainer " + parent.getName();
+		if (dataFieldNode != null) 
+			return "FormFieldContainer " + dataFieldNode.getName();
 		else return "";
 	}
 }

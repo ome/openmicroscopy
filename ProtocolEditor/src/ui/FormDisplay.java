@@ -88,12 +88,10 @@ public class FormDisplay
 			verticalFormBox = new FormFieldContainer(rootNode);
 			this.add(verticalFormBox, BorderLayout.NORTH);
 			
-			/*
-			JPanel newFormField = rootNode.getFormField();
-			FormField formField = (FormField)newFormField;
-			formField.refreshRootField(true);	// displays the correct buttons etc. 
-			*/
 			
+			FormField formField = (FormField)rootNode.getFormField();
+			formField.refreshRootField(true);	// displays the correct buttons etc. 
+		
 			// pass the node and the Box that already contains it to buildFormTree()
 			// this will get the nodes children and add them to the Box (within a new Box)
 			buildFormTree(rootNode, verticalFormBox);
@@ -135,9 +133,13 @@ public class FormDisplay
 			buildFormTree(child, childContainer);
 		}
 		//childBox.add(Box.createVerticalGlue());
+		/*
+		 * Trying to get a nice horizontal-children layout.
+		 * But this doesn't help! 
 		JPanel filler = new JPanel();
-		filler.setBorder(BorderFactory.createLineBorder(Color.red));
+		filler.setBorder(BorderFactory.createLineBorder(Color.red));	// border for bug-fixing
 		childBox.add(filler);
+		*/
 	}
 	
 	public void refreshTree() {

@@ -26,17 +26,14 @@ package xmlMVC;
 import java.util.ArrayList;
 import java.io.*;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
@@ -106,8 +103,6 @@ public class XMLModel
 	
 	private Tree importTree;	// tree of a file used for importing fields
 	
-	private ArrayList<XMLUpdateObserver> xmlObservers;
-	private ArrayList<SelectionObserver> selectionObservers = new ArrayList<SelectionObserver>();;
 	
 	/* clipboard of fields, for copy and paste functionality (between files) */
 	private ArrayList<DataFieldNode> copiedToClipboardFields = new ArrayList<DataFieldNode>();
@@ -142,7 +137,6 @@ public class XMLModel
 	// default constructor, instantiates empty Tree. View must be created elsewhere.  
 	public XMLModel() {
 		
-		xmlObservers = new ArrayList<XMLUpdateObserver>();
 		
 		currentTree = null;
 
@@ -152,7 +146,7 @@ public class XMLModel
 	// alternative constructor, instantiates empty Tree, then creates new View. 
 	public XMLModel(boolean showView) {
 		
-		xmlObservers = new ArrayList<XMLUpdateObserver>();
+		
 		
 		currentTree = null;
 
@@ -163,14 +157,18 @@ public class XMLModel
 			
 	}	
 	
-	// return true if all OK - even if file is open already. (false if failed to open)
+	/**
+	 * This method takes an XML file, converts it to a DOM document and passes this to 
+	 * a new instance of the Tree data structure. 
+	 * Then this Tree is added to the list of currently opened files. 
+	 */
 	public void openThisFile(File xmlFile) {
 		
 		// need to check if the file is already open 
 		for (Tree tree: openFiles) {
 			if (tree.getFile().getAbsolutePath().equals(xmlFile.getAbsolutePath())) {
 				currentTree = tree;
-				notifyXMLObservers();
+				xmlUpdated();
 				return;
 			}
 		}
@@ -196,22 +194,12 @@ public class XMLModel
 		
 		document = null;
 
-		notifyXMLObservers();
+		xmlUpdated();
 		//selectionChanged();
 		
 		return;
 	}
 	
-	// any change in xml that needs the display of xml to be re-drawn
-	public void notifyXMLObservers() {
-		
-		for (XMLUpdateObserver xmlObserver: xmlObservers) {
-			xmlObserver.xmlUpdated();
-		}
-		treeNeedsRefreshing = true;
-		fireStateChange();
-		treeNeedsRefreshing = false;
-	}
 	
 	/**
 	 * a flag to tell whether observers need to re-layout any representation of the tree.
@@ -222,21 +210,18 @@ public class XMLModel
 	}
 	
 	// fireStateChanged() notifies ChangeObservers eg Controller
-	// Need to replace xmlUpdated() and selectionChanged() with a single StateChanged()
+	// any change in xml that needs the display of xml to be re-drawn
 	public void xmlUpdated() {
-		notifyXMLObservers();
-	}
-	// display needs updating but no change in xml (don't need to re-draw xml display)
-	public void selectionChanged() {
-		notifySelectionObservers();
-	}
-	public void notifySelectionObservers(){
-		for (SelectionObserver selectionObserver: selectionObservers) {
-			selectionObserver.selectionChanged();
-		}
+		treeNeedsRefreshing = true;
 		fireStateChange();
+		treeNeedsRefreshing = false;
 	}
 	
+	// display needs updating but no change in xml (don't need to re-draw xml display)
+	public void selectionChanged() {
+		fireStateChange();
+	}
+
 	/*
 	public void addXMLObserver(XMLUpdateObserver newXMLObserver) {
 		xmlObservers.add(newXMLObserver);
@@ -307,7 +292,7 @@ public class XMLModel
 			rootNodeList.add(importTree.getRootNode());
 			tree.copyAndInsertDataFields(rootNodeList); 
 		}
-		notifyXMLObservers();
+		xmlUpdated();
 	}
 	
 	// convert the tree data-structure to it's xml representation as a DOM document
@@ -401,7 +386,7 @@ public class XMLModel
 		// System.out.println("XMLModel editCurrentTree: " + editCommand.toString());
 		Tree tree = getCurrentTree();
 		if (tree != null )tree.editTree(editCommand);
-		notifyXMLObservers();
+		xmlUpdated();
 	}
 	
 	// get a reference to the highlighted fields of the current tree
@@ -419,7 +404,7 @@ public class XMLModel
 	public void pasteHighlightedFieldsFromClipboard() {
 		if ((getCurrentTree() == null) || (copiedToClipboardFields.isEmpty())) return;
 		getCurrentTree().copyAndInsertDataFields(copiedToClipboardFields);
-		notifyXMLObservers();
+		xmlUpdated();
 	}
 	
 	// used for undo button tool tip etc
@@ -519,7 +504,7 @@ public class XMLModel
 	public void addNewChildToTree(String childName) {
 		if (getCurrentTree() == null) return;
 		getCurrentTree().addDataField(childName);
-		notifyXMLObservers();
+		xmlUpdated();
 	}
 	
 	public Tree getCurrentTree() {
@@ -569,7 +554,7 @@ public class XMLModel
 		if (fileIndex >= 0 && fileIndex < openFiles.size())
 			currentTree = openFiles.get(fileIndex);
 		
-		notifyXMLObservers();
+		xmlUpdated();
 	}
 	public void closeCurrentFile() {
 		openFiles.remove(currentTree);
@@ -577,7 +562,7 @@ public class XMLModel
 			currentTree = openFiles.get(openFiles.size()-1);
 		else currentTree = null;
 		
-		notifyXMLObservers();
+		xmlUpdated();
 	}
 	public int getCurrentFileIndex() {
 		return openFiles.indexOf(currentTree);

@@ -39,6 +39,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
 
 import table.InteractiveTableModel;
 import tree.DataFieldConstants;
@@ -226,6 +227,7 @@ public class FormFieldTable extends FormField {
                 } else if (!tableModel.hasEmptyRow()) {
                 	tableModel.addEmptyRow();
                 	highlightLastRow(row);
+                	refreshViewportSize();
                 // or simply move to the start of the next row
                 } else {
                 	table.setRowSelectionInterval(row + 1, row + 1);
@@ -236,7 +238,9 @@ public class FormFieldTable extends FormField {
         }
     }
     
-//  overridden by subclasses (when focus lost) if they have values that need saving 
+    /**
+     * Update all the column data from the tableModel to dataField. 
+     */
 	public void copyTableModelToDataField() {
 		
 		// first update col names
@@ -267,6 +271,9 @@ public class FormFieldTable extends FormField {
 			outputRowNumber++;
 		}
 		
+		dataField.setAttribute(DataFieldConstants.TABLE_ROW_COUNT, Integer.toString(outputRowNumber), false);
+
+		
 		// delete extra un-needed rows from dataField
 		while (dataField.getAttribute(DataFieldConstants.ROW_DATA_NUMBER + outputRowNumber) != null) {
 			String rowId = DataFieldConstants.ROW_DATA_NUMBER + outputRowNumber;
@@ -274,7 +281,6 @@ public class FormFieldTable extends FormField {
 			outputRowNumber++;
 		}
 		
-		dataField.setAttribute(DataFieldConstants.TABLE_ROW_COUNT, Integer.toString(outputRowNumber), false);
 	}
 	
 	
@@ -359,7 +365,15 @@ public class FormFieldTable extends FormField {
 	// turn off the AutoResize so that the table expands horizontally
 	public void refreshColumnAutoResizeMode() {
 		int scrollPaneWidth = tableScroller.getWidth();
-		int prefColWidth = table.getColumnModel().getColumn(0).getPreferredWidth();
+		
+		int colCount = table.getColumnModel().getColumnCount();
+		// if there are no columns, forget about it! 
+		if (colCount < 1)
+			return;
+		
+		TableColumn tc = table.getColumnModel().getColumn(0);
+		
+		int prefColWidth = tc.getPreferredWidth();
 		int cols = table.getColumnCount();
 		
 		if (prefColWidth * cols > scrollPaneWidth) {

@@ -95,7 +95,8 @@ public class ImageFactory {
 	public static final String SEND_COMMENT_ICON = ACTION_ICONS_FILE + "mail_send.png";
 	public static final String ZOOM_ICON = ACTION_ICONS_FILE + "zoom.png";
 	public static final String INDEX_FILES_ICON = ICONS_FILE + "apps/bookcase.png";
-	public static final String ROTATE_ICON = ACTION_ICONS_FILE + "rotate_down-right.png";
+	public static final String ROTATE_HORIZONTAL_ICON = ACTION_ICONS_FILE + "rotate_right_up.png";
+	public static final String ROTATE_VERTICAL_ICON = ACTION_ICONS_FILE + "rotate_down_left.png";
 	
 	public Icon getIcon(String iconPathName) {
 		try {

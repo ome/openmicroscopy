@@ -142,8 +142,15 @@ public class FormFieldImage extends FormField {
 		Float ratio = Float.parseFloat(zoomPercent) / 100;
 		
 		URL imageURL = null;
+		String osSensitiveImagePath = imagePath;
+	    if (System.getProperty("os.name").startsWith("Mac OS")) {
+	    	osSensitiveImagePath = "file://" + imagePath;
+	    } else {
+	    	osSensitiveImagePath = "file:///" + imagePath;
+	    }
+	    
 		try {
-			imageURL = new URL("file://" + imagePath);
+			imageURL = new URL(osSensitiveImagePath);
 		} catch (MalformedURLException ex) {
 			JOptionPane.showMessageDialog(this, "Malformed URL file path");
 			return;

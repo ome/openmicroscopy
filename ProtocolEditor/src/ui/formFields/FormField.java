@@ -437,7 +437,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 			childrenCollapsed = !childrenCollapsed;
 			
 			if (getParent() instanceof FormFieldContainer) {
-				((FormFieldContainer)getParent()).collapseAllFormFieldChildrn(childrenCollapsed);
+				((FormFieldContainer)getParent()).collapseAllFormFieldChildren(childrenCollapsed);
 			}
 			
 			// expand this node
