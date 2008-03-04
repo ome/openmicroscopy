@@ -2,7 +2,7 @@ package actions;
 
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -30,34 +30,35 @@ import javax.swing.event.ChangeEvent;
 
 import tree.DataFieldNode;
 import ui.IModel;
+import util.ImageFactory;
 import cmd.ActionCmd;
-import cmd.ExportHtmlCmd;
+import cmd.ExportTextCmd;
 
-public class ExportHighltdHtml extends ProtocolEditorAction {
+public class ExportHighltdTextAction extends ProtocolEditorAction {
 	
-	public ExportHighltdHtml(IModel model) {
+	public ExportHighltdTextAction(IModel model) {
 
 		super(model);
 	
-		putValue(Action.NAME, "Export highlighted Fields");
-		putValue(Action.SHORT_DESCRIPTION, "Exports highlighted fields to html for printing");
-		//putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.PRINT_ICON)); 
+		putValue(Action.NAME, "Export Hightlighted Fields to Text File");
+		putValue(Action.SHORT_DESCRIPTION, "Exports the highlighted fields to Text file");
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.COPY_ICON)); 
 	}
 	
 	public void actionPerformed(ActionEvent e) {
 		
 		List<DataFieldNode> rootNodes = model.getHighlightedFields();
 		
-		ActionCmd printAll = new ExportHtmlCmd(rootNodes);
+		ActionCmd printAll = new ExportTextCmd(rootNodes);
 		printAll.execute();
 	}
 	
-	
-	// disable if no files are open
+	// disable if no files open
 	public void stateChanged(ChangeEvent e) {
 		
 		String[] fileList = model.getOpenFileList();
 		
 		this.setEnabled(!(fileList.length == 0));
 	}
+	
 }

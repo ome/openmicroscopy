@@ -217,8 +217,10 @@ public class XMLView
 		addButton(Controller.SAVE_FILE_AS, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 
 		Action[] printExportActions = new Action[] {
-				controller.getAction(Controller.PRINT_EXPORT_ALL),
-				controller.getAction(Controller.PRINT_EXPORT_HIGHLT) };
+				controller.getAction(Controller.EXPORT_ALL_HTML),
+				controller.getAction(Controller.EXPORT_HIGHLT_HTML),
+				controller.getAction(Controller.EXPORT_ALL_TEXT),
+				controller.getAction(Controller.EXPORT_HIGHLTD_TEXT)};
 		JButton printButton = new PopupMenuButton("Export the current file for printing", 
 				printIcon, printExportActions);
 		addButton(printButton, fileManagerToolBarBorder, fileManagerWestToolBar);
@@ -438,11 +440,11 @@ public class XMLView
 			printsubMenu.setIcon(printIcon);
 			fileMenu.add(printsubMenu);
 			
-			JMenuItem printWholeFileMenuItem = new JMenuItem(controller.getAction(Controller.PRINT_EXPORT_ALL));
+			JMenuItem printWholeFileMenuItem = new JMenuItem(controller.getAction(Controller.EXPORT_ALL_HTML));
 			setMenuItemAccelerator(printWholeFileMenuItem, KeyEvent.VK_P);
 			printsubMenu.add(printWholeFileMenuItem);
 			
-			printsubMenu.add(new JMenuItem(controller.getAction(Controller.PRINT_EXPORT_HIGHLT)));
+			printsubMenu.add(new JMenuItem(controller.getAction(Controller.EXPORT_HIGHLT_HTML)));
 			
 			fileMenu.add(new JMenuItem(controller.getAction(Controller.INDEX_FILES)));
 			

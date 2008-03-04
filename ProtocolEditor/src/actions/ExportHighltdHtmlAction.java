@@ -23,41 +23,42 @@ package actions;
  */
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
-import cmd.ActionCmd;
-import cmd.ExportHtmlCmd;
-
 import tree.DataFieldNode;
 import ui.IModel;
 import util.ImageFactory;
+import cmd.ActionCmd;
+import cmd.ExportHtmlCmd;
 
-public class ExportAllHtmlAction extends ProtocolEditorAction {
+public class ExportHighltdHtmlAction extends ProtocolEditorAction {
 	
-	public ExportAllHtmlAction(IModel model) {
+	public ExportHighltdHtmlAction(IModel model) {
 
 		super(model);
 	
-		putValue(Action.NAME, "Export the whole document to HTML");
-		putValue(Action.SHORT_DESCRIPTION, "Exports the entire document to html for printing");
+		putValue(Action.NAME, "Export highlighted Fields to HTML");
+		putValue(Action.SHORT_DESCRIPTION, "Exports highlighted fields to html for printing");
 		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.WWW_ICON)); 
 	}
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		DataFieldNode rootNode = model.getRootNode();
+		List<DataFieldNode> rootNodes = model.getHighlightedFields();
 		
-		ActionCmd printAll = new ExportHtmlCmd(rootNode);
+		ActionCmd printAll = new ExportHtmlCmd(rootNodes);
 		printAll.execute();
 	}
 	
+	
+	// disable if no files are open
 	public void stateChanged(ChangeEvent e) {
 		
 		String[] fileList = model.getOpenFileList();
 		
 		this.setEnabled(!(fileList.length == 0));
 	}
-	
 }

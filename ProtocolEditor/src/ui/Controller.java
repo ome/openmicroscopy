@@ -41,6 +41,8 @@ import actions.CopyFieldAction;
 import actions.DeleteFieldAction;
 import actions.DemoteFieldAction;
 import actions.DuplicateFieldsAction;
+import actions.ExportAllTextAction;
+import actions.ExportHighltdTextAction;
 import actions.ImportFieldsAction;
 import actions.IndexFilesAction;
 import actions.LoadDefaultsAllAction;
@@ -53,7 +55,7 @@ import actions.OpenFileAction;
 import actions.OpenWwwFileAction;
 import actions.PasteFieldAction;
 import actions.ExportAllHtmlAction;
-import actions.ExportHighltdHtml;
+import actions.ExportHighltdHtmlAction;
 import actions.PromoteFieldAction;
 import actions.RedoAction;
 import actions.RedoActionNoNameRefresh;
@@ -89,11 +91,11 @@ public class Controller
     /** Identifies the <code>Save-File-As action</code>. */
     static final Integer     SAVE_FILE_AS = new Integer(4);
     
-    /** Identifies the <code>Print-Export all action</code>. */
-    static final Integer     PRINT_EXPORT_ALL = new Integer(5);
+    /** Identifies the <code>ExportAllHtml action</code>. */
+    static final Integer     EXPORT_ALL_HTML = new Integer(5);
     
-    /** Identifies the <code>Print-Export action</code>. */
-    static final Integer     PRINT_EXPORT_HIGHLT = new Integer(6);
+    /** Identifies the <code>ExportHighltdHtml action</code>. */
+    static final Integer     EXPORT_HIGHLT_HTML = new Integer(6);
     
     /** Identifies the <code>Load Defaults action</code>. */
     static final Integer     LOAD_DEFAULTS_ALL = new Integer(7);
@@ -156,6 +158,12 @@ public class Controller
     /** Identifies the <code>IndexFilesAction</code>. */
     static final Integer    INDEX_FILES = new Integer(27);
     
+    /** Identifies the <code>ExportAllHtml action</code>. */
+    static final Integer     EXPORT_ALL_TEXT = new Integer(28);
+    
+    /** Identifies the <code>ExportHighltdHtml action</code>. */
+    static final Integer     EXPORT_HIGHLTD_TEXT = new Integer(29);
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -182,8 +190,8 @@ public class Controller
         actionsMap.put(OPEN_WWW_FILE, new OpenWwwFileAction(model));
         actionsMap.put(SAVE_FILE, new SaveFileAction(model));
         actionsMap.put(SAVE_FILE_AS, new SaveFileAsAction(model));
-        actionsMap.put(PRINT_EXPORT_ALL, new ExportAllHtmlAction(model));
-        actionsMap.put(PRINT_EXPORT_HIGHLT, new ExportHighltdHtml(model));
+        actionsMap.put(EXPORT_ALL_HTML, new ExportAllHtmlAction(model));
+        actionsMap.put(EXPORT_HIGHLT_HTML, new ExportHighltdHtmlAction(model));
         actionsMap.put(LOAD_DEFAULTS_ALL, new LoadDefaultsAllAction(model));
         actionsMap.put(LOAD_DEFAULTS_HIGHLT, new LoadDefaultsHighltdAction(model));
         actionsMap.put(CLEAR_FIELDS_ALL, new ClearFieldsAllAction(model));
@@ -205,6 +213,8 @@ public class Controller
         actionsMap.put(PASTE_FIELD, new PasteFieldAction(model));
         actionsMap.put(IMPORT_FIELD, new ImportFieldsAction(model));
         actionsMap.put(INDEX_FILES, new IndexFilesAction(model));
+        actionsMap.put(EXPORT_ALL_TEXT, new ExportAllTextAction(model));
+        actionsMap.put(EXPORT_HIGHLTD_TEXT, new ExportHighltdTextAction(model));
     }
     
     /**

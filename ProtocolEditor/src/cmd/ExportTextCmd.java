@@ -1,8 +1,8 @@
-package actions;
+package cmd;
 
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,42 +22,37 @@ package actions;
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
-
-import cmd.ActionCmd;
-import cmd.ExportHtmlCmd;
+import java.io.File;
+import java.util.List;
+import java.util.Map;
 
 import tree.DataFieldNode;
-import ui.IModel;
-import util.ImageFactory;
+import util.DefaultExport;
+import util.IExport;
+public class ExportTextCmd extends ExportHtmlCmd{
 
-public class ExportAllHtmlAction extends ProtocolEditorAction {
+	public ExportTextCmd(List<DataFieldNode> rootNodes) {
+		super(rootNodes);
+		
+		fileExtension = ".txt";
+	}
 	
-	public ExportAllHtmlAction(IModel model) {
+	public ExportTextCmd(DataFieldNode rootNode) {
+		super(rootNode);
+		
+		fileExtension = ".txt";
+	}
+	
+	
+	/**
+	 * Export via the DefaultExport class
+	 */
+	public void export(File file, Map<String, Boolean> booleanMap) {
+		IExport exporter = new DefaultExport();
+		exporter.export(file, rootNodes, booleanMap);
+	}
+	
+	// don't display the text file
+	public void displayOutput(File file) {}
 
-		super(model);
-	
-		putValue(Action.NAME, "Export the whole document to HTML");
-		putValue(Action.SHORT_DESCRIPTION, "Exports the entire document to html for printing");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.WWW_ICON)); 
-	}
-	
-	public void actionPerformed(ActionEvent e) {
-		
-		DataFieldNode rootNode = model.getRootNode();
-		
-		ActionCmd printAll = new ExportHtmlCmd(rootNode);
-		printAll.execute();
-	}
-	
-	public void stateChanged(ChangeEvent e) {
-		
-		String[] fileList = model.getOpenFileList();
-		
-		this.setEnabled(!(fileList.length == 0));
-	}
-	
 }
