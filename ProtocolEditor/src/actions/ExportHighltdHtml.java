@@ -33,9 +33,9 @@ import ui.IModel;
 import cmd.ActionCmd;
 import cmd.ExportHtmlCmd;
 
-public class PrintExportHighltd extends ProtocolEditorAction {
+public class ExportHighltdHtml extends ProtocolEditorAction {
 	
-	public PrintExportHighltd(IModel model) {
+	public ExportHighltdHtml(IModel model) {
 
 		super(model);
 	

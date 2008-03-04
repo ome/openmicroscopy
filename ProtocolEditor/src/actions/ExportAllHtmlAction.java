@@ -33,9 +33,9 @@ import cmd.ExportHtmlCmd;
 import tree.DataFieldNode;
 import ui.IModel;
 
-public class PrintExportAllAction extends ProtocolEditorAction {
+public class ExportAllHtmlAction extends ProtocolEditorAction {
 	
-	public PrintExportAllAction(IModel model) {
+	public ExportAllHtmlAction(IModel model) {
 
 		super(model);
 	
