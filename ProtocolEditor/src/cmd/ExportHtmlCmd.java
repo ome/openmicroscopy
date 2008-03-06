@@ -24,6 +24,7 @@ package cmd;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,21 +113,29 @@ public void printToHtml() {
         
         // set up a Map of output options - used to create a dialog
 		LinkedHashMap<String,Boolean> booleanMap = new LinkedHashMap<String,Boolean>();
-		booleanMap.put(DefaultExport.SHOW_ALL_FIELDS, false);
-		booleanMap.put(DefaultExport.SHOW_DESCRIPTIONS, true);
-		booleanMap.put(DefaultExport.SHOW_DEFAULT_VALUES, true);
-		booleanMap.put(DefaultExport.SHOW_URL, true);
-		booleanMap.put(DefaultExport.SHOW_TABLE_DATA, true);
-		booleanMap.put(DefaultExport.SHOW_OTHER_ATTRIBUTES, false);
+		booleanMap.put(DefaultExport.SHOW_ALL_FIELDS, PreferencesManager.isPreferenceTrue(DefaultExport.SHOW_ALL_FIELDS));
+		booleanMap.put(DefaultExport.SHOW_DESCRIPTIONS, PreferencesManager.isPreferenceTrue(DefaultExport.SHOW_DESCRIPTIONS));
+		booleanMap.put(DefaultExport.SHOW_DEFAULT_VALUES, PreferencesManager.isPreferenceTrue(DefaultExport.SHOW_DEFAULT_VALUES));
+		booleanMap.put(DefaultExport.SHOW_URL, PreferencesManager.isPreferenceTrue(DefaultExport.SHOW_URL));
+		booleanMap.put(DefaultExport.SHOW_TABLE_DATA, PreferencesManager.isPreferenceTrue(DefaultExport.SHOW_TABLE_DATA));
+		booleanMap.put(DefaultExport.SHOW_OTHER_ATTRIBUTES, PreferencesManager.isPreferenceTrue(DefaultExport.SHOW_OTHER_ATTRIBUTES));
 	
 		
 		ExportDialog printDialog = new ExportDialog(frame, null, "Print Options", booleanMap);
 		printDialog.pack();
 		printDialog.setVisible(true);
 		
-		if (printDialog.getValue().equals(JOptionPane.OK_OPTION)) {
+		// Dialog is modal, so pause here till dialog is closed by hitting OK or Cancel....
 		
-			booleanMap = printDialog.getBooleanMap();
+		if (printDialog.getValue().equals(JOptionPane.OK_OPTION)) {
+			
+			// remember export preferences
+			Iterator keyIterator = booleanMap.keySet().iterator();
+			while (keyIterator.hasNext()) {
+				String key = (String)keyIterator.next();
+				boolean value = booleanMap.get(key);
+				PreferencesManager.setPreference(key, Boolean.toString(value));
+			}
 		
 			export(file, booleanMap);
 			

@@ -47,6 +47,7 @@ import tree.DataFieldObserver;
 import tree.IDataFieldObservable;
 import ui.components.AttributeEditor;
 import ui.components.AttributeMemoFormatEditor;
+import ui.components.AttributeUrlEditor;
 import ui.components.ColourMenuItem;
 import ui.components.ColourPopupMenu;
 import ui.components.SimpleHTMLEditorPane;
@@ -69,8 +70,6 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 	JPopupMenu colourPopupMenu;
 
 	SimpleHTMLEditorPane editorPane;
-
-	private Action boldFontAction;
 
 	protected JButton colourSelectButton;
 	
@@ -132,7 +131,7 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		descriptionFieldEditor = new AttributeMemoFormatEditor(dataField, "Description: ", DataFieldConstants.DESCRIPTION, dataField.getAttribute(DataFieldConstants.DESCRIPTION));
 		attributeFieldsPanel.add(descriptionFieldEditor);
 		
-		urlFieldEditor = new AttributeEditor(dataField, "Url: ", DataFieldConstants.URL, dataField.getAttribute(DataFieldConstants.URL));
+		urlFieldEditor = new AttributeUrlEditor(dataField, "Url: ", DataFieldConstants.URL, dataField.getAttribute(DataFieldConstants.URL));
 		attributeFieldsPanel.add(urlFieldEditor);
 		
 		/* colour-picker */

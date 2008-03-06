@@ -57,7 +57,7 @@ public class FormFieldMemo extends FormField {
 		
 		textInput = new JTextArea(value);
 		visibleAttributes.add(textInput);
-		//textInput.setRows(3);
+		textInput.setRows(2);
 		textInput.setLineWrap(true);
 		textInput.setWrapStyleWord(true);
 		//JScrollPane textScroller = new JScrollPane(textInput);

@@ -60,4 +60,21 @@ public class PreferencesManager {
 		Preferences prefs = Preferences.userNodeForPackage(PreferencesManager.class);
 		return prefs.get(preferenceName, null);	// null is default value
 	}
+	
+	/**
+	 * Gets a preference.
+	 * 
+	 * @param preferenceName 	The name of the preference.
+	 * @return 		The value of the preference
+	 */
+	public static boolean isPreferenceTrue(String preferenceName)
+	{
+		if (getPreference(preferenceName) == null) {
+			return false;
+		} else {
+			return (getPreference(preferenceName).equals("true"));
+		}
+	}
+	
+	
 }
