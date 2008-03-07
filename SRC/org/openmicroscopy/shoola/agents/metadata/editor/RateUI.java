@@ -24,6 +24,10 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Font;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JLabel;
 
 
@@ -33,6 +37,8 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.AnnotationData;
+import pojos.RatingAnnotationData;
 
 /** 
  * UI component displaying the rate.
@@ -49,6 +55,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class RateUI 
 	extends AnnotationUI 
+	implements PropertyChangeListener
 {
 
 	/** The title associated to this component. */
@@ -63,15 +70,20 @@ class RateUI
 	/** The number of ratings for the edited object. */
 	private JLabel			ratingsLabel;
 	
+	/** The last selected value. */
+	private int				selectedValue;
+	
 	/** Initializes the components composing the UI. */
 	private void initComponents()
 	{
 		int n = model.getRatingCount();
 		String s = "";
-		if (n == 0)
-			rating = new RatingComponent();
-		else rating = new RatingComponent(model.getRatingAverage(), 
+		selectedValue = 0;
+		if (n > 0)
+			selectedValue = model.getRatingAverage();
+		rating = new RatingComponent(selectedValue, 
 									RatingComponent.MEDIUM_SIZE);
+		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
 		s += n+NAME;
 		if (n > 1) s += "s";
 		ratingsLabel = new JLabel(s);
@@ -97,8 +109,8 @@ class RateUI
 	{
 		removeAll();
 		initComponents();
-		double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
+		double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED} }; 
 		
 		setLayout(new TableLayout(tl));
 		JLabel label = UIUtilities.setTextFont(getComponentTitle());
@@ -113,5 +125,53 @@ class RateUI
 	 * @see AnnotationUI#getComponentTitle()
 	 */
 	protected String getComponentTitle() { return title; }
+	
+	/**
+	 * Returns the collection of rating to remove.
+	 * @see AnnotationUI#getAnnotationToRemove()
+	 */
+	protected List<AnnotationData> getAnnotationToRemove()
+	{
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		return l;
+	}
+
+	/**
+	 * Returns the collection of urls to add.
+	 * @see AnnotationUI#getAnnotationToSave()
+	 */
+	protected List<AnnotationData> getAnnotationToSave()
+	{
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		int value = model.getRatingAverage();
+		if (selectedValue != value)
+			l.add(new RatingAnnotationData(selectedValue));
+		return l;
+	}
+	
+	/**
+	 * Returns <code>true</code> if annotation to save.
+	 * @see AnnotationUI#hasDataToSave()
+	 */
+	protected boolean hasDataToSave()
+	{
+		List<AnnotationData> l = getAnnotationToSave();
+		if (l.size() > 0) return true;
+		l = getAnnotationToRemove();
+		if (l.size() > 0) return true;
+		return false;
+	}
+
+	/**
+	 * Sets the currently selected rating value.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (RatingComponent.RATE_PROPERTY.equals(name))
+			selectedValue = (Integer) evt.getNewValue();
+		
+	}
 	
 }

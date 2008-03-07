@@ -89,7 +89,7 @@ public class DataObjectListCellRenderer
 		if (value instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) value;
 			setText(tag.getTagValue());
-			setToolTipText(tag.getTagDescription());
+			//setToolTipText(tag.getTagDescription());
 			/*
 			ExperimenterData exp = tag.getOwner();
 			if (exp != null) {

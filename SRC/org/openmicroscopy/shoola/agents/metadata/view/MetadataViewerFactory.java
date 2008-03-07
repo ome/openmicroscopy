@@ -22,7 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-import pojos.DataObject;
+
 
 
 //Java imports

@@ -24,12 +24,16 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.util.List;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
+import pojos.AnnotationData;
 
 /** 
  * 
@@ -99,5 +103,30 @@ abstract class AnnotationUI
 	 * @return See above.
 	 */
 	protected abstract String getComponentTitle();
+	
+	/**
+	 * Returns <code>true</code> if there is some annotation to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	protected abstract boolean hasDataToSave();
+	
+	/**
+	 * Returns the collection of annotations to remove, or <code>null</code>
+	 * if any.
+	 * 
+	 * @return See above.
+	 */
+	protected abstract List<AnnotationData> getAnnotationToRemove();
+	
+	/**
+	 * Returns the collection of annotations to save, or <code>null</code>
+	 * if any.
+	 * 
+	 * @return See above.
+	 */
+	protected abstract List<AnnotationData> getAnnotationToSave();
+	
 	
 }

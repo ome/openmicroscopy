@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
@@ -114,6 +116,8 @@ class EditorComponent
 			throw new IllegalArgumentException("Root object not valid.");
 		model.setRootObject(refObject);
 		view.setRootObject();
+		if (refObject instanceof ImageData)
+			model.loadUserThumbnail();
 	}
 
 	/** 
@@ -124,9 +128,12 @@ class EditorComponent
 	{
 		if (!model.isThumbnailsLoaded())
 			model.loadThumbnails();
-		
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setThumbnails(Map, long)
+	 */
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
 							long imageID)
 	{
@@ -137,7 +144,35 @@ class EditorComponent
 				view.setThumbnails();
 			}
 		}
-		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setExistingTags(Collection)
+	 */
+	public void setExistingTags(Collection tags)
+	{
+		model.setExistingTags(tags);
+		view.setExistingTags();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setChannelsData(List)
+	 */
+	public void setChannelsData(List channelData)
+	{
+		model.setChannelData(channelData);
+		view.setChannelData();
+	}
+
+	public void setThumbnail(BufferedImage thumbnail, long imageID)
+	{
+		Object ref = model.getRefObject();
+		if (!(ref instanceof ImageData)) return;
+		ImageData img = (ImageData) ref;
+		if (img.getId() == imageID && thumbnail != null)
+			model.setThumbnail(thumbnail);
 	}
 	
 }

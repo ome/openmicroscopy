@@ -32,12 +32,13 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.ObjectTranslator;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -101,7 +102,7 @@ public abstract class TreeBrowserDisplay
             return ((CategoryData) obj).getName();
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
-        	return ObjectTranslator.formatExperimenter(exp);
+        	return EditorUtil.formatExperimenter(exp);
         }
         else if (obj instanceof String) return (String) obj;
         return "";

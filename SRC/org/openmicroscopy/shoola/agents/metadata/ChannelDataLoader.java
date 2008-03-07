@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.ParentLoader 
+ * org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,16 +24,18 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Loads the channels information related to a given set of pixels.
+ * This class calls one of the <code>loadChannelsData</code> methods in the
+ * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,59 +47,50 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class ParentLoader 	
-	extends MetadataLoader
+public class ChannelDataLoader 
+	extends EditorLoader
 {
 
-	/** Either <code>DatasetData</code> or <code>ProjectData</code>. */
-	private Class		type;
-	
-	/** The ID of the parent of the {@link #refNode}. */
-	private long 		id;
-	
-	/** Handle to the async call so that we can cancel it. */
+    /** The id of the pixels set. */
+    private long        pixelsID;
+    
+    /** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param viewer	The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-	 * @param refNode	The node of reference. Mustn't be <code>null</code>.
-	 * @param type		The type of the parent of the {@link #refNode}.
-	 * @param id		The ID of the parent of the ref node.
-	 */
-	public ParentLoader(MetadataViewer viewer, TreeBrowserSet refNode,
-						Class type, long id)
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer
+     * @param pixelsID
+     */
+	public ChannelDataLoader(Editor viewer, long pixelsID)
 	{
-		super(viewer, refNode);
-		this.type = type;
-		this.id = id;
-	}
-
-	/** 
-	 * Loads the folders containing the object. 
-	 * @see MetadataLoader#cancel()
-	 */
-	public void load()
-	{
-		handle = mhView.loadContainers(type, id, -1L, this);
+		super(viewer);
+		this.pixelsID = pixelsID;
 	}
 	
-	/** 
-	 * Cancels the data loading. 
-	 * @see MetadataLoader#cancel()
-	 */
-	public void cancel() { handle.cancel(); }
-
-	/**
+    /** 
+     * Retrieves the emission wavelengths for the specified pixels set.
+     * @see EditorLoader#load()
+     */
+    public void load()
+    {
+        handle = dmView.loadChannelsData(pixelsID, this);
+    }
+    
+    /** 
+     * Cancels the data loading. 
+     * @see EditorLoader#cancel()
+     */
+    public void cancel() { handle.cancel(); }
+    
+    /**
      * Feeds the result back to the viewer.
-     * @see MetadataLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
-    	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata(refNode, result);
+        viewer.setChannelsData((List) result);
     }
-    
+
 }

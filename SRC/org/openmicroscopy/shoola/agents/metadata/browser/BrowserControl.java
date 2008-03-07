@@ -41,10 +41,6 @@ import org.openmicroscopy.shoola.agents.metadata.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.CollapseAction;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
-import pojos.DatasetData;
-import pojos.ImageData;
-
-
 /** 
  * The Browser's Controller.
  *
@@ -223,30 +219,7 @@ class BrowserControl
 		model.setSelectedNode(node);
 		if (node.isChildrenLoaded()) return;
 		view.addDefaultNode(node, BrowserUI.LOADING_MSG);
-		model.loadMetadata(node);
-		/*
-		model.setSelectedDisplay(node);
-        Object ho = display.getUserObject();
-        model.setSelectedDisplay(display); 
-        if (model.getBrowserType() == Browser.IMAGES_EXPLORER &&
-        	!display.isChildrenLoaded() && ho instanceof ExperimenterData) {
-        	model.countExperimenterImages(display);
-        	return;
-        }
-        if (display.isChildrenLoaded()) return;
-        view.loadAction(display);
-        if (display instanceof TreeImageTimeSet) {
-        	TreeImageTimeSet node = (TreeImageTimeSet) display;
-        	model.loadExperimenterData(getDataOwner(display), node);
-        	return;
-        }
-        //if (!expanded) return;
-        if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
-        	model.loadExperimenterData(getDataOwner(display), display);
-        } else if (ho instanceof ExperimenterData) {
-        	model.loadExperimenterData(display, null);
-        }
-        */
+		//model.loadMetadata(node);
 		
 	}
     

@@ -34,7 +34,9 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
 /** 
- * 
+ * Loads the structured annotations related to a given object.
+ * This class calls the <code>loadThumbnails</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,8 +64,9 @@ public class StructuredDataLoader
 	 * 
 	 * @param viewer		The viewer this data loader is for.
      *                  	Mustn't be <code>null</code>.
-	 * @param node			The node of reference. Mustn't be <code>null</code>.
+	 * @param node			The node of reference. 
 	 * @param dataObject	The object the data are related to.
+	 * 						Mustn't be <code>null</code>.
 	 */
 	public StructuredDataLoader(MetadataViewer viewer, TreeBrowserDisplay node,
 								DataObject dataObject)

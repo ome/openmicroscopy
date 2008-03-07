@@ -28,32 +28,23 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
@@ -61,17 +52,25 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.ObjectTranslator;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.PixelsInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
+import pojos.AnnotationData;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PermissionData;
+import pojos.PixelsData;
+import pojos.ProjectData;
 
 /** 
- * 
+ * Displays the properties of the selected object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -91,6 +90,7 @@ class PropertiesUI
 	/** The title associated to this component. */
 	static final String			TITLE = "Properties";
 
+	/** The details string. */
     private static final String DETAILS = "Details";
     
     /** Description of the {@link #infoButton} button. */
@@ -128,12 +128,6 @@ class PropertiesUI
     	
     }
     
-    /** Shows the image's info. */
-    private void showInfo()
-    { 
-    	
-    }
-    
     /**
      * Builds and lays out the panel displaying the permissions of the edited
      * file.
@@ -152,9 +146,9 @@ class PropertiesUI
         //The owner is the only person allowed to modify the permissions.
         //boolean isOwner = model.isObjectOwner();
         //Owner
-        JLabel label = UIUtilities.setTextFont(ObjectTranslator.OWNER);
+        JLabel label = UIUtilities.setTextFont(EditorUtil.OWNER);
         JPanel p = new JPanel();
-        JCheckBox box =  new JCheckBox(ObjectTranslator.READ);
+        JCheckBox box =  new JCheckBox(EditorUtil.READ);
         box.setSelected(permissions.isUserRead());
         /*
         box.addActionListener(new ActionListener() {
@@ -169,7 +163,7 @@ class PropertiesUI
         //box.setEnabled(isOwner);
         box.setEnabled(false);
         p.add(box);
-        box =  new JCheckBox(ObjectTranslator.WRITE);
+        box =  new JCheckBox(EditorUtil.WRITE);
         box.setSelected(permissions.isUserWrite());
         /*
         box.addActionListener(new ActionListener() {
@@ -189,9 +183,9 @@ class PropertiesUI
         content.add(label, "0, 0, l, c");
         content.add(p, "1, 0, l, c");  
         //Group
-        label = UIUtilities.setTextFont(ObjectTranslator.GROUP);
+        label = UIUtilities.setTextFont(EditorUtil.GROUP);
         p = new JPanel();
-        box =  new JCheckBox(ObjectTranslator.READ);
+        box =  new JCheckBox(EditorUtil.READ);
         box.setSelected(permissions.isGroupRead());
         /*
         box.addActionListener(new ActionListener() {
@@ -206,7 +200,7 @@ class PropertiesUI
         //box.setEnabled(isOwner);
         box.setEnabled(false);
         p.add(box);
-        box =  new JCheckBox(ObjectTranslator.WRITE);
+        box =  new JCheckBox(EditorUtil.WRITE);
         box.setSelected(permissions.isGroupWrite());
         /*
         box.addActionListener(new ActionListener() {
@@ -225,9 +219,9 @@ class PropertiesUI
         content.add(label, "0, 1, l, c");
         content.add(p, "1,1, l, c"); 
         //OTHER
-        label = UIUtilities.setTextFont(ObjectTranslator.WORLD);
+        label = UIUtilities.setTextFont(EditorUtil.WORLD);
         p = new JPanel();
-        box =  new JCheckBox(ObjectTranslator.READ);
+        box =  new JCheckBox(EditorUtil.READ);
         box.setSelected(permissions.isWorldRead());
         /*
         box.addActionListener(new ActionListener() {
@@ -242,7 +236,7 @@ class PropertiesUI
         //box.setEnabled(isOwner);
         box.setEnabled(false);
         p.add(box);
-        box =  new JCheckBox(ObjectTranslator.WRITE);
+        box =  new JCheckBox(EditorUtil.WRITE);
         box.setSelected(permissions.isWorldWrite());
         /*
         box.addActionListener(new ActionListener() {
@@ -338,7 +332,6 @@ class PropertiesUI
     {
         JPanel content = new JPanel();
         int height = 100;
-        //if (model.isAnnotatable()) height = 50;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 0,
         				height} }; //rows
@@ -348,7 +341,6 @@ class PropertiesUI
         JLabel l;
         content.add(UIUtilities.setTextFont("ID"), "0, 0, l, c");
         l = new JLabel(""+model.getRefObjectID());
-        //l.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 5));
         content.add(l, "1, 0, f, c");
         content.add(UIUtilities.setTextFont("Name"), "0, 1, l, c");
         content.add(nameArea, "1, 1, f, c");
@@ -357,8 +349,7 @@ class PropertiesUI
         int h = l.getFontMetrics(l.getFont()).getHeight()+5;
         layout.setRow(3, h);
         content.add(l, "0, 3, l, c");
-        JScrollPane pane = new JScrollPane(descriptionArea);
-        content.add(pane, "1, 3, 1, 4");
+        content.add(new JScrollPane(descriptionArea), "1, 3, 1, 4");
         return content;
     }
     
@@ -402,8 +393,10 @@ class PropertiesUI
         	}
         	UIUtilities.setBoldTitledBorder(DETAILS, p);
         	TreeComponent tree = new TreeComponent();
-        	tree.insertNode(p, UIUtilities.buildCollapsePanel(DETAILS), 
-        					false);
+        	JPanel collapse = new JPanel();
+        	collapse.setBorder(new TitledLineBorder(DETAILS, 
+        						collapse.getBackground()));
+        	tree.insertNode(p, collapse, false);
         	contentPanel.add(tree);
             contentPanel.add(new JPanel());
         }
@@ -426,6 +419,32 @@ class PropertiesUI
        UIUtilities.setBoldTitledBorder(getComponentTitle(), this);
     }   
 
+    /** Shows the image's info. */
+    void showInfo()
+    { 
+    	Object refObject = model.getRefObject();
+    	if (refObject instanceof ImageData) {
+    		PixelsData data = ((ImageData) refObject).getDefaultPixels();
+    		Map<String, String> details = EditorUtil.transformPixelsData(data);
+    		List waves = model.getChannelData();
+            if (waves == null) return;
+            String s = "";
+            Iterator k = waves.iterator();
+            int j = 0;
+            while (k.hasNext()) {
+                s += 
+                   ((ChannelMetadata) k.next()).getEmissionWavelength();
+                if (j != waves.size()-1) s +=", ";
+                j++;
+            }
+            details.put(EditorUtil.WAVELENGTHS, s);
+    		JFrame f = 
+    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+    		PixelsInfoDialog dialog = new PixelsInfoDialog(f, details);
+    		UIUtilities.centerAndShow(dialog);
+    	}
+    }
+    
     /**
 	 * Overridden to lay out the tags.
 	 * @see AnnotationUI#buildUI()
@@ -444,12 +463,70 @@ class PropertiesUI
     /** Sets the focus on the name area. */
 	void setFocusOnName() { nameArea.requestFocus(); }
    
+	/** Updates the data object. */
+	void updateDataObject() 
+	{
+		if (!hasDataToSave()) return;
+		Object object =  model.getRefObject();
+		String name = nameArea.getText().trim();
+		String desc = descriptionArea.getText().trim();
+		if (object instanceof ProjectData) {
+			ProjectData p = (ProjectData) object;
+			if (name.length() > 0)
+				p.setName(name);
+			p.setDescription(desc);
+		} else if (object instanceof DatasetData) {
+			DatasetData p = (DatasetData) object;
+			if (name.length() > 0)
+				p.setName(name);
+			p.setDescription(desc);
+		} else if (object instanceof ImageData) {
+			ImageData p = (ImageData) object;
+			if (name.length() > 0)
+				p.setName(name);
+			p.setDescription(desc);
+		}
+	}
+	
 	/**
 	 * Overridden to set the title of the component.
 	 * @see AnnotationUI#getComponentTitle()
 	 */
 	protected String getComponentTitle() { return TITLE; }
 
+	/**
+	 * No-op implementation in this case.
+	 * @see AnnotationUI#getAnnotationToRemove()
+	 */
+	protected List<AnnotationData> getAnnotationToRemove() { return null; }
+
+	/**
+	 * No-op implementation in this case.
+	 * @see AnnotationUI#getAnnotationToSave()
+	 */
+	protected List<AnnotationData> getAnnotationToSave() { return null; }
+	
+	/**
+	 * Returns <code>true</code> if the data object has been edited,
+	 * <code>false</code> otherwise.
+	 * @see AnnotationUI#hasDataToSave()
+	 */
+	protected boolean hasDataToSave()
+	{
+		String name = model.getRefObjectName();
+		String value = nameArea.getText();
+		if (!name.equals(value.trim())) return true;
+		value = descriptionArea.getText().trim();
+		name = model.getRefObjectDescription();
+		value = value.trim();
+		if (!value.equals(name)) return true;
+		return false;
+	}
+	
+	/**
+	 * Downloads the archived files or displays the image information.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		int index = Integer.parseInt(e.getActionCommand());
@@ -458,7 +535,9 @@ class PropertiesUI
 				download();
 				break;
 			case INFO_ACTION:
-				showInfo();
+				if (model.getChannelData() == null)
+					model.loadChannelData();
+				else showInfo();
 		}
 		
 	}

@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -52,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+import pojos.AnnotationData;
 import pojos.RatingAnnotationData;
 
 /** 
@@ -98,17 +100,16 @@ class ViewedByUI
 	
 	/** The UI displaying the thumbnail as a list. */
 	private JPanel				listPane;
-	
-	/** The layout manager. */
-	private TableLayout			layout;
+
+	/** Flag indicating if the node is expanded or not. */
+	private boolean				expanded;
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		double[][] tl = {{TableLayout.FILL, TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, 200}}; //rows
-		layout = new TableLayout(tl);
-		setLayout(layout);
+				{TableLayout.PREFERRED, 200}}; //rowss
+		setLayout(new TableLayout(tl));
 		layoutIndex = LIST_VIEW;
 		IconManager icons = IconManager.getInstance();
 		listView = new JToggleButton(icons.getIcon(IconManager.LIST_VIEW));
@@ -130,6 +131,7 @@ class ViewedByUI
 		displayBar.add(Box.createHorizontalStrut(5));
 		displayBar.add(listView);
 		displayBar.add(gridView);
+		expanded = false;
 	}
 	
 	/** 
@@ -211,7 +213,7 @@ class ViewedByUI
 	 */
 	private JPanel layoutList()
 	{
-		if (listPane != null) return UIUtilities.buildComponentPanel(listPane);
+		//if (listPane != null) return UIUtilities.buildComponentPanel(listPane);
 		listPane = new JPanel();
 		listPane.setLayout(new BoxLayout(listPane, BoxLayout.Y_AXIS));
 		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
@@ -219,7 +221,6 @@ class ViewedByUI
 		Long id;
 		while (i.hasNext()) {
 			id = (Long) i.next();
-			listPane.add(buildListItem(thumbnails.get(id), id));
 			listPane.add(buildListItem(thumbnails.get(id), id));
 		}
 		return UIUtilities.buildComponentPanel(listPane);
@@ -232,7 +233,7 @@ class ViewedByUI
 	 */
 	private JPanel layoutGrid()
 	{
-		if (gridPane != null) return UIUtilities.buildComponentPanel(gridPane);
+		//if (gridPane != null) return UIUtilities.buildComponentPanel(gridPane);
 		gridPane = new JPanel();
 		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
 		Iterator i = thumbnails.keySet().iterator();
@@ -299,6 +300,22 @@ class ViewedByUI
 	}
 	
 	/**
+	 * Sets to <code>true</code> if the node is expanded, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param expanded The value to set.
+	 */
+	void setExpanded(boolean expanded) { this.expanded = expanded; }
+	
+	/**
+	 * Returns <code>true</code> if the node is expanded, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isExpanded() { return expanded; }
+	
+	/**
 	 * Overridden to lay out the nodes depending on the selected layout index.
 	 * @see AnnotationUI#buildUI()
 	 */
@@ -336,6 +353,24 @@ class ViewedByUI
 	protected String getComponentTitle() { return title; }
 
 	/**
+	 * Returns <code>null</code> because data are not editable.
+	 * @see AnnotationUI#getAnnotationToRemove()
+	 */
+	protected List<AnnotationData> getAnnotationToRemove() { return null; }
+
+	/**
+	 * Returns <code>null</code> because data are not editable.
+	 * @see AnnotationUI#getAnnotationToSave()
+	 */
+	protected List<AnnotationData> getAnnotationToSave() { return null; }
+	
+	/**
+	 * Returns <code>false</code> because data are not editable.
+	 * @see AnnotationUI#hasDataToSave()
+	 */
+	protected boolean hasDataToSave() { return false; }
+	
+	/**
 	 * Modifies the layout of the thumbnails.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
@@ -352,5 +387,5 @@ class ViewedByUI
 		}
 		buildUI();
 	}
-	
+
 }

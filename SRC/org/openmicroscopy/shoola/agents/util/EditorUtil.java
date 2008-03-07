@@ -57,7 +57,22 @@ import pojos.PixelsData;
 public class EditorUtil 
 {
 	
-	 /** Text displayed before the list of existing groups. */
+	 /** Text displaying before the owner's permissions. */
+	public static final String    OWNER = "Owner: ";
+    
+    /** Text displaying before the group's permissions. */
+    public static final String     GROUP = "Group: ";
+    
+    /** Text displaying before the world's permissions. */
+    public static final String     WORLD = "Others: ";
+    
+    /** Text describing the <code>Read</code> permission. */
+    public static final String     READ = "Read";
+    
+    /** Text describing the <code>Write</code> permission. */
+    public static final String     WRITE = "Write";
+    
+	/** Text displayed before the list of existing groups. */
 	public static final String	GROUPS = "Belongs to the following groups: ";
     
     /** Identifies the <code>Wavelengths</code> field. */
@@ -237,5 +252,11 @@ public class EditorUtil
         	details.put(ACQUISITION_DATE, UIUtilities.formatTime(date));
         return details;
     }
+
+	public static String formatExperimenter(ExperimenterData data)
+	{
+		if (data == null) return "";
+		return data.getFirstName()+" "+data.getLastName();
+	}
     
 }

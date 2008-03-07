@@ -148,7 +148,9 @@ class BrowserModel
 	void setRootObject(Object refObject)
 	{
 		selectedNodes.clear();
-		selectedNodes.add(new TreeBrowserSet(refObject));
+		TreeBrowserSet node = new TreeBrowserSet(refObject);
+		selectedNodes.add(node);
+		parent.loadMetadata(node);
 	}
 
 	/**
@@ -165,8 +167,7 @@ class BrowserModel
 	 */
 	void loadMetadata(TreeBrowserDisplay node)
 	{
-		parent.loadMetadata(node);
-		
+		parent.loadContainers(node);
 	}
 	
 }

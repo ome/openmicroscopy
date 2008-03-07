@@ -40,22 +40,29 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
+import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
-import pojos.URLAnnotationData;
 
 /** 
  * 
@@ -79,6 +86,7 @@ class EditorModel
 	/** Reference to the component that embeds this model. */
 	private Editor					component;
 
+	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults	data;
 	
 	/** The object this editor later. */
@@ -99,6 +107,12 @@ class EditorModel
     
     /** The retrieved thumbnails. */
     private Map<Long, BufferedImage> thumbnails;
+    
+    /** Collection of existing tags if any. */
+    private Collection				existingTags;
+    
+    /** The list of emissions wavelengths for a given set of pixels. */
+    private List					emissionsWavelengths;
     
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -279,8 +293,7 @@ class EditorModel
 	{
 		if (object == null) return "";
 		if (object instanceof ExperimenterData) {
-			ExperimenterData exp = (ExperimenterData) object;
-			return exp.getFirstName()+" "+exp.getLastName();
+			return EditorUtil.formatExperimenter((ExperimenterData) object);
 		}
 		return "Jean-marie";
 	}
@@ -293,12 +306,14 @@ class EditorModel
 	 */
 	String formatDate(DataObject object)
 	{
-		if (object == null) return "";
-		if (object instanceof AnnotationData)
-			return "";
-			//return UIUtilities.formatDateTime(
-			//		((AnnotationData) object).getLastModified());
-		return "";
+		String date = "";
+		if (object == null) return date;
+		if (object instanceof AnnotationData) {
+			Timestamp time = ((AnnotationData) object).getLastModified();
+			if (time != null)
+				date = UIUtilities.formatShortDateTime(time);
+		}
+		return date;
 	}
 	
 	/**
@@ -318,12 +333,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getUrls() { 
-		ArrayList l = new ArrayList();
-		l.add(new URLAnnotationData("http://www.google.co.uk/"));
-		return l;
-		//return data.getUrls(); 
-	}
+	Collection getUrls() { return data.getUrls(); }
 	
 	/**
 	 * Returns the number of tags linked to the <code>DataObject</code>.
@@ -402,7 +412,7 @@ class EditorModel
 	int getRatingAverage() 
 	{
 		Collection ratings = data.getRatings();
-		if (ratings == null) return 0;
+		if (ratings == null || ratings.size() == 0) return 0;
 		Iterator i = ratings.iterator();
 		RatingAnnotationData rate;
 		int value = 0;
@@ -435,6 +445,11 @@ class EditorModel
 		return data.getTextualAnnotations();
 	}
 	
+	/**
+	 * Returns the annotations ordered by date.
+	 * 
+	 * @return See above.
+	 */
 	List getTextualAnnotationsByDate()
 	{
 		if (textualAnnotationsByDate != null)
@@ -444,22 +459,19 @@ class EditorModel
 		return textualAnnotationsByDate;
 	}
 	
-	String formatToolTip(DataObject object)
-	{
-		return formatOwner(object)+", "+formatDate(object);
-	}
-	
 	/**
 	 * Returns the annotations organized by users.
 	 * 
 	 * @return See above.
 	 */
-	Map getTextualAnnotationByOwner()
+	Map<Long, List> getTextualAnnotationByOwner()
 	{
 		if (textualAnnotationsByUsers != null)
 			return textualAnnotationsByUsers;
 		textualAnnotationsByUsers = new HashMap<Long, List>();
-        Iterator i = getTextualAnnotations().iterator();
+		Collection original = getTextualAnnotations();
+		if (original == null) return textualAnnotationsByUsers;
+        Iterator i = original.iterator();
         AnnotationData annotation;
         Long ownerID;
         List<AnnotationData> userAnnos;
@@ -474,12 +486,36 @@ class EditorModel
             userAnnos.add(annotation);
         }
         i = textualAnnotationsByUsers.keySet().iterator();
-        List annotations;
+        
         while (i.hasNext()) {
             ownerID = (Long) i.next();
-            annotations = textualAnnotationsByUsers.get(ownerID);
-            sortAnnotationByDate(annotations);
+            sortAnnotationByDate(textualAnnotationsByUsers.get(ownerID));
         }
+        //sort users by name.
+        /* REMOVE Comments when user is not root
+        Map groups = (Map) MetadataViewerAgent.getRegistry().lookup(
+								LookupNames.USER_GROUP_DETAILS);
+        GroupData g;
+        i = groups.keySet().iterator();
+        ViewerSorter sorter = new ViewerSorter();
+        List orderedUsers = new ArrayList();
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			orderedUsers.addAll(sorter.sort((Set) groups.get(g)));
+		}
+		Map<Long, List> orderedAnnotationsByUser = new HashMap<Long, List>();
+		i = orderedUsers.iterator();
+		ExperimenterData exp;
+		List ann;
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			ann = textualAnnotationsByUsers.get(exp.getId());
+			if (ann != null)
+				orderedAnnotationsByUser.put(exp.getId(), ann);
+			
+		}
+		textualAnnotationsByUsers = orderedAnnotationsByUser;
+		*/
         return textualAnnotationsByUsers;
 	}
 	
@@ -498,7 +534,12 @@ class EditorModel
 	 * 
 	 * @param refObject The value to set.
 	 */
-	void setRootObject(Object refObject) { this.refObject = refObject; }
+	void setRootObject(Object refObject)
+	{ 
+		this.refObject = refObject; 
+		thumbnails = null;
+		existingTags = null;
+	}
 
 	/**
 	 * Returns the owner of the ref object or <code>null</code>
@@ -549,10 +590,16 @@ class EditorModel
 	/** Fires an asynchronous retrieval of thumbnails. */
 	void loadThumbnails()
 	{
-		Set<Long> l = new HashSet<Long>();
-		l.add(MetadataViewerAgent.getUserDetails().getId());
+		Set<Long> ids = new HashSet<Long>();
+		Collection l = getViewedBy();
+		Iterator i = l.iterator();
+		ViewedByDef def = null;
+		while (i.hasNext()) {
+			def = (ViewedByDef) i.next();
+			ids.add(def.getExperimenter().getId());
+		}
 		ThumbnailLoader loader = new ThumbnailLoader(component, 
-								(ImageData) refObject, l);
+								(ImageData) refObject, ids);
 		loader.load();
 		loaders.add(loader);
 		
@@ -563,24 +610,144 @@ class EditorModel
 	{
 		Iterator i = loaders.iterator();
 		EditorLoader loader;
+		List<EditorLoader> toKeep = new ArrayList<EditorLoader>();
 		while (i.hasNext()) {
 			loader = (EditorLoader) i.next();
-			if (loader instanceof ThumbnailLoader)
+			if (loader instanceof ThumbnailLoader) {
 				loader.cancel();
+			} else toKeep.add(loader);
 		}
+		loaders.clear();
+		loaders.addAll(toKeep);
 	}
 	
-	ViewedByDef getViewedDef(long id)
+	/** Loads the thumbnail for the currently logged in user. */
+	void loadUserThumbnail()
+	{
+		Set<Long> l = new HashSet<Long>();
+		l.add(MetadataViewerAgent.getUserDetails().getId());
+		ThumbnailLoader loader = new ThumbnailLoader(component, 
+				(ImageData) refObject, l, true);
+		loader.load();
+		loaders.add(loader);
+	}
+	
+	/**
+	 * Returns the object hosting rendering settings set 
+	 * by the passed user, or <code>null</code> if any
+	 * 
+	 * @param userID	The id of the user who set the rendering settings.
+	 * @return See above.
+	 */
+	ViewedByDef getViewedDef(long userID)
 	{
 		Collection l = getViewedBy();
 		Iterator i = l.iterator();
 		ViewedByDef def = null;
 		while (i.hasNext()) {
 			def = (ViewedByDef) i.next();
-			if (def.getExperimenter().getId() == id)
+			if (def.getExperimenter().getId() == userID)
 				return def;
 		}
 		return null;
+	}
+
+	/** Fires an asynchronous retrieval of existing tags. */
+	void loadExistingTags()
+	{
+		TagsLoader loader = new TagsLoader(component);
+		loader.load();
+		loaders.add(loader);
+	}
+
+	/** Cancels any ongoing tags retrieval. */
+	void cancelExisingTagsLoading()
+	{
+		Iterator i = loaders.iterator();
+		EditorLoader loader;
+		List<EditorLoader> toKeep = new ArrayList<EditorLoader>();
+		while (i.hasNext()) {
+			loader = (EditorLoader) i.next();
+			if (loader instanceof TagsLoader) loader.cancel();
+			else toKeep.add(loader);
+		}
+		loaders.clear();
+		loaders.addAll(toKeep);
+	}
+	
+	/** Fires an asynchronous retrieval of the channel data. */
+	void loadChannelData()
+	{
+		Object refObject = getRefObject();
+		if (!(refObject instanceof ImageData)) return;
+		PixelsData data = ((ImageData) refObject).getDefaultPixels();
+		ChannelDataLoader loader = new ChannelDataLoader(component, 
+									data.getId());
+		loader.load();
+		loaders.add(loader);
+	}
+
+	/** Cancels any ongoing tags retrieval. */
+	void cancelChannelDataLoading()
+	{
+		Iterator i = loaders.iterator();
+		EditorLoader loader;
+		List<EditorLoader> toKeep = new ArrayList<EditorLoader>();
+		while (i.hasNext()) {
+			loader = (EditorLoader) i.next();
+			if (loader instanceof ChannelDataLoader) loader.cancel();
+			else toKeep.add(loader);
+		}
+		loaders.clear();
+		loaders.addAll(toKeep);
+	}
+	
+	/**
+	 * Sets the collection of existing tags.
+	 * 
+	 * @param tags The value to set.
+	 */
+	void setExistingTags(Collection tags)
+	{
+		existingTags = tags;
+	}
+	
+	/**
+	 * Returns the collection of existing tags.
+	 * 
+	 * @return See above.
+	 */
+	Collection getExistingTags() { return existingTags; }
+	
+	/**
+	 * Sets the channel data.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setChannelData(List data) { emissionsWavelengths = data; }
+	
+	/**
+	 * Returns the channels data related to the image.
+	 * 
+	 * @return See above.
+	 */
+	List getChannelData() { return emissionsWavelengths; }
+
+	/**
+	 * Sets the thumbnail in the header.
+	 * 
+	 * @param thumbnail The value to set.
+	 */
+	void setThumbnail(BufferedImage thumbnail)
+	{
+		parent.setThumbnail(thumbnail);
+	}
+
+	void fireAnnotationSaving(List<AnnotationData> toAdd,
+			List<AnnotationData> toRemove)
+	{
+		parent.saveData(toAdd, toRemove, (DataObject) refObject);
+		
 	}
 	
 }

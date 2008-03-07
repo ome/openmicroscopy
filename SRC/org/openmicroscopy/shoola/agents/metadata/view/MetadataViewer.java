@@ -26,7 +26,8 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-
+import java.awt.image.BufferedImage;
+import java.util.List;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -34,7 +35,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
+import pojos.AnnotationData;
 import pojos.DataObject;
 
 /** 
@@ -133,10 +134,39 @@ public interface MetadataViewer
 	public JComponent getSelectionUI();
 	
 	/**
+	 * Returns the UI used to select the metadata.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getEditorUI();
+	
+	/**
+	 * Returns the component hosted by the view.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getUI();
+	
+	
+	/**
 	 * Sets the root of the metadata browser.
 	 * 
 	 * @param root The objec to set.
 	 */
 	public void setRootObject(Object root);
 
+	/**
+	 * Sets the thumbnail associated to the edited object.
+	 * 
+	 * @param thumbnail The value to set.
+	 */
+	public void setThumbnail(BufferedImage thumbnail);
+
+	public void loadContainers(TreeBrowserDisplay node);
+	
+	public void setContainers(TreeBrowserDisplay node, Object result);
+
+	public void saveData(List<AnnotationData> toAdd, 
+						List<AnnotationData> toRemove, DataObject data);
+	
 }

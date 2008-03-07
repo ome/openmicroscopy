@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -51,8 +52,11 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
+import pojos.AnnotationData;
 import pojos.URLAnnotationData;
 
 /** 
@@ -115,7 +119,7 @@ class LinksUI
 	 */
 	private void browse(String url)
 	{
-		
+		MetadataViewerAgent.getRegistry().getTaskBar().openURL(url);
 	}
 	
 	/**
@@ -150,22 +154,26 @@ class LinksUI
 				s = "2, "+index+", f, c";
 				button = new JButton(icon);
 				button.setBorder(null);
-				button.setToolTipText("Remove");
+				button.setToolTipText("Remove the link.");
 				button.setActionCommand(""+index);
 				button.addActionListener(this);
 				p.add(button, s);
 			}
 			s = "0, "+index+", f, c";
 			JLabel label = new JLabel(UIUtilities.formatURL(url.getURL()));
-			label.setToolTipText("Added by "+model.formatToolTip(url));
+			label.setToolTipText("Added: "+model.formatDate(url));
 			labels.put(label, url);
 			label.addMouseListener(new MouseAdapter() {
 			
 				public void mouseReleased(MouseEvent e) {
 					JLabel l = (JLabel) e.getSource();
 					URLAnnotationData url = labels.get(l);
-					if (url != null)
-						browse(url.getURL());
+					if (url != null) browse(url.getURL());
+				}
+				
+				public void mouseEntered(MouseEvent e) {
+					JLabel l = (JLabel) e.getSource();
+					l.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				}
 			
 			});
@@ -266,6 +274,7 @@ class LinksUI
 	protected void buildUI()
 	{
 		removeAll();
+		addedContent.removeAll();
 		int n = model.getUrlsCount()-toRemove.size();
 		title = TITLE+LEFT+n+RIGHT;
 		Border border = new TitledLineBorder(title, getBackground());
@@ -299,6 +308,54 @@ class LinksUI
 	 */
 	protected String getComponentTitle() { return title; }
 
+	/**
+	 * Returns the collection of urls to remove.
+	 * @see AnnotationUI#getAnnotationToRemove()
+	 */
+	protected List<AnnotationData> getAnnotationToRemove()
+	{
+		Iterator i = toRemove.iterator();
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		while (i.hasNext()) 
+			l.add((AnnotationData) i.next());
+		
+		return l;
+	}
+
+	/**
+	 * Returns the collection of urls to add.
+	 * @see AnnotationUI#getAnnotationToSave()
+	 */
+	protected List<AnnotationData> getAnnotationToSave()
+	{
+		List<AnnotationData> l = new ArrayList<AnnotationData>(); 
+		Iterator i = areas.iterator();
+		JTextField area;
+		String value;
+		while (i.hasNext()) {
+			try {
+				area = (JTextField) i.next();
+				value = area.getText();
+				if (value != null)
+				l.add(new URLAnnotationData(value.trim()));
+			} catch (Exception e) {
+				//TODO: Notifies user that URL not valid.
+			}
+		}
+		return l;
+	}
+	
+	/**
+	 * Returns <code>true</code> if annotation to save.
+	 * @see AnnotationUI#hasDataToSave()
+	 */
+	protected boolean hasDataToSave()
+	{
+		if (getAnnotationToRemove().size() > 0) return true;
+		if (getAnnotationToSave().size() > 0) return true;
+		return false;
+	}
+	
 	/**
 	 * Adds the selected annotation to the collection of elements to remove.
 	 * @see ActionListener#actionPerformed(ActionEvent)

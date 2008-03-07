@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.UrlLoader 
+ * org.openmicroscopy.shoola.agents.metadata.ContainersLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -33,7 +33,9 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
- * 
+ * Loads the containers of a given object.
+ * This class calls one of the <code>loadContainers</code> methods in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -45,11 +47,11 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class UrlLoader 	
+public class ContainersLoader 	
 	extends MetadataLoader
 {
 
-	/** The type of the parent of the {@link #refNode}. */
+	/** Either <code>DatasetData</code> or <code>ProjectData</code>. */
 	private Class		type;
 	
 	/** The ID of the parent of the {@link #refNode}. */
@@ -67,22 +69,21 @@ public class UrlLoader
 	 * @param type		The type of the parent of the {@link #refNode}.
 	 * @param id		The ID of the parent of the ref node.
 	 */
-	public UrlLoader(MetadataViewer viewer, TreeBrowserSet refNode, Class type, 
-					long id)
+	public ContainersLoader(MetadataViewer viewer, TreeBrowserSet refNode,
+						Class type, long id)
 	{
 		super(viewer, refNode);
-		checkType(type);
 		this.type = type;
 		this.id = id;
 	}
 
 	/** 
-	 * Loads the attachment. 
+	 * Loads the folders containing the object. 
 	 * @see MetadataLoader#cancel()
 	 */
 	public void load()
 	{
-		handle = mhView.loadUrls(type, id, -1, this);
+		handle = mhView.loadContainers(type, id, -1L, this);
 	}
 	
 	/** 
@@ -98,7 +99,7 @@ public class UrlLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata(refNode, result);
+    	viewer.setContainers(refNode, result);
     }
     
 }

@@ -31,11 +31,21 @@ package org.openmicroscopy.shoola.agents.metadata;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
- * 
+ * Parent of all classes that load data asynchronously for a {@link Editor}.
+ * All these classes invoke methods of the {@link DataManagerView} or
+ * {@link MetadataHandlerView} which this class makes available through a 
+ * <code>protected</code> field.
+ * Also, this class extends {@link DSCallAdapter} so that subclasses
+ * automatically become observers to an asynchronous call.  This class provides
+ * default implementations of some of the callbacks to notify the 
+ * {@link Editor} of the progress and the user in the case of errors. 
+ * Subclasses should at least implement the <code>handleResult</code> method 
+ * to feed the {@link Editor} back with the results.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,6 +70,9 @@ public abstract class EditorLoader
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView	mhView;
     
+    /** Convenience reference for subclasses. */
+    protected final DataManagerView     dmView;
+    
     /**
      * Creates a new instance.
      * 
@@ -73,7 +86,9 @@ public abstract class EditorLoader
          this.viewer = viewer;
          registry = MetadataViewerAgent.getRegistry();
          mhView = (MetadataHandlerView) 
-         	registry.getDataServicesView(MetadataHandlerView.class);
+         			registry.getDataServicesView(MetadataHandlerView.class);
+         dmView = (DataManagerView) 
+      				registry.getDataServicesView(DataManagerView.class);
     }
     
     /**

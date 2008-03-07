@@ -130,11 +130,38 @@ public class IconManager
     /** The <code>Tags 48</code> icon. */
     public static int           TAGS_48 = 24;
     
+    /** The <code>Order by date</code> icon. */
+    public static int           ORDER_BY_DATE = 25;
+    
+    /** The <code>Order by user</code> icon. */
+    public static int           ORDER_BY_USER = 26;
+    
+    /** The <code>Close</code> icon. */
+    public static int           CLOSE = 27;
+    
+    /** The <code>Close</code> icon. */
+    public static int           EDIT = 28;
+    
+    /** The <code>Info 48</code> icon. */
+    public static int           INFO_48 = 29;
+    
+    /** The <code>PDF</code> icon. */
+    public static int           PDF_DOC = 30;
+    
+    /** The <code>Text</code> icon. */
+    public static int           TEXT_DOC = 32;
+    
+    /** The <code>Word</code> icon. */
+    public static int           WORD_DOC = 33;
+    
+    /** The <code>XML</code> icon. */
+    public static int           XML_DOC = 34;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 24;
+	private static int          MAX_ID = 34;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -156,15 +183,23 @@ public class IconManager
         relPaths[BROWSE] = "zoom16.png";
         relPaths[OWNER] = "nuvola_kdmconfig16.png";
         relPaths[ROOT] = "nuvola_trashcan_empty16.png";
-        relPaths[LIST_VIEW] = "nuvola_mozilla16.png";
-        relPaths[GRID_VIEW] = "mozilla_grey16.png";
+        relPaths[LIST_VIEW] = "nuvola_view_text16.png";
+        relPaths[GRID_VIEW] = "nuvola_view_multicolumn16.png";
         relPaths[DOWNLOAD] = "mozilla_grey16.png";
-        relPaths[INFO] = "mozilla_grey16.png";
-       
         relPaths[LEFT_ARROW] = "nuvola_1leftarrow16.png";
         relPaths[RIGHT_ARROW] = "nuvola_1rightarrow16.png";
         relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow16.png";
         relPaths[DOUBLE_RIGHT_ARROW] = "nuvola_2rightarrow16.png";
+        relPaths[ORDER_BY_DATE] = "eclipse_trace_persp16.png";
+        relPaths[ORDER_BY_USER] = "nuvola_kdmconfig16.png";
+        relPaths[CLOSE] = "eclipse_alphab_sort_co16.png";
+        relPaths[EDIT] = "eclipse_alphab_sort_co16.png";
+        relPaths[INFO] = "nuvola_messagebox_info16.png";
+        relPaths[INFO_48] = "nuvola_messagebox_info48.png";
+        relPaths[PDF_DOC] = "nuvola_acroread22.png";
+        relPaths[TEXT_DOC] = "nuvola_acroread22.png";
+        relPaths[WORD_DOC] = "nuvola_acroread22.png";
+        relPaths[XML_DOC] = "nuvola_acroread22.png";
 	}
    
 	/** The sole instance. */

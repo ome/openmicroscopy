@@ -26,27 +26,27 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.AttachmentLoader;
+import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
-import org.openmicroscopy.shoola.agents.metadata.ParentLoader;
+import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
-import org.openmicroscopy.shoola.agents.metadata.ViewedByLoader;
-import org.openmicroscopy.shoola.agents.metadata.TagLoader;
-import org.openmicroscopy.shoola.agents.metadata.UrlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
-
+import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * The Model component in the <code>MetadataViewer</code> MVC triad.
@@ -180,46 +180,7 @@ class MetadataViewerModel
 	 * @return See above.
 	 */
 	Editor getEditor() { return editor; }
-	
-	/**
-	 * 
-	 * Starts the asynchronous retrieval of the tag reladed to the parent of 
-	 * the passed node.
-	 * 
-	 * @param refNode The menu node of reference.
-	 */
-	void fireTagLoading(TreeBrowserSet refNode)
-	{
-		cancel(refNode);
-		Object ho = getParentObject(refNode);
-		long id = -1;
-		if (ho instanceof DataObject)
-			id = ((DataObject) ho).getId();
-		TagLoader loader = new TagLoader(component, refNode, ho.getClass(), id);
-		loaders.put(refNode, loader);
-		loader.load();
-	}
-	
-	/**
-	 * Starts the asynchronous retrieval of the attachments reladed 
-	 * to the parent node.
-	 * 
-	 * @param refNode The menu node of reference.
-	 */
-	void fireAttachmentLoading(TreeBrowserSet refNode)
-	{
-		//first cancel the loading related to the specified node.
-		cancel(refNode);
-		Object ho = getParentObject(refNode);
-		long id = -1;
-		if (ho instanceof DataObject)
-			id = ((DataObject) ho).getId();
-		AttachmentLoader loader = new AttachmentLoader(component, refNode, 
-													ho.getClass(), id);
-		loaders.put(refNode, loader);
-		loader.load();
-	}
-	
+
 	/** 
 	 * Cancels any ongoing data loading. 
 	 * 
@@ -258,48 +219,13 @@ class MetadataViewerModel
 		cancel(refNode);
 		Object ho = getParentObject(refNode);
 		if (ho instanceof DataObject) {
-			ParentLoader loader = new ParentLoader(
+			ContainersLoader loader = new ContainersLoader(
 					component, refNode, rootType, ((DataObject) ho).getId());
 			loaders.put(refNode, loader);
 			loader.load();
 		}
 	}
 
-	/**
-	 * Starts the asynchronous retrieval of the rendering settings 
-	 * reladed to a given set of pixels.
-	 * 
-	 * @param refNode The menu node of reference.
-	 */
-	void fireViewedByLoading(TreeBrowserSet refNode)
-	{
-		Object ho = getParentObject(refNode);
-		if (ho instanceof ImageData) {
-			ImageData img = (ImageData) ho;
-			long id = img.getDefaultPixels().getId();
-			ViewedByLoader loader = new ViewedByLoader(component, refNode, 
-													img.getId(), id);
-			loaders.put(refNode, loader);
-			loader.load();
-		}
-	}
-
-	/**
-	 * Starts the asynchronous retrieval of urls linked to a given object.
-	 * 
-	 * @param refNode The menu node of reference.
-	 */
-	void fireUrlLoading(TreeBrowserSet refNode)
-	{
-		cancel(refNode);
-		Object ho = getParentObject(refNode);
-		long id = -1;
-		if (ho instanceof DataObject)
-			id = ((DataObject) ho).getId();
-		UrlLoader loader = new UrlLoader(component, refNode, ho.getClass(), id);
-		loaders.put(refNode, loader);
-		loader.load();
-	}
 
 	/**
 	 * Starts the asynchronous retrieval of the structured data related
@@ -315,6 +241,37 @@ class MetadataViewerModel
 		StructuredDataLoader loader = new StructuredDataLoader(component, 
 								refNode, (DataObject) uo);
 		loaders.put(refNode, loader);
+		loader.load();
+	}
+	
+	/**
+	 * Returns the name of the object if any.
+	 * 
+	 * @return See above.
+	 */
+	String getRefObjectName() 
+	{
+		if (refObject instanceof ImageData)
+			return ((ImageData) refObject).getName();
+		else if (refObject instanceof DatasetData)
+			return ((DatasetData) refObject).getName();
+		else if (refObject instanceof ProjectData)
+		return ((ProjectData) refObject).getName();
+		return "";
+	}
+
+	/**
+	 * Fires an asynchronous call to save the data, add (resp. remove)
+	 * annotations to (resp. from) the object.
+	 * 
+	 * @param toAdd		Collection of annotations to add.
+	 * @param toRemove	Collection of annotations to remove.
+	 * @param data		The object to update.
+	 */
+	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+					DataObject data)
+	{
+		DataSaver loader = new DataSaver(component, data, toAdd, toRemove);
 		loader.load();
 	}
 	

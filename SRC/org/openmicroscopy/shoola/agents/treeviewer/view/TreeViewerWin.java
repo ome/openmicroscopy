@@ -311,12 +311,11 @@ class TreeViewerWin
     private void buildGUI()
     {
     	rightPane = new JSplitPane();
-        //splitPane.setResizeWeight(1);
     	rightPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     	rightPane.setOneTouchExpandable(true);
     	rightPane.setContinuousLayout(true);
-    	rightPane.setLeftComponent(workingPane);
-    	rightPane.setRightComponent(model.getMetadataViewer().getSelectionUI());
+    	//rightPane.setLeftComponent(workingPane);
+    	//rightPane.setRightComponent(model.getMetadataViewer().getSelectionUI());
     	//rightPane.setDividerLocation(DIVIDER_LOCATION);
     	rightPane.setResizeWeight(1.0);
     	splitPane = new JSplitPane();
@@ -325,8 +324,8 @@ class TreeViewerWin
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
         splitPane.setLeftComponent(tabs);
-        //splitPane.setRightComponent(workingPane);
-        splitPane.setRightComponent(rightPane);
+        splitPane.setRightComponent(workingPane);
+        //splitPane.setRightComponent(rightPane);
         splitPane.setDividerLocation(DIVIDER_LOCATION);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));

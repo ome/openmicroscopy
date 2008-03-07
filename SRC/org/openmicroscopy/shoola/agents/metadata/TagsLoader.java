@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.AttachmentLoader 
+ * org.openmicroscopy.shoola.agents.metadata.TagsLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,18 +24,19 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.TagAnnotationData;
 
 /** 
- * Retrieves the attachments linked to the object specified.
- * This class calls the <code>loadAttachments</code> method in the
- * <code>MetadataHandlerView</code>.
+ * Loads the existing tags.
+ * This class calls one of the <code>loadExistingAnnotations</code> methods 
+ * in the <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,60 +48,49 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class AttachmentLoader
-	extends MetadataLoader
+public class TagsLoader 
+	extends EditorLoader
 {
 
-	/** The type of the parent of the {@link #refNode}. */
-	private Class		type;
-	
-	/** The ID of the parent of the {@link #refNode}. */
-	private long 		id;
-	
-	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle	handle;
     
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param viewer	The viewer this data loader is for.
-     *                  Mustn't be <code>null</code>.
-	 * @param refNode	The node of reference. Mustn't be <code>null</code>.
-	 * @param type		The type of the parent of the {@link #refNode}.
-	 * @param id		The ID of the parent of the ref node.
-	 */
-	public AttachmentLoader(MetadataViewer viewer, TreeBrowserSet refNode,
-							Class type, long id)
-	{
-		super(viewer, refNode);
-		checkType(type);
-		this.type = type;
-		this.id = id;
-	}
-
+	 /**	
+     * Creates a new instance.
+     * 
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     */
+    public TagsLoader(Editor viewer)
+    {
+    	 super(viewer);
+    }
+    
 	/** 
-	 * Loads the attachment. 
-	 * @see MetadataLoader#cancel()
+	 * Loads the tags. 
+	 * @see EditorLoader#cancel()
 	 */
 	public void load()
 	{
-		handle = mhView.loadAttachments(type, id, -1, this);
+		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, null, 
+												this);
 	}
 	
 	/** 
 	 * Cancels the data loading. 
-	 * @see MetadataLoader#cancel()
+	 * @see EditorLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
-
+	
 	/**
      * Feeds the result back to the viewer.
-     * @see MetadataLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
-    	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setMetadata(refNode, result);
-    }
-    
+    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	//viewer.setMetadata(refNode, result);
+    	viewer.setExistingTags((Collection) result);
+    } 
+	
 }

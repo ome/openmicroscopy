@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
@@ -40,8 +42,10 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
+import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -161,7 +165,9 @@ class MetadataViewerComponent
 		Object userObject = node.getUserObject();
 		if (userObject instanceof DataObject) {
 			model.fireStructuredDataLoading(node);
-		} else if (userObject instanceof String) {
+		} 
+		/*
+		else if (userObject instanceof String) {
 			String name = (String) userObject;
 			if (Browser.TAGS.equals(name)) 
 				model.fireTagLoading((TreeBrowserSet) node);
@@ -178,6 +184,7 @@ class MetadataViewerComponent
 			else if (Browser.URL.equals(name)) 
 				model.fireUrlLoading((TreeBrowserSet) node);
 		}
+		*/
 	}
 
 	/** 
@@ -230,12 +237,84 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getEditorUI()
+	 */
+	public JComponent getEditorUI()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state.");
+		return model.getEditor().getUI();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getUI()
+	 */
+	public JComponent getUI()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state.");
+		return view.getUI();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#setRootObject(Object)
 	 */
 	public void setRootObject(Object root)
 	{
-		// TODO: Check state.
 		model.setRefObject(root);
+		view.setRootObject();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#setThumbnail(BufferedImage)
+	 */
+	public void setThumbnail(BufferedImage thumbnail)
+	{
+		Object ref = model.getRefObject();
+		if (!(ref instanceof ImageData)) return;
+		if (thumbnail != null)
+			view.setThumbnail(thumbnail);
+		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#loadContainers(TreeBrowserDisplay)
+	 */
+	public void loadContainers(TreeBrowserDisplay node)
+	{
+		if (node == null)
+			throw new IllegalArgumentException("No node specified.");
+		Object userObject = node.getUserObject();
+		if (userObject instanceof ImageData) {
+			model.fireParentLoading((TreeBrowserSet) node, DatasetData.class);
+		} else if (userObject instanceof DatasetData) 
+			model.fireParentLoading((TreeBrowserSet) node, ProjectData.class);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#setContainers(TreeBrowserDisplay, Object)
+	 */
+	public void setContainers(TreeBrowserDisplay node, Object result)
+	{
+		Browser browser = model.getBrowser();
+		browser.setParents((TreeBrowserSet) node, (Collection) result);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#saveData(List, List, DataObject)
+	 */
+	public void saveData(List<AnnotationData> toAdd, 
+				List<AnnotationData> toRemove, DataObject data)
+	{
+		model.fireSaving(toAdd, toRemove, data);
 	}
 	
 }

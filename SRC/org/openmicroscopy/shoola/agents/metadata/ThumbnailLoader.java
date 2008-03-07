@@ -40,7 +40,9 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
 /** 
- * 
+ * Loads the thumbnails, one per specified user for a given set of 
+ * pixels. This class calls the <code>loadThumbnails</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -71,7 +73,11 @@ public class ThumbnailLoader
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  				handle;
     
+    /** The collection of thumbnails. */
     private Map<Long, BufferedImage>	thumbnails;
+    
+    /** Flag indicating to retrieve on thumbnail only. */
+    private boolean						single;
     
     /**	
      * Creates a new instance.
@@ -84,20 +90,37 @@ public class ThumbnailLoader
     public ThumbnailLoader(Editor viewer, ImageData image, 
     						Set<Long> userIDs)
     {
+    	 this(viewer, image, userIDs, false);
+    }
+
+    /**	
+     * Creates a new instance.
+     * 
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param image		The image.
+     * @param userIDs	The node of reference. Mustn't be <code>null</code>.
+     * @param single	Pass <code>true</code> to indicate that we retrieve 
+     * 					a single thumbnail, <code>false</code> otherwise.
+     */
+    public ThumbnailLoader(Editor viewer, ImageData image, 
+    						Set<Long> userIDs, boolean single)
+    {
     	 super(viewer);
          this.image = image;
          this.userIDs = userIDs;
          thumbnails = new HashMap<Long, BufferedImage>();
+         this.single = single;
     }
-
+    
     /**
      * Retrieves the thumbnails.
      * @see EditorLoader#load()
      */
     public void load()
     {
-        handle = mhView.loadThumbnails(image, userIDs, THUMB_MAX_WIDTH,
-                                	THUMB_MAX_HEIGHT, this);
+    	handle = mhView.loadThumbnails(image, userIDs, THUMB_MAX_WIDTH,
+            	THUMB_MAX_HEIGHT, this);
     }
     
     /** 
@@ -113,12 +136,17 @@ public class ThumbnailLoader
     public void update(DSCallFeedbackEvent fe) 
     {
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-        if (td != null)  {
-        	//Last fe has null object.
-        	thumbnails.put(td.getUserID(), td.getThumbnail());
-        } 
-        if (thumbnails.size() == userIDs.size())
-        	viewer.setThumbnails(thumbnails, image.getId());
+        if (single) {
+        	if (td != null)  //Last fe has null object.
+        		viewer.setThumbnail(td.getThumbnail(), td.getImageID());
+        } else {
+        	if (td != null)  {
+            	//Last fe has null object.
+            	thumbnails.put(td.getUserID(), td.getThumbnail());
+            } 
+            if (thumbnails.size() == userIDs.size())
+            	viewer.setThumbnails(thumbnails, image.getId());
+        }
     }
     
     /**

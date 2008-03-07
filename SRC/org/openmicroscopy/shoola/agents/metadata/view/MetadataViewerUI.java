@@ -25,20 +25,37 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
+
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * 
@@ -57,6 +74,24 @@ class MetadataViewerUI
 	extends TopWindow
 {
 
+    /** The text corresponding to the creation of a <code>Project</code>. */
+    private static final String     PROJECT_MSG = "Project";
+    
+    /** The text corresponding to the creation of a <code>Dataset</code>. */
+    private static final String     DATASET_MSG = "Dataset";
+    
+    /** 
+     * The text corresponding to the creation of a
+     * <code>Category Group</code>.
+     */
+    private static final String     CATEGORY_GROUP_MSG = "Tag Set";
+    
+    /** The text corresponding to the creation of a <code>Category</code>. */
+    private static final String     CATEGORY_MSG = "Tag";
+    
+    /** The text corresponding to the creation of a <code>Image</code>. */
+    private static final String     IMAGE_MSG = "Image";
+    
 	/** Reference to the Control. */
 	private MetadataViewerControl 		controller;
 
@@ -66,12 +101,52 @@ class MetadataViewerUI
 	/** The component hosting the UI components. */
 	private JPanel						uiDelegate;
 	
+	/** The header of the component. */
+	private TitlePanel 					titlePanel;
+	
+	/** 
+     * Returns the message corresponding to the <code>DataObject</code>.
+     * 
+     * @return See above
+     */
+    private String getMessage()
+    {
+        Class nodeType = model.getRefObject().getClass();
+        if (nodeType.equals(ProjectData.class)) return PROJECT_MSG;
+        else if (nodeType.equals(DatasetData.class)) return DATASET_MSG;
+        else if (nodeType.equals(CategoryData.class)) return CATEGORY_MSG;
+        else if (nodeType.equals(CategoryGroupData.class)) 
+        	return CATEGORY_GROUP_MSG;
+        else if (nodeType.equals(ImageData.class)) return IMAGE_MSG;
+        return "";
+    }
+    
 	/** Builds and lays out the GUI. */
     private void buildGUI()
     {
+    	IconManager icons = IconManager.getInstance();
+		String message = getMessage();
+		titlePanel = new TitlePanel(message, 
+				"Edit the "+ message.toLowerCase()+": "+
+					model.getRefObjectName(), 
+                 icons.getIcon(IconManager.PROPERTIES_BIG));
+		add(titlePanel, BorderLayout.NORTH);
+		
     	Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
-        c.add(model.getEditor().getUI());
+        //c.add(model.getEditor().getUI());
+        
+        JSplitPane pane = new JSplitPane();
+        pane.setResizeWeight(1.0);
+        pane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+        pane.setOneTouchExpandable(true);
+        pane.setContinuousLayout(true);
+        pane.setLeftComponent(model.getEditor().getUI());
+        pane.setRightComponent(model.getBrowser().getUI());
+        uiDelegate = new JPanel();
+        uiDelegate.setLayout(new BorderLayout(0, 0));
+        uiDelegate.add(titlePanel, BorderLayout.NORTH);
+        uiDelegate.add(pane, BorderLayout.CENTER);
     }
     
 	/**
@@ -119,12 +194,54 @@ class MetadataViewerUI
 		menu.show(invoker, location.x, location.y);
 	}
 	
+	/** Updates display when the new root node is set. */
+	void setRootObject()
+	{
+		String message = getMessage();
+		titlePanel.setTitle(message);
+		titlePanel.setSubtitle("Edit the "+ message.toLowerCase()+": "+
+				model.getRefObjectName());
+		uiDelegate.revalidate();
+		uiDelegate.repaint();
+	}
+	
+	/**
+	 * Sets the specified thumbnail 
+	 * 
+	 * @param thumbnail The thumbnail to set.
+	 */
+	void setThumbnail(BufferedImage thumbnail) {
+		JLabel label = new JLabel(new ImageIcon(thumbnail));
+        label.setBorder(new FrameBorder(Color.BLACK));
+        label.addMouseListener(new MouseAdapter() {
+            
+            /**
+             * Views the image if the user double-clicks on the thumbnail.
+             */
+            public void mouseClicked(MouseEvent e)
+            {
+                //if (e.getClickCount() == 2) 
+                    //model.browse(model.getHierarchyObject());
+            }
+        });
+        titlePanel.setIconComponent(label);
+        uiDelegate.revalidate();
+		uiDelegate.repaint();
+	}
+	
+	JComponent getUI()
+	{
+		 return uiDelegate;
+	}
+	
 	/** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {
+    	/*
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
         UIUtilities.centerAndShow(this);
+        */
     }
 
 }

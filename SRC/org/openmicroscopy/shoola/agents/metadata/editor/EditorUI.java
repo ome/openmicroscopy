@@ -25,20 +25,27 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
-
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.AnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -57,14 +64,7 @@ import pojos.ImageData;
 public class EditorUI 
 	extends JPanel
 {
-
-	/**
-	 * A reduced size for the invisible components used to separate widgets
-	 * vertically.
-	 */
-    static final Dimension      SMALL_V_SPACER_SIZE = new Dimension(1, 5);
-    
-    
+ 
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -101,6 +101,9 @@ public class EditorUI
 	/** The component hosting the {@link #viewedByUI}. */
 	private TreeComponent 				viewByTree;
 	
+	/** Button to save the annotation. */
+	private JButton						saveButton;
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
@@ -118,12 +121,43 @@ public class EditorUI
 				TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		viewByTree = new TreeComponent();
+		saveButton = new JButton("Save");
+		saveButton.setToolTipText("Save changes.");
+		saveButton.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) { saveData(); }
+		
+		});
 	}
 
+	/** Save data. */
+	private void saveData()
+	{
+		propertiesUI.updateDataObject();
+		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
+		List<AnnotationData> l = attachmentsUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = linksUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = rateUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = tagsUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = textualAnnotationsUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		model.fireAnnotationSaving(toAdd, toRemove);
+	}
+    
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		//setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		JPanel p = new JPanel();
 		double[][] tl = {{TableLayout.PREFERRED, 20, TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.FILL} }; //rows
@@ -139,6 +173,7 @@ public class EditorUI
 					String name = evt.getPropertyName();
 					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
 						boolean b = (Boolean) evt.getNewValue();
+						viewedByUI.setExpanded(b);
 						if (!model.isThumbnailsLoaded()) {
 							if (b) controller.loadThumbnails();
 							else model.cancelThumbnailsLoading();
@@ -169,9 +204,20 @@ public class EditorUI
 		
 		double[][] finalSize = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
 				{TableLayout.FILL} }; //rows
-		setLayout(new TableLayout(finalSize));
-		add(leftPane, "0, 0");
-		add(rightPane, "2, 0");
+		JPanel content = new JPanel();
+		content.setLayout(new TableLayout(finalSize));
+		content.add(leftPane, "0, 0");
+		content.add(rightPane, "2, 0");
+		content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		
+		JPanel bar = UIUtilities.buildComponentPanelRight(saveButton);
+		bar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+		add(content);
+		add(Box.createVerticalStrut(5));
+		add(bar);
+		//
 	}
 	
 	/** Creates a new instance. */
@@ -200,7 +246,13 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
-    	viewByTree.setVisible((model.getRefObject() instanceof ImageData));
+    	if (model.getRefObject() instanceof ImageData) {
+    		viewByTree.setVisible(true);
+    	} else {
+    		viewByTree.setVisible(false);
+    		viewedByUI.setExpanded(false);
+    	}
+    	
     	rateUI.buildUI();
     	viewedByUI.buildUI();
     	linksUI.buildUI();
@@ -211,12 +263,24 @@ public class EditorUI
     	propertiesUI.buildUI();
     	revalidate();
     	repaint();
+    	if (viewByTree.isVisible()) {
+    		if (viewedByUI.isExpanded())
+    			controller.loadThumbnails();
+    				
+    	}
     }
 
     /** Updates display when the new root node is set. */
 	void setRootObject()
 	{
-		propertiesUI.buildUI();
+		rateUI.removeAll();
+		viewedByUI.removeAll();
+    	linksUI.removeAll();
+    	rateUI.removeAll();
+    	textualAnnotationsUI.removeAll();
+    	tagsUI.removeAll();
+    	attachmentsUI.removeAll();
+    	propertiesUI.buildUI();
 		revalidate();
     	repaint();
 	}
@@ -228,5 +292,16 @@ public class EditorUI
 		revalidate();
     	repaint();
 	}
-	
+
+	/** Sets the existing tags. */
+	void setExistingTags()
+	{
+		tagsUI.showSelectionWizard();
+		revalidate();
+    	repaint();
+	}
+
+	/** Sets the channel data. */
+	void setChannelData() { propertiesUI.showInfo(); }
+
 }

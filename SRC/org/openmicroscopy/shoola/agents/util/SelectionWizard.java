@@ -33,6 +33,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -99,43 +100,43 @@ public class SelectionWizard
 	private static final int RESET = 6;
 	
 	/** The original tags before the user selects items. */
-	private List<Object>	originalItems;
+	private List<Object>		originalItems;
 	
 	/** Collection of available items. */
-	private List<Object>	availableItems;
+	private Collection<Object>	availableItems;
 
 	/** Collection of all the selected items. */
-	private List<Object>	selectedItems;
+	private Collection<Object>	selectedItems;
 	
 	/** The list box showing the available items. */
-	private JList			availableItemsListbox;
+	private JList				availableItemsListbox;
 	
 	/** The list box showing the selected items. */
-	private JList			selectedItemsListbox;
+	private JList				selectedItemsListbox;
 	
 	/** The button to move an item from the remaining items to current items. */
-	private JButton 		addButton;
+	private JButton 			addButton;
 	
 	/** The button to move an item from the current items to remaining items. */
-	private JButton 		removeButton;
+	private JButton 			removeButton;
 	
 	/** The button to move all items to the current items. */
-	private JButton 		addAllButton;
+	private JButton 			addAllButton;
 	
 	/** The button to move all items to the remaining items. */
-	private JButton 		removeAllButton;
+	private JButton 			removeAllButton;
 	
 	/** The button to accept the current selection. */
-	private JButton 		acceptButton;
+	private JButton 			acceptButton;
 	
 	/** The button to reset the current selection. */
-	private JButton 		resetButton;
+	private JButton 			resetButton;
 
 	/** The button to cancel the current selection. */
-	private JButton 		cancelButton;
+	private JButton 			cancelButton;
 	
 	/** Sorts the object. */
-	private ViewerSorter	sorter;
+	private ViewerSorter		sorter;
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -412,7 +413,7 @@ public class SelectionWizard
 	 * @param owner				The owner of this dialog.
 	 * @param availableItems	The collection of available tags.
 	 */
-	public SelectionWizard(JFrame owner, List<Object> availableItems)
+	public SelectionWizard(JFrame owner, Collection<Object> availableItems)
 	{
 		this(owner, availableItems, null);
 	}
@@ -424,8 +425,8 @@ public class SelectionWizard
 	 * @param availableItems	The collection of available items.
 	 * @param selectedItems		The collection of selected items.
 	 */
-	public SelectionWizard(JFrame owner, List<Object> availableItems, 
-							List<Object> selectedItems)
+	public SelectionWizard(JFrame owner, Collection<Object> availableItems, 
+							Collection<Object> selectedItems)
 	{
 		super(owner);
 		setModal(true);

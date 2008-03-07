@@ -627,13 +627,14 @@ class TreeViewerComponent
 		int editor = model.getEditorType();
 		removeEditor();
 		if (editor != TreeViewer.CREATE_EDITOR) {
-			PropertiesCmd cmd = new PropertiesCmd(this);
-			cmd.execute();
+			//PropertiesCmd cmd = new PropertiesCmd(this);
+			//cmd.execute();
 		}
 		Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
         model.getMetadataViewer().setRootObject(display.getUserObject());
+        view.addComponent(model.getMetadataViewer().getUI());
 	}
 
 	/**

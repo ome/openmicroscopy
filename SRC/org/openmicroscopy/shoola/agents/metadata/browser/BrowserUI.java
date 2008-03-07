@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -190,7 +191,7 @@ class BrowserUI
         TreeBrowserDisplay root = model.getLastSelectedNode();
         
         treeDisplay.setModel(new DefaultTreeModel(root));
-        addMenuToNode(root);
+        //addMenuToNode(root);
         treeDisplay.expandPath(new TreePath(root.getPath()));
     	treeDisplay.addMouseListener(new MouseAdapter() {
     		
@@ -247,10 +248,11 @@ class BrowserUI
     {
     	setLayout(new BorderLayout(0, 0));
         JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p.setBorder(null);
-        p.add(menuBar);
-        p.setPreferredSize(menuBar.getPreferredSize());
+        //p.add(menuBar);
+        //p.setPreferredSize(menuBar.getPreferredSize());
+        p.add(new JLabel("Contained in"));
         add(p, BorderLayout.NORTH);
         add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
@@ -297,7 +299,7 @@ class BrowserUI
 		TreeBrowserDisplay root = model.getLastSelectedNode();
         
         treeDisplay.setModel(new DefaultTreeModel(root));
-        addMenuToNode(root);
+        //addMenuToNode(root);
         tm = (DefaultTreeModel) treeDisplay.getModel();
         if (children == null || children.size() == 0) {
         	treeDisplay.expandPath(new TreePath(root.getPath()));
@@ -312,7 +314,6 @@ class BrowserUI
 				map.put(node.toString(), node);
 			}
         	i = children.iterator();
-        	
         	while (i.hasNext()) {
 				node = (TreeBrowserDisplay) i.next();
 				if (node.isExpanded()) {
@@ -356,7 +357,7 @@ class BrowserUI
 		parent.removeAllChildrenDisplay();
 		Iterator i = sortedNodes.iterator();
 		TreeBrowserDisplay child;
-		addMenuToNode(parent);
+		//addMenuToNode(parent);
 		while (i.hasNext()) {
 			child = (TreeBrowserDisplay) i.next();
 			if (!(child instanceof TreeBrowserNode))

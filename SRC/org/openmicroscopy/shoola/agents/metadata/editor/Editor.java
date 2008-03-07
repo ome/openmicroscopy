@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Application-internal dependencies
 import java.awt.image.BufferedImage;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
@@ -79,11 +81,23 @@ public interface Editor
 	public void loadThumbnails();
 	
 	/**
+	 * Sets the thumbnails of the image currently selected.
 	 * 
-	 * @param thumbnails
-	 * @param imageID
+	 * @param thumbnails 	The thumbnails to set, one per user.
+	 * @param imageID		The id of the image the thumbnails are for.
 	 */
 	public void setThumbnails(Map<Long, BufferedImage> thumbnails, 
 							long imageID);
+
+	/**
+	 * Sets the collection of existing tags.
+	 * 
+	 * @param collection The tags to set.
+	 */
+	public void setExistingTags(Collection collection);
+
+	public void setChannelsData(List list);
+
+	public void setThumbnail(BufferedImage thumbnail, long imageID);
 	
 }

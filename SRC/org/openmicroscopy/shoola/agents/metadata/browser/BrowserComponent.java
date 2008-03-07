@@ -37,8 +37,6 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
-import pojos.ImageData;
-
 /** 
  * Implements the {@link Browser} interface to provide the functionality
  * required of the hierarchy viewer component.
@@ -140,7 +138,7 @@ class BrowserComponent
 			throw new IllegalArgumentException("Root object not valid.");
 		model.setRootObject(refObject);
 		view.setRootNode();
-		loadMetadata(model.getLastSelectedNode());
+		//loadMetadata(model.getLastSelectedNode());
 	}
 
 	/** 
@@ -203,8 +201,6 @@ class BrowserComponent
 			nodes.add(new TreeBrowserNode(i.next()));
 		}
 		view.setNodes(node, nodes);
-		TreeBrowserDisplay parent = node.getParentDisplay();
-		ImageData img = (ImageData) parent.getUserObject();
 	}
 
 	/** 
