@@ -17,6 +17,9 @@
     <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test"/>
     <!-- Not included above -->
     <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="webadmin" name="commons-validator" rev="${versions.commons-validator}" />
+    <dependency org="commons-validator" name="commons-validator" rev="${versions.commons-validator}" conf="build->default"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="${versions.commons-beanutils}" conf="build->default"/>
+    <dependency org="commons-digester" name="commons-digester" rev="${versions.commons-digester}" conf="build->default"/>
+    <dependency org="jakarta-oro" name="jakarta-oro" rev="${versions.jakarta-oro}" conf="build->default"/>
   </dependencies>
 </ivy-module>
