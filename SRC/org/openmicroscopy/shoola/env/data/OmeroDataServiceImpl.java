@@ -67,16 +67,16 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
-* Implementation of the {@link OmeroDataService} I/F.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * Implementation of the {@link OmeroDataService} I/F.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 class OmeroDataServiceImpl
 	implements OmeroDataService
 {

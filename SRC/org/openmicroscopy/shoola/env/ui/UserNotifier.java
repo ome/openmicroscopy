@@ -28,6 +28,7 @@ import javax.swing.Icon;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.FileAnnotationData;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 
@@ -130,8 +131,25 @@ public interface UserNotifier
     /** 
      * Submits a message to the development team. 
      * 
-     * @param emailAddress 		The e-mail address of the current user.
+     * @param emailAddress	The e-mail address of the current user.
      */
     public void submitMessage(String emailAddress);
-
+    
+    /**
+     * Brings up a modal to download a file previously uploaded to the 
+     * server.
+     * 
+     * @param data	The data to handle.
+     */
+    public void notifyDownload(FileAnnotationData data);
+    
+    /**
+     * Sets the loading status.
+     * 
+     * @param percent	The value to set.
+     * @param id		The id of the original file.
+     * @param path		The absolute path.
+     */
+    public void setLoadingStatus(int percent, long id, String path);
+    
 }

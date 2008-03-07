@@ -445,7 +445,14 @@ public class ModelMapper
     		annotation = new UrlAnnotation();
     		((UrlAnnotation) annotation).setTextValue(
     									data.getContentAsString());
-    	}
+    	} 
+    	if (annotation == null) return null;
+    	return linkAnnotation(annotatedObject, annotation);
+    }
+    
+    public static ILink linkAnnotation(IObject annotatedObject,
+    		IObject annotation) 
+    {
     	if (annotation == null) return null;
     	if (annotatedObject instanceof Dataset) {
     		Dataset m = (Dataset) annotatedObject;
@@ -470,7 +477,6 @@ public class ModelMapper
     	}
     	return null;
     }
-    
     
     /**
      * Links the annotated object and its annotation.

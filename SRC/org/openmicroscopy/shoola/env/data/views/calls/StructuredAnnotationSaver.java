@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.RelatedContainers 
+ * org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,15 +22,18 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.views.BatchCall;
-import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import pojos.AnnotationData;
+import pojos.DataObject;
 
 /** 
  * 
@@ -45,10 +48,10 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * </small>
  * @since OME3.0
  */
-public class RelatedContainersLoader 	
+public class StructuredAnnotationSaver 
 	extends BatchCallTree
 {
-	
+
     /** The result of the call. */
     private Object		result;
     
@@ -56,27 +59,29 @@ public class RelatedContainersLoader
     private BatchCall   loadCall;
     
     /**
-     * Creates a {@link BatchCall} to load the files attached to the object
-     * identified by the class and the id.
+     * Creates a {@link BatchCall} to retrieve the users who viewed 
+     * the specified set of pixels and also retrieve the rating associated
+     * to that set.
      * 
-     * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
+     * @param data		The data object to handle.
+     * @param toAdd		The annotations to add.
+     * @param toRemove	The annotations to remove.
+     * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadContainers(final Class type, final long id, 
-    								final long userID)
+    private BatchCall loadCall(final DataObject data, final
+    		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
+    		final long userID)
     {
-        return new BatchCall("Loading related containers") {
+        return new BatchCall("Saving") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
-                result = os.findContainerPaths(type, id, userID);
+            	OmeroMetadataService os = context.getMetadataService();
+            	result = os.saveData(data, toAdd, toRemove, userID);
             }
         };
     }
-
+    
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -90,18 +95,20 @@ public class RelatedContainersLoader
     protected Object getResult() { return result; }
     
     /**
-     * Creates a new instance. Builds the call corresponding to the passed
-     * index, throws an {@link IllegalArgumentException} if the index is not
-     * supported.
+     * Creates a new instance.
      * 
-     * @param type		The type of node the annotations are related to.
-     * @param id		The id of the object.
-     * @param userID	The id of the user or <code>-1</code> if the id 
-     * 					is not specified.
+     * @param data		The data object to handle.
+     * @param toAdd		The annotations to add.
+     * @param toRemove	The annotations to remove.
+     * @param userID	The id of the user.
      */
-    public RelatedContainersLoader(Class type, long id, long userID)
+    public StructuredAnnotationSaver(DataObject data, 
+    		List<AnnotationData> toAdd, List<AnnotationData> toRemove, long
+    		userID)
     {
-    	loadCall = loadContainers(type, id, userID);
+    	if (data == null)
+    		throw new IllegalArgumentException("No object to save.");
+    	loadCall = loadCall(data, toAdd, toRemove, userID);
     }
     
 }

@@ -204,14 +204,26 @@ public class IconManager
     /** ID of the <code>question</code> icon. */
     static final int        QUESTION = 10;
     
-    /** ID of the <code>question</code> icon. */
+    /** ID of the <code>comment</code> icon. */
     static final int        COMMENT = 11;
+    
+    /** ID of the <code>document</code> icon. */
+    static final int        DOCUMENT_12 = 12;
+    
+    /** ID of the <code>document</code> icon. */
+    static final int        DOCUMENT_32 = 13;
+    
+    /** ID of the <code>cancel</code> icon. */
+    static final int        CANCEL = 14;
+    
+    /** ID of the <code>remove</code> icon. */
+    static final int        REMOVE = 15;
     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int      MAX_ID = 11;
+	private static int      MAX_ID = 15;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -228,6 +240,10 @@ public class IconManager
 		relPaths[SW_UPDATES] = "nuvola_download_manager16.png";
         relPaths[QUESTION] = "nuvola_filetypes48.png";
         relPaths[COMMENT] = "nuvola_mail_send16.png";
+        relPaths[DOCUMENT_12] = "nuvola_fileexport12.png";
+        relPaths[DOCUMENT_32] = "nuvola_fileexport32.png";
+        relPaths[CANCEL] = "nuvola_background16.png";
+		relPaths[REMOVE] = "nuvola_artscontrol16.png";
 	}
 	
 	/** The sole instance. */

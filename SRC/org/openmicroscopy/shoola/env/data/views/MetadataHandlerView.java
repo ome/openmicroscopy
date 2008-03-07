@@ -24,15 +24,17 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -151,6 +153,17 @@ public interface MetadataHandlerView
 	public CallHandle loadRatings(Class rootType, long rootID, long userID, 
 			AgentEventListener observer);
 
+	/**
+	 * Loads the thumbnails associated to the passed image i.e. 
+	 * one thumbnail per specified user.
+	 * 
+	 * @param image			The image to handle.
+	 * @param userIDs		The collection of users.
+	 * @param thumbWidth	The width of the thumbnail.
+	 * @param thumbHeight	The height of the thumbnail.
+	 * @param observer		Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
 	public CallHandle loadThumbnails(ImageData image, Set<Long> userIDs, 
 						int thumbWidth, int thumbHeight, 
 						AgentEventListener observer);
@@ -177,6 +190,44 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle annotate(Class type, long id, AnnotationData annotation,
+							AgentEventListener observer);
+	
+	/**
+	 * Loads the existing annotations defined by the annotation type
+	 * linked to a given type of object.
+	 * Loads all the annotations if the object's type is <code>null</code>.
+	 * 
+	 * @param annotation 	The annotation type. Mustn't be <code>null</code>.
+	 * @param type			The type of object or <code>null</code>.
+	 * @param observer  	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadExistingAnnotations(Class annotation, 
+									Class type, AgentEventListener observer);
+
+	/**
+	 * Saves the object, adds (resp. removes) annotations to(resp. from)
+	 * the object if any.
+	 * 
+	 * @param dataObject	The data object to handle.
+	 * @param toAdd			Collection of annotations to add.
+	 * @param toRemove		Collection of annotations to remove.
+	 * @param userID		The id of the user.
+	 * @param observer  	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle saveData(DataObject dataObject, 
+					List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+						long userID, AgentEventListener observer);
+	
+	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param data		The file annotation related to the file.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadFile(File file, long fileID, long size, 
 							AgentEventListener observer);
 	
 }

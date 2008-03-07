@@ -23,19 +23,24 @@
 package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
+import java.io.File;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.FileDownloader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -181,6 +186,44 @@ class MetadataHandlerViewImpl
 		BatchCallTree cmd = new StructuredAnnotationLoader(
  				StructuredAnnotationLoader.TEXTUAL, rootType, rootID, 
  					userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadExistingAnnotations(Class, Class, 
+	 * 											AgentEventListener)
+	 */
+	public CallHandle loadExistingAnnotations(Class annotation, Class type, 
+									AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(annotation, type);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#saveData(DataObject, List, List, long, 
+	 * 									AgentEventListener)
+	 */
+	public CallHandle saveData(DataObject dataObject, 
+			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+			long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationSaver(dataObject, 
+									toAdd, toRemove, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadFile(File, long, int, 
+	 * 										AgentEventListener)
+	 */
+	public CallHandle loadFile(File file, long fileID, long size, 
+				AgentEventListener observer)
+	{
+		BatchCallTree cmd = new FileDownloader(file, fileID, size); 
 		return cmd.exec(observer);
 	}
 	

@@ -37,7 +37,9 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.UrlAnnotation;
 import ome.model.containers.Category;
@@ -53,11 +55,13 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
+import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.URLAnnotationData;
 
@@ -102,6 +106,7 @@ public class PojoMapper
      */
     public static DataObject asDataObject(IObject object)
     {
+    	
         if (object == null) 
             throw new IllegalArgumentException("IObject cannot be null.");
         if (object instanceof Project) 
@@ -114,12 +119,16 @@ public class PojoMapper
             return new CategoryData((Category) object);
         else if (object instanceof Image) 
         	return new ImageData((Image) object);
-        else if (object instanceof TextAnnotation) 
-        	return new TextualAnnotationData((TextAnnotation) object);
         else if (object instanceof UrlAnnotation)
         	return new URLAnnotationData((UrlAnnotation) object);
+        else if (object instanceof TagAnnotation)
+        	return new TagAnnotationData((TagAnnotation) object);
+        else if (object instanceof TextAnnotation) 
+        	return new TextualAnnotationData((TextAnnotation) object);
         else if (object instanceof LongAnnotation) 
         	return new RatingAnnotationData((LongAnnotation) object);
+        else if (object instanceof FileAnnotation) 
+        	return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
         else if (object instanceof Experimenter) 
@@ -183,7 +192,8 @@ public class PojoMapper
     {
         if (objects == null) 
             throw new IllegalArgumentException("The map cannot be null.");
-        HashMap map = new HashMap(objects.size());
+        HashMap<Object, Object> 
+        	map = new HashMap<Object, Object>(objects.size());
         Iterator i = objects.keySet().iterator();
         Object key, value;
         Object convertedKey = null;

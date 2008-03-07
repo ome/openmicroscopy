@@ -45,16 +45,16 @@ import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
-* List of methods to retrieve data using OMERO.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @version 2.2
-* <small>
-* (<b>Internal version:</b> $Revision$ $Date$)
-* </small>
-* @since OME2.2
-*/
+ * List of methods to retrieve data using OMERO.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @version 2.2
+ * <small>
+ * (<b>Internal version:</b> $Revision$ $Date$)
+ * </small>
+ * @since OME2.2
+ */
 public interface OmeroDataService
 {
   

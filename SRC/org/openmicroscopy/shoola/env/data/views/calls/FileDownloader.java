@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.RelatedContainers 
+ * org.openmicroscopy.shoola.env.data.views.calls.FileDownloader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,15 +22,17 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
-import org.openmicroscopy.shoola.env.data.views.BatchCall;
-import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.io.File;
+
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.views.BatchCall;
+import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
  * 
@@ -45,38 +47,36 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * </small>
  * @since OME3.0
  */
-public class RelatedContainersLoader 	
+public class FileDownloader 
 	extends BatchCallTree
 {
-	
+
+	/** Loads the specified annotations. */
+    private BatchCall   loadCall;
+    
     /** The result of the call. */
     private Object		result;
     
-    /** Loads the specified experimenter groups. */
-    private BatchCall   loadCall;
-    
     /**
-     * Creates a {@link BatchCall} to load the files attached to the object
-     * identified by the class and the id.
+     * Creates a {@link BatchCall} to download a file previously loaded.
      * 
-     * @param type 		The type of the object.
-     * @param id		The id of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
+	 * @param file	The absolute form of this abstract pathname.
+	 * @param fileID		The id of the file to download.
+	 * @param size			The size of the file.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadContainers(final Class type, final long id, 
-    								final long userID)
+    private BatchCall makeBatchCall(final File file, 
+    						final long fileID, final long size)
     {
-        return new BatchCall("Loading related containers") {
+        return new BatchCall("Downloading files.") {
             public void doCall() throws Exception
             {
-                OmeroDataService os = context.getDataService();
-                result = os.findContainerPaths(type, id, userID);
+                OmeroMetadataService service = context.getMetadataService();
+                result = service.downloadFile(file, fileID, size);
             }
         };
     }
-
+    
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -84,24 +84,21 @@ public class RelatedContainersLoader
     protected void buildTree() { add(loadCall); }
 
     /**
-     * Returns, in a <code>Set</code>, the root nodes of the found trees.
+     * Returns the collection of archives files.
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return result; }
     
     /**
-     * Creates a new instance. Builds the call corresponding to the passed
-     * index, throws an {@link IllegalArgumentException} if the index is not
-     * supported.
+     * Creates a new instance.
      * 
-     * @param type		The type of node the annotations are related to.
-     * @param id		The id of the object.
-     * @param userID	The id of the user or <code>-1</code> if the id 
-     * 					is not specified.
+	 * @param absolutePath	The absolute form of this abstract pathname.
+	 * @param fileID		The id of the file to download.
+	 * @param size			The size of the file.
      */
-    public RelatedContainersLoader(Class type, long id, long userID)
+    public FileDownloader(File file, long fileID, long size)
     {
-    	loadCall = loadContainers(type, id, userID);
+    	loadCall = makeBatchCall(file, fileID, size);
     }
     
 }

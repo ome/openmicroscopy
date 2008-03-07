@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -35,9 +36,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
 
 /** 
- * 
+ * List of methods to retrieve metadata.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -301,12 +303,59 @@ public interface OmeroMetadataService
 	 * 							related to. 
 	 * @param id				The object's id.
 	 * @param annotationType	The type of annotation to delete.
-	 *  @throws DSOutOfServiceException  If the connection is broken, or logged
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public void clearAnnotation(Class type, long id, Class annotationType)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Loads all annotations of a given type.
+	 * 
+	 * @param annotationType 	The type of annotation to retrieve.
+	 * @param objectType		Restrict search to a given type of object.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object loadAnnotations(Class annotationType, Class objectType)
+		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Saves the object, adds (resp. removes) annotations to(resp. from)
+	 * the object if any.
+	 * 
+	 * @param data		The data object to handle.
+	 * @param toAdd		Collection of annotations to add.
+	 * @param toRemove	Collection of annotations to remove.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object saveData(DataObject data, List<AnnotationData> toAdd, 
+							List<AnnotationData> toRemove, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param absolutePath	The absolute form of this abstract pathname.
+	 * @param fileID		The id of the file to download.
+	 * @param size			The size of the file.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public File downloadFile(File file, long fileID, long size)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

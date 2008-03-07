@@ -72,12 +72,32 @@ public class StructuredAnnotationLoader
 	
 	/** Indicates to load structured data */
 	public static final int ALL = 6;
-
+	
     /** The result of the call. */
     private Object		result;
     
     /** Loads the specified experimenter groups. */
     private BatchCall   loadCall;
+    
+    /**
+     * Creates a {@link BatchCall} to load the existing annotations of the 
+     * specified type related to the passed type of object.
+     * 
+     * @param annotationType 	The type of annotation to load.
+     * @param objectType		The type of object or <code>null</code>.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadAnnotations(final Class annotationType, final 
+    							Class objectType)
+    {
+        return new BatchCall("Loading Existing annotations") {
+            public void doCall() throws Exception
+            {
+                OmeroMetadataService os = context.getMetadataService();
+                result = os.loadAnnotations(annotationType, objectType);
+            }
+        };
+    }
     
     /**
      * Creates a {@link BatchCall} to load the tags related to the object
@@ -343,6 +363,19 @@ public class StructuredAnnotationLoader
     		throw new IllegalArgumentException("This constructor can " +
     				"only invoke with the VIEWED_BY index: "+index);
     	loadCall = loadViewedBy(imageID, pixelsID);
+    }
+    
+    /**
+     * Creates a new instance. Builds the call corresponding to the passed
+     * index, throws an {@link IllegalArgumentException} if the index is not
+     * supported.
+     * 
+     * @param annotationType	The type of annotations to fetch.
+     * @param objectType		The type of annotation.	
+     */
+    public StructuredAnnotationLoader(Class annotationType, Class objectType)
+    {
+    	loadCall = loadAnnotations(annotationType, objectType);
     }
     
 }

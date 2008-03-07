@@ -154,7 +154,7 @@ public class TaskBarManager
 	 * 
 	 * @param url The url to open.
 	 */
-	private void openURL(String url)
+	void openURL(String url)
 	{
 		String osName = System.getProperty("os.name");
 		try {
@@ -264,19 +264,14 @@ public class TaskBarManager
 		if (e == null) return;
 		Agent a = e.getAgent();
 		Integer r = exitResponses.get(a);
-		System.err.println(exitResponses.size());
-		System.err.println(a+" size : "+r);
 		if (r != null) {
 			int v = r.intValue()-1;
 			if (v == 0) exitResponses.remove(a);
 			//else exitResponses.put(a, v);
 		}
-		System.err.println(exitResponses.size());
 		if (exitResponses.size() == 0) container.exit();
 	}
-	
-	
-	
+
 	/**
 	 * Temporary action to notify the user that the action associated to a
 	 * given button hasn't been implemented yet.
@@ -526,7 +521,7 @@ public class TaskBarManager
 	TaskBarManager(Container c) 
 	{
 		container = c;
-		view = new TaskBarView(IconManager.getInstance(c.getRegistry()));
+		view = new TaskBarView(this, IconManager.getInstance(c.getRegistry()));
 		attachListeners();												
 	}
 	

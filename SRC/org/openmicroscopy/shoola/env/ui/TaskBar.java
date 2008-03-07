@@ -181,5 +181,8 @@ public interface TaskBar
      * @return See above.
      */
     public JMenuItem getCopyMenuItem(int index);
+    
+    //TMP solution
+    public void openURL(String url);
 
 }

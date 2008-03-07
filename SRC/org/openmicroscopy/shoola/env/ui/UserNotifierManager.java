@@ -26,11 +26,19 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.annotations.FileAnnotation;
+import ome.model.core.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -40,6 +48,8 @@ import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.FileAnnotationData;
 
 /** 
  * Acts a controller. Listens to property changes fired by the 
@@ -93,7 +103,16 @@ class UserNotifierManager
 	private static final String INVOKER_COMMENT = "insight_comment";
 	
     /** Reference to the container. */
-	private Container		container;
+	private Container						container;
+	
+	/** Back pointer to the component. */
+	private UserNotifier					component;
+	
+	/** The dialog keeping track of the downloaded files. */
+	private DownloadsDialog					download;
+	
+	/** Map keeping track of the ongoing data loading. */
+	private Map<String, UserNotifierLoader> loaders;
 	
 	/**
 	 * Sends a message.
@@ -143,15 +162,136 @@ class UserNotifierManager
 	}
 	
 	/**
+	 * Starts to download the file linked to the annotation.
+	 * 
+	 * @param data The annotation to handle.
+	 */
+	private void saveFileToDisk(FileAnnotationData data)
+	{
+		if (data == null) return;
+		if (download == null) {
+			Registry reg = container.getRegistry();
+			JFrame f = reg.getTaskBar().getFrame();
+			download = new DownloadsDialog(f, IconManager.getInstance(reg));
+			download.addPropertyChangeListener(this);
+		}
+		
+		OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
+		
+		//Need to make sure that file with same name does not exist.
+		JFileChooser chooser = new JFileChooser();
+		File dir = UIUtilities.getDefaultFolder();
+        if (f != null) chooser.setCurrentDirectory(dir);
+		
+        //Get the current directory
+        dir = chooser.getCurrentDirectory();
+        File[] files = dir.listFiles();
+        //path to the file 
+        /*
+        String path = dir+File.separator+f.getName();
+        boolean exist = false;
+        for (int i = 0; i < files.length; i++) {
+        	 if ((files[i].getAbsolutePath()).equals(path)) {
+                 exist = true;
+                 break;
+             }
+		}
+        if (exist) {
+        	String name = f.getName();
+        	int lastDot = name.lastIndexOf(".");
+        	String value;
+        	
+        	if (lastDot != -1) {
+        		String extension = name.substring(lastDot, name.length());
+        		value = name.substring(0, lastDot)+" (1)"+extension;
+        	} else 
+        		value = name;
+        	
+        	path = dir+File.separator+value;
+        }
+        */
+        String dirPath = dir+File.separator;
+        String name = getFileName(files, f, f.getName(), dirPath, 1);
+        String path = dirPath+name;
+		FileLoader loader = new FileLoader(component, container.getRegistry(), 
+										path, f.getId(), f.getSize());
+		loader.load();
+		download.addDowloadEntry(path, name, f.getId());
+		loaders.put(path, loader);
+		UIUtilities.centerAndShow(download);
+	}
+	
+	/**
+	 * Returns the name to give to the file.
+	 * 
+	 * @param files		Collection of files in the currently selected directory.
+	 * @param f			The original file.
+	 * @param original	The name of the file. 
+	 * @param dirPath	Path to the directory.
+	 * @param index		The index of the file.
+	 * @return See above.
+	 */
+	private String getFileName(File[] files, OriginalFile f, String original, 
+								String dirPath, int index)
+	{
+		String path = dirPath+original;
+		boolean exist = false;
+        for (int i = 0; i < files.length; i++) {
+        	 if ((files[i].getAbsolutePath()).equals(path)) {
+                 exist = true;
+                 break;
+             }
+		}
+
+        if (!exist) return original;
+        String name = f.getName();
+    	int lastDot = name.lastIndexOf(".");
+    	if (lastDot != -1) {
+    		String extension = name.substring(lastDot, name.length());
+    		String v = name.substring(0, lastDot)+" ("+index+")"+extension;
+    		index++;
+    		return getFileName(files, f, v, dirPath, index);
+    	} 
+    	return original;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
-	 * @param c Reference to the container.
+	 * @param component Back pointer to the component.
+	 * @param c 		Reference to the container.
 	 */
-	UserNotifierManager(Container c)
+	UserNotifierManager(UserNotifier component, Container c)
 	{
 		container = c;
+		this.component = component;
+		loaders = new HashMap<String, UserNotifierLoader>();
 	}
 
+	/**
+	 * Returns an instance of the Icon manager.
+	 * 
+	 * @return See above.
+	 */
+	IconManager getIconManager()
+	{ 
+		return IconManager.getInstance(container.getRegistry());
+	}
+	
+	/**
+	 * Sets the loading status.
+	 * 
+	 * @param percent 	The value to set.
+	 * @param fileID	The id of the file corresponding to the status.
+	 * @param fileName	The name of the file.
+	 */
+	void setLoadingStatus(int percent, long fileID, String fileName)
+	{
+		if (download == null) return;
+		download.setLoadingStatus(percent, fileName, fileID);
+		loaders.remove(fileName);
+	}
+	
 	/**
 	 * Reacts to property changes fired by dialogs.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -159,11 +299,18 @@ class UserNotifierManager
 	public void propertyChange(PropertyChangeEvent pce)
 	{
 		String name = pce.getPropertyName();
-		if (name == null) return;
-		if (name.equals(MessengerDialog.SEND_PROPERTY)) {
-			if (container == null) return;
+		if (MessengerDialog.SEND_PROPERTY.equals(name)) {
 			MessengerDialog source = (MessengerDialog) pce.getSource();
 			handleSendMessage(source, (MessengerDetails) pce.getNewValue());
+		} else if (OpeningFileDialog.SAVE_TO_DISK_PROPERTY.equals(name)) {
+			Object value = pce.getNewValue();
+			if (value instanceof FileAnnotationData) 
+				saveFileToDisk((FileAnnotationData) value);
+		} else if (DownloadsDialog.CANCEL_LOADING_PROPERTY.equals(name)) {
+			String fileName = (String) pce.getNewValue();
+			UserNotifierLoader loader = loaders.get(fileName);
+			if (loader != null) loader.cancel();
+			
 		}
 	}
 	

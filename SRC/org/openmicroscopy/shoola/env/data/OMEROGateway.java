@@ -26,10 +26,12 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +64,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -72,6 +75,7 @@ import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
+import ome.model.enums.Format;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -81,7 +85,6 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
-import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -90,6 +93,8 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
 * Unified access point to the various <i>OMERO</i> services.
@@ -275,27 +280,6 @@ class OMEROGateway
 				return IPojos.DECLASSIFICATION;
 		}
 		throw new IllegalArgumentException("Algorithm not valid.");
-	}
-
-	/**
-	 * Converts the specified POJO into a String corresponding model.
-	 *  
-	 * @param nodeType The POJO class.
-	 * @return The corresponding string.
-	 */
-	private String convertPojosToString(Class nodeType)
-	{
-		if (nodeType.equals(ProjectData.class))
-			return Project.class.getName();
-		else if (nodeType.equals(DatasetData.class))
-			return Dataset.class.getName();
-		else if (nodeType.equals(ImageData.class))
-			return Image.class.getName();
-		else if (nodeType.equals(CategoryData.class)) 
-			return Category.class.getName();
-		else if (nodeType.equals(CategoryGroupData.class))
-			return CategoryGroup.class.getName();
-		throw new IllegalArgumentException("NodeType not supported");
 	}
 	
 	/**
@@ -633,7 +617,9 @@ class OMEROGateway
 		else if (nodeType.equals(CategoryData.class)) return Category.class;
 		else if (nodeType.equals(CategoryGroupData.class))
 			return CategoryGroup.class;
-		else if (nodeType.equals(AnnotationData.class)) 
+		else if (nodeType.equals(TagAnnotationData.class)) 
+			return TagAnnotation.class;
+		else if (nodeType.equals(TextualAnnotationData.class)) 
 			return TextAnnotation.class;
 		else throw new IllegalArgumentException("NodeType not supported");
 	}
@@ -961,7 +947,7 @@ class OMEROGateway
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
 			return PojoMapper.asDataObjects(service.getCollectionCount(
-					convertPojosToString(rootNodeType), p, rootNodeIDs, 
+					convertPojos(rootNodeType).getName(), p, rootNodeIDs, 
 					options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot count the collection.");
@@ -1615,6 +1601,118 @@ class OMEROGateway
 		return result;
 	}
 
+	/**
+	 * Downloads a file previously uploaded to the server.
+	 * 
+	 * @param file		The file to copy the data into.	
+	 * @param fileID		The id of the file to download.
+	 * @param size			The size of the file.
+	 * @return See above.
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	File downloadFile(File file, long fileID, long size)
+		throws DSAccessException
+	{
+		RawFileStore store = getRawFileService();
+		store.setFileId(fileID);
+		String path = file.getAbsolutePath();
+		int offset = 0;
+		int length = (int) size;
+		try {
+			FileOutputStream stream = new FileOutputStream(file);
+			try {
+				try {
+					for (offset = 0; (offset+INC) < size;) {
+						stream.write(store.read(offset, INC));
+						offset += INC;
+					}	
+				} finally {
+					stream.write(store.read(offset, length-offset)); 
+					stream.close();
+				}
+			} catch (Exception e) {
+				if (stream != null) stream.close();
+				if (file != null) file.delete();
+			}
+		} catch (IOException e) {
+			if (file != null) file.delete();
+			throw new DSAccessException("Cannot create file  " +path, e);
+		}
+		//store.close();
+		return file;
+	}
+	
+	/**
+	 * Returns the original file corresponding to the passed id.
+	 * 
+	 * @param id	The id identifying the file.
+	 * @return See above.
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	OriginalFile getOriginalFile(long id)
+		throws DSAccessException
+	{
+		IQuery service = getQueryService();
+		OriginalFile of;
+		try {
+			of = (OriginalFile) service.findByQuery(
+					"select p from OriginalFile as p " +
+					"left outer join fetch p.format " +
+					"where p.id = :id", 
+					new Parameters().addId(new Long(id)));
+		} catch (Exception e) {
+			throw new DSAccessException("Cannot retrieve original file", e);
+		}
+		return of;
+	}
+	
+	/**
+	 * Uploads the passed file to the server and returns the 
+	 * original file i.e. the server object.
+	 * 
+	 * @param file		The file to upload.
+	 * @param format	The format of the file.
+	 * @return See above.
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	OriginalFile uploadFile(File file, String format)
+		throws DSAccessException
+	{
+		if (file == null)
+			throw new IllegalArgumentException("No file to upload");
+		System.err.println(format);
+		Format f = getQueryService().findByString(Format.class, "value", 
+												format);
+		OriginalFile oFile = new OriginalFile();
+		oFile.setName(file.getName());
+		oFile.setPath(file.getAbsolutePath());
+		oFile.setSize(file.length());
+		oFile.setSha1("pending");
+		oFile.setFormat(f);
+		IUpdate service = getUpdateService();
+		OriginalFile save = service.saveAndReturnObject(oFile);
+		RawFileStore store = getRawFileService();
+		store.setFileId(save.getId());
+		byte[] buf = new byte[INC]; 
+		try {
+			FileInputStream stream = new FileInputStream(file);
+			long pos = 0;
+			int rlen;
+			while((rlen = stream.read(buf)) > 0) {
+				store.write(buf, pos, rlen);
+				pos += rlen;
+				ByteBuffer.wrap(buf).limit(rlen);
+			}
+		} catch (Exception e) {
+			throw new DSAccessException("Cannot upload the file with path " +
+					file.getAbsolutePath(), e);
+		}
+		return save;
+	}
+	
 	/**
 	 * Modifies the password of the currently logged in user.
 	 * 
@@ -2313,7 +2411,7 @@ class OMEROGateway
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
 	 * 
-	 * @param type 			The class identify the object to search for.
+	 * @param type 			The class identifying the object to search for.
 	 * @param term			The term to search for.
 	 * @param start			The lower bound of the time interval.
 	 * @param end			The upper bound of the time interval.
@@ -2407,6 +2505,33 @@ class OMEROGateway
 		return new ArrayList();
 	}
 	
+	/**
+	 * Searches for the categories whose name contains the passed term.
+	 * Returns a collection of objects.
+	 * 
+	 * @param annotationType 	The class identifying the annotation to 
+	 * 							search for.
+	 * @param type 				The class identifying the object to search for.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List fetchAnnotation(Class annotationType, Class type)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Search service = getSearchService();
+		Class[] object = new Class[1];
+		object[0] = convertPojos(annotationType);
+		service.fetchAnnotations(object);
+		if (!service.hasNext()) return new ArrayList();
+		if (type != null) {
+			
+		}
+		return service.results();
+	}
+	
 	List getTaggedEntities(Class type, List<ExperimenterData> users,
 			Timestamp start, Timestamp end, String[] tags)
 	{
@@ -2436,6 +2561,7 @@ class OMEROGateway
 	Map performSearch(SearchDataContext context)
 	{
 		Search service = getSearchService();
+		
 		service.setCaseSentivice(context.isCaseSensitive());
 		
 		Timestamp start = context.getStart();

@@ -38,6 +38,8 @@ import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.FileAnnotationData;
+
 /** 
  * Implements the {@link UserNotifier} interface. 
  *
@@ -159,8 +161,7 @@ public class UserNotifierImpl
      */
     UserNotifierImpl(Container c)
     {
-    	manager = new UserNotifierManager(c);
-    	
+    	manager = new UserNotifierManager(this, c);
     	if (SHARED_FRAME == null) {
 			SHARED_FRAME = new JFrame();
 			SHARED_FRAME.setIconImage(AbstractIconManager.getOMEImageIcon());
@@ -269,6 +270,27 @@ public class UserNotifierImpl
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);
+	}
+
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#notifyDownload(FileAnnotationData)
+	 */ 
+	public void notifyDownload(FileAnnotationData data)
+	{
+		OpeningFileDialog d = new OpeningFileDialog(SHARED_FRAME, 
+						manager.getIconManager(), data);
+		d.addPropertyChangeListener(manager);
+		UIUtilities.centerAndShow(d);
+	}
+
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#setLoadingStatus(int, long, String)
+	 */ 
+	public void setLoadingStatus(int percent, long fileID, String fileName)
+	{
+		manager.setLoadingStatus(percent, fileID, fileName);
 	}
 	
 }

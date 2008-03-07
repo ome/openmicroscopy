@@ -435,15 +435,18 @@ class TaskBarView
 		return bar;
 	}
 	
+	private TaskBarManager manager;
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param im	The {@link IconManager} singleton that we use to retrieve
 	 * 				the various icons.
 	 */
-	TaskBarView(IconManager im)
+	TaskBarView(TaskBarManager manager, IconManager im) //tmp
 	{
 		super(TITLE);
+		this.manager = manager;
 		buttons = new AbstractButton[MAX_ID+1];
 		menus = new JMenu[2];
 		iconManager = im;
@@ -598,6 +601,10 @@ class TaskBarView
 		}
 	}
 
+	public void openURL(String url)
+	{
+		manager.openURL(url);
+	}
     /**
      * Implemented as specifed by {@link TaskBar}.
      * @see TaskBar#iconify()

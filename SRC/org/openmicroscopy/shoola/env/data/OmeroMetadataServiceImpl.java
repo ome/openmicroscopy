@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -37,6 +38,8 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.annotations.FileAnnotation;
+import ome.model.core.OriginalFile;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -47,15 +50,18 @@ import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.URLAnnotationData;
 
 /** 
- * 
+ * Implementation of the {@link OmeroMetadataService} I/F.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -198,6 +204,14 @@ class OmeroMetadataServiceImpl
 					tags.add(data);
 				else if (data instanceof RatingAnnotationData)
 					ratings.add(data);
+				else if (data instanceof FileAnnotationData) {
+					FileAnnotation fa = (FileAnnotation) data.asAnnotation();
+					long id = fa.getFile().getId();
+					((FileAnnotationData) data).setContent(
+							gateway.getOriginalFile(id));
+					attachments.add(data);
+				}
+					
 			}
 			results.setTextualAnnotations(texts);
 			results.setUrls(urls);
@@ -206,8 +220,14 @@ class OmeroMetadataServiceImpl
 			results.setAttachments(attachments);
 		}
 		OmeroDataService os = context.getDataService();
-		results.setParents(os.findContainerPaths(object.getClass(),
-							object.getId(), userID));
+		Class parentClass = null;
+		if (object instanceof ImageData)
+			parentClass = DatasetData.class;
+		else if (object instanceof DatasetData)
+			parentClass = ProjectData.class;
+		if (parentClass != null)
+			results.setParents(os.findContainerPaths(parentClass,
+								object.getId(), userID));
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
 			results.setViewedBy(loadViewedBy(img.getId(), 
@@ -249,7 +269,15 @@ class OmeroMetadataServiceImpl
 			int rate = ((RatingAnnotationData) annotation).getRating();
 			if (rate != RatingAnnotationData.LEVEL_ZERO)
 				link = ModelMapper.createAnnotation(ho, annotation);
-		} 
+		} else if (annotation instanceof FileAnnotationData) {
+			FileAnnotationData ann = (FileAnnotationData) annotation;
+			OriginalFile of = gateway.uploadFile(ann.getAttachedFile(), 
+								ann.getServerFileFormat());
+			FileAnnotation fa = new FileAnnotation();
+			fa.setFile(of);
+			link = ModelMapper.linkAnnotation(ho, fa);
+		} else
+			link = ModelMapper.createAnnotation(ho, annotation);
 		if (link != null) {
 			IObject object = gateway.createObject(link, 
 								(new PojoOptions()).map());
@@ -300,7 +328,9 @@ class OmeroMetadataServiceImpl
 				ids.add(data.getId());
 			} 
 		}
-		List l = gateway.findAnnotationLinks(gateway.convertPojos(type), id, 
+		List l = null;
+		if (ids.size() != 0)
+			l = gateway.findAnnotationLinks(gateway.convertPojos(type), id, 
 											ids);
 		if (l != null) {
 			i = l.iterator();
@@ -431,7 +461,6 @@ class OmeroMetadataServiceImpl
 		return (Collection) map.get(id);
 	}
 
-
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadViewedBy(long, long)
@@ -458,6 +487,56 @@ class OmeroMetadataServiceImpl
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadAnnotations(Class, Class)
+	 */
+	public Object loadAnnotations(Class annotationType, Class objectType) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return gateway.fetchAnnotation(annotationType, objectType);
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#saveData(DataObject, List, List, long)
+	 */
+	public Object saveData(DataObject data, List<AnnotationData> toAdd, 
+			List<AnnotationData> toRemove, long userID) 
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (data == null)
+			throw new IllegalArgumentException("No data to save");
+		OmeroDataService service = context.getDataService();
+		service.updateDataObject(data);
+		Iterator i;
+		if (toAdd != null) {
+			i = toAdd.iterator();
+			while (i.hasNext())
+				annotate(data, (AnnotationData) i.next());
+		}
+		if (toRemove != null) {
+			i = toRemove.iterator();
+			while (i.hasNext())
+				removeAnnotation((AnnotationData) i.next(), data);
+		}
+		return data;
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#downloadFile(String, long, int)
+	 */
+	public File downloadFile(File file, long fileID, long size) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (fileID < 0)
+			throw new IllegalArgumentException("File ID not valid");
+		if (file == null)
+			throw new IllegalArgumentException("File path not valid");
+		return gateway.downloadFile(file, fileID, size);
 	}
 	
 }
