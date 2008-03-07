@@ -31,7 +31,7 @@ package pojos;
 import ome.model.annotations.TextAnnotation;
 
 /** 
- * 
+ * Basic textual annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -33,7 +33,8 @@ import org.apache.commons.validator.UrlValidator;
 import ome.model.annotations.UrlAnnotation;
 
 /** 
- * 
+ * Define a URL Annotation. Note that a URL annotation is a specific text
+ * annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,11 +50,11 @@ public class URLAnnotationData
 	extends AnnotationData
 {
 
-	/** The supported urls. */
-	private static final String[] URLS = {"http",  "https"};
+	/** The supported schemes for URL. */
+	public static final String[] URLS = {"http",  "https"};
 	
 	/**
-	 * Controls if the value is correct url.
+	 * Controls if the value is valid URL.
 	 * 
 	 * @param value The value to check.
 	 */

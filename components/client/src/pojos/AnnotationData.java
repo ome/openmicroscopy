@@ -68,15 +68,6 @@ public abstract class AnnotationData
         setValue(annotation);
     }
 
-    /**
-     * Returns the annotation type.
-     * 
-     * @return See above.
-     */
-   // public Class<? extends Annotation> getAnnotationType() {
-   //     return wrapper.getType();
-   // }
-
     // Immutables
 
     /**

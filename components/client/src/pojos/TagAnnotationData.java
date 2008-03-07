@@ -24,6 +24,8 @@ package pojos;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -46,13 +48,13 @@ public class TagAnnotationData
 	extends AnnotationData
 {
 
-	/** The description of the tag. */
-	private TextualAnnotationData description;
+	/** The descriptions of the tag. */
+	private List<TextualAnnotationData> description;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param text
+	 * @param tag	The text of the tag.
 	 */
 	public TagAnnotationData(String tag)
 	{
@@ -91,7 +93,9 @@ public class TagAnnotationData
 	public TagAnnotationData(TagAnnotation tag, TextAnnotation value)
 	{
 		super(tag);
-		this.description = new TextualAnnotationData(value);
+		if (description == null)
+			description =  new ArrayList<TextualAnnotationData>();
+		description.add(new TextualAnnotationData(value));
 	}
 	
 	/**
@@ -103,10 +107,12 @@ public class TagAnnotationData
 	{
 		if (value == null || value.trim().length() == 0)
 			return;
+		/*
 		if (description == null) 
 			description = new TextualAnnotationData(value);
 		else 
 			description.setText(value);
+			*/
 	}
 	
 	/**
@@ -114,10 +120,10 @@ public class TagAnnotationData
 	 * 
 	 * @return See above.
 	 */
-	public String getTagDescription()
+	public List<TextualAnnotationData> getTagDescription()
 	{
 		if (description == null) return null;
-		return description.getContentAsString();
+		return description;
 	}
 	
 	/**
