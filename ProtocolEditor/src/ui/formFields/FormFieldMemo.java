@@ -22,19 +22,12 @@
 
 package ui.formFields;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Insets;
-
 import javax.swing.BorderFactory;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
-import ui.components.AttributeMemoFormatEditor;
-import ui.formFields.FormField.FormPanelMouseListener;
 
 public class FormFieldMemo extends FormField {
 	

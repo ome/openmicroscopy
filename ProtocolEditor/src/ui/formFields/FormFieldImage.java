@@ -57,7 +57,9 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.CustomPopupMenu;
+import ui.components.FileChooserReturnFile;
 import util.ImageFactory;
+import util.PreferencesManager;
 
 public class FormFieldImage extends FormField {
 	
@@ -198,36 +200,24 @@ public class FormFieldImage extends FormField {
 		setImagePath(dataField.getAttribute(DataFieldConstants.IMAGE_PATH));
 	}
 	
-	public String getImagePath() {
+	//open a file
+	public static String getImagePath() {
+		
+		String[] fileExtensions = {"jpg", "png", "gif"};
+		String currentFilePath = PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER);
 		
 		// Create a file chooser
-		final JFileChooser fc = new JFileChooser();
-		fc.setFileFilter(new ImageFileFilter());
+		FileChooserReturnFile fc = new FileChooserReturnFile(fileExtensions, currentFilePath);
+		File file = fc.getFileFromUser();
 		
-		File currentLocation = null;
-		fc.setCurrentDirectory(currentLocation);
-
-		int returnVal = fc.showOpenDialog(this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File imageFile = fc.getSelectedFile();
-            return imageFile.getAbsolutePath();
+		// remember where folder was
+		if (file != null) {
+			PreferencesManager.setPreference(PreferencesManager.CURRENT_FILES_FOLDER, file.getParent());
+			return file.getAbsolutePath();
 		}
-		else {
-			return null;
-		}
-	}
-	
-	public class ImageFileFilter extends FileFilter {
-		public boolean accept(File file) {
-			boolean recognisedFileType = 
-				//	allows "MS Windows" to see directories
-				((file.getName().endsWith("jpg")) || (file.getName().endsWith("png")) || 
-						(file.getName().endsWith("gif")) || (file.getName().endsWith("jpeg")) ||(file.isDirectory()));
-			return recognisedFileType;
-		}
-		public String getDescription() {
-			return " .png .jpg .gif files";
-		}
+		
+		return null;
+		
 	}
 	
 	class PopupListener extends MouseAdapter {

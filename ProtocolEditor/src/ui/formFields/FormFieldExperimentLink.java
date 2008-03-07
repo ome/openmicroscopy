@@ -1,13 +1,6 @@
-package cmd;
+package ui.formFields;
 
-import java.io.File;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileFilter;
-
-import ui.IModel;
-import ui.components.FileChooserReturnFile;
-import util.PreferencesManager;
+import tree.IDataFieldObservable;
 
 /*
  *------------------------------------------------------------------------------
@@ -31,37 +24,11 @@ import util.PreferencesManager;
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-public class OpenFileCmd
-	implements ActionCmd
-	{
-	
-	IModel model;
-	
-	public OpenFileCmd(IModel model) {
-		this.model = model;
-	}
+public class FormFieldExperimentLink extends FormField {
 
-	public void execute() {
-		File file = getFileFromUser();
-		if (file != null)
-			model.openThisFile(file);
-	}
-	
-	//open a file
-	public static File getFileFromUser() {
-		
-		String[] fileExtensions = {"pro", "exp", "xml"};
-		String currentFilePath = PreferencesManager.getPreference(PreferencesManager.CURRENT_FILES_FOLDER);
-		
-		// Create a file chooser
-		FileChooserReturnFile fc = new FileChooserReturnFile(fileExtensions, currentFilePath);
-		File file = fc.getFileFromUser();
-		
-		// remember where folder was
-		if (file != null)
-			PreferencesManager.setPreference(PreferencesManager.CURRENT_FILES_FOLDER, file.getParent());
-		
-		return file;
+	public FormFieldExperimentLink(IDataFieldObservable dataFieldObs) {
+		super(dataFieldObs);
+		// TODO Auto-generated constructor stub
 	}
 
 }

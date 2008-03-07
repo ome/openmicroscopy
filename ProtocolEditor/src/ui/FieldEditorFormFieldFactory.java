@@ -42,6 +42,7 @@ import ui.formFields.FormField;
 import ui.formFields.FormFieldCheckBox;
 import ui.formFields.FormFieldCustom;
 import ui.formFields.FormFieldDate;
+import ui.formFields.FormFieldDateTime;
 import ui.formFields.FormFieldDropDown;
 import ui.formFields.FormFieldFixed;
 import ui.formFields.FormFieldImage;
@@ -95,6 +96,9 @@ public class FieldEditorFormFieldFactory {
 		}
 		else if (inputType.equals(DataFieldConstants.DATE)) {
 			fieldEditor = new FieldEditorDate(dataField);
+		}
+		else if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
+			fieldEditor = new FieldEditorFixed(dataField);
 		}
 		else if (inputType.equals(DataFieldConstants.TIME_FIELD)) {
 			fieldEditor = new FieldEditorTime(dataField);
@@ -156,6 +160,9 @@ public class FieldEditorFormFieldFactory {
 		}
 		else if (inputType.equals(DataFieldConstants.DATE)) {
 			formField = new FormFieldDate(dataField);
+		}
+		else if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
+			formField = new FormFieldDateTime(dataField);
 		}
 		else if (inputType.equals(DataFieldConstants.TIME_FIELD)) {
 			formField = new FormFieldTime(dataField);

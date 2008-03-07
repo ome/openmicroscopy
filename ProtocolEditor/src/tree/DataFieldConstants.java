@@ -18,6 +18,7 @@ public class DataFieldConstants {
 	public final static String TABLE_ROW_COUNT = "tableRowCount";
 	public final static String ROW_DATA_NUMBER = "rowNumber";	// concatenate this with row integer
 	public static final String UNITS = "units";
+	public static final String UTC_MILLISECS = "UTCMillisecs";
 	public static final String IMAGE_PATH = "imagePath";
 	public static final String IMAGE_ZOOM = "imageZoom";
 	public static final String KEYWORDS = "keywords";
@@ -47,7 +48,8 @@ public class DataFieldConstants {
 	public static final String NUMBER_ENTRY_STEP = "NumberField";
 	public static final String DROPDOWN_MENU_STEP = "DropDownMenu";
 	public static final String CHECKBOX_STEP = "CheckBoxField";
-	public static final String DATE = "DateField";
+	public static final String DATE = "DateField";		// This is deprecated!! 
+	public static final String DATE_TIME_FIELD = "DateTimeField";
 	public static final String TIME_FIELD = "TimeField";
 	public static final String TABLE = "TableField";
 	public static final String IMAGE_FIELD = "ImageField";
@@ -56,13 +58,13 @@ public class DataFieldConstants {
 	public static final String OBSERVATION_DEFINITION = "ObservationDefinition";
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
-	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE, TIME_FIELD, TABLE, 
+	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE_TIME_FIELD, TIME_FIELD, TABLE, 
 	IMAGE_FIELD, OLS_FIELD, OBSERVATION_DEFINITION
 	};
 	//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", "Text  (single line)", "Text Box  (multi-line)", "Drop-down Menu", "Check-Box", "Number", "Date", "Time", "Table", 
+	{ "Fixed", "Text  (single line)", "Text Box  (multi-line)", "Drop-down Menu", "Check-Box", "Number", "Date & Time", "Time", "Table", 
 		"Image", "Ontology Term", "Phenote Observation"
 		};
 
