@@ -74,13 +74,13 @@ public class TitlePanel
     private static final Color  DEFAULT_BG = Color.WHITE;  
     
     /** The component embedding the panel's title. */
-    private JComponent      title;
+    private JLabel      	title;
     
     /** The component embedding the panel's sub-title. */
-    private JComponent      subTitle;
+    private MultilineLabel	subTitle;
     
     /** The component embedding the panel's text. */
-    private JComponent      text;
+    private MultilineLabel	text;
     
     /** The horizontal line at the bottom of the panel. */
     private JSeparator      hLine;
@@ -185,6 +185,25 @@ public class TitlePanel
         repaint();
     }
     
+    public void setTitle(String text)
+    {
+    	title.setText(text);
+    	repaint();
+    }
+    
+    public void setTextHeader(String text)
+    {
+    	
+        this.text.setText(text);
+        repaint();
+    }
+    
+    public void setSubtitle(String text)
+    {
+    	
+    	subTitle.setText(text);
+        repaint();
+    }
     /**
      * Lays out the sub-components of this title panel. 
      */

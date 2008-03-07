@@ -274,7 +274,7 @@ public class FileChooser
     void acceptSelection()
     {
     	firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.FALSE, 
-							Boolean.TRUE);
+							getSelectedFile());
         if (uiDelegate.isSetDefaultFolder())
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());
@@ -304,7 +304,6 @@ public class FileChooser
             }
         }
     	if (!exist) new File(path).mkdir();
-    	System.err.println("FileChooser: "+(path+separator));
 		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
 		if (uiDelegate.isSetDefaultFolder()) 
 			UIUtilities.setDefaultFolder(path);

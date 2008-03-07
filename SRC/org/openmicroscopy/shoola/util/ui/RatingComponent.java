@@ -110,19 +110,22 @@ public class RatingComponent
 		IconManager icons = IconManager.getInstance();
 		switch (size) {
 			case HIGH_SIZE:
-				selected = icons.getImageIcon(IconManager.START_SELECTED).getImage();
-				unselected = 
-						icons.getImageIcon(IconManager.START_UNSELECTED).getImage();
+				selected = icons.getImageIcon(
+							IconManager.START_SELECTED).getImage();
+				unselected = icons.getImageIcon(
+								IconManager.START_UNSELECTED).getImage();
 				break;
 			case MEDIUM_SIZE:
-				selected = icons.getImageIcon(IconManager.START_SELECTED_12).getImage();
-				unselected = 
-						icons.getImageIcon(IconManager.START_UNSELECTED_12).getImage();
+				selected = icons.getImageIcon(
+						IconManager.START_SELECTED_12).getImage();
+				unselected = icons.getImageIcon(
+								IconManager.START_UNSELECTED_12).getImage();
 				break;
 			case SMALL_SIZE:
-				selected = icons.getImageIcon(IconManager.START_SELECTED_8).getImage();
-				unselected = 
-						icons.getImageIcon(IconManager.START_UNSELECTED_8).getImage();
+				selected = icons.getImageIcon(
+								IconManager.START_SELECTED_8).getImage();
+				unselected = icons.getImageIcon(
+						IconManager.START_UNSELECTED_8).getImage();
 		}
 		int w = selected.getWidth(null);
 		int h = selected.getHeight(null);

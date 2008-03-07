@@ -187,6 +187,7 @@ public class TitledLineBorder
          int ascent = fm.getAscent();
          int diff;
          int stringWidth = fm.stringWidth(getTitle());
+         if (getTitle().equals("")) stringWidth = 0;
          Insets insets;
 
          if (border != null) insets = border.getBorderInsets(c);
