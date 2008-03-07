@@ -81,11 +81,6 @@ public class NullTaskBar
     public JFrame getFrame() { return null; }
 
     /**
-     * @see TaskBar#addToMenuBar(JMenu[], boolean)
-     */
-    public void addToMenuBar(JMenu[] menus, boolean before) {}
-
-    /**
      * @see TaskBar#getTaskBarMenuBar()
      */
     public JMenuBar getTaskBarMenuBar() { return null; }
@@ -99,5 +94,11 @@ public class NullTaskBar
      * @see TaskBar#getCopyMenuItem(int)
      */
 	public JMenuItem getCopyMenuItem(int index) { return null; }
+
+	//TMP
+	public void openURL(String url) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

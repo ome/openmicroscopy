@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import javax.swing.Icon;
 
+import pojos.FileAnnotationData;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -95,5 +97,15 @@ public class NullUserNotifier
      * @see UserNotifier#submitMessage(String)
      */
 	public void submitMessage(String emailAddress) {}
+
+	/**
+	 * @see UserNotifier#notifyDownload(FileAnnotationData)
+	 */
+	public void notifyDownload(FileAnnotationData data) {}
+
+	/**
+	 * @see UserNotifier#setLoadingStatus(int, long, String)
+	 */
+	public void setLoadingStatus(int percent, long id, String name) {}
 
 }
