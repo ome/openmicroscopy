@@ -723,6 +723,11 @@ public class OMEROMetadataStore implements MetadataStore
                 "Setting Image[%d] Pixels[%d] sizeC: '%d'",
                 imageIndex, pixelsIndex, sizeC));
         Pixels p = getPixels(imageIndex, pixelsIndex);
+        if (p.getSizeC() != null && sizeC != null && p.getSizeC().equals(sizeC))
+        {
+            log.debug("Not resetting channels.");
+            return;
+        }
         p.setSizeC(sizeC);
         if (p.sizeOfChannels() != 0)
         {

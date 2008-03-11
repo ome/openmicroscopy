@@ -2,7 +2,6 @@ package ome.formats.importer;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
@@ -38,7 +37,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import com.toedter.calendar.JDateChooser;
+import org.jdesktop.swingx.JXDatePicker;
 
 import layout.TableLayout;
 
@@ -92,8 +91,8 @@ public class HistoryTable
     JLabel                  fromLabel;
     JLabel                  toLabel;
     
-    JDateChooser            fromDate;
-    JDateChooser            toDate;
+    JXDatePicker            fromDate;
+    JXDatePicker            toDate;
     
     JTextField              searchField;
     
@@ -154,27 +153,20 @@ public class HistoryTable
         
         topSidePanel = gui.addBorderedPanel(mainPanel, topSideTable, " Date Filter ", debug);
         
-        int cbSize = 24;
-        fromDate = new JDateChooser();
-        fromDate.addPropertyChangeListener("date", this);
-        fromDate.setDateFormatString(DATE_FORMAT);
-        fromDate.getJCalendar().setPreferredSize(new Dimension(300,200));
+        String[] dateFormats = new String[1];
+        dateFormats[0] = DATE_FORMAT;
         
-        fromDate.getCalendarButton().setMinimumSize(new Dimension(cbSize,cbSize));
-        fromDate.getCalendarButton().setPreferredSize(new Dimension(cbSize,cbSize));
-        fromDate.getCalendarButton().setMaximumSize(new Dimension(cbSize,cbSize));
-        fromDate.getCalendarButton().setSize(new Dimension(cbSize,cbSize));
+        fromDate = new JXDatePicker();
+        fromDate.setToolTipText("Pick a from date.");
+        //fromDate.getEditor().setEditable(false);
+        //fromDate.setEditable(false);
+        fromDate.setFormats(dateFormats);
 
-        toDate = new JDateChooser();
-        toDate.addPropertyChangeListener("date", this);
-        toDate.setDateFormatString(DATE_FORMAT);
-        toDate.getJCalendar().setPreferredSize(new Dimension(300,200));
-        
-        
-        toDate.getCalendarButton().setMinimumSize(new Dimension(cbSize,cbSize));
-        toDate.getCalendarButton().setPreferredSize(new Dimension(cbSize,cbSize));
-        toDate.getCalendarButton().setMaximumSize(new Dimension(cbSize,cbSize));
-        toDate.getCalendarButton().setSize(new Dimension(cbSize,cbSize));
+        toDate = new JXDatePicker();
+        toDate.setToolTipText("Pick a to date.");
+        //toDate.getEditor().setEditable(false);
+        //toDate.setEditable(false);
+        toDate.setFormats(dateFormats);
         
         fromLabel = new JLabel("From (yy/mm/dd):");
         
@@ -308,7 +300,7 @@ public class HistoryTable
     private void ClearHistory()
     {
         String message = "This will delete your import history. \n" +
-        		"Are you sure you want to continue?";
+                "Are you sure you want to continue?";
         Object[] o = {"Yes", "No"};
         
         int result = JOptionPane.showOptionDialog(this, message, "Warning", -1,
