@@ -21,31 +21,27 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package actions;
+package ui.components;
 
-import java.awt.event.ActionEvent;
+import java.awt.Component;
 
-import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.border.EmptyBorder;
 
-import search.IndexFiles;
-import ui.IModel;
-import util.ImageFactory;
 
-public class IndexFilesAction 
-	extends ProtocolEditorAction {
-	
-	public IndexFilesAction(IModel model) {
+public class CenteredComponent extends Box{
 
-		super(model);
-	
-		putValue(Action.NAME, "Index Files for Searching");
-		putValue(Action.SHORT_DESCRIPTION, "Index all files contained within a root folder, " +
-				"to allow searching of these files.");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.INDEX_FILES_ICON)); 
+	public CenteredComponent(JComponent component) {
+		super(BoxLayout.Y_AXIS);
+		component.setAlignmentX(Component.CENTER_ALIGNMENT);
+		add(component);
 	}
 	
-	public void actionPerformed(ActionEvent e) {
-		IndexFiles.indexFolderContents();
+	public CenteredComponent(JComponent component, int padding) {
+		this(component);
+		component.setBorder(new EmptyBorder(padding, padding, padding, padding));
 	}
-	
+
 }

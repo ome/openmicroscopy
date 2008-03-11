@@ -19,6 +19,9 @@ public class DataFieldConstants {
 	public final static String ROW_DATA_NUMBER = "rowNumber";	// concatenate this with row integer
 	public static final String UNITS = "units";
 	public static final String UTC_MILLISECS = "UTCMillisecs";
+	// new way of storing value for TIME_FIELD as of 8thMarch08 (previously used "value" attribute in the form "hh:mm:ss")
+	public static final String SECONDS = "seconds";	
+	public static final String ALARM_SECONDS = "alarmSeconds";
 	public static final String IMAGE_PATH = "imagePath";
 	public static final String IMAGE_ZOOM = "imageZoom";
 	public static final String KEYWORDS = "keywords";
@@ -48,7 +51,7 @@ public class DataFieldConstants {
 	public static final String NUMBER_ENTRY_STEP = "NumberField";
 	public static final String DROPDOWN_MENU_STEP = "DropDownMenu";
 	public static final String CHECKBOX_STEP = "CheckBoxField";
-	public static final String DATE = "DateField";		// This is deprecated!! 
+	public static final String DATE = "DateField";		// This is deprecated -7th March 08.  Now use DateTimeField
 	public static final String DATE_TIME_FIELD = "DateTimeField";
 	public static final String TIME_FIELD = "TimeField";
 	public static final String TABLE = "TableField";

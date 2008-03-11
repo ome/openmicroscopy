@@ -302,10 +302,7 @@ public class DataField
 		formField.refreshTitleCollapsed();
 	}
 
-	public ArrayList<JComponent> getVisibleAttributes() {
-		if (formField == null) getFormField();	// make sure there is one
-		return formField.getVisibleAttributes();
-	}
+	
 	public void dataFieldSelected(boolean clearOthers) {
 		node.nodeClicked(clearOthers);
 	}
@@ -323,7 +320,15 @@ public class DataField
 	}
 	// used for positioning this field in the view-port of the scroll window
 	public int getHeightOfFieldBottom() {
+		if (formField == null) getFormField();	// make sure there is one
 		return formField.getHeightOfPanelBottom();
+	}
+	
+	// used for getting the destination attribute for storing value of this field
+	// (eg where to copy the default value when loading defaults).
+	public String getValueAttribute() {
+		if (formField == null) getFormField();	// make sure there is one
+		return formField.getValueAttribute();
 	}
 
 	// a method used by the Tree class to convert from old xml version to new

@@ -45,6 +45,8 @@ public class FileChooserReturnFile
 		
 		this.fileExtensions = fileExtensions;
 		
+		this.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		
 		setFileFilter(new TheFileFilter());
 		
 		if (currentFolderPath != null) {
@@ -68,15 +70,17 @@ public class FileChooserReturnFile
 	
 	public class TheFileFilter extends FileFilter {
 		public boolean accept(File file) {
+			
+//			allows "MS Windows" to see directories
+			if (file.isDirectory())
+				return true;
+			
 			String fileName = file.getName();
 			for(int i=0; i< fileExtensions.length; i++) {
 				if (fileName.endsWith(fileExtensions[i]))
 					return true;
 			}
-			//	allows "MS Windows" to see directories
-			if (file.isDirectory())
-				return true;
-				
+			
 			return false;
 		}
 		public String getDescription() {

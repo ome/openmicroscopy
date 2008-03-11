@@ -21,31 +21,45 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package actions;
+package calendar;
 
-import java.awt.event.ActionEvent;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
-import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 
-import search.IndexFiles;
-import ui.IModel;
-import util.ImageFactory;
 
-public class IndexFilesAction 
-	extends ProtocolEditorAction {
+public class DayOfMonth extends JPanel {
 	
-	public IndexFilesAction(IModel model) {
-
-		super(model);
+	Box eventBox;
 	
-		putValue(Action.NAME, "Index Files for Searching");
-		putValue(Action.SHORT_DESCRIPTION, "Index all files contained within a root folder, " +
-				"to allow searching of these files.");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.INDEX_FILES_ICON)); 
+	public DayOfMonth(int dayOfMonth) {
+		
+		setLayout(new BorderLayout());
+		setBorder(new BevelBorder(BevelBorder.LOWERED));
+		
+		Dimension daySize = new Dimension(100, 100);
+		setMinimumSize(daySize);
+		setPreferredSize(daySize);
+		
+		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
+		
+		eventBox = Box.createVerticalBox();
+		add(eventBox, BorderLayout.CENTER);
 	}
 	
-	public void actionPerformed(ActionEvent e) {
-		IndexFiles.indexFolderContents();
+	public DayOfMonth() {
+		
 	}
 	
+	public void addEvent(CalendarEvent event) {
+		JLabel eventLabel = new JLabel(event.getName());
+		String time = CalendarDataBase.sqlDateTimeFormat.format(event.getTime());
+		eventLabel.setToolTipText(time);
+		eventBox.add(eventLabel);
+	}
+
 }

@@ -261,6 +261,17 @@ public class FormField extends JPanel implements DataFieldObserver{
 		}
 	}
 	
+	/**
+	 * Gets the name of the attribute where this field stores its "value".
+	 * This is used eg. as the destination to copy the default value when defaults are loaded.
+	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
+	 * subclasses if they want to store their value under a different attribute (eg "seconds" for TimeField)
+	 * 
+	 * @return	the name of the attribute that holds the "value" of this field
+	 */
+	public String getValueAttribute() {
+		return DataFieldConstants.VALUE;
+	}
 	
 	// called when user clicks on panel
 	public void setHighlighted(boolean highlight) {

@@ -63,13 +63,13 @@ public class EditCopyDefaultValues extends AbstractUndoableEdit {
 		
 		while (iterator.hasNext()) {
 			DataField field = (DataField)iterator.next().getDataField();
-			String oldValue = field.getAttribute(DataFieldConstants.VALUE);	// may be null
+			String valueAttribute = field.getValueAttribute();		// find where the "value" of this field is stored
+			String oldValue = field.getAttribute(valueAttribute);	// may be null
 			String newValue = field.getAttribute(DataFieldConstants.DEFAULT);
 			
 			if (newValue != null) {		// make a list of all fields that have a default value
-				editedFields.add(new EditDataFieldAttribute(field, DataFieldConstants.VALUE, oldValue, newValue));	// keep a reference to fields that have been edited
+				editedFields.add(new EditDataFieldAttribute(field, valueAttribute, oldValue, newValue));	// keep a reference to fields that have been edited
 			}
-			
 		}
 	}
 	

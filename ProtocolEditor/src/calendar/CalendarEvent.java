@@ -21,31 +21,39 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package actions;
+package calendar;
 
-import java.awt.event.ActionEvent;
+import java.util.Calendar;
+import java.util.Date;
 
-import javax.swing.Action;
+/**
+ * This represents an event in the calendar. Either created from a DateTime field, or from a Time field
+ * that follows a date.
+ * Basically, this class is a Date & Time (Gregorian Calendar instance) and a name (String).
+ * A CalendarFile may contain several CalendarEvent instances. 
+ * eg Transfection-Date, followed by (2 days later) Fixation time. 
+ * 
+ * @author will
+ *
+ */
+public class CalendarEvent {
 
-import search.IndexFiles;
-import ui.IModel;
-import util.ImageFactory;
-
-public class IndexFilesAction 
-	extends ProtocolEditorAction {
+	String eventName;
 	
-	public IndexFilesAction(IModel model) {
-
-		super(model);
+	Calendar eventTime;
 	
-		putValue(Action.NAME, "Index Files for Searching");
-		putValue(Action.SHORT_DESCRIPTION, "Index all files contained within a root folder, " +
-				"to allow searching of these files.");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.INDEX_FILES_ICON)); 
+	public CalendarEvent(String name, Calendar time) {
+		
+		eventName = name;
+		eventTime = time;
 	}
 	
-	public void actionPerformed(ActionEvent e) {
-		IndexFiles.indexFolderContents();
+	public String getName() {
+		return eventName;
+	}
+	
+	public Date getTime() {
+		return eventTime.getTime();
 	}
 	
 }
