@@ -13,6 +13,7 @@
 	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
+	<classpathentry kind="lib" path="target/libs/backport-util-concurrent.jar"/>
 	<classpathentry kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry kind="lib" path="target/libs/checkstyle.jar"/>
@@ -57,7 +58,10 @@
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
+	<classpathentry kind="lib" path="target/libs/mule.jar"/>
+	<classpathentry kind="lib" path="target/libs/nanoxml.jar"/>
 	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
+	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
