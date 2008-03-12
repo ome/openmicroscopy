@@ -41,29 +41,19 @@ import ui.components.FileChooserReturnFile;
 import ui.fieldEditors.FieldEditorTime;
 import util.XMLMethods;
 
-public class CalendarFile {
+public class CalendarFile extends CalendarObject {
 	
-	/**
-	 * A Generic name for display purposes
-	 */
-	String fileName;
 	
-	/**
-	 * The location of the file
-	 */
-	String filePath;
 
 	/**
 	 * A list of the date-time fields in the file
 	 */
 	ArrayList<CalendarEvent> scheduledDates;
 	
-	public static DateFormat timeFormat = DateFormat.getTimeInstance (DateFormat.DEFAULT);
-	public static DateFormat dateFormat = DateFormat.getDateInstance( DateFormat.DEFAULT);
 	
 	public CalendarFile(File xmlExperimentFile) {
 		
-		filePath = xmlExperimentFile.getAbsolutePath();
+		setInfo(xmlExperimentFile.getAbsolutePath());
 		
 		scheduledDates = new ArrayList<CalendarEvent>();
 		
@@ -72,8 +62,7 @@ public class CalendarFile {
 	}
 	
 	public CalendarFile(String filePath, String fileName) {
-		this.filePath = filePath;
-		this.fileName = fileName;
+		super(fileName, filePath);
 		
 		scheduledDates = new ArrayList<CalendarEvent>();
 	}
@@ -83,6 +72,10 @@ public class CalendarFile {
 		scheduledDates.add(new CalendarEvent(eventName, eventDate));
 	}
 	
+	public void addEvent(CalendarEvent event) {
+		scheduledDates.add(event);
+	}
+	
 	public void buildScheduledDates(File xmlExperimentFile) {
 		
 		try {
@@ -90,7 +83,8 @@ public class CalendarFile {
 			NodeList dateTimeNodes = domDoc.getElementsByTagName("*");
 			
 			Element titleElement = domDoc.getDocumentElement();
-			fileName = titleElement.getAttribute(DataFieldConstants.ELEMENT_NAME);
+			setName(titleElement.getAttribute(DataFieldConstants.ELEMENT_NAME));
+			
 			
 			boolean fileContainsDate = false;
 			
@@ -113,8 +107,8 @@ public class CalendarFile {
 					scheduledDates.add(new CalendarEvent(eventName, gc));
 					
 					// just to make sure that fileName gets assigned to something (ie if it didn't get name from root)
-					if (fileName == null)
-						fileName = eventName;
+					if (getName() == null)
+						setName(eventName);
 				}
 				
 				// if you know that dates exist, look for times that follow
@@ -147,13 +141,13 @@ public class CalendarFile {
 	public void printDatesList() {
 		
 		for (CalendarEvent event: scheduledDates) {
-			Date eventTime = event.getTime();
+			//Date eventTime = event.getTime();
 			
-			String time = timeFormat.format(eventTime);
-			String date = dateFormat.format(eventTime);
+			// String time = timeFormat.format(eventTime);
+			// String date = dateFormat.format(eventTime);
 			String name = event.getName();
 			
-			System.out.println(name + ": " + date + ", " + time);
+			// System.out.println(name + ": " + date + ", " + time);
 		}
 	}
 	
@@ -168,14 +162,6 @@ public class CalendarFile {
 		File file = fc.getFileFromUser();
 		
 		new CalendarFile(file).printDatesList();
-	}
-	
-	public String getCalendarFileTitle() {
-		return fileName;
-	}
-	
-	public String getCalendarFilePath() {
-		return filePath;
 	}
 	
 	public List<CalendarEvent> getEvents() {

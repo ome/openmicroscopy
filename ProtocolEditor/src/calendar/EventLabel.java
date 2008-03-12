@@ -23,45 +23,52 @@
 
 package calendar;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Font;
+import java.text.DateFormat;
+import java.util.Observable;
+import java.util.Observer;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
+import javax.swing.JButton;
 
-
-public class DayOfMonth extends JPanel {
+public class EventLabel 
+	extends JButton 
+	implements Observer {
 	
-	Box eventBox;
+	CalendarEvent calendarEvent;
 	
-	public DayOfMonth(int dayOfMonth) {
+	Color backgroundColor = Color.WHITE;
+	
+	public EventLabel (CalendarEvent event) {
 		
-		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createMatteBorder(1,1,0,0, new Color(200, 200, 200)));
+		if(event instanceof Observable) {
+			((Observable)event).addObserver(this);
+		}
 		
-		Dimension daySize = new Dimension(115, 105);
-		setMinimumSize(daySize);
-		setPreferredSize(daySize);
+		calendarEvent = event;
 		
-		this.setBackground(Color.WHITE);
+		setText(event.getName());
 		
-		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
+		String time = DateFormat.getTimeInstance().format(event.getStartTime());
+		setToolTipText(time);
 		
-		eventBox = Box.createVerticalBox();
-		add(eventBox, BorderLayout.CENTER);
+		Font calendarFont = new Font("SansSerif", Font.PLAIN, 10);
+		this.setFont(calendarFont);
+		this.setBackground(backgroundColor);
+		this.setBorder(null);
+		this.setFocusable(true);
+	}
+
+	public void update(Observable o, Object arg) {
+		
+		
 	}
 	
-	public DayOfMonth() {
-		
-	}
 	
-	public void addEvent(CalendarEvent event) {
-
-		eventBox.add(new EventLabel(event));
+	
+	public void setSelected(boolean selected) {
+		setBackground(selected ? Color.RED : backgroundColor);
+		setForeground(selected ? Color.WHITE : Color.BLACK);
 	}
 
 }

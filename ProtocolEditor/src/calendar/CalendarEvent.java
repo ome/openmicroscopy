@@ -25,6 +25,8 @@ package calendar;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Observable;
 
 /**
  * This represents an event in the calendar. Either created from a DateTime field, or from a Time field
@@ -36,24 +38,112 @@ import java.util.Date;
  * @author will
  *
  */
-public class CalendarEvent {
+public class CalendarEvent 
+	extends Observable {
 
-	String eventName;
+	/**
+	 * A name for this event
+	 */
+	private String eventName;
 	
-	Calendar eventTime;
+	/**
+	 * The time that this event starts. This must be set when the class is instantiated 
+	 */
+	private Calendar startTime;
 	
-	public CalendarEvent(String name, Calendar time) {
-		
+	/**
+	 * The time that this event ends
+	 */
+	private Calendar endTime;
+	
+	/**
+	 * A time for an alarm for this event
+	 */
+	private Calendar alarmTime;
+	
+	/**
+	 * This indicates whether an event occurs all day (or days), instead of at a particular time
+	 */
+	boolean allDayEvent = false;
+	
+	public CalendarEvent(String name, Calendar startTime) {
 		eventName = name;
-		eventTime = time;
+		initialiseTimes(startTime);
+	}
+	
+	public CalendarEvent(String name, Date startTime) {
+		eventName = name;
+		initialiseTimes(startTime);
+	}
+	
+	public CalendarEvent(Calendar startTime) {
+		initialiseTimes(startTime);
+	}
+	
+	public CalendarEvent(Date startTime) {
+		initialiseTimes(startTime);
+	}
+		
+	public void initialiseTimes(Calendar startTime) {
+		this.startTime = startTime;
+		endTime = startTime;
+	}
+	
+	public void initialiseTimes(Date startTime) {
+		GregorianCalendar time = new GregorianCalendar();
+		time.setTime(startTime);
+		
+		initialiseTimes(time);
+	}
+	
+	public CalendarEvent() {
+		
 	}
 	
 	public String getName() {
 		return eventName;
 	}
 	
-	public Date getTime() {
-		return eventTime.getTime();
+	public Date getStartTime() {
+		if (startTime != null)
+			return startTime.getTime();
+		else 
+			return null;
 	}
+	
+	public Calendar getStartCalendar() {
+		return startTime;
+	}
+	
+	public Date getEndTime() {
+		if (endTime != null)
+			return endTime.getTime();
+		else 
+			return null;
+	}
+	
+	public Calendar getEndCalendar() {
+		return startTime;
+	}
+	
+	public Date getAlarmTime() {
+		if (alarmTime != null)
+			return alarmTime.getTime();
+		else 
+			return null;
+	}
+	
+	public Calendar getAlarmCalendar() {
+		return alarmTime;
+	}
+	
+	public void setAllDayEvent(boolean allDay) {
+		allDayEvent = allDay;
+	}
+	
+	public boolean isAllDayEvent() {
+		return allDayEvent;
+	}
+	
 	
 }

@@ -23,45 +23,30 @@
 
 package calendar;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
+import org.jdesktop.swingx.JXDatePicker;
 
+public class DatePicker extends JXDatePicker {
 
-public class DayOfMonth extends JPanel {
+	/** The selected date format. */
+	private static final String		DATE_FORMAT = "yy/MM/dd";//"MM/dd/yy";
 	
-	Box eventBox;
-	
-	public DayOfMonth(int dayOfMonth) {
-		
-		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createMatteBorder(1,1,0,0, new Color(200, 200, 200)));
-		
-		Dimension daySize = new Dimension(115, 105);
-		setMinimumSize(daySize);
-		setPreferredSize(daySize);
-		
-		this.setBackground(Color.WHITE);
-		
-		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
-		
-		eventBox = Box.createVerticalBox();
-		add(eventBox, BorderLayout.CENTER);
-	}
-	
-	public DayOfMonth() {
-		
-	}
-	
-	public void addEvent(CalendarEvent event) {
+	/** The tooltip of the calendar button. */
+	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
 
-		eventBox.add(new EventLabel(event));
+	/**
+	 * Creates a date picker.
+	 */
+	public DatePicker() {
+		
+		String[] dateFormats = new String[1];
+		dateFormats[0] = DATE_FORMAT;
+		getEditor().setEditable(false);
+		setEditable(false);
+		setFormats(dateFormats);
+
+		getEditor().setBackground(Color.WHITE);
 	}
 
 }

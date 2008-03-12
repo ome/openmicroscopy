@@ -23,45 +23,24 @@
 
 package calendar;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Font;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
 
+public class CalendarLabel extends JLabel {
 
-public class DayOfMonth extends JPanel {
 	
-	Box eventBox;
+	public CalendarLabel(String text) {
 	
-	public DayOfMonth(int dayOfMonth) {
-		
-		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createMatteBorder(1,1,0,0, new Color(200, 200, 200)));
-		
-		Dimension daySize = new Dimension(115, 105);
-		setMinimumSize(daySize);
-		setPreferredSize(daySize);
-		
-		this.setBackground(Color.WHITE);
-		
-		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
-		
-		eventBox = Box.createVerticalBox();
-		add(eventBox, BorderLayout.CENTER);
+		this(text, 10);
 	}
 	
-	public DayOfMonth() {
+	public CalendarLabel(String text, int size) {
+		super(text);
 		
+		Font calendarFont = new Font("SansSerif", Font.PLAIN, size);
+
+		this.setFont(calendarFont);
 	}
 	
-	public void addEvent(CalendarEvent event) {
-
-		eventBox.add(new EventLabel(event));
-	}
-
 }

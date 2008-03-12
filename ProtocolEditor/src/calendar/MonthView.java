@@ -26,9 +26,12 @@ package calendar;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -120,23 +123,58 @@ public class MonthView extends JPanel {
 			daysGridPanel.add(days[i]);
 		}
 		
-		this.add(daysGridPanel, BorderLayout.SOUTH);
+		this.add(daysGridPanel, BorderLayout.CENTER);
+		
 		
 		
 		JPanel daysOfWeekHeader = new JPanel(new GridLayout(0, 7));
-		daysOfWeekHeader.add(new CenteredComponent(new JLabel("Monday")));
-		daysOfWeekHeader.add(new CenteredComponent(new JLabel("Tuesday")));
-		daysOfWeekHeader.add(new CenteredComponent(new JLabel("Wednesday")));
-		daysOfWeekHeader.add(new CenteredComponent(new JLabel("Thursday")));
-		daysOfWeekHeader.add(new CenteredComponent(new JLabel("Friday")));
-		daysOfWeekHeader.add(new CenteredComponent(new JLabel("Saturday")));
-		daysOfWeekHeader.add(new CenteredComponent(new JLabel("Sunday")));
-		this.add(daysOfWeekHeader, BorderLayout.CENTER);
+		int headerFontSize = 13;
+		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Monday", headerFontSize)));
+		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Tuesday", headerFontSize)));
+		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Wednesday", headerFontSize)));
+		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Thursday", headerFontSize)));
+		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Friday", headerFontSize)));
+		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Saturday", headerFontSize)));
+		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Sunday", headerFontSize)));
+		
 		
 		SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMMMM yyyy");
 		String monthYear = monthYearFormat.format(thisMonth.getTime());
-		this.add(new CenteredComponent(new JLabel(monthYear)), BorderLayout.NORTH);
+		
+		Box headerBox = Box.createVerticalBox();
+		headerBox.add(new CenteredComponent(new CalendarLabel(monthYear, 14), 5));
+		headerBox.add(daysOfWeekHeader);
+		
+		this.add(headerBox, BorderLayout.NORTH);
 	}
+	
+	/**
+	 * Display a CalendarFile on the month
+	 * @param calFile
+	 */
+	public void addCalendarFile(CalendarFile calFile) {
+		
+		List<CalendarEvent> events = calFile.getEvents();
+		
+		for (CalendarEvent evt: events) {
+			addCalendarEvent(evt);
+		}
+	}
+	
+	
+	/**
+	 * Adds an event to the calendar. This is only displayed if it falls on a day of this month.
+	 * 
+	 * @param evt
+	 */
+	public void addCalendarEvent(CalendarEvent evt) {
+		Calendar eventDateTime = evt.getStartCalendar();
+		if (eventDateTime.get(Calendar.MONTH) == thisMonth.get(Calendar.MONTH)) {
+			int dayOfMonth = eventDateTime.get(Calendar.DAY_OF_MONTH);
+			days[dayOfMonth].addEvent(evt);
+		}
+	}
+	
 	
 	public static void main(String[] args) {
 		

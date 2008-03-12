@@ -163,8 +163,12 @@ public class FormFieldDateTime extends FormField {
 		if (millisecs != null) {
 			long UTCMillisecs = new Long(millisecs);
 			gc.setTimeInMillis(UTCMillisecs);
-		} else 
+		} else {
 			gc.setTime(new Date());
+			// make sure that dataField has a record of the current default time
+			long timeInMillis = gc.getTimeInMillis();
+			dataField.setAttribute(DataFieldConstants.UTC_MILLISECS, timeInMillis + "", false);
+		}
 	}
 	
 	
