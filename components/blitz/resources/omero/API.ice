@@ -189,6 +189,12 @@ module omero {
 	idempotent int getBitDepth(omero::model::PixelsType type) throws ServerError;
 	idempotent omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
 	idempotent IObjectList getAllEnumerations(string enumClass) throws ServerError;
+	omero::RLong copyAndResizePixels(long pixelsId,
+	                                 omero::RInt sizeX,
+	                                 omero::RInt sizeY,
+	                                 omero::RInt sizeZ,
+	                                 omero::RInt sizeT,
+	                                 string methodology);
       };
 
     dictionary<long, IObjectList> AnnotationMap;

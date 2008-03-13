@@ -8,6 +8,7 @@
 package ome.logic;
 
 // Java imports
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -27,9 +28,12 @@ import org.springframework.transaction.annotation.Transactional;
 // Application-internal dependencies
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
+import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
+import ome.model.core.Channel;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
@@ -60,14 +64,7 @@ import ome.services.util.OmeroAroundInvoke;
 @Local(IPixels.class)
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPixels")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
-class PixelsImpl extends AbstractLevel2Service implements IPixels {
-
-    protected transient PixelsService pixelsData;
-
-    public final void setPixelsData(PixelsService pixelsData) {
-        getBeanHelper().throwIfAlreadySet(this.pixelsData, pixelsData);
-        this.pixelsData = pixelsData;
-    }
+public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IPixels.class;
@@ -114,6 +111,52 @@ class PixelsImpl extends AbstractLevel2Service implements IPixels {
                         new Parameters().addLong("pixid", pixId).addLong(
                                 "ownerid", userId));
     }
+    
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public Long copyAndResizePixels(long pixelsId, Integer sizeX, Integer sizeY,
+            Integer sizeZ, Integer sizeT, String methodology)
+    {
+        // Ensure we have no values out of bounds
+        outOfBoundsCheck(sizeX, "sizeX");
+        outOfBoundsCheck(sizeY, "sizeY");
+        outOfBoundsCheck(sizeZ, "sizeZ");
+        outOfBoundsCheck(sizeT, "sizeT");
+        
+        // Copy basic metadata
+        Pixels from = iQuery.get(Pixels.class, pixelsId);
+        Pixels to = new Pixels();
+        to.setDimensionOrder(from.getDimensionOrder());
+        to.setMethodology(methodology);
+        to.setPixelsDimensions(from.getPixelsDimensions());
+        to.setPixelsType(from.getPixelsType());
+        to.setRelatedTo(from);
+        to.setSizeX(sizeX != null? sizeX : from.getSizeX());
+        to.setSizeY(sizeY != null? sizeY : from.getSizeY());
+        to.setSizeZ(sizeZ != null? sizeZ : from.getSizeZ());
+        to.setSizeT(sizeT != null? sizeT : from.getSizeT());
+        to.setSizeC(from.getSizeC());
+        to.setSha1("Pending...");
+        
+        // Deal with Image linkage
+        Image image = from.getImage();
+        image.addPixels(to);
+        
+        // Copy channel data
+        Iterator<Channel> i = from.iterateChannels();
+        while (i.hasNext())
+        {
+            Channel cFrom = i.next();
+            Channel cTo = new Channel();
+            cTo.setColorComponent(cFrom.getColorComponent());
+            cTo.setLogicalChannel(cFrom.getLogicalChannel());
+            to.addChannel(cTo);
+        }
+        
+        // Save and return our newly created Pixels Id
+        image = iUpdate.saveAndReturnObject(image);
+        return image.getPixels(image.sizeOfPixels() - 1).getId();
+    }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
@@ -134,5 +177,20 @@ class PixelsImpl extends AbstractLevel2Service implements IPixels {
     @RolesAllowed("user")
     public <T extends IObject> List<T> getAllEnumerations(Class<T> klass) {
         return iQuery.findAll(klass, null);
+    }
+    
+    /**
+     * Ensures that a particular dimension value is not out of range (ex. less
+     * than zero).
+     * @param value The value to check.
+     * @param name The name of the value to be used for error repording.
+     * @throws ValidationException If <code>value</code> is out of range.
+     */
+    private void outOfBoundsCheck(Integer value, String name)
+    {
+        if (value != null && value < 0)
+        {
+            throw new ValidationException(name + ": " + value + " <= 0");
+        }
     }
 }
