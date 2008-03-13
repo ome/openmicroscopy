@@ -37,10 +37,14 @@ import java.util.Set;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.AnnotationAnnotationLink;
+import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.OriginalFileAnnotationLink;
 import ome.model.annotations.ProjectAnnotationLink;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.UrlAnnotation;
 import ome.model.containers.Category;
@@ -63,6 +67,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
+import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.URLAnnotationData;
 
@@ -445,14 +450,26 @@ public class ModelMapper
     		annotation = new UrlAnnotation();
     		((UrlAnnotation) annotation).setTextValue(
     									data.getContentAsString());
-    	} 
+    	} else if (data instanceof TagAnnotationData) {
+    		annotation = new TagAnnotation();
+    		((TagAnnotation) annotation).setTextValue(
+										data.getContentAsString());
+    	}
     	if (annotation == null) return null;
     	return linkAnnotation(annotatedObject, annotation);
     }
     
+    /**
+     * Links the annotation to the passed object.
+     * 
+     * @param annotatedObject	The object to annotate.
+     * @param annotation		The annotation to link.
+     * @return See above.
+     */
     public static ILink linkAnnotation(IObject annotatedObject,
     		IObject annotation) 
     {
+    	
     	if (annotation == null) return null;
     	if (annotatedObject instanceof Dataset) {
     		Dataset m = (Dataset) annotatedObject;
@@ -472,6 +489,12 @@ public class ModelMapper
     		Project m = (Project) annotatedObject;
     		ProjectAnnotationLink l = new ProjectAnnotationLink();
     		l.setParent(m);
+    		l.setChild(annotation);
+    		return l;
+    	} else if (annotatedObject instanceof Annotation) {
+    		Annotation ann = (Annotation) annotatedObject;
+    		AnnotationAnnotationLink l = new AnnotationAnnotationLink();
+    		l.setParent(ann);
     		l.setChild(annotation);
     		return l;
     	}
@@ -509,6 +532,23 @@ public class ModelMapper
     		return ((ProjectAnnotationLink) annotation).getParent();
     	else if (annotation instanceof ImageAnnotationLink)
     		return ((ImageAnnotationLink) annotation).getParent();
+    	return null;
+    }
+    
+    /**
+     * Returns the annotated IObject related to the specified annotation.
+     * 
+     * @param annotation    The annotation.
+     * @return  See above.
+     */
+    public static IObject getAnnotationObject(IObject annotation)
+    {
+    	if (annotation instanceof DatasetAnnotationLink)
+    		return ((DatasetAnnotationLink) annotation).getChild();
+    	else if (annotation instanceof ProjectAnnotationLink)
+    		return ((ProjectAnnotationLink) annotation).getChild();
+    	else if (annotation instanceof ImageAnnotationLink)
+    		return ((ImageAnnotationLink) annotation).getChild();
     	return null;
     }
     

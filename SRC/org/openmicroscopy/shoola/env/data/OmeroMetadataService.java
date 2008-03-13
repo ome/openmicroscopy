@@ -316,13 +316,17 @@ public interface OmeroMetadataService
 	 * 
 	 * @param annotationType 	The type of annotation to retrieve.
 	 * @param objectType		Restrict search to a given type of object.
+	 * @param objectID			Resctrict the search to a given object,
+	 * 							Pass <code>-1</code> if no object taken into
+	 * 							account.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object loadAnnotations(Class annotationType, Class objectType)
+	public Collection loadAnnotations(Class annotationType, Class objectType, 
+									long objectID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

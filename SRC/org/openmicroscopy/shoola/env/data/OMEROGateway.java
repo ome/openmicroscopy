@@ -64,6 +64,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
@@ -112,6 +113,9 @@ import pojos.TextualAnnotationData;
 */
 class OMEROGateway
 {
+	
+	private static final String IMPORTER_NS = 
+					"openmicroscopy.org/omero/importer/archived";
 	
 	/** Maximum size of pixels read at once. */
 	private static final int		INC = 256000;
@@ -242,6 +246,9 @@ class OMEROGateway
 		if (klass.equals(Dataset.class)) table = "DatasetAnnotationLink";
 		else if (klass.equals(Project.class)) table = "ProjectAnnotationLink";
 		else if (klass.equals(Image.class)) table = "ImageAnnotationLink";
+		else if (klass.equals(Pixels.class)) table = "PixelAnnotationLink";
+		else if (klass.equals(Annotation.class))
+			table = "AnnotationAnnotationLink";
 		return table;
 	}
 	
@@ -1264,29 +1271,35 @@ class OMEROGateway
 	 * Finds the link if any between the specified parent and child.
 	 * 
 	 * @param parent    The parent.
-	 * @param child     The child.
+	 * @param childID   The id of the child, or <code>-1</code> if no 
+	 * 					child specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	IObject findAnnotationLink(IObject parent, IObject child)
+	IObject findAnnotationLink(IObject parent, long childID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			IQuery service = getQueryService();
 			String table = getTableForAnnotationLink(parent.getClass());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID and link.child.id = :childID";
-			IQuery service = getQueryService();
+			"link.parent.id = :parentID"; 
+			
 			Parameters param = new Parameters();
 			param.addLong("parentID", parent.getId());
-			param.addLong("childID", child.getId());
+			if (childID >= 0) {
+				sql += " and link.child.id = :childID";
+				param.addLong("childID", childID);
+			}
+			
 			return service.findByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parent.getId()+" and child " +
-					"ID: "+child.getId());
+					"ID: "+childID);
 		}
 		return null;
 	}
@@ -1307,15 +1320,18 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			IQuery service = getQueryService();
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID and link.child.id in " +
-			"(:childIDs)";
-			IQuery service = getQueryService();
+			"link.parent.id = :parentID"; 
+			
 			Parameters param = new Parameters();
 			param.addLong("parentID", parentID);
-			param.addList("childIDs", children);
+			if (children == null || children.size() == 0) {
+				sql += " and link.child.id in (:childIDs)";
+				param.addList("childIDs", children);
+			}
 			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the annotation links for "+
@@ -1531,6 +1547,21 @@ class OMEROGateway
 		return null;
 	}
 
+	/**
+	 * Returns <code>true</code> if the imported set of pixels has 
+	 * been archived, <code>false</code> otherwise.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @return See above.
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	boolean hasArchivedFiles(long pixelsID)
+		throws DSAccessException
+	{
+		return false;
+	}
+	
 	/**
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
@@ -2512,24 +2543,45 @@ class OMEROGateway
 	 * @param annotationType 	The class identifying the annotation to 
 	 * 							search for.
 	 * @param type 				The class identifying the object to search for.
+	 * @param id				The id of the parent annotation.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List fetchAnnotation(Class annotationType, Class type)
+	Set fetchAnnotation(Class annotationType, Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		/*
 		Search service = getSearchService();
 		Class[] object = new Class[1];
 		object[0] = convertPojos(annotationType);
+		service.onlyType(Dataset.class);
 		service.fetchAnnotations(object);
 		if (!service.hasNext()) return new ArrayList();
 		if (type != null) {
 			
 		}
-		return service.results();
+		*/
+		try {
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			String sql =  "select ann from Annotation as ann "
+                + "left outer join fetch ann.details.creationEvent "
+                + "left outer join fetch ann.details.owner";
+			if (id >= 0) {
+				sql += " where ann.id = :id";
+				param.addLong("id", id);
+			}
+			
+			
+			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the annotations");
+		}
+		return null;
+		//return service.results();
 	}
 	
 	List getTaggedEntities(Class type, List<ExperimenterData> users,

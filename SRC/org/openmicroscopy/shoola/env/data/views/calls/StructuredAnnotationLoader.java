@@ -94,7 +94,7 @@ public class StructuredAnnotationLoader
             public void doCall() throws Exception
             {
                 OmeroMetadataService os = context.getMetadataService();
-                result = os.loadAnnotations(annotationType, objectType);
+                result = os.loadAnnotations(annotationType, objectType, -1);
             }
         };
     }

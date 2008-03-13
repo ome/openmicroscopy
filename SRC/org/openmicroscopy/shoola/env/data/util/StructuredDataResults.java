@@ -78,6 +78,9 @@ public class StructuredDataResults
 	/** The ratings of the objects. */
 	private Collection					ratings;
 	
+	/** Flag indicating if the pixels set has been archived. */
+	private boolean						archived;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -89,6 +92,7 @@ public class StructuredDataResults
 		if (relatedObject == null)
 			throw new IllegalArgumentException("No object related.");
 		this.relatedObject = relatedObject;
+		archived = false;
 	}
 	
 	/**
@@ -204,5 +208,21 @@ public class StructuredDataResults
 	 * @return See above.
 	 */
 	public Collection getViewedBy() { return viewedBy; }
+	
+	/**
+	 * Returns <code>true</code> if the imported set of pixels has been 
+	 * archived, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isArchived() { return archived; }
+	
+	/**
+	 * Sets to <code>true</code> if the imported set of pixels has been 
+	 * archived, to <code>false</code> otherwise.
+	 * 
+	 * @param archived The value to set.
+	 */
+	public void setArchived(boolean archived) { this.archived = archived; }
 	
 }

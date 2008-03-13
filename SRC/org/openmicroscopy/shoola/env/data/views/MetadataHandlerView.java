@@ -34,7 +34,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 
 /** 
@@ -223,7 +222,9 @@ public interface MetadataHandlerView
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
-	 * @param data		The file annotation related to the file.
+	 * @param file		The file to copy the date into.
+	 * @param fileID	The id of the original file.
+	 * @param size		The size of the file.
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */

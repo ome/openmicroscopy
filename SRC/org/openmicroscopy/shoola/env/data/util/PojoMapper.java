@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.env.data.util;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -149,6 +150,26 @@ public class PojoMapper
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
     public static Set asDataObjects(Set objects)
+    {
+        if (objects == null) 
+            throw new IllegalArgumentException("The set cannot be null.");
+        HashSet<DataObject> set = new HashSet<DataObject>(objects.size());
+        Iterator i = objects.iterator();
+        while (i.hasNext())
+            set.add(asDataObject((IObject) i.next()));
+        return set;
+    }
+    
+    /**
+     * Converts each {@link IObject element} of the collection into its 
+     * corresponding {@link DataObject}.
+     * 
+     * @param objects   The set of objects to convert.
+     * @return          A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
+    public static Set asDataObjects(List objects)
     {
         if (objects == null) 
             throw new IllegalArgumentException("The set cannot be null.");

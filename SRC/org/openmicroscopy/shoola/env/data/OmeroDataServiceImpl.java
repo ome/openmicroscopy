@@ -388,7 +388,7 @@ class OmeroDataServiceImpl
 			d = (AnnotationData) i.next();
 			ho = gateway.findIObject(d.asIObject());
 			//First delete the link
-			link = gateway.findAnnotationLink(parent, ho);
+			link = gateway.findAnnotationLink(parent, ho.getId());
 			toRemove = new IObject[2];
 			if (ho != null && link != null) {
 				toRemove[0] = link;
@@ -1151,9 +1151,9 @@ class OmeroDataServiceImpl
 		if (links == null || links.size() == 0) return new HashSet();
 		Iterator i = links.iterator();
 		Set<Long> ids = new HashSet<Long>(links.size());
-		while (i.hasNext()) {
+		while (i.hasNext()) 
 			ids.add(((ILink) i.next()).getParent().getId());
-		}
+		
 		return loadContainerHierarchy(CategoryData.class, ids, leaves, userID);
 	}
 	
@@ -1184,9 +1184,9 @@ class OmeroDataServiceImpl
 		try {
 			Class parentClass = null;
 			if (DatasetData.class.equals(type))
-				parentClass = Dataset.class;
-			else if (ProjectData.class.equals(type))
 				parentClass = Project.class;
+			else if (ImageData.class.equals(type))
+				parentClass = Dataset.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(parentClass, id, userID);
 			if (links == null) return new HashSet();
