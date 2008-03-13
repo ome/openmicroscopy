@@ -25,6 +25,7 @@ package pojos;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -49,7 +50,10 @@ public class TagAnnotationData
 {
 
 	/** The descriptions of the tag. */
-	private List<TextualAnnotationData> description;
+	private List<TextualAnnotationData>	descriptions;
+	
+	/** The textual description of the tag. */
+	private TextualAnnotationData		description;
 	
 	/**
 	 * Creates a new instance.
@@ -88,14 +92,36 @@ public class TagAnnotationData
 	 * Creates a new instance.
 	 * 
 	 * @param tag	The tag to wrap.
-	 * @param value	The description of the tag.
+	 * @param value	The descriptions of the tag.
 	 */	
-	public TagAnnotationData(TagAnnotation tag, TextAnnotation value)
+	public TagAnnotationData(TagAnnotation tag, List<TextAnnotation> value)
 	{
 		super(tag);
-		if (description == null)
-			description =  new ArrayList<TextualAnnotationData>();
-		description.add(new TextualAnnotationData(value));
+		if (value == null) return;
+		descriptions = new ArrayList<TextualAnnotationData>();
+		Iterator<TextAnnotation> i = value.iterator();
+		while (i.hasNext()) 
+			descriptions.add(new TextualAnnotationData(i.next()));
+	}
+	
+	/**
+	 * Sets the tag's descriptions.
+	 * 
+	 * @param value The collection to set.
+	 */
+	public void setTagDescriptions(List<TextualAnnotationData> value)
+	{
+		descriptions = value;
+	}
+	
+	/**
+	 * Returns the descriptions linked to that tag.
+	 * 
+	 * @return See above.
+	 */
+	public List getTagDescriptions()
+	{
+		return descriptions;
 	}
 	
 	/**
@@ -107,12 +133,7 @@ public class TagAnnotationData
 	{
 		if (value == null || value.trim().length() == 0)
 			return;
-		/*
-		if (description == null) 
-			description = new TextualAnnotationData(value);
-		else 
-			description.setText(value);
-			*/
+		description = new TextualAnnotationData(value);
 	}
 	
 	/**
@@ -120,11 +141,7 @@ public class TagAnnotationData
 	 * 
 	 * @return See above.
 	 */
-	public List<TextualAnnotationData> getTagDescription()
-	{
-		if (description == null) return null;
-		return description;
-	}
+	public TextualAnnotationData getTagDescription() { return description; }
 	
 	/**
 	 * Sets the value of the tag.
