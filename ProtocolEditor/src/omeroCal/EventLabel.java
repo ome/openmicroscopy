@@ -21,7 +21,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package calendar;
+package omeroCal;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -32,6 +32,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
+
 
 public class EventLabel 
 	extends JButton 

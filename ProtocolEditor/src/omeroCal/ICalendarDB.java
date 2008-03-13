@@ -21,10 +21,11 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package calendar;
+package omeroCal;
 
 import java.util.Calendar;
 import java.util.List;
+
 
 public interface ICalendarDB {
 

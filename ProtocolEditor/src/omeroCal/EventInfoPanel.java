@@ -21,7 +21,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package calendar;
+package omeroCal;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -37,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
+
 
 
 public class EventInfoPanel 

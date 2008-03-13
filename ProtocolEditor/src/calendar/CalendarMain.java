@@ -33,6 +33,11 @@ import java.util.List;
 
 import javax.swing.JFrame;
 
+import omeroCal.CalendarDataBase;
+import omeroCal.CalendarEvent;
+import omeroCal.CalendarObject;
+import omeroCal.MonthView;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;

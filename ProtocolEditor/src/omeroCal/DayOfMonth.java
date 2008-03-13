@@ -21,32 +21,49 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package calendar;
+package omeroCal;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 
-import org.jdesktop.swingx.JXDatePicker;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 
-public class DatePicker extends JXDatePicker {
 
-	/** The selected date format. */
-	private static final String		DATE_FORMAT = "yy/MM/dd";//"MM/dd/yy";
+
+
+public class DayOfMonth extends JPanel {
 	
-	/** The tooltip of the calendar button. */
-	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
-
-	/**
-	 * Creates a date picker.
-	 */
-	public DatePicker() {
+	Box eventBox;
+	
+	public DayOfMonth(int dayOfMonth) {
 		
-		String[] dateFormats = new String[1];
-		dateFormats[0] = DATE_FORMAT;
-		getEditor().setEditable(false);
-		setEditable(false);
-		setFormats(dateFormats);
+		setLayout(new BorderLayout());
+		setBorder(BorderFactory.createMatteBorder(1,1,0,0, new Color(200, 200, 200)));
+		
+		Dimension daySize = new Dimension(115, 105);
+		setMinimumSize(daySize);
+		setPreferredSize(daySize);
+		
+		this.setBackground(Color.WHITE);
+		
+		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
+		
+		eventBox = Box.createVerticalBox();
+		add(eventBox, BorderLayout.CENTER);
+	}
+	
+	public DayOfMonth() {
+		
+	}
+	
+	public void addEvent(CalendarEvent event) {
 
-		getEditor().setBackground(Color.WHITE);
+		eventBox.add(new EventLabel(event));
 	}
 
 }

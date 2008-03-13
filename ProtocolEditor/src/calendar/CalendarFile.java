@@ -30,6 +30,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import omeroCal.CalendarEvent;
+import omeroCal.CalendarObject;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

@@ -21,7 +21,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package calendar;
+package omeroCal;
 
 import java.io.File;
 import java.sql.Connection;
@@ -41,6 +41,7 @@ import java.util.Observable;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
 
 import tree.DataFieldConstants;
 import util.XMLMethods;
