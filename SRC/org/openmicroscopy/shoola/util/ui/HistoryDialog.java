@@ -259,7 +259,7 @@ public class HistoryDialog
      */
     public boolean setSelectedTextValue(String v)
     {
-    	if (v == null) return false;
+    	if (v == null || v.length() == 0) return false;
     	if (originalData == null) return false;
     	String value;
     	List<Object> l = new ArrayList<Object>();

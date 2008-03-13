@@ -26,6 +26,10 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -63,17 +67,21 @@ public class TreeComponent
 	public static final String	EXPANDED_PROPERTY = "expanded";
 	
 	/** The icon displayed when the {@link #collapse} is selected. */
-	private Icon 		collapseIcon;
+	private Icon 					collapseIcon;
 	
 	/** The icon displayed when the {@link #elapse} is selected. */
-	private Icon 		elapseIcon;
+	private Icon 					elapseIcon;
 	
 	/** One of the orientation constants defined by this class. */
-	private int			orientation;
+	private int						orientation;
+	
+	/** Collection of nodes to handle. */
+	private List<TreeComponentNode> nodes;
 	
 	/** Initializes the components.  */
 	private void initialize()
 	{
+		nodes = new ArrayList<TreeComponentNode>();
 		IconManager icons = IconManager.getInstance();
 		
 		switch (orientation) {
@@ -143,6 +151,7 @@ public class TreeComponent
 		node.addPropertyChangeListener(TreeComponentNode.EXPANDED_NODE_PROPERTY,
 										this);
 		add(node);
+		nodes.add(node);
 	}
 	
 	/**
@@ -171,6 +180,19 @@ public class TreeComponent
 		this.elapseIcon = elapseIcon;
 	}
 
+	/** Collapses all the nodes. */
+	public void collapseNodes()
+	{
+		Iterator<TreeComponentNode> i = nodes.iterator();
+		TreeComponentNode node;
+		while (i.hasNext()) {
+			node = i.next();
+			node.setExpanded(false);
+			node.setIcons(collapseIcon, elapseIcon);
+			node.updateUI();
+		}
+	}
+	
 	/**
 	 * Revalidates the component and fires a property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

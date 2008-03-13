@@ -75,9 +75,8 @@ class TreeComponentNode
 	private TableLayout layout;
 	
 	/** Updates the display. */
-	private void updateDisplay()
+	void updateDisplay()
 	{
-		expanded = !expanded;
 		removeAll();
 		buildGUI();
 		validate();
@@ -103,11 +102,14 @@ class TreeComponentNode
 	 */
 	private void initialize()
 	{
-		
 		iconLabel = new JLabel();
 		iconLabel.addMouseListener(new MouseAdapter() {
 		
-			public void mouseReleased(MouseEvent e) { updateDisplay(); }
+			public void mouseReleased(MouseEvent e)
+			{ 
+				expanded = !expanded;
+				updateDisplay(); 
+			}
 		});
 		//set the layout 
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
@@ -147,6 +149,11 @@ class TreeComponentNode
 		buildGUI();
 	}
 
+	void setExpanded(boolean expanded)
+	{
+		this.expanded = expanded;
+	}
+	
 	/**
 	 * Sets the icons.
 	 * 

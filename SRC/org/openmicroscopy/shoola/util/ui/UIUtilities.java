@@ -45,7 +45,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.prefs.Preferences;
 import java.util.regex.Pattern;
-
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -70,11 +69,11 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
  * A collection of static methods to perform common UI tasks.
