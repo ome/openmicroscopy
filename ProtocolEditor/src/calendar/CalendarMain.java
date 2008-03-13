@@ -53,14 +53,31 @@ public class CalendarMain {
 	 */
 	public static void main(String[] args) throws SQLException {
 		
-		testAddCalendar();
 		
-		//populateDB();
+		//addEvent();
 		
-		//getMonthResults();
+		// testGetEvents();
+		
+		// testAddCalendar();
+		
+		// populateDB();
+		
+		 getMonthResults();
 		
 		// doesn't work!!
 		//clearDBTables();
+	}
+	
+	public static void testGetEvents() throws SQLException {
+		
+		CalendarDataBase calDB = new CalendarDataBase();
+		
+		GregorianCalendar thisMonth = new GregorianCalendar();
+		//calDB.getEventsForMonth(thisMonth);
+		
+		calDB.getEvents(3);
+		
+		calDB.shutdown();
 	}
 	
 	public static void testAddCalendar() throws SQLException{
@@ -72,10 +89,24 @@ public class CalendarMain {
 		int calID = calDB.saveCalendar(calendar);
 		
 		
-		CalendarEvent calEvent = new CalendarEvent(new Date());
+		calDB.shutdown();
+	}
+	
+	public static void addEvent() throws SQLException {
 		
-		calDB.saveEvent(calEvent, calID);
+		CalendarDataBase calDB = new CalendarDataBase();
 		
+		GregorianCalendar thisMonth = new GregorianCalendar();
+		thisMonth.setTime(new Date());
+		thisMonth.add(Calendar.MONTH, 3);
+		thisMonth.add(Calendar.HOUR_OF_DAY, 2);
+		
+		System.out.println(CalendarDataBase.formatDateForSQLQuery(thisMonth.getTime()));
+		
+		
+		CalendarEvent calEvent = new CalendarEvent("Drink G&T!", thisMonth);
+		
+		calDB.saveEvent(calEvent, 3);
 		
 		calDB.shutdown();
 	}
@@ -91,18 +122,10 @@ public class CalendarMain {
 	
 	public static void getMonthResults() throws SQLException{
 		
-		 GregorianCalendar thisMonth = new GregorianCalendar();
-			thisMonth.set(Calendar.DAY_OF_MONTH, 1);
-			thisMonth.set(Calendar.HOUR_OF_DAY, 0);
 			
 			CalendarDataBase calDB = new CalendarDataBase();
-			List<CalendarFile> calendarFiles = calDB.getCalendarFilesForMonth(thisMonth);
-			calDB.shutdown();
 			
-			MonthView monthView = new MonthView();
-			for (CalendarFile calFile: calendarFiles) {
-				monthView.addCalendarFile(calFile);
-			}
+			MonthView monthView = new MonthView(calDB);
 			
 			JFrame frame = new JFrame("MonthView");
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,8 +147,7 @@ public class CalendarMain {
 			return;
 		
 		CalendarDataBase calDB = new CalendarDataBase();
-		//calDB.clearTables();
-		indexFilesToCalendar(file);
+		indexFilesToCalendar(file, calDB);
 		calDB.shutdown();
 	}
 	
@@ -135,26 +157,32 @@ public class CalendarMain {
 	 * field in order to be added to the list of calendarFiles. 
 	 * 
 	 * @param rootDirectory
+	 * @throws SQLException 
 	 */
-	public static void indexFilesToCalendar(File rootDirectory) {
+	public static void indexFilesToCalendar(File rootDirectory, CalendarDataBase calDB) throws SQLException {
+		
 		
 		if (rootDirectory.isDirectory()) {
 	        String[] files = rootDirectory.list();
 	        // an IO error could occur
 	        if (files != null) {
 	          for (int i = 0; i < files.length; i++) {
-	        	  indexFilesToCalendar(new File(rootDirectory, files[i]));
+	        	  indexFilesToCalendar(new File(rootDirectory, files[i]), calDB);
 	          }
 	        }
 	      } else {
 	        if (fileContainsDates(rootDirectory)) {
 	        	CalendarFile calendarFile = new CalendarFile(rootDirectory);
 	        	
-	        	// DB not fully working yet!
-	        	//saveCalendarFileToDB(calendarFile);
 	        	
-	        	// use this for now! 
-	        	//calendarFiles.add(calendarFile);
+	        	int calID = calDB.saveCalendar(calendarFile);
+	        	
+	        	List<CalendarEvent> events = calendarFile.getEvents();
+	        	for(CalendarEvent evt: events) {
+	        		calDB.saveEvent(evt, calID);
+	        	}
+	        		
+
 	        }
 	      }
 	}

@@ -42,6 +42,17 @@ public class CalendarEvent
 	extends Observable {
 
 	/**
+	 * A unique ID that corresponds to the uID of this event in the database.
+	 * Will be set if this object is returned from a call to the CalendarDataBase.
+	 */
+	private int uID;
+	
+	/**
+	 * An identifier for the calendar to which this Event belongs.
+	 */
+	private int calendarID;
+	
+	/**
 	 * A name for this event
 	 */
 	private String eventName;
@@ -100,8 +111,40 @@ public class CalendarEvent
 		
 	}
 	
+	/**
+	 * GETTERS AND SETTERS 
+	 */
+	
+	public void setUID(int uID) {
+		this.uID = uID;
+	}
+	
+	public int getUID() {
+		return uID;
+	}
+	
+	public void setCalendarID(int cal_ID) {
+		calendarID = uID;
+	}
+	
+	public int getCalendarID() {
+		return calendarID;
+	}
+	
+	public void setName(String name) {
+		eventName = name;
+	}
+	
 	public String getName() {
 		return eventName;
+	}
+	
+	
+	public void setStartTime(Date time) {
+		if (time == null)
+			startTime = null;
+		else
+			startTime.setTime(time);
 	}
 	
 	public Date getStartTime() {
@@ -115,6 +158,14 @@ public class CalendarEvent
 		return startTime;
 	}
 	
+	
+	public void setEndTime(Date time) {
+		if (time == null)
+			endTime = null;
+		else
+			endTime.setTime(time);
+	}
+	
 	public Date getEndTime() {
 		if (endTime != null)
 			return endTime.getTime();
@@ -124,6 +175,15 @@ public class CalendarEvent
 	
 	public Calendar getEndCalendar() {
 		return startTime;
+	}
+	
+	
+	public void setAlarmTime(Date date) {
+		if (date == null) {
+			alarmTime = null;
+		} else {
+			alarmTime.setTime(date);
+		}
 	}
 	
 	public Date getAlarmTime() {
@@ -136,6 +196,7 @@ public class CalendarEvent
 	public Calendar getAlarmCalendar() {
 		return alarmTime;
 	}
+	
 	
 	public void setAllDayEvent(boolean allDay) {
 		allDayEvent = allDay;

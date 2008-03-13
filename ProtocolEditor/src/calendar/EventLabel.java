@@ -25,6 +25,8 @@ package calendar;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.text.DateFormat;
 import java.util.Observable;
 import java.util.Observer;
@@ -37,7 +39,9 @@ public class EventLabel
 	
 	CalendarEvent calendarEvent;
 	
-	Color backgroundColor = Color.WHITE;
+	Color backgroundColor = null;
+	
+	Color foregroundColor = Color.red;
 	
 	public EventLabel (CalendarEvent event) {
 		
@@ -55,8 +59,10 @@ public class EventLabel
 		Font calendarFont = new Font("SansSerif", Font.PLAIN, 10);
 		this.setFont(calendarFont);
 		this.setBackground(backgroundColor);
+		this.setForeground(foregroundColor);
 		this.setBorder(null);
 		this.setFocusable(true);
+		this.addFocusListener(new FocusGainedListener());
 	}
 
 	public void update(Observable o, Object arg) {
@@ -64,11 +70,20 @@ public class EventLabel
 		
 	}
 	
-	
+	public class FocusGainedListener implements FocusListener {
+		public void focusGained(FocusEvent e) {
+			setSelected(true);
+		}
+
+		public void focusLost(FocusEvent e) {
+			setSelected(false);
+		}
+		
+	}
 	
 	public void setSelected(boolean selected) {
-		setBackground(selected ? Color.RED : backgroundColor);
-		setForeground(selected ? Color.WHITE : Color.BLACK);
+		setBackground(selected ? foregroundColor : backgroundColor);
+		setForeground(selected ? Color.WHITE : foregroundColor);
 	}
 
 }

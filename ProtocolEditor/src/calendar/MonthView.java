@@ -24,14 +24,20 @@
 package calendar;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,7 +45,9 @@ import javax.swing.JPanel;
 import ui.components.CenteredComponent;
 
 
-public class MonthView extends JPanel {
+public class MonthView 
+	extends JPanel 
+	implements Observer {
 
 	/**
 	 * A reference to the Year and Month represented by this class
@@ -47,19 +55,46 @@ public class MonthView extends JPanel {
 	GregorianCalendar thisMonth;
 	
 	/**
+	 * The current moment in time. Used to highlight "Today" in the month view.
+	 */
+	GregorianCalendar now = new GregorianCalendar();
+	
+	/**
+	 * Each week starts on Monday!
+	 */ 
+	int firstDayOfWeek = GregorianCalendar.MONDAY;
+	
+	/**
+	 * A label at the top, displaying month and year, eg "March 2008"
+	 */
+	JLabel monthYearLabel;
+	
+	/**
 	 * An array of the days this month.
 	 */
 	DayOfMonth[] days;
 	
+	/**
+	 * A highlight color to indicate TODAY, if the current month is displayed
+	 */
+	protected static Color todayBackground = new Color(255, 225, 225);
 	
+	/**
+	 * The grid that displays the days
+	 */
 	JPanel daysGridPanel;
+	
+	/**
+	 * The database, or other source of data for getting events to display etc. 
+	 */
+	ICalendarDB calendarDB;
 	
 	/**
 	 * Creates a new instance of MonthView, with the month and year set to current time.
 	 */
 	public MonthView() {
 		
-		buildUI();
+		buildUI();	// sets thisMonth to now
 	}
 	
 	/**
@@ -74,6 +109,19 @@ public class MonthView extends JPanel {
 		buildUI();
 	}
 	
+	public MonthView(ICalendarDB calendarDB) {
+		
+		this();
+		
+		if (calendarDB instanceof Observable) {
+			((Observable)calendarDB).addObserver(this);
+		}
+		
+		this.calendarDB = calendarDB;
+		
+		addCalendarEvents();
+	}
+	
 	
 	/**
 	 * Build the MonthView UI.
@@ -82,46 +130,18 @@ public class MonthView extends JPanel {
 	 * The Month is laid out in a grid of days, with 7 columns (one week) per row.
 	 */
 	public void buildUI() {
+		
 		this.setLayout(new BorderLayout());
 		
 		if (thisMonth == null)
 			thisMonth = new GregorianCalendar();
-		//thisMonth.set(GregorianCalendar.MONTH, GregorianCalendar.SEPTEMBER);
-		
-		// set the calendar to the first day of the month
-		thisMonth.set(GregorianCalendar.DAY_OF_MONTH, 1);
-
-		
-		// Each week starts on Monday! 
-		thisMonth.setFirstDayOfWeek(GregorianCalendar.MONDAY);
-		int firstDayOfWeek = thisMonth.getFirstDayOfWeek();
-		
-		// Get the first day of the month
-		int firstDayOfMonth = thisMonth.get(GregorianCalendar.DAY_OF_WEEK);
-		// Calculate the number of days to ignore from the previous month
-		int daysRemainingLastMonth = firstDayOfMonth - firstDayOfWeek;
-		if (daysRemainingLastMonth < 0)
-			daysRemainingLastMonth = daysRemainingLastMonth + 7;
-		
 		
 		
 		// GridLayout to hold the days, one week = 7 columns
 		daysGridPanel = new JPanel(new GridLayout(0, 7));
-
 		
-		// Fill in blanks for the remaining days of last month
-		for (int i=0; i< daysRemainingLastMonth; i++) {
-			daysGridPanel.add(new DayOfMonth());
-		}
-		
-		// Add the days of this month to the grid.
-		int daysThisMonth = thisMonth.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
-		days = new DayOfMonth[daysThisMonth + 1];
-		
-		for (int i=1; i< days.length; i++) {
-			days[i] = new DayOfMonth(i);
-			daysGridPanel.add(days[i]);
-		}
+		// add the days to the grid 
+		addDaysToGrid();
 		
 		this.add(daysGridPanel, BorderLayout.CENTER);
 		
@@ -138,14 +158,82 @@ public class MonthView extends JPanel {
 		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Sunday", headerFontSize)));
 		
 		
-		SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMMMM yyyy");
-		String monthYear = monthYearFormat.format(thisMonth.getTime());
-		
 		Box headerBox = Box.createVerticalBox();
-		headerBox.add(new CenteredComponent(new CalendarLabel(monthYear, 14), 5));
+		
+		Box titleButtonsBox = Box.createHorizontalBox();
+		
+		JButton prevMonthButton = new JButton("<");
+		prevMonthButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				incrementMonth(-1);
+			}
+		});
+		JButton nextMonthButton = new JButton(">");
+		nextMonthButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				incrementMonth(1);
+			}
+		});
+		
+		monthYearLabel = new CalendarLabel("", 14);
+		refreshHeader();
+		
+		titleButtonsBox.add(prevMonthButton);
+		titleButtonsBox.add(monthYearLabel);
+		titleButtonsBox.add(nextMonthButton);
+		
+		headerBox.add(new CenteredComponent(titleButtonsBox, 5));
 		headerBox.add(daysOfWeekHeader);
 		
 		this.add(headerBox, BorderLayout.NORTH);
+	}
+	
+	
+	public void addDaysToGrid() {
+		
+		// if refreshing, need to remove all old days from grid
+		daysGridPanel.removeAll();
+		
+		// Get the first day of the month
+		thisMonth.set(Calendar.DAY_OF_MONTH, 1);
+		int firstDayOfMonth = thisMonth.get(GregorianCalendar.DAY_OF_WEEK);
+		// Calculate the number of days to ignore from the previous month
+		int daysRemainingLastMonth = firstDayOfMonth - firstDayOfWeek;
+		if (daysRemainingLastMonth < 0)
+			daysRemainingLastMonth = daysRemainingLastMonth + 7;
+		
+		
+		// Fill in blanks for the remaining days of last month
+		for (int i=0; i< daysRemainingLastMonth; i++) {
+			daysGridPanel.add(new DayOfMonth());
+		}
+		
+		// create an array to hold the days of the month, for easy reference
+		int daysThisMonth = thisMonth.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+		days = new DayOfMonth[daysThisMonth + 1];
+		
+		// Add the days of this month to the grid.
+		for (int i=1; i< days.length; i++) {
+			days[i] = new DayOfMonth(i);
+			daysGridPanel.add(days[i]);
+		}
+		
+		// if the current month is being displayed, highlight Today
+		if ((now.get(Calendar.YEAR) == thisMonth.get(Calendar.YEAR)) && 
+				(now.get(Calendar.MONTH) == thisMonth.get(Calendar.MONTH))) {
+			int today = now.get(Calendar.DAY_OF_MONTH);
+			days[today].setBackground(todayBackground);
+		}
+		
+		// required if the view has been refreshed
+		daysGridPanel.validate();
+		daysGridPanel.repaint();
+	}
+	
+	public void refreshHeader() {
+		SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMMMM yyyy");
+		String monthYear = monthYearFormat.format(thisMonth.getTime());
+		monthYearLabel.setText(monthYear);
 	}
 	
 	/**
@@ -162,6 +250,21 @@ public class MonthView extends JPanel {
 	}
 	
 	
+	public void addCalendarEvents() {
+		
+		if (calendarDB == null) {
+			System.err.println("Error displaying calendar events: MonthView is not connected to the database.");
+			return;
+		}
+		
+		List <CalendarEvent> events = calendarDB.getEventsForMonth(thisMonth);
+		
+		for (CalendarEvent evt: events) {
+			addCalendarEvent(evt);
+		}
+	}
+	
+	
 	/**
 	 * Adds an event to the calendar. This is only displayed if it falls on a day of this month.
 	 * 
@@ -169,10 +272,22 @@ public class MonthView extends JPanel {
 	 */
 	public void addCalendarEvent(CalendarEvent evt) {
 		Calendar eventDateTime = evt.getStartCalendar();
+
 		if (eventDateTime.get(Calendar.MONTH) == thisMonth.get(Calendar.MONTH)) {
 			int dayOfMonth = eventDateTime.get(Calendar.DAY_OF_MONTH);
 			days[dayOfMonth].addEvent(evt);
 		}
+	}
+	
+	
+	public void incrementMonth(int increment) {
+		
+		thisMonth.add(Calendar.MONTH, increment);
+		
+		addDaysToGrid();
+		addCalendarEvents();
+		
+		refreshHeader();
 	}
 	
 	
@@ -185,5 +300,10 @@ public class MonthView extends JPanel {
 		
 		frame.pack();
 		frame.setVisible(true);
+	}
+
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

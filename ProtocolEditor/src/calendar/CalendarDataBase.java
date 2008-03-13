@@ -32,6 +32,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -46,7 +47,8 @@ import util.XMLMethods;
 
 
 public class CalendarDataBase 
-	extends Observable {
+	extends Observable 
+	implements ICalendarDB {
 
 	/**
 	 * Database connection.
@@ -364,10 +366,10 @@ public class CalendarDataBase
 	}
 	
 	/**
-	 * Add a List of CalendarEvents to the database
+	 * Add a CalendarEvent to the database, and associate it with a calendar, identified by ID
 	 * 
-	 * @param events
-	 * @param calendar_ID
+	 * @param calEvt		The CalendarEvent object to add to the database	
+	 * @param calendar_ID	The unique_ID for the calendar to which this event should be added
 	 */
 	public void saveEvent(CalendarEvent calEvt, int calendar_ID) {
 		
@@ -441,35 +443,30 @@ public class CalendarDataBase
 	}
 	
 	
-	public List<CalendarFile> getCalendarFilesForMonth(GregorianCalendar monthYear) {
+	
+	
+	/**
+	 * Get all the events for a specified Calendar ID
+	 * 
+	 * @param calendarID
+	 * @return	A List of the CalendarEvents that belong to the calendar identified by the ID
+	 */
+	public List<CalendarEvent> getEvents (int calendarID) {
 		
-		ArrayList<CalendarFile> calendarFiles = new ArrayList<CalendarFile>();
+		ArrayList<CalendarEvent> calendarEvents = new ArrayList<CalendarEvent>();
 		
-		String fromDate = sqlDateFormat.format(monthYear.getTime());
-		monthYear.add(GregorianCalendar.MONTH, 1);
-		String toDate = sqlDateFormat.format(monthYear.getTime());
-		
-		
-		String query = "SELECT " + 
-				"MAX(" + CALENDAR_TABLE + ".uID) AS uID, " + 
-				CALENDAR_TABLE + ".filePath AS filePath, " +
-				"MAX(" + CALENDAR_TABLE + ".fileName) AS fileName " +		// fake aggregate function to allow grouping of rows
-				"FROM " + CALENDAR_TABLE + ", " + EVENT_TABLE + " " +
-				"WHERE " + CALENDAR_TABLE + ".uID=" + EVENT_TABLE + ".fileID " +
-				 "AND " + EVENT_TABLE + ".date >= '" + fromDate + "' " +
-				 "AND " + EVENT_TABLE + ".date <= '" + toDate + "' " +
-				 "GROUP BY " + CALENDAR_TABLE + ".filePath";	// this generates a 3rd column
-		
-		
-		/*
-		String query = "SELECT " + FILE_TABLE + ".filePath, " +
-				FILE_TABLE + ".fileName " +
-				"FROM " + EVENT_TABLE + ", " + FILE_TABLE + " " +
-			"WHERE " + FILE_TABLE + ".uID=" + EVENT_TABLE + ".fileID ";
-		*/
-		
-		
-		//String query = "SELECT * FROM " + FILE_TABLE;
+		String query = "SELECT " +
+			EVENT_TABLE + "." + UID + " AS " + UID + ", " +
+			EVENT_TABLE + "." + CAL_ID + " AS " + CAL_ID + ", " +
+			EVENT_TABLE + "." + EVENT_NAME + " AS " + EVENT_NAME + ", " +
+			EVENT_TABLE + "." + START_DATE + " AS " + START_DATE + ", " +
+			EVENT_TABLE + "." + END_DATE + " AS " + END_DATE + ", " +
+			EVENT_TABLE + "." + ALARM_DATE + " AS " + ALARM_DATE + ", " +
+			EVENT_TABLE + "." + ALL_DAY_EVENT + " AS " + ALL_DAY_EVENT + " " +
+			"FROM " + EVENT_TABLE + " " +
+			"WHERE " + 
+			//CALENDAR_TABLE + "." + UID + "=" + EVENT_TABLE + "." + UID + " " + "AND " + 
+			EVENT_TABLE + "." + CAL_ID + "=" + calendarID;
 		
 		System.out.println();
 		System.out.println(query);
@@ -478,69 +475,37 @@ public class CalendarDataBase
 		try {
 			ResultSet calFileResult = getQueryResults(query);
 			
-			// printResultSet(calFileResult, 2);
-			
-			// while still within the file result set
-			
-			while(calFileResult.next()) {
-				System.out.println("row = " + calFileResult.getRow());
-				
-				String filePath = calFileResult.getObject("filePath").toString();
-				String fileName = calFileResult.getObject("fileName").toString();
-				int fileID = calFileResult.getInt("uID");
-				
-				System.out.println("    fileID = " + fileID);
-				System.out.println("    filePath = " + filePath);
-				System.out.println("    fileName = " + fileName);
-				
-				CalendarFile calFile = new CalendarFile(filePath, fileName);
-				
-				for(CalendarEvent evt: getCalendarEvents(fileID)) {
-					calFile.addEvent(evt);
-				}
-				
-				calendarFiles.add(calFile);
-				
-			}
-			
-			
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			System.out.println("CalendarDataBase SQLException " + query);
-			e.printStackTrace();
-		}
-		
-		return calendarFiles;
-	}
-	
-	/**
-	 * Get all the events for a specified fileCalendar
-	 * 
-	 * @param fileID
-	 * @return
-	 */
-	public List<CalendarEvent> getCalendarEvents (int fileID) {
-		
-		ArrayList<CalendarEvent> calendarEvents = new ArrayList<CalendarEvent>();
-		
-		String query = "SELECT " +
-			EVENT_TABLE + ".eventName AS eventName, " +
-			EVENT_TABLE + ".date AS date " +
-			"FROM " + CALENDAR_TABLE + ", " + EVENT_TABLE + " " +
-			"WHERE " + CALENDAR_TABLE + ".uID=" + EVENT_TABLE + ".fileID " +
-			 "AND " + CALENDAR_TABLE + ".uID=" + fileID;
-		
-		try {
-			ResultSet calFileResult = getQueryResults(query);
-			
 			//printResultSet(calFileResult, 2);
 			
 			while(calFileResult.next()) {
 				
-				String eventName = calFileResult.getObject("eventName").toString();
-				Date date = calFileResult.getDate("date");
-				calendarEvents.add(new CalendarEvent(eventName, date));
+				int uID = calFileResult.getInt(UID);
+				int cal_ID = calFileResult.getInt(CAL_ID);
+				String eventName = null;
+				if (calFileResult.getObject(EVENT_NAME) != null)
+					eventName = calFileResult.getObject(EVENT_NAME).toString();
+				Date startDate = calFileResult.getTimestamp(START_DATE);
+				Date endDate = calFileResult.getTimestamp(END_DATE);
+				Date alarmDate = calFileResult.getTimestamp(ALARM_DATE);
+				boolean allDayEvent = calFileResult.getBoolean(ALL_DAY_EVENT);
+				
+				System.out.println("Event from DB: eventName: " + eventName + 
+						" uID: " + uID +
+						" cal_ID " + cal_ID + 
+						" startDate: " + formatDateForSQLQuery(startDate) +
+						" endDate: " + formatDateForSQLQuery(endDate) +
+						" alarmDate: " + formatDateForSQLQuery(alarmDate) +
+						" allDayEvent: " + allDayEvent);
+				System.out.println();
+				
+				CalendarEvent calEvent = new CalendarEvent(eventName, startDate);
+				calEvent.setUID(uID);
+				calEvent.setCalendarID(cal_ID);
+				calEvent.setEndTime(endDate);
+				calEvent.setAlarmTime(alarmDate);
+				calEvent.setAllDayEvent(allDayEvent);
+				
+				calendarEvents.add(calEvent);
 			}
 			
 		} catch (SQLException e) {
@@ -549,6 +514,92 @@ public class CalendarDataBase
 			e.printStackTrace();
 		}
 		
+		return calendarEvents;
+	}
+	
+	/**
+	 * Gets a list of CalendarEvents for a given Month (and year). 
+	 * Events are returned if they start before the end of the month, or end after the start of the month
+	 * 
+	 * @param yearMonth		A date-time that includes a year and month. Other values (day etc) are ignored
+	 * @return			A List of events 
+	 */
+	public List<CalendarEvent> getEventsForMonth(Calendar yearMonth) {
+		
+		ArrayList<CalendarEvent> calendarEvents = new ArrayList<CalendarEvent>();
+		
+		// make a copy of the Calendar (don't want to alter the one referenced in arguments)
+		Calendar theMonth = new GregorianCalendar();
+		theMonth.setTime(yearMonth.getTime());
+		
+		// set the fromDate to the start of the month
+		theMonth.set(Calendar.DAY_OF_MONTH, 1);
+		theMonth.set(Calendar.HOUR_OF_DAY, 0);
+		theMonth.set(Calendar.MINUTE, 0);
+		String fromDate = sqlDateFormat.format(theMonth.getTime());
+		
+		// set the toDate to the end of the month
+		theMonth.add(GregorianCalendar.MONTH, 1);
+		String toDate = sqlDateFormat.format(theMonth.getTime());
+		
+		String query = "SELECT " +
+		UID + ", " +
+		CAL_ID + "," +
+		EVENT_NAME + ", " +
+		START_DATE + ", " +
+		END_DATE + ", " +
+		ALARM_DATE + ", " +
+		ALL_DAY_EVENT + " " +
+		"FROM " + EVENT_TABLE + " " +
+		"WHERE " + 
+		END_DATE + " >= '" + fromDate + "' " +
+		 "AND " + START_DATE + " <= '" + toDate + "'";
+	
+		System.out.println();
+		System.out.println(query);
+		System.out.println();
+	
+		try {
+			ResultSet calFileResult = getQueryResults(query);
+		
+			//printResultSet(calFileResult, 2);
+		
+			while(calFileResult.next()) {
+			
+				int uID = calFileResult.getInt(UID);
+				int cal_ID = calFileResult.getInt(CAL_ID);
+				String eventName = null;
+				if (calFileResult.getObject(EVENT_NAME) != null)
+					eventName = calFileResult.getObject(EVENT_NAME).toString();
+				Date startDate = calFileResult.getTimestamp(START_DATE);
+				Date endDate = calFileResult.getTimestamp(END_DATE);
+				Date alarmDate = calFileResult.getTimestamp(ALARM_DATE);
+				boolean allDayEvent = calFileResult.getBoolean(ALL_DAY_EVENT);
+			
+				System.out.println("Event from DB: eventName: " + eventName + 
+					" uID: " + uID +
+					" cal_ID " + cal_ID + 
+					" startDate: " + formatDateForSQLQuery(startDate) +
+					" endDate: " + formatDateForSQLQuery(endDate) +
+					" alarmDate: " + formatDateForSQLQuery(alarmDate) +
+					" allDayEvent: " + allDayEvent);
+				System.out.println();
+			
+				CalendarEvent calEvent = new CalendarEvent(eventName, startDate);
+				calEvent.setUID(uID);
+				calEvent.setCalendarID(cal_ID);
+				calEvent.setEndTime(endDate);
+				calEvent.setAlarmTime(alarmDate);
+				calEvent.setAllDayEvent(allDayEvent);
+			
+				calendarEvents.add(calEvent);
+			}
+		
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("CalendarDataBase SQLException " + query);
+			e.printStackTrace();
+		}
 		return calendarEvents;
 	}
 	
