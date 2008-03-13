@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -42,11 +41,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
-
-import layout.TableLayout;
-
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -55,7 +54,6 @@ import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
-
 import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -75,11 +73,11 @@ import pojos.TextualAnnotationData;
  */
 class TextualAnnotationsUI 
 	extends AnnotationUI
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
     
 	/** The title associated to this component. */
-	private static final String TITLE = "Annotations ";
+	private static final String TITLE = "Comments ";
 	
 	/** Indicates to display the annotations by date. */
 	private static final int	DATE_VIEW = 0;
@@ -132,6 +130,9 @@ class TextualAnnotationsUI
 	/** The text set in the {@link #area}. */
 	private String				originalText;
 	
+	/** The menu bar. */
+	private JToolBar 			displayBar;
+	
 	/**
 	 * Returns <code>true</code> if the data object has been 
 	 * previously annotated, <code>false</code> otherwise.
@@ -151,34 +152,8 @@ class TextualAnnotationsUI
 	}
 	
 	/** Initializes the components. */
-	private void initComponents()
+	private void initializePreviousComponent()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		area = new MultilineLabel();
-		UIUtilities.setTextAreaDefault(area);
-		area.setEditable(true);
-		IconManager icons = IconManager.getInstance();
-		dateView = new JToggleButton(icons.getIcon(IconManager.ORDER_BY_DATE));
-		dateView.setToolTipText("Sort annotations by date");
-		dateView.setActionCommand(""+DATE_VIEW);
-		dateView.addActionListener(this);
-		userView = new JToggleButton(icons.getIcon(IconManager.ORDER_BY_USER));
-		userView.setToolTipText("Sort annotations by user");
-		userView.setActionCommand(""+USER_VIEW);
-		userView.addActionListener(this);
-		dateView.setSelected(true);
-		ButtonGroup group = new ButtonGroup();
-		group.add(dateView);
-		group.add(userView);
-		JToolBar displayBar = new JToolBar();
-		displayBar.setBorder(null);
-		displayBar.setFloatable(false);
-		displayBar.add(UIUtilities.setTextFont("Display: "));
-		displayBar.add(Box.createHorizontalStrut(5));
-		displayBar.add(dateView);
-		displayBar.add(userView);
-		//displayBar.add(Box.createVerticalStrut(5));
-		
 		previousPane = new JPanel();
 		double[][] tl = {{TableLayout.FILL, TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, 300, TableLayout.PREFERRED}}; //rows
@@ -187,14 +162,47 @@ class TextualAnnotationsUI
 		previousPane.add(UIUtilities.buildComponentPanelRight(displayBar), 
 							"1, 0");
 		JPanel collapse = new JPanel();
-		TitledLineBorder border = new TitledLineBorder("Previous Annotations", 
+		TitledLineBorder border = new TitledLineBorder("Previous "+TITLE, 
 													getBackground());
 		collapse.setBorder(border);
 		previousPane.setBorder(border);
 		previousTree = new TreeComponent();
 		previousTree.insertNode(previousPane, collapse, false);
+	}
+	
+	/** Initializes the components. */
+	private void initComponents()
+	{
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		area = new MultilineLabel();
+		UIUtilities.setTextAreaDefault(area);
+		area.setEditable(true);
+		area.getDocument().addDocumentListener(this);
+		IconManager icons = IconManager.getInstance();
+		dateView = new JToggleButton(icons.getIcon(IconManager.ORDER_BY_DATE));
+		String tip = "Sort "+TITLE.toLowerCase();
+		dateView.setToolTipText(tip+" by date");
+		dateView.setActionCommand(""+DATE_VIEW);
+		dateView.addActionListener(this);
+		userView = new JToggleButton(icons.getIcon(IconManager.ORDER_BY_USER));
+		userView.setToolTipText(tip+" by user");
+		userView.setActionCommand(""+USER_VIEW);
+		userView.addActionListener(this);
+		dateView.setSelected(true);
+		ButtonGroup group = new ButtonGroup();
+		group.add(dateView);
+		group.add(userView);
+		displayBar = new JToolBar();
+		displayBar.setBorder(null);
+		displayBar.setFloatable(false);
+		displayBar.add(UIUtilities.setTextFont("Display: "));
+		displayBar.add(Box.createHorizontalStrut(5));
+		displayBar.add(dateView);
+		displayBar.add(userView);
+		initializePreviousComponent();
+		
 		clearButton = new JButton("Clear");
-		clearButton.setToolTipText("Remove all your annotations.");
+		clearButton.setToolTipText("Remove all your "+TITLE+".");
 		clearButton.addActionListener(this);
 		clearButton.setActionCommand(""+CLEAR);
 		toRemove = new HashSet<AnnotationData>();
@@ -214,7 +222,7 @@ class TextualAnnotationsUI
 				{TableLayout.PREFERRED, 100} }; //rows
 		TableLayout layout = new TableLayout(tl);
 		p.setLayout(layout);
-		p.add(UIUtilities.setTextFont("Annotation"), "0, 0, l, c");
+		p.add(UIUtilities.setTextFont("Comment"), "0, 0, l, c");
 		p.add(new JScrollPane(area), "2, 0, 2, 1");
 		
 		//Retrieve the latest annotation for the currently logged in user.
@@ -223,7 +231,7 @@ class TextualAnnotationsUI
 		List l = annotations.get(userID);
 		if (l != null && l.size() > 0 && originalText == null) {
 			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
-			area.setText(data.getContentAsString());
+			setAreaText(data.getContentAsString());
 			originalText = area.getText();
 		}
 		return p;
@@ -314,8 +322,10 @@ class TextualAnnotationsUI
 		Iterator i = l.iterator();
 		while (i.hasNext()) 
 			toRemove.add((AnnotationData) i.next());
-		area.setText("");
+		setAreaText("");
 		layoutPreviousNodes();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
 	}
 	
 	/** Lays out the node. */
@@ -343,6 +353,18 @@ class TextualAnnotationsUI
 	}
 	
 	/**
+	 * Sets the text of the {@link #area}.
+	 * 
+	 * @param text The value to set.
+	 */
+	private void setAreaText(String text)
+	{
+		area.getDocument().removeDocumentListener(this);
+		area.setText(text);
+		area.getDocument().addDocumentListener(this);
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
@@ -364,8 +386,10 @@ class TextualAnnotationsUI
 		if (model.isCurrentUserOwner(data)) {
 			toRemove.add(data);
 			if (data.getContentAsString().equals(originalText))
-				area.setText("");
+				setAreaText("");
 			layoutPreviousNodes();
+			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+					Boolean.TRUE);
 		}
 	}
 	
@@ -376,12 +400,12 @@ class TextualAnnotationsUI
 	protected void buildUI()
 	{
 		removeAll();
-		area.setText("");
+		setAreaText("");
 		setNodesTitle();
 		add(buildAreaPane());
 		if (!hasPreviousTextualAnnotations()) return;
 		add(previousTree);
-		add(UIUtilities.buildComponentPanelRight(clearButton));
+		//add(UIUtilities.buildComponentPanelRight(clearButton));
 		layoutPreviousNodes();
 		String s = "0, 1, 1, 1";
 		switch (layoutIndex) {
@@ -426,7 +450,6 @@ class TextualAnnotationsUI
 		text = text.trim();
 		if (text.length() == 0) return l;
 		if (text.equals(originalText)) return l;
-		
 		l.add(new TextualAnnotationData(text));
 		return l;
 	}
@@ -438,11 +461,27 @@ class TextualAnnotationsUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		List<AnnotationData> l = getAnnotationToSave();
+		List<AnnotationData> l = getAnnotationToRemove();
 		if (l.size() > 0) return true;
-		l = getAnnotationToRemove();
-		if (l.size() > 0) return true;
-		return false;
+		String text = area.getText();
+		if (text == null) return false;
+		text = text.trim();
+		if (text.length() == 0) return false;
+		if (text.equals(originalText)) return false;
+		return true;
+	}
+	
+	/**
+	 * Clears the UI.
+	 * @see AnnotationUI#clearDisplay()
+	 */
+	protected void clearDisplay() 
+	{ 
+		removeAll();
+		toRemove.clear();
+		setAreaText("");
+		originalText = null;
+		initializePreviousComponent();
 	}
 	
 	/**
@@ -462,5 +501,32 @@ class TextualAnnotationsUI
 				layoutPreviousNodes();
 		}
 	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

@@ -128,5 +128,7 @@ abstract class AnnotationUI
 	 */
 	protected abstract List<AnnotationData> getAnnotationToSave();
 	
+	/** Lays out components and clears the display. */
+	protected abstract void clearDisplay();
 	
 }

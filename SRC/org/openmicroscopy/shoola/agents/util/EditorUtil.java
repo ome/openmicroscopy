@@ -253,10 +253,16 @@ public class EditorUtil
         return details;
     }
 
-	public static String formatExperimenter(ExperimenterData data)
+    /**
+     * Formats the specified experimenter.
+     * 
+     * @param exp The experimenter to format.
+     * @return See above.
+     */
+	public static String formatExperimenter(ExperimenterData exp)
 	{
-		if (data == null) return "";
-		return data.getFirstName()+" "+data.getLastName();
+		if (exp == null) return "";
+		return exp.getFirstName()+" "+exp.getLastName();
 	}
     
 }

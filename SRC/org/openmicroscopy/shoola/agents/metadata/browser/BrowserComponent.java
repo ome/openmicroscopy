@@ -37,6 +37,8 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
+import pojos.ProjectData;
+
 /** 
  * Implements the {@link Browser} interface to provide the functionality
  * required of the hierarchy viewer component.
@@ -227,7 +229,7 @@ class BrowserComponent
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setParents(TreeBrowserDisplay, Collection)
 	 */
-	public void setParents(TreeBrowserSet node, Collection parents)
+	public void setParents(TreeBrowserDisplay node, Collection parents)
 	{
 		if (node == null) 
 			throw new IllegalArgumentException("No node to handle.");
@@ -236,9 +238,13 @@ class BrowserComponent
 			return;
 		}
 		Iterator i = parents.iterator();
-		List<TreeBrowserSet> nodes = new ArrayList<TreeBrowserSet>();
+		List<TreeBrowserDisplay> nodes = new ArrayList<TreeBrowserDisplay>();
+		Object uo;
 		while (i.hasNext()) {
-			nodes.add(new TreeBrowserSet(i.next()));
+			uo = i.next();
+			if (uo instanceof ProjectData)
+				nodes.add(new TreeBrowserNode(uo));
+			else nodes.add(new TreeBrowserSet(uo));
 		}
 		view.setNodes(node, nodes);
 	}
@@ -247,7 +253,7 @@ class BrowserComponent
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setUrls(TreeBrowserDisplay, Collection)
 	 */
-	public void setUrls(TreeBrowserSet node, Collection urls)
+	public void setUrls(TreeBrowserDisplay node, Collection urls)
 	{
 		if (node == null) 
 			throw new IllegalArgumentException("No node to handle.");
@@ -282,6 +288,7 @@ class BrowserComponent
 		}
 		Iterator i;
 		List<TreeBrowserDisplay> nodes = new ArrayList<TreeBrowserDisplay>();
+		/*
 		Collection collection = results.getTags();
 		
 		//Tags
@@ -306,17 +313,9 @@ class BrowserComponent
 			while (i.hasNext()) {
 				nodes.add(new TreeBrowserNode(i.next()));
 			}
-		}
+		}*/
 		//parents
-		collection = results.getParents();
-		if (collection != null && collection.size() > 0) {
-			i = collection.iterator();
-			while (i.hasNext()) {
-				nodes.add(new TreeBrowserSet(i.next()));
-			}
-		}
-		
-		view.setNodes(node, nodes);
+		setParents(node, results.getParents());
 	}
 	
 }

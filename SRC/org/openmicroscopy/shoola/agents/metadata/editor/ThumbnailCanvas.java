@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.event.EventBus;
 
+import pojos.ImageData;
+
 /** 
  * Customizes <code>JPanel</code> to paint the thumbnail.
  *
@@ -55,7 +57,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
  * </small>
  * @since OME3.0
  */
-class ViewedItemCanvas 
+class ThumbnailCanvas 
 	extends JPanel
 {
 
@@ -71,10 +73,20 @@ class ViewedItemCanvas
 	/** Posts an event to view the image. */
 	private void viewImage()
 	{
-		ViewImage evt = new ViewImage(def.getImageID(), def.getPixelsID(), 
-							model.getRefObjectName(), null,
-							model.getRefObjectOwner().getId());
-		evt.setSettings(def.getRndSettings(), def.getExperimenter().getId());
+		ViewImage evt;
+		if (def == null) {
+			ImageData img = (ImageData) model.getRefObject();
+			evt = new ViewImage(img.getId(), img.getDefaultPixels().getId(),
+					model.getRefObjectName(), null,
+					model.getRefObjectOwner().getId());
+		} else {
+			evt = new ViewImage(def.getImageID(), def.getPixelsID(), 
+					model.getRefObjectName(), null,
+					model.getRefObjectOwner().getId());
+			evt.setSettings(def.getRndSettings(), 
+							def.getExperimenter().getId());
+		}
+		
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
 	}
@@ -84,14 +96,22 @@ class ViewedItemCanvas
 	 * 
 	 * @param model	Reference to the model. Mustn't be <code>null</code>.
 	 * @param image The value to set. Mustn't be <code>null</code>.
-	 * @param def	The object storing user's details and related settings.
-	 * 				Mustn't be <code>null</code>.
 	 */
-	ViewedItemCanvas(EditorModel model, BufferedImage image, ViewedByDef def)
+	ThumbnailCanvas(EditorModel model, BufferedImage image)
+    {
+		this(model, image, null);
+    }
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param model	Reference to the model. Mustn't be <code>null</code>.
+	 * @param image The value to set. Mustn't be <code>null</code>.
+	 * @param def	The object storing user's details and related settings.
+	 */
+	ThumbnailCanvas(EditorModel model, BufferedImage image, ViewedByDef def)
     {
 		if (model == null)
-			throw new IllegalArgumentException("No viewing details.");
-		if (def == null)
 			throw new IllegalArgumentException("No viewing details.");
 		if (image == null)
 			throw new IllegalArgumentException("No image. ");

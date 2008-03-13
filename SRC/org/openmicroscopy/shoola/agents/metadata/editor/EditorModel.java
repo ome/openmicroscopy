@@ -48,16 +48,13 @@ import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -114,6 +111,12 @@ class EditorModel
     /** The list of emissions wavelengths for a given set of pixels. */
     private List					emissionsWavelengths;
     
+    /** Used to sort the various collection. */
+    private ViewerSorter			sorter;
+    
+    /** The id of the currently logged in user. */
+    private long					userID;
+    
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -154,6 +157,8 @@ class EditorModel
 		this.parent = parent;
 		this.refObject = refObject;
 		loaders = new ArrayList<EditorLoader>();
+		sorter = new ViewerSorter();
+		userID = MetadataViewerAgent.getUserDetails().getId();
 	}
 	
 	/**
@@ -352,7 +357,11 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getTags() { return data.getTags(); }
+	Collection getTags() { 
+		Collection tags = data.getTags();
+		if (tags == null || tags.size() == 0) return tags;
+		return sorter.sort(tags);
+	}
 	
 	/**
 	 * Returns the number of attachments linked to the <code>DataObject</code>.
@@ -390,7 +399,22 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getViewedBy() { return data.getViewedBy(); }
+	Collection getViewedBy()
+	{ 
+		Collection l = data.getViewedBy(); 
+		if (l == null) return null;
+		Iterator i = l.iterator();
+		ViewedByDef def;
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		List<ViewedByDef> results = new ArrayList<ViewedByDef>();
+		while (i.hasNext()) {
+			def = (ViewedByDef) i.next();
+			if (def.getExperimenter().getId() != userID)
+				results.add(def);
+		}
+		return results; 
+		//return l;
+	}
 	
 	/**
 	 * Returns the number of ratings for that object.
@@ -539,6 +563,8 @@ class EditorModel
 		this.refObject = refObject; 
 		thumbnails = null;
 		existingTags = null;
+		textualAnnotationsByUsers = null;
+		textualAnnotationsByDate = null;
 	}
 
 	/**
@@ -661,7 +687,7 @@ class EditorModel
 	}
 
 	/** Cancels any ongoing tags retrieval. */
-	void cancelExisingTagsLoading()
+	void cancelExistingTagsLoading()
 	{
 		Iterator i = loaders.iterator();
 		EditorLoader loader;
@@ -709,7 +735,7 @@ class EditorModel
 	 */
 	void setExistingTags(Collection tags)
 	{
-		existingTags = tags;
+		existingTags = sorter.sort(tags);
 	}
 	
 	/**
@@ -743,11 +769,27 @@ class EditorModel
 		parent.setThumbnail(thumbnail);
 	}
 
+	/**
+	 * Starts an asynchronous call to save the annotations.
+	 * 
+	 * @param toAdd		The annotation to save.
+	 * @param toRemove	The annotation to remove.
+	 */
 	void fireAnnotationSaving(List<AnnotationData> toAdd,
 			List<AnnotationData> toRemove)
 	{
 		parent.saveData(toAdd, toRemove, (DataObject) refObject);
-		
+	}
+	
+	/**
+	 * Returns <code>true</code> if the imported set of pixels has been 
+	 * archived, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isArchived()
+	{ 
+		return data.isArchived(); 
 	}
 	
 }

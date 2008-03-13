@@ -77,7 +77,7 @@ public class TreeCellRenderer
      */
     private void setIcon(Object usrObject)
     {
-        Icon icon = icons.getIcon(IconManager.OWNER);
+        Icon icon = null;//icons.getIcon(IconManager.OWNER);
         if (usrObject instanceof ProjectData) 
         	icon = icons.getIcon(IconManager.PROJECT);
         else if (usrObject instanceof DatasetData) 

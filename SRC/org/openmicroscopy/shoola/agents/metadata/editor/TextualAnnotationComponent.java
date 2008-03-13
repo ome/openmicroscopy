@@ -39,8 +39,6 @@ import layout.TableLayout;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.AnnotationData;
 import pojos.TextualAnnotationData;
 
 /** 

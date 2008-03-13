@@ -24,7 +24,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -107,6 +109,12 @@ class AttachmentsUI
 	/** Map hosting the label displaying the files that can be downloaded. */
 	private Map<JLabel, FileAnnotationData> toDownload;
 	
+	/** The label corresponding to the selected file. */
+	private JLabel							selectedFile;
+	
+	/** The pop up menu. */
+	private AttachmentPopupMenu				menu;
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -158,7 +166,6 @@ class AttachmentsUI
 	 */
 	private JPanel buildExistingFileRow(FileAnnotationData f)
 	{
-
 		IconManager icons = IconManager.getInstance();
 		Icon icon = null;
 		
@@ -190,11 +197,23 @@ class AttachmentsUI
 			 * Brings up a dialog box indicating to download 
 			 * the file associated to the component.
 			 */
-			
 			public void mouseReleased(MouseEvent e) {
 				Object src = e.getSource();
 				if (e.getClickCount() == 2)
 					viewFile((JLabel) src);
+				else if (e.isPopupTrigger())
+					showMenu(e.getPoint(), e.getComponent());
+			}
+			
+			/** 
+			 * Sets the selected label and shows the menu.
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				Object src = e.getSource();
+				selectedFile = (JLabel) src;
+				if (e.isPopupTrigger())
+					showMenu(e.getPoint(), e.getComponent());
 			}
 		
 			/**
@@ -206,6 +225,7 @@ class AttachmentsUI
 					((JLabel) src).setCursor(
 							Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 				}
+				
 			}
 		
 		});
@@ -216,6 +236,19 @@ class AttachmentsUI
 	}
 	
 	/**
+	 * Shows the tag menu.
+	 * 
+	 * @param location	The location of the mouse click.
+	 * @param invoker	The last selected component.
+	 */
+	void showMenu(Point location, Component invoker)
+	{
+		if (menu == null)
+			menu = new AttachmentPopupMenu(this);
+		menu.show(invoker, location.x, location.y);
+	}
+	
+	/**
 	 * Lays out the components used to add new <code>file</code>s.
 	 * 
 	 * @return See above.
@@ -223,21 +256,29 @@ class AttachmentsUI
 	private JPanel layoutAttachments()
 	{
 		JPanel content = new JPanel();
-		//content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		Collection c = model.getAttachments();
 		if (c == null) return content;
+		List<FileAnnotationData> toLayout = new ArrayList<FileAnnotationData>();
+		Iterator i = c.iterator();
+		FileAnnotationData f;
+		while (i.hasNext()) {
+			f = (FileAnnotationData) i.next();
+			if (!removedFiles.contains(f))
+				toLayout.add(f);
+		}
+		
 		double[] columns = {TableLayout.FILL, 10, TableLayout.FILL, 
 							10, TableLayout.FILL}; //rows
 		TableLayout layout = new TableLayout();
 		layout.setColumn(columns);
 		content.setLayout(layout);
-		for (int j = 0; j < 2*c.size()-1; j++) {
+		for (int j = 0; j < 2*toLayout.size()-1; j++) {
 			if (j%3 == 0) layout.insertRow(j, TableLayout.PREFERRED);
 			else layout.insertRow(j, 5);
 		}
 		int index = 0;
-		Iterator i = c.iterator();
-		FileAnnotationData f;
+		i = toLayout.iterator();
+		
 		int row = 0;
 		while (i.hasNext()) {
 			f = (FileAnnotationData) i.next();
@@ -310,6 +351,30 @@ class AttachmentsUI
 		initComponents();
 	}
 	
+	/** Adds the selected file to the collection of items to remove. */
+	void removeSelectedAttachment() 
+	{
+		if (selectedFile == null) return;
+		FileAnnotationData data = toDownload.get(selectedFile);
+		if (data == null) return;
+		toDownload.remove(selectedFile);
+		selectedFile = null;
+		removedFiles.add(data);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+		buildUI();
+		revalidate();
+		repaint();
+	}
+
+	/** Brings up the widget to download the archived files. */
+	void downloadSelectedAttachment()
+	{
+		if (selectedFile == null) return;
+		viewFile(selectedFile);
+		selectedFile = null;
+	}
+	
 	/**
 	 * Overridden to lay out the tags.
 	 * @see AnnotationUI#buildUI()
@@ -317,7 +382,7 @@ class AttachmentsUI
 	protected void buildUI()
 	{
 		removeAll();
-		int n = model.getAttachmentsCount();
+		int n = model.getAttachmentsCount()-removedFiles.size();
 		title = TITLE+LEFT+n+RIGHT;
 		Border border = new TitledLineBorder(title, getBackground());
 		setBorder(border);
@@ -339,9 +404,9 @@ class AttachmentsUI
 	 * Returns the collection of attachments to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove() {
-		// TODO Auto-generated method stub
-		return null;
+	protected List<AnnotationData> getAnnotationToRemove()
+	{
+		return removedFiles;
 	}
 
 	/**
@@ -361,11 +426,26 @@ class AttachmentsUI
 	}
 
 	/**
-	 * Returns <code>true</code> if annotation to save.
+	 * Returns <code>true</code> if annotation to save,
+	 * <code>false</code> otherwise.
 	 * @see AnnotationUI#hasDataToSave()
 	 */
-	protected boolean hasDataToSave() {
+	protected boolean hasDataToSave()
+	{
+		List l = getAnnotationToSave();
+		if (l != null && l.size() > 0) return true; 
+		l = getAnnotationToRemove();
+		if (l != null && l.size() > 0) return true; 
 		return false;
+	}
+	
+	/**
+	 * Clears the UI.
+	 * @see AnnotationUI#clearDisplay()
+	 */
+	protected void clearDisplay() 
+	{
+		
 	}
 	
 	/**
@@ -389,6 +469,10 @@ class AttachmentsUI
 		}
 	}
 
+	/**
+	 * Adds the new file to the display.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
@@ -406,12 +490,12 @@ class AttachmentsUI
 			}
 			if (exist) return;
 			addedFiles.add(f);
+			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+								Boolean.TRUE);
 			buildUI();
 			revalidate();
 			repaint();
 		}
-		
 	}
-
 	
 }

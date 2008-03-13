@@ -166,7 +166,7 @@ public interface Browser
 	 * @param node		The node to handle. Mustn't be <code>null</code>.
 	 * @param parents	Collection of parents to display.
 	 */
-	public void setParents(TreeBrowserSet node, Collection parents);
+	public void setParents(TreeBrowserDisplay node, Collection parents);
 
 	/**
 	 * Converts the collection of parents into their corresponding UI 
@@ -175,7 +175,7 @@ public interface Browser
 	 * @param node	The node to handle. Mustn't be <code>null</code>.
 	 * @param urls	Collection of urls to display.
 	 */
-	public void setUrls(TreeBrowserSet node, Collection urls);
+	public void setUrls(TreeBrowserDisplay node, Collection urls);
 
 	/**
 	 * Converts the results into the corresponding UI components.

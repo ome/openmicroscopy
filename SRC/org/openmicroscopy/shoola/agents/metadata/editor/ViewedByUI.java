@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -54,6 +56,7 @@ import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import pojos.AnnotationData;
+import pojos.ImageData;
 import pojos.RatingAnnotationData;
 
 /** 
@@ -75,13 +78,16 @@ class ViewedByUI
 {
     
 	/** The title associated to this component. */
-	private static final String TITLE = "Viewed by ";
+	private static final String 	TITLE = "Viewed by ";
+	
+	/** The dimension of the scroll pane. */
+	private static final Dimension 	SCROLL_SIZE = new Dimension (100, 150);
 	
 	/** Indicates to lay out the nodes as a list. */
-	private static final int	LIST_VIEW = 0;
+	private static final int		LIST_VIEW = 0;
 	
 	/** Indicates to lay out the nodes as a grid. */
-	private static final int	GRID_VIEW = 1;
+	private static final int		GRID_VIEW = 1;
 	
 	/** The tool bar displayed when the component is expanded. */
 	private JToolBar			displayBar;
@@ -107,9 +113,7 @@ class ViewedByUI
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		double[][] tl = {{TableLayout.FILL, TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, 200}}; //rowss
-		setLayout(new TableLayout(tl));
+		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		layoutIndex = LIST_VIEW;
 		IconManager icons = IconManager.getInstance();
 		listView = new JToggleButton(icons.getIcon(IconManager.LIST_VIEW));
@@ -145,16 +149,15 @@ class ViewedByUI
 	{
 		JPanel p = new JPanel();
 		ViewedByDef def = model.getViewedDef(id);
-		p.add(new ViewedItemCanvas(model, img, def));
+		p.add(new ThumbnailCanvas(model, img, def));
 		
 		String name = model.formatOwner(def.getExperimenter());
 		Collection ratings = def.getRatings();
 		int value = 0;
 		if (ratings != null && ratings.size() != 0) {
 			Iterator i = ratings.iterator();
-			while (i.hasNext()) {
+			while (i.hasNext()) 
 				value = ((RatingAnnotationData) i.next()).getRating();
-			}
 		}
 		RatingComponent rate = new RatingComponent(value, 
 								RatingComponent.MEDIUM_SIZE, false);
@@ -184,7 +187,7 @@ class ViewedByUI
 				{height, TableLayout.PREFERRED} }; //rows
 		p.setLayout(new TableLayout(tl));
 		ViewedByDef def = model.getViewedDef(id);
-		p.add(new ViewedItemCanvas(model, img, def), "0, 0");
+		p.add(new ThumbnailCanvas(model, img, def), "0, 0");
 		
 		String name = model.formatOwner(def.getExperimenter());
 		Collection ratings = def.getRatings();
@@ -326,21 +329,30 @@ class ViewedByUI
 		setBorder(border);
 		getCollapseComponent().setBorder(border);
 		removeAll();
-		if (model.isThumbnailsLoaded()) {
-			if (model.getThumbnails().size() == 0) {
-				add(buildEmptyPane(), "0, 0");
-			} else {
-				add(UIUtilities.buildComponentPanelRight(displayBar), "1, 0");
-				switch (layoutIndex) {
-					case LIST_VIEW:
-						add(new JScrollPane(layoutList()), "0, 1, 1, 1");
-						break;
-					case GRID_VIEW:
-						add(new JScrollPane(layoutGrid()), "0, 1, 1, 1");
+		if (model.getRefObject() instanceof ImageData) {
+			if (model.isThumbnailsLoaded()) {
+				if (model.getThumbnails().size() == 0) {
+					add(buildEmptyPane(), Component.CENTER_ALIGNMENT);
+				} else {
+					add(UIUtilities.buildComponentPanelRight(displayBar), 
+										Component.RIGHT_ALIGNMENT);
+					JScrollPane pane;
+					switch (layoutIndex) {
+						case LIST_VIEW:
+							pane = new JScrollPane(layoutList()); 
+							pane.setPreferredSize(SCROLL_SIZE);
+							add(pane, Component.CENTER_ALIGNMENT);
+							break;
+						case GRID_VIEW:
+							pane = new JScrollPane(layoutGrid()); 
+							pane.setPreferredSize(SCROLL_SIZE);
+							add(pane, Component.CENTER_ALIGNMENT);
+					}
 				}
+			} else {
+				if (expanded)
+					add(buildLoadingPane(), Component.CENTER_ALIGNMENT);
 			}
-		} else {
-			add(buildLoadingPane(), "0, 0");
 		}
 		revalidate();
 		repaint();
@@ -369,6 +381,16 @@ class ViewedByUI
 	 * @see AnnotationUI#hasDataToSave()
 	 */
 	protected boolean hasDataToSave() { return false; }
+	
+	/**
+	 * Clears the UI.
+	 * @see AnnotationUI#clearDisplay()
+	 */
+	protected void clearDisplay()
+	{ 
+		removeAll(); 
+		revalidate();
+	}
 	
 	/**
 	 * Modifies the layout of the thumbnails.

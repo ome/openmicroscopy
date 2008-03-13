@@ -28,13 +28,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -48,9 +45,7 @@ import javax.swing.JSplitPane;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
@@ -130,7 +125,7 @@ class MetadataViewerUI
 				"Edit the "+ message.toLowerCase()+": "+
 					model.getRefObjectName(), 
                  icons.getIcon(IconManager.PROPERTIES_BIG));
-		add(titlePanel, BorderLayout.NORTH);
+		//add(titlePanel, BorderLayout.NORTH);
 		
     	Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
@@ -145,7 +140,7 @@ class MetadataViewerUI
         pane.setRightComponent(model.getBrowser().getUI());
         uiDelegate = new JPanel();
         uiDelegate.setLayout(new BorderLayout(0, 0));
-        uiDelegate.add(titlePanel, BorderLayout.NORTH);
+        //uiDelegate.add(titlePanel, BorderLayout.NORTH);
         uiDelegate.add(pane, BorderLayout.CENTER);
     }
     

@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.TagAnnotationData;
 
 /** 
  * Basic renderer used to display the icon corresponding to a tag 
@@ -60,10 +61,24 @@ public class TagCellRenderer
 	/** Helper reference to the icons manager. */
 	private IconManager icons;
 	
+	/** The id of the currently logged in user. */
+	private long		userID;
+	
 	/** Creates a new instance. */
 	public TagCellRenderer()
 	{
+		this(-1);
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param userID The id of the user currently logged in
+	 */
+	public TagCellRenderer(long userID)
+	{
 		icons = IconManager.getInstance();
+		this.userID = userID;
 	}
 	
 	/**
@@ -81,12 +96,19 @@ public class TagCellRenderer
 			TagItem v = (TagItem) value;
 			DataObject ho =  v.getDataObject();
 			setText(v.getObjectName());
+			/*
+			if (ho instanceof TagAnnotationData) {
+				if (v.isAvailable())
+					setIcon(icons.getIcon(IconManager.TAG_USED));
+				else setIcon(icons.getIcon(IconManager.TAG));
+			}
 			if (ho instanceof CategoryData) {
 				if (v.isAvailable())
 					setIcon(icons.getIcon(IconManager.TAG_USED));
 				else setIcon(icons.getIcon(IconManager.TAG));
 			} else if (ho instanceof CategoryGroupData)
 				setIcon(icons.getIcon(IconManager.TAG_GROUP));
+				*/
 		}
 		
 		return this;

@@ -31,12 +31,8 @@ import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -294,6 +290,12 @@ class BrowserUI
 	{
 		treeDisplay.removeAll();
 		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+		TreeBrowserDisplay root = model.getLastSelectedNode();
+        treeDisplay.setModel(new DefaultTreeModel(root));
+        tm.reload(root);
+		/*
+		treeDisplay.removeAll();
+		DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
 		TreeBrowserSet oldRoot = (TreeBrowserSet) tm.getRoot();
 		Set children = oldRoot.getChildrenDisplay();
 		TreeBrowserDisplay root = model.getLastSelectedNode();
@@ -326,6 +328,7 @@ class BrowserUI
         	
         }
         tm.reload(root);
+        */
 	}
 	
     /**

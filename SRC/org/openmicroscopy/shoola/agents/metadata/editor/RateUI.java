@@ -163,15 +163,26 @@ class RateUI
 	}
 
 	/**
+	 * Clears the UI.
+	 * @see AnnotationUI#clearDisplay()
+	 */
+	protected void clearDisplay() 
+	{
+		removeAll();
+	}
+	
+	/**
 	 * Sets the currently selected rating value.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (RatingComponent.RATE_PROPERTY.equals(name))
+		if (RatingComponent.RATE_PROPERTY.equals(name)) {
 			selectedValue = (Integer) evt.getNewValue();
-		
+			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+								Boolean.TRUE);
+		}
 	}
 	
 }

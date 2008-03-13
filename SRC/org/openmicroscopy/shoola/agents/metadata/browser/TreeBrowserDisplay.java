@@ -66,7 +66,7 @@ public abstract class TreeBrowserDisplay
 	/** 
 	 * Back pointer to the parent node or <code>null</code> if this is the root.
 	 */
-	private TreeBrowserDisplay 		parentDisplay;
+	private TreeBrowserDisplay 			parentDisplay;
 	
 	/** 
      * The set of nodes that have been added to this node.
@@ -75,13 +75,13 @@ public abstract class TreeBrowserDisplay
     protected Set<TreeBrowserDisplay>	childrenDisplay;
    
     /** Indicates if the node is expanded or not. */
-    private boolean             	expanded;
+    private boolean             		expanded;
     
     /** The default icon associated to this node. */
-    private Icon					defaultIcon;
+    private Icon						defaultIcon;
     
     /** Flag  indicating that the node is for a menu. */
-    private boolean					menuNode;
+    private boolean						menuNode;
     
     /**
      * Returns the name of the node.

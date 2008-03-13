@@ -45,17 +45,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
-import layout.TableLayout;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
-
 import pojos.AnnotationData;
 import pojos.URLAnnotationData;
 
@@ -130,15 +129,14 @@ class LinksUI
 	private JPanel layoutURL()
 	{
 		JPanel p = new JPanel();
-		p.setBorder(new TitledBorder("URL"));
+		//p.setBorder(new TitledBorder("URL"));
 		TableLayout layout = new TableLayout();
 		p.setLayout(layout);
 		double[] columns = {TableLayout.PREFERRED, 5, TableLayout.PREFERRED};
 		layout.setColumn(columns);
-		for (int j = 0; j < 2*urlComponents.size()-1; j++) {
-			if (j%2 == 0) layout.insertRow(j, TableLayout.PREFERRED);
-			else layout.insertRow(j, 5);
-		}
+		for (int j = 0; j < urlComponents.size(); j++) 
+			layout.insertRow(j, TableLayout.PREFERRED);
+		
 		Iterator i = urlComponents.keySet().iterator();
 		int index;
 		URLAnnotationData url;
@@ -179,7 +177,30 @@ class LinksUI
 			});
 			p.add(label, s);
 		}
-		return p;
+		
+		JPanel content = new JPanel();
+		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
+							{TableLayout.PREFERRED, TableLayout.FILL}};
+		content.setLayout(new TableLayout(size));
+		JLabel label = UIUtilities.setTextFont("Url: ");
+		content.add(label, "0, 0, f, c");
+		content.add(p, "2, 0, 2, 1");
+		return content;
+	}
+	
+	/** 
+	 * Creates a component hosting the URL to enter.
+	 * 
+	 * @return See above.
+	 */
+	private JTextField createURLArea()
+	{
+		JTextField area = new JTextField();
+		UIUtilities.setTextAreaDefault(area);
+		areas.add(area);
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+								Boolean.TRUE);
+		return area;
 	}
 	
 	/** Adds a new url area only if the previously added one has been used. */
@@ -189,9 +210,7 @@ class LinksUI
 		Iterator i;
 		addedContent.removeAll();
 		if (areas.size() == 0) {
-			area = new JTextField();
-			UIUtilities.setTextAreaDefault(area);
-			areas.add(area);
+			area = createURLArea();
 		} else {
 			i = areas.iterator();
 			String text;
@@ -204,11 +223,7 @@ class LinksUI
 					break;
 				}
 			}
-			if (!empty) {
-				area = new JTextField();
-				UIUtilities.setTextAreaDefault(area);
-				areas.add(area);
-			}
+			if (!empty) area = createURLArea();
 		}
 		
 		TableLayout layout = new TableLayout();
@@ -336,10 +351,17 @@ class LinksUI
 			try {
 				area = (JTextField) i.next();
 				value = area.getText();
-				if (value != null)
-				l.add(new URLAnnotationData(value.trim()));
+				if (value != null) {
+					value = value.trim();
+					if (value.length() > 0)
+						l.add(new URLAnnotationData(value));
+				}
+				
 			} catch (Exception e) {
-				//TODO: Notifies user that URL not valid.
+				UserNotifier un = 
+					MetadataViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("New URL", "The URL entered does not " +
+						"seem to be valid.");
 			}
 		}
 		return l;
@@ -352,8 +374,33 @@ class LinksUI
 	protected boolean hasDataToSave()
 	{
 		if (getAnnotationToRemove().size() > 0) return true;
-		if (getAnnotationToSave().size() > 0) return true;
+		//if (getAnnotationToSave().size() > 0) return true;
+		List<String> l = new ArrayList<String>(); 
+		Iterator i = areas.iterator();
+		JTextField area;
+		String value;
+		while (i.hasNext()) {
+			area = (JTextField) i.next();
+			value = area.getText();
+			if (value != null) {
+				value = value.trim();
+				if (value.length() > 0)
+					l.add(value);
+			} 
+		}
+		if (l.size() > 0) return true;
 		return false;
+	}
+	
+	/**
+	 * Clears the UI.
+	 * @see AnnotationUI#clearDisplay()
+	 */
+	protected void clearDisplay() 
+	{
+		removeAll();
+		areas.clear();
+		toRemove.clear();
 	}
 	
 	/**
@@ -368,7 +415,11 @@ class LinksUI
 		} else {
 			int index = Integer.parseInt(s);
 			URLAnnotationData url = urlComponents.get(index);
-			if (url != null) toRemove.add(url);
+			if (url != null) {
+				toRemove.add(url);
+				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+			}
 			buildUI();
 		}
 	}

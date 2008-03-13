@@ -296,7 +296,7 @@ public class ViewerSorter
         	return exp.getLastName()+" "+exp.getFirstName();
         }  else if (obj instanceof GroupData) 
             return ((GroupData) obj).getName();
-        else if (obj instanceof AnnotationData)
+        else if (obj instanceof AnnotationData) 
         	return ((AnnotationData) obj).getContentAsString();
         else if (obj instanceof String) return (String) obj;
         return "";

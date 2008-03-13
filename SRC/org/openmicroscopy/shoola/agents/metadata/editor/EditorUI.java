@@ -25,28 +25,33 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.BorderLayout;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.PixelsInfoDialog;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
  * 
@@ -96,17 +101,25 @@ public class EditorUI
 	private JComponent					topLeftPane;
 	
 	/** The left-hand side panel. */
-	private JPanel 						leftPane;
+	//private JPanel 						leftPane;
 	
 	/** The component hosting the {@link #viewedByUI}. */
 	private TreeComponent 				viewByTree;
 	
-	/** Button to save the annotation. */
-	private JButton						saveButton;
+	/** The tool bar with various control. */
+	private ToolBar						toolBar;
+	
+	/** The left hand side component. */
+	private JPanel 						leftPane;
+
+	/** Collection of annotations UI components. */
+	private List<AnnotationUI>			components;
 	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		leftPane = new JPanel();
+		toolBar = new ToolBar(model, this);
 		propertiesUI = new PropertiesUI(model);
 		attachmentsUI = new AttachmentsUI(model);
 		linksUI = new LinksUI(model);
@@ -115,57 +128,11 @@ public class EditorUI
 		textualAnnotationsUI = new TextualAnnotationsUI(model);
 		viewedByUI = new ViewedByUI(model);
 		topLeftPane = propertiesUI;
-		leftPane = new JPanel();
-		double[][] leftSize = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				TableLayout.PREFERRED} }; //rows
-		leftPane.setLayout(new TableLayout(leftSize));
+		
 		viewByTree = new TreeComponent();
-		saveButton = new JButton("Save");
-		saveButton.setToolTipText("Save changes.");
-		saveButton.addActionListener(new ActionListener() {
 		
-			public void actionPerformed(ActionEvent e) { saveData(); }
-		
-		});
-	}
-
-	/** Save data. */
-	private void saveData()
-	{
-		propertiesUI.updateDataObject();
-		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
-		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
-		List<AnnotationData> l = attachmentsUI.getAnnotationToSave();
-		if (l != null && l.size() > 0)
-			toAdd.addAll(l);
-		l = linksUI.getAnnotationToSave();
-		if (l != null && l.size() > 0)
-			toAdd.addAll(l);
-		l = rateUI.getAnnotationToSave();
-		if (l != null && l.size() > 0)
-			toAdd.addAll(l);
-		l = tagsUI.getAnnotationToSave();
-		if (l != null && l.size() > 0)
-			toAdd.addAll(l);
-		l = textualAnnotationsUI.getAnnotationToSave();
-		if (l != null && l.size() > 0)
-			toAdd.addAll(l);
-		model.fireAnnotationSaving(toAdd, toRemove);
-	}
-    
-	/** Builds and lays out the components. */
-	private void buildGUI()
-	{
-		//setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		JPanel p = new JPanel();
-		double[][] tl = {{TableLayout.PREFERRED, 20, TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.FILL} }; //rows
-		p.setLayout(new TableLayout(tl));
-		
-		p.add(rateUI, "0, 0");
 		viewByTree.insertNode(viewedByUI, viewedByUI.getCollapseComponent(),
-					false);
+				false);
 		viewByTree.addPropertyChangeListener(new PropertyChangeListener()
 			{
 			
@@ -174,23 +141,59 @@ public class EditorUI
 					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
 						boolean b = (Boolean) evt.getNewValue();
 						viewedByUI.setExpanded(b);
-						if (!model.isThumbnailsLoaded()) {
+						if (!model.isThumbnailsLoaded() &&
+								model.getRefObject() instanceof ImageData) {
 							if (b) controller.loadThumbnails();
 							else model.cancelThumbnailsLoading();
 						}
+						viewedByUI.buildUI();
 					}
 				}
 			
 			});
-		p.add(viewByTree, "2, 0, 2, 1");
+		components = new ArrayList<AnnotationUI>();
+		components.add(propertiesUI);
+		components.add(attachmentsUI);
+		components.add(rateUI);
+		components.add(tagsUI);
+		components.add(textualAnnotationsUI);
+		Iterator<AnnotationUI> i = components.iterator();
+		while (i.hasNext()) {
+			i.next().addPropertyChangeListener(EditorControl.SAVE_PROPERTY,
+											controller);
+			
+		}
+	}
+	
+	/** Builds and lays out the components. */
+	private void buildGUI()
+	{
+		JPanel viewTreePanel = new JPanel();
+		viewTreePanel.setLayout(new BoxLayout(viewTreePanel, BoxLayout.X_AXIS));
+		double[][] tl = {{TableLayout.PREFERRED, 20, TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED, TableLayout.FILL} }; //rows
+		viewTreePanel.setLayout(new TableLayout(tl));
+		
+		viewTreePanel.add(rateUI, "0, 0");
+		
+		viewTreePanel.add(viewByTree, "2, 0, 2, 1");
 		TreeComponent left = new TreeComponent();
+		left.insertNode(propertiesUI, propertiesUI.getCollapseComponent());
 		left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 		left.insertNode(attachmentsUI, 
 						attachmentsUI.getCollapseComponent(), false);
-		leftPane.add(topLeftPane, "0, 0");
-		leftPane.add(p, "0, 1");
-		leftPane.add(left, "0, 2");
 		
+		
+		
+		double[][] leftSize = {{TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				TableLayout.PREFERRED} }; //rows
+		leftPane.setLayout(new TableLayout(leftSize));
+		
+		//leftPane.add(topLeftPane, "0, 0");
+		leftPane.add(viewTreePanel, "0, 1");
+		leftPane.add(left, "0, 2");
+
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
 		JPanel rightPane = new JPanel();
@@ -202,22 +205,17 @@ public class EditorUI
 		rightPane.add(tree, "0, 0");
 		
 		
-		double[][] finalSize = {{TableLayout.FILL, 5, TableLayout.FILL}, //columns
-				{TableLayout.FILL} }; //rows
+		double[][] finalSize = {{TableLayout.FILL, 5, TableLayout.FILL}, 
+								{TableLayout.PREFERRED, TableLayout.FILL} };
 		JPanel content = new JPanel();
 		content.setLayout(new TableLayout(finalSize));
-		content.add(leftPane, "0, 0");
-		content.add(rightPane, "2, 0");
+		content.add(toolBar, "0, 0, 2, 0");
+		content.add(leftPane, "0, 1");
+		content.add(rightPane, "2, 1");
 		content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-		
-		JPanel bar = UIUtilities.buildComponentPanelRight(saveButton);
-		bar.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-
-		add(content);
-		add(Box.createVerticalStrut(5));
-		add(bar);
-		//
+		//add(toolBar, BorderLayout.NORTH);
+		add(content, BorderLayout.CENTER);
 	}
 	
 	/** Creates a new instance. */
@@ -246,13 +244,6 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
-    	if (model.getRefObject() instanceof ImageData) {
-    		viewByTree.setVisible(true);
-    	} else {
-    		viewByTree.setVisible(false);
-    		viewedByUI.setExpanded(false);
-    	}
-    	
     	rateUI.buildUI();
     	viewedByUI.buildUI();
     	linksUI.buildUI();
@@ -261,26 +252,63 @@ public class EditorUI
     	tagsUI.buildUI();
     	attachmentsUI.buildUI();
     	propertiesUI.buildUI();
+    	toolBar.buildGUI();
+    	toolBar.setControls();
+    	setDataToSave(false);
     	revalidate();
     	repaint();
-    	if (viewByTree.isVisible()) {
-    		if (viewedByUI.isExpanded())
-    			controller.loadThumbnails();
-    				
-    	}
     }
 
+    /** Save data. */
+	void saveData()
+	{
+		propertiesUI.updateDataObject();
+		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
+		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
+		List<AnnotationData> l = attachmentsUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = linksUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = rateUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = tagsUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		l = textualAnnotationsUI.getAnnotationToSave();
+		if (l != null && l.size() > 0)
+			toAdd.addAll(l);
+		model.fireAnnotationSaving(toAdd, toRemove);
+	}
+	
     /** Updates display when the new root node is set. */
 	void setRootObject()
 	{
-		rateUI.removeAll();
-		viewedByUI.removeAll();
-    	linksUI.removeAll();
-    	rateUI.removeAll();
-    	textualAnnotationsUI.removeAll();
-    	tagsUI.removeAll();
-    	attachmentsUI.removeAll();
+		//removeAll();
+		//buildGUI();
+		if (model.getRefObject() instanceof ImageData) {
+    		viewByTree.setVisible(true);
+    	} else {
+    		viewByTree.collapseNodes();
+    		viewByTree.setVisible(false);
+    		viewedByUI.setExpanded(false);
+    	}
+		leftPane.remove(topLeftPane);
+		TableLayout layout = (TableLayout) leftPane.getLayout();
+		layout.setRow(0, 0);
+		leftPane.revalidate();
+		rateUI.clearDisplay();
+		viewedByUI.clearDisplay();
+    	linksUI.clearDisplay();
+    	rateUI.clearDisplay();
+    	textualAnnotationsUI.clearDisplay();
+    	tagsUI.clearDisplay();
+    	attachmentsUI.clearDisplay();
+    	propertiesUI.clearDisplay();
     	propertiesUI.buildUI();
+    	
 		revalidate();
     	repaint();
 	}
@@ -296,12 +324,85 @@ public class EditorUI
 	/** Sets the existing tags. */
 	void setExistingTags()
 	{
-		tagsUI.showSelectionWizard();
+		tagsUI.setExistingTags();
 		revalidate();
     	repaint();
 	}
+	
+	/**
+	 * Displays the passed image.
+	 * 
+	 * @param thumbnail
+	 */
+	void setThumbnail(BufferedImage thumbnail)
+	{
+		ThumbnailCanvas canvas = new ThumbnailCanvas(model, thumbnail, null);
+		leftPane.remove(topLeftPane);
+		topLeftPane = canvas;
+		TableLayout layout = (TableLayout) leftPane.getLayout();
+		layout.setRow(0, TableLayout.PREFERRED);
+		leftPane.add(topLeftPane, "0, 0");
+		leftPane.revalidate();
+		//add(canvas, BorderLayout.NORTH);
+		revalidate();
+    	repaint();
+		
+	}
 
-	/** Sets the channel data. */
-	void setChannelData() { propertiesUI.showInfo(); }
+	/** Shows the image's info. */
+    void showChannelData()
+    { 
+    	Object refObject = model.getRefObject();
+    	if (refObject instanceof ImageData) {
+    		PixelsData data = ((ImageData) refObject).getDefaultPixels();
+    		Map<String, String> details = EditorUtil.transformPixelsData(data);
+    		List waves = model.getChannelData();
+            if (waves == null) return;
+            String s = "";
+            Iterator k = waves.iterator();
+            int j = 0;
+            while (k.hasNext()) {
+                s += 
+                   ((ChannelMetadata) k.next()).getEmissionWavelength();
+                if (j != waves.size()-1) s +=", ";
+                j++;
+            }
+            details.put(EditorUtil.WAVELENGTHS, s);
+    		JFrame f = 
+    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+    		PixelsInfoDialog dialog = new PixelsInfoDialog(f, details);
+    		UIUtilities.centerAndShow(dialog);
+    	}
+    }
 
+    /**
+     * Enables the saving controls depending on the passed value.
+     * 
+     * @param b Pass <code>true</code> to save the data,
+     * 			<code>false</code> otherwise.
+     */
+    void setDataToSave(boolean b)
+    {
+    	toolBar.setDataToSave(b);
+    }
+    
+    /**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasDataToSave()
+	{
+		Iterator<AnnotationUI> i = components.iterator();
+		boolean b = false;
+		while (i.hasNext()) {
+			if (i.next().hasDataToSave()) {
+				b = true;
+				break;
+			}
+		}
+		return b;
+	}
+    
 }

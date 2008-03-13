@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.TagPopupMenu 
+ * org.openmicroscopy.shoola.agents.metadata.editor.AttachmentPopupMenu 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -36,7 +36,7 @@ import javax.swing.JPopupMenu;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 
 /** 
- * Pop up menu used to handle the tags.
+ * Popup menu used to handle the attachments.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
  * </small>
  * @since OME3.0
  */
-class TagPopupMenu 
+class AttachmentPopupMenu 	
 	extends JPopupMenu
 	implements ActionListener
 {
@@ -56,23 +56,17 @@ class TagPopupMenu
 	/** Action to delete the selected elements. */
 	private static final int DELETE = 0;
 	
-	/** Action to browse the selected elements. */
-	private static final int BROWSE = 1;
-	
 	/** Action to edit the selected elements. */
-	private static final int EDIT = 2;
+	private static final int DOWNLOAD = 1;
 	
 	/** Button to delete the selected elements. */
-	private JMenuItem 	delete;
+	private JMenuItem 		delete;
 	
 	/** Button to browse the selected elements. */
-	private JMenuItem 	browse;
-	
-	/** Button to edit the selected element. */
-	private JMenuItem 	edit;
+	private JMenuItem 		download;
 	
 	/** Reference to the view. */
-	private TagsUI 		uiDelegate;
+	private AttachmentsUI	uiDelegate;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -82,26 +76,20 @@ class TagPopupMenu
 		delete.addActionListener(this);
 		delete.setActionCommand(""+DELETE);
 		delete.setIcon(icons.getIcon(IconManager.REMOVE));
-		delete.setToolTipText("Remove the selected tags.");
-		browse = new JMenuItem("Browse");
-		browse.addActionListener(this);
-		browse.setActionCommand(""+BROWSE);
-		browse.setIcon(icons.getIcon(IconManager.BROWSE));
-		browse.setToolTipText("Browse the selected tags.");
-		edit = new JMenuItem("Edit");
-		edit.addActionListener(this);
-		edit.setActionCommand(""+EDIT);
-		edit.setIcon(icons.getIcon(IconManager.EDIT));
-		edit.setToolTipText("Edit the selected tags.");
-		edit.setEnabled(uiDelegate.getSelectedTagsCount() == 1);
+		delete.setToolTipText("Remove the file.");
+		
+		download = new JMenuItem("Download");
+		download.addActionListener(this);
+		download.setActionCommand(""+DOWNLOAD);
+		download.setIcon(icons.getIcon(IconManager.DOWNLOAD));
+		download.setToolTipText("Download the file.");
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		add(edit);
+		add(download);
 		add(delete);
-		add(browse);
 	}
 
 	/**
@@ -109,15 +97,17 @@ class TagPopupMenu
 	 * 
 	 * @param uiDelegate The view.
 	 */
-	TagPopupMenu(TagsUI uiDelegate)
+	AttachmentPopupMenu(AttachmentsUI uiDelegate)
 	{
+		if (uiDelegate == null)
+			throw new IllegalArgumentException("No view.");
 		this.uiDelegate = uiDelegate;
 		initComponents();
 		buildGUI();
 	}
 	
 	/**
-	 * Delete, edit or browse the selected elements.
+	 * Removes the attachment or downloads it.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
@@ -125,16 +115,11 @@ class TagPopupMenu
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case DELETE:
-				uiDelegate.removeSelectedTags(); 
+				uiDelegate.removeSelectedAttachment(); 
 				break;
-			case EDIT:
-				uiDelegate.editSelectedTags(); 
-				break;
-			case BROWSE:
-				uiDelegate.browseSelectedTags(); 
-				break;
+			case DOWNLOAD:
+				uiDelegate.downloadSelectedAttachment();  
 		}
-		
 	}
 	
 }

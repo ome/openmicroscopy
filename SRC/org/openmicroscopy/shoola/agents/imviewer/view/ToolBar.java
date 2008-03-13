@@ -251,18 +251,20 @@ class ToolBar
 	        //rndButton.setAction(a);
 		}
     	
-    	//boolean b = view.isImageCompressed();
-    	//if (b) {
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(compressionBox);
 		compressionBox.setSelectedIndex(view.getCompressionLevel());
 		compressionBox.addActionListener(this);
 		  
         bar.add(rating);
-    	//}
     	buildGUI(); 
     }
     
+    /** 
+     * Sets the rating value.
+     * 
+     * @param value The value to set.
+     */
     void setRating(int value) { rating.setValue(value); }
     
     /** Cancels any ongoing search. */

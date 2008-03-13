@@ -30,7 +30,6 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -44,9 +43,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Implements the {@link MetadataViewer} interface to provide the functionality
@@ -277,9 +274,9 @@ class MetadataViewerComponent
 	{
 		Object ref = model.getRefObject();
 		if (!(ref instanceof ImageData)) return;
-		if (thumbnail != null)
-			view.setThumbnail(thumbnail);
-		
+		//if (thumbnail != null)
+		//	model.getEditor().setThumbnail(thumbnail);
+			//view.setThumbnail(thumbnail);
 	}
 
 	/** 
@@ -290,11 +287,7 @@ class MetadataViewerComponent
 	{
 		if (node == null)
 			throw new IllegalArgumentException("No node specified.");
-		Object userObject = node.getUserObject();
-		if (userObject instanceof ImageData) {
-			model.fireParentLoading((TreeBrowserSet) node, DatasetData.class);
-		} else if (userObject instanceof DatasetData) 
-			model.fireParentLoading((TreeBrowserSet) node, ProjectData.class);
+		model.fireParentLoading((TreeBrowserSet) node);
 	}
 
 	/** 

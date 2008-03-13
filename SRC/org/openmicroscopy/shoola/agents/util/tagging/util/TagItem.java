@@ -33,6 +33,7 @@ import javax.swing.JMenuItem;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.TagAnnotationData;
 
 /** 
  *  Utility class hosting a tag.
@@ -127,7 +128,8 @@ public class TagItem
 			((CategoryData) data).setName(name);  
 		} else if (data instanceof CategoryGroupData) {
 			((CategoryGroupData) data).setName(name);  
-		}
+		} else if (data instanceof TagAnnotationData)
+			((TagAnnotationData) data).setTagValue(name);
 	}
 	
 	/**
@@ -156,7 +158,8 @@ public class TagItem
 			return ((CategoryData) data).getName(); 
 		} else if (data instanceof CategoryGroupData) {
 			return ((CategoryGroupData) data).getName(); 
-		}
+		} else if (data instanceof TagAnnotationData)
+			return ((TagAnnotationData) data).getTagValue();
 		return null;
 	}
 	

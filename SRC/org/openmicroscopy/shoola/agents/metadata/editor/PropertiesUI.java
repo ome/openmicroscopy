@@ -28,45 +28,35 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
-
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.util.PixelsInfoDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
-
 import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PermissionData;
-import pojos.PixelsData;
 import pojos.ProjectData;
 
 /** 
@@ -84,7 +74,7 @@ import pojos.ProjectData;
  */
 class PropertiesUI   
 	extends AnnotationUI
-	implements ActionListener
+	implements DocumentListener
 {
     
 	/** The title associated to this component. */
@@ -93,40 +83,15 @@ class PropertiesUI
 	/** The details string. */
     private static final String DETAILS = "Details";
     
-    /** Description of the {@link #infoButton} button. */
-    private static final String INFO_DESCRIPTION = "View image's info.";
-  
-    /** Description of the {@link #downloadButton} button. */
-    private static final String	DOWNLOAD_DESCRIPTION = "Download the " +
-    												"archived files";
-    
-   
-    /** Action commnand ID indicating to dowload the archived files if any. */
-    private static final int	DOWNLOAD_ACTION = 0;
-    
-    /** Action command ID indicating to display the info of the image. */
-    private static final int	INFO_ACTION = 1;
-    
     /** Area where to enter the name of the <code>DataObject</code>. */
     private JTextField          nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
     private JTextArea          	descriptionArea;
-    
-    /** Button to download the archived files. */
-    private JButton				downloadButton;
-    
-    /** Button to download the archived files. */
-    private JButton				infoButton;
 
     /** Panel hosting the main display. */
     private JComponent			contentPanel;
-
-    /** Downloads the archived files. */
-    private void download()
-    { 
-    	
-    }
+    
     
     /**
      * Builds and lays out the panel displaying the permissions of the edited
@@ -306,18 +271,8 @@ class PropertiesUI
         UIUtilities.setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         UIUtilities.setTextAreaDefault(descriptionArea);
-        IconManager icons = IconManager.getInstance();
-        downloadButton = new JButton(icons.getIcon(IconManager.DOWNLOAD));
-    	downloadButton.setToolTipText(DOWNLOAD_DESCRIPTION);
-    	downloadButton.addActionListener(this);
-    	downloadButton.setActionCommand(""+DOWNLOAD_ACTION);
-    	
-    	infoButton = new JButton(icons.getIcon(IconManager.INFO));
-    	infoButton.setToolTipText(INFO_DESCRIPTION);
-    	infoButton.addActionListener(this);
-    	infoButton.setActionCommand(""+INFO_ACTION);
-    	UIUtilities.unifiedButtonLookAndFeel(downloadButton);
-    	UIUtilities.unifiedButtonLookAndFeel(infoButton);
+        nameArea.getDocument().addDocumentListener(this);
+        descriptionArea.getDocument().addDocumentListener(this);
     }   
     
     /**
@@ -331,10 +286,60 @@ class PropertiesUI
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-        int height = 100;
-        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
-        				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 0,
-        				height} }; //rows
+        /*
+        content.setLayout(new GridBagLayout());
+        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(3, 3, 3, 3);
+        JLabel l;
+        c.gridy = 0;
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        //c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        c.gridx = 0;
+        content.add(UIUtilities.setTextFont("ID"), c);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        l = new JLabel(""+model.getRefObjectID());
+        content.add(l, c);
+        c.gridy++;
+        
+        
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        //c.fill = GridBagConstraints.NONE;      //reset to default
+        c.weightx = 0.0;  
+        c.gridx = 0;
+        content.add(UIUtilities.setTextFont("Name"), c);
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        content.add(nameArea, c);
+        
+        c.gridy++;
+        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        c.weightx = 0.0; 
+        c.gridx = 0;
+        l = UIUtilities.setTextFont("Description");
+        content.add(l, c);
+       
+        
+        c.gridx = 1;
+        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 1.0;
+        JScrollPane pane = new JScrollPane(descriptionArea);
+        pane.setPreferredSize(new Dimension(80, 100));
+        content.add(pane, c);
+        */
+        int height = 80;
+        double[][] tl = {{TableLayout.PREFERRED, 250}, //columns
+        				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
+        				TableLayout.PREFERRED, height} }; //rows
         TableLayout layout = new TableLayout(tl);
         content.setLayout(layout);
         //content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -346,27 +351,9 @@ class PropertiesUI
         content.add(nameArea, "1, 1, f, c");
         content.add(new JLabel(), "0, 2, 1, 2");
         l = UIUtilities.setTextFont("Description");
-        int h = l.getFontMetrics(l.getFont()).getHeight()+5;
-        layout.setRow(3, h);
         content.add(l, "0, 3, l, c");
         content.add(new JScrollPane(descriptionArea), "1, 3, 1, 4");
         return content;
-    }
-    
-    /** 
-     * Builds and lays out the controls buttons in a tool bar.
-     * 
-     * @return See above.
-     */
-    private JComponent buildToolBar()
-    {
-    	JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        bar.add(infoButton); 
-        bar.add(downloadButton); 
-        return UIUtilities.buildComponentPanel(bar);
     }
     
     /**
@@ -400,9 +387,6 @@ class PropertiesUI
         	contentPanel.add(tree);
             contentPanel.add(new JPanel());
         }
-        if (model.getRefObject() instanceof ImageData) {
-        	contentPanel.add(buildToolBar());
-        }
         add(contentPanel, BorderLayout.NORTH);
     }
 
@@ -415,36 +399,11 @@ class PropertiesUI
     PropertiesUI(EditorModel model)
     {
        super(model);
+       title = TITLE;
        initComponents();
        UIUtilities.setBoldTitledBorder(getComponentTitle(), this);
     }   
 
-    /** Shows the image's info. */
-    void showInfo()
-    { 
-    	Object refObject = model.getRefObject();
-    	if (refObject instanceof ImageData) {
-    		PixelsData data = ((ImageData) refObject).getDefaultPixels();
-    		Map<String, String> details = EditorUtil.transformPixelsData(data);
-    		List waves = model.getChannelData();
-            if (waves == null) return;
-            String s = "";
-            Iterator k = waves.iterator();
-            int j = 0;
-            while (k.hasNext()) {
-                s += 
-                   ((ChannelMetadata) k.next()).getEmissionWavelength();
-                if (j != waves.size()-1) s +=", ";
-                j++;
-            }
-            details.put(EditorUtil.WAVELENGTHS, s);
-    		JFrame f = 
-    			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-    		PixelsInfoDialog dialog = new PixelsInfoDialog(f, details);
-    		UIUtilities.centerAndShow(dialog);
-    	}
-    }
-    
     /**
 	 * Overridden to lay out the tags.
 	 * @see AnnotationUI#buildUI()
@@ -452,11 +411,17 @@ class PropertiesUI
 	protected void buildUI()
 	{
 		removeAll();
+		nameArea.getDocument().removeDocumentListener(this);
+		descriptionArea.getDocument().removeDocumentListener(this);
 		nameArea.setText(model.getRefObjectName());
         descriptionArea.setText(model.getRefObjectDescription());
         boolean b = model.isCurrentUserOwner(model.getRefObject());
         nameArea.setEnabled(b);
         descriptionArea.setEnabled(b);
+        if (b) {
+        	nameArea.getDocument().addDocumentListener(this);
+    		descriptionArea.getDocument().addDocumentListener(this);
+        }
         buildGUI();
 	}
 	
@@ -524,22 +489,39 @@ class PropertiesUI
 	}
 	
 	/**
-	 * Downloads the archived files or displays the image information.
-	 * @see ActionListener#actionPerformed(ActionEvent)
+	 * Clears the UI.
+	 * @see AnnotationUI#clearDisplay()
 	 */
-	public void actionPerformed(ActionEvent e)
+	protected void clearDisplay() 
 	{
-		int index = Integer.parseInt(e.getActionCommand());
-		switch (index) {
-			case DOWNLOAD_ACTION:
-				download();
-				break;
-			case INFO_ACTION:
-				if (model.getChannelData() == null)
-					model.loadChannelData();
-				else showInfo();
-		}
 		
 	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

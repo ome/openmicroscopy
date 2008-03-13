@@ -58,11 +58,17 @@ public class ThumbnailLoader
 	extends EditorLoader
 {
 
-	 /** The width of the thumbnail. */
-    public static final int            THUMB_MAX_WIDTH = 96; 
+	/** The standard width of the thumbnail. */
+    private static final int            STANDARD_WIDTH = 96; 
+    
+    /** The standard height of the thumbnail. */
+    private static final int            STANDARD_HEIGHT = 96;
+    
+    /** The width of the thumbnail. */
+    private static final int            THUMB_MAX_WIDTH = 200; 
     
     /** The maximum height of the thumbnail. */
-    public static final int            THUMB_MAX_HEIGHT = 96;
+    private static final int            THUMB_MAX_HEIGHT = 200;
   
     /** The object the thumbnails are for. */
     private ImageData					image;
@@ -119,8 +125,13 @@ public class ThumbnailLoader
      */
     public void load()
     {
-    	handle = mhView.loadThumbnails(image, userIDs, THUMB_MAX_WIDTH,
-            	THUMB_MAX_HEIGHT, this);
+    	if (single) 
+    		handle = mhView.loadThumbnails(image, userIDs, THUMB_MAX_WIDTH,
+                	THUMB_MAX_HEIGHT, this);
+    	else
+    		handle = mhView.loadThumbnails(image, userIDs, STANDARD_WIDTH,
+                	STANDARD_HEIGHT, this);	
+    		
     }
     
     /** 

@@ -214,13 +214,15 @@ class MetadataViewerModel
 	 * @param refNode 	The menu node of reference.
 	 * @param rootType	The type of reference.
 	 */
-	void fireParentLoading(TreeBrowserSet refNode, Class rootType)
+	void fireParentLoading(TreeBrowserSet refNode)
 	{
 		cancel(refNode);
-		Object ho = getParentObject(refNode);
+		//Object ho = getParentObject(refNode);
+		Object ho = refNode.getUserObject();
 		if (ho instanceof DataObject) {
 			ContainersLoader loader = new ContainersLoader(
-					component, refNode, rootType, ((DataObject) ho).getId());
+					component, refNode, ho.getClass(), 
+					((DataObject) ho).getId());
 			loaders.put(refNode, loader);
 			loader.load();
 		}

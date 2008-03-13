@@ -96,8 +96,27 @@ public interface Editor
 	 */
 	public void setExistingTags(Collection collection);
 
+	/**
+	 * Sets the collection of channel data.
+	 * 
+	 * @param list The collection to set.
+	 */
 	public void setChannelsData(List list);
 
+	/**
+	 * Sets the passed image.
+	 * 
+	 * @param thumbnail The image to set.
+	 * @param imageID	The id of the image.
+	 */
 	public void setThumbnail(BufferedImage thumbnail, long imageID);
+	
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasDataToSave();
 	
 }

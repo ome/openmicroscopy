@@ -48,8 +48,12 @@ import org.openmicroscopy.shoola.util.ui.TreeComponent;
  * @since OME3.0
  */
 class EditorControl
+	implements PropertyChangeListener
 {
 
+	/** Bound property indicating that the save status has been modified. */
+	static final String SAVE_PROPERTY = "save";
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -72,5 +76,16 @@ class EditorControl
 
     /** Loads the thumbnails, forwards call the model. */
 	void loadThumbnails() { model.loadThumbnails(); }
+
+	/**
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		String name = evt.getPropertyName();
+		if (SAVE_PROPERTY.equals(name)) {
+			view.setDataToSave(view.hasDataToSave());
+		}
+	}
 
 }

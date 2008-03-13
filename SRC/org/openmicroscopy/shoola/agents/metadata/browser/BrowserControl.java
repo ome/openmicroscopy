@@ -219,8 +219,7 @@ class BrowserControl
 		model.setSelectedNode(node);
 		if (node.isChildrenLoaded()) return;
 		view.addDefaultNode(node, BrowserUI.LOADING_MSG);
-		//model.loadMetadata(node);
-		
+		model.loadMetadata(node);
 	}
     
 }

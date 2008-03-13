@@ -157,11 +157,15 @@ public class IconManager
     /** The <code>XML</code> icon. */
     public static int           XML_DOC = 34;
     
+    /** The <code>XML</code> icon. */
+    public static int           SAVE = 35;
+    
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 34;
+	private static int          MAX_ID = 35;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -185,7 +189,7 @@ public class IconManager
         relPaths[ROOT] = "nuvola_trashcan_empty16.png";
         relPaths[LIST_VIEW] = "nuvola_view_text16.png";
         relPaths[GRID_VIEW] = "nuvola_view_multicolumn16.png";
-        relPaths[DOWNLOAD] = "mozilla_grey16.png";
+        relPaths[DOWNLOAD] = "nuvola_download_manager16.png";
         relPaths[LEFT_ARROW] = "nuvola_1leftarrow16.png";
         relPaths[RIGHT_ARROW] = "nuvola_1rightarrow16.png";
         relPaths[DOUBLE_LEFT_ARROW] = "nuvola_2leftarrow16.png";
@@ -193,13 +197,14 @@ public class IconManager
         relPaths[ORDER_BY_DATE] = "eclipse_trace_persp16.png";
         relPaths[ORDER_BY_USER] = "nuvola_kdmconfig16.png";
         relPaths[CLOSE] = "eclipse_alphab_sort_co16.png";
-        relPaths[EDIT] = "eclipse_alphab_sort_co16.png";
+        relPaths[EDIT] = "nuvola_editpaste16.png";
         relPaths[INFO] = "nuvola_messagebox_info16.png";
         relPaths[INFO_48] = "nuvola_messagebox_info48.png";
         relPaths[PDF_DOC] = "nuvola_acroread22.png";
         relPaths[TEXT_DOC] = "nuvola_acroread22.png";
         relPaths[WORD_DOC] = "nuvola_acroread22.png";
         relPaths[XML_DOC] = "nuvola_acroread22.png";
+        relPaths[SAVE] = "nuvola_filesaveas16.png";
 	}
    
 	/** The sole instance. */

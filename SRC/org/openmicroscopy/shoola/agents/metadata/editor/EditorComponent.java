@@ -163,16 +163,30 @@ class EditorComponent
 	public void setChannelsData(List channelData)
 	{
 		model.setChannelData(channelData);
-		view.setChannelData();
+		view.showChannelData();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setThumbnail(BufferedImage, long)
+	 */
 	public void setThumbnail(BufferedImage thumbnail, long imageID)
 	{
 		Object ref = model.getRefObject();
 		if (!(ref instanceof ImageData)) return;
 		ImageData img = (ImageData) ref;
 		if (img.getId() == imageID && thumbnail != null)
-			model.setThumbnail(thumbnail);
+			view.setThumbnail(thumbnail);
+			//model.setThumbnail(thumbnail);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#hasDataToSave()
+	 */
+	public boolean hasDataToSave()
+	{
+		return view.hasDataToSave();
 	}
 	
 }
