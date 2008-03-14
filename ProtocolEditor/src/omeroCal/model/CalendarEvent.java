@@ -21,7 +21,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal;
+package omeroCal.model;
 
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;

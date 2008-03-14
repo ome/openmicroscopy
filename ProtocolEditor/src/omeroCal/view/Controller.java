@@ -21,7 +21,10 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal;
+package omeroCal.view;
+
+import omeroCal.model.CalendarEvent;
+import omeroCal.model.IMonthModel;
 
 /**
  * Coordinates UI events, allowing communication between UI components.

@@ -21,7 +21,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal;
+package omeroCal.model;
 
 import java.io.File;
 import java.sql.Connection;
@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Observable;
+
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;

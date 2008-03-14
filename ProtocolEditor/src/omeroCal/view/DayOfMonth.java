@@ -21,26 +21,51 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal;
+package omeroCal.view;
 
-import java.awt.Font;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
 
-public class CalendarLabel extends JLabel {
+import omeroCal.model.CalendarEvent;
 
+
+
+
+public class DayOfMonth extends JPanel {
 	
-	public CalendarLabel(String text) {
+	Box eventBox;
 	
-		this(text, 10);
-	}
-	
-	public CalendarLabel(String text, int size) {
-		super(text);
+	public DayOfMonth(int dayOfMonth) {
 		
-		Font calendarFont = new Font("SansSerif", Font.PLAIN, size);
-
-		this.setFont(calendarFont);
+		setLayout(new BorderLayout());
+		setBorder(BorderFactory.createMatteBorder(1,1,0,0, new Color(200, 200, 200)));
+		
+		Dimension daySize = new Dimension(115, 105);
+		setMinimumSize(daySize);
+		setPreferredSize(daySize);
+		
+		this.setBackground(Color.WHITE);
+		
+		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
+		
+		eventBox = Box.createVerticalBox();
+		add(eventBox, BorderLayout.CENTER);
 	}
 	
+	public DayOfMonth() {
+		
+	}
+	
+	public void addEvent(CalendarEvent event) {
+
+		eventBox.add(new EventLabel(event));
+	}
+
 }

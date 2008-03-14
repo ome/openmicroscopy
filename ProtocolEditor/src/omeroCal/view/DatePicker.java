@@ -21,19 +21,32 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal;
+package omeroCal.view;
 
-import java.util.List;
+import java.awt.Color;
 
+import org.jdesktop.swingx.JXDatePicker;
 
-public interface IMonthModel {
+public class DatePicker extends JXDatePicker {
+
+	/** The selected date format. */
+	private static final String		DATE_FORMAT = "yyyy/MMM/dd";//"MM/dd/yy";
+	
+	/** The tooltip of the calendar button. */
+	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
 
 	/**
-	 * Get all the CalendarEvents for this month.
-	 * 
-	 * @return
+	 * Creates a date picker.
 	 */
-	public List <CalendarEvent> getEventsForMonth();
-	
-	public void incrementMonth(int increment);
+	public DatePicker() {
+		
+		String[] dateFormats = new String[1];
+		dateFormats[0] = DATE_FORMAT;
+		getEditor().setEditable(false);
+		// setEditable(false);
+		setFormats(dateFormats);
+
+		getEditor().setBackground(Color.WHITE);
+	}
+
 }

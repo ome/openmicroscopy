@@ -21,7 +21,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal;
+package omeroCal.model;
 
 import java.beans.PropertyChangeEvent;
 import java.util.Calendar;
@@ -30,6 +30,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+
 
 public class MonthModel 
 	extends Observable 
