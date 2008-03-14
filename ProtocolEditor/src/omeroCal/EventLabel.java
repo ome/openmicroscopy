@@ -27,11 +27,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
 import java.text.DateFormat;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
+import javax.swing.event.ChangeEvent;
 
 
 public class EventLabel 
@@ -42,7 +44,7 @@ public class EventLabel
 	
 	Color backgroundColor = null;
 	
-	Color foregroundColor = Color.red;
+	Color foregroundColor;
 	
 	public EventLabel (CalendarEvent event) {
 		
@@ -53,6 +55,8 @@ public class EventLabel
 		calendarEvent = event;
 		
 		setText(event.getName());
+		
+		foregroundColor = event.getCalendarColour();
 		
 		String time = DateFormat.getTimeInstance().format(event.getStartTime());
 		setToolTipText(time);
@@ -68,6 +72,7 @@ public class EventLabel
 
 	public void update(Observable o, Object arg) {
 		
+		System.out.println("EventLabel update() " + calendarEvent.getName());
 		
 	}
 	
@@ -83,8 +88,16 @@ public class EventLabel
 	}
 	
 	public void setSelected(boolean selected) {
+		boolean oldValue = isSelected();
+		
+		super.setSelected(selected);
+		
 		setBackground(selected ? foregroundColor : backgroundColor);
 		setForeground(selected ? Color.WHITE : foregroundColor);
+		
+		PropertyChangeEvent selectionChanged = new PropertyChangeEvent(this, "selected", oldValue, selected);
+		
+		calendarEvent.selectionChanged(selectionChanged);
 	}
 
 }

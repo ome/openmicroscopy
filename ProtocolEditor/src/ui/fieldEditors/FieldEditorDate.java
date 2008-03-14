@@ -23,6 +23,7 @@
 package ui.fieldEditors;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Date;
 
 import tree.DataFieldConstants;
@@ -33,11 +34,13 @@ public class FieldEditorDate extends FieldEditor {
 	
 	AttributeEditor defaultFieldEditor;
 	
+	static DateFormat fDateFormat = DateFormat.getDateInstance (DateFormat.MEDIUM);
+	
 	public FieldEditorDate (IDataFieldObservable dataFieldObs) {
 		
 		super(dataFieldObs);
 		
-		DateFormat fDateFormat = DateFormat.getDateInstance (DateFormat.MEDIUM);
+		
 		
 		Date now = new Date ();
 
@@ -59,4 +62,22 @@ public class FieldEditorDate extends FieldEditor {
 		defaultFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.DEFAULT));
 	}
 
+	/**
+	 * Convert the String date eg "Feb 21, 2005" to a Date object.
+	 * Returns null if string is null, or incorrectly formatted. 
+	 * 
+	 * @param formattedDate		String representation of a date, eg "Jan 4, 2008"
+	 * @return		A Date object that corresponds to the string.
+	 */
+	public static Date getDateFromString(String formattedDate) {
+		if (formattedDate == null)
+			return null;
+		try {
+			return fDateFormat.parse(formattedDate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+	}
 }

@@ -97,6 +97,8 @@ public class ImageFactory {
 	public static final String INDEX_FILES_ICON = ICONS_FILE + "bookcase.png";
 	public static final String ROTATE_HORIZONTAL_ICON = ACTION_ICONS_FILE + "rotate_right_up.png";
 	public static final String ROTATE_VERTICAL_ICON = ACTION_ICONS_FILE + "rotate_down_left.png";
+	public static final String CALENDAR_ICON = ACTION_ICONS_FILE + "date.png";
+	
 	
 	public Icon getIcon(String iconPathName) {
 		try {

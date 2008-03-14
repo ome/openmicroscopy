@@ -23,30 +23,34 @@
 
 package omeroCal;
 
-import java.awt.Color;
-
-import org.jdesktop.swingx.JXDatePicker;
-
-public class DatePicker extends JXDatePicker {
-
-	/** The selected date format. */
-	private static final String		DATE_FORMAT = "yyyy/MMM/dd";//"MM/dd/yy";
+/**
+ * Coordinates UI events, allowing communication between UI components.
+ * This also knows about the Model, where it gets data and passes changes to data
+ * @author will
+ *
+ */
+public class Controller {
 	
-	/** The tooltip of the calendar button. */
-	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
-
-	/**
-	 * Creates a date picker.
-	 */
-	public DatePicker() {
+	IMonthModel monthModel;
+	
+	MonthView monthView;
+	
+	public Controller (IMonthModel monthModel) {
 		
-		String[] dateFormats = new String[1];
-		dateFormats[0] = DATE_FORMAT;
-		getEditor().setEditable(false);
-		// setEditable(false);
-		setFormats(dateFormats);
-
-		getEditor().setBackground(Color.WHITE);
+		this.monthModel = monthModel;
+		
 	}
 
+	public void setMonthView(MonthView monthView) {
+		
+		this.monthView = monthView;
+	}
+	
+	/**
+	 * This is called by a UI component 
+	 */
+	public void calendarEventSelected(CalendarEvent calendarEvent) {
+		
+		
+	}
 }

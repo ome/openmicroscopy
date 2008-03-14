@@ -215,6 +215,7 @@ public class XMLView
 		addButton(Controller.OPEN_WWW_FILE, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 		addButton(Controller.SAVE_FILE, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 		addButton(Controller.SAVE_FILE_AS, "", fileManagerToolBarBorder, fileManagerWestToolBar);
+		addButton(Controller.OPEN_CALENDAR, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 
 		Action[] printExportActions = new Action[] {
 				controller.getAction(Controller.EXPORT_ALL_HTML),

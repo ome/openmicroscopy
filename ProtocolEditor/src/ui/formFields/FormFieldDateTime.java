@@ -23,6 +23,8 @@
 package ui.formFields;
 
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -35,6 +37,8 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import omeroCal.DatePicker;
 
 import org.freixas.jcalendar.DateEvent;
 import org.freixas.jcalendar.DateListener;
@@ -55,8 +59,8 @@ import tree.IDataFieldObservable;
  */
 public class FormFieldDateTime extends FormField {
 	
-	JCalendarCombo jCalendarCombo;
-	DateListener dateListener;
+	DatePicker datePicker;
+	ActionListener calendarListener;
 
 	SpinnerModel hoursModel;
 	JSpinner hoursSpinner;
@@ -71,11 +75,11 @@ public class FormFieldDateTime extends FormField {
 		
 		gc = new GregorianCalendar();
 		
-		jCalendarCombo = new JCalendarCombo();
-		dateListener = new CalendarListener();
-		jCalendarCombo.addDateListener(dateListener);
+		datePicker = new DatePicker();
+		calendarListener = new CalendarListener();
+		datePicker.addActionListener(calendarListener);
 		
-		horizontalBox.add(jCalendarCombo);
+		horizontalBox.add(datePicker);
 		
 		Dimension spinnerSize = new Dimension(45, 25);
 		
@@ -118,15 +122,17 @@ public class FormFieldDateTime extends FormField {
 		}
 	}
 	
-	public class CalendarListener implements DateListener {
-		public void dateChanged(DateEvent evt) {
-			Calendar newDate = evt.getSelectedDate();
+	public class CalendarListener implements ActionListener {
+		public void actionPerformed(ActionEvent evt) {
+			Date date = datePicker.getDate();
+			Calendar newDate = new GregorianCalendar();
+			newDate.setTime(date);
 			
 			int year = newDate.get(Calendar.YEAR);
 			int month = newDate.get(Calendar.MONTH);
-			int date = newDate.get(Calendar.DATE);
+			int day = newDate.get(Calendar.DATE);
 			
-			gc.set(year, month, date);
+			gc.set(year, month, day);
 			
 			saveDateTimeValues();
 		}
@@ -176,9 +182,9 @@ public class FormFieldDateTime extends FormField {
 		
 		Date date = gc.getTime();
 			
-		jCalendarCombo.removeDateListener(dateListener);
-		jCalendarCombo.setDate(date);
-		jCalendarCombo.addDateListener(dateListener);
+		datePicker.removeActionListener(calendarListener);
+		datePicker.setDate(date);
+		datePicker.removeActionListener(calendarListener);
 		
 		refreshTimeDisplay();
 	}
@@ -200,8 +206,8 @@ public class FormFieldDateTime extends FormField {
 		super.setHighlighted(highlight);
 		// if the user highlighted this field by clicking the field (not the textBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
-		if (highlight && (!jCalendarCombo.hasFocus()))
-			jCalendarCombo.requestFocusInWindow();
+		if (highlight && (!datePicker.hasFocus()))
+			datePicker.requestFocusInWindow();
 	}
 	
 }

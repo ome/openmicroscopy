@@ -21,32 +21,11 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal;
+package calendar;
 
-import java.awt.Color;
+import omeroCal.MonthView;
 
-import org.jdesktop.swingx.JXDatePicker;
 
-public class DatePicker extends JXDatePicker {
-
-	/** The selected date format. */
-	private static final String		DATE_FORMAT = "yyyy/MMM/dd";//"MM/dd/yy";
-	
-	/** The tooltip of the calendar button. */
-	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
-
-	/**
-	 * Creates a date picker.
-	 */
-	public DatePicker() {
-		
-		String[] dateFormats = new String[1];
-		dateFormats[0] = DATE_FORMAT;
-		getEditor().setEditable(false);
-		// setEditable(false);
-		setFormats(dateFormats);
-
-		getEditor().setBackground(Color.WHITE);
-	}
+public class MonthViewFileLinker extends MonthView {
 
 }

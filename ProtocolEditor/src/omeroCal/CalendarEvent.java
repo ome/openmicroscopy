@@ -23,10 +23,13 @@
 
 package omeroCal;
 
+import java.awt.Color;
+import java.beans.PropertyChangeEvent;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Observable;
+import java.util.Observer;
 
 /**
  * This represents an event in the calendar. Either created from a DateTime field, or from a Time field
@@ -39,7 +42,8 @@ import java.util.Observable;
  *
  */
 public class CalendarEvent 
-	extends Observable {
+	extends Observable 
+	implements Observer {
 
 	/**
 	 * A unique ID that corresponds to the uID of this event in the database.
@@ -77,6 +81,21 @@ public class CalendarEvent
 	 */
 	boolean allDayEvent = false;
 	
+	/**
+	 * The color to display this event. Determined by the calendar.
+	 * This attribute is stored in the DB in the Calendar table. 
+	 * Ignored when adding this CalendarEvent to the DB, but can be set when retrieving it from the DB
+	 */
+	private Color calendarColour;
+	
+	
+	public static final String SELECTION_PROPERTY = "selectionProperty";
+	
+	/**
+	 * 
+	 * @param name
+	 * @param startTime
+	 */
 	public CalendarEvent(String name, Calendar startTime) {
 		eventName = name;
 		initialiseTimes(startTime);
@@ -206,5 +225,50 @@ public class CalendarEvent
 		return allDayEvent;
 	}
 	
+	public void setCalendarColour(int colourInt) {
+		calendarColour = new Color(colourInt);
+	}
+	
+	/**
+	 * returns calendarColour.getRGB()
+	 * @return
+	 */
+	public int getCalendarColourInt() {
+		if (calendarColour != null)
+			return calendarColour.getRGB();
+		else
+			return 0;
+	}
+	
+	public Color getCalendarColour() {
+		return calendarColour;
+	}
+
+	public void update(Observable o, Object arg) {
+		
+		if (arg instanceof PropertyChangeEvent) {
+			
+			PropertyChangeEvent evt = (PropertyChangeEvent)arg;
+			System.out.println("CalendarEvent update() PropertyChangeEvent " + evt.getPropertyName());
+			
+			if (evt.getPropertyName().equals(SELECTION_PROPERTY));
+		}
+		
+	}
+	
+	/**
+	 * Called by objects that know about this class (eg EventLabel)
+	 * to notify observers that the event has changed.
+	 * eg. Event has been clicked on. 
+	 */
+	public void selectionChanged (PropertyChangeEvent changeEvent) {
+		
+		System.out.println("CalendarEvent selectionChanged() to " + changeEvent.getNewValue());
+		
+		PropertyChangeEvent selectionChanged = new PropertyChangeEvent(this, SELECTION_PROPERTY, changeEvent.getOldValue(), changeEvent.getNewValue());
+		
+		setChanged();
+		notifyObservers(selectionChanged);
+	}
 	
 }

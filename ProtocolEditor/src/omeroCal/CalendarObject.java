@@ -42,7 +42,7 @@ public class CalendarObject {
 	/**
 	 * Display color
 	 */
-	private Color calendarColour = Color.LIGHT_GRAY;
+	private Color calendarColour;
 	
 	/**
 	 * Boolean to determine whether a calenar is displayed
@@ -56,6 +56,12 @@ public class CalendarObject {
 	 * @param calendarInfo	A short description
 	 */
 	public CalendarObject() {
+		
+		// create a random color
+		int red = (int)Math.floor(Math.random() * 256);
+		int green = (int)Math.floor(Math.random() * 256);
+		int blue = (int)Math.floor(Math.random() * 256);
+		calendarColour = new Color(red, green, blue);
 	}
 	
 	
@@ -66,6 +72,7 @@ public class CalendarObject {
 	 * @param calendarInfo	A short description
 	 */
 	public CalendarObject(String calendarName, String calendarInfo) {
+		this();
 		this.calendarInfo = calendarInfo;
 		this.calendarName = calendarName;
 	}

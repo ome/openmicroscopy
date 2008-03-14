@@ -25,17 +25,15 @@ package calendar;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import omeroCal.CalendarDataBase;
 import omeroCal.CalendarEvent;
-import omeroCal.CalendarObject;
+import omeroCal.IMonthModel;
+import omeroCal.MonthModel;
 import omeroCal.MonthView;
 
 import org.w3c.dom.Document;
@@ -47,9 +45,6 @@ import ui.components.FileChooserReturnFile;
 import util.XMLMethods;
 
 public class CalendarMain {
-	
-	public static DateFormat timeFormat = DateFormat.getTimeInstance (DateFormat.DEFAULT);
-	public static DateFormat dateFormat = DateFormat.getDateInstance( DateFormat.DEFAULT);
 	
 	/**
 	 * For testing.
@@ -65,55 +60,35 @@ public class CalendarMain {
 		
 		// testAddCalendar();
 		
-		// populateDB();
+		//populateDB();
 		
-		 getMonthResults();
+		openMonthViewWithDB();
 		
 		// doesn't work!!
 		//clearDBTables();
 	}
 	
-	public static void testGetEvents() throws SQLException {
-		
-		CalendarDataBase calDB = new CalendarDataBase();
-		
-		GregorianCalendar thisMonth = new GregorianCalendar();
-		//calDB.getEventsForMonth(thisMonth);
-		
-		calDB.getEvents(3);
-		
-		calDB.shutdown();
-	}
 	
-	public static void testAddCalendar() throws SQLException{
-		
-		CalendarObject calendar = new CalendarObject("Home", "I do stuff at home");
-		
-		CalendarDataBase calDB = new CalendarDataBase();
-		
-		int calID = calDB.saveCalendar(calendar);
-		
-		
-		calDB.shutdown();
-	}
+
 	
-	public static void addEvent() throws SQLException {
+	public static void openMonthViewWithDB() {
+		
+		populateDB();
 		
 		CalendarDataBase calDB = new CalendarDataBase();
 		
-		GregorianCalendar thisMonth = new GregorianCalendar();
-		thisMonth.setTime(new Date());
-		thisMonth.add(Calendar.MONTH, 3);
-		thisMonth.add(Calendar.HOUR_OF_DAY, 2);
+		IMonthModel monthModel = new MonthModel(calDB);
+		MonthView monthView = new MonthView(monthModel);
 		
-		System.out.println(CalendarDataBase.formatDateForSQLQuery(thisMonth.getTime()));
+		JFrame frame = new JFrame("Omero.Editor Calendar");
+		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		frame.getContentPane().add(monthView);
+		
+		frame.pack();
+		frame.setVisible(true);
 		
 		
-		CalendarEvent calEvent = new CalendarEvent("Drink G&T!", thisMonth);
-		
-		calDB.saveEvent(calEvent, 3);
-		
-		calDB.shutdown();
 	}
 	
 	
@@ -125,35 +100,42 @@ public class CalendarMain {
 		calDB.shutdown();
 	}
 	
-	public static void getMonthResults() throws SQLException{
+	
+	
+	public static void populateDB() {
 		
+		int confirm = JOptionPane.showConfirmDialog(null, 
+				"Do you want to refresh the database? " +
+				"\n This will overwrite all existing data in the Calendar." +
+				"\n " +
+				"\n Please choose a root folder that contains all your OMERO.editor files.");
+		
+		if (confirm == JOptionPane.OK_OPTION) {
+			
+			// Create a file chooser, get a file from user
+			FileChooserReturnFile fc = new FileChooserReturnFile(new String[] {"xml", ".pro", ".exp"}, null);
+			File file = fc.getFileFromUser();
+			
+			if (file == null)
+				return;
+			
 			
 			CalendarDataBase calDB = new CalendarDataBase();
+			calDB.clearTables();
 			
-			MonthView monthView = new MonthView(calDB);
+			try {
+				indexFilesToCalendar(file, calDB);
+				
+				calDB.shutdown();
+			} catch (SQLException e) {
+				
+				System.out.println("Problem populating the database from file system: " + e.getMessage());
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
-			JFrame frame = new JFrame("MonthView");
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			
-			frame.getContentPane().add(monthView);
-			
-			frame.pack();
-			frame.setVisible(true);
-			
-			
-	}
-	
-	public static void populateDB() throws SQLException {
-		// Create a file chooser, get a file from user
-		FileChooserReturnFile fc = new FileChooserReturnFile(new String[] {"xml"}, null);
-		File file = fc.getFileFromUser();
-		
-		if (file == null)
-			return;
-		
-		CalendarDataBase calDB = new CalendarDataBase();
-		indexFilesToCalendar(file, calDB);
-		calDB.shutdown();
+		}
+
 	}
 	
 	/**
@@ -204,20 +186,28 @@ public class CalendarMain {
 		
 		// if it isn't an XML file, forget it!
 		String fileName = file.getName();
-		if (!(fileName.endsWith(".xml"))) {
-			return false;
-		}
+		if ((fileName.endsWith(".xml") || fileName.endsWith(".exp") || fileName.endsWith(".pro"))) {
+			
 		
-		// Try to open XML file, and see if it has any Elements named <DateTimeField>
-		try {
-			Document domDoc = XMLMethods.readXMLtoDOM(file);
-			NodeList dateTimeNodes = domDoc.getElementsByTagName(DataFieldConstants.DATE_TIME_FIELD);
-			return (dateTimeNodes.getLength() > 0);
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+			// Try to open XML file, and see if it has any Elements named <DateTimeField>
+			try {
+				Document domDoc = XMLMethods.readXMLtoDOM(file);
+				NodeList dateTimeNodes = domDoc.getElementsByTagName(DataFieldConstants.DATE_TIME_FIELD);
+				if (dateTimeNodes.getLength() > 0)
+					return true;
+				// try the old date field "DateField"
+				dateTimeNodes = domDoc.getElementsByTagName(DataFieldConstants.DATE);
+				return (dateTimeNodes.getLength() > 0);
+				
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+		
+		} 
+		
+		return false;
 		
 	}
 

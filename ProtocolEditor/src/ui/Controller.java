@@ -34,6 +34,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import actions.AddFieldAction;
+import actions.CalendarOpenAction;
 import actions.ClearFieldsAllAction;
 import actions.ClearFieldsHighltdAction;
 import actions.CloseFileAction;
@@ -164,6 +165,9 @@ public class Controller
     /** Identifies the <code>ExportHighltdHtml action</code>. */
     static final Integer     EXPORT_HIGHLTD_TEXT = new Integer(29);
     
+    /** Identifies the <code>CalendarOpen action</code>. */
+    static final Integer     OPEN_CALENDAR = new Integer(30);
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -215,6 +219,7 @@ public class Controller
         actionsMap.put(INDEX_FILES, new IndexFilesAction(model));
         actionsMap.put(EXPORT_ALL_TEXT, new ExportAllTextAction(model));
         actionsMap.put(EXPORT_HIGHLTD_TEXT, new ExportHighltdTextAction(model));
+        actionsMap.put(OPEN_CALENDAR, new CalendarOpenAction(model));
     }
     
     /**

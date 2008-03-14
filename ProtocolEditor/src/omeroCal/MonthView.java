@@ -53,6 +53,11 @@ public class MonthView
 	implements Observer {
 
 	/**
+	 * A Model of this month.
+	 */
+	IMonthModel monthModel;
+	
+	/**
 	 * A reference to the Year and Month represented by this class
 	 */
 	GregorianCalendar thisMonth;
@@ -87,10 +92,7 @@ public class MonthView
 	 */
 	JPanel daysGridPanel;
 	
-	/**
-	 * The database, or other source of data for getting events to display etc. 
-	 */
-	ICalendarDB calendarDB;
+
 	
 	/**
 	 * Creates a new instance of MonthView, with the month and year set to current time.
@@ -106,21 +108,22 @@ public class MonthView
 	 */
 	public MonthView(Date date) {
 		
+		this();
+		
 		thisMonth = new GregorianCalendar();
 		thisMonth.setTime(date);
 		
-		buildUI();
 	}
 	
-	public MonthView(ICalendarDB calendarDB) {
+	public MonthView(IMonthModel monthModel) {
 		
 		this();
 		
-		if (calendarDB instanceof Observable) {
-			((Observable)calendarDB).addObserver(this);
+		if (monthModel instanceof Observable) {
+			((Observable)monthModel).addObserver(this);
 		}
 		
-		this.calendarDB = calendarDB;
+		this.monthModel = monthModel;
 		
 		addCalendarEvents();
 	}
@@ -255,14 +258,12 @@ public class MonthView
 	
 	public void addCalendarEvents() {
 		
-		if (calendarDB == null) {
-			System.err.println("Error displaying calendar events: MonthView is not connected to the database.");
-			return;
-		}
+		System.out.println("MonthView addCalendarEvents()");
 		
-		List <CalendarEvent> events = calendarDB.getEventsForMonth(thisMonth);
+		List <CalendarEvent> events = monthModel.getEventsForMonth();
 		
 		for (CalendarEvent evt: events) {
+			evt.addObserver(this);
 			addCalendarEvent(evt);
 		}
 	}
@@ -286,6 +287,8 @@ public class MonthView
 	public void incrementMonth(int increment) {
 		
 		thisMonth.add(Calendar.MONTH, increment);
+		
+		monthModel.incrementMonth(increment);
 		
 		addDaysToGrid();
 		addCalendarEvents();

@@ -463,10 +463,11 @@ public class CalendarDataBase
 			EVENT_TABLE + "." + START_DATE + " AS " + START_DATE + ", " +
 			EVENT_TABLE + "." + END_DATE + " AS " + END_DATE + ", " +
 			EVENT_TABLE + "." + ALARM_DATE + " AS " + ALARM_DATE + ", " +
-			EVENT_TABLE + "." + ALL_DAY_EVENT + " AS " + ALL_DAY_EVENT + " " +
-			"FROM " + EVENT_TABLE + " " +
+			EVENT_TABLE + "." + ALL_DAY_EVENT + " AS " + ALL_DAY_EVENT + ", " +
+			CALENDAR_TABLE + "." + CAL_COLOUR + " AS " + CAL_COLOUR + " " +
+			"FROM " + EVENT_TABLE + " , " + CALENDAR_TABLE + " " +
 			"WHERE " + 
-			//CALENDAR_TABLE + "." + UID + "=" + EVENT_TABLE + "." + UID + " " + "AND " + 
+			CALENDAR_TABLE + "." + UID + "=" + calendarID + " AND " + 
 			EVENT_TABLE + "." + CAL_ID + "=" + calendarID;
 		
 		System.out.println();
@@ -489,6 +490,7 @@ public class CalendarDataBase
 				Date endDate = calFileResult.getTimestamp(END_DATE);
 				Date alarmDate = calFileResult.getTimestamp(ALARM_DATE);
 				boolean allDayEvent = calFileResult.getBoolean(ALL_DAY_EVENT);
+				int colorInt = calFileResult.getInt(CAL_COLOUR);
 				
 				System.out.println("Event from DB: eventName: " + eventName + 
 						" uID: " + uID +
@@ -496,7 +498,9 @@ public class CalendarDataBase
 						" startDate: " + formatDateForSQLQuery(startDate) +
 						" endDate: " + formatDateForSQLQuery(endDate) +
 						" alarmDate: " + formatDateForSQLQuery(alarmDate) +
-						" allDayEvent: " + allDayEvent);
+						" allDayEvent: " + allDayEvent +
+						" calColour: " + colorInt);
+					
 				System.out.println();
 				
 				CalendarEvent calEvent = new CalendarEvent(eventName, startDate);
@@ -505,6 +509,7 @@ public class CalendarDataBase
 				calEvent.setEndTime(endDate);
 				calEvent.setAlarmTime(alarmDate);
 				calEvent.setAllDayEvent(allDayEvent);
+				calEvent.setCalendarColour(colorInt);
 				
 				calendarEvents.add(calEvent);
 			}
@@ -529,6 +534,11 @@ public class CalendarDataBase
 		
 		ArrayList<CalendarEvent> calendarEvents = new ArrayList<CalendarEvent>();
 		
+		if (yearMonth == null) {
+			System.err.println("CalendarDataBase.getEventsForMonth() yearMonth == null");
+			return calendarEvents;
+		}
+		
 		// make a copy of the Calendar (don't want to alter the one referenced in arguments)
 		Calendar theMonth = new GregorianCalendar();
 		theMonth.setTime(yearMonth.getTime());
@@ -543,18 +553,22 @@ public class CalendarDataBase
 		theMonth.add(GregorianCalendar.MONTH, 1);
 		String toDate = sqlDateFormat.format(theMonth.getTime());
 		
-		String query = "SELECT " +
-		UID + ", " +
-		CAL_ID + "," +
-		EVENT_NAME + ", " +
-		START_DATE + ", " +
-		END_DATE + ", " +
-		ALARM_DATE + ", " +
-		ALL_DAY_EVENT + " " +
-		"FROM " + EVENT_TABLE + " " +
+		String query = "SELECT " + EVENT_TABLE + "." + UID + " AS " + UID + ", " +
+		EVENT_TABLE + "." + CAL_ID + " AS " + CAL_ID + ", " +
+		EVENT_TABLE + "." + EVENT_NAME + " AS " + EVENT_NAME + ", " +
+		EVENT_TABLE + "." + START_DATE + " AS " + START_DATE + ", " +
+		EVENT_TABLE + "." + END_DATE + " AS " + END_DATE + ", " +
+		EVENT_TABLE + "." + ALARM_DATE + " AS " + ALARM_DATE + ", " +
+		EVENT_TABLE + "." + ALL_DAY_EVENT + " AS " + ALL_DAY_EVENT + ", " +
+		CALENDAR_TABLE + "." + CAL_COLOUR + " AS " + CAL_COLOUR + " " +
+		"FROM " + EVENT_TABLE + " , " + CALENDAR_TABLE + " " +
 		"WHERE " + 
-		END_DATE + " >= '" + fromDate + "' " +
-		 "AND " + START_DATE + " <= '" + toDate + "'";
+		EVENT_TABLE + "." + END_DATE + " >= '" + fromDate + "' " +
+		 "AND " + 
+		 EVENT_TABLE + "." + START_DATE + " <= '" + toDate + "' " +
+		 "AND " +
+		 CALENDAR_TABLE + "." + UID + "=" + 
+			EVENT_TABLE + "." + CAL_ID ;
 	
 		System.out.println();
 		System.out.println(query);
@@ -576,6 +590,7 @@ public class CalendarDataBase
 				Date endDate = calFileResult.getTimestamp(END_DATE);
 				Date alarmDate = calFileResult.getTimestamp(ALARM_DATE);
 				boolean allDayEvent = calFileResult.getBoolean(ALL_DAY_EVENT);
+				int colorInt = calFileResult.getInt(CAL_COLOUR);
 			
 				System.out.println("Event from DB: eventName: " + eventName + 
 					" uID: " + uID +
@@ -583,7 +598,9 @@ public class CalendarDataBase
 					" startDate: " + formatDateForSQLQuery(startDate) +
 					" endDate: " + formatDateForSQLQuery(endDate) +
 					" alarmDate: " + formatDateForSQLQuery(alarmDate) +
-					" allDayEvent: " + allDayEvent);
+					" allDayEvent: " + allDayEvent +
+					" calColour: " + colorInt);
+					
 				System.out.println();
 			
 				CalendarEvent calEvent = new CalendarEvent(eventName, startDate);
@@ -592,6 +609,7 @@ public class CalendarDataBase
 				calEvent.setEndTime(endDate);
 				calEvent.setAlarmTime(alarmDate);
 				calEvent.setAllDayEvent(allDayEvent);
+				calEvent.setCalendarColour(colorInt);
 			
 				calendarEvents.add(calEvent);
 			}
@@ -625,8 +643,8 @@ public class CalendarDataBase
 	
 	public void clearTables() {
 		try {
-			update("DELETE * FROM " + CALENDAR_TABLE);
-			update("DELETE * FROM " + EVENT_TABLE);
+			update("DELETE FROM " + CALENDAR_TABLE);
+			update("DELETE FROM " + EVENT_TABLE);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println("SQLException query = " + "DELETE * FROM " + CALENDAR_TABLE);
