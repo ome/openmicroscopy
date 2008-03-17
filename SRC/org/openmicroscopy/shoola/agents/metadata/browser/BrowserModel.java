@@ -35,6 +35,8 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
+import pojos.DataObject;
+
 /** 
  * Implements the {@link Browser} interface to provide the functionality
  * required of the browser viewer component, thus acting as the Model in MVC.

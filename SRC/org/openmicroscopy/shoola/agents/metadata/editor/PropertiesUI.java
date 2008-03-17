@@ -91,8 +91,7 @@ class PropertiesUI
 
     /** Panel hosting the main display. */
     private JComponent			contentPanel;
-    
-    
+
     /**
      * Builds and lays out the panel displaying the permissions of the edited
      * file.
@@ -271,8 +270,6 @@ class PropertiesUI
         UIUtilities.setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         UIUtilities.setTextAreaDefault(descriptionArea);
-        nameArea.getDocument().addDocumentListener(this);
-        descriptionArea.getDocument().addDocumentListener(this);
     }   
     
     /**
@@ -478,14 +475,29 @@ class PropertiesUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		String name = model.getRefObjectName();
+		String name = model.getRefObjectName().trim();
 		String value = nameArea.getText();
 		if (!name.equals(value.trim())) return true;
-		value = descriptionArea.getText().trim();
+		
 		name = model.getRefObjectDescription();
+		value = descriptionArea.getText();
 		value = value.trim();
-		if (!value.equals(name)) return true;
-		return false;
+		if (name == null && value.length() == 0) return false;
+		name = name.trim();
+		if (value.equals(name)) return false;
+		return true;
+	}
+	
+	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData()
+	{
+		nameArea.setText(model.getRefObjectName().trim());
+		String name = model.getRefObjectDescription();
+		if (name != null)
+			descriptionArea.setText(name.trim());
 	}
 	
 	/**

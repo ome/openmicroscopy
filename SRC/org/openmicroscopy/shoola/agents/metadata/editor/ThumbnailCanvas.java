@@ -76,13 +76,10 @@ class ThumbnailCanvas
 		ViewImage evt;
 		if (def == null) {
 			ImageData img = (ImageData) model.getRefObject();
-			evt = new ViewImage(img.getId(), img.getDefaultPixels().getId(),
-					model.getRefObjectName(), null,
-					model.getRefObjectOwner().getId());
+			evt = new ViewImage(img, null);
 		} else {
-			evt = new ViewImage(def.getImageID(), def.getPixelsID(), 
-					model.getRefObjectName(), null,
-					model.getRefObjectOwner().getId());
+			ImageData img = (ImageData) model.getRefObject();
+			evt = new ViewImage(img, null);
 			evt.setSettings(def.getRndSettings(), 
 							def.getExperimenter().getId());
 		}

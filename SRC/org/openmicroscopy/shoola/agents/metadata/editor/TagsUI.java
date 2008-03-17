@@ -31,6 +31,7 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -44,8 +45,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -58,7 +61,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -98,7 +100,7 @@ import pojos.TextualAnnotationData;
  */
 class TagsUI 
 	extends AnnotationUI 
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, DocumentListener, PropertyChangeListener
 {
 
 	/** The title associated to this component. */
@@ -158,7 +160,7 @@ class TagsUI
     
     /** The location of the mouse click. */
     private Point					popupPoint;
-    
+	
     /** Loads the tags and adds code completion. */
     private void handleTagInsert()
     {
@@ -303,7 +305,7 @@ class TagsUI
 						return;
 					}
 				}
-				descriptionArea.setText("");
+				//descriptionArea.setText("");
 				return;
 			}
 			l += vl;
@@ -322,12 +324,13 @@ class TagsUI
     			Iterator j = l.iterator();
 				DataObject object;
 				Collection usedTags = model.getTags();
+				
 				TagItem item;
 				int i = 0;
 				while (j.hasNext()) {
 					object = (DataObject) j.next();
 					item = new TagItem(object);
-					if (usedTags.contains(object)) 
+					if (usedTags != null && usedTags.contains(object)) 
 						item.setAvailable(false);
 					data[i] = item;
 					i++;
@@ -353,32 +356,7 @@ class TagsUI
 		newButton.addActionListener(this);
 		nameArea = new JTextField();
 		metrics = nameArea.getFontMetrics(nameArea.getFont());
-		nameArea.getDocument().addDocumentListener(new DocumentListener() {
-		
-			/** 
-             * Loads existing tags.
-             * @see DocumentListener#insertUpdate(DocumentEvent)
-             */
-			public void insertUpdate(DocumentEvent de)
-			{
-                handleTagInsert();
-            }
-			
-			/** 
-			 * Required by the {@link DocumentListener} I/F but no-op
-			 * implementation in our case.
-			 * @see DocumentListener#removeUpdate(DocumentEvent)
-			 */
-			public void removeUpdate(DocumentEvent e) {}
-		
-			/** 
-			 * Required by the {@link DocumentListener} I/F but no-op
-			 * implementation in our case.
-			 * @see DocumentListener#removeUpdate(DocumentEvent)
-			 */
-			public void changedUpdate(DocumentEvent e) {}
-		
-		});
+		nameArea.getDocument().addDocumentListener(this);
 		
 		nameArea.addKeyListener(new KeyAdapter() {
 
@@ -525,17 +503,49 @@ class TagsUI
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		Collection l = model.getExistingTags();
+		List r = new ArrayList();
+		Collection tags = model.getTags();
+		Iterator i;
+		Set<Long> ids = new HashSet<Long>();
+		AnnotationData data;
+		if (tags != null) {
+			i = tags.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!isRemoved(data)) 
+					ids.add(data.getId());
+			}
+		}
+		if (addedTags.size() > 0) {
+			i = tags.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!isRemoved(data)) 
+					ids.add(data.getId());
+			}
+		}
+		if (ids.size() > 0 && l.size() > 0) {
+			
+			i = l.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!ids.contains(data.getId()))
+					r.add(data);
+			}
+		}
+		
 		Registry reg = MetadataViewerAgent.getRegistry();
-		if (l.size() == 0) {
+		if (r.size() == 0) {
 			UserNotifier un = reg.getUserNotifier();
 			un.notifyInfo("Existing Tags", "No tags found.");
 			return;
 		}
 		SelectionWizard wizard = new SelectionWizard(
-										reg.getTaskBar().getFrame(), l);
+										reg.getTaskBar().getFrame(), r);
 		IconManager icons = IconManager.getInstance();
 		wizard.setTitle("Tags Selection" , "Select existing tags", 
 				icons.getIcon(IconManager.TAGS_48));
+		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);
 	}
 	
@@ -643,8 +653,7 @@ class TagsUI
 	void showMenu(Point location, Component invoker)
 	{
 		popupPoint = location;
-		//if (menu == null)
-			menu = new TagPopupMenu(this);
+		menu = new TagPopupMenu(this);
 		menu.show(invoker, location.x, location.y);
 	}
 	
@@ -657,10 +666,8 @@ class TagsUI
 		while (i.hasNext()) {
 			comp = i.next();
 			tag = comp.getAnnotation();
-			if (addedTags.contains(tag))
-				addedTags.remove(tag);
-			else 
-				removedTags.add(tag);
+			if (addedTags.contains(tag))addedTags.remove(tag);
+			else removedTags.add(tag);
 		}
 		clearSelectedTags();
 		layoutExistingTags();
@@ -706,18 +713,13 @@ class TagsUI
 		removeAll();
 		int n = model.getTagsCount();
 		title = TITLE+LEFT+n+RIGHT;
-		Border border = new TitledLineBorder(title, getBackground());
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		IconManager icons = IconManager.getInstance();
+		List<Image> imgs = new ArrayList<Image>();
+		imgs.add(icons.getImageIcon(IconManager.TAG).getImage());
+		border.setImages(imgs);
 		setBorder(border);
 		getCollapseComponent().setBorder(border);
-		/*
-		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED, 
-							5, TableLayout.PREFERRED, TableLayout.PREFERRED}};
-		setLayout(new TableLayout(size));
-		add(createExistingTagsPane(), "0, 0, f, c");
-		add(new JSeparator(), "0, 1, f, c");
-		add(layoutNewTags(), "0, 2, f, c");
-		add(UIUtilities.buildComponentPanel(addButton), "0, 3, f, c");
-		*/
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(createExistingTagsPane());
 		add(Box.createVerticalStrut(5));
@@ -781,8 +783,40 @@ class TagsUI
 	protected boolean hasDataToSave()
 	{
 		if (removedTags.size() > 0) return true;
-		if (getAnnotationToSave().size() > 0) return true;
+		String name = nameArea.getText();
+		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
+		String value;
+		TagAnnotationData data;
+		String description = descriptionArea.getText();
+		if (description != null)
+			description = description.trim();
+		List<AnnotationData> newTags = new ArrayList<AnnotationData>();
+		for (int i = 0; i < names.length; i++) {
+			value = names[i];
+			if (value != null) {
+				value = value.trim();
+				if (value != null && value.length() > 0) {
+					data = new TagAnnotationData(value);
+					if (description.length() > 0)
+						data.setTagDescription(description);
+					newTags.add(data);
+				}
+			}
+		}
+		
+		if (newTags.size() > 0) return true;
 		return false;
+	}
+	
+	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData()
+	{
+		removedTags.clear();
+		nameArea.setText("");
+		addedTags.clear();
 	}
 	
 	/**
@@ -857,5 +891,33 @@ class TagsUI
 					Boolean.TRUE);
 		}
 	}
+	
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		handleTagInsert();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

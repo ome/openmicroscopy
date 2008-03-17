@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -48,18 +52,24 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.border.Border;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
-import layout.TableLayout;
+//import layout.TableLayout;
 
 //Application-internal dependencies
+import ome.model.annotations.FileAnnotation;
+
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
+import org.openmicroscopy.shoola.util.filter.file.PowerPointFilter;
 import org.openmicroscopy.shoola.util.filter.file.TEXTFilter;
+import org.openmicroscopy.shoola.util.filter.file.WordFilter;
+import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -124,6 +134,11 @@ class AttachmentsUI
 		filters = new ArrayList<FileFilter>();
 		filters.add(new PDFFilter());
 		filters.add(new TEXTFilter());
+		filters.add(new XMLFilter());
+		filters.add(new HTMLFilter());
+		filters.add(new PowerPointFilter());
+		filters.add(new ExcelFilter());
+		filters.add(new WordFilter());
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		addButton = new JButton("Attach...");
 		addButton.setToolTipText("Attach a document.");
@@ -138,7 +153,7 @@ class AttachmentsUI
 		JFrame owner = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(owner, FileChooser.SAVE, 
-								"Browse File", "Attach a file of the " +
+								"Browse File", "Attach a file to the " +
 										"selected element", filters);
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
@@ -155,7 +170,7 @@ class AttachmentsUI
 		FileAnnotationData data = toDownload.get(source);
 		if (data == null) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyDownload(data);
+		un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile());
 	}
 	
 	/**
@@ -181,14 +196,6 @@ class AttachmentsUI
 		
 		JPanel p = new JPanel();
 		String name = f.getFileName();
-		
-		int width = p.getFontMetrics(p.getFont()).stringWidth(name);
-		if (width < icon.getIconWidth())
-			width = icon.getIconWidth();
-		double[][] tl = {{width}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
-		p.setLayout(new TableLayout(tl));
-		
 		JLabel label = new JLabel(icon);
 		toDownload.put(label, f);
 		label.addMouseListener(new MouseAdapter() {
@@ -229,23 +236,25 @@ class AttachmentsUI
 			}
 		
 		});
-		//Add listener
-		p.add(label, "0, 0");
-		p.add(new JLabel(name), "0, 1");
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 0;
+		p.add(label, c);
+		JLabel l = new JLabel(name);
+		l.setOpaque(false);
+		c.gridy++;
+		p.add(l, c);
+		c.gridy++;
+		p.add(Box.createVerticalStrut(10), c);
+		label.setOpaque(false);
+		l.setOpaque(false);
+		p.setOpaque(false);
+		label.setBackground(UIUtilities.BACKGROUND);
+		l.setBackground(UIUtilities.BACKGROUND);
+		p.setBackground(UIUtilities.BACKGROUND);
 		return p;
-	}
-	
-	/**
-	 * Shows the tag menu.
-	 * 
-	 * @param location	The location of the mouse click.
-	 * @param invoker	The last selected component.
-	 */
-	void showMenu(Point location, Component invoker)
-	{
-		if (menu == null)
-			menu = new AttachmentPopupMenu(this);
-		menu.show(invoker, location.x, location.y);
 	}
 	
 	/**
@@ -256,40 +265,42 @@ class AttachmentsUI
 	private JPanel layoutAttachments()
 	{
 		JPanel content = new JPanel();
-		Collection c = model.getAttachments();
-		if (c == null) return content;
+		Collection attachments = model.getAttachments();
+		if (attachments == null) return content;
 		List<FileAnnotationData> toLayout = new ArrayList<FileAnnotationData>();
-		Iterator i = c.iterator();
+		Iterator i = attachments.iterator();
 		FileAnnotationData f;
 		while (i.hasNext()) {
 			f = (FileAnnotationData) i.next();
 			if (!removedFiles.contains(f))
 				toLayout.add(f);
 		}
-		
-		double[] columns = {TableLayout.FILL, 10, TableLayout.FILL, 
-							10, TableLayout.FILL}; //rows
-		TableLayout layout = new TableLayout();
-		layout.setColumn(columns);
-		content.setLayout(layout);
-		for (int j = 0; j < 2*toLayout.size()-1; j++) {
-			if (j%3 == 0) layout.insertRow(j, TableLayout.PREFERRED);
-			else layout.insertRow(j, 5);
-		}
+		content.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 0;
+		c.gridx = 0;
 		int index = 0;
 		i = toLayout.iterator();
-		
-		int row = 0;
 		while (i.hasNext()) {
+			++c.gridx;
 			f = (FileAnnotationData) i.next();
-			content.add(buildExistingFileRow(f), index+", "+row+", f, c");
-			index = index+2;
-			if (index%5 == 0) {
-				index = 0;
-				if (row != 0) row++;
+			content.add(buildExistingFileRow(f), c);
+			++c.gridx;
+			content.add(Box.createHorizontalStrut(10), c);
+			if (index%2 == 0 && index != 0) {
+				c.gridy++;
+				c.gridx = 0;
 			}
+			index++;
 		}
-		return UIUtilities.buildComponentPanel(content);
+		
+		content.setOpaque(false);
+		content.setBackground(UIUtilities.BACKGROUND);
+		JPanel p = UIUtilities.buildComponentPanel(content);
+		p.setBackground(UIUtilities.BACKGROUND);
+		return p;
 	}
 	
 	/**
@@ -303,17 +314,16 @@ class AttachmentsUI
 	{
 		JPanel row = new JPanel();
 		IconManager icons = IconManager.getInstance();
-		row.add(new JLabel(icons.getIcon(IconManager.ATTACHMENT)));
 		JTextArea area = new JTextArea(f.getAbsolutePath());
 		UIUtilities.setTextAreaDefault(area);
 		row.add(area);
 		JButton remove = new JButton(icons.getIcon(IconManager.REMOVE));
 		UIUtilities.unifiedButtonLookAndFeel(remove);
-		remove.setToolTipText("Remove.");
+		remove.setToolTipText("Remove the attachment.");
 		remove.addActionListener(this);
 		remove.setActionCommand(""+index);
 		row.add(remove);
-		return UIUtilities.buildComponentPanel(row);
+		return row;
 	}
 	
 	/**
@@ -323,19 +333,49 @@ class AttachmentsUI
 	 */
 	private JPanel layoutAddedFiles()
 	{
-		JPanel content = new JPanel();
-		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		if (addedFiles.size() == 0) return content;
 		rows.clear();
+		JPanel p = new JPanel();
 		Iterator i = addedFiles.iterator();
 		int index = 0;
 		File f;
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 0;
 		while (i.hasNext()) {
+			++c.gridy;
 			f = (File) i.next();
 			rows.put(index, f);
-			content.add(buildAddedFileRow(f, index));
+			p.add(buildAddedFileRow(f, index), c);
 			index++;
 		}
+		return p;
+	}
+	
+
+	/**
+	 * Lays out the components used to add new <code>URL</code>s.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel layoutContent()
+	{
+		JPanel content = new JPanel();
+		content.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		content.add(addButton, c);
+		c.weightx = 0.5;
+		JScrollPane pane = new JScrollPane(layoutAddedFiles());
+		pane.setOpaque(false);
+		pane.setBorder(null);
+		c.gridx++;
+		content.add(pane, c);
+		content.revalidate();
+		content.repaint();
 		return content;
 	}
 	
@@ -349,6 +389,19 @@ class AttachmentsUI
 		super(model);
 		title = TITLE;
 		initComponents();
+	}
+	
+	/**
+	 * Shows the tag menu.
+	 * 
+	 * @param location	The location of the mouse click.
+	 * @param invoker	The last selected component.
+	 */
+	void showMenu(Point location, Component invoker)
+	{
+		if (menu == null)
+			menu = new AttachmentPopupMenu(this);
+		menu.show(invoker, location.x, location.y);
 	}
 	
 	/** Adds the selected file to the collection of items to remove. */
@@ -384,14 +437,19 @@ class AttachmentsUI
 		removeAll();
 		int n = model.getAttachmentsCount()-removedFiles.size();
 		title = TITLE+LEFT+n+RIGHT;
-		Border border = new TitledLineBorder(title, getBackground());
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		IconManager icons = IconManager.getInstance();
+		List<Image> imgs = new ArrayList<Image>();
+		imgs.add(icons.getImageIcon(IconManager.ATTACHMENT).getImage());
+		border.setImages(imgs);
 		setBorder(border);
 		getCollapseComponent().setBorder(border);
-		if (n > 0) 
-			add(new JScrollPane(layoutAttachments()));
-		
-		add(layoutAddedFiles());
-		add(UIUtilities.buildComponentPanel(addButton));
+		if (n > 0) {
+			JScrollPane pane = new JScrollPane(layoutAttachments());
+			add(pane);
+		}
+		add(layoutContent());
+		//add(UIUtilities.buildComponentPanel(addButton));
 	}
 	
 	/**
@@ -432,11 +490,21 @@ class AttachmentsUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		List l = getAnnotationToSave();
+		List l = addedFiles;
 		if (l != null && l.size() > 0) return true; 
 		l = getAnnotationToRemove();
 		if (l != null && l.size() > 0) return true; 
 		return false;
+	}
+	
+	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData()
+	{
+		addedFiles.clear();
+		removedFiles.clear();
 	}
 	
 	/**

@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory 
+ * org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,14 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.metadata.editor;
+package org.openmicroscopy.shoola.agents.metadata;
+
+
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
  * 
@@ -42,28 +46,53 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
  * </small>
  * @since OME3.0
  */
-public class EditorFactory
+public class OriginalFileLoader
+	extends EditorLoader
 {
 
-	/**
-     * Creates a new {@link Browser}.
+	/** The pixels set. */
+	private long pixelsID;
+	
+	/** Handle to the async call so that we can cancel it. */
+    private CallHandle	handle;
+    
+	 /**	
+     * Creates a new instance.
      * 
-     * @param parent
-     * @param refObject   
-     * @param thumbnailRequired Pass <code>true</code> to indicate to load the
-	 * 							thumbnail, <code>false</code> otherwise.
-     * @return See above.
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param pixelsID	The ID of the pixels set to handle.
      */
-    public static Editor createEditor(MetadataViewer parent, 
-    									Object refObject, boolean
-    									thumbnailRequired)
+    public OriginalFileLoader(Editor viewer, long pixelsID)
     {
-    	EditorModel model = new EditorModel(refObject, parent, 
-    										thumbnailRequired);
-    	EditorComponent component = new EditorComponent(model);
-    	model.initialize(component);
-    	component.initialize();
-    	return component;
+    	 super(viewer);
+    	 this.pixelsID = pixelsID;
     }
+    
+	/** 
+	 * Loads the tags. 
+	 * @see EditorLoader#cancel()
+	 */
+	public void load()
+	{
+		handle = mhView.loadOriginalFile(pixelsID, this);
+	}
+	
+	/** 
+	 * Cancels the data loading. 
+	 * @see EditorLoader#cancel()
+	 */
+	public void cancel() { handle.cancel(); }
+	
+	/**
+     * Feeds the result back to the viewer.
+     * @see EditorLoader#handleResult(Object)
+     */
+    public void handleResult(Object result) 
+    {
+    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	//viewer.setMetadata(refNode, result);
+    	viewer.setDownloadedFiles((Collection) result);
+    } 
     
 }

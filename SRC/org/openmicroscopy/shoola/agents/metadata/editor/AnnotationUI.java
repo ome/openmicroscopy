@@ -131,4 +131,7 @@ abstract class AnnotationUI
 	/** Lays out components and clears the display. */
 	protected abstract void clearDisplay();
 	
+	/** Clears the data to save. */
+	protected abstract void clearData();
+	
 }

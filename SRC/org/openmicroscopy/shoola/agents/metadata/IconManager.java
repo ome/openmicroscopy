@@ -154,18 +154,23 @@ public class IconManager
     /** The <code>Word</code> icon. */
     public static int           WORD_DOC = 33;
     
-    /** The <code>XML</code> icon. */
-    public static int           XML_DOC = 34;
+    /** The <code>Excel</code> icon. */
+    public static int           EXCEL_DOC = 34;
+    
+    /** The <code>Power point</code> icon. */
+    public static int           PPT_DOC = 35;
     
     /** The <code>XML</code> icon. */
-    public static int           SAVE = 35;
+    public static int           XML_DOC = 36;
     
-    
+    /** The <code>XML</code> icon. */
+    public static int           SAVE = 37;
+     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 35;
+	private static int          MAX_ID = 37;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -202,7 +207,9 @@ public class IconManager
         relPaths[INFO_48] = "nuvola_messagebox_info48.png";
         relPaths[PDF_DOC] = "nuvola_acroread22.png";
         relPaths[TEXT_DOC] = "nuvola_acroread22.png";
-        relPaths[WORD_DOC] = "nuvola_acroread22.png";
+        relPaths[WORD_DOC] = "alienOSX_Microsoft_Word22.png";
+        relPaths[PPT_DOC] = "alienOSX_Microsoft_PowerPoint22.png";
+        relPaths[EXCEL_DOC] = "alienOSX_Microsoft_Excel22.png";
         relPaths[XML_DOC] = "nuvola_acroread22.png";
         relPaths[SAVE] = "nuvola_filesaveas16.png";
 	}

@@ -115,40 +115,6 @@ class BrowserControl
 	 * @return The specified action.
 	 */
     BrowserAction getAction(Integer id) { return actionsMap.get(id); }
-	
-    /**
-     * Creates the nodes acting like a menu.
-     * 
-     * @param userObject The object the menu is for.
-     * @return See above.
-     */
-    List<TreeBrowserDisplay> createMenuNodes(Object userObject)
-    {
-    	IconManager icons = IconManager.getInstance();
-    	List<TreeBrowserDisplay> nodes = new ArrayList<TreeBrowserDisplay>();
-    	nodes.add(new TreeBrowserNode(Browser.PROPERTIES, 
-    							icons.getIcon(IconManager.PROPERTIES), true));
-    	nodes.add(new TreeBrowserNode(Browser.ANNOTATIONS, 
-    							icons.getIcon(IconManager.ANNOTATION), true));
-    	/*
-    	nodes.add(new TreeBrowserSet(Browser.TAGS, 
-    							icons.getIcon(IconManager.TAG), true));
-    	nodes.add(new TreeBrowserSet(Browser.ATTACHMENTS, 
-    							icons.getIcon(IconManager.ATTACHMENT), true));
-    	nodes.add(new TreeBrowserSet(Browser.URL, 
-				icons.getIcon(IconManager.URL), true));
-    	if (userObject instanceof ImageData) {
-    		nodes.add(new TreeBrowserSet(Browser.DATASETS, 
-    				icons.getIcon(IconManager.DATASET), true));
-    		nodes.add(new TreeBrowserSet(Browser.VIEWED_BY, 
-    				icons.getIcon(IconManager.VIEW), true));
-    	} else if (userObject instanceof DatasetData) {
-    		nodes.add(new TreeBrowserSet(Browser.PROJECTS, 
-    				icons.getIcon(IconManager.PROJECT), true));
-    	} 
-    	*/	
-    	return nodes;
-    }
     
     /** Reacts to mouse click in the tree. */
     void onClick()

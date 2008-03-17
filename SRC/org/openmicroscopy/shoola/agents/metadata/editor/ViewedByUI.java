@@ -393,6 +393,12 @@ class ViewedByUI
 	}
 	
 	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData() {}
+	
+	/**
 	 * Modifies the layout of the thumbnails.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */

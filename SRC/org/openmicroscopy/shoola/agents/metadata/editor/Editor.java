@@ -24,17 +24,15 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -118,5 +116,20 @@ public interface Editor
 	 * @return See above.
 	 */
 	public boolean hasDataToSave();
+	
+	/**
+	 * Adds the passed component to the editor at the specified location.
+	 * 
+	 * @param component	The component to add.
+	 * @param location	The location.
+	 */
+	public void addComponent(JComponent component, int location);
+	
+	/**
+	 * Sets the collection of archived files.
+	 * 
+	 * @param files The collection of files to handle.
+	 */
+	public void setDownloadedFiles(Collection files);
 	
 }

@@ -42,6 +42,8 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -78,6 +80,9 @@ class MetadataViewerModel
 	/** The ref object for the viewer i.e. the root. */
 	private Object									refObject;
 	
+	/** The object hosting the various annotations linked to an object. */
+	private StructuredDataResults					data;
+	
 	/** Reference to the browser. */
 	private Browser									browser;
 	
@@ -88,41 +93,33 @@ class MetadataViewerModel
 	private Map<TreeBrowserDisplay, MetadataLoader>	loaders;
 	
 	/**
-	 * Returns the parent object of the passed node.
-	 * 
-	 * @param refNode	The node of reference.
-	 * @return See above.
-	 */
-	private Object getParentObject(TreeBrowserSet refNode)
-	{
-		TreeBrowserDisplay parent = refNode.getParentDisplay();
-		if (parent == null) return null; //This should not happen
-		return parent.getUserObject();
-	}
-	
-	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
-	 * @param refObject
+	 * @param refObject			The reference object.
 	 */
 	MetadataViewerModel(Object refObject)
 	{
 		state = MetadataViewer.NEW;
 		this.refObject = refObject;
 		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
+		data = null;
 	}
 
+	
 	/**
 	 * Called by the <code>MetadataViewer</code> after creation to allow this
 	 * object to store a back reference to the embedding component.
 	 * 
-	 * @param component The embedding component.
+	 * @param component 		The embedding component.
+	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
+	 * 							thumbnail, <code>false</code> otherwise.
 	 */
-	void initialize(MetadataViewer component)
+	void initialize(MetadataViewer component, boolean thumbnailRequired)
 	{ 
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component, refObject);
-		editor = EditorFactory.createEditor(component, refObject);
+		editor = EditorFactory.createEditor(component, refObject, 
+										thumbnailRequired);
 	}
 	
 	/**
@@ -153,11 +150,12 @@ class MetadataViewerModel
 	 * 
 	 * @param refObject	The value to set.
 	 */
-	void setRefObject(Object refObject)
+	void setRootObject(Object refObject)
 	{ 
 		this.refObject = refObject; 
 		browser.setRootObject(refObject);
 		editor.setRootObject(refObject);
+		data = null;
 	}
 	
 	/** 
@@ -237,13 +235,32 @@ class MetadataViewerModel
 	 */
 	void fireStructuredDataLoading(TreeBrowserDisplay refNode)
 	{
-		cancel(refNode);
 		Object uo = refNode.getUserObject();
 		if (!(uo instanceof DataObject)) return;
+		
+		cancel(refNode);
+		
 		StructuredDataLoader loader = new StructuredDataLoader(component, 
 								refNode, (DataObject) uo);
 		loaders.put(refNode, loader);
 		loader.load();
+	}
+	
+	boolean isSameObject(DataObject uo)
+	{
+		if (uo == null || !(refObject instanceof DataObject)) return false;
+		if (!uo.getClass().equals(refObject.getClass()))
+			return false;
+		DataObject object = (DataObject) refObject;
+		if (uo.getId() != object.getId()) return false;
+		if (data == null) return false;
+		Object o = data.getRelatedObject();
+		if (!(o instanceof DataObject)) return false;
+		object = (DataObject) o;
+		if (!uo.getClass().equals(object.getClass()))
+			return false;
+		if (uo.getId() != object.getId()) return false;
+		return true;
 	}
 	
 	/**
@@ -277,4 +294,25 @@ class MetadataViewerModel
 		loader.load();
 	}
 	
+	/**
+	 * Sets the structured data.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setStructuredDataResults(StructuredDataResults data)
+	{
+		this.data = data;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the imported set of pixels has been 
+	 * archived, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isArchived()
+	{ 
+		if (data == null) return false;
+		return data.isArchived(); 
+	}
 }

@@ -22,13 +22,13 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import org.openmicroscopy.shoola.util.ui.TreeComponent;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
 //Third-party libraries
 
@@ -78,13 +78,17 @@ class EditorControl
 	void loadThumbnails() { model.loadThumbnails(); }
 
 	/**
-	 * 
+	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		String name = evt.getPropertyName();
 		if (SAVE_PROPERTY.equals(name)) {
 			view.setDataToSave(view.hasDataToSave());
+		} else if (MetadataViewer.SAVE_DATA_PROPERTY.equals(name)) {
+			view.saveData();
+		} else if (MetadataViewer.CLEAR_SAVE_DATA_PROPERTY.equals(name)) {
+			view.clearData();
 		}
 	}
 

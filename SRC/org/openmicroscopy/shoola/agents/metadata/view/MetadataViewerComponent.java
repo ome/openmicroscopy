@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -38,12 +37,11 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * Implements the {@link MetadataViewer} interface to provide the functionality
@@ -107,7 +105,7 @@ class MetadataViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				//view.setOnScreen();
+				setRootObject(model.getRefObject());
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -161,27 +159,9 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		if (userObject instanceof DataObject) {
-			model.fireStructuredDataLoading(node);
+			if (!model.isSameObject((DataObject) userObject))
+				model.fireStructuredDataLoading(node);
 		} 
-		/*
-		else if (userObject instanceof String) {
-			String name = (String) userObject;
-			if (Browser.TAGS.equals(name)) 
-				model.fireTagLoading((TreeBrowserSet) node);
-			else if (Browser.ATTACHMENTS.equals(name)) 
-				model.fireAttachmentLoading((TreeBrowserSet) node);
-			else if (Browser.DATASETS.equals(name)) 
-				model.fireParentLoading((TreeBrowserSet) node, DatasetData.class);
-			else if (Browser.PROJECTS.equals(name)) 
-				model.fireParentLoading((TreeBrowserSet) node, ProjectData.class);
-			else if (Browser.VIEWED_BY.equals(name)) 
-				model.fireViewedByLoading((TreeBrowserSet) node);
-			else if (Browser.PROPERTIES.equals(name)) 
-				model.fireAttachmentLoading((TreeBrowserSet) node);
-			else if (Browser.URL.equals(name)) 
-				model.fireUrlLoading((TreeBrowserSet) node);
-		}
-		*/
 	}
 
 	/** 
@@ -199,6 +179,7 @@ class MetadataViewerComponent
 											(StructuredDataResults) result);
 			model.getEditor().setStructuredDataResults( 
 								(StructuredDataResults) result);
+			model.setStructuredDataResults((StructuredDataResults) result);
 			view.setOnScreen();
 			return;
 		}
@@ -207,16 +188,8 @@ class MetadataViewerComponent
 		String name = (String) userObject;
 		
 		if (browser == null) return;
-		if (Browser.TAGS.equals(name)) 
-			browser.setTags((TreeBrowserSet) node, (Collection) result);
-		else if (Browser.ATTACHMENTS.equals(name)) 
-			browser.setAttachments((TreeBrowserSet) node, (Collection) result);
-		else if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
+		if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
 			browser.setParents((TreeBrowserSet) node, (Collection) result);
-		else if (Browser.VIEWED_BY.equals(name)) 
-			browser.setViewedBy((TreeBrowserSet) node, (Map) result);
-		else if (Browser.URL.equals(name)) 
-			browser.setUrls((TreeBrowserSet) node, (Collection) result);
 		model.notifyLoadingEnd(node);
 	}
 
@@ -262,21 +235,8 @@ class MetadataViewerComponent
 	 */
 	public void setRootObject(Object root)
 	{
-		model.setRefObject(root);
+		model.setRootObject(root);
 		view.setRootObject();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setThumbnail(BufferedImage)
-	 */
-	public void setThumbnail(BufferedImage thumbnail)
-	{
-		Object ref = model.getRefObject();
-		if (!(ref instanceof ImageData)) return;
-		//if (thumbnail != null)
-		//	model.getEditor().setThumbnail(thumbnail);
-			//view.setThumbnail(thumbnail);
 	}
 
 	/** 
@@ -308,6 +268,54 @@ class MetadataViewerComponent
 				List<AnnotationData> toRemove, DataObject data)
 	{
 		model.fireSaving(toAdd, toRemove, data);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#hasDataToSave()
+	 */
+	public boolean hasDataToSave()
+	{
+		Editor editor = model.getEditor();
+		if (editor == null) return false;
+		return editor.hasDataToSave();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#saveData()
+	 */
+	public void saveData()
+	{
+		firePropertyChange(SAVE_DATA_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#clearDataToSave()
+	 */
+	public void clearDataToSave()
+	{
+		firePropertyChange(CLEAR_SAVE_DATA_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#addExternalComponent(JComponent, int)
+	 */
+	public void addExternalComponent(JComponent external, int location)
+	{
+		if (external == null)
+			throw new IllegalArgumentException("No component to add.");
+		Editor editor = model.getEditor();
+		if (editor == null) return;
+		editor.addComponent(external, location);
+	}
+
+	public void showImageInfo() {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

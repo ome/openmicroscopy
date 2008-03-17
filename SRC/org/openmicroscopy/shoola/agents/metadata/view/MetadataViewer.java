@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.JComponent;
 
@@ -61,6 +60,18 @@ public interface MetadataViewer
 	extends ObservableComponent
 {
 
+	/** 
+	 * Constrain indicating to add an external component to the 
+	 * top left corner.
+	 */
+	public static final int 	TOP_LEFT = 0;
+	
+	/** Bound property indicating to save the data. */
+	public static final String	SAVE_DATA_PROPERTY = "saveData";
+	
+	/** Bound property indicating to clear the data to save. */
+	public static final String	CLEAR_SAVE_DATA_PROPERTY = "clearSaveData";
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -147,7 +158,6 @@ public interface MetadataViewer
 	 */
 	public JComponent getUI();
 	
-	
 	/**
 	 * Sets the root of the metadata browser.
 	 * 
@@ -156,17 +166,53 @@ public interface MetadataViewer
 	public void setRootObject(Object root);
 
 	/**
-	 * Sets the thumbnail associated to the edited object.
+	 * Loads the parent containers of the object hosted by the passed node.
 	 * 
-	 * @param thumbnail The value to set.
+	 * @param node The node to handle.
 	 */
-	public void setThumbnail(BufferedImage thumbnail);
-
 	public void loadContainers(TreeBrowserDisplay node);
 	
+	/**
+	 * Sets the containers.
+	 * 
+	 * @param node		The node to handle.
+	 * @param result	The value to set.
+	 * @see #loadContainers(TreeBrowserDisplay)
+	 */
 	public void setContainers(TreeBrowserDisplay node, Object result);
 
+	/**
+	 * Saves the annotations back to the server.
+	 * 
+	 * @param toAdd		The annotations to add or update.
+	 * @param toRemove	The annotations to remove.
+	 * @param data		The data object to annotate.
+	 */
 	public void saveData(List<AnnotationData> toAdd, 
 						List<AnnotationData> toRemove, DataObject data);
+	
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasDataToSave();
+
+	/** Saves the data if any to save. */
+	public void saveData();
+	
+	/** Clears the data to save. */
+	public void clearDataToSave();
+	
+	/**
+	 * Adds the external passed component to the specified location.
+	 * 
+	 * @param external	The component to add. Mustn't be <code>null</code>.
+	 * @param location	One of the location constrains defined by this class.
+	 */
+	public void addExternalComponent(JComponent external, int location);
+	
+	public void showImageInfo();
 	
 }

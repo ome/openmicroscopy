@@ -88,10 +88,12 @@ public class MetadataViewerAgent
      */
     private void handleViewMetadata(ViewMetadata evt)
     {
+    	/*
     	Object refObject = evt.getRefObject();
     	if (refObject == null || (refObject instanceof String)) return;
     	MetadataViewer viewer = MetadataViewerFactory.getViewer(refObject);
     	viewer.activate();
+    	*/
     }
     
     /** Creates a new instance. */

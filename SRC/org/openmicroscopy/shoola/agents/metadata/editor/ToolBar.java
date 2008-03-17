@@ -112,12 +112,6 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(infoButton);
 		//UIUtilities.unifiedButtonLookAndFeel(saveButton);
 	}
-	
-    /** Downloads the archived files. */
-    private void download()
-    { 
-    	
-    }
     
     /** 
      * Builds the tool bar displaying the controls related to 
@@ -214,7 +208,7 @@ class ToolBar
 				view.saveData();
 				break;
 			case DOWNLOAD:
-				download();
+				model.download();
 				break;
 			case INFO:
 				if (model.getChannelData() == null)

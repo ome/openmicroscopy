@@ -54,7 +54,6 @@ import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAllAction;
  * @since OME3.0
  */
 class MetadataViewerControl
-	implements PropertyChangeListener
 {
 
 	/** Identifies the <code>Refresh</code> action. */
@@ -129,10 +128,4 @@ class MetadataViewerControl
 	 */
 	MetadataViewerAction getAction(Integer id) { return actionsMap.get(id); }
 
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
 }

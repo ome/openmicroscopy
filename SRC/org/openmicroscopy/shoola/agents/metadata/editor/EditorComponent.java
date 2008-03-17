@@ -28,16 +28,17 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.ImageData;
 
 /** 
@@ -87,6 +88,7 @@ class EditorComponent
 	{
 		controller.initialize(this, view);
 		view.initialize(model, controller);
+		model.getObservable() .addPropertyChangeListener(controller);
 	}
 	
 	/** 
@@ -116,8 +118,7 @@ class EditorComponent
 			throw new IllegalArgumentException("Root object not valid.");
 		model.setRootObject(refObject);
 		view.setRootObject();
-		if (refObject instanceof ImageData)
-			model.loadUserThumbnail();
+		model.loadUserThumbnail();
 	}
 
 	/** 
@@ -188,5 +189,34 @@ class EditorComponent
 	{
 		return view.hasDataToSave();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#addComponent(JComponent, int)
+	 */
+	public void addComponent(JComponent c, int location)
+	{
+		switch (location) {
+			case MetadataViewer.TOP_LEFT:
+				view.addTopLeftComponent(c);
+				break;
+	
+			default:
+				break;
+		}
+		
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setDownloadedFiles(Collection)
+	 */
+	public void setDownloadedFiles(Collection files)
+	{
+		if (files == null || files.size() == 0) return;
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		un.notifyDownload(files);
+	}
+
 	
 }

@@ -140,7 +140,6 @@ class BrowserComponent
 			throw new IllegalArgumentException("Root object not valid.");
 		model.setRootObject(refObject);
 		view.setRootNode();
-		//loadMetadata(model.getLastSelectedNode());
 	}
 
 	/** 
@@ -163,66 +162,6 @@ class BrowserComponent
 		if (node == null) 
 			throw new IllegalArgumentException("No node to handle.");
 		model.loadMetadata(node);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setTags(TreeBrowserDisplay, Collection)
-	 */
-	public void setTags(TreeBrowserDisplay node, Collection tags)
-	{
-		if (node == null) 
-			throw new IllegalArgumentException("No node to handle.");
-		if (tags == null || tags.size() == 0) {
-			view.addDefaultNode(node, BrowserUI.NO_TAGS_MSG);
-			return;
-		}
-		Iterator i = tags.iterator();
-		List<TreeBrowserSet> nodes = new ArrayList<TreeBrowserSet>();
-		while (i.hasNext()) {
-			nodes.add(new TreeBrowserSet(i.next()));
-		}
-		view.setNodes(node, nodes);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setViewedBy(TreeBrowserDisplay, Map)
-	 */
-	public void setViewedBy(TreeBrowserDisplay node, Map values)
-	{
-		if (node == null) 
-			throw new IllegalArgumentException("No node to handle.");
-		if (values == null || values.size() == 0) {
-			view.addDefaultNode(node, BrowserUI.NOT_VIEWED_MSG);
-			return;
-		}
-		Iterator i = values.keySet().iterator();
-		List<TreeBrowserNode> nodes = new ArrayList<TreeBrowserNode>();
-		while (i.hasNext()) {
-			nodes.add(new TreeBrowserNode(i.next()));
-		}
-		view.setNodes(node, nodes);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setAttachments(TreeBrowserDisplay, Collection)
-	 */
-	public void setAttachments(TreeBrowserSet node, Collection attachments)
-	{
-		if (node == null) 
-			throw new IllegalArgumentException("No node to handle.");
-		if (attachments == null || attachments.size() == 0) {
-			view.addDefaultNode(node, BrowserUI.NO_ATTACHMENTS_MSG);
-			return;
-		}
-		Iterator i = attachments.iterator();
-		List<TreeBrowserSet> nodes = new ArrayList<TreeBrowserSet>();
-		while (i.hasNext()) {
-			nodes.add(new TreeBrowserSet(i.next()));
-		}
-		view.setNodes(node, nodes);
 	}
 
 	/** 
@@ -282,38 +221,8 @@ class BrowserComponent
 		Object userObject = node.getUserObject();
 		if (userObject != results.getRelatedObject()) return;
 		if (results == null) {
-			//Tags
-			//Remove everything from display
 			return;
 		}
-		Iterator i;
-		List<TreeBrowserDisplay> nodes = new ArrayList<TreeBrowserDisplay>();
-		/*
-		Collection collection = results.getTags();
-		
-		//Tags
-		if (collection != null && collection.size() > 0) {
-			i = collection.iterator();
-			while (i.hasNext()) {
-				nodes.add(new TreeBrowserNode(i.next()));
-			}
-		}
-		//attachments
-		collection = results.getAttachments();
-		if (collection != null && collection.size() > 0) {
-			i = collection.iterator();
-			while (i.hasNext()) {
-				nodes.add(new TreeBrowserNode(i.next()));
-			}
-		}
-		//urls
-		collection = results.getUrls();
-		if (collection != null && collection.size() > 0) {
-			i = collection.iterator();
-			while (i.hasNext()) {
-				nodes.add(new TreeBrowserNode(i.next()));
-			}
-		}*/
 		//parents
 		setParents(node, results.getParents());
 	}

@@ -56,25 +56,7 @@ public interface Browser
 
 	/** Bound property indicating that nodes are selected. */
 	public static final String		SELECTED_NODES_PROPERTY = "selectedNodes";
-	
-	/** Identifies the <code>Properties</code> node menu item. */
-	public static final String		PROPERTIES = "Properties";
-	
-	/** Identifies the <code>Tags</code> node menu item. */
-	public static final String		TAGS = "Tags";
-	
-	/** Identifies the <code>Annotations</code> node menu item. */
-	public static final String		ANNOTATIONS = "Annotations";
-	
-	/** Identifies the <code>Attachments</code> node menu item. */
-	public static final String		ATTACHMENTS = "Attachments";
-	
-	/** Identifies the <code>Url</code> node menu item. */
-	public static final String		URL = "URL";
-	
-	/** Identifies the <code>Viewed by</code> node menu item. */
-	public static final String		VIEWED_BY = "Viewed by";
-	
+
 	/** Identifies the <code>Datasets</code> node menu item. */
 	public static final String		DATASETS = "Datasets";
 	
@@ -131,33 +113,6 @@ public interface Browser
 	 * @param node The node to handle. Mustn't be <code>null</code>.
 	 */
 	public void loadMetadata(TreeBrowserDisplay node);
-	
-	/**
-	 * Converts the collection of tags into their corresponding UI components
-	 * and adds them to the passed node.
-	 * 
-	 * @param node 	The node to handle. Mustn't be <code>null</code>.
-	 * @param tags	Collection of tags to display.
-	 */
-	public void setTags(TreeBrowserDisplay node, Collection tags);
-
-	/**
-	 * Converts the settings into their corresponding UI components
-	 * and adds them to the passed node.
-	 * 
-	 * @param node 		The node to handle. Mustn't be <code>null</code>.
-	 * @param values	The values associated to the selected image.
-	 */
-	public void setViewedBy(TreeBrowserDisplay node, Map values);
-
-	/**
-	 * Converts the collection of attachments into their corresponding UI 
-	 * components and adds them to the passed node.
-	 * 
-	 * @param node 			The node to handle. Mustn't be <code>null</code>.
-	 * @param attachments	Collection of attachments to display.
-	 */
-	public void setAttachments(TreeBrowserSet node, Collection attachments);
 
 	/**
 	 * Converts the collection of parents into their corresponding UI 
@@ -167,15 +122,6 @@ public interface Browser
 	 * @param parents	Collection of parents to display.
 	 */
 	public void setParents(TreeBrowserDisplay node, Collection parents);
-
-	/**
-	 * Converts the collection of parents into their corresponding UI 
-	 * components and adds them to the passed node.
-	 * 
-	 * @param node	The node to handle. Mustn't be <code>null</code>.
-	 * @param urls	Collection of urls to display.
-	 */
-	public void setUrls(TreeBrowserDisplay node, Collection urls);
 
 	/**
 	 * Converts the results into the corresponding UI components.

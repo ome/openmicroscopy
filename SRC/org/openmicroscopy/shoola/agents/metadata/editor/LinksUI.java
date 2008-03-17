@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -37,6 +40,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -44,10 +48,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -73,9 +77,9 @@ import pojos.URLAnnotationData;
  */
 class LinksUI
 	extends AnnotationUI
-	implements ActionListener
+	implements ActionListener, DocumentListener
 {
-
+	
 	/** The title associated to this component. */
 	private static final String TITLE = "Links ";
 	
@@ -99,6 +103,9 @@ class LinksUI
 	
 	/** The UI component hosting the areas. */
 	private JPanel							addedContent;
+	
+	/** The component hosting the final result. */
+	private JPanel 							content;
 	
 	/** Initializes the UI components. */
 	private void initComponents()
@@ -129,36 +136,27 @@ class LinksUI
 	private JPanel layoutURL()
 	{
 		JPanel p = new JPanel();
-		//p.setBorder(new TitledBorder("URL"));
-		TableLayout layout = new TableLayout();
-		p.setLayout(layout);
-		double[] columns = {TableLayout.PREFERRED, 5, TableLayout.PREFERRED};
-		layout.setColumn(columns);
-		for (int j = 0; j < urlComponents.size(); j++) 
-			layout.insertRow(j, TableLayout.PREFERRED);
-		
 		Iterator i = urlComponents.keySet().iterator();
 		int index;
 		URLAnnotationData url;
-		String s;
 		IconManager icons = IconManager.getInstance();
 		Icon icon = icons.getIcon(IconManager.REMOVE);
 		JButton button;
 		labels = new HashMap<JLabel, URLAnnotationData>();
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 0;
+		JLabel label;
+		c.weightx = 0;
+		p.add(UIUtilities.setTextFont("Url: "), c);
 		while (i.hasNext()) {
+			c.gridx = 1;
+			c.weightx = 0;
 			index = (Integer) i.next();
 			url = urlComponents.get(index);
-			if (model.isCurrentUserOwner(url)) {
-				s = "2, "+index+", f, c";
-				button = new JButton(icon);
-				button.setBorder(null);
-				button.setToolTipText("Remove the link.");
-				button.setActionCommand(""+index);
-				button.addActionListener(this);
-				p.add(button, s);
-			}
-			s = "0, "+index+", f, c";
-			JLabel label = new JLabel(UIUtilities.formatURL(url.getURL()));
+			label = new JLabel(UIUtilities.formatURL(url.getURL()));
 			label.setToolTipText("Added: "+model.formatDate(url));
 			labels.put(label, url);
 			label.addMouseListener(new MouseAdapter() {
@@ -175,17 +173,20 @@ class LinksUI
 				}
 			
 			});
-			p.add(label, s);
+			p.add(label, c);
+			
+			if (model.isCurrentUserOwner(url)) {
+				c.gridx = 2;
+				button = new JButton(icon);
+				button.setBorder(null);
+				button.setToolTipText("Remove the link.");
+				button.setActionCommand(""+index);
+				button.addActionListener(this);
+				p.add(button, c);
+			}
+			++c.gridy;
 		}
-		
-		JPanel content = new JPanel();
-		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
-							{TableLayout.PREFERRED, TableLayout.FILL}};
-		content.setLayout(new TableLayout(size));
-		JLabel label = UIUtilities.setTextFont("Url: ");
-		content.add(label, "0, 0, f, c");
-		content.add(p, "2, 0, 2, 1");
-		return content;
+		return UIUtilities.buildComponentPanel(p);
 	}
 	
 	/** 
@@ -197,9 +198,8 @@ class LinksUI
 	{
 		JTextField area = new JTextField();
 		UIUtilities.setTextAreaDefault(area);
+		area.getDocument().addDocumentListener(this);
 		areas.add(area);
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-								Boolean.TRUE);
 		return area;
 	}
 	
@@ -225,27 +225,23 @@ class LinksUI
 			}
 			if (!empty) area = createURLArea();
 		}
+		addedContent.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 0;
 		
-		TableLayout layout = new TableLayout();
-		addedContent.setLayout(layout);
-		double[] columns = {TableLayout.PREFERRED, 5, TableLayout.FILL};
-		layout.setColumn(columns);
-		for (int j = 0; j < 2*areas.size()-1; j++) {
-			if (j%2 == 0) layout.insertRow(j, TableLayout.PREFERRED);
-			else layout.insertRow(j, 5);
-		}
-		int index = 0;
-		String s;
 		i = areas.iterator();
 		while (i.hasNext()) {
+			c.gridx = 0;
+			++c.gridy;
+			c.weightx = 0;
 			area = (JTextField) i.next();
-			s = "0, "+index+", f, c";
-			addedContent.add(UIUtilities.setTextFont("URL: "), s);
-			s = "2, "+index+", f, c";
-			addedContent.add(area, s);
-			index = index+2;
+			addedContent.add(UIUtilities.setTextFont("URL: "), c);
+			c.gridx = 1;
+			c.weightx = 1.0;
+			addedContent.add(area, c);
 		}
-		addedContent.revalidate();
+		content.revalidate();
 	}
 	
 	/**
@@ -255,16 +251,19 @@ class LinksUI
 	 */
 	private JPanel layoutAddContent()
 	{
-		 JPanel content = new JPanel();
-		 double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, //columns
-				 {TableLayout.PREFERRED, 60} }; //rows
-		 TableLayout layout = new TableLayout(tl);
-		 content.setLayout(layout);
-		 content.add(addButton, "0, 0, f, c");
+		 content = new JPanel();
+		 content.setLayout(new GridBagLayout());
+		 GridBagConstraints c = new GridBagConstraints();
+		 c.anchor = GridBagConstraints.FIRST_LINE_START;
+		 c.fill = GridBagConstraints.HORIZONTAL;
+		 c.gridx = 0;
+		 content.add(addButton, c);
+		 c.weightx = 0.5;
 		 JScrollPane pane = new JScrollPane(addedContent);
 		 pane.setOpaque(false);
 		 pane.setBorder(null);
-		 content.add(pane, "2, 0, 2, 1");
+		 c.gridx++;
+		 content.add(pane, c);
 		 return content;
 	}
 	
@@ -289,10 +288,15 @@ class LinksUI
 	protected void buildUI()
 	{
 		removeAll();
+		
 		addedContent.removeAll();
 		int n = model.getUrlsCount()-toRemove.size();
 		title = TITLE+LEFT+n+RIGHT;
-		Border border = new TitledLineBorder(title, getBackground());
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		IconManager icons = IconManager.getInstance();
+		List<Image> imgs = new ArrayList<Image>();
+		imgs.add(icons.getImageIcon(IconManager.URL).getImage());
+		border.setImages(imgs);
 		setBorder(border);
 		getCollapseComponent().setBorder(border);
 		if (n == 0) {
@@ -313,6 +317,7 @@ class LinksUI
 			}
 		}
 		add(layoutURL());
+		add(Box.createVerticalStrut(5));
 		add(layoutAddContent());
 		revalidate();
 	}
@@ -374,7 +379,6 @@ class LinksUI
 	protected boolean hasDataToSave()
 	{
 		if (getAnnotationToRemove().size() > 0) return true;
-		//if (getAnnotationToSave().size() > 0) return true;
 		List<String> l = new ArrayList<String>(); 
 		Iterator i = areas.iterator();
 		JTextField area;
@@ -383,6 +387,7 @@ class LinksUI
 			area = (JTextField) i.next();
 			value = area.getText();
 			if (value != null) {
+				
 				value = value.trim();
 				if (value.length() > 0)
 					l.add(value);
@@ -390,6 +395,16 @@ class LinksUI
 		}
 		if (l.size() > 0) return true;
 		return false;
+	}
+	
+	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData()
+	{
+		areas.clear();
+		toRemove.clear();
 	}
 	
 	/**
@@ -423,5 +438,32 @@ class LinksUI
 			buildUI();
 		}
 	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

@@ -99,6 +99,7 @@ class RateUI
 	{
 		super(model);
 		title = TITLE;
+		selectedValue = -1;
 	}
 	
 	/**
@@ -155,13 +156,20 @@ class RateUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		List<AnnotationData> l = getAnnotationToSave();
-		if (l.size() > 0) return true;
-		l = getAnnotationToRemove();
-		if (l.size() > 0) return true;
-		return false;
+		if (selectedValue == -1) return false;
+		int value = model.getRatingAverage();
+		return (selectedValue != value);
 	}
 
+	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData()
+	{
+		selectedValue = model.getRatingAverage();
+	}
+	
 	/**
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()

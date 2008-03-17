@@ -161,6 +161,10 @@ class BrowserUI
      */
     private void addMenuToNode(TreeBrowserDisplay parent)
     {
+    	//DefaultTreeModel tm = (DefaultTreeModel) treeDisplay.getModel();
+    	if (parent instanceof TreeBrowserSet) 
+			buildEmptyNode(parent);
+    	/*
     	List<TreeBrowserDisplay> nodes = controller.createMenuNodes(
     										parent.getUserObject());
     	Iterator<TreeBrowserDisplay> i = nodes.iterator();
@@ -173,6 +177,7 @@ class BrowserUI
 			parent.addChildDisplay(node);
 			tm.insertNodeInto(node, parent, parent.getChildCount());
 		}
+		*/
     }
 
     /** Creates  the tree. */

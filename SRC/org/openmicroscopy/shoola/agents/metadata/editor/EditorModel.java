@@ -43,6 +43,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -51,6 +52,8 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -117,6 +120,9 @@ class EditorModel
     /** The id of the currently logged in user. */
     private long					userID;
     
+	/** Flag indicating to load the thumbnail. */
+	private boolean					thumbnailRequired;
+	
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -147,19 +153,30 @@ class EditorModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param refObject	The object this editor is for.
-	 * @param parent	The parent of this browser.
+	 * @param refObject			The object this editor is for.
+	 * @param parent			The parent of this browser.
+	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
+	 * 							thumbnail, <code>false</code> otherwise.
 	 */
-	EditorModel(Object refObject, MetadataViewer parent) 
+	EditorModel(Object refObject, MetadataViewer parent, 
+				boolean thumbnailRequired) 
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("No object set.");
 		this.parent = parent;
 		this.refObject = refObject;
+		this.thumbnailRequired = thumbnailRequired;
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
 		userID = MetadataViewerAgent.getUserDetails().getId();
 	}
+	
+	/**
+	 * Returns the observable.
+	 * 
+	 * @return See above.
+	 */
+	ObservableComponent getObservable() { return parent; }
 	
 	/**
 	 * Called by the <code>Editor</code> after creation to allow this
@@ -412,8 +429,7 @@ class EditorModel
 			if (def.getExperimenter().getId() != userID)
 				results.add(def);
 		}
-		return results; 
-		//return l;
+		return l;//results; 
 	}
 	
 	/**
@@ -565,6 +581,7 @@ class EditorModel
 		existingTags = null;
 		textualAnnotationsByUsers = null;
 		textualAnnotationsByDate = null;
+		data = null;
 	}
 
 	/**
@@ -650,12 +667,14 @@ class EditorModel
 	/** Loads the thumbnail for the currently logged in user. */
 	void loadUserThumbnail()
 	{
-		Set<Long> l = new HashSet<Long>();
-		l.add(MetadataViewerAgent.getUserDetails().getId());
-		ThumbnailLoader loader = new ThumbnailLoader(component, 
-				(ImageData) refObject, l, true);
-		loader.load();
-		loaders.add(loader);
+		if ((refObject instanceof ImageData) && thumbnailRequired) {
+			Set<Long> l = new HashSet<Long>();
+			l.add(MetadataViewerAgent.getUserDetails().getId());
+			ThumbnailLoader loader = new ThumbnailLoader(component, 
+					(ImageData) refObject, l, true);
+			loader.load();
+			loaders.add(loader);
+		}
 	}
 	
 	/**
@@ -760,16 +779,6 @@ class EditorModel
 	List getChannelData() { return emissionsWavelengths; }
 
 	/**
-	 * Sets the thumbnail in the header.
-	 * 
-	 * @param thumbnail The value to set.
-	 */
-	void setThumbnail(BufferedImage thumbnail)
-	{
-		parent.setThumbnail(thumbnail);
-	}
-
-	/**
 	 * Starts an asynchronous call to save the annotations.
 	 * 
 	 * @param toAdd		The annotation to save.
@@ -789,7 +798,18 @@ class EditorModel
 	 */
 	boolean isArchived()
 	{ 
+		if (data == null) return false;
 		return data.isArchived(); 
+	}
+
+	/** Starts an asynchronous loading. */
+	void download()
+	{
+		PixelsData data = ((ImageData) refObject).getDefaultPixels();
+		OriginalFileLoader loader = new OriginalFileLoader(component, 
+											data.getId());
+		loader.load();
+		loaders.add(loader);
 	}
 	
 }

@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -40,7 +42,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -155,12 +156,18 @@ class TextualAnnotationsUI
 	private void initializePreviousComponent()
 	{
 		previousPane = new JPanel();
-		double[][] tl = {{TableLayout.FILL, TableLayout.FILL}, //columns
+		previousPane.setLayout(new BoxLayout(previousPane, BoxLayout.Y_AXIS));
+		/*
+		double[][] tl = {{200, TableLayout.PREFERRED}, //columns
 				{TableLayout.PREFERRED, 300, TableLayout.PREFERRED}}; //rows
 		previousPane.setLayout(new TableLayout(tl));
-		
+		*/
+		/*
 		previousPane.add(UIUtilities.buildComponentPanelRight(displayBar), 
 							"1, 0");
+							*/
+		previousPane.add(UIUtilities.buildComponentPanelRight(displayBar), 
+						Component.RIGHT_ALIGNMENT);
 		JPanel collapse = new JPanel();
 		TitledLineBorder border = new TitledLineBorder("Previous "+TITLE, 
 													getBackground());
@@ -177,7 +184,7 @@ class TextualAnnotationsUI
 		area = new MultilineLabel();
 		UIUtilities.setTextAreaDefault(area);
 		area.setEditable(true);
-		area.getDocument().addDocumentListener(this);
+		//area.getDocument().addDocumentListener(this);
 		IconManager icons = IconManager.getInstance();
 		dateView = new JToggleButton(icons.getIcon(IconManager.ORDER_BY_DATE));
 		String tip = "Sort "+TITLE.toLowerCase();
@@ -247,6 +254,7 @@ class TextualAnnotationsUI
 	{
 		//if (datePane != null) return datePane;
 		JPanel datePane = new JPanel();
+		datePane.setBackground(UIUtilities.BACKGROUND);
 		List l = model.getTextualAnnotationsByDate();
 		if (l == null) return datePane;
 		double[] columns = {TableLayout.FILL};
@@ -283,6 +291,7 @@ class TextualAnnotationsUI
 	private JPanel layoutUserPane()
 	{
 		JPanel userPane = new JPanel();
+		userPane.setBackground(UIUtilities.BACKGROUND);
 		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
 		if (annotations == null) return userPane;
 		Iterator i = annotations.keySet().iterator();
@@ -347,7 +356,11 @@ class TextualAnnotationsUI
 	{
 		int n = model.getTextualAnnotationCount()-toRemove.size();
 		title = TITLE+LEFT+n+RIGHT;
-		Border border = new TitledLineBorder(title, getBackground());
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		IconManager icons = IconManager.getInstance();
+		List<Image> imgs = new ArrayList<Image>();
+		imgs.add(icons.getImageIcon(IconManager.ANNOTATION).getImage());
+		border.setImages(imgs);
 		setBorder(border);
 		getCollapseComponent().setBorder(border);
 	}
@@ -405,18 +418,21 @@ class TextualAnnotationsUI
 		add(buildAreaPane());
 		if (!hasPreviousTextualAnnotations()) return;
 		add(previousTree);
-		//add(UIUtilities.buildComponentPanelRight(clearButton));
 		layoutPreviousNodes();
-		String s = "0, 1, 1, 1";
+		//String s = "0, 1, 1, 1";
 		switch (layoutIndex) {
 			case DATE_VIEW:
-				previousPane.add(datePane, s);
+				//previousPane.add(datePane, s);
+				previousPane.add(datePane, Component.LEFT_ALIGNMENT);
 				break;
 			case USER_VIEW:
-				previousPane.add(userPane, s);
+				previousPane.add(userPane, Component.LEFT_ALIGNMENT);
+				//previousPane.add(userPane, s);
 		}
+		//previousPane.add(UIUtilities.buildComponentPanelRight(clearButton), 
+		//		"1, 2");
 		previousPane.add(UIUtilities.buildComponentPanelRight(clearButton), 
-				"1, 2");
+				Component.RIGHT_ALIGNMENT);
 	}
 	
 	/**
@@ -482,6 +498,17 @@ class TextualAnnotationsUI
 		setAreaText("");
 		originalText = null;
 		initializePreviousComponent();
+	}
+	
+	/**
+	 * Clears the data to save.
+	 * @see AnnotationUI#clearData()
+	 */
+	protected void clearData()
+	{
+		toRemove.clear();
+		setAreaText("");
+		originalText = null;
 	}
 	
 	/**

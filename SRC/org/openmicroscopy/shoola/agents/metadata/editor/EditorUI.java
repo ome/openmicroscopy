@@ -38,6 +38,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -115,6 +116,12 @@ public class EditorUI
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
 	
+	/** 
+	 * Flag indicating that an external component has been added 
+	 * to the display.
+	 */
+	private boolean 					added;
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
@@ -127,7 +134,7 @@ public class EditorUI
 		tagsUI = new TagsUI(model);
 		textualAnnotationsUI = new TextualAnnotationsUI(model);
 		viewedByUI = new ViewedByUI(model);
-		topLeftPane = propertiesUI;
+		topLeftPane = null;
 		
 		viewByTree = new TreeComponent();
 		
@@ -157,11 +164,11 @@ public class EditorUI
 		components.add(rateUI);
 		components.add(tagsUI);
 		components.add(textualAnnotationsUI);
+		components.add(linksUI);
 		Iterator<AnnotationUI> i = components.iterator();
 		while (i.hasNext()) {
 			i.next().addPropertyChangeListener(EditorControl.SAVE_PROPERTY,
 											controller);
-			
 		}
 	}
 	
@@ -182,20 +189,17 @@ public class EditorUI
 		left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 		left.insertNode(attachmentsUI, 
 						attachmentsUI.getCollapseComponent(), false);
-		
-		
-		
+
 		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 				TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		
-		//leftPane.add(topLeftPane, "0, 0");
 		leftPane.add(viewTreePanel, "0, 1");
 		leftPane.add(left, "0, 2");
 
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
+						{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		JPanel rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
 		TreeComponent tree = new TreeComponent();
@@ -204,18 +208,18 @@ public class EditorUI
 		tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
 		rightPane.add(tree, "0, 0");
 		
-		
-		double[][] finalSize = {{TableLayout.FILL, 5, TableLayout.FILL}, 
-								{TableLayout.PREFERRED, TableLayout.FILL} };
 		JPanel content = new JPanel();
+		double[][] finalSize = {{TableLayout.FILL, 5, TableLayout.FILL}, 
+								{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		
 		content.setLayout(new TableLayout(finalSize));
 		content.add(toolBar, "0, 0, 2, 0");
 		content.add(leftPane, "0, 1");
 		content.add(rightPane, "2, 1");
+		
 		content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		//add(toolBar, BorderLayout.NORTH);
-		add(content, BorderLayout.CENTER);
+		add(new JScrollPane(content), BorderLayout.CENTER);
 	}
 	
 	/** Creates a new instance. */
@@ -255,6 +259,7 @@ public class EditorUI
     	toolBar.buildGUI();
     	toolBar.setControls();
     	setDataToSave(false);
+    	if (added) addTopLeftComponent(topLeftPane);
     	revalidate();
     	repaint();
     }
@@ -295,7 +300,7 @@ public class EditorUI
     		viewByTree.setVisible(false);
     		viewedByUI.setExpanded(false);
     	}
-		leftPane.remove(topLeftPane);
+		if (topLeftPane != null) leftPane.remove(topLeftPane);
 		TableLayout layout = (TableLayout) leftPane.getLayout();
 		layout.setRow(0, 0);
 		leftPane.revalidate();
@@ -337,16 +342,14 @@ public class EditorUI
 	void setThumbnail(BufferedImage thumbnail)
 	{
 		ThumbnailCanvas canvas = new ThumbnailCanvas(model, thumbnail, null);
-		leftPane.remove(topLeftPane);
+		if (topLeftPane != null) leftPane.remove(topLeftPane);
 		topLeftPane = canvas;
 		TableLayout layout = (TableLayout) leftPane.getLayout();
 		layout.setRow(0, TableLayout.PREFERRED);
 		leftPane.add(topLeftPane, "0, 0");
 		leftPane.revalidate();
-		//add(canvas, BorderLayout.NORTH);
 		revalidate();
     	repaint();
-		
 	}
 
 	/** Shows the image's info. */
@@ -362,8 +365,7 @@ public class EditorUI
             Iterator k = waves.iterator();
             int j = 0;
             while (k.hasNext()) {
-                s += 
-                   ((ChannelMetadata) k.next()).getEmissionWavelength();
+                s += ((ChannelMetadata) k.next()).getEmissionWavelength();
                 if (j != waves.size()-1) s +=", ";
                 j++;
             }
@@ -396,8 +398,10 @@ public class EditorUI
 	{
 		Iterator<AnnotationUI> i = components.iterator();
 		boolean b = false;
+		AnnotationUI ui;
 		while (i.hasNext()) {
-			if (i.next().hasDataToSave()) {
+			ui = i.next();
+			if (ui.hasDataToSave()) {
 				b = true;
 				break;
 			}
@@ -405,4 +409,33 @@ public class EditorUI
 		return b;
 	}
     
+	/** Clears data to save. */
+	void clearData()
+	{
+		Iterator<AnnotationUI> i = components.iterator();
+		AnnotationUI ui;
+		while (i.hasNext()) {
+			ui = i.next();
+			ui.clearData();
+		}
+	}
+
+	/**
+	 * Adds the specified component.
+	 * 
+	 * @param c The component to add.
+	 */
+	void addTopLeftComponent(JComponent c)
+	{
+		added = true;
+		if (topLeftPane != null) leftPane.remove(topLeftPane);
+		topLeftPane = c;
+		TableLayout layout = (TableLayout) leftPane.getLayout();
+		layout.setRow(0, TableLayout.PREFERRED);
+		leftPane.add(topLeftPane, "0, 0");
+		leftPane.revalidate();
+		revalidate();
+    	repaint();
+	}
+	
 }
