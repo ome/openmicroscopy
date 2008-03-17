@@ -35,6 +35,8 @@ import java.awt.Rectangle;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
+import pojos.ImageData;
+
 /** 
  * Event to retrieve and view a given image.
  *
@@ -54,45 +56,29 @@ public class ViewImage
     extends RequestEvent
 {
 
-    /** The ID of the pixels set. */
-    private long        pixelsID;
-    
-    /** The ID of the image. */
-    private long        imageID;
-    
-    /** The id of the owner of the image. */
-    private long 		ownerID;
-    
-    /** The name of the image. */
-    private String      name;
+    /** The image to view. */
+    private ImageData	image;
 
     /** The bounds of the component posting the event. */
     private Rectangle   requesterBounds;
     
+    /** Rendering settings to set if any. */
     private RndProxyDef	settings;
     
+    /** The id of the user who set the rendering settings. */
     private long		selectedUserID;
     
     /**
      * Creates a new instance.
      * 
-     * @param imageID   The image ID.
-     * @param pixelsID  The pixels set ID.
-     * @param name      The name of the image.
+     * @param image   	The image to view.
      * @param bounds    The bounds of the component posting the event.
-     * @param ownerID	The id of the owner of the image.
      */
-    public ViewImage(long imageID, long pixelsID, String name, Rectangle bounds,
-    				long ownerID)
+    public ViewImage(ImageData	image, Rectangle bounds)
     {
-        if (pixelsID < 0) 
-            throw new IllegalArgumentException("Pixels set ID not valid.");
-        if (imageID < 0) 
-            throw new IllegalArgumentException("Image ID not valid.");
-        this.pixelsID = pixelsID;
-        this.imageID = imageID;
-        this.ownerID = ownerID;
-        this.name = name;
+        if (image == null) 
+            throw new IllegalArgumentException("Image not null.");
+        this.image = image;
         requesterBounds = bounds;
     }
     
@@ -110,40 +96,26 @@ public class ViewImage
     }
     
     /**
+     * Returns the rendering settings set by the specified user.
+     * 
+     * @return See above.
+     */
+    public RndProxyDef getSettings() { return settings; }
+    
+    /**
      * Returns the ID of the user the settings are related to.
      * 
      * @return See above. 
      */
-    public long getSelectedID() { return selectedUserID; }
-    
-    /**
-     * Returns the ID of the owner.
-     * 
-     * @return See above. 
-     */
-    public long getOwnerID() { return ownerID; }
-    
-    /**
-     * Returns the image ID.
-     * 
-     * @return See above. 
-     */
-    public long getImageID() { return imageID; }
+    public long getSelectedUserID() { return selectedUserID; }
 
     /**
-     * Returns the name of the image.
+     * Returns the image.
      * 
      * @return See above. 
      */
-    public String getName() { return name; }
+    public ImageData getImage() { return image; }
 
-    /**
-     * Returns the pixels set ID.
-     * 
-     * @return See above. 
-     */
-    public long getPixelsID() { return pixelsID; }
-    
     /**
      * Returns the bounds of the component posting the event. 
      * Returns <code>null</code> if not available.
