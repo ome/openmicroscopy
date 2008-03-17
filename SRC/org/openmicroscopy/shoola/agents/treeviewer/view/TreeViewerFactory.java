@@ -189,13 +189,8 @@ public class TreeViewerFactory
 		while (i.hasNext()) {
 			comp = (TreeViewerComponent) i.next();
 			if (comp.hasDataToSave()) {
-				event = new SaveData(SaveData.DATA_MANAGER_EDIT);
-				event.setMessage("Edited data");
-				events.add(new SaveEventRequest(comp, event));
-			}
-			if (comp.hasAnnotationToSave()) {
 				event = new SaveData(SaveData.DATA_MANAGER_ANNOTATION);
-				event.setMessage("The annotation");
+				event.setMessage("Edited data");
 				events.add(new SaveEventRequest(comp, event));
 			}
 		}

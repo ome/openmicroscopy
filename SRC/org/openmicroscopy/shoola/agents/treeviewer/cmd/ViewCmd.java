@@ -40,7 +40,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -241,18 +240,7 @@ public class ViewCmd
 
 		if (ho instanceof ImageData) {
 			ImageData data = (ImageData) ho;
-			long pixelsID = -1;
-			try {
-				pixelsID = data.getDefaultPixels().getId();
-			} catch (Exception e) {
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("View Image", "No pixels set associated to " +
-											"this image.");
-				return;
-			}
-			bus.post(new ViewImage(data.getId(), pixelsID, data.getName(), 
-					bounds, data.getOwner().getId()));
+			bus.post(new ViewImage(data, bounds));
 		} else if (ho instanceof DatasetData)
 			bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
 					exp, bounds)); 

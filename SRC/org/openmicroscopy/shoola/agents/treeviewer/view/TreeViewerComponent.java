@@ -31,7 +31,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,6 +44,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
@@ -55,8 +55,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
-import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
-import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
@@ -70,7 +68,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -153,12 +150,13 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		if (b) {
-			model.getEditor().saveData();
-			model.setEditor(null);
+			model.getMetadataViewer().saveData();
+			//model.getEditor().saveData();
+			//model.setEditor(null);
 			//onSelectedDisplay();
 		} else {
-			model.setEditor(null);
-			//removeEditor();
+			model.getMetadataViewer().clearDataToSave();
+			removeEditor();
 			Browser browser = model.getSelectedBrowser();
 			if (browser != null) browser.setSelectedNode();
 		}
@@ -221,25 +219,13 @@ class TreeViewerComponent
 	void setRecycled(boolean b) { model.setRecycled(b); }
 
 	/**
-	 * Returns <code>true</code> if there is annotation to save,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasAnnotationToSave()
-	{
-		Editor editor = model.getEditor();
-		if (editor == null) return false;
-		return editor.hasAnnotationToSave();
-	}
-	
-	/**
 	 * Saves the data before closing.
 	 * 
 	 * @param evt The event to handle.
 	 */
 	void saveOnClose(SaveData evt)
 	{
+		/*
 		Editor editor = model.getEditor();
 		switch (evt.getType()) {
 			case SaveData.DATA_MANAGER_ANNOTATION:
@@ -251,6 +237,7 @@ class TreeViewerComponent
 					editor.saveData();
 				break;
 		};
+		*/
 	}
 	
 	/**
@@ -371,12 +358,10 @@ class TreeViewerComponent
 		TreeImageDisplay parent =  
 							model.getSelectedBrowser().getLastSelectedDisplay();
 		int editorType = CREATE_EDITOR;
-		model.setEditorType(editorType);
 		Editor editor = EditorFactory.getEditor(this, object, editorType, 
 				parent);
 		editor.addPropertyChangeListener(controller);
 		editor.activate();
-		model.setEditor(editor);
 		editorDialog = new EditorDialog(view, editor);
 		UIUtilities.centerAndShow(editorDialog);
 		onComponentStateChange(false);
@@ -388,6 +373,7 @@ class TreeViewerComponent
 	 */
 	public void showProperties(TreeImageDisplay node, int editorIndex)
 	{
+		/*
 		switch (model.getState()) {
 			case DISCARDED:
 			case SAVE:
@@ -424,6 +410,7 @@ class TreeViewerComponent
 				model.getSelectedBrowser().getSelectedDataObjects());
 		view.addComponent(editor.getUI());
 		editor.setDefaultButton(view.getRootPane());
+		*/
 	}
 
 	/**
@@ -451,7 +438,6 @@ class TreeViewerComponent
 			"invoked in the DISCARDED, SAVE state.");
 		}
 		if (editorDialog != null) editorDialog.close();
-		model.setEditorType(NO_EDITOR);
 		view.removeAllFromWorkingPane();
 		firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
@@ -581,22 +567,7 @@ class TreeViewerComponent
 			dh.activate();
 		}
 	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setThumbnail(BufferedImage)
-	 */
-	public void setThumbnail(BufferedImage thumbnail, long imageID)
-	{
-		if (model.getState() == LOADING_THUMBNAIL) {
-			model.setState(READY);
-			Editor editor = model.getEditor();
-			if (thumbnail != null && editor != null) 
-				editor.setThumbnail(thumbnail, imageID);
-			fireStateChange();
-		}
-	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#retrieveThumbnail(ImageData)
@@ -624,16 +595,19 @@ class TreeViewerComponent
 				"invoked in the DISCARDED, SAVE state.");
 		}
 		
-		int editor = model.getEditorType();
+		//int editor = model.getEditorType();
 		removeEditor();
+		/*
 		if (editor != TreeViewer.CREATE_EDITOR) {
 			//PropertiesCmd cmd = new PropertiesCmd(this);
 			//cmd.execute();
 		}
+		*/
 		Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
-        model.getMetadataViewer().setRootObject(display.getUserObject());
+        MetadataViewer metadata = model.getMetadataViewer();
+        metadata.setRootObject(display.getUserObject());
         view.addComponent(model.getMetadataViewer().getUI());
 	}
 
@@ -663,7 +637,7 @@ class TreeViewerComponent
 				throw new IllegalArgumentException("Save operation not " +
 						"supported.");
 		}  
-		model.setEditor(null);
+		//model.setEditor(null);
 		//int editor = model.getEditorType();
 		//removeEditor(); //remove the currently selected editor.
 		if (operation == REMOVE_OBJECT) {
@@ -708,7 +682,7 @@ class TreeViewerComponent
 			browser = (Browser) browsers.get(i.next());
 			browser.refreshTree();
 		}
-		model.setEditor(null);
+		//model.setEditor(null);
 		onSelectedDisplay();
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -812,17 +786,6 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		if (experimenter == null) return;
-		/*
-  	TreeViewer viewer = TreeViewerFactory.getTreeViewer(experimenter, 
-  														userGroupID, 
-  														view.getBounds());
-  	EditorFactory.setEditorSelectedPane(Editor.PROPERTIES_EDITOR);
-      EditorFactory.setSubSelectedPane(Editor.ANNOTATION_INDEX);
-      if (viewer != null) {
-      	if (viewer.isRecycled()) viewer.moveToFront();
-      	else viewer.activate();
-      }
-		 */
 		Map browsers = model.getBrowsers();
 		Iterator i = browsers.keySet().iterator();
 		Browser browser;
@@ -831,19 +794,6 @@ class TreeViewerComponent
 			browser = (Browser) browsers.get(i.next());
 			browser.addExperimenter(experimenter, browser == selected);
 		}
-		//Creates a new 
-		/*
-  	removeEditor();
-      model.setExperimenter(experimenter);
-      model.setHierarchyRoot(experimenter.getId(), userGroupID);
-      //Reset editor selected pane
-      EditorFactory.setEditorSelectedPane(Editor.PROPERTIES_EDITOR);
-      EditorFactory.setSubSelectedPane(Editor.ANNOTATION_INDEX);
-      if (model.getState() == READY)
-          firePropertyChange(HIERARCHY_ROOT_PROPERTY, Boolean.FALSE, 
-          					Boolean.TRUE);
-		 */
-
 	}
 
 	/**
@@ -1026,18 +976,6 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#getEditorType()
-	 */
-	public int getEditorType()
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException("This method cannot be invoked " +
-			"in the DISCARDED state.");
-		return model.getEditorType();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#annotate(Class, Set)
 	 */
 	public void annotate(Class klass, Set<DataObject> nodes)
@@ -1065,9 +1003,9 @@ class TreeViewerComponent
 	 */
 	public boolean hasDataToSave()
 	{
-		Editor editor = model.getEditor();
-		if (editor == null) return false;
-		return editor.hasDataToSave();
+		MetadataViewer metadata = model.getMetadataViewer();
+		if (metadata == null) return false;
+		return metadata.hasDataToSave();
 	}
 
 	/**
@@ -1076,10 +1014,11 @@ class TreeViewerComponent
 	 */
 	public void showPreSavingDialog()
 	{
-		Editor editor = model.getEditor();
-		if (editor == null) return;
-		if (!(editor.hasDataToSave())) return;
-		MessageBox dialog = new MessageBox(view, "Save Edited data", 
+		MetadataViewer metadata = model.getMetadataViewer();
+		if (metadata == null) return;
+		if (!(metadata.hasDataToSave())) return;
+		
+		MessageBox dialog = new MessageBox(view, "Save data", 
 				"Do you want to save the modified \n" +
 				"data before selecting a new item?");
 		saveInEditor(dialog.centerMsgBox() == MessageBox.YES_OPTION);
@@ -1400,7 +1339,6 @@ class TreeViewerComponent
 		}
 		model.fireResetRenderingSettings(ids, klass);
 		fireStateChange();
-		
 	}
 
 	/**
@@ -1417,7 +1355,6 @@ class TreeViewerComponent
 		}
 		model.fireResetRenderingSettings(ref);
 		fireStateChange();
-		
 	}
 	
 }

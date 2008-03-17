@@ -49,7 +49,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
@@ -100,13 +99,6 @@ class TreeViewerModel
 	/** The currently selected {@link Browser}. */
 	private Browser             	selectedBrowser;
 
-	/** 
-	 * The type of editor. One of the following constants:
-	 * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR}
-	 * or {@link TreeViewer#NO_EDITOR}.
-	 */
-	private int                 	editorType; 
-
 	/** The ID of the root. */
 	private long                    rootID;
 
@@ -131,9 +123,6 @@ class TreeViewerModel
 	 */
 	private int                     copyIndex;
 
-	/** The currently displayed editor, <code>null</code> if no editor. */
-	private Editor                  editor;
-
 	/** Reference to the component handling data. */
 	private DataHandler				dataHandler;
 
@@ -146,6 +135,9 @@ class TreeViewerModel
 	/** The id of the pixels set to copy. */
 	private long					refPixelsID;
 
+	/** The viewer displaying the metadata. */
+	private MetadataViewer 			metadataViewer;
+	
 	/** Reference to the component that embeds this model. */
 	protected TreeViewer            component;
 
@@ -237,7 +229,6 @@ class TreeViewerModel
 	protected TreeViewerModel()
 	{
 		state = TreeViewer.NEW;
-		editorType = TreeViewer.PROPERTIES_EDITOR;
 		browsers = new HashMap<Integer, Browser>();
 		recycled = false;
 		refPixelsID = -1;
@@ -252,7 +243,6 @@ class TreeViewerModel
 	protected TreeViewerModel(ExperimenterData exp, long userGroupID)
 	{
 		state = TreeViewer.NEW;
-		editorType = TreeViewer.PROPERTIES_EDITOR;
 		recycled = false;
 		refPixelsID = -1;
 		this.experimenter = exp;
@@ -454,44 +444,6 @@ class TreeViewerModel
 		currentLoader = new ThumbnailLoader(component, image);
 		currentLoader.load();
 	}
-
-	/**
-	 * Sets the type of editor. One of the following constants 
-	 * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
-	 * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
-	 * Sets the current editor to <code>null</code>.
-	 * 
-	 * @param editorType The type of the editor.
-	 */
-	void setEditorType(int editorType)
-	{ 
-		this.editorType = editorType; 
-		editor = null;
-	}
-
-	/**
-	 * Sets the current editor.
-	 * 
-	 * @param editor The value to set.
-	 */
-	void setEditor(Editor editor) { this.editor = editor; }
-
-	/**
-	 * Returns the current editor, <code>null</code> if no editor.
-	 * 
-	 * @return See above.
-	 */
-	Editor getEditor() { return editor; }
-
-	/**
-	 * Returns the type of editor.
-	 * One of the following constants 
-	 * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
-	 * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
-	 * 
-	 * @return See above.
-	 */
-	int getEditorType() { return editorType; }
 
 	/** 
 	 * Returns the {@link Finder} component.
@@ -806,8 +758,11 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 
-	MetadataViewer metadataViewer;
-	
+	/**
+	 * Returns the metadata viewer.
+	 * 
+	 * @return See above.
+	 */
 	MetadataViewer getMetadataViewer()
 	{
 		if (metadataViewer == null)

@@ -100,8 +100,8 @@ public class ThumbnailLoader
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
         ThumbnailData td = (ThumbnailData) fe.getPartialResult();
        
-        if (td != null)  //Last fe has null object.
-            viewer.setThumbnail(td.getThumbnail(), td.getImageID());
+        //if (td != null)  //Last fe has null object.
+         //   viewer.setThumbnail(td.getThumbnail(), td.getImageID());
     }
     
     /**
@@ -120,7 +120,7 @@ public class ThumbnailLoader
         String s = "Thumbnail Retrieval Failure: ";
         //register error but don't notify user.
         registry.getLogger().error(this, s+exc);
-        viewer.setThumbnail(null, -1);
+        //viewer.setThumbnail(null, -1);
     }
     
     /**

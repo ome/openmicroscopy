@@ -557,15 +557,9 @@ class TreeViewerControl
 			Browser b = model.getSelectedBrowser(); 
 			TreeImageDisplay d = null;
 			if (b != null) d = b.getLastSelectedDisplay();
-			int editorType = model.getEditorType();
+			
 			model.removeEditor();
 			model.onComponentStateChange(true);
-			if (editorType == TreeViewer.CREATE_EDITOR) 
-				resetSelectedDisplay(d);
-		//} else if (name.equals(Classifier.CLOSE_CLASSIFIER_PROPERTY)) {
-		//	Browser b = model.getSelectedBrowser(); 
-		//	if (b != null) resetSelectedDisplay(b.getLastSelectedDisplay());
-		//	model.onComponentStateChange(true);
 		} else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
 			Boolean b = (Boolean) pce.getNewValue();
 			if (!b.booleanValue()) {

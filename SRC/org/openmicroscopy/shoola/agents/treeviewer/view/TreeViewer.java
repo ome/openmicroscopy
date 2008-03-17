@@ -322,14 +322,6 @@ public interface TreeViewer
 	public void classify(Set<ImageData> images, int mode);
 
 	/**
-	 * Sets the thumbnail associated to the currently edited Image.
-	 * 
-	 * @param thumbnail	The thumbnail to set.
-	 * @param imageID	The id of the image.
-	 */
-	public void setThumbnail(BufferedImage thumbnail, long imageID); 
-
-	/**
 	 * Reacts to a node selection in the currently selected {@link Browser}.
 	 */
 	public void onSelectedDisplay();
@@ -484,15 +476,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public JFrame getUI();
-
-	/**
-	 * Returns the type of the editor. One of the following constants 
-	 * {@link TreeViewer#CREATE_EDITOR}, {@link TreeViewer#PROPERTIES_EDITOR},
-	 * {@link TreeViewer#CLASSIFIER_EDITOR} or {@link TreeViewer#NO_EDITOR}.
-	 * 
-	 * @return See above.
-	 */
-	public int getEditorType();
 
 	/**
 	 * Annotates the specified objects.
