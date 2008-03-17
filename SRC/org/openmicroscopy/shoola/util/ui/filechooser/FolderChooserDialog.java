@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * A dialog used to select a folder.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -63,7 +63,7 @@ public class FolderChooserDialog
 {
 
 	/** The window's title. */
-	static final String 			TITLE = "Download archived files";
+	static final String 			TITLE = "Download files";
 	
 	/** 
 	 * Bound property indicating the directory where to save the original files.
@@ -79,6 +79,13 @@ public class FolderChooserDialog
     
     /** UI component to select the folder. */
     private FolderChooser	chooser;
+    
+    
+    /** The title of the dialog. */
+    private String			title;
+    
+    /** The header of the dialog. */
+    private TitlePanel 		header;
     
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -99,10 +106,10 @@ public class FolderChooserDialog
         IconManager im = IconManager.getInstance();
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
-        TitlePanel tp = new TitlePanel(TITLE, TEXT, 
-                                im.getIcon(IconManager.DOWNLOAD_48));
+        header = new TitlePanel(title, TEXT, 
+        						im.getIcon(IconManager.DOWNLOAD_48));
                     
-        c.add(tp, BorderLayout.NORTH);
+        c.add(header, BorderLayout.NORTH);
         c.add(p, BorderLayout.CENTER);
         if (JDialog.isDefaultLookAndFeelDecorated()) {
             boolean supportsWindowDecorations = 
@@ -116,7 +123,7 @@ public class FolderChooserDialog
     /** Sets the properties of the dialog. */
     private void setProperties()
     {
-    	setTitle(TITLE);
+    	setTitle(title);
         setModal(true);
         //setAlwaysOnTop(true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -140,6 +147,25 @@ public class FolderChooserDialog
 		});
     }
 	
+
+	/**
+	 * Creates a new instance.
+     * 
+     * @param owner The owner of this dialog.
+     * @param title	The title associated to the dialog.
+	 */
+	public FolderChooserDialog(JFrame owner, String title)
+	{
+		super(owner);
+		if (title == null || title.length() == 0)
+			title = TITLE;
+		this.title = title;
+		setProperties();
+		initComponents();
+		buildGUI();
+		pack();
+	}
+	
 	/**
 	 * Creates a new instance.
      * 
@@ -147,13 +173,22 @@ public class FolderChooserDialog
 	 */
 	public FolderChooserDialog(JFrame owner)
 	{
-		super(owner);
-		setProperties();
-		initComponents();
-		buildGUI();
-		pack();
+		this(owner, TITLE);
 	}
 
+	/**
+	 * Sets the title of the dialog.
+	 * 
+	 * @param title The value to set.
+	 */
+	public void setTitle(String title)
+	{
+		if (title == null || title.length() == 0)
+			title = TITLE;
+		this.title = title;
+		setTitle(title);
+		header.setTitle(title);
+	}
     
     /** Closes and disposes. */
 	void close()
@@ -180,7 +215,6 @@ public class FolderChooserDialog
             }
         }
         if (!exist) new File(path).mkdir();
-        System.err.println(path+separator);
 		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
 		if (settings.isSelected()) 
 			UIUtilities.setDefaultFolder(path);

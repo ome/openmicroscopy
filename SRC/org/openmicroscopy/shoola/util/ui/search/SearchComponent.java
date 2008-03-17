@@ -287,7 +287,7 @@ public class SearchComponent
 				null, "Name/Description");
     	nodes.add(node);
     	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
-					"Textual Annotation");
+					"Comments");
     	nodes.add(node);
     	node = new SearchObject(SearchContext.TAGS, null, "Tags");
     	nodes.add(node);

@@ -63,7 +63,7 @@ public class TEXTFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-    public String getDescription() { return "Text file"; }
+    public String getDescription() { return "Text Format (.txt)"; }
         
     /**
      * Overriden to accept file with the declared file extensions.

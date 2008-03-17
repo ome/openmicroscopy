@@ -185,12 +185,22 @@ public class TitlePanel
         repaint();
     }
     
+    /**
+     * Sets the title displayed in the header.
+     * 
+     * @param text The text to set.
+     */
     public void setTitle(String text)
     {
     	title.setText(text);
     	repaint();
     }
     
+    /**
+     * Sets the text displayed in the header.
+     * 
+     * @param text The text to set.
+     */
     public void setTextHeader(String text)
     {
     	
@@ -198,12 +208,18 @@ public class TitlePanel
         repaint();
     }
     
+    /**
+     * Sets the note displayed in the header.
+     * 
+     * @param text The text to set.
+     */
     public void setSubtitle(String text)
     {
     	
     	subTitle.setText(text);
         repaint();
     }
+    
     /**
      * Lays out the sub-components of this title panel. 
      */

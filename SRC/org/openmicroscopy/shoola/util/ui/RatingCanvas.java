@@ -150,6 +150,7 @@ class RatingCanvas
 	{
 		super.paintComponent(g);
 		Graphics2D g2D = (Graphics2D) g;
+		g.setColor(getBackground());
 		int x = 0;
 		int w, h;
 		List<Image> l = model.getPlus();

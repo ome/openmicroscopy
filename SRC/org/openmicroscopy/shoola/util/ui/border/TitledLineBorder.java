@@ -165,6 +165,7 @@ public class TitledLineBorder
     public void paintBorder(Component c, Graphics g, int x, int y, int width, 
     						int height) 
     {
+    	 g.setColor(Color.RED);
     	 Border border = getBorder();
 
          if (getTitle() == null || getTitle().equals("")) {
@@ -341,7 +342,7 @@ public class TitledLineBorder
          Iterator i = images.iterator();
          Rectangle r;
          Image img;
-         x = textLoc.x+fm.stringWidth(getTitle());;
+         x = textLoc.x+fm.stringWidth(getTitle())+2;
          y = textLoc.y;
          int w, h;
          imageBounds = new ArrayList<Rectangle>(images.size());
@@ -356,6 +357,7 @@ public class TitledLineBorder
         	 x += EDGE_GAP;
         	 imageBounds.add(r);
          }
+        
     }
     
 }

@@ -95,11 +95,11 @@ class CustomizedFileChooser
 	private void buildGUI()
 	{
 		setAcceptAllFileFilterUsed(false);
-		setDialogType(CUSTOM_DIALOG);
+		setDialogType(SAVE_DIALOG);
 		setControlButtonsAreShown(nameArea == null);
 		
 		JLabel label;
-		List<FileFilter> filters = model.getFilterList();
+		List<FileFilter> filters = model.getFilters();
 		if (filters != null) {
 			for (FileFilter filter : filters)
 				addChoosableFileFilter(filter);
@@ -153,7 +153,7 @@ class CustomizedFileChooser
 	 */
 	private String getFormat(FileFilter selectedFilter)
 	{
-		List<FileFilter> filters = model.getFilterList();
+		List<FileFilter> filters = model.getFilters();
 		if (filters == null) return "";
 		for (FileFilter filter : filters) {
 			if (selectedFilter.equals(filter))
@@ -170,7 +170,7 @@ class CustomizedFileChooser
 	 */
 	private String getExtension(FileFilter selectedFilter)
 	{
-		List<FileFilter> filters = model.getFilterList();
+		List<FileFilter> filters = model.getFilters();
 		if (filters == null) return "";
 		for (FileFilter filter : filters) {
 			if (selectedFilter.equals(filter) && 

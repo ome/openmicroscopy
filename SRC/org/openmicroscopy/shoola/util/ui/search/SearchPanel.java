@@ -131,7 +131,7 @@ class SearchPanel
 										"<html><b>Without</b> the words</html>";
 	
 	/** The selected date format. */
-	private static final String		DATE_FORMAT = "yy/MM/dd";//"MM/dd/yy";
+	private static final String		DATE_FORMAT = "yy/MM/dd";
 	
 	/** The tooltip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";

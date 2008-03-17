@@ -63,7 +63,7 @@ public class XMLFilter
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-    public String getDescription() { return "XML files"; }
+    public String getDescription() { return "RSS/XML (.xml)"; }
     
     /**
      * Overriden to accept file with the declared file extensions.
@@ -81,4 +81,5 @@ public class XMLFilter
             return ((extension.equals(XML)));
         return false;
     }
+    
 }

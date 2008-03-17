@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.util.ArrayList;
@@ -233,6 +234,16 @@ public class RatingComponent
 		fillLists();
 		canvas.repaint();
 		firePropertyChange(RATE_PROPERTY, oldValue, currentValue);
+	}
+	
+	/**
+	 * Overridden to set the background of the canvas.
+	 * @see JPanel#setBackground(Color)
+	 */
+	public void setBackground(Color bg)
+	{
+		super.setBackground(bg);
+		if (canvas != null) canvas.setBackground(bg);
 	}
 	
 }

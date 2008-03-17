@@ -103,11 +103,8 @@ public class FileChooser
     /** Message at top of dialog window. */
     private String 				message;
     
-    /** 
-     * The filterList containing a list of all the filters to use in the file
-     * chooser. 
-     */
-    private List<FileFilter>	filterList;
+    /** Collection of supported filters. */
+    private List<FileFilter>	filters;
     
     /** Sets the properties of the dialog. */
     private void setProperties()
@@ -187,17 +184,17 @@ public class FileChooser
      * @param dialogType	One of the constants defined by this class.
      * @param title 		Title of the dialog.
      * @param message 		Message of the dialog.
-     * @param filterList 	The list of filters.
+     * @param filters 	The list of filters.
      */
     public FileChooser(JFrame owner, int dialogType, String title, 
-    					String message, List<FileFilter> filterList)
+    					String message, List<FileFilter> filters)
     {
         super(owner);
         checkType(dialogType);
         this.dialogType = dialogType;
         this.title = title;
         this.message = message;
-        this.filterList = filterList;
+        this.filters = filters;
         setProperties();
        	uiDelegate = new FileSaverUI(this);
         pack();
@@ -236,7 +233,7 @@ public class FileChooser
      * 
      * @return See above.
      */
-    List<FileFilter> getFilterList() { return filterList; }
+    List<FileFilter> getFilters() { return filters; }
    
     /**
      * Adds the extension to the passed name if necessary.
