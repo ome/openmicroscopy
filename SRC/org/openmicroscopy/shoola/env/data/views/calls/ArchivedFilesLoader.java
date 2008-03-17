@@ -75,6 +75,23 @@ public class ArchivedFilesLoader
     }
     
     /**
+     * Creates a {@link BatchCall} to retrieve the archived files.
+     * 
+     * @param pixelsID 		The ID of the pixels set.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall makeBatchCall(final long pixelsID)
+    {
+        return new BatchCall("Loading annotation") {
+            public void doCall() throws Exception
+            {
+                OmeroDataService os = context.getDataService();
+                result = os.getOriginalFiles(pixelsID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -95,6 +112,16 @@ public class ArchivedFilesLoader
     public ArchivedFilesLoader(String location, long pixelsID)
     {
     	loadCall = makeBatchCall(location, pixelsID);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param pixelsID	The ID of the pixels set.
+     */
+    public ArchivedFilesLoader(long pixelsID)
+    {
+    	loadCall = makeBatchCall(pixelsID);
     }
     
 }

@@ -27,7 +27,9 @@ package org.openmicroscopy.shoola.env.ui;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.JFileChooser;
@@ -160,67 +162,7 @@ class UserNotifierManager
 		source.setVisible(false);
 		source.dispose();
 	}
-	
-	/**
-	 * Starts to download the file linked to the annotation.
-	 * 
-	 * @param data The annotation to handle.
-	 */
-	private void saveFileToDisk(FileAnnotationData data)
-	{
-		if (data == null) return;
-		if (download == null) {
-			Registry reg = container.getRegistry();
-			JFrame f = reg.getTaskBar().getFrame();
-			download = new DownloadsDialog(f, IconManager.getInstance(reg));
-			download.addPropertyChangeListener(this);
-		}
-		
-		OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
-		
-		//Need to make sure that file with same name does not exist.
-		JFileChooser chooser = new JFileChooser();
-		File dir = UIUtilities.getDefaultFolder();
-        if (f != null) chooser.setCurrentDirectory(dir);
-		
-        //Get the current directory
-        dir = chooser.getCurrentDirectory();
-        File[] files = dir.listFiles();
-        //path to the file 
-        /*
-        String path = dir+File.separator+f.getName();
-        boolean exist = false;
-        for (int i = 0; i < files.length; i++) {
-        	 if ((files[i].getAbsolutePath()).equals(path)) {
-                 exist = true;
-                 break;
-             }
-		}
-        if (exist) {
-        	String name = f.getName();
-        	int lastDot = name.lastIndexOf(".");
-        	String value;
-        	
-        	if (lastDot != -1) {
-        		String extension = name.substring(lastDot, name.length());
-        		value = name.substring(0, lastDot)+" (1)"+extension;
-        	} else 
-        		value = name;
-        	
-        	path = dir+File.separator+value;
-        }
-        */
-        String dirPath = dir+File.separator;
-        String name = getFileName(files, f, f.getName(), dirPath, 1);
-        String path = dirPath+name;
-		FileLoader loader = new FileLoader(component, container.getRegistry(), 
-										path, f.getId(), f.getSize());
-		loader.load();
-		download.addDowloadEntry(path, name, f.getId());
-		loaders.put(path, loader);
-		UIUtilities.centerAndShow(download);
-	}
-	
+
 	/**
 	 * Returns the name to give to the file.
 	 * 
@@ -293,6 +235,86 @@ class UserNotifierManager
 	}
 	
 	/**
+	 * Starts to download the file corresponding to the passed object.
+	 * 
+	 * @param file The file to handle.
+	 */
+	void saveFileToDisk(OriginalFile file)
+	{
+		if (file == null) return;
+		if (download == null) {
+			Registry reg = container.getRegistry();
+			JFrame f = reg.getTaskBar().getFrame();
+			download = new DownloadsDialog(f, IconManager.getInstance(reg));
+			download.addPropertyChangeListener(this);
+		}
+		//Need to make sure that file with same name does not exist.
+		JFileChooser chooser = new JFileChooser();
+		File dir = UIUtilities.getDefaultFolder();
+        if (dir != null) chooser.setCurrentDirectory(dir);
+		
+        //Get the current directory
+        dir = chooser.getCurrentDirectory();
+        File[] files = dir.listFiles();
+        String dirPath = dir+File.separator;
+        String name = getFileName(files, file, file.getName(), dirPath, 1);
+        String path = dirPath+name;
+		FileLoader loader = new FileLoader(component, 
+									container.getRegistry(), 
+										path, file.getId(), file.getSize());
+		loader.load();
+		download.addDowloadEntry(path, name, file.getId());
+		loaders.put(path, loader);
+		
+		if (!download.isVisible())
+			UIUtilities.centerAndShow(download);
+		
+	}
+	
+	/**
+	 * Starts to download the file corresponding to the passed object.
+	 * 
+	 * @param data The data to handle.
+	 */
+	void saveFileToDisk(Collection data)
+	{
+		if (data == null) return;
+		if (download == null) {
+			Registry reg = container.getRegistry();
+			JFrame f = reg.getTaskBar().getFrame();
+			download = new DownloadsDialog(f, IconManager.getInstance(reg));
+			download.addPropertyChangeListener(this);
+		}
+		//Need to make sure that file with same name does not exist.
+		JFileChooser chooser = new JFileChooser();
+		File dir = UIUtilities.getDefaultFolder();
+        if (dir != null) chooser.setCurrentDirectory(dir);
+		
+        //Get the current directory
+        dir = chooser.getCurrentDirectory();
+        File[] files = dir.listFiles();
+        String dirPath = dir+File.separator;
+        Iterator i = data.iterator();
+        String name;
+        String path;
+        OriginalFile file;
+        FileLoader loader;
+        while (i.hasNext()) {
+        	file = (OriginalFile) i.next();
+        	name = getFileName(files, file, file.getName(), dirPath, 1);
+        	path = dirPath+name;
+        	loader = new FileLoader(component, container.getRegistry(), 
+						path, file.getId(), file.getSize());
+        	loader.load();
+        	download.addDowloadEntry(path, name, file.getId());
+        	loaders.put(path, loader);
+		}
+		
+		if (!download.isVisible())
+			UIUtilities.centerAndShow(download);
+	}
+	
+	/**
 	 * Reacts to property changes fired by dialogs.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -303,9 +325,11 @@ class UserNotifierManager
 			MessengerDialog source = (MessengerDialog) pce.getSource();
 			handleSendMessage(source, (MessengerDetails) pce.getNewValue());
 		} else if (OpeningFileDialog.SAVE_TO_DISK_PROPERTY.equals(name)) {
+			/*
 			Object value = pce.getNewValue();
 			if (value instanceof FileAnnotationData) 
 				saveFileToDisk((FileAnnotationData) value);
+				*/
 		} else if (DownloadsDialog.CANCEL_LOADING_PROPERTY.equals(name)) {
 			String fileName = (String) pce.getNewValue();
 			UserNotifierLoader loader = loaders.get(fileName);

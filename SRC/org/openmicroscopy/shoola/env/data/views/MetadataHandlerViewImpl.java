@@ -31,6 +31,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.FileDownloader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
@@ -223,6 +224,17 @@ class MetadataHandlerViewImpl
 				AgentEventListener observer)
 	{
 		BatchCallTree cmd = new FileDownloader(file, fileID, size); 
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadOriginalFile(long, AgentEventListener)
+	 */
+	public CallHandle loadOriginalFile(long pixelsID, 
+										AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new ArchivedFilesLoader(pixelsID); 
 		return cmd.exec(observer);
 	}
 	

@@ -231,4 +231,14 @@ public interface MetadataHandlerView
 	public CallHandle loadFile(File file, long fileID, long size, 
 							AgentEventListener observer);
 	
+	/**
+	 * Loads the original files related to a given pixels set.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadOriginalFile(long pixelsID, 
+							AgentEventListener observer);
+	
 }

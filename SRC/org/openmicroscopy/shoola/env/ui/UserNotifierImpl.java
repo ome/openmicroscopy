@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collection;
 
 import javax.swing.Icon;
 import javax.swing.JFrame;
@@ -33,6 +34,8 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.OriginalFile;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
@@ -274,16 +277,28 @@ public class UserNotifierImpl
 
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyDownload(FileAnnotationData)
+	 * @see UserNotifier#notifyDownload(OriginalFile)
 	 */ 
-	public void notifyDownload(FileAnnotationData data)
+	public void notifyDownload(OriginalFile data)
 	{
+		manager.saveFileToDisk(data);
+		/*
 		OpeningFileDialog d = new OpeningFileDialog(SHARED_FRAME, 
 						manager.getIconManager(), data);
 		d.addPropertyChangeListener(manager);
 		UIUtilities.centerAndShow(d);
+		*/
 	}
 
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#notifyDownload(Collection)
+	 */ 
+	public void notifyDownload(Collection data)
+	{
+		manager.saveFileToDisk(data);
+	}
+	
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
 	 * @see UserNotifier#setLoadingStatus(int, long, String)
@@ -292,5 +307,7 @@ public class UserNotifierImpl
 	{
 		manager.setLoadingStatus(percent, fileID, fileName);
 	}
+
+
 	
 }

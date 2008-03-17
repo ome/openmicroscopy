@@ -94,6 +94,7 @@ class DownloadsDialog
 	{
 		components = new ArrayList<FileLoadingComponent>();
 		entries = new JPanel();
+		entries.setBackground(UIUtilities.BACKGROUND);
 		entries.setLayout(new BoxLayout(entries, BoxLayout.Y_AXIS));
 		cleanupButton = new JButton("Clean Up");
 		getRootPane().setDefaultButton(cleanupButton);

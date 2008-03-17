@@ -65,6 +65,7 @@ import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Category;
@@ -86,6 +87,7 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
+import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -114,6 +116,10 @@ import pojos.TextualAnnotationData;
 class OMEROGateway
 {
 	
+	/** 
+	 * The name space used to identify the archived annotation
+	 * linked to a set of pixels.
+	 */
 	private static final String IMPORTER_NS = 
 					"openmicroscopy.org/omero/importer/archived";
 	
@@ -795,8 +801,7 @@ class OMEROGateway
 	 * {@link IPojos#findAnnotations(Class, Set, Set, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Map)}.
 	 * 
-	 * @param nodeType      The type of the rootNodes. It can either be
-	 *                      <code>Dataset</code> or <code>Image</code>.
+	 * @param nodeType      The type of the rootNodes.
 	 *                      Mustn't be <code>null</code>. 
 	 * @param nodeIDs       TheIds of the objects of type
 	 *                      <code>rootNodeType</code>. 
@@ -1553,12 +1558,36 @@ class OMEROGateway
 	 * 
 	 * @param pixelsID The id of the pixels set.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	boolean hasArchivedFiles(long pixelsID)
-		throws DSAccessException
+		throws DSAccessException, DSOutOfServiceException
 	{
+		Set<Long> ids = new HashSet<Long>();
+		ids.add(pixelsID);
+		try {
+			IPojos service = getPojosService();
+			Map m = service.findAnnotations(Pixels.class, ids, null, 
+									(new PojoOptions().map()));
+			Collection c = (Collection) m.get(pixelsID);
+			if (c == null || c.size() == 0) return false;
+			Iterator i = c.iterator();
+			Annotation data;
+			while (i.hasNext()) {
+				data = (Annotation) i.next();
+				if (data instanceof BooleanAnnotation) {
+					BooleanAnnotation ann = (BooleanAnnotation) data;
+					if (IMPORTER_NS.equals(ann.getNs()))
+						return ann.getBoolValue();
+				}
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the annotations related " +
+								"to "+pixelsID);
+		}
+		
 		return false;
 	}
 	
@@ -1636,8 +1665,8 @@ class OMEROGateway
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param file		The file to copy the data into.	
-	 * @param fileID		The id of the file to download.
-	 * @param size			The size of the file.
+	 * @param fileID	The id of the file to download.
+	 * @param size		The size of the file.
 	 * @return See above.
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
@@ -1700,6 +1729,32 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Returns the collection of original files related to the specifed 
+	 * pixels set.
+	 * 
+	 * @param pixelsID The ID of the pixels set.
+	 * @return See above.
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	List getOriginalFiles(long pixelsID)
+		throws DSAccessException
+	{
+		IQuery service = getQueryService();
+		List files = null;
+		try {
+			files = service.findAllByQuery(
+					"select ofile from OriginalFile as ofile left join " +
+					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
+					"child where child.id = :id",
+					new Parameters().addId(new Long(pixelsID)));
+		} catch (Exception e) {
+			throw new DSAccessException("Cannot retrieve original file", e);
+		}
+		return files;
+	}
+	
+	/**
 	 * Uploads the passed file to the server and returns the 
 	 * original file i.e. the server object.
 	 * 
@@ -1714,7 +1769,6 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
-		System.err.println(format);
 		Format f = getQueryService().findByString(Format.class, "value", 
 												format);
 		OriginalFile oFile = new OriginalFile();

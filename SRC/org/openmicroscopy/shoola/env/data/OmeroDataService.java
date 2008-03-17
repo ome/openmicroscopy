@@ -733,5 +733,8 @@ public interface OmeroDataService
 	 */
 	public Collection findContainerPaths(Class type, long id, long userID)
 		throws DSOutOfServiceException, DSAccessException;
+
+	public Collection getOriginalFiles(long pixelsID)
+	throws DSOutOfServiceException, DSAccessException;
 	
 }

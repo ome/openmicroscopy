@@ -1173,7 +1173,6 @@ class OmeroDataServiceImpl
 		return null;
 	}
 
-
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#findContainerPaths(Class, long, long)
@@ -1204,6 +1203,18 @@ class OmeroDataServiceImpl
 		} catch (Exception e) {
 			throw new DSAccessException(e.getMessage());
 		}
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#getOriginalFiles(long)
+	 */
+	public Collection getOriginalFiles(long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (pixelsID < 0)
+			throw new IllegalArgumentException("Pixels set ID not valid.");
+		return gateway.getOriginalFiles(pixelsID);
 	}
 
 }

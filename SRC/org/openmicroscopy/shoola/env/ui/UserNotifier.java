@@ -23,12 +23,14 @@
 package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
+import java.util.Collection;
+
 import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.FileAnnotationData;
+import ome.model.core.OriginalFile;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 
@@ -136,12 +138,18 @@ public interface UserNotifier
     public void submitMessage(String emailAddress);
     
     /**
-     * Brings up a modal to download a file previously uploaded to the 
-     * server.
+     * Brings up a dialog displaying the downloading process.
      * 
      * @param data	The data to handle.
      */
-    public void notifyDownload(FileAnnotationData data);
+    public void notifyDownload(OriginalFile data);
+    
+    /**
+     * Brings up a dialog displaying the downloading process.
+     * 
+     * @param data	The data to handle.
+     */
+    public void notifyDownload(Collection data);
     
     /**
      * Sets the loading status.
