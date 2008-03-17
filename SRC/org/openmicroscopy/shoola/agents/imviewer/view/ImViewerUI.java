@@ -42,8 +42,6 @@ import java.awt.event.HierarchyBoundsListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -51,14 +49,12 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -80,6 +76,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.SplitPanel;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
@@ -87,7 +84,6 @@ import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.ColorCheckBoxMenuItem;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
-import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
@@ -178,37 +174,37 @@ class ImViewerUI
 	}
 
 	/** Reference to the Control. */
-	private ImViewerControl 		controller;
+	private ImViewerControl 			controller;
 
 	/** Reference to the Model. */
-	private ImViewerModel   		model;
+	private ImViewerModel   			model;
 
 	/** The status bar. */
-	private StatusBar       		statusBar;
+	private StatusBar       			statusBar;
 
 	/** Lens component which will control all behaviour of the lens. */
-	private LensComponent			lens;
+	private LensComponent				lens;
 
 	/** The tool bar. */
-	private ToolBar         		toolBar;
+	private ToolBar         			toolBar;
 
 	/** The control pane. */
-	private ControlPane     		controlPane;
+	private ControlPane     			controlPane;
 	
 	/** Group hosting the items of the <code>Zoom</code> menu. */
-	private ButtonGroup     		zoomingGroup;
+	private ButtonGroup     			zoomingGroup;
 
 	/** Group hosting the items of the <code>Color Model</code> menu. */
-	private ButtonGroup     		colorModelGroup;
+	private ButtonGroup     			colorModelGroup;
 
 	/** The loading window. */
-	private LoadingWindow   		loadingWindow;
+	private LoadingWindow   			loadingWindow;
 
 	/** Tabbed pane hosting the various panel. */
-	private ClosableTabbedPane		tabs;
+	private ClosableTabbedPane			tabs;
 
 	/** The component displaying the history. */
-	private HistoryUI				historyUI;
+	private HistoryUI					historyUI;
 
 	/**
 	 * Split component used to display the image in the top section and the
@@ -216,47 +212,44 @@ class ImViewerUI
 	 */
 	//private SplitPanel				historySplit;
 
-	private SplitPanel			historySplit;
+	private SplitPanel					historySplit;
 	
 	/**
 	 * Split component used to display the renderer component on the left hand
 	 * side of the pane.
 	 */
-	private JSplitPane				rendererSplit;
+	private JSplitPane					rendererSplit;
 
 	/** 
 	 * One out of the following list: 
 	 * {@link #NEUTRAL}, {@link #HISTORY}, {@link #RENDERER} and
 	 * {@link #HISTORY_AND_RENDERER}.
 	 */
-	private int						displayMode;
+	private int							displayMode;
 
 	/** Item used to control show or hide the renderer. */
-	private JCheckBoxMenuItem		rndItem;
+	private JCheckBoxMenuItem			rndItem;
 
 	/** The dimension of the main component i.e. the tabbed pane. */
-	private Dimension				restoreSize;
+	private Dimension					restoreSize;
 
 	/** Listener to the bounds of the container. */
-	private HierarchyBoundsAdapter	boundsAdapter;
+	private HierarchyBoundsAdapter		boundsAdapter;
 
 	/** The height of the icons in the tabbed pane plus 2 pixels. */
-	private int						tabbedIconHeight;
-
-	/** The menu displaying the categories the image is categorised into. */
-	private CategoriesPopupMenu		categoriesMenu;
+	private int							tabbedIconHeight;
 
 	/** The menu displaying the users who viewed the image. */
-	private UsersPopupMenu			usersMenu;
+	private UsersPopupMenu				usersMenu;
 	
 	/** The default insets of a split pane. */
-	private Insets					refInsets;
+	private Insets						refInsets;
 	
 	/** The number of pixels added between the left and right components. */
-	private int						widthAdded;
+	private int							widthAdded;
 	
 	/** The number of pixels added between the top and bottom components. */
-	private int						heightAdded;
+	private int							heightAdded;
 
 	/** Group hosting the possible background colors. */
 	private ButtonGroup 				bgColorGroup;
@@ -320,7 +313,6 @@ class ImViewerUI
 		if (historyUI == null) historyUI = new HistoryUI(this, model);
 		historySplit = new SplitPanel(SplitPanel.HORIZONTAL);
 		rendererSplit = initSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-	
 	}
     
 	/** 
@@ -745,7 +737,12 @@ class ImViewerUI
 				browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), "");
 		double[][] tlq = {{TableLayout.FILL}, {TableLayout.FILL}};
 		annotatorPanel.setLayout(new TableLayout(tlq));
-		annotatorPanel.add(browser.getAnnotator(), "0, 0");
+		//annotatorPanel.add(browser.getAnnotator(), "0, 0");
+		model.getMetadataView().addExternalComponent(browser.getAnnotator(), 
+											MetadataViewer.TOP_LEFT);
+		
+		annotatorPanel.add(model.getMetadataView().getUI(), "0, 0");
+		
 		tabs.insertTab(browser.getAnnotatorTitle(), browser.getAnnotatorIcon(), 
 				annotatorPanel, "", ImViewer.ANNOTATOR_INDEX);
 
@@ -1387,13 +1384,6 @@ class ImViewerUI
 					item.addPropertyChangeListener(controller);
 				}
 				menu.show(source, location.x, location.y);
-				break;
-	
-			case ImViewer.CATEGORY_MENU:
-				//if (categoriesMenu == null)
-				categoriesMenu = new CategoriesPopupMenu(this, model);
-				categoriesMenu.showMenu(source, location.x, location.y);
-				break;
 		}
 	}
 
@@ -1463,6 +1453,9 @@ class ImViewerUI
 		}
 		int oldIndex = model.getTabbedIndex();
 		model.setTabbedIndex(index);
+		if (index == ImViewer.ANNOTATOR_INDEX) {
+			model.loadMetadata();
+		}
 		model.getBrowser().setSelectedPane(index);
 		setLensVisible(isLensVisible(), oldIndex);
 	}
@@ -1589,30 +1582,6 @@ class ImViewerUI
 	 * @return See above.
 	 */
 	Dimension geRestoreSize() { return restoreSize; }
-
-	/** 
-	 * Declassifies the image from the specified category.
-	 * 
-	 * @param categoryID The category to handle.
-	 */
-	void declassify(long categoryID)
-	{
-		controller.declassify(categoryID);
-	}
-
-	/** Creates a new category and adds the image to the category. */
-	void createCategory()
-	{
-		/**
-		CategoryEditor editor = new CategoryEditor(this, 
-									model.getAvailableCategories(), 
-									model.getCategories(),
-									model.getPopulatedCategoryGroups());
-		editor.addPropertyChangeListener(controller);
-		UIUtilities.centerAndShow(editor);
-		*/
-		UIUtilities.centerAndShow(model.getTagger().getUI());
-	}
 
 	/** 
 	 * Shows or hides the local history.
@@ -1805,9 +1774,6 @@ class ImViewerUI
 		controlPane.setGridMagnificationFactor((int) (factor*10));
 	}
 	
-	/** Cancels any ongoing search. */
-    void discard() { toolBar.discard(); }
-    
     /**
      * Adds the component specified by the passed index to the display
      * 
@@ -1826,16 +1792,6 @@ class ImViewerUI
 			case ImViewer.ANNOTATOR_INDEX:
 				tabs.insertClosableComponent(annotatorPanel);
 		}
-	}
-    
-    void setRatingValue(int value) {
-    	model.setRatingLevel(value);
-    }
-    
-    /** Sets the value of the rating. */
-	void setRating()
-	{
-		toolBar.setRating(model.getOriginalRating());
 	}
 	
 	/** 

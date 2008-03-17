@@ -335,8 +335,7 @@ class BrowserModel
 					renderedImage);
     	}
     }
-    
-    
+
     /** Creates the images composing the grid. */
     private void createGridImages()
     {

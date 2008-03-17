@@ -124,7 +124,7 @@ public interface ImViewer
 
 	/** Bound Property name indicating that a channel colour has changed. */
 	public static final String	CHANNEL_COLOR_CHANGE_PROPERTY = 
-		"channelColorChanged";
+									"channelColorChanged";
 
 	/** Bound Property name indicating that the colour model has changed. */
 	public static final String  COLOR_MODEL_CHANGE_PROPERTY = 
@@ -736,29 +736,6 @@ public interface ImViewer
 	public boolean hasSettingsToPaste();
 
 	/**
-	 * Sets the categories the image is categorised into.
-	 * 
-	 * @param categories			The categories in which the image is 
-	 * 								classified owned by the user currently
-	 * 								logged in.
-	 * @param availableCategories 	The categories in which the image can be
-	 * 								categorised.
-	 * @param categoryGroups		The category groups owned by the user.
-	 */
-	public void setClassification(List categories, List availableCategories,
-			List categoryGroups);
-
-	/** 
-	 * Declassifies the image from the specified category.
-	 * 
-	 * @param categoryID The category to handle.
-	 */
-	public void declassify(long categoryID);
-
-	/** Invoked when the image classification is finished. */
-	public void setImageClassified();
-
-	/**
 	 * Returns <code>true</code> if the history is displayed, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -839,21 +816,10 @@ public interface ImViewer
 	public void setUserRndSettings(ExperimenterData exp);
 
 	/**
-	 * Retrieves the tags linked to the image.
-	 * 
-	 * @param component	The component that requested the popup menu.
-	 * @param point		The point at which to display the menu, relative to the
-	 *                  <code>component</code>'s coordinates.
-	 */
-	public void retrieveTags(Component component, Point point);
-
-	/**
 	 * Adds the view identified by the index.
 	 * 
 	 * @param index The index identifying the view.
 	 */
 	public void showView(int index);
-
-	public void setRating(List list);
 	
 }

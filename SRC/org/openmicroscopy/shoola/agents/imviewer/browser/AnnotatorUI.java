@@ -30,15 +30,11 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 
 /** 
  * UI component hosting the annotator and the canvas displaying a smaller
@@ -63,16 +59,7 @@ class AnnotatorUI
 	
 	/** Reference to the Model. */
     private BrowserModel		model;
-    
-    /** Reference to the Control. */
-    private BrowserControl		controller;
-    
-    /** Reference to the editor. */
-    private AnnotatorEditor 	editor;
 
-    /** UI component hosting the info about the image. */
-    private InfoPane			infoPane;
-    
     /** The UI component hosting the {@link AnnotatorCanvas}. */
     private JLayeredPane		layeredPane;
     
@@ -92,14 +79,11 @@ class AnnotatorUI
      */
     private void initComponents(BrowserUI view)
     {
+    	//metadataViewer = 
         layeredPane = new JLayeredPane();
         canvas = new AnnotatorCanvas(model);
-		editor = AnnotatorFactory.getEditor(ImViewerAgent.getRegistry(), 
-									model.getImageData(), 
-									AnnotatorEditor.HORIZONTAL_LAYOUT);
-		infoPane = new InfoPane(model);
 		canvasListener = new ImageCanvasListener(view, model, canvas);
-		editor.addPropertyChangeListener(controller);
+		
         //The image canvas is always at the bottom of the pile.
         //layeredPane.setLayout(new BorderLayout(0, 0));
         layeredPane.add(canvas, new Integer(0));
@@ -118,13 +102,10 @@ class AnnotatorUI
 	 * @param model 		Reference to the model. 
 	 * 						Mustn't be <code>null</code>.
 	 */
-	void initialize(BrowserUI view, BrowserControl controller, 
-					BrowserModel model)
+	void initialize(BrowserUI view, BrowserModel model)
 	{
 		if (model == null) throw new NullPointerException("No model.");
-		if (controller == null) throw new NullPointerException("No control.");
 		if (view == null) throw new NullPointerException("No View.");
-		this.controller = controller;
 		this.model = model;
 		initComponents(view);
 	}
@@ -149,36 +130,6 @@ class AnnotatorUI
         canvas.repaint();
         left.setPreferredSize(new Dimension(leftWidth, h));
     }
-    
-	/** Retrieves the annotations linked to the viewed image. */
-	void activateEditor()
-	{
-		//if (editor != null && !editor.hasTextEntered()) editor.activate();
-		if (editor != null) editor.activate();
-		if (infoPane != null) infoPane.buildGUI();
-	}
-
-	/**
-	 * Returns <code>true</code> if the current user entered some
-	 * textual annotation, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean hasAnnotationToSave()
-	{
-		if (editor == null) return false;
-		return editor.hasTextEntered();
-	}
-
-	/**
-	 * Forwards call to the {@link AnnotatorEditor} to save the annotation 
-	 * before closing the component.
-	 */
-	void saveAnnotation()
-	{
-		if (editor == null) return;
-		editor.save();
-	}
 	
 	/**
      * Adds the component to the {@link #layeredPane}. The component will
@@ -211,10 +162,8 @@ class AnnotatorUI
     {
     	setLayout(new BorderLayout(0, 0));
     	JPanel imagePanel = new JPanel();
-    	double[][] tl = {{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-    						TableLayout.FILL}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-    							TableLayout.FILL}};
+    	double[][] tl = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
     	imagePanel.setLayout(new TableLayout(tl));
     	this.left = left;
     	leftWidth = left.getPreferredSize().width;
@@ -222,9 +171,7 @@ class AnnotatorUI
     	imagePanel.add(left, "0, 0");
     	imagePanel.add(layeredPane, "1, 0");
         imagePanel.add(bottom, "1, 1");
-    	imagePanel.add(new JSeparator(), "0, 3, 3, 3");
-    	add(imagePanel, BorderLayout.NORTH);
-    	add(editor.getUI(), BorderLayout.CENTER);
+        add(imagePanel);
     }
     
 }

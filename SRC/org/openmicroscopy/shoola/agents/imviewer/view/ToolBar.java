@@ -30,7 +30,6 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -39,12 +38,7 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
-import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
-import org.openmicroscopy.shoola.agents.util.finder.QuickFinder;
-import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
@@ -110,18 +104,9 @@ class ToolBar
     /** Button used to show or hide the renderer. */
     private JToggleButton	rndButton;
     
-    /** Button displaying the category. */
-    private JButton			categoryButton;
-
     /** Box used to present the compression selected. */
     private JComboBox		compressionBox;
-    
-    /** Reference to the finder. */
-    private QuickFinder		finder;
-    
-    /** The rating component. */
-    private RatingComponent	rating;
-    
+
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -156,7 +141,7 @@ class ToolBar
         bar.add(button);
         button = new JButton(controller.getAction(ImViewerControl.DOWNLOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);  
+        //bar.add(button);  
         UserAction a = (UserAction) controller.getAction(ImViewerControl.USER);
         button = new JButton(a);
         button.addMouseListener(a);
@@ -168,28 +153,10 @@ class ToolBar
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
-    	rating = new RatingComponent();
-    	rating.addPropertyChangeListener(controller);
     	compressionBox = new JComboBox(compression);
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
-        ClassifyAction a = 
-			(ClassifyAction) controller.getAction(ImViewerControl.CATEGORY);
-        categoryButton = new JButton(a);
-        UIUtilities.unifiedButtonLookAndFeel(categoryButton);
-        categoryButton.addMouseListener(a);
         createControlsBar();
-    }
-
-    /** 
-     * Builds the quick search component.
-     * 
-     * @return See above.
-     */
-    private JComponent createQuickSearch()
-    {
-    	finder = FinderFactory.getQuickFinder(ImViewerAgent.getRegistry());
-    	return finder;
     }
     
     /** Builds and lays out the GUI. */
@@ -197,8 +164,6 @@ class ToolBar
     {
     	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(UIUtilities.buildComponentPanel(bar));
-        JPanel right = new JPanel();
-        right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
         JButton button = new JButton(
         			controller.getAction(ImViewerControl.SEARCH));
         UIUtilities.unifiedButtonLookAndFeel(button);
@@ -206,18 +171,8 @@ class ToolBar
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        bar.add(button); 
-        right.add(bar); 
-        right.add(UIUtilities.buildComponentPanelRight(createQuickSearch()));
-        bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        bar.add(categoryButton); 
-        right.add(bar); 
-        //right.add(categoryButton);
-        right.setOpaque(true);
-        add(UIUtilities.buildComponentPanelRight(right));
+        bar.add(button);
+        add(UIUtilities.buildComponentPanelRight(bar));
     }
     
     /**
@@ -255,22 +210,7 @@ class ToolBar
 		bar.add(compressionBox);
 		compressionBox.setSelectedIndex(view.getCompressionLevel());
 		compressionBox.addActionListener(this);
-		  
-        bar.add(rating);
     	buildGUI(); 
-    }
-    
-    /** 
-     * Sets the rating value.
-     * 
-     * @param value The value to set.
-     */
-    void setRating(int value) { rating.setValue(value); }
-    
-    /** Cancels any ongoing search. */
-    void discard()
-    {
-    	if (finder != null) finder.cancel();
     }
     
     /** Selects or deselects the {@link #rndButton}. */

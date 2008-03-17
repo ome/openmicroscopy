@@ -286,17 +286,6 @@ public interface Browser
 	public BufferedImage getGridImage();
 
 	/**
-	 * Returns <code>true</code> if the current user entered some
-	 * textual annotation, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasAnnotationToSave();
-
-	/** Saves the annotation before closing the component. */
-	public void saveAnnotation();
-
-	/**
 	 * Returns the annotated image.
 	 * 
 	 * @return See above.

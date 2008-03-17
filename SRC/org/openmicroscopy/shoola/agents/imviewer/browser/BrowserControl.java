@@ -31,8 +31,6 @@ import java.beans.PropertyChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
 
 /** 
  * The Browser's Controller.
@@ -50,7 +48,6 @@ import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorEditor;
  * @since OME2.2
  */
 class BrowserControl
-	implements PropertyChangeListener
 {
 
     /** Reference to the Model. */
@@ -81,17 +78,5 @@ class BrowserControl
         this.model = model;
         this.view = view;
     }
-
-    /**
-     * Reacts to property changes fired by the <code>AnntotorEditor</code>.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		if (AnnotatorEditor.ANNOTATED_PROPERTY.equals(name)) {
-			model.setSelectedPane(ImViewer.ANNOTATOR_INDEX);
-		}
-	}
     
 }

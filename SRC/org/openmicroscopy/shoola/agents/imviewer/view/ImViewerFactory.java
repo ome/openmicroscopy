@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
+import pojos.ImageData;
+
 /** 
 * Factory to create {@link ImViewer} components.
 * This class keeps track of all {@link ImViewer} instances that have been
@@ -116,19 +118,15 @@ public class ImViewerFactory
 	/**
 	 * Returns a viewer to display the image corresponding to the specified id.
 	 * 
-	 * @param pixelsID  The id of the pixels set.
-	 * @param imageID   The id of the image.
-	 * @param name      The name of the image.
+	 * @param image  	The image to view.
 	 * @param bounds    The bounds of the component invoking the 
 	 *                  {@link ImViewer}.
 	 * @param ownerID	The id of the owner of the image.
 	 * @return See above.
 	 */
-	public static ImViewer getImageViewer(long pixelsID, long imageID,
-			String name, Rectangle bounds, long ownerID)
+	public static ImViewer getImageViewer(ImageData image, Rectangle bounds)
 	{
-		ImViewerModel model = new ImViewerModel(pixelsID, imageID, name, 
-											bounds, ownerID);
+		ImViewerModel model = new ImViewerModel(image, bounds);
 		return singleton.getViewer(model);
 	}
 

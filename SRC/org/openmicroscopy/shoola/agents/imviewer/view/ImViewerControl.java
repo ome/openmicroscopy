@@ -60,7 +60,6 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ClassifyAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
@@ -93,7 +92,6 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
-import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
@@ -237,10 +235,7 @@ class ImViewerControl
 
 	/** Identifies the <code>Play movie across Z</code> action. */
 	static final Integer     PLAY_MOVIE_Z = new Integer(45);
-	
-	/** Identifies the <code>Category</code> action. */
-	static final Integer     CATEGORY = new Integer(46);
-	
+
 	/** Identifies the <code>Preferences</code> action. */
 	static final Integer     PREFERENCES = new Integer(47);
 	
@@ -358,7 +353,6 @@ class ImViewerControl
 				new PlayMovieAction(model, PlayMovieAction.ACROSS_T));
 		actionsMap.put(PLAY_MOVIE_Z, 
 				new PlayMovieAction(model, PlayMovieAction.ACROSS_Z));
-		actionsMap.put(CATEGORY, new ClassifyAction(model));
 		actionsMap.put(PREFERENCES, new PreferencesAction(model));
 		actionsMap.put(USER, new UserAction(model));
 		actionsMap.put(ZOOM_GRID_25, new ZoomGridAction(model, 
@@ -560,13 +554,6 @@ class ImViewerControl
 
 		return moviePlayer;
 	}
-
-	/** 
-	 * Declassifies the image from the specified category.
-	 * 
-	 * @param categoryID The category to handle.
-	 */
-	void declassify(long categoryID) { model.declassify(categoryID); }
 
 	/** 
 	 * Sets the zoom factor corresponding to the passed index.
@@ -790,8 +777,6 @@ class ImViewerControl
 			model.setUserRndSettings(exp);
 		} else if (Tagger.TAG_LOADED_PROPERTY.equals(propName)) {
 			view.showMenu(ImViewer.CATEGORY_MENU);
-		} else if (RatingComponent.RATE_PROPERTY.equals(propName)) {
-			view.setRatingValue((Integer) pce.getNewValue());
 		}
 	}
 

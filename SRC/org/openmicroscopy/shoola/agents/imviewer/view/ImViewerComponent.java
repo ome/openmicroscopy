@@ -58,14 +58,10 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
-import org.openmicroscopy.shoola.agents.imviewer.util.ImageDetailsDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
-import org.openmicroscopy.shoola.agents.util.archived.view.Downloader;
-import org.openmicroscopy.shoola.agents.util.archived.view.DownloaderFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -141,12 +137,6 @@ class ImViewerComponent
 
 	/** Listener attached to the rendering node. */
 	private MouseAdapter					nodeListener;
-
-	/** 
-	 * A {@link ViewerSorter sorter} to order nodes in ascending 
-	 * alphabetical order.
-	 */
-	private ViewerSorter    				sorter;
 
 	/** Flag indicating that the rendering settings have been modified. */
 	private boolean							rndToSave;
@@ -309,7 +299,7 @@ class ImViewerComponent
 			showBox = true;
 		}
 		JCheckBox annotationBox = null;
-		if (model.getBrowser().hasAnnotationToSave()) {
+		if (model.hasMetadataToSave()) {
 			annotationBox = new JCheckBox(ANNOTATION);
 			annotationBox.setSelected(true);
 			p.add(annotationBox);
@@ -347,7 +337,7 @@ class ImViewerComponent
 				}
 			}
 			if (annotationBox != null && annotationBox.isSelected())
-				model.getBrowser().saveAnnotation();
+				model.saveMetadata();
 			if (boxes != null) {
 				j = boxes.iterator();
 				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
@@ -440,7 +430,7 @@ class ImViewerComponent
 	 */
 	boolean hasAnnotationToSave() 
 	{ 
-		return model.getBrowser().hasAnnotationToSave();
+		return model.hasMetadataToSave();
 	}
 	
 	/**
@@ -513,7 +503,6 @@ class ImViewerComponent
 				if (!saveOnClose()) return;
 				postViewerState(ViewerState.CLOSE);
 				model.discard();
-				view.discard();
 				fireStateChange();
 				EventBus bus = MeasurementAgent.getRegistry().getEventBus();
 				bus.post(new FreeCacheEvent(model.getPixelsID(), 
@@ -565,15 +554,6 @@ class ImViewerComponent
 	 * @see ImViewer#isZoomFitToWindow()
 	 */
 	public boolean isZoomFitToWindow() { return model.getZoomFitToWindow(); }
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setRateImage(int)
-	 */
-	public void setRateImage(int level)
-	{
-
-	}
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
@@ -1748,9 +1728,11 @@ class ImViewerComponent
 	 */
 	public void download()
 	{
+		/*
 		Downloader dl = DownloaderFactory.getDownloader(
 				ImViewerAgent.getRegistry(), model.getPixelsID());
 		dl.activate();
+		*/
 	}
 
 	/** 
@@ -1760,12 +1742,12 @@ class ImViewerComponent
 	public int getMaxX() 
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED," +
+						" NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getMaxX();
 	}
@@ -1976,11 +1958,13 @@ class ImViewerComponent
 	 */
 	public void showImageDetails()
 	{
+		/*
 		if (model.getState() != READY) return;
 		ImageDetailsDialog d = new ImageDetailsDialog(view, model.getMaxX(), 
 				model.getMaxY(), model.getPixelsSizeX(), model.getPixelsSizeY(), 
 				model.getPixelsSizeZ());
 		UIUtilities.centerAndShow(d);
+		*/
 	}
 
 	/** 
@@ -2178,64 +2162,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setClassification(List, List, List)
-	 */
-	public void setClassification(List categories, List availableCategories,
-			List categoryGroups)
-	{
-		switch (model.getState()) {
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
-		}
-		if (sorter == null) sorter = new ViewerSorter();
-		List l, available, groups;
-		if (categories == null || categories.size() == 0)
-			l = new ArrayList();
-		else l = sorter.sort(categories);
-		if (availableCategories == null || availableCategories.size() == 0)
-			available = new ArrayList();
-		else available = sorter.sort(availableCategories);
-		if (categoryGroups == null || categoryGroups.size() == 0)
-			groups = new ArrayList();
-		else groups = sorter.sort(categoryGroups);
-		model.setCategories(l, available, groups);
-		//model.fireRenderingControlLoading();
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#declassify(long)
-	 */
-	public void declassify(long categoryID)
-	{
-		switch (model.getState()) {
-			case DISCARDED:
-				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED state.");
-		}
-		model.declassify(categoryID);
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setImageClassified()
-	 */
-	public void setImageClassified()
-	{
-		/*
-		if (model.getState() != CLASSIFICATION)
-			throw new IllegalStateException(
-			"This method can't be invoked in the CLASSIFICATION state.");
-			*/
-		model.fireCategoriesLoading();
-		fireStateChange();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#isHistoryShown()
 	 */
 	public boolean isHistoryShown()
@@ -2414,25 +2340,6 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#retrieveTags(Component, Point)
-	 */
-	public void retrieveTags(Component component, Point point)
-	{
-		view.setLocationAndSource(component, point);
-		model.fireCategoriesLoading();
-		model.getTagger().addPropertyChangeListener(controller);
-		/*
-		if (model.getTagger() == null) {
-			model.fireCategoriesLoading();
-			model.getTagger().addPropertyChangeListener(controller);
-		} else {
-			view.showMenu(CATEGORY_MENU);
-		}
-		*/
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#showView(int)
 	 */
 	public void showView(int index)
@@ -2442,18 +2349,5 @@ class ImViewerComponent
 					" in the DISCARDED state.");
 		view.showView(index);
 	}
-    
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setRating(List)
-	 */
-	public void setRating(List rating)
-	{
-		if (model.getState() == DISCARDED) return;
-		if (rating != null && rating.size() > 0) {
-			model.setRating(rating);
-			view.setRating();
-		}
-	}
-	
+
 }

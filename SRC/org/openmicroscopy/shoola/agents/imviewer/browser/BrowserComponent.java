@@ -110,7 +110,7 @@ class BrowserComponent
         model.initialize(this);
         controller.initialize(this, view);
         view.initialize(controller, model);
-        annotator.initialize(view, controller, model);
+        annotator.initialize(view, model);
         gridView.initialize(model);
     }
     
@@ -380,9 +380,6 @@ class BrowserComponent
 	public void setSelectedPane(int index)
 	{
 		switch (index) {
-			case ImViewer.ANNOTATOR_INDEX:
-				annotator.activateEditor();
-				break;
 			case ImViewer.GRID_INDEX:
 				if (model.hasNoGridImages())
 					model.setGridImages();
@@ -424,22 +421,7 @@ class BrowserComponent
 		model.setGridImages();
 		return gridView.getGridImage();
 	}
-
-	/** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#hasAnnotationToSave()
-     */
-	public boolean hasAnnotationToSave()
-	{
-		return annotator.hasAnnotationToSave();
-	}
-
-	/** 
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#saveAnnotation()
-     */
-	public void saveAnnotation() { annotator.saveAnnotation(); }
-
+	
 	/** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getAnnotateImage()
