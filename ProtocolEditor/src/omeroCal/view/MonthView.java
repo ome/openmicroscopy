@@ -29,6 +29,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -43,12 +44,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import omeroCal.model.CalendarEvent;
-import omeroCal.model.IMonthModel;
+import omeroCal.model.ICalendarModel;
 
 import calendar.CalendarFile;
 
 
-import ui.components.CenteredComponent;
+import ui.components.AlignedComponent;
 
 
 public class MonthView 
@@ -58,7 +59,7 @@ public class MonthView
 	/**
 	 * A Model of this month.
 	 */
-	IMonthModel monthModel;
+	ICalendarModel controller;
 	
 	/**
 	 * A reference to the Year and Month represented by this class
@@ -79,6 +80,11 @@ public class MonthView
 	 * A label at the top, displaying month and year, eg "March 2008"
 	 */
 	JLabel monthYearLabel;
+	
+	/**
+	 * A list of all the calendarEvents displayed by this class.
+	 */
+	ArrayList<EventLabel> eventsDisplayed;
 	
 	/**
 	 * An array of the days this month.
@@ -118,7 +124,7 @@ public class MonthView
 		
 	}
 	
-	public MonthView(IMonthModel monthModel) {
+	public MonthView(ICalendarModel monthModel) {
 		
 		this();
 		
@@ -126,7 +132,7 @@ public class MonthView
 			((Observable)monthModel).addObserver(this);
 		}
 		
-		this.monthModel = monthModel;
+		this.controller = monthModel;
 		
 		addCalendarEvents();
 	}
@@ -158,13 +164,13 @@ public class MonthView
 		
 		JPanel daysOfWeekHeader = new JPanel(new GridLayout(0, 7));
 		int headerFontSize = 13;
-		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Monday", headerFontSize)));
-		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Tuesday", headerFontSize)));
-		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Wednesday", headerFontSize)));
-		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Thursday", headerFontSize)));
-		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Friday", headerFontSize)));
-		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Saturday", headerFontSize)));
-		daysOfWeekHeader.add(new CenteredComponent(new CalendarLabel("Sunday", headerFontSize)));
+		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Monday", headerFontSize)));
+		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Tuesday", headerFontSize)));
+		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Wednesday", headerFontSize)));
+		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Thursday", headerFontSize)));
+		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Friday", headerFontSize)));
+		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Saturday", headerFontSize)));
+		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Sunday", headerFontSize)));
 		
 		
 		Box headerBox = Box.createVerticalBox();
@@ -191,7 +197,7 @@ public class MonthView
 		titleButtonsBox.add(monthYearLabel);
 		titleButtonsBox.add(nextMonthButton);
 		
-		headerBox.add(new CenteredComponent(titleButtonsBox, 5));
+		headerBox.add(new AlignedComponent(titleButtonsBox, 5));
 		headerBox.add(daysOfWeekHeader);
 		
 		this.add(headerBox, BorderLayout.NORTH);
@@ -260,13 +266,15 @@ public class MonthView
 	
 	
 	public void addCalendarEvents() {
+		 
+		if (eventsDisplayed == null) {
+			eventsDisplayed = new ArrayList<EventLabel>();
+		}
+		eventsDisplayed.clear();
 		
-		System.out.println("MonthView addCalendarEvents()");
-		
-		List <CalendarEvent> events = monthModel.getEventsForMonth();
+		List <CalendarEvent> events = controller.getEventsForMonth();
 		
 		for (CalendarEvent evt: events) {
-			evt.addObserver(this);
 			addCalendarEvent(evt);
 		}
 	}
@@ -281,8 +289,17 @@ public class MonthView
 		Calendar eventDateTime = evt.getStartCalendar();
 
 		if (eventDateTime.get(Calendar.MONTH) == thisMonth.get(Calendar.MONTH)) {
+			
+			EventLabel eventLabel = new EventLabel(evt);
+			if (controller instanceof IEventController) {
+				eventLabel.setEventController((IEventController)controller);
+			}
+			
 			int dayOfMonth = eventDateTime.get(Calendar.DAY_OF_MONTH);
-			days[dayOfMonth].addEvent(evt);
+			days[dayOfMonth].addEventLabel(eventLabel);
+			
+			eventsDisplayed.add(eventLabel);
+			System.out.println("MonthView addCalendarEvent eventsDisplayed.size() " + eventsDisplayed.size() );
 		}
 	}
 	
@@ -291,7 +308,7 @@ public class MonthView
 		
 		thisMonth.add(Calendar.MONTH, increment);
 		
-		monthModel.incrementMonth(increment);
+		controller.incrementMonth(increment);
 		
 		addDaysToGrid();
 		addCalendarEvents();
@@ -300,17 +317,23 @@ public class MonthView
 	}
 	
 	
-	public static void main(String[] args) {
+	public void calendarEventChanged(CalendarEvent calendarEvent, String propertyChanged, Object newProperty) {
 		
-		JFrame frame = new JFrame("MonthView");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		int calendarID = calendarEvent.getCalendarID();
 		
-		frame.getContentPane().add(new MonthView());
+		System.out.println("Controller calendarEventChanged() ID: " + calendarID + " " + propertyChanged + " " + newProperty);
+	
 		
-		frame.pack();
-		frame.setVisible(true);
+		if (propertyChanged.equals(EventLabel.SELECTION_PROPERTY)) {
+			for (EventLabel eventLabel: eventsDisplayed) {
+				eventLabel.calendarSelected(calendarEvent.getCalendarID(), Boolean.parseBoolean(newProperty.toString()));
+			}
+		}
 	}
-
+	
+	/**
+	 * The data has changed, so need to refresh view
+	 */
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 		

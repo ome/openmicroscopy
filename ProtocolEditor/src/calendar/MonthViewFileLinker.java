@@ -23,7 +23,7 @@
 
 package calendar;
 
-import omeroCal.MonthView;
+import omeroCal.view.MonthView;
 
 
 public class MonthViewFileLinker extends MonthView {

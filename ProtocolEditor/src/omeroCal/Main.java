@@ -32,7 +32,7 @@ import javax.swing.JOptionPane;
 
 import omeroCal.model.CalendarDataBase;
 import omeroCal.model.CalendarEvent;
-import omeroCal.model.IMonthModel;
+import omeroCal.model.ICalendarModel;
 import omeroCal.model.MonthModel;
 import omeroCal.view.Controller;
 import omeroCal.view.MonthView;
@@ -56,6 +56,8 @@ public class Main {
 	 */
 	public static void main(String[] args) throws SQLException {
 		
+		populateDB();
+		
 		openMonthViewWithDB();
 	}
 	
@@ -64,15 +66,15 @@ public class Main {
 	
 	public static void openMonthViewWithDB() {
 		
-		populateDB();
-		
 		CalendarDataBase calDB = new CalendarDataBase();
 		
-		IMonthModel monthModel = new MonthModel(calDB);
+		ICalendarModel monthModel = new MonthModel(calDB);
 		
 		Controller controller = new Controller(monthModel);
 		
-		MonthView monthView = new MonthView(monthModel);
+		MonthView monthView = new MonthView(controller);
+		
+		controller.setMonthView(monthView);
 		
 		JFrame frame = new JFrame("Omero.Editor Calendar");
 		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -97,111 +99,6 @@ public class Main {
 	
 	
 	public static void populateDB() {
-		
-		int confirm = JOptionPane.showConfirmDialog(null, 
-				"Do you want to refresh the database? " +
-				"\n This will overwrite all existing data in the Calendar." +
-				"\n " +
-				"\n Please choose a root folder that contains all your OMERO.editor files.");
-		
-		if (confirm == JOptionPane.OK_OPTION) {
-			
-			// Create a file chooser, get a file from user
-			FileChooserReturnFile fc = new FileChooserReturnFile(new String[] {"xml", ".pro", ".exp"}, null);
-			File file = fc.getFileFromUser();
-			
-			if (file == null)
-				return;
-			
-			
-			CalendarDataBase calDB = new CalendarDataBase();
-			calDB.clearTables();
-			
-			try {
-				indexFilesToCalendar(file, calDB);
-				
-				calDB.shutdown();
-			} catch (SQLException e) {
-				
-				System.out.println("Problem populating the database from file system: " + e.getMessage());
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-
-	}
-	
-	/**
-	 * Iterate through a file system (starting at root directory), adding files to the calendar.
-	 * For each file, check to see if it contains DateTime Fields. Needs to contain at least one DateTime
-	 * field in order to be added to the list of calendarFiles. 
-	 * 
-	 * @param rootDirectory
-	 * @throws SQLException 
-	 */
-	public static void indexFilesToCalendar(File rootDirectory, CalendarDataBase calDB) throws SQLException {
-		
-		
-		if (rootDirectory.isDirectory()) {
-	        String[] files = rootDirectory.list();
-	        // an IO error could occur
-	        if (files != null) {
-	          for (int i = 0; i < files.length; i++) {
-	        	  indexFilesToCalendar(new File(rootDirectory, files[i]), calDB);
-	          }
-	        }
-	      } else {
-	        if (fileContainsDates(rootDirectory)) {
-	        	CalendarFile calendarFile = new CalendarFile(rootDirectory);
-	        	
-	        	
-	        	int calID = calDB.saveCalendar(calendarFile);
-	        	
-	        	List<CalendarEvent> events = calendarFile.getEvents();
-	        	for(CalendarEvent evt: events) {
-	        		calDB.saveEvent(evt, calID);
-	        	}
-	        		
-
-	        }
-	      }
-	}
-	
-	/**
-	 * Test to see if a file contains at least one DateTimeField
-	 * ie. Does the XML file contain at least one Element named "DateTimeField" (DataFieldConstants.DATE_TIME_FIELD).
-	 * 
-	 * @param file		The XML file
-	 * @return			True if at least one Element <DateTimeField /> exists in the XML file
-	 * 					returns false if file can't be read. 
-	 */
-	public static boolean fileContainsDates(File file) {
-		
-		// if it isn't an XML file, forget it!
-		String fileName = file.getName();
-		if ((fileName.endsWith(".xml") || fileName.endsWith(".exp") || fileName.endsWith(".pro"))) {
-			
-		
-			// Try to open XML file, and see if it has any Elements named <DateTimeField>
-			try {
-				Document domDoc = XMLMethods.readXMLtoDOM(file);
-				NodeList dateTimeNodes = domDoc.getElementsByTagName(DataFieldConstants.DATE_TIME_FIELD);
-				if (dateTimeNodes.getLength() > 0)
-					return true;
-				// try the old date field "DateField"
-				dateTimeNodes = domDoc.getElementsByTagName(DataFieldConstants.DATE);
-				return (dateTimeNodes.getLength() > 0);
-				
-			} catch (SAXException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-		
-		} 
-		
-		return false;
 		
 	}
 }

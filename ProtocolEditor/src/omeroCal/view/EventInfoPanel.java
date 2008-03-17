@@ -23,9 +23,11 @@
 
 package omeroCal.view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
@@ -37,22 +39,29 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 import omeroCal.model.CalendarEvent;
+import ui.components.AlignedComponent;
 
 
 
 public class EventInfoPanel 
 	extends JPanel 
 	implements Observer {
+	
+	/**
+	 * This controller should be notified of changes to this event (eg date changed)
+	 * so that the UI and Model can be updated appropriately.
+	 */
+	IEventController eventController;
 
 	public EventInfoPanel(CalendarEvent calendarEvent) {
 		
-		if (calendarEvent instanceof Observable) {
-			((Observable)calendarEvent).addObserver(this);
-		}
+		this.setLayout(new BorderLayout());
 		
 		Box verticalBox = Box.createVerticalBox();
+		
 		
 		// title
 		String title = calendarEvent.getName();
@@ -65,17 +74,50 @@ public class EventInfoPanel
 		verticalBox.add(new JSeparator(JSeparator.HORIZONTAL));
 		verticalBox.add(Box.createVerticalStrut(10));
 		
-		// display the date in a date-picker
+		
+		// Need 2 columns, where rows are all the same height
+		// Use 2 vertical boxes 
+		JPanel leftColumn = new JPanel(new GridLayout(0, 1));
+		leftColumn.setBackground(null);
+		JPanel rightColumn = new JPanel(new GridLayout(0, 1));
+		rightColumn.setBackground(null);
+		JPanel columnContainer = new JPanel(new BorderLayout());
+		columnContainer.setBackground(null);
+		columnContainer.add(leftColumn, BorderLayout.WEST);
+		columnContainer.add(rightColumn, BorderLayout.CENTER);
+		columnContainer.setAlignmentX(Component.LEFT_ALIGNMENT);
+		verticalBox.add(columnContainer);
+		
+		
+		// display the start date in a date-picker
+		leftColumn.add(new CalendarLabel("Start Date: "));
 		DatePicker datePicker = new DatePicker();
 		datePicker.setDate(calendarEvent.getStartTime());
+		datePicker.setAlignmentX(Component.LEFT_ALIGNMENT);
 		datePicker.setEnabled(false);
-		verticalBox.add(datePicker);
+		// with a time display (visible if AllDayEvent == false)
+		
+		rightColumn.add(new AlignedComponent(datePicker, Component.LEFT_ALIGNMENT));
+		
+		// display the end date in a date-picker
+		leftColumn.add(new CalendarLabel("End Date: "));
+		DatePicker endDatePicker = new DatePicker();
+		endDatePicker.setDate(calendarEvent.getEndTime());
+		endDatePicker.setAlignmentX(Component.LEFT_ALIGNMENT);
+		endDatePicker.setEnabled(false);
+		rightColumn.add(new AlignedComponent(endDatePicker, Component.LEFT_ALIGNMENT));
+		
+		// display alarm time in an AlarmSetter
+		
+		verticalBox.setPreferredSize(new Dimension(230, 100));
+		int borderWidth = 15;
+		verticalBox.setBorder(new EmptyBorder(borderWidth,borderWidth,borderWidth,borderWidth));
 		
 		
-		verticalBox.setBorder(new EmptyBorder(10, 10, 10, 10));
-		this.add(verticalBox);
+		this.add(verticalBox, BorderLayout.NORTH);
+		this.setPreferredSize(new Dimension(280, 400));
 		this.setBackground(Color.WHITE);
-		this.setPreferredSize(new Dimension(300, 500));
+		
 	}
 
 	public void update(Observable o, Object arg) {

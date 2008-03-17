@@ -19,9 +19,10 @@ public class DataFieldConstants {
 	public final static String ROW_DATA_NUMBER = "rowNumber";	// concatenate this with row integer
 	public static final String UNITS = "units";
 	public static final String UTC_MILLISECS = "UTCMillisecs";
+	public static final String DAYS = "days";
 	// new way of storing value for TIME_FIELD as of 8thMarch08 (previously used "value" attribute in the form "hh:mm:ss")
 	public static final String SECONDS = "seconds";	
-	public static final String ALARM_SECONDS = "alarmSeconds";
+	public static final String ALARM_SECONDS = "alarmSeconds";		//  stores a -ve value for "before", +ve is alarm after
 	public static final String IMAGE_PATH = "imagePath";
 	public static final String IMAGE_ZOOM = "imageZoom";
 	public static final String KEYWORDS = "keywords";

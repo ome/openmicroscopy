@@ -23,8 +23,12 @@
 
 package omeroCal.view;
 
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+
 import omeroCal.model.CalendarEvent;
-import omeroCal.model.IMonthModel;
+import omeroCal.model.ICalendarModel;
 
 /**
  * Coordinates UI events, allowing communication between UI components.
@@ -32,15 +36,23 @@ import omeroCal.model.IMonthModel;
  * @author will
  *
  */
-public class Controller {
+public class Controller 
+	implements ICalendarModel,
+	Observer,
+	IEventController {
 	
-	IMonthModel monthModel;
+	ICalendarModel monthModel;
 	
 	MonthView monthView;
 	
-	public Controller (IMonthModel monthModel) {
+	public Controller (ICalendarModel monthModel) {
 		
 		this.monthModel = monthModel;
+		
+		// Need to observe the Model, for changes that need the view to be updated
+		if (monthModel instanceof Observable) {
+			((Observable)monthModel).addObserver(this);
+		}
 		
 	}
 
@@ -49,11 +61,38 @@ public class Controller {
 		this.monthView = monthView;
 	}
 	
+
 	/**
-	 * This is called by a UI component 
+	 * Delegates to the MonthModel
 	 */
-	public void calendarEventSelected(CalendarEvent calendarEvent) {
+	public List<CalendarEvent> getEventsForMonth() {
 		
+		return monthModel.getEventsForMonth();
+	}
+
+	/**
+	 * Delegates to the MonthModel
+	 */
+	public void incrementMonth(int increment) {
 		
+		monthModel.incrementMonth(increment);
+	}
+
+	/**
+	 * This is fired when the Model changes
+	 * Therefore, need to update the view with new data from Model.
+	 */
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * This is called by a UI component, eg when clicked or double-clicked
+	 */
+	public void calendarEventChanged(CalendarEvent calendarEvent, String propertyChanged, Object newProperty) {
+		// TODO Auto-generated method stub
+		
+		monthView.calendarEventChanged(calendarEvent, propertyChanged, newProperty);
 	}
 }

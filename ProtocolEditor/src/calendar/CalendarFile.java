@@ -30,8 +30,8 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import omeroCal.CalendarEvent;
-import omeroCal.CalendarObject;
+import omeroCal.model.CalendarEvent;
+import omeroCal.model.CalendarObject;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,8 +40,8 @@ import org.xml.sax.SAXException;
 
 import tree.DataFieldConstants;
 import ui.components.FileChooserReturnFile;
+import ui.components.TimeEditor;
 import ui.fieldEditors.FieldEditorDate;
-import ui.fieldEditors.FieldEditorTime;
 import util.XMLMethods;
 
 public class CalendarFile extends CalendarObject {
@@ -96,26 +96,122 @@ public class CalendarFile extends CalendarObject {
 			
 			for (int i=0; i<dateTimeNodes.getLength(); i++) {
 				
-				System.out.println("NodeName = " + dateTimeNodes.item(i).getNodeName());
-				
 				// Check whether a field is a DateTimeField
 				if (dateTimeNodes.item(i).getNodeName().equals(DataFieldConstants.DATE_TIME_FIELD)) {
-					fileContainsDate = true;
+					
 					Element dateTimeElement = (Element)dateTimeNodes.item(i);
 					String millisecs = dateTimeElement.getAttribute(DataFieldConstants.UTC_MILLISECS);
 					System.out.println("CalendarFile millisecs = " + millisecs);
-					// create a new calendar (don't want to change time of calendars added to list).
-					gc = new GregorianCalendar();
-					gc.setTimeInMillis(new Long(millisecs));
-			
-					eventName = dateTimeElement.getAttribute(DataFieldConstants.ELEMENT_NAME);
-					//System.out.println("CalendarFile " + eventName + ": " + dateFormat.format(gc.getTime()));
 					
-					scheduledDates.add(new CalendarEvent(eventName, gc));
+					if (millisecs == null) {
+						// no time is set, ignore this field
+						continue;
+					}
+					
+					// create a test calendar (see below).
+					Calendar testForAbsoluteDate = new GregorianCalendar();
+					testForAbsoluteDate.setTimeInMillis(new Long(millisecs));
+					
+					
+					// First, need to know if this is an absolute Date (eg April 23rd 2008) or
+					// if this is a relative date (eg 3 days later).
+					// If it is a relative date, Year will be 0 (or 1?)
+					// If an absolute date, Year will be > 1
+					
+					int year = testForAbsoluteDate.get(Calendar.YEAR);
+					if (year >1) {
+						// create a new calendar (don't want to change time of calendars added to list).
+						gc = new GregorianCalendar();
+						gc.setTimeInMillis(new Long(millisecs));
+				
+						// you have at least one date in this file
+						fileContainsDate = true;
+						
+					} else 
+					// this field is not an absolute date... must be relative date...
+					// only interested if you know that absolute dates already exist in this file
+					if (fileContainsDate) {
+						
+						// get the relative days
+						int days = testForAbsoluteDate.get(Calendar.DAY_OF_MONTH);
+						System.out.println(" days = " + days);
+						
+						// take the last date for gc (updated for the last DATE_TIME_FIELD or DATE_FIELD),
+						Date previousDate = gc.getTime();
+						gc = new GregorianCalendar();	// don't want to change existing date in list
+						gc.setTime(previousDate);
+						
+						// set the hours, mins, secs to 0.  (Only interested in the date)
+						gc.set(Calendar.HOUR_OF_DAY, 0);
+						gc.set(Calendar.MINUTE, 0);
+						gc.set(Calendar.SECOND, 0);
+						
+						System.out.println("Relative date before adding days : " 
+								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+								 CalendarTestCode.timeFormat.format(gc.getTime()));
+						
+						
+						// now increment the number of days
+						gc.add(Calendar.DAY_OF_MONTH, days);
+						
+						
+						System.out.println("Relative date after adding days : " 
+								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+								 CalendarTestCode.timeFormat.format(gc.getTime()));
+					}
+					
+					// by this point, you have the date of the new Event... 
+					
+					// This date has time 00:00 unless time has been set...
+					String time = dateTimeElement.getAttribute(DataFieldConstants.SECONDS);
+					if ((time != null) && (time.length() > 0)) {
+						int secs = Integer.parseInt(time);
+						gc.add(Calendar.SECOND, secs);	// this will add hours and minutes (in secs)
+						
+						System.out.println("Date, with time : " 
+								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+								 CalendarTestCode.timeFormat.format(gc.getTime()));
+					}
+					
+					// need a name
+					eventName = dateTimeElement.getAttribute(DataFieldConstants.ELEMENT_NAME);
+					
+					// Create a new Event
+					CalendarEvent newEvent = new CalendarEvent(eventName, gc);
+					
+					System.out.println("CalendarFile " + eventName + ": " 
+							+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+							 CalendarTestCode.timeFormat.format(gc.getTime()));
+					
+					
+					// Check to see if alarm has been set. If not attribute is null, string returns ""
+					String alarm = dateTimeElement.getAttribute(DataFieldConstants.ALARM_SECONDS);
+					if ((alarm != null) && (alarm.length() > 0)){
+						int alarmSecs = Integer.parseInt(alarm);
+						// create an alarm time ...
+						Calendar alarmTime = new GregorianCalendar();
+						alarmTime.setTime(gc.getTime());
+						// ... which is the event time +/- the alarm time 
+						// (alarm time will be -ve if it is before the event)
+						alarmTime.add(Calendar.SECOND, alarmSecs);
+						
+						
+						System.out.println("    " + eventName + " alarmTime is " 
+								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+								 CalendarTestCode.timeFormat.format(gc.getTime()));
+						
+						newEvent.setAlarmTime(gc.getTime());
+					}
+				
+					
+					scheduledDates.add(newEvent);
+					
 					
 					// just to make sure that fileName gets assigned to something (ie if it didn't get name from root)
 					if (getName() == null)
 						setName(eventName);
+
+
 				} else
 				
 					// Check for the deprecated DateField, for older files. 
@@ -146,30 +242,7 @@ public class CalendarFile extends CalendarObject {
 					// just to make sure that fileName gets assigned to something (ie if it didn't get name from root)
 					if (getName() == null)
 						setName(eventName);
-				} else 
-				
-				// if you know that dates exist, look for times that follow
-				if (fileContainsDate && (dateTimeNodes.item(i).getNodeName().equals(DataFieldConstants.TIME_FIELD))) {
-					Element timeElement = (Element)dateTimeNodes.item(i);
-					// look for time-value in new "seconds" attribute.
-					String timeValue = timeElement.getAttribute(DataFieldConstants.SECONDS);
-					
-					// If it is null, time may be stored under the older "value" attribute.
-					if ((timeValue == null) || (timeValue.length() == 0))
-						timeValue = timeElement.getAttribute(DataFieldConstants.VALUE);
-					
-					int timeInSecs = FieldEditorTime.getSecondsFromTimeValue(timeValue);
-					
-					// take the last date for gc (updated for the last TIME_DATE_FIELD or TIME_FIELD),
-					// increment the timeInSecs, 
-					// and add it as a new scheduledDate.
-					Date previousDate = gc.getTime();
-					gc = new GregorianCalendar();	// don't want to change existing date in list
-					gc.setTime(previousDate);
-					gc.add(Calendar.SECOND, timeInSecs);
-					eventName = timeElement.getAttribute(DataFieldConstants.ELEMENT_NAME);
-					scheduledDates.add(new CalendarEvent(eventName, gc));
-				}
+				} 
 				
 			}
 		} catch (SAXException e) {

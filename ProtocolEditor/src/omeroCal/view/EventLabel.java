@@ -33,31 +33,38 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JButton;
+import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 
 import omeroCal.model.CalendarEvent;
 
 
 public class EventLabel 
-	extends JButton 
-	implements Observer {
+	extends JButton {
 	
 	CalendarEvent calendarEvent;
+	
+	/**
+	 * This controller should be notified of changes to this label (eg clicked or double-clicked)
+	 * so that the UI can be updated appropriately.
+	 */
+	IEventController eventController;
 	
 	Color backgroundColor = null;
 	
 	Color foregroundColor;
 	
+	public static final String SELECTION_PROPERTY = "selectionProperty";
+	
 	public EventLabel (CalendarEvent event) {
 		
-		if(event instanceof Observable) {
-			((Observable)event).addObserver(this);
-		}
 		
 		calendarEvent = event;
 		
-		setText(event.getName());
+		setText("<html>" + event.getName() + "</html>");
 		
+		setHorizontalAlignment(SwingConstants.LEFT); 
+
 		foregroundColor = event.getCalendarColour();
 		
 		String time = DateFormat.getTimeInstance().format(event.getStartTime());
@@ -89,17 +96,55 @@ public class EventLabel
 		
 	}
 	
-	public void setSelected(boolean selected) {
-		boolean oldValue = isSelected();
+	/** 
+	 * Called when the calendar, indicated by calendarID, or an event from that calendar, 
+	 * is selected / deselected
+	 * 
+	 * @param calendarID
+	 */
+	public void calendarSelected(int calendarID, boolean selected) {
 		
-		super.setSelected(selected);
+		System.out.println("EventLabel calendarSelected() " + selected + " calID: " + calendarID );
+		// if this label's calendarID matches the calendar that has been selected...
+		if (calendarID == calendarEvent.getCalendarID()) {
+			
+			setBackground(selected ? lighten(foregroundColor) : backgroundColor);
+		}
+		
+	}
+	
+	public void setSelected(boolean selected) {
+		
+		if (eventController != null)
+			eventController.calendarEventChanged(calendarEvent, SELECTION_PROPERTY, selected);
 		
 		setBackground(selected ? foregroundColor : backgroundColor);
 		setForeground(selected ? Color.WHITE : foregroundColor);
 		
-		PropertyChangeEvent selectionChanged = new PropertyChangeEvent(this, "selected", oldValue, selected);
+	}
+	
+	/**
+	 * Set a controller, to listen for changes to this label etc.
+	 * 
+	 * @param eventController	The new eventController
+	 */
+	public void setEventController(IEventController eventController) {
+		this.eventController = eventController;
+	}
+	
+	public static Color lighten(Color colour) {
 		
-		calendarEvent.selectionChanged(selectionChanged);
+		double factor = 1.25;
+		
+		int r = colour.getRed();
+		int g = colour.getGreen();
+		int b = colour.getBlue();
+		
+		r = (int)Math.floor(r + (256-r)/factor);
+		g = (int)Math.floor(g + (256-g)/factor);
+		b = (int)Math.floor(b + (256-b)/factor);
+		
+		return new Color(r,g,b);
 	}
 
 }

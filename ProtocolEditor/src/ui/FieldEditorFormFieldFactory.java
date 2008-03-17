@@ -28,6 +28,7 @@ import ui.fieldEditors.FieldEditor;
 import ui.fieldEditors.FieldEditorCheckBox;
 import ui.fieldEditors.FieldEditorCustom;
 import ui.fieldEditors.FieldEditorDate;
+import ui.fieldEditors.FieldEditorDateTime;
 import ui.fieldEditors.FieldEditorDropDown;
 import ui.fieldEditors.FieldEditorFixed;
 import ui.fieldEditors.FieldEditorMemo;
@@ -98,7 +99,7 @@ public class FieldEditorFormFieldFactory {
 			fieldEditor = new FieldEditorDate(dataField);
 		}
 		else if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			fieldEditor = new FieldEditorFixed(dataField);
+			fieldEditor = new FieldEditorDateTime(dataField);
 		}
 		else if (inputType.equals(DataFieldConstants.TIME_FIELD)) {
 			fieldEditor = new FieldEditorTime(dataField);

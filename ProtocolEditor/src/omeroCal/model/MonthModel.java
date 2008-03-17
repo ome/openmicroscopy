@@ -32,9 +32,17 @@ import java.util.Observable;
 import java.util.Observer;
 
 
+/**
+ * This class is the Model of data (currently a Month, but may include week / day in future).
+ * It implements the IMonthModel interface, for getting data. eg getEvents()
+ * It also acts as an observer of the calendarDB, so that it is notified of changes to DB. 
+ * 
+ * @author will
+ *
+ */
 public class MonthModel 
 	extends Observable 
-	implements IMonthModel,
+	implements ICalendarModel,
 	Observer {
 
 	
@@ -75,14 +83,6 @@ public class MonthModel
 		
 		List <CalendarEvent> events = calendarDB.getEventsForMonth(thisMonth);
 		
-		for (CalendarEvent event: events) {
-			// This class wants to observe events
-			// System.out.println("Adding MonthModel as observer to event: " + event.getName());
-			event.addObserver(this);
-			// Events should be notified of changes to this class
-			addObserver(event);
-		}
-		
 		return events;
 	}
 	
@@ -92,21 +92,12 @@ public class MonthModel
 	}
 
 	/**
-	 * Database has been updated, OR event has changed
+	 * Database has been updated
+	 * Need to notifyObservers, eg. Controller, so changes are shown in view
 	 */
 	public void update(Observable o, Object arg) {
 		
-		System.out.println("MonthModel update()");
-		
-		if (arg instanceof PropertyChangeEvent) {
-			
-			PropertyChangeEvent evt = (PropertyChangeEvent)arg;
-			
-			System.out.println("MonthModel update() PropertyChangeEvent property: " + evt.getPropertyName());
-			
-			setChanged();
-			notifyObservers(arg);
-		}
+		// TODO !! 
 	}
 	
 }

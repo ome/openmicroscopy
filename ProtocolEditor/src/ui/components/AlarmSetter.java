@@ -48,12 +48,13 @@ public class AlarmSetter
 	implements DataFieldObserver {
 	
 	IAttributeSaver dataField;
+	String attributeName;
 	
 	SpinnerModel timeModel;
 	JSpinner timeSpinner;
 	TimeChangedListener timeChangedListener;
 	
-	JComboBox timeUnitChooser;
+	CustomComboBox timeUnitChooser;
 	TimeActionListener timeActionListener;
 	
 	public static final int DAYS = 0;
@@ -62,17 +63,24 @@ public class AlarmSetter
 	public static final String[] timeUnits = {"Days", "Hours", "Minutes"};
 	public static final int[] secondsInTimeUnit = {24*3600, 3600, 60};
 	
-	public AlarmSetter(IAttributeSaver dataField) {
+	public static final int BEFORE = 0;
+	public static final int AFTER = 1;
+	public static final String[] beforeAfterOptions = {"Before", "After"};
+	CustomComboBox beforeAfterChooser;
+	
+	public AlarmSetter(IAttributeSaver dataField, String attributeName) {
 		
 		
 		this.dataField = dataField;
+		this.attributeName = attributeName;
+		
 		if (dataField instanceof IDataFieldObservable) {
 			((IDataFieldObservable)dataField).addDataFieldObserver(this);
 		}
 		
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		JLabel alarmLabel = new JLabel("Alarm: ");
-		alarmLabel.setToolTipText("Choose a time Before the event for alarm to go off");
+		alarmLabel.setToolTipText("Choose a time Before or After the event for alarm to go off");
 		this.add(alarmLabel);
 		
 		
@@ -88,11 +96,15 @@ public class AlarmSetter
 		timeSpinner.addChangeListener(timeChangedListener);
 		this.add(timeSpinner);
 		
-		timeUnitChooser = new JComboBox(timeUnits);
+		timeUnitChooser = new CustomComboBox(timeUnits);
 		timeUnitChooser.addActionListener(timeActionListener);
+		timeUnitChooser.setMaximumWidth(100);
 		this.add(timeUnitChooser);
 		
-		this.add(new JLabel(" before"));
+		
+		beforeAfterChooser = new CustomComboBox(beforeAfterOptions);
+		beforeAfterChooser.addActionListener(timeActionListener);
+		this.add(beforeAfterChooser);
 		
 		// update the display with value from dataField
 		dataFieldUpdated();
@@ -116,13 +128,17 @@ public class AlarmSetter
 		int timeUnit = timeUnitChooser.getSelectedIndex();
 		int secondsOfTimeUnit = secondsInTimeUnit[timeUnit];
 		
-		int secondsBeforeEvent = timeValue * secondsOfTimeUnit;
+		int secondsAfterEvent = timeValue * secondsOfTimeUnit;
 		
-		dataField.setAttribute(DataFieldConstants.ALARM_SECONDS, secondsBeforeEvent + "", true);
+		if (beforeAfterChooser.getSelectedIndex() == BEFORE) {
+			secondsAfterEvent = secondsAfterEvent * -1;
+		}
+		
+		dataField.setAttribute(attributeName, secondsAfterEvent + "", true);
 	}
 	
 	public void dataFieldUpdated() {
-		String alarmTimeInSeconds = dataField.getAttribute(DataFieldConstants.ALARM_SECONDS);
+		String alarmTimeInSeconds = dataField.getAttribute(attributeName);
 		setAlarmTime(alarmTimeInSeconds);
 	}
 	
@@ -142,6 +158,13 @@ public class AlarmSetter
 		}
 		
 		int secs = Integer.parseInt(seconds);
+		
+		if (secs < 0) {
+			setBeforeAfterChooserIndex(BEFORE);
+			secs = secs * -1;
+		} else {
+			setBeforeAfterChooserIndex(AFTER);
+		}
 		
 		int timeUnit;
 		int timeValue;
@@ -185,6 +208,12 @@ public class AlarmSetter
 		timeSpinner.removeChangeListener(timeChangedListener);
 		timeModel.setValue(value);
 		timeSpinner.addChangeListener(timeChangedListener);
+	}
+	
+	public void setBeforeAfterChooserIndex(int index) {
+		beforeAfterChooser.removeActionListener(timeActionListener);
+		beforeAfterChooser.setSelectedIndex(index);
+		beforeAfterChooser.addActionListener(timeActionListener);
 	}
 
 }

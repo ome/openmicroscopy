@@ -35,15 +35,12 @@ import java.util.Observer;
  * This represents an event in the calendar. Either created from a DateTime field, or from a Time field
  * that follows a date.
  * Basically, this class is a Date & Time (Gregorian Calendar instance) and a name (String).
- * A CalendarFile may contain several CalendarEvent instances. 
- * eg Transfection-Date, followed by (2 days later) Fixation time. 
+ * CalendarEvents belong to Calendar, which may be identified by a UID.
  * 
  * @author will
  *
  */
-public class CalendarEvent 
-	extends Observable 
-	implements Observer {
+public class CalendarEvent {
 
 	/**
 	 * A unique ID that corresponds to the uID of this event in the database.
@@ -89,7 +86,6 @@ public class CalendarEvent
 	private Color calendarColour;
 	
 	
-	public static final String SELECTION_PROPERTY = "selectionProperty";
 	
 	/**
 	 * 
@@ -143,7 +139,7 @@ public class CalendarEvent
 	}
 	
 	public void setCalendarID(int cal_ID) {
-		calendarID = uID;
+		calendarID = cal_ID;
 	}
 	
 	public int getCalendarID() {
@@ -201,6 +197,10 @@ public class CalendarEvent
 		if (date == null) {
 			alarmTime = null;
 		} else {
+			// initialize alarmTime
+			if (alarmTime == null) {
+				alarmTime = new GregorianCalendar();
+			}
 			alarmTime.setTime(date);
 		}
 	}
@@ -242,33 +242,6 @@ public class CalendarEvent
 	
 	public Color getCalendarColour() {
 		return calendarColour;
-	}
-
-	public void update(Observable o, Object arg) {
-		
-		if (arg instanceof PropertyChangeEvent) {
-			
-			PropertyChangeEvent evt = (PropertyChangeEvent)arg;
-			System.out.println("CalendarEvent update() PropertyChangeEvent " + evt.getPropertyName());
-			
-			if (evt.getPropertyName().equals(SELECTION_PROPERTY));
-		}
-		
-	}
-	
-	/**
-	 * Called by objects that know about this class (eg EventLabel)
-	 * to notify observers that the event has changed.
-	 * eg. Event has been clicked on. 
-	 */
-	public void selectionChanged (PropertyChangeEvent changeEvent) {
-		
-		System.out.println("CalendarEvent selectionChanged() to " + changeEvent.getNewValue());
-		
-		PropertyChangeEvent selectionChanged = new PropertyChangeEvent(this, SELECTION_PROPERTY, changeEvent.getOldValue(), changeEvent.getNewValue());
-		
-		setChanged();
-		notifyObservers(selectionChanged);
 	}
 	
 }

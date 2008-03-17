@@ -31,12 +31,12 @@ import java.util.GregorianCalendar;
 
 import javax.swing.JFrame;
 
-import omeroCal.CalendarDataBase;
-import omeroCal.CalendarEvent;
-import omeroCal.CalendarObject;
-import omeroCal.IMonthModel;
-import omeroCal.MonthModel;
-import omeroCal.MonthView;
+import omeroCal.model.CalendarDataBase;
+import omeroCal.model.CalendarEvent;
+import omeroCal.model.CalendarObject;
+import omeroCal.model.ICalendarModel;
+import omeroCal.model.MonthModel;
+import omeroCal.view.MonthView;
 
 /**
  * This is just somewhere to put various bits of code that test adding and querying the DB.
@@ -70,7 +70,7 @@ public class CalendarTestCode {
 		
 		CalendarDataBase calDB = new CalendarDataBase();
 		
-		IMonthModel monthModel = new MonthModel(calDB);
+		ICalendarModel monthModel = new MonthModel(calDB);
 		
 		MonthView monthView = new MonthView(monthModel);
 		

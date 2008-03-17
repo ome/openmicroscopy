@@ -21,51 +21,19 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal.view;
+package ui.fieldEditors;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
-
-import omeroCal.model.CalendarEvent;
+import tree.DataFieldConstants;
+import tree.IDataFieldObservable;
+import ui.components.AlarmSetter;
 
 
+public class FieldEditorDateTime extends FieldEditor {
 
-
-public class DayOfMonth extends JPanel {
-	
-	Box eventBox;
-	
-	public DayOfMonth(int dayOfMonth) {
+	public FieldEditorDateTime (IDataFieldObservable dataFieldObs) {
 		
-		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createMatteBorder(1,1,0,0, new Color(200, 200, 200)));
+		super(dataFieldObs);
 		
-		Dimension daySize = new Dimension(115, 105);
-		setMinimumSize(daySize);
-		setPreferredSize(daySize);
-		
-		this.setBackground(Color.WHITE);
-		
-		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
-		
-		eventBox = Box.createVerticalBox();
-		add(eventBox, BorderLayout.CENTER);
+		attributeFieldsPanel.add(new AlarmSetter(dataField, DataFieldConstants.ALARM_SECONDS));
 	}
-	
-	public DayOfMonth() {
-		
-	}
-	
-	public void addEventLabel(EventLabel event) {
-
-		eventBox.add(event);
-	}
-
 }

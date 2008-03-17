@@ -58,9 +58,16 @@ public class CalendarObject {
 	public CalendarObject() {
 		
 		// create a random color
-		int red = (int)Math.floor(Math.random() * 256);
-		int green = (int)Math.floor(Math.random() * 256);
-		int blue = (int)Math.floor(Math.random() * 256);
+		int red = 0;
+		int green = 0;
+		int blue = 0;
+		
+		while ((red + blue + green) < 100 || (red + blue + green) > 500) {
+			red = (int)Math.floor(Math.random() * 256);
+			green = (int)Math.floor(Math.random() * 256);
+			blue = (int)Math.floor(Math.random() * 256);
+		}
+						
 		calendarColour = new Color(red, green, blue);
 	}
 	

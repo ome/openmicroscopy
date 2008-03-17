@@ -30,11 +30,12 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import omeroCal.CalendarDataBase;
-import omeroCal.CalendarEvent;
-import omeroCal.IMonthModel;
-import omeroCal.MonthModel;
-import omeroCal.MonthView;
+import omeroCal.Main;
+import omeroCal.model.CalendarDataBase;
+import omeroCal.model.CalendarEvent;
+import omeroCal.model.ICalendarModel;
+import omeroCal.model.MonthModel;
+import omeroCal.view.MonthView;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -44,7 +45,7 @@ import tree.DataFieldConstants;
 import ui.components.FileChooserReturnFile;
 import util.XMLMethods;
 
-public class CalendarMain {
+public class CalendarMain extends Main {
 	
 	/**
 	 * For testing.
@@ -53,56 +54,17 @@ public class CalendarMain {
 	 */
 	public static void main(String[] args) throws SQLException {
 		
+		populateDBthenDisplay();
 		
-		//addEvent();
-		
-		// testGetEvents();
-		
-		// testAddCalendar();
-		
-		//populateDB();
-		
-		openMonthViewWithDB();
-		
-		// doesn't work!!
-		//clearDBTables();
 	}
-	
-	
 
 	
-	public static void openMonthViewWithDB() {
-		
-		populateDB();
-		
-		CalendarDataBase calDB = new CalendarDataBase();
-		
-		IMonthModel monthModel = new MonthModel(calDB);
-		MonthView monthView = new MonthView(monthModel);
-		
-		JFrame frame = new JFrame("Omero.Editor Calendar");
-		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		frame.getContentPane().add(monthView);
-		
-		frame.pack();
-		frame.setVisible(true);
-		
-		
+	public static void populateDBthenDisplay() {
+		populateDBfromFile();
+		openMonthViewWithDB();
 	}
 	
-	
-	public static void clearDBTables() throws SQLException {
-		
-		CalendarDataBase calDB = new CalendarDataBase();
-		calDB.clearTables();
-		
-		calDB.shutdown();
-	}
-	
-	
-	
-	public static void populateDB() {
+	public static void populateDBfromFile() {
 		
 		int confirm = JOptionPane.showConfirmDialog(null, 
 				"Do you want to refresh the database? " +

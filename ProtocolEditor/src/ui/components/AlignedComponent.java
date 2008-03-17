@@ -31,15 +31,20 @@ import javax.swing.JComponent;
 import javax.swing.border.EmptyBorder;
 
 
-public class CenteredComponent extends Box{
+public class AlignedComponent extends Box{
 
-	public CenteredComponent(JComponent component) {
+	public AlignedComponent(JComponent component) {
 		super(BoxLayout.Y_AXIS);
 		component.setAlignmentX(Component.CENTER_ALIGNMENT);
 		add(component);
 	}
 	
-	public CenteredComponent(JComponent component, int padding) {
+	public AlignedComponent(JComponent component, float alignment) {
+		this(component);
+		component.setAlignmentX(alignment);
+	}
+	
+	public AlignedComponent(JComponent component, int padding) {
 		this(component);
 		component.setBorder(new EmptyBorder(padding, padding, padding, padding));
 	}

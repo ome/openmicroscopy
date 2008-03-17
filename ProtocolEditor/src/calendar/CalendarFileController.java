@@ -21,20 +21,31 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal.model;
+package calendar;
 
-import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
+
+import omeroCal.model.CalendarEvent;
+import omeroCal.model.ICalendarModel;
+import omeroCal.view.Controller;
 
 
-
-public interface IMonthModel {
-
-	/**
-	 * Get all the CalendarEvents for this month.
-	 * 
-	 * @return
-	 */
-	public List <CalendarEvent> getEventsForMonth();
+/**
+ * This class "links" events from the same CalendarFile.
+ * It observes all events that are visible, and is notified when one becomes selected.
+ * This class then notifies all other visible events (including the calendarFile_ID),
+ * so that those events that belong to the same calendarFile can become highlighted.
+ * 
+ * @author will
+ *
+ */
+public class CalendarFileController 
+	extends Controller {
 	
-	public void incrementMonth(int increment);
+	public CalendarFileController(ICalendarModel monthModel) {
+		
+		super(monthModel);
+	}
+
 }

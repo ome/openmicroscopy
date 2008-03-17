@@ -18,6 +18,7 @@ import javax.swing.event.ChangeListener;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.components.TimeEditor;
 import ui.fieldEditors.FieldEditorTime;
 
 public class FormFieldTime extends FormField {
@@ -30,10 +31,6 @@ public class FormFieldTime extends FormField {
 	int timeInSeconds;
 	
 	// for display purposes
-	
-	
-	SpinnerModel daysModel;
-	JSpinner daysSpinner;
 	SpinnerModel hoursModel;
 	JSpinner hoursSpinner;
 	SpinnerModel minsModel;
@@ -56,15 +53,9 @@ public class FormFieldTime extends FormField {
 		Dimension spinnerSize = new Dimension(45, 25);
 		
 		timeChangedListener = new TimeChangedListener();
+
 		
-		daysModel = new SpinnerNumberModel(0, 0, 99, 1);
-		daysSpinner = new JSpinner(daysModel);
-		((DefaultEditor)daysSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
-		daysSpinner.setMaximumSize(spinnerSize);
-		daysSpinner.setPreferredSize(spinnerSize);
-		daysSpinner.addChangeListener(timeChangedListener);
-		
-		hoursModel = new SpinnerNumberModel(0, 0, 23, 1);
+		hoursModel = new SpinnerNumberModel(0, 0, 99, 1);
 		hoursSpinner = new JSpinner(hoursModel);
 		((DefaultEditor)hoursSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		hoursSpinner.setMaximumSize(spinnerSize);
@@ -93,8 +84,6 @@ public class FormFieldTime extends FormField {
 		startTimerButton.addActionListener(new StartTimerListener());
 		
 		Box timeBox = Box.createHorizontalBox();
-		timeBox.add(daysSpinner);
-		timeBox.add(new JLabel("days "));
 		timeBox.add(hoursSpinner);
 		timeBox.add(new JLabel("hrs "));
 		timeBox.add(minsSpinner);
@@ -116,12 +105,11 @@ public class FormFieldTime extends FormField {
 	}
 	
 	public void timeChanged() {
-		int days = Integer.parseInt(daysModel.getValue().toString());
 		int hours = Integer.parseInt(hoursModel.getValue().toString());
 		int mins = Integer.parseInt(minsModel.getValue().toString());
 		int secs = Integer.parseInt(secsModel.getValue().toString());
 		
-		timeInSeconds = days*24*3600 + hours*3600 + mins*60 + secs;
+		timeInSeconds = hours*3600 + mins*60 + secs;
 		
 		timeValue = timeInSeconds + "";
 		
@@ -150,7 +138,6 @@ public class FormFieldTime extends FormField {
 	}
 	
 	private void enableTimeSpinners(boolean enabled) {
-		daysSpinner.setEnabled(enabled);
 		hoursSpinner.setEnabled(enabled);
 		minsSpinner.setEnabled(enabled);
 		secsSpinner.setEnabled(enabled);
@@ -194,14 +181,11 @@ public class FormFieldTime extends FormField {
 	private void updateTimeSpinners() {
 		
 		int seconds = timeInSeconds;
-		int days = seconds/(24*3600);
-		int hours = (seconds = seconds - days*24*3600)/3600;
+		int hours = seconds/3600;
 		int mins = (seconds = seconds - hours*3600)/60;
 		int secs = (seconds - mins*60);
 		
-		daysSpinner.removeChangeListener(timeChangedListener);
-		daysModel.setValue(days);
-		daysSpinner.addChangeListener(timeChangedListener);
+
 		hoursSpinner.removeChangeListener(timeChangedListener);
 		hoursModel.setValue(hours);
 		hoursSpinner.addChangeListener(timeChangedListener);
@@ -226,7 +210,7 @@ public class FormFieldTime extends FormField {
 		timeValue = dataField.getAttribute(DataFieldConstants.SECONDS);
 
 		if (timeValue != null) {
-			timeInSeconds = FieldEditorTime.getSecondsFromTimeValue(timeValue);
+			timeInSeconds = TimeEditor.getSecondsFromTimeValue(timeValue);
 			
 			// if the dataField has old VALUE attribute - delete this! 
 			if (dataField.getAttribute(DataFieldConstants.VALUE) != null)
@@ -247,7 +231,7 @@ public class FormFieldTime extends FormField {
 			}
 			
 			// otherwise, use the old system to get seconds from "hh:mm:ss"
-			timeInSeconds = FieldEditorTime.getSecondsFromTimeValue(timeValue);
+			timeInSeconds = TimeEditor.getSecondsFromTimeValue(timeValue);
 		}
 	}
 
