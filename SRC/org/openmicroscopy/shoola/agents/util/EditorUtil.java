@@ -42,7 +42,7 @@ import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
- * 
+ * Collection of helper methods to format data objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,20 +57,39 @@ import pojos.PixelsData;
 public class EditorUtil 
 {
 	
-	 /** Text displaying before the owner's permissions. */
-	public static final String    OWNER = "Owner: ";
+    /** Identifies the <code>Default group</code>. */
+	public static final String	DEFAULT_GROUP = "Default Group";
+	
+	/** Symbols indicating the mandatory values. */
+	public static final String	MANDATORY_SYMBOL = " *";
+	
+	/** Description of the mandatory symbol. */
+	public static final String	MANDATORY_DESCRIPTION = "* indicates the " +
+													"required fields.";
+	
+	/** Identifies the <code>Last name</code> field. */
+	public static final String	LAST_NAME = "Last Name";
+    
+    /** Identifies the <code>First name</code> field. */
+	public static final String	FIRST_NAME = "First Name";
+
+    /** Identifies the <code>Last name</code> field. */
+	public static final String	INSTITUTION = "Institution";
+
+	/** Text displaying before the owner's permissions. */
+	public static final String	OWNER = "Owner: ";
     
     /** Text displaying before the group's permissions. */
-    public static final String     GROUP = "Group: ";
+    public static final String	GROUP = "Group: ";
     
     /** Text displaying before the world's permissions. */
-    public static final String     WORLD = "Others: ";
+    public static final String	WORLD = "Others: ";
     
     /** Text describing the <code>Read</code> permission. */
-    public static final String     READ = "Read";
+    public static final String	READ = "Read";
     
     /** Text describing the <code>Write</code> permission. */
-    public static final String     WRITE = "Write";
+    public static final String	WRITE = "Write";
     
 	/** Text displayed before the list of existing groups. */
 	public static final String	GROUPS = "Belongs to the following groups: ";
@@ -114,6 +133,7 @@ public class EditorUtil
     /** Identifies the <code>Email</code> field. */
     private static final String EMAIL = "E-mail";
     
+
     /**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
@@ -264,5 +284,47 @@ public class EditorUtil
 		if (exp == null) return "";
 		return exp.getFirstName()+" "+exp.getLastName();
 	}
+	
+	/**
+     * Transforms the specified {@link ExperimenterData} object into 
+     * a visualization form.
+     * 
+     * @param data The {@link ExperimenterData} object to transform.
+     * @return The map whose keys are the field names, and the values 
+     * 			the corresponding fields' values.
+     */
+    public static Map<String, String> fomratExperimenter(ExperimenterData data)
+    {
+        LinkedHashMap<String, String> details = 
+        							new LinkedHashMap<String, String>(3);
+        if (data == null) {
+            details.put(FIRST_NAME, "");
+            details.put(LAST_NAME, "");
+            details.put(EMAIL, "");
+            details.put(INSTITUTION, "");
+        } else {
+            try {
+                details.put(FIRST_NAME, data.getFirstName());
+            } catch (Exception e) {
+            	details.put(FIRST_NAME, "");
+            }
+            try {
+                details.put(LAST_NAME, data.getLastName());
+            } catch (Exception e) {
+            	details.put(LAST_NAME, "");
+            }
+            try {
+                details.put(EMAIL, data.getEmail());
+            } catch (Exception e) {
+            	details.put(EMAIL, "");
+            }
+            try {
+                details.put(INSTITUTION, data.getInstitution());
+            } catch (Exception e) {
+            	details.put(INSTITUTION, "");
+            }
+        }
+        return details;
+    }
     
 }
