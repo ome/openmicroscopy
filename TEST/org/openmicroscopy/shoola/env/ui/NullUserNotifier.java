@@ -25,13 +25,13 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.util.Collection;
 import javax.swing.Icon;
-
-import pojos.FileAnnotationData;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.core.OriginalFile;
 
 /** 
  * Implements the {@link UserNotifier} interface to be a Null Object, that is
@@ -99,13 +99,18 @@ public class NullUserNotifier
 	public void submitMessage(String emailAddress) {}
 
 	/**
-	 * @see UserNotifier#notifyDownload(FileAnnotationData)
+	 * @see UserNotifier#notifyDownload(OriginalFile)
 	 */
-	public void notifyDownload(FileAnnotationData data) {}
+	public void notifyDownload(OriginalFile data) {}
 
 	/**
 	 * @see UserNotifier#setLoadingStatus(int, long, String)
 	 */
 	public void setLoadingStatus(int percent, long id, String name) {}
+
+	/**
+	 * @see UserNotifier#notifyDownload(Collection)
+	 */
+	public void notifyDownload(Collection data) {}
 
 }

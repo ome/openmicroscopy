@@ -160,17 +160,6 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#updateAnnotationFor(DataObject, AnnotationData)
-     */
-    public DataObject updateAnnotationFor(DataObject annotatedObject,
-                                            AnnotationData data)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
      * @see OmeroDataService#loadExistingObjects(Class, Set, long)
      */
     public Set loadExistingObjects(Class nodeType, Set nodeIDs, long rootID)
@@ -339,17 +328,6 @@ public class NullOmeroPojoService
      */
 	public String getServerName() { return null; }
 
-    /**
-     * No-op implementation
-     * @see OmeroDataService#removeAnnotationFrom(DataObject, List)
-     */
-	public DataObject removeAnnotationFrom(DataObject annotatedObject, 
-					List data) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
 	/**
      * No-op implementation
      * @see OmeroDataService#getSpace(int)
@@ -449,13 +427,22 @@ public class NullOmeroPojoService
 	{
 		return null;
 	}
-
-
+	
 	/**
 	 * No-op implementation
 	 * @see OmeroDataService#findContainerPaths(Class, long, long)
 	 */
 	public Collection findContainerPaths(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#getOriginalFiles(long)
+	 */
+	public Collection getOriginalFiles(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
