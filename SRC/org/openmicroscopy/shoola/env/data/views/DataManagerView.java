@@ -344,12 +344,14 @@ public interface DataManagerView
 			AgentEventListener observer);
 
 	/**
-	 * Loads the used and free disk space.
+	 * Loads the used and free disk space for the specified user if any,
+	 * pass <code>-1</code> to retrieve the whole disk space.
 	 * 
+	 * @param userID	The id of the user or <code>-1</code>.
 	 * @param observer	Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle getDiskSpace(AgentEventListener observer);
+	public CallHandle getDiskSpace(long userID, AgentEventListener observer);
 
 	/**
 	 * Reloads the hierarchy currently displayed.

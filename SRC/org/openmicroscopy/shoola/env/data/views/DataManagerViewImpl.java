@@ -300,11 +300,11 @@ class DataManagerViewImpl
 
 	/**
    * Implemented as specified by the view interface.
-   * @see DataManagerView#getDiskSpace(AgentEventListener)
+   * @see DataManagerView#getDiskSpace(long, AgentEventListener)
    */
-	public CallHandle getDiskSpace(AgentEventListener observer)
+	public CallHandle getDiskSpace(long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(AdminLoader.SPACE);
+		BatchCallTree cmd = new AdminLoader(userID, AdminLoader.SPACE);
 	    return cmd.exec(observer);
 	}
 

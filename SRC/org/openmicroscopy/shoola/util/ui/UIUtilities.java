@@ -497,9 +497,22 @@ public class UIUtilities
      */
     public static JLabel setTextFont(String s)
     {
+    	return UIUtilities.setTextFont(s, Font.BOLD);
+    }
+    
+    /**
+     * Displays the specified string into a {@link JLabel} and sets 
+     * the font to <code>bold</code>.
+     * 
+     * @param s 		The string to display.
+     * @param fontStyle The style of the font.
+     * @return See above.
+     */
+    public static JLabel setTextFont(String s, int fontStyle)
+    {
         JLabel label = new JLabel(s);
         Font font = label.getFont();
-        Font newFont = font.deriveFont(Font.BOLD);
+        Font newFont = font.deriveFont(fontStyle);
         label.setFont(newFont);
         return label;
     }

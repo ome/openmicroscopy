@@ -419,7 +419,7 @@ public class DataHandlerViewImpl
 	 */
 	public CallHandle loadAvailableGroups(AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(AdminLoader.GROUP);
+		BatchCallTree cmd = new AdminLoader(-1, AdminLoader.GROUP);
 		return cmd.exec(observer);
 	}
 

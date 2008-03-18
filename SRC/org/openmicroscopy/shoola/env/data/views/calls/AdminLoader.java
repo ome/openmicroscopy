@@ -69,9 +69,10 @@ public class AdminLoader
     /**
      * Creates a {@link BatchCall} to retrieve the experimenter groups.
      * 
+     * @param userID	The id of the user or <code>-1</code>.
      * @return The {@link BatchCall}.
      */
-    private BatchCall availableGroupsCall()
+    private BatchCall availableGroupsCall(final long userID)
     {
         return new BatchCall("Loading experimenter groups") {
             public void doCall() throws Exception
@@ -86,9 +87,10 @@ public class AdminLoader
      * Creates a {@link BatchCall} to retrieve the available and used
      * disk space.
      * 
+     * @param userID	The id of the user or <code>-1</code>.
      * @return The {@link BatchCall}.
      */
-    private BatchCall availableSpaceCall()
+    private BatchCall availableSpaceCall(final long userID)
     {
         return new BatchCall("Loading available and used disk space") {
             public void doCall() throws Exception
@@ -151,18 +153,20 @@ public class AdminLoader
      */
     protected Object getResult() { return result; }
     
-    /** Creates a new instance. 
+    /** 
+     * Creates a new instance. 
      * 
-     * @param index One of the constants defined by this class.
+     * @param userID	The id of the user or <code>-1</code>.
+     * @param index 	One of the constants defined by this class.
      */
-    public AdminLoader(int index)
+    public AdminLoader(long userID, int index)
     {
     	switch (index) {
 			case GROUP:
-				loadCall = availableGroupsCall();
+				loadCall = availableGroupsCall(userID);
 				break;
 			case SPACE:
-				loadCall = availableSpaceCall();
+				loadCall = availableSpaceCall(userID);
 		}
     }
 
