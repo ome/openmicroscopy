@@ -60,8 +60,8 @@ public class ChannelDataLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer
-     * @param pixelsID
+     * @param viewer	Reference to the viewer. Mustn't be <code>null</code>.
+     * @param pixelsID	The id of the pixels set.
      */
 	public ChannelDataLoader(Editor viewer, long pixelsID)
 	{

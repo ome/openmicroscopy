@@ -97,6 +97,9 @@ public class EditorUtil
     /** Identifies the <code>Wavelengths</code> field. */
 	public static final String	WAVELENGTHS = "Emissions wavelengths";
     
+	 /** Identifies the <code>Email</code> field. */
+    public static final String	EMAIL = "E-mail";
+    
     /** String to represent the micron symbol. */
     private static final String MICRONS = "(in \u00B5m)";
     
@@ -129,10 +132,6 @@ public class EditorUtil
     
     /** Identifies the <code>Name</code> field. */
     private static final String NAME = "Owner";
-    
-    /** Identifies the <code>Email</code> field. */
-    private static final String EMAIL = "E-mail";
-    
 
     /**
      * Transforms the specified {@link ExperimenterData} object into 

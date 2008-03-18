@@ -38,13 +38,13 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
+import org.openmicroscopy.shoola.agents.treeviewer.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectRemover;
 import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.agents.treeviewer.RndSettingsSaver;
-import org.openmicroscopy.shoola.agents.treeviewer.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
@@ -433,18 +433,6 @@ class TreeViewerModel
 		}
 	}
 
-	/**
-	 * Fires an asynchronous thumbnail retrieval for the specified image.
-	 * 
-	 * @param image The image the thumbnail is for.
-	 */
-	void fireThumbnailLoading(ImageData image)
-	{
-		state = TreeViewer.LOADING_THUMBNAIL;
-		currentLoader = new ThumbnailLoader(component, image);
-		currentLoader.load();
-	}
-
 	/** 
 	 * Returns the {@link Finder} component.
 	 * 
@@ -758,6 +746,22 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 
+	void fireDataObjectCreation(DataObject object)
+	{
+		Browser browser = getSelectedBrowser();
+		TreeImageDisplay node = browser.getLastSelectedDisplay();
+        DataObject data = null;
+        if (node != null) {
+            Object p =  node.getUserObject();
+            if (!((object instanceof ProjectData) || 
+                    (object instanceof CategoryGroupData)))//root.
+                data = ((DataObject) p);
+        
+        }
+		currentLoader = new DataObjectCreator(component, object, data);
+		currentLoader.load();
+	}
+	
 	/**
 	 * Returns the metadata viewer.
 	 * 

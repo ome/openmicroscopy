@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.editors.UserProfile 
+ * org.openmicroscopy.shoola.agents.metadata.editor.UserProfile 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.profile;
+package org.openmicroscopy.shoola.agents.metadata.editor;
+
 
 
 //Java imports
@@ -40,14 +41,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -55,8 +58,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
- * Displays the user's profile.
- * Allows user to edit his/her profile and modifies password.
+ * Component displaying the user details.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -68,8 +70,9 @@ import pojos.GroupData;
  * </small>
  * @since OME3.0
  */
-class UserProfile
+class UserProfile 	
 	extends JPanel
+	implements ActionListener, DocumentListener
 {
     
 	/** Text of the label in front of the new password area. */
@@ -80,6 +83,9 @@ class UserProfile
 	
 	/** Text of the label in front of the confirmation password area. */
 	private static final String		PASSWORD_CONFIRMATION = "Confirm password";
+	
+	/** The title of the dialog displayed if a problem occurs. */
+	private static final String		PASSWORD_CHANGE_TITLE = "Change Password";
 	
     /** The editable items. */
     private Map<String, JTextField>	items;
@@ -95,73 +101,21 @@ class UserProfile
     
     /** Hosts the old password. */
     private JPasswordField			oldPassword;
-    
-    /** Save the modification. */
-    private JButton					saveButton;
-    
+
     /** Modify password. */
     private JButton					passwordButton;
     
 	/** Reference to the Model. */
-    private ProfileEditorModel		model;
-
-    /** Reference to the Control. */
-    private ProfileEditorControl	controller;
+    private EditorModel				model;
     
-    /**
-     * Displays the specified string into a {@link JLabel} and sets 
-     * the font to <code>italic</code>.
-     * 
-     * @param s The string to display.
-     * @return See above.
-     */
-    private JLabel setFontToItalic(String s)
-    {
-    	 JLabel label = new JLabel(s);
-         Font font = label.getFont();
-         Font newFont = font.deriveFont(Font.ITALIC);
-         label.setFont(newFont);
-         return label;
-    }
+    /** The original index. */
+    private int						originalIndex;
     
-    /** 
-     * Message displayed when one of the required fields is left blank.
-     */
-    private void showRequiredField()
-    {
-    	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-        un.notifyInfo("Edit Profile", "The required fields cannot be left " +
-        		"blank.");
-        return;
-    }
+    /** The currently selected index. */
+    private int						selectedIndex;
     
-    /** Saves the edited values. */
-    private void save()
-    {
-    	ExperimenterData original = model.getUser();
-    	//Required fields first
-    	ExperimenterData newOne = new ExperimenterData();
-    	JTextField f = items.get(ProfileEditorUtil.LAST_NAME);
-    	String v = f.getText();
-    	if (v == null || v.trim().length() == 0) showRequiredField();
-    	newOne.setLastName(v);
-    	f = items.get(ProfileEditorUtil.EMAIL);
-    	v = f.getText();
-    	if (v == null || v.trim().length() == 0) showRequiredField();
-    	newOne.setEmail(v);
-    	f = items.get(ProfileEditorUtil.INSTITUTION);
-    	v = f.getText();
-    	if (v == null) v = "";
-    	newOne.setInstitution(v.trim());
-    	f = items.get(ProfileEditorUtil.FIRST_NAME);
-    	v = f.getText();
-    	if (v == null) v = "";
-    	newOne.setFirstName(v.trim());
-    	newOne.setId(original.getId());
-    	
-    	//newOne.setDefaultGroup((GroupData) groups.getSelectedItem());
-    	controller.save(newOne);
-    }
+    /** The user's details. */
+    private Map						details;
     
     /** Modifies the existing password. */
     private void changePassword()
@@ -176,34 +130,28 @@ class UserProfile
         buf = new StringBuffer();
         buf.append(oldPassword.getPassword());
         String old = buf.toString();
+        UserNotifier un;
         if (old == null || old.trim().length() == 0) {
-        	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-        	un.notifyInfo(ProfileEditorUI.DIALOG_TITLE, 
+        	un = MetadataViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo(PASSWORD_CHANGE_TITLE, 
         				"Please specify your old password.");
         	return;
         }
         if (pass == null || confirm == null || !pass.equals(confirm)) {
-        	UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo(ProfileEditorUI.DIALOG_TITLE, 
-            		"The passwords entered don't " +
-            		"match. Please try again.");
+        	un = MetadataViewerAgent.getRegistry().getUserNotifier();
+            un.notifyInfo(PASSWORD_CHANGE_TITLE, 
+            			"The passwords entered do not match. " +
+            			"Please try again.");
             passwordNew.setText("");
             passwordConfirm.setText("");
             return;
         }
-        controller.changePassword(old, confirm);
+        model.changePassword(old, confirm);
     }
     
     /** Initializes the components composing this display. */
     private void initComponents()
     {
-    	saveButton = new JButton("Save");
-    	saveButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {  
-            	save(); 
-            }
-        });
-    	saveButton.setEnabled(model.isEditable());
     	passwordButton =  new JButton("Change password");
     	passwordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  
@@ -214,7 +162,7 @@ class UserProfile
     	passwordConfirm = new JPasswordField();
     	oldPassword = new JPasswordField();
     	items = new HashMap<String, JTextField>();
-    	ExperimenterData user = model.getUser();
+    	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	List userGroups = user.getGroups();
     	GroupData defaultGroup = user.getDefaultGroup();
 		long groupID = defaultGroup.getId();
@@ -226,9 +174,8 @@ class UserProfile
 		List<GroupData> validGroups = new ArrayList<GroupData>();
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
-			if (model.isValidGroup(g)) {
+			if (model.isValidGroup(g))
 				validGroups.add(g);
-			}
 		}
 		GroupData[] objects = new GroupData[validGroups.size()];
 		int selectedIndex = 0;
@@ -237,15 +184,20 @@ class UserProfile
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
 			objects[index] = g;
-			if (g.getId() == groupID) selectedIndex = index;
+			if (g.getId() == groupID) originalIndex = index;
 			index++;
 		}
+		selectedIndex = originalIndex;
 		//sort by name
 		groups = new JComboBox(objects);
-		groups.setEnabled(model.isEditable());
 		groups.setRenderer(new GroupsRenderer());
 		if (objects.length != 0)
 			groups.setSelectedIndex(selectedIndex);
+		if (model.isCurrentUserOwner(model.getRefObject())) {
+			groups.addActionListener(this);
+			groups.setEnabled(true);
+		} else groups.setEnabled(false);
+		
     }
     
     /**
@@ -255,8 +207,9 @@ class UserProfile
      */
     private JPanel buildContentPanel()
     {
-    	boolean editable = model.isEditable();
-    	Map details = ProfileEditorUtil.manageExperimenterData(model.getUser());
+    	ExperimenterData user = (ExperimenterData) model.getRefObject();
+    	boolean editable = model.isCurrentUserOwner(user);
+    	details = EditorUtil.fomratExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         double[] columns = {150, 200};
@@ -279,39 +232,35 @@ class UserProfile
         while (i.hasNext()) {
             key = (String) i.next();
             value = (String) details.get(key);
-            if (key.equals(ProfileEditorUtil.LAST_NAME) || 
-            		key.equals(ProfileEditorUtil.EMAIL)) 
+            if (key.equals(EditorUtil.LAST_NAME) || 
+            		key.equals(EditorUtil.EMAIL)) 
             	label = UIUtilities.setTextFont(
-            			key+ProfileEditorUtil.MANDATORY_SYMBOL);
+            			key+EditorUtil.MANDATORY_SYMBOL);
             else label = UIUtilities.setTextFont(key);
             area = new JTextField(value);
+            
             j = index-1;
             content.add(new JLabel(""), "0, "+j+", 1, "+j);
             content.add(label, "0, "+index);
-            
-            area.setEditable(editable);
-            //area.setEnabled(false);
+            if (editable) {
+            	 area.setEditable(editable);
+            	 area.getDocument().addDocumentListener(this);
+            }
             label.setLabelFor(area);
             content.add(area, "1, "+index);
             items.put(key, area);
             index = index+2;
         }
-        label = UIUtilities.setTextFont(ProfileEditorUtil.DEFAULT_GROUP);
+        label = UIUtilities.setTextFont(EditorUtil.DEFAULT_GROUP);
         j = index-1;
         content.add(new JLabel(""), "0, "+j+", 1, "+j);
         content.add(label, "0, "+index);
         content.add(groups, "1, "+index);
         index = index+2;
         content.add(new JLabel(""), "0, "+j+", 1, "+j);
-        content.add(setFontToItalic(ProfileEditorUtil.MANDATORY_DESCRIPTION), 
-        		"0, "+index+", 1, "+index);
-        
-        
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(content);
-        p.add(UIUtilities.buildComponentPanel(saveButton));
-        return p;
+        content.add(UIUtilities.setTextFont(EditorUtil.MANDATORY_DESCRIPTION,
+        		Font.ITALIC), "0, "+index+", 1, "+index);
+        return content;
     }
     
     /** 
@@ -353,14 +302,38 @@ class UserProfile
     	p.add(UIUtilities.buildComponentPanel(passwordButton));
     	return p;
     }
+
+    /** Message displayed when one of the required fields is left blank. */
+    private void showRequiredField()
+    {
+    	UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+        un.notifyInfo("Edit Profile", "The required fields cannot be left " +
+        		"blank.");
+        return;
+    }
     
     /**
+     * Creates a new instance.
+     * 
+     * @param model	Reference to the model. Mustn't be <code>null</code>. 
+     * @param view 	Reference to the control. Mustn't be <code>null</code>.                     
+     */
+	UserProfile(EditorModel model)
+	{
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		this.model = model;
+	}
+ 
+	/**
      * Builds the panel hosting the {@link #nameArea} and the
      * {@link #descriptionArea}.
      */
-    private void buildGUI()
+    void buildGUI()
     {
-    	setBorder(new EtchedBorder());
+    	removeAll();
+    	initComponents();
+    	//setBorder(new EtchedBorder());
     	JPanel contentPanel = buildContentPanel();
     	double[][] tl = {{TableLayout.FILL}, 
     					{TableLayout.PREFERRED, TableLayout.PREFERRED}}; 
@@ -369,26 +342,6 @@ class UserProfile
     	add(buildPasswordPanel(), "0, 1, f, t");
     }
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param model 		Reference to the model. Mustn't be <code>null</code>. 
-     * @param controller 	Reference to the control. 
-     * 						Mustn't be <code>null</code>.                     
-     */
-	UserProfile(ProfileEditorModel model, ProfileEditorControl controller)
-	{
-		if (model == null)
-			throw new IllegalArgumentException("No model.");
-		if (controller == null)
-			throw new IllegalArgumentException("No control.");
-		this.model = model;
-		this.controller = controller;
-		
-		initComponents();
-		buildGUI();
-	}
- 
 	/** Clears the password fields. */
 	void passwordChanged()
 	{
@@ -396,5 +349,99 @@ class UserProfile
 		passwordNew.setText("");
         passwordConfirm.setText("");
 	}
+
+	/**
+	 * Returns <code>true</code> if data to save, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasDataToSave()
+	{
+		if (selectedIndex != originalIndex) return true;
+		if (details == null) return false;
+		Iterator i = details.keySet().iterator();
+		String key;
+		String value;
+		JTextField field;
+		String v;
+		while (i.hasNext()) {
+			key = (String) i.next();
+			field = items.get(key);
+			v = field.getText().trim();
+			value = (String) details.get(key);
+			if (value != null && !v.equals(value))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Returns the experimenter to save.
+	 * 
+	 * @return See above.
+	 */
+	ExperimenterData getExperimenterToSave()
+	{
+		ExperimenterData original = (ExperimenterData) model.getRefObject();
+    	//Required fields first
+    	ExperimenterData newOne = new ExperimenterData();
+    	JTextField f = items.get(EditorUtil.LAST_NAME);
+    	String v = f.getText();
+    	if (v == null || v.trim().length() == 0) showRequiredField();
+    	newOne.setLastName(v);
+    	f = items.get(EditorUtil.EMAIL);
+    	v = f.getText();
+    	if (v == null || v.trim().length() == 0) showRequiredField();
+    	newOne.setEmail(v);
+    	f = items.get(EditorUtil.INSTITUTION);
+    	v = f.getText();
+    	if (v == null) v = "";
+    	newOne.setInstitution(v.trim());
+    	f = items.get(EditorUtil.FIRST_NAME);
+    	v = f.getText();
+    	if (v == null) v = "";
+    	newOne.setFirstName(v.trim());
+    	newOne.setId(original.getId());
+		return newOne;
+	}
+	
+	/** 
+	 * Fires a property change event when a index is selected.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		selectedIndex = groups.getSelectedIndex();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+	
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
+
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e)
+	{
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

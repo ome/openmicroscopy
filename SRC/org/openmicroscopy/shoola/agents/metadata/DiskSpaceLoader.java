@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditorFactory 
+ * org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,15 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.profile;
+package org.openmicroscopy.shoola.agents.metadata;
 
-import pojos.ExperimenterData;
+
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
  * 
@@ -43,51 +46,49 @@ import pojos.ExperimenterData;
  * </small>
  * @since OME3.0
  */
-public class ProfileEditorFactory 
+public class DiskSpaceLoader
+	extends EditorLoader
 {
 
-	 /** The sole instance. */
-    private static final ProfileEditorFactory singleton = 
-    						new ProfileEditorFactory();
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle  handle;
+    
+    /** The id of the user. */
+    private long		userID;
     
     /**
-     * Returns an editor for the passed experimenter.
+     * Creates a new instance.
      * 
-     * @param exp The experimenter to edit.
-     * @return See above.
+     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param userID The user who used the disk space.
      */
-    public static ProfileEditor getEditor(ExperimenterData exp)
+	public DiskSpaceLoader(Editor viewer, long userID)
+	{
+		super(viewer);
+	}
+	
+    /** 
+     * Loads the used and free space.
+     * @see EditorLoader#load()
+     */
+    public void load()
     {
-    	if (exp == null)
-    		throw new IllegalArgumentException("No experimenter sepcified.");
-    	return singleton.createEditor(exp);
+        handle = dmView.getDiskSpace(userID, this);
     }
     
+    /** 
+     * Cancels the data loading. 
+     * @see EditorLoader#cancel()
+     */
+    public void cancel() { handle.cancel(); }
     
-    /** The tracked component. */
-    private ProfileEditor  editor;
-    
-    /** Creates a new instance. */
-    private ProfileEditorFactory()
-    {
-    	editor = null;
-    }
-
     /**
-     * Creates or recycles the editor for the specified experimenter.
-     * 
-     * @param exp The experimenter to edit.
-     * @return See above.
+     * Feeds the result back to the viewer.
+     * @see EditorLoader#handleResult(Object)
      */
-    private ProfileEditor createEditor(ExperimenterData exp)
+    public void handleResult(Object result) 
     {
-    	if (editor != null) return editor;
-    	ProfileEditorModel model = new ProfileEditorModel(exp);
-    	ProfileEditorComponent c = new ProfileEditorComponent(model);
-    	model.initialize(c);
-    	c.initialize();
-    	editor = c;
-    	return c;
+        viewer.setDiskSpace((List) result);
     }
     
 }

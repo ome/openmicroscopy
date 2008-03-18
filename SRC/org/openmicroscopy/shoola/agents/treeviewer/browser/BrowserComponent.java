@@ -129,7 +129,6 @@ class BrowserComponent
     private void handleNodeDisplay(TreeImageDisplay node)
     {
         view.selectFoundNode(node);
-        model.getParentModel().showProperties(node, -1);
     }
     
     /**

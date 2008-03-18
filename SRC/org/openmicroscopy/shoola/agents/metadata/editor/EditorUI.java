@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
 
@@ -98,6 +99,9 @@ public class EditorUI
 	/** The UI component displaying the viewed by. */
 	private ViewedByUI					viewedByUI;
 	
+	/** The UI component displaying the user's information. */
+	private UserUI						userUI;
+	
 	/** The component displayed in the top left-hand side. */
 	private JComponent					topLeftPane;
 	
@@ -122,9 +126,21 @@ public class EditorUI
 	 */
 	private boolean 					added;
 	
+	/** The component hosting all the components. */
+	private JPanel 						content;
+	
+	/** The component layed out on the right-end side.*/
+	private JPanel 						rightPane;
+	
+    /** 
+     * Flag indicating that the data has already been saved and no new changes.
+     */
+    private boolean						saved;
+    
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		userUI = new UserUI(model, controller);
 		leftPane = new JPanel();
 		toolBar = new ToolBar(model, this);
 		propertiesUI = new PropertiesUI(model);
@@ -200,7 +216,7 @@ public class EditorUI
 
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
 						{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
-		JPanel rightPane = new JPanel();
+		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
 		TreeComponent tree = new TreeComponent();
 		tree.insertNode(textualAnnotationsUI, 
@@ -208,7 +224,7 @@ public class EditorUI
 		tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
 		rightPane.add(tree, "0, 0");
 		
-		JPanel content = new JPanel();
+		content = new JPanel();
 		double[][] finalSize = {{TableLayout.FILL, 5, TableLayout.FILL}, 
 								{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		
@@ -248,18 +264,23 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
-    	rateUI.buildUI();
-    	viewedByUI.buildUI();
-    	linksUI.buildUI();
-    	rateUI.buildUI();
-    	textualAnnotationsUI.buildUI();
-    	tagsUI.buildUI();
-    	attachmentsUI.buildUI();
-    	propertiesUI.buildUI();
-    	toolBar.buildGUI();
-    	toolBar.setControls();
-    	setDataToSave(false);
-    	if (added) addTopLeftComponent(topLeftPane);
+    	if (model.getRefObject() instanceof ExperimenterData)  {
+    		userUI.buildUI();
+    		userUI.repaint();
+    	} else {
+    		rateUI.buildUI();
+        	viewedByUI.buildUI();
+        	linksUI.buildUI();
+        	rateUI.buildUI();
+        	textualAnnotationsUI.buildUI();
+        	tagsUI.buildUI();
+        	attachmentsUI.buildUI();
+        	propertiesUI.buildUI();
+        	toolBar.buildGUI();
+        	toolBar.setControls();
+        	setDataToSave(false);
+        	if (added) addTopLeftComponent(topLeftPane);
+    	}
     	revalidate();
     	repaint();
     }
@@ -267,6 +288,13 @@ public class EditorUI
     /** Save data. */
 	void saveData()
 	{
+		saved = true;
+		toolBar.setDataToSave(false);
+		if (model.getRefObject() instanceof ExperimenterData) {
+			ExperimenterData exp = userUI.getExperimenterToSave();
+			model.fireDataObjectSaving(exp);
+			return;
+		}
 		propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
 		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
@@ -291,9 +319,21 @@ public class EditorUI
     /** Updates display when the new root node is set. */
 	void setRootObject()
 	{
-		//removeAll();
-		//buildGUI();
-		if (model.getRefObject() instanceof ImageData) {
+		clearData();
+		Object object = model.getRefObject();
+		content.removeAll();
+		if (object instanceof ExperimenterData) {
+			content.add(toolBar, "0, 0, 2, 0");
+			content.add(userUI, "0, 1, 2, 1");
+			userUI.buildUI();
+			revalidate();
+	    	repaint();
+			return;
+		}
+		content.add(toolBar, "0, 0, 2, 0");
+		content.add(leftPane, "0, 1");
+		content.add(rightPane, "2, 1");
+		if (object instanceof ImageData) {
     		viewByTree.setVisible(true);
     	} else {
     		viewByTree.collapseNodes();
@@ -396,12 +436,16 @@ public class EditorUI
 	 */
 	boolean hasDataToSave()
 	{
+		if (saved) return false;
+		if (model.getRefObject() instanceof ExperimenterData)
+			return userUI.hasDataToSave();
 		Iterator<AnnotationUI> i = components.iterator();
 		boolean b = false;
 		AnnotationUI ui;
 		while (i.hasNext()) {
 			ui = i.next();
 			if (ui.hasDataToSave()) {
+				System.err.println(ui);
 				b = true;
 				break;
 			}
@@ -412,6 +456,7 @@ public class EditorUI
 	/** Clears data to save. */
 	void clearData()
 	{
+		saved = false;
 		Iterator<AnnotationUI> i = components.iterator();
 		AnnotationUI ui;
 		while (i.hasNext()) {
@@ -437,5 +482,8 @@ public class EditorUI
 		revalidate();
     	repaint();
 	}
+	
+	/** Clears the password fields. */
+	void passwordChanged() { userUI.passwordChanged(); }
 	
 }

@@ -50,9 +50,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.PropertiesCmd;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
@@ -108,9 +105,6 @@ class TreeViewerComponent
 
 	/** The View sub-component. */
 	private TreeViewerWin       view;
-
-	/** The dialog used to display the form when a new node is created. */
-	private EditorDialog        editorDialog;
 
 	/** The dialog presenting the list of available users. */
 	private UserManagerDialog	switchUserDialog;
@@ -352,6 +346,11 @@ class TreeViewerComponent
 						"This method cannot be invoked in the DISCARDED " +
 						"or SAVE state.");
 		}
+		if (object == null) return;
+		EditorDialog d = new EditorDialog(view, object);
+		d.addPropertyChangeListener(controller);
+		UIUtilities.centerAndShow(d);
+		/*
 		removeEditor();
 		//tmp solution
 		if (object == null) return;
@@ -365,54 +364,9 @@ class TreeViewerComponent
 		editorDialog = new EditorDialog(view, editor);
 		UIUtilities.centerAndShow(editorDialog);
 		onComponentStateChange(false);
-	}
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#showProperties(DataObject, int)
-	 */
-	public void showProperties(TreeImageDisplay node, int editorIndex)
-	{
-		/*
-		switch (model.getState()) {
-			case DISCARDED:
-			case SAVE:
-				throw new IllegalStateException(
-						"This method cannot be invoked in the DISCARDED " +
-						"or SAVE state.");
-		}
-		if (node  == null) return;
-		Object object = node.getUserObject();
-        if (!(object instanceof DataObject)) return;
-		removeEditor();
-		//tmp solution
-		
-		if (object == null) return;
-		if (object instanceof ExperimenterData) {
-			ExperimenterData exp = (ExperimenterData) object;
-			if (exp.getId() != model.getUserDetails().getId()) return;
-			ProfileEditor pEditor = ProfileEditorFactory.getEditor(exp);
-			pEditor.addPropertyChangeListener(controller);
-			pEditor.activate();
-			view.addComponent(pEditor.getUI());
-
-			return;
-		}
-		if (editorIndex != -1) EditorFactory.setEditorSelectedPane(editorIndex);
-		DataObject ho = (DataObject) object;
-		model.setEditorType(PROPERTIES_EDITOR);
-		Editor editor = EditorFactory.getEditor(this, ho, 
-												PROPERTIES_EDITOR, null);
-		editor.addPropertyChangeListener(controller);
-		editor.activate();
-		model.setEditor(editor);
-		editor.addSiblings(
-				model.getSelectedBrowser().getSelectedDataObjects());
-		view.addComponent(editor.getUI());
-		editor.setDefaultButton(view.getRootPane());
 		*/
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#cancel()
@@ -437,7 +391,6 @@ class TreeViewerComponent
 			throw new IllegalStateException("This method cannot be " +
 			"invoked in the DISCARDED, SAVE state.");
 		}
-		if (editorDialog != null) editorDialog.close();
 		view.removeAllFromWorkingPane();
 		firePropertyChange(REMOVE_EDITOR_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
@@ -567,20 +520,6 @@ class TreeViewerComponent
 			dh.activate();
 		}
 	}
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#retrieveThumbnail(ImageData)
-	 */
-	public void retrieveThumbnail(ImageData image)
-	{
-		if (model.getState() != DISCARDED) {
-			if (image == null)
-				throw new IllegalArgumentException("No image.");
-			model.fireThumbnailLoading(image);
-			fireStateChange();
-		}
-	}
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -643,7 +582,9 @@ class TreeViewerComponent
 		if (operation == REMOVE_OBJECT) {
 			model.setState(READY);
 			fireStateChange();
-		}
+		}// else if (operation == CREATE_OBJECT)
+		//	model.getMetadataViewer().clearDataToSave();
+		
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getSelectedBrowser();
 		browser.refreshEdition(data, operation);
@@ -985,11 +926,6 @@ class TreeViewerComponent
 			"in the DISCARDED state.");
 		if (nodes == null)
 			throw new IllegalArgumentException("No dataObject to annotate");
-		if (nodes.size() == 1) {
-			PropertiesCmd cmd = new PropertiesCmd(this);
-			cmd.execute();
-			return;
-		}
 		if (ImageData.class.equals(klass) || DatasetData.class.equals(klass)) {
 			DataHandler dh = model.annotateDataObjects(view, klass, nodes);
 			dh.addPropertyChangeListener(controller);
@@ -1354,6 +1290,17 @@ class TreeViewerComponent
 			return;
 		}
 		model.fireResetRenderingSettings(ref);
+		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#createObject(DataObject)
+	 */
+	public void createObject(DataObject object)
+	{
+		//TODO: check state
+		model.fireDataObjectCreation(object);
 		fireStateChange();
 	}
 	

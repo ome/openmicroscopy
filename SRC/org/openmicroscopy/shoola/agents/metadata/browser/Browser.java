@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 //Java imports
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JComponent;
 
 //Third-party libraries

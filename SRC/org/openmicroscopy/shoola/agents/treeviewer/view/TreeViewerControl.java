@@ -51,7 +51,6 @@ import javax.swing.event.MenuListener;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateChildrenAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseImageCategoriesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
@@ -70,7 +69,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.PasteRndSettingsAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.PropertiesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshExperimenterData;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
@@ -82,15 +80,12 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
-import org.openmicroscopy.shoola.agents.treeviewer.editors.EditorFactory;
-import org.openmicroscopy.shoola.agents.treeviewer.profile.ProfileEditor;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -110,9 +105,6 @@ import pojos.ImageData;
 class TreeViewerControl
  	implements ChangeListener, PropertyChangeListener
 {
-
-	/** Identifies the <code>Properties action</code> in the Edit menu. */
-	static final Integer	PROPERTIES = new Integer(0);
 
 	/** Identifies the <code>View action</code> in the Edit menu. */
 	static final Integer	VIEW = new Integer(1);
@@ -150,9 +142,6 @@ class TreeViewerControl
 
 	/** Identifies the <code>Declassify action</code> in the Edit menu. */
 	static final Integer    DECLASSIFY = new Integer(12);
-
-	/** Identifies the <code>Annotate action</code> in the Edit menu. */
-	static final Integer    ANNOTATE = new Integer(13);
 
 	/** Identifies the <code>Exit action</code> in the File menu. */
 	static final Integer    EXIT = new Integer(14);
@@ -253,7 +242,6 @@ class TreeViewerControl
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
-		actionsMap.put(PROPERTIES, new PropertiesAction(model));
 		actionsMap.put(VIEW, new ViewAction(model));
 		actionsMap.put(CREATE_OBJECT, new CreateAction(model));
 		actionsMap.put(COPY_OBJECT, new CopyAction(model));
@@ -270,7 +258,6 @@ class TreeViewerControl
 				ClassifyAction.CLASSIFY));
 		actionsMap.put(DECLASSIFY, new ClassifyAction(model, 
 				ClassifyAction.DECLASSIFY));
-		actionsMap.put(ANNOTATE, new AnnotateAction(model));
 		actionsMap.put(CLEAR, new ClearAction(model));
 		actionsMap.put(EXIT, new ExitApplicationAction(model));
 		actionsMap.put(ADD_OBJECT,  new AddAction(model));
@@ -398,45 +385,6 @@ class TreeViewerControl
 			b.setSelectedDisplay(d);
 		}
 	}
-
-	/**
-	 * Handles the selection of a new node.
-	 * 
-	 * @param oldValue	The previously selected node.
-	 * @param newValue	The new selection.
-	 */
-	private void handleSelectedDisplay(Object oldValue, Object newValue) {
-		if (oldValue == null || newValue == null) return;
-		if (oldValue.getClass().equals(newValue.getClass())) return;
-		if (!(oldValue instanceof TreeImageDisplay)) return;
-		TreeImageDisplay d = (TreeImageDisplay) oldValue;
-		
-		if (d != null) return;
-		Object ho = d.getUserObject();
-		if (ho instanceof ImageData || 
-				ho instanceof DatasetData) {
-			int index = EditorFactory.getEditorSelectedPane();
-			switch (index) {
-				case Editor.INFO_INDEX:
-					EditorFactory.setEditorSelectedPane(
-							Editor.PROPERTIES_INDEX);
-					break;
-				case Editor.ANNOTATIONS_INDEX:
-					if (newValue instanceof TreeImageDisplay) {
-						d = (TreeImageDisplay) newValue;
-						Object newHo = d.getUserObject();
-						if (!(newHo instanceof ImageData || 
-							newHo instanceof DatasetData)) {
-							EditorFactory.setEditorSelectedPane(
-									Editor.PROPERTIES_INDEX);
-						}
-					} else EditorFactory.setEditorSelectedPane(
-										Editor.PROPERTIES_INDEX);
-				default:
-					break;
-			}
-		}
-	}
 	
 	/**
 	 * Creates a new instance.
@@ -550,16 +498,6 @@ class TreeViewerControl
 		} else if (name.equals(Browser.CLOSE_PROPERTY)) {
 			Browser browser = (Browser) pce.getNewValue();
 			if (browser != null) view.removeBrowser(browser);
-		} else if (name.equals(ProfileEditor.CLOSE_PROFILE_EDITOR_PROPERTY)) {
-			model.removeEditor();
-			model.onComponentStateChange(true);
-		} else if (name.equals(Editor.CLOSE_EDITOR_PROPERTY)) {
-			Browser b = model.getSelectedBrowser(); 
-			TreeImageDisplay d = null;
-			if (b != null) d = b.getLastSelectedDisplay();
-			
-			model.removeEditor();
-			model.onComponentStateChange(true);
 		} else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
 			Boolean b = (Boolean) pce.getNewValue();
 			if (!b.booleanValue()) {
@@ -574,12 +512,7 @@ class TreeViewerControl
 				browser = (Browser) i.next();
 				browser.setSelected(browser.equals(b));
 			}
-		} else if (name.equals(TreeViewer.THUMBNAIL_LOADING_PROPERTY)) {
-			model.retrieveThumbnail((ImageData) pce.getNewValue());
 		} else if (name.equals(Browser.SELECTED_DISPLAY_PROPERTY)) {
-			Object oldValue = pce.getOldValue();
-			Object newValue = pce.getNewValue();
-			handleSelectedDisplay(oldValue, newValue);
 			model.onSelectedDisplay();
 			view.updateMenuItems();
 		} else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
@@ -627,12 +560,19 @@ class TreeViewerControl
 		} else if (UserManagerDialog.NO_USER_SWITCH_PROPERTY.equals(name)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("User Selection", "Please select a user first.");
-		} else if (ProfileEditor.EXPERIMENTER_CHANGED_PROPERTY.equals(name)) {
+		
+		/*
+		 } 
+		else if (ProfileEditor.EXPERIMENTER_CHANGED_PROPERTY.equals(name)) {
 			Map browsers = model.getBrowsers();
 			Iterator i = browsers.values().iterator();
 
 			while (i.hasNext()) 
 				((Browser) i.next()).refreshExperimenter();
+				*/
+		} else if (EditorDialog.CREATE_PROPERTY.equals(name)) {
+			DataObject data = (DataObject) pce.getNewValue();
+			model.createObject(data);
 		}
 	}
 

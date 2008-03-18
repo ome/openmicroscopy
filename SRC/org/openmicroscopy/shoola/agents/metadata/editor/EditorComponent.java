@@ -204,7 +204,6 @@ class EditorComponent
 			default:
 				break;
 		}
-		
 	}
 	
 	/** 
@@ -216,6 +215,34 @@ class EditorComponent
 		if (files == null || files.size() == 0) return;
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		un.notifyDownload(files);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setDiskSpace(List)
+	 */
+	public void setDiskSpace(List list)
+	{
+		if (list == null || list.size() != 2) return;
+		model.setDiskSpace(list);
+		view.layoutUI();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#passwordChanged(Boolean)
+	 */
+	public void passwordChanged(Boolean changed)
+	{
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		if (changed.booleanValue()) {
+			un.notifyInfo("Password change", "The password has been " +
+					"successfully modified.");
+		} else {
+			un.notifyInfo("Password change", "The password could not be " +
+					"modified. Please try again.");
+		}
+		view.passwordChanged();
 	}
 
 	

@@ -211,13 +211,6 @@ public interface TreeViewer
 	void setSelectedBrowser(Browser browser);
 
 	/**
-	 * Retrieves the thumbnail for the specified image.
-	 * 
-	 * @param image The image the thumbnail is for.
-	 */
-	void retrieveThumbnail(ImageData image);
-
-	/**
 	 * Queries the current state.
 	 * 
 	 * @return One of the state flags defined by this interface.
@@ -261,15 +254,6 @@ public interface TreeViewer
 	 * @param object The {@link DataObject} to create.
 	 */
 	public void createDataObject(DataObject object);
-	
-	/**
-	 * Brings up the editor corresponding to the specified type ang object.
-	 * 
-	 * @param node 			The node hosting the {@link DataObject} to edit.
-	 * @param editorIndex	The index of the tabbed pane or <code>-1</code> if
-	 * 						no index specified.
-	 */
-	public void showProperties(TreeImageDisplay node, int editorIndex);
 
 	/**
 	 * Removes the {@link DataObject} hosted by the passed node.
@@ -628,5 +612,12 @@ public interface TreeViewer
 	 * @param ref The time object.
 	 */
 	public void classify(TimeRefObject ref);
+
+	/**
+	 * Creates the passed object.
+	 * 
+	 * @param object The object to create.
+	 */
+	public void createObject(DataObject object);
 	
 }

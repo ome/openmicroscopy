@@ -41,9 +41,11 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
+import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -53,11 +55,11 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
@@ -122,6 +124,9 @@ class EditorModel
     
 	/** Flag indicating to load the thumbnail. */
 	private boolean					thumbnailRequired;
+	
+	/** The disk space. */
+	private List					space;
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -285,6 +290,21 @@ class EditorModel
 	boolean isWritable() { return false; }
 	
 	/**
+	 * Returns <code>true</code> if the group's name is valid, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param g The group to check.
+	 * @return See above.
+	 */
+	boolean isValidGroup(GroupData g)
+	{
+		if (g == null) return false;
+		String name = g.getName();
+		if ("user".equals(name) || "default".equals(name)) return false;
+		return true;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the currently logged in user is the 
 	 * owner of the object, <code>false</code> otherwise.
 	 * 
@@ -293,12 +313,16 @@ class EditorModel
 	 */
 	boolean isCurrentUserOwner(Object object)
 	{
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		if (object instanceof ExperimenterData) {
+			return (((ExperimenterData) object).getId() == userID);
+		}
 		return true;
 		/*
 		if (object == null) return false;
 		if (object instanceof DataObject) {
 			
-			long userID = MetadataViewerAgent.getUserDetails().getId();
+			
 			return userID == object.getOwner().getId();
 		}
 		return false;
@@ -451,6 +475,7 @@ class EditorModel
 	 */
 	int getRatingAverage() 
 	{
+		if (data == null) return 0;
 		Collection ratings = data.getRatings();
 		if (ratings == null || ratings.size() == 0) return 0;
 		Iterator i = ratings.iterator();
@@ -582,6 +607,7 @@ class EditorModel
 		textualAnnotationsByUsers = null;
 		textualAnnotationsByDate = null;
 		data = null;
+		space = null;
 	}
 
 	/**
@@ -791,6 +817,16 @@ class EditorModel
 	}
 	
 	/**
+	 * Starts an asynchronous call to update the experimenter.
+	 * 
+	 * @param exp The experimenter to save.
+	 */
+	void fireDataObjectSaving(ExperimenterData exp)
+	{
+		parent.saveData(null, null, exp);
+	}
+	
+	/**
 	 * Returns <code>true</code> if the imported set of pixels has been 
 	 * archived, <code>false</code> otherwise.
 	 * 
@@ -808,6 +844,59 @@ class EditorModel
 		PixelsData data = ((ImageData) refObject).getDefaultPixels();
 		OriginalFileLoader loader = new OriginalFileLoader(component, 
 											data.getId());
+		loader.load();
+		loaders.add(loader);
+	}
+
+	/** 
+	 * Returns the list with disk space information.
+	 * 
+	 * @return See above.
+	 */
+	List isDiskSpaceLoaded() { return space; }
+
+	/** Starts an asynchronous call to retrieve disk space information. */
+	void loadDiskSpace()
+	{
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		DiskSpaceLoader loader = new DiskSpaceLoader(component, id);
+		loader.load();
+		loaders.add(loader);
+	}
+
+	/** Cancels the disk space loading. */
+	void cancelDiskSpaceLoading()
+	{
+		Iterator i = loaders.iterator();
+		EditorLoader loader;
+		List<EditorLoader> toKeep = new ArrayList<EditorLoader>();
+		while (i.hasNext()) {
+			loader = (EditorLoader) i.next();
+			if (loader instanceof DiskSpaceLoader) {
+				loader.cancel();
+			} else toKeep.add(loader);
+		}
+		loaders.clear();
+		loaders.addAll(toKeep);
+		
+	}
+
+	/**
+	 * Sets the disk space information.
+	 * 
+	 * @param space The value to set.
+	 */
+	void setDiskSpace(List space) { this.space = space; }
+
+	/**
+	 * Fires an asynchronous call to modify the password.
+	 * 
+	 * @param old		The old password.
+	 * @param confirm	The new password.
+	 */
+	void changePassword(String old, String confirm)
+	{
+		EditorLoader loader = new PasswordEditor(component, old, confirm);
 		loader.load();
 		loaders.add(loader);
 	}

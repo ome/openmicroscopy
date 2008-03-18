@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.profile.DiskSpace 
+ * org.openmicroscopy.shoola.agents.metadata.editor.UserDiskSpace 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,30 +20,33 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.treeviewer.profile;
-
+package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.text.NumberFormat;
+import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
-
-//Third-party libraries
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
+//Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Displays the used and free disk space on the file system.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,13 +58,20 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-class DiskSpace
+class UserDiskSpace
 	extends JPanel
 {
 
 	/** The title of the chart. */
-	private static final String TITLE = "Server Disk Space";
+	static final String TITLE = "Disk Space";
 
+	/** Reference to the model. */
+	private EditorModel model;
+	
+	/** The collapse version of this component. */
+	private JPanel		collapseComponent;
+	
+	
 	/**
 	 * Converts the passed value into a string in Mb and returns a string 
 	 * version of it.
@@ -78,45 +88,61 @@ class DiskSpace
 		return NumberFormat.getInstance().format(value)+" Mb";
 	}
 	
-	/** Builds and lays out the GUI. */
-	void buildGUI()
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 */
+	UserDiskSpace(EditorModel model)
 	{
-		removeAll();
+		this.model = model;
 		setLayout(new BorderLayout());
-		JLabel label = new JLabel("Loading and building graph");
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(label);
-		JProgressBar bar =  new JProgressBar();
-		bar.setIndeterminate(true);
-		p.add(UIUtilities.buildComponentPanelRight(bar));
-		add(p, BorderLayout.NORTH);
-		add(new JPanel(), BorderLayout.CENTER);
-	}
-	
-	/** Creates a new instance. */
-	DiskSpace()
-	{
-		//buildGUI();
+		setBorder(new TitledLineBorder(TITLE, getBackground()));
+		setPreferredSize(new Dimension(300, 200));
 	}
 	
 	/**
-	 * Builds the graph displaying the used and free space in kilobytes on the 
-	 * file system.
+	 * Returns the {@link #collapseComponent}. Creates it if not.
 	 * 
-	 * @param used	The used space in kilobytes on the file system.
-	 * @param free	The free space in kilobytes on the file system.
+	 * @return See above.
 	 */
-	void buildGraph(long used, long free)
+	protected JPanel getCollapseComponent()
 	{
-		DefaultPieDataset dataset = new DefaultPieDataset();
-		dataset.setValue("Free "+convertValue(free), free);
-		dataset.setValue("Used "+convertValue(used), used);
-		JFreeChart freeChart = ChartFactory.createPieChart(TITLE, dataset, 
-														false, true, false);
+		if (collapseComponent != null)
+			return collapseComponent;
+		collapseComponent = new JPanel();
+		collapseComponent.setBorder(new TitledLineBorder(TITLE, 
+						collapseComponent.getBackground()));
+		return collapseComponent;
+	}
+	
+	/** Builds and lays out the GUI. */
+	void buildGUI()
+	{
+		
 		removeAll();
-		add(new ChartPanel(freeChart), BorderLayout.CENTER);
-		validate();
+		List list = model.isDiskSpaceLoaded();
+		if (list != null) {
+			DefaultPieDataset dataset = new DefaultPieDataset();
+			long free = (Long) list.get(0);
+			long used = (Long) list.get(1);
+			dataset.setValue("Free "+convertValue(free), free);
+			dataset.setValue("Used "+convertValue(used), used);
+			JFreeChart freeChart = ChartFactory.createPieChart(TITLE, dataset, 
+															false, true, false);
+			add(new ChartPanel(freeChart), BorderLayout.CENTER);
+		} else {
+			JLabel label = new JLabel("Loading...");
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+			p.add(label);
+			JProgressBar bar =  new JProgressBar();
+			bar.setIndeterminate(true);
+			p.add(UIUtilities.buildComponentPanelRight(bar));
+			add(p, BorderLayout.NORTH);
+			//add(new JPanel(), BorderLayout.CENTER);
+		}
+		revalidate();
 		repaint();
 	}
 	

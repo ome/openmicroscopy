@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -238,14 +239,25 @@ class MetadataViewerModel
 		Object uo = refNode.getUserObject();
 		if (!(uo instanceof DataObject)) return;
 		
+		if (uo instanceof ExperimenterData) {
+			
+			
+			return;
+		}
 		cancel(refNode);
-		
 		StructuredDataLoader loader = new StructuredDataLoader(component, 
 								refNode, (DataObject) uo);
 		loaders.put(refNode, loader);
 		loader.load();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the passed object is the reference object,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param uo The object to compare.
+	 * @return See above.
+	 */
 	boolean isSameObject(DataObject uo)
 	{
 		if (uo == null || !(refObject instanceof DataObject)) return false;
@@ -315,4 +327,5 @@ class MetadataViewerModel
 		if (data == null) return false;
 		return data.isArchived(); 
 	}
+	
 }

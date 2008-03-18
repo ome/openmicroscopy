@@ -99,7 +99,6 @@ class RateUI
 	{
 		super(model);
 		title = TITLE;
-		selectedValue = -1;
 	}
 	
 	/**
@@ -131,11 +130,7 @@ class RateUI
 	 * Returns the collection of rating to remove.
 	 * @see AnnotationUI#getAnnotationToRemove()
 	 */
-	protected List<AnnotationData> getAnnotationToRemove()
-	{
-		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		return l;
-	}
+	protected List<AnnotationData> getAnnotationToRemove() { return null; }
 
 	/**
 	 * Returns the collection of urls to add.
@@ -156,7 +151,7 @@ class RateUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		if (selectedValue == -1) return false;
+		//if (selectedValue == -1) return false;
 		int value = model.getRatingAverage();
 		return (selectedValue != value);
 	}
@@ -167,7 +162,7 @@ class RateUI
 	 */
 	protected void clearData()
 	{
-		selectedValue = model.getRatingAverage();
+		selectedValue = 0;//model.getRatingAverage();
 	}
 	
 	/**

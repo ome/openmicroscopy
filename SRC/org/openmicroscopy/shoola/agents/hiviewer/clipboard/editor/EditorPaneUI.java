@@ -50,7 +50,6 @@ import javax.swing.text.JTextComponent;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;

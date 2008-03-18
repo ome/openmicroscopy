@@ -126,20 +126,11 @@ class ToolBar
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        JButton b = new JButton(controller.getAction(
-                                    TreeViewerControl.ANNOTATE));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
         TreeViewerAction a = controller.getAction(TreeViewerControl.CLASSIFIER);
-        b = new JButton(a);
+        JButton b = new JButton(a);
         b.addMouseListener((ClassifierAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        b = new JButton(controller.getAction(TreeViewerControl.PROPERTIES));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-       
-        //bar.add(b);
-        //bar.add(new JSeparator(JSeparator.VERTICAL));
         return bar;
     }
     

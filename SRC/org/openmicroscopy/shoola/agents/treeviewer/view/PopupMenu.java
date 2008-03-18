@@ -57,18 +57,6 @@ class PopupMenu
   	extends JPopupMenu
 {
 
-	/** 
-	 * Button to bring up the property sheet of a hierarchy object &#151; 
-	 * project, dataset, category group, category, or image.
-	 */
-	private JMenuItem           properties;
-
-	/** 
-	 * Button to bring up the property sheet of a hierarchy object &#151; 
-	 * project, dataset, category group, category, or image.
-	 */
-	private JMenuItem           annotate;
-
 	/** Button to browse a container or bring up the Viewer for an image. */
 	private JMenuItem           view;
 
@@ -160,12 +148,6 @@ class PopupMenu
 		TreeViewerAction a;
 		switch (index) {
 		case TreeViewer.FULL_POP_UP_MENU:
-			a = controller.getAction(TreeViewerControl.PROPERTIES);
-			properties = new JMenuItem(a);
-			initMenuItem(properties, a.getActionName());
-			a = controller.getAction(TreeViewerControl.ANNOTATE);
-			annotate = new JMenuItem(a);
-			initMenuItem(annotate, a.getActionName());
 			a = controller.getAction(TreeViewerControl.VIEW);
 			view = new JMenuItem(a);
 			initMenuItem(view, a.getActionName());
@@ -271,14 +253,11 @@ class PopupMenu
 				add(declassifyElement);
 				add(classifyChildrenElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(annotate);
 				add(annotateChildrenElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(copyRndElement);
 				add(pasteRndElement);
 				add(resetRndElement);
-				add(new JSeparator(JSeparator.HORIZONTAL));
-				add(properties);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);

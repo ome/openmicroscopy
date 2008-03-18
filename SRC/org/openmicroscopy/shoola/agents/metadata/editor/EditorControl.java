@@ -76,7 +76,7 @@ class EditorControl
 
     /** Loads the thumbnails, forwards call the model. */
 	void loadThumbnails() { model.loadThumbnails(); }
-
+	
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -91,5 +91,6 @@ class EditorControl
 			view.clearData();
 		}
 	}
-
+	
 }
+

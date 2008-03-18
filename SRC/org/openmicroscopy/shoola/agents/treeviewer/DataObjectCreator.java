@@ -30,7 +30,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.editors.Editor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
@@ -49,7 +48,7 @@ import pojos.DataObject;
  * @since OME2.2
  */
 public class DataObjectCreator
-	extends EditorLoader
+	extends DataTreeViewerLoader
 {
     
     /** The {@link DataObject} to handle. */
@@ -70,7 +69,7 @@ public class DataObjectCreator
      * @param parent        The parent of the object to create,
      *                      <code>null</code> if no parent.
      */
-    public DataObjectCreator(Editor viewer, DataObject userObject, 
+    public DataObjectCreator(TreeViewer viewer, DataObject userObject, 
                             DataObject parent)
     {
         super(viewer);
@@ -82,7 +81,7 @@ public class DataObjectCreator
     
     /** 
      * Creates the object.
-     * @see EditorLoader#load()
+     * @see DataTreeViewerLoader#load()
      */
     public void load()
     {
@@ -91,18 +90,18 @@ public class DataObjectCreator
 
     /**
      * Cancels the data loading.
-     * @see EditorLoader#cancel()
+     * @see DataTreeViewerLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
 
     /** 
      * Feeds the result back to the viewer.
-     * @see EditorLoader#handleResult(Object)
+     * @see DataTreeViewerLoader#handleResult(Object)
      */
     public void handleResult(Object result)
     {
-        if (viewer.getState() == Editor.DISCARDED) return;  //Async cancel.
-        viewer.setSaveResult((DataObject) result, TreeViewer.CREATE_OBJECT);
+        if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
+        viewer.onDataObjectSave((DataObject) result, TreeViewer.CREATE_OBJECT);
     }
     
 }

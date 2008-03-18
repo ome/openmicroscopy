@@ -286,17 +286,6 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.CLASSIFY)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DECLASSIFY)));
-        TreeViewerAction a = controller.getAction(TreeViewerControl.ANNOTATE);
-        JMenuItem item = new JMenuItem(a);
-        item.setText(a.getActionName());
-        menuItems.add(item);
-        menu.add(item);
-        menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        a = controller.getAction(TreeViewerControl.PROPERTIES);
-        item = new JMenuItem(a);
-        item.setText(a.getActionName());
-        menuItems.add(item);
-        menu.add(item);
         return menu;
     }
 

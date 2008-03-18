@@ -131,5 +131,9 @@ public interface Editor
 	 * @param files The collection of files to handle.
 	 */
 	public void setDownloadedFiles(Collection files);
+
+	public void setDiskSpace(List list);
+
+	public void passwordChanged(Boolean changed);
 	
 }
