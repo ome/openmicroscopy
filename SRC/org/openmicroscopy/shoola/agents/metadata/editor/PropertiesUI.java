@@ -451,6 +451,19 @@ class PropertiesUI
 	}
 	
 	/**
+	 * Returns <code>true</code> if the name is valid,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isNameValid()
+	{ 
+		String name = nameArea.getText();
+		if (name == null) return false;
+		return name.trim().length() != 0;
+	}
+	
+	/**
 	 * Overridden to set the title of the component.
 	 * @see AnnotationUI#getComponentTitle()
 	 */
@@ -482,7 +495,8 @@ class PropertiesUI
 		name = model.getRefObjectDescription();
 		value = descriptionArea.getText();
 		value = value.trim();
-		if (name == null && value.length() == 0) return false;
+		if (name == null) 
+			return value.length() != 0;
 		name = name.trim();
 		if (value.equals(name)) return false;
 		return true;

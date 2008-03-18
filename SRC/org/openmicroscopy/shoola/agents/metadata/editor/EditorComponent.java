@@ -230,12 +230,12 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#passwordChanged(Boolean)
+	 * @see Editor#passwordChanged(boolean)
 	 */
-	public void passwordChanged(Boolean changed)
+	public void passwordChanged(boolean changed)
 	{
 		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		if (changed.booleanValue()) {
+		if (changed) {
 			un.notifyInfo("Password change", "The password has been " +
 					"successfully modified.");
 		} else {
@@ -245,5 +245,14 @@ class EditorComponent
 		view.passwordChanged();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#showImageInfo()
+	 */
+	public void showImageInfo()
+	{
+		if (model.getChannelData() == null) model.loadChannelData();
+		else view.showChannelData();
+	}
 	
 }

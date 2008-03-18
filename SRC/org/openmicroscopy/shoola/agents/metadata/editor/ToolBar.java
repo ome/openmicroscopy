@@ -71,19 +71,22 @@ class ToolBar
 	private static final int DOWNLOAD = 2;
 	
 	/** Button to save the annotations. */
-	private JButton		saveButton;
+	private JButton			saveButton;
 	
 	/** Button to display the image info. */
-	private JButton		infoButton;
+	private JButton			infoButton;
 	
 	/** Button to download the original image. */
-	private JButton		downloadButton;
+	private JButton			downloadButton;
 	
 	/** Reference to the Model. */
-	private EditorModel	model;
+	private EditorModel		model;
 	
 	/** Reference to the View. */
-	private EditorUI	view;
+	private EditorUI		view;
+	
+	/** Reference to the Control. */
+	private EditorControl	controller;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -148,17 +151,21 @@ class ToolBar
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the model. Mustn't be <code>null</code>.
-     * @param view 	Reference to the view. Mustn't be <code>null</code>.
+     * @param model 		Reference to the model. Mustn't be <code>null</code>.
+     * @param view 			Reference to the view. Mustn't be <code>null</code>.
+     * @param controller 	Reference to the view. Mustn't be <code>null</code>.
      */
-    ToolBar(EditorModel model, EditorUI view)
+    ToolBar(EditorModel model, EditorUI view, EditorControl controller)
     {
     	if (model == null)
     		throw new IllegalArgumentException("No model.");
     	if (view == null)
     		throw new IllegalArgumentException("No view.");
+    	if (controller == null)
+    		throw new IllegalArgumentException("No control.");
     	this.model = model;
     	this.view = view;
+    	this.controller = controller;
     	initComponents();
     	buildGUI();
     }
@@ -166,7 +173,6 @@ class ToolBar
     /** Builds and lays out the UI. */
     void buildGUI()
     {
-    	
     	removeAll();
     	JPanel p = new JPanel();
     	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
@@ -211,9 +217,7 @@ class ToolBar
 				model.download();
 				break;
 			case INFO:
-				if (model.getChannelData() == null)
-					model.loadChannelData();
-				else view.showChannelData();
+				controller.showImageInfo();
 		}
 		
 	}

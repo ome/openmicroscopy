@@ -213,6 +213,7 @@ public interface MetadataViewer
 	 */
 	public void addExternalComponent(JComponent external, int location);
 	
+	/** Brings up on screen the image's information. */
 	public void showImageInfo();
 	
 }

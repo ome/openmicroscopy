@@ -77,6 +77,8 @@ class EditorControl
     /** Loads the thumbnails, forwards call the model. */
 	void loadThumbnails() { model.loadThumbnails(); }
 	
+	void showImageInfo() { model.showImageInfo(); }
+	
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)

@@ -453,7 +453,7 @@ class BrowserUI
         }
         Iterator i = nodes.iterator();
         TreeImageDisplay display;
-        Set children;
+        List children;
         parent.removeAllChildren();
         while (i.hasNext()) {
             display = (TreeImageDisplay) i.next();
@@ -538,7 +538,7 @@ class BrowserUI
     private void sortNode(TreeImageTimeSet node)
     {
     	DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
-    	Set children = node.getChildrenDisplay();
+    	List children = node.getChildrenDisplay();
     	Iterator j;
     	if (node.containsImages()) {
     		node.removeAllChildren();
@@ -853,7 +853,7 @@ class BrowserUI
         TreeImageDisplay root = (TreeImageDisplay) dtm.getRoot();
     	int n = root.getChildCount();
     	TreeImageDisplay node;
-    	Set children;
+    	List children;
     	Iterator j;
         switch (model.getBrowserType()) {
 			case Browser.IMAGES_EXPLORER:
@@ -1021,7 +1021,6 @@ class BrowserUI
 							toRemove.add(child);
 						}
 					}
-					//test
 					node.removeAllChildren();
 					node.removeChildrenDisplay(toRemove);
 					node.setNumberItems(total);
@@ -1054,6 +1053,8 @@ class BrowserUI
 		TreeImageTimeSet node, child;
 		dtm.reload();
 		int nodeType;
+		List children;
+		Iterator s;
 		while (i.hasNext()) {
 			index = (Integer) i.next();
 			for (int j = 0; j < n; j++) {
@@ -1062,8 +1063,8 @@ class BrowserUI
 				switch (nodeType) {
 					case TreeImageTimeSet.YEAR:
 					case TreeImageTimeSet.YEAR_BEFORE:
-						Set children = node.getChildrenDisplay();
-						Iterator s = children.iterator();
+						children = node.getChildrenDisplay();
+						s = children.iterator();
 						while (s.hasNext()) {
 							child = (TreeImageTimeSet) s.next();
 							if (child.getIndex() == index) 

@@ -29,6 +29,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -113,19 +114,19 @@ public abstract class TreeImageDisplay
     /** 
      * Back pointer to the parent node or <code>null</code> if this is the root.
      */
-    private TreeImageDisplay    	parentDisplay;
+    private TreeImageDisplay    		parentDisplay;
     
     /** 
      * The set of nodes that have been added to this node.
      * Will always be empty for a leaf node. 
      */
-    protected Set<TreeImageDisplay>	childrenDisplay;
+    protected List<TreeImageDisplay>	childrenDisplay;
     
     /**
      * The tooltip: annotation if the <code>DataObject</code>
      * can be annotated and the inserted date if any.
      */
-    private String              	tooltip;
+    private String              		tooltip;
     
     /** 
      * Tells if the node has to be highlighted.
@@ -133,22 +134,22 @@ public abstract class TreeImageDisplay
      * background. If a color is specified, the node will be highlighted
      * using the specified color. 
      */
-    private Color					highlight;
+    private Color						highlight;
     
     /** The font style used for the node. */
-    private int                 	fontStyle;
+    private int                 		fontStyle;
     
     /** Indicates if the node is expanded or not. */
-    private boolean             	expanded;
+    private boolean             		expanded;
     
     /** Indicates to display a truncated name. */
-    private boolean					partialName;
+    private boolean						partialName;
     
     /** The number of items. */
-    protected int					numberItems;
+    protected int						numberItems;
 
     /** The number of tag attached to the object. */
-    protected int					tagNumber;
+    protected int						tagNumber;
     
     /**
      * Returns the partial name of the image's name
@@ -205,7 +206,7 @@ public abstract class TreeImageDisplay
         if (hierarchyObject == null) 
             throw new NullPointerException("No hierarchy object.");
         setUserObject(hierarchyObject);
-        childrenDisplay = new HashSet<TreeImageDisplay>();
+        childrenDisplay = new ArrayList<TreeImageDisplay>();
         numberItems = -1;
         tagNumber = 0;
         partialName = true;
@@ -261,9 +262,9 @@ public abstract class TreeImageDisplay
      * 
      * @return A <i>read-only</i> set containing all the child nodes.
      */
-    public Set getChildrenDisplay() 
+    public List getChildrenDisplay() 
     { 
-        return Collections.unmodifiableSet(childrenDisplay);
+        return Collections.unmodifiableList(childrenDisplay);
     }
     
     /**

@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 //Java imports
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -67,7 +69,7 @@ public class ExperimenterImagesCounter
     private TreeImageSet			expNode;
     
     /** The node hosting the time information. */
-    private Set<TreeImageTimeSet>	nodes;
+    private List<TreeImageTimeSet>	nodes;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  			handle;
@@ -82,7 +84,7 @@ public class ExperimenterImagesCounter
      * @param nodes		The time nodes. Mustn't be <code>null</code>.
      */
 	public ExperimenterImagesCounter(Browser viewer, TreeImageSet expNode, 
-			Set<TreeImageTimeSet> nodes)
+									List<TreeImageTimeSet> nodes)
 	{
 		super(viewer);
 		if (expNode == null ||
@@ -111,7 +113,7 @@ public class ExperimenterImagesCounter
 		TimeRefObject ref;
 		long userID = expNode.getUserObjectId();
 		Map<Integer, TimeRefObject> m;
-		m = new HashMap<Integer, TimeRefObject>(nodes.size());
+		m = new LinkedHashMap<Integer, TimeRefObject>(nodes.size());
 		while (i.hasNext()) {
 			node = (TreeImageTimeSet) i.next();
 			ref = new TimeRefObject(userID, node.getStartTime(),

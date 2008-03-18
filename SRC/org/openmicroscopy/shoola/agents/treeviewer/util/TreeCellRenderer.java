@@ -39,6 +39,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.CountUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -123,6 +124,8 @@ public class TreeCellRenderer
             icon = icons.getIcon(IconManager.CATEGORY_GROUP);
         else if (usrObject instanceof CategoryData)
             icon = icons.getIcon(IconManager.CATEGORY);
+        else if (node instanceof TreeImageTimeSet)
+        	icon = icons.getIcon(IconManager.DATE);
         else if (usrObject instanceof String)
         	icon = icons.getIcon(IconManager.ROOT);
         setIcon(icon);

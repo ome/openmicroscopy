@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
@@ -545,9 +546,11 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
-        MetadataViewer metadata = model.getMetadataViewer();
-        metadata.setRootObject(display.getUserObject());
-        view.addComponent(model.getMetadataViewer().getUI());
+        if (display != null && !(display instanceof TreeImageTimeSet)) {
+        	  MetadataViewer metadata = model.getMetadataViewer();
+              metadata.setRootObject(display.getUserObject());
+              view.addComponent(model.getMetadataViewer().getUI());
+        }
 	}
 
 	/**

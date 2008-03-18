@@ -142,7 +142,7 @@ public class EditorUI
 	{
 		userUI = new UserUI(model, controller);
 		leftPane = new JPanel();
-		toolBar = new ToolBar(model, this);
+		toolBar = new ToolBar(model, this, controller);
 		propertiesUI = new PropertiesUI(model);
 		attachmentsUI = new AttachmentsUI(model);
 		linksUI = new LinksUI(model);
@@ -155,7 +155,7 @@ public class EditorUI
 		viewByTree = new TreeComponent();
 		
 		viewByTree.insertNode(viewedByUI, viewedByUI.getCollapseComponent(),
-				false);
+								false);
 		viewByTree.addPropertyChangeListener(new PropertyChangeListener()
 			{
 			
@@ -439,13 +439,17 @@ public class EditorUI
 		if (saved) return false;
 		if (model.getRefObject() instanceof ExperimenterData)
 			return userUI.hasDataToSave();
+		if (!propertiesUI.isNameValid()) {
+			setDataToSave(false);
+			return false;
+		}
+		toolBar.setDataToSave(true);
 		Iterator<AnnotationUI> i = components.iterator();
 		boolean b = false;
 		AnnotationUI ui;
 		while (i.hasNext()) {
 			ui = i.next();
 			if (ui.hasDataToSave()) {
-				System.err.println(ui);
 				b = true;
 				break;
 			}

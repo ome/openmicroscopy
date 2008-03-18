@@ -28,7 +28,6 @@ import java.awt.Component;
 import java.awt.Point;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -313,9 +312,15 @@ class MetadataViewerComponent
 		editor.addComponent(external, location);
 	}
 
-	public void showImageInfo() {
-		// TODO Auto-generated method stub
-		
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#showImageInfo()
+	 */
+	public void showImageInfo()
+	{
+		Editor editor = model.getEditor();
+		if (editor == null) return;
+		editor.showImageInfo();
 	}
 	
 }

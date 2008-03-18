@@ -198,6 +198,9 @@ class ImViewerModel
 	/** The metadata viewer. */
 	private MetadataViewer				metadataViewer;
 	
+	/** Flag indicating if the metadata are loaded. */
+	private boolean						metadataLoaded;
+	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -233,6 +236,7 @@ class ImViewerModel
 		movieIndex = -1;
 		loaders = new HashMap<Integer, DataLoader>();
 		metadataViewer = MetadataViewerFactory.getViewer(image, false);
+		metadataLoaded = false;
 	}
 
 	/**
@@ -1242,6 +1246,18 @@ class ImViewerModel
 	void saveMetadata() { metadataViewer.saveData(); }
 
 	/** Loads the data. */
-	void loadMetadata() { metadataViewer.activate(); }
+	void loadMetadata()
+	{ 
+		if (!metadataLoaded) {
+			metadataLoaded = true;
+			metadataViewer.activate(); 
+		}
+	}
+
+	/** Shows the image details. */
+	void showImageDetails()
+	{
+		 if (metadataViewer != null)  metadataViewer.showImageInfo();
+	}
 	
 }

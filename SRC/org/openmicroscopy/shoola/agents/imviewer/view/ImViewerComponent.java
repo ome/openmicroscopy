@@ -1958,6 +1958,7 @@ class ImViewerComponent
 	 */
 	public void showImageDetails()
 	{
+		model.showImageDetails();
 		/*
 		if (model.getState() != READY) return;
 		ImageDetailsDialog d = new ImageDetailsDialog(view, model.getMaxX(), 

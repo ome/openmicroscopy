@@ -132,8 +132,22 @@ public interface Editor
 	 */
 	public void setDownloadedFiles(Collection files);
 
+	/**
+	 * Sets the used and free disk space.
+	 * 
+	 * @param list The value to set.
+	 */
 	public void setDiskSpace(List list);
 
-	public void passwordChanged(Boolean changed);
+	/**
+	 * Indicates that the password was successfully modified or not.
+	 * 
+	 * @param changed 	Pass <code>true</code> if the password was successfully
+	 * 					changed, <code>false</code> otherwise.
+	 */
+	public void passwordChanged(boolean changed);
+
+	/** Brings up on screen the image's information. */
+	public void showImageInfo();
 	
 }
