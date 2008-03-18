@@ -23,6 +23,7 @@
 
 package omeroCal.view;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -37,13 +38,14 @@ import omeroCal.model.ICalendarModel;
  *
  */
 public class Controller 
+	extends Observable
 	implements ICalendarModel,
 	Observer,
-	IEventController {
+	IEventListener {
 	
 	ICalendarModel monthModel;
 	
-	MonthView monthView;
+	ArrayList<IEventListener> eventListeners;
 	
 	public Controller (ICalendarModel monthModel) {
 		
@@ -54,11 +56,8 @@ public class Controller
 			((Observable)monthModel).addObserver(this);
 		}
 		
-	}
-
-	public void setMonthView(MonthView monthView) {
+		eventListeners = new ArrayList<IEventListener>();
 		
-		this.monthView = monthView;
 	}
 	
 
@@ -83,16 +82,26 @@ public class Controller
 	 * Therefore, need to update the view with new data from Model.
 	 */
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
 		
+		setChanged();
+		notifyObservers();
+		
+	}
+	
+	public void addEventListener(IEventListener ec) {
+		eventListeners.add(ec);
+	}
+	
+	public void removeEventListener(IEventListener ec) {
+		eventListeners.remove(ec);
 	}
 
 	/**
 	 * This is called by a UI component, eg when clicked or double-clicked
 	 */
 	public void calendarEventChanged(CalendarEvent calendarEvent, String propertyChanged, Object newProperty) {
-		// TODO Auto-generated method stub
-		
-		monthView.calendarEventChanged(calendarEvent, propertyChanged, newProperty);
+		for (IEventListener eventController : eventListeners) {
+			eventController.calendarEventChanged(calendarEvent, propertyChanged, newProperty);
+		}
 	}
 }

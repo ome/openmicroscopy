@@ -24,17 +24,21 @@
 package omeroCal.view;
 
 import java.awt.Color;
+import java.awt.Font;
 
 import org.jdesktop.swingx.JXDatePicker;
 
 public class DatePicker extends JXDatePicker {
 
 	/** The selected date format. */
-	private static final String		DATE_FORMAT = "yyyy/MMM/dd";//"MM/dd/yy";
+	private static final String		DATE_FORMAT = "dd/MMM/yyyy";//"MM/dd/yy";
 	
 	/** The tooltip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
 
+	
+	public static Font timeFont = new Font("SansSerif", Font.PLAIN, 10);
+	
 	/**
 	 * Creates a date picker.
 	 */
@@ -43,6 +47,7 @@ public class DatePicker extends JXDatePicker {
 		String[] dateFormats = new String[1];
 		dateFormats[0] = DATE_FORMAT;
 		getEditor().setEditable(false);
+		getEditor().setFont(timeFont);
 		// setEditable(false);
 		setFormats(dateFormats);
 

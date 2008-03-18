@@ -23,7 +23,7 @@
 
 package omeroCal.model;
 
-import java.beans.PropertyChangeEvent;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;

@@ -54,7 +54,8 @@ import ui.components.AlignedComponent;
 
 public class MonthView 
 	extends JPanel 
-	implements Observer {
+	implements Observer,
+	IEventListener {
 
 	/**
 	 * A Model of this month.
@@ -124,15 +125,18 @@ public class MonthView
 		
 	}
 	
-	public MonthView(ICalendarModel monthModel) {
+	public MonthView(ICalendarModel controller) {
 		
 		this();
 		
-		if (monthModel instanceof Observable) {
-			((Observable)monthModel).addObserver(this);
+		if (controller instanceof Observable) {
+			((Observable)controller).addObserver(this);
+		}
+		if (controller instanceof Controller) {
+			((Controller)controller).addEventListener(this);
 		}
 		
-		this.controller = monthModel;
+		this.controller = controller;
 		
 		addCalendarEvents();
 	}
@@ -291,15 +295,15 @@ public class MonthView
 		if (eventDateTime.get(Calendar.MONTH) == thisMonth.get(Calendar.MONTH)) {
 			
 			EventLabel eventLabel = new EventLabel(evt);
-			if (controller instanceof IEventController) {
-				eventLabel.setEventController((IEventController)controller);
+			if (controller instanceof IEventListener) {
+				eventLabel.setEventController((IEventListener)controller);
 			}
 			
 			int dayOfMonth = eventDateTime.get(Calendar.DAY_OF_MONTH);
 			days[dayOfMonth].addEventLabel(eventLabel);
 			
 			eventsDisplayed.add(eventLabel);
-			System.out.println("MonthView addCalendarEvent eventsDisplayed.size() " + eventsDisplayed.size() );
+			//System.out.println("MonthView addCalendarEvent eventsDisplayed.size() " + eventsDisplayed.size() );
 		}
 	}
 	
@@ -321,7 +325,7 @@ public class MonthView
 		
 		int calendarID = calendarEvent.getCalendarID();
 		
-		System.out.println("Controller calendarEventChanged() ID: " + calendarID + " " + propertyChanged + " " + newProperty);
+		// System.out.println("Controller calendarEventChanged() ID: " + calendarID + " " + propertyChanged + " " + newProperty);
 	
 		
 		if (propertyChanged.equals(EventLabel.SELECTION_PROPERTY)) {

@@ -162,22 +162,25 @@ public class CalendarFile extends CalendarObject {
 					
 					// by this point, you have the date of the new Event... 
 					
-					// This date has time 00:00 unless time has been set...
-					String time = dateTimeElement.getAttribute(DataFieldConstants.SECONDS);
-					if ((time != null) && (time.length() > 0)) {
-						int secs = Integer.parseInt(time);
-						gc.add(Calendar.SECOND, secs);	// this will add hours and minutes (in secs)
-						
-						System.out.println("Date, with time : " 
-								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
-								 CalendarTestCode.timeFormat.format(gc.getTime()));
-					}
-					
 					// need a name
 					eventName = dateTimeElement.getAttribute(DataFieldConstants.ELEMENT_NAME);
 					
 					// Create a new Event
 					CalendarEvent newEvent = new CalendarEvent(eventName, gc);
+					
+					
+					// This date has time 00:00 unless time has been set...
+					String time = dateTimeElement.getAttribute(DataFieldConstants.SECONDS);
+					if ((time != null) && (time.length() > 0)) {
+						int secs = Integer.parseInt(time);
+						gc.add(Calendar.SECOND, secs);	// this will add hours and minutes (in secs)
+						newEvent.setAllDayEvent(false);
+						
+						System.out.println("Date, with time : " 
+								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+								 CalendarTestCode.timeFormat.format(gc.getTime()));
+					}
+				
 					
 					System.out.println("CalendarFile " + eventName + ": " 
 							+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
@@ -187,7 +190,9 @@ public class CalendarFile extends CalendarObject {
 					// Check to see if alarm has been set. If not attribute is null, string returns ""
 					String alarm = dateTimeElement.getAttribute(DataFieldConstants.ALARM_SECONDS);
 					if ((alarm != null) && (alarm.length() > 0)){
+						System.out.println("alarmSeconds = " + alarm);
 						int alarmSecs = Integer.parseInt(alarm);
+						System.out.println("alarmSeconds = " + alarmSecs);
 						// create an alarm time ...
 						Calendar alarmTime = new GregorianCalendar();
 						alarmTime.setTime(gc.getTime());
@@ -196,11 +201,11 @@ public class CalendarFile extends CalendarObject {
 						alarmTime.add(Calendar.SECOND, alarmSecs);
 						
 						
-						System.out.println("    " + eventName + " alarmTime is " 
-								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
-								 CalendarTestCode.timeFormat.format(gc.getTime()));
+						System.out.println("alarmTime is " 
+								+ CalendarTestCode.dateFormat.format(alarmTime.getTime()) + " " +
+								 CalendarTestCode.timeFormat.format(alarmTime.getTime()));
 						
-						newEvent.setAlarmTime(gc.getTime());
+						newEvent.setAlarmTime(alarmTime.getTime());
 					}
 				
 					

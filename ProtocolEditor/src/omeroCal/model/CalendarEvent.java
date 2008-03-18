@@ -75,8 +75,9 @@ public class CalendarEvent {
 	
 	/**
 	 * This indicates whether an event occurs all day (or days), instead of at a particular time
+	 * Is true unless a time is set.
 	 */
-	boolean allDayEvent = false;
+	boolean allDayEvent = true;
 	
 	/**
 	 * The color to display this event. Determined by the calendar.

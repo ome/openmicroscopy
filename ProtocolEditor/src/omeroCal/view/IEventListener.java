@@ -25,7 +25,7 @@ package omeroCal.view;
 
 import omeroCal.model.CalendarEvent;
 
-public interface IEventController {
+public interface IEventListener {
 
 	public void calendarEventChanged(CalendarEvent calendarEvent, String propertyChanged, Object newProperty);
 	

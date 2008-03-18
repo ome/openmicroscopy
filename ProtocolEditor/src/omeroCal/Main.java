@@ -34,6 +34,7 @@ import omeroCal.model.CalendarDataBase;
 import omeroCal.model.CalendarEvent;
 import omeroCal.model.ICalendarModel;
 import omeroCal.model.MonthModel;
+import omeroCal.view.CalendarFrame;
 import omeroCal.view.Controller;
 import omeroCal.view.MonthView;
 
@@ -68,21 +69,11 @@ public class Main {
 		
 		CalendarDataBase calDB = new CalendarDataBase();
 		
-		ICalendarModel monthModel = new MonthModel(calDB);
+		ICalendarModel calendarModel = new MonthModel(calDB);
 		
-		Controller controller = new Controller(monthModel);
+		Controller controller = new Controller(calendarModel);
 		
-		MonthView monthView = new MonthView(controller);
-		
-		controller.setMonthView(monthView);
-		
-		JFrame frame = new JFrame("Omero.Editor Calendar");
-		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		frame.getContentPane().add(monthView);
-		
-		frame.pack();
-		frame.setVisible(true);
+		CalendarFrame calendarFrame = new CalendarFrame(controller);
 		
 		
 	}

@@ -48,7 +48,7 @@ public class EventLabel
 	 * This controller should be notified of changes to this label (eg clicked or double-clicked)
 	 * so that the UI can be updated appropriately.
 	 */
-	IEventController eventController;
+	IEventListener eventController;
 	
 	Color backgroundColor = null;
 	
@@ -104,7 +104,8 @@ public class EventLabel
 	 */
 	public void calendarSelected(int calendarID, boolean selected) {
 		
-		System.out.println("EventLabel calendarSelected() " + selected + " calID: " + calendarID );
+		//System.out.println("EventLabel calendarSelected() " + selected + " calID: " + calendarID );
+		
 		// if this label's calendarID matches the calendar that has been selected...
 		if (calendarID == calendarEvent.getCalendarID()) {
 			
@@ -128,7 +129,7 @@ public class EventLabel
 	 * 
 	 * @param eventController	The new eventController
 	 */
-	public void setEventController(IEventController eventController) {
+	public void setEventController(IEventListener eventController) {
 		this.eventController = eventController;
 	}
 	
