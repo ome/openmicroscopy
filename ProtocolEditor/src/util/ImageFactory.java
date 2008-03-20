@@ -98,6 +98,8 @@ public class ImageFactory {
 	public static final String ROTATE_HORIZONTAL_ICON = ACTION_ICONS_FILE + "rotate_right_up.png";
 	public static final String ROTATE_VERTICAL_ICON = ACTION_ICONS_FILE + "rotate_down_left.png";
 	public static final String CALENDAR_ICON = ACTION_ICONS_FILE + "date.png";
+	public static final String ALARM_ICON_64 = ACTION_ICONS_FILE + "kalarm64.png";
+	public static final String ALARM_GIF_64 = ACTION_ICONS_FILE + "kalarmAnimated64.gif";
 	
 	
 	public Icon getIcon(String iconPathName) {

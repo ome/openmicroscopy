@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -47,6 +48,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 //Third-party libraries
 
 //Application-internal dependencies
+
+import omeroCal.model.DBConnectionSingleton;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -235,7 +238,11 @@ class TaskBarManager
 		*/
 		
 		int n = JOptionPane.showConfirmDialog(null, "Really Quit?");
-		if (n == JOptionPane.YES_OPTION) System.exit(0);
+		if (n == JOptionPane.YES_OPTION) {
+			
+			System.exit(0);
+
+		}
 		
        /* MessageBox msg;
         msg = new MessageBox(view, "Exit application", 

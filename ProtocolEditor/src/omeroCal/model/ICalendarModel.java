@@ -23,6 +23,7 @@
 
 package omeroCal.model;
 
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -34,7 +35,16 @@ public interface ICalendarModel {
 	 * 
 	 * @return
 	 */
-	public List <CalendarEvent> getEventsForMonth();
+	public List <CalendarEvent> getEventsForDates(Calendar fromDate, Calendar toDate);
 	
 	public void incrementMonth(int increment);
+	
+	
+	/**
+	 * Gets the CalendarObject that this CalendarEvent belongs to.
+	 * 
+	 * @param calID		The unique ID used to identify a calendar
+	 * @return		A CalendarObject to which the CalendarEvent belongs (or null if not found)
+	 */
+	public CalendarObject getCalendarForEvent(CalendarEvent calendarEvent);
 }

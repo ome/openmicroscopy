@@ -40,16 +40,16 @@ import java.util.Observer;
  * @author will
  *
  */
-public class MonthModel 
+public class CalendarModel 
 	extends Observable 
 	implements ICalendarModel,
 	Observer {
 
 	
 	/**
-	 * A reference to the Year and Month represented by this class
+	 * A reference to the current date represented by this class
 	 */
-	GregorianCalendar thisMonth;
+	GregorianCalendar currentDate;
 	
 	/**
 	 * The database, or other source of data for getting events to display etc. 
@@ -63,11 +63,11 @@ public class MonthModel
 	 * 
 	 * @param calendarDB	the source of data!
 	 */
-	public MonthModel(ICalendarDB calendarDB) {
+	public CalendarModel(ICalendarDB calendarDB) {
 		this.calendarDB = calendarDB;
 		
-		thisMonth = new GregorianCalendar();
-		thisMonth.setTime(new Date());
+		currentDate = new GregorianCalendar();
+		currentDate.setTime(new Date());
 		
 		if (calendarDB instanceof Observable) {
 			((Observable)calendarDB).addObserver(this);
@@ -75,21 +75,59 @@ public class MonthModel
 	}
 	
 	/**
-	 * Get all the CalendarEvents for this month.
+	 * Get all the CalendarEvents for the month of the current date.
+	 * Not sure if this will be used in future.
 	 * 
 	 * @return
 	 */
 	public List <CalendarEvent> getEventsForMonth() {
 		
-		List <CalendarEvent> events = calendarDB.getEventsForMonth(thisMonth);
+		// make a copy of the Calendar (don't want to alter the one referenced in arguments)
+		Calendar fromDate = new GregorianCalendar();
+		fromDate.setTime(currentDate.getTime());
+		// set the fromDate to the start of the month
+		fromDate.set(Calendar.DAY_OF_MONTH, 1);
+		fromDate.set(Calendar.HOUR_OF_DAY, 0);
+		fromDate.set(Calendar.MINUTE, 0);
 		
-		return events;
+		// make a copy of the Calendar (don't want to alter the one referenced in arguments)
+		Calendar toDate = new GregorianCalendar();
+		toDate.setTime(fromDate.getTime());
+		// set the toDate to the end of the month
+		toDate.add(Calendar.MONTH, 1);
+		
+		return getEventsForDates(fromDate, toDate);
+
+	}
+	
+	
+	/**
+	 * Get all the CalendarEvents for this month.
+	 * 
+	 * @return
+	 */
+	public List <CalendarEvent> getEventsForDates(Calendar fromDate, Calendar toDate) {
+		return calendarDB.getEventsForDates(fromDate, toDate);
 	}
 	
 	
 	public void incrementMonth(int increment) {
-		thisMonth.add(Calendar.MONTH, increment);
+		currentDate.add(Calendar.MONTH, increment);
 	}
+	
+	/**
+	 * Gets the CalendarObject that this CalendarEvent belongs to.
+	 * 
+	 * @param calID		The unique ID used to identify a calendar
+	 * @return		A CalendarObject to which the CalendarEvent belongs (or null if not found)
+	 */
+	public CalendarObject getCalendarForEvent(CalendarEvent calendarEvent) {
+		
+		int calID = calendarEvent.getCalendarID();
+		
+		return calendarDB.getCalendar(calID);
+	}
+	
 
 	/**
 	 * Database has been updated
@@ -99,5 +137,6 @@ public class MonthModel
 		
 		// TODO !! 
 	}
+
 	
 }

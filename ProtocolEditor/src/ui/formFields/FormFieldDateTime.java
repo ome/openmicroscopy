@@ -52,11 +52,15 @@ import tree.IDataFieldObservable;
 import ui.components.CustomComboBox;
 
 /**
- * This class wraps a Gregorian Calendar, which is displayed with a Date-Picker and hrs-mins spinners.
- * It saves the time to dataField as a UTC millisecond string.
- * Changes made via the date-picker or hrs-mins spinners are first saved to the Gregorian Calendar...
- * then updated to dataField as millisecond string. 
- * The default time is NOW! 
+ * This class allows users to pick a date,
+ * either as an absolute date (eg 20th March 2008) or as a relative date (eg 2 days later). 
+ * It saves the Date to dataField using the UTCmillisecond attribute.
+ * This will either be the UTCmillisecond value of an absolute date,
+ * or the relative date in milliseconds. 
+ * eg 2 days would be stored as 2 * 24 * 60 * 60 * 1000 milliseconds
+ * 
+ * In addition, a time is saved separately if chosen by the user. 
+ * Otherwise, this is simply a date field with no time.
  * 
  * @author will
  *
@@ -221,19 +225,11 @@ public class FormFieldDateTime extends FormField {
 		if (daySelector.getSelectedIndex() > 0){
 			int daysChosen = daySelector.getSelectedIndex() - 1;
 			
-			calendar.set(Calendar.YEAR, 0);
-			calendar.set(Calendar.MONTH, 0);
+			int millisecsPerDay = 24 * 60 * 60 * 1000;
 			
-			calendar.set(Calendar.DAY_OF_MONTH, daysChosen);
+			int daysInMillis = daysChosen * millisecsPerDay;
 			
-			calendar.set(Calendar.HOUR_OF_DAY, 0);
-			calendar.set(Calendar.MINUTE, 0);
-			
-			System.out.println(dateFormat.format(calendar.getTime()));
-			System.out.println(timeFormat.format(calendar.getTime()));
-			
-			long timeInMillis = calendar.getTimeInMillis();
-			dataField.setAttribute(DataFieldConstants.UTC_MILLISECS, timeInMillis + "", true);
+			dataField.setAttribute(DataFieldConstants.UTC_MILLISECS, daysInMillis + "", true);
 		} else {
 			dataField.setAttribute(DataFieldConstants.UTC_MILLISECS, null, true);
 		}
@@ -278,8 +274,17 @@ public class FormFieldDateTime extends FormField {
 			
 			int year = calendar.get(Calendar.YEAR);
 			
+			/*
+			 * If UTCMillisecs has been used to store an absolute date, the date will
+			 * be eg 2008. 
+			 * 
+			 * However, if UTCMillisecs has been used to store a relative date (eg 2 days)
+			 * then UTCMillisecs will simply equal that time in milliseconds. 
+			 * This means the year in a calendar will be 1970 (Epoch). 
+			 */
+			
 			// if date has been set, year is eg 2008.
-			if (year >1) {
+			if (year != 1970) {
 				datePicker.removeActionListener(calendarListener);
 				datePicker.setDate(date);
 				datePicker.addActionListener(calendarListener);
@@ -288,16 +293,23 @@ public class FormFieldDateTime extends FormField {
 				daySelector.setSelectedIndex(0);
 				daySelector.addActionListener(daySelectedListener);
 			} else {
-				int days = calendar.get(Calendar.DAY_OF_MONTH);
 				
-				daySelector.removeActionListener(daySelectedListener);
-				daySelector.setSelectedIndex(days + 1);
-				daySelector.addActionListener(daySelectedListener);
+				try {
+					int days = convertMillisecsToDays(UTCMillisecs);
+					
+					daySelector.removeActionListener(daySelectedListener);
+					daySelector.setSelectedIndex(days + 1);
+					daySelector.addActionListener(daySelectedListener);
 				
-				datePicker.removeActionListener(calendarListener);
-				datePicker.setDate(null);
-				datePicker.getEditor().setText(PICK_DATE);
-				datePicker.addActionListener(calendarListener);
+					datePicker.removeActionListener(calendarListener);
+					datePicker.setDate(null);
+					datePicker.getEditor().setText(PICK_DATE);
+					datePicker.addActionListener(calendarListener);
+					
+				} catch (Exception e) {
+					// Either the millisecs value was too high for integer,
+					// or number of days was off the scale of the daySelector
+				}
 			}
 			
 		} else {
@@ -312,6 +324,23 @@ public class FormFieldDateTime extends FormField {
 		}
 		
 		
+	}
+	
+	/**
+	 * Used if a relative time is stored in millisecs. 
+	 * 
+	 * @param millisecs
+	 * @return
+	 */
+	public static int convertMillisecsToDays(long millisecs) {
+		
+		int milliseconds = (int)millisecs;
+		
+		int millisecsPerDay = 24 * 60 * 60 * 1000;
+	
+		int days = milliseconds / millisecsPerDay;
+		
+		return days;
 	}
 	
 	

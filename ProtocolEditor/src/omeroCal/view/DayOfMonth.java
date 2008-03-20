@@ -42,10 +42,19 @@ public class DayOfMonth extends JPanel {
 	
 	Box eventBox;
 	
+	JLabel dayLabel;
+	
+	Color grey = new Color(200, 200, 200);
+	
+	/**
+	 * A highlight color to indicate TODAY, if the current month is displayed
+	 */
+	protected static Color todayBackground = new Color(255, 225, 225);
+	
 	public DayOfMonth(int dayOfMonth) {
 		
 		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createMatteBorder(1,1,0,0, new Color(200, 200, 200)));
+		setBorder(BorderFactory.createMatteBorder(1,0,0,1, grey));
 		
 		Dimension daySize = new Dimension(115, 105);
 		setMinimumSize(daySize);
@@ -53,7 +62,8 @@ public class DayOfMonth extends JPanel {
 		
 		this.setBackground(Color.WHITE);
 		
-		add(new JLabel(dayOfMonth + ""), BorderLayout.NORTH);
+		dayLabel = new JLabel(dayOfMonth + "");
+		add(dayLabel , BorderLayout.NORTH);
 		
 		eventBox = Box.createVerticalBox();
 		add(eventBox, BorderLayout.CENTER);
@@ -66,6 +76,15 @@ public class DayOfMonth extends JPanel {
 	public void addEventLabel(EventLabel event) {
 
 		eventBox.add(event);
+	}
+	
+	public void setDayFromOtherMonth(boolean dayFromOtherMonth) {
+		dayLabel.setForeground(dayFromOtherMonth ? grey : Color.black);
+		setBackground(dayFromOtherMonth ? new Color(247,247,247) : Color.white);
+	}
+	
+	public void setToday(boolean today) {
+		setBackground(today ? todayBackground : Color.white);
 	}
 
 }

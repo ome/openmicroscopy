@@ -24,11 +24,13 @@
 package omeroCal.view;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
 import omeroCal.model.CalendarEvent;
+import omeroCal.model.CalendarObject;
 import omeroCal.model.ICalendarModel;
 
 /**
@@ -64,9 +66,9 @@ public class Controller
 	/**
 	 * Delegates to the MonthModel
 	 */
-	public List<CalendarEvent> getEventsForMonth() {
+	public List <CalendarEvent> getEventsForDates(Calendar fromDate, Calendar toDate) {
 		
-		return monthModel.getEventsForMonth();
+		return monthModel.getEventsForDates(fromDate, toDate);
 	}
 
 	/**
@@ -75,6 +77,16 @@ public class Controller
 	public void incrementMonth(int increment) {
 		
 		monthModel.incrementMonth(increment);
+	}
+	
+	/**
+	 * Gets the CalendarObject that this CalendarEvent belongs to.
+	 * 
+	 * @param calID		The unique ID used to identify a calendar
+	 * @return		A CalendarObject to which the CalendarEvent belongs (or null if not found)
+	 */
+	public CalendarObject getCalendarForEvent(CalendarEvent calendarEvent) {
+		return monthModel.getCalendarForEvent(calendarEvent);
 	}
 
 	/**

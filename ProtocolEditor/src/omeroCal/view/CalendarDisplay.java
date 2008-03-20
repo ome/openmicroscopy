@@ -31,9 +31,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import omeroCal.model.CalendarEvent;
+import omeroCal.model.CalendarObject;
 import omeroCal.model.ICalendarModel;
 
-public class CalendarFrame
+public class CalendarDisplay
 	extends JPanel 
 	implements Observer,
 	IEventListener {
@@ -56,7 +57,7 @@ public class CalendarFrame
 	JPanel infoPanelEast;
 	
 	
-	public CalendarFrame(ICalendarModel controller) {
+	public CalendarDisplay(ICalendarModel controller, boolean mainApplicationWindow) {
 		
 		this.controller = controller;
 		
@@ -79,6 +80,10 @@ public class CalendarFrame
 		JFrame frame = new JFrame("OMERO Calendar");
 		frame.getContentPane().add(this);
 		
+		if (mainApplicationWindow) {
+			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
+		
 		frame.pack();
 		frame.setVisible(true);
 		
@@ -93,6 +98,10 @@ public class CalendarFrame
 	
 		this.remove(infoPanelEast);
 		infoPanelEast = new EventInfoPanel(calendarEvent);
+		
+		CalendarObject calendar = controller.getCalendarForEvent(calendarEvent);
+		((EventInfoPanel)infoPanelEast).setCalendar(calendar);
+		
 		this.add(infoPanelEast, BorderLayout.EAST);
 		
 		infoPanelEast.validate();

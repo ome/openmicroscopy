@@ -42,6 +42,7 @@ import tree.DataFieldConstants;
 import ui.components.FileChooserReturnFile;
 import ui.components.TimeEditor;
 import ui.fieldEditors.FieldEditorDate;
+import ui.formFields.FormFieldDateTime;
 import util.XMLMethods;
 
 public class CalendarFile extends CalendarObject {
@@ -115,11 +116,12 @@ public class CalendarFile extends CalendarObject {
 					
 					// First, need to know if this is an absolute Date (eg April 23rd 2008) or
 					// if this is a relative date (eg 3 days later).
-					// If it is a relative date, Year will be 0 (or 1?)
-					// If an absolute date, Year will be > 1
+					// If it is a relative date, Year will be 1970 (epoch) since relative days will 
+					// be in millisecs. 
+					// If an absolute date, Year will be == 1970
 					
 					int year = testForAbsoluteDate.get(Calendar.YEAR);
-					if (year >1) {
+					if (year != 1970) {
 						// create a new calendar (don't want to change time of calendars added to list).
 						gc = new GregorianCalendar();
 						gc.setTimeInMillis(new Long(millisecs));
@@ -133,31 +135,38 @@ public class CalendarFile extends CalendarObject {
 					if (fileContainsDate) {
 						
 						// get the relative days
-						int days = testForAbsoluteDate.get(Calendar.DAY_OF_MONTH);
-						System.out.println(" days = " + days);
-						
-						// take the last date for gc (updated for the last DATE_TIME_FIELD or DATE_FIELD),
-						Date previousDate = gc.getTime();
-						gc = new GregorianCalendar();	// don't want to change existing date in list
-						gc.setTime(previousDate);
-						
-						// set the hours, mins, secs to 0.  (Only interested in the date)
-						gc.set(Calendar.HOUR_OF_DAY, 0);
-						gc.set(Calendar.MINUTE, 0);
-						gc.set(Calendar.SECOND, 0);
-						
-						System.out.println("Relative date before adding days : " 
-								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
-								 CalendarTestCode.timeFormat.format(gc.getTime()));
-						
-						
-						// now increment the number of days
-						gc.add(Calendar.DAY_OF_MONTH, days);
-						
-						
-						System.out.println("Relative date after adding days : " 
-								+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
-								 CalendarTestCode.timeFormat.format(gc.getTime()));
+						try {
+							int days = FormFieldDateTime.convertMillisecsToDays(testForAbsoluteDate.getTimeInMillis());
+							System.out.println(" days = " + days);
+							
+							// take the last date for gc (updated for the last DATE_TIME_FIELD or DATE_FIELD),
+							Date previousDate = gc.getTime();
+							gc = new GregorianCalendar();	// don't want to change existing date in list
+							gc.setTime(previousDate);
+							
+							// set the hours, mins, secs to 0.  (Only interested in the date)
+							gc.set(Calendar.HOUR_OF_DAY, 0);
+							gc.set(Calendar.MINUTE, 0);
+							gc.set(Calendar.SECOND, 0);
+							
+							System.out.println("Relative date before adding days : " 
+									+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+									 CalendarTestCode.timeFormat.format(gc.getTime()));
+							
+							
+							// now increment the number of days
+							gc.add(Calendar.DAY_OF_MONTH, days);
+							
+							
+							System.out.println("Relative date after adding days : " 
+									+ CalendarTestCode.dateFormat.format(gc.getTime()) + " " +
+									 CalendarTestCode.timeFormat.format(gc.getTime()));
+							
+						} catch (NumberFormatException ex) {
+							// millisecs could not be converted to integer. 
+							// Ignore - just don't add to calendar
+							continue;
+						}
 					}
 					
 					// by this point, you have the date of the new Event... 

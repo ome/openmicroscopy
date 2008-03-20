@@ -49,6 +49,20 @@ public interface ICalendarDB {
 	
 	
 	/**
+	 * Updates a CalendarEvent which is already in the database. 
+	 * This will replace all the values in the corresponding row of the Events table
+	 * with values from the calendarEvent. 
+	 * The correct row in the database is identified by the UID attribute returned by
+	 * calendarEvent.getUID();
+	 * If the corresponding row is not found in the DB, this method returns false. 
+	 * 
+	 * @param calendarEvent		The calendar 
+	 * @return				If the update is successful.
+	 */
+	public boolean updateEvent(CalendarEvent calendarEvent);
+	
+	
+	/**
 	 * Get all the events for a specified Calendar ID
 	 * 
 	 * @param calendarID
@@ -58,11 +72,39 @@ public interface ICalendarDB {
 	
 	
 	/**
-	 * Gets a list of CalendarEvents for a given Month (and year). 
-	 * Events are returned if they start before the end of the month, or end after the start of the month
+	 * Gets a list of CalendarEvents that fall between 2 dates (start-date and end-date).
+	 * Events are returned if they start before the end date, or end after the start date.
 	 * 
-	 * @param yearMonth		A date-time that includes a year and month. Other values (day etc) are ignored
-	 * @return			A List of events 
+	 * @param fromThisDate
+	 * @param toThisDate
+	 * @return			A List of events as CalendarEvent objects.
 	 */
-	public List<CalendarEvent> getEventsForMonth(Calendar yearMonth);
+	public List<CalendarEvent> getEventsForDates(Calendar fromThisDate, Calendar toThisDate);
+	
+	
+	/**
+	 * Gets a list of CalendarEvents with alarm times that fall between 2 dates
+	 * Events are returned if alarm time is before the end date, or after the start date.
+	 * 
+	 * @param fromThisDate
+	 * @param toThisDate
+	 * @return			A List of events as CalendarEvent objects.
+	 */
+	public List<CalendarEvent> getEventsForAlarmTimes(Calendar fromThisTime, Calendar toThisTime);
+	
+	
+	/**
+	 * Simply gets the CalendarObject specified by its unique ID from the calendar table
+	 * 
+	 * @param calID		The unique ID used to identify a calendar
+	 * @return		A CalendarObject that contains all the info from that row of the DB (or null if not found)
+	 */
+	public CalendarObject getCalendar(int calID);
+	
+	
+	/**
+	 * Clears all data from the tables in the database. 
+	 * USE WITH CARE!!
+	 */
+	public void clearTables();
 }

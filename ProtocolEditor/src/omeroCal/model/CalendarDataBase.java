@@ -55,11 +55,11 @@ public class CalendarDataBase
 	/**
 	 * Database connection.
 	 */
-	private Connection conn;
+	//private Connection conn;
 	
 
 	public static SimpleDateFormat sqlDateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	public static SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//	public static SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	
 	/**
 	 * TABLE NAMES
@@ -145,10 +145,6 @@ public class CalendarDataBase
 	 */
 	public static final String ALL_DAY_EVENT = "allDayEvent";
 	
-	/**
-	 * The folder that will be created (in the users home folder) to hold the database
-	 */
-	public static final String OMERO_EDITOR = "omeroEditorCalendar";
 	
 	
 	/** 
@@ -157,55 +153,11 @@ public class CalendarDataBase
 	 */
 	public CalendarDataBase() {
 		
-		// set up DB connection
-		connectToDB();
-		
 		// try to create tables 
 		createTables();
 	}
 	
-	/**
-	 * Returns the directory where this class creates and stores the database
-	 * 
-	 * @return	the directory where this class creates and stores the database
-	 */
-	public String getDataBaseSaveDirectory() {
-		return System.getProperty("user.home") + File.separator + OMERO_EDITOR;
-	}
-	
-	/**
-	 * Connect to the HSQLDB database
-	 */
-	public void connectToDB() {
-		
-		String saveDirectory = getDataBaseSaveDirectory();
-		
-		if (!new File(saveDirectory).exists()) {
-           new File(saveDirectory).mkdir();
-		}
-		
-	
-		try {
-			// Load the HSQL Database Engine JDBC driver
-			Class.forName("org.hsqldb.jdbcDriver");
-		 	       
-			// Connect to the database
-			System.out.println("Calendar: Trying to create database at " + saveDirectory + File.separator + "calendar");
-			conn = DriverManager.getConnection(
-					"jdbc:hsqldb:file:" + saveDirectory + File.separator + "calendar",  // filenames
-					"sa",                   // userName
-					"");                    // password
-			
-			
-		} catch (ClassNotFoundException e) {
-			System.out.println("Couldn't find Class at org.hsqldb.jdbcDriver");
-			e.printStackTrace();
-		} catch (SQLException e) {
-			System.out.println("Error connecting to DataBase: " + e.getMessage());
-			// e.printStackTrace();
-		}
-	}
-	
+
 	public void createTables() {
 		
 		// create the calendar table
@@ -242,7 +194,7 @@ public class CalendarDataBase
 	 */
 	public synchronized int update(String expression) throws SQLException {
 	
-		//System.err.println(expression);
+		Connection conn = DBConnectionSingleton.getConnection();
 	
 		Statement st = null;
 	
@@ -263,6 +215,9 @@ public class CalendarDataBase
 	 * Exact copy from Brian's ome.formats.importer.HistoryDB.java
 	 */
 	public synchronized ResultSet getQueryResults(String expression) throws SQLException {
+		
+		Connection conn = DBConnectionSingleton.getConnection();
+		
 		Statement st = null;
 		ResultSet rs = null;
 		
@@ -280,7 +235,10 @@ public class CalendarDataBase
 	 * Exact copy from Brian's ome.formats.importer.HistoryDB.java
 	 */
 	public synchronized ResultSet getGeneratedKeys() throws SQLException {
+		
+		Connection conn = DBConnectionSingleton.getConnection();
 		Statement st = null;
+		
 		st = conn.createStatement();    // statements
 		
 		String sql = "CALL IDENTITY()";
@@ -301,21 +259,6 @@ public class CalendarDataBase
 		rs.next();
 		return rs.getInt(1);
 	}
-	
-	/**
-	 * Exact copy from Brian's ome.formats.importer.HistoryDB.java
-	 */
-	public void shutdown() throws SQLException {
-		
-		Statement st = conn.createStatement();
-		
-		// db writes out to files and performs clean shuts down
-		// otherwise there will be an unclean shutdown
-		// when program ends
-		st.execute("SHUTDOWN");
-		conn.close();    // if there are no other open connection
-	}
-	
 	
 	
 	
@@ -408,6 +351,63 @@ public class CalendarDataBase
 		}
 		
 	}
+	
+	
+	/**
+	 * Updates a CalendarEvent which is already in the database. 
+	 * This will replace all the values in the corresponding row of the Events table
+	 * with values from the calendarEvent. 
+	 * The correct row in the database is identified by the UID attribute returned by
+	 * calendarEvent.getUID();
+	 * If no entries are modified by this method, this method returns false. 
+	 * 
+	 * @param calendarEvent		The calendar 
+	 * @return				If the update is successful.
+	 */
+	public boolean updateEvent(CalendarEvent calendarEvent) {
+		
+		int uID = calendarEvent.getUID();
+		int calendarID = calendarEvent.getCalendarID();
+		String eventName = calendarEvent.getName();
+		Date startDate = calendarEvent.getStartTime();
+		Date endDate = calendarEvent.getEndTime();
+		Date alarmDate = calendarEvent.getAlarmTime();
+		boolean allDayEvent = calendarEvent.isAllDayEvent();
+			
+		System.out.println("Updating Event: " + eventName + " to DB.");
+			
+		String query = "UPDATE " + EVENT_TABLE + " " +
+				"SET " + 
+				CAL_ID + " = " + calendarID + ", " +
+				EVENT_NAME + " = " + formatStringForSQLQuery(eventName) + ", " +
+				START_DATE + " = " + formatDateForSQLQuery(startDate) + ", " +
+				END_DATE + " = " + formatDateForSQLQuery(endDate) + ", " +
+				ALARM_DATE + " = " + formatDateForSQLQuery(alarmDate) + ", " +
+				ALL_DAY_EVENT + " = " + allDayEvent + " " +
+				"WHERE " +
+				UID + " = " + uID ;
+				
+			
+		System.out.println();
+	    System.out.println(query);
+	    System.out.println();	
+				
+		try {
+			int rowsAffected = update(query);
+			
+			if (rowsAffected > 0) 
+				return true;
+			else 
+				return false;
+						
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+	
 	
 	/** 
 	 * Convenience method for converting Date to formatted " 'string' " 
@@ -525,34 +525,24 @@ public class CalendarDataBase
 	}
 	
 	/**
-	 * Gets a list of CalendarEvents for a given Month (and year). 
-	 * Events are returned if they start before the end of the month, or end after the start of the month
+	 * Gets a list of CalendarEvents for a given time period.
+	 * Events are returned if they start before the end date, or end after the start date. 
 	 * 
-	 * @param yearMonth		A date-time that includes a year and month. Other values (day etc) are ignored
+	 * @param   fromThisDate
+	 * @param	toThisDate
 	 * @return			A List of events 
 	 */
-	public List<CalendarEvent> getEventsForMonth(Calendar yearMonth) {
+	public List<CalendarEvent> getEventsForDates(Calendar fromThisDate, Calendar toThisDate) {
 		
 		ArrayList<CalendarEvent> calendarEvents = new ArrayList<CalendarEvent>();
 		
-		if (yearMonth == null) {
+		if ((fromThisDate == null) || (toThisDate == null)) {
 			System.err.println("CalendarDataBase.getEventsForMonth() yearMonth == null");
 			return calendarEvents;
 		}
 		
-		// make a copy of the Calendar (don't want to alter the one referenced in arguments)
-		Calendar theMonth = new GregorianCalendar();
-		theMonth.setTime(yearMonth.getTime());
-		
-		// set the fromDate to the start of the month
-		theMonth.set(Calendar.DAY_OF_MONTH, 1);
-		theMonth.set(Calendar.HOUR_OF_DAY, 0);
-		theMonth.set(Calendar.MINUTE, 0);
-		String fromDate = sqlDateFormat.format(theMonth.getTime());
-		
-		// set the toDate to the end of the month
-		theMonth.add(GregorianCalendar.MONTH, 1);
-		String toDate = sqlDateFormat.format(theMonth.getTime());
+		String fromDate = sqlDateTimeFormat.format(fromThisDate.getTime());
+		String toDate = sqlDateTimeFormat.format(toThisDate.getTime());
 		
 		String query = "SELECT " + EVENT_TABLE + "." + UID + " AS " + UID + ", " +
 		EVENT_TABLE + "." + CAL_ID + " AS " + CAL_ID + ", " +
@@ -621,6 +611,165 @@ public class CalendarDataBase
 			e.printStackTrace();
 		}
 		return calendarEvents;
+	}
+	
+	
+	/**
+	 * Gets a list of CalendarEvents with alarm times that fall between 2 dates
+	 * Events are returned if alarm time is before the end date, or after the start date.
+	 * If fromThisDate is null, it will be set to the current time.
+	 * 
+	 * @param fromThisDate		Look for events with alarm times after this date-time
+	 * @param toThisDate		Look for events with alarm times before this date-time
+	 * @return			A List of events as CalendarEvent objects.
+	 */
+	public List<CalendarEvent> getEventsForAlarmTimes(Calendar fromThisTime, Calendar toThisTime) {
+		
+		ArrayList<CalendarEvent> calendarEvents = new ArrayList<CalendarEvent>();
+		
+		/*
+		 * If no fromTime has been set, assume it is now. 
+		 */
+		if (fromThisTime == null) {
+			fromThisTime.setTime(new Date());
+		}
+
+		if (toThisTime == null) {
+			System.err.println("CalendarDataBase.getEventsForAlarmTimes() toThisTime == null");
+			return calendarEvents;
+		}
+		
+		String fromDate = sqlDateTimeFormat.format(fromThisTime.getTime());
+		String toDate = sqlDateTimeFormat.format(toThisTime.getTime());
+		
+		String query = "SELECT " + 
+		UID + ", " +
+		CAL_ID + ", " +
+		EVENT_NAME + ", " +
+		START_DATE + ", " +
+		END_DATE + ", " +
+		ALARM_DATE + ", " +
+		ALL_DAY_EVENT + " " +
+		"FROM " + EVENT_TABLE + " " +
+		"WHERE " + 
+		ALARM_DATE + " >= '" + fromDate + "' " +
+		 "AND " + 
+		 ALARM_DATE + " <= '" + toDate + "' ";
+	
+		System.out.println();
+		System.out.println(query);
+		System.out.println();
+	
+		try {
+			ResultSet calFileResult = getQueryResults(query);
+		
+			//printResultSet(calFileResult, 2);
+		
+			while(calFileResult.next()) {
+			
+				int uID = calFileResult.getInt(UID);
+				int cal_ID = calFileResult.getInt(CAL_ID);
+				String eventName = null;
+				if (calFileResult.getObject(EVENT_NAME) != null)
+					eventName = calFileResult.getObject(EVENT_NAME).toString();
+				Date startDate = calFileResult.getTimestamp(START_DATE);
+				Date endDate = calFileResult.getTimestamp(END_DATE);
+				Date alarmDate = calFileResult.getTimestamp(ALARM_DATE);
+				boolean allDayEvent = calFileResult.getBoolean(ALL_DAY_EVENT);
+			
+				System.out.println("Event from DB: eventName: " + eventName + 
+					" uID: " + uID +
+					" cal_ID " + cal_ID + 
+					" startDate: " + formatDateForSQLQuery(startDate) +
+					" endDate: " + formatDateForSQLQuery(endDate) +
+					" alarmDate: " + formatDateForSQLQuery(alarmDate) +
+					" allDayEvent: " + allDayEvent);
+					
+				System.out.println();
+			
+				CalendarEvent calEvent = new CalendarEvent(eventName, startDate);
+				calEvent.setUID(uID);
+				calEvent.setCalendarID(cal_ID);
+				calEvent.setEndTime(endDate);
+				calEvent.setAlarmTime(alarmDate);
+				calEvent.setAllDayEvent(allDayEvent);
+			
+				calendarEvents.add(calEvent);
+			}
+		
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("CalendarDataBase SQLException " + query);
+			e.printStackTrace();
+		}
+		return calendarEvents;
+	}
+	
+	
+	/**
+	 * Simply gets the CalendarObject specified by its unique ID from the calendar table
+	 * 
+	 * @param calID		The unique ID used to identify a calendar
+	 * @return		A CalendarObject that contains all the info from that row of the DB (or null if not found)
+	 */
+	public CalendarObject getCalendar(int calID) {
+		
+		CalendarObject calendarObject = new CalendarObject();
+		
+		String query = "SELECT " + 
+		UID + ", " +
+		CAL_NAME + ", " +
+		CAL_INFO + ", " +
+		CAL_COLOUR + ", " +
+		CAL_VISIBLE + " " +
+		"FROM " + CALENDAR_TABLE + " " +
+		"WHERE " + 
+		UID + "=" + calID ;
+	
+		System.out.println();
+		System.out.println(query);
+		System.out.println();
+		
+		try {
+			ResultSet calFileResult = getQueryResults(query);
+		
+			if (calFileResult.next()) {
+			
+				int uID = calFileResult.getInt(UID);
+				String calendarName = null;
+				if (calFileResult.getObject(CAL_NAME) != null)
+					calendarName = calFileResult.getObject(CAL_NAME).toString();
+				String calendarInfo = null;
+				if (calFileResult.getObject(CAL_INFO) != null)
+					calendarInfo = calFileResult.getObject(CAL_INFO).toString();
+				int colorInt = calFileResult.getInt(CAL_COLOUR);
+				boolean calVisible = calFileResult.getBoolean(CAL_VISIBLE);
+			
+				System.out.println("Calendar from DB: calendarName: " + calendarName + 
+					" uID: " + uID +
+					" calendarInfo: " + calendarInfo +
+					" calColour: " + colorInt +
+					" calVisible: " + calVisible);
+					
+				System.out.println();
+			
+				calendarObject.setCalendarID(uID);
+				calendarObject.setName(calendarName);
+				calendarObject.setInfo(calendarInfo);
+				calendarObject.setColour(colorInt);
+				calendarObject.setVisibile(calVisible);
+			
+			}
+		
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("CalendarDataBase SQLException " + query);
+			e.printStackTrace();
+			
+			return null;
+		}
+		return calendarObject;
+		
 	}
 	
 	

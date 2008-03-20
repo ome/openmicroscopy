@@ -34,8 +34,10 @@ import javax.swing.JFrame;
 import omeroCal.model.CalendarDataBase;
 import omeroCal.model.CalendarEvent;
 import omeroCal.model.CalendarObject;
+import omeroCal.model.DBConnectionSingleton;
+import omeroCal.model.ICalendarDB;
 import omeroCal.model.ICalendarModel;
-import omeroCal.model.MonthModel;
+import omeroCal.model.CalendarModel;
 import omeroCal.view.MonthView;
 
 /**
@@ -53,16 +55,39 @@ public class CalendarTestCode {
 	
 	public static void main(String[] args) throws SQLException {
 		
-		testGetEvents();
+		updateEvent();
+		
+		//clearDBTables();
+		
+		// addEvent();
+		
+		//  testGetEvents();
+		
+		// testAddCalendar();
 	}
 	
+	
+	public static void updateEvent() throws SQLException {
+		
+		ICalendarDB calDB = new CalendarDataBase();
+		
+		CalendarEvent test = new CalendarEvent("test", new Date());
+		test.setUID(0);
+		test.setCalendarID(0);
+		
+		boolean success = calDB.updateEvent(test);
+		
+		System.out.println("CalendarTestCode updateEvent = " + success);
+		
+		
+	}
 	
 	public static void clearDBTables() throws SQLException {
 		
 		CalendarDataBase calDB = new CalendarDataBase();
 		calDB.clearTables();
 		
-		calDB.shutdown();
+		
 	}
 	
 	public static void getMonthResults() throws SQLException{
@@ -70,7 +95,7 @@ public class CalendarTestCode {
 		
 		CalendarDataBase calDB = new CalendarDataBase();
 		
-		ICalendarModel monthModel = new MonthModel(calDB);
+		ICalendarModel monthModel = new CalendarModel(calDB);
 		
 		MonthView monthView = new MonthView(monthModel);
 		
@@ -92,29 +117,36 @@ public class CalendarTestCode {
 		
 		GregorianCalendar thisMonth = new GregorianCalendar();
 		thisMonth.setTime(new Date());
-		thisMonth.add(Calendar.MONTH, 3);
-		thisMonth.add(Calendar.HOUR_OF_DAY, 2);
+		//thisMonth.add(Calendar.MONTH, 3);
+		//thisMonth.add(Calendar.HOUR_OF_DAY, 2);
 		
 		System.out.println(CalendarDataBase.formatDateForSQLQuery(thisMonth.getTime()));
 		
 		
 		CalendarEvent calEvent = new CalendarEvent("Drink G&T!", thisMonth);
 		
-		calDB.saveEvent(calEvent, 3);
+		calDB.saveEvent(calEvent, 243);
 		
-		calDB.shutdown();
+		
+
 	}
 	
 	public static void testGetEvents() throws SQLException {
 		
 		CalendarDataBase calDB = new CalendarDataBase();
 		
-		GregorianCalendar thisMonth = new GregorianCalendar();
-		calDB.getEventsForMonth(thisMonth);
+		GregorianCalendar lastHour = new GregorianCalendar();
+		lastHour.add(Calendar.DAY_OF_MONTH, -1);
 		
-		//calDB.getEvents(94);
+		GregorianCalendar nextHour = new GregorianCalendar();
+		nextHour.add(Calendar.DAY_OF_MONTH, +1);
 		
-		calDB.shutdown();
+		calDB.getEventsForDates(lastHour, nextHour);
+		
+		
+		//calDB.getEvents(0);
+		
+
 	}
 	
 	
@@ -126,7 +158,8 @@ public class CalendarTestCode {
 		
 		int calID = calDB.saveCalendar(calendar);
 		
+		System.out.println("testAddCalendar ID = " + calID);
 		
-		calDB.shutdown();
+		
 	}
 }

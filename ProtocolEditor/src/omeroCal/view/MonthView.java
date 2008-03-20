@@ -58,14 +58,27 @@ public class MonthView
 	IEventListener {
 
 	/**
-	 * A Model of this month.
+	 * A Model of the calendar
 	 */
 	ICalendarModel controller;
 	
 	/**
-	 * A reference to the Year and Month represented by this class
+	 * A reference to the Year, Month and Day currently selected.
+	 * eg used to switch between MonthView and WeekView, which keeping same date highlighted
 	 */
-	GregorianCalendar thisMonth;
+	GregorianCalendar currentDate;
+	
+	/**
+	 * The first date displayed for the MonthView. This will usually be a few days before the 
+	 * start of the current month
+	 */
+	GregorianCalendar firstDisplayDate;
+	
+	/**
+	 * The last date displayed for the MonthView. This will usually be a few days after the end 
+	 * of the current month.
+	 */
+	GregorianCalendar lastDisplayDate;
 	
 	/**
 	 * The current moment in time. Used to highlight "Today" in the month view.
@@ -75,7 +88,7 @@ public class MonthView
 	/**
 	 * Each week starts on Monday!
 	 */ 
-	int firstDayOfWeek = GregorianCalendar.MONDAY;
+	public static final int FIRST_DAY_OF_WEEK = GregorianCalendar.MONDAY;
 	
 	/**
 	 * A label at the top, displaying month and year, eg "March 2008"
@@ -93,16 +106,20 @@ public class MonthView
 	DayOfMonth[] days;
 	
 	/**
-	 * A highlight color to indicate TODAY, if the current month is displayed
+	 * This is the number of days from the end of last month, that are displayed
+	 * in the first week of this month. 
 	 */
-	protected static Color todayBackground = new Color(255, 225, 225);
+	int daysRemainingLastMonth;
 	
+	/**
+	 * The number of days in the currently displayed month.
+	 */
+	int daysThisMonth;
 	/**
 	 * The grid that displays the days
 	 */
 	JPanel daysGridPanel;
 	
-
 	
 	/**
 	 * Creates a new instance of MonthView, with the month and year set to current time.
@@ -120,8 +137,8 @@ public class MonthView
 		
 		this();
 		
-		thisMonth = new GregorianCalendar();
-		thisMonth.setTime(date);
+		currentDate = new GregorianCalendar();
+		currentDate.setTime(date);
 		
 	}
 	
@@ -152,8 +169,8 @@ public class MonthView
 		
 		this.setLayout(new BorderLayout());
 		
-		if (thisMonth == null)
-			thisMonth = new GregorianCalendar();
+		if (currentDate == null)
+			currentDate = new GregorianCalendar();
 		
 		
 		// GridLayout to hold the days, one week = 7 columns
@@ -213,35 +230,82 @@ public class MonthView
 		// if refreshing, need to remove all old days from grid
 		daysGridPanel.removeAll();
 		
+		// Initialize display dates (if null)
+		if (firstDisplayDate == null)
+			firstDisplayDate = new GregorianCalendar();
+		if (lastDisplayDate == null)
+			lastDisplayDate = new GregorianCalendar();
+		
+		
 		// Get the first day of the month
-		thisMonth.set(Calendar.DAY_OF_MONTH, 1);
-		int firstDayOfMonth = thisMonth.get(GregorianCalendar.DAY_OF_WEEK);
-		// Calculate the number of days to ignore from the previous month
-		int daysRemainingLastMonth = firstDayOfMonth - firstDayOfWeek;
+		firstDisplayDate.setTime(currentDate.getTime());
+		firstDisplayDate.set(Calendar.DAY_OF_MONTH, 1);
+		int firstDayOfMonth = firstDisplayDate.get(Calendar.DAY_OF_WEEK);
+		// Calculate the number of days to display from the previous month
+		daysRemainingLastMonth = firstDayOfMonth - FIRST_DAY_OF_WEEK;
 		if (daysRemainingLastMonth < 0)
 			daysRemainingLastMonth = daysRemainingLastMonth + 7;
+		// now move the first display date to include these last days of the previous month
+		firstDisplayDate.add(Calendar.DAY_OF_MONTH, daysRemainingLastMonth * -1);
 		
 		
-		// Fill in blanks for the remaining days of last month
-		for (int i=0; i< daysRemainingLastMonth; i++) {
-			daysGridPanel.add(new DayOfMonth());
-		}
+		// now do the last day of the month
+		lastDisplayDate.setTime(currentDate.getTime());
+		daysThisMonth = lastDisplayDate.getActualMaximum(Calendar.DAY_OF_MONTH);
+		lastDisplayDate.set(Calendar.DAY_OF_MONTH, daysThisMonth);
+		// what day of the week is the last day of the month?
+		int lastDayOfMonth = lastDisplayDate.get(Calendar.DAY_OF_WEEK);
+		// calculate number of days to display from start of next month
+		int daysFromStartOfNextMonth = FIRST_DAY_OF_WEEK + 6 - lastDayOfMonth;
+			if (daysFromStartOfNextMonth > 6)
+				daysFromStartOfNextMonth = daysFromStartOfNextMonth - 7;
+		lastDisplayDate.add(Calendar.DAY_OF_MONTH, daysFromStartOfNextMonth);
+		
+		
+		int totalDaysDisplayed = daysRemainingLastMonth + daysThisMonth + daysFromStartOfNextMonth;
+		System.out.println("MonthView addDaysToGrid  totalDaysDisplayed = " + totalDaysDisplayed);
+		System.out.println("MonthView addDaysToGrid  daysThisMonth = " + daysThisMonth);
+		System.out.println("MonthView addDaysToGrid  daysFromStartOfNextMonth = " + daysFromStartOfNextMonth);
+		
+
 		
 		// create an array to hold the days of the month, for easy reference
-		int daysThisMonth = thisMonth.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
-		days = new DayOfMonth[daysThisMonth + 1];
+	//	int daysThisMonth = currentDate.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
+		days = new DayOfMonth[totalDaysDisplayed + 1];
+		
+		int index;	// keep track of days added to grid
+		
+		// Add the days from last month to the grid
+		int dateOfFirstDisplayDate = firstDisplayDate.get(Calendar.DAY_OF_MONTH);
+		for (index=0; index <daysRemainingLastMonth; index++) {
+			days[index] = new DayOfMonth(dateOfFirstDisplayDate);
+			days[index].setDayFromOtherMonth(true);
+			daysGridPanel.add(days[index]);
+			dateOfFirstDisplayDate++;
+		}
 		
 		// Add the days of this month to the grid.
-		for (int i=1; i< days.length; i++) {
-			days[i] = new DayOfMonth(i);
-			daysGridPanel.add(days[i]);
+		int day = 1;
+		for (; index < daysThisMonth+daysRemainingLastMonth; index++) {
+			days[index] = new DayOfMonth(day);
+			daysGridPanel.add(days[index]);
+			day++;
+		}
+		
+		// Add the days of next month to the grid
+		day = 1;
+		for (; index < totalDaysDisplayed; index++) {
+			days[index] = new DayOfMonth(day);
+			days[index].setDayFromOtherMonth(true);
+			daysGridPanel.add(days[index]);
+			day++;
 		}
 		
 		// if the current month is being displayed, highlight Today
-		if ((now.get(Calendar.YEAR) == thisMonth.get(Calendar.YEAR)) && 
-				(now.get(Calendar.MONTH) == thisMonth.get(Calendar.MONTH))) {
+		if ((now.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)) && 
+				(now.get(Calendar.MONTH) == currentDate.get(Calendar.MONTH))) {
 			int today = now.get(Calendar.DAY_OF_MONTH);
-			days[today].setBackground(todayBackground);
+			days[today + daysRemainingLastMonth - 1].setToday(true);
 		}
 		
 		// required if the view has been refreshed
@@ -251,7 +315,7 @@ public class MonthView
 	
 	public void refreshHeader() {
 		SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMMMM yyyy");
-		String monthYear = monthYearFormat.format(thisMonth.getTime());
+		String monthYear = monthYearFormat.format(currentDate.getTime());
 		monthYearLabel.setText(monthYear);
 	}
 	
@@ -276,7 +340,7 @@ public class MonthView
 		}
 		eventsDisplayed.clear();
 		
-		List <CalendarEvent> events = controller.getEventsForMonth();
+		List <CalendarEvent> events = controller.getEventsForDates(firstDisplayDate, lastDisplayDate);
 		
 		for (CalendarEvent evt: events) {
 			addCalendarEvent(evt);
@@ -292,25 +356,48 @@ public class MonthView
 	public void addCalendarEvent(CalendarEvent evt) {
 		Calendar eventDateTime = evt.getStartCalendar();
 
-		if (eventDateTime.get(Calendar.MONTH) == thisMonth.get(Calendar.MONTH)) {
+		EventLabel eventLabel = new EventLabel(evt);
+		if (controller instanceof IEventListener) {
+			eventLabel.setEventController((IEventListener)controller);
+		}
+		
+		int thisMonth = currentDate.get(Calendar.MONTH);
+		int eventMonth = eventDateTime.get(Calendar.MONTH);
+		// eg dayOfMonth = 1st. Add to array index 0;
+		int dayOfMonth = eventDateTime.get(Calendar.DAY_OF_MONTH) - 1;
+		
+		/* if in the current month, need to add to the array of 
+		 * days[displayIndex]
+		 */
+		if (eventMonth == thisMonth) {
 			
-			EventLabel eventLabel = new EventLabel(evt);
-			if (controller instanceof IEventListener) {
-				eventLabel.setEventController((IEventListener)controller);
-			}
+			int displayIndex = dayOfMonth + daysRemainingLastMonth;
+			days[displayIndex].addEventLabel(eventLabel);
 			
-			int dayOfMonth = eventDateTime.get(Calendar.DAY_OF_MONTH);
+		} else 
+			// if in the previous month...
+		if (eventMonth == thisMonth - 1) {
+			
 			days[dayOfMonth].addEventLabel(eventLabel);
 			
-			eventsDisplayed.add(eventLabel);
-			//System.out.println("MonthView addCalendarEvent eventsDisplayed.size() " + eventsDisplayed.size() );
+		} else 
+			// if event is in next month...
+			
+		if (eventMonth == thisMonth + 1) {
+			
+			int displayIndex = dayOfMonth + daysRemainingLastMonth + daysThisMonth;
+			days[displayIndex].addEventLabel(eventLabel);
+			
 		}
+		
+		// this list is used to notify eventLabels that eg selection has changed.
+		eventsDisplayed.add(eventLabel);
 	}
 	
 	
 	public void incrementMonth(int increment) {
 		
-		thisMonth.add(Calendar.MONTH, increment);
+		currentDate.add(Calendar.MONTH, increment);
 		
 		controller.incrementMonth(increment);
 		

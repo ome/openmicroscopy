@@ -45,8 +45,10 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
 
 import omeroCal.model.CalendarEvent;
+import omeroCal.model.CalendarObject;
 import ui.components.AlignedComponent;
 
 
@@ -64,6 +66,9 @@ public class EventInfoPanel
 	TimeDisplay startTime;
 	TimeDisplay endTime;
 	
+	
+	CalendarLabel calendarLabel;
+	JPanel calendarColourPanel;
 	
 	public EventInfoPanel() {
 		this(null);
@@ -159,7 +164,18 @@ public class EventInfoPanel
 		// show the Calendar that this Event belongs to
 		leftColumn.add(new CalendarLabel("calendar: "));
 		// Need to get Calendar info from DB
-		rightColumn.add(new CalendarLabel(" Work "));
+		Box calendarColorLabelBox = Box.createHorizontalBox();
+		calendarColourPanel = new JPanel();
+		calendarColourPanel.setBorder(new LineBorder(Color.black));
+		calendarColourPanel.setPreferredSize(new Dimension(15, 11));
+		calendarColourPanel.setMaximumSize(new Dimension(15, 11));
+		calendarColorLabelBox.add(calendarColourPanel);
+		calendarColorLabelBox.add(Box.createHorizontalStrut(3));
+		calendarLabel = new CalendarLabel("");
+		calendarColorLabelBox.add(calendarLabel);
+		calendarColorLabelBox.add(Box.createHorizontalGlue());
+		calendarColorLabelBox.add(Box.createHorizontalStrut(20));	// filler
+		rightColumn.add(calendarColorLabelBox);
 		
 		
 		// display alarm time in an AlarmSetter
@@ -187,6 +203,21 @@ public class EventInfoPanel
 		this.setPreferredSize(new Dimension(280, 400));
 		this.setBackground(Color.WHITE);
 		
+	}
+	
+	public void setCalendar(CalendarObject calendar) {
+		
+		String calendarName = calendar.getName();
+		if (calendarName != null)
+			calendarLabel.setText("<html>" + calendarName + "</html>");
+		else 
+			calendarLabel.setText("");
+		
+		Color calendarColor = calendar.getColour();
+		calendarColourPanel.setBackground(calendarColor);
+		
+		String calendarInfo = calendar.getInfo();
+		calendarLabel.setToolTipText(calendarInfo);
 	}
 	
 	public class AllDayListener implements ActionListener {

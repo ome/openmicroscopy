@@ -23,9 +23,11 @@ package xmlMVC;
  */
 
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.io.*;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,8 +39,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import omeroCal.model.AlarmChecker;
+import omeroCal.model.DBConnectionSingleton;
+
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import calendar.CalendarMain;
 
 import tree.DataField;
 import tree.DataFieldConstants;
@@ -73,6 +80,15 @@ public class XMLModel
 	XMLUpdateObserver, 
 	SelectionObserver,
 	IModel {
+	
+	/**
+	 * This is the main class for the Calendar package that provides a calendar for
+	 * displaying DateTimeFields from editor files. 
+	 * This class should be instantiated when the application starts up, so that the 
+	 * database connection can be opened for this application and 
+	 * the alarm checker can get working etc. 
+	 */
+	CalendarMain omeroEditorCalendar;
 	
 	/**
 	 * These strings are used to add a "version" attribute to the XML documents saved by this application.
@@ -120,8 +136,11 @@ public class XMLModel
 	 */
 	
 	public static void main(String args[]) {
+		
 		try {
+			
 			new XMLModel(true);
+
 			
 		// catch any uncaught exceptions	
 		} catch (Exception se) {
@@ -146,6 +165,15 @@ public class XMLModel
 	// alternative constructor, instantiates empty Tree, then creates new View. 
 	public XMLModel(boolean showView) {
 		
+		/**
+		 * This instantiates the DB required for calendar and alarm functions. 
+		 * Throws an exception if another instance of this application is 
+		 * running (will be trying to use the same DB). 
+		 * 
+		 * When this application quits, DBConnectionSingleton.shutDownConnection()
+		 * should be called. This will be done under the quit dialog in ui.XMLView. 
+		 */
+		omeroEditorCalendar = new CalendarMain();
 		
 		
 		currentTree = null;
@@ -573,6 +601,16 @@ public class XMLModel
 		if (openFiles.size() > 1) {
 			// TreeCompare.compareTrees(openFiles.get(0), openFiles.get(1));
 		}
+	}
+	
+	/**
+	 * Delegate calendar display etc to the calendar main class. 
+	 * This has already has been instantiated (connection and alarm-checker setup)
+	 * so now just need to give user a chance to refresh the DB
+	 * and display the calendar. 
+	 */
+	public void populateDBthenDisplay() {
+		this.omeroEditorCalendar.populateDBthenDisplay(false);
 	}
 
 }

@@ -87,4 +87,7 @@ public interface IModel {
 	public void importFieldsFromImportTree();
 	
 	public boolean isCurrentFileEdited();
+	
+	// calendar functions
+	public void populateDBthenDisplay();
 }

@@ -28,6 +28,11 @@ import java.awt.Color;
 public class CalendarObject {
 
 	
+	/**
+	 * A unique ID to identify this object in the DB.
+	 * This is only set when this object is return from the DB.
+	 */
+	private int calendarID;
 	
 	/**
 	 * A name for display purposes
@@ -49,6 +54,22 @@ public class CalendarObject {
 	 */
 	private boolean calendarVisible = true;
 	
+	
+	public static final Color[] calColours = {
+		new Color(230, 62,171),
+		new Color(237, 55, 73),
+		new Color(243,163,49),
+		new Color(243, 202, 49),
+		new Color(243, 119, 49),
+		new Color(201, 238, 41),
+		new Color(90, 227, 29),
+		new Color(29, 179, 227),
+		new Color(41, 29, 227),
+		new Color(140, 29, 227)
+	};
+	
+	private static int colourIndex = 0;
+	
 	/**
 	 * Creates a new instance of CalendarObject
 	 * 
@@ -58,6 +79,7 @@ public class CalendarObject {
 	public CalendarObject() {
 		
 		// create a random color
+		/*
 		int red = 0;
 		int green = 0;
 		int blue = 0;
@@ -67,8 +89,12 @@ public class CalendarObject {
 			green = (int)Math.floor(Math.random() * 256);
 			blue = (int)Math.floor(Math.random() * 256);
 		}
-						
-		calendarColour = new Color(red, green, blue);
+		*/
+				
+		//int index = (int)Math.floor(Math.random() * calColours.length);
+		
+		colourIndex = (colourIndex+1) % calColours.length;
+		calendarColour = calColours[colourIndex];
 	}
 	
 	
@@ -136,6 +162,14 @@ public class CalendarObject {
 	
 	public String getInfo() {
 		return calendarInfo;
+	}
+	
+	public int getCalendarID() {
+		return calendarID;
+	}
+	
+	public void setCalendarID(int calID) {
+		calendarID = calID;
 	}
 
 }
