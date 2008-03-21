@@ -34,7 +34,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.core.OriginalFile;
 
 /** 
- * 
+ * Annotation to upload files to the server.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -59,14 +59,26 @@ public class FileAnnotationData
 	/** Identifies the <code>CSV</code> file formats. */
 	public static final String CSV = "csv";
 	
-	/** Identifies the <code>CSV</code> file formats. */
+	/** Identifies the <code>XML</code> file formats. */
 	public static final String XML = "xml";
 	
-	/** Identifies the <code>CSV</code> file formats. */
+	/** Identifies the <code>HTML</code> file formats. */
 	public static final String HTML = "html";
 	
-	/** Identifies the <code>CSV</code> file formats. */
+	/** Identifies the <code>HTM</code> file formats. */
 	public static final String HTM = "htm";
+	
+	/** Identifies the <code>Word</code> file formats. */
+	public static final String WORD = "doc";
+	
+	/** Identifies the <code>Excel</code> file formats. */
+	public static final String EXCEL = "xls";
+	
+	/** Identifies the <code>Power point</code> file formats. */
+	public static final String POWER_POINT = "ppt";
+	
+	/** Identifies the <code>RTF</code> file formats. */
+	public static final String RTF = "rtf";
 	
 	/** 
 	 * The <code>PDF</code> file format as defined by specification
@@ -110,8 +122,12 @@ public class FileAnnotationData
 		if (path.endsWith(PDF)) format = PDF;
 		else if (path.endsWith(TEXT)) format = TEXT;
 		else if (path.endsWith(CSV)) format = CSV;
-		else if (path.endsWith(XML) || path.endsWith(HTML) ||
-				path.endsWith(HTM)) format = XML;
+		else if (path.endsWith(XML)) format = XML;
+		else if (path.endsWith(HTML) || path.endsWith(HTM)) format = HTML;
+		else if (path.endsWith(WORD)) format = WORD;
+		else if (path.endsWith(EXCEL)) format = EXCEL;
+		else if (path.endsWith(POWER_POINT)) format = POWER_POINT;
+		else if (path.endsWith(RTF)) format = RTF;
 		else
 			throw new IllegalArgumentException("Format not supported.");
 	}
@@ -155,6 +171,9 @@ public class FileAnnotationData
 			format.equals(HTM)) return SERVER_XML;
 		if (format.equals(CSV)) return SERVER_CSV;
 		if (format.equals(TEXT)) return SERVER_TEXT;
+		if (format.equals(WORD)) return SERVER_TEXT;
+		if (format.equals(EXCEL)) return SERVER_TEXT;
+		if (format.equals(POWER_POINT)) return SERVER_TEXT;
 		throw new IllegalArgumentException("Format not supported.");
 	}
 	
@@ -173,6 +192,31 @@ public class FileAnnotationData
 		else if (SERVER_TEXT.equals(format)) return TEXT;
 		else if (SERVER_XML.equals(format)) return XML;
 		throw new IllegalArgumentException("Format not supported.");
+	}
+	
+	/**
+	 * Returns a user readable description of the file.
+	 * 
+	 * @return See above.
+	 */
+	public String getFileKind()
+	{
+		String format = getFileFormat();
+		if (PDF.equals(format))
+			return "PDF Document";
+		else if (XML.equals(format))
+			return "XML Document";
+		else if (WORD.equals(format))
+			return "Microsoft Word Document";
+		else if (EXCEL.equals(format))
+			return "Microsoft Excel Document";
+		else if (TEXT.equals(format))
+			return "Plain Text Document";
+		else if (HTML.equals(format) || HTM.equals(format))
+			return "HTML Document";
+		else if (CSV.equals(format))
+			return "Comma Separated Value Document";
+		return "";
 	}
 	
 	/**
@@ -208,6 +252,19 @@ public class FileAnnotationData
 		OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
 		if (f != null) return f.getPath();
 		return "";
+	}
+	
+	/**
+	 * Returns the size of the file.
+	 * 
+	 * @return See above.
+	 */
+	public long getFileSize()
+	{
+		if (getId() < 0) return -1;
+		OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+		if (f == null) return -1;
+		return f.getSize();
 	}
 	
 	/**

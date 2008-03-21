@@ -31,7 +31,7 @@ package pojos;
 import ome.model.annotations.TextAnnotation;
 
 /** 
- * Basic textual annotation.
+ * Basic textual annotation used to add comments to a given object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -76,9 +76,9 @@ public class TextualAnnotationData
 	}
 	
 	/**
-	 * Returns the text.
+	 * Sets the text.
 	 * 
-	 * @param text See above.
+	 * @param text The value to set.
 	 */
 	public void setText(String text) { setContent(text); }
 	

@@ -22,7 +22,6 @@ import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.containers.CategoryImageLink;
 import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.core.Image;

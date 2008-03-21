@@ -1,5 +1,5 @@
 /*
- * pojos.URLAnnotationData
+ * pojos.ArchivedAnnotationData 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -25,16 +25,13 @@ package pojos;
 
 //Java imports
 
-
 //Third-party libraries
-import org.apache.commons.validator.UrlValidator;
 
 //Application-internal dependencies
-import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.BooleanAnnotation;
 
 /** 
- * Define a URL Annotation. Note that a URL annotation is a specific text
- * annotation.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,77 +43,61 @@ import ome.model.annotations.UrlAnnotation;
  * </small>
  * @since OME3.0
  */
-public class URLAnnotationData 
+public class ArchivedAnnotationData
 	extends AnnotationData
 {
 
-	/** The <code>http</code> scheme for the url. */
-	public static final String	HTTP = "http";
+	/** 
+	 * The name space used to identify the archived annotation
+	 * linked to a set of pixels.
+	 */
+	public static final String IMPORTER_ARCHIVED_NS = 
+					"openmicroscopy.org/omero/importer/archived";
 	
-	/** The <code>https</code> scheme for the url. */
-	public static final String	HTTPS = "https";
 	
-	/** The supported schemes for URL. */
-	public static final String[] URLS;
-	
-	static {
-		URLS = new String[2];
-		URLS[0] = HTTP;
-		URLS[1] = HTTPS;
+	/** Creates a new instance. */
+	public ArchivedAnnotationData()
+	{
+		super(BooleanAnnotation.class);
+		setContent(null);
 	}
 	
 	/**
-	 * Controls if the value is valid URL.
+	 * Creates a new instance.
 	 * 
-	 * @param value The value to check.
+	 * @param value The value to set.
 	 */
-	private void validateURL(String value)
+	public ArchivedAnnotationData(boolean value)
 	{
-		if (value == null)
-			throw new IllegalArgumentException("URL not valid.");
-		UrlValidator validator = new UrlValidator(URLS);
-		if (!validator.isValid(value))
-			throw new IllegalArgumentException("URL not valid");
+		super(BooleanAnnotation.class);
+		setContent(value);
 	}
-	
-	/** 
-	 * Creates a new instance. 
+
+	/**
+	 * Creates a new instance.
 	 * 
-	 * @param url The value to set.
+	 * @param annotation 	The {@link BooleanAnnotation} object corresponding 
+	 * 						to this <code>DataObject</code>. 
+     *            			Mustn't be <code>null</code>.
 	 */
-	public URLAnnotationData(String url)
-	{
-		super(UrlAnnotation.class);
-		setURL(url);
-	}
-	
-	/** 
-	 * Creates a new instance. 
-	 * 
-	 * @param annotation The value to set.
-	 */
-	public URLAnnotationData(UrlAnnotation annotation)
+	public  ArchivedAnnotationData(BooleanAnnotation annotation)
 	{
 		super(annotation);
 	}
 	
 	/**
-	 * Sets the url.
+	 * Returns the text.
 	 * 
-	 * @param url	The value to set.
+	 * @param value The value to set.
 	 */
-	public void setURL(String url)
-	{
-		validateURL(url);
-		((UrlAnnotation) asAnnotation()).setTextValue(url);
-	}
+	public void setValue(boolean value) { setContent(value); }
 	
 	/**
-	 * Returns the <code>url</code>.
+	 * Returns the text of this annotation.
 	 * 
 	 * @return See above.
 	 */
-	public String getURL() { return getContentAsString(); }
+	public boolean getValue() { return (Boolean) getContent(); }
 	
 	/**
 	 * Returns the textual content of the annotation.
@@ -124,7 +105,7 @@ public class URLAnnotationData
 	 */
 	public Object getContent()
 	{
-		return ((UrlAnnotation) asAnnotation()).getTextValue();
+		return ((BooleanAnnotation) asAnnotation()).getBoolValue();
 	}
 
 	/**
@@ -140,10 +121,13 @@ public class URLAnnotationData
 	public void setContent(Object content)
 	{
 		if (content == null)
-			throw new IllegalArgumentException("URL not valid.");
-		if (content instanceof String) setURL((String) content);
-		else
-			throw new IllegalArgumentException("URL not valid.");
+			throw new IllegalArgumentException("Annotation value cannot " +
+												"be null.");
+		
+		if (!(content instanceof Boolean))
+			throw new IllegalArgumentException("Object must be of type " +
+										"Boolean");
+		((BooleanAnnotation) asAnnotation()).setBoolValue((Boolean) content);
 	}
 	
 }

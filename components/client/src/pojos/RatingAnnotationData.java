@@ -32,7 +32,8 @@ package pojos;
 import ome.model.annotations.LongAnnotation;
 
 /** 
- * 
+ * Annotation used to rate an object. The five starts approach is 
+ * selected.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
