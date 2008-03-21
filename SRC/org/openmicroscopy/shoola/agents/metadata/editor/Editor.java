@@ -33,6 +33,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -53,6 +54,12 @@ public interface Editor
 	extends ObservableComponent
 {
 
+	/** Inidicates to layout all the components vertically. */
+	public static final int VERTICAL_LAYOUT = MetadataViewer.VERTICAL_LAYOUT;
+	
+	/** Inidicates to layout all the components vertically. */
+	public static final int	GRID_LAYOUT = MetadataViewer.GRID_LAYOUT;;
+	
 	/**
 	 * Feeds the metadata back to the editor.
 	 * 
@@ -149,5 +156,7 @@ public interface Editor
 
 	/** Brings up on screen the image's information. */
 	public void showImageInfo();
+
+	public void setExistingAttachements(Collection attachments);
 	
 }

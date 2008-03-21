@@ -48,21 +48,24 @@ public class EditorFactory
 	/**
      * Creates a new {@link Browser}.
      * 
-     * @param parent
-     * @param refObject   
+     * @param parent			Reference to the parent. 
+     * 							Must't be <code>null</code>.
+     * @param refObject   		The object of reference.
      * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param layout			One of the layout constants defined by the 
+	 * 							{@link Editor} I/F.
      * @return See above.
      */
     public static Editor createEditor(MetadataViewer parent, 
     									Object refObject, boolean
-    									thumbnailRequired)
+    									thumbnailRequired, int layout)
     {
     	EditorModel model = new EditorModel(refObject, parent, 
     										thumbnailRequired);
     	EditorComponent component = new EditorComponent(model);
     	model.initialize(component);
-    	component.initialize();
+    	component.initialize(layout);
     	return component;
     }
     

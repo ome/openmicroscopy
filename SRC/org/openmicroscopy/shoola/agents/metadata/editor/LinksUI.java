@@ -342,6 +342,16 @@ class LinksUI
 		return l;
 	}
 
+	private URLAnnotationData createAnnotation(String value)
+	{
+		try {
+			return new URLAnnotationData(value);
+		} catch (Exception e) {
+			value = URLAnnotationData.HTTP+"://"+value;
+			return createAnnotation(value);
+		}
+	}
+	
 	/**
 	 * Returns the collection of urls to add.
 	 * @see AnnotationUI#getAnnotationToSave()
@@ -353,20 +363,13 @@ class LinksUI
 		JTextField area;
 		String value;
 		while (i.hasNext()) {
-			try {
-				area = (JTextField) i.next();
-				value = area.getText();
-				if (value != null) {
-					value = value.trim();
-					if (value.length() > 0)
-						l.add(new URLAnnotationData(value));
+			area = (JTextField) i.next();
+			value = area.getText();
+			if (value != null) {
+				value = value.trim();
+				if (value.length() > 0) {
+					l.add(createAnnotation(value));
 				}
-				
-			} catch (Exception e) {
-				UserNotifier un = 
-					MetadataViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("New URL", "The URL entered does not " +
-						"seem to be valid.");
 			}
 		}
 		return l;

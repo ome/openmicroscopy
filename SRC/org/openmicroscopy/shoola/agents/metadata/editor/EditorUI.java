@@ -137,6 +137,9 @@ public class EditorUI
      */
     private boolean						saved;
     
+    /** One of the layout constants defined by {@link Editor}. */
+    private int							layout;
+    
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
@@ -225,15 +228,29 @@ public class EditorUI
 		rightPane.add(tree, "0, 0");
 		
 		content = new JPanel();
-		double[][] finalSize = {{TableLayout.FILL, 5, TableLayout.FILL}, 
-								{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		
-		content.setLayout(new TableLayout(finalSize));
-		content.add(toolBar, "0, 0, 2, 0");
-		content.add(leftPane, "0, 1");
-		content.add(rightPane, "2, 1");
-		
-		content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		switch (layout) {
+			case Editor.VERTICAL_LAYOUT:
+				double[][] finalSize = {{TableLayout.FILL}, 
+						{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+						TableLayout.PREFERRED}};
+				content.setLayout(new TableLayout(finalSize));
+				content.add(toolBar, "0, 0,");
+				content.add(leftPane, "0, 1");
+				content.add(rightPane, "0, 2");
+				break;
+			case Editor.GRID_LAYOUT:
+			default:
+				double[][] size = {{TableLayout.FILL, 5, TableLayout.FILL}, 
+					{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+
+				content.setLayout(new TableLayout(size));
+				content.add(toolBar, "0, 0, 2, 0");
+				content.add(leftPane, "0, 1");
+				content.add(rightPane, "2, 1");
+				content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+				
+		}
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(new JScrollPane(content), BorderLayout.CENTER);
 	}
@@ -248,8 +265,10 @@ public class EditorUI
      * 						Mustn't be <code>null</code>.
      * @param controller	Reference to the Controller.
      * 						Mustn't be <code>null</code>.
+     * @param layout		One of the layout constants defined by the 
+	 * 						{@link Editor} I/F.
      */
-    void initialize(EditorModel model, EditorControl controller)
+    void initialize(EditorModel model, EditorControl controller, int layout)
     {
     	if (controller == null)
     		throw new IllegalArgumentException("Controller cannot be null");
@@ -257,6 +276,7 @@ public class EditorUI
     		throw new IllegalArgumentException("Model cannot be null");
         this.controller = controller;
         this.model = model;
+        this.layout = layout;
         initComponents();
         buildGUI();
     }
@@ -322,17 +342,36 @@ public class EditorUI
 		clearData();
 		Object object = model.getRefObject();
 		content.removeAll();
-		if (object instanceof ExperimenterData) {
-			content.add(toolBar, "0, 0, 2, 0");
-			content.add(userUI, "0, 1, 2, 1");
-			userUI.buildUI();
-			revalidate();
-	    	repaint();
-			return;
+		switch (layout) {
+			case Editor.GRID_LAYOUT:
+				if (object instanceof ExperimenterData) {
+					content.add(toolBar, "0, 0, 2, 0");
+					content.add(userUI, "0, 1, 2, 1");
+					userUI.buildUI();
+					revalidate();
+			    	repaint();
+					return;
+				}
+				content.add(toolBar, "0, 0, 2, 0");
+				content.add(leftPane, "0, 1");
+				content.add(rightPane, "2, 1");
+				break;
+	
+			case Editor.VERTICAL_LAYOUT:
+				if (object instanceof ExperimenterData) {
+					content.add(toolBar, "0, 0");
+					content.add(userUI, "0, 1");
+					userUI.buildUI();
+					revalidate();
+			    	repaint();
+					return;
+				}
+				content.add(toolBar, "0, 0");
+				content.add(leftPane, "0, 1");
+				content.add(rightPane, "0, 2");
+				break;
 		}
-		content.add(toolBar, "0, 0, 2, 0");
-		content.add(leftPane, "0, 1");
-		content.add(rightPane, "2, 1");
+		
 		if (object instanceof ImageData) {
     		viewByTree.setVisible(true);
     	} else {
@@ -489,5 +528,8 @@ public class EditorUI
 	
 	/** Clears the password fields. */
 	void passwordChanged() { userUI.passwordChanged(); }
+
+	/** Displays the wizard with the collection of files already uploaded. */
+	void setExistingAttachements() { attachmentsUI.showSelectionWizard(); }
 	
 }

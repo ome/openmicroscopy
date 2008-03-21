@@ -23,8 +23,6 @@
 package org.openmicroscopy.shoola.agents.metadata.view;
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -62,8 +60,38 @@ public class MetadataViewerFactory
 	public static MetadataViewer getViewer(Object refObject, boolean
 										thumbnailRequired)
 	{
+		return  MetadataViewerFactory.getViewer(refObject, thumbnailRequired, 
+										MetadataViewer.GRID_LAYOUT);
+	}
+	
+	/**
+	 * Returns the {@link MetadataViewer}.
+	 * 
+	 * @param refObject			The object viewed as the root of the browser.
+	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
+	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param layout			One of the layout constants defined by the 
+	 * 							{@link MetadataViewer} I/F.
+	 * @return See above.
+	 */
+	public static MetadataViewer getViewer(Object refObject, boolean
+										thumbnailRequired, int layout)
+	{
 		MetadataViewerModel model = new MetadataViewerModel(refObject);
-		return singleton.createViewer(model, thumbnailRequired);
+		return singleton.createViewer(model, thumbnailRequired, layout);
+	}
+	
+	/**
+	 * Returns the {@link MetadataViewer}.
+	 * 
+	 * @param refObject	The object viewed as the root of the browser.
+	 * @param layout	One of the layout constants defined by the 
+	 * 					{@link MetadataViewer} I/F.
+	 * @return See above.
+	 */
+	public static MetadataViewer getViewer(Object refObject, int layout)
+	{
+		return MetadataViewerFactory.getViewer(refObject, true, layout);
 	}
 	
 	/**
@@ -74,7 +102,8 @@ public class MetadataViewerFactory
 	 */
 	public static MetadataViewer getViewer(Object refObject)
 	{
-		return getViewer(refObject, true);
+		return  MetadataViewerFactory.getViewer(refObject, true, 
+										MetadataViewer.GRID_LAYOUT);
 	}
 	
 	/** Creates a new instance. */
@@ -89,13 +118,15 @@ public class MetadataViewerFactory
 	 * @param model				The Model.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param layout			One of the layout constants defined by the 
+	 * 							{@link MetadataViewer} I/F.
 	 * @return See above.
 	 */
 	private MetadataViewer createViewer(MetadataViewerModel model,
-										boolean thumbnailRequired)
+										boolean thumbnailRequired, int layout)
 	{
 		MetadataViewerComponent comp = new MetadataViewerComponent(model);
-		model.initialize(comp, thumbnailRequired);
+		model.initialize(comp, thumbnailRequired, layout);
 		comp.initialize();
 		return comp;
 	}

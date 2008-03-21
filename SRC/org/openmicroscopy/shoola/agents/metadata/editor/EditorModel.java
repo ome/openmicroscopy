@@ -40,6 +40,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
@@ -112,6 +113,9 @@ class EditorModel
     
     /** Collection of existing tags if any. */
     private Collection				existingTags;
+    
+    /** Collection of existing attachments if any. */
+    private Collection				existingAttachments;
     
     /** The list of emissions wavelengths for a given set of pixels. */
     private List					emissionsWavelengths;
@@ -730,6 +734,18 @@ class EditorModel
 		loader.load();
 		loaders.add(loader);
 	}
+	
+	/** 
+	 * Fires an asynchronous retrieval of existing attachments 
+	 * for the currently logged in user. 
+	 */
+	void loadExistingAttachments()
+	{
+		AttachmentsLoader loader = new AttachmentsLoader(component);
+		loader.load();
+		loaders.add(loader);
+	}
+	
 
 	/** Cancels any ongoing tags retrieval. */
 	void cancelExistingTagsLoading()
@@ -780,7 +796,8 @@ class EditorModel
 	 */
 	void setExistingTags(Collection tags)
 	{
-		existingTags = sorter.sort(tags);
+		if (tags != null)
+			existingTags = sorter.sort(tags);
 	}
 	
 	/**
@@ -789,6 +806,25 @@ class EditorModel
 	 * @return See above.
 	 */
 	Collection getExistingTags() { return existingTags; }
+	
+	/**
+	 * Sets the collection of existing attachments.
+	 * 
+	 * @param attachments The value to set.
+	 */
+	void setExistingAttachments(Collection attachments)
+	{
+		if (attachments != null)
+			existingAttachments = sorter.sort(attachments);
+	}
+	
+	/**
+	 * Returns the collection of existing attachments.
+	 * 
+	 * @return See above.
+	 */
+	Collection getExistingAttachments() { return existingAttachments; }
+	
 	
 	/**
 	 * Sets the channel data.

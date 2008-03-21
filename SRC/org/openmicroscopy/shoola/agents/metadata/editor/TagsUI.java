@@ -28,9 +28,12 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -65,7 +68,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -409,16 +411,31 @@ class TagsUI
 	private JPanel layoutNewTags()
 	{
 		JPanel p = new JPanel();
-		double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5,
-				TableLayout.PREFERRED, 60} }; //rows
-		p.setLayout(new TableLayout(tl));
-		p.add (new JLabel("New Tags"), "0, 0");
-		p.add(nameArea, "2, 0");
-		JLabel l = UIUtilities.setTextFont(DESCRIPTION, Font.ITALIC, 10);
-		p.add(l, "2, 2");
-		p.add (new JLabel("Description"), "0, 4");
-		p.add(descriptionArea, "2, 4, 2, 5");
+		
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		p.add(new JLabel("New Tags"), c);
+		c.gridx++;
+		p.add(Box.createHorizontalStrut(5), c);
+		c.gridx++;
+		c.weightx = 0.5;
+		p.add(nameArea, c);
+		c.gridy++;
+		p.add(UIUtilities.setTextFont(DESCRIPTION, Font.ITALIC, 10), c);
+		c.gridx = 0;
+		c.gridy++;
+		c.weightx = 0;
+		p.add (new JLabel("Description"), c);
+		c.gridx++;
+		p.add(Box.createHorizontalStrut(5), c);
+		c.gridx++;
+		c.weightx = 0.5;
+		c.ipady = 60; 
+		p.add (descriptionArea, c);
 		return p;
 	}
 	
@@ -430,13 +447,16 @@ class TagsUI
 	private JPanel createExistingTagsPane()
 	{
 		JPanel p = new JPanel();
-		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
-							{TableLayout.PREFERRED, TableLayout.FILL}};
-		p.setLayout(new TableLayout(size));
-		JLabel label = UIUtilities.setTextFont("Tags: ");
-		p.add(label, "0, 0, f, c");
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		p.add(UIUtilities.setTextFont("Tags: "), c);
+		c.gridx++;
 		layoutExistingTags();
-		p.add(existingTags, "2, 0, 2, 1");
+		c.weightx = 0.5;
+		p.add(existingTags, c);
 		return p;
 	}
 	
@@ -450,12 +470,7 @@ class TagsUI
 		List<TagComponent> tags = new ArrayList<TagComponent>();
 		if (existingTags != null) existingTags.removeAll();
 		else existingTags = new JPanel();
-		int col = 3;
-		double[] columns = {TableLayout.PREFERRED, 5, TableLayout.PREFERRED,
-							5, TableLayout.PREFERRED};
-		TableLayout layout = new TableLayout();
-		layout.setColumn(columns);
-		existingTags.setLayout(layout);
+		
 		if (l != null) {
 			i = l.iterator();
 			while (i.hasNext()) {
@@ -467,33 +482,33 @@ class TagsUI
 		i = addedTags.iterator();
 		while (i.hasNext()) {
 			data = (AnnotationData) i.next();
-			//if (!removedTags.contains(data)) {
-				comp = new TagComponent(this, data);
-				comp.setForeground(EXISTING_TAGS);
-				tags.add(comp);
-			//}
+			comp = new TagComponent(this, data);
+			comp.setForeground(EXISTING_TAGS);
+			tags.add(comp);
 		}
+		JPanel pane = new JPanel();
+		pane.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.WEST;
+		c.gridy = 0;
+		c.gridx = 0;
 		int index = 0;
-		int row = 0;
-		int n = tags.size();
-		for (int j = 0; j < n; j++) {
-			if (j%col == 0) {
-				layout.insertRow(index, TableLayout.PREFERRED);
-				index++;
-			}
-		}
 		i = tags.iterator();
-		index = 0;
 		while (i.hasNext()) {
+			++c.gridx;
 			comp = (TagComponent) i.next();
-			existingTags.add(comp, index+", "+row+", f, c");
-			index = index+2;
-			if (index%(2*col) == 0) {
-				index = 0;
-				row++;
+			pane.add(comp, c);
+			++c.gridx;
+			pane.add(Box.createHorizontalStrut(5), c);
+			if (index%4 == 0 && index != 0) {
+				c.gridy++;
+				c.gridx = 0;
 			}
+			index++;
 		}
 		
+		existingTags.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		existingTags.add(pane);
 		existingTags.revalidate();
 		existingTags.repaint();
 	}
@@ -503,7 +518,7 @@ class TagsUI
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		Collection l = model.getExistingTags();
-		List r = new ArrayList();
+		List<Object> r = new ArrayList<Object>();
 		Collection tags = model.getTags();
 		Iterator i;
 		Set<Long> ids = new HashSet<Long>();
@@ -516,6 +531,7 @@ class TagsUI
 					ids.add(data.getId());
 			}
 		}
+		
 		if (addedTags.size() > 0) {
 			i = tags.iterator();
 			while (i.hasNext()) {
@@ -524,7 +540,7 @@ class TagsUI
 					ids.add(data.getId());
 			}
 		}
-		if (ids.size() > 0 && l.size() > 0) {
+		if (l.size() > 0) {
 			
 			i = l.iterator();
 			while (i.hasNext()) {

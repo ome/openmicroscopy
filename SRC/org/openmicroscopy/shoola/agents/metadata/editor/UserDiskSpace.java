@@ -26,27 +26,25 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.text.NumberFormat;
 import java.util.List;
-
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+
+//Third-party libraries
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * Builds a graph with the used and free space.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -70,23 +68,6 @@ class UserDiskSpace
 	
 	/** The collapse version of this component. */
 	private JPanel		collapseComponent;
-	
-	
-	/**
-	 * Converts the passed value into a string in Mb and returns a string 
-	 * version of it.
-	 * 
-	 * @param v The value to convert.
-	 * @return See above.
-	 */
-	private String convertValue(long v)
-	{
-		long value = v;///1000;
-		NumberFormat.getInstance().format(v);
-		if (value > 1000) value = value/1000;
-		else return NumberFormat.getInstance().format(value)+" Kb";
-		return NumberFormat.getInstance().format(value)+" Mb";
-	}
 	
 	/**
 	 * Creates a new instance.
@@ -126,8 +107,8 @@ class UserDiskSpace
 			DefaultPieDataset dataset = new DefaultPieDataset();
 			long free = (Long) list.get(0);
 			long used = (Long) list.get(1);
-			dataset.setValue("Free "+convertValue(free), free);
-			dataset.setValue("Used "+convertValue(used), used);
+			dataset.setValue("Free "+UIUtilities.formatFileSize(free), free);
+			dataset.setValue("Used "+UIUtilities.formatFileSize(used), used);
 			JFreeChart freeChart = ChartFactory.createPieChart(TITLE, dataset, 
 															false, true, false);
 			add(new ChartPanel(freeChart), BorderLayout.CENTER);

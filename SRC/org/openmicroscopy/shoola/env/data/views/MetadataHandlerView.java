@@ -198,11 +198,14 @@ public interface MetadataHandlerView
 	 * 
 	 * @param annotation 	The annotation type. Mustn't be <code>null</code>.
 	 * @param type			The type of object or <code>null</code>.
+	 * @param userID		The id of the user the annotations are owned by,
+	 * 						or <code>-1</code> if no user specified.
 	 * @param observer  	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadExistingAnnotations(Class annotation, 
-									Class type, AgentEventListener observer);
+									Class type, long userID, 
+									AgentEventListener observer);
 
 	/**
 	 * Saves the object, adds (resp. removes) annotations to(resp. from)

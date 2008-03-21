@@ -83,11 +83,15 @@ class EditorComponent
 		controller = new EditorControl();
 	}
 	
-	/** Links up the MVC triad. */
-	void initialize()
+	/** 
+	 * Links up the MVC triad. 
+	 * 
+	 * @param layout	One of the layout constants defined by the 
+	 * 					{@link Editor} I/F.*/
+	void initialize(int layout)
 	{
 		controller.initialize(this, view);
-		view.initialize(model, controller);
+		view.initialize(model, controller, layout);
 		model.getObservable() .addPropertyChangeListener(controller);
 	}
 	
@@ -253,6 +257,14 @@ class EditorComponent
 	{
 		if (model.getChannelData() == null) model.loadChannelData();
 		else view.showChannelData();
+	}
+
+	public void setExistingAttachements(Collection attachments)
+	{
+		if (attachments == null) return;
+		model.setExistingAttachments(attachments);
+		view.setExistingAttachements();
+		
 	}
 	
 }

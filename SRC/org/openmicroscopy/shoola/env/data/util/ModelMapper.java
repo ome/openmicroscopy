@@ -38,11 +38,9 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.AnnotationAnnotationLink;
-import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
-import ome.model.annotations.OriginalFileAnnotationLink;
 import ome.model.annotations.ProjectAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
@@ -445,7 +443,7 @@ public class ModelMapper
     	} else if (data instanceof RatingAnnotationData) {
     		annotation = new LongAnnotation();
     		((LongAnnotation) annotation).setLongValue(
-    											(Long) data.getContent());
+    										(Long) data.getContent());
     	} else if (data instanceof URLAnnotationData) {
     		annotation = new UrlAnnotation();
     		((UrlAnnotation) annotation).setTextValue(
@@ -467,7 +465,7 @@ public class ModelMapper
      * @return See above.
      */
     public static ILink linkAnnotation(IObject annotatedObject,
-    		IObject annotation) 
+    									IObject annotation) 
     {
     	
     	if (annotation == null) return null;

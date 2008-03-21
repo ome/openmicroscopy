@@ -130,9 +130,6 @@ class SearchPanel
 	private static final String		WITHOUT_WORDS = 
 										"<html><b>Without</b> the words</html>";
 	
-	/** The selected date format. */
-	private static final String		DATE_FORMAT = "yy/MM/dd";
-	
 	/** The tooltip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
 	
@@ -159,7 +156,7 @@ class SearchPanel
 		dateOptions[SearchContext.LAST_TWO_MONTHS] = "Last 60 days";
 		dateOptions[SearchContext.ONE_YEAR] = "1 year";
 		dateOptions[SearchContext.RANGE] = "Specify date range " +
-											"("+DATE_FORMAT.toUpperCase()+")";
+								"("+UIUtilities.DATE_FORMAT.toUpperCase()+")";
 		numberOfResults = new String[SearchContext.MAX_RESULTS+1];
 		numberOfResults[SearchContext.LEVEL_ONE] = 
 									SearchContext.LEVEL_ONE_VALUE+" results";
@@ -266,11 +263,12 @@ class SearchPanel
 	private JXDatePicker createDatePicker()
 	{
 		String[] dateFormats = new String[1];
-		dateFormats[0] = DATE_FORMAT;
+		dateFormats[0] = UIUtilities.DATE_FORMAT;
 		JXDatePicker picker = new JXDatePicker();
+		
 		picker.setToolTipText(DATE_TOOLTIP);
-		picker.getEditor().setEditable(false);
-		picker.setEditable(false);
+		//picker.getEditor().setEditable(false);
+		//picker.setEditable(false);
 		picker.setFormats(dateFormats);
 		return picker;
 	}
@@ -808,6 +806,7 @@ class SearchPanel
 		content.add(tree);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(content);
+		setDateIndex();
 	}
 	
 	/** 

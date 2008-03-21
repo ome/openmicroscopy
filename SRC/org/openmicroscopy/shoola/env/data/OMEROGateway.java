@@ -87,7 +87,7 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
-import pojos.AnnotationData;
+import pojos.ArchivedAnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -115,14 +115,7 @@ import pojos.TextualAnnotationData;
 */
 class OMEROGateway
 {
-	
-	/** 
-	 * The name space used to identify the archived annotation
-	 * linked to a set of pixels.
-	 */
-	private static final String IMPORTER_NS = 
-					"openmicroscopy.org/omero/importer/archived";
-	
+
 	/** Maximum size of pixels read at once. */
 	private static final int		INC = 256000;
 	
@@ -827,6 +820,7 @@ class OMEROGateway
 					service.findAnnotations(convertPojos(nodeType), nodeIDs, 
 							annotatorIDs, options));
 		} catch (Throwable t) {
+			t.printStackTrace();
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
@@ -1579,7 +1573,8 @@ class OMEROGateway
 				data = (Annotation) i.next();
 				if (data instanceof BooleanAnnotation) {
 					BooleanAnnotation ann = (BooleanAnnotation) data;
-					if (IMPORTER_NS.equals(ann.getNs()))
+					if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
+						ann.getNs()))
 						return ann.getBoolValue();
 				}
 			}
@@ -2632,6 +2627,7 @@ class OMEROGateway
 			
 			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;

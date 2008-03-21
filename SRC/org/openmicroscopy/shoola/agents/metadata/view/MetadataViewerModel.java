@@ -115,12 +115,13 @@ class MetadataViewerModel
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
 	 */
-	void initialize(MetadataViewer component, boolean thumbnailRequired)
+	void initialize(MetadataViewer component, boolean thumbnailRequired, int
+				layout)
 	{ 
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component, refObject);
 		editor = EditorFactory.createEditor(component, refObject, 
-										thumbnailRequired);
+										thumbnailRequired, layout);
 	}
 	
 	/**

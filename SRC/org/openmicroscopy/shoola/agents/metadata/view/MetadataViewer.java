@@ -60,6 +60,12 @@ public interface MetadataViewer
 	extends ObservableComponent
 {
 
+	/** Inidicates to layout all the components vertically. */
+	public static final int		VERTICAL_LAYOUT = 0;
+	
+	/** Inidicates to layout all the components vertically. */
+	public static final int		GRID_LAYOUT = 1;
+	
 	/** 
 	 * Constrain indicating to add an external component to the 
 	 * top left corner.

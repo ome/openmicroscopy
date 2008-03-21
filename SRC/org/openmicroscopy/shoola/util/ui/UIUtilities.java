@@ -40,6 +40,8 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -92,6 +94,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 	
+	/** The selected date format. */
+	public static final String				DATE_FORMAT = "yy/MM/dd";
+	
 	/** Background color of an even row. */
 	public final static Color 				BACKGROUND_COLOUR_EVEN = 
 												new Color(232, 242, 254);
@@ -101,7 +106,8 @@ public class UIUtilities
 												new Color(255, 255, 255);
 	
 	/** Background color of the selected row */
-	public final static Color 				SELECTED_BACKGROUND_COLOUR = new Color(180, 213, 255);
+	public final static Color 				SELECTED_BACKGROUND_COLOUR = 
+												new Color(180, 213, 255);
 	
 	/** Foreground color of a cell.*/
 	public final static Color 				FOREGROUND_COLOUR = new Color(0, 0, 
@@ -185,6 +191,11 @@ public class UIUtilities
     /** The default mac L&F. */
     private static final String				MAC_L_AND_F = 
     											"apple.laf.AquaLookAndFeel";
+    
+    /** The pattern to format date. */
+    private static final String				WDMY_FORMAT = 
+    											"E dd MMM yyyy, HH:mm:ss";
+    
     
 	/**
 	 * Centers the specified component on the screen.
@@ -543,8 +554,27 @@ public class UIUtilities
      */
     public static JPanel buildComponentPanel(JComponent component)
     {
+    	return buildComponentPanel(component, 5, 5);
+    }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a left flowlayout.
+     * 
+     * @param component The component to add.
+     * @param hgap    	The horizontal gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @param	vgap    The vertical gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanel(JComponent component, 
+    										int hgap, int vgap)
+    {
         JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p.setLayout(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
         p.add(component);
         return p;
     }
@@ -881,9 +911,24 @@ public class UIUtilities
      */
     public static String formatShortDateTime(Timestamp time) 
     {
+    	
     	if (time == null) return "";
     	return DateFormat.getDateTimeInstance(
     			DateFormat.SHORT, DateFormat.SHORT).format(time);  
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time.
+     * format: E dd MMM yyyy, HH:mm:ss
+     * 
+     * @param time The timestamp to format.
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatWDMYDate(Timestamp time) 
+    {
+    	if (time == null) return "";
+    	SimpleDateFormat formatter = new SimpleDateFormat(WDMY_FORMAT);
+    	return formatter.format(time);  
     }
     
     /**
@@ -961,6 +1006,22 @@ public class UIUtilities
 		buf.append("</a>");
 		buf.append("</body></html>");
 		return buf.toString();
+	}
+	
+	/**
+	 * Converts the passed value into a string in Mb and returns a string 
+	 * version of it.
+	 * 
+	 * @param v The value to convert.
+	 * @return See above.
+	 */
+	public static String formatFileSize(long v)
+	{
+		if (v < 0) return "";
+		long value = v/1000;
+		if (value > 1000) value = value/1000;
+		else return NumberFormat.getInstance().format(value)+" Kb";
+		return NumberFormat.getInstance().format(value)+" Mb";
 	}
 	
 }

@@ -163,14 +163,23 @@ public class IconManager
     /** The <code>XML</code> icon. */
     public static int           XML_DOC = 36;
     
-    /** The <code>XML</code> icon. */
+    /** The <code>Save</code> icon. */
     public static int           SAVE = 37;
+    
+    /** The <code>Columns view</code> icon. */
+    public static int           COLUMNS_VIEW = 38;
+     
+    /** The <code>Upload</code> icon. */
+    public static int           UPLOAD = 39;
+    
+    /** The <code>Sort</code> icon. */
+    public static int           SORT = 40;
      
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 37;
+	private static int          MAX_ID = 40;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -212,6 +221,9 @@ public class IconManager
         relPaths[EXCEL_DOC] = "alienOSX_Microsoft_Excel22.png";
         relPaths[XML_DOC] = "nuvola_acroread22.png";
         relPaths[SAVE] = "nuvola_filesaveas16.png";
+        relPaths[COLUMNS_VIEW] = "nuvola_view_left_right16.png";
+        relPaths[UPLOAD] = "nuvola_download_manager_green_flipped16.png";
+        relPaths[SORT] = "nuvola_player_play_gray16.png";
 	}
    
 	/** The sole instance. */

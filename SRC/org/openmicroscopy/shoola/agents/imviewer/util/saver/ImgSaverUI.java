@@ -220,7 +220,7 @@ class ImgSaverUI
 				savingTypes = new JComboBox(selections);
 		}
     	savingTypes.addActionListener(this);
-    	separateFiles = new JCheckBox("Save each channel in a file.");
+    	separateFiles = new JCheckBox("Save each channel in a separate file.");
     	separateFiles.setSelected(true);
     	separateFiles.setVisible(false);
         chooser = new ImgSaverFileChooser(model, this);

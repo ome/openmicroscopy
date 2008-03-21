@@ -205,12 +205,12 @@ public class SelectionWizard
 		int [] indexes = availableItemsListbox.getSelectedIndices();
 		DefaultListModel model = 
 				(DefaultListModel) availableItemsListbox.getModel();
-		TagAnnotationData tag;
+		Object object;
 		for (int i = 0 ; i < indexes.length ; i++) {
-			tag = (TagAnnotationData) model.getElementAt(indexes[i]);
-			if (availableItems.contains(tag)) {
-				selectedItems.add(tag);
-				availableItems.remove(tag);
+			object = model.getElementAt(indexes[i]);
+			if (availableItems.contains(object)) {
+				selectedItems.add(object);
+				availableItems.remove(object);
 			}
 		}
 		sortLists();

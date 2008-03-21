@@ -334,11 +334,15 @@ public class IconManager
     /** The <code>Start unselected</code> icon. */
     public static final int	START_UNSELECTED_8 = 93;
     
+    /** The <code>Start unselected</code> icon. */
+    public static final int	FILE = 94;
+    
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 93;
+    private static int      MAX_ID = 94;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -440,6 +444,7 @@ public class IconManager
         relPaths[START_UNSELECTED_12] = "mozilla_grey12.png";
         relPaths[START_SELECTED_8] = "nuvola_mozilla8.png";
         relPaths[START_UNSELECTED_8] = "mozilla_grey8.png";
+        relPaths[FILE] = "nuvola_fileexport16.png";
     }
     
     /** 

@@ -33,11 +33,13 @@ import javax.swing.JList;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
-import pojos.ExperimenterData;
+
+import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
 
 /** 
- * 
+ * Renderer used to display various kind of <code>DataObject</code>s in 
+ * a table.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -89,16 +91,11 @@ public class DataObjectListCellRenderer
 		if (value instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) value;
 			setText(tag.getTagValue());
-			//setToolTipText(tag.getTagDescription());
-			/*
-			ExperimenterData exp = tag.getOwner();
-			if (exp != null) {
-				if (exp.getId() == currentUserID) 
-					setIcon(icons.getIcon(IconManager.TAG_OWNER));
-				else setIcon(icons.getIcon(IconManager.TAG));
-			} else
-			*/
-				setIcon(icons.getIcon(IconManager.TAG));
+			setIcon(icons.getIcon(IconManager.TAG));
+		} else if (value instanceof FileAnnotationData) {
+			FileAnnotationData fad = (FileAnnotationData) value;
+			setText(fad.getFileName());
+			setIcon(icons.getIcon(IconManager.FILE));
 		}
 		return this;
 	}

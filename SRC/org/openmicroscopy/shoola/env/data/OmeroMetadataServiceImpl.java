@@ -325,8 +325,6 @@ class OmeroMetadataServiceImpl
 		return annotate(toAnnotate.getClass(), toAnnotate.getId(), annotation);
 	}
 
-	
-	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#annotate(Class, long, AnnotationData)
@@ -360,11 +358,16 @@ class OmeroMetadataServiceImpl
 				link = ModelMapper.createAnnotation(ho, annotation);
 		} else if (annotation instanceof FileAnnotationData) {
 			FileAnnotationData ann = (FileAnnotationData) annotation;
-			OriginalFile of = gateway.uploadFile(ann.getAttachedFile(), 
-								ann.getServerFileFormat());
-			FileAnnotation fa = new FileAnnotation();
-			fa.setFile(of);
-			link = ModelMapper.linkAnnotation(ho, fa);
+			if (ann.getId() < 0) {
+				OriginalFile of = gateway.uploadFile(ann.getAttachedFile(), 
+						ann.getServerFileFormat());
+				FileAnnotation fa = new FileAnnotation();
+				fa.setFile(of);
+				link = ModelMapper.linkAnnotation(ho, fa);
+			} else {
+				link = ModelMapper.linkAnnotation(ho, ann.asIObject());
+			}
+			
 		} else
 			link = ModelMapper.createAnnotation(ho, annotation);
 		if (link != null) {
@@ -607,16 +610,25 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Collection c = gateway.fetchAnnotation(annotationType, objectType, -1);
-		List<AnnotationData> tags = new ArrayList<AnnotationData>();
-		if (c == null || c.size() == 0) return tags;
+		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
+		if (c == null || c.size() == 0) return annotations;
 		Iterator i = c.iterator();
 		AnnotationData data;
 		while (i.hasNext()) {
 			data = (AnnotationData) i.next();
-			if (annotationType.equals(data.getClass())) 
-				tags.add(data);
+			if (annotationType.equals(data.getClass())) {
+				if (data instanceof FileAnnotationData) {
+					FileAnnotation fa = (FileAnnotation) data.asAnnotation();
+					long id = fa.getFile().getId();
+					((FileAnnotationData) data).setContent(
+							gateway.getOriginalFile(id));
+				}
+				annotations.add(data);
+			}
+				
 		}	
-		return tags;
+		return annotations;
+		
 	}
 
 	/**

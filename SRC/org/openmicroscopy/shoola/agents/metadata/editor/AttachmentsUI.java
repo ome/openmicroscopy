@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
@@ -37,31 +39,43 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
+import javax.swing.JViewport;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 //import layout.TableLayout;
 
 //Application-internal dependencies
-import ome.model.annotations.FileAnnotation;
-
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
@@ -73,6 +87,7 @@ import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import ome.model.annotations.FileAnnotation;
 import pojos.AnnotationData;
 import pojos.FileAnnotationData;
 
@@ -94,12 +109,60 @@ class AttachmentsUI
 	implements ActionListener, PropertyChangeListener
 {
 
+	/** Identified the icons view. */
+	private static final int		ICON_VIEW = 0;
+	
+	/** Identified the columns view. */
+	private static final int		COLUMNS_VIEW = 1;
+	
 	/** The title associated to this component. */
-	private static final String TITLE = "Related documents ";
+	private static final String 	TITLE = "Related documents ";
 	
 	/** Action id indicating to add new file. */
-	private static final String	ADD_ACTION = "add";
+	private static final String		ADD_NEW_ACTION = "addNew";
 	
+	/** Action id indicating to add new file. */
+	private static final String		ADD_UPLOADED_ACTION = "addUploaded";
+	
+	/** Action id indicating to add new file. */
+	private static final String		ICON_VIEW_ACTION = "iconView";
+	
+	/** Action id indicating to add new file. */
+	private static final String		COLUMNS_VIEW_ACTION = "columnsView";
+
+	/** Action id indicating to delete the annotation. */
+	private static final String		DELETE_ACTION = "delete";
+
+	/** Action id indicating to delete the annotation. */
+	private static final String		DOWNLOAD_ACTION = "download";
+	
+	/** Action id indicating to order the annotation by name. */
+	private static final String		BY_NAME_ACTION = "byName";
+	
+	/** Action id indicating to order the annotation by date. */
+	private static final String		BY_DATE_ACTION = "byDate";
+	
+	/** Action id indicating to order the annotation by size. */
+	private static final String		BY_SIZE_ACTION = "bySize";
+	
+	/** Action id indicating to order the annotation by kind. */
+	private static final String		BY_KIND_ACTION = "bykind";
+
+	/** Index indicating to order the files by name. */
+	private static final int		BY_NAME = 0;
+	
+	/** Index indicating to order the files by date. */
+	private static final int		BY_DATE = 1;
+	
+	/** Index indicating to order the files by size. */
+	private static final int		BY_SIZE = 2;
+	
+	/** Index indicating to order the files by kind. */
+	private static final int		BY_KIND = 3;
+	
+	/** The dimension of the scroll pane. */
+	private static final Dimension 	SCROLL_SIZE = new Dimension (100, 150);
+
 	/** Button to add a new file. */
 	private JButton							addButton;
 	
@@ -112,9 +175,11 @@ class AttachmentsUI
 	/** Collection of files to attach to the object. */
 	private List<File>						addedFiles;
 	
-	/** Map used to handle the files to add. */
+	/** Collection of files to attach to the object. */
+	private List<FileAnnotationData>		addedFileAnnotations;
 	
-	private Map<Integer, File>				rows;
+	/** Map used to handle the files to add. */
+	private Map<Integer, Object>			rows;
 	
 	/** Map hosting the label displaying the files that can be downloaded. */
 	private Map<JLabel, FileAnnotationData> toDownload;
@@ -122,14 +187,144 @@ class AttachmentsUI
 	/** The label corresponding to the selected file. */
 	private JLabel							selectedFile;
 	
-	/** The pop up menu. */
-	private AttachmentPopupMenu				menu;
+	/** The toolbar displaying the layout options. */
+	private JToolBar						toolBar;
+	
+	/** The layout index used to display the attachments. */
+	private int								viewIndex;
+	
+	/** The selection menu. */
+	private JPopupMenu						selectionMenu;
+	
+	/** The order by menu. */
+	private JPopupMenu						orderByMenu;
+	
+	/** The management menu. */
+	private JPopupMenu						managementMenu;
+	
+	/** The panel hosting the added files. */
+	private JPanel							toAddPane;
+	
+	/** The panel hosting the attachments. */
+	private JScrollPane 					pane;
+	
+	/** Button used to display the {@link #orderByMenu}. */
+	private JButton 						arrangeByButton;
+	
+	/** The layout index used to display the attachments. */
+	private int								orderByIndex;
+	
+	/** Keeps tracks of the comparator. */
+	private Map<Integer, Comparator>		comparators;
+	
+	/**
+	 * Creates the order by menu.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createOrderByMenu()
+	{
+		if (orderByMenu != null) return orderByMenu;
+		String s = "Arrange by ";
+		String tip = "Order the documents by ";
+		orderByMenu = new JPopupMenu();
+		JMenuItem item = new JMenuItem(s+AttachmentsTable.NAME);
+		item.addActionListener(this);
+		item.setActionCommand(BY_NAME_ACTION);
+		item.setToolTipText(tip+"name.");
+		orderByMenu.add(item);
+		item = new JMenuItem(s+AttachmentsTable.DATE);
+		item.addActionListener(this);
+		item.setActionCommand(BY_DATE_ACTION);
+		item.setToolTipText(tip+"date.");
+		orderByMenu.add(item);
+		item = new JMenuItem(s+AttachmentsTable.SIZE);
+		item.addActionListener(this);
+		item.setActionCommand(BY_SIZE_ACTION);
+		item.setToolTipText(tip+"size.");
+		orderByMenu.add(item);
+		item = new JMenuItem(s+AttachmentsTable.KIND);
+		item.addActionListener(this);
+		item.setActionCommand(BY_KIND_ACTION);
+		item.setToolTipText(tip+"kind.");
+		orderByMenu.add(item);
+		return orderByMenu;
+	}
+	
+	/**
+	 * Creates the management menu.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createManagementMenu()
+	{
+		if (managementMenu != null) return managementMenu;
+		IconManager icons = IconManager.getInstance();
+		managementMenu = new JPopupMenu();
+		JMenuItem item = new JMenuItem("Remove");
+		item.addActionListener(this);
+		item.setActionCommand(DELETE_ACTION);
+		item.setIcon(icons.getIcon(IconManager.REMOVE));
+		item.setToolTipText("Remove the attachment.");
+		managementMenu.add(item);
+		item = new JMenuItem("Download");
+		item.addActionListener(this);
+		item.setActionCommand(DOWNLOAD_ACTION);
+		item.setIcon(icons.getIcon(IconManager.DOWNLOAD));
+		item.setToolTipText("Download the file.");
+		managementMenu.add(item);
+		return managementMenu;
+	}
+	
+	/**
+	 * Creates the selection menu.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createSelectionMenu()
+	{
+		if (selectionMenu != null) return selectionMenu;
+		IconManager icons = IconManager.getInstance();
+		selectionMenu = new JPopupMenu();
+		JMenuItem item = new JMenuItem("New document");
+		item.setIcon(icons.getIcon(IconManager.UPLOAD));
+		item.setToolTipText("Attach new document.");
+		item.addActionListener(this);
+		item.setActionCommand(""+ADD_NEW_ACTION);
+		selectionMenu.add(item);
+		item = new JMenuItem("Uploaded document");
+		item.setIcon(icons.getIcon(IconManager.DOWNLOAD));
+		item.setToolTipText("Attach a document already uploaded.");
+		item.addActionListener(this);
+		item.setActionCommand(""+ADD_UPLOADED_ACTION);
+		selectionMenu.add(item);
+		return selectionMenu;
+	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		comparators = new HashMap<Integer, Comparator>();
+		viewIndex = ICON_VIEW;
+		orderByIndex = BY_NAME;
+		IconManager icons = IconManager.getInstance();
+		JToggleButton iconsView = new JToggleButton(
+								icons.getIcon(IconManager.LIST_VIEW));
+		iconsView.setToolTipText("List View");
+		iconsView.setActionCommand(""+ICON_VIEW_ACTION);
+		iconsView.addActionListener(this);
+		JToggleButton columnsView = new JToggleButton(
+								icons.getIcon(IconManager.COLUMNS_VIEW));
+		columnsView.setToolTipText("Columns View");
+		columnsView.setActionCommand(""+COLUMNS_VIEW_ACTION);
+		columnsView.addActionListener(this);
+		iconsView.setSelected(true);
+		ButtonGroup group = new ButtonGroup();
+		group.add(iconsView);
+		group.add(columnsView);
+		
 		toDownload = new HashMap<JLabel, FileAnnotationData>();
-		rows = new HashMap<Integer, File>();
+		rows = new HashMap<Integer, Object>();
 		addedFiles = new ArrayList<File>();
 		filters = new ArrayList<FileFilter>();
 		filters.add(new PDFFilter());
@@ -142,9 +337,144 @@ class AttachmentsUI
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		addButton = new JButton("Attach...");
 		addButton.setToolTipText("Attach a document.");
-		addButton.addActionListener(this);
-		addButton.setActionCommand(ADD_ACTION);
+		addButton.addMouseListener(new MouseAdapter() {
+		
+			public void mouseReleased(MouseEvent e) {
+				Point p = e.getPoint();
+				createSelectionMenu().show(addButton, p.x, p.y);
+			}
+		
+		});
 		removedFiles = new ArrayList<AnnotationData>();
+		addedFileAnnotations = new ArrayList<FileAnnotationData>();
+		toolBar = new JToolBar();
+		toolBar.setBorder(null);
+		toolBar.setFloatable(false);
+		toolBar.add(UIUtilities.setTextFont("View: "));
+		toolBar.add(Box.createHorizontalStrut(5));
+		toolBar.add(iconsView);
+		toolBar.add(columnsView);
+		arrangeByButton = new JButton(icons.getIcon(IconManager.SORT));
+		UIUtilities.unifiedButtonLookAndFeel(arrangeByButton);
+		arrangeByButton.setToolTipText("Arrange files by name, date, " +
+										"size or kind.");
+		arrangeByButton.addMouseListener(new MouseAdapter() {
+		
+			public void mouseReleased(MouseEvent e) {
+				Point p = e.getPoint();
+				createOrderByMenu().show(arrangeByButton, p.x, p.y);
+			}
+		
+		});
+		arrangeByButton.setEnabled(viewIndex == ICON_VIEW);
+		toolBar.add(arrangeByButton);
+		
+		
+		toAddPane = new JPanel();
+		toAddPane.setLayout(new GridBagLayout());
+		pane = new JScrollPane();
+		pane.setPreferredSize(SCROLL_SIZE);
+	}
+
+	/**
+	 * Sorts the passed collection by name, date, size or kind depending
+	 * on the value of {@link #orderByIndex}.
+	 * 
+	 * @param annotations The collection to sort.
+	 */
+	private void sortAnnotations(List<FileAnnotationData> annotations)
+	{
+		if (annotations == null || annotations.size() == 0) return;
+		Comparator c;
+		switch (orderByIndex) {
+			default:
+			case BY_NAME:
+				c = comparators.get(BY_NAME);
+				if (c == null) {
+					c = new Comparator() {
+			            public int compare(Object o1, Object o2)
+			            {
+			                String s1 = 
+			                	((FileAnnotationData) o1).getFileName();
+			                String s2 = 
+			                	((FileAnnotationData) o2).getFileName();
+			                s1 = s1.toLowerCase();
+			                s2 = s2.toLowerCase();
+			                int v = 0;
+			                int result = s1.compareTo(s2);
+			                if (result < 0) v = -1;
+			                else if (result > 0) v = 1;
+			                return -v;
+			            }
+			        };
+			        comparators.put(BY_NAME, c);
+				}
+				break;
+	
+			case BY_DATE:
+				c = comparators.get(BY_DATE);
+				if (c == null) {
+					c = new Comparator() {
+			            public int compare(Object o1, Object o2)
+			            {
+			                Timestamp t1 = 
+			                		((FileAnnotationData) o1).getLastModified(),
+			                          t2 = 
+			                        ((FileAnnotationData) o2).getLastModified();
+			                long n1 = t1.getTime();
+			                long n2 = t2.getTime();
+			                int v = 0;
+			                if (n1 < n2) v = -1;
+			                else if (n1 > n2) v = 1;
+			                return -v;
+			            }
+			        };
+			        comparators.put(BY_DATE, c);
+				}
+				
+				break;
+			case BY_SIZE:
+				c = comparators.get(BY_SIZE);
+				if (c == null) {
+					c = new Comparator() {
+			            public int compare(Object o1, Object o2)
+			            {
+			                long n1 = ((FileAnnotationData) o1).getFileSize();
+			                long n2 = ((FileAnnotationData) o2).getFileSize();
+			                int v = 0;
+			                if (n1 < n2) v = -1;
+			                else if (n1 > n2) v = 1;
+			                return -v;
+			            }
+			        };
+			        comparators.put(BY_SIZE, c);
+				}
+				break;
+			case BY_KIND:
+				c = comparators.get(BY_KIND);
+				if (c == null) {
+					c = new Comparator() {
+			            public int compare(Object o1, Object o2)
+			            {
+			                String s1 = 
+			                		((FileAnnotationData) o1).getFileKind(),
+			                          s2 = 
+			                        ((FileAnnotationData) o2).getFileKind();
+			                s1 = s1.toLowerCase();
+			                s2 = s2.toLowerCase();
+			                int v = 0;
+			                int result = s1.compareTo(s2);
+			                if (result < 0) v = -1;
+			                else if (result > 0) v = 1;
+			                return -v;
+			            }
+			        };
+			        comparators.put(BY_KIND, c);
+				}
+		}
+        
+		
+        Collections.sort(annotations, c);
 	}
 	
 	/** Launches a file chooser to select the file to attach. */
@@ -174,12 +504,36 @@ class AttachmentsUI
 	}
 	
 	/**
+	 * Formats the passed annotation.
+	 * 
+	 * @param f The value to format.
+	 * @return See above.
+	 */
+	public static String formatTootTip(FileAnnotationData f)
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append("<html><body>");
+		buf.append("<b>");
+		buf.append(AttachmentsTable.DATE+": ");
+		buf.append("</b>");
+		buf.append(UIUtilities.formatWDMYDate(f.getLastModified()));
+		buf.append("<br>");
+		buf.append("<b>");
+		buf.append(AttachmentsTable.SIZE+": ");
+		buf.append("</b>");
+		buf.append(UIUtilities.formatFileSize(f.getFileSize()));
+		buf.append("<br>");
+		buf.append("</body></html>");
+		return buf.toString();
+	}
+	
+	/**
 	 * Builds an element composing the display of the uploaded files
 	 * 
 	 * @param f	The annotation to display.
 	 * @return See above.
 	 */
-	private JPanel buildExistingFileRow(FileAnnotationData f)
+	private JPanel buildIconEntry(FileAnnotationData f)
 	{
 		IconManager icons = IconManager.getInstance();
 		Icon icon = null;
@@ -189,14 +543,22 @@ class AttachmentsUI
 			icon = icons.getIcon(IconManager.PDF_DOC);
 		else if (FileAnnotationData.TEXT.equals(format))
 			icon = icons.getIcon(IconManager.TEXT_DOC);
+		else if (FileAnnotationData.WORD.equals(format))
+			icon = icons.getIcon(IconManager.WORD_DOC);
+		else if (FileAnnotationData.EXCEL.equals(format))
+			icon = icons.getIcon(IconManager.EXCEL_DOC);
+		else if (FileAnnotationData.POWER_POINT.equals(format))
+			icon = icons.getIcon(IconManager.PPT_DOC);
 		else if (FileAnnotationData.XML.equals(format) ||
 				FileAnnotationData.HTML.equals(format) ||
 				FileAnnotationData.HTM.equals(format))
 			icon = icons.getIcon(IconManager.XML_DOC);
 		
+		String toolTip = formatTootTip(f);
 		JPanel p = new JPanel();
 		String name = f.getFileName();
 		JLabel label = new JLabel(icon);
+		label.setToolTipText(toolTip);
 		toDownload.put(label, f);
 		label.addMouseListener(new MouseAdapter() {
 		
@@ -209,7 +571,8 @@ class AttachmentsUI
 				if (e.getClickCount() == 2)
 					viewFile((JLabel) src);
 				else if (e.isPopupTrigger())
-					showMenu(e.getPoint(), e.getComponent());
+					createManagementMenu().show(e.getComponent(), e.getX(), 
+							e.getY());
 			}
 			
 			/** 
@@ -220,7 +583,8 @@ class AttachmentsUI
 				Object src = e.getSource();
 				selectedFile = (JLabel) src;
 				if (e.isPopupTrigger())
-					showMenu(e.getPoint(), e.getComponent());
+					createManagementMenu().show(e.getComponent(), e.getX(), 
+											e.getY());
 			}
 		
 			/**
@@ -258,23 +622,15 @@ class AttachmentsUI
 	}
 	
 	/**
-	 * Lays out the components used to add new <code>file</code>s.
+	 * Lays out the existing file using icons.
 	 * 
+	 * @param toLayout The collection of file to lay out.
 	 * @return See above.
 	 */
-	private JPanel layoutAttachments()
+	private JPanel buildIconViews(List<FileAnnotationData> toLayout)
 	{
+		sortAnnotations(toLayout);
 		JPanel content = new JPanel();
-		Collection attachments = model.getAttachments();
-		if (attachments == null) return content;
-		List<FileAnnotationData> toLayout = new ArrayList<FileAnnotationData>();
-		Iterator i = attachments.iterator();
-		FileAnnotationData f;
-		while (i.hasNext()) {
-			f = (FileAnnotationData) i.next();
-			if (!removedFiles.contains(f))
-				toLayout.add(f);
-		}
 		content.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -282,14 +638,16 @@ class AttachmentsUI
 		c.gridy = 0;
 		c.gridx = 0;
 		int index = 0;
-		i = toLayout.iterator();
+		FileAnnotationData f;
+		Iterator i = toLayout.iterator();
+		toDownload.clear();
 		while (i.hasNext()) {
 			++c.gridx;
 			f = (FileAnnotationData) i.next();
-			content.add(buildExistingFileRow(f), c);
+			content.add(buildIconEntry(f), c);
 			++c.gridx;
 			content.add(Box.createHorizontalStrut(10), c);
-			if (index%2 == 0 && index != 0) {
+			if (index%3 == 0 && index != 0) {
 				c.gridy++;
 				c.gridx = 0;
 			}
@@ -303,19 +661,73 @@ class AttachmentsUI
 		return p;
 	}
 	
+	/** Lays out the nodes. */
+	private void layoutView()
+	{
+		arrangeByButton.setEnabled(viewIndex == ICON_VIEW);
+		Collection attachments = model.getAttachments();
+		if (attachments == null) return;
+		List<FileAnnotationData> toLayout = new ArrayList<FileAnnotationData>();
+		JViewport port = pane.getViewport();
+		port.removeAll();
+		Iterator i = attachments.iterator();
+		FileAnnotationData f;
+		while (i.hasNext()) {
+			f = (FileAnnotationData) i.next();
+			if (!removedFiles.contains(f))
+				toLayout.add(f);
+		}
+		JPanel p = buildIconViews(toLayout);
+		switch (viewIndex) {
+			case ICON_VIEW:
+			default:
+				port.add(p);
+				break;
+			case COLUMNS_VIEW:
+				port.add(new AttachmentsTable(this, toLayout));
+		}
+		port.revalidate();
+		port.repaint();
+	}
+	
+	/**
+	 * Lays out the components used to add new <code>file</code>s.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel layoutAttachments()
+	{
+		layoutView();
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+		p.add(UIUtilities.buildComponentPanelRight(toolBar), 
+				Component.RIGHT_ALIGNMENT);
+		p.add(pane, Component.CENTER_ALIGNMENT);
+		return p;
+	}
+	
 	/**
 	 * Builds a UI component displaying the file to add.
 	 * 
-	 * @param f		The file to add.
+	 * @param f		The object to add, either a file or a file annotataion.
 	 * @param index	The index associated to the file.
 	 * @return See above.
 	 */
-	private JPanel buildAddedFileRow(File f, int index)
+	private JPanel buildAddedFileRow(Object f, int index)
 	{
 		JPanel row = new JPanel();
 		IconManager icons = IconManager.getInstance();
-		JTextArea area = new JTextArea(f.getAbsolutePath());
+		JTextArea area = new JTextArea();
+		JLabel label = new JLabel();
+		if (f instanceof File) {
+			area.setText(((File) f).getAbsolutePath());
+			label.setIcon(icons.getIcon(IconManager.UPLOAD));
+		} else if (f instanceof FileAnnotationData) {
+			label.setIcon(icons.getIcon(IconManager.DOWNLOAD));
+			area.setText(((FileAnnotationData) f).getFilePath());
+		}
 		UIUtilities.setTextAreaDefault(area);
+		row.add(label);
 		row.add(area);
 		JButton remove = new JButton(icons.getIcon(IconManager.REMOVE));
 		UIUtilities.unifiedButtonLookAndFeel(remove);
@@ -323,7 +735,10 @@ class AttachmentsUI
 		remove.addActionListener(this);
 		remove.setActionCommand(""+index);
 		row.add(remove);
-		return row;
+		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+	    p.add(row);
+		return p;
 	}
 	
 	/**
@@ -334,11 +749,11 @@ class AttachmentsUI
 	private JPanel layoutAddedFiles()
 	{
 		rows.clear();
-		JPanel p = new JPanel();
+		toAddPane.removeAll();
 		Iterator i = addedFiles.iterator();
 		int index = 0;
 		File f;
-		p.setLayout(new GridBagLayout());
+		
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.FIRST_LINE_START;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -347,13 +762,22 @@ class AttachmentsUI
 			++c.gridy;
 			f = (File) i.next();
 			rows.put(index, f);
-			p.add(buildAddedFileRow(f, index), c);
+			toAddPane.add(buildAddedFileRow(f, index), c);
 			index++;
 		}
-		return p;
+		i = addedFileAnnotations.iterator();
+		FileAnnotationData data;
+		while (i.hasNext()) {
+			++c.gridy;
+			data = (FileAnnotationData) i.next();
+			rows.put(index, data);
+			toAddPane.add(buildAddedFileRow(data, index), c);
+			index++;
+			
+		}
+		return toAddPane;
 	}
 	
-
 	/**
 	 * Lays out the components used to add new <code>URL</code>s.
 	 * 
@@ -380,32 +804,28 @@ class AttachmentsUI
 	}
 	
 	/**
-	 * Creates a new instance.
+	 * Returns <code>true</code> if the file has already been added, 
+	 * <code>false</code> otherwise.
 	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param data The value to check.
+	 * @return See above.
 	 */
-	AttachmentsUI(EditorModel model)
+	private boolean isFileAnnotationAdded(FileAnnotationData data)
 	{
-		super(model);
-		title = TITLE;
-		initComponents();
+		if (data == null) return true;
+		Iterator<FileAnnotationData> i = addedFileAnnotations.iterator();
+		FileAnnotationData f;
+		while (i.hasNext()) {
+			f = i.next();
+			if (f.getId() == data.getId())
+				return true;
+		}
+		return false;
 	}
 	
-	/**
-	 * Shows the tag menu.
-	 * 
-	 * @param location	The location of the mouse click.
-	 * @param invoker	The last selected component.
-	 */
-	void showMenu(Point location, Component invoker)
-	{
-		if (menu == null)
-			menu = new AttachmentPopupMenu(this);
-		menu.show(invoker, location.x, location.y);
-	}
-	
+
 	/** Adds the selected file to the collection of items to remove. */
-	void removeSelectedAttachment() 
+	private void removeSelectedAttachment() 
 	{
 		if (selectedFile == null) return;
 		FileAnnotationData data = toDownload.get(selectedFile);
@@ -419,13 +839,110 @@ class AttachmentsUI
 		revalidate();
 		repaint();
 	}
-
+	
 	/** Brings up the widget to download the archived files. */
-	void downloadSelectedAttachment()
+	private void downloadSelectedAttachment()
 	{
 		if (selectedFile == null) return;
 		viewFile(selectedFile);
 		selectedFile = null;
+	}
+	
+	/** 
+	 * Orders the file according to the passed index.
+	 * 
+	 * @param index One of the ordering constants defined by this class.
+	 */
+	private void setOrderIndex(int index)
+	{
+		if (index == orderByIndex) return;
+		orderByIndex = index;
+		buildUI();
+		revalidate();
+		repaint();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 */
+	AttachmentsUI(EditorModel model)
+	{
+		super(model);
+		title = TITLE;
+		initComponents();
+	}
+
+	/**
+	 * Sets the selected annotation and brings up the {@link #managementMenu}.
+	 * 
+	 * @param data		The selected annotation.
+	 * @param invoker	The component invoking the menu.
+	 * @param x			The x-coordinate of the mouse pressed.
+	 * @param y			The y-coordinate of the mouse pressed.
+	 */
+	void manageAnnotation(FileAnnotationData data, JComponent invoker, 
+						int x, int y)
+	{
+		if (data == null) return;
+		Iterator<JLabel> i = toDownload.keySet().iterator();
+		FileAnnotationData f;
+		JLabel l;
+		while (i.hasNext()) {
+			l = i.next();
+			f = toDownload.get(l);
+			if (f.getId() == data.getId()) {
+				selectedFile = l;
+				break;
+			}
+		}
+		createManagementMenu().show(invoker, x, y);
+	}
+	
+	/** Shows the collection of existing tags. */
+	void showSelectionWizard()
+	{
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		Collection l = model.getExistingAttachments();
+		List<Object> r = new ArrayList<Object>();
+		Collection attachments = model.getAttachments();
+		Iterator i;
+		Set<Long> ids = new HashSet<Long>();
+		AnnotationData data;
+		if (attachments != null) {
+			i = attachments.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!removedFiles.contains(data)) 
+					ids.add(data.getId());
+			}
+		}
+		
+		if (l.size() > 0) {
+			
+			i = l.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!ids.contains(data.getId()))
+					r.add(data);
+			}
+		}
+		
+		Registry reg = MetadataViewerAgent.getRegistry();
+		if (r.size() == 0) {
+			UserNotifier un = reg.getUserNotifier();
+			un.notifyInfo("Existing Tags", "No tags found.");
+			return;
+		}
+		SelectionWizard wizard = new SelectionWizard(
+										reg.getTaskBar().getFrame(), r);
+		IconManager icons = IconManager.getInstance();
+		wizard.setTitle("Upload Files Selection" , "Select files already " +
+				"updloaded to the server", 
+				icons.getIcon(IconManager.TAGS_48));
+		wizard.addPropertyChangeListener(this);
+		UIUtilities.centerAndShow(wizard);
 	}
 	
 	/**
@@ -444,12 +961,8 @@ class AttachmentsUI
 		border.setImages(imgs);
 		setBorder(border);
 		getCollapseComponent().setBorder(border);
-		if (n > 0) {
-			JScrollPane pane = new JScrollPane(layoutAttachments());
-			add(pane);
-		}
+		if (n > 0) add(layoutAttachments());
 		add(layoutContent());
-		//add(UIUtilities.buildComponentPanel(addButton));
 	}
 	
 	/**
@@ -480,6 +993,8 @@ class AttachmentsUI
 			f = (File) i.next();
 			toAdd.add(new FileAnnotationData(f));
 		}
+		if (addedFileAnnotations.size() > 0)
+			toAdd.addAll(addedFileAnnotations);
 		return toAdd;
 	}
 
@@ -492,6 +1007,7 @@ class AttachmentsUI
 	{
 		List l = addedFiles;
 		if (l != null && l.size() > 0) return true; 
+		if (addedFileAnnotations.size() > 0) return true;
 		l = getAnnotationToRemove();
 		if (l != null && l.size() > 0) return true; 
 		return false;
@@ -505,6 +1021,7 @@ class AttachmentsUI
 	{
 		addedFiles.clear();
 		removedFiles.clear();
+		addedFileAnnotations.clear();
 	}
 	
 	/**
@@ -523,20 +1040,50 @@ class AttachmentsUI
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = e.getActionCommand();
-		if (ADD_ACTION.equals(s)) {
+		if (ADD_NEW_ACTION.equals(s)) {
 			browseFile();
+		} else if (ADD_UPLOADED_ACTION.equals(s)) {
+			if (model.getExistingAttachments() == null) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				model.loadExistingAttachments();
+			} else showSelectionWizard();
+		} else if (ICON_VIEW_ACTION.equals(s)) {
+			viewIndex = ICON_VIEW;
+			buildUI();
+			revalidate();
+			repaint();
+		} else if (COLUMNS_VIEW_ACTION.equals(s)) {
+			viewIndex = COLUMNS_VIEW;
+			buildUI();
+			revalidate();
+			repaint();
+		} else if (DELETE_ACTION.equals(s)) {
+			removeSelectedAttachment(); 
+		} else if (DOWNLOAD_ACTION.equals(s)) {
+			downloadSelectedAttachment();  
+		} else if (BY_NAME_ACTION.equals(s)) {
+			setOrderIndex(BY_NAME);
+		} else if (BY_DATE_ACTION.equals(s)) {
+			setOrderIndex(BY_DATE);
+		} else if (BY_SIZE_ACTION.equals(s)) {
+			setOrderIndex(BY_SIZE);
+		} else if (BY_KIND_ACTION.equals(s)) {
+			setOrderIndex(BY_KIND);
 		} else {
 			int index = Integer.parseInt(e.getActionCommand());
-			File f = rows.get(index);
+			Object f = rows.get(index);
 			if (f != null) {
-				addedFiles.remove(f);
-				buildUI();
+				if (f instanceof File)
+					addedFiles.remove(f);
+				else if (f instanceof FileAnnotationData)
+					addedFileAnnotations.remove(f);
+				layoutAddedFiles();
 				revalidate();
 				repaint();
 			}
 		}
 	}
-
+	
 	/**
 	 * Adds the new file to the display.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -560,9 +1107,25 @@ class AttachmentsUI
 			addedFiles.add(f);
 			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 								Boolean.TRUE);
-			buildUI();
+			layoutAddedFiles();
+			//buildUI();
 			revalidate();
 			repaint();
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Collection l = (Collection) evt.getNewValue();
+			if (l == null || l.size() == 0) return;
+			Iterator i = l.iterator();
+			FileAnnotationData data;
+	    	while (i.hasNext()) {
+	    		data = (FileAnnotationData) i.next();
+	    		if (!isFileAnnotationAdded(data))
+	    			addedFileAnnotations.add(data);
+	    	}
+	    	layoutAddedFiles();
+	    	revalidate();
+			repaint();
+	    	firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+					Boolean.TRUE);
 		}
 	}
 	

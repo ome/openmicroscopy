@@ -38,6 +38,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import ome.model.IObject;
+import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
@@ -51,6 +52,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import pojos.ArchivedAnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -81,6 +83,7 @@ import pojos.URLAnnotationData;
 public class PojoMapper
 {
 
+	
     /**
      * Helper method to convert the specified object into its corresponding
      * {@link DataObject} or collection of {@link DataObject}s.
@@ -107,7 +110,6 @@ public class PojoMapper
      */
     public static DataObject asDataObject(IObject object)
     {
-    	
         if (object == null) 
             throw new IllegalArgumentException("IObject cannot be null.");
         if (object instanceof Project) 
@@ -127,9 +129,14 @@ public class PojoMapper
         else if (object instanceof TextAnnotation) 
         	return new TextualAnnotationData((TextAnnotation) object);
         else if (object instanceof LongAnnotation) 
-        	return new RatingAnnotationData((LongAnnotation) object);
+        	return new RatingAnnotationData((LongAnnotation) object);	
         else if (object instanceof FileAnnotation) 
         	return new FileAnnotationData((FileAnnotation) object);
+        else if (object instanceof BooleanAnnotation) {
+        	BooleanAnnotation ann = (BooleanAnnotation) object;
+        	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ann.getNs()))
+        		return new ArchivedAnnotationData(ann);
+        }
         else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
         else if (object instanceof Experimenter) 

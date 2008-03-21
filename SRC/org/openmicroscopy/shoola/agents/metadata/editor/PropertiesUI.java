@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -283,73 +284,42 @@ class PropertiesUI
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-        /*
+       
         content.setLayout(new GridBagLayout());
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        c.insets = new Insets(3, 3, 3, 3);
-        JLabel l;
-        c.gridy = 0;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        //c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridy = 0; 
         c.gridx = 0;
         content.add(UIUtilities.setTextFont("ID"), c);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        l = new JLabel(""+model.getRefObjectID());
-        content.add(l, c);
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c);
+        c.gridx++;
+        content.add(new JLabel(""+model.getRefObjectID()), c);
         c.gridy++;
-        
-        
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-        //c.fill = GridBagConstraints.NONE;      //reset to default
-        c.weightx = 0.0;  
+        content.add(Box.createVerticalStrut(5), c);
+        c.gridy++;
         c.gridx = 0;
         content.add(UIUtilities.setTextFont("Name"), c);
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
+        c.gridx++;
+        content.add(Box.createHorizontalStrut(5), c);
+        c.gridx++;
+        c.weightx = 0.5;
         content.add(nameArea, c);
-        
         c.gridy++;
-        c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+        content.add(Box.createVerticalStrut(5), c);
+        c.gridy++;
         c.weightx = 0.0; 
         c.gridx = 0;
-        l = UIUtilities.setTextFont("Description");
-        content.add(l, c);
-       
+        content.add(UIUtilities.setTextFont("Description"), c);
+        content.add(Box.createHorizontalStrut(5), c);
+        c.gridx++;
         
-        c.gridx = 1;
-        c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1.0;
-        JScrollPane pane = new JScrollPane(descriptionArea);
-        pane.setPreferredSize(new Dimension(80, 100));
-        content.add(pane, c);
-        */
-        int height = 80;
-        double[][] tl = {{TableLayout.PREFERRED, 250}, //columns
-        				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, height} }; //rows
-        TableLayout layout = new TableLayout(tl);
-        content.setLayout(layout);
-        //content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        JLabel l;
-        content.add(UIUtilities.setTextFont("ID"), "0, 0, l, c");
-        l = new JLabel(""+model.getRefObjectID());
-        content.add(l, "1, 0, f, c");
-        content.add(UIUtilities.setTextFont("Name"), "0, 1, l, c");
-        content.add(nameArea, "1, 1, f, c");
-        content.add(new JLabel(), "0, 2, 1, 2");
-        l = UIUtilities.setTextFont("Description");
-        content.add(l, "0, 3, l, c");
-        content.add(new JScrollPane(descriptionArea), "1, 3, 1, 4");
+        c.gridx++;
+        c.weightx = 0.5;
+        c.ipady = 80;
+        content.add(new JScrollPane(descriptionArea), c);
         return content;
     }
     

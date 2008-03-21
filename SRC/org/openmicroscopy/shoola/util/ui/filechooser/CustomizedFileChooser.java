@@ -95,7 +95,7 @@ class CustomizedFileChooser
 	private void buildGUI()
 	{
 		setAcceptAllFileFilterUsed(false);
-		setDialogType(SAVE_DIALOG);
+		//setDialogType(SAVE_DIALOG);
 		setControlButtonsAreShown(nameArea == null);
 		
 		JLabel label;

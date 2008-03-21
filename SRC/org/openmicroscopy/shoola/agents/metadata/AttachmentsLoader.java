@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.TagsLoader 
+ * org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
+
 //Java imports
 import java.util.Collection;
 
@@ -31,12 +32,13 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.TagAnnotationData;
+import pojos.FileAnnotationData;
 
 /** 
- * Loads the existing tags.
- * This class calls one of the <code>loadExistingAnnotations</code> methods 
- * in the <code>MetadataHandlerView</code>.
+ * Retrieves the files already uploaded to the server by the currently
+ * logged in user. This class calls one of the 
+ * <code>loadExistingAnnotations</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,7 +50,7 @@ import pojos.TagAnnotationData;
  * </small>
  * @since OME3.0
  */
-public class TagsLoader 
+public class AttachmentsLoader 
 	extends EditorLoader
 {
 
@@ -61,7 +63,7 @@ public class TagsLoader
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      */
-    public TagsLoader(Editor viewer)
+    public AttachmentsLoader(Editor viewer)
     {
     	 super(viewer);
     }
@@ -72,8 +74,9 @@ public class TagsLoader
 	 */
 	public void load()
 	{
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, null,
-												-1, this);
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		handle = mhView.loadExistingAnnotations(FileAnnotationData.class, null, 
+												userID, this);
 	}
 	
 	/** 
@@ -90,7 +93,6 @@ public class TagsLoader
     {
     	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	//viewer.setMetadata(refNode, result);
-    	viewer.setExistingTags((Collection) result);
+    	viewer.setExistingAttachements((Collection) result);
     } 
-	
 }
