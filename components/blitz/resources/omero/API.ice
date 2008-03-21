@@ -194,7 +194,7 @@ module omero {
 	                                 omero::RInt sizeY,
 	                                 omero::RInt sizeZ,
 	                                 omero::RInt sizeT,
-	                                 string methodology);
+	                                 string methodology) throws ServerError;
       };
 
     dictionary<long, IObjectList> AnnotationMap;

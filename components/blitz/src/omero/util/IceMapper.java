@@ -694,8 +694,6 @@ public class IceMapper extends ome.util.ModelMapper implements
                 || p.equals(double.class) || p.equals(double[].class)
                 || p.equals(float.class) || p.equals(float[].class)
                 || p.equals(boolean.class) || p.equals(boolean[].class)
-                || p.equals(Integer.class) || p.equals(Long.class)
-                || p.equals(Double.class) || p.equals(Float.class)
                 || p.equals(String.class)) {
             return true;
         }
@@ -762,6 +760,13 @@ public class IceMapper extends ome.util.ModelMapper implements
             return null;
         } else if (isPrimitive(type)) {
             return o;
+        } else if (Boolean.class.isAssignableFrom(type)
+                   || Integer.class.isAssignableFrom(type)
+                   || Long.class.isAssignableFrom(type)
+                   || Double.class.isAssignableFrom(type)
+                   || Float.class.isAssignableFrom(type)
+                   || String.class.isAssignableFrom(type)) {
+            return toRType(o);
         } else if (RGBBuffer.class.isAssignableFrom(type)) {
             return convert((RGBBuffer) o);
         } else if (Roles.class.isAssignableFrom(type)) {

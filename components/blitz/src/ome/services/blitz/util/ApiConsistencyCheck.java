@@ -17,6 +17,7 @@ import ome.parameters.Parameters;
 import ome.system.Principal;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
+import omero.RInt;
 import omero.RString;
 import omero.RType;
 import omero.ServerError;
@@ -165,6 +166,11 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
 
         if (Integer.class.isAssignableFrom(apiType)
                 && int.class.isAssignableFrom(opsType)) {
+            return true;
+        }
+
+        if (Integer.class.isAssignableFrom(apiType)
+                && RInt.class.isAssignableFrom(opsType)) {
             return true;
         }
 
