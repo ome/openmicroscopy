@@ -57,7 +57,7 @@ import omeis.providers.re.RenderingEngine;
  * @since OMERO3
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 @Stateful
 @Remote(RawPixelsStore.class)
 @RemoteBindings({

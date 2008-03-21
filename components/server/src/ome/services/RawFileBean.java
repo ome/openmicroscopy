@@ -55,7 +55,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @since OMERO3.0
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional(readOnly = false)
+@Transactional(readOnly = true)
 @Stateful
 @Remote(RawFileStore.class)
 @RemoteBindings({
