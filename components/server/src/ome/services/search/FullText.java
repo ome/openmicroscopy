@@ -57,7 +57,8 @@ public class FullText extends SearchAction {
         if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
             throw new ApiUsageException(
                     "Searches by full text are currently limited to a single type.\n"
-                            + "Plese use Search.onlyType().");
+                            + "Plese use Search.onlyType() or if you use leading wildcard"
+                            + " use setAllowLeadingWildcard()");
         }
 
         if (query == null || query.length() < 1) {
@@ -65,6 +66,7 @@ public class FullText extends SearchAction {
         }
         this.queryStr = query;
         try {
+            parser.setAllowLeadingWildcard(values.leadingWildcard);
             q = parser.parse(queryStr);
         } catch (ParseException pe) {
             ApiUsageException aue = new ApiUsageException(queryStr

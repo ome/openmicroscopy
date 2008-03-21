@@ -423,6 +423,7 @@ module omero {
 
         void onlyType(string klass) throws ServerError;
         void onlyTypes(StringSet classes) throws ServerError;
+        void setAllowLeadingWildcard() throws ServerError;
         void allTypes() throws ServerError;
         void onlyIds(omero::sys::LongList ids) throws ServerError;
         void onlyOwnedBy(omero::model::Details d) throws ServerError;

@@ -516,6 +516,15 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
+    @SuppressWarnings("unchecked")
+    public void setAllowLeadingWildcard() {
+        synchronized (values) {
+            values.leadingWildcard = true;
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
     public void setBatchSize(int size) {
         synchronized (values) {
             values.batchSize = size;

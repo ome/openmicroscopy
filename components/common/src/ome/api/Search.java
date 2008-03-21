@@ -89,6 +89,8 @@ public interface Search extends ome.api.StatefulServiceInterface,
      */
     public final static boolean DEFAULT_RETURN_UNLOADED = false;
 
+    public final static boolean ALLOW_LEADING_WILDCARD = false;
+
     // Non-Query State ~
     // =========================================================================
 
@@ -201,6 +203,8 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * guaranteed to be one of these types.
      */
     <T extends IObject> void onlyTypes(Class<T>... classes);
+
+    void setAllowLeadingWildcard();
 
     /**
      * Permits all types to be returned. For some types of queries, this carries

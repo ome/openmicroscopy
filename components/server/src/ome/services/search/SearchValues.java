@@ -35,6 +35,7 @@ public class SearchValues implements Serializable {
     public boolean mergedBatches = Search.DEFAULT_MERGED_BATCHES;
     public boolean returnUnloaded = Search.DEFAULT_RETURN_UNLOADED;
     public boolean useProjections = Search.DEFAULT_USE_PROJECTIONS;
+    public boolean leadingWildcard = Search.ALLOW_LEADING_WILDCARD;
     public boolean idOnly = false;
     public List<Class> fetchAnnotations = new ArrayList<Class>();
     public List<String> fetches = new ArrayList<String>();
@@ -60,6 +61,7 @@ public class SearchValues implements Serializable {
         this.mergedBatches = values.mergedBatches;
         this.returnUnloaded = values.returnUnloaded;
         this.useProjections = values.useProjections;
+        this.leadingWildcard = values.leadingWildcard;
         this.idOnly = values.idOnly;
         this.fetchAnnotations = new ArrayList<Class>(values.fetchAnnotations);
         this.fetches = new ArrayList<String>(values.fetches);
