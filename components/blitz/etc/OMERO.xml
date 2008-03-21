@@ -32,7 +32,7 @@
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
          </adapter>
          <properties>
-            <property name="IcePatch2.Admin.Endpoints" value="tcp -h mage.openmicroscopy.org.uk"/>
+            <property name="IcePatch2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
             <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
             <property name="IcePatch2.InstanceName" value="${instance-name}"/>
             <property name="IcePatch2.Directory" value="${directory}"/>
@@ -48,7 +48,7 @@
          <properties>
            <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
            <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
-           <property name="Glacier2.Admin.Endpoints" value="tcp -h mage.openmicroscopy.org.uk"/>
+           <property name="Glacier2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
            <property name="Glacier2.Admin.RegisterProcess" value="1"/>
            <property name="Glacier2.InstanceName" value="${instance-name}"/>
            <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
@@ -111,9 +111,9 @@
 
     <node name="master">
       <server-instance template="Glacier2Template"
-        client-endpoints="tcp -h mage.openmicroscopy.org.uk -p 4063"
+        client-endpoints="tcp -h 127.0.0.1 -p 4063"
         session-timeout="300"
-        server-endpoints="tcp -h mage.openmicroscopy.org.uk"/>
+        server-endpoints="tcp -h 127.0.0.1"/>
       <server-instance template="BlitzTemplate" index="0"/>
       <server-instance template="ProcessorTemplate" index="0"/>
       <target name="patch">
