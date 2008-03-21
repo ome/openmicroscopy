@@ -699,6 +699,17 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
         return false;
     }
+    
+    protected boolean isNullablePrimitive(Class<?> p) {
+        if (p.equals(Integer.class) || p.equals(Integer[].class)
+                || p.equals(Long.class) || p.equals(Long[].class)
+                || p.equals(Float.class) || p.equals(Float[].class)
+                || p.equals(Double.class) || p.equals(Double[].class)
+                || p.equals(Boolean.class) || p.equals(Boolean[].class)) {
+            return true;
+        }
+        return false;
+    }
 
     protected boolean isWrapperArray(Class<?> p) {
         if (p.equals(Integer[].class) || p.equals(Long[].class)
@@ -713,7 +724,8 @@ public class IceMapper extends ome.util.ModelMapper implements
         if (arg instanceof RType) {
             RType rt = (RType) arg;
             return fromRType(rt);
-        } else if (isPrimitive(p)) { // FIXME use findTarget for Immutable.
+        } else if (isPrimitive(p) || isNullablePrimitive(p)) {
+            // FIXME use findTarget for Immutable.
             return arg;
         } else if (isWrapperArray(p)) {
             return reverseArray((List) arg, p);
@@ -760,12 +772,7 @@ public class IceMapper extends ome.util.ModelMapper implements
             return null;
         } else if (isPrimitive(type)) {
             return o;
-        } else if (Boolean.class.isAssignableFrom(type)
-                   || Integer.class.isAssignableFrom(type)
-                   || Long.class.isAssignableFrom(type)
-                   || Double.class.isAssignableFrom(type)
-                   || Float.class.isAssignableFrom(type)
-                   || String.class.isAssignableFrom(type)) {
+        } else if (isNullablePrimitive(type)) {
             return toRType(o);
         } else if (RGBBuffer.class.isAssignableFrom(type)) {
             return convert((RGBBuffer) o);
