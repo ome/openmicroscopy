@@ -305,6 +305,9 @@ class OmeroMetadataServiceImpl
 				object.getId(), userID));
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
+			boolean b = gateway.hasArchivedFiles(
+					img.getDefaultPixels().getId());
+			System.err.println(b);
 			results.setArchived(gateway.hasArchivedFiles(
 					img.getDefaultPixels().getId()));
 			results.setViewedBy(loadViewedBy(img.getId(), 

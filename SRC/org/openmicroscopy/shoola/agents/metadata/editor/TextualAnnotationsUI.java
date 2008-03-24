@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -357,11 +356,9 @@ class TextualAnnotationsUI
 		int n = model.getTextualAnnotationCount()-toRemove.size();
 		title = TITLE+LEFT+n+RIGHT;
 		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		IconManager icons = IconManager.getInstance();
-		List<Image> imgs = new ArrayList<Image>();
-		imgs.add(icons.getImageIcon(IconManager.ANNOTATION).getImage());
-		border.setImages(imgs);
-		setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
+		
+		//setBorder(border);
 		getCollapseComponent().setBorder(border);
 	}
 	

@@ -48,6 +48,7 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
@@ -573,6 +574,10 @@ class TreeViewerControl
 		} else if (EditorDialog.CREATE_PROPERTY.equals(name)) {
 			DataObject data = (DataObject) pce.getNewValue();
 			model.createObject(data);
+		} else if (MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name)) {
+			DataObject data = (DataObject) pce.getNewValue();
+			if (data != null)
+				model.onDataObjectSave(data, TreeViewer.UPDATE_OBJECT);
 		}
 	}
 

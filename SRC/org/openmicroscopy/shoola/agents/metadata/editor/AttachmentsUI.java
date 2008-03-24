@@ -30,7 +30,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -361,6 +360,7 @@ class AttachmentsUI
 		arrangeByButton.addMouseListener(new MouseAdapter() {
 		
 			public void mouseReleased(MouseEvent e) {
+				if (!arrangeByButton.isEnabled()) return;
 				Point p = e.getPoint();
 				createOrderByMenu().show(arrangeByButton, p.x, p.y);
 			}
@@ -940,7 +940,7 @@ class AttachmentsUI
 		IconManager icons = IconManager.getInstance();
 		wizard.setTitle("Upload Files Selection" , "Select files already " +
 				"updloaded to the server", 
-				icons.getIcon(IconManager.TAGS_48));
+				icons.getIcon(IconManager.ATTACHMENT_48));
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);
 	}
@@ -955,11 +955,8 @@ class AttachmentsUI
 		int n = model.getAttachmentsCount()-removedFiles.size();
 		title = TITLE+LEFT+n+RIGHT;
 		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		IconManager icons = IconManager.getInstance();
-		List<Image> imgs = new ArrayList<Image>();
-		imgs.add(icons.getImageIcon(IconManager.ATTACHMENT).getImage());
-		border.setImages(imgs);
-		setBorder(border);
+		//setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
 		if (n > 0) add(layoutAttachments());
 		add(layoutContent());

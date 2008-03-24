@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.DataSaver 
+ * org.openmicroscopy.shoola.agents.metadata.URLsLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,21 +23,19 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 
+
 //Java imports
-import java.util.List;
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.AnnotationData;
-import pojos.DataObject;
+import pojos.URLAnnotationData;
 
 /** 
- * Saves the structured annotations.
- * This class calls one of the <code>saveData</code> methods in the
- * <code>MetadataHandlerView</code>.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,67 +47,47 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class DataSaver 
-	extends MetadataLoader
+public class URLsLoader 	
+	extends EditorLoader
 {
 
-	/** The object the data are related to. */
-	private DataObject			dataObject;
-
-	/** The annotation to add to the data object. */
-	private List<AnnotationData> toAdd;
-	
-	/** The annotation to remove from the data object. */
-	private List<AnnotationData> toRemove;
-	
-	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    /** Handle to the async call so that we can cancel it. */
+    private CallHandle	handle;
     
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param viewer		The viewer this data loader is for.
-     *                 		Mustn't be <code>null</code>.
-     * @param dataObject	The object the data are related to.
-	 * 						Mustn't be <code>null</code>.
-	 * @param toAdd			The collection of annotations to add.
-	 * @param toRemove		The collection of annotations to remove.
-	 */
-	public DataSaver(MetadataViewer viewer, DataObject dataObject,
-					 List<AnnotationData> toAdd, List<AnnotationData> toRemove)
-	{
-		super(viewer, null);
-		if (dataObject == null)
-			throw new IllegalArgumentException("No object specified.");
-		this.dataObject = dataObject;
-		this.toAdd = toAdd;
-		this.toRemove = toRemove;
-	}
-	
+	 /**	
+     * Creates a new instance.
+     * 
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     */
+    public URLsLoader(Editor viewer)
+    {
+    	 super(viewer);
+    }
+    
 	/** 
-	 * Loads the data.
-	 * @see MetadataLoader#cancel()
+	 * Loads the tags. 
+	 * @see EditorLoader#cancel()
 	 */
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.saveData(dataObject, toAdd, toRemove, userID, this);
+		handle = mhView.loadExistingAnnotations(URLAnnotationData.class, null, 
+												userID, this);
 	}
 	
 	/** 
 	 * Cancels the data loading. 
-	 * @see MetadataLoader#cancel()
+	 * @see EditorLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
-
+	
 	/**
      * Feeds the result back to the viewer.
-     * @see MetadataLoader#handleResult(Object)
+     * @see EditorLoader#handleResult(Object)
      */
     public void handleResult(Object result) 
     {
-    	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.onDataSave(dataObject);
-    }
-    
+    	viewer.setExistingURLs((Collection) result);
+    } 
 }

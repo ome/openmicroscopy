@@ -34,7 +34,6 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -730,11 +729,8 @@ class TagsUI
 		int n = model.getTagsCount();
 		title = TITLE+LEFT+n+RIGHT;
 		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		IconManager icons = IconManager.getInstance();
-		List<Image> imgs = new ArrayList<Image>();
-		imgs.add(icons.getImageIcon(IconManager.TAG).getImage());
-		border.setImages(imgs);
-		setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
+		//setBorder(border);
 		getCollapseComponent().setBorder(border);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(createExistingTagsPane());
@@ -799,6 +795,7 @@ class TagsUI
 	protected boolean hasDataToSave()
 	{
 		if (removedTags.size() > 0) return true;
+		if (addedTags.size() > 0) return true;
 		String name = nameArea.getText();
 		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
 		String value;

@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.metadata.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
+import org.openmicroscopy.shoola.agents.metadata.URLsLoader;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -116,6 +117,9 @@ class EditorModel
     
     /** Collection of existing attachments if any. */
     private Collection				existingAttachments;
+    
+    /** Collection of existing attachments if any. */
+    private Collection				existingURLs;
     
     /** The list of emissions wavelengths for a given set of pixels. */
     private List					emissionsWavelengths;
@@ -361,7 +365,7 @@ class EditorModel
 		if (object instanceof AnnotationData) {
 			Timestamp time = ((AnnotationData) object).getLastModified();
 			if (time != null)
-				date = UIUtilities.formatShortDateTime(time);
+				date = UIUtilities.formatWDMYDate(time);
 		}
 		return date;
 	}
@@ -612,6 +616,9 @@ class EditorModel
 		textualAnnotationsByDate = null;
 		data = null;
 		space = null;
+	    existingAttachments = null;
+	    existingURLs = null;
+	    emissionsWavelengths = null;
 	}
 
 	/**
@@ -746,7 +753,17 @@ class EditorModel
 		loaders.add(loader);
 	}
 	
-
+	/** 
+	 * Fires an asynchronous retrieval of existing urls 
+	 * for the currently logged in user. 
+	 */
+	void loadExistingUrls()
+	{
+		URLsLoader loader = new URLsLoader(component);
+		loader.load();
+		loaders.add(loader);
+	}
+	
 	/** Cancels any ongoing tags retrieval. */
 	void cancelExistingTagsLoading()
 	{
@@ -819,12 +836,29 @@ class EditorModel
 	}
 	
 	/**
+	 * Sets the collection of existing urls.
+	 * 
+	 * @param urls The value to set.
+	 */
+	void setExistingURLs(Collection urls)
+	{
+		if (urls != null)
+			existingURLs = sorter.sort(urls);
+	}
+	
+	/**
 	 * Returns the collection of existing attachments.
 	 * 
 	 * @return See above.
 	 */
 	Collection getExistingAttachments() { return existingAttachments; }
 	
+	/**
+	 * Returns the collection of existing urls.
+	 * 
+	 * @return See above.
+	 */
+	Collection getExistingURLs() { return existingURLs; }
 	
 	/**
 	 * Sets the channel data.

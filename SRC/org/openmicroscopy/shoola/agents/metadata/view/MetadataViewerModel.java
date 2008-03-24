@@ -114,9 +114,11 @@ class MetadataViewerModel
 	 * @param component 		The embedding component.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param layout			One of the layout constants defined by 
+	 * 							{@link MetadataViewer}.
 	 */
 	void initialize(MetadataViewer component, boolean thumbnailRequired, int
-				layout)
+					layout)
 	{ 
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component, refObject);

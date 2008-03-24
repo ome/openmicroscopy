@@ -162,7 +162,7 @@ class RateUI
 	 */
 	protected void clearData()
 	{
-		selectedValue = 0;//model.getRatingAverage();
+		selectedValue = model.getRatingAverage();
 	}
 	
 	/**

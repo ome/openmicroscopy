@@ -114,7 +114,7 @@ public class HiViewerAgent
 				break;
 		}
         if (viewer != null) {
-        	viewer.setSearchResult(evt.getSearchContext());
+        	//viewer.setSearchResult(evt.getSearchContext());
         	viewer.activate(evt.getRequesterBounds());
         }
     }

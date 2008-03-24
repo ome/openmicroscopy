@@ -196,20 +196,20 @@ public class EditorUI
 	{
 		JPanel viewTreePanel = new JPanel();
 		viewTreePanel.setLayout(new BoxLayout(viewTreePanel, BoxLayout.X_AXIS));
-		double[][] tl = {{TableLayout.PREFERRED, 20, TableLayout.FILL}, //columns
+		double[][] tl = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.FILL} }; //rows
 		viewTreePanel.setLayout(new TableLayout(tl));
 		
 		viewTreePanel.add(rateUI, "0, 0");
 		
-		viewTreePanel.add(viewByTree, "2, 0, 2, 1");
+		viewTreePanel.add(viewByTree, "0, 1");
 		TreeComponent left = new TreeComponent();
 		left.insertNode(propertiesUI, propertiesUI.getCollapseComponent());
 		left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 		left.insertNode(attachmentsUI, 
 						attachmentsUI.getCollapseComponent(), false);
 
-		double[][] leftSize = {{TableLayout.FILL}, //columns
+		double[][] leftSize = {{TableLayout.PREFERRED}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 				TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
@@ -319,6 +319,7 @@ public class EditorUI
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
 		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
 		List<AnnotationData> l = attachmentsUI.getAnnotationToSave();
+		//To add
 		if (l != null && l.size() > 0)
 			toAdd.addAll(l);
 		l = linksUI.getAnnotationToSave();
@@ -333,6 +334,22 @@ public class EditorUI
 		l = textualAnnotationsUI.getAnnotationToSave();
 		if (l != null && l.size() > 0)
 			toAdd.addAll(l);
+		//To remove
+		l = attachmentsUI.getAnnotationToRemove();
+		if (l != null && l.size() > 0)
+			toRemove.addAll(l);
+		l = linksUI.getAnnotationToRemove();
+		if (l != null && l.size() > 0)
+			toRemove.addAll(l);
+		l = rateUI.getAnnotationToRemove();
+		if (l != null && l.size() > 0)
+			toRemove.addAll(l);
+		l = tagsUI.getAnnotationToRemove();
+		if (l != null && l.size() > 0)
+			toRemove.addAll(l);
+		l = textualAnnotationsUI.getAnnotationToRemove();
+		if (l != null && l.size() > 0)
+			toRemove.addAll(l);
 		model.fireAnnotationSaving(toAdd, toRemove);
 	}
 	
@@ -462,10 +479,7 @@ public class EditorUI
      * @param b Pass <code>true</code> to save the data,
      * 			<code>false</code> otherwise.
      */
-    void setDataToSave(boolean b)
-    {
-    	toolBar.setDataToSave(b);
-    }
+    void setDataToSave(boolean b) { toolBar.setDataToSave(b); }
     
     /**
 	 * Returns <code>true</code> if data to save, <code>false</code>
@@ -505,6 +519,7 @@ public class EditorUI
 		while (i.hasNext()) {
 			ui = i.next();
 			ui.clearData();
+			ui.clearDisplay();
 		}
 	}
 
@@ -531,5 +546,8 @@ public class EditorUI
 
 	/** Displays the wizard with the collection of files already uploaded. */
 	void setExistingAttachements() { attachmentsUI.showSelectionWizard(); }
+	
+	/** Displays the wizard with the collection of URLs already uploaded. */
+	void setExistingURLs() { linksUI.showSelectionWizard(); }
 	
 }

@@ -301,7 +301,7 @@ public class IconManager
         relPaths[CATEGORY_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[IMAGES_EXPLORER] = "eclipse_outline_co16.png";
         relPaths[MANAGER] = "nuvola_file-manager16.png";
-        relPaths[PROJECT] = "nuvola_document16.png";
+        relPaths[PROJECT] = "nuvola_folder_blue_open16.png";//"nuvola_document16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
         relPaths[CATEGORY] = "nuvola_knotes16.png";
@@ -371,10 +371,10 @@ public class IconManager
         relPaths[IMAGE_ANNOTATED_BY_USER] = "annotatedByUser_image16.png";
         relPaths[IMAGE_ANNOTATED_BY_OTHER] = "annotatedByOther_image16.png";
         relPaths[IMAGE_ANNOTATED_BY_ALL] = "annotatedByAll_image16.png";
-        relPaths[DATASET_ANNOTATED_BY_USER] = "annotatedByUser_dataset16.png";
+        relPaths[DATASET_ANNOTATED_BY_USER] = "nuvola_folder_image_red16.png";//"annotatedByUser_dataset16.png";
         relPaths[DATASET_ANNOTATED_BY_OTHER] = "annotatedByOther_dataset16.png";
         relPaths[DATASET_ANNOTATED_BY_ALL] = "annotatedByAll_dataset16.png";
-        relPaths[PROJECT_ANNOTATED_BY_USER] = "annotatedByUser_project16.png";
+        relPaths[PROJECT_ANNOTATED_BY_USER] = "nuvola_folder_red_open16.png";;//"annotatedByUser_project16.png";
         relPaths[PROJECT_ANNOTATED_BY_OTHER] = "annotatedByOther_project16.png";
         relPaths[PROJECT_ANNOTATED_BY_ALL] = "annotatedByAll_project16.png";
     }

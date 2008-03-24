@@ -174,12 +174,18 @@ public class IconManager
     
     /** The <code>Sort</code> icon. */
     public static int           SORT = 40;
+    
+    /** The <code>URL</code> 48 icon. */
+    public static int           URL_48 = 41;
      
+    /** The <code>Attachment 48</code> icon. */
+    public static int           ATTACHMENT_48 = 42;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 40;
+	private static int          MAX_ID = 42;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -224,6 +230,8 @@ public class IconManager
         relPaths[COLUMNS_VIEW] = "nuvola_view_left_right16.png";
         relPaths[UPLOAD] = "nuvola_download_manager_green_flipped16.png";
         relPaths[SORT] = "nuvola_player_play_gray16.png";
+        relPaths[ATTACHMENT_48] = "nuvola_attach48.png";
+		relPaths[URL_48] = "nuvola_browser48.png";
 	}
    
 	/** The sole instance. */

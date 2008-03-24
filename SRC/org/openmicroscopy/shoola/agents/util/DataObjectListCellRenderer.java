@@ -33,9 +33,9 @@ import javax.swing.JList;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
-
 import pojos.FileAnnotationData;
 import pojos.TagAnnotationData;
+import pojos.URLAnnotationData;
 
 /** 
  * Renderer used to display various kind of <code>DataObject</code>s in 
@@ -96,6 +96,10 @@ public class DataObjectListCellRenderer
 			FileAnnotationData fad = (FileAnnotationData) value;
 			setText(fad.getFileName());
 			setIcon(icons.getIcon(IconManager.FILE));
+		} else if (value instanceof URLAnnotationData) {
+			URLAnnotationData url = (URLAnnotationData) value;
+			setText(url.getURL());
+			setIcon(icons.getIcon(IconManager.BROWSER));
 		}
 		return this;
 	}

@@ -158,7 +158,7 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		if (userObject instanceof DataObject) {
-			if (!model.isSameObject((DataObject) userObject))
+			//if (!model.isSameObject((DataObject) userObject))
 				model.fireStructuredDataLoading(node);
 		} 
 	}
@@ -321,6 +321,21 @@ class MetadataViewerComponent
 		Editor editor = model.getEditor();
 		if (editor == null) return;
 		editor.showImageInfo();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onDataSave(DataObject)
+	 */
+	public void onDataSave(DataObject dataObject)
+	{
+		if (dataObject == null) return;
+		if (model.getState() == DISCARDED) return;
+		if (model.isSameObject(dataObject)) {
+			setRootObject(model.getRefObject());
+		}
+			
+		firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
 	}
 	
 }

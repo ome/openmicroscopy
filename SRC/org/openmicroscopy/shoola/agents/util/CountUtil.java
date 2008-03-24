@@ -70,8 +70,10 @@ public class CountUtil
 		Map<Long, Long> counts = null;
 		if (object instanceof DatasetData) 
 			counts = ((DatasetData) object).getAnnotationsCounts();
-		else if (object instanceof ProjectData)
+			
+		else if (object instanceof ProjectData) {
 			counts = ((ProjectData) object).getAnnotationsCounts();
+		}
 		else if (object instanceof ImageData) {
 			counts = ((ImageData) object).getAnnotationsCounts();
 		}
@@ -94,8 +96,11 @@ public class CountUtil
 		Map<Long, Long> counts = null;
 		if (object instanceof ImageData)
 			counts = ((ImageData) object).getAnnotationsCounts();
-		else if (object instanceof DatasetData)
+		else if (object instanceof DatasetData) {
+			
 			counts = ((DatasetData) object).getAnnotationsCounts();
+		}
+			
 		else if (object instanceof ProjectData) 
 			counts = ((ProjectData) object).getAnnotationsCounts();
 		

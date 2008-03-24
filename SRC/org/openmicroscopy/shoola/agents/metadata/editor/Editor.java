@@ -157,6 +157,20 @@ public interface Editor
 	/** Brings up on screen the image's information. */
 	public void showImageInfo();
 
+	/**
+	 * Sets the collection of existing attachments, attachments added
+	 * by the currently logged in user.
+	 * 
+	 * @param attachments The value to set.
+	 */
 	public void setExistingAttachements(Collection attachments);
+
+	/**
+	 * Sets the collection of existing urls, urls added
+	 * by the currently logged in user.
+	 * 
+	 * @param urls The value to set.
+	 */
+	public void setExistingURLs(Collection urls);
 	
 }

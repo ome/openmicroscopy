@@ -185,6 +185,7 @@ class TreeViewerComponent
 	{
 		controller.initialize(view);
 		view.initialize(controller, model, bounds);
+		model.getMetadataViewer().addPropertyChangeListener(controller);
 	}
 
 	/**
@@ -562,7 +563,7 @@ class TreeViewerComponent
 		int state = model.getState();
 		if (operation == REMOVE_OBJECT && state != SAVE)
 			throw new IllegalStateException("This method can only be " +
-			"invoked in the SAVE state");
+									"invoked in the SAVE state");
 		switch (state) {
 			case DISCARDED:
 				throw new IllegalStateException("This method cannot be " +
@@ -579,19 +580,18 @@ class TreeViewerComponent
 				throw new IllegalArgumentException("Save operation not " +
 						"supported.");
 		}  
-		//model.setEditor(null);
-		//int editor = model.getEditorType();
 		//removeEditor(); //remove the currently selected editor.
 		if (operation == REMOVE_OBJECT) {
 			model.setState(READY);
 			fireStateChange();
-		}// else if (operation == CREATE_OBJECT)
-		//	model.getMetadataViewer().clearDataToSave();
-		
+		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getSelectedBrowser();
 		browser.refreshEdition(data, operation);
+		//Browser browser = model.getSelectedBrowser();
+		//browser.refreshEdition(data, operation);
 		//browser.refreshLoggedExperimenterData();
+		/*
 		if (operation == UPDATE_OBJECT) {
 			Map browsers = model.getBrowsers();
 			Iterator i = browsers.keySet().iterator();
@@ -601,6 +601,7 @@ class TreeViewerComponent
 					browser.refreshEdition(data, operation);
 			}
 		}
+		*/
 		//onSelectedDisplay();
 		
 		setStatus(false, "", true);

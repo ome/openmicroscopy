@@ -27,11 +27,13 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.Cursor;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,7 +47,9 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
@@ -56,6 +60,8 @@ import javax.swing.event.DocumentListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
@@ -77,14 +83,17 @@ import pojos.URLAnnotationData;
  */
 class LinksUI
 	extends AnnotationUI
-	implements ActionListener, DocumentListener
+	implements ActionListener, DocumentListener, PropertyChangeListener
 {
 	
 	/** The title associated to this component. */
 	private static final String TITLE = "Links ";
 	
-	/** Action id indicating to add new url area. */
-	private static final String	ADD_ACTION = "add";
+	/** Action id indicating to add new file. */
+	private static final String	ADD_NEW_ACTION = "addNew";
+	
+	/** Action id indicating to add new file. */
+	private static final String	ADD_UPLOADED_ACTION = "addUploaded";
 	
 	/** Collection of key/value pairs used to remove annotations. */
 	private Map<Integer, URLAnnotationData> urlComponents;
@@ -94,6 +103,9 @@ class LinksUI
 	
 	/** Collection of urls to unlink. */
 	private Set<URLAnnotationData>			toRemove;
+	
+	/** Collection of urls to unlink. */
+	private Set<URLAnnotationData>			toAdd;
 	
 	/** Button to add a new URL. */
 	private JButton							addButton;
@@ -107,15 +119,50 @@ class LinksUI
 	/** The component hosting the final result. */
 	private JPanel 							content;
 	
+	/** The selection menu. */ 
+	private JPopupMenu						selectionMenu;
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		toAdd = new HashSet<URLAnnotationData>();
 		addedContent = new JPanel();
 		areas = new ArrayList<JTextField>();
-		addButton = new JButton("New...");
+		addButton = new JButton("Add...");
 		addButton.setToolTipText("Add a new URL.");
-		addButton.addActionListener(this);
-		addButton.setActionCommand(ADD_ACTION);
+		addButton.addMouseListener(new MouseAdapter() {
+			
+			public void mouseReleased(MouseEvent e) {
+				Point p = e.getPoint();
+				createSelectionMenu().show(addButton, p.x, p.y);
+			}
+		
+		});
+	}
+	
+	/**
+	 * Creates the selection menu.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createSelectionMenu()
+	{
+		if (selectionMenu != null) return selectionMenu;
+		selectionMenu = new JPopupMenu();
+		IconManager icons = IconManager.getInstance();
+		JMenuItem item = new JMenuItem("New URL");
+		item.setIcon(icons.getIcon(IconManager.UPLOAD));
+		item.setToolTipText("Attach a new URL.");
+		item.addActionListener(this);
+		item.setActionCommand(""+ADD_NEW_ACTION);
+		selectionMenu.add(item);
+		item = new JMenuItem("Existing URL");
+		item.setIcon(icons.getIcon(IconManager.DOWNLOAD));
+		item.setToolTipText("Attach an existing URL.");
+		item.addActionListener(this);
+		item.setActionCommand(""+ADD_UPLOADED_ACTION);
+		selectionMenu.add(item);
+		return selectionMenu;
 	}
 	
 	/**
@@ -136,9 +183,28 @@ class LinksUI
 	private JPanel layoutURL()
 	{
 		JPanel p = new JPanel();
-		Iterator i = urlComponents.keySet().iterator();
-		int index;
+		Collection urls = model.getUrls();
+		if (urls == null || urls.size() == 0) return p;
+		Iterator i = urls.iterator();
 		URLAnnotationData url;
+		int index = 0;
+		urlComponents = new HashMap<Integer, URLAnnotationData>();
+		while (i.hasNext()) {
+			url = (URLAnnotationData) i.next();
+			if (!toRemove.contains(url)) {
+				urlComponents.put(index, url);
+				index++;
+			}
+		}
+		i = toAdd.iterator();
+		while (i.hasNext()) {
+			url = (URLAnnotationData) i.next();
+			urlComponents.put(index, url);
+			index++;
+		}
+		
+		i = urlComponents.keySet().iterator();
+		index = 0;
 		IconManager icons = IconManager.getInstance();
 		Icon icon = icons.getIcon(IconManager.REMOVE);
 		JButton button;
@@ -150,6 +216,7 @@ class LinksUI
 		c.gridy = 0;
 		JLabel label;
 		c.weightx = 0;
+		if (urlComponents.size() == 0) return p;
 		p.add(UIUtilities.setTextFont("Url: "), c);
 		while (i.hasNext()) {
 			c.gridx = 1;
@@ -174,9 +241,10 @@ class LinksUI
 			
 			});
 			p.add(label, c);
-			
+			c.gridx = 2;
+			p.add(Box.createHorizontalStrut(5), c);
 			if (model.isCurrentUserOwner(url)) {
-				c.gridx = 2;
+				c.gridx = 3;
 				button = new JButton(icon);
 				button.setBorder(null);
 				button.setToolTipText("Remove the link.");
@@ -268,6 +336,26 @@ class LinksUI
 	}
 	
 	/**
+	 * Returns <code>true</code> if the file has already been added, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param data The value to check.
+	 * @return See above.
+	 */
+	private boolean isURLAdded(URLAnnotationData data)
+	{
+		if (data == null) return true;
+		Iterator<URLAnnotationData> i = toAdd.iterator();
+		URLAnnotationData f;
+		while (i.hasNext()) {
+			f = i.next();
+			if (f.getId() == data.getId())
+				return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
@@ -281,6 +369,51 @@ class LinksUI
 		initComponents();
 	}
 	
+	/** Shows the collection of existing tags. */
+	void showSelectionWizard()
+	{
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		Collection l = model.getExistingURLs();
+		List<Object> r = new ArrayList<Object>();
+		Collection urls = model.getUrls();
+		Iterator i;
+		Set<Long> ids = new HashSet<Long>();
+		AnnotationData data;
+		if (urls != null) {
+			i = urls.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!toRemove.contains(data)) 
+					ids.add(data.getId());
+			}
+		}
+		
+		if (l.size() > 0) {
+			
+			i = l.iterator();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				if (!ids.contains(data.getId()))
+					r.add(data);
+			}
+		}
+		
+		Registry reg = MetadataViewerAgent.getRegistry();
+		if (r.size() == 0) {
+			UserNotifier un = reg.getUserNotifier();
+			un.notifyInfo("Existing URLs", "No Urls found.");
+			return;
+		}
+		SelectionWizard wizard = new SelectionWizard(
+										reg.getTaskBar().getFrame(), r);
+		IconManager icons = IconManager.getInstance();
+		wizard.setTitle("Upload URls Selection" , "Select Urls already " +
+				"updloaded to the server", 
+				icons.getIcon(IconManager.URL_48));
+		wizard.addPropertyChangeListener(this);
+		UIUtilities.centerAndShow(wizard);
+	}
+	
 	/**
 	 * Overridden to lay out the links.
 	 * @see AnnotationUI#buildUI()
@@ -288,34 +421,20 @@ class LinksUI
 	protected void buildUI()
 	{
 		removeAll();
-		
 		addedContent.removeAll();
 		int n = model.getUrlsCount()-toRemove.size();
 		title = TITLE+LEFT+n+RIGHT;
 		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		IconManager icons = IconManager.getInstance();
-		List<Image> imgs = new ArrayList<Image>();
-		imgs.add(icons.getImageIcon(IconManager.URL).getImage());
-		border.setImages(imgs);
-		setBorder(border);
+		//setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
+		/*
 		if (n == 0) {
 			add(layoutAddContent());
 			revalidate();
 			return;
 		} 
-		Collection urls = model.getUrls();
-		Iterator i = urls.iterator();
-		URLAnnotationData url;
-		int index = 0;
-		urlComponents = new HashMap<Integer, URLAnnotationData>();
-		while (i.hasNext()) {
-			url = (URLAnnotationData) i.next();
-			if (!toRemove.contains(url)) {
-				urlComponents.put(index, url);
-				index++;
-			}
-		}
+		*/
 		add(layoutURL());
 		add(Box.createVerticalStrut(5));
 		add(layoutAddContent());
@@ -336,12 +455,20 @@ class LinksUI
 	{
 		Iterator i = toRemove.iterator();
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		while (i.hasNext()) 
-			l.add((AnnotationData) i.next());
-		
+		while (i.hasNext()) {
+			AnnotationData ann = (AnnotationData) i.next();
+			System.err.println(ann);
+			l.add(ann);
+		}
 		return l;
 	}
 
+	/**
+	 * Creates a URL annotation.
+	 * 
+	 * @param value The passed value.
+	 * @return See above.
+	 */
 	private URLAnnotationData createAnnotation(String value)
 	{
 		try {
@@ -372,6 +499,8 @@ class LinksUI
 				}
 			}
 		}
+		if (toAdd.size() > 0)
+			l.addAll(toAdd);
 		return l;
 	}
 	
@@ -382,6 +511,7 @@ class LinksUI
 	protected boolean hasDataToSave()
 	{
 		if (getAnnotationToRemove().size() > 0) return true;
+		if (toAdd.size() > 0) return true;
 		List<String> l = new ArrayList<String>(); 
 		Iterator i = areas.iterator();
 		JTextField area;
@@ -419,6 +549,7 @@ class LinksUI
 		removeAll();
 		areas.clear();
 		toRemove.clear();
+		toAdd.clear();
 	}
 	
 	/**
@@ -428,13 +559,19 @@ class LinksUI
 	public void actionPerformed(ActionEvent e)
 	{
 		String s = e.getActionCommand();
-		if (ADD_ACTION.equals(s)) {
+		if (ADD_NEW_ACTION.equals(s)) {
 			addURLArea();
+		} else if (ADD_UPLOADED_ACTION.equals(s)) {
+			if (model.getExistingAttachments() == null) {
+				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				model.loadExistingUrls();
+			} else showSelectionWizard();
 		} else {
 			int index = Integer.parseInt(s);
 			URLAnnotationData url = urlComponents.get(index);
 			if (url != null) {
-				toRemove.add(url);
+				if (!toAdd.contains(url))
+					toRemove.add(url);
 				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 						Boolean.TRUE);
 			}
@@ -442,6 +579,29 @@ class LinksUI
 		}
 	}
 
+	/**
+	 * Adds the selected <code>URL</code>s to the list of links to save.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Collection l = (Collection) evt.getNewValue();
+			if (l == null || l.size() == 0) return;
+			Iterator i = l.iterator();
+			URLAnnotationData data;
+	    	while (i.hasNext()) {
+	    		data = (URLAnnotationData) i.next();
+	    		if (!isURLAdded(data))
+	    			toAdd.add(data);
+	    	}
+	    	buildUI();
+	    	firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+					Boolean.TRUE);
+		}
+	}
+	
 	/**
 	 * Fires property indicating that some text has been entered.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)

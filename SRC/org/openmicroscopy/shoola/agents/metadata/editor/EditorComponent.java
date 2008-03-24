@@ -259,12 +259,27 @@ class EditorComponent
 		else view.showChannelData();
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setExistingAttachements(Collection)
+	 */
 	public void setExistingAttachements(Collection attachments)
 	{
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
 		view.setExistingAttachements();
 		
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#setExistingURLs(Collection)
+	 */
+	public void setExistingURLs(Collection urls)
+	{
+		if (urls == null) return;
+		model.setExistingURLs(urls);
+		view.setExistingURLs();
 	}
 	
 }

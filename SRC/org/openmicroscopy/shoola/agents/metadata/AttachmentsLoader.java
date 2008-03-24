@@ -91,8 +91,7 @@ public class AttachmentsLoader
      */
     public void handleResult(Object result) 
     {
-    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	//viewer.setMetadata(refNode, result);
     	viewer.setExistingAttachements((Collection) result);
     } 
+    
 }

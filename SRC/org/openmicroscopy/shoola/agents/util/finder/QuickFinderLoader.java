@@ -125,7 +125,7 @@ public class QuickFinderLoader
         s += convertType(type);
         */
         String s = " ";
-        event.setSearchContext(s);
+        //event.setSearchContext(s);
 		bus.post(event); 
 		viewer.dispose();
     }

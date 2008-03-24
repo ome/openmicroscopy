@@ -224,10 +224,12 @@ class MetadataViewerUI
 		uiDelegate.repaint();
 	}
 	
-	JComponent getUI()
-	{
-		 return uiDelegate;
-	}
+	/**
+	 * Returns the UI.
+	 * 
+	 * @return See above.
+	 */
+	JComponent getUI() { return uiDelegate; }
 	
 	/** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()

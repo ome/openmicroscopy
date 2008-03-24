@@ -146,7 +146,7 @@ public class AdvancedFinderLoader
 		}
         */
         String s = "Results";
-        event.setSearchContext(s);
+        //event.setSearchContext(s);
 		bus.post(event); 
 		viewer.dispose();
     }

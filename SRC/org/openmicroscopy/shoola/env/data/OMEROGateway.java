@@ -2634,32 +2634,6 @@ class OMEROGateway
 		//return service.results();
 	}
 	
-	List getTaggedEntities(Class type, List<ExperimenterData> users,
-			Timestamp start, Timestamp end, String[] tags)
-	{
-		Search service = getSearchService();
-		service.onlyAnnotatedBetween(start, end);
-		if (users != null && users.size() > 0) {
-			Iterator i = users.iterator();
-			ExperimenterData exp;
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				
-				service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
-			}
-		}
-		Class nodeType = convertPojos(type);
-		//if (nodeType != null)
-		//	service.onlyType(nodeType);
-		service.onlyType(Project.class);
-		//service.byTags(tags);
-		if (service.hasNext()) {
-		}
-		//Map results = service.results();
-		return null;
-			
-	}
-	
 	Map performSearch(SearchDataContext context)
 	{
 		Search service = getSearchService();

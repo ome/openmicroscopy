@@ -26,13 +26,10 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -84,6 +81,12 @@ class PropertiesUI
 	/** The details string. */
     private static final String DETAILS = "Details";
     
+    /** The maximum width of the name area. */
+    private static final int	WIDTH = 250;
+    
+    /** The maximum width of the e-mail and owner area. */
+    private static final int	WIDTH_NAME = 200;
+    
     /** Area where to enter the name of the <code>DataObject</code>. */
     private JTextField          nameArea;
      
@@ -103,7 +106,7 @@ class PropertiesUI
     private JPanel buildPermissions(PermissionData permissions)
     {
         JPanel content = new JPanel();
-        double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
+        double[][] tl = {{TableLayout.PREFERRED, WIDTH}, //columns
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
         				TableLayout.PREFERRED} }; //rows
         content.setLayout(new TableLayout(tl));
@@ -231,35 +234,30 @@ class PropertiesUI
     private JPanel layoutDetails(Map details)
     {
     	JPanel content = new JPanel();
-        content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;
-        //c.insets = new Insets(3, 3, 3, 3);
-        Iterator i = details.keySet().iterator();
+    	double[] columns = {TableLayout.PREFERRED, 5,  WIDTH_NAME};
+    	TableLayout tl = new TableLayout();
+    	content.setLayout(tl);
+    	tl.setColumn(columns);
+    	Iterator i = details.keySet().iterator();
         JLabel label;
         JTextField area;
         String key, value;
+        int index = 0;
         while (i.hasNext()) {
-            ++c.gridy;
-            c.gridx = 0;
+        	tl.insertRow(index, TableLayout.PREFERRED);
             key = (String) i.next();
             value = (String) details.get(key);
             label = UIUtilities.setTextFont(key);
-            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            //c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 0.0;  
-            content.add(label, c);
+            content.add(label, "0, "+index);
             area = new JTextField(value);
             area.setEditable(false);
             area.setEnabled(false);
             label.setLabelFor(area);
-            c.gridx = 1;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.weightx = 1.0;
-            content.add(area, c);  
+            content.add(area, "2, "+index);  
+            index++;
+            tl.insertRow(index, TableLayout.PREFERRED);
+            content.add(new JLabel(), "0, "+index+", 2, "+index);
+            index++;
         }
         return content;
     }
@@ -284,42 +282,16 @@ class PropertiesUI
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
-       
-        content.setLayout(new GridBagLayout());
-        content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridy = 0; 
-        c.gridx = 0;
-        content.add(UIUtilities.setTextFont("ID"), c);
-        c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c);
-        c.gridx++;
-        content.add(new JLabel(""+model.getRefObjectID()), c);
-        c.gridy++;
-        content.add(Box.createVerticalStrut(5), c);
-        c.gridy++;
-        c.gridx = 0;
-        content.add(UIUtilities.setTextFont("Name"), c);
-        c.gridx++;
-        content.add(Box.createHorizontalStrut(5), c);
-        c.gridx++;
-        c.weightx = 0.5;
-        content.add(nameArea, c);
-        c.gridy++;
-        content.add(Box.createVerticalStrut(5), c);
-        c.gridy++;
-        c.weightx = 0.0; 
-        c.gridx = 0;
-        content.add(UIUtilities.setTextFont("Description"), c);
-        content.add(Box.createHorizontalStrut(5), c);
-        c.gridx++;
-        
-        c.gridx++;
-        c.weightx = 0.5;
-        c.ipady = 80;
-        content.add(new JScrollPane(descriptionArea), c);
+        double[][] tl = {{TableLayout.PREFERRED, 5,  WIDTH}, //columns
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
+        		TableLayout.PREFERRED, 80}};
+        content.setLayout(new TableLayout(tl));
+        content.add(UIUtilities.setTextFont("ID"), "0, 0");
+        content.add(new JLabel(""+model.getRefObjectID()), "2, 0");
+        content.add(UIUtilities.setTextFont("Name"), "0, 2");
+        content.add(nameArea, "2, 2");
+        content.add(UIUtilities.setTextFont("Description"), "0, 4");
+        content.add(new JScrollPane(descriptionArea), "2, 4, 2, 5");
         return content;
     }
     
@@ -331,8 +303,9 @@ class PropertiesUI
     {
         setLayout(new BorderLayout());
         contentPanel = new JPanel();
-    	contentPanel.setLayout(new BoxLayout(contentPanel, 
-    								BoxLayout.Y_AXIS));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        contentPanel.setLayout(new BoxLayout(contentPanel, 
+    		   					BoxLayout.Y_AXIS));
     	contentPanel.add(buildContentPanel());
         ExperimenterData exp = model.getRefObjectOwner();
         if (exp != null) {
@@ -345,11 +318,11 @@ class PropertiesUI
         	if (perm != null && !(model.getRefObject() instanceof ImageData)) {
         		p.add(buildPermissions(perm));
         	}
-        	UIUtilities.setBoldTitledBorder(DETAILS, p);
+        	//UIUtilities.setBoldTitledBorder(DETAILS, p);
+        	p.setBorder(new TitledLineBorder(DETAILS));
         	TreeComponent tree = new TreeComponent();
         	JPanel collapse = new JPanel();
-        	collapse.setBorder(new TitledLineBorder(DETAILS, 
-        						collapse.getBackground()));
+        	collapse.setBorder(new TitledLineBorder(DETAILS));
         	tree.insertNode(p, collapse, false);
         	contentPanel.add(tree);
             contentPanel.add(new JPanel());

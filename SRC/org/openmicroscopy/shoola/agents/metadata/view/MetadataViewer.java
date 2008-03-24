@@ -60,6 +60,9 @@ public interface MetadataViewer
 	extends ObservableComponent
 {
 
+	/** Bound property indicating that the data have been saved. */
+	public static final String	ON_DATA_SAVE_PROPERTY = "onDataSave";
+	
 	/** Inidicates to layout all the components vertically. */
 	public static final int		VERTICAL_LAYOUT = 0;
 	
@@ -221,5 +224,12 @@ public interface MetadataViewer
 	
 	/** Brings up on screen the image's information. */
 	public void showImageInfo();
+
+	/**
+	 * Refreshes the view when the metadata has been saved.
+	 * 
+	 * @param dataObject The updated object.
+	 */
+	public void onDataSave(DataObject dataObject);
 	
 }

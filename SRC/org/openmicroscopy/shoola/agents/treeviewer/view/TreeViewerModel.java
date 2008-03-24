@@ -746,6 +746,11 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 
+	/** 
+	 * Starts an asynchronous call to save a data object.
+	 * 
+	 * @param object The object to create.
+	 */
 	void fireDataObjectCreation(DataObject object)
 	{
 		Browser browser = getSelectedBrowser();
