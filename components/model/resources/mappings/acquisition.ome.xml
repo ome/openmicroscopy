@@ -535,6 +535,7 @@
 		<entry name="application/pdf"/>
 		<entry name="application/ms-excel"/>
 		<entry name="application/ms-powerpoint"/>
+		<entry name="application/ms-word"/>
 	</enum>
 
   <!-- Pixels Entity -->

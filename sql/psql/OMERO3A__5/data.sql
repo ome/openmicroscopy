@@ -305,6 +305,8 @@ insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/ms-excel';
 insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/ms-powerpoint';
+insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_format'),-35,0,0,0,'application/ms-word';
 insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_lasertype'),-35,0,0,0,'Excimer';
 insert into lasertype (id,permissions,owner_id,group_id,creation_id,value)

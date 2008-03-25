@@ -152,6 +152,8 @@ BEGIN;
     insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'application/ms-powerpoint';
     insert into format (id,permissions,owner_id,group_id,creation_id,value)
+    select nextval('seq_format'),-35,0,0,0,'application/ms-word';
+    insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'text/rtf';
     insert into format (id,permissions,owner_id,group_id,creation_id,value)
     select nextval('seq_format'),-35,0,0,0,'text/html';
