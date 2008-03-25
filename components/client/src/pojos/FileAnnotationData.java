@@ -69,13 +69,16 @@ public class FileAnnotationData
 	public static final String HTM = "htm";
 	
 	/** Identifies the <code>Word</code> file formats. */
-	public static final String WORD = "doc";
+	public static final String MS_WORD = "doc";
 	
 	/** Identifies the <code>Excel</code> file formats. */
-	public static final String EXCEL = "xls";
+	public static final String MS_EXCEL = "xls";
 	
 	/** Identifies the <code>Power point</code> file formats. */
-	public static final String POWER_POINT = "ppt";
+	public static final String MS_POWER_POINT = "ppt";
+	
+	/** Identifies the <code>Power point</code> file formats. */
+	public static final String MS_POWER_POINT_SHOW = "pps";
 	
 	/** Identifies the <code>RTF</code> file formats. */
 	public static final String RTF = "rtf";
@@ -155,9 +158,10 @@ public class FileAnnotationData
 		else if (path.endsWith(CSV)) format = CSV;
 		else if (path.endsWith(XML)) format = XML;
 		else if (path.endsWith(HTML) || path.endsWith(HTM)) format = HTML;
-		else if (path.endsWith(WORD)) format = WORD;
-		else if (path.endsWith(EXCEL)) format = EXCEL;
-		else if (path.endsWith(POWER_POINT)) format = POWER_POINT;
+		else if (path.endsWith(MS_WORD)) format = MS_WORD;
+		else if (path.endsWith(MS_EXCEL)) format = MS_EXCEL;
+		else if (path.endsWith(MS_POWER_POINT) ||
+				path.endsWith(MS_POWER_POINT_SHOW)) format = MS_POWER_POINT;
 		else if (path.endsWith(RTF)) format = RTF;
 		else
 			throw new IllegalArgumentException("Format not supported.");
@@ -203,9 +207,10 @@ public class FileAnnotationData
 		if (format.equals(CSV)) return SERVER_CSV;
 		if (format.equals(TEXT)) return SERVER_TEXT;
 		if (format.equals(RTF)) return SERVER_RTF;
-		if (format.equals(WORD)) return SERVER_MS_WORD;
-		if (format.equals(EXCEL)) return SERVER_MS_EXCEL;
-		if (format.equals(POWER_POINT)) return SERVER_MS_POWERPOINT;
+		if (format.equals(MS_WORD)) return SERVER_MS_WORD;
+		if (format.equals(MS_EXCEL)) return SERVER_MS_EXCEL;
+		if (format.equals(MS_POWER_POINT) ||
+			format.equals(MS_POWER_POINT_SHOW)) return SERVER_MS_POWERPOINT;
 			throw new IllegalArgumentException("Format not supported.");
 	}
 	
@@ -223,7 +228,12 @@ public class FileAnnotationData
 		else if (SERVER_CSV.equals(format)) return CSV;
 		else if (SERVER_TEXT.equals(format)) return TEXT;
 		else if (SERVER_XML.equals(format)) return XML;
-		throw new IllegalArgumentException("Format not supported.");
+		else if (SERVER_HTML.equals(format)) return HTML;
+		else if (SERVER_RTF.equals(format)) return RTF;
+		else if (SERVER_MS_EXCEL.equals(format)) return MS_EXCEL;
+		else if (SERVER_MS_WORD.equals(format)) return MS_WORD;
+		else if (SERVER_MS_POWERPOINT.equals(format)) return MS_POWER_POINT;
+			throw new IllegalArgumentException("Format not supported.");
 	}
 	
 	/**
@@ -234,20 +244,20 @@ public class FileAnnotationData
 	public String getFileKind()
 	{
 		String format = getFileFormat();
-		if (PDF.equals(format))
-			return "PDF Document";
-		else if (XML.equals(format))
-			return "XML Document";
-		else if (WORD.equals(format))
-			return "Microsoft Word Document";
-		else if (EXCEL.equals(format))
-			return "Microsoft Excel Document";
-		else if (TEXT.equals(format))
-			return "Plain Text Document";
+		if (PDF.equals(format)) return "PDF Document";
+		else if (XML.equals(format)) return "XML Document";
+		else if (MS_WORD.equals(format)) return "Microsoft Word Document";
+		else if (MS_EXCEL.equals(format)) return "Microsoft Excel Document";
+		else if (MS_POWER_POINT.equals(format) ||
+				MS_POWER_POINT_SHOW.equals(format))
+			return "Microsoft Powerpoint Document";
+		else if (TEXT.equals(format)) return "Plain Text Document";
 		else if (HTML.equals(format) || HTM.equals(format))
 			return "HTML Document";
 		else if (CSV.equals(format))
 			return "Comma Separated Value Document";
+		else if (RTF.equals(format))
+			return "Rich Text Format Document";
 		return "";
 	}
 	
