@@ -26,9 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;

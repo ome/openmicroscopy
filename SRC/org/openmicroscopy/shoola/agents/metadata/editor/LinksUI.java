@@ -184,18 +184,22 @@ class LinksUI
 	{
 		JPanel p = new JPanel();
 		Collection urls = model.getUrls();
-		if (urls == null || urls.size() == 0) return p;
-		Iterator i = urls.iterator();
+		Iterator i;
 		URLAnnotationData url;
 		int index = 0;
-		urlComponents = new HashMap<Integer, URLAnnotationData>();
-		while (i.hasNext()) {
-			url = (URLAnnotationData) i.next();
-			if (!toRemove.contains(url)) {
-				urlComponents.put(index, url);
-				index++;
+		if (urls != null) {
+			i = urls.iterator();
+			
+			urlComponents = new HashMap<Integer, URLAnnotationData>();
+			while (i.hasNext()) {
+				url = (URLAnnotationData) i.next();
+				if (!toRemove.contains(url)) {
+					urlComponents.put(index, url);
+					index++;
+				}
 			}
 		}
+		
 		i = toAdd.iterator();
 		while (i.hasNext()) {
 			url = (URLAnnotationData) i.next();
@@ -455,11 +459,8 @@ class LinksUI
 	{
 		Iterator i = toRemove.iterator();
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		while (i.hasNext()) {
-			AnnotationData ann = (AnnotationData) i.next();
-			System.err.println(ann);
-			l.add(ann);
-		}
+		while (i.hasNext()) 
+			l.add((AnnotationData) i.next());
 		return l;
 	}
 
@@ -538,6 +539,7 @@ class LinksUI
 	{
 		areas.clear();
 		toRemove.clear();
+		toAdd.clear();
 	}
 	
 	/**
@@ -547,9 +549,7 @@ class LinksUI
 	protected void clearDisplay() 
 	{
 		removeAll();
-		areas.clear();
-		toRemove.clear();
-		toAdd.clear();
+		clearData();
 	}
 	
 	/**

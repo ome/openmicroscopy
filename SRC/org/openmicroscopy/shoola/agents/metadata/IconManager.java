@@ -198,6 +198,8 @@ public class IconManager
 		relPaths[ATTACHMENT] = "nuvola_attach16.png";
 		relPaths[PROPERTIES] = "nuvola_kate16.png";
 		relPaths[URL] = "nuvola_browser16.png";
+		//relPaths[PROJECT] = "nuvola_document16.png";
+		relPaths[PROJECT] = "nuvola_folder_blue_open16.png"; 
 		relPaths[PROJECT] = "nuvola_folder_blue_open16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";

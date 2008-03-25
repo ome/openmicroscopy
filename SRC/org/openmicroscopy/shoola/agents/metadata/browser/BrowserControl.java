@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 
 //Java imports
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,16 +40,13 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.CollapseAction;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.DataObject;
 import pojos.DatasetData;
-import pojos.ExperimenterData;
 import pojos.ProjectData;
 
 /** 

@@ -32,11 +32,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -63,8 +61,6 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
-import pojos.DataObject;
-
 /** 
  * The view.
  *
@@ -89,6 +85,7 @@ class BrowserUI
 	/** The text of the default node when the object has not parents */
 	static final String     		NO_PARENTS_MSG = "Wild and Free";
 	
+	/** Action Id indicating to browse the item. */
 	private static final int		VIEW = 0;
 	
     /** 
@@ -115,6 +112,7 @@ class BrowserUI
     /** Reference to the selection listener. */
     private TreeSelectionListener	selectionListener;
     
+    /** Menu used to handle the items. */
     private JPopupMenu				menu;
     
     /** 
@@ -399,6 +397,10 @@ class BrowserUI
 		tm.reload(parent);
 	}
 
+	/**
+	 * Reacts to selection in the management menu.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e)
 	{
 		int index = Integer.parseInt(e.getActionCommand());
