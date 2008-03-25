@@ -87,6 +87,12 @@ public class FileAnnotationData
 	private static final String SERVER_PDF = "application/pdf";
 	
 	/** 
+	 * The <code>HTML</code> file format as defined by specification
+	 * corresponding to the extension. 
+	 */
+	private static final String SERVER_HTML = "text/html";
+	
+	/** 
 	 * The <code>XML</code> file format as defined by specification
 	 * corresponding to the extension. 
 	 */
@@ -103,6 +109,31 @@ public class FileAnnotationData
 	 * corresponding to the extension. 
 	 */
 	private static final String SERVER_CSV = "text/csv";
+	
+	/** 
+	 * The <code>RTF</code> file format as defined by specification
+	 * corresponding to the extension. 
+	 */
+	private static final String SERVER_RTF = "text/rtf";
+	
+	/** 
+	 * The <code>Microsoft Word</code> file format as defined by specification
+	 * corresponding to the extension. 
+	 */
+	private static final String SERVER_MS_WORD = "application/ms-word";
+	
+	/** 
+	 * The <code>Microsoft PowerPoint</code> file format as defined by 
+	 * specification corresponding to the extension. 
+	 */
+	private static final String SERVER_MS_POWERPOINT = 
+									"application/ms-powerpoint";
+	
+/** 
+	 * The <code>Microsoft Excel</code> file format as defined by specification
+	 * corresponding to the extension. 
+	 */
+	private static final String SERVER_MS_EXCEL = "application/ms-excel";
 	
 	/** The file to upload to the server. */
 	private File 	attachedFile;
@@ -167,14 +198,15 @@ public class FileAnnotationData
 	{
 		if (format == null) return SERVER_TEXT;
 		if (format.equals(PDF)) return SERVER_PDF;
-		if (format.equals(XML) || format.equals(HTML) || 
-			format.equals(HTM)) return SERVER_XML;
+		if (format.equals(XML)) return SERVER_XML;
+		if (format.equals(HTML) || format.equals(HTM)) return SERVER_HTML;
 		if (format.equals(CSV)) return SERVER_CSV;
 		if (format.equals(TEXT)) return SERVER_TEXT;
-		if (format.equals(WORD)) return SERVER_TEXT;
-		if (format.equals(EXCEL)) return SERVER_TEXT;
-		if (format.equals(POWER_POINT)) return SERVER_TEXT;
-		throw new IllegalArgumentException("Format not supported.");
+		if (format.equals(RTF)) return SERVER_RTF;
+		if (format.equals(WORD)) return SERVER_MS_WORD;
+		if (format.equals(EXCEL)) return SERVER_MS_EXCEL;
+		if (format.equals(POWER_POINT)) return SERVER_MS_POWERPOINT;
+			throw new IllegalArgumentException("Format not supported.");
 	}
 	
 	/** 
