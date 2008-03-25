@@ -380,7 +380,8 @@ class HiViewerWin
     {
         Container container = getContentPane();
         container.removeAll();
-        addToContainer(createSplitPane(browserView, clipBoardView));
+        //addToContainer(createSplitPane(browserView, clipBoardView));
+        addToContainer(browserView);
     }
     
     /**

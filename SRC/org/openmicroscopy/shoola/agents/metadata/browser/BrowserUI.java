@@ -28,17 +28,25 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -51,11 +59,14 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
+import pojos.DataObject;
+
 /** 
- * 
+ * The view.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,25 +80,16 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
  */
 class BrowserUI 
 	extends JPanel
+	implements ActionListener
 {
 
 	/** The text of the dummy default node. */
-	static final String     LOADING_MSG = "Loading...";
-	
-	/** The text of the default node when no tags linked to a given node. */
-	static final String     NO_TAGS_MSG = "No tags";
-	
-	/** The text of the default node when the image has not been viewed. */
-	static final String     NOT_VIEWED_MSG = "Not viewed it";
+	static final String     		LOADING_MSG = "Loading...";
 
-	/** The text of the default node when no attachments to a given node. */
-	static final String     NO_ATTACHMENTS_MSG = "No attachments";
-	
 	/** The text of the default node when the object has not parents */
-	static final String     NO_PARENTS_MSG = "Wild and Free";
+	static final String     		NO_PARENTS_MSG = "Wild and Free";
 	
-	/** The text of the default node when no urls linked. */
-	static final String     NO_URLS_MSG = "No urls";
+	private static final int		VIEW = 0;
 	
     /** 
      * The text of the node added to a {@link TreeBrowserSet} node
@@ -113,11 +115,32 @@ class BrowserUI
     /** Reference to the selection listener. */
     private TreeSelectionListener	selectionListener;
     
+    private JPopupMenu				menu;
+    
     /** 
      * A {@link ViewerSorter sorter} to order nodes in ascending 
      * alphabetical order.
      */
     private ViewerSorter    		sorter;
+    
+    /**
+     * Creates the menu to manage the hierarchy.
+     * 
+     * @return See above.
+     */
+    private JPopupMenu createManagementMenu()
+    {
+    	if (menu != null) return menu;
+    	menu = new JPopupMenu();
+    	menu.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+    	IconManager icons = IconManager.getInstance();
+		JMenuItem item = new JMenuItem("Browse");
+		item.setActionCommand(""+VIEW);
+		item.addActionListener(this);
+		item.setIcon(icons.getIcon(IconManager.BROWSE));
+		menu.add(item);
+    	return menu;
+    }
     
     /**
      * Handles the mouse pressed and released.
@@ -128,9 +151,9 @@ class BrowserUI
     {
     	Point loc = evt.getPoint();
     	//if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1 
-    	if (evt.isPopupTrigger()) {
-    		model.showPopupMenu((Component) evt.getSource(), loc);
-		}
+    	if (evt.isPopupTrigger()) 
+    		createManagementMenu().show((Component) evt.getSource(), loc.x, 
+    								loc.y);
     }
     
     /** Helper method to create the menu bar. */
@@ -374,6 +397,20 @@ class BrowserUI
 			tm.insertNodeInto(child, parent, parent.getChildCount());
 		}
 		tm.reload(parent);
+	}
+
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case VIEW:
+				controller.browser(model.getSelectedNodes());
+				break;
+	
+			default:
+				break;
+		}
+		
 	}
     
 }

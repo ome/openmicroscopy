@@ -116,14 +116,6 @@ public interface MetadataViewer
 	 */
 	public int getState();
 
-	/**
-	 * Brings up the menu.
-	 * 
-	 * @param invoker	The component that requested the popup menu.
-	 * @param loc		The location of mouse click.
-	 */
-	public void showMenu(Component invoker, Point loc);
-
 	/** 
 	 * Cancels any ongoing data loading. 
 	 * 

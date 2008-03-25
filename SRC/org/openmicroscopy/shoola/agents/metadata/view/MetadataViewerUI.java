@@ -175,20 +175,6 @@ class MetadataViewerUI
 		buildGUI();
 	}
 	
-	/**
-	 * Brings up the popup menu on top of the specified component at the
-     * specified location.
-     * 
-	 * @param invoker 	The component that requested the popup menu.
-	 * @param location 	The point at which to display the menu, relative to the
-     *            		<code>component</code>'s coordinates.
-	 */
-	void showMenu(Component invoker, Point location)
-	{
-		PopupMenu menu = new PopupMenu(controller);
-		menu.show(invoker, location.x, location.y);
-	}
-	
 	/** Updates display when the new root node is set. */
 	void setRootObject()
 	{

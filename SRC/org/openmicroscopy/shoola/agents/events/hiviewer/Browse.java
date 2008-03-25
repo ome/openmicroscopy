@@ -71,13 +71,13 @@ public class Browse
     /** Event ID corresponding to a browse datasets event. */
     public static final int DATASETS = 5;
     
-    /** Event ID corresponding to a browse datasets event. */
+    /** Event ID corresponding to a browse categories event. */
     public static final int CATEGORIES = 6;
     
-    /** Event ID corresponding to a browse datasets event. */
+    /** Event ID corresponding to a browse projects event. */
     public static final int PROJECTS = 7;
     
-    /** Event ID corresponding to a browse datasets event. */
+    /** Event ID corresponding to a browse category groups event. */
     public static final int CATEGORY_GROUPS = 8;
     
     /** 
@@ -91,6 +91,9 @@ public class Browse
      * period of time.
      */
     public static final int IMAGE_PER_DATE = 10;
+    
+    /** Event ID corresponding to a browse tags event. */
+    public static final int	TAGS = 11;
     
     /** ID of the top element in the hierarchy. */
     private long        		hierarchyObjectID;
@@ -113,15 +116,6 @@ public class Browse
     
     /** The object hosting time interval information. */
     private TimeRefObject		timeRefObject;
-    
-    /** 
-     * Flag indicating that the browse event is to display the result of
-     * a sarch action.
-     */
-    private boolean				searchResult;
-    
-    /** The context of the search. */
-    private String				searchContext;
     
     /**
      * Controls if the specified index is supported.
@@ -155,6 +149,7 @@ public class Browse
             case CATEGORIES:
             case PROJECTS:
             case CATEGORY_GROUPS:
+            case TAGS:
                 return; 
             default:
                 throw new IllegalArgumentException("Event index not valid.");
@@ -171,8 +166,8 @@ public class Browse
      * 						Mustn't be <code>null</code>.
      * @param bounds        The bounds of the component posting the event.
      */
-    public Browse(TimeRefObject timeRef, 
-    				ExperimenterData experimenter, Rectangle bounds)
+    public Browse(TimeRefObject timeRef, ExperimenterData experimenter, 
+    				Rectangle bounds)
     {
     	if (timeRef == null)
     		throw new IllegalArgumentException("No time reference specified.");
@@ -229,7 +224,7 @@ public class Browse
         objectsIDs = ids;
         requesterBounds = bounds;
     }
-    
+
     /**
      * Returns the browse event index. 
      * 
@@ -273,30 +268,5 @@ public class Browse
      * @return See above.
      */
     public TimeRefObject getTimeRefObject() { return timeRefObject; }
-    
-    /**
-     * Returns the context of the search.
-     * 
-     * @return See above.
-     */
-    public String getSearchContext() { return searchContext; }
-    
-    /**
-     * Sets the context of the search.
-     * 
-     * @param searchContext the context of the search.
-     */
-    public void setSearchContext(String searchContext)
-    { 
-    	this.searchContext = searchContext;
-    }
-    
-    /**
-     * Returns <code>true</code> if the event is used to display the 
-     * result of a search, <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-   // public boolean isSearchResult() { return searchResult; }
     
 }

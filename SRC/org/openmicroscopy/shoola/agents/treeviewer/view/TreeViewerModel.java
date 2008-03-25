@@ -775,7 +775,8 @@ class TreeViewerModel
 	MetadataViewer getMetadataViewer()
 	{
 		if (metadataViewer == null)
-			metadataViewer = MetadataViewerFactory.getViewer("");
+			metadataViewer = MetadataViewerFactory.getViewer("", 
+										MetadataViewer.VERTICAL_LAYOUT);
 		return metadataViewer;
 	}
 

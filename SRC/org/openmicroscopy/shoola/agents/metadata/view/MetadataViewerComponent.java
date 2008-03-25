@@ -129,18 +129,6 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#showMenu(Component, Point)
-	 */
-	public void showMenu(Component invoker, Point loc)
-	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		view.showMenu(invoker, loc);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#cancel(TreeBrowserDisplay)
 	 */
 	public void cancel(TreeBrowserDisplay refNode) { model.cancel(refNode); }

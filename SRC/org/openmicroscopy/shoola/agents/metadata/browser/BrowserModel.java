@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 
 //Java imports
-import java.awt.Component;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,7 +34,6 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
-import pojos.DataObject;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -108,17 +106,6 @@ class BrowserModel
 	TreeBrowserDisplay getLastSelectedNode()
 	{ 
 		return selectedNodes.get(selectedNodes.size()-1); 
-	}
-
-	/** 
-	 * Shows the pop up menu.
-	 * 
-	 * @param invoker	The invoker of 
-	 * @param loc		The location of the mouse click.
-	 */
-	void showPopupMenu(Component invoker, Point loc)
-	{
-		parent.showMenu(invoker, loc);
 	}
 
 	/**

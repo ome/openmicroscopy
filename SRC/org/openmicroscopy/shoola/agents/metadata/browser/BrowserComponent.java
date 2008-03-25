@@ -190,26 +190,6 @@ class BrowserComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setUrls(TreeBrowserDisplay, Collection)
-	 */
-	public void setUrls(TreeBrowserDisplay node, Collection urls)
-	{
-		if (node == null) 
-			throw new IllegalArgumentException("No node to handle.");
-		if (urls == null || urls.size() == 0) {
-			view.addDefaultNode(node, BrowserUI.NO_URLS_MSG);
-			return;
-		}
-		Iterator i = urls.iterator();
-		List<TreeBrowserNode> nodes = new ArrayList<TreeBrowserNode>();
-		while (i.hasNext()) {
-			nodes.add(new TreeBrowserNode(i.next()));
-		}
-		view.setNodes(node, nodes);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#setStructuredDataResults(TreeBrowserDisplay, 
 	 * 										StructuredDataResults)
 	 */

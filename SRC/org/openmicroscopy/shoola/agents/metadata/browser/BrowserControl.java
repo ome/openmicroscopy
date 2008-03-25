@@ -24,10 +24,15 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 
 //Java imports
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 
@@ -35,11 +40,18 @@ import javax.swing.tree.TreePath;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.CollapseAction;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ExperimenterData;
+import pojos.ProjectData;
 
 /** 
  * The Browser's Controller.
@@ -188,4 +200,38 @@ class BrowserControl
 		model.loadMetadata(node);
 	}
     
+	/**
+	 * Browses the collection of specified nodes.
+	 * 
+	 * @param nodes The nodes to browse.
+	 */
+	void browser(List<TreeBrowserDisplay> nodes)
+	{
+		if (nodes == null || nodes.size() == 0) return;
+		Set<Long> ids = new HashSet<Long>();
+		Iterator<TreeBrowserDisplay> i = nodes.iterator();
+		TreeBrowserDisplay node;
+		Object object;
+		while (i.hasNext()) {
+			node = i.next();
+			object = node.getUserObject();
+			if (object instanceof DataObject)
+				ids.add(((DataObject) object).getId());
+		}
+		if (ids.size() == 0) return;
+		node = model.getLastSelectedNode();
+		object = node.getUserObject();
+		int index = -1;
+		if (object instanceof DatasetData)
+			index = Browse.DATASETS;
+		else if (object instanceof ProjectData)
+			index = Browse.PROJECTS;
+		if (index == -1) return;
+		Browse evt = new Browse(ids, index, 
+								MetadataViewerAgent.getUserDetails(), 
+    						null);
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		bus.post(evt);
+	}
+	
 }
