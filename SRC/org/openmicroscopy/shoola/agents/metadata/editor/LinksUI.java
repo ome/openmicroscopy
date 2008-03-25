@@ -187,10 +187,11 @@ class LinksUI
 		Iterator i;
 		URLAnnotationData url;
 		int index = 0;
+
+		urlComponents = new HashMap<Integer, URLAnnotationData>();
 		if (urls != null) {
 			i = urls.iterator();
 			
-			urlComponents = new HashMap<Integer, URLAnnotationData>();
 			while (i.hasNext()) {
 				url = (URLAnnotationData) i.next();
 				if (!toRemove.contains(url)) {
