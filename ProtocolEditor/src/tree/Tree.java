@@ -49,10 +49,12 @@ import tree.edit.EditDeleteField;
 import tree.edit.EditDemoteFields;
 import tree.edit.EditDuplicateFields;
 import tree.edit.EditImportFields;
+import tree.edit.EditLockFields;
 import tree.edit.EditMoveFieldsDown;
 import tree.edit.EditMoveFieldsUp;
 import tree.edit.EditMultiplyValues;
 import tree.edit.EditPromoteFields;
+import tree.edit.EditUnlockFields;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.fieldEditors.FieldEditor;
@@ -70,7 +72,8 @@ public class Tree {
 		PROMOTE_FIELDS("Promote Fields"), DUPLICATE_FIELDS("Duplicate Fields"), UNDO_LAST_ACTION("Undo Last Action"), REDO_ACTION("Redo"), 
 		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), 
 		LOAD_DEFAULTS_HIGHLIGHTED_FIELDS("Load Defaults for Highlighted Fields"), 
-		CLEAR_FIELDS("Clear Fields"), CLEAR_FIELDS_HIGHLIGHTED_FIELDS("Clear Fields for Highlighted Fields");
+		CLEAR_FIELDS("Clear Fields"), CLEAR_FIELDS_HIGHLIGHTED_FIELDS("Clear Fields for Highlighted Fields"), 
+		LOCK_HIGHLIGHTED_FIELDS("Lock highlighted fields"), UNLOCK_HIGHLIGHTED_FIELDS("Unlock highlighted fields");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -211,6 +214,14 @@ public class Tree {
 				clearFieldsforHighlightedFields();
 				break;
 			}
+			case LOCK_HIGHLIGHTED_FIELDS: {
+				lockHighlightedFields();
+				break;
+			}
+			case UNLOCK_HIGHLIGHTED_FIELDS: {
+				unlockHighlightedFields();
+				break;
+			}
 		}
 		
 	}
@@ -283,6 +294,46 @@ public class Tree {
 		undoSupport.postEdit(edit);
 		
 		selectionChanged();		// to update undo button
+	}
+	
+	/**
+	 * This adds a time-stamp (UTCmillisecs) to each field, to indicate
+	 * that they are locked (and when). 
+	 */
+	private void lockHighlightedFields() {
+		
+		// if fields are highlighted, lock them.
+		if (highlightedFields.size() > 0) {
+			UndoableEdit edit = new EditLockFields(highlightedFields);
+			undoSupport.postEdit(edit);
+			
+		// or if the root node is highlighted, lock it.
+		} else if (rootNode.isHighlighted()) {
+			UndoableEdit edit = new EditLockFields(rootNode);
+			undoSupport.postEdit(edit);
+		}
+		
+		selectionChanged();		// to update undo button etc
+	}
+	
+	/**
+	 * This removes the time-stamp (UTCmillisecs) from each field, to indicate
+	 * that they are unlocked. 
+	 */
+	private void unlockHighlightedFields() {
+		
+		// if fields are highlighted, unlock them.
+		if (highlightedFields.size() > 0) {
+			UndoableEdit edit = new EditUnlockFields(highlightedFields);
+			undoSupport.postEdit(edit);
+			
+			// or if the root node is highlighted, unlock it.
+		} else if (rootNode.isHighlighted()) {
+			UndoableEdit edit = new EditUnlockFields(rootNode);
+			undoSupport.postEdit(edit);
+		}
+		
+		selectionChanged();		// to update undo button etc
 	}
 	
 	// clear the variable "value" for any field that has one
@@ -994,7 +1045,7 @@ public class Tree {
 		if (highlightedFields.size() == 1) {
 			currentFieldEditor = highlightedFields.get(0).getFieldEditor();
 		}
-		else if (rootNode.getHighlighted()) {
+		else if (rootNode.isHighlighted()) {
 			currentFieldEditor = rootNode.getFieldEditor();
 		}
 		else
@@ -1043,6 +1094,44 @@ public class Tree {
 	public ArrayList<DataFieldNode> getHighlightedFields() {
 		return highlightedFields;
 	}
+	
+	/**
+	 * This checks whether the highlighted fields
+	 * have the attribute FIELD_LOCKED_UTC.
+	 * Presence of this attribute indicates that the highlighted fields 
+	 * are "Locked" and editing is not allowed. 
+	 * 
+	 * @return	true if any of the highlighted fields has the attribute FIELD_LOCKED_UTC.
+	 */
+	public boolean areHighlightedFieldsLocked() {
+		
+		if (highlightedFields.size() > 0)
+			return AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, highlightedFields);
+	
+		else if (rootNode.isHighlighted()) {
+			return AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, rootNode);
+		}
+		return false;
+	}
+	
+	/**
+	 * This checks whether ancestors of the highlighted fields
+	 * have the attribute FIELD_LOCKED_UTC.
+	 * This method IGNORES the highlighted fields themselves. 
+	 * Presence of this attribute indicates that ancestors of the highlighted fields
+	 * are "Locked" and editing is not allowed. 
+	 * 
+	 * @return	true if any of the highlighted field ancestors has the attribute FIELD_LOCKED_UTC.
+	 */
+	public boolean areAncestorFieldsLocked() {
+		
+		if (highlightedFields.size() > 0)
+			return AncestorChecker.isAncestorAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, highlightedFields);
+	
+		return false;
+	
+	}
+	
 	
 	// keep a note of the file that corresponds to this tree
 	public void setFile (File file) {

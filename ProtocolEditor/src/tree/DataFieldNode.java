@@ -34,7 +34,7 @@ public class DataFieldNode {
 	
 	DataField dataField;
 	
-	boolean highlighted = false; 	// is this node/dataField selected (displayed blue)
+	private boolean highlighted = false; 	// is this node/dataField selected (displayed blue)
 	
 	Tree tree;		// class that manages tree structure (takes click commands)
 	ArrayList<DataFieldNode> children;
@@ -147,7 +147,7 @@ public class DataFieldNode {
 		this.highlighted = highlighted;
 		dataField.setHighlighted(highlighted);
 	}
-	public boolean getHighlighted() {
+	public boolean isHighlighted() {
 		return highlighted;
 	}
 	public void nodeClicked(boolean clearOthers) {

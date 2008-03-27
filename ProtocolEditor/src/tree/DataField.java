@@ -71,9 +71,10 @@ public class DataField
 	FormField formField;
 	FieldEditor fieldEditor;
 	
+	// Observers of the datafield. eg formField and fieldEditor
 	ArrayList<DataFieldObserver> dataFieldObservers = new ArrayList<DataFieldObserver>();
 	
-	// the node of the dataField tree structure that holds this datafield
+	// the node of the dataField tree structure that holds this dataField
 	DataFieldNode node;
 	
 	// the factory that makes fieldEditor and formField subclasses depending on input type
@@ -223,6 +224,17 @@ public class DataField
 			observer.dataFieldUpdated();
 		}
 	}
+	
+	/**
+	 * This method uses a TreeVisitor to iterate through the children of this field
+	 * and call notifyDataFieldObservers() for each.
+	 */
+	public void notifyObserversOfChildFields() {
+		
+		TreeVisitor treeVisitor = new TreeVisitor(new DataFieldUpdatedVisitor());
+		treeVisitor.visitTree(node);
+	}
+	
 	public void notifyXmlObservers() {
 		node.xmlUpdated();
 	}
@@ -284,6 +296,39 @@ public class DataField
 	public DataFieldNode getNode() {
 		return node;
 	}
+	
+	/**
+	 * This method checks to see whether any of the ancestors of this dataField are locked. 
+	 * ie. Do they have a value for the attribute DataFieldConstants.FIELD_LOCKED_UTC.
+	 * If the attribute exists (is not null) for any of these ancestor nodes/fields, this
+	 * method will return true, indicating this field is locked.  
+	 * 
+	 * @return		true if any ancestor nodes/dataFields have a value for the locked attribute
+	 */
+	public boolean isAncestorLocked() {
+		if (node != null) {
+			return AncestorChecker.isAncestorAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, node);
+		}
+		return false;
+	}
+	
+	/**
+	 * This method returns the locked status of this dataField. 
+	 * A field may be locked either because it has been locked (has a locked timeStamp)
+	 * or because an ancestor is locked. 
+	 * This method does not distinguish from these scenarios.
+	 * 
+	 * @return		true if this field is itself locked, or is locked because an ancestor is locked
+	 */
+	public boolean isDataFieldLocked() {
+		
+		if ((getAttribute(DataFieldConstants.FIELD_LOCKED_UTC) != null) ||
+				(isAncestorLocked()))
+			return true;
+		
+		return false;
+	}
+
 	
 	public boolean hasChildren() {
 		boolean hasChildren = (!(getNode().children.isEmpty()));

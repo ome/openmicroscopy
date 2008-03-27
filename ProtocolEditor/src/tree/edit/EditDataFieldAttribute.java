@@ -71,6 +71,12 @@ public class EditDataFieldAttribute extends AbstractUndoableEdit {
 		dataField.dataFieldSelected(false);
 	}
 	
+	// used for classes to get a reference to the dataField
+	// eg. EditLockFields needs to call dataField.notifyObserversOfChildFields()
+	public DataField getDataField() {
+		return dataField;
+	}
+	
 	public String getPresentationName() {
 		return "Edit " + attribute;
 	}
