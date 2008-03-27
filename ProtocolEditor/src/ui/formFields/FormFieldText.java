@@ -46,7 +46,22 @@ public class FormFieldText extends FormField {
 		textInput.addKeyListener(textChangedListener);
 		horizontalBox.add(textInput);
 		
-		//setExperimentalEditing(false);	// default created as uneditable
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (textInput != null)	// just in case!
+			textInput.setEnabled(enabled);
 	}
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField

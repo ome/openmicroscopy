@@ -64,7 +64,22 @@ public class FormFieldNumber extends FormField {
 		horizontalBox.add(Box.createHorizontalStrut(10));
 		horizontalBox.add(unitsLabel);
 		
-		//setExperimentalEditing(false);	// default created as uneditable
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (numberTextBox != null)	// just in case!
+			numberTextBox.setEnabled(enabled);
 	}
 	
 	public void setUnits(String units) {

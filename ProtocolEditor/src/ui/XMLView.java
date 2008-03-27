@@ -314,6 +314,7 @@ public class XMLView
 		
 		protocolEditToolBar = new JToolBar("Close toolbar to re-Dock");
 		
+		addButton(Controller.LOCK_FIELDS, "", tb, protocolEditToolBar);
 		addButton(Controller.ADD_FIELD, "", tb, protocolEditToolBar);
 		addButton(Controller.DUPLICATE_FIELD, "", tb, protocolEditToolBar);
 		addButton(Controller.DELETE_FIELD, "", tb, protocolEditToolBar);
@@ -519,6 +520,16 @@ public class XMLView
 			protocolMenu.add(pasteFieldsMenuItem);
 			protocolMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_FIELD)));
 			menuBar.add(protocolMenu);
+			
+			
+			// Calendar menu
+			JMenu calendarMenu = new JMenu("Calendar");
+			calendarMenu.setBorder(menuItemBorder);
+			
+			calendarMenu.add(new JMenuItem(controller.getAction(Controller.OPEN_CALENDAR)));
+			calendarMenu.add(new JMenuItem(controller.getAction(Controller.REPOPULATE_CALENDAR)));
+			
+			menuBar.add(calendarMenu);
 			
 			
 			// Help menu

@@ -46,6 +46,8 @@ public class FormFieldOLS extends FormField {
 	
 	OLSMetadataPanel olsMetadataPanel;
 	
+	OntologyTermSelector ontologyTermSelector;
+	
 	JButton toggleMetadataButton;
 	
 	public FormFieldOLS(IDataFieldObservable dataFieldObs) {
@@ -61,7 +63,7 @@ public class FormFieldOLS extends FormField {
 		toggleMetadataButton.setBorder(null);
 		toggleMetadataButton.addActionListener(new ToggleMetadataVisibilityListener());
 
-		OntologyTermSelector ontologyTermSelector = new OntologyTermSelector(dataField, DataFieldConstants.ONTOLOGY_TERM_ID, "");
+		ontologyTermSelector = new OntologyTermSelector(dataField, DataFieldConstants.ONTOLOGY_TERM_ID, "");
 		// requests focus
 		ontologyTermSelector.addPropertyChangeListener(new FocusGainedPropertyChangedListener());
 		
@@ -69,6 +71,24 @@ public class FormFieldOLS extends FormField {
 		horizontalBox.add(ontologyTermSelector);
 		
 		refreshTermDetails();
+	
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (ontologyTermSelector != null)	// just in case!
+			ontologyTermSelector.setEnabled(enabled);
 	}
 	
 	

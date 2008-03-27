@@ -79,7 +79,6 @@ public class FormFieldTime extends FormField {
 		timer = new Timer(1000, new TimeElapsedListener());
 		startTimerButton = new JButton("Start Countdown");
 		startTimerButton.addFocusListener(componentFocusListener);
-		startTimerButton.setEnabled(getTimeInSecs() > 0);
 		startTimerButton.setBackground(null);
 		startTimerButton.addActionListener(new StartTimerListener());
 		
@@ -95,6 +94,28 @@ public class FormFieldTime extends FormField {
 		horizontalBox.add(timeBox);
 		
 		updateTimeSpinners();
+	
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		enableTimeSpinners(enabled);
+		
+		startTimerButton.setEnabled(enabled);
+		
+		if (enabled) {
+			startTimerButton.setEnabled((getTimeInSecs() > 0));
+		}
 	}
 	
 	
@@ -196,7 +217,7 @@ public class FormFieldTime extends FormField {
 		secsModel.setValue(secs);
 		secsSpinner.addChangeListener(timeChangedListener);
 		
-		startTimerButton.setEnabled((getTimeInSecs() > 0));
+		//startTimerButton.setEnabled((getTimeInSecs() > 0));
 	}
 	
 	private int getTimeInSecs() {

@@ -326,4 +326,12 @@ public class OntologyTermSelector extends JPanel {
 		public void focusLost(FocusEvent e) {}
 	}
 	
+	/**
+	 * Enable or disable all the components of the OntologyTermSelector
+	 */
+	public void setEnabled(boolean enabled) {
+		ontologySelector.setEnabled(enabled);
+		ontologyTermSelector.setEnabled(enabled);
+	}
+	
 }

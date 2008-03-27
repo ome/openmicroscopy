@@ -39,7 +39,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -75,15 +78,18 @@ public class FormField extends JPanel implements DataFieldObserver{
 	FocusListener focusChangedListener = new FocusChangedListener();
 	FocusListener componentFocusListener = new FormFieldComponentFocusListener();
 	
-	// swing components
+	/*
+	 * swing components
+	 */ 
 	Box horizontalFrameBox;
 	Box horizontalBox;
 	JButton collapseButton;	
 	JLabel nameLabel;
+	Icon lockedIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOCKED_ICON);
+	JButton descriptionButton;
 	JLabel descriptionLabel;
 	Icon infoIcon;
 	Icon wwwIcon;
-	JButton descriptionButton;
 	JButton urlButton;	// used (if url) to open browser 
 	JButton collapseAllChildrenButton;
 	
@@ -127,6 +133,10 @@ public class FormField extends JPanel implements DataFieldObserver{
 		
 		boolean subStepsCollapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
 		
+		/*
+		 * A button to expand or collapse the visibility of this field's children.
+		 * This button is only visible if this field has some children. 
+		 */
 		collapseButton = new JButton();
 		collapseButton.setFocusable(false);
 		collapseButton.setVisible(false);	// only made visible if hasChildren
@@ -141,22 +151,20 @@ public class FormField extends JPanel implements DataFieldObserver{
 		collapseButton.addActionListener(new CollapseListener());
 		collapseButton.addMouseListener(new FormPanelMouseListener());
 		
+		/*
+		 * A label to display the name of the field.
+		 * This is the only component that is always visible (but could be "")
+		 */
 		nameLabel = new JLabel();
 		nameLabel.addMouseListener(new FormPanelMouseListener());
 		
-		wwwIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_ICON);
-		urlButton = new JButton(wwwIcon);
-		urlButton.setFocusable(false); // so it is not selected by tabbing
-		unifiedButtonLookAndFeel(urlButton);
-		urlButton.addActionListener(new URLclickListener());
-		urlButton.setBackground(null);
-		Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
-		urlButton.setCursor(handCursor);
-		urlButton.setBorder(eb);
-		urlButton.setVisible(false);	// only made visible if url exists.
 		
 		
 		
+		/*
+		 * A description label displays description below the field. Visibility false unless 
+		 * descriptionButton is clicked.
+		 */
 		descriptionLabel = new JLabel();
 		visibleAttributes.add(descriptionLabel);
 		infoIcon = ImageFactory.getInstance().getIcon(ImageFactory.INFO_ICON);
@@ -169,6 +177,26 @@ public class FormField extends JPanel implements DataFieldObserver{
 		descriptionButton.setVisible(false);	// only made visible if description exists.
 		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION)); 	// will update description label
 		
+		
+		/*
+		 * A url-link button, that is only visible if a URL has been set.
+		 */
+		wwwIcon = ImageFactory.getInstance().getIcon(ImageFactory.WWW_ICON);
+		urlButton = new JButton(wwwIcon);
+		urlButton.setFocusable(false); // so it is not selected by tabbing
+		unifiedButtonLookAndFeel(urlButton);
+		urlButton.addActionListener(new URLclickListener());
+		urlButton.setBackground(null);
+		Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+		urlButton.setCursor(handCursor);
+		urlButton.setBorder(eb);
+		urlButton.setVisible(false);	// only made visible if url exists.
+		
+		
+		/*
+		 * button to allow collapsing or expanding all children
+		 * This is only visible for the root node. 
+		 */
 		collapseAllChildrenButton = new JButton("Collapse/Expand All", notCollapsedIcon);
 		collapseAllChildrenButton.setToolTipText("Collapse or Expand every field in this document");
 		collapseAllChildrenButton.setBackground(null);
@@ -196,11 +224,15 @@ public class FormField extends JPanel implements DataFieldObserver{
 		horizontalFrameBox.add(contentsNorthPanel);
 
 		// refresh the current state
-		nameLabel.setText(addHtmlTagsForNameLabel(dataField.getAttribute(DataFieldConstants.ELEMENT_NAME)));
+		// can't call dataFieldUpdated() because subclasses override it, and try to 
+		// update components that have not been instantiated until after their constructors. 
+		setNameText(addHtmlTagsForNameLabel(dataField.getAttribute(DataFieldConstants.ELEMENT_NAME)));
 		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
 		setURL(dataField.getAttribute(DataFieldConstants.URL));
+		
+		refreshChildDisplayOrientation();
+		
 		refreshBackgroundColour();
-		refreshHighlighted();
 		
 		this.add(horizontalFrameBox, BorderLayout.NORTH);
 		this.add(descriptionLabel, BorderLayout.WEST);
@@ -216,7 +248,32 @@ public class FormField extends JPanel implements DataFieldObserver{
 		refreshChildDisplayOrientation();
 		
 		refreshBackgroundColour();
+		
+		refreshLockedStatus();
 	}
+	
+	/**
+	 * This method checks to see if the current field is locked: 
+	 * Then it passes the locked status to enableEditing()
+	 */
+	public void refreshLockedStatus() {
+		
+		boolean locked = ((DataField)dataField).isDataFieldLocked();
+		
+		enableEditing(!locked);
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * This FormField superclass has no editable components, but subclasses
+	 * should overwrite this method for their additional components. 
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+	}
+	
 	
 	public void refreshChildDisplayOrientation() {
 		boolean childrenHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
@@ -229,11 +286,25 @@ public class FormField extends JPanel implements DataFieldObserver{
 	// these methods called when user updates the fieldEditor panel
 	public void setNameText(String name) {
 		nameLabel.setText(name);
+		
+		String lockedTimeUTC = dataField.getAttribute(DataFieldConstants.FIELD_LOCKED_UTC);
+		if (lockedTimeUTC == null) {
+			nameLabel.setIcon(null);
+			nameLabel.setToolTipText(null);
+		} else {
+			Calendar lockedTime = new GregorianCalendar();
+			lockedTime.setTimeInMillis(new Long(lockedTimeUTC));
+			SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
+			String toolTipText = "Locked at " + time.format(lockedTime.getTime());
+			nameLabel.setToolTipText(toolTipText);
+			nameLabel.setIcon(lockedIcon);
+		}
 	}
+	
 	public void setDescriptionText(String description) {
 		if ((description != null) && (description.trim().length() > 0)) {
 			String htmlDescription = "<html><div style='width:200px; padding-left:30px;'>" + description + "</div></html>";
-			nameLabel.setToolTipText(htmlDescription);
+			descriptionButton.setToolTipText(htmlDescription);
 			descriptionButton.setVisible(true);
 			descriptionLabel.setVisible(showDescription);
 			descriptionLabel.setFont(XMLView.FONT_TINY);
@@ -241,8 +312,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 		}
 		else
 		{
-			nameLabel.setIcon(null);
-			nameLabel.setToolTipText(null);
+			descriptionButton.setToolTipText(null);
 			descriptionButton.setVisible(false);
 			descriptionLabel.setText(null);
 			descriptionLabel.setVisible(false);

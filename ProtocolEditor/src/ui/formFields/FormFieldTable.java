@@ -144,6 +144,29 @@ public class FormFieldTable extends FormField {
 		// refresh layout of columns and height of viewport
 		refreshColumnAutoResizeMode();
 		refreshViewportSize();
+	
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (addRowButton != null)	// just in case!
+			addRowButton.setEnabled(enabled);
+		
+		if (removeRowsButton != null)	// just in case!
+			removeRowsButton.setEnabled(enabled);
+		
+		if (table != null)	// just in case!
+			table.setEnabled(enabled);
 	}
 	
 	public class RemoveRowsListener implements ActionListener {

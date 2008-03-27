@@ -205,5 +205,14 @@ public class TimeEditor
 		secsSpinner.addChangeListener(timeChangedListener);
 		
 	}
+	
+	/**
+	 * set enabled for all the components of TimeEditor. 
+	 */
+	public void setEnabled(boolean enabled) {
+		hoursSpinner.setEnabled(enabled);
+		minsSpinner.setEnabled(enabled);
+		secsSpinner.setEnabled(enabled);
+	}
 
 }

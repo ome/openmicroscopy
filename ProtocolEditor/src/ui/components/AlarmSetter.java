@@ -215,5 +215,14 @@ public class AlarmSetter
 		beforeAfterChooser.setSelectedIndex(index);
 		beforeAfterChooser.addActionListener(timeActionListener);
 	}
+	
+	/**
+	 * set enabled for all components of the AlarmSetter. 
+	 */
+	public void setEnabled(boolean enabled) {
+		timeSpinner.setEnabled(enabled);
+		timeUnitChooser.setEnabled(enabled);
+		beforeAfterChooser.setEnabled(enabled);
+	}
 
 }

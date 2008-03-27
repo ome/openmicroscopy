@@ -45,7 +45,6 @@ public class FormFieldProtocol extends FormField {
 		horizontalBox.add(horizontalBox.createGlue());
 		
 		fileName = new JLabel("Protocol File: ");
-		visibleAttributes.add(fileName);
 		fileName.setFont(XMLView.FONT_SMALL);
 		horizontalBox.add(fileName);
 		
@@ -62,7 +61,11 @@ public class FormFieldProtocol extends FormField {
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		fileNameLabel.setText(dataField.getAttribute(DataFieldConstants.PROTOCOL_FILE_NAME));
+		String fileName = dataField.getAttribute(DataFieldConstants.PROTOCOL_FILE_NAME);
+		if (fileName != null)
+			fileNameLabel.setText(fileName);
+		else 
+			fileNameLabel.setText("");
 	}
 
 	public void setHighlighted(boolean highlight) {

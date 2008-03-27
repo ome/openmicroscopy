@@ -49,6 +49,10 @@ public class FieldEditorTable extends FieldEditor {
 		tableColumnsEditor.setToolTipText("Add columns names, separated by commas");
 		tableColumnsEditor.setTextAreaRows(4);
 		attributeFieldsPanel.add(tableColumnsEditor);	
+		
+		// this is called by the super() constructor, but at that time
+		// not all components will have been instantiated. Calls enableEditing()
+		refreshLockedStatus();
 	}
 	
 	public class TableColumnsEditor extends AttributeMemoEditor {
@@ -92,6 +96,20 @@ public class FieldEditorTable extends FieldEditor {
 			} 
 			// the user didn't get asked, or chose not to cancel, therefore update!
 			super.setDataFieldAttribute(attributeName, newColumnNames, true);
+		}
+	}
+	
+	/**
+	 * This is called by the superclass FieldEditor.dataFieldUpdated().
+	 * Need to refresh the enabled status of additional components in this subclass. 
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);
+		
+		// need to check != null because this is called by the super() constructor
+		// before all subclass components have been instantiated. 
+		if (tableColumnsEditor != null) {
+			tableColumnsEditor.getTextArea().setEnabled(enabled);
 		}
 	}
 	

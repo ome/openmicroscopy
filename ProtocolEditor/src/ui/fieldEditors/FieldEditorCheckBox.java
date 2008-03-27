@@ -28,11 +28,15 @@ public class FieldEditorCheckBox extends FieldEditor {
 		defaultCheckBox.addActionListener(new DefaultCheckBoxListener());
 		
 		attributeFieldsPanel.add(defaultCheckBox);
+		
+		// this is called by the super() constructor, but at that time
+		// not all components will have been instantiated. Calls enableEditing()
+		refreshLockedStatus();
 	}
 
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
-		super.dataFieldUpdated();
+		super.dataFieldUpdated();	// also calls refreshLockedStatus() and enableEditing()
 		defaultValue = dataField.isAttributeTrue(DataFieldConstants.DEFAULT);
 		defaultCheckBox.setSelected(defaultValue);
 	} 
@@ -45,5 +49,19 @@ public class FieldEditorCheckBox extends FieldEditor {
 			 dataField.setAttribute(DataFieldConstants.DEFAULT, defaultBoolean, true);
 		}
 		
+	}
+	
+	/**
+	 * This is called by the superclass FieldEditor.dataFieldUpdated().
+	 * Need to refresh the enabled status of additional components in this subclass. 
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);
+		
+		// need to check != null because this is called by the super() constructor
+		// before all subclass components have been instantiated. 
+		if (defaultCheckBox != null) {
+			defaultCheckBox.setEnabled(enabled);
+		}
 	}
 }

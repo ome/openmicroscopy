@@ -158,6 +158,36 @@ public class FormFieldDateTime extends FormField {
 		
 		updateDateFromDataField();	// update and display date, based on UTCmillisecs  
 		updateTimeFromDataField();	// updates time, based on SECONDS
+	
+		
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (datePicker != null)
+			datePicker.setEnabled(enabled);
+		
+		if (daySelector != null)
+			daySelector.setEnabled(enabled);
+		
+		if (hoursSpinner != null)
+			hoursSpinner.setEnabled(enabled);
+		
+		if (timeChosen != null)
+			timeChosen.setEnabled(enabled);
+		
+		if (minsSpinner != null)
+			minsSpinner.setEnabled(enabled);
 	}
 	
 	

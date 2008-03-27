@@ -37,6 +37,27 @@ import tree.Tree.Actions;
 
 public interface IModel {
 	
+	/**
+	 * This method tests to see if any of the currently highlighted fields 
+	 * are locked. 
+	 * If so, various editing actions are disabled. 
+	 * 
+	 * @return	true if any of the fields are locked. 
+	 * Fields are considered locked if their ancestors are locked.
+	 */
+	public boolean areHighlightedFieldsLocked();
+	
+	/**
+	 * This checks whether ancestors of the highlighted fields
+	 * have the attribute FIELD_LOCKED_UTC.
+	 * This method IGNORES the highlighted fields themselves. 
+	 * Presence of this attribute indicates that ancestors of the highlighted fields
+	 * are "Locked" and editing is not allowed. 
+	 * 
+	 * @return	true if any of the highlighted field ancestors has the attribute FIELD_LOCKED_UTC.
+	 */
+	public boolean areAncestorFieldsLocked();
+	
 	public void openBlankProtocolFile();
 	
 	public void openThisFile(File file);
@@ -88,6 +109,21 @@ public interface IModel {
 	
 	public boolean isCurrentFileEdited();
 	
-	// calendar functions
-	public void populateDBthenDisplay();
+	/*
+	 * calendar functions
+	 */ 
+	
+	/**
+	 * Delegate calendar display etc to the calendar main class. 
+	 * This has already has been instantiated (connection and alarm-checker setup)
+	 * so now just need to display the calendar. 
+	 */
+	public void displayCalendar();
+	
+	/**
+	 * Asks the user to confirm that it is OK to overwrite the database (clear tables)
+	 * and then asks for a root directory for all Omero.editor files. 
+	 * Iterates through all files, adding those that contain dates to the calendar. 
+	 */
+	public void repopulateCalendarDB();
 }

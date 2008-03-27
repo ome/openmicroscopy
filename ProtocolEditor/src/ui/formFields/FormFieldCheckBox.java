@@ -25,6 +25,23 @@ public class FormFieldCheckBox extends FormField {
 		checkBox.setBackground(null);
 		
 		horizontalBox.add(checkBox);
+		
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (checkBox != null)	// just in case!
+			checkBox.setEnabled(enabled);
 	}
 	
 	// called when dataField changes attributes
@@ -33,6 +50,9 @@ public class FormFieldCheckBox extends FormField {
 		checkedValue = dataField.isAttributeTrue(DataFieldConstants.VALUE);
 		checkBox.setSelected(checkedValue);
 	} 
+	
+	
+	
 	
 	public class CheckBoxListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {

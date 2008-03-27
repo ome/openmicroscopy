@@ -75,6 +75,10 @@ public class FieldEditorDropDown extends FieldEditor {
 		defaultValueSelectionListener = new DefaultValueSelectionListener();
 		defaultValueComboBox.addActionListener(defaultValueSelectionListener);
 		attributeFieldsPanel.add(dropDownDefaultPanel);
+		
+		// this is called by the super() constructor, but at that time
+		// not all components will have been instantiated. 
+		refreshLockedStatus();
 	}
 	
 	
@@ -128,6 +132,23 @@ public class FieldEditorDropDown extends FieldEditor {
 	public class DefaultValueSelectionListener implements ActionListener {
 		public void actionPerformed (ActionEvent event) {
 			dataField.setAttribute(DataFieldConstants.DEFAULT, defaultValueComboBox.getSelectedItem().toString(), true);
+		}
+	}
+	
+	/**
+	 * This is called by the superclass FieldEditor.dataFieldUpdated().
+	 * Need to refresh the enabled status of additional components in this subclass. 
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);
+		
+		// need to check != null because this is called by the super() constructor
+		// before all subclass components have been instantiated. 
+		if (optionsFieldEditor != null) {
+			optionsFieldEditor.getTextArea().setEnabled(enabled);
+		}
+		if (defaultValueComboBox != null) {
+			defaultValueComboBox.setEnabled(enabled);
 		}
 	}
 

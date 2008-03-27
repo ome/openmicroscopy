@@ -18,20 +18,34 @@ import ui.components.TimeEditor;
 
 public class FieldEditorTime extends FieldEditor {
 	
-	String timeValue;
-	
-	int defaultTimeInSecs;
-	
-	
-	
-	AlarmSetter alarmSetter;
+
+	TimeEditor timeEditor;
 	
 	public FieldEditorTime(IDataFieldObservable dataFieldObs) {
 		
 		super(dataFieldObs);
 		
-		attributeFieldsPanel.add(new TimeEditor(dataField, DataFieldConstants.DEFAULT, "Default: "));
+		timeEditor = new TimeEditor(dataField, DataFieldConstants.DEFAULT, "Default: ");
 		
+		attributeFieldsPanel.add(timeEditor);
+		
+		// this is called by the super() constructor, but at that time
+		// not all components will have been instantiated. Calls enableEditing()
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This is called by the superclass FieldEditor.dataFieldUpdated().
+	 * Need to refresh the enabled status of additional components in this subclass. 
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);
+		
+		// need to check != null because this is called by the super() constructor
+		// before all subclass components have been instantiated. 
+		if (timeEditor != null) {
+			timeEditor.setEnabled(enabled);
+		}
 	}
 
 }

@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
+import tree.DataField;
 import tree.DataFieldConstants;
 import tree.IAttributeSaver;
 import tree.DataFieldObserver;
@@ -167,10 +168,10 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		});
 		nameFieldEditor.addToToolBar(childLayoutToggleButton);
 		// set Icon and toolTipText
-		boolean childHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
-		refreshChildLayoutButton(childHorizontal);
+		refreshChildLayoutButton();
 		
-		
+		// disable editing if field is locked. 
+		refreshLockedStatus();
 			
 		this.setLayout(new BorderLayout());
 		this.add(attributeFieldsPanel, BorderLayout.NORTH);
@@ -186,10 +187,12 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		childHorizontal = !childHorizontal;
 		dataField.setAttribute
 			(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY, childHorizontal.toString(), true);
-		refreshChildLayoutButton(childHorizontal);
+		refreshChildLayoutButton();
 	}
 	
-	public void refreshChildLayoutButton(boolean childrenHorizontal) {
+	public void refreshChildLayoutButton() {
+		boolean childrenHorizontal = dataField.isAttributeTrue(DataFieldConstants.DISPLAY_CHILDREN_HORIZONTALLY);
+		
 		childLayoutToggleButton.setIcon(childrenHorizontal ? rotateVerticalIcon : rotateHorizontalIcon);
 		childLayoutToggleButton.setToolTipText("Display this field's children " + 
 				(childrenHorizontal ? "vertically." : "horizontally.") );
@@ -217,8 +220,36 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 		nameFieldEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.ELEMENT_NAME));
 		descriptionFieldEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
 		urlFieldEditor.setTextFieldText(dataField.getAttribute(DataFieldConstants.URL));
+		
+		refreshChildLayoutButton();
+		
+		refreshLockedStatus();
 	}
 	
+	/**
+	 * This method checks to see if the current field is locked: 
+	 * Then it passes the locked status to enableEditing()
+	 */
+	public void refreshLockedStatus() {
+		
+		boolean locked = ((DataField)dataField).isDataFieldLocked();
+		
+		enableEditing(!locked);
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FieldEditor.
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		nameFieldEditor.getTextArea().setEnabled(enabled);
+		descriptionFieldEditor.getTextArea().setEnabled(enabled);
+		urlFieldEditor.getTextField().setEnabled(enabled);
+		colourSelectButton.setEnabled(enabled);
+		inputTypeSelector.setEnabled(enabled);
+	}
 	
 	/*
 	 * used to process colour selection from the Colour JPopupMenu. 

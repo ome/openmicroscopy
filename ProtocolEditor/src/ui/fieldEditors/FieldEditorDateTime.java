@@ -30,10 +30,29 @@ import ui.components.AlarmSetter;
 
 public class FieldEditorDateTime extends FieldEditor {
 
+	AlarmSetter alarmSetter;
+	
+	
 	public FieldEditorDateTime (IDataFieldObservable dataFieldObs) {
 		
 		super(dataFieldObs);
 		
-		attributeFieldsPanel.add(new AlarmSetter(dataField, DataFieldConstants.ALARM_SECONDS));
+		alarmSetter = new AlarmSetter(dataField, DataFieldConstants.ALARM_SECONDS);
+		
+		attributeFieldsPanel.add(alarmSetter);
+		
+		// this is called by the super() constructor, but at that time
+		// not all components will have been instantiated. 
+		refreshLockedStatus();
+	}
+	
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);
+		
+		// need to check != null because this is called by the super() constructor
+		// before all subclass components have been instantiated. 
+		if (alarmSetter != null) {
+			alarmSetter.setEnabled(enabled);
+		}
 	}
 }

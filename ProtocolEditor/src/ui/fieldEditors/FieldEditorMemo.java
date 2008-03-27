@@ -42,12 +42,30 @@ private AttributeMemoEditor defaultFieldEditor;
 			(dataField, "Default Text: ", DataFieldConstants.DEFAULT, defaultValue);
 		defaultFieldEditor.setTextAreaRows(3);
 		attributeFieldsPanel.add(defaultFieldEditor);
+		
+		// this is called by the super() constructor, but at that time
+		// not all components will have been instantiated. Calls enableEditing();
+		refreshLockedStatus();
 	}
 	
 	// called when dataField changes attributes
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
 		defaultFieldEditor.setTextAreaText(dataField.getAttribute(DataFieldConstants.DEFAULT));
+	}
+	
+	/**
+	 * This is called by the superclass FieldEditor.dataFieldUpdated().
+	 * Need to refresh the enabled status of additional components in this subclass. 
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);
+		
+		// need to check != null because this is called by the super() constructor
+		// before all subclass components have been instantiated. 
+		if (defaultFieldEditor != null) {
+			defaultFieldEditor.getTextArea().setEnabled(enabled);
+		}
 	}
 
 }

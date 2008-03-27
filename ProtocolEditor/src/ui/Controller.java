@@ -35,6 +35,7 @@ import javax.swing.event.ChangeListener;
 
 import actions.AddFieldAction;
 import actions.CalendarOpenAction;
+import actions.CalendarRepopulateAction;
 import actions.ClearFieldsAllAction;
 import actions.ClearFieldsHighltdAction;
 import actions.CloseFileAction;
@@ -48,6 +49,7 @@ import actions.ImportFieldsAction;
 import actions.IndexFilesAction;
 import actions.LoadDefaultsAllAction;
 import actions.LoadDefaultsHighltdAction;
+import actions.LockFieldsAction;
 import actions.MoveFieldDownAction;
 import actions.MoveFieldUpAction;
 import actions.MultiplyValuesAction;
@@ -168,6 +170,12 @@ public class Controller
     /** Identifies the <code>CalendarOpen action</code>. */
     static final Integer     OPEN_CALENDAR = new Integer(30);
     
+    /** Identifies the <code>CalendarRepopulate action</code>. */
+    static final Integer     REPOPULATE_CALENDAR = new Integer(31);
+    
+    /** Identifies the <code>CalendarRepopulate action</code>. */
+    static final Integer     LOCK_FIELDS = new Integer(32);
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -220,6 +228,8 @@ public class Controller
         actionsMap.put(EXPORT_ALL_TEXT, new ExportAllTextAction(model));
         actionsMap.put(EXPORT_HIGHLTD_TEXT, new ExportHighltdTextAction(model));
         actionsMap.put(OPEN_CALENDAR, new CalendarOpenAction(model));
+        actionsMap.put(REPOPULATE_CALENDAR, new CalendarRepopulateAction(model));
+        actionsMap.put(LOCK_FIELDS, new LockFieldsAction(model));
     }
     
     /**

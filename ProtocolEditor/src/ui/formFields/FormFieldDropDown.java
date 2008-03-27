@@ -60,8 +60,24 @@ public class FormFieldDropDown extends FormField {
 		comboBox.addFocusListener(componentFocusListener);
 		horizontalBox.add(comboBox);
 	
-		//setExperimentalEditing(false);	// default created as uneditable
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
 	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (comboBox != null)	// just in case!
+			comboBox.setEnabled(enabled);
+	}
+	
 	
 	public void setDropDownOptions(String options) {
 		if (options != null) {

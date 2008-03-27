@@ -69,6 +69,32 @@ public class FormFieldObservation extends FormField {
 		
 		// set controls etc.
 		refreshUnitTermSelectorVisibility();
+	
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (dataTypeSelector != null)	// just in case!
+			dataTypeSelector.setEnabled(enabled);
+		
+		if (entityTermSelector != null)	// just in case!
+			entityTermSelector.setEnabled(enabled);
+		
+		if (attributeTermSelector != null)	// just in case!
+			attributeTermSelector.setEnabled(enabled);
+		
+		if (unitTermSelector != null)	// just in case!
+			unitTermSelector.setEnabled(enabled);
 	}
 	
 	// something has changed at the dataField (eg undo/redo)

@@ -69,8 +69,9 @@ public class FormFieldImage extends FormField {
 	
 	CustomPopupMenu zoomPopupMenu;
 	
-	SpinnerNumberModel percentModel;
-	JSpinner percentSizeSpinner;
+	JButton getImageButton;
+	JButton zoomButton;
+	
 	
 	public FormFieldImage(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
@@ -80,7 +81,7 @@ public class FormFieldImage extends FormField {
 		Border toolBarButtonBorder = new EmptyBorder(2,2,2,2);
 		
 		Icon openImageIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_IMAGE_ICON);
-		JButton getImageButton = new JButton(openImageIcon);
+		getImageButton = new JButton(openImageIcon);
 		getImageButton.setToolTipText("Choose image to display");
 		getImageButton.setBorder(toolBarButtonBorder);
 		getImageButton.addActionListener(new GetImageListener());
@@ -95,7 +96,7 @@ public class FormFieldImage extends FormField {
 		zoomPopupMenu.setSelectedItem(zoomPercent + "%");
 		zoomPopupMenu.addPropertyChangeListener(new ZoomChangedListener());
 		Icon zoomIcon = ImageFactory.getInstance().getIcon(ImageFactory.ZOOM_ICON);
-		JButton zoomButton = new JButton(zoomIcon);
+		zoomButton = new JButton(zoomIcon);
 		zoomButton.setBorder(toolBarButtonBorder);
 		zoomButton.setToolTipText("Zoom Image");
 		zoomButton.addMouseListener(new PopupListener());
@@ -116,6 +117,27 @@ public class FormFieldImage extends FormField {
 		
 		String imageFilePath = dataField.getAttribute(DataFieldConstants.IMAGE_PATH);
 		setImagePath(imageFilePath);
+	
+		
+		// enable or disable components based on the locked status of this field
+		refreshLockedStatus();
+	}
+	
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
+	 * 
+	 * @param enabled
+	 */
+	public void enableEditing(boolean enabled) {
+		super.enableEditing(enabled);	
+		
+		if (getImageButton != null)	// just in case!
+			getImageButton.setEnabled(enabled);
+		
+		if (zoomButton != null)	// just in case!
+			zoomButton.setEnabled(enabled);
 	}
 	
 	
