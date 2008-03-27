@@ -33,7 +33,8 @@ import util.ImageFactory;
 
 /** 
  *  Add a new Node/Field to the current Tree, either after the last currently highlighted field,
- *  or at the "end" of the Tree. 
+ *  or at the "end" of the Tree.
+ *   
  */
 
 public class AddFieldAction 
