@@ -294,4 +294,14 @@ public class CalendarFile extends CalendarObject {
 	public List<CalendarEvent> getEvents() {
 		return scheduledDates;
 	}
+	
+	/**
+	 * Since this class uses the Info attribute to store the file path.
+	 * This method makes this clearer.
+	 * 
+	 * @return
+	 */
+	public String getAbsoluteFilePath() {
+		return getInfo();
+	}
 }

@@ -29,8 +29,8 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import omeroCal.model.CalendarDataBase;
 import omeroCal.model.CalendarEvent;
+import omeroCal.model.CalendarObject;
 import omeroCal.model.ICalendarDB;
 
 import org.w3c.dom.Document;
@@ -44,6 +44,65 @@ import util.XMLMethods;
 
 public class FileManager {
 
+	
+	/**
+	 * This method takes an Omero.editor file (XML file) which is already referenced 
+	 * in the database, and tries to update it's name and the calendarEvents that 
+	 * belong to it. 
+	 * It looks for a file in the DB with the same absolute file path.
+	 * If it finds one (and only one), it updates the name, deletes the old 
+	 * calendarEvents belonging to this calendarFile, and adds back all the 
+	 * new events from the new file. 
+	 * 
+	 * @param calDB		The database to update.
+	 * @param file		The new calendarFile. 
+	 * @return		true if there was only 1 file in DB that matched (and was updated)
+	 */
+	public static boolean updateCalendarFileInDB(ICalendarDB calDB, File file) {
+		
+		CalendarFile calendarFile = new CalendarFile(file);
+		
+		String filePath = calendarFile.getAbsoluteFilePath();
+		
+		System.out.println("FileManager  updateCalendarFile  filePath = " + filePath);
+		
+		/*
+		 * This should return a single calendar file, since filePath should be unique!
+		 */
+		List<CalendarObject> calendarFilesInDB = calDB.getCalendarsByInfo(filePath);
+		
+		int files = calendarFilesInDB.size();
+		
+		System.out.println("FileManager updateCalendarFileInDB  retrieved " + files + " file");
+		
+		if (files == 1) {
+			CalendarObject fileInDB = calendarFilesInDB.get(0);
+			
+			// update existing DB calendar file with new data (not color, visibility)
+			// filePath should be same too!
+			fileInDB.setName(calendarFile.getName());
+			
+			// send it back to the database
+			calDB.updateCalendar(fileInDB);
+			
+			// now, need to replace old Events with new.
+			// Delete the old ones.
+			int calendarID = fileInDB.getCalendarID();
+			calDB.deleteEventsForCalendar(calendarID);
+			
+			// add back the new events for the new calendarFile. 
+			List<CalendarEvent> events = calendarFile.getEvents();
+        	for(CalendarEvent evt: events) {
+        		calDB.saveEvent(evt, calendarID);
+        	}
+        	
+        	return true;
+		}
+		
+		else
+			return false;
+		
+	}
 	
 	public static void populateDBfromFile(ICalendarDB calDB) {
 		
@@ -98,20 +157,41 @@ public class FileManager {
 	          }
 	        }
 	      } else {
-	        if (fileContainsDates(rootDirectory)) {
-	        	CalendarFile calendarFile = new CalendarFile(rootDirectory);
+	        {
 	        	
-	        	
-	        	int calID = calDB.saveCalendar(calendarFile);
-	        	
-	        	List<CalendarEvent> events = calendarFile.getEvents();
-	        	for(CalendarEvent evt: events) {
-	        		calDB.saveEvent(evt, calID);
-	        	}
-	        		
+	        	addCalendarFileToDB(rootDirectory, calDB);	
 
 	        }
 	      }
+	}
+	
+	
+	/**
+	 * Adds an Omero.Editor (XML) file to the calendar database as a calendarFile. 
+	 * Creates a new calendarFile from the XML file, adds this to the DB (retrieving UID).
+	 * Then gets the list of events from the calendarFile and adds them to the DB
+	 * with a reference to the calendarFile. 
+	 * 
+	 * @param xmlFile	The XML file to be added to the DB.
+	 * @param calDB		The database to add the files to.
+	 * @return 			False if the xmlFile had no date fields (not added to DB). 
+	 */
+	public static boolean addCalendarFileToDB(File xmlFile, ICalendarDB calDB) {
+		
+		if (!fileContainsDates(xmlFile)) {
+			return false;
+		}
+		
+		CalendarFile calendarFile = new CalendarFile(xmlFile);
+    	
+    	int calID = calDB.saveCalendar(calendarFile);
+    	
+    	List<CalendarEvent> events = calendarFile.getEvents();
+    	for(CalendarEvent evt: events) {
+    		calDB.saveEvent(evt, calID);
+    	}
+    	
+    	return true;
 	}
 	
 	

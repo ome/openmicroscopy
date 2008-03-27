@@ -72,8 +72,8 @@ public class CalendarTestCode {
 		ICalendarDB calDB = new CalendarDataBase();
 		
 		CalendarEvent test = new CalendarEvent("test", new Date());
-		test.setUID(0);
-		test.setCalendarID(0);
+		test.setUID(869);
+		test.setCalendarID(320);
 		
 		boolean success = calDB.updateEvent(test);
 		
