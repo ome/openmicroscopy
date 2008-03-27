@@ -173,7 +173,7 @@ public class XMLModel
 		 * When this application quits, DBConnectionSingleton.shutDownConnection()
 		 * should be called. This will be done under the quit dialog in ui.XMLView. 
 		 */
-		omeroEditorCalendar = new CalendarMain();
+		omeroEditorCalendar = new CalendarMain(this);
 		
 		
 		currentTree = null;
@@ -375,8 +375,20 @@ public class XMLModel
 		return errorMessages;
 	}
 
+	/**
+	 * This is used by SaveFileAs action as well as Save action (once user has confirmed over-write).
+	 * Can't tell at this stage whether outputFile is new or being overwritten.
+	 */
 	public void saveTreeToXmlFile(File outputFile) {
 		saveToXmlFile(outputFile);
+		
+		// try to over-write an existing file in the database (returns false if none found).
+		boolean fileInDB = omeroEditorCalendar.updateCalendarFileInDB(outputFile);
+		
+		if (!fileInDB) {
+			omeroEditorCalendar.addCalendarFileToDB(outputFile);
+		}
+		
 		selectionChanged();		// updates View with any changes in file names
 	}
 	
@@ -421,6 +433,35 @@ public class XMLModel
 	public ArrayList<DataFieldNode> getHighlightedFields() {
 		if (getCurrentTree() == null) return new ArrayList<DataFieldNode>();
 		return new ArrayList<DataFieldNode>(getCurrentTree().getHighlightedFields());
+	}
+	
+	/**
+	 * This method tests to see if any of the currently highlighted fields
+	 * are locked. 
+	 * If so, various editing actions are disabled. 
+	 * 
+	 * @return	true if any of the fields are locked. 
+	 * Fields are considered locked if their ancestors are locked.
+	 */
+	public boolean areHighlightedFieldsLocked() {
+		if (getCurrentTree() == null) 
+			return false;
+		return getCurrentTree().areHighlightedFieldsLocked();
+	}
+	
+	/**
+	 * This checks whether ancestors of the highlighted fields
+	 * have the attribute FIELD_LOCKED_UTC.
+	 * This method IGNORES the highlighted fields themselves. 
+	 * Presence of this attribute indicates that ancestors of the highlighted fields
+	 * are "Locked" and editing is not allowed. 
+	 * 
+	 * @return	true if any of the highlighted field ancestors has the attribute FIELD_LOCKED_UTC.
+	 */
+	public boolean areAncestorFieldsLocked() {
+		if (getCurrentTree() == null) 
+			return false;
+		return getCurrentTree().areAncestorFieldsLocked();
 	}
 	
 	// make a copy of the currently highlighted fields
@@ -606,11 +647,19 @@ public class XMLModel
 	/**
 	 * Delegate calendar display etc to the calendar main class. 
 	 * This has already has been instantiated (connection and alarm-checker setup)
-	 * so now just need to give user a chance to refresh the DB
-	 * and display the calendar. 
+	 * so now just need to display the calendar. 
 	 */
-	public void populateDBthenDisplay() {
-		this.omeroEditorCalendar.populateDBthenDisplay(false);
+	public void displayCalendar() {
+		omeroEditorCalendar.openDBAndDisplayUI(false);		// false - not stand-alone app.
+	}
+	
+	/**
+	 * Asks the user to confirm that it is OK to overwrite the database (clear tables)
+	 * and then asks for a root directory for all Omero.editor files. 
+	 * Iterates through all files, adding those that contain dates to the calendar. 
+	 */
+	public void repopulateCalendarDB() {
+		omeroEditorCalendar.repopulateDB();
 	}
 
 }
