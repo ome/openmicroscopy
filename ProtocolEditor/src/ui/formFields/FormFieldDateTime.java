@@ -43,10 +43,6 @@ import javax.swing.event.ChangeListener;
 
 import omeroCal.view.DatePicker;
 
-import org.freixas.jcalendar.DateEvent;
-import org.freixas.jcalendar.DateListener;
-import org.freixas.jcalendar.JCalendarCombo;
-
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.CustomComboBox;
