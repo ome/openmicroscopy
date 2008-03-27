@@ -113,7 +113,11 @@ public class CalendarDisplay
 	 * The data has changed, so need to refresh view
 	 */
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
+		
+		// need to tell UI Components that DB has updated. 
+		if (centreComponent instanceof Observer) {
+			((Observer)centreComponent).update(o, arg);
+		}
 		
 	}
 

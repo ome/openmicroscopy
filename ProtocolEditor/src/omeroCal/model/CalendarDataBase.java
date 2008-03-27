@@ -298,6 +298,10 @@ public class CalendarDataBase
 			
 			System.out.println("Calendar added to DB. LastKey = " + lastKey);
 			
+			// notify observers of change to DB
+			setChanged();
+			notifyObservers();
+			
 			return lastKey;
 			
 		} catch (SQLException e) {
@@ -344,6 +348,10 @@ public class CalendarDataBase
 				
 		try {
 			update(query);
+			
+			// notify observers of change to DB
+			setChanged();
+			notifyObservers();
 						
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -359,6 +367,8 @@ public class CalendarDataBase
 	 * with values from the calendarEvent. 
 	 * The correct row in the database is identified by the UID attribute returned by
 	 * calendarEvent.getUID();
+	 * Need to be careful not to over-write the calendarID for this event, with a 
+	 * non-valid number. This will mean it is not in any calendar.
 	 * If no entries are modified by this method, this method returns false. 
 	 * 
 	 * @param calendarEvent		The calendar 
@@ -395,8 +405,14 @@ public class CalendarDataBase
 		try {
 			int rowsAffected = update(query);
 			
-			if (rowsAffected > 0) 
+			if (rowsAffected > 0) {
+				
+				// notify observers of change to DB
+				setChanged();
+				notifyObservers();
+				
 				return true;
+			}
 			else 
 				return false;
 						
@@ -406,6 +422,103 @@ public class CalendarDataBase
 			return false;
 		}
 
+	}
+	
+	
+	/**
+	 * Updates a CalendarObjectt which is already in the database. 
+	 * This will replace all the values in the corresponding row of the Calendar table
+	 * with values from the calendarEvent. 
+	 * The correct row in the database is identified by the UID attribute returned by
+	 * CalendarObject.getCalendarID();
+	 * If no entries are modified by this method, this method returns false. 
+	 * 
+	 * @param calendarEvent		The calendar 
+	 * @return				true if the update is successful.
+	 */
+	public boolean updateCalendar(CalendarObject calendarObject) {
+		
+		int uID = calendarObject.getCalendarID();
+		String calendarName = calendarObject.getName();
+		String calendarInfo = calendarObject.getInfo();
+		int calColour = calendarObject.getColourInt();
+		boolean calVisible = calendarObject.isVisible();
+			
+		System.out.println("Updating Calendar: " + calendarName + " to DB.");
+			
+		String query = "UPDATE " + CALENDAR_TABLE + " " +
+				"SET " + 
+				CAL_NAME + " = " + formatStringForSQLQuery(calendarName) + ", " +
+				CAL_INFO + " = " + formatStringForSQLQuery(calendarInfo) + ", " +
+				CAL_COLOUR + " = " + calColour + ", " +
+				CAL_VISIBLE + " = " + calVisible + " " +
+				"WHERE " +
+				UID + " = " + uID ;
+				
+			
+		System.out.println();
+	    System.out.println(query);
+	    System.out.println();	
+				
+		try {
+			int rowsAffected = update(query);
+			
+			if (rowsAffected > 0) {
+				
+				// notify observers of change to DB
+				setChanged();
+				notifyObservers();
+				
+				return true;
+			}
+			else 
+				return false;
+						
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+
+	}
+	
+	
+	/**
+	 * Removes all events from the Events table if they belong to the calendar
+	 * specified by calendarID.
+	 * 
+	 * @param calendarID
+	 * @return		The number of rows deleted.
+	 */
+	public int deleteEventsForCalendar(int calendarID) {
+			
+		System.out.println("Deleting Events for Calendar from DB:");
+			
+		String query = "DELETE FROM " + EVENT_TABLE + " " +
+				"WHERE " +
+				CAL_ID + " = " + calendarID ;
+				
+			
+		System.out.println();
+	    System.out.println(query);
+	    System.out.println();	
+				
+		try {
+			int rowsAffected = update(query);
+			
+			if (rowsAffected > 0) {
+				// notify observers of change to DB
+				setChanged();
+				notifyObservers();
+			}
+			
+			return rowsAffected;
+						
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 0;
+		}
 	}
 	
 	
@@ -453,7 +566,7 @@ public class CalendarDataBase
 	 * @param calendarID
 	 * @return	A List of the CalendarEvents that belong to the calendar identified by the ID
 	 */
-	public List<CalendarEvent> getEvents (int calendarID) {
+	public List<CalendarEvent> getEventsForCalendar (int calendarID) {
 		
 		ArrayList<CalendarEvent> calendarEvents = new ArrayList<CalendarEvent>();
 		
@@ -773,6 +886,75 @@ public class CalendarDataBase
 	}
 	
 	
+	/**
+	 * Gets a list of the CalendarObjects that matches the string calendarInfo.
+	 * 
+	 * @param calID		The unique ID used to identify a calendar
+	 * @return		A CalendarObject that contains all the info from that row of the DB (or null if not found)
+	 */
+	public List<CalendarObject> getCalendarsByInfo(String calendarInfo) {
+		
+		List<CalendarObject> calendarObjects = new ArrayList<CalendarObject>();
+		
+		String query = "SELECT " + 
+		UID + ", " +
+		CAL_NAME + ", " +
+		CAL_INFO + ", " +
+		CAL_COLOUR + ", " +
+		CAL_VISIBLE + " " +
+		"FROM " + CALENDAR_TABLE + " " +
+		"WHERE " + 
+		CAL_INFO + " = " + formatStringForSQLQuery(calendarInfo) ;
+	
+		System.out.println();
+		System.out.println(query);
+		System.out.println();
+		
+		try {
+			ResultSet calFileResult = getQueryResults(query);
+		
+			while (calFileResult.next()) {
+			
+				int uID = calFileResult.getInt(UID);
+				String calendarName = null;
+				if (calFileResult.getObject(CAL_NAME) != null)
+					calendarName = calFileResult.getObject(CAL_NAME).toString();
+				String calInfo = null;
+				if (calFileResult.getObject(CAL_INFO) != null)
+					calInfo = calFileResult.getObject(CAL_INFO).toString();
+				int colorInt = calFileResult.getInt(CAL_COLOUR);
+				boolean calVisible = calFileResult.getBoolean(CAL_VISIBLE);
+			
+				System.out.println("Calendar from DB: calendarName: " + calendarName + 
+					" uID: " + uID +
+					" calendarInfo: " + calInfo +
+					" calColour: " + colorInt +
+					" calVisible: " + calVisible);
+					
+				System.out.println();
+			
+				CalendarObject calendarObject = new CalendarObject();
+				calendarObject.setCalendarID(uID);
+				calendarObject.setName(calendarName);
+				calendarObject.setInfo(calInfo);
+				calendarObject.setColour(colorInt);
+				calendarObject.setVisibile(calVisible);
+			
+				calendarObjects.add(calendarObject);
+			}
+		
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("CalendarDataBase SQLException " + query);
+			e.printStackTrace();
+			
+			return null;
+		}
+		return calendarObjects;
+		
+	}
+	
+	
 	public void printResultSet(ResultSet resultSet, int cols) {
 		
 		System.out.println("printResultSet()....");
@@ -795,6 +977,11 @@ public class CalendarDataBase
 		try {
 			update("DELETE FROM " + CALENDAR_TABLE);
 			update("DELETE FROM " + EVENT_TABLE);
+			
+			// notify observers of change to DB
+			setChanged();
+			notifyObservers();
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println("SQLException query = " + "DELETE * FROM " + CALENDAR_TABLE);

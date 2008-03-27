@@ -91,11 +91,16 @@ public class OmeroCal {
 	
 	/**
 	 * Creates an instance of this class. 
-	 * Also sets up a database connection and an alarm checker.  
+	 * Also sets up a database connection, instantiates the DB so that files can be added,
+	 * and starts the alarm checker.  
 	 */
 	public OmeroCal() {
 		
 		openDataBaseConnection();
+		
+		calDB = new CalendarDataBase();
+		
+		//System.out.println("OmeroCal constructor...  calDB has been created");
 		
 		alarmChecker = new AlarmChecker();
 	}
@@ -147,8 +152,6 @@ public class OmeroCal {
 	
 	public void openDBAndDisplayUI(boolean standAloneApplication) {
 		
-		calDB = new CalendarDataBase();
-		
 		calendarModel = new CalendarModel(calDB);
 		
 		controller = new Controller(calendarModel);
@@ -164,6 +167,27 @@ public class OmeroCal {
 	 */
 	public ICalendarDB getCalendarDataBase() {
 		return calDB;
+	}
+	
+	
+	/**
+	 * Allows other classes to get the Controller, 
+	 * eg. to add listeners for calendar events. 
+	 * @return
+	 */
+	public Controller getController() {
+		return controller;
+	}
+	
+	
+	/**
+	 * Allows other classes to get the alarmChecker,
+	 * so they can add listeners for alarm events. 
+	 * 
+	 * @return	
+	 */
+	public AlarmChecker getAlarmChecker() {
+		return alarmChecker;
 	}
 	
 }

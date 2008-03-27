@@ -135,7 +135,9 @@ public class CalendarModel
 	 */
 	public void update(Observable o, Object arg) {
 		
-		// TODO !! 
+		// notify observers of change to DB
+		setChanged();
+		notifyObservers();
 	}
 
 	

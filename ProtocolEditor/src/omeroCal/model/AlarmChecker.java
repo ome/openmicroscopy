@@ -26,6 +26,7 @@ package omeroCal.model;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -35,9 +36,10 @@ import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
-import ui.formFields.FormFieldTime;
-import ui.formFields.FormFieldTime.TimeElapsedListener;
-import util.ImageFactory;
+import omeroCal.view.IEventListener;
+
+import omeroCal.util.ImageFactory;
+import omeroCal.util.PreferencesManager;
 
 
 /**
@@ -54,6 +56,17 @@ import util.ImageFactory;
  */
 
 public class AlarmChecker {
+	
+	/**
+	 * A list of listers that will be notified when an alarm goes off. 
+	 */
+	List<IEventListener> alarmListeners;
+	
+	/**
+	 * The property string for the notification of IEventListeners, 
+	 * in order to define the fact that an alarm has been activated. 
+	 */
+	public static final String ALARM_ACTIVATED = "alarmActivated";
 	
 	/**
 	 * A date-time for the next retrieval of alarmed events from the database. 
@@ -75,19 +88,19 @@ public class AlarmChecker {
 	 * The time interval in milliseconds at which the time fires the actionPerformed, 
 	 * which calls timeElapsed().
 	 */
-	public static int timerTickInMillis = 60 * 1000;
+	public static int timerTickInMillis = 10 * 1000;
 	
 	/**
 	 * The time between database updates is defined by a value and a unit.
 	 * eg 24 hours. This variable is the value.
 	 */
-	public static int TIME_VALUE_BETWEEN_UPDATES = 5;		// eg 5 minutes
+	public static int TIME_VALUE_BETWEEN_UPDATES = 1;		// eg 1 hour
 	
 	/**
 	 * The time between database updates is defined by a value and a unit.
 	 * eg 24 hours. This variable is the unit.
 	 */
-	public static int TIME_UNITS_BETWEEN_UPDATES = Calendar.SECOND;
+	public static int TIME_UNITS_BETWEEN_UPDATES = Calendar.MINUTE;
 	
 	/**
 	 * A list to hold the local set of alarmed events. 
@@ -102,22 +115,55 @@ public class AlarmChecker {
 	 */
 	ICalendarDB calDB;
 	
+	/**
+	 * Allows other classes to disable the default pop-up when an alarm is activated. 
+	 * For example, if another class wants to take responsibility for alarm events
+	 * via addAlarmEventListener();
+	 */
+	boolean defaultAlarmPopupEnabled = true;
+	
 	
 	public AlarmChecker() {
 		
 		// instantiate the DB
 		calDB = new CalendarDataBase();
 		
+		// instantiate the list of listeners
+		alarmListeners = new ArrayList<IEventListener>();
+		
+		/*
+		 * Add the shutdown process to the Runtime shutdown,
+		 * so that when the application quits, a note is made of the time.  
+		 */
+		Runtime.getRuntime().addShutdownHook(new ShutdownThread());
+		
+		
+		/*
+		 * nextUpdate is usually set to some time in the future, when you next need
+		 * to retrieve alarm times from the database.
+		 * 
+		 * However, when starting up, the database won't have been checked for a while,
+		 * so the time of nextUpdate should be set to the time of shutdown 
+		 * (or now if no shutdown time).
+		 */
 		nextUpdate = new GregorianCalendar();
+
+		String lastShutdownTime = PreferencesManager.getPreference(PreferencesManager.SHUTDOWN_TIME_UTC);
+		if (lastShutdownTime != null) {
+			Long utcMillis = new Long(lastShutdownTime);
+			nextUpdate.setTimeInMillis(utcMillis);
+		}
 		
-		// for testing... will cause immediate DB update and test for all alarms from the last day. 
-		nextUpdate.add(Calendar.DAY_OF_MONTH, -1);
-		
+		/*
+		 * Get alarm times between nextUpdate and some point in the future.
+		 * Then check these for alarm times before Now. 
+		 */
 		getAlarmedEventsFromDB();
 		checkAlarmedEvents();
 		
+		// Start the timer.
 		timer = new Timer(timerTickInMillis, new TimeElapsedListener());
-		System.out.println("Created timer...");
+		System.out.println("Created alarm timer...");
 		timer.start();
 	}
 	
@@ -135,7 +181,7 @@ public class AlarmChecker {
 	 */
 	public void timeElapsed() {
 		
-		System.out.println("AlarmChecker timeElapsed()");
+		// System.out.println("AlarmChecker timeElapsed()");
 		
 		/*
 		 * First check the local list of alarmed events 
@@ -152,6 +198,9 @@ public class AlarmChecker {
 		
 		if (now.compareTo(nextUpdate) >= 0 ) {
 			getAlarmedEventsFromDB();
+			
+			// check the new list of events immediately
+			checkAlarmedEvents();
 		}
 		
 	}
@@ -172,39 +221,60 @@ public class AlarmChecker {
 				
 				CalendarEvent event = alarmedEvents.get(i);
 				
-				// get details
-				String eventName = event.getName();
-				String timeString = "";
+				/*
+				 * First, notify any listeners, passing them the alarmed event
+				 */
+				notifyAlarmEventListeners(event);
 				
-				Calendar eventTime = event.getStartCalendar();
-				if (eventTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)) {
-					timeString = "Today";
-				}
-				else {
-					SimpleDateFormat day = new SimpleDateFormat("EEEE");
-					timeString = day.format(eventTime.getTime());
-				}
-				
-				timeString = timeString + " at ";
-				
-				SimpleDateFormat hhmm = new SimpleDateFormat("HH:mm");
-				timeString = timeString + hhmm.format(eventTime.getTime());
-				
-				String message = "<html><b>" + timeString + "</b><br>" +
-					eventName + "</html>";
-				
-				System.out.println(message);
-				
-				// Fire the alarm!! 
-				Icon alarmIcon = ImageFactory.getInstance().getIcon(ImageFactory.ALARM_GIF_64);
-				JOptionPane.showMessageDialog(null, 
-						message, "Omero.Editor Alarm", JOptionPane.INFORMATION_MESSAGE, alarmIcon);
-				
+				/*
+				 * Then, if the default alarm is enabled, show the pop-up.
+				 */
+				if (defaultAlarmPopupEnabled)
+					alarmActivated(event);				
 				
 				// remove from list
 				alarmedEvents.remove(i);
 			}
 		}
+		
+	}
+	
+	/**
+	 * This method is called when an alarm is activated for a particular calendarEvent. 
+	 * 
+	 * @param event		The calendar event for which the alarm was set. 
+	 */
+	public void alarmActivated(CalendarEvent event) {
+		
+		Calendar now = new GregorianCalendar();
+		
+		// get details
+		String eventName = event.getName();
+		String timeString = "";
+		
+		Calendar eventTime = event.getStartCalendar();
+		if (eventTime.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)) {
+			timeString = "Today";
+		}
+		else {
+			SimpleDateFormat day = new SimpleDateFormat("EEEE");
+			timeString = day.format(eventTime.getTime());
+		}
+		
+		timeString = timeString + " at ";
+		
+		SimpleDateFormat hhmm = new SimpleDateFormat("HH:mm");
+		timeString = timeString + hhmm.format(eventTime.getTime());
+		
+		String message = "<html><b>" + timeString + "</b><br>" +
+			eventName + "</html>";
+		
+		System.out.println("AlarmChecker message: " + message);
+		
+		// Fire the alarm!! 
+		Icon alarmIcon = ImageFactory.getInstance().getIcon(ImageFactory.ALARM_GIF_64);
+		JOptionPane.showMessageDialog(null, 
+				message, "Omero.Editor Alarm", JOptionPane.INFORMATION_MESSAGE, alarmIcon);
 		
 	}
 	
@@ -243,8 +313,76 @@ public class AlarmChecker {
 		nextUpdate.setTime(toDate.getTime());
 	}
 	
-	public static void main(String[] args) {
-		
-		new AlarmChecker();
+	/**
+	 * Allows other classes to disable the default pop-up when an alarm is activated. 
+	 * For example, if another class wants to take responsibility for alarm events
+	 * via addAlarmEventListener();
+	 */
+	public void enableDefaultAlarmPopup(boolean enabled) {
+		defaultAlarmPopupEnabled = enabled;
 	}
+	
+	/**
+	 * @return		true if the default pop-up will show when an alarm goes off. 
+	 */
+	public boolean isDefaultAlarmPopupEnabled() {
+		return defaultAlarmPopupEnabled;
+	}
+	
+	/**
+	 * Allow other IEventListener classes to listen for alarm events. 
+	 * When an alarm goes off, 
+	 * calendarEventChanged(calendarEvent, "alarmActivated", null)
+	 * will be called for each listener. 
+	 * 
+	 * @param listener
+	 */
+	public void addAlarmEventListener(IEventListener listener) {
+		alarmListeners.add(listener);
+	}
+	
+	/**
+	 * Classes can remove themselves from the alarmListeners list. 
+	 * @param listener
+	 */
+	public void removeAlarmEventListener(IEventListener listener) {
+		alarmListeners.remove(listener);
+	}
+	
+	/**
+	 * This is called when an alarm is activated, to notify any listeners.
+	 * The event that the alarm belongs to is passed to the listeners.
+	 * The property String is ALARM_ACTIVATED.
+	 * 
+	 * @param calendarEvent
+	 */
+	public void notifyAlarmEventListeners(CalendarEvent calendarEvent) {
+		
+		for (IEventListener listener : alarmListeners) {
+			listener.calendarEventChanged(calendarEvent, ALARM_ACTIVATED, true);
+		}
+	}
+	
+	/**
+	 * When the system shuts down, you need to record when this happened, so 
+	 * that when you start up again, you can check the intervening time period 
+	 * for alarms that should have gone off then. 
+	 * 
+	 * This thread runs at shutdown, and saves the current time as 
+	 * UTC milliseconds to the system preferences. 
+	 * 
+	 * @author will
+	 *
+	 */
+	class ShutdownThread extends Thread {
+
+        public void run() {
+        	Calendar now = new GregorianCalendar();
+        	String UTCmillis = Long.toString(now.getTimeInMillis());
+        	
+        	System.out.println("Saving shutdown time...");
+        	PreferencesManager.setPreference(PreferencesManager.SHUTDOWN_TIME_UTC, UTCmillis);
+        }
+    }
+	
 }

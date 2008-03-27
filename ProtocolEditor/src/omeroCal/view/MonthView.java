@@ -338,6 +338,7 @@ public class MonthView
 		if (eventsDisplayed == null) {
 			eventsDisplayed = new ArrayList<EventLabel>();
 		}
+		
 		eventsDisplayed.clear();
 		
 		List <CalendarEvent> events = controller.getEventsForDates(firstDisplayDate, lastDisplayDate);
@@ -345,6 +346,10 @@ public class MonthView
 		for (CalendarEvent evt: events) {
 			addCalendarEvent(evt);
 		}
+		
+		// required if the view has been refreshed
+		daysGridPanel.validate();
+		daysGridPanel.repaint();
 	}
 	
 	
@@ -426,7 +431,15 @@ public class MonthView
 	 * The data has changed, so need to refresh view
 	 */
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
 		
+		/*
+		 * Re-populate the month grid with new days (removes existing events from view)
+		 */
+		addDaysToGrid();
+		
+		/*
+		 * Get new events from database and add them to days on the grid. 
+		 */
+		addCalendarEvents();
 	}
 }

@@ -27,6 +27,8 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.text.DateFormat;
 import java.util.Observable;
@@ -56,6 +58,8 @@ public class EventLabel
 	
 	public static final String SELECTION_PROPERTY = "selectionProperty";
 	
+	public static final String DOUBLE_CLICKED = "doubleClicked";
+	
 	public EventLabel (CalendarEvent event) {
 		
 		
@@ -77,6 +81,7 @@ public class EventLabel
 		this.setBorder(null);
 		this.setFocusable(true);
 		this.addFocusListener(new FocusGainedListener());
+		this.addMouseListener(new EventMouseAdapter());
 	}
 
 	public void update(Observable o, Object arg) {
@@ -84,6 +89,54 @@ public class EventLabel
 		System.out.println("EventLabel update() " + calendarEvent.getName());
 		
 	}
+	
+	
+	public class EventMouseAdapter extends MouseAdapter {
+		
+		/** 
+		 * Brings up a dialog box indicating to download 
+		 * the file associated to the component.
+		 */
+		public void mouseReleased(MouseEvent e) {
+			Object src = e.getSource();
+			
+			// double-click
+			if (e.getClickCount() == 2) {
+				
+				if (eventController != null)
+					eventController.calendarEventChanged(calendarEvent, DOUBLE_CLICKED, true);
+			}
+			
+			// right-click
+			else if (e.isPopupTrigger()) {
+				
+				//System.out.println("EventLabel rightClick");
+			}
+		}
+		
+		/** 
+		 * Sets the selected label and shows the menu.
+		 */
+		public void mousePressed(MouseEvent e) {
+			Object src = e.getSource();
+			if (e.isPopupTrigger()) {
+				
+				//System.out.println("EventLabel rightClick");
+			}
+		}
+	
+		/**
+		 * Modifies the cursor when entered.
+		 */
+		public void mouseEntered(MouseEvent e) {
+			Object src = e.getSource();
+			
+		//	System.out.println("EventLabel mouseEntered");
+			
+		}
+	
+	}
+	
 	
 	public class FocusGainedListener implements FocusListener {
 		public void focusGained(FocusEvent e) {

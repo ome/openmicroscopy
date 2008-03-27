@@ -68,7 +68,17 @@ public interface ICalendarDB {
 	 * @param calendarID
 	 * @return	A List of the CalendarEvents that belong to the calendar identified by the ID
 	 */
-	public List<CalendarEvent> getEvents (int calendarID);
+	public List<CalendarEvent> getEventsForCalendar (int calendarID);
+	
+	
+	/**
+	 * Removes all events from the Events table if they belong to the calendar
+	 * specified by calendarID.
+	 * 
+	 * @param calendarID
+	 * @return		The number of rows deleted.
+	 */
+	public int deleteEventsForCalendar(int calendarID);
 	
 	
 	/**
@@ -100,6 +110,29 @@ public interface ICalendarDB {
 	 * @return		A CalendarObject that contains all the info from that row of the DB (or null if not found)
 	 */
 	public CalendarObject getCalendar(int calID);
+	
+	
+	/**
+	 * Gets a list of the CalendarObjects that matches the string calendarInfo.
+	 * 
+	 * @param calID		The unique ID used to identify a calendar
+	 * @return		A CalendarObject that contains all the info from that row of the DB (or null if not found)
+	 */
+	public List<CalendarObject> getCalendarsByInfo(String calendarInfo);
+	
+	
+	/**
+	 * Updates a CalendarObjectt which is already in the database. 
+	 * This will replace all the values in the corresponding row of the Calendar table
+	 * with values from the calendarEvent. 
+	 * The correct row in the database is identified by the UID attribute returned by
+	 * CalendarObject.getCalendarID();
+	 * If no entries are modified by this method, this method returns false. 
+	 * 
+	 * @param calendarEvent		The calendar 
+	 * @return				true if the update is successful.
+	 */
+	public boolean updateCalendar(CalendarObject calendarObject);
 	
 	
 	/**
