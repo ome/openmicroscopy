@@ -51,7 +51,7 @@ public class SaveFileAsAction
 	}
 	
 	
-public void saveFileAs() {
+	public void saveFileAs() {
 		
 		final JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new ProtocolFileFilter());

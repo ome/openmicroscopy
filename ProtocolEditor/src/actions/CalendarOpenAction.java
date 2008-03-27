@@ -1,8 +1,7 @@
-package actions;
 
 /*
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -22,47 +21,31 @@ package actions;
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
+package actions;
+
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
 
-import tree.Tree.Actions;
+import calendar.CalendarMain;
+
 import ui.IModel;
+import util.ImageFactory;
 
-/**
- * This Action class uses the editCurrentTree() method to pass an Enumerated instance of 
- * Tree.Actions to the Tree, via the model. 
- * The Tree will perform the stated action on the currently highlighted fields, or on all fields,
- * depending on the Action. 
- * 
- * @author will
- *
- */
-public class ClearFieldsHighltdAction extends ProtocolEditorAction {
+public class CalendarOpenAction extends ProtocolEditorAction {
 	
-	public ClearFieldsHighltdAction(IModel model) {
+	public CalendarOpenAction(IModel model) {
 
 		super(model);
 	
-		putValue(Action.NAME, "Clear Values for Highligted fields (and all child fields)");
-		putValue(Action.SHORT_DESCRIPTION, null);
-		//putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON)); 
+		putValue(Action.NAME, "Show Calendar");
+		putValue(Action.SHORT_DESCRIPTION, "Display a calendar showing Date-Time events from your OMERO.editor files");
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.CALENDAR_ICON)); 
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		model.editCurrentTree(Actions.CLEAR_FIELDS_HIGHLIGHTED_FIELDS);
-	}
-	
-	
-	
-	public void stateChanged(ChangeEvent e) {
 		
-		/*
-		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
-		 */
-		setEnabled(fieldsAreEditable());
+		model.displayCalendar();
 	}
+	
 }
-

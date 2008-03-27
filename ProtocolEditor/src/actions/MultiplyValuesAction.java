@@ -51,9 +51,11 @@ public class MultiplyValuesAction extends ProtocolEditorAction {
 	
 	public void stateChanged(ChangeEvent e) {
 		
-		String[] fileList = model.getOpenFileList();
-		
-		this.setEnabled(!(fileList.length == 0));
+		/*
+		 * This action should only be enabled if a file is open and the
+		 * currently highlighted fields are unlocked. 
+		 */
+		setEnabled(fieldsAreEditable());
 	}
 	
 	

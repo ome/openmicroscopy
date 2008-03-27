@@ -63,6 +63,32 @@ public class ProtocolEditorAction
 	}
 	
 	/**
+	 * This method is used by many Actions that cause fields to be edited, to set their enabled state. 
+	 * These Actions should be disabled if no file is open.
+	 * They should also be disabled if the currently highlighted field or 
+	 * any of its ancestors are locked.
+	 *  
+	 * @return		true if a file is open and the currently highlighted fields and their ancestors are unlocked
+	 */
+	public boolean fieldsAreEditable() {
+		String[] fileList = model.getOpenFileList();
+		boolean filesOpen = !(fileList.length == 0);
+		
+		// if no files open, action is disabled.
+		if (!filesOpen) {
+			return false;
+		}
+		
+		// if files are open, check to see if highlighted fields are locked
+		else {
+			boolean locked = model.areHighlightedFieldsLocked();
+			boolean ancestorsLocked = model.areAncestorFieldsLocked();
+			
+			return (!locked && !ancestorsLocked);
+		}
+	}
+	
+	/**
 	 * Reacts to changes in the model
 	 * subclasses override this method
 	 */

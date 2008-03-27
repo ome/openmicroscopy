@@ -1,12 +1,3 @@
-package actions;
-
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
-
-import ui.IModel;
-import util.ImageFactory;
 
 /*
  *------------------------------------------------------------------------------
@@ -30,6 +21,16 @@ import util.ImageFactory;
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
+package actions;
+
+import java.awt.event.ActionEvent;
+
+import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
+
+import ui.IModel;
+import util.ImageFactory;
+
 public class PasteFieldAction 
 	extends ProtocolEditorAction {
 	
@@ -49,8 +50,10 @@ public class PasteFieldAction
 
 	public void stateChanged(ChangeEvent e) {
 		
-		String[] fileList = model.getOpenFileList();
-		
-		this.setEnabled(!(fileList.length == 0));
+		/*
+		 * This action should only be enabled if a file is open and the
+		 * currently highlighted fields are unlocked. 
+		 */
+		setEnabled(fieldsAreEditable());
 	}
 }

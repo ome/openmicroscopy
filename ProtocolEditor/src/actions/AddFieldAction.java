@@ -33,8 +33,7 @@ import util.ImageFactory;
 
 /** 
  *  Add a new Node/Field to the current Tree, either after the last currently highlighted field,
- *  or at the "end" of the Tree.
- *   
+ *  or at the "end" of the Tree. 
  */
 
 public class AddFieldAction 
@@ -58,9 +57,12 @@ public class AddFieldAction
 	
 	public void stateChanged(ChangeEvent e) {
 		
-		String[] fileList = model.getOpenFileList();
-		
-		this.setEnabled(!(fileList.length == 0));
+		/*
+		 * This action should only be enabled if a file is open and the
+		 * currently highlighted fields are unlocked. 
+		 */
+		setEnabled(fieldsAreEditable());
+	
 	}
 
 }
