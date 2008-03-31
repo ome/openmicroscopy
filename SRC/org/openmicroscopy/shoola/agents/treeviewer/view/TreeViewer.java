@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -619,5 +618,11 @@ public interface TreeViewer
 	 * @param object The object to create.
 	 */
 	public void createObject(DataObject object);
+
+	public void setLeaves(Object parent, Set leaves);
+
+	public void setSelectedNode(Object newValue);
 	
+    public void setHierarchyRoots(Object parent, Set nodes);
+    
 }

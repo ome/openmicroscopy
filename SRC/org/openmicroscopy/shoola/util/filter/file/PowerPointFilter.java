@@ -49,19 +49,25 @@ public class PowerPointFilter
 {
     
     /** Possible file extension. */
-    public static final String  POWERPOINT = "ppt";
+    public static final String  PPS = "pps";
+    
+    /** Possible file extension. */
+    public static final String  PPT = "ppt";
 
     /**
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
 	 */
-	public String getExtension() { return POWERPOINT; }
+	public String getExtension() { return PPT; }
 	
     /**
      * Overriden to return the description of the filter.
      * @see FileFilter#getDescription()
      */
-    public String getDescription() { return "Microsoft PowerPoint (.ppt)"; }
+    public String getDescription()
+    { 
+    	return "Microsoft PowerPoint (.ppt, .pps)"; 
+    }
         
     /**
      * Overriden to accept file with the declared file extensions.
@@ -76,7 +82,7 @@ public class PowerPointFilter
         if (i > 0 && i < s.length()-1)
             extension = s.substring(i+1).toLowerCase();
         if (extension != null)
-            return (extension.equals(POWERPOINT));
+            return (extension.equals(PPT));
         return false;
     }
 

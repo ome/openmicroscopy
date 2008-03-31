@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -350,9 +351,9 @@ public interface OmeroMetadataService
 	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
-	 * @param absolutePath	The absolute form of this abstract pathname.
-	 * @param fileID		The id of the file to download.
-	 * @param size			The size of the file.
+	 * @param file		The file to write the data into.
+	 * @param fileID	The id of the file to download.
+	 * @param size		The size of the file to download
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                   in.
@@ -362,4 +363,33 @@ public interface OmeroMetadataService
 	public File downloadFile(File file, long fileID, long size)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * 
+	 * @param nodeType
+	 * @param nodeIds
+	 * @param userID
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Map<Long, Collection> loadRatings(Class nodeType, 
+			Set<Long> nodeIds, long userID) 
+			throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Returns a sub-collection of the passed collection of nodes
+	 * annotated by the passed type of annotation.
+	 * @param nodeType
+	 * @param nodeIds
+	 * @param userID
+	 * @param annotationType
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Collection filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
+		Class annotationType, List<String> terms, long userID) 
+		throws DSOutOfServiceException, DSAccessException;
 }

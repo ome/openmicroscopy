@@ -304,6 +304,7 @@ class BrowserComponent
     				TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
         }
         model.setState(READY);
+        model.getParentModel().setLeaves(parent.getUserObject(), leaves);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
@@ -1139,6 +1140,20 @@ class BrowserComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		view.refreshExperimenter();
+	}
+
+	public void setHierarchyRoots(Set roots, TreeImageDisplay node, boolean refresh)
+	{
+		model.getParentModel().setHierarchyRoots(node.getUserObject(), roots);
+		
+	}
+
+	public void browse(TreeImageDisplay node) {
+		if (node == null) return;
+		if (node.getUserObject() instanceof ProjectData) {
+			model.browse(node);
+		}
+		
 	}
     
 }

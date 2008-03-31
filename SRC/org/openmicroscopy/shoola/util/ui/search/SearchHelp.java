@@ -24,26 +24,22 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Dialog presenting how to use the Search widget.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

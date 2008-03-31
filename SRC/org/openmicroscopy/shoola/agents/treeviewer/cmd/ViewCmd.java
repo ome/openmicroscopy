@@ -131,6 +131,8 @@ public class ViewCmd
 	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
+		browser.browse(browser.getLastSelectedDisplay());
+		/*
 		Object ho = null;
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		Rectangle bounds = model.getUI().getBounds();
@@ -244,15 +246,18 @@ public class ViewCmd
 		} else if (ho instanceof DatasetData)
 			bus.post(new Browse(((DatasetData) ho).getId(), Browse.DATASET, 
 					exp, bounds)); 
-		else if (ho instanceof ProjectData)
-			bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
-					exp, bounds)); 
+		else if (ho instanceof ProjectData) {
+			browser.browse((ProjectData) ho);
+		}
+			//bus.post(new Browse(((ProjectData) ho).getId(), Browse.PROJECT,
+			//		exp, bounds)); 
 		else if (ho instanceof CategoryData)
 			bus.post(new Browse(((CategoryData) ho).getId(), Browse.CATEGORY, 
 					exp, bounds)); 
 		else if (ho instanceof CategoryGroupData)
 			bus.post(new Browse(((CategoryGroupData) ho).getId(),
 					Browse.CATEGORY_GROUP, exp, bounds)); 
+					*/
 	}
   
 }

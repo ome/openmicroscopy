@@ -81,7 +81,6 @@ public class ContainersManager
     	Integer index;
     	while (i.hasNext()) {
 			index = (Integer) i.next();
-			System.err.println(index);
 			providers.put(index, index);
 		}
     	totalIDs = indexes.size();

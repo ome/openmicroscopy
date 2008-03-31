@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -536,18 +537,18 @@ class AttachmentsUI
 	private JPanel buildIconEntry(FileAnnotationData f)
 	{
 		IconManager icons = IconManager.getInstance();
-		Icon icon = null;
+		Icon icon = icons.getIcon(IconManager.TEXT_DOC);;
 		
 		String format = f.getFileFormat();
 		if (FileAnnotationData.PDF.equals(format))
 			icon = icons.getIcon(IconManager.PDF_DOC);
 		else if (FileAnnotationData.TEXT.equals(format))
 			icon = icons.getIcon(IconManager.TEXT_DOC);
-		else if (FileAnnotationData.WORD.equals(format))
+		else if (FileAnnotationData.MS_WORD.equals(format))
 			icon = icons.getIcon(IconManager.WORD_DOC);
-		else if (FileAnnotationData.EXCEL.equals(format))
+		else if (FileAnnotationData.MS_EXCEL.equals(format))
 			icon = icons.getIcon(IconManager.EXCEL_DOC);
-		else if (FileAnnotationData.POWER_POINT.equals(format))
+		else if (FileAnnotationData.MS_POWER_POINT.equals(format))
 			icon = icons.getIcon(IconManager.PPT_DOC);
 		else if (FileAnnotationData.XML.equals(format) ||
 				FileAnnotationData.HTML.equals(format) ||
@@ -607,6 +608,21 @@ class AttachmentsUI
 		c.gridy = 0;
 		p.add(label, c);
 		JLabel l = new JLabel(name);
+		
+		FontMetrics fm = l.getFontMetrics(l.getFont());
+		int width = fm.stringWidth(name);
+		int iconWith = icon.getIconWidth()+20;
+		if (width > iconWith) {
+			StringBuffer buf = new StringBuffer();
+			buf.append("<html><body>");
+			for (int i = 0; i < name.length(); i++) {
+				buf.append(name.charAt(i));
+				if (i%15 == 0 && i != 0) buf.append("<br>");
+			}
+			buf.append("</body></html>");
+			l.setText(buf.toString());
+		}
+			
 		l.setOpaque(false);
 		c.gridy++;
 		p.add(l, c);
@@ -932,7 +948,7 @@ class AttachmentsUI
 		Registry reg = MetadataViewerAgent.getRegistry();
 		if (r.size() == 0) {
 			UserNotifier un = reg.getUserNotifier();
-			un.notifyInfo("Existing Tags", "No tags found.");
+			un.notifyInfo("Existing Files", "No files found.");
 			return;
 		}
 		SelectionWizard wizard = new SelectionWizard(

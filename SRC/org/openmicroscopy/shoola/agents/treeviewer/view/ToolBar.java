@@ -33,7 +33,6 @@ import java.awt.Point;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
@@ -41,12 +40,9 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
-import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
-import org.openmicroscopy.shoola.agents.util.finder.QuickFinder;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -71,9 +67,6 @@ class ToolBar
     
     /** Reference to the control. */
     private TreeViewerControl   controller;
-    
-    /** Reference to the finder. */
-    private QuickFinder			finder;
     
     /**
      * Helper method to create the tool bar hosting the management items.
@@ -131,29 +124,25 @@ class ToolBar
         b.addMouseListener((ClassifierAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        bar.add(new JSeparator(JSeparator.VERTICAL));
         return bar;
     }
     
-    /** 
-     * Builds the quick search component.
+    /**
+     * Helper method to create the tool bar hosting the edit items.
      * 
      * @return See above.
      */
-    private JComponent createQuickSearch()
+    private JToolBar createSearchBar()
     {
-    	JPanel right = new JPanel();
-        right.setLayout(new BoxLayout(right, BoxLayout.X_AXIS));
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-    	JButton b = new JButton(controller.getAction(TreeViewerControl.SEARCH));
+        JButton b = new JButton(controller.getAction(TreeViewerControl.SEARCH));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        right.add(bar);
-    	finder = FinderFactory.getQuickFinder(TreeViewerAgent.getRegistry());
-    	right.add(finder);
-    	return right;
+        return bar;
     }
     
     /** Builds and lays out the UI. */
@@ -164,16 +153,17 @@ class ToolBar
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
         bars.add(createEditBar());
+        bars.add(createSearchBar());
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));
         outerPanel.add(bars);
+        outerPanel.add(Box.createRigidArea(HBOX));
         outerPanel.add(Box.createRigidArea(HBOX));
         outerPanel.add(Box.createHorizontalGlue());  
         
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
        
         add(UIUtilities.buildComponentPanel(outerPanel));
-        add(UIUtilities.buildComponentPanelRight(createQuickSearch()));
     }
 
     /**
@@ -188,12 +178,6 @@ class ToolBar
             throw new NullPointerException("No controller.");
         this.controller = controller;
         buildGUI();
-    }
-    
-    /** Cancels any ongoing search. */
-    void discard()
-    {
-    	if (finder != null) finder.cancel();
     }
     
     /**

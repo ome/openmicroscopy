@@ -49,16 +49,16 @@ public class SearchObject
 {
 
 	/** The index associated to this object. */
-	private int 		index;
+	private int 			index;
 	
 	/** The icon associated to this object. */
-	private ImageIcon	icon;
+	private ImageIcon		icon;
 	
 	/** The description associated to this object. */
-	private String 		description;
+	private String 			description;
 	
 	/** The result if any. */
-	private List		result;
+	private List<String>	result;
 	
 	/** Creates a new instance when no context defined. */
 	SearchObject()
@@ -85,7 +85,7 @@ public class SearchObject
 	 * 
 	 * @param result The value to set.
 	 */
-	void setResult(List result) { this.result = result; }
+	void setResult(List<String> result) { this.result = result; }
 	
 	/**
 	 * Returns the description.
@@ -113,6 +113,6 @@ public class SearchObject
 	 * 
 	 * @return See above.
 	 */
-	public List getResult() { return result; }
+	public List<String> getResult() { return result; }
 	
 }

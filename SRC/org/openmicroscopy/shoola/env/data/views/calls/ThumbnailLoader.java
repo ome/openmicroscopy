@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -71,32 +72,32 @@ public class ThumbnailLoader
 {
 
     /** The images for which we need thumbnails. */
-    private Set<ImageData>		images;
+    private Collection<ImageData>	images;
     
     /** The maximum acceptable width of the thumbnails. */
-    private int             	maxWidth;
+    private int             		maxWidth;
     
     /** The maximum acceptable height of the thumbnails. */
-    private int             	maxHeight;
+    private int             		maxHeight;
     
     /** The lastly retrieved thumbnail. */
-    private Object          	currentThumbnail;
+    private Object          		currentThumbnail;
 
     /** Flag to indicate if the class was invoked for a pixels ID. */
-    private boolean         	pixelsCall;
+    private boolean         		pixelsCall;
     
     /** The id of the pixels set this loader is for. */
-    private long            	pixelsID;
+    private long            		pixelsID;
     
     /** Collection of user IDs. */
-    private Set<Long>			userIDs;
+    private Set<Long>				userIDs;
     
     /** Helper reference to the image service. */
-    private OmeroImageService	service;
+    private OmeroImageService		service;
     
-    private Map					thumbnails;
+    private Map						thumbnails;
     
-    private boolean				single;
+    private boolean					single;
     
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
@@ -126,7 +127,8 @@ public class ThumbnailLoader
             			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
             }
             if (thumbPix == null) {
-            	thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
+            	thumbPix = Factory.createDefaultImageThumbnail();
+            	//thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
             }  
         }
         currentThumbnail = new ThumbnailData(image.getId(), thumbPix, userID);
@@ -153,8 +155,9 @@ public class ThumbnailLoader
                     	e.getExtendedMessage());
                 }
                 if (thumbPix == null) 
-                    thumbPix = Factory.createDefaultThumbnail(maxWidth, 
-                            maxHeight);
+                	thumbPix = Factory.createDefaultImageThumbnail();
+                    //thumbPix = Factory.createDefaultThumbnail(maxWidth, 
+                    //        maxHeight);
                 currentThumbnail = thumbPix;
             }
         };
@@ -246,8 +249,8 @@ public class ThumbnailLoader
      * @param maxHeight The maximum acceptable height of the thumbnails.
      * @param userID	The user the thumbnail are for.
      */
-    public ThumbnailLoader(Set<ImageData> imgs, int maxWidth, int maxHeight, 
-    					long userID)
+    public ThumbnailLoader(Collection<ImageData> imgs, int maxWidth, 
+    						int maxHeight, long userID)
     {
         if (imgs == null) throw new NullPointerException("No images.");
         if (maxWidth <= 0)

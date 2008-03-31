@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ProjectData;
 
 /** 
  * Defines the interface provided by the browser component.
@@ -513,4 +514,19 @@ public interface Browser
     
     public void refreshExperimenter();
     
+    /**
+     * Callback used by a data loader to set the root nodes of the retrieved 
+     * hierarchy.
+     * 
+     * @param roots 	The root nodes.
+     * @param refresh	Pass <code>false</code> if we retrieve the data for
+     * 					the first time, <code>true</code> otherwise.            
+     * @throws IllegalStateException If the current state is not
+     *                               {@link #LOADING_HIERARCHY}.
+     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
+     */
+    public void setHierarchyRoots(Set roots, TreeImageDisplay node, boolean refresh);
+
+	public void browse(TreeImageDisplay node);
+	
 }

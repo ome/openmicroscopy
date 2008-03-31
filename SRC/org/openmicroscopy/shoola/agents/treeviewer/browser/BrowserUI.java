@@ -737,7 +737,6 @@ class BrowserUI
         TreeImageDisplay node;
         while (i.hasNext()) {
             node = (TreeImageDisplay) i.next();
-            System.err.println(node);
             node.setUserObject(object);
             dtm.nodeChanged(node);
         }

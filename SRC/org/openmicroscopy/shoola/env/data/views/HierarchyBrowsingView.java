@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -184,7 +185,7 @@ public interface HierarchyBrowsingView
      * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadThumbnails(Set<ImageData> imgs, int maxWidth, 
+    public CallHandle loadThumbnails(Collection<ImageData> imgs, int maxWidth, 
     								int maxHeight, long userID, 
     								AgentEventListener observer);
     

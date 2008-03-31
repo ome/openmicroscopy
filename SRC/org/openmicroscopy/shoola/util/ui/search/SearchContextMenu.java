@@ -29,7 +29,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.ButtonGroup;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 
 
 //Third-party libraries
@@ -66,18 +69,25 @@ class SearchContextMenu
     /**
      * Builds and lays out the UI.
      * 
-     * @param nodes 		The context nodes to lay out.
-     * @param selectedNode 	The default selected node.
+     * @param nodes 			The context nodes to lay out.
+     * @param ratedNodes 		The rated nodes if any.
+     * @param selectedNode 		The default selected node.
+     * @param singleSelection 	Pass <code>true</code> if only one context can 
+     * 							be selected at a time to <code>false</code> 
+     * 							otherwise.
      */
-    private void buildGUI(List<SearchObject> nodes, SearchObject selectedNode)
+    private void buildGUI(List<SearchObject> nodes, 
+    		List<SearchObject> ratedNodes, SearchObject selectedNode, 
+    		boolean singleSelection)
     {
-    	Iterator i = nodes.iterator();
-		
+    	Iterator i; 
+		ButtonGroup group = new ButtonGroup();
 		SearchObject node;
 		if (type.equals(NodeCheckMenuItem.class)) {
 			NodeCheckMenuItem uiNode;
 			int index = -1;
 			if (selectedNode != null) index = selectedNode.getIndex();
+			i = ratedNodes.iterator();
 			while (i.hasNext()) {
 				node = (SearchObject) i.next();
 				uiNode = new NodeCheckMenuItem(node);
@@ -85,9 +95,32 @@ class SearchContextMenu
 					uiNode.setSelected(true);
 				uiNode.addActionListener(this);
 				add(uiNode);
+				if (singleSelection) group.add(uiNode);
+			}
+			if (ratedNodes.size() > 0)
+				add(new JSeparator());
+			i = nodes.iterator();
+			while (i.hasNext()) {
+				node = (SearchObject) i.next();
+				uiNode = new NodeCheckMenuItem(node);
+				if (node.getIndex() == index)
+					uiNode.setSelected(true);
+				uiNode.addActionListener(this);
+				add(uiNode);
+				if (singleSelection) group.add(uiNode);
 			}
 		} else {
 			NodeMenuItem uiNode;
+			i = ratedNodes.iterator();
+			while (i.hasNext()) {
+				node = (SearchObject) i.next();
+				uiNode = new NodeMenuItem(node);
+				uiNode.addActionListener(this);
+				add(uiNode);
+			}
+			if (ratedNodes.size() > 0)
+				add(new JSeparator());
+			i = nodes.iterator();
 			while (i.hasNext()) {
 				node = (SearchObject) i.next();
 				uiNode = new NodeMenuItem(node);
@@ -95,35 +128,67 @@ class SearchContextMenu
 				add(uiNode);
 			}
 		}
-		int  height =  getFontMetrics(getFont()).getHeight()*nodes.size()+10;
+		int n = nodes.size()+ratedNodes.size();
+		int  height =  getFontMetrics(getFont()).getHeight()*n+10;
         setPopupSize(new Dimension(width, height));
     }
     
     /**
      * Creates a new instance.
      * 
-     * @param nodes The context nodes.
-     * @param width	The popup width.
+     * @param nodes 			The context nodes.
+     * @param ratedNodes 		The rated nodes if any.
+     * @param width				The popup width.
+     * @param singleSelection 	Pass <code>true</code> if only one context can 
+     * 							be selected at a time to <code>false</code> 
+     * 							otherwise.
      */
-    SearchContextMenu(List<SearchObject> nodes, int width)
+    SearchContextMenu(List<SearchObject> nodes, List<SearchObject> ratedNodes,
+    				int width, boolean singleSelection)
     {
-    	this(nodes, width, NodeMenuItem.class, null);
+    	this(nodes, ratedNodes, width, NodeMenuItem.class, null, 
+    		singleSelection);
     }
 
     /**
      * Creates a new instance.
      * 
-     * @param nodes 		The context nodes.
-     * @param width			The popup width.
-     * @param type			The type of item to create.
-     * @param selectedNode 	The default selected node.
+     * @param nodes 			The context nodes.
+     * @param ratedNodes 		The rated nodes if any.
+     * @param width				The popup width.
+     * @param type				The type of item to create.
+     * @param selectedNode 		The default selected node.
+     * @param singleSelection 	Pass <code>true</code> if only one context can 
+     * 							be selected at a time to <code>false</code> 
+     * 							otherwise.
      */
-    SearchContextMenu(List<SearchObject> nodes, int width, Class type,
-    		SearchObject selectedNode)
+    SearchContextMenu(List<SearchObject> nodes, List<SearchObject> ratedNodes,
+    				int width, SearchObject selectedNode, 
+    				boolean singleSelection)
+    {
+    	this(nodes, ratedNodes, width, NodeCheckMenuItem.class, selectedNode,
+    			singleSelection);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param nodes 			The context nodes.
+     * @param ratedNodes 		The rated nodes if any.
+     * @param width				The popup width.
+     * @param type				The type of item to create.
+     * @param selectedNode 		The default selected node.
+     * @param singleSelection 	Pass <code>true</code> if only one context can 
+     * 							be selected at a time to <code>false</code> 
+     * 							otherwise.
+     */
+    SearchContextMenu(List<SearchObject> nodes, List<SearchObject> ratedNodes,
+    				int width, Class type, SearchObject selectedNode, 
+    				boolean singleSelection)
     {
     	this.type = type;
     	this.width = width;
-    	buildGUI(nodes, selectedNode);
+    	buildGUI(nodes, ratedNodes, selectedNode, singleSelection);
     }
     
 	/**

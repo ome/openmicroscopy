@@ -277,8 +277,8 @@ class TreeViewerWin
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DELETE_OBJECT)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        menu.add(new JMenuItem(
-                controller.getAction(TreeViewerControl.FIND)));
+        //menu.add(new JMenuItem(
+        //        controller.getAction(TreeViewerControl.FIND)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLEAR)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -303,18 +303,17 @@ class TreeViewerWin
     	rightPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
     	rightPane.setOneTouchExpandable(true);
     	rightPane.setContinuousLayout(true);
-    	//rightPane.setLeftComponent(workingPane);
-    	//rightPane.setRightComponent(model.getMetadataViewer().getSelectionUI());
-    	//rightPane.setDividerLocation(DIVIDER_LOCATION);
-    	rightPane.setResizeWeight(1.0);
+    	rightPane.setLeftComponent(workingPane);
+    	rightPane.setRightComponent(model.getMetadataViewer().getEditorUI());
+    	rightPane.setResizeWeight(0.7);
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
         splitPane.setLeftComponent(tabs);
-        splitPane.setRightComponent(workingPane);
-        //splitPane.setRightComponent(rightPane);
+        //splitPane.setRightComponent(workingPane);
+        splitPane.setRightComponent(rightPane);
         splitPane.setDividerLocation(DIVIDER_LOCATION);
         Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
@@ -359,9 +358,6 @@ class TreeViewerWin
         setTitle(title+TITLE);
     }
 
-    /** Cancels any ongoing search. */
-    void discard() { toolBar.discard(); }
-    
     /** Closes and disposes of the window. */
     void closeViewer()
     {

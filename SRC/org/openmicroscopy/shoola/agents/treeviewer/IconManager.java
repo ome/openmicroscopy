@@ -368,7 +368,7 @@ public class IconManager
         relPaths[SEARCH] = "nuvola_find16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
-        relPaths[IMAGE_ANNOTATED_BY_USER] = "annotatedByUser_image16.png";
+        relPaths[IMAGE_ANNOTATED_BY_USER] = "nuvola_image_red16.png";//"annotatedByUser_image16.png";
         relPaths[IMAGE_ANNOTATED_BY_OTHER] = "annotatedByOther_image16.png";
         relPaths[IMAGE_ANNOTATED_BY_ALL] = "annotatedByAll_image16.png";
         relPaths[DATASET_ANNOTATED_BY_USER] = "nuvola_folder_image_red16.png";//"annotatedByUser_dataset16.png";

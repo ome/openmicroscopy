@@ -73,14 +73,32 @@ public class QuickSearch
 	/** Indicates to search for tags. */
 	public static final int 	TAGS = 0;
 	
-	/** Indicates to search for images. */
-	public static final int 	IMAGES = 1;
+	/** Indicates to search for textual annotations. */
+	public static final int 	COMMENTS = 1;
 	
-	/** Indicates to search for annotations. */
-	public static final int 	ANNOTATIONS = 2;
+	/** Indicates to search for textual annotations. */
+	public static final int 	FULL_TEXT = 2;
 	
-	/** Indicates to search for tag sets. */
-	public static final int 	TAG_SETS = 3;
+	/** Indicates to search for objects rated one or higher. */
+	public static final int 	RATED_ONE_OR_BETTER = 3;
+	
+	/** Indicates to search for objects rated two or higher. */
+	public static final int 	RATED_TWO_OR_BETTER = 4;
+	
+	/** Indicates to search for objects rated three or higher. */
+	public static final int 	RATED_THREE_OR_BETTER = 5;
+	
+	/** Indicates to search for objects rated four or higher. */
+	public static final int 	RATED_FOUR_OR_BETTER = 6;
+	
+	/** Indicates to search for objects rated five. */
+	public static final int 	RATED_FIVE = 7;
+	
+	/** Indicates to search for objects unrated */
+	public static final int 	UNRATED = 8;
+	
+	/** Indicates to search for objects unrated */
+	public static final int 	SHOW_ALL = 9;
 	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
@@ -89,7 +107,7 @@ public class QuickSearch
 	private static final int 	CLEAR = 0;
 	
 	/** The selected node. */
-	protected SearchObject		selectedNode;
+	private SearchObject		selectedNode;
 	
 	/** Area where to enter the tags to search. */
 	private JTextField			searchArea;
@@ -115,24 +133,37 @@ public class QuickSearch
 	/** The possible options. */
 	private List<SearchObject> 	nodes;
 
+	/** The possible options. */
+	private List<SearchObject> 	ratedNodes;
+	
 	/** Label if any. */
 	private String				label;
 
+	/** 
+	 * Flag indicating that only one context can be selected at a time
+	 * if set to <code>true</code>, more than one context if set 
+	 * to <code>false</code>.
+	 */
+	private boolean				singleSelection;
+	
 	/** Shows the menu. */
 	private void showMenu()
 	{
 		Rectangle r = searchPanel.getBounds();
         if (menu == null) {
-        	menu = new SearchContextMenu(nodes, r.width);
+        	if (selectedNode != null)
+        		menu = new SearchContextMenu(nodes, ratedNodes, r.width, 
+        									selectedNode, singleSelection);
+        	else 
+        		menu = new SearchContextMenu(nodes, ratedNodes, r.width, 
+        									singleSelection);
         	menu.addPropertyChangeListener(
         			SearchContextMenu.SEARCH_CONTEXT_PROPERTY, this);
         }
         menu.show(searchPanel, 0, r.height);
 	}
 	
-	/** 
-	 * Initializes the components composing the display. 
-	 */
+	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
@@ -166,7 +197,8 @@ public class QuickSearch
 	}
 	
 	/** 
-	 * Initializes the components composing the display. 
+	 * Initializes the components composing the display.
+	 *  
 	 * @param icon The search icon.
 	 */
 	private void initComponents(Icon icon)
@@ -183,15 +215,19 @@ public class QuickSearch
 	/**
 	 * Initializes the menu and related components. 
 	 * 
-	 * @param nodes The nodes to display.
+	 * @param nodes 		The nodes to display.
+	 * @param ratedNodes 	The rated nodes if any.
 	 */
-	private void initSearchComponents(List<SearchObject> nodes)
+	private void initSearchComponents(List<SearchObject> nodes, 
+									List<SearchObject> ratedNodes)
 	{
+		if (ratedNodes == null) ratedNodes = new ArrayList<SearchObject>();
 		this.nodes = nodes;
+		this.ratedNodes = ratedNodes;
 		IconManager icons = IconManager.getInstance();
 		//check when to create it
 		menuButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
-		menuButton.setToolTipText("Display the available searching context");
+		menuButton.setToolTipText("Display the search options");
 		UIUtilities.setTextAreaDefault(menuButton);
 		menuButton.setBorder(null);
 		menuButton.addMouseListener(new MouseAdapter() {
@@ -222,7 +258,7 @@ public class QuickSearch
 		double w = 0;
 		if (menuButton != null) w = TableLayout.PREFERRED;
 		double[][] pl = {{TableLayout.PREFERRED, w, TableLayout.FILL, 0}, 
-				{TableLayout.PREFERRED} }; //rows\
+				{TableLayout.PREFERRED} }; //rows
 		layoutManager = new TableLayout(pl);
 		
 		searchPanel = new JPanel();
@@ -230,9 +266,7 @@ public class QuickSearch
 		searchPanel.setLayout(layoutManager);
 		searchPanel.setBorder(
 					BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-		
-		
-		searchPanel.add(searchButton, "0, 0, f, c");
+		//searchPanel.add(searchButton, "0, 0, f, c");
 		if (menuButton != null) 
 			searchPanel.add(menuButton, "1, 0, f, c");
 		searchPanel.add(searchArea, "2, 0, f, c");
@@ -262,9 +296,33 @@ public class QuickSearch
 		searchArea.setText("");
 		searchArea.getDocument().addDocumentListener(this);
 		layoutManager.setColumn(3, 0);
-		searchPanel.remove(clearButton);
+		//searchPanel.remove(clearButton);
 		searchPanel.validate();
 		searchPanel.repaint();
+	}
+	
+	/**
+	 * Returns <code>true</code> if the selected node is a rating node,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param node The selected node.
+	 * @return See above.
+	 */
+	private boolean isRatingNode(SearchObject node)
+	{
+		if (node == null) return false;
+		switch (node.getIndex()) {
+			case RATED_ONE_OR_BETTER:
+			case RATED_TWO_OR_BETTER:
+			case RATED_THREE_OR_BETTER:
+			case RATED_FOUR_OR_BETTER:
+			case RATED_FIVE:
+			case UNRATED:
+			case SHOW_ALL:
+				return true;
+			default:
+				return false;
+		}
 	}
 	
 	/** Creates a new instance. */
@@ -312,53 +370,80 @@ public class QuickSearch
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param nodes	The nodes describing the context of the search.
+	 * @param nodes			The nodes describing the context of the search.
+	 * @param ratedNodes 	The rated nodes if any.
 	 */
-	public QuickSearch(List<SearchObject> nodes)
+	public QuickSearch(List<SearchObject> nodes, List<SearchObject> ratedNodes)
 	{
-		this(null, nodes);
+		this(null, nodes, ratedNodes);
 	}
 	
 	/** 
 	 * Creates a new instance.
 	 * 
-	 * @param label	The text displayed in front of the panel.
-	 * @param nodes	The nodes describing the context of the search.
+	 * @param label			The text displayed in front of the panel.
+	 * @param nodes			The nodes describing the context of the search.
+	 * @param ratedNodes 	The rated nodes if any.
 	 */
-	public QuickSearch(String label, List<SearchObject> nodes)
+	public QuickSearch(String label, List<SearchObject> nodes, 
+						List<SearchObject> ratedNodes)
 	{
 		this.label = label;
 		if (nodes == null || nodes.size() == 0)
 			initComponents(null);
-		else initSearchComponents(nodes);
+		else initSearchComponents(nodes, ratedNodes);
 		buildGUI(label);
+	}
+	
+	/** 
+	 * Sets to <code>true</code> if only one context can be selected at a time
+	 * to <code>false</code> otherwise.
+	 * 
+	 * @param singleSelection The value to set.
+	 */
+	public void setSingleSelection(boolean singleSelection)
+	{
+		this.singleSelection = singleSelection;
 	}
 	
 	/** Adds the default searching context. */
 	public void setDefaultSearchContext()
 	{
-		IconManager icons = IconManager.getInstance();
 		List<SearchObject> nodes = new ArrayList<SearchObject>();
-    	SearchObject node = new SearchObject(TAGS, 
-    							icons.getImageIcon(IconManager.SEARCH_TAG), 
-    								"Search for Tags");
+    	SearchObject node = new SearchObject(FULL_TEXT, null, 
+    								"Full Text search");
     	nodes.add(node);
-    	node = new SearchObject(TAG_SETS, 
-				icons.getImageIcon(IconManager.SEARCH_TAG_SET), 
-					"Search for Tag Sets");
+    	node = new SearchObject(TAGS, null, "Tags search");
     	nodes.add(node);
-    	node = new SearchObject(IMAGES, 
-    							icons.getImageIcon(IconManager.SEARCH_IMAGE), 
-									"Search for Images");
+    	node = new SearchObject(COMMENTS, null, "Comments search");
     	nodes.add(node);
-    	node = new SearchObject(ANNOTATIONS, 
-    						icons.getImageIcon(IconManager.SEARCH_ANNOTATION), 
-								"Search for Annotations");
-    	nodes.add(node);
-    	initSearchComponents(nodes);
+    	
+    	List<SearchObject> ratedNodes = new ArrayList<SearchObject>();
+    	node = new SearchObject(RATED_ONE_OR_BETTER, null, "* or better");
+    	ratedNodes.add(node);
+    	node = new SearchObject(RATED_TWO_OR_BETTER, null, "** or better");
+    	ratedNodes.add(node);
+    	node = new SearchObject(RATED_THREE_OR_BETTER, null, "*** or better");
+    	ratedNodes.add(node);
+    	node = new SearchObject(RATED_FOUR_OR_BETTER, null, "**** or better");
+    	ratedNodes.add(node);
+    	node = new SearchObject(RATED_FIVE, null, "*****");
+    	ratedNodes.add(node);
+    	node = new SearchObject(SHOW_ALL, null, "Show All");
+    	ratedNodes.add(node);
+    	node = new SearchObject(UNRATED, null, "Unrated");
+    	ratedNodes.add(node);
+    	initSearchComponents(nodes, ratedNodes);
     	removeAll();
     	buildGUI(label);
 	}
+	
+	/**
+	 * Returns the selected node.
+	 * 
+	 * @return See above.
+	 */
+	public SearchObject getSelectedNode() { return selectedNode; }
 	
 	/** 
      * Shows or hides the {@link #clearButton} when some text is entered.
@@ -367,7 +452,7 @@ public class QuickSearch
 	public void insertUpdate(DocumentEvent e)
 	{
 		layoutManager.setColumn(3, TableLayout.PREFERRED);
-		searchPanel.add(clearButton, "3, 0, f, c");
+		//searchPanel.add(clearButton, "3, 0, f, c");
 		searchPanel.validate();
 		searchPanel.repaint();
 	}
@@ -412,6 +497,12 @@ public class QuickSearch
 			UIUtilities.setTextAreaDefault(searchButton);
 			searchButton.setBorder(null);
 			searchArea.setToolTipText(node.getDescription());
+			/*
+			if (isRatingNode(node)) 
+				firePropertyChange(QUICK_SEARCH_PROPERTY, Boolean.FALSE, 
+								Boolean.TRUE);
+								*/
+			handleKeyEnter();
 		} else if (QUICK_SEARCH_PROPERTY.equals(name)) search();
 	}
 	

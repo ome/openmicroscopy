@@ -115,8 +115,8 @@ public class QuickFinder
 	public void search()
 	{
 		//SearchObject node = (SearchObject) evt.getNewValue();
-		if (selectedNode == null) return;
-		List values = selectedNode.getResult();
+		if (getSelectedNode() == null) return;
+		List values = getSelectedNode().getResult();
 		if (values == null || values.size() == 0) {
 			UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
 			un.notifyInfo("Quick Search", "Please enter a term to search for.");
@@ -147,6 +147,7 @@ public class QuickFinder
 			}
 		}
 		if (terms == null) terms = values;	
+		/*
 		switch (selectedNode.getIndex()) {
 			case TAGS:
 				fireTagsRetrieval(terms, sep);
@@ -158,6 +159,7 @@ public class QuickFinder
 				fireAnnotationsRetrieval(terms, sep);
 				break;
 		}
+		*/
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	}
 	/** 

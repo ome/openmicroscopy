@@ -349,7 +349,7 @@ class EditorModel
 		if (object instanceof ExperimenterData) {
 			return EditorUtil.formatExperimenter((ExperimenterData) object);
 		}
-		return "Jean-marie";
+		return formatOwner(object.getOwner());
 	}
 	
 	/**

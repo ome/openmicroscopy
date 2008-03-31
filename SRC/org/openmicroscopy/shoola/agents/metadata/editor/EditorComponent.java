@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.List;
@@ -109,6 +110,7 @@ class EditorComponent
 	{
 		if (result == null) return;
 		model.setStructuredDataResults(result);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.layoutUI();
 	}
 
@@ -120,6 +122,7 @@ class EditorComponent
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Root object not valid.");
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		model.setRootObject(refObject);
 		view.setRootObject();
 		model.loadUserThumbnail();

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -305,9 +306,6 @@ class OmeroMetadataServiceImpl
 				object.getId(), userID));
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
-			boolean b = gateway.hasArchivedFiles(
-					img.getDefaultPixels().getId());
-			System.err.println(b);
 			results.setArchived(gateway.hasArchivedFiles(
 					img.getDefaultPixels().getId()));
 			results.setViewedBy(loadViewedBy(img.getId(), 
@@ -674,4 +672,89 @@ class OmeroMetadataServiceImpl
 		return gateway.downloadFile(file, fileID, size);
 	}
 	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadRatings(Class, Set, long)
+	 */
+	public Map<Long, Collection> loadRatings(Class nodeType, 
+											Set<Long> nodeIds, long userID) 
+			throws DSOutOfServiceException, DSAccessException
+	{
+		PojoOptions po = new PojoOptions();
+		po.noLeaves();
+		Set<Long> ids = null;
+		if (userID != -1) {
+			ids = new HashSet<Long>(1);
+			ids.add(userID);
+		}
+		Map map = gateway.findAnnotations(nodeType, nodeIds, ids, 
+				new PojoOptions().map());
+		Map<Long, Collection> results = new HashMap<Long, Collection>();
+		if (map == null) return results;
+		
+		Iterator<Long> i = map.keySet().iterator();
+		Long id;
+		AnnotationData data;
+		Iterator j;
+		List<AnnotationData> result;
+		Collection l;
+		while (i.hasNext()) {
+			id = i.next();
+			l = (Collection) map.get(id);
+			result = new ArrayList<AnnotationData>();
+			j = l.iterator();
+			while (j.hasNext()) {
+				data = (AnnotationData) j.next();
+				if (data instanceof RatingAnnotationData)
+					result.add(data);
+			}
+			if (result.size() > 0)
+				results.put(id, result);
+		}
+		return results;
+	}
+
+	
+	public Collection filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
+		Class annotationType, List<String> terms, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<Long> results = new ArrayList<Long>();
+		
+		PojoOptions po = new PojoOptions();
+		po.noLeaves();
+		Set<Long> ids = null;
+		if (userID != -1) {
+			ids = new HashSet<Long>(1);
+			ids.add(userID);
+		}
+		
+		Map map = gateway.findAnnotations(nodeType, nodeIds, ids, 
+				new PojoOptions().map());
+		if (map == null || map.size() == 0) return results;
+		
+		List annotations = gateway.filterBy(annotationType, terms, userID);
+		List<Long> annotationsIds = new ArrayList<Long>();
+		Iterator i, j;
+		i = annotations.iterator();
+		while (i.hasNext())
+			annotationsIds.add(((Annotation) i.next()).getId());
+		
+		i = map.keySet().iterator();
+		long id;
+		Collection l;
+		AnnotationData data;
+		while (i.hasNext()) {
+			id = (Long) i.next();
+			l = (Collection) map.get(id);
+			j = l.iterator();
+			while (j.hasNext()) {
+				data = (AnnotationData) j.next();
+				if (data.getClass().equals(annotationType) && 
+					annotationsIds.contains(data.getId()))
+					results.add(id);
+			}
+		}
+		return results;
+	}
 }

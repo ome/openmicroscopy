@@ -367,7 +367,6 @@ class ControlPane
      */
     private void initializeValues()
     {
-
         int maxZ = model.getMaxZ();
         int maxT = model.getMaxT();
         initSlider(zSlider, maxZ, model.getDefaultZ(), 

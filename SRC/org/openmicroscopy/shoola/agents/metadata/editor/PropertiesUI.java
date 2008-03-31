@@ -282,16 +282,27 @@ class PropertiesUI
     private JPanel buildContentPanel()
     {
         JPanel content = new JPanel();
+        double[][] tl = {{WIDTH}, //columns
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
+        	TableLayout.PREFERRED, 5, 80}};
+        content.setLayout(new TableLayout(tl));
+        /*
         double[][] tl = {{TableLayout.PREFERRED, 5,  WIDTH}, //columns
 				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
         		TableLayout.PREFERRED, 80}};
-        content.setLayout(new TableLayout(tl));
         content.add(UIUtilities.setTextFont("ID"), "0, 0");
         content.add(new JLabel(""+model.getRefObjectID()), "2, 0");
         content.add(UIUtilities.setTextFont("Name"), "0, 2");
         content.add(nameArea, "2, 2");
         content.add(UIUtilities.setTextFont("Description"), "0, 4");
         content.add(new JScrollPane(descriptionArea), "2, 4, 2, 5");
+        */
+        //content.add(UIUtilities.setTextFont("ID: "+model.getRefObjectID()), 
+        //			"0, 0");
+        content.add(UIUtilities.setTextFont("Name"), "0, 0");
+        content.add(nameArea, "0, 2");
+        content.add(UIUtilities.setTextFont("Description"), "0, 4");
+        content.add(new JScrollPane(descriptionArea), "0, 6");
         return content;
     }
     

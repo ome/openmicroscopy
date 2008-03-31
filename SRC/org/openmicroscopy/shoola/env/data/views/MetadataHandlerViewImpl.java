@@ -32,6 +32,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
 import org.openmicroscopy.shoola.env.data.views.calls.FileDownloader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
@@ -236,6 +237,34 @@ class MetadataHandlerViewImpl
 										AgentEventListener observer) 
 	{
 		BatchCallTree cmd = new ArchivedFilesLoader(pixelsID); 
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadRatings(Class, Set, long, 
+	 * 										AgentEventListener)
+	 */
+	public CallHandle loadRatings(Class nodeType, Set<Long> nodeIDs, 
+						long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationLoader(
+ 				StructuredAnnotationLoader.RATING, nodeType, nodeIDs, 
+ 					userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#filterByAnnotation(Class, Set, Class, List, 
+	 * 									long, AgentEventListener)
+	 */
+	public CallHandle filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
+			Class annotationType, List<String> terms, long userID, 
+			AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new DataFilter(annotationType, nodeType, nodeIds,
+											terms, userID);
 		return cmd.exec(observer);
 	}
 	

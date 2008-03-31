@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Set;
+
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -253,6 +255,28 @@ public class StructuredAnnotationLoader
     }
 
     /**
+     * Creates a {@link BatchCall} to load the ratings related to the object
+     * identified by the class and the id.
+     * 
+     * @param type 		The type of the object.
+     * @param ids		The collection of id of the object.
+     * @param userID	The id of the user who tagged the object or 
+     * 					<code>-1</code> if the user is not specified.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadRatings(final Class type, final Set<Long> ids, 
+    							final long userID)
+    {
+        return new BatchCall("Loading Ratings") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.loadRatings(type, ids, userID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -263,6 +287,30 @@ public class StructuredAnnotationLoader
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return result; }
+    
+    /**
+     * Creates a new instance. Builds the call corresponding to the passed
+     * index, throws an {@link IllegalArgumentException} if the index is not
+     * supported.
+     * 
+     * @param index		The index identifying the call. One of the constants
+     * 					defined by this class.
+     * @param type		The type of node the annotations are related to.
+     * @param ids		Collection of the id of the object.
+     * @param userID	The id of the user or <code>-1</code> if the id 
+     * 					is not specified.
+     */
+    public StructuredAnnotationLoader(int index, Class type, Set<Long> ids, 
+    									long userID)
+    {
+    	switch (index) {
+			case RATING:
+				loadCall = loadRatings(type, ids, userID);
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+    	}
+    }
     
     /**
      * Creates a new instance. Builds the call corresponding to the passed

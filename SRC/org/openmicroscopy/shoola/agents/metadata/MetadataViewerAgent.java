@@ -67,7 +67,6 @@ public class MetadataViewerAgent
      */
     public static Registry getRegistry() { return registry; }
     
-	
 	/**
 	 * Helper method returningthe current user's details.
 	 * 

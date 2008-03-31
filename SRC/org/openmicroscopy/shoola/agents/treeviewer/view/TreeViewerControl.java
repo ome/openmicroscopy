@@ -48,6 +48,7 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
@@ -87,9 +88,7 @@ import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 
 /** 
@@ -578,6 +577,9 @@ class TreeViewerControl
 			DataObject data = (DataObject) pce.getNewValue();
 			if (data != null)
 				model.onDataObjectSave(data, TreeViewer.UPDATE_OBJECT);
+		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
+			
+			model.setSelectedNode(pce.getNewValue());
 		}
 	}
 

@@ -158,6 +158,17 @@ public class RatingComponent
 	/** 
 	 * Creates a default instance. 
 	 * 
+	 * @param size The size of the stars. One of the constants
+	 * 					defined by this class.
+	 */
+	public RatingComponent(int size)
+	{
+		this(0, size, true);
+	}
+	
+	/** 
+	 * Creates a default instance. 
+	 * 
 	 * @param selected	The number of stars.
 	 * @param size		The size of the stars. One of the constants
 	 * 					defined by this class.

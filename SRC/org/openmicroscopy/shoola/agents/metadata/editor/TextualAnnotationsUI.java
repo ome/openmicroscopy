@@ -237,7 +237,7 @@ class TextualAnnotationsUI
 		List l = annotations.get(userID);
 		if (l != null && l.size() > 0 && originalText == null) {
 			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
-			setAreaText(data.getContentAsString());
+			setAreaText(data.getText());
 			originalText = area.getText();
 		}
 		return p;

@@ -436,7 +436,6 @@ class OMEROGateway
 	 */
 	private RawPixelsStore getPixelsStore()
 	{
-		
 		return entry.createRawPixelsStore();
 	}
 
@@ -2741,6 +2740,22 @@ class OMEROGateway
 		}
 		service.close();
 		return new HashMap();
+	}
+	
+	
+	List filterBy(Class annotationType, List<String> terms,
+				long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Search service = getSearchService();
+		service.onlyType(convertPojos(annotationType));
+		service.bySomeMustNone(terms.toArray(new String[] {}), null, null);
+		if (userID >= 0){
+			
+		}
+		
+		if (!service.hasNext()) return new ArrayList();
+		return service.results();
 	}
 	
 }

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,14 +81,14 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadThumbnails(Set, int, int, long,
+     * @see HierarchyBrowsingView#loadThumbnails(Collection, int, int, long,
      *                                           AgentEventListener)
      */
-    public CallHandle loadThumbnails(Set<ImageData> imgSummaries, int maxWidth, 
-    								int maxHeight, long userID,
+    public CallHandle loadThumbnails(Collection<ImageData> images, 
+    								int maxWidth, int maxHeight, long userID,
                                      AgentEventListener observer)
     {
-        BatchCallTree cmd = new ThumbnailLoader(imgSummaries, maxWidth, 
+        BatchCallTree cmd = new ThumbnailLoader(images, maxWidth, 
         							maxHeight, userID);
         return cmd.exec(observer);
     }

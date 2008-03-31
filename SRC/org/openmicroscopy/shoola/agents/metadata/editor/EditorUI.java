@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -205,32 +206,56 @@ public class EditorUI
 		viewTreePanel.add(viewByTree, "0, 1");
 		TreeComponent left = new TreeComponent();
 		left.insertNode(propertiesUI, propertiesUI.getCollapseComponent());
-		left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
-		left.insertNode(attachmentsUI, 
-						attachmentsUI.getCollapseComponent(), false);
-
-		double[][] leftSize = {{TableLayout.PREFERRED}, //columns
+		
+		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 				TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		
 		leftPane.add(viewTreePanel, "0, 1");
 		leftPane.add(left, "0, 2");
-
+		
+		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
-						{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
 		TreeComponent tree = new TreeComponent();
+		
+		
+		
+		/*
+		left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
+		left.insertNode(attachmentsUI, 
+						attachmentsUI.getCollapseComponent(), false);
+		
+		
+
+		
 		tree.insertNode(textualAnnotationsUI, 
 						textualAnnotationsUI.getCollapseComponent());
 		tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
+		*/
 		rightPane.add(tree, "0, 0");
 		
 		content = new JPanel();
 		
 		switch (layout) {
 			case Editor.VERTICAL_LAYOUT:
+				
+				left.insertNode(textualAnnotationsUI, 
+						textualAnnotationsUI.getCollapseComponent(), false);
+				left.insertNode(tagsUI, 
+						tagsUI.getCollapseComponent(), false);
+				
+				
+				tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
+				tree.insertNode(attachmentsUI, 
+							attachmentsUI.getCollapseComponent(), false);
+				
+				
+				
+				
 				double[][] finalSize = {{TableLayout.FILL}, 
 						{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 						TableLayout.PREFERRED}};
@@ -241,6 +266,15 @@ public class EditorUI
 				break;
 			case Editor.GRID_LAYOUT:
 			default:
+				left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
+				left.insertNode(attachmentsUI, 
+							attachmentsUI.getCollapseComponent(), false);
+				tree.insertNode(textualAnnotationsUI, 
+						textualAnnotationsUI.getCollapseComponent());
+				tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
+				
+				
+				
 				double[][] size = {{TableLayout.FILL, 5, TableLayout.FILL}, 
 					{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 
@@ -309,6 +343,7 @@ public class EditorUI
 	void saveData()
 	{
 		saved = true;
+		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		toolBar.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
 			ExperimenterData exp = userUI.getExperimenterToSave();

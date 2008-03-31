@@ -153,6 +153,7 @@ public class SearchComponent
         		cancel();
         	}
         });
+		
 	}
 	
 	/** Initializes the components composing the display. */
