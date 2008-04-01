@@ -173,7 +173,7 @@ public class OmeroCal {
 	/**
 	 * Allows other classes to get the Controller, 
 	 * eg. to add listeners for calendar events. 
-	 * @return
+	 * @return	 The Controller that processes events from the UI components. 
 	 */
 	public Controller getController() {
 		return controller;
@@ -184,10 +184,21 @@ public class OmeroCal {
 	 * Allows other classes to get the alarmChecker,
 	 * so they can add listeners for alarm events. 
 	 * 
-	 * @return	
+	 * @return	the AlarmChecker that is initiated at start-up, keeps checking for alarms..
 	 */
 	public AlarmChecker getAlarmChecker() {
 		return alarmChecker;
+	}
+	
+	
+	/**
+	 * Allows other classes to get the calendar display,
+	 * so they can eg. setEnabled() etc. 
+	 * 
+	 * @return	the JPanel that is shown in the main content display window. 
+	 */
+	public CalendarDisplay getCalendarDisplay() {
+		return calendarView;
 	}
 	
 }

@@ -86,12 +86,17 @@ public class CalendarMain extends OmeroCal {
 		super.openDBAndDisplayUI(standAloneApplication);
 		
 		/*
-		 * Now you can add listeners to the controller. 
+		 * Now you can add listeners to the controller etc.
 		 */
 		ICalendarDB db = getCalendarDataBase();
 		Controller cont = getController();
 		
 		cont.addEventListener(new OpenFileListener(db, editorModel));
+		
+		/*
+		 * Turn off editing of info panel
+		 */
+		getCalendarDisplay().setInfoPanelEnabled(false);
 	}
 	
 

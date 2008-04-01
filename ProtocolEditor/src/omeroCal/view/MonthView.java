@@ -237,9 +237,13 @@ public class MonthView
 			lastDisplayDate = new GregorianCalendar();
 		
 		
-		// Get the first day of the month
+		// Get the start of first day of the month
 		firstDisplayDate.setTime(currentDate.getTime());
 		firstDisplayDate.set(Calendar.DAY_OF_MONTH, 1);
+		firstDisplayDate.set(Calendar.HOUR_OF_DAY, 0);
+		firstDisplayDate.set(Calendar.MINUTE, 0);
+		firstDisplayDate.set(Calendar.SECOND, 0);
+		firstDisplayDate.set(Calendar.MILLISECOND, 0);
 		int firstDayOfMonth = firstDisplayDate.get(Calendar.DAY_OF_WEEK);
 		// Calculate the number of days to display from the previous month
 		daysRemainingLastMonth = firstDayOfMonth - FIRST_DAY_OF_WEEK;
@@ -253,6 +257,9 @@ public class MonthView
 		lastDisplayDate.setTime(currentDate.getTime());
 		daysThisMonth = lastDisplayDate.getActualMaximum(Calendar.DAY_OF_MONTH);
 		lastDisplayDate.set(Calendar.DAY_OF_MONTH, daysThisMonth);
+		lastDisplayDate.set(Calendar.HOUR_OF_DAY, 23);
+		lastDisplayDate.set(Calendar.MINUTE, 59);
+		lastDisplayDate.set(Calendar.SECOND, 59);
 		// what day of the week is the last day of the month?
 		int lastDayOfMonth = lastDisplayDate.get(Calendar.DAY_OF_WEEK);
 		// calculate number of days to display from start of next month
@@ -375,24 +382,31 @@ public class MonthView
 		 * days[displayIndex]
 		 */
 		if (eventMonth == thisMonth) {
-			
+			System.out.println("Adding event to this month");
 			int displayIndex = dayOfMonth + daysRemainingLastMonth;
 			days[displayIndex].addEventLabel(eventLabel);
 			
 		} else 
 			// if in the previous month...
 		if (eventMonth == thisMonth - 1) {
+			int dateOfFirstDisplayDate = firstDisplayDate.get(Calendar.DAY_OF_MONTH);
+			//System.out.println("Adding event to last month. dayOfMonth = " + dayOfMonth +
+			//		" dateOfFirstDisplayDate = " + dateOfFirstDisplayDate);
+			int displayIndex = dayOfMonth - dateOfFirstDisplayDate + 1;
 			
-			days[dayOfMonth].addEventLabel(eventLabel);
+			if (displayIndex >= 0)
+				days[displayIndex].addEventLabel(eventLabel);
 			
 		} else 
 			// if event is in next month...
 			
 		if (eventMonth == thisMonth + 1) {
-			
+			System.out.println("Adding event to next month");
 			int displayIndex = dayOfMonth + daysRemainingLastMonth + daysThisMonth;
 			days[displayIndex].addEventLabel(eventLabel);
 			
+		} else {
+			System.out.println("EVENT NOT DISPLAYED!!!");
 		}
 		
 		// this list is used to notify eventLabels that eg selection has changed.

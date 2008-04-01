@@ -96,8 +96,11 @@ public class CalendarDisplay
 		
 		//System.out.println("CalendarFrame calendarEventChanged() ID: " + calendarID + " " + propertyChanged + " " + newProperty);
 	
+		boolean infoPanelEnabled = infoPanelEast.isEnabled();
+		
 		this.remove(infoPanelEast);
 		infoPanelEast = new EventInfoPanel(calendarEvent);
+		infoPanelEast.setEnabled(infoPanelEnabled);
 		
 		CalendarObject calendar = controller.getCalendarForEvent(calendarEvent);
 		((EventInfoPanel)infoPanelEast).setCalendar(calendar);
@@ -119,6 +122,15 @@ public class CalendarDisplay
 			((Observer)centreComponent).update(o, arg);
 		}
 		
+	}
+	
+	/**
+	 * Sets enabled state of the infoPanelEast component.
+	 * 
+	 * @param enabled
+	 */
+	public void setInfoPanelEnabled(boolean enabled) {
+		infoPanelEast.setEnabled(enabled);
 	}
 
 }

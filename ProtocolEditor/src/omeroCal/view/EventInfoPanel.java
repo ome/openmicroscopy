@@ -69,6 +69,14 @@ public class EventInfoPanel
 	
 	CalendarLabel calendarLabel;
 	JPanel calendarColourPanel;
+
+	protected JCheckBox allDayEvent;
+
+	protected DatePicker startDatePicker;
+
+	protected DatePicker endDatePicker;
+	
+	protected AlarmEditor alarmEditor;
 	
 	public EventInfoPanel() {
 		this(null);
@@ -122,7 +130,7 @@ public class EventInfoPanel
 		
 		// display a checkBox for allDayEvent
 		leftColumn.add(new CalendarLabel("all day : "));
-		JCheckBox allDayEvent = new JCheckBox();
+		allDayEvent = new JCheckBox();
 		allDayEvent.setBackground(null);
 		allDayEvent.setSelected(isAllDayEvent);
 		allDayEvent.addActionListener(new AllDayListener());
@@ -131,23 +139,23 @@ public class EventInfoPanel
 		
 		// display the start date in a date-picker
 		leftColumn.add(new CalendarLabel("from: "));
-		DatePicker datePicker = new DatePicker();
-		datePicker.setDate(startDateTime);
-		datePicker.setAlignmentX(Component.LEFT_ALIGNMENT);
+		startDatePicker = new DatePicker();
+		startDatePicker.setDate(startDateTime);
+		startDatePicker.setAlignmentX(Component.LEFT_ALIGNMENT);
 		//datePicker.setEnabled(false);
 		
 		// with a time display (visible if AllDayEvent == false)
 		startTime = new TimeDisplay(startDateTime, " at ");
 		startTime.setVisible(!isAllDayEvent);
 		Box dateTimeContainer = Box.createHorizontalBox();
-		dateTimeContainer.add(datePicker);
+		dateTimeContainer.add(startDatePicker);
 		dateTimeContainer.add(startTime);
 		rightColumn.add(new AlignedComponent(dateTimeContainer, Component.LEFT_ALIGNMENT));
 		
 		
 		// display the end date in a date-picker
 		leftColumn.add(new CalendarLabel("to: "));
-		DatePicker endDatePicker = new DatePicker();
+		endDatePicker = new DatePicker();
 		endDatePicker.setDate(endDateTime);
 		endDatePicker.setAlignmentX(Component.LEFT_ALIGNMENT);
 		//endDatePicker.setEnabled(false);
@@ -180,6 +188,7 @@ public class EventInfoPanel
 		
 		// display alarm time in an AlarmSetter
 		leftColumn.add(new CalendarLabel("alarm: "));
+		alarmEditor = new AlarmEditor(calendarEvent);
 		rightColumn.add(new AlarmEditor(calendarEvent));
 		
 		
@@ -192,7 +201,7 @@ public class EventInfoPanel
 		
 		// notes 
 		verticalBox.add(new CalendarLabel("Notes"));
-		verticalBox.add(new CalendarLabel("Some notes need to be retrieved from the CalendarEvent to go here"));
+		verticalBox.add(new CalendarLabel("  "));
 		
 		//verticalBox.setPreferredSize(new Dimension(230, 100));
 		int borderWidth = 15;
@@ -227,6 +236,23 @@ public class EventInfoPanel
 			endTime.setVisible(!allDay);
 		}
 		
+	}
+	
+	/**
+	 * Turn on/off the controls, so that details cannot be changed. 
+	 */
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		
+		allDayEvent.setEnabled(enabled);
+		
+		startDatePicker.setEnabled(enabled);
+		startTime.setEnabled(enabled);
+		
+		endDatePicker.setEnabled(enabled);
+		endTime.setEnabled(enabled);
+		
+		alarmEditor.setEnabled(enabled);
 	}
 
 	public void update(Observable o, Object arg) {

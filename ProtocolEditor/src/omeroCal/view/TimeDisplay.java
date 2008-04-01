@@ -51,6 +51,8 @@ public class TimeDisplay extends Box {
 	public static final Color BLUE_HIGHLIGHT = new Color(181,213,255);
 	
 	Font timeFont = new Font("SansSerif", Font.PLAIN, 10);
+	protected JFormattedTextField hoursField;
+	protected JFormattedTextField minsField;
 	
 	public TimeDisplay() {
 		super(BoxLayout.X_AXIS);
@@ -93,17 +95,25 @@ public class TimeDisplay extends Box {
 		Dimension fieldSize = new Dimension(19, 18);
 		
 		
-		JFormattedTextField hoursField = new CalendarFormattedTextField();
+		hoursField = new CalendarFormattedTextField();
 		hoursField.setText(hours<10 ? "0" + hours : hours + "");
 		
 		
-		JFormattedTextField minsField = new CalendarFormattedTextField();
+		minsField = new CalendarFormattedTextField();
 		minsField.setText(mins<10 ? "0" + mins : mins + "");
 		
 		
 		this.add(hoursField);
 		this.add(new JLabel(":"));
 		this.add(minsField);
+	}
+	
+	/**
+	 * Set the enabled state of the hours and minutes text components
+	 */
+	public void setEnabled(boolean enabled) {
+		hoursField.setEnabled(enabled);
+		minsField.setEnabled(enabled);
 	}
 	
 }

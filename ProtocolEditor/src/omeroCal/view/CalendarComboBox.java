@@ -78,5 +78,10 @@ public class CalendarComboBox extends JComboBox {
 		
 		return new Dimension(width, height);
 	}
+	
+	public void setEnabled(boolean enabled) {
+		System.out.println("CalendarComboBox setEnabled: " + enabled);
+		super.setEnabled(enabled);
+	}
 
 }

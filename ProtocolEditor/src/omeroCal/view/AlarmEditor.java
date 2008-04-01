@@ -94,9 +94,6 @@ public class AlarmEditor
 		
 		if ((eventStart != null) && (eventAlarm != null)) {
 			int alarmSeconds = (int)(eventAlarm.getTimeInMillis() - eventStart.getTimeInMillis())/1000;
-			System.out.println("AlarmSeconds = " + alarmSeconds);
-			//if (alarmSeconds < 0)
-			//	alarmSeconds--;		// not quite sure why you need this, but it works!!
 			setAlarmTime(alarmSeconds);
 		}
 		else {
@@ -169,6 +166,20 @@ public class AlarmEditor
 	//	beforeAfterChooser.removeActionListener(timeActionListener);
 		beforeAfterChooser.setSelectedIndex(index);
 	//	beforeAfterChooser.addActionListener(timeActionListener);
+	}
+	
+	/**
+	 * Set enabled state of all components (unitsField, timeUnitChooser, beforeAfterChooser) 
+	 */
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		System.out.println("AlarmEditor setEnabled: " + enabled);
+		
+		unitsField.setEnabled(enabled);
+		timeUnitChooser.setEnabled(enabled);
+		beforeAfterChooser.setEnabled(enabled);
+		
+		System.out.println("	 timeUnitChooser.isEnabled() " + timeUnitChooser.isEnabled());
 	}
 	
 }
