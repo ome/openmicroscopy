@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.roi.figures;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AttributeKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
@@ -63,11 +65,8 @@ public class MeasureEllipseFigure
 	extends EllipseTextFigure 
 	implements ROIFigure
 {
-	
-	/**
-	 * This is used to perform faster drawing and hit testing.
-	 */
-	private Rectangle2D			bounds;
+
+	Rectangle2D bounds;
 	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected ROI				roi;
@@ -195,6 +194,14 @@ public class MeasureEllipseFigure
 	 */
 	public double getX()
 	{
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
+		{
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getX(), ellipse.getY());
+			Point2D dest = new Point2D.Double();
+			t.transform(src, dest);
+			return dest.getX();
+		}
 		return ellipse.getX();
 	}
 	
@@ -205,8 +212,55 @@ public class MeasureEllipseFigure
 	 * 
 	 * @return see above.
 	 */
-	public double getY() { return ellipse.getY(); }
+	public double getY() 
+	{
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
+		{
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getX(), ellipse.getY());
+			Point2D dest = new Point2D.Double();
+			t.transform(src, dest);
+			return dest.getY();
+		}
+		return ellipse.getY(); 
+	}
 	
+	/** 
+	 * Get the x coord of the figure. 
+	 * @return see above.
+	 */
+	public double getCentreX()
+	{
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
+		{
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
+			Point2D dest = new Point2D.Double();
+			t.transform(src, dest);
+			return dest.getX();
+		}
+		return ellipse.getCenterX();
+	}
+	
+	
+	
+	/** 
+	 * Get the y coord of the figure. 
+	 * 
+	 * @return see above.
+	 */
+	public double getCentreY()
+	{
+		if(AttributeKeys.TRANSFORM.get(this)!=null)
+		{
+			AffineTransform t = AttributeKeys.TRANSFORM.get(this);
+			Point2D src = new Point2D.Double(ellipse.getCenterX(), ellipse.getCenterY());
+			Point2D dest = new Point2D.Double();
+			t.transform(src, dest);
+			return dest.getY();
+		}
+		return ellipse.getCenterY();
+	}
 	
 	
 	/** 
@@ -244,7 +298,7 @@ public class MeasureEllipseFigure
 			ellipseArea=addUnits(ellipseArea);
 			double sz=((Double) this.getAttribute(MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
-			bounds=g.getFontMetrics().getStringBounds(ellipseArea, g);
+			bounds= g.getFontMetrics().getStringBounds(ellipseArea, g);
 			bounds=
 					new Rectangle2D.Double(this.getBounds().getCenterX()
 							-bounds.getWidth()/2, this.getBounds().getCenterY()
@@ -346,8 +400,8 @@ public class MeasureEllipseFigure
 	 */
 	public Point2D getCentre()
 	{
-		return new Point2D.Double(Math.round(ellipse.getCenterX()), Math
-			.round(ellipse.getCenterY()));
+		return new Point2D.Double(Math.round(getCentreX()), Math
+			.round(getCentreY()));
 	}
 	
 	
@@ -441,13 +495,13 @@ public class MeasureEllipseFigure
 	 */
 	public PlanePoint2D[] getPoints()
 	{
-		Rectangle r = ellipse.getBounds();
+		Rectangle r = this.getTransformedShape().getBounds();
 		ArrayList vector=new ArrayList(r.height*r.width);
 		int xEnd=r.x+r.width, yEnd=r.y+r.height;
 		int x, y;
 		for (y=r.y; y<yEnd; ++y)
 			for (x=r.x; x<xEnd; ++x)
-				if (ellipse.contains(x, y)) 
+				if (this.getTransformedShape().contains(x, y)) 
 					vector.add(new PlanePoint2D(x, y));
 		return (PlanePoint2D[]) vector.toArray(new PlanePoint2D[vector.size()]);
 	}

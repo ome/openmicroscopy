@@ -93,15 +93,6 @@ public class IntensityModel
 	}
 	
 	/**
-	 * Overridden to return the name of the specified column.
-	 * @see AbstractTableModel#getColumnName(int)
-	 */
-	public String getColumnName(int col) 
-	{ 
-		return col+""; 
-	}
-
-	/**
 	 * Overridden to return the value of the model to the object.
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */

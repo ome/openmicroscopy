@@ -34,7 +34,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,12 +46,9 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
@@ -176,7 +172,7 @@ class IntensityView
 	private ChannelSummaryModel			channelSummaryModel;
 	
 	/** The channel selected in the combo box. */
-	private int 						selectedChannel;
+	private int 						selectedChannel=-1;
 
 	/** The name of the channel selected in the combo box. */
 	private String 						selectedChannelName;
@@ -218,28 +214,28 @@ class IntensityView
 	Map<String, Integer> nameMap = new LinkedHashMap<String, Integer>();
 	
 	/** The map of the shape stats to coord. */
-	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
+	private TreeMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
 
 	/** Map of the pixel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>> pixelStats;
+	TreeMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>> pixelStats;
 	
 	/** Map of the min channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> minStats;
+	TreeMap<Coord3D, Map<Integer, Double>> minStats;
 
 	/** Map of the max channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> maxStats;
+	TreeMap<Coord3D, Map<Integer, Double>> maxStats;
 
 	/** Map of the mean channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> meanStats;
+	TreeMap<Coord3D, Map<Integer, Double>> meanStats;
 	
 	/** Map of the std dev channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> stdDevStats;
+	TreeMap<Coord3D, Map<Integer, Double>> stdDevStats;
 	
 	/** Map of the sum channel intensity values to coord. */
-	HashMap<Coord3D, Map<Integer, Double>> sumStats;
+	TreeMap<Coord3D, Map<Integer, Double>> sumStats;
 	
 	/** Map of the coord to a shape. */
-	HashMap<Coord3D, ROIShape> shapeMap;
+	TreeMap<Coord3D, ROIShape> shapeMap;
 	
 	/** The current coord of the ROI being depicted in the slider. */
 	Coord3D coord;
@@ -429,18 +425,18 @@ class IntensityView
 			return;
 		state = State.ANALYSING;
 		
-		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
-		pixelStats = new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
-		shapeMap = new HashMap<Coord3D, ROIShape>();
-		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		maxStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		meanStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		sumStats = new HashMap<Coord3D, Map<Integer, Double>>();
-		stdDevStats = new HashMap<Coord3D, Map<Integer, Double>>();
+		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
+		pixelStats = new TreeMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>(new Coord3D());
+		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		minStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		maxStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		meanStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		sumStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
+		stdDevStats = new TreeMap<Coord3D, Map<Integer, Double>>(new Coord3D());
 		
 		Iterator<ROIShape> shapeIterator  = ROIStats.keySet().iterator();
 		channelName =  new TreeMap<Integer, String>();
-		nameMap = new HashMap<String, Integer>();
+		nameMap = new LinkedHashMap<String, Integer>();
 
 		int minZ=Integer.MAX_VALUE, maxZ=Integer.MIN_VALUE;
 		int minT=Integer.MAX_VALUE, maxT=Integer.MIN_VALUE;
@@ -453,8 +449,9 @@ class IntensityView
 			minZ = Math.min(minZ, shape.getCoord3D().getZSection());
 			maxZ = Math.max(maxZ, shape.getCoord3D().getZSection());
 			Map<StatsType, Map> shapeStats;
-		
-			shapeMap.put(shape.getCoord3D(), shape);
+
+			Coord3D coord = shape.getCoord3D();
+			shapeMap.put(coord, shape);
 			if (shape.getFigure() instanceof MeasureTextFigure)
 			{
 				state = State.READY;
@@ -508,15 +505,15 @@ class IntensityView
 			return;
 		}
 		createComboBox();
-		if(selectedChannel >= channelSelection.getItemCount())
+		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
+		String string = (String)nameColour[1];
+		selectedChannel = nameMap.get(string);
+		/*if(selectedChannel >= channelSelection.getItemCount())
 		{
 			state = State.READY;
 			return;
-		}
+		}*/
 
-		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
-		String string = (String)nameColour[1];
-		int selectedChannel = nameMap.get(string);
 			
 		zSlider.setMaximum(maxZ);
 		zSlider.setMinimum(minZ);
@@ -562,15 +559,17 @@ class IntensityView
 		channelSelection.setModel(new DefaultComboBoxModel(channelCols));	
 		ColourListRenderer renderer =  new ColourListRenderer();
 		channelSelection.setRenderer(renderer);
-		if(nameMap.containsKey(selectedChannelName))
-			selectedChannel = nameMap.get(selectedChannelName);
+		if(selectedChannelName!=null)
+			if(nameMap.containsKey(selectedChannelName))
+				selectedChannel = nameMap.get(selectedChannelName);
+			else
+				selectedChannel = 0;
 		else
-			selectedChannel = 0;
-		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
-		selectedChannelName = (String)nameColour[1];
+			selectedChannel =0;
 		if(selectedChannel >= channelSelection.getItemCount() || selectedChannel < 0)
 			return;
 		channelSelection.setSelectedIndex(selectedChannel);
+		
 	}
 	
 	/** Populate the table and fields with the data. 
@@ -599,6 +598,8 @@ class IntensityView
 		statNames.add("Sum");
 		statNames.add("Mean");
 		statNames.add("Std Dev.");
+		statNames.add("Area");
+		statNames.add("NumPixels");
 		if(areaFigure(fig))
 			addAreaStats(statNames);
 		else if(lineFigure(fig))
@@ -639,7 +640,7 @@ class IntensityView
 		data[count][2] = channelSum.get(channel);
 		data[count][3] = channelMean.get(channel);
 		data[count][4] = channelStdDev.get(channel);
-		
+		data[count][5] = (double)fig.getPoints().length;
 		if(areaFigure(fig))
 			addValuesForAreaFigure(fig, data, channel, count);
 		else if(lineFigure(fig))
@@ -657,12 +658,12 @@ class IntensityView
 	 */
 	private void addValuesForAreaFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
-		data[count][5] = fig.getBounds().getX();
-		data[count][6] = fig.getBounds().getY();
-		data[count][7] = AnnotationKeys.WIDTH.get(shape);
-		data[count][8] = AnnotationKeys.HEIGHT.get(shape);
-		data[count][9] = AnnotationKeys.CENTREX.get(shape);
-		data[count][10] = AnnotationKeys.CENTREY.get(shape);
+		data[count][6] = fig.getBounds().getX();
+		data[count][7] = fig.getBounds().getY();
+		data[count][8] = AnnotationKeys.WIDTH.get(shape);
+		data[count][9] = AnnotationKeys.HEIGHT.get(shape);
+		data[count][10] = AnnotationKeys.CENTREX.get(shape);
+		data[count][11] = AnnotationKeys.CENTREY.get(shape);
 	}
 	
 	/**
@@ -674,12 +675,12 @@ class IntensityView
 	 */
 	private void addValuesForLineFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
-		data[count][5] = AnnotationKeys.STARTPOINTX.get(shape);
-		data[count][6] = AnnotationKeys.STARTPOINTY.get(shape);
-		data[count][7] = AnnotationKeys.ENDPOINTX.get(shape);
-		data[count][8] = AnnotationKeys.ENDPOINTY.get(shape);
-		data[count][9] = AnnotationKeys.CENTREX.get(shape);
-		data[count][10] = AnnotationKeys.CENTREY.get(shape);
+		data[count][6] = AnnotationKeys.STARTPOINTX.get(shape);
+		data[count][7] = AnnotationKeys.STARTPOINTY.get(shape);
+		data[count][8] = AnnotationKeys.ENDPOINTX.get(shape);
+		data[count][9] = AnnotationKeys.ENDPOINTY.get(shape);
+		data[count][10] = AnnotationKeys.CENTREX.get(shape);
+		data[count][11] = AnnotationKeys.CENTREY.get(shape);
 	}
 	
 
@@ -692,8 +693,8 @@ class IntensityView
 	 */
 	private void addValuesForPointFigure(ROIFigure fig, Double data[][], int channel, int count)
 	{
-		data[count][5] = AnnotationKeys.CENTREX.get(shape);
-		data[count][6] = AnnotationKeys.CENTREY.get(shape);
+		data[count][6] = AnnotationKeys.CENTREX.get(shape);
+		data[count][7] = AnnotationKeys.CENTREY.get(shape);
 	}
 	
 	/**
@@ -876,7 +877,7 @@ class IntensityView
 			
 			return;
 		}
-		
+				
 		BufferedWriter out;
 		try
 		{
@@ -885,26 +886,27 @@ class IntensityView
 			Coord3D currentCoord;
 			int n = channels.size();
 			Integer channel;
-			while (coordMapIterator.hasNext())
-			{
-				currentCoord = coordMapIterator.next();
-				writeHeader(out, currentCoord);
-				for (int i = 0 ; i < n ; i++)
+			if(channelSummarySelected(channels))
+				outputSummary(out, shapeMap);
+
+			if(channelSummarySelected(channels) && channels.size()!=1)
+				while (coordMapIterator.hasNext())
 				{
-					channel = channels.get(i);
-					if(channel==ChannelSelectionForm.SUMMARYVALUE)
+					currentCoord = coordMapIterator.next();
+					writeHeader(out, currentCoord);
+					for (int i = 0 ; i < n ; i++)
 					{
-						addSummaryTable(out);
-						continue;
-					}
-					if (!nameMap.containsKey(channelName.get(channel)))
-						continue;
-					writeTitle(out, 
+						channel = channels.get(i);
+						if(channel==ChannelSelectionForm.SUMMARYVALUE)
+							continue;
+						if (!nameMap.containsKey(channelName.get(channel)))
+							continue;
+						writeTitle(out, 
 							"Channel Number : "+channelName.get(channel));
-					channel = nameMap.get(channelName.get(channel));
-					writeData(out, currentCoord, channel.intValue());
+						channel = nameMap.get(channelName.get(channel));
+						writeData(out, currentCoord, channel.intValue());
+					}
 				}
-			}
 			out.close();
 		}
 		catch (IOException e)
@@ -918,7 +920,116 @@ class IntensityView
 					"Please try again.");
 		}
 	}
+	
+	/**
+	 * Get the active channels in the image.
+	 * @param channels which are selected from the channelSelectionForm.
+	 * @return see above.
+	 */
+	private List<Integer> activeChannels(List<Integer> channels)
+	{
+		List<Integer> aChannels = new ArrayList<Integer>();
+		for(Integer i : channels)
+			if(i!=ChannelSelectionForm.SUMMARYVALUE)
+				aChannels.add(i);
+		return aChannels;
+	}
+	
+	/**
+	 * Create summary table with horizontal columns.
+	 * 
+	 * @param out The output stream
+	 * @throws IOException Any io error.
+	 */
+	private void printSummaryHeader(BufferedWriter out) 
+		throws IOException
+	{
+		out.write("channel,");
+		out.write("zsection,");
+		out.write("time,");
+		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
+				out.write(channelSummaryTable.getValueAt(y, 0)+",");
+		out.newLine();
+	}
+	
+	/**
+	 * Output the summary information from the shape map.
+	 * @param out output file.
+	 * @param shapeMap see above.
+	 * @throws IOException
+	 */
+	private void outputSummary(BufferedWriter out, TreeMap<Coord3D, ROIShape> shapeMap) 
+		throws IOException
+	{
+		printSummaryHeader(out);
+		Coord3D start = shapeMap.firstKey();
+		Coord3D end = shapeMap.lastKey();
+		List<Integer> channels = new ArrayList<Integer>(channelName.keySet());
+		for(Integer c : channels)
+		{
+			for(int z = start.getZSection() ; z<= end.getZSection(); z++)
+				for(int t = start.getTimePoint() ; t <= end.getTimePoint(); t++)
+				{
+					Coord3D coord = new Coord3D(z, t);
+					populateData(coord, c);
+					outputSummaryRow(out, c, z, t);
+				}
+		}
+	}
 
+	
+	/**
+	 * Add the any remaining fields (min, max, mean, stdDev) to the file being
+	 * saved. 
+	 * @param channel channel to output. 
+	 * @param z z-section to output.
+	 * @param t timepoint to output.
+	 * @param out The output stream
+	 * @throws IOException Any io error.
+	 */
+	private void outputSummaryRow(BufferedWriter out, Integer channel, int z, int t) 
+		throws IOException
+	{
+		out.write(channelName.get(channel)+",");
+		out.write(z+",");
+		out.write(t+",");
+
+		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
+		{
+			int col = getColumn(channelName.get(channel));
+			if(col == -1)
+				continue;
+			out.write(channelSummaryTable.getValueAt(y, col)+",");
+		}
+		out.newLine();
+	}
+	
+	/** 
+	 * Get the column for the name equal to the string.
+	 * @param name see above.
+	 * @return see above.
+	 */
+	private int getColumn(String name)
+	{
+		for( int i = 0 ; i < channelSummaryModel.getColumnCount(); i++)
+			if(channelSummaryModel.getColumnName(i).equals(name))
+				return i;
+		return -1;
+	}
+
+	/**
+	 * Return true if the user has selected the summary channel.
+	 * @param selection see above.
+	 * @return see above.
+	 */
+	private boolean channelSummarySelected(List<Integer> selection)
+	{
+		for(Integer value: selection)
+			if(value==ChannelSelectionForm.SUMMARYVALUE)
+				return true;
+		return false;
+	}
+	
 	/**
 	 * Writes the header information for the file, image, projects, dataset.
 	 * 
@@ -931,9 +1042,9 @@ class IntensityView
 	{
 		out.write("Image , "+model.getImageName());
 		out.newLine();
-		out.write("Z ,"  + currentCoord.getZSection()+1);
+		out.write("Z ,"  + (currentCoord.getZSection()+1));
 		out.newLine();
-		out.write("T ,"  + currentCoord.getTimePoint()+1);
+		out.write("T ,"  + (currentCoord.getTimePoint()+1));
 		out.newLine();
 	}
 	
@@ -981,26 +1092,6 @@ class IntensityView
 		}
 	}
 	
-	/**
-	 * Add the any remaining fields (min, max, mean, stdDev) to the file being
-	 * saved. 
-	 * 
-	 * @param out The output stream
-	 * @throws IOException Any io error.
-	 */
-	private void addSummaryTable(BufferedWriter out) 
-		throws IOException
-	{
-		for(int x = 0 ; x < channelSummaryTable.getColumnCount(); x++)
-				out.write(channelSummaryTable.getColumnName(x)+",");
-		out.newLine();
-		for(int y = 0 ; y < channelSummaryTable.getRowCount() ; y++)
-		{
-			for(int x = 0 ; x < channelSummaryTable.getColumnCount(); x++)
-				out.write(channelSummaryTable.getValueAt(y, x)+",");
-			out.newLine();
-		}
-	}
 	
 	/** 
 	 * 	Action called when the combo box changed. 
@@ -1063,7 +1154,10 @@ class IntensityView
 		Object[] nameColour = (Object[])channelSelection.getSelectedItem();
 		String string = (String)nameColour[1];
 		if(!nameMap.containsKey(string))
+		{
+			state=State.READY;
 			return;
+		}
 		selectedChannelName = string;
 		int channel = nameMap.get(string);
 		

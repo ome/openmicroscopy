@@ -97,7 +97,7 @@ class ChannelSelectionForm
 		while (nameIterator.hasNext())
 		{
 			cBox = new JCheckBox(channelNames.get(nameIterator.next()));
-			cBox.setSelected(true);
+			cBox.setSelected(false);
 			checkBox.add(cBox);
 		}
 	}

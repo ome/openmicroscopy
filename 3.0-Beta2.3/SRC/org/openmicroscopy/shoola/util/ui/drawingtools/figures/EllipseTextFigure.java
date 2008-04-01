@@ -33,15 +33,19 @@ import java.awt.Graphics2D;
 import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.LinkedList;
 import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.EllipseFigure;
 import org.jhotdraw.draw.Figure;
+import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextHolderFigure;
 import org.jhotdraw.draw.Tool;
+import org.jhotdraw.draw.TransformHandleKit;
 import org.jhotdraw.geom.Insets2D;
+import org.jhotdraw.samples.svg.figures.SVGEllipseFigure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
@@ -61,7 +65,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.texttools.DrawingTextTool;
  * @since OME3.0
  */
 public class EllipseTextFigure
-	extends EllipseFigure
+	extends RotateEllipseFigure
 	implements TextHolderFigure
 {
 	
@@ -116,7 +120,18 @@ public class EllipseTextFigure
 		textBounds = null;
 		editable = true;
 	}
-	 
+	
+	@Override 
+	public LinkedList<Handle> createHandles(int detailLevel) 
+	{
+		LinkedList<Handle> handles = new LinkedList<Handle>();
+	    if (detailLevel == 0) 
+	    {
+	            TransformHandleKit.addTransformHandles(this, handles);
+	    }
+	    return handles;
+	}
+	   
 	/** 
 	 * Returns the bounds of the text.
 	 * 

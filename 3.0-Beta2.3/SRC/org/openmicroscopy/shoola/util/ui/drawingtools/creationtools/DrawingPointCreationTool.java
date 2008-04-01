@@ -99,26 +99,7 @@ public class DrawingPointCreationTool
 	public void mousePressed(MouseEvent evt)
 	{	
 		super.mousePressed(evt);
-		/*
-		getView().clearSelection();
-		creationEdit = new CompositeEdit("Figur erstellen");
-		getDrawing().fireUndoableEditHappened(creationEdit);
-		createdFigure=createFigure();
-		
-
-		Point2D.Double p=constrainPoint(viewToDrawing(new 
-			Point(	(int)(evt.getX()-MeasurePointFigure.FIGURESIZE/2), 
-					(int)(evt.getY()-MeasurePointFigure.FIGURESIZE/2))));
-		Point2D.Double p2=constrainPoint(viewToDrawing(new 
-			Point(	(int)(evt.getX()+MeasurePointFigure.FIGURESIZE/2), 
-					(int)(evt.getY()+MeasurePointFigure.FIGURESIZE/2))));
-		createdFigure.willChange();
-		createdFigure.basicSetBounds((p), p2);
-		createdFigure.changed();
-		createdFigure = createFigure();
-		*/
 		setBasicBounds(evt.getX(), evt.getY());
-		//getDrawing().add(createdFigure);
 	}
 	
 	/**

@@ -36,10 +36,8 @@ import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -611,7 +609,7 @@ class MeasurementViewerUI
     /**
      * Selects the current figure based on ROIid, t and z sections.
      * 
-     * @param ROIid The id of the selected ROI.
+     * @param ROIid     The id of the selected ROI.
      * @param t 	The corresponding timepoint.
      * @param z 	The corresponding z-section.
      */
@@ -926,6 +924,7 @@ class MeasurementViewerUI
 					newShape.getFigure().addFigureListener(controller);
 					getDrawing().addDrawingListener(controller);
 				}
+				newShape.getFigure().calculateMeasurements();
 			}
 			roiManager.addROIShapes(addedShapes);
 		}

@@ -631,8 +631,8 @@ public class OutputStrategy
 		
 		double rx=fig.getWidth()/2d;
 		double ry=fig.getHeight()/2d;
-		double cx=fig.getX()+rx;
-		double cy=fig.getY()+ry;
+		double cx=fig.getCentreX();
+		double cy=fig.getCentreY();
 		ellipseElement.setAttribute(IOConstants.CX_ATTRIBUTE, cx+"");
 		ellipseElement.setAttribute(IOConstants.CY_ATTRIBUTE, cy+"");
 		ellipseElement.setAttribute(IOConstants.RX_ATTRIBUTE, rx+"");
