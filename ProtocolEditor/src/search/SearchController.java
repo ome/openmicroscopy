@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
@@ -14,7 +15,9 @@ import javax.swing.text.JTextComponent;
 
 import ui.AbstractComponent;
 import ui.IModel;
+import ui.XMLView;
 import util.ImageFactory;
+import xmlMVC.XMLModel;
 
 /*
  *------------------------------------------------------------------------------
@@ -166,13 +169,23 @@ public class SearchController
 		
 		if (file == null) return;
 		
-		// if file has not been saved yet, needs to be saved, so file can be passed to search
-		if (file.getName().equals("untitled")) {
-			// this would over-write any old "untitled" file in this location
+		/*
+		 * if file has not been saved yet, needs to be saved, so file can be passed to search.
+		 */ 
+		if (!file.exists()) {
+			
+			// Need to save the file, to use it for searching...
 			model.saveTreeToXmlFile(file);
+				
+			searchFiles(file);
+				
+			// but don't want to leave it there, otherwise it will be used for future searches! 
+			file.delete();
+				
+		} else {
+			searchFiles(file);
 		}
-		
-		searchFiles(file);
+
 	}
 
 	/**

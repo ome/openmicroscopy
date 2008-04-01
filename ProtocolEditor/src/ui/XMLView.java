@@ -325,6 +325,7 @@ public class XMLView
 		addButton(Controller.COPY_FIELD, "", tb, protocolEditToolBar);
 		addButton(Controller.PASTE_FIELD, "", tb, protocolEditToolBar);
 		addButton(Controller.IMPORT_FIELD, "", tb, protocolEditToolBar);
+		addButton(Controller.IMPORT_TEXT, "", tb, protocolEditToolBar);
 
 		
 		/*
@@ -518,14 +519,21 @@ public class XMLView
 			JMenuItem pasteFieldsMenuItem = new JMenuItem(controller.getAction(Controller.PASTE_FIELD));
 			setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_V);
 			protocolMenu.add(pasteFieldsMenuItem);
-			protocolMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_FIELD)));
 			menuBar.add(protocolMenu);
+			
+			
+			// Import menu
+			JMenu importMenu = new JMenu("Import");
+			importMenu.setBorder(menuItemBorder);
+			importMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_FIELD)));
+			importMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_TEXT)));
+			
+			menuBar.add(importMenu);
 			
 			
 			// Calendar menu
 			JMenu calendarMenu = new JMenu("Calendar");
 			calendarMenu.setBorder(menuItemBorder);
-			
 			calendarMenu.add(new JMenuItem(controller.getAction(Controller.OPEN_CALENDAR)));
 			calendarMenu.add(new JMenuItem(controller.getAction(Controller.REPOPULATE_CALENDAR)));
 			

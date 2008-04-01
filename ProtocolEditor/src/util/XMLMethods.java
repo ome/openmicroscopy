@@ -49,11 +49,15 @@ import tree.DataFieldConstants;
 public class XMLMethods {
 
 	ArrayList<HashMap> elementList = new ArrayList<HashMap>();
-	
-
-// given an xml file, this method returns an arrayList of elements, 
-// each one as a hashmap of attributes (elementPath+attributeName, value)
-public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFoundException, SAXParseException {
+		
+	/**
+	 * Given an xml file, this method returns an arrayList of elements, 
+	 * each one as a hashmap of attributes (elementPath+attributeName, value)
+	 * 
+	 * This is used for displaying the results of file searches: Need to highlight the 
+	 * context of the search keyword by showing which element it is in etc. 
+	 */
+	public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFoundException, SAXParseException {
 	
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -81,6 +85,13 @@ public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFound
 	}
 	
 	
+	/**
+	 * This is the content handler that builds a hashMap from each XML element, and adds
+	 * each hashMap to the elementList. 
+	 * 
+	 * @author will
+	 *
+	 */
 	public class XMLContentHandler extends DefaultHandler {
 		
 		String elementPath = "";
@@ -114,6 +125,14 @@ public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFound
 		
 	}
 	
+	
+	/**
+	 * Static method to convert an XML file into a DOM Document. 
+	 * 
+	 * @param xmlFile
+	 * @return	A DOM Document
+	 * @throws SAXException
+	 */
 	public static Document readXMLtoDOM(File xmlFile) throws SAXException{
 		DocumentBuilderFactory factory =
             DocumentBuilderFactory.newInstance();

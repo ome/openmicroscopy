@@ -23,6 +23,7 @@
 package tree;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Stack;
@@ -61,7 +62,7 @@ public class DataField
 	
 	
 	// Datafield has attributes stored in LinkedHashMap
-	LinkedHashMap<String, String> allAttributesMap;
+	HashMap<String, String> allAttributesMap;
 	
 	// used for display purposes. Corresponds to list of selectedFields in Tree.
 	boolean fieldSelected = false;
@@ -92,7 +93,7 @@ public class DataField
 
 	}
 	
-	public DataField(LinkedHashMap<String, String> allAttributesMap, DataFieldNode node) {
+	public DataField(HashMap<String, String> allAttributesMap, DataFieldNode node) {
 		this.node = node;
 		
 		this.allAttributesMap = allAttributesMap;
@@ -104,7 +105,7 @@ public class DataField
 		this.node = node;
 		
 //		 get all attributes of the original datafield, make a copy
-		LinkedHashMap<String, String> allAttributes = dataFieldToCopy.getAllAttributes();
+		HashMap<String, String> allAttributes = dataFieldToCopy.getAllAttributes();
 		this.allAttributesMap = new LinkedHashMap<String, String>(allAttributes);
 	}
 	
@@ -207,12 +208,12 @@ public class DataField
 		fieldEditor = null;
 		formField = null;
 	}
-	public void setAllAttributes(LinkedHashMap<String, String> attributes) {
+	public void setAllAttributes(HashMap<String, String> attributes) {
 		allAttributesMap = attributes;
 	}
 	
 	// export method. return a LinkedHashMap with all name-value 
-	public LinkedHashMap<String, String> getAllAttributes() {
+	public HashMap<String, String> getAllAttributes() {
 
 		return allAttributesMap;
 	}

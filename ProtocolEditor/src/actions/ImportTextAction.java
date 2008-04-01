@@ -29,37 +29,29 @@ import java.io.File;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
-import cmd.OpenFileCmd;
-
 import ui.IModel;
+import ui.components.TextImporter;
 import util.ImageFactory;
 
 
-public class ImportFieldsAction 
-	extends ProtocolEditorAction {
+public class ImportTextAction extends ProtocolEditorAction {
 	
-	public ImportFieldsAction(IModel model) {
+	public ImportTextAction(IModel model) {
 
 		super(model);
 	
-		putValue(Action.NAME, "Import Fields");
-		putValue(Action.SHORT_DESCRIPTION, "Open an OMERO.editor file or XML file, and select fields to import.");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON)); 
+		putValue(Action.NAME, "Import Text");
+		putValue(Action.SHORT_DESCRIPTION, "Import from a text document via copy and paste.");
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_TEXT_ICON)); 
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		File file = OpenFileCmd.getFileFromUser();
-		model.setImportFile(file);
+		
+		new TextImporter(model);
 	}
 	
 
 	public void stateChanged(ChangeEvent e) {
 		
-		/*
-		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
-		 */
-		setEnabled(fieldsAreEditable());
 	}
-
 }

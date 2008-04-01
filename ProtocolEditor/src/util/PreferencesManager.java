@@ -31,6 +31,8 @@ public class PreferencesManager {
 	
 	public static final String CURRENT_FILES_FOLDER = "currentFilesFolder";
 	
+	public static final String CURRENT_IMAGES_FOLDER = "currentImagesFolder";
+	
 	public static final String CURRENT_EXPORT_FOLDER = "currentExportFolder";
 	
 	public static final String ROOT_FILES_FOLDER = "rootFilesFolder";

@@ -58,7 +58,8 @@ public class ImageFactory {
 	public static final String DUPLICATE_ICON = ICONS_FILE + "window_list.png";
 	public static final String COPY_ICON = ACTION_ICONS_FILE + "eclipse_copy_edit.png";
 	public static final String PASTE_ICON = ACTION_ICONS_FILE + "eclipse_paste_edit.png";
-	public static final String IMPORT_ICON = ACTION_ICONS_FILE + "compfile.png";
+	public static final String IMPORT_ICON = ACTION_ICONS_FILE + "importXml.png";
+	public static final String IMPORT_TEXT_ICON = ACTION_ICONS_FILE + "eclipse_copy_import.png";
 	public static final String BIG_PROTOCOL_ICON = ACTION_ICONS_FILE + "edu_science.png";
 	public static final String PROTOCOL_ICON = ICONS_FILE + "edu_science.png";
 	public static final String COLLAPSED_ICON = ACTION_ICONS_FILE + "1rightarrow.png";
@@ -104,6 +105,9 @@ public class ImageFactory {
 	public static final String LOCKED_ICON = ACTION_ICONS_FILE + "encrypted.png";
 	public static final String LOCKED_ICON_48 = ACTION_ICONS_FILE + "encrypted48.png";
 	public static final String UNLOCKED_ICON = ACTION_ICONS_FILE + "decrypted.png";
+	public static final String NO_IMAGE_ICON = ACTION_ICONS_FILE + "file_broken32.png";
+	public static final String KORGANIZER_ICON = ACTION_ICONS_FILE + "korganizer64.png";
+	
 	
 	
 	public Icon getIcon(String iconPathName) {

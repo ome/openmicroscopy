@@ -21,45 +21,31 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package actions;
+package tree;
 
-import java.awt.event.ActionEvent;
-import java.io.File;
-
-import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
-
-import cmd.OpenFileCmd;
-
-import ui.IModel;
-import util.ImageFactory;
-
-
-public class ImportFieldsAction 
-	extends ProtocolEditorAction {
+/**
+ * An interface used for nodes in the tree.
+ * This has methods for constructing, editing and traversing the tree. 
+ * 
+ * @author will
+ *
+ */
+public interface INode {
 	
-	public ImportFieldsAction(IModel model) {
-
-		super(model);
+	/**
+	 * Add a child to the end of the child list. 
+	 * Also, the child's parent is set as (this). 
+	 * 
+	 * @param child 	The child node
+	 */
+	public void addChild(INode child);
 	
-		putValue(Action.NAME, "Import Fields");
-		putValue(Action.SHORT_DESCRIPTION, "Open an OMERO.editor file or XML file, and select fields to import.");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON)); 
-	}
 	
-	public void actionPerformed(ActionEvent e) {
-		File file = OpenFileCmd.getFileFromUser();
-		model.setImportFile(file);
-	}
-	
-
-	public void stateChanged(ChangeEvent e) {
-		
-		/*
-		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
-		 */
-		setEnabled(fieldsAreEditable());
-	}
+	/**
+	 * Sets the node's reference to a parent node. 
+	 * 
+	 * @param parent	The parent node.
+	 */
+	public void setParent(INode parent);
 
 }

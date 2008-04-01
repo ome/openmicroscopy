@@ -61,7 +61,7 @@ public class DefaultExport
 	public String DIV = "\n";
 	public String DIV_CLASS_PROTOCOL = "\n";
 	public String DIV_CLASS_ATTRIBUTE = "\n";
-	public String DIV_END = "\n";
+	public String DIV_END = "";
 	
 	public String SPAN_CLASS_ELEMENT_NAME = "";
 	public String SPAN_END = "";
@@ -203,7 +203,7 @@ public class DefaultExport
 		if (!showEveryField)
 			subStepsCollapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
 			
-		LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
+		HashMap<String, String> allAttributes = dataField.getAllAttributes();
         	
 		String divHeader = "";
 			
@@ -268,7 +268,7 @@ public class DefaultExport
 	}
 	
 	
-	private void printAllAttributes(LinkedHashMap<String, String> allAttributes, PrintWriter outputStream) {
+	private void printAllAttributes(HashMap<String, String> allAttributes, PrintWriter outputStream) {
 		
 		//		 print any remaining attributes
 		Iterator keyIterator = allAttributes.keySet().iterator();
@@ -292,7 +292,7 @@ public class DefaultExport
 		}
 	}
 	
-	private void printTableData(LinkedHashMap<String, String> allAttributes, PrintWriter outputStream) {
+	private void printTableData(HashMap<String, String> allAttributes, PrintWriter outputStream) {
 		
 		String colNames = allAttributes.get(DataFieldConstants.TABLE_COLUMN_NAMES);
 		if (colNames == null) return;

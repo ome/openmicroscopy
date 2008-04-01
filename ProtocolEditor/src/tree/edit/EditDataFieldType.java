@@ -22,6 +22,7 @@
 
 package tree.edit;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -31,13 +32,13 @@ import tree.DataField;
 public class EditDataFieldType extends AbstractUndoableEdit {
 	
 	private DataField dataField;
-	private LinkedHashMap<String, String> oldAttributes;
-	private LinkedHashMap<String, String> newAttributes;
+	private HashMap<String, String> oldAttributes;
+	private HashMap<String, String> newAttributes;
 
 	
-	public EditDataFieldType(DataField dataField, LinkedHashMap<String, String> allAttributes) {
+	public EditDataFieldType(DataField dataField, HashMap<String, String> allAttributes) {
 		this.dataField = dataField;
-		this.oldAttributes = new LinkedHashMap<String, String>(allAttributes);
+		this.oldAttributes = new HashMap<String, String>(allAttributes);
 	}
 	
 	public void undo() {

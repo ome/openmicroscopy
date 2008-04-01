@@ -24,6 +24,7 @@ package tree;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Stack;
@@ -45,6 +46,7 @@ import org.w3c.dom.NodeList;
 import tree.edit.EditAddField;
 import tree.edit.EditClearFields;
 import tree.edit.EditCopyDefaultValues;
+import tree.edit.EditDataFieldType;
 import tree.edit.EditDeleteField;
 import tree.edit.EditDemoteFields;
 import tree.edit.EditDuplicateFields;
@@ -64,7 +66,8 @@ import validation.XMLSchema;
 // Tree manages the tree data structure
 // also knows which fields are currently selected (applies actions to these)
 
-public class Tree {
+public class Tree 
+	implements ITreeModel {
 	
 	// this enum specifies a constructor that takes a String name, returned by toString();
 	public enum Actions {MOVE_FIELDS_UP("Move Fields Up"), MOVE_FIELDS_DOWN("Move Fields Down"), 
@@ -100,6 +103,14 @@ public class Tree {
 	UndoableEditSupport undoSupport; // event support
 	
 	
+	/**
+	 * Creates a completely blank tree. 
+	 * This is so that other classes can build a tree themselves, using the 
+	 * methods of ITreeModel. 
+	 */
+	public Tree() {
+		initialise();
+	}
 	
 	public Tree(Document document, SelectionObserver selectionObserver, XMLUpdateObserver xmlObserver) {
 		
@@ -238,7 +249,6 @@ public class Tree {
 		rootField.setAttribute(DataFieldConstants.ELEMENT_NAME, "Title - click to edit", false);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
-		newNode.setParent(rootNode);
 		rootNode.addChild(newNode);
 	}
 	
@@ -258,7 +268,7 @@ public class Tree {
 
 				 parseElementToMap(element, allAttributes);
 				 DataFieldNode newNode = new DataFieldNode(allAttributes, dfNode, this);
-				 dfNode.addChild(newNode);
+				 dfNode.addChild(newNode);	// sets dfNode as parent
 				 buildTreeFromDOM(newNode, element);
 			 }
 			 
@@ -418,6 +428,23 @@ public class Tree {
 		
 		setTreeEdited(true);
 	}
+	
+	
+	/**
+	 * Creates a new root node. 
+	 * This will effectively delete the existing tree. 
+	 * Removes all references to existing fields (clears highlighted fields). 
+	 * This action is not added to undo/redo.
+	 * ITreeModel interface. 
+	 * 
+	 * @param node
+	 */
+	public void setRootNode(DataFieldNode node) {
+		
+		highlightedFields.clear();
+		
+		rootNode = node;
+	}
 
 	// duplicates all branches below oldNode, adding them to newNode
 	private static void duplicateDataFieldTree(DataFieldNode oldNode, DataFieldNode newNode) {
@@ -428,7 +455,6 @@ public class Tree {
 			for (DataFieldNode copyThisChild: children){
 			 
 				DataFieldNode newChild = new DataFieldNode(copyThisChild);
-				newChild.setParent(newNode);	// this will give newChild a ref to tree
 				
 				newNode.addChild(newChild);
 				
@@ -449,7 +475,9 @@ public class Tree {
 		undoSupport.postEdit(edit);
 	}
 
-	// add the newNode as a child of parentNode at the specified index
+	/**
+	 *  add the newNode as a child of parentNode at the specified index
+	 */
 	public static void addDataField(DataFieldNode newNode, DataFieldNode parentNode, int indexToInsert) {
 		newNode.setParent(parentNode);
 		parentNode.addChild(indexToInsert, newNode);
@@ -618,7 +646,6 @@ public class Tree {
 		// move nodes
 		for (DataFieldNode highlightedField: fields) {
 			preceedingSiblingNode.addChild(highlightedField);
-			highlightedField.setParent(preceedingSiblingNode);
 		}
 //		 delete them from the end (reverse order)
 		for (int i=fields.size()-1; i>=0; i--) {
@@ -670,7 +697,6 @@ public class Tree {
 		for (int i=indexOfLast+1; i< numChildren; i++) {
 			DataFieldNode nodeToCopy = lastNodeParent.getChild(i);
 			lastNode.addChild(nodeToCopy);
-			nodeToCopy.setParent(lastNode);
 		}
 		// delete them from the end (reverse order)
 		for (int i=numChildren-1; i>indexOfLast; i--) {
@@ -789,7 +815,7 @@ public class Tree {
 			Element element = document.createElement(elementName);  
 			
 			// get all attributes of the dataField
-			LinkedHashMap<String, String> allAttributes = rootField.getAllAttributes();
+			HashMap<String, String> allAttributes = rootField.getAllAttributes();
 			// also get attributes required for Protocol Editor xsd schema (unless custom)
 			if (!customElement) {
 				LinkedHashMap<String, String> schemaAttributes = XMLSchema.getRootAttributes();
@@ -831,7 +857,7 @@ public class Tree {
 			
 			Element element = document.createElement(elementName);
 			
-			LinkedHashMap<String, String> allAttributes = dataField.getAllAttributes();
+			HashMap<String, String> allAttributes = dataField.getAllAttributes();
 			parseAttributesMapToElement(allAttributes, element);
 			
 			// if custom xml Element that has a text node value, save it! 
@@ -848,7 +874,7 @@ public class Tree {
 	}
 	
 	// copies each dataField's attribute Hash Map into element's attributes
-	private static void parseAttributesMapToElement(LinkedHashMap<String, String> allAttributes, Element element) {
+	private static void parseAttributesMapToElement(HashMap<String, String> allAttributes, Element element) {
 		
 		String inputType = allAttributes.get(DataFieldConstants.INPUT_TYPE);
 		boolean customElement = false;
@@ -1073,8 +1099,6 @@ public class Tree {
 		
 		setTreeEdited(true);
 		selectionChanged();	// xml will be validated etc.
-		
-		// add dataField ref to new undo action
 		
 	}
 	

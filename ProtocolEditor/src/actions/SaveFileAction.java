@@ -45,10 +45,11 @@ public class SaveFileAction
 	
 	
 	public void actionPerformed(ActionEvent event) {
-		// if the current file is not saved (still called "untitled")
+		// if the current file is not saved (still called eg "untitled2")
 		if (model.getCurrentFile() == null) return;
 		
-		if (model.getCurrentFile().getName().equals("untitled")) {
+		// This will work unless the user has previously saved their file as "untitled"!
+		if (model.getCurrentFile().getName().contains("untitled")) {
 			Action action = new SaveFileAsAction(model);
 			action.actionPerformed(event);
 		}

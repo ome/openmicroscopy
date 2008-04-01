@@ -162,6 +162,12 @@ public class DataFieldConstants {
 	public static final String IMAGE_PATH = "imagePath";
 	
 	/**
+	 * Used by the ImageField to store a file path to an image. 
+	 * This is a relative file path, FROM the editor file in which this field appears TO the image 
+	 */
+	public static final String RELATIVE_IMAGE_PATH = "relativeImagePath";
+	
+	/**
 	 * This attribute stores an integer that is the image zoom (percentage) for the
 	 * ImageField. eg imageZoom = "50" would display the image at 50% full size. 
 	 */

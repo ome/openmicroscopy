@@ -1,4 +1,3 @@
-package xmlMVC;
 
 /*
  *------------------------------------------------------------------------------
@@ -22,6 +21,7 @@ package xmlMVC;
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
+package xmlMVC;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -91,6 +91,12 @@ public class XMLModel
 	CalendarMain omeroEditorCalendar;
 	
 	/**
+	 * The folder that should be used to store all temp. files, config files, logs etc. 
+	 */
+	public static final String OMERO_EDITOR_FILE = System.getProperty("user.home") + File.separator +
+		"omero" + File.separator+ "Editor";
+	
+	/**
 	 * These strings are used to add a "version" attribute to the XML documents saved by this application.
 	 * But this scheme has not been strictly adhered to yet (no breaking changes to XML schema yet).
 	 */
@@ -143,7 +149,7 @@ public class XMLModel
 
 			
 		// catch any uncaught exceptions	
-		} catch (Exception se) {
+		} catch (Throwable se) {
 			
 			se.printStackTrace();
 			// give users chance to submit bug.
@@ -504,13 +510,29 @@ public class XMLModel
 		currentTree = new Tree(this, this);
 		openFiles.add(currentTree);
 		// create new file(name)
-		setCurrentFile(new File("untitled" + (newFileNamingIndex < 2 ? "" : newFileNamingIndex)));
+		setCurrentFile(new File(OMERO_EDITOR_FILE + File.separator + "untitled" 
+				+ (newFileNamingIndex < 2 ? "" : newFileNamingIndex) + ".tmp"));
 		newFileNamingIndex++;
 		
 		xmlUpdated();
 	}
 	
-
+	/**
+	 * Allows classes that have created their own trees to open them as new
+	 * files. 
+	 * 
+	 * @param tree
+	 */
+	public void openTree(Tree tree) {
+		
+		currentTree = tree;
+		openFiles.add(currentTree);
+		// create new file(name)
+		setCurrentFile(new File("untitled" + (newFileNamingIndex < 2 ? "" : newFileNamingIndex)));
+		newFileNamingIndex++;
+		
+		xmlUpdated();
+	}
 	
 	public ArrayList<IAttributeSaver> getObservationFields() {
 		if(getCurrentTree() == null) 

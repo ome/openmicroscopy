@@ -23,6 +23,7 @@
 package tree;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
@@ -30,7 +31,8 @@ import javax.swing.JPanel;
 import javax.swing.undo.AbstractUndoableEdit;
 
 
-public class DataFieldNode {
+public class DataFieldNode 
+	implements INode {
 	
 	DataField dataField;
 	
@@ -41,7 +43,7 @@ public class DataFieldNode {
 	DataFieldNode parent;
 	
 	// constructor 
-	public DataFieldNode(LinkedHashMap<String, String> allAttributesMap, DataFieldNode parent, Tree tree) {
+	public DataFieldNode(HashMap<String, String> allAttributesMap, DataFieldNode parent, Tree tree) {
 		this.parent = parent;
 		this.tree = tree;
 		children = new ArrayList<DataFieldNode>();
@@ -49,9 +51,10 @@ public class DataFieldNode {
 	}
 	
 	// this constructor used for root node (no parent)
-	public DataFieldNode(LinkedHashMap<String, String> allAttributesMap,  Tree tree) {
+	public DataFieldNode(HashMap<String, String> allAttributesMap,  ITreeModel tree) {
 		this.parent = null;
-		this.tree = tree;
+		if (tree instanceof Tree)
+		this.tree = (Tree)tree;
 		children = new ArrayList<DataFieldNode>();
 		dataField = new DataField(allAttributesMap, this);
 	}
@@ -90,9 +93,25 @@ public class DataFieldNode {
 		return parent.indexOfChild(this);
 	}
 	
-	public void setParent(DataFieldNode parent) {
-		this.parent = parent;
-		if (tree == null) tree = parent.getTree();
+	/**
+	 * When adding a new node to a tree, it needs a reference to it's parent, to 
+	 * allow complete tree traversal. This method sets the parent of a node. 
+	 * 
+	 * A node should also have a reference to the Tree that contains it.
+	 * @see tree
+	 * In order that new nodes can be added to existing nodes to build a 
+	 * tree, without first needing a reference to tree...
+	 * This method updates the child node with a reference to the Tree class 
+	 * via the existing node (parent) in the tree (which already should 
+	 * have a reference to tree). 
+	 * 
+	 * @param parent
+	 */
+	public void setParent(INode parent) {
+		if (parent instanceof DataFieldNode) {
+			this.parent = (DataFieldNode)parent;
+			if (tree == null) tree = ((DataFieldNode)parent).getTree();
+		}
 	}
 	
 	// iterator code, from http://www.cs.bc.edu/~sciore/courses/cs353/coverage.html  chapter 23
@@ -103,9 +122,20 @@ public class DataFieldNode {
 		return new TreeIterator(this);
 	}
 	
-	public void addChild(DataFieldNode dataFieldNode) {
-		children.add(dataFieldNode);
+	/**
+	 * Add a child to the end of the child list. 
+	 * Also, the child's parent is set as (this). 
+	 * 
+	 * @param dataFieldNode
+	 */
+	public void addChild(INode dataFieldNode) {
+		if (dataFieldNode instanceof DataFieldNode) {
+			children.add((DataFieldNode)dataFieldNode);
+		}
+		dataFieldNode.setParent(this);
 	}
+	
+	
 	public void addChild(int index, DataFieldNode dataFieldNode) {
 		children.add(index, dataFieldNode);
 	}

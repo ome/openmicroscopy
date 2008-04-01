@@ -24,41 +24,116 @@
 package ui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
 import java.io.StringReader;
+import java.util.HashMap;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.text.JTextComponent;
+
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
+
+import tree.DataFieldConstants;
+import tree.DataFieldNode;
+import tree.ITreeModel;
+import tree.Tree;
+import ui.IModel;
+import ui.SelectionObserver;
+import ui.XMLUpdateObserver;
+import util.ImageFactory;
+import xmlMVC.XMLModel;
 
 
 public class TextImporter extends JPanel{
 
+	IModel model;
+	
+	ITreeModel tree;
+	
+	JFrame frame;
+	
 	protected JTextArea textArea;
 	
-	public TextImporter() {
+	private String headerMessage = "Please paste the text you wish to import into the text area below. \n" +
+			"Each new line will become a new field when imported.";
+	
+	public TextImporter(IModel model) {
+		
+		this.model = model;
+		
+		SelectionObserver sO = (SelectionObserver)model;
+		XMLUpdateObserver xO = (XMLUpdateObserver)model;
+		
+		tree = new Tree(sO, xO);
+		
 		
 		setLayout(new BorderLayout());
 		
-		textArea = new JTextArea();
+		int panelWidth = 800;
 		
-		textArea.setText("new string test \nnew line");
+		
+		this.setPreferredSize(new Dimension(panelWidth, 500));
+		
+		// Header.
+		TitlePanel titlePanel = new TitlePanel("Import Text", headerMessage, 
+				ImageFactory.getInstance().getIcon(ImageFactory.KORGANIZER_ICON));
+		add(titlePanel, BorderLayout.NORTH);
+		
+		// Text Area...
+		textArea = new JTextArea();
+		textArea.setText("<Paste your text here>");
+		textArea.setWrapStyleWord(true);
+		textArea.setLineWrap(true);
+		textArea.addFocusListener(new TextAreaFocusListener());
 		
 		textArea.setRows(20);
 		textArea.setColumns(40);
 		
-		this.add(textArea, BorderLayout.CENTER);
+		// ... in a scroll pane
+		Dimension scrollPaneSize = new Dimension(panelWidth, 350);
+		JScrollPane scrollPane = new JScrollPane(textArea, 
+				 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setPreferredSize(scrollPaneSize);
+		scrollPane.setMinimumSize(scrollPaneSize);
 		
-		JButton importButton = new JButton("import");
+		this.add(scrollPane, BorderLayout.CENTER);
+		
+		
+		// Buttons
+		JButton importButton = new JButton("Import");
 		importButton.addActionListener(new ImportListener());
-		this.add(importButton, BorderLayout.SOUTH);
+		importButton.setSelected(true);
 		
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				frame.setVisible(false);
+			}
+		});
+		
+		Box buttonBox = Box.createHorizontalBox();
+		buttonBox.add(cancelButton);
+		buttonBox.add(importButton);
+		buttonBox.add(Box.createHorizontalStrut(12));
+		JPanel buttonBoxContainer = new JPanel(new BorderLayout());
+		buttonBoxContainer.add(buttonBox, BorderLayout.EAST);
+		this.add(buttonBoxContainer, BorderLayout.SOUTH);
+	
+		displayInFrame(this);
 	}
 	
 	
@@ -74,10 +149,40 @@ public class TextImporter extends JPanel{
 			try {
 				String newLine = br.readLine();
 				
+				/*
+				 * Create the root node of a tree.
+				 */
+				
+				HashMap<String,String> attributeMap = new HashMap<String,String>();
+				attributeMap.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.PROTOCOL_TITLE);
+				attributeMap.put(DataFieldConstants.ELEMENT_NAME, newLine);
+				
+				DataFieldNode rootNode = new DataFieldNode(attributeMap, tree);
+				
+				tree.setRootNode(rootNode);
+				
+				newLine = br.readLine();
+				
 				while (newLine != null) {
 					System.out.println(newLine);
+					
+					/*
+					 * For each new line, Take the text, put it in a new node,
+					 * and add the node as a child of root node. 
+					 */
+					if (newLine.length() > 0) {
+						HashMap<String,String> map = new HashMap<String,String>();
+						map.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.FIXED_PROTOCOL_STEP);
+						map.put(DataFieldConstants.ELEMENT_NAME, newLine);
+					
+						DataFieldNode newNode = new DataFieldNode(map, tree);
+						rootNode.addChild(newNode);
+					}
+					
 					newLine = br.readLine();
 				}
+				
+				model.openTree((Tree)tree);
 				
 			} catch (IOException ioEx) {
 				// TODO Auto-generated catch block
@@ -87,14 +192,27 @@ public class TextImporter extends JPanel{
 		
 	}
 	
-	public static void main(String[] args) {
+	public class TextAreaFocusListener implements FocusListener {
+		public void focusGained(FocusEvent e) {
+			if (e.getSource() instanceof JTextComponent) {
+				JTextComponent source = (JTextComponent)e.getSource();
+				int textLength = source.getText().length();
+				source.setSelectionStart(0);
+				source.setSelectionEnd(textLength);
+			}
+		}
+		public void focusLost(FocusEvent e) {}
 		
-		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	public void displayInFrame(JPanel panel) {
 		
-		frame.getContentPane().add(new TextImporter());
+		frame = new JFrame();
+		
+		frame.getContentPane().add(panel);
 		
 		frame.pack();
+		frame.setLocation(50, 50);
 		frame.setVisible(true);
 	}
 	

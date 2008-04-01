@@ -21,45 +21,27 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package actions;
+package tree;
 
-import java.awt.event.ActionEvent;
-import java.io.File;
-
-import javax.swing.Action;
-import javax.swing.event.ChangeEvent;
-
-import cmd.OpenFileCmd;
-
-import ui.IModel;
-import util.ImageFactory;
-
-
-public class ImportFieldsAction 
-	extends ProtocolEditorAction {
+public interface ITreeModel {
 	
-	public ImportFieldsAction(IModel model) {
-
-		super(model);
+	/**
+	 * Creates a new root node. 
+	 * This will effectively delete the existing tree. 
+	 * Removes all references to existing fields (clears highlighted fields). 
+	 * This action is not added to undo/redo.
+	 * ITreeModel interface. 
+	 * 
+	 * @param node
+	 */
+	public void setRootNode(DataFieldNode node);
 	
-		putValue(Action.NAME, "Import Fields");
-		putValue(Action.SHORT_DESCRIPTION, "Open an OMERO.editor file or XML file, and select fields to import.");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON)); 
-	}
 	
-	public void actionPerformed(ActionEvent e) {
-		File file = OpenFileCmd.getFileFromUser();
-		model.setImportFile(file);
-	}
-	
-
-	public void stateChanged(ChangeEvent e) {
-		
-		/*
-		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
-		 */
-		setEnabled(fieldsAreEditable());
-	}
+	/**
+	 * Gets a reference to the root node of the tree. 
+	 * 
+	 * @return		The root node of the tree. 
+	 */
+	public DataFieldNode getRootNode();
 
 }

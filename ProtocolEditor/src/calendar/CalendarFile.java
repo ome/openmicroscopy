@@ -233,16 +233,20 @@ public class CalendarFile extends CalendarObject {
 					
 					Element dateTimeElement = (Element)dateTimeNodes.item(i);
 					
+					// DateField elements store date as a String "Dec 3, 2007" in "value" attribute..
 					String formattedDate = dateTimeElement.getAttribute(DataFieldConstants.VALUE);
-					System.out.println("formattedDate = " + formattedDate);
-					Date date = FieldEditorDate.getDateFromString(formattedDate);
+					
+					Date date = null;
+					if ((formattedDate != null) && (formattedDate.length() > 0)) {
+						date = FieldEditorDate.getDateFromString(formattedDate);
+					}
 					
 					// create a new calendar (don't want to change time of calendars added to list).
 					gc = new GregorianCalendar();
 					if (date != null)
 						gc.setTime(date);
 					else {
-						System.out.println("DATE == null.  formattedDate = " + formattedDate);
+						// System.out.println("DATE == null.  formattedDate.length() = " + formattedDate.length());
 						// if no date was set, ignore this DateField
 						continue;
 					}

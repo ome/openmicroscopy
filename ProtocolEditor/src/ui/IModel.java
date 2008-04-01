@@ -27,6 +27,7 @@ import java.util.List;
 
 import tree.DataField;
 import tree.DataFieldNode;
+import tree.Tree;
 import tree.Tree.Actions;
 
 /**
@@ -59,6 +60,14 @@ public interface IModel {
 	public boolean areAncestorFieldsLocked();
 	
 	public void openBlankProtocolFile();
+	
+	/**
+	 * Allows classes that have created their own trees to open them as new
+	 * files. 
+	 * 
+	 * @param tree
+	 */
+	public void openTree(Tree tree);
 	
 	public void openThisFile(File file);
 	
