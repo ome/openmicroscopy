@@ -222,7 +222,7 @@ public class FileManager {
 				
 			} catch (SAXException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// e.printStackTrace();
 				return false;
 			}
 		

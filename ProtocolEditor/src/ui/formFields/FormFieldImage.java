@@ -256,13 +256,18 @@ public class FormFieldImage extends FormField {
 	public String getRelativePathFromAbsolutePath(String imagePath) {
 		
 		File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-		String editorFilePath = editorFile.getAbsolutePath();
+		String editorFilePath = editorFile.getParent();
 		
 		
 		String fileSeparator = File.separator;
 		
-		
 			
+		/*
+		 * Need to split both file paths into arrays of directories in order to see
+		 * how many directories are similar (starting at the root).
+		 * Can't use string.split(File.separator) because the backslash of Windows 
+		 * File.separator causes regex errors. Need to use StringTokenizer...
+		 */
 		StringTokenizer st = new StringTokenizer(editorFilePath, fileSeparator);
 		int tokens = st.countTokens();
 		
@@ -281,49 +286,42 @@ public class FormFieldImage extends FormField {
 	
 		
 		/*
-		 * Count the root directories that are common to both.
+		 * Count the root directories that are common to both file paths. 
 		 */
-		int dirIndex = 0;
-		while(editorFileDirectories[dirIndex].equals(imageFileDirectories[dirIndex])) {
-			dirIndex++;
+		int commonDirsCount = 0;
+		while(editorFileDirectories[commonDirsCount].equals(imageFileDirectories[commonDirsCount])) {
+			commonDirsCount++;
 		}
 		
 		/*
-		 * The relative image file path needs to be built from the remaining tokens... 
+		 * The relative image file path needs to be built from the remaining directories of 
+		 * the image file path.
+		 * This is the path from the last common directory to the image. 
 		 */
 		String relativeFilePath = "";
-		for (int i=dirIndex; i<imageFileDirectories.length; i++) {
+		for (int i=commonDirsCount; i<imageFileDirectories.length; i++) {
 			// don't add fileSeparator at start. 
-			if (i > dirIndex)
+			if (i > commonDirsCount)
 				relativeFilePath = relativeFilePath + File.separator;
 			
 			relativeFilePath = relativeFilePath + imageFileDirectories[i];
 		}
 		
+		/*
+		 * If the editor File has additional directories after the last common directory...
+		 * See how many...
+		 */
+		int editorFileDirsRemaining = editorFileDirectories.length - commonDirsCount;
 		
 		/*
-		 * If the editor File has additional directories that have not been removed...
-		 * ie if it's home directory has not been removed..
+		 * Add  ../ for every directory level.
 		 */
-		// the home directory is in index: length - 2
-		// dirIndex now points to the first non-matching directory
-		int editorFileDirsRemaining = editorFileDirectories.length - dirIndex;
-		
-		// if this is 1, OK, since this is the editor file name. 
-		if (editorFileDirsRemaining > 1) {
-			
-			/*
-			 * Add  ../ for every directory level. (don't add / on the first time. Already there)
-			 */
-			int dots = editorFileDirsRemaining - 1;
-			
-			for (int i=0; i<dots; i++) {
-				relativeFilePath = ".." + File.separator + relativeFilePath;
-			}
+		for (int i=0; i<editorFileDirsRemaining; i++) {
+			relativeFilePath = ".." + File.separator + relativeFilePath;
 		}
 		
 		// windows troubleshooting!!
-		JOptionPane.showMessageDialog(null, "FormFieldImage getRelativePath  relativeFilePath = " + relativeFilePath);
+		//JOptionPane.showMessageDialog(null, "FormFieldImage getRelativePath  relativeFilePath = " + relativeFilePath);
 		
 		return relativeFilePath;
 	}
@@ -342,14 +340,10 @@ public class FormFieldImage extends FormField {
 		File editorFile = ((DataField)dataField).getNode().getTree().getFile();
 		String editorDirectory = editorFile.getParent();
 		
-		// windows troubleshooting!!
-		JOptionPane.showMessageDialog(null, "editorDirectory " +  editorDirectory);
-		JOptionPane.showMessageDialog(null, "relativeImagePath = " + relativeImagePath);
-		
+
 		/*
-		 * Go up the file tree
+		 * Need to turn the absolute file path of the Editor file into an array of directories...
 		 */
-		
 		StringTokenizer st = new StringTokenizer(editorDirectory, File.separator);
 		int tokens = st.countTokens();
 		
@@ -358,16 +352,21 @@ public class FormFieldImage extends FormField {
 			editorFileDirectories[i] = st.nextToken();
 		}
 		
+		/*
+		 * Count the number of directories that the Editor file path has after the last 
+		 * common directory (that is shared with the image file path).
+		 * This is denoted in the relative file path by the number of "../" at the start
+		 */
 		int filePathExtraDirs = 0;
+		// look for ".." because you don't know what the file separator is...
 		while (relativeImagePath.startsWith("..")) {
-			//System.out.println("absoluteImagePath: " + absoluteImagePath + " " + File.separator);
 			
-			// count the extra directories of the file path, that are not shared by the image path
-			// these must be removed from the absolute file path, before adding the image path. 
 			filePathExtraDirs++;
-			
-			
-			// remove the first 3 characters "../" from the relative image path.
+
+			/* 
+			 * remove the first 3 characters "../" from the relative image path.
+			 * Assume that File.separator is only a single character!!
+			 */ 
 			relativeImagePath = relativeImagePath.substring(3, relativeImagePath.length());
 		}
 		
@@ -384,14 +383,14 @@ public class FormFieldImage extends FormField {
 		}
 		
 		// windows troubleshooting!!
-		JOptionPane.showMessageDialog(null, "absoluteImagePath = " + absoluteImagePath +
-				" relativeImagePath = " + relativeImagePath);
+		//JOptionPane.showMessageDialog(null, "absoluteImagePath = " + absoluteImagePath +
+		//		"\n relativeImagePath = " + relativeImagePath);
 		
-		
+		/*
+		 * Now make the absolute image path by adding the relative file path
+		 * to the common directory path. 
+		 */
 		absoluteImagePath = absoluteImagePath + File.separator + relativeImagePath;
-		
-		// windows troubleshooting!!
-		JOptionPane.showMessageDialog(null, "FormFieldImage getRelativePath  absoluteImagePath = " + absoluteImagePath);
 		
 		return absoluteImagePath;
 	}
@@ -440,10 +439,7 @@ public class FormFieldImage extends FormField {
 		}
 		
 		imageLabel.setIcon(imageIcon);
-		
 		imageLabel.setToolTipText(imagePath);
-		
-		//System.out.println("Imagelabel width " + imageLabel.getWidth() + ", height" + imageLabel.getHeight());
 		
 	}
 	
