@@ -290,6 +290,7 @@ public class FormFieldImage extends FormField {
 		 */
 		int commonDirsCount = 0;
 		while ((commonDirsCount < editorFileDirectories.length) && 
+				(commonDirsCount < imageFileDirectories.length) && 
 				(editorFileDirectories[commonDirsCount].equals(imageFileDirectories[commonDirsCount]))) {
 			commonDirsCount++;
 		}
