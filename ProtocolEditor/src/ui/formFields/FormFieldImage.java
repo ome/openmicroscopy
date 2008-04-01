@@ -289,7 +289,8 @@ public class FormFieldImage extends FormField {
 		 * Count the root directories that are common to both file paths. 
 		 */
 		int commonDirsCount = 0;
-		while(editorFileDirectories[commonDirsCount].equals(imageFileDirectories[commonDirsCount])) {
+		while ((commonDirsCount < editorFileDirectories.length) && 
+				(editorFileDirectories[commonDirsCount].equals(imageFileDirectories[commonDirsCount]))) {
 			commonDirsCount++;
 		}
 		
