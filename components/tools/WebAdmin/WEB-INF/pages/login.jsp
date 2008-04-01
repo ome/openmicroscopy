@@ -66,8 +66,11 @@
 			<div id="button"><h:commandButton id="submit"
 				action="#{LoginBean.login}" value="#{msg.mainOk}" /></div>
 
-			<div id="button"><a href="forgottenPassword.jsf">${msg.mainForgPasswd}</a>
-			<a href="javascript:openHelp()">${msg.mainHelp}</a></div>
+			<div id="button"><c:if
+				test="${sessionScope.LoginBean.passwordMode}">
+				<a href="forgottenPassword.jsf">${msg.mainForgPasswd}</a>
+			</c:if> <a href="javascript:openHelp()">${msg.mainHelp}</a></div>
+
 		</h:form>
 
 	</f:view>

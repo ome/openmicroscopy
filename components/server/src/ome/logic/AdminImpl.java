@@ -942,10 +942,10 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         try {
             this.mailSender.send(msg);
         } catch (Exception ex) {
-            throw new RuntimeException("Password was not changed because email " +
-                    "could not be sent to the " + e.getOmeName()+". Please turn on " +
-                    "the debuge mode in omero.properties by the: " +
-                    "omero.resetpassword.mail.debug=true");
+            throw new RuntimeException("Exception: "+ex.getMessage()+". " +
+                    "Password was not changed because email could not be sent " +
+                    "to the " + e.getOmeName()+". Please turn on the debuge " +
+                    "mode in omero.properties by the: omero.resetpassword.mail.debug=true");
         }
         return true;
     }

@@ -5,9 +5,10 @@
 <f:loadBundle basename="ome.admin.bundle.messages" var="msg" />
 
 <c:if
-	test="${!sessionScope.LoginBean.mode && !sessionScope.LoginBean.role}">
+	test="${(empty sessionScope.LoginBean.mode or sessionScope.LoginBean.mode == false) 
+	    && !sessionScope.LoginBean.role && sessionScope.LoginBean.passwordMode}">
 	<f:view>
-		<div id="addform">
+		<div id="forgottenForm">
 		<h2><h:outputText value="#{msg.forgottenPassword}" /></h2>
 
 		<p><h:outputText value="#{msg.forgottenPasswordInfo}" /></p>

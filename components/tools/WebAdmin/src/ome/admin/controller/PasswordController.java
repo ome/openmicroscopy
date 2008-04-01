@@ -160,8 +160,8 @@ public class PasswordController implements java.io.Serializable {
             context.addMessage("loginForm", message);
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("updatePassword: " + e.getMessage());
-            FacesMessage message = new FacesMessage("Cannot change password: "
+            logger.error("resetPassword: " + e.getMessage());
+            FacesMessage message = new FacesMessage("Cannot reset password: "
                     + e.getMessage());
             context.addMessage("forgottenPassword", message);
             return NavigationResults.FALSE;
@@ -181,7 +181,7 @@ public class PasswordController implements java.io.Serializable {
                         this.email, this.oldPassword, this.newPassword);
                 if (res) {
                     FacesMessage message = new FacesMessage(
-                            "Your password was changed. Please login.");
+                            "Your password was reseted. Please login.");
                     context.addMessage("loginForm", message);
                     return NavigationResults.SUCCESS;
                 } else {
@@ -196,7 +196,7 @@ public class PasswordController implements java.io.Serializable {
                 }
             }
         } catch (Exception e) {
-            logger.error("updatePassword: " + e.getMessage());
+            logger.error("resetPassword: " + e.getMessage());
             FacesMessage message = new FacesMessage("Password exception: "
                     + e.getMessage());
             context.addMessage("expiredPassword", message);

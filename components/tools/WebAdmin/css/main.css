@@ -61,6 +61,9 @@ body {
 #addform {
 	padding-left: 25px;
 }
+#forgottenForm {
+	padding: 25px;
+}
 
 #chart {
 	width: 550px;

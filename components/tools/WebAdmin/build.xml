@@ -13,6 +13,7 @@
 	<property name="build.compiler" value="modern" />
 	<property name="build.dir" value="${basedir}/WEB-INF/classes" />
 	<property name="src.dir" value="${basedir}/src" />
+	<property name="target.dir" value="${basedir}/target" />
 	<property name="war.file" value="WebAdmin" />
 	<property name="war.file.name" value="${war.file}.war" />
 	<property name="jboss.home" value="${env.JBOSS_HOME}" />   
@@ -59,7 +60,10 @@
 		</copy>
 		<copy todir="${build.dir}">
 			<fileset dir="${src.dir}" includes="**/*.properties" />
-		</copy>		
+		</copy>	
+	    <copy todir="${build.dir}">
+			<fileset dir="${target.dir}/generated/resources" includes="omero.properties" />
+		</copy>	
 	</target>
 
 	<target name="cleanWebApp">

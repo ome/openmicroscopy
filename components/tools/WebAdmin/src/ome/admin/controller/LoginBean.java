@@ -10,6 +10,8 @@ package ome.admin.controller;
 // Java imports
 
 // Third-party libraries
+import java.util.ResourceBundle;
+
 import javax.ejb.EJBAccessException;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -76,6 +78,11 @@ public class LoginBean implements java.io.Serializable {
      */
     private boolean mode = false;
 
+    /**
+     * boolean
+     */
+    private boolean passwordMode = false;
+    
     /**
      * Not null
      */
@@ -283,6 +290,17 @@ public class LoginBean implements java.io.Serializable {
         return mode;
     }
 
+    /**
+     * Checks mode
+     * 
+     * @return boolean
+     */
+    public boolean isPasswordMode() {
+        ResourceBundle res = ResourceBundle.getBundle("omero");
+        passwordMode = Boolean.valueOf(res.getString("omero.resetpassword.config"));
+        return passwordMode;
+    }
+    
     /**
      * Get {@link ome.api.IAdmin}
      * 
