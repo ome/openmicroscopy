@@ -236,7 +236,12 @@ public class DataFieldConstants {
 	// attribute values
 	public static final String TRUE = "true";
 	public static final String FALSE = "false";
-	// input types
+	
+	
+	/*
+	 * INPUT TYPES
+	 * 
+	 */
 	public static final String PROTOCOL_TITLE = "ProtocolTitle";
 	public static final String FIXED_PROTOCOL_STEP = "FixedStep";
 	public static final String TEXT_ENTRY_STEP = "TextField";
@@ -248,19 +253,20 @@ public class DataFieldConstants {
 	public static final String DATE_TIME_FIELD = "DateTimeField";
 	public static final String TIME_FIELD = "TimeField";
 	public static final String TABLE = "TableField";
+	public static final String LINK_FIELD = "LinkField";
 	public static final String IMAGE_FIELD = "ImageField";
 	public static final String CUSTOM = "CustomField";
 	public static final String OLS_FIELD = "OntologyLookupServiceField";
 	public static final String OBSERVATION_DEFINITION = "ObservationDefinition";
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
-	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE_TIME_FIELD, TIME_FIELD, TABLE, 
+	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE_TIME_FIELD, TIME_FIELD, LINK_FIELD, TABLE, 
 	IMAGE_FIELD, OLS_FIELD, OBSERVATION_DEFINITION
 	};
 	//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
-	{ "Fixed", "Text  (single line)", "Text Box  (multi-line)", "Drop-down Menu", "Check-Box", "Number", "Date & Time", "Time", "Table", 
+	{ "Fixed", "Text  (single line)", "Text Box  (multi-line)", "Drop-down Menu", "Check-Box", "Number", "Date & Time", "Time", "Link", "Table", 
 		"Image", "Ontology Term", "Phenote Observation"
 		};
 

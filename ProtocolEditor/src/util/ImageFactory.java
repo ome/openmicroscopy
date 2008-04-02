@@ -107,7 +107,9 @@ public class ImageFactory {
 	public static final String UNLOCKED_ICON = ACTION_ICONS_FILE + "decrypted.png";
 	public static final String NO_IMAGE_ICON = ACTION_ICONS_FILE + "file_broken32.png";
 	public static final String KORGANIZER_ICON = ACTION_ICONS_FILE + "korganizer64.png";
-	
+	public static final String NETWORK_LOCAL_ICON = ACTION_ICONS_FILE + "network_local.png";
+	public static final String LINK_LOCAL_ICON = ACTION_ICONS_FILE + "link_local.png";
+	public static final String LINK_SCIENCE_ICON = ACTION_ICONS_FILE + "link_science.png";
 	
 	
 	public Icon getIcon(String iconPathName) {

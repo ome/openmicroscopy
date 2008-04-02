@@ -65,6 +65,7 @@ import ui.Controller;
 import ui.components.CustomPopupMenu;
 import ui.components.FileChooserReturnFile;
 import ui.components.PopupMenuButton;
+import util.FilePathMethods;
 import util.ImageFactory;
 import util.PreferencesManager;
 
@@ -165,16 +166,21 @@ public class FormFieldImage extends FormField {
 			String imagePath = getImagePath();
 			if (imagePath == null) // user canceled
 				return;
-			setImagePath(imagePath);
 			
-			// but SAVE the absolute Path
+			// Save the absolute Path
 			// (first overwrite the relative path (if not null). Add to undo queue.
 			if (dataField.getAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH) != null)
 				dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, null, true);
+			// this will cause this field to refresh, displaying the image.
 			dataField.setAttribute(DataFieldConstants.IMAGE_PATH, imagePath, true);
 		}
 	}
 	
+	/**
+	 * The action that allows users to choose a Relative image path. 
+	 * @author will
+	 *
+	 */
 	public class GetRelativeImagePathAction extends AbstractAction {
 		
 		public GetRelativeImagePathAction() {
@@ -203,8 +209,8 @@ public class FormFieldImage extends FormField {
 			}
 			
 			/*
-			 * If the file exists, but contains "untitled", it may have been saved automatically
-			 * in the default location (eg by findMoreLikeThis search). 
+			 * If the file exists, but contains "untitled", it may have been saved in a 
+			 * temporary location (not in a correct folder). 
 			 * Need to check that the user has saved it where they want. 
 			 */
 			if (editorFile.getName().contains("untitled")) {
@@ -229,173 +235,21 @@ public class FormFieldImage extends FormField {
 			
 
 			/*
-			 * Calculate what the relative path is. 
+			 * Calculate what the relative path is, based on the location of the editorFile. 
 			 */
-			String relativePath = getRelativePathFromAbsolutePath(imagePath);
+			String relativePath = FilePathMethods.getRelativePathFromAbsolutePath(editorFile, imagePath);
 			
 			
-			// Need to use the full image path to display the image....
-			// This will happen with  dataFieldUpdated()
-			//setImagePath(imagePath);
-			
-			// but SAVE the relative Path
+			// Save the relative Path
 			// (first overwrite the absolute path (if not null). Add to undo queue.
 			if (dataField.getAttribute(DataFieldConstants.IMAGE_PATH) != null)
 				dataField.setAttribute(DataFieldConstants.IMAGE_PATH, null, true);
+			// This will cause this field to Refresh, displaying the image.
 			dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, relativePath, true);
 		}
 	}
 	
-	/**
-	 * This method returns a file path that is relative to the currently saved location
-	 * of the Omero.Editor file (as specified by the Tree.getFile() method. 
-	 * 
-	 * @param absolutePath
-	 * @return
-	 */
-	public String getRelativePathFromAbsolutePath(String imagePath) {
-		
-		File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-		String editorFilePath = editorFile.getParent();
-		
-		
-		String fileSeparator = File.separator;
-		
-			
-		/*
-		 * Need to split both file paths into arrays of directories in order to see
-		 * how many directories are similar (starting at the root).
-		 * Can't use string.split(File.separator) because the backslash of Windows 
-		 * File.separator causes regex errors. Need to use StringTokenizer...
-		 */
-		StringTokenizer st = new StringTokenizer(editorFilePath, fileSeparator);
-		int tokens = st.countTokens();
-		
-		String[] editorFileDirectories = new String[tokens];
-		for (int i=0; i<editorFileDirectories.length; i++) {
-			editorFileDirectories[i] = st.nextToken();
-		}
-		
-		st = new StringTokenizer(imagePath, fileSeparator);
-		tokens = st.countTokens();
-		
-		String[] imageFileDirectories = new String[tokens];
-		for (int i=0; i<imageFileDirectories.length; i++) {
-			imageFileDirectories[i] = st.nextToken();
-		}
 	
-		
-		/*
-		 * Count the root directories that are common to both file paths. 
-		 */
-		int commonDirsCount = 0;
-		while ((commonDirsCount < editorFileDirectories.length) && 
-				(commonDirsCount < imageFileDirectories.length) && 
-				(editorFileDirectories[commonDirsCount].equals(imageFileDirectories[commonDirsCount]))) {
-			commonDirsCount++;
-		}
-		
-		/*
-		 * The relative image file path needs to be built from the remaining directories of 
-		 * the image file path.
-		 * This is the path from the last common directory to the image. 
-		 */
-		String relativeFilePath = "";
-		for (int i=commonDirsCount; i<imageFileDirectories.length; i++) {
-			// don't add fileSeparator at start. 
-			if (i > commonDirsCount)
-				relativeFilePath = relativeFilePath + File.separator;
-			
-			relativeFilePath = relativeFilePath + imageFileDirectories[i];
-		}
-		
-		/*
-		 * If the editor File has additional directories after the last common directory...
-		 * See how many...
-		 */
-		int editorFileDirsRemaining = editorFileDirectories.length - commonDirsCount;
-		
-		/*
-		 * Add  ../ for every directory level.
-		 */
-		for (int i=0; i<editorFileDirsRemaining; i++) {
-			relativeFilePath = ".." + File.separator + relativeFilePath;
-		}
-		
-		// windows troubleshooting!!
-		//JOptionPane.showMessageDialog(null, "FormFieldImage getRelativePath  relativeFilePath = " + relativeFilePath);
-		
-		return relativeFilePath;
-	}
-	
-	
-	/**
-	 * This method returns an absolute file path that is constructed from the 
-	 * relative file path, and the location
-	 * of the Omero.Editor file (as specified by the Tree.getFile() method. 
-	 * 
-	 * @param absolutePath
-	 * @return
-	 */
-	public String getAbsolutePathFromRelativePath(String relativeImagePath) {
-		
-		File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-		String editorDirectory = editorFile.getParent();
-		
-
-		/*
-		 * Need to turn the absolute file path of the Editor file into an array of directories...
-		 */
-		StringTokenizer st = new StringTokenizer(editorDirectory, File.separator);
-		int tokens = st.countTokens();
-		
-		String[] editorFileDirectories = new String[tokens];
-		for (int i=0; i<editorFileDirectories.length; i++) {
-			editorFileDirectories[i] = st.nextToken();
-		}
-		
-		/*
-		 * Count the number of directories that the Editor file path has after the last 
-		 * common directory (that is shared with the image file path).
-		 * This is denoted in the relative file path by the number of "../" at the start
-		 */
-		int filePathExtraDirs = 0;
-		// look for ".." because you don't know what the file separator is...
-		while (relativeImagePath.startsWith("..")) {
-			
-			filePathExtraDirs++;
-
-			/* 
-			 * remove the first 3 characters "../" from the relative image path.
-			 * Assume that File.separator is only a single character!!
-			 */ 
-			relativeImagePath = relativeImagePath.substring(3, relativeImagePath.length());
-		}
-		
-		String absoluteImagePath = "";
-		
-		/*
-		 * Need to build up the root file path that is common to both the Editor file
-		 * and the Image. 
-		 */
-		int commonDirs = editorFileDirectories.length - filePathExtraDirs;
-		for(int i=0; i<commonDirs; i++) {
-			
-			absoluteImagePath = absoluteImagePath.concat(File.separator + editorFileDirectories[i]);
-		}
-		
-		// windows troubleshooting!!
-		//JOptionPane.showMessageDialog(null, "absoluteImagePath = " + absoluteImagePath +
-		//		"\n relativeImagePath = " + relativeImagePath);
-		
-		/*
-		 * Now make the absolute image path by adding the relative file path
-		 * to the common directory path. 
-		 */
-		absoluteImagePath = absoluteImagePath + File.separator + relativeImagePath;
-		
-		return absoluteImagePath;
-	}
 	
 	public void setImagePath(String imagePath) {
 		this.imagePath = imagePath;
@@ -475,8 +329,10 @@ public class FormFieldImage extends FormField {
 		
 		if (imagePath == null) {
 			String relativeImagePath = dataField.getAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH);
-			if (relativeImagePath != null)
-				imagePath = getAbsolutePathFromRelativePath(relativeImagePath);
+			if (relativeImagePath != null) {
+				File editorFile = ((DataField)dataField).getNode().getTree().getFile();
+				imagePath = FilePathMethods.getAbsolutePathFromRelativePath(editorFile, relativeImagePath);
+			}
 		}
 		
 		setImagePath(imagePath);
@@ -485,7 +341,7 @@ public class FormFieldImage extends FormField {
 	//open a file
 	public static String getImagePath() {
 		
-		String[] fileExtensions = {"jpg", "png", "gif"};
+		String[] fileExtensions = {".jpg", ".png", ".gif"};
 		String currentFilePath = PreferencesManager.getPreference(PreferencesManager.CURRENT_IMAGES_FOLDER);
 		
 		// Create a file chooser

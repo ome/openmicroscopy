@@ -47,6 +47,7 @@ import ui.formFields.FormFieldDateTime;
 import ui.formFields.FormFieldDropDown;
 import ui.formFields.FormFieldFixed;
 import ui.formFields.FormFieldImage;
+import ui.formFields.FormFieldLink;
 import ui.formFields.FormFieldMemo;
 import ui.formFields.FormFieldNumber;
 import ui.formFields.FormFieldOLS;
@@ -128,6 +129,9 @@ public class FieldEditorFormFieldFactory {
 		else if (inputType.equals(DataFieldConstants.IMAGE_FIELD)) {
 			fieldEditor = new FieldEditorFixed(dataField);
 		}
+		else if (inputType.equals(DataFieldConstants.LINK_FIELD)) {
+			fieldEditor = new FieldEditorFixed(dataField);
+		}
 		else {
 			fieldEditor = new FieldEditorCustom(dataField);
 			dataField.setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.CUSTOM, false);
@@ -191,6 +195,9 @@ public class FieldEditorFormFieldFactory {
 		}
 		else if (inputType.equals(DataFieldConstants.IMAGE_FIELD)) {
 			formField = new FormFieldImage(dataField);
+		}
+		else if (inputType.equals(DataFieldConstants.LINK_FIELD)) {
+			formField = new FormFieldLink(dataField);
 		}
 		else {
 			formField = new FormFieldCustom(dataField);

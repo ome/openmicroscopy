@@ -91,6 +91,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 	Icon infoIcon;
 	Icon wwwIcon;
 	JButton urlButton;	// used (if url) to open browser 
+	Cursor handCursor;
 	JButton collapseAllChildrenButton;
 	
 	Container childContainer;
@@ -187,7 +188,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 		unifiedButtonLookAndFeel(urlButton);
 		urlButton.addActionListener(new URLclickListener());
 		urlButton.setBackground(null);
-		Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+		handCursor = new Cursor(Cursor.HAND_CURSOR);
 		urlButton.setCursor(handCursor);
 		urlButton.setBorder(eb);
 		urlButton.setVisible(false);	// only made visible if url exists.
