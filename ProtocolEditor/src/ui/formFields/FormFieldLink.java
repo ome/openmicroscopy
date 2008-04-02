@@ -26,7 +26,10 @@ package ui.formFields;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -41,6 +44,7 @@ import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.FileChooserReturnFile;
 import ui.components.PopupMenuButton;
+import util.BareBonesBrowserLaunch;
 import util.FilePathMethods;
 import util.ImageFactory;
 import util.PreferencesManager;
@@ -51,6 +55,9 @@ public class FormFieldLink extends FormField {
 	/**
 	 * A link (stored in the VALUE attribute of the dataField) that is the
 	 * URL to a local file or a web-page.
+	 * This will be passed to the BareBonesBrowserLauncher when user clicks button. 
+	 * This should open a web page, but also it seems to launch an appropriate application
+	 * for other files. 
 	 */
 	String URLlink;
 	
@@ -82,8 +89,8 @@ public class FormFieldLink extends FormField {
 		
 		
 		linkButton = new JButton();
+		linkButton.addActionListener(new OpenLinkActionListener());
 		linkButton.setBorder(toolBarButtonBorder);
-		linkButton.setIcon(networkLocalIcon);
 		linkButton.setBackground(null);
 		linkButton.setCursor(handCursor);
 		linkButton.setFont(LINK_FONT);
@@ -91,20 +98,51 @@ public class FormFieldLink extends FormField {
 		horizontalBox.add(linkButton);
 		
 		
-		Icon openImageIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_IMAGE_ICON);
+		Icon chooseLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.WRENCH_ICON);
 		
 		Action[] getImageActions = new Action[] {
 				new GetURLAction(),
 				new GetAbsoluteImagePathAction(),
 				new GetRelativeImagePathAction()};
 		getLinkButton = new PopupMenuButton("Choose an image to display", 
-				openImageIcon, getImageActions);
+				chooseLinkIcon, getImageActions);
 		
 		getLinkButton.setBorder(toolBarButtonBorder);
 		getLinkButton.setBackground(null);
 		horizontalBox.add(getLinkButton);
 	}
 	
+	
+	// called when dataField changes attributes
+	public void dataFieldUpdated() {
+		super.dataFieldUpdated();
+		
+		updateLink();
+	} 
+	
+	/**
+	 * This listener for the linkButton uses BareBonesBrowserLauncher, passing it
+	 * URLlink. 
+	 * @author will
+	 *
+	 */
+	public class OpenLinkActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+
+			String validLink = URLlink;
+			try {
+				URL validUrl = new URL(URLlink);
+			} catch (MalformedURLException ex) {
+				 if (System.getProperty("os.name").startsWith("Mac OS")) {
+					 validLink = "file://" + URLlink;
+			     } else {
+			    	 validLink = "file:///" + URLlink;
+			    }
+			}
+		    
+			BareBonesBrowserLaunch.openURL(validLink);
+		}
+	}
 	
 	public class GetURLAction extends AbstractAction {
 		
@@ -121,6 +159,16 @@ public class FormFieldLink extends FormField {
 
 			if ((url == null) || (url.length() == 0)) // user canceled
 				return;
+			
+			/*
+			 * If the user did not input a valid URL, try adding "http://"
+			 */
+			try {
+				URL validUrl = new URL(url);
+			} catch (MalformedURLException ex) {
+				// This will make a valid URL. BUT may not be valid link.
+				url = "http://" + url;
+			}
 			
 			// Save the absolute Path
 			// (first overwrite the relative path (if not null). Add to undo queue.
@@ -258,7 +306,9 @@ public class FormFieldLink extends FormField {
 	 * Then calls refreshLink() to display new link.
 	 */
 	public void updateLink() {
-		URLlink = dataField.getAttribute(DataFieldConstants.VALUE);
+		URLlink = dataField.getAttribute(DataFieldConstants.IMAGE_PATH);
+		
+		System.out.println("FormFieldLink updateLink() " + URLlink);
 		refreshLink();
 	}
 

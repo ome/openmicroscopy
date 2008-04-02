@@ -110,6 +110,8 @@ public class ImageFactory {
 	public static final String NETWORK_LOCAL_ICON = ACTION_ICONS_FILE + "network_local.png";
 	public static final String LINK_LOCAL_ICON = ACTION_ICONS_FILE + "link_local.png";
 	public static final String LINK_SCIENCE_ICON = ACTION_ICONS_FILE + "link_science.png";
+	public static final String WRENCH_ICON = ACTION_ICONS_FILE + "configure.png";
+	
 	
 	
 	public Icon getIcon(String iconPathName) {
