@@ -33,11 +33,9 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -45,16 +43,10 @@ import javax.swing.JScrollPane;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.util.PixelsInfoDialog;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
-import pojos.PixelsData;
 
 /** 
  * 
@@ -78,6 +70,9 @@ public class EditorUI
 	
 	/** Reference to the Model. */
 	private EditorModel					model;
+	
+	/** The UI component displaying information about the image. */
+	private ImageInfoUI					infoUI;
 	
 	/** The UI component displaying the object's properties. */
 	private PropertiesUI				propertiesUI;
@@ -112,12 +107,18 @@ public class EditorUI
 	/** The component hosting the {@link #viewedByUI}. */
 	private TreeComponent 				viewByTree;
 	
+	/** The component hosting the {@link #infoUI}. */
+	private TreeComponent 				infoTree;
+	
 	/** The tool bar with various control. */
 	private ToolBar						toolBar;
 	
 	/** The left hand side component. */
 	private JPanel 						leftPane;
 
+	 /** The UI component hosting the {@link #viewByTree}. */
+	private JPanel 						viewTreePanel;
+	
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
 	
@@ -141,9 +142,26 @@ public class EditorUI
     /** One of the layout constants defined by {@link Editor}. */
     private int							layout;
     
+	/**
+	 * Loads or cancels any on-going thumbnails loading.
+	 * 
+	 * @param b Pass <code>true</code> to load, <code>false</code> to cancel.
+	 */
+	private void loadThumbnails(boolean b)
+	{
+		viewedByUI.setExpanded(b);
+		if (model.getRefObject() instanceof ImageData && 
+				!model.isThumbnailsLoaded()) {
+			if (b) controller.loadThumbnails();
+			else model.cancelThumbnailsLoading();
+		}
+		viewedByUI.buildUI();
+	}
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		infoUI = new ImageInfoUI(model);
 		userUI = new UserUI(model, controller);
 		leftPane = new JPanel();
 		toolBar = new ToolBar(model, this, controller);
@@ -166,14 +184,21 @@ public class EditorUI
 				public void propertyChange(PropertyChangeEvent evt) {
 					String name = evt.getPropertyName();
 					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
-						boolean b = (Boolean) evt.getNewValue();
-						viewedByUI.setExpanded(b);
-						if (model.getRefObject() instanceof ImageData && 
-							!model.isThumbnailsLoaded()) {
-							if (b) controller.loadThumbnails();
-							else model.cancelThumbnailsLoading();
-						}
-						viewedByUI.buildUI();
+						loadThumbnails((Boolean) evt.getNewValue());
+					}
+				}
+			
+			});
+		infoTree = new TreeComponent();
+		infoTree.setVisible(false);
+		infoTree.insertNode(infoUI, infoUI.getCollapseComponent(), false);
+		infoTree.addPropertyChangeListener(new PropertyChangeListener()
+			{
+			
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
+						controller.showImageInfo();
 					}
 				}
 			
@@ -195,10 +220,10 @@ public class EditorUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		JPanel viewTreePanel = new JPanel();
+		viewTreePanel = new JPanel();
 		viewTreePanel.setLayout(new BoxLayout(viewTreePanel, BoxLayout.X_AXIS));
 		double[][] tl = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.FILL} }; //rows
+				{TableLayout.PREFERRED, 0} }; //rows
 		viewTreePanel.setLayout(new TableLayout(tl));
 		
 		viewTreePanel.add(rateUI, "0, 0");
@@ -209,11 +234,12 @@ public class EditorUI
 		
 		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				TableLayout.PREFERRED} }; //rows
+				0, TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		
 		leftPane.add(viewTreePanel, "0, 1");
-		leftPane.add(left, "0, 2");
+		leftPane.add(infoTree, "0, 2");
+		leftPane.add(left, "0, 3");
 		
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
@@ -303,6 +329,7 @@ public class EditorUI
     		userUI.buildUI();
     		userUI.repaint();
     	} else {
+    		infoUI.buildUI();
     		rateUI.buildUI();
         	viewedByUI.buildUI();
         	linksUI.buildUI();
@@ -315,6 +342,12 @@ public class EditorUI
         	toolBar.setControls();
         	setDataToSave(false);
         	if (added) addTopLeftComponent(topLeftPane);
+        	if (model.getRefObject() instanceof ImageData) {
+        		if (viewedByUI.isExpanded())
+        			loadThumbnails(true);
+        		if (infoUI.isExpanded())
+        			controller.showImageInfo();
+        	}
     	}
     	revalidate();
     	repaint();
@@ -406,11 +439,21 @@ public class EditorUI
 		}
 		
 		if (object instanceof ImageData) {
+			((TableLayout) viewTreePanel.getLayout()).setRow(1, 
+													TableLayout.FILL);
+			((TableLayout) leftPane.getLayout()).setRow(2, 
+					TableLayout.PREFERRED);
     		viewByTree.setVisible(true);
+    		infoTree.setVisible(true);
     	} else {
+    		((TableLayout) viewTreePanel.getLayout()).setRow(1, 0);
+    		((TableLayout) leftPane.getLayout()).setRow(2, 0);
     		viewByTree.collapseNodes();
     		viewByTree.setVisible(false);
     		viewedByUI.setExpanded(false);
+    		infoTree.setVisible(false);
+    		infoTree.collapseNodes();
+    		infoUI.setExpanded(false);
     	}
 		if (topLeftPane != null) leftPane.remove(topLeftPane);
 		TableLayout layout = (TableLayout) leftPane.getLayout();
@@ -425,7 +468,7 @@ public class EditorUI
     	attachmentsUI.clearDisplay();
     	propertiesUI.clearDisplay();
     	propertiesUI.buildUI();
-    	
+    	infoUI.clearDisplay();
 		revalidate();
     	repaint();
 	}
@@ -469,6 +512,7 @@ public class EditorUI
     { 
     	Object refObject = model.getRefObject();
     	if (refObject instanceof ImageData) {
+    		/*
     		PixelsData data = ((ImageData) refObject).getDefaultPixels();
     		Map<String, String> details = EditorUtil.transformPixelsData(data);
     		List waves = model.getChannelData();
@@ -486,6 +530,8 @@ public class EditorUI
     			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
     		PixelsInfoDialog dialog = new PixelsInfoDialog(f, details);
     		UIUtilities.centerAndShow(dialog);
+    		*/
+    		infoUI.setChannelData(model.getChannelData());
     	}
     }
 
@@ -565,5 +611,5 @@ public class EditorUI
 	
 	/** Displays the wizard with the collection of URLs already uploaded. */
 	void setExistingURLs() { linksUI.showSelectionWizard(); }
-	
+	 
 }

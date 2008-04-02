@@ -130,8 +130,11 @@ public class FilteringDialog
 	/** The rating component. */
 	private RatingComponent	rating;
 	
-	/** The field area. */
-	private JTextField		area;
+	/** The field area to collect the tags. */
+	private JTextField		tagsArea;
+	
+	/** The field area to collect the comments. */
+	private JTextField		commentsArea;
 	
 	/** Button to close the dialog. */
 	private JButton			cancelButton;
@@ -158,10 +161,12 @@ public class FilteringDialog
 		rating = new RatingComponent(5, RatingComponent.HIGH_SIZE);
 		fromDate = UIUtilities.createDatePicker();
 		toDate = UIUtilities.createDatePicker();
-		area = new JTextField();
-		area.setColumns(15);
+		tagsArea = new JTextField();
+		tagsArea.setColumns(15);
+		commentsArea = new JTextField();
+		commentsArea.setColumns(15);
 		cancelButton = new JButton("Cancel");
-		cancelButton.setToolTipText("Close the dialog.");
+		cancelButton.setToolTipText("Close.");
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
 		filterButton = new JButton("Filter");
@@ -202,16 +207,21 @@ public class FilteringDialog
 			filter = true;
 		}
 		if (tagsBox.isSelected()) {
-			context.addAnnotationType(TagAnnotationData.class);
-			filter = true;
+			List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
+					SearchUtil.COMMA_SEPARATOR);
+			if (l != null && l.size() > 0) {
+				context.addAnnotationType(TagAnnotationData.class, l);
+				filter = true;
+			}
 		}
 		if (commentsBox.isSelected()) {
-			context.addAnnotationType(TextualAnnotationData.class);
-			filter = true;
+			List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
+					SearchUtil.COMMA_SEPARATOR);
+			if (l != null && l.size() > 0) {
+				context.addAnnotationType(TextualAnnotationData.class, l);
+				filter = true;
+			}
 		}
-		List<String> l = SearchUtil.splitTerms(area.getText(), 
-				SearchUtil.COMMA_SEPARATOR);
-		context.setTerms(l);
 		//Get the text to filter by
 		if (filter)
 			firePropertyChange(FILTER_PROPERTY, null, context);
@@ -249,14 +259,29 @@ public class FilteringDialog
 	}
 	
 	/**
-	 * Builds the component displaying the area.
+	 * Builds and lays out the components used to select the tags.
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildAreaPane()
+	public JPanel buildTagsPane()
 	{
-		//TODO: Add intersection and union option
-		return UIUtilities.buildComponentPanelRight(area);
+		JPanel p = new JPanel();
+		p.add(tagsBox);
+		p.add(tagsArea);
+		return UIUtilities.buildComponentPanel(p, 0, 0);
+	}
+	
+	/**
+	 * Builds and lays out the components used to select the comments.
+	 * 
+	 * @return See above.
+	 */
+	public JPanel buildCommentsPane()
+	{
+		JPanel p = new JPanel();
+		p.add(commentsBox);
+		p.add(commentsArea);
+		return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
 	
 	/** 
@@ -273,10 +298,10 @@ public class FilteringDialog
 				TableLayout.PREFERRED, 5}};
 		p.setLayout(new TableLayout(size));
 		int i = 0;
-		p.add(buildAreaPane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		i++;
+		//p.add(buildAreaPane(), "0, "+i);
+		//i++;
+		//p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
+		//i++;
 		p.add(buildRatingPane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
@@ -285,11 +310,11 @@ public class FilteringDialog
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		i++;
-		p.add(UIUtilities.buildComponentPanel(tagsBox), "0, "+i);
+		p.add(buildTagsPane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		i++;
-		p.add(UIUtilities.buildComponentPanel(commentsBox), "0, "+i);
+		p.add(buildCommentsPane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		return p;

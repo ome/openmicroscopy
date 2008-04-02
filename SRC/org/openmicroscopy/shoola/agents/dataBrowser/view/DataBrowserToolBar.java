@@ -122,6 +122,7 @@ class DataBrowserToolBar
 		
 			/**
 			 * Brings up the filtering dialog.
+			 * @see MouseAdapter#mouseReleased(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
 				showFilteringDialog(e.getPoint());
@@ -138,8 +139,6 @@ class DataBrowserToolBar
 		JPanel p = new JPanel();
 		p.add(filterButton);
 		p.add(search);
-		
-		//p.add(zoomSlider);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(p);
 	}

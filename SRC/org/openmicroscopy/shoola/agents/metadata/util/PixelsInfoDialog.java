@@ -182,7 +182,6 @@ public class PixelsInfoDialog
     public PixelsInfoDialog(JFrame owner, Map<String, String> details)
     {
     	super(owner);
-    	
     	setDialogProperties();
     	initComponents();
     	buildGUI(details);

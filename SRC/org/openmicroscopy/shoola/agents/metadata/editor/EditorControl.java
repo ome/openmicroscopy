@@ -77,6 +77,7 @@ class EditorControl
     /** Loads the thumbnails, forwards call the model. */
 	void loadThumbnails() { model.loadThumbnails(); }
 	
+	/** Displays the image info. */
 	void showImageInfo() { model.showImageInfo(); }
 	
 	/**

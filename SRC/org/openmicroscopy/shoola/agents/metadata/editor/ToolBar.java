@@ -128,7 +128,7 @@ class ToolBar
     	bar.setFloatable(false);
     	bar.setRollover(true);
     	bar.setBorder(null);
-    	bar.add(infoButton);
+    	//bar.add(infoButton);
     	bar.add(downloadButton);
     	return bar;
     }

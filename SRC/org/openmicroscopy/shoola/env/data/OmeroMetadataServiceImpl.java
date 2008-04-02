@@ -52,9 +52,6 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -816,13 +813,15 @@ class OmeroMetadataServiceImpl
 				annotationsIds.add(((Annotation) i.next()).getId());
 		}
 		*/
-		List<Class> types = filter.getAnnotationType();
-		i = types.iterator();
-		List<String> terms = filter.getTerms();
-		if (terms != null && terms.size() > 0) {
+		Map<Class, List<String>> types = filter.getAnnotationType();
+		
+		if (types != null && types.size() > 0) {
+			i = types.keySet().iterator();
+			Class type;
 			while (i.hasNext()) {
-				annotations = gateway.filterBy((Class) i.next(), terms, 
-						start, end, exp);
+				type = (Class) i.next();
+				annotations = gateway.filterBy(type, types.get(type), 
+											start, end, exp);
 				i = annotations.iterator();
 				while (i.hasNext())
 					annotationsIds.add(((Annotation) i.next()).getId());

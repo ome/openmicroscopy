@@ -26,8 +26,9 @@ package org.openmicroscopy.shoola.env.data.util;
 
 //Java imports
 import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -59,27 +60,24 @@ public class FilterContext
 	public static final int EQUAL = 2;
 	
 	/** The selected rating level. */
-	private int 			rate;
+	private int 						rate;
 	
 	/** One of the constants defined by this class. */
-	private int				index;
+	private int							index;
 	
 	/** The collection of annotation type. */
-	private List<Class> 	annotationType;
+	private Map<Class, List<String>> 	annotationType;
 	
 	/** The lower bound of the time interval. */
-	private Timestamp		fromDate;
+	private Timestamp					fromDate;
 	
 	/** The upper bound of the time interval. */
-	private Timestamp		toDate;
-	
-	/** The collection of terms to filter with. */
-	private List<String>	terms;
+	private Timestamp					toDate;
 	
 	/** Creates a new instance. */
 	public FilterContext()
 	{
-		annotationType = new ArrayList<Class>();
+		annotationType = new HashMap<Class, List<String>>();
 		rate = -1;
 		index = -1;
 	}
@@ -155,33 +153,21 @@ public class FilterContext
 	 * 
 	 * @return See above.
 	 */
-	public List<Class> getAnnotationType() { return annotationType; }
+	public Map<Class, List<String>> getAnnotationType()
+	{ 
+		return annotationType; 
+	}
 	
 	/**
 	 * Adds the specified type to the collection of types.
 	 * 
 	 * @param klass The type to add.
+	 * @param terms The terms related to the annotation type.
 	 */
-	public void addAnnotationType(Class klass)
+	public void addAnnotationType(Class klass, List<String> terms)
 	{
-		if (klass != null) annotationType.add(klass);
-	}
-	
-	/**
-	 * Returns the collection of terms to filter by.
-	 * 
-	 * @return See above.
-	 */
-	public List<String> getTerms() { return terms; }
-	
-	/**
-	 * Sets the collection of terms to filter by.
-	 * 
-	 * @param terms The value to set.
-	 */
-	public void setTerms(List<String> terms)
-	{
-		this.terms = terms;
+		if (klass != null && terms != null && terms.size() > 0) 
+			annotationType.put(klass, terms);
 	}
 	
 }
