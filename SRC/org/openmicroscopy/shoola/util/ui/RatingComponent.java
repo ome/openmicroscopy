@@ -247,6 +247,18 @@ public class RatingComponent
 		firePropertyChange(RATE_PROPERTY, oldValue, currentValue);
 	}
 	
+	/** 
+	 * Returns the currently selected value.
+	 * 
+	 * @return See above.
+	 */
+	public int getCurrentValue()
+	{
+		if (currentValue < 0) return 0;
+		if (currentValue > MAX) return MAX;
+		return currentValue;
+	}
+	
 	/**
 	 * Overridden to set the background of the canvas.
 	 * @see JPanel#setBackground(Color)

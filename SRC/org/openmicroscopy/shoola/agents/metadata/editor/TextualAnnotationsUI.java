@@ -231,15 +231,7 @@ class TextualAnnotationsUI
 		p.add(UIUtilities.setTextFont("Comment"), "0, 0, l, c");
 		p.add(new JScrollPane(area), "2, 0, 2, 1");
 		
-		//Retrieve the latest annotation for the currently logged in user.
-		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
-		long userID = MetadataViewerAgent.getUserDetails().getId();
-		List l = annotations.get(userID);
-		if (l != null && l.size() > 0 && originalText == null) {
-			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
-			setAreaText(data.getText());
-			originalText = area.getText();
-		}
+		
 		return p;
 	}
 	
@@ -382,7 +374,13 @@ class TextualAnnotationsUI
 	TextualAnnotationsUI(EditorModel model)
 	{
 		super(model);
+		title = TITLE;
 		initComponents();
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		//setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
+		getCollapseComponent().setBorder(border);
+		add(buildAreaPane());
 	}
 	
 	/**
@@ -413,21 +411,26 @@ class TextualAnnotationsUI
 		setAreaText("");
 		setNodesTitle();
 		add(buildAreaPane());
+		//Fill area
+		//Retrieve the latest annotation for the currently logged in user.
+		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		List l = annotations.get(userID);
+		if (l != null && l.size() > 0 && originalText == null) {
+			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
+			setAreaText(data.getText());
+			originalText = area.getText();
+		}
 		if (!hasPreviousTextualAnnotations()) return;
 		add(previousTree);
 		layoutPreviousNodes();
-		//String s = "0, 1, 1, 1";
 		switch (layoutIndex) {
 			case DATE_VIEW:
-				//previousPane.add(datePane, s);
 				previousPane.add(datePane, Component.LEFT_ALIGNMENT);
 				break;
 			case USER_VIEW:
 				previousPane.add(userPane, Component.LEFT_ALIGNMENT);
-				//previousPane.add(userPane, s);
 		}
-		//previousPane.add(UIUtilities.buildComponentPanelRight(clearButton), 
-		//		"1, 2");
 		previousPane.add(UIUtilities.buildComponentPanelRight(clearButton), 
 				Component.RIGHT_ALIGNMENT);
 	}

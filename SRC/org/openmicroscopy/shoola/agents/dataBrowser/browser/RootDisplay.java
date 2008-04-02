@@ -28,9 +28,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Iterator;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 
 /** 

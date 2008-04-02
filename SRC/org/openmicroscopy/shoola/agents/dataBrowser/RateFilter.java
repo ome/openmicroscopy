@@ -89,7 +89,7 @@ public class RateFilter
     private int						ratingLevel;
     
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle	handle;
+    private CallHandle				handle;
     
     /**
      * Checks if the passed value is supported.

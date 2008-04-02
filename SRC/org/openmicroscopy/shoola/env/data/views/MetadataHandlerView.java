@@ -32,6 +32,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -262,5 +264,8 @@ public interface MetadataHandlerView
 	public CallHandle filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
 			Class annotationType, List<String> terms, long userID,
 			AgentEventListener observer);
+
+	public CallHandle filterData(Class nodeType, Set<Long> nodeIds,
+			FilterContext context, long userID, AgentEventListener observer);
 	
 }

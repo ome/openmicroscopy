@@ -30,6 +30,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
@@ -265,6 +266,18 @@ class MetadataHandlerViewImpl
 	{
 		BatchCallTree cmd = new DataFilter(annotationType, nodeType, nodeIds,
 											terms, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#filterData(Class, Set, FilterContext, long, 
+	 * 										AgentEventListener)
+	 */
+	public CallHandle filterData(Class nodeType, Set<Long> nodeIds, 
+			FilterContext context, long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new DataFilter(nodeType, nodeIds, context, userID);
 		return cmd.exec(observer);
 	}
 	

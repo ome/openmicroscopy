@@ -60,11 +60,17 @@ public class IconManager
     /** The <code>Column view</code> icon. */
     public static int			COLUMN_VIEW = 3;
     
+    /** The <code>Filtering 48</code> icon. */
+    public static int			FILTERING_48 = 4;
+    
+    /** The <code>Filtering</code> icon. */
+    public static int			FILTERING = 5;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 3;
+    private static int          MAX_ID = 5;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -74,6 +80,8 @@ public class IconManager
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[THUMBNAIL_VIEW] = "nuvola_view_multicolumn16.png";
         relPaths[COLUMN_VIEW] = "nuvola_view_text16.png";
+        relPaths[FILTERING_48] = "nuvola_view_text16.png";
+        relPaths[FILTERING] = "eclipse_filter_ps16.png";
     }
     
     /** The sole instance. */

@@ -301,30 +301,6 @@ public class QuickSearch
 		searchPanel.repaint();
 	}
 	
-	/**
-	 * Returns <code>true</code> if the selected node is a rating node,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param node The selected node.
-	 * @return See above.
-	 */
-	private boolean isRatingNode(SearchObject node)
-	{
-		if (node == null) return false;
-		switch (node.getIndex()) {
-			case RATED_ONE_OR_BETTER:
-			case RATED_TWO_OR_BETTER:
-			case RATED_THREE_OR_BETTER:
-			case RATED_FOUR_OR_BETTER:
-			case RATED_FIVE:
-			case UNRATED:
-			case SHOW_ALL:
-				return true;
-			default:
-				return false;
-		}
-	}
-	
 	/** Creates a new instance. */
 	public QuickSearch()
 	{
@@ -411,7 +387,7 @@ public class QuickSearch
 	{
 		List<SearchObject> nodes = new ArrayList<SearchObject>();
     	SearchObject node = new SearchObject(FULL_TEXT, null, 
-    								"Full Text search");
+    								"Name/Description search");
     	nodes.add(node);
     	node = new SearchObject(TAGS, null, "Tags search");
     	nodes.add(node);

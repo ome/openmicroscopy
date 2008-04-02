@@ -370,8 +370,14 @@ class LinksUI
 		super(model);
 		toRemove = new HashSet<URLAnnotationData>();
 		title = TITLE;
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		initComponents();
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		//setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
+		getCollapseComponent().setBorder(border);
+		
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		add(layoutAddContent());
 	}
 	
 	/** Shows the collection of existing tags. */
@@ -379,6 +385,7 @@ class LinksUI
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		Collection l = model.getExistingURLs();
+		if (l == null) return;
 		List<Object> r = new ArrayList<Object>();
 		Collection urls = model.getUrls();
 		Iterator i;

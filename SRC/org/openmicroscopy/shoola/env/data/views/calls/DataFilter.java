@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -65,9 +66,10 @@ public class DataFilter
      * 
      * @param annotationType 	The type of the object.
      * @param nodeType			The type of object to filter.
-     * @param ids		The collection of id of the object.
-     * @param userID	The id of the user who tagged the object or 
-     * 					<code>-1</code> if the user is not specified.
+     * @param ids				The collection of id of the object.
+     * @param terms				The collection of terms.
+     * @param userID			The id of the user who tagged the object or 
+     * 							<code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
     private BatchCall filterBy(final Class annotationType, final Class nodeType, 
@@ -80,6 +82,29 @@ public class DataFilter
             	OmeroMetadataService os = context.getMetadataService();
                 result = os.filterByAnnotation(nodeType, ids, annotationType, 
                 					terms, userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load the ratings related to the object
+     * identified by the class and the id.
+     * 
+     * @param nodeType	The type of objects to filter.	
+     * @param ids		The collection of object ids.
+     * @param filter	The filering context.
+     * @param userID	The id of the user or <code>-1</code> if the id 
+     * 					is not specified.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall filterBy(final Class nodeType, final Set<Long> ids, 
+    						final FilterContext filter, final long userID)
+    {
+        return new BatchCall("Loading Ratings") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.filterByAnnotation(nodeType, ids, filter, userID);
             }
         };
     }
@@ -104,6 +129,7 @@ public class DataFilter
      * @param annotationType	The type of annotations to fetch.
      * @param nodeType			The type of objects to filter.	
      * @param nodeIds			The collection of object ids.
+     * @param terms				The collection of terms.
      * @param userID			The id of the user or <code>-1</code> if the id 
      * 							is not specified.
      */
@@ -111,6 +137,23 @@ public class DataFilter
     				List<String> terms, long userID)
     {
     	loadCall = filterBy(annotationType, nodeType, nodeIds, terms, userID);
+    }
+    
+    /**
+     * Creates a new instance. Builds the call corresponding to the passed
+     * index, throws an {@link IllegalArgumentException} if the index is not
+     * supported.
+     * 
+     * @param nodeType	The type of objects to filter.	
+     * @param nodeIds	The collection of object ids.
+     * @param context	The filering context.
+     * @param userID	The id of the user or <code>-1</code> if the id 
+     * 					is not specified.
+     */
+    public DataFilter(Class nodeType, Set<Long> nodeIds, FilterContext context, 
+    					long userID)
+    {
+    	loadCall = filterBy(nodeType, nodeIds, context, userID);
     }
     
 }

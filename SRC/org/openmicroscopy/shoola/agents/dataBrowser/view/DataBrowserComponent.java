@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -262,7 +263,6 @@ class DataBrowserComponent
 		Browser browser = model.getBrowser();
 		model.fireFilteringByTags(tags, browser.getOriginal());
 		fireStateChange();
-		
 	}
 
 	/**
@@ -287,6 +287,24 @@ class DataBrowserComponent
 		browser.getUI().repaint();
 		model.setState(READY);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+
+	public void filterByContext(FilterContext context)
+	{
+		if (context == null) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Filtering", "No filtering context.");
+			return;
+		}
+		if (model.getState() == FILTERING) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			return;
+		}
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		Browser browser = model.getBrowser();
+		model.fireFilteringByContext(context, browser.getOriginal());
+		fireStateChange();
 	}
 	
 }

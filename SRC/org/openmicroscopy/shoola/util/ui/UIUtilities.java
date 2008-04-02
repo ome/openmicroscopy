@@ -75,6 +75,7 @@ import javax.swing.text.StyledDocument;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
@@ -196,7 +197,9 @@ public class UIUtilities
     private static final String				WDMY_FORMAT = 
     											"E dd MMM yyyy, HH:mm:ss";
     
-    
+    /** The tooltip of the calendar button. */
+	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
+	
 	/**
 	 * Centers the specified component on the screen.
 	 * The location of the specified component is set so that it will appear
@@ -1022,6 +1025,21 @@ public class UIUtilities
 		if (value > 1000) value = value/1000;
 		else return NumberFormat.getInstance().format(value)+" Kb";
 		return NumberFormat.getInstance().format(value)+" Mb";
+	}
+
+	/**
+	 * Creates a date picker.
+	 * 
+	 * @return See above.
+	 */
+	public static JXDatePicker createDatePicker()
+	{
+		String[] dateFormats = new String[1];
+		dateFormats[0] = UIUtilities.DATE_FORMAT;
+		JXDatePicker picker = new JXDatePicker();
+		picker.setToolTipText(DATE_TOOLTIP);
+		picker.setFormats(dateFormats);
+		return picker;
 	}
 	
 }

@@ -33,6 +33,7 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 
@@ -54,6 +55,15 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 
+	/** Indicates to lay out the nodes as thumbnails. */
+	public static final int			THUMBNAIL_VIEW = 0;
+	
+	/** Indicates to lay out the nodes as table rows. */
+	public static final int			COLUMN_VIEW = 1;
+	
+	/** Indicates to lay out the nodes in a slide show. */
+	public static final int			SLIDE_SHOW_VIEW = 2;
+	
 	/** Indicates to retrieve the node rated one or higher. */
 	public static final int			RATE_ONE = RateFilter.RATE_ONE;
 	
@@ -205,5 +215,7 @@ public interface DataBrowser
 	 * @param objects The nodes to filter.
 	 */
 	public void setFilteredNodes(List<DataObject> objects);
+
+	public void filterByContext(FilterContext context);
 	
 }

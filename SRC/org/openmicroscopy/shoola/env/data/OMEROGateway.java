@@ -50,6 +50,9 @@ import javax.ejb.EJBException;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+
 import ome.api.IAdmin;
 import ome.api.IPojos;
 import ome.api.IQuery;
@@ -2742,16 +2745,29 @@ class OMEROGateway
 		return new HashMap();
 	}
 	
-	
+	/**
+	 * Returns the collection of annotations of a given type.
+	 * 
+	 * @param annotationType
+	 * @param terms
+	 * @param start
+	 * @param end
+	 * @param exp
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	List filterBy(Class annotationType, List<String> terms,
-				long userID)
+				Timestamp start, Timestamp end, ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Search service = getSearchService();
+		service.onlyAnnotatedBetween(start, end);
 		service.onlyType(convertPojos(annotationType));
-		service.bySomeMustNone(terms.toArray(new String[] {}), null, null);
-		if (userID >= 0){
-			
+		if (terms != null)
+			service.bySomeMustNone(terms.toArray(new String[] {}), null, null);
+		if (exp != null) { 
+			service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
 		}
 		
 		if (!service.hasNext()) return new ArrayList();

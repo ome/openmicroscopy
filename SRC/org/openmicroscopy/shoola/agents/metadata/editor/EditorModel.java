@@ -387,7 +387,11 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getUrls() { return data.getUrls(); }
+	Collection getUrls()
+	{ 
+		if (data == null) return null;
+		return data.getUrls(); 
+	}
 	
 	/**
 	 * Returns the number of tags linked to the <code>DataObject</code>.
@@ -429,7 +433,11 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getAttachments() { return data.getAttachments(); }
+	Collection getAttachments()
+	{ 
+		if (data == null) return null;
+		return data.getAttachments(); 
+	}
 
 	/**
 	 * Returns the number of people who viewed the image.

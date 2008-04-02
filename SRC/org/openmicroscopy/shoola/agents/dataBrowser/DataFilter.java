@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter 
+ * org.openmicroscopy.shoola.agents.dataBrowser.DataFilter 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,14 +31,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DataObject;
+import pojos.RatingAnnotationData;
+
+//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
-import pojos.TagAnnotationData;
 
 /** 
  * 
@@ -54,21 +57,21 @@ import pojos.TagAnnotationData;
  * </small>
  * @since OME3.0
  */
-public class TagsFilter 
+public class DataFilter
 	extends DataBrowserLoader
 {
 
+    /** The type of node to handle. */
+    private Class					nodeType;
+    
 	/** The collection of nodes to filter. */
     private Set<Long>				nodeIds;
     
     /** Store the nodes for later reused. */
     private Map<Long, DataObject> 	nodes;
     
-    /** The type of node to handle. */
-    private Class					nodeType;
-    
-    /** The collection of tags to search for. */
-    private List<String> 			tags;
+    /** The filtering context. */
+    private FilterContext			context;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle				handle;
@@ -76,21 +79,21 @@ public class TagsFilter
     /**
      * Creates a new instance.
      * 
-     * @param viewer 	The viewer this data loader is for.
+     * @param viewer	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param tags		The collection of tags to filter by.
+     * @param context	The filtering context. Mustn't be <code>null</code>.
      * @param nodes		The collection of objects to filter. 
      * 					Mustn't be <code>null</code>.
      */
-	public TagsFilter(DataBrowser viewer, List<String> tags, 
+	public DataFilter(DataBrowser viewer, FilterContext context,
 					Collection<DataObject> nodes)
 	{
 		super(viewer);
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No nodes to filter.");
-		if (tags == null || tags.size() == 0)
-			throw new IllegalArgumentException("No tags specified.");
-		this.tags = tags;
+		if (context == null)
+			throw new IllegalArgumentException("No filtering context.");
+		this.context = context;
 		this.nodes = new HashMap<Long, DataObject>();
 		nodeIds  = new HashSet<Long>();
 		Iterator<DataObject> i = nodes.iterator();
@@ -101,9 +104,8 @@ public class TagsFilter
 			nodeType = data.getClass();
 			this.nodes.put(data.getId(), data);
 		}
-		
 	}
-
+	
 	/** 
 	 * Cancels the data loading. 
 	 * @see DataBrowserLoader#cancel()
@@ -111,14 +113,13 @@ public class TagsFilter
 	public void cancel() { handle.cancel(); }
 
 	/** 
-	 * Loads the tags for the specified nodes.
+	 * Loads the rating annotations for the specified nodes.
 	 * @see DataBrowserLoader#load()
 	 */
 	public void load()
 	{
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.filterByAnnotation(nodeType, nodeIds, 
-							TagAnnotationData.class, tags, userID, this);
+		handle = mhView.filterData(nodeType, nodeIds, context, userID, this);
 	}
 	
 	/**
@@ -128,19 +129,18 @@ public class TagsFilter
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	Collection l = (Collection) result;
+    	Collection r = (Collection) result;
     	List<DataObject> filteredNodes = new ArrayList<DataObject>();
-    	if (l == null) {
+    	if (r == null || r.size() == 0) {
     		viewer.setFilteredNodes(filteredNodes);
-    		return;
+    	} else {
+    		Iterator i = r.iterator();
+    		while (i.hasNext()) {
+    			filteredNodes.add(nodes.get(i.next()));
+			}
+    		viewer.setFilteredNodes(filteredNodes);
     	}
-    	Iterator i = l.iterator();
-    	long id;
-    	while (i.hasNext()) {
-			id = (Long) i.next();
-			filteredNodes.add(nodes.get(id));
-		}
-    	viewer.setFilteredNodes(filteredNodes);
+    	
     }
     
 }

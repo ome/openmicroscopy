@@ -35,10 +35,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.Layout;
-import org.openmicroscopy.shoola.agents.hiviewer.layout.LayoutFactory;
-
 import pojos.ImageData;
 
 /** 
@@ -80,7 +76,6 @@ class ImagesModel
 	/**
 	 * Creates a concrete loader.
 	 * @see DataBrowserModel#createDataLoader(boolean)
-	 * 
 	 */
 	protected DataBrowserLoader createDataLoader(boolean refresh)
 	{

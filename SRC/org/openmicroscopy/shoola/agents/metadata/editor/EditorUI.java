@@ -157,7 +157,7 @@ public class EditorUI
 		topLeftPane = null;
 		
 		viewByTree = new TreeComponent();
-		
+		viewByTree.setVisible(false);
 		viewByTree.insertNode(viewedByUI, viewedByUI.getCollapseComponent(),
 								false);
 		viewByTree.addPropertyChangeListener(new PropertyChangeListener()
@@ -168,8 +168,8 @@ public class EditorUI
 					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
 						boolean b = (Boolean) evt.getNewValue();
 						viewedByUI.setExpanded(b);
-						if (!model.isThumbnailsLoaded() &&
-								model.getRefObject() instanceof ImageData) {
+						if (model.getRefObject() instanceof ImageData && 
+							!model.isThumbnailsLoaded()) {
 							if (b) controller.loadThumbnails();
 							else model.cancelThumbnailsLoading();
 						}
@@ -221,21 +221,7 @@ public class EditorUI
 		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
 		TreeComponent tree = new TreeComponent();
-		
-		
-		
-		/*
-		left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
-		left.insertNode(attachmentsUI, 
-						attachmentsUI.getCollapseComponent(), false);
-		
-		
 
-		
-		tree.insertNode(textualAnnotationsUI, 
-						textualAnnotationsUI.getCollapseComponent());
-		tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
-		*/
 		rightPane.add(tree, "0, 0");
 		
 		content = new JPanel();
@@ -247,15 +233,11 @@ public class EditorUI
 						textualAnnotationsUI.getCollapseComponent(), false);
 				left.insertNode(tagsUI, 
 						tagsUI.getCollapseComponent(), false);
-				
-				
+
 				tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 				tree.insertNode(attachmentsUI, 
 							attachmentsUI.getCollapseComponent(), false);
-				
-				
-				
-				
+
 				double[][] finalSize = {{TableLayout.FILL}, 
 						{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 						TableLayout.PREFERRED}};
@@ -283,7 +265,6 @@ public class EditorUI
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "2, 1");
 				content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-				
 		}
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(new JScrollPane(content), BorderLayout.CENTER);

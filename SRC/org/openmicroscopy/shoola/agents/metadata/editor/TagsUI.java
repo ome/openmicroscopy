@@ -349,6 +349,7 @@ class TagsUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		addButton = new JButton("Available...");
 		addButton.setActionCommand(ADD_ACTION);
 		addButton.addActionListener(this);
@@ -602,6 +603,12 @@ class TagsUI
 		super(model);
 		title = TITLE;
 		initComponents();
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		//setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
+		getCollapseComponent().setBorder(border);
+		add(layoutNewTags());
+		add(UIUtilities.buildComponentPanel(addButton));
 	}
 	
 	/**
@@ -732,7 +739,7 @@ class TagsUI
 		UIUtilities.setBoldTitledBorder(title, this);
 		//setBorder(border);
 		getCollapseComponent().setBorder(border);
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
 		add(createExistingTagsPane());
 		add(Box.createVerticalStrut(5));
 		add(new JSeparator());

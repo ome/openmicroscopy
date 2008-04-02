@@ -25,14 +25,24 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
@@ -55,17 +65,41 @@ class DataBrowserToolBar
 	implements ChangeListener
 {
 
+	/** Reference to the control. */
+	private DataBrowserControl 	controller;
+	
+	/** Reference to the view. */
+	private DataBrowserUI		view;
+	
 	/** Reference to the quick search. */
 	private QuickSearch 		search;
 	
 	/** Slider to zoom the nodes. */
 	private OneKnobSlider		zoomSlider;
 	
-	/** Reference to the control. */
-	private DataBrowserControl 	controller;
+	/** Button to bring up the filtering dialog. */
+	private JButton				filterButton;
 	
-	/** Reference to the view. */
-	private DataBrowserUI		view;
+	/** The filtering dialog. */
+	private JDialog				filteringDialog;
+	
+	/** 
+	 * Brings up the filtering dialog. 
+	 * 
+	 * @param location The location of the mouse pressed.
+	 */
+	private void showFilteringDialog(Point location)
+	{
+		if (filteringDialog == null) {
+			Registry reg = DataBrowserAgent.getRegistry();
+			filteringDialog = new FilteringDialog(reg.getTaskBar().getFrame());
+			filteringDialog.addPropertyChangeListener(controller);
+		}
+		SwingUtilities.convertPointToScreen(location, filterButton);
+		filteringDialog.setLocation(location);
+		filteringDialog.setVisible(true);
+		
+	}
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -83,14 +117,28 @@ class DataBrowserToolBar
 		search.setSingleSelection(true);
 		search.setDefaultSearchContext();
 		search.addPropertyChangeListener(controller);
+		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));
+		filterButton.addMouseListener(new MouseAdapter() {
+		
+			/**
+			 * Brings up the filtering dialog.
+			 */
+			public void mouseReleased(MouseEvent e) {
+				showFilteringDialog(e.getPoint());
+			}
+		
+		});
+		filterButton.addPropertyChangeListener(controller);
+		UIUtilities.unifiedButtonLookAndFeel(filterButton);
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		JPanel p = new JPanel();
-		
+		p.add(filterButton);
 		p.add(search);
+		
 		//p.add(zoomSlider);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(p);

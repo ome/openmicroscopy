@@ -888,6 +888,11 @@ class AttachmentsUI
 		super(model);
 		title = TITLE;
 		initComponents();
+		TitledLineBorder border = new TitledLineBorder(title, getBackground());
+		//setBorder(border);
+		UIUtilities.setBoldTitledBorder(title, this);
+		getCollapseComponent().setBorder(border);
+		add(layoutContent());
 	}
 
 	/**
@@ -921,6 +926,7 @@ class AttachmentsUI
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		Collection l = model.getExistingAttachments();
+		if (l == null) return;
 		List<Object> r = new ArrayList<Object>();
 		Collection attachments = model.getAttachments();
 		Iterator i;

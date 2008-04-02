@@ -130,9 +130,6 @@ class SearchPanel
 	private static final String		WITHOUT_WORDS = 
 										"<html><b>Without</b> the words</html>";
 	
-	/** The tooltip of the calendar button. */
-	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
-	
 	/** 
 	 * Bound property indicating that the date has changed.
 	 * JCalendar should have a static field.
@@ -212,11 +209,9 @@ class SearchPanel
 	private JTextField				withoutTermsArea;
 	
 	/** Date used to specify the beginning of the time interval. */
-	//private JDateChooser			fromDate;
 	private JXDatePicker			fromDate;
 	
 	/** Date used to specify the ending of the time interval. */
-	//private JDateChooser			toDate;
 	private JXDatePicker			toDate;
 	
 	/** Reference to the model .*/
@@ -255,32 +250,14 @@ class SearchPanel
 	/** The possible file formats. */
 	private JComboBox				formats;
 	
-	/**
-	 * Creates a date picker.
-	 * 
-	 * @return See above.
-	 */
-	private JXDatePicker createDatePicker()
-	{
-		String[] dateFormats = new String[1];
-		dateFormats[0] = UIUtilities.DATE_FORMAT;
-		JXDatePicker picker = new JXDatePicker();
-		
-		picker.setToolTipText(DATE_TOOLTIP);
-		//picker.getEditor().setEditable(false);
-		//picker.setEditable(false);
-		picker.setFormats(dateFormats);
-		return picker;
-	}
-	
 	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
- 		fromDate = createDatePicker();
-		toDate = createDatePicker();
+ 		fromDate = UIUtilities.createDatePicker();
+		toDate = UIUtilities.createDatePicker();
 
 		allTermsArea = new JTextField(20);
 		exactPhraseArea = new JTextField(20);

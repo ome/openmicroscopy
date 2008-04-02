@@ -34,10 +34,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
 import pojos.DataObject;
-import pojos.FileAnnotationData;
 
 /** 
  * List of methods to retrieve metadata.
@@ -381,15 +381,36 @@ public interface OmeroMetadataService
 	/**
 	 * Returns a sub-collection of the passed collection of nodes
 	 * annotated by the passed type of annotation.
+	 * 
 	 * @param nodeType
 	 * @param nodeIds
-	 * @param userID
 	 * @param annotationType
-	 * @return
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @param terms
+	 * @param userID
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
 		Class annotationType, List<String> terms, long userID) 
 		throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * 
+	 * @param nodeType
+	 * @param ids
+	 * @param filter
+	 * @param userID
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection filterByAnnotation(Class nodeType, Set<Long> ids, 
+										FilterContext filter, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

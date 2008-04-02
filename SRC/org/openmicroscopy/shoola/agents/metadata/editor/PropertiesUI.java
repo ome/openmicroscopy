@@ -269,6 +269,8 @@ class PropertiesUI
         UIUtilities.setTextAreaDefault(nameArea);
         descriptionArea = new MultilineLabel();
         UIUtilities.setTextAreaDefault(descriptionArea);
+        nameArea.setEnabled(false);
+        descriptionArea.setEnabled(false);
     }   
     
     /**
@@ -353,6 +355,9 @@ class PropertiesUI
        title = TITLE;
        initComponents();
        UIUtilities.setBoldTitledBorder(getComponentTitle(), this);
+       TitledLineBorder border = new TitledLineBorder(title, getBackground());
+       getCollapseComponent().setBorder(border);
+       buildGUI();
     }   
 
     /**

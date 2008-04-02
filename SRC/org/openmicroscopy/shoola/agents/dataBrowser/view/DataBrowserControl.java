@@ -29,18 +29,16 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
  * 
@@ -94,7 +92,6 @@ class DataBrowserControl
 				model.filterByFullText(values);
 				break;
 			case QuickSearch.TAGS:
-				System.err.println(values);
 				notifyInfo(values);
 				model.filterByTags(values);
 				break;
@@ -159,6 +156,8 @@ class DataBrowserControl
 			model.setSelectedDisplay(node);
 		} else if (QuickSearch.QUICK_SEARCH_PROPERTY.equals(name)) {
 			filterNodes();
+		} else if (FilteringDialog.FILTER_PROPERTY.equals(name)) {
+			model.filterByContext((FilterContext) evt.getNewValue());
 		}
 	}
 

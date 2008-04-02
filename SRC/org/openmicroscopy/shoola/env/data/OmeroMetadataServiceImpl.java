@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,11 +46,15 @@ import ome.model.core.OriginalFile;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -714,7 +719,11 @@ class OmeroMetadataServiceImpl
 		return results;
 	}
 
-	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#filterByAnnotation(Class, Set, Class, List, 
+	 * 												long)
+	 */
 	public Collection filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
 		Class annotationType, List<String> terms, long userID) 
 		throws DSOutOfServiceException, DSAccessException
@@ -732,8 +741,9 @@ class OmeroMetadataServiceImpl
 		Map map = gateway.findAnnotations(nodeType, nodeIds, ids, 
 				new PojoOptions().map());
 		if (map == null || map.size() == 0) return results;
-		
-		List annotations = gateway.filterBy(annotationType, terms, userID);
+		ExperimenterData exp = getUserDetails();
+		List annotations = gateway.filterBy(annotationType, terms, null, null, 
+											exp);
 		List<Long> annotationsIds = new ArrayList<Long>();
 		Iterator i, j;
 		i = annotations.iterator();
@@ -757,4 +767,152 @@ class OmeroMetadataServiceImpl
 		}
 		return results;
 	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#filterByAnnotation(Class, Set, FilterContext, 
+	 * 												long)
+	 */
+	public Collection filterByAnnotation(Class nodeType, Set<Long> ids, 
+			FilterContext filter, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (filter == null)
+			throw new IllegalArgumentException("No filtering context.");
+		int rateIndex = filter.getIndex();
+		Set<Long> filteredNodes = new HashSet<Long>();
+
+		PojoOptions po = new PojoOptions();
+		po.noLeaves();
+		Set<Long> userIDs = null;
+		if (userID != -1) {
+			userIDs = new HashSet<Long>(1);
+			userIDs.add(userID);
+		}
+		
+		Map map = gateway.findAnnotations(nodeType, ids, userIDs, 
+				new PojoOptions().map());
+		if (map == null || map.size() == 0) {
+			if (rateIndex == FilterContext.EQUAL && filter.getRate() == 0)
+				return ids;
+		}
+		
+		
+		ExperimenterData exp = getUserDetails();
+		
+		Timestamp start = filter.getFromDate();
+		Timestamp end = filter.getToDate();
+		Set<Long> annotationsIds = new HashSet<Long>();
+		Iterator i, j;
+		Long id;
+		Collection l;
+		List annotations;
+		/*
+		if (rateIndex != -1) {
+			annotations = gateway.filterBy(RatingAnnotationData.class, null, 
+									start, end, exp);
+			i = annotations.iterator();
+			while (i.hasNext())
+				annotationsIds.add(((Annotation) i.next()).getId());
+		}
+		*/
+		List<Class> types = filter.getAnnotationType();
+		i = types.iterator();
+		List<String> terms = filter.getTerms();
+		if (terms != null && terms.size() > 0) {
+			while (i.hasNext()) {
+				annotations = gateway.filterBy((Class) i.next(), terms, 
+						start, end, exp);
+				i = annotations.iterator();
+				while (i.hasNext())
+					annotationsIds.add(((Annotation) i.next()).getId());
+			}
+			i = map.keySet().iterator();
+			AnnotationData data;
+			while (i.hasNext()) {
+				id = (Long) i.next();
+				l = (Collection) map.get(id);
+				j = l.iterator();
+				while (j.hasNext()) {
+					data = (AnnotationData) j.next();
+					if (annotationsIds.contains(data.getId()))
+						filteredNodes.add(id);
+				}
+			}
+		}
+		
+		
+		
+		if (rateIndex != -1) {
+			int rate = filter.getRate();
+			int value;
+			i = map.keySet().iterator();
+			AnnotationData data;
+			switch (rateIndex) {
+				case FilterContext.EQUAL:
+					if (rate == 0) { //unrated element.
+						filteredNodes.addAll(ids);
+						while (i.hasNext()) 
+							filteredNodes.remove(i.next());
+					} else {
+						
+						while (i.hasNext()) {
+			    			id = (Long) i.next();
+			    			l = (Collection) map.get(id);
+			    			j = l.iterator();
+			    			while (j.hasNext()) {
+								data = (AnnotationData) j.next();
+								if (data instanceof RatingAnnotationData) {
+									value = ((RatingAnnotationData) 
+			    							data).getRating();
+									if (rate == value) 
+				    					filteredNodes.add(id);
+								}
+							}
+			    		}
+					}
+					break;
+				case FilterContext.LOWER:
+					if (rate == 0) { //unrated element.
+						filteredNodes.addAll(ids);
+						
+						while (i.hasNext()) 
+							filteredNodes.remove(i.next());
+					} else {
+						while (i.hasNext()) {
+			    			id = (Long) i.next();
+			    			l = (Collection) map.get(id);
+			    			j = l.iterator();
+			    			while (j.hasNext()) {
+								data = (AnnotationData) j.next();
+								if (data instanceof RatingAnnotationData) {
+									value = ((RatingAnnotationData) 
+			    							data).getRating();
+									if (rate <= value) 
+				    					filteredNodes.add(id);
+								}
+							}
+			    		}
+					}
+					break;
+				case FilterContext.HIGHER:
+					while (i.hasNext()) {
+		    			id = (Long) i.next();
+		    			l = (Collection) map.get(id);
+		    			j = l.iterator();
+		    			while (j.hasNext()) {
+							data = (AnnotationData) j.next();
+							if (data instanceof RatingAnnotationData) {
+								value = ((RatingAnnotationData) 
+		    							data).getRating();
+								if (rate >= value) 
+			    					filteredNodes.add(id);
+							}
+						}
+		    		}
+			}
+		}
+		return filteredNodes;
+	}
+	
 }

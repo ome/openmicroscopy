@@ -33,6 +33,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailsManager;
@@ -41,6 +42,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
+
 import pojos.DataObject;
 
 /** 
@@ -189,6 +192,19 @@ abstract class DataBrowserModel
 	{
 		state = DataBrowser.FILTERING;
 		TagsFilter loader = new TagsFilter(component, tags, nodes);
+		loader.load();
+	}
+
+	/**
+	 * Filters the passed <code>DataObject</code>s by context.
+	 * 
+	 * @param context 	The filtering context.
+	 * @param nodes		The collection of <code>DataObject</code>s to filter.
+	 */
+	void fireFilteringByContext(FilterContext context, Set<DataObject> nodes)
+	{
+		state = DataBrowser.FILTERING;
+		DataFilter loader = new DataFilter(component, context, nodes);
 		loader.load();
 	}
 	
