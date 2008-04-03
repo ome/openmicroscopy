@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
@@ -63,13 +64,13 @@ public class StructuredAnnotationSaver
      * the specified set of pixels and also retrieve the rating associated
      * to that set.
      * 
-     * @param data		The data object to handle.
+     * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
      * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadCall(final DataObject data, final
+    private BatchCall loadCall(final Collection<DataObject> data, final
     		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
     		final long userID)
     {
@@ -97,12 +98,12 @@ public class StructuredAnnotationSaver
     /**
      * Creates a new instance.
      * 
-     * @param data		The data object to handle.
+     * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
      * @param userID	The id of the user.
      */
-    public StructuredAnnotationSaver(DataObject data, 
+    public StructuredAnnotationSaver(Collection<DataObject> data, 
     		List<AnnotationData> toAdd, List<AnnotationData> toRemove, long
     		userID)
     {

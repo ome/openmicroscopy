@@ -79,6 +79,8 @@ public class TagsFilter
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
      * @param tags		The collection of tags to filter by.
+     * 					If <code>null</code> or <code>empty</code>
+     *					retrieve the uncommented objects.
      * @param nodes		The collection of objects to filter. 
      * 					Mustn't be <code>null</code>.
      */
@@ -88,8 +90,6 @@ public class TagsFilter
 		super(viewer);
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No nodes to filter.");
-		if (tags == null || tags.size() == 0)
-			throw new IllegalArgumentException("No tags specified.");
 		this.tags = tags;
 		this.nodes = new HashMap<Long, DataObject>();
 		nodeIds  = new HashSet<Long>();
@@ -101,7 +101,6 @@ public class TagsFilter
 			nodeType = data.getClass();
 			this.nodes.put(data.getId(), data);
 		}
-		
 	}
 
 	/** 

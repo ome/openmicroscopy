@@ -101,7 +101,7 @@ class LinksUI
 	/** Collection of key/value pairs used to remove annotations. */
 	private Map<JLabel, URLAnnotationData> labels;
 	
-	/** Collection of urls to unlink. */
+	/** Collection of urls to add. */
 	private Set<URLAnnotationData>			toRemove;
 	
 	/** Collection of urls to unlink. */
@@ -580,6 +580,7 @@ class LinksUI
 			if (url != null) {
 				if (!toAdd.contains(url))
 					toRemove.add(url);
+				else toAdd.remove(url);
 				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 						Boolean.TRUE);
 			}

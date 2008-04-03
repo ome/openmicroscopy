@@ -24,11 +24,13 @@ package org.openmicroscopy.shoola.agents.events.metadata;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.DataObject;
 
 /** 
  * 
@@ -47,15 +49,26 @@ public class ViewMetadata
 	extends RequestEvent
 {
 
-	private Object refObject;
+	/** The collection of objects to annotate. */
+	private Collection<DataObject> objects;
 	
-	public ViewMetadata(Object refObject)
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param objects The collection of objects to annotate.
+	 */
+	public ViewMetadata(Collection<DataObject> objects)
 	{
-		if (refObject == null)
-			throw new IllegalArgumentException("No reference object.");
-		this.refObject = refObject;
+		if (objects == null || objects.size() == 0)
+			throw new IllegalArgumentException("No objects to annotate.");
+		this.objects = objects;
 	}
 	
-	public Object getRefObject() { return refObject; }
+	/**
+	 * Returns the collection of objects to annotate.
+	 * 
+	 * @return See above.
+	 */
+	public Collection<DataObject> getObjects() { return objects; }
 	
 }

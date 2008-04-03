@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.CommentsFilter 
+ * org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,11 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-
-
-
-
-//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -36,13 +31,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DataObject;
+import pojos.TagAnnotationData;
+
+//Java imports
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
-import pojos.TextualAnnotationData;
 
 /** 
  * 
@@ -57,21 +57,9 @@ import pojos.TextualAnnotationData;
  * </small>
  * @since OME3.0
  */
-public class CommentsFilter 
+public class TagsLoader 	
 	extends DataBrowserLoader
 {
-
-	/** The collection of nodes to filter. */
-    private Set<Long>				nodeIds;
-    
-    /** Store the nodes for later reused. */
-    private Map<Long, DataObject> 	nodes;
-    
-    /** The type of node to handle. */
-    private Class					nodeType;
-    
-    /** The collection of comments to search for. */
-    private List<String> 			comments;
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle				handle;
@@ -81,29 +69,10 @@ public class CommentsFilter
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
-     * @param comments	The collection of comments to filter by. 
-     *					If <code>null</code> or <code>empty</code>
-     *					retrieve the uncommented objects.
-     * @param nodes		The collection of objects to filter. 
-     * 					Mustn't be <code>null</code>.
      */
-	public CommentsFilter(DataBrowser viewer, List<String> comments,
-					Collection<DataObject> nodes)
+	public TagsLoader(DataBrowser viewer)
 	{
 		super(viewer);
-		if (nodes == null || nodes.size() == 0)
-			throw new IllegalArgumentException("No nodes to filter.");
-		this.comments = comments;
-		this.nodes = new HashMap<Long, DataObject>();
-		nodeIds  = new HashSet<Long>();
-		Iterator<DataObject> i = nodes.iterator();
-		DataObject data;
-		while (i.hasNext()) {
-			data = i.next();
-			nodeIds.add(data.getId());
-			nodeType = data.getClass();
-			this.nodes.put(data.getId(), data);
-		}
 		
 	}
 
@@ -114,14 +83,14 @@ public class CommentsFilter
 	public void cancel() { handle.cancel(); }
 
 	/** 
-	 * Loads the rating annotations for the specified nodes.
+	 * Loads the tags for the specified nodes.
 	 * @see DataBrowserLoader#load()
 	 */
 	public void load()
 	{
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.filterByAnnotation(nodeType, nodeIds, 
-							TextualAnnotationData.class, comments, userID, this);
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, null,
+												userID, this);
 	}
 	
 	/**
@@ -131,19 +100,7 @@ public class CommentsFilter
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	Collection l = (Collection) result;
-    	List<DataObject> filteredNodes = new ArrayList<DataObject>();
-    	if (l == null) {
-    		viewer.setFilteredNodes(filteredNodes);
-    		return;
-    	}
-    	Iterator i = l.iterator();
-    	long id;
-    	while (i.hasNext()) {
-			id = (Long) i.next();
-			filteredNodes.add(nodes.get(id));
-		}
-    	viewer.setFilteredNodes(filteredNodes);
+    	viewer.setExistingTags((Collection) result);
     }
     
 }

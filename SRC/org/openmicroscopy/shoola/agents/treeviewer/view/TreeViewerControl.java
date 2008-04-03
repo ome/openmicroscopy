@@ -32,6 +32,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
@@ -574,9 +575,16 @@ class TreeViewerControl
 			DataObject data = (DataObject) pce.getNewValue();
 			model.createObject(data);
 		} else if (MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name)) {
-			DataObject data = (DataObject) pce.getNewValue();
-			if (data != null)
-				model.onDataObjectSave(data, TreeViewer.UPDATE_OBJECT);
+			Object object =  pce.getNewValue();
+			if (object != null) {
+				if (object instanceof DataObject)
+					model.onDataObjectSave((DataObject) object, 
+											TreeViewer.UPDATE_OBJECT);
+				else 
+					model.onDataObjectSave((List) object, 
+							TreeViewer.UPDATE_OBJECT);
+			}
+				
 		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
 			
 			model.setSelectedNode(pce.getNewValue());

@@ -36,6 +36,7 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -66,20 +67,6 @@ class DataBrowserControl
 	/** Reference to the view. */
 	private DataBrowserUI	view;
 	
-	/**
-	 * Notifies the user if no terms to filter by.
-	 * 
-	 * @param values The values to handle.
-	 */
-	private void notifyInfo(List<String> values)
-	{
-		if (values == null || values.size() == 0) {
-			//UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			//un.notifyInfo("Filter", "Please enter a term.");
-			return;
-		}
-	}
-	
 	/** Filters the nodes. */
 	private void filterNodes()
 	{
@@ -88,16 +75,21 @@ class DataBrowserControl
 		List<String> values = filter.getResult();
 		switch (filter.getIndex()) {
 			case QuickSearch.FULL_TEXT:
-				notifyInfo(values);
 				model.filterByFullText(values);
 				break;
+			case QuickSearch.UNTAGGED:
+				model.filterByTags(null);
+				break;
 			case QuickSearch.TAGS:
-				notifyInfo(values);
-				model.filterByTags(values);
+				if (values != null && values.size() > 0)
+					model.filterByTags(values);
+				break;
+			case QuickSearch.UNCOMMENTED:
+				model.filterByComments(null);
 				break;
 			case QuickSearch.COMMENTS:
-				notifyInfo(values);
-				model.filterByComments(values);
+				if (values != null && values.size() > 0)
+					model.filterByComments(values);
 				break;
 			case QuickSearch.RATED_ONE_OR_BETTER:
 				model.filterByRate(DataBrowser.RATE_ONE);
@@ -119,7 +111,6 @@ class DataBrowserControl
 				break;	
 			case QuickSearch.SHOW_ALL:
 				model.showAll();
-				break;	
 		}
 	}
 	
@@ -143,8 +134,15 @@ class DataBrowserControl
 		this.view = view;
 	}
 	
-	/**
+	/** 
+	 * Forwards call the {@link DataBrowser model}.
 	 * 
+	 *  @param index One the annotation contants defined by {@link DataBrowser}.
+	 */
+	void annotate(int index) { model.annotate(index); }
+	
+	/**
+	 * Loads data, filters nodes or sets the selected node.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent evt)
@@ -158,6 +156,9 @@ class DataBrowserControl
 			filterNodes();
 		} else if (FilteringDialog.FILTER_PROPERTY.equals(name)) {
 			model.filterByContext((FilterContext) evt.getNewValue());
+		} else if (FilteringDialog.LOAD_TAG_PROPERTY.equals(name) ||
+				QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {
+			model.loadExistingTags();
 		}
 	}
 

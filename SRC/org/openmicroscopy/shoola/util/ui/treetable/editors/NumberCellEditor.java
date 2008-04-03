@@ -36,7 +36,7 @@ import javax.swing.JTextField;
 //Application-internal dependencies
 
 /** 
- * 
+ *  Edits number values.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -67,19 +67,14 @@ public class NumberCellEditor
 	}
 
 	/**
-	 * Get the component used to edit boolean cells
-	 * 
-	 * @param table the table this object edits.
-	 * @param value the value to be edited
-	 * @param isSelected indicates whether or not the cell is selected
-	 * @param row number of the row being edited
-	 * @param column number of the column being edited
-	 * @return editor component to use
+	 * Overridden to return the component used to edit number cells.
+	 * @see DefaultCellEditor#getTableCellEditorComponent(JTable, Object, 
+	 * 												boolean, int, int)
 	 */
 	public Component getTableCellEditorComponent(JTable table, Object value,
 			boolean isSelected, int row, int column)
 	{
-		if (value==null || !(acceptedValue(value))) return textField;
+		if (value == null || !(acceptedValue(value))) return textField;
 		
 		textField.setText(value.toString());
 		textField.addActionListener(this);
@@ -87,24 +82,24 @@ public class NumberCellEditor
 	}
 	
 	/**
-	 * Return true if the value passed is an accepted value
-	 * @param value see above.
-	 * @return see above.
+	 * Returns <code>true</code> if the value passed is an accepted value,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
 	 */
 	private boolean acceptedValue(Object value)
 	{
-		if(value instanceof Integer ||
-			value instanceof Float ||
-			value instanceof Double ||
-			value instanceof Long)
+		if (value instanceof Integer || value instanceof Float ||
+			value instanceof Double || value instanceof Long)
 			return true;
 		return false;
 	}
 	
 	/**
-	 * Get the value of the editor item.
+	 * Returns the value of the editor item.
 	 * 
-	 * @return the value.
+	 * @return See above.
 	 */
 	public Object getCellEditorValue()
 	{

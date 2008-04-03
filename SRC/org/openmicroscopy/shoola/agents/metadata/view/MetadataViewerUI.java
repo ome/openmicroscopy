@@ -30,8 +30,11 @@ import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -40,8 +43,8 @@ import javax.swing.JSplitPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.border.FrameBorder;
 import pojos.CategoryData;
@@ -64,7 +67,7 @@ import pojos.ProjectData;
  * @since OME3.0
  */
 class MetadataViewerUI 
-	extends TopWindow
+	extends JDialog//TopWindow
 {
 
     /** The text corresponding to the creation of a <code>Project</code>. */
@@ -84,6 +87,13 @@ class MetadataViewerUI
     
     /** The text corresponding to the creation of a <code>Image</code>. */
     private static final String     IMAGE_MSG = "Image";
+    
+    /** The title of the dialog. */
+    private static final String		TITLE = "Add metadata";
+    
+    /** The description of the dilaog.. */
+    private static final String		DESCRIPTION = "Add comments, tags, etc., " +
+    		"to the selected items.";
     
 	/** Reference to the Control. */
 	private MetadataViewerControl 		controller;
@@ -118,12 +128,9 @@ class MetadataViewerUI
     private void buildGUI()
     {
     	IconManager icons = IconManager.getInstance();
-		String message = getMessage();
-		titlePanel = new TitlePanel(message, 
-				"Edit the "+ message.toLowerCase()+": "+
-					model.getRefObjectName(), 
-                 icons.getIcon(IconManager.PROPERTIES_BIG));
-		//add(titlePanel, BorderLayout.NORTH);
+		titlePanel = new TitlePanel(TITLE, DESCRIPTION, 
+                 icons.getIcon(IconManager.METADATA_48));
+		
 		
     	Container c = getContentPane();
         c.setLayout(new BorderLayout(0, 0));
@@ -135,11 +142,14 @@ class MetadataViewerUI
         pane.setOneTouchExpandable(true);
         pane.setContinuousLayout(true);
         pane.setLeftComponent(model.getEditor().getUI());
-        pane.setRightComponent(model.getBrowser().getUI());
+        //pane.setRightComponent(model.getBrowser().getUI());
         uiDelegate = new JPanel();
         uiDelegate.setLayout(new BorderLayout(0, 0));
+        uiDelegate.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         //uiDelegate.add(titlePanel, BorderLayout.NORTH);
-        uiDelegate.add(pane, BorderLayout.CENTER);
+        uiDelegate.add(model.getEditor().getUI(), BorderLayout.CENTER);
+        c.add(titlePanel, BorderLayout.NORTH);
+        c.add(uiDelegate, BorderLayout.CENTER);
     }
     
 	/**
@@ -153,7 +163,8 @@ class MetadataViewerUI
 	 */
 	MetadataViewerUI()
 	{
-		super("");
+		//super("");
+		super(MetadataViewerAgent.getRegistry().getTaskBar().getFrame());
 	}
 	
 	/**

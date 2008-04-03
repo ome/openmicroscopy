@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -206,14 +207,14 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#saveData(DataObject, List, List, long, 
+	 * @see MetadataHandlerView#saveData(Collection, List, List, long, 
 	 * 									AgentEventListener)
 	 */
-	public CallHandle saveData(DataObject dataObject, 
+	public CallHandle saveData(Collection<DataObject> data, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
 			long userID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new StructuredAnnotationSaver(dataObject, 
+		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
 									toAdd, toRemove, userID);
 		return cmd.exec(observer);
 	}

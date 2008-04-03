@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -81,6 +82,9 @@ class MetadataViewerModel
 	/** The ref object for the viewer i.e. the root. */
 	private Object									refObject;
 	
+	/** The collection of objects to annotate. */
+	private Collection<DataObject>					objects;
+	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults					data;
 	
@@ -96,7 +100,7 @@ class MetadataViewerModel
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
-	 * @param refObject			The reference object.
+	 * @param refObject	The reference object.
 	 */
 	MetadataViewerModel(Object refObject)
 	{
@@ -106,6 +110,19 @@ class MetadataViewerModel
 		data = null;
 	}
 
+	/**
+	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
+	 * 
+	 * @param objects The collection of objects to annotate.
+	 */
+	MetadataViewerModel(Collection<DataObject> objects)
+	{
+		state = MetadataViewer.NEW;
+		this.objects = objects;
+		refObject = "";
+		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
+		data = null;
+	}
 	
 	/**
 	 * Called by the <code>MetadataViewer</code> after creation to allow this
@@ -125,6 +142,13 @@ class MetadataViewerModel
 		editor = EditorFactory.createEditor(component, refObject, 
 										thumbnailRequired, layout);
 	}
+	
+	/**
+	 * Returns the collection of objects to annotate if any.
+	 * 
+	 * @return See above.
+	 */
+	Collection<DataObject> getObjects() { return objects; }
 	
 	/**
 	 * Returns the current state.
@@ -303,7 +327,7 @@ class MetadataViewerModel
 	 * @param data		The object to update.
 	 */
 	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-					DataObject data)
+					Collection<DataObject> data)
 	{
 		DataSaver loader = new DataSaver(component, data, toAdd, toRemove);
 		loader.load();

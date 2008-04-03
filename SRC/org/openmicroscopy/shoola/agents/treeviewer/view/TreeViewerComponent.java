@@ -690,6 +690,46 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#onDataObjectSave(List, int)
+	 */
+	public void onDataObjectSave(List data, int operation)
+	{
+		int state = model.getState();
+		if (operation == REMOVE_OBJECT && state != SAVE)
+			throw new IllegalStateException("This method can only be " +
+									"invoked in the SAVE state");
+		switch (state) {
+			case DISCARDED:
+				throw new IllegalStateException("This method cannot be " +
+				"invoked in the DISCARDED state");
+		}
+		if (data == null) 
+			throw new IllegalArgumentException("No data object. ");
+		switch (operation) {
+			case CREATE_OBJECT:
+			case UPDATE_OBJECT: 
+			case REMOVE_OBJECT:  
+				break;
+			default:
+				throw new IllegalArgumentException("Save operation not " +
+						"supported.");
+		}  
+		//removeEditor(); //remove the currently selected editor.
+		if (operation == REMOVE_OBJECT) {
+			model.setState(READY);
+			fireStateChange();
+		}
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		//TODO
+		Browser browser = model.getSelectedBrowser();
+		//browser.refreshEdition(data, operation);
+		
+		setStatus(false, "", true);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onNodesRemoved()
 	 */
 	public void onNodesRemoved()

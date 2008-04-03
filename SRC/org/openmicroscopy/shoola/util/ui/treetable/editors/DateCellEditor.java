@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DateFormat;
 import java.util.Date;
-
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
@@ -39,7 +38,7 @@ import org.jdesktop.swingx.JXDatePicker;
 //Application-internal dependencies
 
 /** 
- * 
+ * Edits date values.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,8 +59,9 @@ public class DateCellEditor
 	private JXDatePicker	datePicker;
 	
 	/**
-	 * Create a new instance.
-	 * @param picker the date picker component.
+	 * Creates a new instance.
+	 * 
+	 * @param picker The date picker component.
 	 */
 	public DateCellEditor(JXDatePicker picker)
 	{
@@ -72,30 +72,27 @@ public class DateCellEditor
 	}
 	
 	/**
-	 * Get the value of the DateCellEditor
-	 * @return see above.
+	 * REturns the value of the DateCellEditor.
+	 * 
+	 * @return See above.
 	 */
 	public Object getCellEditorValue()
-	{		datePicker.removeActionListener(this);
+	{		
+		datePicker.removeActionListener(this);
 		return datePicker.getDate();
 	}
 	
+
 	/**
-	 * Get the component used to edit date cells
-	 * @param table  the table this object edits.
-	 * @param value  the value to be edited
-	 * @param isSelected  indicates whether or not the cell is selected
-	 * @param row  number of the row being edited
-	 * @param column number of the column being edited
-	 * @return  editor component to use
+	 * Implements as specified by {@link TableCellEditor} I/F.
+	 * @see TableCellEditor#getTableCellEditorComponent(JTable, Object, 
+	 * 												boolean, int, int)
 	 */
-	
-	public Component getTableCellEditorComponent(
-	JTable table, Object value, boolean isSelected, int row, int column)
+	public Component getTableCellEditorComponent(JTable table, Object value, 
+			boolean isSelected, int row, int column)
 	{
 		
-		if (value!=null&&value instanceof Date)
-		{
+		if (value != null && value instanceof Date) {
 			datePicker.setDate((Date) value);
 			datePicker.addActionListener(this);
 		}
@@ -113,6 +110,5 @@ public class DateCellEditor
 		super.fireEditingStopped();
 	}
 
-	
 	
 }

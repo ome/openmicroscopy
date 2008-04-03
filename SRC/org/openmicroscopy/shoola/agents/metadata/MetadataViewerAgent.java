@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,12 +32,16 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.metadata.ViewMetadata;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+
+import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -85,6 +90,10 @@ public class MetadataViewerAgent
      */
     private void handleViewMetadata(ViewMetadata evt)
     {
+    	Collection<DataObject> objects = evt.getObjects();
+    	if (objects == null || objects.size() == 0) return;
+    	MetadataViewer viewer = MetadataViewerFactory.getViewer(objects);
+    	viewer.activate();
     	/*
     	Object refObject = evt.getRefObject();
     	if (refObject == null || (refObject instanceof String)) return;

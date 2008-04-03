@@ -36,7 +36,7 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 //Application-internal dependencies
 
 /** 
- * 
+ * A node of an {@link OMETree}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -119,8 +119,7 @@ public class OMETreeNode
 	{
 		OMETreeNode node = this;
 		Stack<OMETreeNode> stack = new Stack<OMETreeNode>();
-		while (node != null)
-		{
+		while (node != null) {
 			stack.push(node);
 			node = node.getParent();
 		}
@@ -136,18 +135,14 @@ public class OMETreeNode
 	 * 
 	 * @return See above.
 	 */
-	public Vector<MutableTreeTableNode> getChildList()
-	{
-		return children;
-	}
+	public Vector<MutableTreeTableNode> getChildList() { return children; }
 	
 	/**
 	 * Overridden so that the node is not editable.
 	 * @see DefaultMutableTreeTableNode#isEditable(int)
 	 */
-	public boolean isEditable(int column) { return false;}
+	public boolean isEditable(int column) { return false; }
 	
-
 }
 
 

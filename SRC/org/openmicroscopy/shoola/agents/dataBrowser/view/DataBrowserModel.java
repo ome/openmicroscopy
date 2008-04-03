@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -36,6 +37,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter;
+import org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailsManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
@@ -72,6 +74,9 @@ abstract class DataBrowserModel
     private ViewerSorter        sorter;
     
     private DataBrowserLoader	loader;
+    
+    /** The collection of existing tags. */
+    private Collection			existingTags;
     
     /** Reference to the component that embeds this model. */
     protected DataBrowser		component;
@@ -185,13 +190,26 @@ abstract class DataBrowserModel
 	/**
 	 * Filters the passed <code>DataObject</code>s by tags.
 	 * 
-	 * @param tags	The selected rates.
+	 * @param tags	The selected tags.
 	 * @param nodes	The collection of <code>DataObject</code>s to filter.
 	 */
 	void fireFilteringByTags(List<String> tags, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
 		TagsFilter loader = new TagsFilter(component, tags, nodes);
+		loader.load();
+	}
+	
+	/**
+	 * Filters the passed <code>DataObject</code>s by comments.
+	 * 
+	 * @param comments	The selected comments.
+	 * @param nodes	The collection of <code>DataObject</code>s to filter.
+	 */
+	void fireFilteringByComments(List<String> comments, Set<DataObject> nodes)
+	{
+		state = DataBrowser.FILTERING;
+		TagsFilter loader = new TagsFilter(component, comments, nodes);
 		loader.load();
 	}
 
@@ -207,6 +225,28 @@ abstract class DataBrowserModel
 		DataFilter loader = new DataFilter(component, context, nodes);
 		loader.load();
 	}
+	
+	/** Starts an asynchronous call to load the existing tags. */
+	void fireTagsLoading()
+	{
+		state = DataBrowser.LOADING;
+		TagsLoader loader = new TagsLoader(component);
+		loader.load();
+	}
+	
+	/**
+	 * Sets the collection of existing tags.
+	 * 
+	 * @param tags The value to set.
+	 */
+	void setTags(Collection tags) { existingTags = tags; }
+	
+	/**
+	 * Returns the collection of existing tags.
+	 * 
+	 * @return See above.
+	 */
+	Collection getExistingTags() { return existingTags; }
 	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed

@@ -344,7 +344,8 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Object saveData(DataObject data, List<AnnotationData> toAdd, 
+	public Object saveData(Collection<DataObject> data, 
+							List<AnnotationData> toAdd, 
 							List<AnnotationData> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	

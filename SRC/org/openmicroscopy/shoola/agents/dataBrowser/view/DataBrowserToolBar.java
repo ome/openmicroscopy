@@ -26,11 +26,24 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Collection;
+import java.util.List;
+
+import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -41,7 +54,9 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -62,9 +77,27 @@ import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
  */
 class DataBrowserToolBar 
 	extends JPanel
-	implements ChangeListener
+	implements ActionListener, ChangeListener
 {
 
+	/** ID to select the thumbnail view. */
+	private static final int	THUMB_VIEW = 0;
+	
+	/** ID to select the columns view. */
+	private static final int	COLUMNS_VIEW = 1;
+	
+	/** ID to select the slide show view. */
+	private static final int	SLIDE_SHOW_VIEW = 2;
+	
+	/** ID to bring up the metadata browser. */
+	private static final int	METADATA_SELECTION = 3;
+	
+	/** ID to bring up the metadata browser. */
+	private static final int	METADATA_IMAGES = 4;
+	
+	/** ID to bring up the metadata browser. */
+	private static final int	METADATA_CHILDREN = 5;
+	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
 	
@@ -72,7 +105,7 @@ class DataBrowserToolBar
 	private DataBrowserUI		view;
 	
 	/** Reference to the quick search. */
-	private QuickSearch 		search;
+	private QuickFiltering 		search;
 	
 	/** Slider to zoom the nodes. */
 	private OneKnobSlider		zoomSlider;
@@ -81,7 +114,84 @@ class DataBrowserToolBar
 	private JButton				filterButton;
 	
 	/** The filtering dialog. */
-	private JDialog				filteringDialog;
+	private FilteringDialog		filteringDialog;
+	
+	/** Button to select the thumbnails view. */
+	private JToggleButton		thumbView;
+	
+	/** Button to select the table view. */
+	private JToggleButton		columnsView;
+	
+	/** Button to select the slide show view. */
+	private JToggleButton		slideShowView;
+	
+	/** Button to add the metadata. */
+	private JButton				metadataButton;
+	
+	/** Menu displaying the annotated options. */
+	private JPopupMenu			annotateMenu;
+	
+	/**
+	 * Creates the menu displaying the annotation options.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createAnnotateMenu()
+	{
+		if (annotateMenu != null) return annotateMenu;
+		annotateMenu = new JPopupMenu();
+		JMenuItem item = new JMenuItem("Annotate selection");
+		item.addActionListener(this);
+		item.setActionCommand(""+METADATA_SELECTION);
+		annotateMenu.add(item);
+		item = new JMenuItem("Annotate images");
+		item.addActionListener(this);
+		item.setActionCommand(""+METADATA_IMAGES);
+		annotateMenu.add(item);
+		item = new JMenuItem("Annotate images in selection");
+		item.addActionListener(this);
+		item.setActionCommand(""+METADATA_CHILDREN);
+		annotateMenu.add(item);
+		return annotateMenu;
+	}
+	
+	/** Sets the value of the filtering dialog. */
+	private void setFilteringValue()
+	{
+		SearchObject filter = search.getSelectedNode();
+		if (filter == null) return;
+		switch (filter.getIndex()) {
+			case QuickSearch.UNTAGGED:
+				filteringDialog.setTagsText("");
+				break;
+			case QuickSearch.TAGS:
+				filteringDialog.setTagsText(search.getSearchValue());
+				break;
+			case QuickSearch.UNCOMMENTED:
+				filteringDialog.setCommentsText("");
+				break;
+			case QuickSearch.COMMENTS:
+				filteringDialog.setCommentsText(search.getSearchValue());
+				break;
+			case QuickSearch.RATED_ONE_OR_BETTER:
+				filteringDialog.setRatingLevel(DataBrowser.RATE_ONE);
+				break;
+			case QuickSearch.RATED_TWO_OR_BETTER:
+				filteringDialog.setRatingLevel(DataBrowser.RATE_TWO);
+				break;
+			case QuickSearch.RATED_THREE_OR_BETTER:
+				filteringDialog.setRatingLevel(DataBrowser.RATE_THREE);
+				break;
+			case QuickSearch.RATED_FOUR_OR_BETTER:
+				filteringDialog.setRatingLevel(DataBrowser.RATE_FOUR);
+				break;
+			case QuickSearch.RATED_FIVE:
+				filteringDialog.setRatingLevel(DataBrowser.RATE_FIVE);
+				break;
+			case QuickSearch.UNRATED:
+				filteringDialog.setRatingLevel(RatingComponent.MIN_VALUE);
+		}
+	}
 	
 	/** 
 	 * Brings up the filtering dialog. 
@@ -94,11 +204,12 @@ class DataBrowserToolBar
 			Registry reg = DataBrowserAgent.getRegistry();
 			filteringDialog = new FilteringDialog(reg.getTaskBar().getFrame());
 			filteringDialog.addPropertyChangeListener(controller);
+			filteringDialog.setTags(view.getExistingTags());
 		}
+		setFilteringValue();
 		SwingUtilities.convertPointToScreen(location, filterButton);
 		filteringDialog.setLocation(location);
 		filteringDialog.setVisible(true);
-		
 	}
 	
 	/** Initializes the components. */
@@ -113,9 +224,7 @@ class DataBrowserToolBar
 		zoomSlider.setArrowsImageIcon(
 				icons.getImageIcon(IconManager.ZOOM_IN), 
 				icons.getImageIcon(IconManager.ZOOM_OUT));
-		search = new QuickSearch();
-		search.setSingleSelection(true);
-		search.setDefaultSearchContext();
+		search = new QuickFiltering();
 		search.addPropertyChangeListener(controller);
 		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));
 		filterButton.addMouseListener(new MouseAdapter() {
@@ -131,6 +240,57 @@ class DataBrowserToolBar
 		});
 		filterButton.addPropertyChangeListener(controller);
 		UIUtilities.unifiedButtonLookAndFeel(filterButton);
+		
+		ButtonGroup group = new ButtonGroup();
+		thumbView = new JToggleButton(
+					icons.getIcon(IconManager.THUMBNAIL_VIEW));
+		thumbView.addActionListener(this);
+		thumbView.setActionCommand(""+THUMB_VIEW);
+		group.add(thumbView);
+		columnsView = new JToggleButton(
+				icons.getIcon(IconManager.COLUMN_VIEW));
+		columnsView.addActionListener(this);
+		columnsView.setActionCommand(""+COLUMNS_VIEW);
+		group.add(columnsView);
+		slideShowView = new JToggleButton(
+				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
+		slideShowView.addActionListener(this);
+		slideShowView.setActionCommand(""+SLIDE_SHOW_VIEW);
+		group.add(slideShowView);
+		metadataButton = new JButton(icons.getIcon(IconManager.METADATA));
+		metadataButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Brings up the filtering dialog.
+			 * @see MouseAdapter#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e) {
+				createAnnotateMenu().show(metadataButton, e.getX(), e.getY());
+			}
+		
+		});
+		UIUtilities.unifiedButtonLookAndFeel(metadataButton);
+	}
+	
+	/**
+	 * Builds the tool bar with the various control for the view.
+	 * 
+	 * @return See above.
+	 */
+	private JToolBar buildViewsBar()
+	{
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setBorder(null);
+		bar.setRollover(true);
+		bar.add(thumbView);
+		bar.add(columnsView);
+		bar.add(slideShowView);
+		bar.add(Box.createHorizontalStrut(2));
+		bar.add(new JSeparator(JSeparator.VERTICAL));
+		bar.add(Box.createHorizontalStrut(2));
+		bar.add(metadataButton);
+		return bar;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -139,6 +299,7 @@ class DataBrowserToolBar
 		JPanel p = new JPanel();
 		p.add(filterButton);
 		p.add(search);
+		p.add(buildViewsBar());
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(p);
 	}
@@ -168,6 +329,19 @@ class DataBrowserToolBar
 	 */
 	SearchObject getSelectedFilter() { return search.getSelectedNode(); }
 
+	/**
+	 * Sets the collection of tags.
+	 * 
+	 * @param tags
+	 */
+	void setTags(Collection tags)
+	{
+		if (filteringDialog != null && filteringDialog.isVisible()) 
+			filteringDialog.setTags(tags);
+		else 
+			search.setTags(tags);
+	}
+	
 	/** 
 	 * Zooms in or out the thumbnails.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
@@ -179,6 +353,33 @@ class DataBrowserToolBar
 			
 		}
 		
+	}
+
+	/** 
+	 * Sets the specified view.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case THUMB_VIEW:
+				
+				break;
+			case COLUMNS_VIEW:
+				
+				break;
+			case SLIDE_SHOW_VIEW:
+				break;
+			case METADATA_IMAGES:
+				controller.annotate(DataBrowser.ANNOTATE_IMAGES);
+				break;
+			case METADATA_SELECTION:
+				controller.annotate(DataBrowser.ANNOTATE_SELECTION);
+				break;
+			case METADATA_CHILDREN:
+				controller.annotate(DataBrowser.ANNOTATE_CHILDREN);
+		}
 	}
 	
 }

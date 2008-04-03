@@ -250,11 +250,11 @@ class UserNotifierManager
 		}
 		//Need to make sure that file with same name does not exist.
 		JFileChooser chooser = new JFileChooser();
-		File dir = UIUtilities.getDefaultFolder();
-        if (dir != null) chooser.setCurrentDirectory(dir);
+		//File dir = UIUtilities.getDefaultFolder();
+        //if (dir != null) chooser.setCurrentDirectory(dir);
 		
         //Get the current directory
-        dir = chooser.getCurrentDirectory();
+        File dir = chooser.getCurrentDirectory();
         File[] files = dir.listFiles();
         String dirPath = dir+File.separator;
         String name = getFileName(files, file, file.getName(), dirPath, 1);
@@ -287,11 +287,11 @@ class UserNotifierManager
 		}
 		//Need to make sure that file with same name does not exist.
 		JFileChooser chooser = new JFileChooser();
-		File dir = UIUtilities.getDefaultFolder();
-        if (dir != null) chooser.setCurrentDirectory(dir);
+		//File dir = UIUtilities.getDefaultFolder();
+        //if (dir != null) chooser.setCurrentDirectory(dir);
 		
         //Get the current directory
-        dir = chooser.getCurrentDirectory();
+		File dir = chooser.getCurrentDirectory();
         File[] files = dir.listFiles();
         String dirPath = dir+File.separator;
         Iterator i = data.iterator();

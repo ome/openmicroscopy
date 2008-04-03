@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
@@ -53,14 +54,14 @@ public class DataSaver
 	extends MetadataLoader
 {
 
-	/** The object the data are related to. */
-	private DataObject			dataObject;
+	/** The objects the data are related to. */
+	private Collection<DataObject>	data;
 
 	/** The annotation to add to the data object. */
-	private List<AnnotationData> toAdd;
+	private List<AnnotationData> 	toAdd;
 	
 	/** The annotation to remove from the data object. */
-	private List<AnnotationData> toRemove;
+	private List<AnnotationData> 	toRemove;
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -70,18 +71,18 @@ public class DataSaver
 	 * 
 	 * @param viewer		The viewer this data loader is for.
      *                 		Mustn't be <code>null</code>.
-     * @param dataObject	The object the data are related to.
+     * @param data			The objects the data are related to.
 	 * 						Mustn't be <code>null</code>.
 	 * @param toAdd			The collection of annotations to add.
 	 * @param toRemove		The collection of annotations to remove.
 	 */
-	public DataSaver(MetadataViewer viewer, DataObject dataObject,
+	public DataSaver(MetadataViewer viewer, Collection<DataObject> data,
 					 List<AnnotationData> toAdd, List<AnnotationData> toRemove)
 	{
 		super(viewer, null);
-		if (dataObject == null)
+		if (data == null)
 			throw new IllegalArgumentException("No object specified.");
-		this.dataObject = dataObject;
+		this.data = data;
 		this.toAdd = toAdd;
 		this.toRemove = toRemove;
 	}
@@ -93,7 +94,7 @@ public class DataSaver
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.saveData(dataObject, toAdd, toRemove, userID, this);
+		handle = mhView.saveData(data, toAdd, toRemove, userID, this);
 	}
 	
 	/** 
@@ -109,7 +110,7 @@ public class DataSaver
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.onDataSave(dataObject);
+    	viewer.onDataSave((List) data);
     }
     
 }

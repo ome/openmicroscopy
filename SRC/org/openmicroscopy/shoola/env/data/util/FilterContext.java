@@ -59,6 +59,12 @@ public class FilterContext
 	/** Indicate to retrieve objects rated with passed level. */
 	public static final int EQUAL = 2;
 	
+	/** Indicate to retrieve the union of the all parameters. */
+	public static final int UNION = 100;
+	
+	/** Indicate to retrieve the union of the all parameters. */
+	public static final int INTERSECTION = 101;
+	
 	/** The selected rating level. */
 	private int 						rate;
 	
@@ -74,13 +80,42 @@ public class FilterContext
 	/** The upper bound of the time interval. */
 	private Timestamp					toDate;
 	
+	/** The type of result either: {@link #UNION} or {@link #INTERSECTION}. */
+	private int							resultType;
+	
 	/** Creates a new instance. */
 	public FilterContext()
 	{
 		annotationType = new HashMap<Class, List<String>>();
 		rate = -1;
 		index = -1;
+		resultType = INTERSECTION;
 	}
+	
+	/**
+	 * Sets the result type.
+	 * 
+	 * @param type The value to set.
+	 */
+	public void setResultType(int type)
+	{
+		switch (type) {
+			case UNION:
+			case INTERSECTION:
+				resultType = type;
+				break;
+	
+			default:
+				resultType = INTERSECTION;
+		}
+	}
+	
+	/**
+	 * Returns the result type.
+	 * 
+	 * @return See above.
+	 */
+	public int getResultType() { return resultType; }
 	
 	/**
 	 * Sets the rating index and the selected rate.

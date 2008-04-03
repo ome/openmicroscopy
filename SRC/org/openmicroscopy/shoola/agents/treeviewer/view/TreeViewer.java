@@ -322,6 +322,21 @@ public interface TreeViewer
 	 * @param operation The type of operation.
 	 */
 	public void onDataObjectSave(DataObject data, int operation);
+	
+
+	/**
+	 * Updates the views when the data object is saved.
+	 * The method only supports map of size one. 
+	 * The key is one the following constants: 
+	 * <code>CREATE_OBJECT</code>, <code>UPDATE_OBJECT</code> or
+	 * <code>REMOVE_OBJECT</code>.
+	 * The value is the <code>DataObject</code> created, removed or updated.
+	 * 
+	 * @param data      The save <code>DataObject</code>. Mustn't be 
+	 *                  <code>null</code>.
+	 * @param operation The type of operation.
+	 */
+	public void onDataObjectSave(List data, int operation);
 
 	/** Refreshes the view when the nodes have been removed. */
 	public void onNodesRemoved();

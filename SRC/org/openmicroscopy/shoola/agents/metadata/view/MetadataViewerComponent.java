@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -102,7 +103,10 @@ class MetadataViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				setRootObject(model.getRefObject());
+				if (model.getObjects() != null) {
+					UIUtilities.centerAndShow(view);
+				} else
+					setRootObject(model.getRefObject());
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -247,10 +251,10 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#saveData(List, List, DataObject)
+	 * @see MetadataViewer#saveData(List, List, Collection)
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
-				List<AnnotationData> toRemove, DataObject data)
+				List<AnnotationData> toRemove, Collection<DataObject> data)
 	{
 		model.fireSaving(toAdd, toRemove, data);
 	}
@@ -311,17 +315,28 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#onDataSave(DataObject)
+	 * @see MetadataViewer#onDataSave(Collection)
 	 */
-	public void onDataSave(DataObject dataObject)
+	public void onDataSave(List<DataObject> data)
 	{
-		if (dataObject == null) return;
+		if (data == null) return;
 		if (model.getState() == DISCARDED) return;
-		if (model.isSameObject(dataObject)) {
+		DataObject dataObject = null;
+		if (data.size() == 1) dataObject = data.get(0);
+		if (dataObject != null && model.isSameObject(dataObject)) {
 			setRootObject(model.getRefObject());
-		}
-			
-		firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
+			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
+		} else
+			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getRefObjects()
+	 */
+	public Collection<DataObject> getRefObjects()
+	{
+		return model.getObjects();
 	}
 	
 }

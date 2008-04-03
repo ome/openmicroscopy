@@ -316,35 +316,33 @@ class TagsUI
 	/** Initializes the {@link HistoryDialog} used for code completion. */
     private void codeCompletion()
     {
+    	if (historyDialog != null) return;
     	Rectangle r = nameArea.getBounds();
-    	if (historyDialog == null) {
-    		Object[] data = null;
-    		Collection l = model.getExistingTags();
-    		if (l != null && l.size() > 0) {
-    			data = new Object[l.size()];
-    			Iterator j = l.iterator();
-				DataObject object;
-				Collection usedTags = model.getTags();
-				
-				TagItem item;
-				int i = 0;
-				while (j.hasNext()) {
-					object = (DataObject) j.next();
-					item = new TagItem(object);
-					if (usedTags != null && usedTags.contains(object)) 
-						item.setAvailable(false);
-					data[i] = item;
-					i++;
-				}
-				long id = MetadataViewerAgent.getUserDetails().getId();
-	    		historyDialog = new HistoryDialog(data, r.width);
-				historyDialog.setListCellRenderer(new TagCellRenderer(id));
-				historyDialog.addPropertyChangeListener(
-						HistoryDialog.SELECTION_PROPERTY, this);
-    		}
-    	}
+		Object[] data = null;
+		Collection l = model.getExistingTags();
+		if (l != null && l.size() > 0) {
+			data = new Object[l.size()];
+			Iterator j = l.iterator();
+			DataObject object;
+			Collection usedTags = model.getTags();
+			
+			TagItem item;
+			int i = 0;
+			while (j.hasNext()) {
+				object = (DataObject) j.next();
+				item = new TagItem(object);
+				if (usedTags != null && usedTags.contains(object)) 
+					item.setAvailable(false);
+				data[i] = item;
+				i++;
+			}
+			long id = MetadataViewerAgent.getUserDetails().getId();
+    		historyDialog = new HistoryDialog(data, r.width);
+			historyDialog.setListCellRenderer(new TagCellRenderer(id));
+			historyDialog.addPropertyChangeListener(
+					HistoryDialog.SELECTION_PROPERTY, this);
+		}
     }
-    
     
 	/** Initializes the UI components. */
 	private void initComponents()
@@ -386,7 +384,7 @@ class TagsUI
 		nameArea.addMouseListener(new MouseAdapter() {
     		
 			/**
-			 * Displays the description of the category 
+			 * Displays the description of the tag 
 			 * @see MouseAdapter#mousePressed(MouseEvent)
 			 */
 			public void mousePressed(MouseEvent e) {

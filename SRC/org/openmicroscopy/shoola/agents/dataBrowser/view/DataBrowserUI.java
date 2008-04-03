@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.Collection;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -96,5 +98,19 @@ class DataBrowserUI
 	 * @return See above.
 	 */
 	SearchObject getSelectedFilter() { return toolBar.getSelectedFilter(); }
+
+	/**
+	 * Returns the collection of existing tags.
+	 * 
+	 * @return See above.
+	 */
+	Collection getExistingTags() { return model.getExistingTags(); }
+	
+	/**
+	 * Updates the UI elements when the tags are loaded.
+	 * 
+	 * @param tags The collection of tags to display.
+	 */
+	void setTags(Collection tags) { toolBar.setTags(tags); }
 	
 }

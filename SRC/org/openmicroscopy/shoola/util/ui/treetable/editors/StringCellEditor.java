@@ -27,16 +27,16 @@ package org.openmicroscopy.shoola.util.ui.treetable.editors;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.DefaultCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Edits the String value.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,8 +57,9 @@ public class StringCellEditor
 	private JTextField	textField;
 
 	/**
-	 * 	Create a new instance.
-	 * 	@param textField the textField to use.
+	 * Create a new instance.
+	 * 
+	 * @param textField The textField to use.
 	 */
 	public StringCellEditor(JTextField textField)
 	{
@@ -67,14 +68,9 @@ public class StringCellEditor
 	}
 
 	/**
-	 * Get the component used to edit boolean cells
-	 * 
-	 * @param table the table this object edits.
-	 * @param value the value to be edited
-	 * @param isSelected indicates whether or not the cell is selected
-	 * @param row number of the row being edited
-	 * @param column number of the column being edited
-	 * @return editor component to use
+	 * Overridden to return the component used to edit String cells.
+	 * @see DefaultCellEditor#getTableCellEditorComponent(JTable, Object, 
+	 * 												boolean, int, int)
 	 */
 	public Component getTableCellEditorComponent(JTable table, Object value,
 			boolean isSelected, int row, int column)
@@ -87,21 +83,21 @@ public class StringCellEditor
 	}
 	
 	/**
-	 * Return true if the value passed is an accepted value
-	 * @param value see above.
-	 * @return see above.
+	 * Returns <code>true</code> if the value passed is an accepted value,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
 	 */
 	private boolean acceptedValue(Object value)
 	{
-		if(value instanceof String)
-			return true;
-		return false;
+		return (value instanceof String);
 	}
 	
 	/**
-	 * Get the value of the editor item.
+	 * Returns the value of the editor item.
 	 * 
-	 * @return the value.
+	 * @return See above.
 	 */
 	public Object getCellEditorValue()
 	{
@@ -110,7 +106,7 @@ public class StringCellEditor
 	}
 	
 	/**
-	 * listener method called when the object in the cell changes. Posts message
+	 * Listener method called when the object in the cell changes. Posts message
 	 * to the table.
 	 * 
 	 * @param e the actionevent.

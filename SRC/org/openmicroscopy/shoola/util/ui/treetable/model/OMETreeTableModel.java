@@ -61,8 +61,8 @@ public class OMETreeTableModel
 	}
 
 	/**
-	 * Returns <code>true</code> if the cell is 
-	 * editable for this node and column.
+	 * Returns <code>true</code> if the cell is editable for this node and 
+	 * column, <code>false</code> otherwise.
 	 * 
 	 * @param node 		The node of the tree.
 	 * @param column 	The field to edit.

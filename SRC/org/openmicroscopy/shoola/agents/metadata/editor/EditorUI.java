@@ -109,7 +109,7 @@ public class EditorUI
 	
 	/** The component hosting the {@link #infoUI}. */
 	private TreeComponent 				infoTree;
-	
+
 	/** The tool bar with various control. */
 	private ToolBar						toolBar;
 	
@@ -229,17 +229,26 @@ public class EditorUI
 		viewTreePanel.add(rateUI, "0, 0");
 		
 		viewTreePanel.add(viewByTree, "0, 1");
+		TreeComponent propertiesTree = new TreeComponent(); 
+		propertiesTree.insertNode(propertiesUI, 
+							propertiesUI.getCollapseComponent());
 		TreeComponent left = new TreeComponent();
-		left.insertNode(propertiesUI, propertiesUI.getCollapseComponent());
 		
+		double h = TableLayout.PREFERRED;
+		boolean expanded = false;
+		if (model.getRefObjects() != null) {
+    		h = 0;
+    		expanded = true;
+    	}
 		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				0, TableLayout.PREFERRED} }; //rows
+				0, h, TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		
 		leftPane.add(viewTreePanel, "0, 1");
 		leftPane.add(infoTree, "0, 2");
-		leftPane.add(left, "0, 3");
+		leftPane.add(propertiesTree, "0, 3");
+		leftPane.add(left, "0, 4");
 		
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
@@ -256,9 +265,9 @@ public class EditorUI
 			case Editor.VERTICAL_LAYOUT:
 				
 				left.insertNode(textualAnnotationsUI, 
-						textualAnnotationsUI.getCollapseComponent(), false);
-				left.insertNode(tagsUI, 
-						tagsUI.getCollapseComponent(), false);
+						textualAnnotationsUI.getCollapseComponent(), expanded);
+				left.insertNode(tagsUI, tagsUI.getCollapseComponent(), 
+								expanded);
 
 				tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 				tree.insertNode(attachmentsUI, 

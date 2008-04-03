@@ -66,11 +66,17 @@ public class IconManager
     /** The <code>Filtering</code> icon. */
     public static int			FILTERING = 5;
     
+    /** The <code>Slide Show View</code> icon. */
+    public static int			SLIDE_SHOW_VIEW = 6;
+    
+    /** The <code>Metadata</code> icon. */
+    public static int			METADATA = 7;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 5;
+    private static int          MAX_ID = 7;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -82,6 +88,8 @@ public class IconManager
         relPaths[COLUMN_VIEW] = "nuvola_view_text16.png";
         relPaths[FILTERING_48] = "nuvola_view_text16.png";
         relPaths[FILTERING] = "eclipse_filter_ps16.png";
+        relPaths[SLIDE_SHOW_VIEW] = "eclipse_filter_ps16.png";
+        relPaths[METADATA] = "eclipse_filter_ps16.png";
     }
     
     /** The sole instance. */

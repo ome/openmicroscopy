@@ -26,10 +26,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -42,9 +42,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.agents.events.metadata.ViewMetadata;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -90,6 +91,7 @@ class DataBrowserComponent
 		this.model = model;
 	}
 	
+	/** Links the components. */
 	void initialize()
 	{
 		controller = new DataBrowserControl();
@@ -212,8 +214,15 @@ class DataBrowserComponent
 	 */
 	public void filterByComments(List<String> comments)
 	{
-		// TODO Auto-generated method stub
-		
+		if (model.getState() == FILTERING) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			return;
+		}
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		Browser browser = model.getBrowser();
+		model.fireFilteringByComments(comments, browser.getOriginal());
+		fireStateChange();
 	}
 
 	/**
@@ -249,11 +258,6 @@ class DataBrowserComponent
 	 */
 	public void filterByTags(List<String> tags)
 	{
-		if (tags == null || tags.size() == 0) {
-			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Filtering", "No tags specified.");
-			return;
-		}
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
@@ -289,6 +293,10 @@ class DataBrowserComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#filterByContext(FilterContext)
+	 */
 	public void filterByContext(FilterContext context)
 	{
 		if (context == null) {
@@ -305,6 +313,47 @@ class DataBrowserComponent
 		Browser browser = model.getBrowser();
 		model.fireFilteringByContext(context, browser.getOriginal());
 		fireStateChange();
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#annotate(int)
+	 */
+	public void annotate(int index)
+	{
+		switch (index) {
+			case ANNOTATE_CHILDREN:
+			case ANNOTATE_IMAGES:
+			case ANNOTATE_SELECTION:
+				break;
+	
+			default:
+				throw new IllegalArgumentException("Annotation index " +
+												"not supported.");
+		}
+		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+		Browser browser = model.getBrowser();
+		Set nodes = browser.getImages();
+		bus.post(new ViewMetadata(nodes));
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#loadExistingTags()
+	 */
+	public void loadExistingTags()
+	{
+		model.fireTagsLoading();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setExistingTags(Collection)
+	 */
+	public void setExistingTags(Collection tags)
+	{
+		model.setTags(tags);
+		view.setTags(tags);
 	}
 	
 }

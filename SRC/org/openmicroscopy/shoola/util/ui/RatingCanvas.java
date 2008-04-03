@@ -94,11 +94,11 @@ class RatingCanvas
 		if (found) return;
 		r = stars.get(0);
 		if (p.x < r.x) {
-			model.setValue(0);
+			model.setValue(RatingComponent.MIN_VALUE);
 			return;
 		}
 		r = stars.get(stars.size()-1);
-		if (p.x > (r.x+r.width)) model.setValue(RatingComponent.MAX);
+		if (p.x > (r.x+r.width)) model.setValue(RatingComponent.MAX_VALUE);
 	}
 	
 	/**

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
 
@@ -55,6 +56,12 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 
+	public static final int			ANNOTATE_SELECTION = 100;
+	
+	public static final int			ANNOTATE_IMAGES = 101;
+	
+	public static final int			ANNOTATE_CHILDREN = 102;
+	
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
 	
@@ -217,5 +224,11 @@ public interface DataBrowser
 	public void setFilteredNodes(List<DataObject> objects);
 
 	public void filterByContext(FilterContext context);
+	
+	public void annotate(int index);
+
+	public void loadExistingTags();
+
+	public void setExistingTags(Collection collection);
 	
 }

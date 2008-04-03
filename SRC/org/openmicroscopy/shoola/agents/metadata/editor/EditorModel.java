@@ -410,7 +410,9 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getTags() { 
+	Collection getTags()
+	{ 
+		if (data == null) return null;
 		Collection tags = data.getTags();
 		if (tags == null || tags.size() == 0) return tags;
 		return sorter.sort(tags);
@@ -891,7 +893,13 @@ class EditorModel
 	void fireAnnotationSaving(List<AnnotationData> toAdd,
 			List<AnnotationData> toRemove)
 	{
-		parent.saveData(toAdd, toRemove, (DataObject) refObject);
+		if (parent.getRefObjects() != null)
+			parent.saveData(toAdd, toRemove, parent.getRefObjects());
+		else {
+			List<DataObject> l = new ArrayList<DataObject>(1);
+			l.add((DataObject) refObject);
+			parent.saveData(toAdd, toRemove, l);
+		}
 	}
 	
 	/**
@@ -901,7 +909,9 @@ class EditorModel
 	 */
 	void fireDataObjectSaving(ExperimenterData exp)
 	{
-		parent.saveData(null, null, exp);
+		List<DataObject> l = new ArrayList<DataObject>(1);
+		l.add(exp);
+		parent.saveData(null, null, l);
 	}
 	
 	/**
@@ -978,5 +988,12 @@ class EditorModel
 		loader.load();
 		loaders.add(loader);
 	}
+	
+	/**
+	 * Returns the collection of ref objects if any.
+	 * 
+	 * @return See above.
+	 */
+	Collection<DataObject> getRefObjects() { return parent.getRefObjects(); }
 	
 }

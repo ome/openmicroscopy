@@ -34,11 +34,13 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.BevelBorder;
@@ -94,11 +96,17 @@ public class QuickSearch
 	/** Indicates to search for objects rated five. */
 	public static final int 	RATED_FIVE = 7;
 	
-	/** Indicates to search for objects unrated */
+	/** Indicates to search for objects unrated. */
 	public static final int 	UNRATED = 8;
 	
-	/** Indicates to search for objects unrated */
+	/** Indicates to reset all nodes. */
 	public static final int 	SHOW_ALL = 9;
+	
+	/** Indicates to search for th untagged nodes. */
+	public static final int 	UNTAGGED = 10;
+	
+	/** Indicates to search for th uncommented nodes.  */
+	public static final int 	UNCOMMENTED = 11;
 	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
@@ -301,6 +309,29 @@ public class QuickSearch
 		searchPanel.repaint();
 	}
 	
+	/** Displays the context of the search. */
+	private void setSearchContext()
+	{
+		String text = null;
+		if (selectedNode == null) return;
+		switch (selectedNode.getIndex()) {
+			case RATED_ONE_OR_BETTER:
+			case RATED_TWO_OR_BETTER:
+			case RATED_THREE_OR_BETTER:
+			case RATED_FOUR_OR_BETTER:
+			case RATED_FIVE:
+			case SHOW_ALL:
+			case UNRATED:
+			case UNTAGGED:
+			case UNCOMMENTED:
+				text = selectedNode.getDescription();
+		}
+		if (text == null) return;
+		searchArea.getDocument().removeDocumentListener(this);
+		searchArea.setText(text);
+		searchArea.getDocument().addDocumentListener(this);
+	}
+	
 	/** Creates a new instance. */
 	public QuickSearch()
 	{
@@ -393,6 +424,10 @@ public class QuickSearch
     	nodes.add(node);
     	node = new SearchObject(COMMENTS, null, "Comments search");
     	nodes.add(node);
+    	node = new SearchObject(UNTAGGED, null, "Untagged");
+    	nodes.add(node);
+    	node = new SearchObject(UNCOMMENTED, null, "Uncommented");
+    	nodes.add(node);
     	
     	List<SearchObject> ratedNodes = new ArrayList<SearchObject>();
     	node = new SearchObject(RATED_ONE_OR_BETTER, null, "* or better");
@@ -420,6 +455,75 @@ public class QuickSearch
 	 * @return See above.
 	 */
 	public SearchObject getSelectedNode() { return selectedNode; }
+
+	/**
+	 * Returns the search area.
+	 * 
+	 * @return See above.
+	 */
+	public JComponent getSelectionArea() { return searchPanel; }
+	
+	/** Sets the focus on the {@link #searchArea}. */
+	public void setFocusOnArea() { searchArea.requestFocus(); }
+	
+	/**
+	 * Returns the text of the {@link #searchArea}.
+	 * 
+	 * @return See above.
+	 */
+	public String getSearchValue() { return searchArea.getText(); }
+	
+	/**
+	 * Sets the value of the {@link #searchArea}.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setSearchValue(String text)
+	{
+		if (text == null) return;
+		String result = "";
+    	List<String> l = SearchUtil.splitTerms(getSearchValue(), 
+				SearchUtil.COMMA_SEPARATOR);
+    	if (l != null) {
+    		Iterator<String> i = l.iterator();
+    		boolean exist = false;
+    		String value;
+    		while (i.hasNext()) {
+    			value = i.next();
+				if (value != null && value.equals(text))
+					exist = true;
+			}
+    		if (exist) {
+    			i = l.iterator();
+    			int index = 0;
+    			int n = l.size()-1;
+    			while (i.hasNext()) {
+        			value = i.next();
+        			result += value;
+    				if (index != n) 
+    					result += SearchUtil.COMMA_SEPARATOR+" ";
+    				index++;
+    			}
+    		} else {
+    			i = l.iterator();
+    			while (i.hasNext()) {
+        			value = i.next();
+        			result += value;
+    				result += SearchUtil.COMMA_SEPARATOR+" ";
+    			}
+    			result += text;
+    		}
+    	} else result = text;
+    	searchArea.getDocument().removeDocumentListener(this);
+    	searchArea.setText(result);
+    	searchArea.getDocument().addDocumentListener(this);
+	}
+	
+	/** 
+	 * Class extended this class should override that method for 
+	 * code completion.
+	 */
+	protected void handleTextInsert() {}
 	
 	/** 
      * Shows or hides the {@link #clearButton} when some text is entered.
@@ -427,6 +531,7 @@ public class QuickSearch
      */
 	public void insertUpdate(DocumentEvent e)
 	{
+		handleTextInsert();
 		layoutManager.setColumn(3, TableLayout.PREFERRED);
 		//searchPanel.add(clearButton, "3, 0, f, c");
 		searchPanel.validate();
@@ -473,11 +578,7 @@ public class QuickSearch
 			UIUtilities.setTextAreaDefault(searchButton);
 			searchButton.setBorder(null);
 			searchArea.setToolTipText(node.getDescription());
-			/*
-			if (isRatingNode(node)) 
-				firePropertyChange(QUICK_SEARCH_PROPERTY, Boolean.FALSE, 
-								Boolean.TRUE);
-								*/
+			setSearchContext();
 			handleKeyEnter();
 		} else if (QUICK_SEARCH_PROPERTY.equals(name)) search();
 	}

@@ -26,10 +26,17 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -40,6 +47,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
@@ -47,10 +56,15 @@ import layout.TableLayout;
 import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
+import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+import pojos.DataObject;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -69,9 +83,12 @@ import pojos.TextualAnnotationData;
  */
 public class FilteringDialog 
 	extends JDialog
-	implements ActionListener
+	implements ActionListener, DocumentListener, PropertyChangeListener
 {
 
+	/** Bound property indicating to load the existing tags. */
+	public static final String	LOAD_TAG_PROPERTY = "loadTag";
+	
 	/** Bound property indicating to filter the data. */
 	public static final String	FILTER_PROPERTY = "filter";
 	
@@ -142,6 +159,107 @@ public class FilteringDialog
 	/** Button to filter the data. */
 	private JButton			filterButton;
 	
+    /** The dialog displaying the existing tags. */
+    private HistoryDialog	tagsDialog;
+
+    /** The collection of existing tags. */
+    private Collection		existingTags;
+    
+    /**
+     * Enters the tag.
+     * 
+     * @param tag The tag value to enter.
+     */
+    private void enterTag(TagAnnotationData tag)
+    {
+    	String result = "";
+    	String text = tag.getTagValue();
+    	List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
+				SearchUtil.COMMA_SEPARATOR);
+    	if (l != null) {
+    		Iterator<String> i = l.iterator();
+    		boolean exist = false;
+    		String value;
+    		while (i.hasNext()) {
+    			value = i.next();
+				if (value != null && value.equals(text))
+					exist = true;
+			}
+    		if (exist) {
+    			i = l.iterator();
+    			int index = 0;
+    			int n = l.size()-1;
+    			while (i.hasNext()) {
+        			value = i.next();
+        			result += value;
+    				if (index != n) 
+    					result += SearchUtil.COMMA_SEPARATOR+" ";
+    				index++;
+    			}
+    		} else {
+    			i = l.iterator();
+    			while (i.hasNext()) {
+        			value = i.next();
+        			result += value;
+    				result += SearchUtil.COMMA_SEPARATOR+" ";
+    			}
+    			result += text;
+    		}
+    	} else result = text;
+    	tagsArea.getDocument().removeDocumentListener(this);
+    	tagsArea.setText(result);
+    	tagsArea.getDocument().addDocumentListener(this);
+    }
+    
+    /** Loads the tags and adds code completion. */
+    private void handleTagInsert()
+    {
+    	if (existingTags == null) {
+    		firePropertyChange(LOAD_TAG_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+    		return;
+    	}
+		codeCompletion();
+		
+		if (tagsDialog == null) return;
+		String name = tagsArea.getText();
+		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
+        int length = names.length;
+        if (length > 0) {
+        	if (tagsDialog.setSelectedTextValue(names[length-1].trim())) {
+        		Rectangle r = tagsArea.getBounds();
+        		tagsDialog.show(tagsArea, 0, r.height);
+        		tagsArea.requestFocus();
+        	} else tagsDialog.setVisible(false);
+        }	
+    }
+    
+    /** Initializes the {@link HistoryDialog} used for code completion. */
+    private void codeCompletion()
+    {
+    	if (tagsDialog != null) return;
+    	Rectangle r = tagsArea.getBounds();
+		Object[] data = null;
+		if (existingTags != null && existingTags.size() > 0) {
+			data = new Object[existingTags.size()];
+			Iterator j = existingTags.iterator();
+			DataObject object;
+
+			TagItem item;
+			int i = 0;
+			while (j.hasNext()) {
+				object = (DataObject) j.next();
+				item = new TagItem(object);
+				data[i] = item;
+				i++;
+			}
+			long id = MetadataViewerAgent.getUserDetails().getId();
+			tagsDialog = new HistoryDialog(data, r.width);
+			tagsDialog.setListCellRenderer(new TagCellRenderer(id));
+			tagsDialog.addPropertyChangeListener(
+					HistoryDialog.SELECTION_PROPERTY, this);
+		}
+    }
+    
 	/** Sets the properties of the dialog. */
 	private void setProperties()
 	{
@@ -163,6 +281,28 @@ public class FilteringDialog
 		toDate = UIUtilities.createDatePicker();
 		tagsArea = new JTextField();
 		tagsArea.setColumns(15);
+		tagsArea.getDocument().addDocumentListener(this);
+		tagsArea.addKeyListener(new KeyAdapter() {
+
+            /** Finds the phrase. */
+            public void keyPressed(KeyEvent e)
+            {
+            	Object source = e.getSource();
+            	if (source != tagsArea) return;
+            	switch (e.getKeyCode()) {
+					case KeyEvent.VK_UP:
+						if (tagsDialog != null && tagsDialog.isVisible())
+							tagsDialog.setSelectedIndex(false);
+						break;
+					case KeyEvent.VK_DOWN:
+						if (tagsDialog != null && tagsDialog.isVisible())
+							tagsDialog.setSelectedIndex(true);
+						break;
+				}
+                
+            }
+        });
+		
 		commentsArea = new JTextField();
 		commentsArea.setColumns(15);
 		cancelButton = new JButton("Cancel");
@@ -298,15 +438,7 @@ public class FilteringDialog
 				TableLayout.PREFERRED, 5}};
 		p.setLayout(new TableLayout(size));
 		int i = 0;
-		//p.add(buildAreaPane(), "0, "+i);
-		//i++;
-		//p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		//i++;
 		p.add(buildRatingPane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		i++;
-		p.add(buildCalendarPane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		i++;
@@ -315,6 +447,10 @@ public class FilteringDialog
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		i++;
 		p.add(buildCommentsPane(), "0, "+i);
+		i++;
+		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
+		i++;
+		p.add(buildCalendarPane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		return p;
@@ -361,6 +497,58 @@ public class FilteringDialog
 	}
 
 	/**
+	 * Sets the text of the {@link tagsArea}.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setTagsText(String text)
+	{
+		if (text == null) return;
+		text = text.trim();
+		tagsArea.getDocument().removeDocumentListener(this);
+		tagsArea.setText(text);
+		tagsArea.getDocument().addDocumentListener(this);
+		tagsBox.setSelected(true);
+	}
+	
+	/**
+	 * Sets the text of the {@link commentsArea}.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setCommentsText(String text)
+	{
+		if (text == null) return;
+		text = text.trim();
+		commentsArea.setText(text);
+		commentsBox.setSelected(true);
+	}
+	
+	/**
+	 * Sets the value of the {@link rating} component.
+	 * 
+	 * @param value The value to set.
+	 */
+	public void setRatingLevel(int value)
+	{
+		rating.setValue(value);
+		ratingBox.setSelected(true);
+	}
+	
+	/**
+	 * Sets the collection of tags and brings up the completion dialog 
+	 * if any.
+	 * 
+	 * @param tags The value to set.
+	 */
+	public void setTags(Collection tags)
+	{
+		if (tags == null) return;
+		existingTags = tags;
+		codeCompletion();
+	}
+	
+	/**
 	 * Reacts to various controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
@@ -375,5 +563,45 @@ public class FilteringDialog
 				filter();
 		}
 	}
+
+	/**
+	 * Sets the tag value.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (HistoryDialog.SELECTION_PROPERTY.equals(name)) {
+			Object item = evt.getNewValue();
+			if (!(item instanceof TagItem)) return;
+			DataObject ho = ((TagItem) item).getDataObject();
+			if (ho instanceof TagAnnotationData) {
+				enterTag((TagAnnotationData) ho);
+			}
+		}
+	}
+	
+	/**
+	 * Fires property indicating that some text has been entered.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
+	 */
+	public void insertUpdate(DocumentEvent e)
+	{
+		handleTagInsert();
+	}
+
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
+	 */
+	public void removeUpdate(DocumentEvent e) {}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but no-op implementation
+	 * in our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

@@ -67,7 +67,10 @@ public class RatingComponent
 	public static final String	RATE_PROPERTY = "rate";
 	
 	/** The maximum number of value. */
-	public static final int 	MAX = 5;
+	public static final int 	MAX_VALUE = 5;
+	
+	/** The maximum number of value. */
+	public static final int 	MIN_VALUE = 5;
 	
 	/** The collection of selected stars. */
 	private List<Image>			plus;
@@ -95,7 +98,7 @@ public class RatingComponent
 	{
 		plus.clear();
 		minus.clear();
-		int n = MAX-currentValue;
+		int n = MAX_VALUE-currentValue;
 		for (int i = 0; i < n; i++)
 			minus.add(unselected);
 		for (int i = 0; i < currentValue; i++)
@@ -131,7 +134,7 @@ public class RatingComponent
 		int w = selected.getWidth(null);
 		int h = selected.getHeight(null);
 		canvas.setPreferredSize(
-				new Dimension(w*MAX+(MAX-1)*RatingCanvas.SPACE, 
+				new Dimension(w*MAX_VALUE+(MAX_VALUE-1)*RatingCanvas.SPACE, 
 						h+2*RatingCanvas.SPACE));
 		fillLists();
 	}
@@ -202,8 +205,8 @@ public class RatingComponent
 	 */
 	public RatingComponent(int selected, int size, boolean hasListeners)
 	{
-		if (selected < 0) selected = 0;
-		if (selected > MAX) selected = MAX;
+		if (selected < MIN_VALUE) selected = MIN_VALUE;
+		if (selected > MAX_VALUE) selected = MAX_VALUE;
 		switch (size) {
 			case HIGH_SIZE:
 			case MEDIUM_SIZE:
@@ -239,7 +242,7 @@ public class RatingComponent
 	 */
 	public void setValue(int value)
 	{
-		if (value < 0 || value > MAX) return;
+		if (value < MIN_VALUE || value > MAX_VALUE) return;
 		int oldValue = currentValue;
 		currentValue = value;
 		fillLists();
@@ -254,8 +257,8 @@ public class RatingComponent
 	 */
 	public int getCurrentValue()
 	{
-		if (currentValue < 0) return 0;
-		if (currentValue > MAX) return MAX;
+		if (currentValue < MIN_VALUE) return MIN_VALUE;
+		if (currentValue > MAX_VALUE) return MAX_VALUE;
 		return currentValue;
 	}
 	

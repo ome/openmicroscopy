@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
 
 /** 
- * 
+ * A customized {@link JXTreeTable}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -72,44 +72,47 @@ public class OMETreeTable
 {	
 	
 	/** A map of the default cell editors in the table.  */
-	protected static HashMap<Class<?>, DefaultCellEditor> defaultEditors;
+	protected static HashMap<Class<?>, DefaultCellEditor> DEFAULT_EDITORS;
 	
 	static
 	{
-		defaultEditors = new HashMap<Class<?>, DefaultCellEditor>();
-		defaultEditors.put(Boolean.class, 
+		DEFAULT_EDITORS = new HashMap<Class<?>, DefaultCellEditor>();
+		DEFAULT_EDITORS.put(Boolean.class, 
 							new BooleanCellEditor(new JCheckBox()));
-		defaultEditors.put(Integer.class, 
+		DEFAULT_EDITORS.put(Integer.class, 
 							new NumberCellEditor(new JTextField()));
-		defaultEditors.put(String.class, 
+		DEFAULT_EDITORS.put(String.class, 
 							new StringCellEditor(new JTextField()));
 	}
 
 	/** A map of the default cell renderers in the table. */
-	protected static HashMap<Class<?>, TableCellRenderer> defaultTableRenderers;
+	protected static HashMap<Class<?>, TableCellRenderer> DEFAULT_RENDERERS;
 	
 	static
 	{
-		defaultTableRenderers = 
+		DEFAULT_RENDERERS = 
 							new HashMap<Class<?>, TableCellRenderer>();
-		defaultTableRenderers.put(Boolean.class, new BooleanCellRenderer());
-		defaultTableRenderers.put(Long.class, new NumberCellRenderer());
-		defaultTableRenderers.put(Integer.class, new NumberCellRenderer());
-		defaultTableRenderers.put(Float.class, new NumberCellRenderer());
-		defaultTableRenderers.put(Double.class, new NumberCellRenderer());
-		defaultTableRenderers.put(String.class, 
+		DEFAULT_RENDERERS.put(Boolean.class, new BooleanCellRenderer());
+		DEFAULT_RENDERERS.put(Long.class, new NumberCellRenderer());
+		DEFAULT_RENDERERS.put(Integer.class, new NumberCellRenderer());
+		DEFAULT_RENDERERS.put(Float.class, new NumberCellRenderer());
+		DEFAULT_RENDERERS.put(Double.class, new NumberCellRenderer());
+		DEFAULT_RENDERERS.put(String.class, 
 								new NumberCellRenderer(SwingConstants.LEFT));
 //		defaultTableRenderers.put(Color.class, new ColourCellRenderer());
 	}
-	
-	/** A reference to the tree table model. */
-	protected TreeTableModel				model;
-	
+
 	/** Tree expansion listener. */
-	protected TreeExpansionListener 		treeExpansionListener;
+	protected TreeExpansionListener	treeExpansionListener;
 
 	/** The mouse listener. */
-	protected MouseListener 				mouseListener;
+	protected MouseListener			mouseListener;
+	
+	/** Creates a new instance. */
+	public OMETreeTable()
+	{
+		super();
+	}
 	
 	/**
 	 * Create an instance of the treetable.
@@ -119,7 +122,18 @@ public class OMETreeTable
 	public OMETreeTable(TreeTableModel model)
 	{
 		super(model);
-		this.model = model;
+		setTableModel(model);
+	}
+	
+	/**
+	 * Sets the tree model.
+	 * 
+	 * @param model Tje value to set.
+	 */
+	public void setTableModel(TreeTableModel model)
+	{
+		setTreeTableModel(model);
+		//this.model = model;
 		setColumnSelectionAllowed(false);
 		setRowSelectionAllowed(true);
 		setCellSelectionEnabled(false);
@@ -272,13 +286,13 @@ public class OMETreeTable
 	 */
 	protected void setDefaultEditors()
 	{
-		Iterator<Class<?>> classIterator = defaultEditors.keySet().iterator();
+		Iterator<Class<?>> classIterator = DEFAULT_EDITORS.keySet().iterator();
 		Class<?> classType;
 		DefaultCellEditor editorType;
 		while(classIterator.hasNext())
 		{
 			classType = classIterator.next();
-			editorType = defaultEditors.get(classType);
+			editorType = DEFAULT_EDITORS.get(classType);
 			this.setDefaultEditor(classType, editorType);
 		}
 	}
@@ -291,13 +305,13 @@ public class OMETreeTable
 	protected void setDefaultRenderers()
 	{
 		Iterator<Class<?>> 
-			classIterator = defaultTableRenderers.keySet().iterator();
+			classIterator = DEFAULT_RENDERERS.keySet().iterator();
 		Class<?> classType;
 		TableCellRenderer rendererType;
 		while (classIterator.hasNext())
 		{
 			classType = classIterator.next();
-			rendererType = defaultTableRenderers.get(classType);
+			rendererType = DEFAULT_RENDERERS.get(classType);
 			this.setDefaultRenderer(classType, rendererType);
 		}
 	}
@@ -348,9 +362,10 @@ public class OMETreeTable
 	public void expandAll()
 	{
 		super.expandAll();
-		MutableTreeTableNode rootNode = 
+		MutableTreeTableNode root = 
 			(MutableTreeTableNode) getTreeTableModel().getRoot();
-		for (MutableTreeTableNode node : ((OMETreeNode) rootNode).getChildList())
+		if (root == null) return;
+		for (MutableTreeTableNode node : ((OMETreeNode) root).getChildList())
 			((OMETreeNode) node).setExpanded(true);
 	}
 
@@ -362,7 +377,8 @@ public class OMETreeTable
 	public void collapsePath(TreePath path)
 	{
 		super.collapsePath(path);
-		OMETreeNode node = (OMETreeNode)path.getLastPathComponent();
+		if (path == null) return;
+		OMETreeNode node = (OMETreeNode) path.getLastPathComponent();
 		node.setExpanded(false);
 	}
 	
@@ -375,6 +391,7 @@ public class OMETreeTable
 	{
 		super.collapseRow(row);
 		OMETreeNode node = getNodeAtRow(row);
+		if (node == null) return;
 		node.setExpanded(false);
 	}
 	
@@ -386,9 +403,10 @@ public class OMETreeTable
 	public void collapseAll()
 	{
 		super.collapseAll();
-		MutableTreeTableNode rootNode = 
+		MutableTreeTableNode root = 
 			(MutableTreeTableNode) getTreeTableModel().getRoot();
-		for (MutableTreeTableNode node : ((OMETreeNode) rootNode).getChildList())
+		if (root == null) return;
+		for (MutableTreeTableNode node : ((OMETreeNode) root).getChildList())
 			((OMETreeNode) node).setExpanded(true);
 	}
 
@@ -424,7 +442,7 @@ public class OMETreeTable
 	 */
 	public boolean isCellEditable(Object node, int column) 
 	{
-		return model.isCellEditable(node, column);
+		return getTreeTableModel().isCellEditable(node, column);
 	}
 	
 	/**
