@@ -172,7 +172,7 @@ public class FormFieldImage extends FormField {
 			if (dataField.getAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH) != null)
 				dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, null, true);
 			// this will cause this field to refresh, displaying the image.
-			dataField.setAttribute(DataFieldConstants.IMAGE_PATH, imagePath, true);
+			dataField.setAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH, imagePath, true);
 		}
 	}
 	
@@ -242,8 +242,8 @@ public class FormFieldImage extends FormField {
 			
 			// Save the relative Path
 			// (first overwrite the absolute path (if not null). Add to undo queue.
-			if (dataField.getAttribute(DataFieldConstants.IMAGE_PATH) != null)
-				dataField.setAttribute(DataFieldConstants.IMAGE_PATH, null, true);
+			if (dataField.getAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH) != null)
+				dataField.setAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH, null, true);
 			// This will cause this field to Refresh, displaying the image.
 			dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, relativePath, true);
 		}
@@ -325,7 +325,7 @@ public class FormFieldImage extends FormField {
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
 		
-		String imagePath = dataField.getAttribute(DataFieldConstants.IMAGE_PATH);
+		String imagePath = dataField.getAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH);
 		
 		if (imagePath == null) {
 			String relativeImagePath = dataField.getAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH);

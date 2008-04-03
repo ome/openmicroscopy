@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -71,9 +72,33 @@ public class FormFieldLink extends FormField {
 	 */
 	public static final Font LINK_FONT = new Font("SansSerif", Font.PLAIN, 12);
 	
-	Icon networkLocalIcon = ImageFactory.getInstance().getIcon(ImageFactory.NETWORK_LOCAL_ICON);
-	
 	Icon linkLocalIcon = ImageFactory.getInstance().getIcon(ImageFactory.LINK_LOCAL_ICON);
+
+	Icon linkRelativeIcon = ImageFactory.getInstance().getIcon(ImageFactory.LINK_RELATIVE_ICON);
+	
+	Icon editorLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.LINK_SCIENCE_ICON);
+
+	Icon editorRelativeLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.LINK_SCIENCE_RELATIVE_ICON);
+	
+	
+	
+	/**
+	 * This is the type of link that is currently set for this field. 
+	 * Eg. Local link, Relative link, Url link. 
+	 * It is set by updateLink(), depending on the attribute retrieved from dataField. 
+	 * Used to set the icon etc. 
+	 */
+	private int linkType;
+	
+	public static final int LOCAL_LINK = 0;
+	
+	public static final int RELATIVE_LINK = 1;
+	
+	public static final int URL_LINK = 2;
+	
+	public static final int LOCAL_EDITOR_LINK = 3;
+	
+	public static final int RELATIVE_EDITOR_LINK = 4;
 	
 	/**
 	 * The button that users click to choose a link. 
@@ -104,12 +129,15 @@ public class FormFieldLink extends FormField {
 				new GetURLAction(),
 				new GetAbsoluteImagePathAction(),
 				new GetRelativeImagePathAction()};
-		getLinkButton = new PopupMenuButton("Choose an image to display", 
+		getLinkButton = new PopupMenuButton("Choose a link to a URL or local file", 
 				chooseLinkIcon, getImageActions);
 		
 		getLinkButton.setBorder(toolBarButtonBorder);
 		getLinkButton.setBackground(null);
 		horizontalBox.add(getLinkButton);
+		
+		// Update the link etc. 
+		dataFieldUpdated();
 	}
 	
 	
@@ -121,6 +149,35 @@ public class FormFieldLink extends FormField {
 	} 
 	
 	/**
+	 * To ensure that only one type of link is saved to dataField.
+	 * Update several attributes at once, making sure that all apart from 
+	 * one are null.
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	public void saveLinkToDataField(String name, String value) {
+		
+		if (name.equals(DataFieldConstants.URL_LINK) || 
+				name.equals(DataFieldConstants.ABSOLUTE_FILE_LINK) ||
+				name.equals(DataFieldConstants.RELATIVE_FILE_LINK)) {
+			
+			/*
+			 * Make a map with all values null, then update one.
+			 */
+			HashMap<String, String> newValues = new HashMap<String, String>();
+			newValues.put(DataFieldConstants.URL_LINK, null);
+			newValues.put(DataFieldConstants.ABSOLUTE_FILE_LINK, null);
+			newValues.put(DataFieldConstants.RELATIVE_FILE_LINK, null);
+			
+			newValues.put(name, value);
+			
+			dataField.setAttributes("Link", newValues, true);
+		}
+			
+	}
+	
+	/**
 	 * This listener for the linkButton uses BareBonesBrowserLauncher, passing it
 	 * URLlink. 
 	 * @author will
@@ -129,18 +186,29 @@ public class FormFieldLink extends FormField {
 	public class OpenLinkActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 
-			String validLink = URLlink;
-			try {
-				URL validUrl = new URL(URLlink);
-			} catch (MalformedURLException ex) {
-				 if (System.getProperty("os.name").startsWith("Mac OS")) {
-					 validLink = "file://" + URLlink;
-			     } else {
-			    	 validLink = "file:///" + URLlink;
-			    }
+			if (linkType==LOCAL_EDITOR_LINK || linkType==RELATIVE_EDITOR_LINK) {
+				if (model != null) {
+					model.openThisFile(new File(URLlink));
+				}
 			}
-		    
-			BareBonesBrowserLaunch.openURL(validLink);
+			else
+				/*
+				 * If not null, Check that the URLlink is a valid URL...
+				 */
+				if (URLlink != null) {
+					try {
+						URL validUrl = new URL(URLlink);
+						
+						// if not, add the file extension...
+					} catch (MalformedURLException ex) {
+						 if (System.getProperty("os.name").startsWith("Mac OS")) {
+							 URLlink = "file://" + URLlink;
+					     } else {
+					    	 URLlink = "file:///" + URLlink;
+					    }
+					}
+				}
+			BareBonesBrowserLaunch.openURL(URLlink);
 		}
 	}
 	
@@ -170,12 +238,8 @@ public class FormFieldLink extends FormField {
 				url = "http://" + url;
 			}
 			
-			// Save the absolute Path
-			// (first overwrite the relative path (if not null). Add to undo queue.
-			if (dataField.getAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH) != null)
-				dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, null, true);
-			// this will cause this field to refresh, displaying the image.
-			dataField.setAttribute(DataFieldConstants.IMAGE_PATH, url, true);
+			// Save the URL to dataField
+			saveLinkToDataField(DataFieldConstants.URL_LINK, url);
 		}
 	}
 	
@@ -193,11 +257,7 @@ public class FormFieldLink extends FormField {
 				return;
 			
 			// Save the absolute Path
-			// (first overwrite the relative path (if not null). Add to undo queue.
-			if (dataField.getAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH) != null)
-				dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, null, true);
-			// this will cause this field to refresh, displaying the image.
-			dataField.setAttribute(DataFieldConstants.IMAGE_PATH, imagePath, true);
+			saveLinkToDataField(DataFieldConstants.ABSOLUTE_FILE_LINK, imagePath);
 		}
 	}
 	
@@ -211,7 +271,7 @@ public class FormFieldLink extends FormField {
 		public GetRelativeImagePathAction() {
 			putValue(Action.NAME, "Set Relative link to local file");
 			putValue(Action.SHORT_DESCRIPTION, "Link to a local file that will stay in the same file location, relative to this file");
-			putValue(Action.SMALL_ICON, linkLocalIcon); 
+			putValue(Action.SMALL_ICON, linkRelativeIcon); 
 		}
 		
 		public void actionPerformed(ActionEvent e) {
@@ -258,19 +318,13 @@ public class FormFieldLink extends FormField {
 			if (imagePath == null) // user canceled
 				return;
 			
-
 			/*
 			 * Calculate what the relative path is, based on the location of the editorFile. 
 			 */
 			String relativePath = FilePathMethods.getRelativePathFromAbsolutePath(editorFile, imagePath);
 			
-			
 			// Save the relative Path
-			// (first overwrite the absolute path (if not null). Add to undo queue.
-			if (dataField.getAttribute(DataFieldConstants.IMAGE_PATH) != null)
-				dataField.setAttribute(DataFieldConstants.IMAGE_PATH, null, true);
-			// This will cause this field to Refresh, displaying the image.
-			dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, relativePath, true);
+			saveLinkToDataField(DataFieldConstants.RELATIVE_FILE_LINK, relativePath);
 		}
 	}
 	
@@ -306,11 +360,59 @@ public class FormFieldLink extends FormField {
 	 * Then calls refreshLink() to display new link.
 	 */
 	public void updateLink() {
-		URLlink = dataField.getAttribute(DataFieldConstants.IMAGE_PATH);
+		
+		/*
+		 * First check the value of the Absolute file path attribute
+		 */
+		URLlink = dataField.getAttribute(DataFieldConstants.ABSOLUTE_FILE_LINK);
+		if (URLlink != null) {
+			if (isEditorFileExtension(URLlink)) 
+				linkType = LOCAL_EDITOR_LINK;
+			else
+				linkType = LOCAL_LINK;
+		}
+		
+		// if null, check the Relative file path attribute..
+		else {
+			URLlink = dataField.getAttribute(DataFieldConstants.RELATIVE_FILE_LINK);
+			// .. and if not null, convert it to absolute path.
+			if (URLlink != null) {
+				File editorFile = ((DataField)dataField).getNode().getTree().getFile();
+				URLlink = FilePathMethods.getAbsolutePathFromRelativePath(editorFile, URLlink);
+				
+				if (isEditorFileExtension(URLlink)) 
+					linkType = RELATIVE_EDITOR_LINK;
+				else
+					linkType = RELATIVE_LINK;
+			}
+		}
+
+		
+		// if still null, check the URL 
+		if (URLlink == null) {
+			URLlink = dataField.getAttribute(DataFieldConstants.URL_LINK);
+			linkType = URL_LINK;
+		}
+		
 		
 		System.out.println("FormFieldLink updateLink() " + URLlink);
 		refreshLink();
 	}
+	
+	/**
+	 * This checks the file extension of the file name (with or without the file path)
+	 * and returns true if it matches that of Editor files. 
+	 * 
+	 * @param fileNameOrPath		The name of the file (with or without path)
+	 * @return					True if the file extension is same as Editor files.
+	 */
+	public boolean isEditorFileExtension(String fileNameOrPath) {
+		
+		return (fileNameOrPath.endsWith(".pro.xml") 
+				|| fileNameOrPath.endsWith(".pro")		// older file
+				|| fileNameOrPath.endsWith(".exp"));	// older file
+	}
+	
 
 	/**
 	 * Displays the current value of URLlink. 
@@ -319,13 +421,33 @@ public class FormFieldLink extends FormField {
 		
 		if (URLlink == null) {
 			linkButton.setText("");
-			linkButton.setToolTipText("No link");
+			linkButton.setToolTipText("No link set");
+			linkButton.setIcon(linkLocalIcon); 
+			linkButton.setEnabled(false);
 			return;
 		} 
 		
 		int len = URLlink.length();
-		linkButton.setText(len < 20 ? URLlink : "..." + URLlink.substring(len-19, len));
+		linkButton.setText(len < 30 ? URLlink : "..." + URLlink.substring(len-29, len));
 		linkButton.setToolTipText("Open the link to: " + URLlink);
+		switch (linkType) {
+			case LOCAL_LINK: 
+				linkButton.setIcon(linkLocalIcon);
+				break;
+			case RELATIVE_LINK:
+				linkButton.setIcon(linkRelativeIcon);
+				break;
+			case LOCAL_EDITOR_LINK:
+				linkButton.setIcon(editorLinkIcon);
+				break;
+			case RELATIVE_EDITOR_LINK:
+				linkButton.setIcon(editorRelativeLinkIcon);
+				break;
+			case URL_LINK:
+				linkButton.setIcon(wwwIcon);
+				break;
+		}
+		linkButton.setEnabled(true);
 	}
 	
 	/**

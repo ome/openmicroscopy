@@ -24,45 +24,39 @@
 package actions;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
-import cmd.OpenFileCmd;
-
 import ui.IModel;
+import ui.components.TableImporter;
 import util.ImageFactory;
 
-
-public class ImportFieldsAction 
-	extends ProtocolEditorAction {
+/**
+ * This action opens a new instance of TableImporter, for importing table data into 
+ * Editor via copy and paste of tab-delimited data (eg from Excel). 
+ * 
+ * @author will
+ *
+ */
+public class ImportTableAction extends ProtocolEditorAction {
 	
-	public ImportFieldsAction(IModel model) {
+	public ImportTableAction(IModel model) {
 
 		super(model);
 	
-		putValue(Action.NAME, "Import Fields");
-		putValue(Action.SHORT_DESCRIPTION, "Open an OMERO.editor file or XML file, and select fields to import.");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON)); 
-		
-		// update enabled status
-		setEnabled(fieldsAreEditable());
+		putValue(Action.NAME, "Import Table");
+		putValue(Action.SHORT_DESCRIPTION, "Import a table via copy and paste, eg From Excel.");
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_TABLE_ICON)); 
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		File file = OpenFileCmd.getFileFromUser();
-		model.setImportFile(file);
+		new TableImporter(model);
 	}
 	
 
 	public void stateChanged(ChangeEvent e) {
 		
-		/*
-		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
-		 */
-		setEnabled(fieldsAreEditable());
 	}
-
 }
+

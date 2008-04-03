@@ -37,6 +37,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 
 import javax.swing.Box;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -68,19 +69,35 @@ public class TextImporter extends JPanel{
 	
 	protected JTextArea textArea;
 	
-	private String headerMessage = "Please paste the text you wish to import into the text area below. \n" +
-			"Each new line will become a new field when imported.";
+	private String title;
+	
+	private String headerMessage;
+	
+	private Icon headerIcon;
+	
+	
+	public TextImporter() {}
 	
 	public TextImporter(IModel model) {
 		
-		this.model = model;
+		initialise(model);
 		
-		SelectionObserver sO = (SelectionObserver)model;
-		XMLUpdateObserver xO = (XMLUpdateObserver)model;
+		title = "Import Text";
+		 
+		headerMessage = "Please paste the text you wish to import into the text area below. \n" +
+			"Each new line will become a new field when imported.";
+		 
+		headerIcon = ImageFactory.getInstance().getIcon(ImageFactory.KORGANIZER_ICON);
 		
-		tree = new Tree(sO, xO);
+		 
+		buildAndDisplayUI();
+	}
+	
+	
+	
+	public void buildAndDisplayUI() {
 		
-		
+
 		setLayout(new BorderLayout());
 		
 		int panelWidth = 800;
@@ -89,8 +106,7 @@ public class TextImporter extends JPanel{
 		this.setPreferredSize(new Dimension(panelWidth, 500));
 		
 		// Header.
-		TitlePanel titlePanel = new TitlePanel("Import Text", headerMessage, 
-				ImageFactory.getInstance().getIcon(ImageFactory.KORGANIZER_ICON));
+		TitlePanel titlePanel = new TitlePanel(title, headerMessage, headerIcon);
 		add(titlePanel, BorderLayout.NORTH);
 		
 		// Text Area...
@@ -136,60 +152,72 @@ public class TextImporter extends JPanel{
 		displayInFrame(this);
 	}
 	
+	public void initialise(IModel model) {
+		this.model = model;
+		
+		SelectionObserver sO = (SelectionObserver)model;
+		XMLUpdateObserver xO = (XMLUpdateObserver)model;
+		
+		tree = new Tree(sO, xO);
+	}
 	
 	public class ImportListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent e) {
-			String wholeText = textArea.getText();
-			
-			StringReader sr = new StringReader(wholeText);
-			
-			BufferedReader br = new BufferedReader(sr);
-			
-			try {
-				String newLine = br.readLine();
-				
-				/*
-				 * Create the root node of a tree.
-				 */
-				
-				HashMap<String,String> attributeMap = new HashMap<String,String>();
-				attributeMap.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.PROTOCOL_TITLE);
-				attributeMap.put(DataFieldConstants.ELEMENT_NAME, newLine);
-				
-				DataFieldNode rootNode = new DataFieldNode(attributeMap, tree);
-				
-				tree.setRootNode(rootNode);
-				
-				newLine = br.readLine();
-				
-				while (newLine != null) {
-					System.out.println(newLine);
-					
-					/*
-					 * For each new line, Take the text, put it in a new node,
-					 * and add the node as a child of root node. 
-					 */
-					if (newLine.length() > 0) {
-						HashMap<String,String> map = new HashMap<String,String>();
-						map.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.FIXED_PROTOCOL_STEP);
-						map.put(DataFieldConstants.ELEMENT_NAME, newLine);
-					
-						DataFieldNode newNode = new DataFieldNode(map, tree);
-						rootNode.addChild(newNode);
-					}
-					
-					newLine = br.readLine();
-				}
-				
-				model.openTree((Tree)tree);
-				
-			} catch (IOException ioEx) {
-				// TODO Auto-generated catch block
-				ioEx.printStackTrace();
-			}
+			importTextToTree();
 		}
 		
+	}
+	
+	public void importTextToTree() {
+		String wholeText = textArea.getText();
+		
+		StringReader sr = new StringReader(wholeText);
+		
+		BufferedReader br = new BufferedReader(sr);
+		
+		try {
+			String newLine = br.readLine();
+			
+			/*
+			 * Create the root node of a tree.
+			 */
+			
+			HashMap<String,String> attributeMap = new HashMap<String,String>();
+			attributeMap.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.PROTOCOL_TITLE);
+			attributeMap.put(DataFieldConstants.ELEMENT_NAME, newLine);
+			
+			DataFieldNode rootNode = new DataFieldNode(attributeMap, tree);
+			
+			tree.setRootNode(rootNode);
+			
+			newLine = br.readLine();
+			
+			while (newLine != null) {
+				System.out.println(newLine);
+				
+				/*
+				 * For each new line, Take the text, put it in a new node,
+				 * and add the node as a child of root node. 
+				 */
+				if (newLine.length() > 0) {
+					HashMap<String,String> map = new HashMap<String,String>();
+					map.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.FIXED_PROTOCOL_STEP);
+					map.put(DataFieldConstants.ELEMENT_NAME, newLine);
+				
+					DataFieldNode newNode = new DataFieldNode(map, tree);
+					rootNode.addChild(newNode);
+				}
+				
+				newLine = br.readLine();
+			}
+			
+			model.openTree((Tree)tree);
+			
+		} catch (IOException ioEx) {
+			// TODO Auto-generated catch block
+			ioEx.printStackTrace();
+		}
 	}
 	
 	public class TextAreaFocusListener implements FocusListener {
@@ -216,4 +244,15 @@ public class TextImporter extends JPanel{
 		frame.setVisible(true);
 	}
 	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	public void setHeaderMessage(String message) {
+		this.headerMessage = message;
+	}
+	
+	public void setHeaderIcon(Icon icon) {
+		this.headerIcon = icon;
+	}
 }

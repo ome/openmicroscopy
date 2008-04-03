@@ -24,7 +24,6 @@
 package actions;
 
 import java.awt.event.ActionEvent;
-import java.io.File;
 
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;

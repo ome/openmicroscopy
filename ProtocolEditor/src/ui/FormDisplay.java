@@ -85,22 +85,23 @@ public class FormDisplay
 		// get the formField JPanel from the dataField
 		if (rootNode != null) {
 			
-			verticalFormBox = new FormFieldContainer(rootNode);
+			verticalFormBox = new FormFieldContainer(rootNode, model);
 			this.add(verticalFormBox, BorderLayout.NORTH);
 			
 			
 			FormField formField = (FormField)rootNode.getFormField();
+			formField.setModel(model);
 			formField.refreshRootField(true);	// displays the correct buttons etc. 
 		
 			// pass the node and the Box that already contains it to buildFormTree()
 			// this will get the nodes children and add them to the Box (within a new Box)
-			buildFormTree(rootNode, verticalFormBox);
+			buildFormTree(rootNode, verticalFormBox, model);
 		}
 	}
 	
 //	 this will get the node's children and add them to the Box (within a new Box)
 	// the Panel of dfNode has already been added at the top of verticalBox
-	public static void buildFormTree(DataFieldNode dfNode, FormFieldContainer verticalBox) {
+	public static void buildFormTree(DataFieldNode dfNode, FormFieldContainer verticalBox, IModel model) {
 		
 		ArrayList<DataFieldNode> children = dfNode.getChildren();
 		
@@ -110,7 +111,7 @@ public class FormDisplay
 		
 		if (!subStepsCollapsed) {
 			// add the children to the childBox - this will recursively build tree for each
-			showChildren(children, verticalBox.getChildContainer());
+			showChildren(children, verticalBox.getChildContainer(), model);
 		}
 		
 		//		set visibility of the childBox wrt collapsed boolean of dataField
@@ -119,18 +120,18 @@ public class FormDisplay
 		
 	}
 	
-	public static void showChildren(ArrayList<DataFieldNode> children, Container childBox) {
+	public static void showChildren(ArrayList<DataFieldNode> children, Container childBox, IModel model) {
 		
 		//System.out.println("	showChildren()");
 		
 		// for each child, get their JPanel, add it to the childBox
 		for (DataFieldNode child: children){
 			
-			FormFieldContainer childContainer = new FormFieldContainer(child);
+			FormFieldContainer childContainer = new FormFieldContainer(child, model);
 			
 			childBox.add(childContainer);
 			// recursively build the tree below each child
-			buildFormTree(child, childContainer);
+			buildFormTree(child, childContainer, model);
 		}
 		//childBox.add(Box.createVerticalGlue());
 		/*

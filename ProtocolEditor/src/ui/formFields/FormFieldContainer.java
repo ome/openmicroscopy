@@ -40,6 +40,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import tree.DataFieldNode;
+import ui.IModel;
 
 /**
  * This container lays out a <code>FormField</code> panel and it's child panels.
@@ -70,7 +71,7 @@ public class FormFieldContainer extends JPanel {
 	protected static int childLeftIndent = 40;
 
 	
-	public FormFieldContainer(DataFieldNode dataFieldNode) {
+	public FormFieldContainer(DataFieldNode dataFieldNode, IModel model) {
 		
 		this.dataFieldNode = dataFieldNode;
 		
@@ -82,6 +83,7 @@ public class FormFieldContainer extends JPanel {
 		
 		
 		formField = (FormField)dataFieldNode.getFormField();
+		formField.setModel(model);
 		add(formField, BorderLayout.NORTH);
 		
 		

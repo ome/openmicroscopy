@@ -46,6 +46,7 @@ import actions.DuplicateFieldsAction;
 import actions.ExportAllTextAction;
 import actions.ExportHighltdTextAction;
 import actions.ImportFieldsAction;
+import actions.ImportTableAction;
 import actions.ImportTextAction;
 import actions.IndexFilesAction;
 import actions.LoadDefaultsAllAction;
@@ -180,6 +181,9 @@ public class Controller
     /** Identifies the <code>ImportTextAction</code>. */
     static final Integer     IMPORT_TEXT = new Integer(33);
     
+    /** Identifies the <code>ImportTableAction</code>. */
+    static final Integer     IMPORT_TABLE = new Integer(34);
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -235,6 +239,7 @@ public class Controller
         actionsMap.put(REPOPULATE_CALENDAR, new CalendarRepopulateAction(model));
         actionsMap.put(LOCK_FIELDS, new LockFieldsAction(model));
         actionsMap.put(IMPORT_TEXT, new ImportTextAction(model));
+        actionsMap.put(IMPORT_TABLE, new ImportTableAction(model));
     }
     
     /**

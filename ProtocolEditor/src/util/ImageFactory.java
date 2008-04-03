@@ -60,6 +60,7 @@ public class ImageFactory {
 	public static final String PASTE_ICON = ACTION_ICONS_FILE + "eclipse_paste_edit.png";
 	public static final String IMPORT_ICON = ACTION_ICONS_FILE + "importXml.png";
 	public static final String IMPORT_TEXT_ICON = ACTION_ICONS_FILE + "eclipse_copy_import.png";
+	public static final String IMPORT_TABLE_ICON = ACTION_ICONS_FILE + "import_table.png";
 	public static final String BIG_PROTOCOL_ICON = ACTION_ICONS_FILE + "edu_science.png";
 	public static final String PROTOCOL_ICON = ICONS_FILE + "edu_science.png";
 	public static final String COLLAPSED_ICON = ACTION_ICONS_FILE + "1rightarrow.png";
@@ -109,7 +110,9 @@ public class ImageFactory {
 	public static final String KORGANIZER_ICON = ACTION_ICONS_FILE + "korganizer64.png";
 	public static final String NETWORK_LOCAL_ICON = ACTION_ICONS_FILE + "network_local.png";
 	public static final String LINK_LOCAL_ICON = ACTION_ICONS_FILE + "link_local.png";
+	public static final String LINK_RELATIVE_ICON = ACTION_ICONS_FILE + "link_relative.png";
 	public static final String LINK_SCIENCE_ICON = ACTION_ICONS_FILE + "link_science.png";
+	public static final String LINK_SCIENCE_RELATIVE_ICON = ACTION_ICONS_FILE + "link_science_relative.png";
 	public static final String WRENCH_ICON = ACTION_ICONS_FILE + "configure.png";
 	
 	

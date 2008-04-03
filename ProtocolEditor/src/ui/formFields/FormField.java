@@ -57,6 +57,7 @@ import tree.IAttributeSaver;
 import tree.IDataFieldObservable;
 import tree.IDataFieldSelectable;
 import ui.FormDisplay;
+import ui.IModel;
 import ui.XMLView;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
@@ -69,6 +70,13 @@ public class FormField extends JPanel implements DataFieldObserver{
 	
 	IDataFieldObservable dataFieldObs;
 	IAttributeSaver dataField;
+	
+	/**
+	 * A reference to the model, for opening files, saving files, etc etc. 
+	 * This must be set by the UI container that this FormField panel is displayed in.
+	 * Ie. this reference is passed via the UI classes, not via dataField/Tree etc. 
+	 */
+	IModel model;
 	
 	// property change listener, property name
 	public static final String HAS_FOCUS = "hasFocus";
@@ -489,11 +497,28 @@ public class FormField extends JPanel implements DataFieldObserver{
 		collapseAllChildrenButton.setVisible(rootField);
 	}
 	
+	/**
+	 * Sets a reference to the UI container that displays all the children of this field. 
+	 * This is subsequently used to hide or show all the child fields, when this
+	 * field is collapsed or expanded. 
+	 * 
+	 * @param container
+	 */
 	public void setChildContainer(Container container) {
 		childContainer = container;
 	}
 	public Container getChildContainer() {
 		return childContainer;
+	}
+	
+	/**
+	 * This sets a reference to the model of this application. 
+	 * It will be used by the UI component that contains this FormField panel (FormDisplay).
+	 * 
+	 * @param model
+	 */
+	public void setModel(IModel model) {
+		this.model = model;
 	}
 	
 	// Lazy loading of child panels:
@@ -506,7 +531,7 @@ public class FormField extends JPanel implements DataFieldObserver{
 			return;
 		if (visible && childContainer.getComponentCount() == 0) {
 			ArrayList<DataFieldNode> children = ((DataField)dataField).getNode().getChildren();
-			FormDisplay.showChildren(children, childContainer);
+			FormDisplay.showChildren(children, childContainer, model);
 		}
 		childContainer.setVisible(visible);
 	}

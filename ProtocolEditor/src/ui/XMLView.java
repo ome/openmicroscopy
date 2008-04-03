@@ -527,6 +527,7 @@ public class XMLView
 			importMenu.setBorder(menuItemBorder);
 			importMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_FIELD)));
 			importMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_TEXT)));
+			importMenu.add(new JMenuItem(controller.getAction(Controller.IMPORT_TABLE)));
 			
 			menuBar.add(importMenu);
 			

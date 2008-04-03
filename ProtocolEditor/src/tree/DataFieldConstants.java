@@ -157,9 +157,9 @@ public class DataFieldConstants {
 	
 	/**
 	 * Used by the ImageField to store a file path to an image. 
-	 * This is currently the absolute local file path, but in future it may store a relative path too. 
+	 * This is the absolute local file path.
 	 */
-	public static final String IMAGE_PATH = "imagePath";
+	public static final String ABSOLUTE_IMAGE_PATH = "imagePath";
 	
 	/**
 	 * Used by the ImageField to store a file path to an image. 
@@ -172,6 +172,28 @@ public class DataFieldConstants {
 	 * ImageField. eg imageZoom = "50" would display the image at 50% full size. 
 	 */
 	public static final String IMAGE_ZOOM = "imageZoom";
+	
+	/**
+	 * Used by the LinkField to store an absolute file path to a local File. 
+	 * eg Word.doc, PDF etc or Editor file. 
+	 * This attribute is mutually exclusive with RELATIVE_FILE_PATH and URL_LINK
+	 */
+	public static final String ABSOLUTE_FILE_LINK = "absoluteFileLink";
+	
+	/**
+	 * Used by the LinkField to store a file path to an local file, eg Word.doc, PDF etc or Editor file. 
+	 * This is a relative file path, FROM the editor file in which this field appears TO the image.
+	 * This attribute is mutually exclusive with ABSOLUTE_FILE_PATH and URL_LINK
+	 */
+	public static final String RELATIVE_FILE_LINK = "relativeFileLink";
+	
+	/**
+	 * Used by the LinkField to store a URL. 
+	 * This URL is part of the "experimental variables" and is specific to the LinkField.
+	 * It is different from the URL "url" attribute, that exists as part of the template of all fields. 
+	 * This attribute is mutually exclusive with ABSOLUTE_FILE_PATH and RELATIVE_FILE_PATH.
+	 */
+	public static final String URL_LINK = "urlLink";
 	
 	/**
 	 * This is a field associated with the protocolTitle field, where users can add
@@ -239,15 +261,45 @@ public class DataFieldConstants {
 	
 	
 	/*
-	 * INPUT TYPES
-	 * 
+	 * FIELD TYPES
+	 * These strings are used as values stored in the "inputType" attribute of each field. 
+	 * When exported to XML, they form the name of each element, eg <TextField> 
+	 */
+	/**
+	 * This type of field is used as the root of Editor files. 
+	 * Therefore, each XML document will have the root element as ProtocolTitle 
 	 */
 	public static final String PROTOCOL_TITLE = "ProtocolTitle";
+	
+	/**
+	 * This field has no variables. Therefore, used to store Name, Description, URL only. 
+	 */
 	public static final String FIXED_PROTOCOL_STEP = "FixedStep";
+	
+	/**
+	 * A TextField stores a short text string. A default text string can also be stored. 
+	 */
 	public static final String TEXT_ENTRY_STEP = "TextField";
+	
+	/**
+	 * A TextBox field stores a paragraph or longer piece of text. 
+	 */
 	public static final String MEMO_ENTRY_STEP = "TextBox";
+	
+	/**
+	 * A Number Field stores a floating point number, and a default number can also be set. 
+	 */
 	public static final String NUMBER_ENTRY_STEP = "NumberField";
+	
+	/**
+	 * A dropDown menu field allows users to store several options as a comma-delimited list.
+	 * They can then choose one of these as a "value" and one as a "default" value. 
+	 */
 	public static final String DROPDOWN_MENU_STEP = "DropDownMenu";
+	
+	/**
+	 * 
+	 */
 	public static final String CHECKBOX_STEP = "CheckBoxField";
 	public static final String DATE = "DateField";		// This is deprecated -7th March 08.  Now use DateTimeField
 	public static final String DATE_TIME_FIELD = "DateTimeField";

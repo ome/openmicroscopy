@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.JComponent;
@@ -33,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.undo.UndoableEdit;
 
 import tree.edit.EditDataFieldAttribute;
+import tree.edit.EditDataFieldAttributes;
 import tree.edit.EditDataFieldType;
 import ui.FieldEditorFormFieldFactory;
 import ui.fieldEditors.FieldEditor;
@@ -129,6 +131,32 @@ public class DataField
 		if (rememberUndo) {
 			// remember what change was made - add it to undo() history
 			node.dataFieldUpdated(new EditDataFieldAttribute(this, name, oldValue, value));
+			notifyDataFieldObservers();
+		}
+	}
+	
+	/** 
+	 * This method allows users to update several attributes at once. 
+	 * The title is used for display purposes in the undo/redo queue.
+	 * This is only added to undo/redo queue if rememberUndo is true;
+	 */
+	public void setAttributes(String title, Map keyValuePairs, boolean rememberUndo) {
+		System.out.println("DataField.setAttributeS (notifyObservers="+ rememberUndo +"): " + title);
+		
+		/*
+		 * Make a map of the old values, while setting the new ones
+		 */
+		HashMap<String, String> oldValues = new HashMap<String, String>();
+		Iterator iterator = keyValuePairs.keySet().iterator();
+		while (iterator.hasNext()) {
+			String key = (String)iterator.next();
+			oldValues.put(key, getAttribute(key));
+			setAttribute(key, (keyValuePairs.get(key) == null ? null : keyValuePairs.get(key).toString()));
+		}
+		
+		if (rememberUndo) {
+			// remember what change was made - add it to undo() history
+			node.dataFieldUpdated(new EditDataFieldAttributes(this, title, oldValues, keyValuePairs));
 			notifyDataFieldObservers();
 		}
 	}
