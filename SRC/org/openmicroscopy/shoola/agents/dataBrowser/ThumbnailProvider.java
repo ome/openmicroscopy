@@ -105,6 +105,12 @@ public class ThumbnailProvider
     /** The {@link BufferedImage} representing the thumbnail displayed. */
     private BufferedImage   displayThumb;
     
+    /** 
+     * The {@link BufferedImage} representing the full size image for 
+     * the slide show. 
+     */
+    private BufferedImage   fullSizeImage;
+    
     /** The magnification factor. */
     private double          scalingFactor;
     
@@ -177,8 +183,8 @@ public class ThumbnailProvider
         computeDims();
     }
     
-    /** 
-     * Implemented as specified by {@link Thumbnail}. 
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
      * @see Thumbnail#setImageNode(ImageNode)
      */
     public void setImageNode(ImageNode node)
@@ -187,10 +193,9 @@ public class ThumbnailProvider
         display = node;
     }
     
-    /** 
-     * Sets the thumbnail retrieved from the server. 
-     * 
-     * @param t The Thumbnail to set.
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#setFullScaleThumb(BufferedImage)
      */
     public void setFullScaleThumb(BufferedImage t)
     {
@@ -200,16 +205,14 @@ public class ThumbnailProvider
     }
     
     /**
-     * Returns the thumbnail corresponding to the selected {@link ImageNode}.
-     * 
-     * @return See above.
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getDisplayedImage()
      */
     public BufferedImage getDisplayedImage() { return displayThumb; }
 
-    /** 
-     * Magnifies the original image. 
-     * 
-     * @param f The magnification factor.
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#scale(double)
      */
     public void scale(double f)
     {
@@ -227,38 +230,33 @@ public class ThumbnailProvider
         }
     }
      
-    /** 
-     * Returns the width of the displayed thumbnail.
-     * 
-     * @return See above.
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getWidth()
      */
     public int getWidth() { return width; }
     
-    /** 
-     * Returns the height of the displayed thumbnail.
-     * 
-     * @return See above.
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getHeight()
      */
     public int getHeight() { return height; }
     
     /**
-     * Returns the magnification factor.
-     * 
-     * @return See above.
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getScalingFactor()
      */
     public double getScalingFactor() { return scalingFactor; }
     
     /**
-     * Returns the thumbnail of maximal dimension.
-     * 
-     * @return See above.
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getFullScaleThumb()
      */
     public BufferedImage getFullScaleThumb() { return fullScaleThumb; }
     
     /**
-     * Returns a magnified version of the original thumbnail.
-     * 
-     * @return See above.
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getZoomedFullScaleThumb()
      */
     public BufferedImage getZoomedFullScaleThumb()
     {
@@ -266,10 +264,8 @@ public class ThumbnailProvider
     }
     
     /**
-     * Returns the icon associated to the thumbnail.
-     * The magnification factor uses is {@link #MIN_SCALING_FACTOR}.
-     * 
-     * @return See above.
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getIcon()
      */
     public Icon getIcon() 
     {
@@ -286,5 +282,26 @@ public class ThumbnailProvider
         iconThumb = new ImageIcon(newImg);
         return iconThumb;
     }
-    
+
+	/**
+	 * Implemented as specified by the {@link Thumbnail} I/F.
+	 * @see Thumbnail#isThumbnailLoaded()
+	 */
+	public boolean isThumbnailLoaded() { return fullScaleThumb != null; }
+
+	/**
+	 * Implemented as specified by the {@link Thumbnail} I/F.
+	 * @see Thumbnail#setFullSizeImage(BufferedImage)
+	 */
+	public void setFullSizeImage(BufferedImage image)
+	{ 
+		fullSizeImage = image;
+	}
+
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getFullSizeImage()
+     */
+	public BufferedImage getFullSizeImage() { return fullSizeImage; }
+
 }

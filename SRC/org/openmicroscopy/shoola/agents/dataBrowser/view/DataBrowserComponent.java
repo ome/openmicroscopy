@@ -27,6 +27,7 @@ import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -50,6 +51,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * 
@@ -321,10 +323,29 @@ class DataBrowserComponent
 	 */
 	public void annotate(int index)
 	{
+		Browser browser = model.getBrowser();
+		Collection nodes = null;
 		switch (index) {
 			case ANNOTATE_CHILDREN:
+				
+				//TODO
 			case ANNOTATE_IMAGES:
+				nodes = browser.getVisibleImages();
 			case ANNOTATE_SELECTION:
+				Set display = browser.getSelectedDisplays();
+				if (display != null) {
+					Iterator i = display.iterator();
+					ImageDisplay node;
+					nodes = new HashSet();
+					Object ho;
+					while (i.hasNext()) {
+						node = (ImageDisplay) i.next();
+						ho = node.getHierarchyObject();
+						if (ho instanceof ImageData) {
+							nodes.add(ho);
+						}
+					}
+				}
 				break;
 	
 			default:
@@ -332,9 +353,9 @@ class DataBrowserComponent
 												"not supported.");
 		}
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		Browser browser = model.getBrowser();
-		Set nodes = browser.getImages();
-		bus.post(new ViewMetadata(nodes));
+		System.err.println(nodes);
+		//if (nodes != null)
+		//	bus.post(new ViewMetadata(nodes));
 	}
 
 	/**
@@ -354,6 +375,18 @@ class DataBrowserComponent
 	{
 		model.setTags(tags);
 		view.setTags(tags);
+	}
+
+	public void setSlideViewImage(long imageID, BufferedImage thumb)
+	{
+		model.setSlideViewImage(imageID, thumb);
+	}
+
+	public void setSlideViewStatus(String description, int perc)
+	{
+		int state = model.getState();
+		if (state == LOADING_SLIDE_VIEW)
+			view.setSlideViewStatus(perc == 100, perc);
 	}
 	
 }

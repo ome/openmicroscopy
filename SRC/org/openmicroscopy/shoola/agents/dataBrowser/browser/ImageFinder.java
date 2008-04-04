@@ -26,8 +26,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.awt.Component;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import javax.swing.JComponent;
 
 //Third-party libraries
 
@@ -57,13 +61,21 @@ public class ImageFinder
     /** Set of corresponding <code>DataObject</code>s */
     private Set<ImageData>		images;
     
+    /** Set of <code>ImageNode</code>s */
+    private List<ImageNode>		visibleImageNodes;
+    
+    /** Set of corresponding visible <code>DataObject</code>s */
+    private Set<ImageData>		visibleImages;
+    
     /** Creates a new instance. */
     public ImageFinder()
     {
-        images = new HashSet<ImageData>();
-        imageNodes = new HashSet<ImageDisplay>();
+    	 images = new HashSet<ImageData>();
+         imageNodes = new HashSet<ImageDisplay>();
+         visibleImages = new HashSet<ImageData>();
+         visibleImageNodes = new ArrayList<ImageNode>();
     }
-    
+   
     /** 
      * Returns the set of {@link ImageNode}s displayed. 
      * 
@@ -79,6 +91,23 @@ public class ImageFinder
     public Set<ImageData> getImages() { return images; }
     
     /** 
+     * Returns the set of {@link ImageNode}s displayed. 
+     * 
+     * @return See above.
+     */
+    public List<ImageNode> getVisibleImageNodes()
+    { 
+    	return visibleImageNodes; 
+    }
+    
+    /** 
+     * Returns the set of visible <code>DataObject</code>s. 
+     * 
+     * @return See above.
+     */
+    public Set<ImageData> getVisibleImages() { return visibleImages; }
+    
+    /** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageNode)
      */
@@ -89,9 +118,28 @@ public class ImageFinder
     }
 
     /** 
-     * Required by the {@link ImageDisplayVisitor} I/F but no-op in our case. 
+     * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
-    public void visit(ImageSet node) {}
+    public void visit(ImageSet node)
+    {
+    	if (node == null) return;
+    	if (node.containsImages()) {
+    		JComponent desktop = node.getInternalDesktop();
+    		Component[] comps = desktop.getComponents();
+    		if (comps != null) {
+    			Component c;
+    			ImageNode n;
+    			for (int i = 0; i < comps.length; i++) {
+					c = comps[i];
+					if (c instanceof ImageNode) {
+						n = (ImageNode) c;
+						visibleImages.add((ImageData) n.getHierarchyObject());
+						visibleImageNodes.add(n);
+					}
+				}
+    		}
+    	}
+    }
 
 }

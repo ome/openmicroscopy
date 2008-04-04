@@ -334,4 +334,18 @@ public interface Browser
 	 */
 	public Set<DataObject> getOriginal();
 	
+	/** 
+	 * Returns the images currently visible.
+	 * 
+	 * @return See above.
+	 */
+	public Set<ImageData> getVisibleImages();
+	
+	/** 
+	 * Returns the images currently visible.
+	 * 
+	 * @return See above.
+	 */
+	public List<ImageNode> getVisibleImageNodes();
+	
 }

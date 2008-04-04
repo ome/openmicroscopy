@@ -72,11 +72,23 @@ public class IconManager
     /** The <code>Metadata</code> icon. */
     public static int			METADATA = 7;
     
+    /** The <code>Pin</code> icon. */
+    public static int			PIN = 8;
+    
+    /** The <code>Pause</code> icon. */
+    public static int			PAUSE = 9;
+    
+    /** The <code>Forward</code> icon. */
+    public static int			FORWARD = 10;
+    
+    /** The <code>BACKWARD</code> icon. */
+    public static int			BACKWARD = 11;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 7;
+    private static int          MAX_ID = 11;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -90,6 +102,10 @@ public class IconManager
         relPaths[FILTERING] = "eclipse_filter_ps16.png";
         relPaths[SLIDE_SHOW_VIEW] = "eclipse_filter_ps16.png";
         relPaths[METADATA] = "eclipse_filter_ps16.png";
+        relPaths[PIN] = "nuvola_attach16.png";
+        relPaths[PAUSE] = "nuvola_player_pause16.png";
+        relPaths[FORWARD] = "nuvola_player_play16.png";
+        relPaths[BACKWARD] = "nuvola_flipped_player_play16.png";
     }
     
     /** The sole instance. */

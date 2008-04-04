@@ -109,6 +109,21 @@ class BrowserUI
         getViewport().add(layeredPane);
     }
     
+	/**
+	 * Returns <code>true</code> if the scrollbars are visible,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean scrollbarsVisible()
+	{
+		JScrollBar hBar = getHorizontalScrollBar();
+		JScrollBar vBar = getVerticalScrollBar();
+		if (hBar.isVisible()) return true;
+		if (vBar.isVisible()) return true;
+		return false;
+	}
+	
     /** Creates a new instance. */
     BrowserUI() {}
     
@@ -276,22 +291,7 @@ class BrowserUI
 		hBar.setValue(hBar.getValue()+hValue);
 		vBar.setValue(vBar.getValue()+vValue);
 	}
-	
-	/**
-	 * Returns <code>true</code> if the scrollbars are visible,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean scrollbarsVisible()
-	{
-		JScrollBar hBar = getHorizontalScrollBar();
-		JScrollBar vBar = getVerticalScrollBar();
-		if (hBar.isVisible()) return true;
-		if (vBar.isVisible()) return true;
-		return false;
-	}
-	
+
 	/**
 	 * Sets the <code>adjusting</code> flag when the experimenter uses 
 	 * the scrollbars..

@@ -64,7 +64,7 @@ public abstract class Player
     /** Indicates the <i>Pause</i> state of the timer. */
     public static final int     PAUSE = 2;
     
-    /** The delay between to image. */
+    /** The delay between two images. */
     protected static final int  DELAY = 1000;
     
     /** The initial delay. */

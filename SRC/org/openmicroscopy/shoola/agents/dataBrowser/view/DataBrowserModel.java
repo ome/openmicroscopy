@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -38,15 +40,17 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailsManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-
 import pojos.DataObject;
+import pojos.ImageData;
 
 /** 
  * 
@@ -69,6 +73,9 @@ abstract class DataBrowserModel
     
     /** Maps an image id to the list of thumbnail providers for that image. */
     private ThumbnailsManager   thumbsManager;
+    
+    /** Maps an image id to the list of thumbnail providers for that image. */
+    private ThumbnailsManager   fullSizeThumbsManager;
     
     /** Used to sort the nodes by date or alphabetically. */
     private ViewerSorter        sorter;
@@ -100,7 +107,7 @@ abstract class DataBrowserModel
         browser.setSelectedLayout(layout.getIndex());
         browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
-    
+
     /**
      * Returns the current state.
      * 
@@ -153,9 +160,20 @@ abstract class DataBrowserModel
         if (thumbsManager.isDone()) {
             state = DataBrowser.READY;
             thumbsManager = null;
-           
         }
     }
+    
+    void setSlideViewImage(long imageID, BufferedImage thumb)
+    {
+		if (fullSizeThumbsManager != null) {
+			fullSizeThumbsManager.setFullSizeImage(imageID, thumb);
+			if (fullSizeThumbsManager.isDone()) {
+	            state = DataBrowser.READY;
+	            fullSizeThumbsManager = null;
+	        }
+		}
+	}
+
     
     /** Discards any on-going data loading. */
 	void discard()
@@ -232,6 +250,33 @@ abstract class DataBrowserModel
 		state = DataBrowser.LOADING;
 		TagsLoader loader = new TagsLoader(component);
 		loader.load();
+	}
+	
+	/** 
+	 * Starts an asynchronous retrieval all the full size image.
+	 * 
+	 * @param images The value to handle.
+	 */
+	void fireFullSizeLoading(Collection<ImageNode> images)
+	{
+		Set nodes = new HashSet<ImageData>();
+		Set<ImageNode> toKeep = new HashSet<ImageNode>();
+		Iterator i = images.iterator();
+		ImageNode node;
+		while (i.hasNext()) {
+			node = (ImageNode) i.next();
+			if (node.getThumbnail().getFullSizeImage() == null) {
+				nodes.add(node.getHierarchyObject());
+				toKeep.add(node);
+			}
+		}
+		if (nodes.size() > 0) {
+			fullSizeThumbsManager = new ThumbnailsManager(toKeep);
+			ThumbnailLoader loader = new ThumbnailLoader(component, nodes, 
+														false);
+			loader.load();
+			state = DataBrowser.LOADING_SLIDE_VIEW;
+		}
 	}
 	
 	/**

@@ -379,8 +379,8 @@ public class IconManager
     	relPaths[CONFIG] = "config.png";
     	relPaths[CONFIG_PRESSED] = "config_pressed.png";
     	relPaths[CONFIG_48] = "nuvola_configure48.png";
-    	relPaths[REMOVE] = "remove_grayscale16.png";//nuvola_edit_remove16.png";
-    	relPaths[ADD] = "add_grayscale16.png";//"nuvola_edit_add16.png";
+    	relPaths[REMOVE] = "nuvola_viewmag-_dark16.png";//nuvola_edit_remove16.png";
+    	relPaths[ADD] = "nuvola_viewmag+_dark16.png";//"nuvola_edit_add16.png";
     	relPaths[INFO_32] = "nuvola_messagebox_info32.png";
     	relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
     	relPaths[MINUS] = "minus.png";

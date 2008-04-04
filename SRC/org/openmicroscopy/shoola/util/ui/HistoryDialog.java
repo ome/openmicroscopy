@@ -93,9 +93,10 @@ public class HistoryDialog
     /** Helper reference to the font metrics of a {@link JList}. */
     private FontMetrics 			metrics;
     
-    /** Listener added to the selection model. */
-    //private ListSelectionListener	listener;
+    /** Flag indicating to take into account or not the case sensitivity. */
+    private boolean					caseSensitive;
     
+    /** Computes and sets the pop up size. */
     private void determinePopupSize()
     {
     	int  height = metrics.getHeight()*data.length+10;
@@ -130,6 +131,7 @@ public class HistoryDialog
     /** Initializes the components. */
     private void initComponents()
     {
+    	caseSensitive = false;
         history = new JList(data);
         history.addMouseListener(new MouseAdapter() {
 		
@@ -262,9 +264,11 @@ public class HistoryDialog
     	if (v == null || v.length() == 0) return false;
     	if (originalData == null) return false;
     	String value;
+    	if (!caseSensitive) v = v.toLowerCase();
     	List<Object> l = new ArrayList<Object>();
     	for (int i = 0; i < originalData.length; i++) {
 			value = originalData[i].toString();
+			if (!caseSensitive) value = value.toLowerCase();
 			if (value.startsWith(v)) {
 				l.add(originalData[i]);
 			}
@@ -273,6 +277,7 @@ public class HistoryDialog
     		List<Object> sl = new ArrayList<Object>();
         	for (int i = 0; i < secondaryOriginalData.length; i++) {
     			value = secondaryOriginalData[i].toString();
+    			if (!caseSensitive) value = value.toLowerCase();
     			if (value.startsWith(v)) {
     				sl.add(secondaryOriginalData[i]);
     			}

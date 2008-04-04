@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 
@@ -176,6 +177,7 @@ public abstract class ImageDisplay
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet<ImageDisplay>();
+        setToolTipText(toString());
     }
  
     /** Fired a property change event to bring up the annotation widget. */
@@ -277,6 +279,7 @@ public abstract class ImageDisplay
         if (ho == null) 
             throw new NullPointerException("No hierarchy object.");
         hierarchyObject = ho;
+        setToolTipText(toString());
     }
     
     /**
@@ -367,6 +370,31 @@ public abstract class ImageDisplay
                 break;
         }
         setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+    }
+    
+    /**
+     * Returns the name of the node.
+     * 
+     * @return See above.
+     */
+    public String getNodeName()
+    { 
+        if (hierarchyObject instanceof ProjectData) 
+        	return ((ProjectData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof DatasetData) 
+            return ((DatasetData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof ImageData) 
+            return ((ImageData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof CategoryGroupData) 
+            return ((CategoryGroupData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof CategoryData) 
+            return ((CategoryData) hierarchyObject).getName();
+        else if (hierarchyObject instanceof ExperimenterData) {
+        	ExperimenterData exp = (ExperimenterData) hierarchyObject;
+        	return exp.getFirstName()+" "+exp.getLastName();
+        } else if (hierarchyObject instanceof String) 
+        	return (String) hierarchyObject;
+        return "";
     }
     
     /** 

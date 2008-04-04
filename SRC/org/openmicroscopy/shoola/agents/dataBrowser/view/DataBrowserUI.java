@@ -27,12 +27,15 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.util.Collection;
-
+import java.util.List;
 import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
 /** 
@@ -60,6 +63,8 @@ class DataBrowserUI
 	
 	/** Reference to the control. */
 	private DataBrowserControl	controller;
+	
+	private SlideShowView 		slideShowView;
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -113,4 +118,38 @@ class DataBrowserUI
 	 */
 	void setTags(Collection tags) { toolBar.setTags(tags); }
 	
+	void slideShowView(boolean create)
+	{
+		if (!create) {
+			slideShowView = null; 
+		}
+		Browser browser = model.getBrowser();
+		
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		if (nodes == null || nodes.size() == 0) return;
+		
+		slideShowView = new SlideShowView(null, nodes);
+		slideShowView.addPropertyChangeListener(controller);
+		model.getBrowser().addPropertyChangeListener(slideShowView);
+		model.fireFullSizeLoading(nodes);
+		UIUtilities.centerAndShow(slideShowView);
+	}
+	
+	/**
+     * Adjusts the status bar according to the specified arguments.
+     * 
+     * @param hideProgressBar Whether or not to hide the progress bar.
+     * @param progressPerc  The percentage value the progress bar should
+     *                      display.  If negative, it is iterpreted as
+     *                      not available and the progress bar will be
+     *                      set to indeterminate mode.  This argument is
+     *                      only taken into consideration if the progress
+     *                      bar shouldn't be hidden.
+     */
+    void setSlideViewStatus(boolean hideProgressBar, int progressPerc)
+    {
+    	if (slideShowView != null)
+    		slideShowView.setProgress(hideProgressBar, progressPerc);
+    }
+    
 }

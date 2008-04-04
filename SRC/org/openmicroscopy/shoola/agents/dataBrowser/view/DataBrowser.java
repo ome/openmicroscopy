@@ -110,6 +110,9 @@ public interface DataBrowser
     
     /** Flag to denote the <i>Discarded</i> state. */
     public static final int     	DISCARDED = 5;
+    
+    /** Flag to denote the <i>Loading slide view</i> state. */
+    public static final int     	LOADING_SLIDE_VIEW = 6;
  
     /**
      * Queries the current state.
@@ -151,7 +154,7 @@ public interface DataBrowser
      * @param description Textual description of the ongoing operation.
      * @param perc Percentage of the total work done.  If negative, it is
      *             interpreted as not available.
-     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
+     * @see org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader
      */
     public void setStatus(String description, int perc);
         
@@ -230,5 +233,25 @@ public interface DataBrowser
 	public void loadExistingTags();
 
 	public void setExistingTags(Collection collection);
+	
+	 /**
+     * Callback used by data loaders to provide the viewer with feedback about
+     * the data retrieval.
+     * 
+     * @param description 	Textual description of the ongoing operation.
+     * @param perc 			Percentage of the total work done.  
+     * 						If negative, it is interpreted as not available.
+     * @see org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader
+     */
+    public void setSlideViewStatus(String description, int perc);
+    
+    /**
+     * Callback used by a data loader to set thumbnails as they are retrieved.
+     * 
+     * @param imageID The id of the image to which the thumbnail belongs.
+     * @param thumb The thumbnail pixels.
+     * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
+     */
+    public void setSlideViewImage(long imageID, BufferedImage thumb);
 	
 }

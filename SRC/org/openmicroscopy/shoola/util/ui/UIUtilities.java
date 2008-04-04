@@ -95,6 +95,20 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 	
+	/** 
+     * The highlight color to use for the inner border surrounding the
+     * frame's contents.
+     */
+    public static final Color      			INNER_BORDER_HIGHLIGHT = 
+    											new Color(240, 240, 240);
+    
+    /** 
+     * The shadow color to use for the inner border surrounding the
+     * frame's contents.
+     */
+    public static final Color      			INNER_BORDER_SHADOW = 
+    											new Color(200, 200, 200);
+    
 	/** The selected date format. */
 	public static final String				DATE_FORMAT = "yy/MM/dd";
 	

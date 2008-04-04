@@ -96,6 +96,13 @@ public interface Thumbnail
      */
     public double getScalingFactor();
     
+    /**
+     * Sets the original thumbnail retrieved from the server.
+     * 
+     * @param thumb The value to set.
+     */
+    public void setFullScaleThumb(BufferedImage thumb);
+    
     /** 
      * Returns the original thumbnail.
      * 
@@ -112,7 +119,8 @@ public interface Thumbnail
     
     /** 
      * Returns the icon representing the thumbnail.
-     *
+     * The magnification factor uses is {@link #MIN_SCALING_FACTOR}.
+     * 
      * @return See above.
      */
     public Icon getIcon();
@@ -124,4 +132,28 @@ public interface Thumbnail
      */
     public void setImageNode(ImageNode node);
     
+    /**
+     * Returns <code>true</code> if the thumbnail is loaded, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isThumbnailLoaded();
+    
+    /**
+     * Returns the full size image associated to the <code>ImageNode</code>.
+     * This method should only be used for the slide show.
+     * 
+     * @return See above.
+     */
+    public BufferedImage getFullSizeImage();
+    
+    /**
+     * Sets the full size image associated to the <code>ImageNode</code>.
+     * This method should only be used for the slide show.
+     * 
+     * @param image The value to set.
+     */
+    public void setFullSizeImage(BufferedImage image);
+   
 }

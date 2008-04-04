@@ -31,12 +31,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import pojos.ImageData;
 
 /** 
@@ -75,7 +75,7 @@ public class ThumbnailsManager
      * @param imageNodes All the {@link ImageNode}s in a given visualization
      *                   tree.  Mustn't be <code>null</code>.
      */
-    public ThumbnailsManager(Collection<ImageData> imageNodes)
+    public ThumbnailsManager(Collection<ImageNode> imageNodes)
     {
         if (imageNodes == null) 
             throw new NullPointerException("No image nodes.");
@@ -116,6 +116,25 @@ public class ThumbnailsManager
             Iterator p = providers.iterator();
             while (p.hasNext())
                 ((ThumbnailProvider) p.next()).setFullScaleThumb(thumb);
+            processedIDs.add(id);
+        }
+    }
+    
+    /**
+     * Sets the specified pixels to be the thumbnail for the specified Image.
+     * 
+     * @param imageID The id of the Image.
+     * @param thumb   The thumbnail pixels. Mustn't be <code>null</code>.
+     */
+    public void setFullSizeImage(long imageID, BufferedImage thumb)
+    {
+        if (thumb == null) throw new NullPointerException("No thumbnail.");
+        Long id = new Long(imageID);
+        Set providers = thumbProviders.get(id);
+        if (providers != null) {
+            Iterator p = providers.iterator();
+            while (p.hasNext())
+                ((ThumbnailProvider) p.next()).setFullSizeImage(thumb);
             processedIDs.add(id);
         }
     }

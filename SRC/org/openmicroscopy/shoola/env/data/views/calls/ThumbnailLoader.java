@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
@@ -95,9 +94,8 @@ public class ThumbnailLoader
     /** Helper reference to the image service. */
     private OmeroImageService		service;
     
-    private Map						thumbnails;
-    
-    private boolean					single;
+    /** Load the thumbnail as an full size image. */
+    private boolean 				asImage;
     
     /**
      * Loads the thumbnail for {@link #images}<code>[index]</code>.
@@ -111,15 +109,19 @@ public class ThumbnailLoader
         BufferedImage thumbPix = null;
         if (pxd == null) {
         	thumbPix = Factory.createDefaultImageThumbnail();
-        	//Factory.createDefaultThumbnail(maxWidth, maxHeight);
         } else {
         	int sizeX = maxWidth, sizeY = maxHeight;
-        	double pixSizeX = pxd.getSizeX();
-        	double pixSizeY = pxd.getSizeY();
-            double ratio = pixSizeX/pixSizeY;
-            if (ratio < 1) sizeX *= ratio;
-            else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
-            try {
+        	if (asImage) {
+        		sizeX = pxd.getSizeX();
+        		sizeY = pxd.getSizeY();
+        	} else {
+            	double pixSizeX = pxd.getSizeX();
+            	double pixSizeY = pxd.getSizeY();
+                double ratio = pixSizeX/pixSizeY;
+                if (ratio < 1) sizeX *= ratio;
+                else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+        	}
+        	try {
             	thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY, 
             									userID);
             } catch (RenderingServiceException e) {
@@ -128,7 +130,6 @@ public class ThumbnailLoader
             }
             if (thumbPix == null) {
             	thumbPix = Factory.createDefaultImageThumbnail();
-            	//thumbPix = Factory.createDefaultThumbnail(sizeX, sizeY);
             }  
         }
         currentThumbnail = new ThumbnailData(image.getId(), thumbPix, userID);
@@ -235,9 +236,29 @@ public class ThumbnailLoader
         this.maxHeight = maxHeight;
         images = imgs;
         this.userIDs = userIDs;
+        asImage = false;
         service = context.getImageService();
     }
 
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime exception so to fail
+     * early and in the caller's thread.
+     * 
+     * @param imgs 		Contains {@link ImageData}s, one
+     * 					for each thumbnail to retrieve.
+     * @param userID	The user the thumbnail are for.
+     */
+    public ThumbnailLoader(Collection<ImageData> imgs, long userID)
+    {
+        if (imgs == null) throw new NullPointerException("No images.");
+        asImage = true;
+        images = imgs;
+        userIDs = new HashSet<Long>(1);
+        userIDs.add(userID);
+        service = context.getImageService();
+    }
+    
     /**
      * Creates a new instance.
      * If bad arguments are passed, we throw a runtime exception so to fail
@@ -264,6 +285,7 @@ public class ThumbnailLoader
         images = imgs;
         userIDs = new HashSet<Long>(1);
         userIDs.add(userID);
+        asImage = false;
         service = context.getImageService();
     }
     
@@ -293,8 +315,8 @@ public class ThumbnailLoader
         images.add(image);
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
+        asImage = false;
         service = context.getImageService();
-       
     }
     
     /**
@@ -353,6 +375,7 @@ public class ThumbnailLoader
         this.maxWidth = maxWidth;
         this.maxHeight = maxHeight;
         this.userIDs = userIDs;
+        asImage = false;
         service = context.getImageService();
     }
     

@@ -35,6 +35,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -159,7 +160,16 @@ class DataBrowserControl
 		} else if (FilteringDialog.LOAD_TAG_PROPERTY.equals(name) ||
 				QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {
 			model.loadExistingTags();
-		}
+		} else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
+            //if (model.isRollOver()) {
+                ImageDisplay n = (ImageDisplay) evt.getNewValue();
+                if (n instanceof ImageNode)
+                    ThumbnailWindowManager.rollOverDisplay((ImageNode) n);
+                else ThumbnailWindowManager.rollOverDisplay(null);
+           //}
+        } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
+        	view.slideShowView(false);
+        }
 	}
 
 }

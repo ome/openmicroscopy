@@ -167,7 +167,7 @@ public interface HierarchyBrowsingView
     
     /**
      * Loads a thumbnail for each specified <code>ImageData</code> object.
-     * As thumbnails are retrieved from <i>OMEIS</i>, they're posted back to
+     * As thumbnails are retrieved from server, they're posted back to
      * the <code>observer</code> through <code>DSCallFeedbackEvent</code>s.
      * Each thumbnail will be posted in a single event; the <code>observer
      * </code> can then call the <code>getPartialResult</code> method to 
@@ -187,6 +187,25 @@ public interface HierarchyBrowsingView
      */
     public CallHandle loadThumbnails(Collection<ImageData> imgs, int maxWidth, 
     								int maxHeight, long userID, 
+    								AgentEventListener observer);
+    
+    /**
+     * Loads a full size image for each specified <code>ImageData</code> object.
+     * As thumbnails are retrieved from server, they're posted back to
+     * the <code>observer</code> through <code>DSCallFeedbackEvent</code>s.
+     * Each thumbnail will be posted in a single event; the <code>observer
+     * </code> can then call the <code>getPartialResult</code> method to 
+     * retrieve a <code>ThumbnailData</code> object for that thumbnail. The 
+     * final <code>DSCallOutcomeEvent</code> will have no result.
+     * 
+     * @param imgs 		Contains <code>ImageData</code> objects, one
+     *                  for each thumbnail to retrieve.
+     * @param userID	The id of the user the thumbnails are for.
+     * @param observer  Callback handler.
+     * @return A handle that can be used to cancel the call.
+     */
+    public CallHandle loadImagesAsThumbnails(Collection<ImageData> imgs, 
+    								long userID, 
     								AgentEventListener observer);
     
     /**

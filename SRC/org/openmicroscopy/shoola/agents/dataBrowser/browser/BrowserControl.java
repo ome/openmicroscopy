@@ -41,7 +41,6 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.env.event.EventBus;
-import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
@@ -126,10 +125,7 @@ public class BrowserControl
     public void visit(ImageNode node) 
     { 
     	node.addMouseListenerToComponents(this);
-        node.addPropertyChangeListener(ImageNode.CLASSIFY_NODE_PROPERTY, this);
         node.addPropertyChangeListener(ImageNode.PIN_THUMBNAIL_PROPERTY, this);
-        node.addPropertyChangeListener(ImageDisplay.ANNOTATE_NODE_PROPERTY, 
-                                    this);
     }
 
     /**
@@ -141,10 +137,6 @@ public class BrowserControl
         node.getTitleBar().addMouseListener(this);
         node.getInternalDesktop().addMouseListener(this);
         node.addPropertyChangeListener(ImageDisplay.END_MOVING_PROPERTY, this);
-        if (node.getHierarchyObject() instanceof DatasetData) {
-            node.addPropertyChangeListener(ImageDisplay.ANNOTATE_NODE_PROPERTY, 
-                                            this);
-        }
     }
     
     /** 

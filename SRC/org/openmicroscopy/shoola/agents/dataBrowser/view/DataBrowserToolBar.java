@@ -31,13 +31,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
-import java.util.List;
-
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -123,7 +119,7 @@ class DataBrowserToolBar
 	private JToggleButton		columnsView;
 	
 	/** Button to select the slide show view. */
-	private JToggleButton		slideShowView;
+	private JButton				slideShowView;
 	
 	/** Button to add the metadata. */
 	private JButton				metadataButton;
@@ -252,11 +248,11 @@ class DataBrowserToolBar
 		columnsView.addActionListener(this);
 		columnsView.setActionCommand(""+COLUMNS_VIEW);
 		group.add(columnsView);
-		slideShowView = new JToggleButton(
+		slideShowView = new JButton(
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
 		slideShowView.addActionListener(this);
 		slideShowView.setActionCommand(""+SLIDE_SHOW_VIEW);
-		group.add(slideShowView);
+		//group.add(slideShowView);
 		metadataButton = new JButton(icons.getIcon(IconManager.METADATA));
 		metadataButton.addMouseListener(new MouseAdapter() {
 			
@@ -285,10 +281,10 @@ class DataBrowserToolBar
 		bar.setRollover(true);
 		bar.add(thumbView);
 		bar.add(columnsView);
-		bar.add(slideShowView);
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
+		bar.add(slideShowView);
 		bar.add(metadataButton);
 		return bar;
 	}
@@ -370,6 +366,7 @@ class DataBrowserToolBar
 				
 				break;
 			case SLIDE_SHOW_VIEW:
+				view.slideShowView(true);
 				break;
 			case METADATA_IMAGES:
 				controller.annotate(DataBrowser.ANNOTATE_IMAGES);

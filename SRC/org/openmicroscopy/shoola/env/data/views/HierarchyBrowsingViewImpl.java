@@ -95,6 +95,18 @@ class HierarchyBrowsingViewImpl
 
     /**
      * Implemented as specified by the view interface.
+     * @see HierarchyBrowsingView#loadImagesAsThumbnails(Collection, long,
+     *                                           AgentEventListener)
+     */
+    public CallHandle loadImagesAsThumbnails(Collection<ImageData> images, 
+    								long userID, AgentEventListener observer)
+    {
+        BatchCallTree cmd = new ThumbnailLoader(images, userID);
+        return cmd.exec(observer);
+    }
+    
+    /**
+     * Implemented as specified by the view interface.
      * @see HierarchyBrowsingView#findPDIHierarchies(Set, long, 
      *                                              AgentEventListener)
      */

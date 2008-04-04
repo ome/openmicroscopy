@@ -59,6 +59,9 @@ public class ThumbnailLoader
 	 */
     private Set<ImageData>	images;
     
+    /** Flag indicating to retrieve thumbnail. */
+    private boolean			thumbnail;
+    
     /** Handle to the async call so that we can cancel it. */
     private CallHandle 	 	handle;
     
@@ -73,10 +76,28 @@ public class ThumbnailLoader
      */
     public ThumbnailLoader(DataBrowser viewer, Set<ImageData> images)
     {
+        this(viewer, images, true);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer 	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param images 	The <code>ImageData</code> objects for the images whose 
+     *               	thumbnails have to be fetched. 
+     * 					Mustn't be <code>null</code>.
+     * @param thumbnail	Pass <code>true</code> to retrieve image at a thumbnail
+     * 					size, <code>false</code> otherwise.
+     */
+    public ThumbnailLoader(DataBrowser viewer, Set<ImageData> images, boolean
+    						thumbnail)
+    {
         super(viewer);
         if (images == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
+        this.thumbnail = thumbnail;
     }
     
     /**
@@ -86,10 +107,13 @@ public class ThumbnailLoader
     public void load()
     {
     	long userID = DataBrowserAgent.getUserDetails().getId();
-        handle = hiBrwView.loadThumbnails(images, 
-                                ThumbnailProvider.THUMB_MAX_WIDTH,
-                                ThumbnailProvider.THUMB_MAX_HEIGHT,
-                                userID, this);
+    	if (thumbnail) 
+    		handle = hiBrwView.loadThumbnails(images, 
+                    ThumbnailProvider.THUMB_MAX_WIDTH,
+                    ThumbnailProvider.THUMB_MAX_HEIGHT,
+                    userID, this);
+    	else 
+    		handle = hiBrwView.loadImagesAsThumbnails(images, userID, this);
     }
     
     /** 
@@ -107,14 +131,26 @@ public class ThumbnailLoader
         if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
         String status = fe.getStatus();
         int percDone = fe.getPercentDone();
-        if (status == null) 
-            status = (percDone == 100) ? "Done" :  //Else
-                                       ""; //Description wasn't available.   
-        viewer.setStatus(status, percDone);
-       
-        ThumbnailData td = (ThumbnailData) fe.getPartialResult();
-        if (td != null)  //Last fe has null object.
-            viewer.setThumbnail(td.getImageID(), td.getThumbnail());
+        if (thumbnail) {
+        	if (status == null) 
+                status = (percDone == 100) ? "Done" :  //Else
+                                           ""; //Description wasn't available.   
+            viewer.setStatus(status, percDone);
+           
+            ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+            if (td != null)  //Last fe has null object.
+                viewer.setThumbnail(td.getImageID(), td.getThumbnail());
+        } else {
+        	if (status == null) 
+                status = (percDone == 100) ? "Done" :  //Else
+                                           ""; //Description wasn't available.   
+            viewer.setSlideViewStatus(status, percDone);
+           
+            ThumbnailData td = (ThumbnailData) fe.getPartialResult();
+            if (td != null)  //Last fe has null object.
+                viewer.setSlideViewImage(td.getImageID(), td.getThumbnail());
+        }
+        
     }
     
     /**

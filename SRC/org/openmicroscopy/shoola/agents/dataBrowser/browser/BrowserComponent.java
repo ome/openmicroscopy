@@ -233,4 +233,14 @@ class BrowserComponent
 		
 	}
 
+	public Set<ImageData> getVisibleImages() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<ImageNode> getVisibleImageNodes() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
