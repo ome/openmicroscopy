@@ -23,6 +23,7 @@
 
 package tree.edit;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.undo.AbstractUndoableEdit;
@@ -40,8 +41,8 @@ public class EditDataFieldAttributes extends AbstractUndoableEdit {
 	public EditDataFieldAttributes(DataField dataField, String title, Map oldValues, Map newValues) {
 		this.dataField = dataField;
 		this.title = title;
-		this.oldValues = oldValues;
-		this.oldValues = oldValues;
+		this.oldValues = new HashMap<String, String>(oldValues);
+		this.newValues = new HashMap<String, String>(newValues);
 	}
 	
 	public void undo() {

@@ -125,7 +125,7 @@ public class ExceptionHandler implements PropertyChangeListener {
 		else e = new Exception(detail);
 		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
 		MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, "", e); 
-		d.setVersion(XMLModel.RELEASE_VERSION_NAME);
+		d.setVersion(XMLModel.EDITOR_VERSION_NUMBER);
 		d.addPropertyChangeListener(new ExceptionHandler());
 		d.setModal(true);
 		UIUtilities.centerAndShow(d);
@@ -137,7 +137,7 @@ public class ExceptionHandler implements PropertyChangeListener {
     	String title = "Comment";
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, email);
     	
-    	d.setVersion(XMLModel.RELEASE_VERSION_NAME);
+    	d.setVersion(XMLModel.EDITOR_VERSION_NUMBER);
     	d.addPropertyChangeListener(new ExceptionHandler());
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);

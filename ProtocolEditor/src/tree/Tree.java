@@ -62,6 +62,7 @@ import ui.XMLUpdateObserver;
 import ui.fieldEditors.FieldEditor;
 import ui.formFields.FormFieldNumber;
 import validation.XMLSchema;
+import xmlMVC.XMLModel;
 
 // Tree manages the tree data structure
 // also knows which fields are currently selected (applies actions to these)
@@ -1163,6 +1164,27 @@ public class Tree
 	}
 	public File getFile () {
 		return file;
+	}
+	
+	/**
+	 * This sets the Editor version attribute of the root node of the tree. 
+	 * This can be used before saving the file to XML, so that the root element of the 
+	 * XML file will have an up-to-date version number.
+	 * 
+	 * @param versionNumber	 	A string that represents the current version of the software. eg "3.0-3.1.2".
+	 */
+	public void setVersionNumber(String versionNumber) {
+		getRootNode().getDataField().setAttribute(XMLModel.VERSION, versionNumber, false);
+	}
+	
+	/**
+	 * This returns the Editor version attribute from the root node of the tree. 
+	 * This can be used to check that the file (tree) is not more recent that
+	 * the current version of the software (meaning users should get a more recent version). 
+	 * @return
+	 */
+	public String getVersionNumber() {
+		return getRootNode().getDataField().getAttribute(XMLModel.VERSION);
 	}
 	
 	// turn on/off xmlValidation

@@ -59,6 +59,7 @@ import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.XMLView;
 import util.ExceptionHandler;
+import util.VersionControlMethods;
 import util.XMLMethods;
 import util.XmlTransform;
 import validation.SAXValidator;
@@ -94,21 +95,25 @@ public class XMLModel
 	 * The folder that should be used to store all temp. files, config files, logs etc. 
 	 */
 	public static final String OMERO_EDITOR_FILE = System.getProperty("user.home") + File.separator +
-		"omero" + File.separator+ "Editor";
+		"omero" + File.separator + "Editor";
 	
 	/**
-	 * These strings are used to add a "version" attribute to the XML documents saved by this application.
-	 * But this scheme has not been strictly adhered to yet (no breaking changes to XML schema yet).
+	 * This string is used to add a "version" attribute to the XML documents saved by this application.
 	 */
 	public static final String VERSION = "version";
-	public static final String XML_VERSION_NUMBER = "1.0";
-			
-	public static final String RELEASE_VERSION_NAME = "ProtocolEditor-Jan08";
+	
+	/**
+	 * Prior to OMERO 3.0-Beta-3.0, all documents have been assigned "version=1.0".
+	 * The version number will contain both the milestone eg "3.0" and the version, eg "3.1.2"
+	 * separated by a dash. So, 3.0-Beta-3.0 will be "3.0-3.0"
+	 * 
+	 */
+	public static final String EDITOR_VERSION_NUMBER = "3.0-3.0";
 	
 	/**
 	 * DOM Document used to pass XML files between methods such as readXMLtoDOM() and openXMLFile()
 	 */
-	private Document document; 
+	//private Document document; 
 	
 	/**
 	 * DOM Document used to pass XML files between export/save methods
@@ -207,8 +212,10 @@ public class XMLModel
 			}
 		}
 		
+		Document document = null;
+		
 		try {
-			readXMLtoDOM(xmlFile); // overwrites document
+			document = XMLMethods.readXMLtoDOM(xmlFile); // overwrites document
 		} catch (SAXException e) {
 			
 			// show error and give user a chance to submit error
@@ -222,16 +229,24 @@ public class XMLModel
 		currentTree = new Tree(document, this, this);
 		currentTree.setFile(xmlFile);
 		
+		/*
+		 * Check the version of the file, to see if it has been edited by a more
+		 * recent version of the software than the current version. 
+		 * If so, notify the user via pop-up message. 
+		 */
+		String fileVersion = currentTree.getVersionNumber();
+		String softwareVersion = VersionControlMethods.getSoftwareVersionNumber();
+		if(VersionControlMethods.isFileVersionFromFuture(softwareVersion, fileVersion)) {
+			JOptionPane.showMessageDialog(null, "Warning. This file was edited by a more recent version \n" +
+					"of the Editor software than this version. \n" +
+					"You are advised to use the most recent version of OMERO.editor, \n" +
+					"so that this file is displayed correctly.");
+		}
+		
 		openFiles.add(currentTree);
-		
-		//System.out.println("XMLModel openXMLFile getCurrentFileIndex() = " + getCurrentFileIndex());
-		
-		document = null;
 
 		xmlUpdated();
-		//selectionChanged();
 		
-		return;
 	}
 	
 	
@@ -256,24 +271,13 @@ public class XMLModel
 		fireStateChange();
 	}
 
-	/*
-	public void addXMLObserver(XMLUpdateObserver newXMLObserver) {
-		xmlObservers.add(newXMLObserver);
-	}
-	public void addSelectionObserver(SelectionObserver newSelectionObserver) {
-		selectionObservers.add(newSelectionObserver);
-	}
-	*/
 	
-	/* convert from an XML file into a DOM document */
-	public void readXMLtoDOM(File xmlFile) throws SAXException{
-		document = XMLMethods.readXMLtoDOM(xmlFile);
-	}
 	
 	public Tree getTreeFromNewFile(File xmlFile) {
 		
+		Document document = null;
 		try {
-			readXMLtoDOM(xmlFile); // overwrites document
+			document = XMLMethods.readXMLtoDOM(xmlFile); // overwrites document
 		} catch (SAXException e) {
 			
 			// show error and give user a chance to submit error
@@ -285,8 +289,6 @@ public class XMLModel
 		}	
 		
 		Tree tree = new Tree(document);
-		
-		document = null; 	// release the memory
 		
 		return tree;
 	}
@@ -398,10 +400,23 @@ public class XMLModel
 		selectionChanged();		// updates View with any changes in file names
 	}
 	
+	/**
+	 * This method will work on the current Tree (currently opened file).
+	 * 
+	 * @param outputFile
+	 */
 	private void saveToXmlFile(File outputFile) {
 //		 always note the xml version (unless this is custom element)
 		if (!getRootNode().getDataField().isCustomInputType()) {
-			getRootNode().getDataField().setAttribute(VERSION, XML_VERSION_NUMBER, false);
+			
+			/*
+			 * If the file version is not from the future (ie if it is past or present)
+			 * then update the version number with the current software version number. 
+			 */
+			String fileVersionNumber = getCurrentTree().getVersionNumber();
+			if (! VersionControlMethods.isFileVersionFromFuture(fileVersionNumber))
+				getCurrentTree().setVersionNumber(EDITOR_VERSION_NUMBER);
+			
 			getRootNode().getDataField().setAttribute(DataFieldConstants.PROTOCOL_FILE_NAME, outputFile.getName(), true);
 		}
 		
