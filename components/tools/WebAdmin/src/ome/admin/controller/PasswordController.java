@@ -1,13 +1,33 @@
+/*
+ * ome.admin.controller.PasswordController
+ *
+ *   Copyright 2007 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package ome.admin.controller;
 
+// Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
+import org.apache.log4j.Logger;
+
+// Application-internal dependencies
 import ome.admin.logic.PasswordManagerDelegator;
 import ome.utils.NavigationResults;
 
-import org.apache.log4j.Logger;
-
+/**
+ * It's the Java bean with attributes and setter/getter and actions methods. The
+ * bean captures login params entered by a user after the user clicks the submit
+ * button. This way the bean provides a bridge between the JSP page and the
+ * application logic.
+ * 
+ * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
+ * @since OME3.0
+ */
 public class PasswordController implements java.io.Serializable {
 
     /**
@@ -160,7 +180,7 @@ public class PasswordController implements java.io.Serializable {
             context.addMessage("loginForm", message);
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("resetPassword: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesMessage message = new FacesMessage("Cannot reset password: "
                     + e.getMessage());
             context.addMessage("forgottenPassword", message);
@@ -196,7 +216,7 @@ public class PasswordController implements java.io.Serializable {
                 }
             }
         } catch (Exception e) {
-            logger.error("resetPassword: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesMessage message = new FacesMessage("Password exception: "
                     + e.getMessage());
             context.addMessage("expiredPassword", message);

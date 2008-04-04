@@ -1,5 +1,5 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.LoginBean
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -82,7 +82,7 @@ public class LoginBean implements java.io.Serializable {
      * boolean
      */
     private boolean passwordMode = false;
-    
+
     /**
      * Not null
      */
@@ -297,10 +297,11 @@ public class LoginBean implements java.io.Serializable {
      */
     public boolean isPasswordMode() {
         ResourceBundle res = ResourceBundle.getBundle("omero");
-        passwordMode = Boolean.valueOf(res.getString("omero.resetpassword.config"));
+        passwordMode = Boolean.valueOf(res
+                .getString("omero.resetpassword.config"));
         return passwordMode;
     }
-    
+
     /**
      * Get {@link ome.api.IAdmin}
      * 
@@ -389,9 +390,7 @@ public class LoginBean implements java.io.Serializable {
                 logger.info("Admin role for user "
                         + adminService.getEventContext().getCurrentUserId());
             } catch (OutOfService ex) {
-                logger
-                        .info("Authentication not succesfule - cannot create session:"
-                                + ex.getMessage());
+                logger.error(ex.getMessage(), ex.fillInStackTrace());
                 FacesContext context = FacesContext.getCurrentInstance();
                 FacesMessage message = new FacesMessage(
                         "Cannot create session: " + ex.getMessage());
@@ -418,8 +417,7 @@ public class LoginBean implements java.io.Serializable {
             logger.info("Authentication succesfule");
             return jsfnav;
         } catch (EJBAccessException e) {
-            logger.info("Authentication not succesfule - invalid login params:"
-                    + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Invalid Login Params: "
                     + e.getMessage());
@@ -427,9 +425,7 @@ public class LoginBean implements java.io.Serializable {
             this.mode = false;
             return NavigationResults.FALSE;
         } catch (Exception e) {
-            e.printStackTrace();
-            logger.info("Authentication not succesfule - connection failure: "
-                    + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Connection failure: "
                     + e.getMessage());

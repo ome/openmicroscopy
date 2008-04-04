@@ -1,5 +1,5 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.ITypesEnumController
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -115,6 +115,7 @@ public class ITypesEnumController implements java.io.Serializable {
                     sortItem, sort));
             this.scrollerMode = itype.setScroller();
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage(
                     "Enumeration cannot gets values. " + e.getMessage());
@@ -207,8 +208,8 @@ public class ITypesEnumController implements java.io.Serializable {
         return this.entryModel;
 
     }
-    
-    //public void setEntrys(DataModel dm) { this.entryModel = dm; }
+
+    // public void setEntrys(DataModel dm) { this.entryModel = dm; }
 
     /**
      * Sets editMode
@@ -267,7 +268,7 @@ public class ITypesEnumController implements java.io.Serializable {
      * 
      * @return {@link java.lang.String} "success"
      */
-    public String addEnumeration() {        
+    public String addEnumeration() {
         try {
             itype.checkEnumeration(Class.forName(this.enumeration
                     .getClassName()), this.enumeration.getEvent());
@@ -276,7 +277,7 @@ public class ITypesEnumController implements java.io.Serializable {
                     sortItem, sort));
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("addEnumeration: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Enumeration: [type: "
                     + this.enumeration.getClassName() + "'] : "
@@ -300,7 +301,7 @@ public class ITypesEnumController implements java.io.Serializable {
                     sort, this.enumeration.getEntryList(), null));
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("editEnumeration: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Enumeration: [class: "
                     + this.enumeration.getClassName() + "'] : "
@@ -316,7 +317,7 @@ public class ITypesEnumController implements java.io.Serializable {
      * 
      * @return {@link java.lang.String} "success" or "false"
      */
-    public String delEnumeration() {        
+    public String delEnumeration() {
         try {
             itype.delEnumeration((IEnum) entryModel.getRowData());
             this.enumerationModel.setWrappedData(itype.getAndSortItems(
@@ -326,7 +327,7 @@ public class ITypesEnumController implements java.io.Serializable {
                     sort, null, klass));
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("deleteEnumeration: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Enumeration: [id: "
                     + this.entry.getId() + ", '" + this.entry.getValue()
@@ -353,7 +354,7 @@ public class ITypesEnumController implements java.io.Serializable {
                     sort, null, klass));
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("updateEnumeration: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Enumeration: [id: "
                     + this.entry.getId() + ", '" + this.entry.getValue()
@@ -362,7 +363,7 @@ public class ITypesEnumController implements java.io.Serializable {
             return NavigationResults.FALSE;
         }
     }
-    
+
     /**
      * Provides action for navigation rule "resetEnumeration" what is described
      * in the faces-config.xml file.
@@ -370,7 +371,7 @@ public class ITypesEnumController implements java.io.Serializable {
      * @return {@link java.lang.String} "success" or "false"
      */
     public String resetEnumeration() {
-        try{
+        try {
             this.enumeration = (Enumeration) enumerationModel.getRowData();
             Class klass = Class.forName(this.enumeration.getClassName());
             itype.resetEnumeration(klass);
@@ -378,9 +379,9 @@ public class ITypesEnumController implements java.io.Serializable {
                     sortItem, sort));
             this.entryModel.setWrappedData(itype.getAndSortEntrys(sortEntry,
                     sort, null, klass));
-            return NavigationResults.SUCCESS;            
+            return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("resetEnumeration: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Enumeration: [id: "
                     + this.entry.getId() + ", '" + this.entry.getValue()
@@ -391,8 +392,7 @@ public class ITypesEnumController implements java.io.Serializable {
     }
 
     /**
-     * Gets default wrapped {@link java.util.List} of
-     * {@link ome.model.IEnum}
+     * Gets default wrapped {@link java.util.List} of {@link ome.model.IEnum}
      * 
      * @return {@link java.util.List} never-null.
      */
@@ -401,7 +401,7 @@ public class ITypesEnumController implements java.io.Serializable {
         try {
             klass = itype.getEnumerations();
         } catch (Exception e) {
-            logger.error("getEnumerations: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage(
                     "Cannot get types of enumeration: " + e.getMessage());

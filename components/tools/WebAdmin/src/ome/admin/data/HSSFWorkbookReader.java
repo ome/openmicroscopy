@@ -1,5 +1,12 @@
+/*
+ * ome.admin.data.HSSFWorkbookReader
+ *
+ *   Copyright 2007 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package ome.admin.data;
 
+// Java imports
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,10 +17,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import ome.admin.model.User;
-import ome.conditions.ApiUsageException;
-import ome.model.meta.Experimenter;
-
+// Third-party libraries
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -21,6 +25,18 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
+// Application-internal dependencies
+import ome.admin.model.User;
+import ome.conditions.ApiUsageException;
+import ome.model.meta.Experimenter;
+
+/**
+ * 
+ * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
+ * @since OME3.0
+ */
 public class HSSFWorkbookReader {
 
     /**
@@ -29,12 +45,28 @@ public class HSSFWorkbookReader {
     private static Logger logger = Logger.getLogger(HSSFWorkbookReader.class
             .getName());
 
+    /**
+     * String filePath
+     */
     private String filePath;
 
+    /**
+     * HSSFSheet sheet
+     */
     private HSSFSheet sheet;
 
+    /**
+     * {@link ome.admin.data.ConnectionDB}
+     */
     private ConnectionDB db;
 
+    /**
+     * Consatructer
+     * 
+     * @param filePath
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     public HSSFWorkbookReader(String filePath) throws FileNotFoundException,
             IOException {
         logger.info("HSSFWorkbookReader opens a file: " + filePath);
@@ -47,14 +79,29 @@ public class HSSFWorkbookReader {
         db = new ConnectionDB();
     }
 
+    /**
+     * Gets sheet.
+     * 
+     * @return
+     */
     public HSSFSheet getSheet() {
         return sheet;
     }
 
+    /**
+     * Sets sheet.
+     * 
+     * @param sheet
+     */
     public void setSheet(HSSFSheet sheet) {
         this.sheet = sheet;
     }
 
+    /**
+     * Gets header of the table from XLS file.
+     * 
+     * @return String [] with element that are matched on the DB.
+     */
     public String[] getHeader() {
         String[] tHeader = null;
 
@@ -73,12 +120,22 @@ public class HSSFWorkbookReader {
         return tHeader;
     }
 
+    /**
+     * Removes header.
+     */
     public void removeHeader() {
         HSSFRow header = (HSSFRow) getSheet().getRow(
                 getSheet().getFirstRowNum());
         getSheet().removeRow(header);
     }
 
+    /**
+     * Sets details for single experimenter.
+     * 
+     * @param header
+     * @param value
+     * @return
+     */
     public User setDetails(String[] header, String[] value) {
         Experimenter exp = new Experimenter();
         for (int j = 0; j < header.length; j++) {
@@ -122,6 +179,13 @@ public class HSSFWorkbookReader {
         return mexp;
     }
 
+    /**
+     * Gets cell value.
+     * 
+     * @param cell
+     * @return
+     * @throws IOException
+     */
     public String getCellValue(HSSFCell cell) throws IOException {
         String str;
         if (cell == null) {
@@ -153,6 +217,12 @@ public class HSSFWorkbookReader {
         return str;
     }
 
+    /**
+     * Creates a list of experimenters to present on the page.
+     * 
+     * @return List of users
+     * @throws IOException
+     */
     public List<User> importingExperimenters() throws IOException {
         String[] header = getHeader();
         removeHeader();

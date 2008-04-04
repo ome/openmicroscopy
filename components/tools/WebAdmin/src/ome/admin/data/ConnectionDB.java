@@ -1,5 +1,5 @@
 /*
- * ome.connection
+ * ome.admin.data.ConnectionDB
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -16,8 +16,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
+// Third-party libraries
 import javax.faces.context.FacesContext;
 
+import org.apache.log4j.Logger;
+
+// Application-internal dependencies
 import ome.admin.controller.LoginBean;
 import ome.api.IAdmin;
 import ome.api.ILdap;
@@ -35,8 +39,6 @@ import ome.model.meta.ExperimenterGroup;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
-
-import org.apache.log4j.Logger;
 
 /**
  * ConnectionDB providing access to user/admin-only functionality based server
@@ -106,11 +108,11 @@ public class ConnectionDB {
             this.repService = lb.getRepServices();
             this.ldapService = lb.getLdapServices();
         } catch (Exception e) {
-            logger.error("ConnectionDB exception: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
 
         }
     }
-    
+
     /**
      * Creates a new instance of ConnectionDB for guest.
      */
@@ -121,10 +123,10 @@ public class ConnectionDB {
             ServiceFactory sf = new ServiceFactory(s, l);
             this.adminService = sf.getAdminService();
         } catch (Exception e) {
-            logger.error("ConnectionDB Guest exception: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
         }
     }
-    
+
     // -----------------------------------------------------------------------
 
     /**
@@ -190,7 +192,7 @@ public class ConnectionDB {
         logger.info("getEnumerationsWithEntries by user ID: '" + userid + "'");
         return typesService.getEnumerationsWithEntries();
     }
-    
+
     public List<IEnum> getOriginalEnumerations() {
         logger.info("getOriginalEnumerations by user ID: '" + userid + "'");
         return typesService.getOriginalEnumerations();
@@ -295,7 +297,7 @@ public class ConnectionDB {
      */
     public void resetEnumeration(Class klass) {
         typesService.resetEnumerations(klass);
-    }        
+    }
 
     // -----------------------------------------------------------------------
 
@@ -319,7 +321,7 @@ public class ConnectionDB {
         try {
             usedSpace = this.repService.getUsedSpaceInKilobytes();
         } catch (InternalException e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
         }
         logger.info("usedSpace = '" + usedSpace + "'");
         return usedSpace;
@@ -341,7 +343,7 @@ public class ConnectionDB {
         try {
             freeSpace = this.repService.getFreeSpaceInKilobytes();
         } catch (InternalException e) {
-            logger.error(e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
         }
         logger.info("freeSpace = '" + freeSpace + "'");
         return freeSpace;
@@ -417,7 +419,7 @@ public class ConnectionDB {
             return map;
 
         } catch (Exception e) {
-            logger.error("getTopTen: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             return null;
         }
 
@@ -474,9 +476,9 @@ public class ConnectionDB {
      */
 
     public void reportForgottenPassword(String omeName, String email) {
-            adminService.reportForgottenPassword(omeName, email);
+        adminService.reportForgottenPassword(omeName, email);
     }
-    
+
     /**
      * Changs the password for current {@link ome.model.meta.Experimenter}.
      * 
@@ -1088,7 +1090,7 @@ public class ConnectionDB {
         }
         return filteredExps;
     }
-    
+
     /**
      * 
      * @param groups

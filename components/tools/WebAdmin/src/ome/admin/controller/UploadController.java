@@ -1,17 +1,24 @@
+/*
+ * ome.admin.controller.UploadController
+ *
+ *   Copyright 2007 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
 package ome.admin.controller;
 
-//Java imports
+// Java imports
 import java.io.File;
 import java.io.IOException;
 
-//Third-party libraries
+// Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
-//Application-internal dependencies
+// Application-internal dependencies
 import ome.admin.validator.FileValidator;
 import ome.utils.NavigationResults;
 
@@ -31,8 +38,7 @@ public class UploadController {
     /**
      * log4j logger
      */
-    static Logger logger = Logger.getLogger(IAdminExperimenterController.class
-            .getName());
+    static Logger logger = Logger.getLogger(UploadController.class.getName());
 
     /**
      * Uploaded file
@@ -100,12 +106,14 @@ public class UploadController {
             }
 
         } catch (IOException e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("IOException: "
                     + e.getMessage());
             context.addMessage("uploadedNewFileForm", message);
             return NavigationResults.FALSE;
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Exception: "
                     + e.getMessage());

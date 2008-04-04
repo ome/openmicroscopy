@@ -1,5 +1,5 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.IRepositoryInfoPieChartController
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 // Third-party libraries
+import org.apache.log4j.Logger;
 import org.jfree.data.general.DefaultPieDataset;
 
 // Application-internal dependencies
@@ -30,6 +31,12 @@ import ome.admin.logic.IRepositoryInfoManagerDelegator;
  * @since OME3.0
  */
 public class IRepositoryInfoPieChartController {
+
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger
+            .getLogger(IRepositoryInfoPieChartController.class.getName());
 
     /**
      * {@link org.jfree.data.general.DefaultPieDataset}
@@ -110,6 +117,7 @@ public class IRepositoryInfoPieChartController {
             }
 
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             this.pieDataSet.setValue("Data could not be read.", 0L);
         }
         return this.pieDataSet;

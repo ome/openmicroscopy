@@ -10,13 +10,13 @@ package ome.admin.logic;
 // Java imports
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 // Third-party libraries
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.log4j.Logger;
 
 // Application-internal dependencies
 import ome.admin.data.CSVWorkbookReader;
@@ -26,12 +26,26 @@ import ome.admin.model.User;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
+/**
+ * Delegate of import mangement.
+ * 
+ * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
+ * @since OME3.0
+ */
 public class ImportManagerDelegate implements java.io.Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
+
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger.getLogger(ImportManagerDelegate.class
+            .getName());
 
     /**
      * {@link java.lang.String}
@@ -64,6 +78,7 @@ public class ImportManagerDelegate implements java.io.Serializable {
                 return property1.toLowerCase().compareTo(
                         property2.toLowerCase());
             } catch (Exception e) {
+                logger.error(e.getMessage(), e.fillInStackTrace());
                 return 0;
             }
         }
@@ -83,6 +98,7 @@ public class ImportManagerDelegate implements java.io.Serializable {
                 return property2.toLowerCase().compareTo(
                         property1.toLowerCase());
             } catch (Exception e) {
+                logger.error(e.getMessage(), e.fillInStackTrace());
                 return 0;
             }
         }

@@ -10,7 +10,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
 /**
- * It's the utils class.
+ * Utils.
  * 
  * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
@@ -57,7 +57,7 @@ public class Utils {
         }
         return items;
     }
-    
+
     /**
      * Wraps original {@link java.util.List} as GUI List
      * {@link javax.faces.model.SelectItem}
@@ -66,10 +66,9 @@ public class Utils {
      *            {@link java.util.List}
      * @return {@link java.util.ArrayList}<{@link javax.faces.model.SelectItem}>
      */
-    public static synchronized List wrapAttrsAsGUIList(
-            String [] originalList) {
-        ArrayList<SelectItem> items = new ArrayList<SelectItem>(originalList
-                .length);
+    public static synchronized List wrapAttrsAsGUIList(String[] originalList) {
+        ArrayList<SelectItem> items = new ArrayList<SelectItem>(
+                originalList.length);
         for (String attr : originalList) {
             SelectItem item = new SelectItem(attr, attr);
             items.add(item);

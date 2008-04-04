@@ -1,5 +1,5 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.ILdapController
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -118,7 +118,7 @@ public class ILdapController implements java.io.Serializable {
 
     public void setUser(User user) {
         this.user = user;
-    }    
+    }
 
     public String getSearchAttribute() {
         return searchAttribute;
@@ -136,12 +136,13 @@ public class ILdapController implements java.io.Serializable {
     public String searchInLdap() {
         try {
             this.editMode = true;
-            ildap.lookupImportingExperimenters("", this.searchAttribute, this.searchField);
+            ildap.lookupImportingExperimenters("", this.searchAttribute,
+                    this.searchField);
             this.userModel
                     .setWrappedData(ildap.getAndSortItems(sortItem, sort));
             return NavigationResults.FALSE;
         } catch (Exception e) {
-            logger.error("searchLdap: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Exception: "
                     + e.getMessage());
@@ -166,8 +167,9 @@ public class ILdapController implements java.io.Serializable {
                     .getApplication().getVariableResolver().resolveVariable(
                             context, "IAEManagerBean");
             ia.setEditMode(true);
-            this.editMode = false;            
+            this.editMode = false;
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesMessage message = new FacesMessage("Exception: "
                     + e.getMessage());
             context.addMessage("searchLdap", message);
@@ -186,6 +188,5 @@ public class ILdapController implements java.io.Serializable {
         return Utils.wrapAttrsAsGUIList(fc.getExternalContext()
                 .getInitParameter("ldapAttributes").split(","));
     }
-
 
 }

@@ -1,5 +1,5 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.IAdminExperimenterController
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -305,7 +305,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
             this.editMode = true;
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("changePassword: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -337,7 +337,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
                 return NavigationResults.SUCCESS;
             }
         } catch (Exception e) {
-            logger.error("updatePassword: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -376,7 +376,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
                     .getAndSortItems(sortItem, sort));
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("createExperimenter: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -401,7 +401,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
                     .getRowData()).getExperimenter().getId());
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("editExperimenter: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -453,7 +453,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
             this.editMode = false;
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("updateExperimenter: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -476,7 +476,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
         try {
             groups = iadmin.getGroupsAdd();
         } catch (Exception e) {
-            logger.error("getDefaultGroups: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -512,7 +512,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
                 groups.add(emptyGroup());
             groups.addAll(iadmin.getGroups());
         } catch (Exception e) {
-            logger.error("getOtherGroups: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -550,7 +550,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
                 context.addMessage(toValidate.getClientId(context), message);
             }
         } catch (Exception e) {
-            logger.error("validateEmail: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
                     + this.user.getExperimenter().getOmeName() + "'] : "

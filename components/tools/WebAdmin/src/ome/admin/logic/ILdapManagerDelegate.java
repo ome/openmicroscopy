@@ -15,19 +15,36 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+// Third-party libraries
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.log4j.Logger;
+
+// Application-internal dependencies
 import ome.admin.data.ConnectionDB;
 import ome.admin.model.User;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 
-import org.apache.commons.beanutils.BeanUtils;
-
+/**
+ * Delegate of ldap mangement.
+ * 
+ * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
+ * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
+ * @since OME3.0
+ */
 public class ILdapManagerDelegate implements java.io.Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
+
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger.getLogger(ILdapManagerDelegate.class
+            .getName());
 
     /**
      * {@link java.lang.String}
@@ -55,6 +72,7 @@ public class ILdapManagerDelegate implements java.io.Serializable {
                 return property1.toLowerCase().compareTo(
                         property2.toLowerCase());
             } catch (Exception e) {
+                logger.error(e.getMessage(), e.fillInStackTrace());
                 return 0;
             }
         }
@@ -74,6 +92,7 @@ public class ILdapManagerDelegate implements java.io.Serializable {
                 return property2.toLowerCase().compareTo(
                         property1.toLowerCase());
             } catch (Exception e) {
+                logger.error(e.getMessage(), e.fillInStackTrace());
                 return 0;
             }
         }
@@ -95,19 +114,20 @@ public class ILdapManagerDelegate implements java.io.Serializable {
      * @throws FileNotFoundException,
      *             IOException
      */
-    public List<User> lookupImportingExperimenters(String base, String attr, String value) {
+    public List<User> lookupImportingExperimenters(String base, String attr,
+            String value) {
         List<User> mexps = new ArrayList<User>();
-        for(Experimenter exp: db.findExperimenters(base, attr, value)) {
+        for (Experimenter exp : db.findExperimenters(base, attr, value)) {
             User mexp = new User();
-            mexp.setExperimenter(exp);            
-            mexp.setDn(exp.retrieve("LDAP_DN").toString());  
-            if (db.checkExperimenter(exp.getOmeName())) {                
+            mexp.setExperimenter(exp);
+            mexp.setDn(exp.retrieve("LDAP_DN").toString());
+            if (db.checkExperimenter(exp.getOmeName())) {
                 mexp.setSelectBooleanCheckboxValue(false);
             } else if (db.checkEmail(exp.getEmail())) {
                 mexp.setSelectBooleanCheckboxValue(false);
             } else
                 mexp.setSelectBooleanCheckboxValue(true);
-            
+
             mexps.add(mexp);
         }
         this.experimenters = mexps;
@@ -127,7 +147,7 @@ public class ILdapManagerDelegate implements java.io.Serializable {
      * @throws Exception
      */
     public List<User> getAndSortItems(String sortItem, String sort) {
-        //this.experimenters = lookupImportingExperimenters();
+        // this.experimenters = lookupImportingExperimenters();
         sortByProperty = sortItem;
         if (sort.equals("asc"))
             sort(propertyAscendingComparator);

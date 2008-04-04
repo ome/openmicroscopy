@@ -1,5 +1,5 @@
 /*
- * ome.admin.model
+ * ome.admin.model.Enumeration
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -10,8 +10,6 @@ package ome.admin.model;
 // Java imports
 import java.util.Collections;
 import java.util.List;
-
-// Third-party libraries
 
 // Application-internal dependencies
 import ome.model.IEnum;
@@ -24,7 +22,6 @@ import ome.model.IEnum;
  * @version 1.0 <small> (<b>Internal version:</b> $Revision$Date: $)</small>
  * @since OME3.0
  */
-
 public class Enumeration {
 
     /**
@@ -36,7 +33,10 @@ public class Enumeration {
      * String provides name of class
      */
     private String className = null;
-    
+
+    /**
+     * Original value
+     */
     private boolean oryginalVales = true;
 
     /**

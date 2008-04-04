@@ -1,13 +1,11 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.SubstringConverter
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.admin.converter;
-
-// Java imports
 
 // Third-party libraries
 import javax.faces.component.UIComponent;

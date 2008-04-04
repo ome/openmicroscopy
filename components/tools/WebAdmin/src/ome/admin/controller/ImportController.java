@@ -1,5 +1,5 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.ImportController
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -8,27 +8,43 @@
 package ome.admin.controller;
 
 // Java imports
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+// Third-party libraries
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
-
-import ome.admin.logic.ImportManagerDelegate;
-import ome.admin.logic.UpdateManagerDelegate;
-import ome.admin.model.User;
-import ome.conditions.ApiUsageException;
-import ome.utils.NavigationResults;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.apache.myfaces.custom.tree2.HtmlTree;
 import org.apache.myfaces.custom.tree2.TreeNode;
 import org.apache.myfaces.custom.tree2.TreeNodeBase;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+// Application-internal dependencies
+import ome.admin.data.ConnectionDB;
+import ome.admin.logic.ImportManagerDelegate;
+import ome.admin.logic.UpdateManagerDelegate;
+import ome.admin.model.User;
+import ome.conditions.ApiUsageException;
+import ome.model.meta.Experimenter;
+import ome.utils.HttpJSFUtil;
+import ome.utils.NavigationResults;
 
 /**
  * It's the Java bean with attributes and setter/getter and actions methods. The
@@ -207,6 +223,7 @@ public class ImportController implements java.io.Serializable {
             try {
                 this.tree.setNodeId(nodeId);
             } catch (Exception e) {
+                logger.error(e.getMessage(), e.fillInStackTrace());
                 message = new FacesMessage(FacesMessage.SEVERITY_ERROR,
                         "ValidatorException: " + e.getMessage() + nodeId,
                         "ValidatorException: " + e.getMessage() + nodeId);
@@ -247,24 +264,28 @@ public class ImportController implements java.io.Serializable {
             this.userModel.setWrappedData(imp.sortItems("firstname", "asc"));
             return NavigationResults.SUCCESS;
         } catch (ApiUsageException e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
-            FacesMessage message = new FacesMessage("IO exception: "
-                    + e.getMessage(), "IO exception: " + e.getMessage());
+            FacesMessage message = new FacesMessage("Api usage exception: "
+                    + e.getMessage(), "Api usage exception: " + e.getMessage());
             context.addMessage("clientTree", message);
             return NavigationResults.FALSE;
         } catch (FileNotFoundException e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("File not found : "
                     + e.getMessage());
             context.addMessage("clientTree", message);
             return NavigationResults.FALSE;
         } catch (IOException e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("IO exception: "
                     + e.getMessage());
             context.addMessage("clientTree", message);
             return NavigationResults.FALSE;
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("IO exception: "
                     + e.getMessage());
@@ -289,8 +310,9 @@ public class ImportController implements java.io.Serializable {
                     .getApplication().getVariableResolver().resolveVariable(
                             context, "IAEManagerBean");
             ia.setEditMode(true);
-           
+
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesMessage message = new FacesMessage("Exception: "
                     + e.getMessage());
             context.addMessage("clientTree", message);
@@ -349,16 +371,19 @@ public class ImportController implements java.io.Serializable {
             this.sort = getAttribute(event, "sort");
             this.userModel.setWrappedData(imp.sortItems(sortItem, sort));
         } catch (FileNotFoundException e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("File not found : "
                     + e.getMessage());
             context.addMessage("clientTreeForm", message);
         } catch (IOException e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("IO exception: "
                     + e.getMessage());
             context.addMessage("clientTreeForm", message);
         } catch (Exception e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Unexpected exception. "
                     + e.getMessage());
@@ -367,4 +392,128 @@ public class ImportController implements java.io.Serializable {
         return this.sort;
     }
 
+    public void createList(ActionEvent event) {
+        try {
+            ConnectionDB db = new ConnectionDB();
+            List<Experimenter> users = db.lookupExperimenters();
+
+            HSSFWorkbook wb = new HSSFWorkbook();
+            HSSFSheet sheet = wb.createSheet("experimenters");
+
+            // Create a row and put some cells in it. Rows are 0 based.
+            HSSFRow header = sheet.createRow((short) 0);
+            // Or do it on one line.
+            header.createCell((short) 0).setCellValue(
+                    new HSSFRichTextString("Omename"));
+            header.createCell((short) 1).setCellValue(
+                    new HSSFRichTextString("FirstName"));
+            header.createCell((short) 2).setCellValue(
+                    new HSSFRichTextString("Middlename"));
+            header.createCell((short) 3).setCellValue(
+                    new HSSFRichTextString("Lastname"));
+            header.createCell((short) 4).setCellValue(
+                    new HSSFRichTextString("Email"));
+            header.createCell((short) 5).setCellValue(
+                    new HSSFRichTextString("Institution"));
+
+            for (int i = 0; i < users.size(); i++) {
+                Experimenter exp = (Experimenter) users.get(i);
+                if (exp.getOmeName().equals("root"))
+                    continue;
+                HSSFRow row = sheet.createRow((short) i + 1);
+                row.createCell((short) 0).setCellValue(
+                        new HSSFRichTextString(exp.getOmeName()));
+                row.createCell((short) 1).setCellValue(
+                        new HSSFRichTextString(exp.getFirstName()));
+                row.createCell((short) 2).setCellValue(
+                        new HSSFRichTextString(exp.getMiddleName()));
+                row.createCell((short) 3).setCellValue(
+                        new HSSFRichTextString(exp.getLastName()));
+                row.createCell((short) 4).setCellValue(
+                        new HSSFRichTextString(exp.getEmail()));
+                row.createCell((short) 5).setCellValue(
+                        new HSSFRichTextString(exp.getInstitution()));
+            }
+
+            // Write the output to a file
+            String fileName = "/OMERO/WebAdmin/experimenters.xls";
+            FileOutputStream fileOut = new FileOutputStream(fileName);
+            wb.write(fileOut);
+            fileOut.close();
+
+            HttpServletResponse response = HttpJSFUtil.getResponse();
+
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition",
+                    "attachment; filename=experimenters.xls");
+            response.setHeader("Cache-Control", "no-cache");
+
+            // byte [] bytes = wb.getBytes();
+            InputStream in = new FileInputStream(fileName);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            int i;
+            while ((i = in.read()) != -1)
+                out.write(i);
+            in.close();
+            byte[] bytes = out.toByteArray();
+
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+            response.getOutputStream().flush();
+            response.getOutputStream().close();
+
+            FacesContext context = FacesContext.getCurrentInstance();
+            context.responseComplete();
+
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e.fillInStackTrace());
+            FacesContext context = FacesContext.getCurrentInstance();
+            FacesMessage message = new FacesMessage("Cannot download file : "
+                    + e.getMessage());
+            context.addMessage("downloadForm", message);
+        }
+
+    }
+
+    /**
+     * Checks direcotry exists.
+     * 
+     * @return boolean
+     */
+    public boolean isDirectory() {
+        boolean result = checkDirectory();
+        return result;
+    }
+
+    /**
+     * Checks that directory where uploaded file is stored /OMERO/UsersLists
+     * exists.
+     * 
+     * @return
+     */
+    private boolean checkDirectory() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        File dir = new File(context.getExternalContext().getInitParameter(
+                "usersListsDir"));
+
+        if (!dir.exists()) {
+            if (dir.mkdir()) {
+                logger.info("isDirectory: directory " + dir.getAbsolutePath()
+                        + " did not exist and was created successful.");
+                FacesMessage message = new FacesMessage("Directory "
+                        + dir.getAbsolutePath() + " created successful.");
+                context.addMessage("uploadedNewFileForm", message);
+                return true;
+            } else {
+                logger.info("isDirectory: directory " + dir.getAbsolutePath()
+                        + " did not exist and could not be created.");
+                FacesMessage message = new FacesMessage(
+                        "IOException: Could not create directory "
+                                + dir.getAbsolutePath() + ".");
+                context.addMessage("uploadedNewFileForm", message);
+                return false;
+            }
+        } else
+            return true;
+    }
 }

@@ -9,23 +9,37 @@
 	test="${sessionScope.LoginBean.mode && sessionScope.LoginBean.role}">
 	<f:view>
 		<div id="hello"><h:form id="log">
-			<h1><h:outputText value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />!
-			<h:commandLink action="#{LoginBean.logout}"
-				title="#{msg.headerLogout}">
+			<h1><h:outputText
+				value="#{msg.headerHello} #{sessionScope.LoginBean.username}" />! <h:commandLink
+				action="#{LoginBean.logout}" title="#{msg.headerLogout}">
 				<h:outputText value=" #{msg.headerLogout}" />
-			</h:commandLink></h1>		
+			</h:commandLink></h1>
 		</h:form></div>
+
+		<h:form id="download" rendered="#{TreeBean.directory}">
+			<h:outputText value="#{msg.downloadInfo}" />
+			<h:commandLink action="createList"
+				actionListener="#{TreeBean.createList}" title="#{msg.download}"
+				value="#{msg.download}">
+				<br />
+				<h:message styleClass="errorText" id="downloadError" for="download" />
+			</h:commandLink>
+
+			<br />
+			<br />
+
+		</h:form>
 
 		<h:outputLink value="./uploadFile.jsf">
 			<h:graphicImage url="/images/add.png" />
 			<f:verbatim> ${msg.uploadFile}</f:verbatim>
 		</h:outputLink>
-		
+
 		<br />
 
-		<h:form id="clientTree">
+		<h:form id="clientTree" rendered="#{TreeBean.directory}">
 
-		<h2>List of Files:</h2>
+			<h2>List of Files:</h2>
 
 			<h:message styleClass="errorText" id="clientTreeError"
 				for="clientTree" />

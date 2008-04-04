@@ -21,6 +21,7 @@ import java.util.Map;
 // Third-party libraries
 import javax.faces.context.FacesContext;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.log4j.Logger;
 
 // Application-internal dependencies
 import ome.admin.data.ConnectionDB;
@@ -41,6 +42,12 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
      * 
      */
     private static final long serialVersionUID = 1L;
+
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger.getLogger(ITypesEnumManagerDelegate.class
+            .getName());
 
     /**
      * {@link java.util.List} of {@link ome.admin.model.Enumeration}
@@ -75,6 +82,7 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
                 return property1.toLowerCase().compareTo(
                         property2.toLowerCase());
             } catch (Exception e) {
+                logger.error(e.getMessage(), e.fillInStackTrace());
                 return 0;
             }
         }
@@ -94,6 +102,7 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
                 return property2.toLowerCase().compareTo(
                         property1.toLowerCase());
             } catch (Exception e) {
+                logger.error(e.getMessage(), e.fillInStackTrace());
                 return 0;
             }
         }
@@ -137,28 +146,28 @@ public class ITypesEnumManagerDelegate implements java.io.Serializable {
             Class klass = (Class) iter.next();
             List<? extends IEnum> entries = (List<? extends IEnum>) map
                     .get(klass);
-            
+
             Enumeration en = new Enumeration();
             en.setClassName(klass.getName());
             en.setEntryList(entries);
-            
-            for(IEnum entry:entries) {
+
+            for (IEnum entry : entries) {
                 boolean flag = false;
                 int c = 0;
-                for(IEnum oryginal:oryginList) {
-                    if(entry.getClass().equals(oryginal.getClass())) {
+                for (IEnum oryginal : oryginList) {
+                    if (entry.getClass().equals(oryginal.getClass())) {
                         c++;
-                        if(entry.getValue().equals(oryginal.getValue())) {
+                        if (entry.getValue().equals(oryginal.getValue())) {
                             flag = true;
                         }
                     }
                 }
-                if(c!=entries.size()) {
+                if (c != entries.size()) {
                     en.setOriginalVales(false);
                 } else {
                     en.setOriginalVales(flag);
-                }                    
-            }  
+                }
+            }
             list.add(en);
         }
         this.enums = list;

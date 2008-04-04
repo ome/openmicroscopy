@@ -9,16 +9,15 @@ package ome.admin.logic;
 
 // Java imports
 import java.util.HashMap;
-import java.util.List;
-
-import ome.admin.data.ConnectionDB;
-import ome.model.meta.Experimenter;
 
 // Third-party libraries
+import org.apache.log4j.Logger;
 
 // Application-internal dependencies
+import ome.admin.data.ConnectionDB;
 
 /**
+ * Delegate of repository mangement.
  * 
  * @author Aleksandra Tarkowska &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:A.Tarkowska@dundee.ac.uk">A.Tarkowska@dundee.ac.uk</a>
@@ -31,6 +30,12 @@ public class IRepositoryInfoManagerDelegator implements java.io.Serializable {
      * 
      */
     private static final long serialVersionUID = 1L;
+
+    /**
+     * log4j logger
+     */
+    static Logger logger = Logger
+            .getLogger(IRepositoryInfoManagerDelegator.class.getName());
 
     /**
      * 

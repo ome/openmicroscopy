@@ -1,5 +1,5 @@
 /*
- * ome.admin.controller
+ * ome.admin.controller.IAdminMyAccountController
  *
  *   Copyright 2007 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -79,7 +79,7 @@ public class IAdminMyAccountController {
                             "LoginBean");
             this.user = iadmin.getExperimenterById(Long.parseLong(lb.getId()));
         } catch (Exception e) {
-            logger.error("IAdminMyAccountController: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -102,7 +102,7 @@ public class IAdminMyAccountController {
                     .getExperimenter().getId());
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("changeMyPassword: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -135,7 +135,7 @@ public class IAdminMyAccountController {
                 return NavigationResults.SUCCESS;
             }
         } catch (Exception e) {
-            logger.error("updateMyPassword: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -208,7 +208,7 @@ public class IAdminMyAccountController {
 
             groups = Arrays.asList(exg);
         } catch (Exception e) {
-            logger.error("getMyGroups: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -250,7 +250,7 @@ public class IAdminMyAccountController {
                     .getExperimenter().getId());
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("editExperimenter: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -276,7 +276,7 @@ public class IAdminMyAccountController {
             session.invalidate();
             return NavigationResults.SUCCESS;
         } catch (Exception e) {
-            logger.error("updateExperimenter: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesContext context = FacesContext.getCurrentInstance();
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
@@ -314,7 +314,7 @@ public class IAdminMyAccountController {
                 context.addMessage(toValidate.getClientId(context), message);
             }
         } catch (Exception e) {
-            logger.error("validateEmail: " + e.getMessage());
+            logger.error(e.getMessage(), e.fillInStackTrace());
             FacesMessage message = new FacesMessage("Experimenter: [id: "
                     + this.user.getExperimenter().getId() + ", '"
                     + this.user.getExperimenter().getOmeName() + "'] : "
