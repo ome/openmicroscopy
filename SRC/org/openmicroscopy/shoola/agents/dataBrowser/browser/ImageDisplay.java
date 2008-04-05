@@ -177,7 +177,7 @@ public abstract class ImageDisplay
             throw new NullPointerException("No hierarchy object.");
         this.hierarchyObject = hierarchyObject;
         childrenDisplay = new HashSet<ImageDisplay>();
-        setToolTipText(toString());
+        setToolTipText(getNodeName());
     }
  
     /** Fired a property change event to bring up the annotation widget. */

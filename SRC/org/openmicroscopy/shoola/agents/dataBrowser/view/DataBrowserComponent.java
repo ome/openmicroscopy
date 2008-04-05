@@ -377,16 +377,25 @@ class DataBrowserComponent
 		view.setTags(tags);
 	}
 
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setSlideViewImage(long, BufferedImage)
+	 */
 	public void setSlideViewImage(long imageID, BufferedImage thumb)
 	{
-		model.setSlideViewImage(imageID, thumb);
+		boolean done = model.setSlideViewImage(imageID, thumb);
+		if (done) view.setSlideViewStatus(true, -1);
 	}
 
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setSlideViewStatus(String, int)
+	 */
 	public void setSlideViewStatus(String description, int perc)
 	{
 		int state = model.getState();
 		if (state == LOADING_SLIDE_VIEW)
-			view.setSlideViewStatus(perc == 100, perc);
+			view.setSlideViewStatus(false, perc);
 	}
 	
 }

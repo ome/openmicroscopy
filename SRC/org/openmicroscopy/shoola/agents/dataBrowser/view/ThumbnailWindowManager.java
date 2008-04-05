@@ -180,11 +180,17 @@ class ThumbnailWindowManager
     private Point getWindowLocation(ImageNode node, int winW, int winH)
     {
         Rectangle r = node.getBounds();
+        /*
         int offsetX = Math.abs(winW-r.width)/2,
             offsetY = Math.abs(winH-r.height)/2;
         Point p = node.getLocationOnScreen();
         p.x -= offsetX;
         p.y -= offsetY;
+        */
+        int offsetX = Math.abs(winW-r.width)/2;
+        Point p = node.getLocationOnScreen();
+        p.y -= winH+5;
+        p.x -= offsetX;
         return p;
     }
     

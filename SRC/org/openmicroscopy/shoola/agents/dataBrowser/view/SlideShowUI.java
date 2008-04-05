@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
@@ -34,7 +33,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
@@ -44,6 +42,7 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -103,7 +102,7 @@ class SlideShowUI
         statusPane.setOpaque(false);
         statusPane.setLayout(new BoxLayout(statusPane, BoxLayout.Y_AXIS));
         statusPane.add(progressBar);
-        statusPane.add(UIUtilities.setTextFont("Loading ...", Font.BOLD, 14));
+        statusPane.add(UIUtilities.setTextFont("Loading...", Font.BOLD, 14));
         currentComp = statusPane;
     }
     
@@ -145,7 +144,7 @@ class SlideShowUI
     	buildGUI();
     }
     
-    void setImageName(String name)
+    void scrollToNode(ImageNode node)
     {
     	
     }

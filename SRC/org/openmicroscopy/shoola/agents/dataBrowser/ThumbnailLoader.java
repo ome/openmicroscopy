@@ -142,15 +142,14 @@ public class ThumbnailLoader
                 viewer.setThumbnail(td.getImageID(), td.getThumbnail());
         } else {
         	if (status == null) 
-                status = (percDone == 100) ? "Done" :  //Else
-                                           ""; //Description wasn't available.   
-            viewer.setSlideViewStatus(status, percDone);
-           
+        		status = (percDone == 100) ? "Done" :  //Else
+        			""; //Description wasn't available.   
+
+        	viewer.setSlideViewStatus(status, percDone);
             ThumbnailData td = (ThumbnailData) fe.getPartialResult();
             if (td != null)  //Last fe has null object.
                 viewer.setSlideViewImage(td.getImageID(), td.getThumbnail());
         }
-        
     }
     
     /**

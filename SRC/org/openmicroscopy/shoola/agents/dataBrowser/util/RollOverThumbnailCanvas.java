@@ -116,12 +116,14 @@ class RollOverThumbnailCanvas
             int x = i.left+1;
             int y = i.top+1;
             g2D.drawImage(model.getImage(), null, x, y);
+            /*
             int w = getWidth();
             int width = pinIcon.getIconWidth();
             int height = pinIcon.getIconHeight();
             pinRectangle.setBounds(w-width-5, y, width, height);
-            //g2D.drawImage(pinIcon.getImage(), w-width-5, y, width, height, 
-            //				null);
+            g2D.drawImage(pinIcon.getImage(), w-width-5, y, width, height, 
+            				null);
+            				*/
         }  
     }
 }

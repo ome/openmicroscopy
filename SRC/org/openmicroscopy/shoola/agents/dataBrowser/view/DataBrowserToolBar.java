@@ -94,6 +94,12 @@ class DataBrowserToolBar
 	/** ID to bring up the metadata browser. */
 	private static final int	METADATA_CHILDREN = 5;
 	
+	/** ID to bring a slide show view with the displayed images. */
+	private static final int	SLIDE_SHOW_IMAGES = 6;
+	
+	/** ID to bring a slide show view with the selected images. */
+	private static final int	SLIDE_SHOW_SELECTION = 7;
+	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
 	
@@ -127,6 +133,9 @@ class DataBrowserToolBar
 	/** Menu displaying the annotated options. */
 	private JPopupMenu			annotateMenu;
 	
+	/** Menu displaying the annotated options. */
+	private JPopupMenu			slideViewMenu;
+	
 	/**
 	 * Creates the menu displaying the annotation options.
 	 * 
@@ -149,6 +158,26 @@ class DataBrowserToolBar
 		item.setActionCommand(""+METADATA_CHILDREN);
 		annotateMenu.add(item);
 		return annotateMenu;
+	}
+	
+	/**
+	 * Creates the menu displaying the annotation options.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createSlideVieweMenu()
+	{
+		if (slideViewMenu != null) return slideViewMenu;
+		slideViewMenu = new JPopupMenu();
+		JMenuItem item = new JMenuItem("View selected images");
+		item.addActionListener(this);
+		item.setActionCommand(""+SLIDE_SHOW_SELECTION);
+		slideViewMenu.add(item);
+		item = new JMenuItem("View displayed images");
+		item.addActionListener(this);
+		item.setActionCommand(""+SLIDE_SHOW_IMAGES);
+		slideViewMenu.add(item);
+		return slideViewMenu;
 	}
 	
 	/** Sets the value of the filtering dialog. */
@@ -250,8 +279,21 @@ class DataBrowserToolBar
 		group.add(columnsView);
 		slideShowView = new JButton(
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
+		slideShowView.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Brings up the filtering dialog.
+			 * @see MouseAdapter#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e) {
+				createSlideVieweMenu().show(slideShowView, e.getX(), e.getY());
+			}
+		
+		});
+		/*
 		slideShowView.addActionListener(this);
 		slideShowView.setActionCommand(""+SLIDE_SHOW_VIEW);
+		*/
 		//group.add(slideShowView);
 		metadataButton = new JButton(icons.getIcon(IconManager.METADATA));
 		metadataButton.addMouseListener(new MouseAdapter() {
@@ -366,7 +408,7 @@ class DataBrowserToolBar
 				
 				break;
 			case SLIDE_SHOW_VIEW:
-				view.slideShowView(true);
+				//view.slideShowView(true);
 				break;
 			case METADATA_IMAGES:
 				controller.annotate(DataBrowser.ANNOTATE_IMAGES);
@@ -376,6 +418,13 @@ class DataBrowserToolBar
 				break;
 			case METADATA_CHILDREN:
 				controller.annotate(DataBrowser.ANNOTATE_CHILDREN);
+				break;
+			case SLIDE_SHOW_IMAGES:
+				view.slideShowView(true, true);
+				break;	
+			case SLIDE_SHOW_SELECTION:
+				view.slideShowView(true, false);
+				break;	
 		}
 	}
 	

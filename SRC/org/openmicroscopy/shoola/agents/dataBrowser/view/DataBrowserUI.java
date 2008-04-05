@@ -26,8 +26,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -118,14 +122,39 @@ class DataBrowserUI
 	 */
 	void setTags(Collection tags) { toolBar.setTags(tags); }
 	
-	void slideShowView(boolean create)
+	/**
+	 * 
+	 * @param create
+	 * @param allImages
+	 */
+	void slideShowView(boolean create, boolean allImages)
 	{
 		if (!create) {
+			if (slideShowView != null) {
+				slideShowView.dispose();
+			}
 			slideShowView = null; 
+			return;
 		}
 		Browser browser = model.getBrowser();
 		
-		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		List<ImageNode> nodes;
+		
+		if (allImages) nodes = browser.getVisibleImageNodes();
+		else {
+			Set selection = browser.getSelectedDisplays();
+			nodes = new ArrayList<ImageNode>();
+			if (selection != null) {
+				Iterator i = selection.iterator();
+				Object n;
+				while (i.hasNext()) {
+					n = i.next();
+					if (n instanceof ImageNode)
+						nodes.add((ImageNode) n);
+				}
+			}
+			
+		}
 		if (nodes == null || nodes.size() == 0) return;
 		
 		slideShowView = new SlideShowView(null, nodes);
@@ -151,5 +180,9 @@ class DataBrowserUI
     	if (slideShowView != null)
     		slideShowView.setProgress(hideProgressBar, progressPerc);
     }
+    
+    boolean isRollOver() { return model.isRollOver(); }
+    
+    boolean isSlideShowView() { return slideShowView != null; }
     
 }

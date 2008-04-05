@@ -1200,8 +1200,9 @@ class OMEROGateway
 		try {
 			ThumbnailStore service = getThumbService();
 			needDefault(pixelsID, null);
-			return service.getThumbnailDirect(new Integer(sizeX), 
-					new Integer(sizeY));
+			return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
+			//return service.getThumbnailDirect(new Integer(sizeX), 
+			//		new Integer(sizeY));
 		} catch (Throwable t) {
 			if (thumbnailService != null) thumbnailService.close();
 			thumbnailService = null;

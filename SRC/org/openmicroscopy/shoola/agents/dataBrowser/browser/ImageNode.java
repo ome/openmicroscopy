@@ -124,7 +124,7 @@ public class ImageNode
         canvas = new ThumbnailCanvas(this);
         getInternalDesktop().add(canvas, new Integer(0));
         setCanvasSize(t.getWidth(), t.getHeight());
-        canvas.setToolTipText(toString());
+        canvas.setToolTipText(getNodeName());
     }
     
     /** Fired a property change event to bring up the classification widget. */

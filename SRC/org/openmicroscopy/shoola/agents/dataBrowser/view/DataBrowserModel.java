@@ -85,6 +85,12 @@ abstract class DataBrowserModel
     /** The collection of existing tags. */
     private Collection			existingTags;
     
+    /** 
+	 * Flag to control the zoom action when the user mouses over an 
+	 * {@link ImageNode}. 
+	 */
+	private boolean         	rollOver;
+    
     /** Reference to the component that embeds this model. */
     protected DataBrowser		component;
     
@@ -163,15 +169,25 @@ abstract class DataBrowserModel
         }
     }
     
-    void setSlideViewImage(long imageID, BufferedImage thumb)
+    /**
+     * Returns <code>true</code> if the loading is done, 
+     * <code>false</code> otherwise.
+     * 
+     * @param imageID 	The id of the image the passed object is for.
+     * @param thumb		The Buffered image.
+     * @return See above.
+     */
+    boolean setSlideViewImage(long imageID, BufferedImage thumb)
     {
 		if (fullSizeThumbsManager != null) {
 			fullSizeThumbsManager.setFullSizeImage(imageID, thumb);
 			if (fullSizeThumbsManager.isDone()) {
 	            state = DataBrowser.READY;
 	            fullSizeThumbsManager = null;
+	            return true;
 	        }
 		}
+		return false;
 	}
 
     
@@ -292,6 +308,13 @@ abstract class DataBrowserModel
 	 * @return See above.
 	 */
 	Collection getExistingTags() { return existingTags; }
+	
+	void setRollOver(boolean rollOver)
+	{ 
+		this.rollOver = rollOver; 
+	}
+	
+	boolean isRollOver() { return browser.isRollOver(); }
 	
     /**
      * Creates a data loader that can retrieve the hierarchy objects needed

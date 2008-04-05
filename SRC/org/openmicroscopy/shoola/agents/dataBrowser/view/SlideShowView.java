@@ -27,9 +27,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -63,8 +66,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.sun.corba.se.impl.ior.iiop.JavaSerializationComponent;
 
 /** 
  * 
@@ -118,6 +119,12 @@ class SlideShowView
 	/** ID indicating to play the show forward. */
 	private static final int 		PLAY_BACKWARD = 13;
 	
+	/** ID indicating to go to the next image. */
+	private static final int 		PREVIOUS = 14;
+	
+	/** ID indicating to go to the previous image. */
+	private static final int 		NEXT = 15;
+	
 	 /** Indicates the <i>Start</i> state of the timer. */
     public static final int     	START = 0;
     
@@ -136,6 +143,12 @@ class SlideShowView
 	
 	/** The collection of nodes to show. */
 	private List<ImageNode> 		nodes;
+	
+	/** The button to go to the next image. */
+	private JButton					next;
+	
+	/** The button to go to the previous image. */
+	private JButton					previous;
 	
 	/** The button to pause the movie. */
 	private JButton					pause;
@@ -166,13 +179,12 @@ class SlideShowView
 
     /** The Horizontal split pane. */
     private JSplitPane				pane;
-    
-    /** The component hosting the selected node. */
-    private JComponent				nodesPane;
 
     /** The UI component hosting the image's name. */
     private JLabel					titleLabel;
     
+    /** The scrollpane hosting the nodes. */
+    private JScrollPane				nodePane;
     
     /** The component hosting the main image. */
     private SlideShowUI				uiDelegate;
@@ -185,16 +197,26 @@ class SlideShowView
 	{
 		nodesMap = new HashMap<ImageNode, Integer>();
 		IconManager icons = IconManager.getInstance();
+		previous = new JButton(icons.getIcon(IconManager.PREVIOUS));
+		previous.setActionCommand(""+PREVIOUS);
+		previous.addActionListener(this);
+		UIUtilities.unifiedButtonLookAndFeel(previous);
+		next = new JButton(icons.getIcon(IconManager.NEXT));
+		next.setActionCommand(""+NEXT);
+		next.addActionListener(this);
+		UIUtilities.unifiedButtonLookAndFeel(next);
 		pause = new JButton(icons.getIcon(IconManager.PAUSE));
 		pause.setActionCommand(""+PAUSE);
 		pause.addActionListener(this);
+		pause.setEnabled(false);
 		forwardPlay = new JToggleButton(icons.getIcon(IconManager.FORWARD));
 		forwardPlay.setActionCommand(""+PLAY_FORWARD);
 		forwardPlay.addActionListener(this);
+		forwardPlay.setEnabled(false);
 		backwardPlay = new JToggleButton(icons.getIcon(IconManager.BACKWARD));
 		backwardPlay.setActionCommand(""+PLAY_BACKWARD);
 		backwardPlay.addActionListener(this);
-		
+		backwardPlay.setEnabled(false);
 
 		speeds = new JComboBox(SPEEDS);
 		speeds.setSelectedIndex(MEDIUM_SPEED);
@@ -214,7 +236,7 @@ class SlideShowView
         pane.setOneTouchExpandable(true);
         pane.setContinuousLayout(true);
         pane.setTopComponent(uiDelegate);
-    	pane.setResizeWeight(0.9);
+    	pane.setResizeWeight(1);
     	pane.setBackground(UIUtilities.BACKGROUND);
     	titleLabel = new JLabel();
 	}
@@ -318,9 +340,17 @@ class SlideShowView
 	{
 		ImageNode node = nodes.get(selectedNodeIndex);
 		if (node == null) return;
-		titleLabel.setText(node.getNodeName());
+		
+		titleLabel.setText(node.toString());
 		uiDelegate.paintImage(node.getThumbnail().getFullSizeImage());
 		setNodeColor(node);
+		
+		Rectangle viewRect = nodePane.getViewport().getViewRect();
+    	Rectangle bounds = node.getBounds();
+    	if (!viewRect.contains(bounds)) {
+    		nodePane.getVerticalScrollBar().setValue(bounds.y);
+    		nodePane.getHorizontalScrollBar().setValue(bounds.x);
+    	}
 	}
 	
 	/** 
@@ -338,6 +368,7 @@ class SlideShowView
 		bar.add(pause);
 		bar.add(forwardPlay);
 		p.add(bar);
+		
 		JPanel speed = new JPanel();
 		speed.add(new JLabel("Speed:"));
 		speed.add(speeds);
@@ -345,6 +376,22 @@ class SlideShowView
 		p.add(Box.createHorizontalStrut(10));
 		p.add(UIUtilities.buildComponentPanel(titleLabel));
 		return UIUtilities.buildComponentPanel(p);
+	}
+	
+	/**
+	 * Builds the bottom tool bar.
+	 * 
+	 * @return See above.
+	 */
+	private JComponent buildBottomBar()
+	{
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setBorder(null);
+		bar.add(previous);
+		bar.add(Box.createHorizontalStrut(5));
+		bar.add(next);
+		return UIUtilities.buildComponentPanelCenter(bar);
 	}
 	
 	/**
@@ -366,8 +413,8 @@ class SlideShowView
 			p.add(node);
 			index++;
 		}
-		nodesPane = new JScrollPane(nodesPane);
-		return p;
+		nodePane = new JScrollPane(p);
+		return nodePane;
 	}
 	
 	/** Builds and lays out the UI. */
@@ -378,6 +425,7 @@ class SlideShowView
 		//
 		pane.setBottomComponent(buildNodesPane());
 		c.add(pane, BorderLayout.CENTER);
+		c.add(buildBottomBar(), BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -390,6 +438,7 @@ class SlideShowView
 	{
 		super(parent);
 		setTitle("Slide Show");
+		setModal(true);
 		this.nodes = nodes;
 		initComponents();
 		buildGUI();
@@ -411,6 +460,9 @@ class SlideShowView
 	{
 		uiDelegate.setProgress(hide, value);
 		if (hide) {
+			pause.setEnabled(true);
+			forwardPlay.setEnabled(true);
+			backwardPlay.setEnabled(true);
 			paintImage();
 		}
 		pane.revalidate();
@@ -453,6 +505,18 @@ class SlideShowView
 				break;
 			case SPEED:
 				setSpeed();
+				break;
+			case NEXT:
+				selectedNodeIndex++;
+				if (selectedNodeIndex == nodes.size())
+					selectedNodeIndex = 0;
+				paintImage();
+				break;
+			case PREVIOUS:
+				if (selectedNodeIndex == 0)
+					selectedNodeIndex = nodes.size();
+				selectedNodeIndex--;
+				paintImage();
 		}
 	}
 

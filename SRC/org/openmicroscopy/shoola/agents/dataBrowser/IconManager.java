@@ -81,14 +81,20 @@ public class IconManager
     /** The <code>Forward</code> icon. */
     public static int			FORWARD = 10;
     
-    /** The <code>BACKWARD</code> icon. */
+    /** The <code>Backward</code> icon. */
     public static int			BACKWARD = 11;
+    
+    /** The <code>Previous</code> icon. */
+    public static int			PREVIOUS = 12;
+    
+    /** The <code>Next</code> icon. */
+    public static int			NEXT = 13;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 11;
+    private static int          MAX_ID = 13;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -106,6 +112,8 @@ public class IconManager
         relPaths[PAUSE] = "nuvola_player_pause16.png";
         relPaths[FORWARD] = "nuvola_player_play16.png";
         relPaths[BACKWARD] = "nuvola_flipped_player_play16.png";
+        relPaths[PREVIOUS] = "nuvola_1leftarrow16.png";
+        relPaths[NEXT] = "nuvola_1rightarrow16.png";
     }
     
     /** The sole instance. */
