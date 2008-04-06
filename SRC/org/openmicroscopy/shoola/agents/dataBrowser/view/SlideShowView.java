@@ -437,7 +437,7 @@ class SlideShowView
 	SlideShowView(JFrame parent, List<ImageNode> nodes)
 	{
 		super(parent);
-		setTitle("Slide Show");
+		setTitle("Slideshow");
 		setModal(true);
 		this.nodes = nodes;
 		initComponents();

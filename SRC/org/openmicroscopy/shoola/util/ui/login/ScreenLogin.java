@@ -232,8 +232,8 @@ public class ScreenLogin
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				//firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-				//					Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
 				//user.requestFocus();
 			}
 
@@ -245,8 +245,8 @@ public class ScreenLogin
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) {
-				//firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
-				//					Boolean.TRUE);
+				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
 				//requestFocusOnField();
 			}
 		});
@@ -575,6 +575,7 @@ public class ScreenLogin
 			 * @see MouseListener#mouseClicked(MouseEvent)
 			 */
 			public void mouseClicked(MouseEvent e) { 
+				
 				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);
 				requestFocusOnField();

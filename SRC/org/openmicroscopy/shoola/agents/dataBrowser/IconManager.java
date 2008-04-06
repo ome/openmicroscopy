@@ -106,7 +106,8 @@ public class IconManager
         relPaths[COLUMN_VIEW] = "nuvola_view_text16.png";
         relPaths[FILTERING_48] = "nuvola_view_text16.png";
         relPaths[FILTERING] = "eclipse_filter_ps16.png";
-        relPaths[SLIDE_SHOW_VIEW] = "eclipse_filter_ps16.png";
+        relPaths[SLIDE_SHOW_VIEW] = 
+        					"openOffice_stock_insert-video-plugin-16.png";
         relPaths[METADATA] = "eclipse_filter_ps16.png";
         relPaths[PIN] = "nuvola_attach16.png";
         relPaths[PAUSE] = "nuvola_player_pause16.png";
