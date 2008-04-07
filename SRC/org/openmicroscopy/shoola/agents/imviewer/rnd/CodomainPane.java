@@ -213,7 +213,10 @@ class CodomainPane
      */
     protected int getPaneIndex() { return ControlPane.CODOMAIN_PANE_INDEX; }
 
-    /** Resets the default rendering settings. */
+    /**
+     * Resets the default rendering settings. 
+     * @see ControlPane#resetDefaultRndSettings()
+     */
     protected void resetDefaultRndSettings()
     {
         reverseIntensity.removeActionListener(
@@ -230,6 +233,13 @@ class CodomainPane
         contrastStretching.setAction(
                 controller.getAction(RendererControl.CONTRAST_STRETCHING));
     }
+    
+    /**
+     * Resets the value of the various controls when the user selects 
+     * a new rendering control
+     * @see ControlPane#resetDefaultRndSettings()
+     */
+    protected void switchRndControl() { resetDefaultRndSettings(); }
     
     /**
      * Creates a new instance.

@@ -238,7 +238,7 @@ public class BrowserControl
     {
     	boolean mo = model.isMouseOver();
     	boolean ro = model.isRollOver();
-    	//if (!mo && !ro) return;
+    	if (!mo && !ro) return;
         Object src = me.getSource();
         ImageDisplay d = findParentDisplay(src);
         if (mo) {
@@ -255,7 +255,7 @@ public class BrowserControl
                 view.setTitle(model.currentPathString(d));
             model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, d);
         }
-        //if (!ro) return;
+        if (!ro) return;
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
             model.setRollOverNode((ImageNode) d);
         } else model.setRollOverNode(null);

@@ -544,6 +544,13 @@ class ControlPane
         slider.addChangeListener(this);
     }
   
+    private void setSliderMax(JSlider slider, int max)
+    {
+    	slider.removeChangeListener(this);
+    	slider.setMaximum(max);
+    	slider.addChangeListener(this);
+    }
+    
     /**
      * Creates a new instance.
      * 
@@ -800,6 +807,15 @@ class ControlPane
         colorModelButtonGrid.setToolTipText(tip);
         setZSection(model.getDefaultZ());
         setTimepoint(model.getDefaultT());
+    }
+    
+    /** Resets the UI when the user switches to a new rendering control. */
+    void switchRndControl()
+    {
+    	setSliderMax(zSlider, model.getMaxZ());
+    	setSliderMax(zSliderGrid, model.getMaxZ());
+    	setSliderMax(zSliderAnnotator, model.getMaxZ());
+    	resetDefaults();
     }
     
     /**

@@ -507,7 +507,10 @@ class DomainPane
      */
     protected int getPaneIndex() { return ControlPane.DOMAIN_PANE_INDEX; }
     
-    /** Resets the default rendering settings. */
+    /**
+     * Resets the default rendering settings. 
+     * @see ControlPane#resetDefaultRndSettings()
+     */
     protected void resetDefaultRndSettings()
     {
         setInputInterval();
@@ -522,6 +525,16 @@ class DomainPane
             btn.setGrayedOut(gs);
         }  
         resetGamma(model.getCurveCoefficient());
+    }
+    
+    /**
+     * Resets the value of the various controls when the user selects 
+     * a new rendering control
+     * @see ControlPane#resetDefaultRndSettings()
+     */
+    protected void switchRndControl()
+    {
+    	
     }
     
     /**

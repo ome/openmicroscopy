@@ -271,4 +271,7 @@ public interface Renderer
 	 */ 
 	public void resetRndSettings();
 
+	/** Updates the UI when switching to a new rendering control. */
+	public void switchRndControl();
+
 }

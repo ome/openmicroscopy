@@ -31,6 +31,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -58,11 +60,14 @@ import javax.swing.Timer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
  * Dialog displaying the slideshow.
@@ -80,7 +85,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class SlideShowView 
 	extends JDialog
-	implements ActionListener, PropertyChangeListener
+	implements ActionListener, MouseListener, PropertyChangeListener
 {
 
 	/** Bound property indicating to close the slide view. */
@@ -254,10 +259,11 @@ class SlideShowView
 			public void windowClosed(WindowEvent e) {
 				super.windowClosed(e);
 				if (timer != null) stop();
+				/*
 				Iterator<ImageNode> i = nodes.iterator();
 				while (i.hasNext()) {
 					(i.next()).setListenToBorder(true);
-				}
+				}*/
 				firePropertyChange(CLOSE_SLIDE_VIEW_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);
 			}
@@ -291,9 +297,7 @@ class SlideShowView
 	private void play(int index)
 	{
 		if (index == playingIndex) return;
-		if (state == START) {
-			stop();
-		}
+		if (state == START) stop();
 		playingIndex = index;
 		forwardPlay.setSelected(playingIndex == PLAY_FORWARD);
 		backwardPlay.setSelected(playingIndex == PLAY_BACKWARD);
@@ -325,11 +329,11 @@ class SlideShowView
 		while (i.hasNext()) {
 			n = i.next();
 			if (n != node) {
-				n.setHighlight(colors.getDeselectedHighLight(n));
+				n.setHighlight(colors.getColor(Colors.TITLE_BAR));
 				n.repaint();
 			}
 		}
-		node.setHighlight(Colors.getInstance().getSelectedHighLight(node));
+		node.setHighlight(colors.getColor(Colors.TITLE_BAR_HIGHLIGHT));
 		node.repaint();
 	}
 	
@@ -407,6 +411,7 @@ class SlideShowView
 		while (i.hasNext()) {
 			node = i.next();
 			node.setListenToBorder(false);
+			node.addMouseListenerToComponents(this);
 			nodesMap.put(node, index);
 			p.add(node);
 			index++;
@@ -525,20 +530,90 @@ class SlideShowView
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
-			ImageDisplay node = (ImageDisplay) evt.getNewValue();
-            if (node == null) return;
-            Integer value = nodesMap.get(node);
-            if (value != null) {
-            	selectedNodeIndex = value.intValue();
-            	paintImage();
-            }
-		} else if (SlideShowCanvas.SELECT_NEXT_PROPERTY.equals(name)) {
+		if (SlideShowCanvas.SELECT_NEXT_PROPERTY.equals(name)) {
 			selectedNodeIndex++;
 			if (selectedNodeIndex == nodes.size())
 				selectedNodeIndex = 0;
 			paintImage();
 		}
 	}
+
+	/**
+     * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
+     * hierarchy.
+     * 
+     * @param x A component.
+     * @return The parent {@link ImageDisplay} or <code>null</code> if none
+     *         was found.
+     */
+    private ImageDisplay findParentDisplay(Object x)
+    {
+        while (true) {
+            if (x instanceof ImageDisplay) return (ImageDisplay) x;
+            if (x instanceof JComponent) x = ((JComponent) x).getParent();
+            else break;
+        }
+        return null;
+    }
+    
+	/**
+	 * Zooms the image or remove the zooming window from the display.
+	 * @see MouseListener#mouseEntered(MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e)
+	{
+		Object src = e.getSource();
+        ImageDisplay n = findParentDisplay(src);
+         if (n instanceof ImageNode)
+             ThumbnailWindowManager.rollOverDisplay((ImageNode) n);
+         else ThumbnailWindowManager.rollOverDisplay(null);
+	}
+
+	/**
+	 * Removes the zooming window from the display.
+	 * @see MouseListener#mouseExited(MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e)
+	{
+		ThumbnailWindowManager.rollOverDisplay(null);
+	}
+
+	/**
+	 * Sets the selected image.
+	 * @see MouseListener#mousePressed(MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e)
+	{
+		ImageDisplay node = findParentDisplay(e.getSource());
+		if (node == null) return;
+		Integer value = nodesMap.get(node);
+		if (value != null) {
+			selectedNodeIndex = value.intValue();
+			paintImage();
+		}
+	}
+
+	/**
+	 * Views the image if the user clicks twice on the thumbnail.
+	 * @see MouseListener#mouseReleased(MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e)
+	{
+		Object src = e.getSource();
+        ImageDisplay d = findParentDisplay(src);
+        if (d instanceof ImageNode && !(d.getTitleBar() == src) 
+            && e.getClickCount() == 2) {
+        	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
+        	bus.post(new ViewImage(
+        				(ImageData) d.getHierarchyObject(), null));
+        }   
+	}
 	
+    /**
+     * Required by the {@link MouseListener} I/F but no-op implementation
+     * in our case.
+     * @see MouseListener#mouseClicked(MouseEvent)
+     */
+    public void mouseClicked(MouseEvent me) {}
+    
 }

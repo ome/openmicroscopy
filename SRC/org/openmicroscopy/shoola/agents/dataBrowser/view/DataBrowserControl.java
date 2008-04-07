@@ -162,7 +162,7 @@ class DataBrowserControl
 			model.loadExistingTags();
 		} else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
 			
-            if (view.isRollOver() || view.isSlideShowView()) {
+            if (view.isRollOver()) {
             	
                 ImageDisplay n = (ImageDisplay) evt.getNewValue();
                 if (n instanceof ImageNode)

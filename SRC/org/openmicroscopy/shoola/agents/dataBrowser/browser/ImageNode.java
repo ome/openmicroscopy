@@ -251,4 +251,16 @@ public class ImageNode
         getInternalDesktop().setPreferredSize(new Dimension(w, h));
     }
     
+    /**
+     * Makes a copy of the node.
+     * 
+     * @return See above.
+     */
+    public ImageNode copy()
+    {
+    	ImageNode img = new ImageNode(this.getTitle(), 
+    							this.getHierarchyObject(), thumbnail);
+    	return img;
+    }
+    
 }

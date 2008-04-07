@@ -161,20 +161,24 @@ class ToolBar
     private void initComponents()
     {
     	List<PixelsData> pixelsSets = view.getPixelsSets();
-        Iterator<PixelsData> i = pixelsSets.iterator();
-        String[] pixelsName = new String[2];//new String[pixelsSets.size()];
-        PixelsData data;
-        int index = 0;
-        while (i.hasNext()) {
-			data = i.next();
-			pixelsName[index] = "Pixels ID:"+data.getId();
-			
-			index++;
-			pixelsName[index] = "Pixels ID:"+data.getId()+1;
-		};
-        pixelsBox = new JComboBox(pixelsName);
-        pixelsBox.setSelectedIndex(1);
-        pixelsBox.addActionListener(this);
+    	if (pixelsSets != null && pixelsSets.size() > 1) {
+    		Iterator<PixelsData> i = pixelsSets.iterator();
+            String[] pixelsName = new String[pixelsSets.size()];
+            PixelsData data;
+            int index = 0;
+            int selectedIndex = 0;
+            long id = view.getPixelsID();
+            while (i.hasNext()) {
+    			data = i.next();
+    			if (data.getId() == id) selectedIndex = index;
+    			pixelsName[index] = "Pixels ID:"+data.getId();
+    			index++;
+    		}
+            pixelsBox = new JComboBox(pixelsName);
+            pixelsBox.setSelectedIndex(selectedIndex);
+            pixelsBox.addActionListener(this);
+    	}
+        
     	compressionBox = new JComboBox(compression);
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
@@ -232,7 +236,7 @@ class ToolBar
 		bar.add(compressionBox);
 		compressionBox.setSelectedIndex(view.getCompressionLevel());
 		compressionBox.addActionListener(this);
-		bar.add(pixelsBox);
+		if (pixelsBox != null) bar.add(pixelsBox);
     	buildGUI(); 
     }
     

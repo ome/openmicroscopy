@@ -127,4 +127,7 @@ abstract class ControlPane
     /** Resets the default rendering settings. */
     protected abstract void resetDefaultRndSettings();
     
+    /** Resets the UI when the user switches to a new rendering control. */
+    protected abstract void switchRndControl();
+    
 }

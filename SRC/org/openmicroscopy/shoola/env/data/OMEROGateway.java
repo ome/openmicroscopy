@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 import ome.api.IAdmin;
+import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
@@ -379,6 +380,13 @@ class OMEROGateway
 	 * @return See above.
 	 */
 	private IAdmin getAdminService() { return entry.getAdminService(); }
+	
+	/**
+	 * Returns the {@link IPixels} service.
+	 * 
+	 * @return See above.
+	 */
+	private IPixels getPixelsService() { return entry.getPixelsService(); }
 	
 	/**
 	 * Returns the {@link ThumbnailStore} service.
@@ -2749,30 +2757,50 @@ class OMEROGateway
 	/**
 	 * Returns the collection of annotations of a given type.
 	 * 
-	 * @param annotationType
-	 * @param terms
-	 * @param start
-	 * @param end
-	 * @param exp
-	 * @return
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @param annotationType	The type of annotation.
+	 * @param terms				The terms to search for.
+	 * @param start				The lower bound of the time interval 
+	 * 							or <code>null</code>.
+	 * @param end				The lower bound of the time interval 
+	 * 							or <code>null</code>.
+	 * @param exp				The experimenter who annotated the object.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	List filterBy(Class annotationType, List<String> terms,
 				Timestamp start, Timestamp end, ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Search service = getSearchService();
-		service.onlyAnnotatedBetween(start, end);
-		service.onlyType(convertPojos(annotationType));
-		if (terms != null)
-			service.bySomeMustNone(terms.toArray(new String[] {}), null, null);
-		if (exp != null) { 
-			service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
+		try {
+			Search service = getSearchService();
+			service.onlyAnnotatedBetween(start, end);
+			service.onlyType(convertPojos(annotationType));
+			if (terms != null)
+				service.bySomeMustNone(terms.toArray(new String[] {}), null, 
+									null);
+			if (exp != null) { 
+				service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
+			}
+			
+			if (!service.hasNext()) return new ArrayList();
+			return service.results();
+		} catch (Exception e) {
+			handleException(e, "Filtering by annotation not valid");
 		}
-		
-		if (!service.hasNext()) return new ArrayList();
-		return service.results();
+		return new ArrayList();
+	}
+	
+	//For testing purposing only.
+	void createPixelsSet(Pixels pix)
+	{
+		/*
+		IPixels service = getPixelsService();
+		service.copyAndResizePixels(pix.getId(), pix.getSizeX(), pix.getSizeY(), 
+				pix.getSizeZ(), pix.getSizeT(), "copy");
+		*/
 	}
 	
 }

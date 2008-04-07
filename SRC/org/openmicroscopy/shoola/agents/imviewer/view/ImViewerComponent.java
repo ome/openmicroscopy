@@ -892,8 +892,14 @@ class ImViewerComponent
 			view.setOnScreen();
 			view.setStatus(getStatusText());
 		} else {
+			//TODO
+			//clean history, reset UI element
+			view.switchRndControl();
+			model.getRenderer().switchRndControl();
+			/*
 			model.getRenderer().resetRndSettings();
 			view.resetDefaults();
+			*/
 		}
 		
 		renderXYPlane();

@@ -374,7 +374,10 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	ChannelMetadata[] getChannelData() { return currentRndControl.getChannelData(); }
+	ChannelMetadata[] getChannelData()
+	{ 
+		return currentRndControl.getChannelData();
+	}
 
 	/**
 	 * Returns the <code>ChannelData</code> object corresponding to the
@@ -412,6 +415,7 @@ class ImViewerModel
 	 */
 	void fireRenderingControlLoading(long pixelsID)
 	{
+		currentPixelsID = pixelsID;
 		DataLoader loader = new RenderingControlLoader(component, pixelsID, 
 												RenderingControlLoader.LOAD);
 		loader.load();

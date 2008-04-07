@@ -433,5 +433,15 @@ class RendererComponent
      * @see Renderer#getLowestValue()
      */
 	public double getLowestValue() { return model.getLowestValue(); }
+
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#switchRndControl()
+     */
+	public void switchRndControl()
+	{
+		// TODO Auto-generated method stub
+		
+	}
     
 }

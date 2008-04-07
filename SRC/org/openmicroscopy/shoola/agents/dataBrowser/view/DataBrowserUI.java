@@ -140,13 +140,13 @@ class DataBrowserUI
 		Browser browser = model.getBrowser();
 		
 		List<ImageNode> nodes;
-		
+		Iterator i;
 		if (allImages) nodes = browser.getVisibleImageNodes();
 		else {
 			Set selection = browser.getSelectedDisplays();
 			nodes = new ArrayList<ImageNode>();
 			if (selection != null) {
-				Iterator i = selection.iterator();
+				i = selection.iterator();
 				Object n;
 				while (i.hasNext()) {
 					n = i.next();
@@ -157,11 +157,17 @@ class DataBrowserUI
 			
 		}
 		if (nodes == null || nodes.size() == 0) return;
-		
-		slideShowView = new SlideShowView(null, nodes);
+		List<ImageNode> selection = new ArrayList<ImageNode>(nodes.size());
+		ImageNode n;
+		i = nodes.iterator();
+		while (i.hasNext()) {
+			n = (ImageNode) i.next();
+			selection.add(n.copy());
+		}
+		slideShowView = new SlideShowView(null, selection);
 		slideShowView.addPropertyChangeListener(controller);
 		model.getBrowser().addPropertyChangeListener(slideShowView);
-		model.fireFullSizeLoading(nodes);
+		model.fireFullSizeLoading(selection);
 		UIUtilities.centerAndShow(slideShowView);
 	}
 	
@@ -183,7 +189,5 @@ class DataBrowserUI
     }
     
     boolean isRollOver() { return model.isRollOver(); }
-    
-    boolean isSlideShowView() { return slideShowView != null; }
     
 }

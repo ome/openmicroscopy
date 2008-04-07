@@ -1160,6 +1160,9 @@ class ImViewerUI
 	/** Resets the defaults. */
 	void resetDefaults() { controlPane.resetDefaults(); }
 
+	/** Resets the UI when switching to a new rendering control. */
+	void switchRndControl() { controlPane.switchRndControl(); }
+	
 	/**
 	 * Sets the image in the lens to the plane image shown on the screen
 	 * depending on the selected tabbed pane.
@@ -1802,6 +1805,13 @@ class ImViewerUI
      */
     List<PixelsData> getPixelsSets() { return model.getPixelsSets(); }
     
+    /**
+     * Returns the id of the currently selected pixels.
+     * 
+     * @return See above.
+     */
+    long getPixelsID() { return model.getPixelsID(); }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -1836,7 +1846,5 @@ class ImViewerUI
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
 	}
-
-
 
 }
