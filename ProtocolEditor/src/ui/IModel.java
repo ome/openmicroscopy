@@ -59,6 +59,15 @@ public interface IModel {
 	 */
 	public boolean areAncestorFieldsLocked();
 	
+	/**
+	 * This checks whether ANY fields in this tree are locked (ie have the attribute FIELD_LOCKED_UTC).
+	 * Presence of this attribute indicates that at least one field is "Locked" and editing actions that 
+	 * apply to the whole tree (eg Clear All Fields or Load Defaults All Fields) should be disabled. 
+	 * 
+	 * @return	True if any fields in the tree are locked. 
+	 */
+	public boolean isAnyFieldLocked();
+	
 	public void openBlankProtocolFile();
 	
 	/**

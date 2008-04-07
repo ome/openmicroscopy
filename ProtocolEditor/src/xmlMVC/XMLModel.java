@@ -184,8 +184,17 @@ public class XMLModel
 		 * When this application quits, DBConnectionSingleton.shutDownConnection()
 		 * should be called. This will be done under the quit dialog in ui.XMLView. 
 		 */
-		omeroEditorCalendar = new CalendarMain(this);
+		 omeroEditorCalendar = new CalendarMain(this);
 		
+		/*
+		 * Create a folder in the location of OMERO_EDITOR_FILE, if one does not exist already.
+		 */
+		File omeroEditorDir = new File(OMERO_EDITOR_FILE);
+		if (!omeroEditorDir.exists()) {
+			System.out.println(OMERO_EDITOR_FILE + " does not exist...");
+			omeroEditorDir.getParentFile().mkdir();		// Make the /User/omero/  directory if needed
+			omeroEditorDir.mkdir();					// Make the /User/omero/Editor directory
+		}
 		
 		currentTree = null;
 
@@ -386,11 +395,12 @@ public class XMLModel
 	/**
 	 * This is used by SaveFileAs action as well as Save action (once user has confirmed over-write).
 	 * Can't tell at this stage whether outputFile is new or being overwritten.
+	 * This also saves (or updates) the file to the calendar database. 
 	 */
 	public void saveTreeToXmlFile(File outputFile) {
 		saveToXmlFile(outputFile);
 		
-		// try to over-write an existing file in the database (returns false if none found).
+		// try to over-write an existing file in the calendar database (returns false if none found).
 		boolean fileInDB = omeroEditorCalendar.updateCalendarFileInDB(outputFile);
 		
 		if (!fileInDB) {
@@ -402,8 +412,11 @@ public class XMLModel
 	
 	/**
 	 * This method will work on the current Tree (currently opened file).
+	 * It saves the content of the Tree to the XML file. 
+	 * Each Node (or dataField) of the tree will become an XML element and the
+	 * structure of the tree will be replicated in the XML file. 
 	 * 
-	 * @param outputFile
+	 * @param outputFile	The XML file to which the current tree will be saved. 
 	 */
 	private void saveToXmlFile(File outputFile) {
 //		 always note the xml version (unless this is custom element)
@@ -483,6 +496,19 @@ public class XMLModel
 		if (getCurrentTree() == null) 
 			return false;
 		return getCurrentTree().areAncestorFieldsLocked();
+	}
+	
+	/**
+	 * This checks whether ANY fields in this tree are locked (ie have the attribute FIELD_LOCKED_UTC).
+	 * Presence of this attribute indicates that at least one field is "Locked" and editing actions that 
+	 * apply to the whole tree (eg Clear All Fields or Load Defaults All Fields) should be disabled. 
+	 * 
+	 * @return	True if any fields in the tree are locked. 
+	 */
+	public boolean isAnyFieldLocked() {
+		if (getCurrentTree() == null) 
+			return false;
+		return getCurrentTree().isAnyFieldLocked();
 	}
 	
 	// make a copy of the currently highlighted fields

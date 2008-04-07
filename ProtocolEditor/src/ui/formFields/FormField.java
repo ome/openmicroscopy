@@ -66,7 +66,7 @@ import util.ImageFactory;
 // This FormField superclass merely arranges Name and Description (as a toolTip)
 // Subclasses have eg TextFields etc
 
-public class FormField extends JPanel implements DataFieldObserver{
+public abstract class FormField extends JPanel implements DataFieldObserver{
 	
 	IDataFieldObservable dataFieldObs;
 	IAttributeSaver dataField;

@@ -60,9 +60,9 @@ public class LoadDefaultsAllAction
 	public void stateChanged(ChangeEvent e) {
 		
 		/*
-		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
+		 * This action should only be enabled if a file is open etc and
+		 *  NO fields are locked. 
 		 */
-		setEnabled(fieldsAreEditable());
+		setEnabled(fieldsAreEditable() && (!model.isAnyFieldLocked()));
 	}
 }

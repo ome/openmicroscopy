@@ -1157,6 +1157,24 @@ public class Tree
 	
 	}
 	
+	/**
+	 * This checks whether ANY fields in this tree are locked (ie have the attribute FIELD_LOCKED_UTC).
+	 * Presence of this attribute indicates that at least one field is "Locked" and editing actions that 
+	 * apply to the whole tree (eg Clear All Fields or Load Defaults All Fields) should be disabled. 
+	 * 
+	 * @return	True if any fields in the tree are locked. 
+	 */
+	public boolean isAnyFieldLocked() {
+		
+		Iterator<DataFieldNode> iterator = rootNode.iterator();
+		
+		while (iterator.hasNext()) {
+			DataFieldNode node = iterator.next();
+			if (AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, node))
+				return true;
+		}
+		return false;
+	}
 	
 	// keep a note of the file that corresponds to this tree
 	public void setFile (File file) {

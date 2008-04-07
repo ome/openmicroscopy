@@ -41,12 +41,14 @@ import ui.IModel;
  */
 public class ClearFieldsAllAction extends ProtocolEditorAction {
 	
+	public static final String TOOL_TIP_TEXT = "Clear the parameter values for all fields in the current file";
+	
 	public ClearFieldsAllAction(IModel model) {
 
 		super(model);
 	
 		putValue(Action.NAME, "Clear Values for All fields");
-		putValue(Action.SHORT_DESCRIPTION, null);
+		putValue(Action.SHORT_DESCRIPTION, TOOL_TIP_TEXT);
 		//putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.LOAD_DEFAULTS_ICON)); 
 	}
 	
@@ -63,10 +65,20 @@ public class ClearFieldsAllAction extends ProtocolEditorAction {
 	 */
 	public void stateChanged(ChangeEvent e) {
 		
+		boolean anyFieldLocked = model.isAnyFieldLocked();
+		if (anyFieldLocked) {
+			//System.out.println("ClearFieldsAllAction anyFieldsLocked true");
+			// This doesn't seem to change the toolTipText?!?!?!
+			putValue(Action.SHORT_DESCRIPTION, "Cannot clear all fields because at least one field is locked");
+		} 
+		else {
+			putValue(Action.SHORT_DESCRIPTION, TOOL_TIP_TEXT);
+		}
+		
 		/*
-		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
+		 * This action should only be enabled if a file is open etc and
+		 *  NO fields are locked. 
 		 */
-		setEnabled(fieldsAreEditable());
+		setEnabled(fieldsAreEditable() && (!anyFieldLocked));
 	}
 }
