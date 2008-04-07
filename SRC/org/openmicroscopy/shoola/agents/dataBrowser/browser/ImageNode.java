@@ -84,20 +84,7 @@ public class ImageNode
     {
     	firePropertyChange(PIN_THUMBNAIL_PROPERTY, null, this);
     }
-    
-    /**
-     * Adds a {@link MouseListener} to the components composing the 
-     * node.
-     * 
-     * @param listener The listener to add.
-     */
-    void addMouseListenerToComponents(MouseListener listener)
-    {
-    	 getTitleBar().addMouseListener(listener);
-    	 addMouseListener(listener);
-    	 canvas.addMouseListener(listener);
-    }
-    
+
     /**
      * Creates a new leaf node.
      * 
@@ -125,6 +112,19 @@ public class ImageNode
         getInternalDesktop().add(canvas, new Integer(0));
         setCanvasSize(t.getWidth(), t.getHeight());
         canvas.setToolTipText(getNodeName());
+    }
+    
+    /**
+     * Adds a {@link MouseListener} to the components composing the 
+     * node.
+     * 
+     * @param listener The listener to add.
+     */
+    public void addMouseListenerToComponents(MouseListener listener)
+    {
+    	 getTitleBar().addMouseListener(listener);
+    	 //addMouseListener(listener);
+    	 canvas.addMouseListener(listener);
     }
     
     /** Fired a property change event to bring up the classification widget. */

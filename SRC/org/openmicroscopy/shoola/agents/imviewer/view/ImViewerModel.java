@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
 * The Model component in the <code>ImViewer</code> MVC triad.
@@ -131,10 +132,7 @@ class ImViewerModel
 	
 	/** The sub-component that hosts the display. */
 	private Browser             		browser;
-
-	/** Reference to the rendering control. */
-	private RenderingControl    		rndControl;
-
+	
 	/** Reference to the {@link Renderer}. */
 	private Renderer            		renderer;
 
@@ -201,6 +199,12 @@ class ImViewerModel
 	/** Flag indicating if the metadata are loaded. */
 	private boolean						metadataLoaded;
 	
+	/** The ID of the last selected pixels set. */
+	private long						currentPixelsID;
+	
+	/** Reference to the rendering control. */
+	private RenderingControl    		currentRndControl;
+
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -237,6 +241,7 @@ class ImViewerModel
 		loaders = new HashMap<Integer, DataLoader>();
 		metadataViewer = MetadataViewerFactory.getViewer(image, false);
 		metadataLoaded = false;
+		currentPixelsID = image.getDefaultPixels().getId();
 	}
 
 	/**
@@ -320,56 +325,56 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getMaxX() { return rndControl.getPixelsDimensionsX(); }
+	int getMaxX() { return currentRndControl.getPixelsDimensionsX(); }
 
 	/**
 	 * Returns the sizeY.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxY() { return rndControl.getPixelsDimensionsY(); }
+	int getMaxY() { return currentRndControl.getPixelsDimensionsY(); }
 
 	/**
 	 * Returns the maximum number of z-sections.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxZ() { return rndControl.getPixelsDimensionsZ()-1; }
+	int getMaxZ() { return currentRndControl.getPixelsDimensionsZ()-1; }
 
 	/**
 	 * Returns the maximum number of timepoints.
 	 * 
 	 * @return See above.
 	 */
-	int getMaxT() { return rndControl.getPixelsDimensionsT()-1; }
+	int getMaxT() { return currentRndControl.getPixelsDimensionsT()-1; }
 
 	/**
 	 * Returns the currently selected z-section.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultZ() { return rndControl.getDefaultZ(); }
+	int getDefaultZ() { return currentRndControl.getDefaultZ(); }
 
 	/**
 	 * Returns the currently selected timepoint.
 	 * 
 	 * @return See above.
 	 */
-	int getDefaultT() { return rndControl.getDefaultT(); }
+	int getDefaultT() { return currentRndControl.getDefaultT(); }
 
 	/**
 	 * Returns the currently selected color model.
 	 * 
 	 * @return See above.
 	 */
-	String getColorModel() { return rndControl.getModel(); }
+	String getColorModel() { return currentRndControl.getModel(); }
 	
 	/**
 	 * Returns an array of <code>ChannelData</code> object.
 	 * 
 	 * @return See above.
 	 */
-	ChannelMetadata[] getChannelData() { return rndControl.getChannelData(); }
+	ChannelMetadata[] getChannelData() { return currentRndControl.getChannelData(); }
 
 	/**
 	 * Returns the <code>ChannelData</code> object corresponding to the
@@ -380,7 +385,7 @@ class ImViewerModel
 	 */
 	ChannelMetadata getChannelData(int index)
 	{ 
-		return rndControl.getChannelData(index);
+		return currentRndControl.getChannelData(index);
 	}
 
 	/**
@@ -389,7 +394,7 @@ class ImViewerModel
 	 * @param w The OME index of the channel.
 	 * @return See above.
 	 */
-	Color getChannelColor(int w) { return rndControl.getRGBA(w); }
+	Color getChannelColor(int w) { return currentRndControl.getRGBA(w); }
 
 	/**
 	 * Returns <code>true</code> if the channel is mapped, <code>false</code>
@@ -398,13 +403,16 @@ class ImViewerModel
 	 * @param w	The channel's index.
 	 * @return See above.
 	 */
-	boolean isChannelActive(int w) { return rndControl.isActive(w); }
-
-	/** Fires an asynchronous retrieval of the rendering control. */
-	void fireRenderingControlLoading()
+	boolean isChannelActive(int w) { return currentRndControl.isActive(w); }
+	
+	/** 
+	 * Fires an asynchronous retrieval of the rendering control. 
+	 * 
+	 * @param pixelsID The id of the pixels set to load.
+	 */
+	void fireRenderingControlLoading(long pixelsID)
 	{
-		DataLoader loader = new RenderingControlLoader(component, 
-								image.getDefaultPixels().getId(), 
+		DataLoader loader = new RenderingControlLoader(component, pixelsID, 
 												RenderingControlLoader.LOAD);
 		loader.load();
 		if (loaders.get(RND) != null)
@@ -449,7 +457,7 @@ class ImViewerModel
 		//OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
 		try {
 			//component.setImage(os.renderImage(pixelsID, pDef));
-			component.setImage(rndControl.renderPlane(pDef));
+			component.setImage(currentRndControl.renderPlane(pDef));
 		} catch (Exception e) {
 			component.reload(e);
 		}
@@ -468,7 +476,7 @@ class ImViewerModel
 		//state = ImViewer.LOADING_IMAGE;
 		try {
 			//component.setImage(os.renderImage(pixelsID, pDef));
-			return rndControl.renderPlane(pDef);
+			return currentRndControl.renderPlane(pDef);
 		} catch (Exception e) {
 			component.reload(e);
 		}
@@ -485,7 +493,7 @@ class ImViewerModel
 	void setRenderingControl(RenderingControl rndControl)
 	{
 		loaders.remove(RND);
-		this.rndControl = rndControl;
+		this.currentRndControl = rndControl;
 		if (renderer == null) {
 			renderer = RendererFactory.createRenderer(component, rndControl,
 					ImViewerFactory.getPreferences());
@@ -558,10 +566,10 @@ class ImViewerModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (ImViewer.GREY_SCALE_MODEL.equals(colorModel))
-			rndControl.setModel(colorModel);
+			currentRndControl.setModel(colorModel);
 		else if (ImViewer.RGB_MODEL.equals(colorModel) ||
 				(ImViewer.HSB_MODEL.equals(colorModel)))
-			rndControl.setModel(ImViewer.HSB_MODEL);
+			currentRndControl.setModel(ImViewer.HSB_MODEL);
 	}
 
 	/**
@@ -576,8 +584,8 @@ class ImViewerModel
 	void setSelectedXYPlane(int z, int t)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (t >= 0 && t != getDefaultT()) rndControl.setDefaultT(t);
-		if (z >= 0 && z != getDefaultZ()) rndControl.setDefaultZ(z);
+		if (t >= 0 && t != getDefaultT()) currentRndControl.setDefaultT(t);
+		if (z >= 0 && z != getDefaultZ()) currentRndControl.setDefaultZ(z);
 	}
 
 	/**
@@ -592,7 +600,7 @@ class ImViewerModel
 	void setChannelColor(int index, Color c)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.setRGBA(index, c);
+		currentRndControl.setRGBA(index, c);
 	}
 
 	/**
@@ -608,7 +616,7 @@ class ImViewerModel
 	void setChannelActive(int index, boolean b)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		rndControl.setActive(index, b);
+		currentRndControl.setActive(index, b);
 	}  
 
 	/**
@@ -616,7 +624,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getMaxC() { return rndControl.getPixelsDimensionsC(); }
+	int getMaxC() { return currentRndControl.getPixelsDimensionsC(); }
 
 	/** 
 	 * Returns the number of active channels.
@@ -627,7 +635,7 @@ class ImViewerModel
 	{
 		int active = 0;
 		for (int i = 0; i < getMaxC(); i++) {
-			if (rndControl.isActive(i)) active++;
+			if (currentRndControl.isActive(i)) active++;
 		}
 		return active;
 	}
@@ -641,7 +649,7 @@ class ImViewerModel
 	{
 		ArrayList<Integer> active = new ArrayList<Integer>();
 		for (int i = 0; i < getMaxC(); i++) {
-			if (rndControl.isActive(i)) active.add(new Integer(i));
+			if (currentRndControl.isActive(i)) active.add(new Integer(i));
 		}
 		return active;
 	}
@@ -730,21 +738,21 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeX() { return rndControl.getPixelsSizeX(); }
+	float getPixelsSizeX() { return currentRndControl.getPixelsSizeX(); }
 
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeY() { return rndControl.getPixelsSizeY(); }
+	float getPixelsSizeY() { return currentRndControl.getPixelsSizeY(); }
 
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelsSizeZ() { return rndControl.getPixelsSizeZ(); }
+	float getPixelsSizeZ() { return currentRndControl.getPixelsSizeZ(); }
 
 	/**
 	 * Returns <code>true</code> if the unit bar is painted on top of 
@@ -774,7 +782,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	long getPixelsID() { return image.getDefaultPixels().getId(); }
+	long getPixelsID() { return currentPixelsID; }
 
 	/**
 	 * Returns the index of the selected tabbed.
@@ -801,9 +809,9 @@ class ImViewerModel
 	boolean[] hasRGB()
 	{
 		boolean[] rgb = new boolean[3];
-		rgb[0] = rndControl.hasActiveChannelRed();
-		rgb[1] = rndControl.hasActiveChannelGreen();
-		rgb[2] = rndControl.hasActiveChannelBlue();
+		rgb[0] = currentRndControl.hasActiveChannelRed();
+		rgb[1] = currentRndControl.hasActiveChannelGreen();
+		rgb[2] = currentRndControl.hasActiveChannelBlue();
 		return rgb;
 	}
 
@@ -847,7 +855,7 @@ class ImViewerModel
 	void saveRndSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (rndControl != null) rndControl.saveCurrentSettings(); 
+		if (currentRndControl != null) currentRndControl.saveCurrentSettings(); 
 	}
 
 	/**
@@ -880,7 +888,7 @@ class ImViewerModel
 	 */
 	boolean isChannelRed(int index)
 	{
-		return rndControl.isChannelRed(index);
+		return currentRndControl.isChannelRed(index);
 	}
 
 	/**
@@ -892,7 +900,7 @@ class ImViewerModel
 	 */
 	boolean isChannelGreen(int index)
 	{
-		return rndControl.isChannelGreen(index);
+		return currentRndControl.isChannelGreen(index);
 	}
 
 	/**
@@ -904,7 +912,7 @@ class ImViewerModel
 	 */
 	boolean isChannelBlue(int index)
 	{
-		return rndControl.isChannelBlue(index);
+		return currentRndControl.isChannelBlue(index);
 	}
 
 	/**
@@ -945,7 +953,7 @@ class ImViewerModel
 			else ratio = (double) ImViewer.MINIMUM_SIZE/h;
 		}
 		BufferedImage thumb = Factory.magnifyImage(ratio, img);
-		HistoryItem i = new HistoryItem(rndControl.getRndSettingsCopy(), 
+		HistoryItem i = new HistoryItem(currentRndControl.getRndSettingsCopy(), 
 										thumb);
 		if (historyItems == null) historyItems = new ArrayList<HistoryItem>();
 		historyItems.add(i);
@@ -1032,7 +1040,7 @@ class ImViewerModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//rndControl.resetMappingSettings(settings);
-		rndControl.resetSettings(settings);
+		currentRndControl.resetSettings(settings);
 		if (reset) renderer.resetRndSettings();
 	}
 
@@ -1057,8 +1065,8 @@ class ImViewerModel
 			os = ImViewerAgent.getRegistry().getImageService();
 			pixels = os.loadPixels(ImViewerFactory.getRefPixelsID());
 		}
-		if (rndControl.validatePixels(pixels)) {
-			rndControl.resetSettings(ImViewerFactory.getRenderingSettings());
+		if (currentRndControl.validatePixels(pixels)) {
+			currentRndControl.resetSettings(ImViewerFactory.getRenderingSettings());
 			renderer.resetRndSettings();
 			return true;
 		}
@@ -1075,7 +1083,7 @@ class ImViewerModel
 	void resetDefaultRndSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{ 
-		rndControl.resetDefaults(); 
+		currentRndControl.resetDefaults(); 
 	}
 	
 	/** Sets the reference to the pixels set to <code>null</code>. */
@@ -1097,7 +1105,7 @@ class ImViewerModel
 	{
 		CopyRndSettings evt = new CopyRndSettings(
 				image.getDefaultPixels().getId(), 
-				rndControl.getRndSettingsCopy());
+				currentRndControl.getRndSettingsCopy());
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
 	}
@@ -1115,7 +1123,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isImageCompressed() { return rndControl.isCompressed(); }
+	boolean isImageCompressed() { return currentRndControl.isCompressed(); }
 	
 	/**
 	 * Sets the compressiong level.
@@ -1125,7 +1133,7 @@ class ImViewerModel
 	 */
 	void setCompressionLevel(int compressionLevel)
 	{
-		rndControl.setCompression(compressionLevel);
+		currentRndControl.setCompression(compressionLevel);
 		component.renderXYPlane();
 	}
 
@@ -1136,7 +1144,7 @@ class ImViewerModel
 	 */
 	int getCompressionLevel()
 	{
-		return rndControl.getCompressionLevel();
+		return currentRndControl.getCompressionLevel();
 	}
 	
 	/**
@@ -1151,38 +1159,6 @@ class ImViewerModel
 		if (loaders.get(SETTINGS) != null)
 			loaders.get(SETTINGS).cancel();
 		loaders.put(SETTINGS, loader);
-	}
-	
-	/**
-	 * Fires an asynchronous retrieval of the rendering settings 
-	 * linked to the currently viewed set of pixels.
-	 */
-	void fireRatingRetrieval()
-	{
-		/*
-		DataLoader loader = new RateImageLoader(component, imageID, pixelsID);
-		loader.load();
-		if (loaders.get(RATING) != null)
-			loaders.get(RATING).cancel();
-		loaders.put(RATING, loader);
-		*/
-	}
-	
-	/** Saves the rating. */
-	void fireRatingSaving()
-	{
-		/*
-		if (!hasBeenRated()) return;
-		RatingAnnotationData annotation = new RatingAnnotationData(
-									getRatingLevel());
-		DataLoader loader = new StructuredAnnotationSaver(component, imageID, 
-								annotation, StructuredAnnotationSaver.RATING);
-		loader.load();
-		//if (loaders.get(RATING) != null)
-			//loaders.get(RATING).cancel();
-		//loaders.put(RATING, loader);
-		 * */
-		
 	}
 	
 	/**
@@ -1217,7 +1193,7 @@ class ImViewerModel
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		RndProxyDef rndDef = (RndProxyDef) renderingSettings.get(exp);
-		rndControl.resetSettings(rndDef);
+		currentRndControl.resetSettings(rndDef);
 	}
 	
 	/**
@@ -1260,4 +1236,33 @@ class ImViewerModel
 		 if (metadataViewer != null)  metadataViewer.showImageInfo();
 	}
 	
+	 /**
+     * Returns the collection of pixels sets linked to the image.
+     * 
+     * @return See above.
+     */
+    List<PixelsData> getPixelsSets() { return image.getAllPixels(); }
+
+    /**
+     * Returns the collection of pixels ID.
+     * 
+     * @return See above.
+     */
+    List<Long> getPixelsIDs()
+    {
+    	Iterator<PixelsData> i = getPixelsSets().iterator();
+    	List<Long> ids = new ArrayList<Long>();
+    	while (i.hasNext()) 
+			ids.add(i.next().getId());
+		return ids;
+    }
+    /**
+     * Loads the rendering engine for the passed set of pixels.
+     * 
+     * @param pixelsID The id of the pixels set.
+     */
+    void loadRenderingControl(long pixelsID)
+    {
+    	
+    }
 }

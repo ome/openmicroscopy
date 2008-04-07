@@ -42,11 +42,11 @@ import javax.swing.JScrollPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * The component hosting the canvas or component indicating of the loading
+ * state.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -142,11 +142,6 @@ class SlideShowUI
     	this.model = model;
     	initComponents();
     	buildGUI();
-    }
-    
-    void scrollToNode(ImageNode node)
-    {
-    	
     }
     
     /**

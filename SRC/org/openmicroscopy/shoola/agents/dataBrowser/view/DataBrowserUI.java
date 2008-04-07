@@ -131,6 +131,7 @@ class DataBrowserUI
 	{
 		if (!create) {
 			if (slideShowView != null) {
+				model.cancelSlideShow();
 				slideShowView.dispose();
 			}
 			slideShowView = null; 

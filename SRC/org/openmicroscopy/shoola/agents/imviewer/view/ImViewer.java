@@ -822,4 +822,11 @@ public interface ImViewer
 	 */
 	public void showView(int index);
 	
+	/**
+	 * Loads the rendering control for the passed pixels ID.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 */
+	public void loadRenderingControl(long pixelsID);
+	
 }

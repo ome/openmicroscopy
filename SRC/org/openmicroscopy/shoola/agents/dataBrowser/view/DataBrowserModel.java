@@ -202,6 +202,11 @@ abstract class DataBrowserModel
 		
 	}
 	
+	void cancelSlideShow()
+	{
+		
+	}
+	
 	void setState(int state)
 	{
 		this.state = state;

@@ -473,7 +473,7 @@ class ImViewerComponent
 		switch (state) {
 			case NEW:
 				//model.fireCategoriesLoading();
-				model.fireRenderingControlLoading();
+				model.fireRenderingControlLoading(model.getPixelsID());
 				fireStateChange();
 				break;
 			case DISCARDED:
@@ -499,14 +499,13 @@ class ImViewerComponent
 				break;
 			default:
 				controller.setPreferences();
-				model.fireRatingSaving();
 				if (!saveOnClose()) return;
 				postViewerState(ViewerState.CLOSE);
 				model.discard();
 				fireStateChange();
 				EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-				bus.post(new FreeCacheEvent(model.getPixelsID(), 
-						FreeCacheEvent.XY_IMAGE_DATA));
+				bus.post(new FreeCacheEvent(model.getPixelsIDs(), 
+						FreeCacheEvent.ALL_DATA));
 		}
 	}
 
@@ -880,20 +879,23 @@ class ImViewerComponent
 			throw new IllegalStateException(
 					"This method can't be invoked in the " +
 					"LOADING_RENDERING_CONTROL.");
+		Object rnd = model.getRenderer();
 		model.setRenderingControl(result);
-		model.fireRatingRetrieval();
-		fireStateChange();
 		//Register the renderer
 		model.getRenderer().addPropertyChangeListener(controller);
-		LoadingWindow window = view.getLoadingWindow();
-		window.setStatus("rendering settings. Loading: metadata");
-		window.setProgress(50);
-		//User prefrerence
-		view.buildComponents();
-		view.setOnScreen();
-		//User pr
-		//view.setStatus(RENDERING_MSG);
-		view.setStatus(getStatusText());
+		if (rnd == null) {
+			LoadingWindow window = view.getLoadingWindow();
+			window.setStatus("rendering settings. Loading: metadata");
+			window.setProgress(50);
+			//User preference
+			view.buildComponents();
+			view.setOnScreen();
+			view.setStatus(getStatusText());
+		} else {
+			model.getRenderer().resetRndSettings();
+			view.resetDefaults();
+		}
+		
 		renderXYPlane();
 		//model.fireCategoriesLoading();
 		fireStateChange();
@@ -1658,8 +1660,6 @@ class ImViewerComponent
 		if (model.getState() != LOADING_RENDERING_CONTROL)
 			throw new IllegalStateException("The method can only be invoked " +
 			"in the LOADING_RENDERING_CONTROL state.");
-		//model.setState(READY);
-		//model.setRenderingControl(rndControl);
 		if (updateView) {
 			model.getRenderer().resetRndSettings();
 			view.resetDefaults();
@@ -2349,6 +2349,17 @@ class ImViewerComponent
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
 		view.showView(index);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#loadRenderingControl(long)
+	 */
+	public void loadRenderingControl(long pixelsID)
+	{
+		//TODO: check state.
+		if (pixelsID == model.getPixelsID()) return;
+		model.fireRenderingControlLoading(pixelsID);
 	}
 
 }

@@ -182,10 +182,14 @@ class MeasurementViewerComponent
 	public void discard()
 	{
 		if (model.getState() != DISCARDED) {
+			/*
 			EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-			bus.post(new FreeCacheEvent(model.getPixelsID(), 
+			List<Long> ids = new ArrayList<Long>();
+			ids.add(model.getPixelsID());
+			bus.post(new FreeCacheEvent(ids, 
 					FreeCacheEvent.RAW_DATA));
 			model.discard();
+			*/
 			fireStateChange();
 		}
 	}

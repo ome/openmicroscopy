@@ -161,14 +161,14 @@ class DataBrowserControl
 				QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {
 			model.loadExistingTags();
 		} else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
-			/*
+			
             if (view.isRollOver() || view.isSlideShowView()) {
+            	
                 ImageDisplay n = (ImageDisplay) evt.getNewValue();
                 if (n instanceof ImageNode)
                     ThumbnailWindowManager.rollOverDisplay((ImageNode) n);
                 else ThumbnailWindowManager.rollOverDisplay(null);
            }
-           */
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
         	view.slideShowView(false, false);
         }

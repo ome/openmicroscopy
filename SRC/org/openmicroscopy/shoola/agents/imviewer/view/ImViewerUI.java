@@ -87,6 +87,8 @@ import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.lens.LensComponent;
 
+import pojos.PixelsData;
+
 /** 
  * The {@link ImViewer} view.
  * Embeds the {@link Browser}. Also provides a menu bar, a status bar and a 
@@ -1781,7 +1783,6 @@ class ImViewerUI
      */
     void showView(int index)
     {
-    	
 		switch (index) {
 			case ImViewer.VIEW_INDEX:
 				tabs.insertClosableComponent(viewPanel);
@@ -1794,6 +1795,13 @@ class ImViewerUI
 		}
 	}
 	
+    /**
+     * Returns the collection of pixels sets linked to the image.
+     * 
+     * @return See above.
+     */
+    List<PixelsData> getPixelsSets() { return model.getPixelsSets(); }
+    
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -1828,5 +1836,7 @@ class ImViewerUI
 			UIUtilities.incrementRelativeToAndShow(null, this);
 		}
 	}
+
+
 
 }

@@ -612,6 +612,16 @@ class ImViewerControl
 	}
 	
 	/**
+	 * Loads the rendering control for the passed pixels ID.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 */
+	void loadRenderingControl(long pixelsID)
+	{
+		model.loadRenderingControl(pixelsID);
+	}
+	
+	/**
 	 * Reacts to change fired by buttons used to select the color
 	 * models.
 	 * @see ActionListener#actionPerformed(ActionEvent)

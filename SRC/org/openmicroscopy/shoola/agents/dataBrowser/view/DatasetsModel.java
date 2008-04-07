@@ -22,24 +22,23 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
+
+
+//Java imports
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
-
 import pojos.DatasetData;
 import pojos.ImageData;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -73,7 +72,8 @@ class DatasetsModel
 			throw new IllegalArgumentException("No images.");
 		this.datasets = datasets;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, userID, 0);
+		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, 
+							userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
 	}

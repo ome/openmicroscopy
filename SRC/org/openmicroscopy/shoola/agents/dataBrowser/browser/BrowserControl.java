@@ -256,7 +256,6 @@ public class BrowserControl
             model.setNodeForProperty(Browser.MOUSE_OVER_PROPERTY, d);
         }
         //if (!ro) return;
-        
         if (d instanceof ImageNode && !(d.getTitleBar() == src)) {
             model.setRollOverNode((ImageNode) d);
         } else model.setRollOverNode(null);
@@ -268,7 +267,7 @@ public class BrowserControl
      */
     public void mouseExited(MouseEvent me)
     {
-    	//model.setRollOverNode(null);
+    	model.setRollOverNode(null);
     	//if (model.isRollOver()) return;
         //ImageDisplay d = model.getLastSelectedDisplay();
         //if (d != null) view.setTitle(model.currentPathString(d));

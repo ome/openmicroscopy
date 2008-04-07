@@ -30,6 +30,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
@@ -248,16 +249,23 @@ public class CachingService
 	 */
 	private void handleFreeCacheEvent(FreeCacheEvent evt)
 	{
-		long pixelsID = evt.getPixelsID();
-		switch (evt.getIndex()) {
-			case FreeCacheEvent.RAW_DATA:
-				singleton.pixelsCache.remove(pixelsID);
-				break;
-			case FreeCacheEvent.XY_IMAGE_DATA:
-				singleton.imageCache.remove(pixelsID);
-				break;
-			default:
-				break;
+		List<Long> pixelsID = evt.getPixelsID();
+		if (pixelsID == null) return;
+		Iterator<Long> i = pixelsID.iterator();
+		long id;
+		while (i.hasNext()) {
+			id = i.next();
+			switch (evt.getIndex()) {
+				case FreeCacheEvent.RAW_DATA:
+					singleton.pixelsCache.remove(id);
+					break;
+				case FreeCacheEvent.XY_IMAGE_DATA:
+					singleton.imageCache.remove(id);
+					break;
+				case FreeCacheEvent.ALL_DATA:
+					singleton.pixelsCache.remove(id);
+					singleton.imageCache.remove(id);
+			}
 		}
 	}
 	

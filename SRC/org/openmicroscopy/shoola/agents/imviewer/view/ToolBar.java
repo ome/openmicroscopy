@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -40,6 +43,8 @@ import javax.swing.JToolBar;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.actions.UserAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.PixelsData;
 
 
 /** 
@@ -107,6 +112,9 @@ class ToolBar
     /** Box used to present the compression selected. */
     private JComboBox		compressionBox;
 
+    /** Box displaying the pixels sets associated to the image.*/
+    private JComboBox		pixelsBox;
+    
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -147,12 +155,26 @@ class ToolBar
         button.addMouseListener(a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
-        
     }
     
     /** Initializes the components composing this tool bar. */
     private void initComponents()
     {
+    	List<PixelsData> pixelsSets = view.getPixelsSets();
+        Iterator<PixelsData> i = pixelsSets.iterator();
+        String[] pixelsName = new String[2];//new String[pixelsSets.size()];
+        PixelsData data;
+        int index = 0;
+        while (i.hasNext()) {
+			data = i.next();
+			pixelsName[index] = "Pixels ID:"+data.getId();
+			
+			index++;
+			pixelsName[index] = "Pixels ID:"+data.getId()+1;
+		};
+        pixelsBox = new JComboBox(pixelsName);
+        pixelsBox.setSelectedIndex(1);
+        pixelsBox.addActionListener(this);
     	compressionBox = new JComboBox(compression);
     	compressionBox.setToolTipText(COMPRESSED_DESCRIPTION);
         //compressedBoxsaveOnClose.setSelected(true);
@@ -210,6 +232,7 @@ class ToolBar
 		bar.add(compressionBox);
 		compressionBox.setSelectedIndex(view.getCompressionLevel());
 		compressionBox.addActionListener(this);
+		bar.add(pixelsBox);
     	buildGUI(); 
     }
     
@@ -222,8 +245,18 @@ class ToolBar
      */
 	public void actionPerformed(ActionEvent e)
 	{
-		int index = compressionBox.getSelectedIndex();
-		view.setCompressionLevel(index);
+		Object src = e.getSource();
+		int index;
+		if (src == compressionBox) {
+			index = compressionBox.getSelectedIndex();
+			view.setCompressionLevel(index);
+		} else if (src == pixelsBox) {
+			index = pixelsBox.getSelectedIndex();
+			List<PixelsData> pixelsSet = view.getPixelsSets();
+			PixelsData data = pixelsSet.get(index);
+			if (data != null) 
+				controller.loadRenderingControl(data.getId());
+		}
 	}
     
 }

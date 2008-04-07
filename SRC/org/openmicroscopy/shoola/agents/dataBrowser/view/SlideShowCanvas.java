@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Displays a full size image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,7 +60,7 @@ class SlideShowCanvas
 {
 
 	/** Bound property indicating to select the next image. */
-	static final String		SELECT_PROPERTY = "select";
+	static final String		SELECT_NEXT_PROPERTY = "selectNext";
 	
 	/** The image to paint. */
 	private BufferedImage image;
@@ -75,11 +75,14 @@ class SlideShowCanvas
                 UIUtilities.INNER_BORDER_SHADOW));
 		addMouseListener(new MouseAdapter() {
 		
-			@Override
+			/**
+			 * Fires a property to select the next image.
+			 */
 			public void mouseReleased(MouseEvent e) {
 				// TODO Auto-generated method stub
 				super.mouseReleased(e);
-				firePropertyChange(SELECT_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+				firePropertyChange(SELECT_NEXT_PROPERTY, Boolean.FALSE, 
+								Boolean.TRUE);
 			}
 		
 		});

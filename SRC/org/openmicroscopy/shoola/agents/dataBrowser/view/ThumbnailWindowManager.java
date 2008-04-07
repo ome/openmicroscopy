@@ -82,8 +82,10 @@ class ThumbnailWindowManager
                 rollOverDialog = null;
             }
         } else {
-            if (rollOverDialog == null) 
-                rollOverDialog = new RollOverThumbnail();
+            if (rollOverDialog == null) {
+            	 rollOverDialog = new RollOverThumbnail();
+            }
+               
             rollOverDialog.setImageNode(node);
             rollOverDialog.pack();  //Now we have the right width and height.
             Point p = singleton.getWindowLocation(node, 

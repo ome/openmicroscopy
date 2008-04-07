@@ -31,10 +31,6 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JButton;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -43,7 +39,6 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * 

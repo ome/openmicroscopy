@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.env.rnd.events;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.List;
+
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
@@ -53,8 +55,11 @@ public class FreeCacheEvent
 	/** Inidcates to free the cache for the xy image. */
 	public static final int	XY_IMAGE_DATA = 1;
 	
+	/** Inidcates to free the cache for the xy image. */
+	public static final int	ALL_DATA = 2;
+	
 	/** The id of the pixels set. */
-	private long pixelsID;
+	private List<Long> pixelsID;
 	
 	/** One of the constants defined by this class. */
 	private int  index;
@@ -69,6 +74,7 @@ public class FreeCacheEvent
 		switch (i) {
 			case RAW_DATA:
 			case XY_IMAGE_DATA:
+			case ALL_DATA:
 				return;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -78,12 +84,12 @@ public class FreeCacheEvent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param pixelsID The id of the pixels set.
+	 * @param pixelsID The collection of the pixels set Id.
 	 * @param index    One of the constants defined by this class.
 	 */
-	public FreeCacheEvent(long pixelsID, int index)
+	public FreeCacheEvent(List<Long> pixelsID, int index)
 	{
-		if (pixelsID < 0) 
+		if (pixelsID == null || pixelsID.size() == 0) 
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		checkIndex(index);
 		this.index = index;
@@ -98,10 +104,10 @@ public class FreeCacheEvent
 	public int getIndex() { return index; }
 	
 	/**
-	 * Returns the id of the pixels set.
+	 * Returns the collection of the pixels set.
 	 *  
 	 * @return See above.
 	 */
-	public long getPixelsID() { return pixelsID; }
+	public List<Long> getPixelsID() { return pixelsID; }
 	
 }
