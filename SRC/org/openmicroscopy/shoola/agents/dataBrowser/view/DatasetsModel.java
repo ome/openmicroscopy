@@ -57,8 +57,8 @@ class DatasetsModel
 	extends DataBrowserModel
 {
 
+	/** The colleciton of objects this model is for. */
 	private Set<DatasetData> datasets;
-	
 
 	/**
 	 * Creates a new instance.

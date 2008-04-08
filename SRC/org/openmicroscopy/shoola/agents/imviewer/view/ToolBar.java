@@ -109,6 +109,9 @@ class ToolBar
     /** Button used to show or hide the renderer. */
     private JToggleButton	rndButton;
     
+    /** Button used to show or hide the history of rendering changes. */
+    private JToggleButton	historyButton;
+    
     /** Box used to present the compression selected. */
     private JComboBox		compressionBox;
 
@@ -127,6 +130,10 @@ class ToolBar
         rndButton.setAction(controller.getAction(ImViewerControl.RENDERER));
         //UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(rndButton);
+        historyButton = new JToggleButton();
+        historyButton.setSelected(view.isHistoryShown());
+        historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
+        bar.add(historyButton);
         JButton button =  new JButton(
         			controller.getAction(ImViewerControl.MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(button);
@@ -243,6 +250,9 @@ class ToolBar
     /** Selects or deselects the {@link #rndButton}. */
     void displayRenderer() { rndButton.setSelected(view.isRendererShown()); }
 
+    /** Selects or deselects the {@link #historyButton}. */
+    void displayHistory() { historyButton.setSelected(view.isHistoryShown()); }
+    
     /**
      * Reacts to the selection of the {@link #compressionBox}.
      * @see ActionListener#actionPerformed(ActionEvent)

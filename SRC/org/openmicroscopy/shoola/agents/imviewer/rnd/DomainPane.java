@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -384,8 +385,7 @@ class DomainPane
     	add(new JSeparator(), "0, 3");
     	add(buildPane(), "0, 4");
     	*/
-    	setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(buildChannelGraphicsPanel());
+    	
         
        
         JPanel p = UIUtilities.buildCollapsePanel(ADVANCED_OPTIONS);
@@ -394,7 +394,14 @@ class DomainPane
     	p.add(new JSeparator());
     	p.add(buildPane());
     	addToTree(p, UIUtilities.buildCollapsePanel(ADVANCED_OPTIONS));
-    	add(tree);
+    	
+    	JPanel content = new JPanel();
+    	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+    	content.add(buildChannelGraphicsPanel());
+    	
+    	content.add(tree);
+    	setLayout(new FlowLayout(FlowLayout.LEFT));
+		add(content);
     	/*
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(buildChannelGraphicsPanel());
@@ -565,8 +572,6 @@ class DomainPane
         familyBox.removeActionListener(this);
         familyBox.setSelectedItem(f);
         familyBox.addActionListener(this);
-        
-        
         boolean b = !(f.equals(RendererModel.LINEAR) || 
     			f.equals(RendererModel.LOGARITHMIC));
         double k = 1;
@@ -633,6 +638,12 @@ class DomainPane
         graphicsPane.onCurveChange(); 
     }
 	
+    /**
+     * Inserts a new node to the {@link #tree}.
+     * 
+     * @param elapse	The elapse component to add to the node.
+     * @param collapse	The collapse component to add to the node.
+     */
     void addToTree(JComponent elapse, JComponent collapse)
     {
     	tree.insertNode(elapse, collapse, false);

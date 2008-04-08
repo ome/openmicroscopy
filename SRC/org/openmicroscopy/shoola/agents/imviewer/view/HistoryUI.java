@@ -64,6 +64,9 @@ class HistoryUI
 	extends JPanel
 {
 
+	/** The title of the component. */
+	static final String			TITLE = "History";
+	
 	/** The Description of the {@link #clearButton}. */
 	private static final String CLEAR_DESCRIPTION = "Clear the history.";
 	
@@ -109,7 +112,7 @@ class HistoryUI
 		canvas = new HistoryCanvas(model);
 		//pane = new JScrollPane(canvas);
 		IconManager icons = IconManager.getInstance();
-		clearButton = new JButton(icons.getIcon(IconManager.CLEAR));
+		clearButton = new JButton(icons.getIcon(IconManager.HISTORY_CLEAR));
 		clearButton.setToolTipText(CLEAR_DESCRIPTION);
 		clearButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { clearHistory(); }
@@ -173,6 +176,7 @@ class HistoryUI
 		int w = r.width;
 		if (w == 0) w = view.geRestoreSize().width;
 		canvas.doGridLayout(w);
+		//canvas.repaint();
 		//Rectangle bounds = canvas.getContentsBounds();
         //Dimension d = new Dimension(r.width, bounds.height);//bounds.getSize();
         //desktop.setSize(d);

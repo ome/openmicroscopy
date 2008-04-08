@@ -183,7 +183,7 @@ public class IconManager
     public static int           ZOOM_FIT = 40;
     
     /** The <code>Clear</code> icon. */
-    public static int           CLEAR = 41;
+    public static int           HISTORY_CLEAR = 41;
     
     /** The <code>Category</code> icon. */
     public static int           CATEGORY = 42;
@@ -224,11 +224,14 @@ public class IconManager
     /** The <code>Search</code> icon. */
     public static int           SEARCH = 54;
     
+    /** The <code>History</code> icon. */
+    public static int           HISTORY = 55;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 57;
+    private static int          MAX_ID = 55;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -276,7 +279,7 @@ public class IconManager
         relPaths[ZOOM_IN] = "nuvola_viewmag+16.png";
         relPaths[ZOOM_OUT] = "nuvola_viewmag-16.png";
         relPaths[ZOOM_FIT] = "nuvola_viewmagfit16.png";
-        relPaths[CLEAR] = "nuvola_history_clear16.png";
+        relPaths[HISTORY_CLEAR] = "nuvola_history_clear16.png";
         relPaths[CATEGORY] = "nuvola_knotes16.png";
         relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
@@ -290,6 +293,7 @@ public class IconManager
         relPaths[PREFERENCES_48] = "nuvola_messagebox_info48.png";
         relPaths[USER] = "nuvola_kdmconfig16.png";
         relPaths[SEARCH] = "nuvola_find16.png";
+        relPaths[HISTORY] = "nuvola_history16.png";
     }
     
     /** The sole instance. */

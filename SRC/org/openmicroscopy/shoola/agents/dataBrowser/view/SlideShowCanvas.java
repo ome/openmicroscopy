@@ -77,9 +77,9 @@ class SlideShowCanvas
 		
 			/**
 			 * Fires a property to select the next image.
+			 * @see MouseAdapter#mouseReleased(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
 				super.mouseReleased(e);
 				firePropertyChange(SELECT_NEXT_PROPERTY, Boolean.FALSE, 
 								Boolean.TRUE);

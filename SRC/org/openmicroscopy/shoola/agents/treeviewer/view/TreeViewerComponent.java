@@ -1435,20 +1435,27 @@ class TreeViewerComponent
 	public void setLeaves(Object parent, Set leaves)
 	{
 		DataBrowser dataBrowser = DataBrowserFactory.getDataBrowser(
-				(DataObject) parent, leaves);
+									parent, leaves);
 		dataBrowser.addPropertyChangeListener(controller);
 		dataBrowser.activate();
 		view.removeAllFromWorkingPane();
 		view.addComponent(dataBrowser.getUI());
 	}
 
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setSelectedNode(Object)
+	 */
 	public void setSelectedNode(Object object)
 	{
 		if (object == null) return;
 		model.getMetadataViewer().setRootObject(object);
-		
 	}
 
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setHierarchyRoots(Object, Set)
+	 */
 	public void setHierarchyRoots(Object parent, Set roots)
 	{
 		if (roots == null) return;

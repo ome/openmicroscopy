@@ -231,6 +231,9 @@ class ImViewerUI
 
 	/** Item used to control show or hide the renderer. */
 	private JCheckBoxMenuItem			rndItem;
+	
+	/** Item used to control show or hide the history. */
+	private JCheckBoxMenuItem			historyItem;
 
 	/** The dimension of the main component i.e. the tabbed pane. */
 	private Dimension					restoreSize;
@@ -542,6 +545,14 @@ class ImViewerUI
 		if (pref != null) rndItem.setSelected(pref.isRenderer());
 		menu.add(rndItem);
 
+		action = controller.getAction(ImViewerControl.HISTORY);
+		historyItem = new JCheckBoxMenuItem();
+		historyItem.setSelected(isHistoryShown());
+		historyItem.setAction(action);
+		historyItem.setText(action.getName());
+		if (pref != null) historyItem.setSelected(pref.isHistory());
+		menu.add(historyItem);
+		
 		action = controller.getAction(ImViewerControl.MOVIE);
 		JMenuItem item = new JMenuItem(action);
 		item.setText(action.getName());
@@ -1604,6 +1615,8 @@ class ImViewerUI
 			if (rnd) displayMode = RENDERER;
 			else displayMode = NEUTRAL;
 		}
+		historyItem.setSelected(isHistoryShown());
+		toolBar.displayHistory();
 		layoutComponents(false);
 	}
 	

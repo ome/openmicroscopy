@@ -157,11 +157,12 @@ class SlideShowUI
 			getViewport().removeAll();
 			getViewport().add(canvas);
 			currentComp = canvas;
+			getViewport().revalidate();
 		} else {
             progressBar.setValue(value);
 		}
 	}
-    
+
     /**
      * Paints the passed image.
      * 

@@ -1260,13 +1260,8 @@ class ImViewerModel
 			ids.add(i.next().getId());
 		return ids;
     }
-    /**
-     * Loads the rendering engine for the passed set of pixels.
-     * 
-     * @param pixelsID The id of the pixels set.
-     */
-    void loadRenderingControl(long pixelsID)
-    {
-    	
-    }
+
+    /** Resets the history when switching to a new rendering control.*/
+	void resetHistory() { historyItems = null; }
+    
 }

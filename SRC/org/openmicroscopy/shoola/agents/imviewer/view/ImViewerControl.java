@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
@@ -278,6 +279,9 @@ class ImViewerControl
 	/** Identifies the <code>Search</code> action. */
 	static final Integer     TAB_GRID = new Integer(56);
 	
+	/** Identifies the <code>History</code> action. */
+	static final Integer     HISTORY = new Integer(57);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -369,6 +373,7 @@ class ImViewerControl
 											ShowViewAction.ANNOTATION));
 		actionsMap.put(TAB_GRID, new ShowViewAction(model, 
 									ShowViewAction.SPLIT));
+		actionsMap.put(HISTORY, new HistoryAction(model));
 	}
 
 	/** 

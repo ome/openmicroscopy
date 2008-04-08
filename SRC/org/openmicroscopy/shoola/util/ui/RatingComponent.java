@@ -70,7 +70,7 @@ public class RatingComponent
 	public static final int 	MAX_VALUE = 5;
 	
 	/** The maximum number of value. */
-	public static final int 	MIN_VALUE = 5;
+	public static final int 	MIN_VALUE = 0;
 	
 	/** The collection of selected stars. */
 	private List<Image>			plus;

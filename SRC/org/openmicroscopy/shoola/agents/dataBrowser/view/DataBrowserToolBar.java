@@ -81,10 +81,7 @@ class DataBrowserToolBar
 	
 	/** ID to select the columns view. */
 	private static final int	COLUMNS_VIEW = 1;
-	
-	/** ID to select the slide show view. */
-	private static final int	SLIDE_SHOW_VIEW = 2;
-	
+
 	/** ID to bring up the metadata browser. */
 	private static final int	METADATA_SELECTION = 3;
 	
@@ -363,6 +360,13 @@ class DataBrowserToolBar
 	}
 	
 	/**
+	 * Sets the enable flag of the {@link #slideShowView}.
+	 * 
+	 * @param enable The value to set.
+	 */
+	void enableSlideShow(boolean enable) { slideShowView.setEnabled(enable); }
+	
+	/**
 	 * Returns the selected object in order to filter the node.
 	 * 
 	 * @return See above.
@@ -392,7 +396,6 @@ class DataBrowserToolBar
 		if (src == zoomSlider) {
 			
 		}
-		
 	}
 
 	/** 
@@ -408,9 +411,6 @@ class DataBrowserToolBar
 				break;
 			case COLUMNS_VIEW:
 				
-				break;
-			case SLIDE_SHOW_VIEW:
-				//view.slideShowView(true);
 				break;
 			case METADATA_IMAGES:
 				controller.annotate(DataBrowser.ANNOTATE_IMAGES);

@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -182,9 +183,6 @@ class SlideShowView
 
     /** The Horizontal split pane. */
     private JSplitPane				pane;
-
-    /** The UI component hosting the image's name. */
-    private JLabel					titleLabel;
     
     /** The scrollpane hosting the nodes. */
     private JScrollPane				nodePane;
@@ -194,6 +192,24 @@ class SlideShowView
    
     /** The map used to determine the index of the selected node. */
     private Map<ImageNode, Integer> nodesMap;
+    
+    /**
+     * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
+     * hierarchy.
+     * 
+     * @param x A component.
+     * @return The parent {@link ImageDisplay} or <code>null</code> if none
+     *         was found.
+     */
+    private ImageDisplay findParentDisplay(Object x)
+    {
+        while (true) {
+            if (x instanceof ImageDisplay) return (ImageDisplay) x;
+            if (x instanceof JComponent) x = ((JComponent) x).getParent();
+            else break;
+        }
+        return null;
+    }
     
 	/** Initializes the components. */
 	private void initComponents()
@@ -241,7 +257,6 @@ class SlideShowView
         pane.setTopComponent(uiDelegate);
     	pane.setResizeWeight(1);
     	pane.setBackground(UIUtilities.BACKGROUND);
-    	titleLabel = new JLabel();
 	}
 	
 	/** 
@@ -250,26 +265,22 @@ class SlideShowView
 	 */
 	private void attachWindowListener()
 	{
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 		
 			/**
 			 * Stops the timer when closing the dialog.
-			 * @see WindowAdapter#windowClosed(WindowEvent)
+			 * @see WindowAdapter#windowClosing(WindowEvent)
 			 */
-			public void windowClosed(WindowEvent e) {
-				super.windowClosed(e);
-				if (timer != null) stop();
-				/*
-				Iterator<ImageNode> i = nodes.iterator();
-				while (i.hasNext()) {
-					(i.next()).setListenToBorder(true);
-				}*/
+			public void windowClosing(WindowEvent e) {
+				stop();
 				firePropertyChange(CLOSE_SLIDE_VIEW_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);
 			}
 		
 		});
 	}
+	
 	/** Sets the speed of play. */
 	private void setSpeed()
 	{
@@ -308,6 +319,7 @@ class SlideShowView
 	/** Plays the slide show. */
 	private void stop()
 	{
+		if (timer == null) return;
 		if (state == STOP) return;
 		playingIndex = -1;
 		state = STOP;
@@ -342,8 +354,7 @@ class SlideShowView
 	{
 		ImageNode node = nodes.get(selectedNodeIndex);
 		if (node == null) return;
-		
-		titleLabel.setText(node.toString());
+		setTitle("Slideshow "+node.toString());
 		uiDelegate.paintImage(node.getThumbnail().getFullSizeImage());
 		setNodeColor(node);
 		
@@ -363,6 +374,7 @@ class SlideShowView
 	private JPanel buildToolBar()
 	{
 		JPanel p = new JPanel();
+		p.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		JToolBar bar = new JToolBar();
 		bar.setFloatable(false);
 		bar.setBorder(null);
@@ -372,12 +384,11 @@ class SlideShowView
 		p.add(bar);
 		
 		JPanel speed = new JPanel();
+		speed.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		speed.add(new JLabel("Speed:"));
 		speed.add(speeds);
-		p.add(UIUtilities.buildComponentPanel(speed));
-		p.add(Box.createHorizontalStrut(10));
-		p.add(UIUtilities.buildComponentPanel(titleLabel));
-		return UIUtilities.buildComponentPanel(p);
+		p.add(speed);
+		return p;
 	}
 	
 	/**
@@ -424,11 +435,17 @@ class SlideShowView
 	private void buildGUI()
 	{
 		Container c = getContentPane();
-		c.add(buildToolBar(), BorderLayout.NORTH);
-		//
 		pane.setBottomComponent(buildNodesPane());
 		c.add(pane, BorderLayout.CENTER);
-		c.add(buildBottomBar(), BorderLayout.SOUTH);
+		
+		JPanel p = new JPanel();
+		p.setLayout(new BorderLayout());
+		JPanel bar = buildToolBar();
+		p.add(bar, BorderLayout.LINE_START);
+		p.add(buildBottomBar(), BorderLayout.CENTER);
+		Dimension d = bar.getPreferredSize();
+		p.add(Box.createHorizontalStrut(d.width), BorderLayout.LINE_END);
+		c.add(p, BorderLayout.SOUTH);
 	}
 	
 	/**
@@ -441,7 +458,6 @@ class SlideShowView
 	{
 		super(parent);
 		setTitle("Slideshow");
-		//setModal(true);
 		this.nodes = nodes;
 		initComponents();
 		buildGUI();
@@ -449,7 +465,7 @@ class SlideShowView
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = 8*(screenSize.width/10);
         int height = 8*(screenSize.height/10);
-        setSize(width, height); 
+        setSize(width, height); 	
 	}
 	
 	/**
@@ -470,6 +486,13 @@ class SlideShowView
 		}
 		pane.revalidate();
 		pane.repaint();
+	}
+	
+	/** Closes and disposes of the dialog. */
+	void close()
+	{
+		setVisible(false);
+		dispose();
 	}
 	
 	/**
@@ -537,24 +560,6 @@ class SlideShowView
 			paintImage();
 		}
 	}
-
-	/**
-     * Finds the first {@link ImageDisplay} in <code>x</code>'s containement
-     * hierarchy.
-     * 
-     * @param x A component.
-     * @return The parent {@link ImageDisplay} or <code>null</code> if none
-     *         was found.
-     */
-    private ImageDisplay findParentDisplay(Object x)
-    {
-        while (true) {
-            if (x instanceof ImageDisplay) return (ImageDisplay) x;
-            if (x instanceof JComponent) x = ((JComponent) x).getParent();
-            else break;
-        }
-        return null;
-    }
     
 	/**
 	 * Zooms the image or remove the zooming window from the display.

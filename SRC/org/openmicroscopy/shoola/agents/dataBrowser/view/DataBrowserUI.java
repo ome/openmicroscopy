@@ -31,14 +31,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 
@@ -68,6 +69,7 @@ class DataBrowserUI
 	/** Reference to the control. */
 	private DataBrowserControl	controller;
 	
+	/** The slide show view. */
 	private SlideShowView 		slideShowView;
 	
 	/** Builds and lays out the UI. */
@@ -123,25 +125,30 @@ class DataBrowserUI
 	void setTags(Collection tags) { toolBar.setTags(tags); }
 	
 	/**
+	 * Creates or deletes the slide show view.
 	 * 
-	 * @param create
-	 * @param allImages
+	 * @param create	Pass <code>true</code> to create a new dialog,
+	 * 					<code>false</code> to delete it.
+	 * @param images	The images to display.
 	 */
-	void slideShowView(boolean create, boolean allImages)
+	void slideShowView(boolean create, boolean images)
 	{
+		toolBar.enableSlideShow(!create);
 		if (!create) {
 			if (slideShowView != null) {
 				model.cancelSlideShow();
-				slideShowView.dispose();
+				slideShowView.close();
 			}
-			slideShowView = null; 
+			//slideShowView = null; 
 			return;
 		}
+		
+		//if (slideShowView != null) return;
 		Browser browser = model.getBrowser();
 		
 		List<ImageNode> nodes;
 		Iterator i;
-		if (allImages) nodes = browser.getVisibleImageNodes();
+		if (images) nodes = browser.getVisibleImageNodes();
 		else {
 			Set selection = browser.getSelectedDisplays();
 			nodes = new ArrayList<ImageNode>();
@@ -164,11 +171,15 @@ class DataBrowserUI
 			n = (ImageNode) i.next();
 			selection.add(n.copy());
 		}
-		slideShowView = new SlideShowView(null, selection);
+		Registry reg = DataBrowserAgent.getRegistry();
+		slideShowView = new SlideShowView(
+										reg.getTaskBar().getFrame(), 
+										selection);
 		slideShowView.addPropertyChangeListener(controller);
-		model.getBrowser().addPropertyChangeListener(slideShowView);
 		model.fireFullSizeLoading(selection);
 		UIUtilities.centerAndShow(slideShowView);
+		if (model.getState() != DataBrowser.LOADING_SLIDE_VIEW)
+			setSlideViewStatus(true, -1);
 	}
 	
 	/**
@@ -184,10 +195,16 @@ class DataBrowserUI
      */
     void setSlideViewStatus(boolean hideProgressBar, int progressPerc)
     {
-    	if (slideShowView != null)
+    	if (slideShowView != null) 
     		slideShowView.setProgress(hideProgressBar, progressPerc);
     }
     
+    /**
+     * Returns <code>true</code> if the roll flag is on, <code>false</code>
+     * otherwise.
+     * 
+     * @return See above.
+     */
     boolean isRollOver() { return model.isRollOver(); }
     
 }

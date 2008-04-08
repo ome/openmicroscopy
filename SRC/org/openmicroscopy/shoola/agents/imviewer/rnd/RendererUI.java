@@ -45,6 +45,7 @@ import javax.swing.JToolBar;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 
 /** 
@@ -132,7 +133,6 @@ class RendererUI
 	private void initComponents()
 	{
 		IconManager icons = IconManager.getInstance();
-
 		copyButton = new JButton(icons.getIcon(IconManager.COPY));
 		copyButton.setToolTipText(
 			UIUtilities.formatToolTipText("Copy the rendering settings."));
@@ -181,7 +181,7 @@ class RendererUI
 	{
 		JPanel bar = new JPanel();
 		bar.setBorder(null);
-		bar.add(historyButton);
+		//bar.add(historyButton);
 		JToolBar tb = new JToolBar();
 		tb.setFloatable(false);
 		tb.setRollover(true);
@@ -216,9 +216,8 @@ class RendererUI
 				new JScrollPane(pane), pane.getPaneDescription(), 
 				pane.getPaneIndex());
 				*/
-		JPanel p = UIUtilities.buildCollapsePanel(cp.getPaneName());
-		p.add(cp);
-		pane.addToTree(p, UIUtilities.buildCollapsePanel(cp.getPaneName()));
+		cp.setBorder(new TitledLineBorder(cp.getPaneName()));
+		pane.addToTree(cp, UIUtilities.buildCollapsePanel(cp.getPaneName()));
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
 		add(createButtonsPanel(), BorderLayout.SOUTH);

@@ -894,6 +894,7 @@ class ImViewerComponent
 		} else {
 			//TODO
 			//clean history, reset UI element
+			model.resetHistory();
 			view.switchRndControl();
 			model.getRenderer().switchRndControl();
 			/*

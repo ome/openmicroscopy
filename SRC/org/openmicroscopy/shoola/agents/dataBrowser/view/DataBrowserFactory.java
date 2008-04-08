@@ -27,11 +27,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.JComponent;
-
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
-
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -55,6 +52,7 @@ import pojos.ProjectData;
  * @since OME3.0
  */
 public class DataBrowserFactory
+	implements ChangeListener
 {
 
 	/** The sole instance. */
@@ -62,38 +60,60 @@ public class DataBrowserFactory
 						singleton = new DataBrowserFactory();
 	
 	/**
-	 * Creates a new DataBrowser for the passed collection of images.
+	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
+	 * @param parent	The parent's node.
 	 * @param images	The collection to set.
 	 * @return See above.
 	 */
-	public static final DataBrowser getDataBrowser(DataObject parent, 
+	public static final DataBrowser getDataBrowser(Object parent, 
 										Set<ImageData> images)
 	{
 		return singleton.createImagesDataBrowser(parent, images);
 	}
 	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of images.
+	 * 
+	 * @param parent	The parent's node.
+	 * @param nodes		The collection to set.
+	 * @return See above.
+	 */
 	public static final DataBrowser getDataBrowser(ProjectData parent, 
 													Set<DatasetData> nodes)
 	{
 		return singleton.createDatasetsDataBrowser(parent, nodes);
 	}
 	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed node.
+	 * 
+	 * @param parent	The node.
+	 * @return See above.
+	 */
 	public static final DataBrowser getDataBrowser(Object parent)
 	{
 		
 		return singleton.browsers.get(parent.toString());
 	}
 	
+	/** Map used to keep track of the browsers. */
 	private Map<String, DataBrowser> browsers;
 	
-	
+	/** Creates a new instance. */
 	private DataBrowserFactory()
 	{
 		browsers = new HashMap<String, DataBrowser>();
 	}
 	
-	private DataBrowser createImagesDataBrowser(DataObject parent, 
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of images.
+	 * 
+	 * @param parent	The parent's node.
+	 * @param images		The collection to set.
+	 * @return See above.
+	 */
+	private DataBrowser createImagesDataBrowser(Object parent, 
 										Set<ImageData> images)
 	{
 		DataBrowserModel model = new ImagesModel(images);
@@ -104,6 +124,13 @@ public class DataBrowserFactory
 		return comp;
 	}
 
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of datasets.
+	 * 
+	 * @param parent	The parent's node.
+	 * @param datasets	The collection to set.
+	 * @return See above.
+	 */
 	private DataBrowser createDatasetsDataBrowser(DataObject parent, 
 											Set<DatasetData> datasets)
 	{
@@ -113,6 +140,17 @@ public class DataBrowserFactory
 		comp.initialize();
 		browsers.put(parent.toString(), comp);
 		return comp;
+	}
+
+	/**
+	 * Removes a browser from the {@link #browsers} set when it is
+	 * {@link DataBrowser#DISCARDED discarded}. 
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

@@ -275,7 +275,6 @@ abstract class DataBrowserModel
 	
 	/** 
 	 * Starts an asynchronous retrieval all the full size image.
-	 * 
 	 * @param images The value to handle.
 	 */
 	void fireFullSizeLoading(Collection<ImageNode> images)
