@@ -24,9 +24,9 @@ package org.openmicroscopy.shoola.util.ui.treetable.renderers;
 
 //Java imports
 import java.awt.Component;
-import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 //Third-party libraries
 
@@ -46,8 +46,7 @@ import javax.swing.table.TableCellRenderer;
  * @since OME3.0
  */
 public class NumberCellRenderer
-	extends JLabel 
-	implements TableCellRenderer
+	extends DefaultTableCellRenderer
 {
 	
 	/**
@@ -59,20 +58,20 @@ public class NumberCellRenderer
 	public NumberCellRenderer(int alignment)
 	{
 		setHorizontalAlignment(alignment);
-		setOpaque(true);
+		//setOpaque(true);
 		setBorder(null);
 	}
 	
 	/** Creates a new instance. */
 	public NumberCellRenderer()
 	{
-		this(JLabel.CENTER);
+		this(SwingConstants.CENTER);
 	}
 
 	/**
 	 * Overridden to set the correct renderer.
-	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object,
-	 *      boolean, boolean, int, int)
+	 * @see DefaultTableCellRenderer#getTableCellRendererComponent(JTable, 
+	 * 								Object, boolean, boolean, int, int)
 	 */
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)

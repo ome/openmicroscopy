@@ -49,15 +49,14 @@ import java.awt.image.Raster;
 import java.awt.image.RescaleOp;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
-
 import javax.swing.ImageIcon;
 
-import org.openmicroscopy.shoola.util.ui.IconManager;
 
 //Third-party libraries
 import sun.awt.image.IntegerInterleavedRaster;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.IconManager;
 
 /** 
  * Utility class. Applies some basic filtering methods and affine transformations
@@ -134,6 +133,29 @@ public class Factory
             0.1f, 0.1f, 0.1f
             };
 
+    /**
+     * Creates a default thumbnail image.
+     * 
+     * @param width 	The required width of the thumbnail.
+     * @param height	The required height of the thumbnail. 
+     * @return See above.
+     */
+    public static BufferedImage createDefaultImageThumbnail(int width, 
+    														int height)
+    {
+    	IconManager icons = IconManager.getInstance();
+    	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE96);
+    	
+    	int h = img.getIconHeight();
+    	int w = img.getIconWidth();
+    	if (h == height && w == width)
+    		return createDefaultImageThumbnail();
+        BufferedImage thumbPix = new BufferedImage(width, height, 
+                                BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = (Graphics2D) thumbPix.getGraphics();
+        g.drawImage(img.getImage(), 0, 0, width, height, null);
+        return thumbPix;
+    }
     /**
      * Creates a default thumbnail image.
      * 

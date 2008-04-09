@@ -309,8 +309,12 @@ public class QuickSearch
 		searchPanel.repaint();
 	}
 	
-	/** Displays the context of the search. */
-	private void setSearchContext()
+	/** 
+	 * Displays the context of the search.
+	 * 
+	 * @param oldNode The node previously selected.
+	 */
+	private void setSearchContext(SearchObject oldNode)
 	{
 		String text = null;
 		if (selectedNode == null) return;
@@ -325,6 +329,15 @@ public class QuickSearch
 			case UNTAGGED:
 			case UNCOMMENTED:
 				text = selectedNode.getDescription();
+				break;
+			case TAGS:
+			case COMMENTS:
+			case FULL_TEXT:
+				if (oldNode != null) {
+					int oldIndex = oldNode.getIndex();
+					if (oldIndex != TAGS && oldIndex != COMMENTS &&
+							oldIndex != FULL_TEXT) text = "";
+				}
 		}
 		if (text == null) return;
 		searchArea.getDocument().removeDocumentListener(this);
@@ -573,12 +586,13 @@ public class QuickSearch
 		String name = evt.getPropertyName();
 		if (SearchContextMenu.SEARCH_CONTEXT_PROPERTY.equals(name)) {
 			SearchObject node = (SearchObject) evt.getNewValue();
+			SearchObject oldNode = selectedNode;
 			if (node != null) selectedNode = node;
 			searchButton.setIcon(node.getIcon());
 			UIUtilities.setTextAreaDefault(searchButton);
 			searchButton.setBorder(null);
 			searchArea.setToolTipText(node.getDescription());
-			setSearchContext();
+			setSearchContext(oldNode);
 			handleKeyEnter();
 		} else if (QUICK_SEARCH_PROPERTY.equals(name)) search();
 	}

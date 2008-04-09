@@ -24,11 +24,13 @@ package org.openmicroscopy.shoola.util.ui.treetable.model;
 
 
 //Java imports
+import java.util.Map;
 import java.util.Vector;
 
 //Third-party libraries
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.jdesktop.swingx.treetable.TreeModelSupport;
 
 //Application-internal dependencies
 
@@ -49,6 +51,23 @@ public class OMETreeTableModel
 	extends DefaultTreeTableModel
 {	
 	
+	/** Map indicating how to render each column. */
+	private Map<Integer, Class> columnsRenderer;
+	
+	/**
+	 * Sets the model to use OMETreeNodes and columns as a vector.
+	 * 
+	 * @param node 				The root node for model.
+	 * @param columns 			The column names.
+	 * @param columnsRenderer 	The map indicating how to render the columns.
+	 */
+	public OMETreeTableModel(OMETreeNode node, Vector columns, 
+						Map<Integer, Class> columnsRenderer)
+	{
+		super(node, columns);
+		this.columnsRenderer = columnsRenderer;
+	} 
+	
 	/**
 	 * Sets the model to use OMETreeNodes and columns as a vector.
 	 * 
@@ -57,9 +76,9 @@ public class OMETreeTableModel
 	 */
 	public OMETreeTableModel(OMETreeNode node, Vector columns)
 	{
-		super(node, columns);
-	}
-
+		this(node, columns, null);
+	} 
+	
 	/**
 	 * Returns <code>true</code> if the cell is editable for this node and 
 	 * column, <code>false</code> otherwise.
@@ -71,6 +90,50 @@ public class OMETreeTableModel
 	public boolean isCellEditable(DefaultMutableTreeTableNode node, int column) 
 	{
 		return node.isEditable(column);
+	}
+	
+	/**
+	 * Returns the value of the column field of the node.
+	 * 
+	 * @param node 		The selected node.
+	 * @param column	The selected column.
+	 * @return see above.
+	 */
+	public Object getValueAt(Object node, int column)
+	{
+		if (node instanceof OMETreeNode)
+			return ((OMETreeNode) node).getValueAt(column);
+		
+		return null;
+	}
+	
+	/**
+	 * Returns the {@link TreeModelSupport}.
+	 * 
+	 * @return See above.
+	 */
+	public TreeModelSupport getModelSupport() { return modelSupport; }
+	
+	/**
+	 * Sets the map indicating how to render each column.
+	 * 
+	 * @param columnsRenderer The value to set.
+	 */
+	public void setColumnsRenderer(Map<Integer, Class> columnsRenderer)
+	{
+		this.columnsRenderer = columnsRenderer;
+	}
+	
+	/**
+	 * Returns the class corresponding to the specifed column.
+	 * 
+	 * @param column The selected column.
+	 * @return See above.
+	 */
+	public Class<?> getColumnClass(int column) 
+	{
+		if (columnsRenderer == null) return null;
+		return columnsRenderer.get(column);
 	}
 	
 }

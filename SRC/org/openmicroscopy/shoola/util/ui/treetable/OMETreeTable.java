@@ -29,6 +29,7 @@ import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import javax.swing.DefaultCellEditor;
+import javax.swing.Icon;
 import javax.swing.JCheckBox;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.util.ui.treetable.editors.NumberCellEditor;
 import org.openmicroscopy.shoola.util.ui.treetable.editors.StringCellEditor;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.BooleanCellRenderer;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.IconCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.SelectionHighLighter;
 
@@ -90,8 +92,7 @@ public class OMETreeTable
 	
 	static
 	{
-		DEFAULT_RENDERERS = 
-							new HashMap<Class<?>, TableCellRenderer>();
+		DEFAULT_RENDERERS = new HashMap<Class<?>, TableCellRenderer>();
 		DEFAULT_RENDERERS.put(Boolean.class, new BooleanCellRenderer());
 		DEFAULT_RENDERERS.put(Long.class, new NumberCellRenderer());
 		DEFAULT_RENDERERS.put(Integer.class, new NumberCellRenderer());
@@ -99,6 +100,7 @@ public class OMETreeTable
 		DEFAULT_RENDERERS.put(Double.class, new NumberCellRenderer());
 		DEFAULT_RENDERERS.put(String.class, 
 								new NumberCellRenderer(SwingConstants.LEFT));
+		DEFAULT_RENDERERS.put(Icon.class, new IconCellRenderer());
 //		defaultTableRenderers.put(Color.class, new ColourCellRenderer());
 	}
 
@@ -128,20 +130,11 @@ public class OMETreeTable
 	/**
 	 * Sets the tree model.
 	 * 
-	 * @param model Tje value to set.
+	 * @param model The value to set.
 	 */
 	public void setTableModel(TreeTableModel model)
 	{
 		setTreeTableModel(model);
-		//this.model = model;
-		setColumnSelectionAllowed(false);
-		setRowSelectionAllowed(true);
-		setCellSelectionEnabled(false);
-		setTreeExpansionListener();
-		setMouseListener();
-		setDefaultRenderers();
-		setDefaultEditors();
-		setDefaultHighLighter();
 	}
 	
 	/** Sets the default hightlighter for this table. */
@@ -150,9 +143,8 @@ public class OMETreeTable
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 							UIUtilities.BACKGROUND_COLOUR_EVEN, 
 							UIUtilities.BACKGROUND_COLOUR_ODD);
-		SelectionHighLighter sh = new SelectionHighLighter(this);
 		addHighlighter(h);
-		addHighlighter(sh);
+		addHighlighter(new SelectionHighLighter(this));
 	}
 	
 	/**
@@ -370,47 +362,6 @@ public class OMETreeTable
 	}
 
 	/**
-	 * Overrides the {@link JXTreeTable#collapsePath(TreePath)}
-	 * Adds extra control to set the expanded flag in the OMETreeNode.
-	 * @see JXTreeTable#collapsePath(TreePath)
-	 */
-	public void collapsePath(TreePath path)
-	{
-		super.collapsePath(path);
-		if (path == null) return;
-		OMETreeNode node = (OMETreeNode) path.getLastPathComponent();
-		node.setExpanded(false);
-	}
-	
-	/**
-	 * Overrides the {@link JXTreeTable#collapseRow(int)}
-	 * Adds extra control to set the expanded flag in the OMETreeNode.
-	 * @see JXTreeTable#collapseRow(int)
-	 */
-	public void collapseRow(int row)
-	{
-		super.collapseRow(row);
-		OMETreeNode node = getNodeAtRow(row);
-		if (node == null) return;
-		node.setExpanded(false);
-	}
-	
-	/**
-	 * Overrides the {@link JXTreeTable#collapseAll()}
-	 * Adds extra control to set the expanded flag in the OMETreeNode.
-	 * @see JXTreeTable#collapseAll()
-	 */
-	public void collapseAll()
-	{
-		super.collapseAll();
-		MutableTreeTableNode root = 
-			(MutableTreeTableNode) getTreeTableModel().getRoot();
-		if (root == null) return;
-		for (MutableTreeTableNode node : ((OMETreeNode) root).getChildList())
-			((OMETreeNode) node).setExpanded(true);
-	}
-
-	/**
 	 * Helper method to get the node at row.
 	 * 
 	 * @param row The selected row.
@@ -454,6 +405,64 @@ public class OMETreeTable
 	{
 		int row = getRow(node);
 		selectionModel.addSelectionInterval(row, row);
+	}
+	
+	/**
+	 * Overrides the {@link JXTreeTable#collapsePath(TreePath)}
+	 * Adds extra control to set the expanded flag in the OMETreeNode.
+	 * @see JXTreeTable#collapsePath(TreePath)
+	 */
+	public void collapsePath(TreePath path)
+	{
+		super.collapsePath(path);
+		if (path == null) return;
+		OMETreeNode node = (OMETreeNode) path.getLastPathComponent();
+		node.setExpanded(false);
+	}
+	
+	/**
+	 * Overrides the {@link JXTreeTable#collapseRow(int)}
+	 * Adds extra control to set the expanded flag in the OMETreeNode.
+	 * @see JXTreeTable#collapseRow(int)
+	 */
+	public void collapseRow(int row)
+	{
+		super.collapseRow(row);
+		OMETreeNode node = getNodeAtRow(row);
+		if (node == null) return;
+		node.setExpanded(false);
+	}
+	
+	/**
+	 * Overrides the {@link JXTreeTable#collapseAll()}
+	 * Adds extra control to set the expanded flag in the OMETreeNode.
+	 * @see JXTreeTable#collapseAll()
+	 */
+	public void collapseAll()
+	{
+		super.collapseAll();
+		MutableTreeTableNode root = 
+			(MutableTreeTableNode) getTreeTableModel().getRoot();
+		if (root == null) return;
+		for (MutableTreeTableNode node : ((OMETreeNode) root).getChildList())
+			((OMETreeNode) node).setExpanded(true);
+	}
+	
+	/**
+	 * Overridden to set the various renderer.
+	 * @see JXTreeTable#setTreeTableModel(TreeTableModel)
+	 */
+	public void setTreeTableModel(TreeTableModel model)
+	{
+		super.setTreeTableModel(model);
+		setColumnSelectionAllowed(false);
+		setRowSelectionAllowed(true);
+		setCellSelectionEnabled(false);
+		setTreeExpansionListener();
+		setMouseListener();
+		setDefaultRenderers();
+		setDefaultEditors();
+		setDefaultHighLighter();
 	}
 	
 }
