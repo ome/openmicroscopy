@@ -25,6 +25,9 @@ package xmlMVC;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.io.*;
 
 import javax.swing.JOptionPane;
@@ -430,7 +433,9 @@ public class XMLModel
 			if (! VersionControlMethods.isFileVersionFromFuture(fileVersionNumber))
 				getCurrentTree().setVersionNumber(EDITOR_VERSION_NUMBER);
 			
-			getRootNode().getDataField().setAttribute(DataFieldConstants.PROTOCOL_FILE_NAME, outputFile.getName(), true);
+			getRootNode().getDataField().setAttribute(DataFieldConstants.PROTOCOL_FILE_NAME, outputFile.getName(), false);
+			// don't add the protocolFileName change to undo/redo, but still want UI to update...
+			getRootNode().getDataField().notifyDataFieldObservers();
 		}
 		
 		// now you can save
@@ -481,6 +486,18 @@ public class XMLModel
 		if (getCurrentTree() == null) 
 			return false;
 		return getCurrentTree().areHighlightedFieldsLocked();
+	}
+	
+	/**
+	 * This method is used to get details of the highlighted fields that are locked. 
+	 * Each highlighted field that is locked is represented by a HashMap, 
+	 * containing "locking attributes" of the field, such as timeStamp and userName. 
+	 * 
+	 * @return		A list of hashMaps, corresponding to the list of highlighted locked fields. 
+	 */
+	public List<HashMap<String, String>> getLockedFieldsAttributes() {
+		if (getCurrentTree() == null) return null;
+		return getCurrentTree().getLockedFieldsAttributes();
 	}
 	
 	/**
@@ -539,6 +556,20 @@ public class XMLModel
 	public boolean canRedo() {
 		if (getCurrentTree() == null) return false;
 		return getCurrentTree().canRedo();
+	}
+	
+	/**
+	 * This adds a time-stamp (UTCmillisecs) to each field, to indicate
+	 * that they are locked (and when). 
+	 * Other attributes in the lockingAttributes map will also be added, 
+	 * to describe the User, Locking Level etc. 
+	 * This method is delegated to current Tree. 
+	 * 
+	 * @param lockingAttributes		A map of additional attributes that define the lock
+	 */
+	public void lockHighlightedFields(Map<String, String> lockingAttributes) {
+		if (getCurrentTree() == null) return;
+		getCurrentTree().lockHighlightedFields(lockingAttributes);
 	}
 	
 	// works on numerical fields only

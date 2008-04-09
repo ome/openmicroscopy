@@ -304,7 +304,10 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 			Calendar lockedTime = new GregorianCalendar();
 			lockedTime.setTimeInMillis(new Long(lockedTimeUTC));
 			SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
-			String toolTipText = "Locked at " + time.format(lockedTime.getTime());
+			
+			String user = dataField.getAttribute(DataFieldConstants.FIELD_LOCKED_USER_NAME);
+			
+			String toolTipText = "Locked by " + user + " at " + time.format(lockedTime.getTime());
 			nameLabel.setToolTipText(toolTipText);
 			nameLabel.setIcon(lockedIcon);
 		}

@@ -11,7 +11,7 @@ public interface IAttributeSaver {
 	 * The title is used for display purposes in the undo/redo queue.
 	 * This is only added to undo/redo queue if rememberUndo is true;
 	 */
-	public void setAttributes(String title, Map keyValuePairs, boolean rememberUndo);
+	public Map<String, String> setAttributes(String title, Map<String, String> keyValuePairs, boolean rememberUndo);
 	
 	public String getAttribute(String attributeName);
 	

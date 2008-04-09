@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
@@ -38,27 +39,36 @@ import tree.DataFieldNode;
 public class EditLockFields extends AbstractUndoableEdit {
 	
 	Iterator<DataFieldNode> iterator;
-	ArrayList<EditDataFieldAttribute> lockedFields;
+	ArrayList<EditDataFieldAttributes> lockedFields;
 	
-	public EditLockFields (DataFieldNode rootNode) {
+	/**
+	 * A map of attributes that define the lock to be placed on these fields.
+	 * eg. User Name, UTC-timeStamp, password, locking "level" (lock-all vv lock-template);
+	 */
+	Map<String, String> newLockingAttributes;
+	
+	
+	public EditLockFields (DataFieldNode rootNode, Map<String, String> lockingAttributes) {
 		
-		lockedFields = new ArrayList<EditDataFieldAttribute>();
-
+		lockedFields = new ArrayList<EditDataFieldAttributes>();
+		this.newLockingAttributes = lockingAttributes;
+		
 		populateEditedFields(rootNode);
 		
 		redo();		// this locks the fields in lockFields
 	}
 	
 	
-	public EditLockFields (ArrayList<DataFieldNode> rootNodes) {
+	public EditLockFields (ArrayList<DataFieldNode> rootNodes, Map<String, String> lockingAttributes) {
 		
-		lockedFields = new ArrayList<EditDataFieldAttribute>();
+		lockedFields = new ArrayList<EditDataFieldAttributes>();
+		this.newLockingAttributes = lockingAttributes;
 
 		for (DataFieldNode rootNode: rootNodes) {
 			populateEditedFields(rootNode);
 		}
 		
-		redo();		// this locks the fields in lockFields list
+		//redo();		// this locks the fields in lockFields list
 	}
 	
 	
@@ -66,17 +76,21 @@ public class EditLockFields extends AbstractUndoableEdit {
 		
 		DataField field = node.getDataField();
 		
-		String oldValue = field.getAttribute(DataFieldConstants.FIELD_LOCKED_UTC); // null if field is not locked
+		/*
+		 * Set the new values of the lock. And remember the old values...
+		 */
+		Map<String, String> oldValues = field.setAttributes("Lock", newLockingAttributes, false);
+		field.notifyObserversOfChildFields();	// refresh locked status of field & children
 		
-		Calendar now = new GregorianCalendar();
-		String newValue = now.getTimeInMillis() + "";
-		
-		lockedFields.add(new EditDataFieldAttribute(field, DataFieldConstants.FIELD_LOCKED_UTC, oldValue, newValue));	// keep a reference to fields that have been edited
+		/*
+		 * Add to the list of locked fields, for undo & redo. 
+		 */
+		lockedFields.add(new EditDataFieldAttributes(field, "Lock", oldValues, newLockingAttributes));	// keep a reference to fields that have been edited
 	}
 	
 	
 	public void undo() {
-		for (EditDataFieldAttribute field: lockedFields) {
+		for (EditDataFieldAttributes field: lockedFields) {
 			field.undoNoHighlight();
 			// children of this field are now locked. Need to update
 			field.getDataField().notifyObserversOfChildFields();
@@ -84,7 +98,7 @@ public class EditLockFields extends AbstractUndoableEdit {
 	}
 	
 	public void redo() {
-		for (EditDataFieldAttribute field: lockedFields) {
+		for (EditDataFieldAttributes field: lockedFields) {
 			field.redoNoHighlight();
 			// children of this field are now locked. Need to update
 			field.getDataField().notifyObserversOfChildFields();

@@ -139,8 +139,9 @@ public class DataField
 	 * This method allows users to update several attributes at once. 
 	 * The title is used for display purposes in the undo/redo queue.
 	 * This is only added to undo/redo queue if rememberUndo is true;
+	 * @return 
 	 */
-	public void setAttributes(String title, Map keyValuePairs, boolean rememberUndo) {
+	public Map<String, String> setAttributes(String title, Map<String, String> keyValuePairs, boolean rememberUndo) {
 		System.out.println("DataField.setAttributeS (notifyObservers="+ rememberUndo +"): " + title);
 		
 		/*
@@ -159,6 +160,12 @@ public class DataField
 			node.dataFieldUpdated(new EditDataFieldAttributes(this, title, oldValues, keyValuePairs));
 			notifyDataFieldObservers();
 		}
+		
+		/*
+		 * Return the old values Map. Allows other classes to 
+		 * remember them if they wish (if rememberUndo is false, eg EditLockFields)
+		 */
+		return oldValues;
 	}
 	
 	public void setAttribute(String name, String value) {
@@ -180,12 +187,7 @@ public class DataField
 		if (value == null) return false;
 		return (value.equals(DataFieldConstants.TRUE));
 	}
-	// returns false if attribute is null
-	public boolean isAttributeEqualTo(String attribute, String equalTo) {
-		String value = getAttribute(attribute);
-		if (value == null) return false;
-		return (value.equals(equalTo));
-	}
+
 	// returns true if no InputType has been set, or if it is CUSTOM
 	public boolean isCustomInputType() {
 		boolean customElement = false;
@@ -257,6 +259,7 @@ public class DataField
 	/**
 	 * This method uses a TreeVisitor to iterate through the children of this field
 	 * and call notifyDataFieldObservers() for each.
+	 * Also calls notifyDataFieldObservers() for This field. 
 	 */
 	public void notifyObserversOfChildFields() {
 		

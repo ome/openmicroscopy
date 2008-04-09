@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import javax.swing.JPanel;
@@ -77,7 +79,7 @@ public class Tree
 		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), 
 		LOAD_DEFAULTS_HIGHLIGHTED_FIELDS("Load Defaults for Highlighted Fields"), 
 		CLEAR_FIELDS("Clear Fields"), CLEAR_FIELDS_HIGHLIGHTED_FIELDS("Clear Fields for Highlighted Fields"), 
-		LOCK_HIGHLIGHTED_FIELDS("Lock highlighted fields"), UNLOCK_HIGHLIGHTED_FIELDS("Unlock highlighted fields");
+		 UNLOCK_HIGHLIGHTED_FIELDS("Unlock highlighted fields");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -226,10 +228,6 @@ public class Tree
 				clearFieldsforHighlightedFields();
 				break;
 			}
-			case LOCK_HIGHLIGHTED_FIELDS: {
-				lockHighlightedFields();
-				break;
-			}
 			case UNLOCK_HIGHLIGHTED_FIELDS: {
 				unlockHighlightedFields();
 				break;
@@ -277,7 +275,7 @@ public class Tree
 			 if (node != null && (node.getNodeType() == Node.TEXT_NODE)) {
 				 String textValue = node.getTextContent().trim();
 				 if (textValue.length() > 0){
-					 // set this attribute of the parent node, true: notify observers to update formField
+					 // set this attribute of the parent node, false: don't add to undo/redo queue
 					 dfNode.getDataField().setAttribute(DataFieldConstants.TEXT_NODE_VALUE, node.getTextContent(), false);
 				 }
 			 }
@@ -310,17 +308,21 @@ public class Tree
 	/**
 	 * This adds a time-stamp (UTCmillisecs) to each field, to indicate
 	 * that they are locked (and when). 
+	 * Other attributes in the lockingAttributes map will also be added, 
+	 * to describe the User, Locking Level etc. 
+	 * 
+	 * @param lockingAttributes		A map of additional attributes that define the lock
 	 */
-	private void lockHighlightedFields() {
+	public void lockHighlightedFields(Map<String, String> lockingAttributes) {
 		
 		// if fields are highlighted, lock them.
 		if (highlightedFields.size() > 0) {
-			UndoableEdit edit = new EditLockFields(highlightedFields);
+			UndoableEdit edit = new EditLockFields(highlightedFields, lockingAttributes);
 			undoSupport.postEdit(edit);
 			
 		// or if the root node is highlighted, lock it.
 		} else if (rootNode.isHighlighted()) {
-			UndoableEdit edit = new EditLockFields(rootNode);
+			UndoableEdit edit = new EditLockFields(rootNode, lockingAttributes);
 			undoSupport.postEdit(edit);
 		}
 		
@@ -1137,6 +1139,39 @@ public class Tree
 			return AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, rootNode);
 		}
 		return false;
+	}
+	
+	/**
+	 * This method is used to get details of the highlighted fields that are locked. 
+	 * Each highlighted field that is locked is represented by a HashMap, 
+	 * containing "locking attributes" of the field, such as timeStamp and userName. 
+	 * 
+	 * @return		A list of hashMaps, corresponding to the list of highlighted locked fields. 
+	 */
+	public List<HashMap<String, String>> getLockedFieldsAttributes() {
+		
+		ArrayList<HashMap<String, String>> lockedFieldsAttributes = new ArrayList<HashMap<String, String>>();
+		
+		for (DataFieldNode node: highlightedFields) {
+			/*
+			 * Check each highlighted field to see if it is locked...
+			 */
+			if (AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, node)) {
+				
+				/*
+				 * If locked, get the locked attributes, add to a new HashMap and add this to the list.
+				 */
+				IAttributeSaver field = node.getDataField();
+				HashMap<String, String> lockedAttributes= new HashMap<String, String>();
+				
+				lockedAttributes.put(DataFieldConstants.ELEMENT_NAME, field.getAttribute(DataFieldConstants.ELEMENT_NAME));
+				lockedAttributes.put(DataFieldConstants.FIELD_LOCKED_UTC, field.getAttribute(DataFieldConstants.FIELD_LOCKED_UTC));
+				lockedAttributes.put(DataFieldConstants.FIELD_LOCKED_USER_NAME, field.getAttribute(DataFieldConstants.FIELD_LOCKED_USER_NAME));
+				
+				lockedFieldsAttributes.add(lockedAttributes);
+			}
+		}
+		return lockedFieldsAttributes;
 	}
 	
 	/**

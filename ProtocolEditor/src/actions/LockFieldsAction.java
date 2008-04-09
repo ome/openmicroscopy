@@ -24,12 +24,19 @@
 package actions;
 
 import java.awt.event.ActionEvent;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 
+import tree.DataFieldConstants;
 import tree.Tree.Actions;
 import ui.IModel;
 import util.ImageFactory;
@@ -106,27 +113,79 @@ public class LockFieldsAction extends ProtocolEditorAction {
 	public void actionPerformed(ActionEvent e) {
 		
 		if (currentState.equals(UNLOCKED_ANCESTOR_UNLOCKED))
-			model.editCurrentTree(Actions.LOCK_HIGHLIGHTED_FIELDS);
+			lockFields();
 		
 		else if (currentState.equals(LOCKED_ANCESTOR_UNLOCKED)) {
-		
-			/*
-			 * Need to get user to confirm unlocking! 
-			 */
-			Object[] options = {"Cancel", "Unlock"};
-			
-			int yesNo = JOptionPane.showOptionDialog(null, "Are you sure you want to unlock these fields?",
-					"Confirm Unlock", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
-					lockedIcon48, options, options[0]);
-			
-			if (yesNo == 1) {
-				model.editCurrentTree(Actions.UNLOCK_HIGHLIGHTED_FIELDS);
-			}
+			unlockFields();
 		}
-		
 	}
 	
 	
+	public void lockFields() {
+		
+		Calendar now = new GregorianCalendar();
+		SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
+		String nowString = time.format(now.getTime());
+		
+		String user = System.getProperty("user.name");
+		
+		String message = "This field will be marked as:\n" +
+				"Locked at: " + nowString + "\n by user:";
+				
+		/*
+		 * Need to get user to confirm locking, and give them a chance to change their Name. 
+		 */
+		Object chosenName = JOptionPane.showInputDialog(null, message, "Confirm Lock",
+				JOptionPane.WARNING_MESSAGE, lockedIcon48, null, user);
+		
+		// Check that the user did not cancel
+		if (chosenName != null) {
+			
+			/*
+			 * Make a HashMap of all the attributes that describe the lock
+			 */
+			HashMap<String, String> lockingAttributes = new HashMap<String, String>();
+			
+			lockingAttributes.put(DataFieldConstants.FIELD_LOCKED_USER_NAME, chosenName.toString());
+			lockingAttributes.put(DataFieldConstants.FIELD_LOCKED_UTC, now.getTimeInMillis() + "");
+			
+			model.lockHighlightedFields(lockingAttributes);
+		}
+	}
+	
+	public void unlockFields() {
+		
+		SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
+		
+		/*
+		 * Need to get user to confirm unlocking! 
+		 */
+		
+		List<HashMap<String, String>> lockedFields = model.getLockedFieldsAttributes();
+		
+		String message = "<html>The field:</html>\n";
+		
+		for (HashMap<String, String> map : lockedFields) {
+			long timeStamp = new Long(map.get(DataFieldConstants.FIELD_LOCKED_UTC));
+			String dateTime = time.format(new Date(timeStamp));
+			
+			String line = "<html><b>- " + map.get(DataFieldConstants.ELEMENT_NAME) + "</b> was locked by <i>" +
+				map.get(DataFieldConstants.FIELD_LOCKED_USER_NAME) + "</i> at " + dateTime + "</html>\n";
+			message = message + line;
+		}
+		message = message + "\n<html>Are you sure you want to unlock " + 
+			(lockedFields.size()>1 ? "these fields?":"this field?") + "</html>";
+		
+		Object[] options = {"Cancel", "Unlock"};
+		
+		int yesNo = JOptionPane.showOptionDialog(null, message,
+				"Confirm Unlock", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+				lockedIcon48, options, options[0]);
+		
+		if (yesNo == 1) {
+			model.editCurrentTree(Actions.UNLOCK_HIGHLIGHTED_FIELDS);
+		}
+	}
 	
 	public void stateChanged(ChangeEvent e) {
 		

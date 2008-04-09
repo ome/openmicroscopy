@@ -23,7 +23,9 @@
 package ui;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tree.DataField;
 import tree.DataFieldNode;
@@ -49,6 +51,15 @@ public interface IModel {
 	public boolean areHighlightedFieldsLocked();
 	
 	/**
+	 * This method is used to get details of the highlighted fields that are locked. 
+	 * Each highlighted field that is locked is represented by a HashMap, 
+	 * containing "locking attributes" of the field, such as timeStamp and userName. 
+	 * 
+	 * @return		A list of hashMaps, corresponding to the list of highlighted locked fields. 
+	 */
+	public List<HashMap<String, String>> getLockedFieldsAttributes();
+	
+	/**
 	 * This checks whether ancestors of the highlighted fields
 	 * have the attribute FIELD_LOCKED_UTC.
 	 * This method IGNORES the highlighted fields themselves. 
@@ -67,6 +78,16 @@ public interface IModel {
 	 * @return	True if any fields in the tree are locked. 
 	 */
 	public boolean isAnyFieldLocked();
+	
+	/**
+	 * This adds a time-stamp (UTCmillisecs) to each field, to indicate
+	 * that they are locked (and when). 
+	 * Other attributes in the lockingAttributes map will also be added, 
+	 * to describe the User, Locking Level etc. 
+	 * 
+	 * @param lockingAttributes		A map of additional attributes that define the lock
+	 */
+	public void lockHighlightedFields(Map<String, String> lockingAttributes);
 	
 	public void openBlankProtocolFile();
 	

@@ -14,6 +14,7 @@ import java.util.Map;
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
+import tree.IAttributeSaver;
 import ui.formFields.FormField;
 
 /*
@@ -124,7 +125,7 @@ public class DefaultExport
             outputStream.print(HEADER);
             
             for (DataFieldNode parentRootNode: rootNodes) {
-            	DataField protocolField = parentRootNode.getDataField();
+            	IAttributeSaver protocolField = parentRootNode.getDataField();
             	printDataField(protocolField, outputStream, exportPreferences);
             	
             	if (!protocolField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED) || 
@@ -165,7 +166,7 @@ public class DefaultExport
 		outStream.println(DIV);
 		
 		for (DataFieldNode child: children) {
-			DataField dataField = child.getDataField();
+			IAttributeSaver dataField = child.getDataField();
 			printDataField(dataField, outStream, exportPreferences);
 			
 			
@@ -188,7 +189,7 @@ public class DefaultExport
 	 * @param outputStream
 	 * @param exportPreferences
 	 */
-	private void printDataField (DataField dataField, PrintWriter outputStream, 
+	private void printDataField (IAttributeSaver dataField, PrintWriter outputStream, 
 			Map<String, Boolean> exportPreferences) {
 		
 		boolean showEveryField = isAttributeTrue(exportPreferences, SHOW_ALL_FIELDS);
@@ -203,11 +204,12 @@ public class DefaultExport
 		if (!showEveryField)
 			subStepsCollapsed = dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED);
 			
-		HashMap<String, String> allAttributes = dataField.getAllAttributes();
+		HashMap<String, String> allAttributes = new HashMap<String, String>(dataField.getAllAttributes());
         	
 		String divHeader = "";
 			
-        if (dataField.isAttributeEqualTo(DataFieldConstants.INPUT_TYPE,DataFieldConstants.PROTOCOL_TITLE))
+		String inputType = dataField.getAttribute(DataFieldConstants.INPUT_TYPE);
+        if  ((inputType != null) && (inputType.equals(DataFieldConstants.PROTOCOL_TITLE)))
         	divHeader = DIV_CLASS_PROTOCOL;
         else divHeader = DIV;
         
@@ -232,12 +234,14 @@ public class DefaultExport
         	
         outputStream.print(SPAN_CLASS_ELEMENT_NAME);
         	
-        if (dataField.hasChildren()) {
-        	if (subStepsCollapsed) {
-        		outputStream.print(RIGHT_ARROW);
-        	} else {
-        		outputStream.print(DOWN_ARROW);
-        	}
+        if (dataField instanceof DataField) {
+	        if (((DataField)dataField).hasChildren()) {
+	        	if (subStepsCollapsed) {
+	        		outputStream.print(RIGHT_ARROW);
+	        	} else {
+	        		outputStream.print(DOWN_ARROW);
+	        	}
+	        }
         }
         outputStream.print(allAttributes.get(DataFieldConstants.ELEMENT_NAME));
         	

@@ -238,6 +238,24 @@ public class DataFieldConstants {
 	public static final String FIELD_LOCKED_UTC = "fieldLockedUTC";
 	
 	/**
+	 * The name of the user locking the field. 
+	 */
+	public static final String FIELD_LOCKED_USER_NAME = "fieldLockedUserName";
+
+	/**
+	 * An attribute to describe the level of locking. If null, assume fully locked. 
+	 * @see TEMPLATE_LOCKED
+	 */
+	public static final String LOCK_LEVEL = "lockLevel";
+
+	/**
+	 * This value in the LOCK_LEVEL attribute indicates that only the template is 
+	 * locked and users can still edit the "experimental variables"
+	 */
+	public static final String TEMPLATE_LOCKED = "templateLocked";
+
+	
+	/**
 	 * This attribute stores an ontology ID and a term ID. 
 	 * The ontology identifier is the prefix (see http://www.obofoundry.org/) and the term
 	 * number is a unique ID for a term in that ontology. 
@@ -322,4 +340,5 @@ public class DataFieldConstants {
 		"Image", "Ontology Term", "Phenote Observation"
 		};
 
+	
 }
