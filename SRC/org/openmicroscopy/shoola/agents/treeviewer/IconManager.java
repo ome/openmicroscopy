@@ -114,10 +114,10 @@ public class IconManager
     public static int           FILTER_MENU = 19;
     
     /** The <code>Annotated Dataset</code> icon. */
-    public static int           ANNOTATED_DATASET = 20;
+    public static int           DATASET_ANNOTATED = 20;
     
     /** The <code>Annotated Image</code> icon. */
-    public static int           ANNOTATED_IMAGE = 21;
+    public static int           IMAGE_ANNOTATED = 21;
     
     /** A bigger version of the <code>Create</code> icon. */
     public static int           CREATE_BIG = 22;
@@ -287,11 +287,14 @@ public class IconManager
     /** The <code>annotated by user</code> icon. */
     public static int           PROJECT_ANNOTATED_BY_ALL = 77;
     
+    /** The <code>project annotated</code> icon. */
+    public static int           PROJECT_ANNOTATED = 78;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 77;
+    private static int          MAX_ID = 78;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -317,8 +320,8 @@ public class IconManager
         relPaths[SORT_DATE] = "eclipse_trace_persp16.png";
         relPaths[FILTER] = "nuvola_find16.png";
         relPaths[FILTER_MENU] = "eclipse_view_menu16.png"; 
-        relPaths[ANNOTATED_DATASET] = "annotated_dataset16.png";
-        relPaths[ANNOTATED_IMAGE] = "annotated_image16.png";
+        relPaths[DATASET_ANNOTATED] = "tagged_dataset16.png";
+        relPaths[IMAGE_ANNOTATED] = "tagged_image16.png";
         relPaths[CREATE_BIG] = "nuvola_filenew48.png"; 
         relPaths[ERROR] = "eclipse_error_tsk16.png";
         relPaths[PROPERTIES_BIG] = "nuvola_filenew48.png";
@@ -377,6 +380,7 @@ public class IconManager
         relPaths[PROJECT_ANNOTATED_BY_USER] = "nuvola_folder_red_open16.png";;//"annotatedByUser_project16.png";
         relPaths[PROJECT_ANNOTATED_BY_OTHER] = "annotatedByOther_project16.png";
         relPaths[PROJECT_ANNOTATED_BY_ALL] = "annotatedByAll_project16.png";
+        relPaths[PROJECT_ANNOTATED] = "tagged_project16.png";
     }
     
     /** The sole instance. */

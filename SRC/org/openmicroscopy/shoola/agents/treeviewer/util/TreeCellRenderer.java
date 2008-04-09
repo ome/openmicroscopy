@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
-import org.openmicroscopy.shoola.agents.util.CountUtil;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
@@ -87,10 +87,10 @@ public class TreeCellRenderer
     {
     	Object usrObject = node.getUserObject();
         Icon icon = icons.getIcon(IconManager.OWNER);
-        boolean a, b;
         if (usrObject instanceof ProjectData) {
-        	 a = CountUtil.annotatedByCurrentUser(usrObject, userID);
-             b = CountUtil.annotatedByOtherUser(usrObject, userID);
+        	/*
+        	 a = CountUtil.isAnnotatedByCurrentUser(usrObject, userID);
+             b = CountUtil.isAnnotatedByOtherUser(usrObject, userID);
              if (a && b) 
             	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_ALL);
              else if (a && !b) 
@@ -98,26 +98,37 @@ public class TreeCellRenderer
              else if (!a && b) 
             	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_OTHER);
              else 
-                icon = icons.getIcon(IconManager.PROJECT);
+             */
+        	if (EditorUtil.isAnnotated(usrObject))
+        		icon = icons.getIcon(IconManager.PROJECT_ANNOTATED);
+        	else icon = icons.getIcon(IconManager.PROJECT);
         } else if (usrObject instanceof DatasetData) {
-        	a = CountUtil.annotatedByCurrentUser(usrObject, userID);
-            b = CountUtil.annotatedByOtherUser(usrObject, userID);
+        	/*
+        	a = CountUtil.isAnnotatedByCurrentUser(usrObject, userID);
+            b = CountUtil.isAnnotatedByOtherUser(usrObject, userID);
             if (a && b)
             	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_ALL);
             else if (a && !b)
             	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_USER);
             else if (!a && b)
             	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_OTHER);
+            */
+            if (EditorUtil.isAnnotated(usrObject))
+        		icon = icons.getIcon(IconManager.DATASET_ANNOTATED);
             else icon = icons.getIcon(IconManager.DATASET);
         } else if (usrObject instanceof ImageData) {
-            a = CountUtil.annotatedByCurrentUser(usrObject, userID);
-            b = CountUtil.annotatedByOtherUser(usrObject, userID);
+        	/*
+            a = CountUtil.isAnnotatedByCurrentUser(usrObject, userID);
+            b = CountUtil.isAnnotatedByOtherUser(usrObject, userID);
             if (a && b)
             	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_ALL);
             else if (a && !b)
             	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_USER);
             else if (!a && b)
             	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_OTHER);
+            	*/
+            if (EditorUtil.isAnnotated(usrObject))
+        		icon = icons.getIcon(IconManager.IMAGE_ANNOTATED);
             else icon = icons.getIcon(IconManager.IMAGE);
         
         } else if (usrObject instanceof CategoryGroupData)

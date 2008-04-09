@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
+
+//Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,18 +33,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.DataObject;
-import pojos.RatingAnnotationData;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.DataObject;
 
 /** 
  * 

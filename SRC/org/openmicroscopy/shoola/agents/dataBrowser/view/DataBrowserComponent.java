@@ -43,7 +43,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
-import org.openmicroscopy.shoola.agents.events.metadata.ViewMetadata;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -108,7 +107,10 @@ class DataBrowserComponent
 	 */
 	public void activate()
 	{
-		model.loadData(false);
+		//Determine the view depending on the 
+		if (model.getNumberOfImages() < MAX_ENTRIES)
+			model.loadData(false); 
+		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		if (model.getBrowser() != null)
 			model.getBrowser().addPropertyChangeListener(controller);
 		fireStateChange();
@@ -207,7 +209,8 @@ class DataBrowserComponent
 	{
 		model.cancelFiltering();
 		model.getBrowser().showAll();
-		model.layoutBrowser();
+		//model.layoutBrowser();
+		view.layoutUI();
 	}
 
 	/**
@@ -282,15 +285,16 @@ class DataBrowserComponent
 		List<ImageDisplay> nodes;
 		if (objects.size() > 0) {
 			NodesFinder finder = new NodesFinder(objects);
-			//browser.visitOriginal(finder);
 			browser.accept(finder);
 			nodes = finder.getFoundNodes();
 		} else {
 			nodes = new ArrayList<ImageDisplay>();
 		}
 		browser.setFilterNodes(nodes);
-		model.layoutBrowser();
-		browser.getUI().repaint();
+		view.layoutUI();
+		//
+		//model.layoutBrowser();
+		//browser.getUI().repaint();
 		model.setState(READY);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

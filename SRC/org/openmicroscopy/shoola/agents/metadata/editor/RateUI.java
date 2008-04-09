@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -32,7 +33,6 @@ import javax.swing.JLabel;
 
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
@@ -86,7 +86,7 @@ class RateUI
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
 		s += n+NAME;
 		if (n > 1) s += "s";
-		ratingsLabel = new JLabel(s);
+		ratingsLabel = new JLabel("("+s+")");
 		ratingsLabel.setFont(ratingsLabel.getFont().deriveFont(Font.ITALIC));
 	}
 	
@@ -102,22 +102,20 @@ class RateUI
 	}
 	
 	/**
-	 * Overridden to lay out the tags.
+	 * Overridden to lay out the rating.
 	 * @see AnnotationUI#buildUI()
 	 */
 	protected void buildUI()
 	{
 		removeAll();
 		initComponents();
-		double[][] tl = {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED} }; 
 		
-		setLayout(new TableLayout(tl));
 		JLabel label = UIUtilities.setTextFont(getComponentTitle());
 		label.setLabelFor(rating);
-		add(label, "0, 0, l, c");
-		add(rating, "2, 0, f, c");
-		add(ratingsLabel, "2, 1");
+		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		add(label);
+		add(rating);
+		add(ratingsLabel);
 	}
 	
 	/**

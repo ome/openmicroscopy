@@ -23,6 +23,9 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 
@@ -35,6 +38,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+
 import pojos.ImageData;
 
 /** 
@@ -54,6 +59,7 @@ class ImagesModel
 	extends DataBrowserModel
 {
 
+	/** The images to lay out. */
 	private Set<ImageData> images;
 	
 	/**
@@ -67,6 +73,7 @@ class ImagesModel
 		if (images  == null) 
 			throw new IllegalArgumentException("No images.");
 		this.images = images;
+		numberOfImages = images.size();
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set visTrees = DataBrowserTranslator.transformImages(images, userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
@@ -79,7 +86,22 @@ class ImagesModel
 	 */
 	protected DataBrowserLoader createDataLoader(boolean refresh)
 	{
-		return new ThumbnailLoader(component, images);
+		if (refresh) return new ThumbnailLoader(component, images);
+		//only load thumbnails not loaded.
+		if (imagesLoaded == numberOfImages) return null;
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		if (nodes == null || nodes.size() == 0) return null;
+		Iterator<ImageNode> i = nodes.iterator();
+		ImageNode node;
+		Set<ImageData> imgs = new HashSet<ImageData>();
+		while (i.hasNext()) {
+			node = i.next();
+			if (node.getThumbnail().getFullScaleThumb() == null) {
+				imgs.add((ImageData) node.getHierarchyObject());
+				imagesLoaded++;
+			}
+		}
+		return new ThumbnailLoader(component, imgs);
 	}
 	
 }

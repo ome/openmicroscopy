@@ -23,10 +23,13 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 import java.awt.Cursor;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import javax.swing.JLabel;
 
 
 //Java imports
@@ -34,6 +37,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.CategoryData;
@@ -291,23 +296,17 @@ public abstract class ImageDisplay
     public Object getHierarchyObject() { return hierarchyObject; }
     
     /**
-     * Returns <code>true</code> if the hosted object is annotated, 
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
+     * Adds an <code>AnnotatedButton</code> and/or <code>ClassifiedButton</code>
+     * depending on the hosted <code>DataObject</code> status.
      */
-    public boolean isAnnotated() 
+    public void setNodeDecoration()
     {
-        if (hierarchyObject instanceof DatasetData) {
-            DatasetData d =  (DatasetData) hierarchyObject;
-            Long n = null;//d.getAnnotationCount();
-            return (n != null && n.longValue() > 0);
-        } else if (hierarchyObject instanceof ImageData) {
-            ImageData d =  (ImageData) hierarchyObject;
-            Long n = null;//d.getAnnotationCount();
-            return (n != null && n.longValue() > 0);
-        }
-        return false;
+    	if (EditorUtil.isAnnotated(hierarchyObject)) {
+    		 List<JLabel> nodes = new ArrayList<JLabel>();
+    		 IconManager icons = IconManager.getInstance();
+    		 nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
+    		 setDecoration(nodes);
+    	}
     }
     
     /**

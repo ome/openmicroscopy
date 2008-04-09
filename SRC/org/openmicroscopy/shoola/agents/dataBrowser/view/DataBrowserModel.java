@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailsManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
@@ -91,11 +92,23 @@ abstract class DataBrowserModel
 	 */
 	private boolean         	rollOver;
     
+	/** Flag indicating that the thumbnails are loaded or not. */
+	protected boolean			thumbnailLoaded;
+	
     /** Reference to the component that embeds this model. */
     protected DataBrowser		component;
     
     /** Reference to the browser. */
     protected Browser			browser;
+    
+    /** Reference to the browser. */
+    protected ImageTableView	tableView;
+    
+    /** The number of images. */
+    protected int				numberOfImages;
+    
+    /** The number of images loaded. */
+    protected int				imagesLoaded;
     
     /** Creates a new instance. */
     DataBrowserModel()
@@ -103,6 +116,13 @@ abstract class DataBrowserModel
     	sorter = new ViewerSorter();
     	state = DataBrowser.NEW; 
     }
+    
+    /**
+     * Returns the number of images.
+     * 
+     * @return See above.
+     */
+    int getNumberOfImages() { return numberOfImages; }
     
     /** Lays out the browser. */
     void layoutBrowser()
@@ -114,6 +134,18 @@ abstract class DataBrowserModel
         browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
 
+    /**
+     * Creates or recycles the table view.
+     * 
+     * @return See above.
+     */
+    ImageTableView createImageTableView()
+    {
+    	if (tableView != null) return tableView;
+    	tableView = new ImageTableView((ImageDisplay) browser.getUI());
+    	return tableView;
+    }
+    
     /**
      * Returns the current state.
      * 
@@ -128,8 +160,9 @@ abstract class DataBrowserModel
      */
     void loadData(boolean refresh)
     {
-    	state = DataBrowser.LOADING;
     	loader = createDataLoader(refresh);
+    	if (loader == null) return;
+    	state = DataBrowser.LOADING;
     	loader.load();
     }
     
@@ -139,6 +172,13 @@ abstract class DataBrowserModel
      * @return See above.
      */
     Browser getBrowser() { return browser; }
+    
+    /**
+     * Returns the browser.
+     * 
+     * @return See above.
+     */
+    ImageTableView getTableView() { return tableView; }
     
     /**
      * Called by the <code>DataBrowser</code> after creation to allow this

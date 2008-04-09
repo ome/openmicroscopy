@@ -102,13 +102,25 @@ public class LayoutUtils
     static Dimension maxChildDim(ImageDisplay node)
     {
         Dimension maxDim = new Dimension(0, 0);
-        Iterator children = node.getChildrenDisplay().iterator();
+        /*
+        Iterator children = node.getChildrenDisplay().iterator(); 
         ImageDisplay child;
         while (children.hasNext()) {
             child = (ImageDisplay) children.next();
             maxDim = max(maxDim, child.getPreferredSize());
         }
         return maxDim;  //[0, 0] if no children.
+        */
+        Component[] comps = node.getInternalDesktop().getComponents();
+        ImageDisplay child;
+        Component c;
+        for (int i = 0; i < comps.length; i++) {
+			c = comps[i];
+			if (c instanceof ImageDisplay) {
+				maxDim = max(maxDim, c.getPreferredSize());
+			}
+		}
+        return maxDim;
     }
     
     /**

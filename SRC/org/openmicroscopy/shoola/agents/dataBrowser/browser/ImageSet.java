@@ -25,14 +25,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
-import pojos.DatasetData;
+
 
 /** 
  * 
@@ -49,7 +46,6 @@ import pojos.DatasetData;
  */
 public class ImageSet    
 	extends ImageDisplay
-    implements PropertyChangeListener
 {
 
 	/** Drawing component added to the desktop. */
@@ -99,10 +95,6 @@ public class ImageSet
     {
         super(title, note, hierarchyObject);
         setResizable(true);
-        if (hierarchyObject instanceof DatasetData) {
-            addPropertyChangeListener(TinyPane.FRAME_ICON_PRESSED_PROPERTY, 
-                    this);
-        }
     }
     
     /**
@@ -150,16 +142,6 @@ public class ImageSet
     {
         if (containsImages == null) return false;
         return containsImages.booleanValue();
-    }
-
-    /**
-     * Reacts to the property <code>FrameIconPressed</code> fired
-     * by the parent.
-     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt)
-    {
-        if (isAnnotated()) fireAnnotation();
     }
 
 }

@@ -90,11 +90,29 @@ public class IconManager
     /** The <code>Next</code> icon. */
     public static int			NEXT = 13;
     
+    /** The <code>Image</code> icon. */
+    public static int			IMAGE = 14;
+    
+    /** The <code>Dataset</code> icon. */
+    public static int			DATASET = 15;
+    
+    /** The <code>Project</code> icon. */
+    public static int			PROJECT = 16;
+    
+    /** The <code>Annotation</code> icon. */
+    public static int			ANNOTATION = 17;
+    
+    /** The <code>Transparent</code> icon. */
+    public static int			TRANSPARENT = 18;
+    
+    /** The <code>Annotation 8</code> icon. */
+    public static int			ANNOTATION_8 = 19;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 13;
+    private static int          MAX_ID = 19;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -115,6 +133,12 @@ public class IconManager
         relPaths[BACKWARD] = "nuvola_flipped_player_play16.png";
         relPaths[PREVIOUS] = "nuvola_1leftarrow16.png";
         relPaths[NEXT] = "nuvola_1rightarrow16.png";
+        relPaths[IMAGE] = "nuvola_image16.png";
+        relPaths[DATASET] = "nuvola_folder_image16.png";
+        relPaths[PROJECT] = "nuvola_folder_blue_open16.png";
+        relPaths[ANNOTATION] = "nuvola_knotes16.png";
+        relPaths[TRANSPARENT] = "eclipse_transparent16.png";
+        relPaths[ANNOTATION_8] = "nuvola_knotes8.png";
     }
     
     /** The sole instance. */

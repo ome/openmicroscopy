@@ -60,6 +60,12 @@ class DataBrowserUI
 	extends JPanel
 {
 
+	/** ID to select the thumbnail view. */
+	static final int			THUMB_VIEW = 0;
+	
+	/** ID to select the columns view. */
+	static final int			COLUMNS_VIEW = 1;
+	
 	/** Reference to the tool bar. */
 	private DataBrowserToolBar toolBar;
 	
@@ -71,6 +77,9 @@ class DataBrowserUI
 	
 	/** The slide show view. */
 	private SlideShowView 		slideShowView;
+	
+	/** The selected view. */
+	private int					selectedView;
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -100,6 +109,7 @@ class DataBrowserUI
 		this.model = model;
 		this.controller = controller;
 		toolBar = new DataBrowserToolBar(this, controller);
+		selectedView = THUMB_VIEW;
 		buildGUI();
 	}
 	
@@ -206,5 +216,56 @@ class DataBrowserUI
      * @return See above.
      */
     boolean isRollOver() { return model.isRollOver(); }
+    
+    /** Lays out the selected component. */
+    void layoutUI()
+    {
+    	switch (selectedView) {
+			case THUMB_VIEW:
+				Browser b = model.getBrowser();
+				model.layoutBrowser();
+				b.getUI().repaint();
+				model.loadData(false);
+				b.getUI().repaint();
+				break;
+			case COLUMNS_VIEW:
+				ImageTableView v = model.getTableView();
+				if (v != null) v.refreshTable();
+				break;
+    	}
+    }
+    
+    /**
+     * Sets the selected view.
+     * 
+     * @param index The value to set.
+     */
+    void setSelectedView(int index) 
+    {
+    	removeAll();
+    	switch (index) {
+			case THUMB_VIEW:
+				selectedView = index;
+				layoutUI();
+				add(toolBar, BorderLayout.NORTH);
+				add(model.getBrowser().getUI(), BorderLayout.CENTER);
+				break;
+			case COLUMNS_VIEW:
+				selectedView = index;
+				add(toolBar, BorderLayout.NORTH);
+				add(model.createImageTableView(), BorderLayout.CENTER);
+				break;
+		}
+    	toolBar.setSelectedViewIndex(selectedView);
+    	revalidate();
+    	repaint();
+    }
+    
+    /**
+     * Returns the selected view index.
+     * 
+     * @return See above.
+     */
+    int getSelectedView() { return selectedView; }
     
 }

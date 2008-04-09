@@ -56,6 +56,10 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 
+	/** Loads the thumbnails when we have <code>100</code> or less values. */
+	public static final int			MAX_ENTRIES = 1;
+	
+	
 	public static final int			ANNOTATE_SELECTION = 100;
 	
 	public static final int			ANNOTATE_IMAGES = 101;

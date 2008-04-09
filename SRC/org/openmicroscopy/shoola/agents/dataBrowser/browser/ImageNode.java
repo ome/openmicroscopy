@@ -134,28 +134,6 @@ public class ImageNode
     }
     
     /**
-     * Adds an <code>AnnotatedButton</code> and/or <code>ClassifiedButton</code>
-     * depending on the hosted <code>DataObject</code> status.
-     */
-    public void setNodeDecoration()
-    {
-    	/*
-        if (hierarchyObject instanceof ImageData) { 
-            List<JButton> nodes = new ArrayList<JButton>();
-            ExperimenterData exp = 
-            	(ExperimenterData) HiViewerAgent.getRegistry().lookup(
-			        LookupNames.CURRENT_USER_DETAILS);
-            long ownerID = ((ImageData) hierarchyObject).getOwner().getId();
-            if (exp.getId() == ownerID) nodes.add(new OwnerButton(this));
-            nodes.add(new PinButton(this));
-            if (isAnnotated()) nodes.add(new AnnotatedButton(this));
-            if (isClassified()) nodes.add(new ClassifiedButton(this));
-            setDecoration(nodes);
-        }
-        */
-    }
-    
-    /**
      * Returns <code>true</code> if the hosted object is classified, 
      * <code>false</code> otherwise.
      * 

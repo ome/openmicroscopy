@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -37,6 +38,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -76,17 +78,44 @@ class DatasetsModel
 							userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
-	}
-	
-	protected DataBrowserLoader createDataLoader(boolean refresh)
-	{
-		Iterator<DatasetData> i = datasets.iterator();
-		Set<ImageData> images = new HashSet<ImageData>();
+        Iterator<DatasetData> i = datasets.iterator();
 		DatasetData data;
 		while (i.hasNext()) {
 			data = i.next();
-			images.addAll(data.getImages());
+			numberOfImages += data.getImages().size();
 		}
-		return new ThumbnailLoader(component, images);
+	}
+	
+	/**
+	 * Creates a concrete loader.
+	 * @see DataBrowserModel#createDataLoader(boolean)
+	 */
+	protected DataBrowserLoader createDataLoader(boolean refresh)
+	{
+		if (refresh) {
+			Iterator<DatasetData> i = datasets.iterator();
+			Set<ImageData> images = new HashSet<ImageData>();
+			DatasetData data;
+			while (i.hasNext()) {
+				data = i.next();
+				images.addAll(data.getImages());
+			}
+			return new ThumbnailLoader(component, images);
+		}
+		if (imagesLoaded == numberOfImages) return null;
+		//only load thumbnails not loaded.
+		List<ImageNode> nodes = browser.getVisibleImageNodes();
+		if (nodes == null || nodes.size() == 0) return null;
+		Iterator<ImageNode> i = nodes.iterator();
+		ImageNode node;
+		Set<ImageData> imgs = new HashSet<ImageData>();
+		while (i.hasNext()) {
+			node = i.next();
+			if (node.getThumbnail().getFullScaleThumb() == null) {
+				imgs.add((ImageData) node.getHierarchyObject());
+				imagesLoaded++;
+			}
+		}
+		return new ThumbnailLoader(component, imgs);
 	}
 }

@@ -76,12 +76,6 @@ class DataBrowserToolBar
 	implements ActionListener, ChangeListener
 {
 
-	/** ID to select the thumbnail view. */
-	private static final int	THUMB_VIEW = 0;
-	
-	/** ID to select the columns view. */
-	private static final int	COLUMNS_VIEW = 1;
-
 	/** ID to bring up the metadata browser. */
 	private static final int	METADATA_SELECTION = 3;
 	
@@ -264,15 +258,18 @@ class DataBrowserToolBar
 		UIUtilities.unifiedButtonLookAndFeel(filterButton);
 		
 		ButtonGroup group = new ButtonGroup();
+		int index = view.getSelectedView();
 		thumbView = new JToggleButton(
 					icons.getIcon(IconManager.THUMBNAIL_VIEW));
 		thumbView.addActionListener(this);
-		thumbView.setActionCommand(""+THUMB_VIEW);
+		thumbView.setActionCommand(""+DataBrowserUI.THUMB_VIEW);
+		thumbView.setSelected(index == DataBrowserUI.THUMB_VIEW);
 		group.add(thumbView);
 		columnsView = new JToggleButton(
 				icons.getIcon(IconManager.COLUMN_VIEW));
 		columnsView.addActionListener(this);
-		columnsView.setActionCommand(""+COLUMNS_VIEW);
+		columnsView.setActionCommand(""+DataBrowserUI.COLUMNS_VIEW);
+		columnsView.setSelected(index == DataBrowserUI.COLUMNS_VIEW);
 		group.add(columnsView);
 		slideShowView = new JButton(
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
@@ -289,10 +286,6 @@ class DataBrowserToolBar
 			}
 		
 		});
-		/*
-		slideShowView.addActionListener(this);
-		slideShowView.setActionCommand(""+SLIDE_SHOW_VIEW);
-		*/
 		//group.add(slideShowView);
 		metadataButton = new JButton(icons.getIcon(IconManager.METADATA));
 		metadataButton.addMouseListener(new MouseAdapter() {
@@ -360,6 +353,21 @@ class DataBrowserToolBar
 	}
 	
 	/**
+	 * Sets the selected view index.
+	 * 
+	 * @param index The value to set.
+	 */
+	void setSelectedViewIndex(int index)
+	{
+		thumbView.removeActionListener(this);
+		columnsView.removeActionListener(this);
+		thumbView.setSelected(index == DataBrowserUI.THUMB_VIEW);
+		columnsView.setSelected(index == DataBrowserUI.COLUMNS_VIEW);
+		thumbView.addActionListener(this);
+		columnsView.addActionListener(this);
+	}
+	
+	/**
 	 * Sets the enable flag of the {@link #slideShowView}.
 	 * 
 	 * @param enable The value to set.
@@ -406,11 +414,9 @@ class DataBrowserToolBar
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			case THUMB_VIEW:
-				
-				break;
-			case COLUMNS_VIEW:
-				
+			case DataBrowserUI.THUMB_VIEW:
+			case DataBrowserUI.COLUMNS_VIEW:
+				view.setSelectedView(index);
 				break;
 			case METADATA_IMAGES:
 				controller.annotate(DataBrowser.ANNOTATE_IMAGES);

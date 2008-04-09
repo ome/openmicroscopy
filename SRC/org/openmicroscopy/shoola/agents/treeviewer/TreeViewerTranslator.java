@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
 import pojos.CategoryData;
@@ -71,10 +72,7 @@ import pojos.ProjectData;
  */
 public class TreeViewerTranslator
 {
-    
-	/** Default text displayed in the acquisition date is not available. */
-	public static final String DATE_NOT_AVAILABLE = "Date not available";
-	
+   
 	/** Text of the dummy TreeImageSet containing the orphaned datasets. */
 	public static final String ORPHANED_DATASETS = "Orphaned Datasets";
 	
@@ -96,7 +94,7 @@ public class TreeViewerTranslator
             try {
                 time = ((ImageData) node.getUserObject()).getInserted();
             } catch (Exception e) {}
-            if (time == null) title = DATE_NOT_AVAILABLE;//time = getDefaultTimestamp();
+            if (time == null) title = EditorUtil.DATE_NOT_AVAILABLE;//time = getDefaultTimestamp();
             else title = UIUtilities.formatTime(time); 
             toolTip = UIUtilities.formatToolTipText(title);
             //node.setToolTip(toolTip); 

@@ -29,17 +29,24 @@ package org.openmicroscopy.shoola.agents.util;
 //Java imports
 import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.ProjectData;
 
 /** 
  * Collection of helper methods to format data objects.
@@ -56,6 +63,9 @@ import pojos.PixelsData;
  */
 public class EditorUtil 
 {
+	
+	/** Default text displayed in the acquisition date is not available. */
+	public static final String DATE_NOT_AVAILABLE = "Not available";
 	
     /** Identifies the <code>Default group</code>. */
 	public static final String	DEFAULT_GROUP = "Default Group";
@@ -226,8 +236,7 @@ public class EditorUtil
             details.put(PIXEL_SIZE_Z, "");
             details.put(PIXEL_TYPE, "");  
             details.put(WAVELENGTHS, "");
-            details.put(ACQUISITION_DATE, 
-            			TreeViewerTranslator.DATE_NOT_AVAILABLE);
+            details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
         }
         PixelsData data = image.getDefaultPixels();
 	
@@ -259,19 +268,29 @@ public class EditorUtil
             }
         }
         details.put(WAVELENGTHS, ""); 
-        Timestamp date = null;
-        try {
-        	date = image.getInserted();
-		} catch (Exception e) {}
-        
+        Timestamp date = getCreationTime(image);
         if (date == null) 
-        	details.put(ACQUISITION_DATE, 
-        				TreeViewerTranslator.DATE_NOT_AVAILABLE);
+        	details.put(ACQUISITION_DATE, DATE_NOT_AVAILABLE);
         else 
         	details.put(ACQUISITION_DATE, UIUtilities.formatTime(date));
         return details;
     }
 
+    /**
+     * Returns the creation time associate to the image.
+     * 
+     * @param image The image to handle.
+     * @return See above.
+     */
+    public static Timestamp getCreationTime(ImageData image)
+    {
+    	Timestamp date = null;
+        try {
+        	date = image.getInserted();
+		} catch (Exception e) {}
+		return date;
+    }
+    
     /**
      * Formats the specified experimenter.
      * 
@@ -326,4 +345,125 @@ public class EditorUtil
         return details;
     }
     
+    /**
+	 * Returns <code>true</code> it the object has been annotated,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object	The object to handle.
+	 * @return See above.
+	 */
+	public static boolean isAnnotated(Object object)
+	{
+		if (object == null) return false;
+		Map<Long, Long> counts = null;
+		if (object instanceof DatasetData) 
+			counts = ((DatasetData) object).getAnnotationsCounts();
+			
+		else if (object instanceof ProjectData) {
+			counts = ((ProjectData) object).getAnnotationsCounts();
+		}
+		else if (object instanceof ImageData) {
+			counts = ((ImageData) object).getAnnotationsCounts();
+		}
+			
+		if (counts == null || counts.size() == 0) return false;
+		return true;
+	}
+	
+	/**
+	 * Returns <code>true</code> it the object has been updated by the current
+	 * user, <code>false</code> otherwise.
+	 * 
+	 * @param object	The object to handle.
+	 * @param userID	The id of the current user.
+	 * @return See above.
+	 */
+	public static boolean isAnnotatedByCurrentUser(Object object, long userID)
+	{
+		if (object == null) return false;
+		Map<Long, Long> counts = null;
+		if (object instanceof DatasetData) 
+			counts = ((DatasetData) object).getAnnotationsCounts();
+			
+		else if (object instanceof ProjectData) {
+			counts = ((ProjectData) object).getAnnotationsCounts();
+		}
+		else if (object instanceof ImageData) {
+			counts = ((ImageData) object).getAnnotationsCounts();
+		}
+			
+		if (counts == null || counts.size() == 0) return false;
+		return counts.keySet().contains(userID);
+	}
+	
+	/**
+	 * Returns <code>true</code> it the object has been updated by an
+	 * user other than the current user, <code>false</code> otherwise.
+	 * 
+	 * @param object	The object to handle.
+	 * @param userID	The id of the current user.
+	 * @return See above.
+	 */
+	public static boolean isAnnotatedByOtherUser(Object object, long userID)
+	{
+		if (object == null) return false;
+		Map<Long, Long> counts = null;
+		if (object instanceof ImageData)
+			counts = ((ImageData) object).getAnnotationsCounts();
+		else if (object instanceof DatasetData) {
+			
+			counts = ((DatasetData) object).getAnnotationsCounts();
+		}
+			
+		else if (object instanceof ProjectData) 
+			counts = ((ProjectData) object).getAnnotationsCounts();
+		
+		if (counts == null || counts.size() == 0) return false;
+		Set set = counts.keySet();
+		if (set.size() > 1) return true;
+		return !set.contains(userID);
+	}
+	
+	public static Map getAnnotations(Object object, Map userGroups)
+	{
+		Map<ExperimenterData, Long> 
+			result = new HashMap<ExperimenterData, Long>();
+		if (object == null) return result;
+		Map<Long, Long> counts = null;
+		if (object instanceof ImageData)
+			counts = ((ImageData) object).getAnnotationsCounts();
+		else if (object instanceof DatasetData)
+			counts = ((DatasetData) object).getAnnotationsCounts();
+		else if (object instanceof ProjectData) 
+			counts = ((ProjectData) object).getAnnotationsCounts();
+		
+		if (counts == null) return result;
+		Iterator i = userGroups.keySet().iterator(), j;
+		GroupData g;
+		Map<Long, ExperimenterData> 
+			users = new HashMap<Long, ExperimenterData>();
+		Set children;
+		ExperimenterData user;
+ 		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			children = g.getExperimenters();
+			if (children != null) {
+				j = children.iterator();
+				while (j.hasNext()) {
+					user = (ExperimenterData) j.next();
+					users.put(user.getId(), user);
+				}
+			}
+		}
+ 		i = counts.keySet().iterator();
+ 		Long id;
+ 		while (i.hasNext()) {
+ 			id = (Long) i.next();
+ 			user = users.get(id);
+ 			if (user != null)
+ 				result.put(users.get(id), counts.get(id));
+		}
+		return result;
+	}
+	
 }
