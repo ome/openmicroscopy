@@ -129,7 +129,7 @@ public class ThumbnailLoader
             			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
             }
             if (thumbPix == null) {
-            	thumbPix = Factory.createDefaultImageThumbnail();
+            	thumbPix = Factory.createDefaultImageThumbnail(sizeX, sizeY);
             }  
         }
         currentThumbnail = new ThumbnailData(image.getId(), thumbPix, userID);
