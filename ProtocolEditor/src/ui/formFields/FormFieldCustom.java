@@ -24,6 +24,7 @@ package ui.formFields;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import javax.swing.JButton;
@@ -131,5 +132,69 @@ public class FormFieldCustom extends FormField {
 			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Gets the names of the attributes where this field stores its "value"s.
+	 * This is used eg. (if a single value is returned)
+	 * as the destination to copy the default value when defaults are loaded.
+	 * Also used by EditClearFields to set all values back to null. 
+	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
+	 * subclasses if they want to store their values under a different attributes (eg "seconds" for TimeField)
+	 * 
+	 * @return	the name of the attribute that holds the "value" of this field
+	 */
+	public String[] getValueAttributes() {
+		Iterator keyIterator = dataField.getAllAttributes().keySet().iterator();
+		ArrayList<String> tempList = new ArrayList<String>();
+		
+		while (keyIterator.hasNext()) {
+			String name = (String)keyIterator.next();
+			// don't count these attributes
+			if ((name.equals(DataFieldConstants.ELEMENT_NAME )) || (name.equals(DataFieldConstants.INPUT_TYPE))
+					|| (name.equals(DataFieldConstants.SUBSTEPS_COLLAPSED))) continue;
+			tempList.add(name);
+		}
+		String[] valueAttributes = new String[tempList.size()];
+		for (int i=0; i<valueAttributes.length; i++) {
+			valueAttributes[i] = tempList.get(i);
+		}
+		
+		return valueAttributes;
+	}
+
+	/**
+	 * This simply enables or disables all the editable components of the 
+	 * FormField.
+	 * This FormField superclass has no editable components, but subclasses
+	 * should override this method for their additional components. 
+	 */
+	@Override
+	public void enableEditing(boolean enabled) {
+		/*
+		 * TODO: Need to disable editing within attributes popUp.
+		 */  
+		if (textInput != null) {
+			textInput.setEnabled(enabled);
+		}
+	}
+
+	/**
+	 * This method tests to see whether the field has been filled out. 
+	 * ie, Has the user entered a "valid" value into the Form. 
+	 * For CustomFields, all the Value attributes should be filled. 
+	 * Subclasses should override this method.
+	 * 
+	 * @return	True if the field has been filled out by user. Required values are not null. 
+	 */
+	@Override
+	public boolean isFieldFilled() {
+		String[] valueAttributes = getValueAttributes();
+		for (int i=0; i<valueAttributes.length; i++) {
+			// if any value attributes are null, field is not filled.
+			if (dataField.getAttribute(valueAttributes[i]) == null)
+				return false;
+		}
+		return true;
 	}
 }

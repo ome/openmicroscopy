@@ -282,12 +282,25 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	 * This simply enables or disables all the editable components of the 
 	 * FormField.
 	 * This FormField superclass has no editable components, but subclasses
-	 * should overwrite this method for their additional components. 
+	 * should override this method for their additional components. 
 	 * 
 	 * @param enabled
 	 */
-	public void enableEditing(boolean enabled) {
-	}
+	public abstract void enableEditing(boolean enabled);
+	
+	/**
+	 * This method tests to see whether the field has been filled out. 
+	 * ie, Has the user entered a "valid" value into the Form. 
+	 * For fields that have a single 'value', this method will return true if 
+	 * that value is filled (not null). 
+	 * For fields with several attributes, it depends on what is considered 'filled'.
+	 * This method can be used to check that 'Obligatory Fields' have been completed 
+	 * when a file is saved. 
+	 * Subclasses should override this method.
+	 * 
+	 * @return	True if the field has been filled out by user. Required values are not null. 
+	 */
+	public abstract boolean isFieldFilled();
 	
 	
 	public void refreshChildDisplayOrientation() {
@@ -350,16 +363,17 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	}
 	
 	/**
-	 * Gets the name of the attribute where this field stores its "value".
-	 * This is used eg. as the destination to copy the default value when defaults are loaded.
+	 * Gets the names of the attributes where this field stores its "value"s.
+	 * This is used eg. (if a single value is returned)
+	 * as the destination to copy the default value when defaults are loaded.
+	 * Also used by EditClearFields to set all values back to null. 
 	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
-	 * subclasses if they want to store their value under a different attribute (eg "seconds" for TimeField)
+	 * subclasses if they want to store their values under a different attributes (eg "seconds" for TimeField)
 	 * 
 	 * @return	the name of the attribute that holds the "value" of this field
 	 */
-	public String getValueAttribute() {
-		return DataFieldConstants.VALUE;
-	}
+	public abstract String[] getValueAttributes();
+	
 	
 	// called when user clicks on panel
 	public void setHighlighted(boolean highlight) {

@@ -85,18 +85,43 @@ public class FormFieldOLS extends FormField {
 	 * @param enabled
 	 */
 	public void enableEditing(boolean enabled) {
-		super.enableEditing(enabled);	
-		
+
 		if (ontologyTermSelector != null)	// just in case!
 			ontologyTermSelector.setEnabled(enabled);
 	}
 	
+	/**
+	 * Gets the names of the attributes where this field stores its "value"s.
+	 * This is used eg. (if a single value is returned)
+	 * as the destination to copy the default value when defaults are loaded.
+	 * Also used by EditClearFields to set all values back to null. 
+	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
+	 * subclasses if they want to store their values under a different attributes (eg "seconds" for TimeField)
+	 * 
+	 * @return	the name of the attribute that holds the "value" of this field
+	 */
+	public String[] getValueAttributes() {
+		return new String[] {DataFieldConstants.ONTOLOGY_TERM_ID};
+	}
 	
+	/**
+	 * This method tests to see whether the field has been filled out. 
+	 * 
+	 * @see FormField.isFieldFilled()
+	 * @return	True if the field has been filled out by user (Required values are not null)
+	 */
+	public boolean isFieldFilled() {
+		return (dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID) != null);
+	}
 	
 	// when a term is loaded (constructor) or selected from the drop-down options 
 	// this updates the olsMetadataPanel
 	private void refreshTermDetails() {
 		if ((metadataPanelVisible) && (olsMetadataPanel != null)) {
+			if (termIdAndName == null) {
+				olsMetadataPanel.resetTerm(null);
+				return;
+			}
 			String termId = OntologyTermSelector.getOntologyIdFromIdAndName(termIdAndName);
 			olsMetadataPanel.resetTerm(termId);
 			this.validate();
@@ -109,7 +134,7 @@ public class FormFieldOLS extends FormField {
 		// Therefore, no calls need to be made to the OntologyLookupService till that time 
 		// (or until auto-complete is required). 
 
-		if (olsMetadataPanel == null) {
+		if ((olsMetadataPanel == null) && (termIdAndName != null)) {
 			String termId = OntologyTermSelector.getOntologyIdFromIdAndName(termIdAndName);
 			olsMetadataPanel = new OLSMetadataPanel(termId);
 			this.add(olsMetadataPanel, BorderLayout.SOUTH);
@@ -128,6 +153,11 @@ public class FormFieldOLS extends FormField {
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
 		termIdAndName = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
+		
+		// update the ontology term selector
+		ontologyTermSelector.dataFieldUpdated();
+		
+		// update metadata panel
 		refreshTermDetails();
 	}
 

@@ -82,7 +82,6 @@ public class FormFieldObservation extends FormField {
 	 * @param enabled
 	 */
 	public void enableEditing(boolean enabled) {
-		super.enableEditing(enabled);	
 		
 		if (dataTypeSelector != null)	// just in case!
 			dataTypeSelector.setEnabled(enabled);
@@ -95,6 +94,40 @@ public class FormFieldObservation extends FormField {
 		
 		if (unitTermSelector != null)	// just in case!
 			unitTermSelector.setEnabled(enabled);
+	}
+	
+	/**
+	 * Gets the names of the attributes where this field stores its "value"s.
+	 * This is used eg. (if a single value is returned)
+	 * as the destination to copy the default value when defaults are loaded.
+	 * Also used by EditClearFields to set all values back to null. 
+	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
+	 * subclasses if they want to store their values under a different attributes (eg "seconds" for TimeField)
+	 * 
+	 * @return	the name of the attribute that holds the "value" of this field
+	 */
+	public String[] getValueAttributes() {
+		return new String[] {DataFieldConstants.OBSERVATION_TYPE,
+				DataFieldConstants.OBSERVATION_ENTITY_TERM_IDNAME,
+				DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_IDNAME,
+				DataFieldConstants.OBSERVATION_UNITS_TERM_ID};
+	}
+	
+	/**
+	 * This method tests to see whether the field has been filled out. 
+	 * Observation field requires Observation type, Entity term and Attribute term.
+	 * Units is only required if Observation type is NUMBER.
+	 * 
+	 * @see FormField.isFieldFilled()
+	 * @return	True if the field has been filled out by user (Required values are not null)
+	 */
+	public boolean isFieldFilled() {
+		if (dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE) == null) return false;
+		if (dataField.getAttribute(DataFieldConstants.OBSERVATION_ENTITY_TERM_IDNAME) == null) return false;
+		if (dataField.getAttribute(DataFieldConstants.OBSERVATION_ATTRIBUTE_TERM_IDNAME) == null) return false;
+		if ((dataField.getAttribute(DataFieldConstants.OBSERVATION_TYPE).equals(NUMBER)) &&
+				(dataField.getAttribute(DataFieldConstants.OBSERVATION_UNITS_TERM_ID) == null)) return false;
+		return true;
 	}
 	
 	// something has changed at the dataField (eg undo/redo)

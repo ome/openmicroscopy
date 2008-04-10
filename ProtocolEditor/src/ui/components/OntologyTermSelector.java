@@ -88,10 +88,7 @@ public class OntologyTermSelector extends JPanel {
 		
 		this.dataField = dataField;
 		this.attributeId = attributeId;
-		
-		// this has term ID and term Name, joined with ONTOLOGY_ID_NAME_SEPARATOR
-		String termIdName = dataField.getAttribute(attributeId);
-		
+
 		
 		Box horizontalBox = Box.createHorizontalBox();
 		horizontalBox.setBackground(null);
@@ -105,14 +102,12 @@ public class OntologyTermSelector extends JPanel {
 		ontologySelector.setMaximumRowCount(25);
 		ontologySelector.setMaximumWidth(200);
 		//ontologySelector.setMaximumSize(new Dimension(200, 50));
-		setCurrentOntology(Ontologies.getOntologyIdFromTermId(termIdName));
 		
 		// make an editable comboBox (auto-complete) for ontology Terms
 		ontologyTermSelector = new CustomComboBox();
 		ontologyTermSelector.setEditable(true);
 		ontologyTermSelector.getEditor().getEditorComponent().addFocusListener(componentFocusListener);
 		ontologyTermSelector.setMaximumWidth(500);
-		ontologyTermSelector.setSelectedItem(termIdName);
 		ontologyTermListener = new OntologyTermKeyListener();
 		ontologyTermSelector.getEditor().getEditorComponent().addKeyListener(ontologyTermListener);
 		termSelectionListener = new TermSelectionListener();
@@ -127,8 +122,26 @@ public class OntologyTermSelector extends JPanel {
 		horizontalBox.add(ontologyTermSelectorPanel);
 		
 		this.add(horizontalBox, BorderLayout.WEST);
+		
+		// get value from dataField and display. 
+		dataFieldUpdated();
 	}
 	
+	public void dataFieldUpdated() {
+		// this has term ID and term Name, joined with ONTOLOGY_ID_NAME_SEPARATOR
+		String termIdName = dataField.getAttribute(attributeId);
+		
+		ontologyTermSelector.removeActionListener(termSelectionListener);
+		
+		if (termIdName == null) {
+			ontologyTermSelector.setSelectedItem("");
+		} else {
+			setCurrentOntology(Ontologies.getOntologyIdFromTermId(termIdName));
+			ontologyTermSelector.setSelectedItem(termIdName);
+		}
+		
+		ontologyTermSelector.addActionListener(termSelectionListener);
+	}
 	
 	/*
 	 * KeyListener for auto-complete typing into ontologyTermSelector

@@ -23,7 +23,9 @@
 package tree.edit;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.undo.AbstractUndoableEdit;
 
@@ -34,27 +36,23 @@ import tree.DataFieldNode;
 public class EditClearFields extends AbstractUndoableEdit {
 	
 	Iterator<DataFieldNode> iterator;
-	ArrayList<EditDataFieldAttribute> editedFields;
+	ArrayList<EditDataFieldAttributes> editedFields;
 	
 	public EditClearFields (DataFieldNode rootNode) {
 		
-		editedFields = new ArrayList<EditDataFieldAttribute>();
+		editedFields = new ArrayList<EditDataFieldAttributes>();
 
 		populateEditedFields(rootNode);
-		
-		redo();		// this sets value to "" (newValue) for all fields in the list
 	}
 	
 	
 	public EditClearFields (ArrayList<DataFieldNode> rootNodes) {
 		
-		editedFields = new ArrayList<EditDataFieldAttribute>();
+		editedFields = new ArrayList<EditDataFieldAttributes>();
 
 		for (DataFieldNode rootNode: rootNodes) {
 			populateEditedFields(rootNode);
 		}
-		
-		redo();		// this sets value to "" (newValue) for all fields in the list
 	}
 	
 	
@@ -64,25 +62,36 @@ public class EditClearFields extends AbstractUndoableEdit {
 		
 		while (iterator.hasNext()) {
 			DataField field = (DataField)iterator.next().getDataField();
-			String oldValue = field.getAttribute(DataFieldConstants.VALUE);	// may be null
-			String newValue = "";
 			
-			if (oldValue != null) {		// make a list of all fields that have a value attribute
-				editedFields.add(new EditDataFieldAttribute(field, DataFieldConstants.VALUE, oldValue, newValue));	// keep a reference to fields that have been edited
+			String[] valueAttributes = field.getValueAttributes();
+			HashMap<String, String> nullValues = new HashMap<String, String>();
+			for(int i=0; i<valueAttributes.length; i++) {
+				nullValues.put(valueAttributes[i], null);
 			}
 			
+			/*
+			 * Overwrite all the value attributes for this field.
+			 * Save the oldValues for the undo queue
+			 */
+			Map<String, String> oldValues = field.setAttributes("Clear", nullValues, false);
+			field.notifyDataFieldObservers();
+			
+			/*
+			 * Add to the list of locked fields, for undo & redo. 
+			 */
+			editedFields.add(new EditDataFieldAttributes(field, "Clear", oldValues, nullValues));
 		}
 	}
 	
 	
 	public void undo() {
-		for (EditDataFieldAttribute field: editedFields) {
+		for (EditDataFieldAttributes field: editedFields) {
 			field.undoNoHighlight();
 		}
 	}
 	
 	public void redo() {
-		for (EditDataFieldAttribute field: editedFields) {
+		for (EditDataFieldAttributes field: editedFields) {
 			field.redoNoHighlight();
 		}
 	}

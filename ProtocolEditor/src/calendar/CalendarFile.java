@@ -172,7 +172,7 @@ public class CalendarFile extends CalendarObject {
 					// by this point, you have the date of the new Event... 
 					
 					// need a name
-					eventName = dateTimeElement.getAttribute(DataFieldConstants.ELEMENT_NAME);
+					eventName = dateTimeElement.getAttribute(DataFieldConstants.ELEMENT_NAME).trim();
 					
 					// Create a new Event
 					CalendarEvent newEvent = new CalendarEvent(eventName, gc);

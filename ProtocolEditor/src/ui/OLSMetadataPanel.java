@@ -69,13 +69,24 @@ public class OLSMetadataPanel extends JPanel {
 	
 	public void resetTerm(String termId) {
 		
-		this.ontologyId = Ontologies.getOntologyIdFromTermId(termId);
-		this.termId = termId;
+		if (termId == null) {
+			this.ontologyId = null;
+			this.termId = null;
+		} else {
+			this.ontologyId = Ontologies.getOntologyIdFromTermId(termId);
+			this.termId = termId;
+		}
 		
 		refreshTermMetadata();
 	}
 	
 	public void refreshTermMetadata() {
+		
+		if ((termId == null) || (ontologyId == null)) {
+			metadataPane.setText("");
+			this.validate();
+			return;
+		}
 		
 		termMetaData = OntologyLookUp.getTermMetadata(termId, ontologyId);
 		

@@ -75,4 +75,18 @@ public class FormFieldProtocol extends FormField {
 		if (highlight && (!collapseAllChildrenButton.hasFocus()))
 			collapseAllChildrenButton.requestFocusInWindow();
 	}
+
+	@Override
+	public void enableEditing(boolean enabled) {
+	}
+
+	@Override
+	public String[] getValueAttributes() {
+		return new String[0];
+	}
+
+	@Override
+	public boolean isFieldFilled() {
+		return true;
+	}
 }

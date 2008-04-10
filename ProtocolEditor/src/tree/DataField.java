@@ -169,6 +169,7 @@ public class DataField
 	}
 	
 	public void setAttribute(String name, String value) {
+		System.out.println("      setAttribute: " + name + "=" + value);
 		allAttributesMap.put(name, value);
 	}
 	
@@ -436,9 +437,9 @@ public class DataField
 	
 	// used for getting the destination attribute for storing value of this field
 	// (eg where to copy the default value when loading defaults).
-	public String getValueAttribute() {
+	public String[] getValueAttributes() {
 		if (formField == null) getFormField();	// make sure there is one
-		return formField.getValueAttribute();
+		return formField.getValueAttributes();
 	}
 
 	// a method used by the Tree class to convert from old xml version to new

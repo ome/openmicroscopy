@@ -30,4 +30,19 @@ public class FormFieldFixed extends FormField {
 		super(dataFieldObs);
 			
 	}
+
+	@Override
+	public void enableEditing(boolean enabled) {
+	}
+
+	@Override
+	public String[] getValueAttributes() {
+		return new String[0];
+	}
+
+	@Override
+	public boolean isFieldFilled() {
+		// can't be unfilled! 
+		return true;
+	}
 }

@@ -76,10 +76,33 @@ public class FormFieldNumber extends FormField {
 	 * @param enabled
 	 */
 	public void enableEditing(boolean enabled) {
-		super.enableEditing(enabled);	
 		
 		if (numberTextBox != null)	// just in case!
 			numberTextBox.setEnabled(enabled);
+	}
+	
+	/**
+	 * Gets the names of the attributes where this field stores its "value"s.
+	 * This is used eg. (if a single value is returned)
+	 * as the destination to copy the default value when defaults are loaded.
+	 * Also used by EditClearFields to set all values back to null. 
+	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
+	 * subclasses if they want to store their values under a different attributes (eg "seconds" for TimeField)
+	 * 
+	 * @return	the name of the attribute that holds the "value" of this field
+	 */
+	public String[] getValueAttributes() {
+		return new String[] {DataFieldConstants.VALUE};
+	}
+	
+	/**
+	 * This method tests to see whether the field has been filled out. 
+	 * 
+	 * @see FormField.isFieldFilled()
+	 * @return	True if the field has been filled out by user (Required values are not null)
+	 */
+	public boolean isFieldFilled() {
+		return (dataField.getAttribute(DataFieldConstants.VALUE) != null);
 	}
 	
 	public void setUnits(String units) {

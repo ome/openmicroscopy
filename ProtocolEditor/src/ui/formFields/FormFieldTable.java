@@ -59,6 +59,8 @@ public class FormFieldTable extends FormField {
     JButton addRowButton;
     JButton removeRowsButton;
     
+    InteractiveTableModelListener interactiveTableModelListener = new InteractiveTableModelListener();
+    
 	public FormFieldTable(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
 		
@@ -83,30 +85,15 @@ public class FormFieldTable extends FormField {
         // need to update table with all the columns of the table model
         tableModel.fireTableStructureChanged();
         
-        // add data, creating a new row each time
-        String numberOfRows = dataField.getAttribute(DataFieldConstants.TABLE_ROW_COUNT);
-        int rowCount;
-        if (numberOfRows == null) rowCount = 0;
-        else rowCount = Integer.valueOf(numberOfRows).intValue();
-        for (int row=0; row<rowCount; row++) {
-        	
-        	String rowDataString = dataField.getAttribute(DataFieldConstants.ROW_DATA_NUMBER + row);
-        	// System.out.println("FormFieldTable constructor row " + row + " data = " + rowDataString);
-        	if (rowDataString != null) {
-        		tableModel.addEmptyRow();
-        		String[] rowData = rowDataString.split(",");
-        		for (int col=0; col<columnNames.length && col<rowData.length ; col++) {
-        			tableModel.setValueAt(rowData[col].trim(), row, col);
-        		}
-        	}
-        }
+        // add data, creating a new row each time, if needed
+        updateTableModelFromDataField();
         
         if (!tableModel.hasEmptyRow()) {
             tableModel.addEmptyRow();
         }
         
      // tableModelListener tells the table how to respond to changes in Model
-        tableModel.addTableModelListener(new InteractiveTableModelListener());
+        tableModel.addTableModelListener(interactiveTableModelListener);
         
      // Disable auto resizing
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -150,6 +137,51 @@ public class FormFieldTable extends FormField {
 	}
 	
 	/**
+	 * This method gets the row count from dataField. 
+	 * For each row, get the data from dataField, and fill the cells of tableModel.
+	 * Fires tableStructureChanged() when done, to update table. 
+	 */
+	public void updateTableModelFromDataField() {
+		
+		tableModel.removeTableModelListener(interactiveTableModelListener);
+		
+		int tableModelCols = tableModel.getColumnCount();
+		
+		// add data, creating a new row each time, if needed
+        String numberOfRows = dataField.getAttribute(DataFieldConstants.TABLE_ROW_COUNT);
+        int rowCount;
+        if (numberOfRows == null) rowCount = 0;
+        else rowCount = Integer.valueOf(numberOfRows).intValue();
+        
+        for (int row=0; row<rowCount; row++) {
+        	
+        	
+        	if(!(row <  tableModel.getRowCount())) {
+        		tableModel.addEmptyRow(row);
+        	}
+        	
+        	String rowDataString = dataField.getAttribute(DataFieldConstants.ROW_DATA_NUMBER + row);
+        	if (rowDataString != null) {
+        	
+        		String[] rowData = rowDataString.split(",");
+        		for (int col=0; col<tableModelCols && col<rowData.length ; col++) {	
+        			tableModel.setValueAtNoUpdate(rowData[col].trim(), row, col);
+        		}
+        	}
+        	else {
+        		for (int col=0; col<tableModelCols; col++) {	
+        			tableModel.setValueAtNoUpdate("", row, col);
+        		}
+        	}
+        }
+        
+        tableModel.addTableModelListener(interactiveTableModelListener);
+        
+     // update new rows etc.
+		tableModel.fireTableStructureChanged();
+	}
+	
+	/**
 	 * This simply enables or disables all the editable components of the 
 	 * FormField.
 	 * Gets called (via refreshLockedStatus() ) from dataFieldUpdated()
@@ -157,7 +189,6 @@ public class FormFieldTable extends FormField {
 	 * @param enabled
 	 */
 	public void enableEditing(boolean enabled) {
-		super.enableEditing(enabled);	
 		
 		if (addRowButton != null)	// just in case!
 			addRowButton.setEnabled(enabled);
@@ -167,6 +198,37 @@ public class FormFieldTable extends FormField {
 		
 		if (table != null)	// just in case!
 			table.setEnabled(enabled);
+	}
+	
+	/**
+	 * Gets the names of the attributes where this field stores its "value"s.
+	 * This is used by EditClearFields to set all values back to null. 
+	 * For table field, this returns all the rowData attributes 
+	 *  
+	 * @return	the name of the attribute that holds the "value" of this field
+	 */
+	public String[] getValueAttributes() {
+		String rowCount = dataField.getAttribute(DataFieldConstants.TABLE_ROW_COUNT);
+		if (rowCount == null) {
+			return new String[0];
+		}
+		int rows = Integer.parseInt(rowCount);
+		String[] rowData = new String[rows];
+		for(int i=0; i<rowData.length; i++) {
+			rowData[i] = DataFieldConstants.ROW_DATA_NUMBER + i;
+		}
+		return rowData;
+	}
+	
+	/**
+	 * This method tests to see whether the field has been filled out. 
+	 * If there is any row data (@see getValueAttributes()) then this is true.
+	 * 
+	 * @see FormField.isFieldFilled()
+	 * @return	True if the field has been filled out by user (Required values are not null)
+	 */
+	public boolean isFieldFilled() {
+		return (getValueAttributes().length > 0);
 	}
 	
 	public class RemoveRowsListener implements ActionListener {
@@ -199,6 +261,8 @@ public class FormFieldTable extends FormField {
 		if (index < 0)
 			index = 0;
 		tableModel.addEmptyRow(index);
+		tableModel.fireTableRowsInserted(index, index);
+		
 		table.setRowSelectionInterval(index, index);
 		// update datafield with changes.
 		copyTableModelToDataField();
@@ -324,6 +388,14 @@ public class FormFieldTable extends FormField {
 		for (int i=0; i<columnNames.length; i++) {
 			columnNames[i] = columnNames[i].trim();
 		}
+		
+		/*
+		 * refresh table data...
+		 * 
+		 */
+		// THIS DOESN'T WORK!!
+		// Can't seem to remove all table listeners. Datafield
+		updateTableModelFromDataField();
 		
 		// add or remove extra cols needed
 		

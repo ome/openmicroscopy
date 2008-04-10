@@ -68,6 +68,10 @@ public class InteractiveTableModel extends AbstractTableModel {
         data.get(row).set(column, (String)value);
         fireTableCellUpdated(row, column);
     }
+    
+    public void setValueAtNoUpdate(Object value, int row, int column) {
+        data.get(row).set(column, (String)value);
+    }
 
     public int getRowCount() {
         return data.size();
@@ -122,7 +126,7 @@ public class InteractiveTableModel extends AbstractTableModel {
     	} else {
     		data.add(newRowIndex, newRow);
     	}
-        fireTableRowsInserted(newRowIndex, newRowIndex);
+       // fireTableRowsInserted(newRowIndex, newRowIndex);
     }
     
     public void addEmptyColumn() {
