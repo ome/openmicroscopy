@@ -267,9 +267,15 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	 */
 	public void refreshLockedStatus() {
 		
-		boolean locked = ((DataField)dataField).isDataFieldLocked();
-		
-		enableEditing(!locked);
+		String lockedLevel = ((DataField)dataField).getLockedLevel();
+		/*
+		 * Allow editing unless locked level is fully locked
+		 */
+		if (lockedLevel == null) {
+			enableEditing(true);
+		} else {
+			enableEditing(!(lockedLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)));
+		}
 	}
 	
 	/**
@@ -296,7 +302,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	public void setNameText(String name) {
 		nameLabel.setText(name);
 		
-		String lockedTimeUTC = dataField.getAttribute(DataFieldConstants.FIELD_LOCKED_UTC);
+		String lockedTimeUTC = dataField.getAttribute(DataFieldConstants.LOCKED_FIELD_UTC);
 		if (lockedTimeUTC == null) {
 			nameLabel.setIcon(null);
 			nameLabel.setToolTipText(null);
@@ -305,7 +311,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 			lockedTime.setTimeInMillis(new Long(lockedTimeUTC));
 			SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
 			
-			String user = dataField.getAttribute(DataFieldConstants.FIELD_LOCKED_USER_NAME);
+			String user = dataField.getAttribute(DataFieldConstants.LOCKED_FIELD_USER_NAME);
 			
 			String toolTipText = "Locked by " + user + " at " + time.format(lockedTime.getTime());
 			nameLabel.setToolTipText(toolTipText);

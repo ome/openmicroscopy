@@ -235,12 +235,12 @@ public class DataFieldConstants {
 	 * time stamp of when it was locked, in UTC milliseconds. 
 	 * If the field is unlocked, this attribute will be null. 
 	 */
-	public static final String FIELD_LOCKED_UTC = "fieldLockedUTC";
+	public static final String LOCKED_FIELD_UTC = "fieldLockedUTC";
 	
 	/**
 	 * The name of the user locking the field. 
 	 */
-	public static final String FIELD_LOCKED_USER_NAME = "fieldLockedUserName";
+	public static final String LOCKED_FIELD_USER_NAME = "fieldLockedUserName";
 
 	/**
 	 * An attribute to describe the level of locking. If null, assume fully locked. 
@@ -252,8 +252,13 @@ public class DataFieldConstants {
 	 * This value in the LOCK_LEVEL attribute indicates that only the template is 
 	 * locked and users can still edit the "experimental variables"
 	 */
-	public static final String TEMPLATE_LOCKED = "templateLocked";
+	public static final String LOCKED_TEMPLATE = "templateLocked";
 
+	/**
+	 * This value in the LOCK_LEVEL attribute indicates that NO editing is allowed.
+	 * NB. Some attributes, such as collapsed state, may still change. 
+	 */
+	public static final String LOCKED_ALL_ATTRIBUTES = "allAttributesLocked";
 	
 	/**
 	 * This attribute stores an ontology ID and a term ID. 

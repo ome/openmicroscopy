@@ -232,9 +232,11 @@ public class FieldEditor extends JPanel implements DataFieldObserver {
 	 */
 	public void refreshLockedStatus() {
 		
-		boolean locked = ((DataField)dataField).isDataFieldLocked();
-		
-		enableEditing(!locked);
+		String lockedLevel = ((DataField)dataField).getLockedLevel();
+		/*
+		 * Allow editing if not locked
+		 */
+		enableEditing(lockedLevel == null);
 	}
 	
 	/**

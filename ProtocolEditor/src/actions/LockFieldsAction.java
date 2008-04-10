@@ -130,24 +130,30 @@ public class LockFieldsAction extends ProtocolEditorAction {
 		String user = System.getProperty("user.name");
 		
 		String message = "This field will be marked as:\n" +
-				"Locked at: " + nowString + "\n by user:";
+				"Locked at: " + nowString + "\nby user: " + user + "\n \n" +
+						"Please choose 'lock template' if you want to allow editing of experimental variables";
 				
 		/*
-		 * Need to get user to confirm locking, and give them a chance to change their Name. 
+		 * Need to get user to confirm locking, and option for locking template only. 
 		 */
-		Object chosenName = JOptionPane.showInputDialog(null, message, "Confirm Lock",
-				JOptionPane.WARNING_MESSAGE, lockedIcon48, null, user);
+		Object[] options = {"Full Lock", "Lock Template Only", "Cancel"};
+		
+		int lockOption = JOptionPane.showOptionDialog(null, message, "Confirm Lock", 
+				JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, lockedIcon48, options, options[0]);
 		
 		// Check that the user did not cancel
-		if (chosenName != null) {
+		if (lockOption != 2) {
 			
 			/*
 			 * Make a HashMap of all the attributes that describe the lock
 			 */
 			HashMap<String, String> lockingAttributes = new HashMap<String, String>();
 			
-			lockingAttributes.put(DataFieldConstants.FIELD_LOCKED_USER_NAME, chosenName.toString());
-			lockingAttributes.put(DataFieldConstants.FIELD_LOCKED_UTC, now.getTimeInMillis() + "");
+			lockingAttributes.put(DataFieldConstants.LOCKED_FIELD_USER_NAME, user);
+			lockingAttributes.put(DataFieldConstants.LOCKED_FIELD_UTC, now.getTimeInMillis() + "");
+			// set locked level.
+			lockingAttributes.put(DataFieldConstants.LOCK_LEVEL, 
+					(lockOption == 1 ? DataFieldConstants.LOCKED_TEMPLATE : DataFieldConstants.LOCKED_ALL_ATTRIBUTES));
 			
 			model.lockHighlightedFields(lockingAttributes);
 		}
@@ -166,11 +172,11 @@ public class LockFieldsAction extends ProtocolEditorAction {
 		String message = "<html>The field:</html>\n";
 		
 		for (HashMap<String, String> map : lockedFields) {
-			long timeStamp = new Long(map.get(DataFieldConstants.FIELD_LOCKED_UTC));
+			long timeStamp = new Long(map.get(DataFieldConstants.LOCKED_FIELD_UTC));
 			String dateTime = time.format(new Date(timeStamp));
 			
-			String line = "<html><b>- " + map.get(DataFieldConstants.ELEMENT_NAME) + "</b> was locked by <i>" +
-				map.get(DataFieldConstants.FIELD_LOCKED_USER_NAME) + "</i> at " + dateTime + "</html>\n";
+			String line = "<html><b>- " + map.get(DataFieldConstants.ELEMENT_NAME).trim() + "</b> was locked by <i>" +
+				map.get(DataFieldConstants.LOCKED_FIELD_USER_NAME) + "</i> at " + dateTime + "</html>\n";
 			message = message + line;
 		}
 		message = message + "\n<html>Are you sure you want to unlock " + 
@@ -183,7 +189,18 @@ public class LockFieldsAction extends ProtocolEditorAction {
 				lockedIcon48, options, options[0]);
 		
 		if (yesNo == 1) {
-			model.editCurrentTree(Actions.UNLOCK_HIGHLIGHTED_FIELDS);
+			
+			/*
+			 * Make a HashMap of all the attributes that unlock
+			 */
+			HashMap<String, String> lockingAttributes = new HashMap<String, String>();
+			
+			lockingAttributes.put(DataFieldConstants.LOCKED_FIELD_USER_NAME, null);
+			lockingAttributes.put(DataFieldConstants.LOCKED_FIELD_UTC, null);
+			// set locked level.
+			lockingAttributes.put(DataFieldConstants.LOCK_LEVEL, null);
+			
+			model.lockHighlightedFields(lockingAttributes);
 		}
 	}
 	

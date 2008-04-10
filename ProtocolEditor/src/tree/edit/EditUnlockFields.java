@@ -65,12 +65,12 @@ public class EditUnlockFields extends AbstractUndoableEdit {
 		
 		DataField field = node.getDataField();
 		
-		String oldValue = field.getAttribute(DataFieldConstants.FIELD_LOCKED_UTC); // null if field is not locked
+		String oldValue = field.getAttribute(DataFieldConstants.LOCKED_FIELD_UTC); // null if field is not locked
 		
 		/*
 		 * Unlocking involves simply setting the FIELD_LOCKED_UTC attribute to null. 
 		 */
-		unlockedFields.add(new EditDataFieldAttribute(field, DataFieldConstants.FIELD_LOCKED_UTC, oldValue, null));	// keep a reference to fields that have been edited
+		unlockedFields.add(new EditDataFieldAttribute(field, DataFieldConstants.LOCKED_FIELD_UTC, oldValue, null));	// keep a reference to fields that have been edited
 	}
 	
 	

@@ -330,35 +330,68 @@ public class DataField
 	}
 	
 	/**
-	 * This method checks to see whether any of the ancestors of this dataField are locked. 
-	 * ie. Do they have a value for the attribute DataFieldConstants.FIELD_LOCKED_UTC.
-	 * If the attribute exists (is not null) for any of these ancestor nodes/fields, this
-	 * method will return true, indicating this field is locked.  
+	 * This method looks for the highest locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
+	 * possessed by ancestors of this field. 
+	 * If the locking level DataFieldConstants.LOCKED_ALL_ATTRIBUTES is found, no more
+	 * ancestors are checked and 
+	 * this value is returned, since this is the highest locking level. 
 	 * 
-	 * @return		true if any ancestor nodes/dataFields have a value for the locked attribute
+	 * @return		String representing the highest lock_level of the ancestors of this field or null if not locked. 
 	 */
-	public boolean isAncestorLocked() {
+	public String getAncestorLockedLevel() {
+		String lockLevel = null;
 		if (node != null) {
-			return AncestorChecker.isAncestorAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, node);
+			// iterate through the ancestors of this field...
+			Iterator<DataFieldNode> iterator = new AncestorIterator(node);
+			while(iterator.hasNext()) {
+				IAttributeSaver field = iterator.next().getDataField();
+				/*
+				 * Remember lock level. 
+				 * Currently there is only one level (apart from "fully locked")
+				 * If there were more, you'd want to remember the highest one. 
+				 */
+				if (field.getAttribute(DataFieldConstants.LOCK_LEVEL) != null) {
+					lockLevel = field.getAttribute(DataFieldConstants.LOCK_LEVEL);
+					// if fully locked, return this value. 
+					if (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)) {
+						return lockLevel;
+					}
+				}
+			}
 		}
-		return false;
+		return lockLevel;
 	}
 	
 	/**
-	 * This method returns the locked status of this dataField. 
-	 * A field may be locked either because it has been locked (has a locked timeStamp)
-	 * or because an ancestor is locked. 
-	 * This method does not distinguish from these scenarios.
+	 * This method looks for the highest locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
+	 * possessed by this field or it's ancestors.  
+	 * Eg. this field may have TEMPLATE_LOCKED, but if an ancestor has LOCKED_ALL_ATTRIBUTES then
+	 * this value should be returned since this higher level also applies to this field. 
+	 * If the locking level DataFieldConstants.LOCKED_ALL_ATTRIBUTES is found, no more
+	 * ancestors are checked and 
+	 * this value is returned, since this is the highest locking level. 
 	 * 
-	 * @return		true if this field is itself locked, or is locked because an ancestor is locked
+	 * @return		String representing the highest lock_level of this field or its ancestors or null if not locked.
 	 */
-	public boolean isDataFieldLocked() {
+	public String getLockedLevel() {
 		
-		if ((getAttribute(DataFieldConstants.FIELD_LOCKED_UTC) != null) ||
-				(isAncestorLocked()))
-			return true;
+		String lockLevel = getAttribute(DataFieldConstants.LOCK_LEVEL);
+
+		// if fully locked, return this value. 
+		if ((lockLevel != null) && (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES))) {
+			return lockLevel; 
+		}
 		
-		return false;
+		else {
+			String ancestorLockedLevel = getAncestorLockedLevel();
+			// if ancestorLockedLevel is partially or fully locked...
+			if (ancestorLockedLevel != null) {
+				return ancestorLockedLevel;
+			} else {
+			// if ancestors not locked, return the lock level of this field.
+				return lockLevel;
+			}
+		}
 	}
 
 	

@@ -1133,10 +1133,10 @@ public class Tree
 	public boolean areHighlightedFieldsLocked() {
 		
 		if (highlightedFields.size() > 0)
-			return AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, highlightedFields);
+			return AncestorChecker.isAttributeNotNull(DataFieldConstants.LOCKED_FIELD_UTC, highlightedFields);
 	
 		else if (rootNode.isHighlighted()) {
-			return AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, rootNode);
+			return AncestorChecker.isAttributeNotNull(DataFieldConstants.LOCKED_FIELD_UTC, rootNode);
 		}
 		return false;
 	}
@@ -1156,7 +1156,7 @@ public class Tree
 			/*
 			 * Check each highlighted field to see if it is locked...
 			 */
-			if (AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, node)) {
+			if (AncestorChecker.isAttributeNotNull(DataFieldConstants.LOCKED_FIELD_UTC, node)) {
 				
 				/*
 				 * If locked, get the locked attributes, add to a new HashMap and add this to the list.
@@ -1165,8 +1165,8 @@ public class Tree
 				HashMap<String, String> lockedAttributes= new HashMap<String, String>();
 				
 				lockedAttributes.put(DataFieldConstants.ELEMENT_NAME, field.getAttribute(DataFieldConstants.ELEMENT_NAME));
-				lockedAttributes.put(DataFieldConstants.FIELD_LOCKED_UTC, field.getAttribute(DataFieldConstants.FIELD_LOCKED_UTC));
-				lockedAttributes.put(DataFieldConstants.FIELD_LOCKED_USER_NAME, field.getAttribute(DataFieldConstants.FIELD_LOCKED_USER_NAME));
+				lockedAttributes.put(DataFieldConstants.LOCKED_FIELD_UTC, field.getAttribute(DataFieldConstants.LOCKED_FIELD_UTC));
+				lockedAttributes.put(DataFieldConstants.LOCKED_FIELD_USER_NAME, field.getAttribute(DataFieldConstants.LOCKED_FIELD_USER_NAME));
 				
 				lockedFieldsAttributes.add(lockedAttributes);
 			}
@@ -1186,7 +1186,7 @@ public class Tree
 	public boolean areAncestorFieldsLocked() {
 		
 		if (highlightedFields.size() > 0)
-			return AncestorChecker.isAncestorAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, highlightedFields);
+			return AncestorChecker.isAncestorAttributeNotNull(DataFieldConstants.LOCKED_FIELD_UTC, highlightedFields);
 	
 		return false;
 	
@@ -1205,7 +1205,7 @@ public class Tree
 		
 		while (iterator.hasNext()) {
 			DataFieldNode node = iterator.next();
-			if (AncestorChecker.isAttributeNotNull(DataFieldConstants.FIELD_LOCKED_UTC, node))
+			if (AncestorChecker.isAttributeNotNull(DataFieldConstants.LOCKED_FIELD_UTC, node))
 				return true;
 		}
 		return false;

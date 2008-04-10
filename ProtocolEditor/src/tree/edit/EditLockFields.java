@@ -54,10 +54,7 @@ public class EditLockFields extends AbstractUndoableEdit {
 		this.newLockingAttributes = lockingAttributes;
 		
 		populateEditedFields(rootNode);
-		
-		redo();		// this locks the fields in lockFields
 	}
-	
 	
 	public EditLockFields (ArrayList<DataFieldNode> rootNodes, Map<String, String> lockingAttributes) {
 		
@@ -67,8 +64,6 @@ public class EditLockFields extends AbstractUndoableEdit {
 		for (DataFieldNode rootNode: rootNodes) {
 			populateEditedFields(rootNode);
 		}
-		
-		//redo();		// this locks the fields in lockFields list
 	}
 	
 	
