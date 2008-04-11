@@ -73,4 +73,12 @@ public interface Layout
      * @param oldNodes The collection of the nodes previously displayed.
      */
     public void setOldNodes(Set oldNodes);
+    
+    /**
+     * Sets the number of images per row.
+     * 
+     * @param number The value to set.
+     */
+    public void setImagesPerRow(int number);
+    
 }

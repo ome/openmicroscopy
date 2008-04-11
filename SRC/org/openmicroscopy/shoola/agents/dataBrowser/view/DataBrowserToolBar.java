@@ -34,10 +34,13 @@ import java.util.Collection;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
@@ -52,6 +55,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
@@ -76,20 +80,26 @@ class DataBrowserToolBar
 	implements ActionListener, ChangeListener
 {
 
-	/** ID to bring up the metadata browser. */
-	private static final int	METADATA_SELECTION = 3;
+	/** The text of the menu. */
+	private static final String	ITEMS_PER_ROW_TEXT = "Images per row";
+	
+	/** ID to bring up the add thumbnail view to the node.. */
+	private static final int	ROLL_OVER = 10;
+	
+	/** ID to bring up the add thumbnail view to the node.. */
+	private static final int	MOUSE_OVER = 11;
 	
 	/** ID to bring up the metadata browser. */
-	private static final int	METADATA_IMAGES = 4;
-	
-	/** ID to bring up the metadata browser. */
-	private static final int	METADATA_CHILDREN = 5;
+	private static final int	NEW_OBJECT = 12;
 	
 	/** ID to bring a slide show view with the displayed images. */
-	private static final int	SLIDE_SHOW_IMAGES = 6;
+	private static final int	SLIDE_SHOW_IMAGES = 13;
 	
 	/** ID to bring a slide show view with the selected images. */
-	private static final int	SLIDE_SHOW_SELECTION = 7;
+	private static final int	SLIDE_SHOW_SELECTION = 14 ;
+	
+	/** ID to bring up the metadata browser. */
+	private static final int	ITEMS_PER_ROW = 15;
 	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
@@ -119,36 +129,66 @@ class DataBrowserToolBar
 	private JButton				slideShowView;
 	
 	/** Button to add the metadata. */
-	private JButton				metadataButton;
-	
-	/** Menu displaying the annotated options. */
-	private JPopupMenu			annotateMenu;
-	
+	private JButton				managementButton;
+
 	/** Menu displaying the annotated options. */
 	private JPopupMenu			slideViewMenu;
 	
+	/** Menu displaying the annotated options. */
+	private JPopupMenu			manageMenu;
+	
+	/** The item used to select the roll over mode. */
+	private JCheckBoxMenuItem 	rollOverItem;
+	
+	/** The item used to select the mouse over mode. */
+	private JCheckBoxMenuItem 	mouseOverItem;
+	
+	/** TextField hosting the number of items per row. */
+	private JTextField			itemsPerRow;
+	
 	/**
-	 * Creates the menu displaying the annotation options.
+	 * Creates the menu displaying various management options options.
 	 * 
 	 * @return See above.
 	 */
-	private JPopupMenu createAnnotateMenu()
+	private JPopupMenu createManageMenu()
 	{
-		if (annotateMenu != null) return annotateMenu;
-		annotateMenu = new JPopupMenu();
-		JMenuItem item = new JMenuItem("Annotate selection");
-		item.addActionListener(this);
-		item.setActionCommand(""+METADATA_SELECTION);
-		annotateMenu.add(item);
-		item = new JMenuItem("Annotate images");
-		item.addActionListener(this);
-		item.setActionCommand(""+METADATA_IMAGES);
-		annotateMenu.add(item);
-		item = new JMenuItem("Annotate images in selection");
-		item.addActionListener(this);
-		item.setActionCommand(""+METADATA_CHILDREN);
-		annotateMenu.add(item);
-		return annotateMenu;
+		if (manageMenu != null) return manageMenu;
+		IconManager icons = IconManager.getInstance();
+		manageMenu = new JPopupMenu();
+		
+		JMenuItem menuItem = new JMenuItem("New dataset");
+		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
+		menuItem.addActionListener(this);
+		menuItem.setActionCommand(""+NEW_OBJECT);
+		manageMenu.add(menuItem);
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		JLabel l = new JLabel(icons.getIcon(IconManager.TRANSPARENT));
+		l.setText(ITEMS_PER_ROW_TEXT);
+		panel.add(Box.createHorizontalStrut(5));
+		panel.add(l);
+		itemsPerRow = new JTextField(3);
+		itemsPerRow.addActionListener(this);
+		itemsPerRow.setActionCommand(""+ITEMS_PER_ROW);
+		panel.add(itemsPerRow);
+		manageMenu.add(panel);
+		//manageMenu.add(itemsPerRow);
+		
+		rollOverItem = new JCheckBoxMenuItem();
+		rollOverItem.setIcon(icons.getIcon(IconManager.ROLL_OVER));
+		rollOverItem.setText("Mouse over and Magnify");
+		rollOverItem.addActionListener(this);
+		rollOverItem.setActionCommand(""+ROLL_OVER);
+		manageMenu.add(rollOverItem);
+		mouseOverItem = new JCheckBoxMenuItem();
+		mouseOverItem.setIcon(icons.getIcon(IconManager.ROLL_OVER));
+		mouseOverItem.setText("Mouse over and Magnify");
+		mouseOverItem.addActionListener(this);
+		mouseOverItem.setActionCommand(""+MOUSE_OVER);
+		//manageMenu.add(mouseOverItem);
+		return manageMenu;
 	}
 	
 	/**
@@ -287,19 +327,19 @@ class DataBrowserToolBar
 		
 		});
 		//group.add(slideShowView);
-		metadataButton = new JButton(icons.getIcon(IconManager.METADATA));
-		metadataButton.addMouseListener(new MouseAdapter() {
+		managementButton = new JButton(icons.getIcon(IconManager.MANAGER));
+		managementButton.addMouseListener(new MouseAdapter() {
 			
 			/**
 			 * Brings up the filtering dialog.
 			 * @see MouseAdapter#mouseReleased(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
-				createAnnotateMenu().show(metadataButton, e.getX(), e.getY());
+				createManageMenu().show(managementButton, e.getX(), e.getY());
 			}
 		
 		});
-		UIUtilities.unifiedButtonLookAndFeel(metadataButton);
+		UIUtilities.unifiedButtonLookAndFeel(managementButton);
 	}
 	
 	/**
@@ -319,7 +359,9 @@ class DataBrowserToolBar
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(slideShowView);
-		bar.add(metadataButton);
+		bar.add(managementButton);
+		//bar.add(Box.createHorizontalStrut(2));
+		//bar.add(new JSeparator(JSeparator.VERTICAL));
 		return bar;
 	}
 	
@@ -332,6 +374,24 @@ class DataBrowserToolBar
 		p.add(buildViewsBar());
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(p);
+	}
+	
+	/** Sets the number of items per row. */
+	private void parseItemsPerRow()
+	{
+		int row = -1;
+		try {
+			row = Integer.parseInt(itemsPerRow.getText());
+		} catch(NumberFormatException nfe) {}
+		
+		if (row < 0) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Invalid number", "Please enter a valid number " +
+            		"of images per row.");
+		} else {
+			view.setItemsPerRow(row);
+			manageMenu.setVisible(false);
+		}
 	}
 	
 	/**
@@ -418,14 +478,14 @@ class DataBrowserToolBar
 			case DataBrowserUI.COLUMNS_VIEW:
 				view.setSelectedView(index);
 				break;
-			case METADATA_IMAGES:
-				controller.annotate(DataBrowser.ANNOTATE_IMAGES);
+			case ROLL_OVER:
+				view.setRollOver(rollOverItem.isSelected());
 				break;
-			case METADATA_SELECTION:
-				controller.annotate(DataBrowser.ANNOTATE_SELECTION);
+			case NEW_OBJECT:
+				//view.setRollOver(true);
 				break;
-			case METADATA_CHILDREN:
-				controller.annotate(DataBrowser.ANNOTATE_CHILDREN);
+			case ITEMS_PER_ROW:
+				parseItemsPerRow();
 				break;
 			case SLIDE_SHOW_IMAGES:
 				view.slideShowView(true, true);

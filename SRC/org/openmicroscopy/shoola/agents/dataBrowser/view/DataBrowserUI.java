@@ -38,7 +38,9 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
@@ -267,5 +269,32 @@ class DataBrowserUI
      * @return See above.
      */
     int getSelectedView() { return selectedView; }
+
+	/**
+	 * Sets to <code>true</code> to zoom the image when the user
+	 *  mouses over an {@link ImageNode}, to <code>false</code> otherwise.
+	 * 
+	 * @param rollOver  Pass <code>true</code> to zoom the image when the user
+	 *                  mouses over an {@link ImageNode}, 
+	 *                  <code>false</code> otherwise.
+	 */
+	void setRollOver(boolean rollOver)
+	{
+		model.getBrowser().setRollOver(rollOver);
+	}
+
+	/**
+	 * Sets the number of images displayed in a row.
+	 * 
+	 * @param number The number of images per row.
+	 */
+	void setItemsPerRow(int number)
+	{
+		Browser browser = model.getBrowser();
+		Layout layout = browser.getSelectedLayout();
+		layout.setImagesPerRow(number);
+		//if (selectedView == THUMB_VIEW)
+		browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+	}
     
 }

@@ -108,11 +108,20 @@ public class IconManager
     /** The <code>Annotation 8</code> icon. */
     public static int			ANNOTATION_8 = 19;
     
+    /** The <code>Manager</code> icon. */
+    public static int			MANAGER = 20;
+    
+    /** The <code>Manager</code> icon. */
+    public static int			ROLL_OVER = 21;
+    
+    /** The <code>Create</code> icon. */
+    public static int           CREATE = 22;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 19;
+    private static int          MAX_ID = 22;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -139,6 +148,9 @@ public class IconManager
         relPaths[ANNOTATION] = "nuvola_knotes16.png";
         relPaths[TRANSPARENT] = "eclipse_transparent16.png";
         relPaths[ANNOTATION_8] = "nuvola_knotes8.png";
+        relPaths[MANAGER] = "eclipse_external_tools16.png";
+        relPaths[ROLL_OVER] = "roll_over_image16.png";
+        relPaths[CREATE] = "nuvola_filenew16.png"; 
     }
     
     /** The sole instance. */

@@ -96,7 +96,7 @@ public class ImageTableNode
 			case ImageTable.DATE_COL:
 				if (ho instanceof ImageData) {
 					Timestamp time = EditorUtil.getCreationTime((ImageData) ho);
-					if (time == null) return EditorUtil.DATE_NOT_AVAILABLE;
+					if (time == null) return "--";
 					return UIUtilities.formatWDMYDate(time);
 				}
 				return "--";

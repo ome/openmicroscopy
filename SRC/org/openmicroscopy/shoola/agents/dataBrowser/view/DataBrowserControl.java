@@ -135,13 +135,6 @@ class DataBrowserControl
 		this.view = view;
 	}
 	
-	/** 
-	 * Forwards call the {@link DataBrowser model}.
-	 * 
-	 *  @param index One the annotation contants defined by {@link DataBrowser}.
-	 */
-	void annotate(int index) { model.annotate(index); }
-	
 	/**
 	 * Loads data, filters nodes or sets the selected node.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -161,9 +154,7 @@ class DataBrowserControl
 				QuickFiltering.TAG_LOADING_PROPERTY.equals(name)) {
 			model.loadExistingTags();
 		} else if (Browser.ROLL_OVER_PROPERTY.equals(name)) {
-			
             if (view.isRollOver()) {
-            	
                 ImageDisplay n = (ImageDisplay) evt.getNewValue();
                 if (n instanceof ImageNode)
                     ThumbnailWindowManager.rollOverDisplay((ImageNode) n);

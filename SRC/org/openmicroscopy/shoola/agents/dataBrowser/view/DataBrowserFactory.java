@@ -116,7 +116,7 @@ public class DataBrowserFactory
 	private DataBrowser createImagesDataBrowser(Object parent, 
 										Set<ImageData> images)
 	{
-		DataBrowserModel model = new ImagesModel(images);
+		DataBrowserModel model = new ImagesModel(parent, images);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

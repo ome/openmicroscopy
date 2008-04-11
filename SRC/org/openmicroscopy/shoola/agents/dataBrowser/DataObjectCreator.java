@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.DataFilter 
+ * org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,21 +24,18 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import pojos.DataObject;
 
 /** 
@@ -54,56 +51,24 @@ import pojos.DataObject;
  * </small>
  * @since OME3.0
  */
-public class DataFilter
+public class DataObjectCreator
 	extends DataBrowserLoader
 {
 
-    /** The type of node to handle. */
-    private Class					nodeType;
-    
-	/** The collection of nodes to filter. */
-    private Set<Long>				nodeIds;
-    
-    /** Store the nodes for later reused. */
-    private Map<Long, DataObject> 	nodes;
-    
-    /** The filtering context. */
-    private FilterContext			context;
-    
+	private DataObject				parent;
+	
+	private Collection<DataObject> 	children;
+	
     /** Handle to the async call so that we can cancel it. */
     private CallHandle				handle;
+   
+    public DataObjectCreator(DataBrowser viewer, DataObject parent, 
+    						Collection<DataObject> children)
+    {
+    	super(viewer);
+    }
     
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer	The viewer this data loader is for.
-     *               	Mustn't be <code>null</code>.
-     * @param context	The filtering context. Mustn't be <code>null</code>.
-     * @param nodes		The collection of objects to filter. 
-     * 					Mustn't be <code>null</code>.
-     */
-	public DataFilter(DataBrowser viewer, FilterContext context,
-					Collection<DataObject> nodes)
-	{
-		super(viewer);
-		if (nodes == null || nodes.size() == 0)
-			throw new IllegalArgumentException("No nodes to filter.");
-		if (context == null)
-			throw new IllegalArgumentException("No filtering context.");
-		this.context = context;
-		this.nodes = new HashMap<Long, DataObject>();
-		nodeIds  = new HashSet<Long>();
-		Iterator<DataObject> i = nodes.iterator();
-		DataObject data;
-		while (i.hasNext()) {
-			data = i.next();
-			nodeIds.add(data.getId());
-			nodeType = data.getClass();
-			this.nodes.put(data.getId(), data);
-		}
-	}
-	
-	/** 
+    /** 
 	 * Cancels the data loading. 
 	 * @see DataBrowserLoader#cancel()
 	 */
@@ -116,7 +81,7 @@ public class DataFilter
 	public void load()
 	{
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		handle = mhView.filterData(nodeType, nodeIds, context, userID, this);
+		//handle = mhView.filterData(nodeType, nodeIds, context, userID, this);
 	}
 	
 	/**
@@ -126,17 +91,7 @@ public class DataFilter
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	Collection r = (Collection) result;
-    	List<DataObject> filteredNodes = new ArrayList<DataObject>();
-    	if (r == null || r.size() == 0) {
-    		viewer.setFilteredNodes(filteredNodes);
-    	} else {
-    		Iterator i = r.iterator();
-    		while (i.hasNext()) {
-    			filteredNodes.add(nodes.get(i.next()));
-			}
-    		viewer.setFilteredNodes(filteredNodes);
-    	}
+    	
     }
     
 }

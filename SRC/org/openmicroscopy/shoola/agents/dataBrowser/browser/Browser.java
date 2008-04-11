@@ -35,6 +35,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -206,18 +207,11 @@ public interface Browser
 	public JComponent getUI();
 	
 	/**
-	 * Sets the layout index.
+	 * Sets the selected layout.
 	 * 
-	 * @param index The index of the layout.
+	 * @param layout The layout.
 	 */
-	public void setSelectedLayout(int index);
-	
-	/**
-	 * Returns the index of the selected layout.
-	 * 
-	 * @return See above.
-	 */
-	public int getSelectedLayout();
+	public void setSelectedLayout(Layout layout);
 	
 	/**
 	 * Returns <code>true</code> if more than one {@link ImageNode}s are
@@ -347,5 +341,7 @@ public interface Browser
 	 * @return See above.
 	 */
 	public List<ImageNode> getVisibleImageNodes();
+	
+	public Layout getSelectedLayout();
 	
 }

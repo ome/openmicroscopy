@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Third-party libraries
@@ -48,7 +46,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Tree table displaying the hierarchy.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +60,6 @@ import pojos.ProjectData;
  */
 class ImageTable
 	extends OMETreeTable
-	implements TreeSelectionListener
 {
 
 	/** Identified the column displaying the file's path. */
@@ -162,11 +159,6 @@ class ImageTable
 		setDefaultRenderer(String.class, new NumberCellRenderer());
 		invalidate();
 		repaint();
-	}
-	
-	public void valueChanged(TreeSelectionEvent e) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	/** Helper class to render that table. */

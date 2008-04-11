@@ -83,6 +83,7 @@ class ImageTableView
 		buildGUI();
 	}
 	
+	/** Refreshes the table when filtering data. */
 	void refreshTable() { table.refreshTable(); }
 	
 }

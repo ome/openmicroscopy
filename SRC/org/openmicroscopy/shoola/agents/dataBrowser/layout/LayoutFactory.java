@@ -55,19 +55,22 @@ public class LayoutFactory
     /**
      * Creates the specified layout.
      * 
-     * @param type      One of the constants defined by this class.
-     * @param sorter    Class used to sort the nodes by date or alphabetically. 
+     * @param type     		One of the constants defined by this class.
+     * @param sorter    	Class used to sort the nodes by date or 
+     * 						alphabetically. 
+     * @param itemsPerRow 	The number of items oer row.
      * @return          A layout object for the given layout <code>type</code>.
      * @throws IllegalArgumentException If <code>type</code> is not one of
      *          the constants defined by this class.
      */
-    public static Layout createLayout(int type, ViewerSorter sorter)
+    public static Layout createLayout(int type, ViewerSorter sorter, int
+    		itemsPerRow)
     {
         if (sorter == null)
             throw new IllegalArgumentException("Invalid argument.");
         switch (type) {
             case SQUARY_LAYOUT:
-                return new SquaryLayout(sorter);
+                return new SquaryLayout(sorter, itemsPerRow);
             case FLAT_LAYOUT:
                 return new FlatLayout(sorter);
             default:
@@ -79,12 +82,14 @@ public class LayoutFactory
     /**
      * Returns the default layout.
      * 
-     * @param sorter Class used to sort the nodes by date or alphabetically. 
+     * @param sorter 		Class used to sort the nodes by date or 
+     * 						alphabetically.
+     * @param itemsPerRow 	The number of images per row. 
      * @return See above.
      */
-    public static Layout getDefaultLayout(ViewerSorter sorter)
+    public static Layout getDefaultLayout(ViewerSorter sorter, int itemsPerRow)
     { 
-        return createLayout(getDefaultLayoutIndex(), sorter); 
+        return createLayout(getDefaultLayoutIndex(), sorter, itemsPerRow); 
     }
     
     /**

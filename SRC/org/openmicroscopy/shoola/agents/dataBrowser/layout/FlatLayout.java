@@ -76,6 +76,9 @@ class FlatLayout
     /** Collection of nodes previously layed out. */
     private Set				oldNodes;
     
+    /** The number of items per row. */
+    private int				itemsPerRow;
+    
     /**
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
@@ -136,5 +139,11 @@ class FlatLayout
      * @see Layout#setOldNodes(Set)
      */
 	public void setOldNodes(Set oldNodes) { this.oldNodes = oldNodes; }
+
+    /**
+     * Implemented as specified by the {@link Layout} interface.
+     * @see Layout#setImagesPerRow(int)
+     */
+	public void setImagesPerRow(int number) { itemsPerRow = number; }
    
 }

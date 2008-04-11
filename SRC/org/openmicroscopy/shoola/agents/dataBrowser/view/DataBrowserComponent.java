@@ -27,10 +27,8 @@ import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -43,14 +41,11 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
-import pojos.ImageData;
 
 /** 
  * 
@@ -158,8 +153,16 @@ class DataBrowserComponent
 	public void setSelectedDisplay(ImageDisplay node)
 	{
 		Object object = node.getHierarchyObject();
-		if (object instanceof DataObject) 
-			firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, object);
+		List<Object> objects = new ArrayList<Object>();
+		 objects.add(object);
+		if (object instanceof DataObject) {
+			ImageDisplay p = node.getParentDisplay();
+			Object parent = p.getHierarchyObject();
+			if (!(parent instanceof DataObject))
+				parent = model.getParent();
+			objects.add(parent);
+		}
+		firePropertyChange(SELECTED_NODE_DISPLAY_PROPERTY, null, objects);
 	}
 
 	/**
@@ -319,47 +322,6 @@ class DataBrowserComponent
 		Browser browser = model.getBrowser();
 		model.fireFilteringByContext(context, browser.getOriginal());
 		fireStateChange();
-	}
-	
-	/**
-	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#annotate(int)
-	 */
-	public void annotate(int index)
-	{
-		Browser browser = model.getBrowser();
-		Collection nodes = null;
-		switch (index) {
-			case ANNOTATE_CHILDREN:
-				
-				//TODO
-			case ANNOTATE_IMAGES:
-				nodes = browser.getVisibleImages();
-			case ANNOTATE_SELECTION:
-				Set display = browser.getSelectedDisplays();
-				if (display != null) {
-					Iterator i = display.iterator();
-					ImageDisplay node;
-					nodes = new HashSet();
-					Object ho;
-					while (i.hasNext()) {
-						node = (ImageDisplay) i.next();
-						ho = node.getHierarchyObject();
-						if (ho instanceof ImageData) {
-							nodes.add(ho);
-						}
-					}
-				}
-				break;
-	
-			default:
-				throw new IllegalArgumentException("Annotation index " +
-												"not supported.");
-		}
-		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		System.err.println(nodes);
-		//if (nodes != null)
-		//	bus.post(new ViewMetadata(nodes));
 	}
 
 	/**

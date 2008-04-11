@@ -37,6 +37,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
+import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
@@ -86,8 +87,8 @@ class BrowserModel
 	/** Contains all visualization trees, our View. */
 	private RootDisplay     	rootDisplay;
 	
-	/** The index of the selected layout. */
-	private int             	selectedLayout;
+	/** The selected layout. */
+	private Layout             	selectedLayout;
 	
 	/**
 	 * Tells if more than one {@link ImageNode}s are selected.
@@ -388,28 +389,26 @@ class BrowserModel
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setSelectedLayout(int)
+	 * @see Browser#setSelectedLayout(Layout)
 	 */
-	public void setSelectedLayout(int index)
+	public void setSelectedLayout(Layout layout)
 	{
-	    int oldIndex = selectedLayout;
-	    switch (index) {
+		if (layout == null) return;
+		Layout oldLayout = selectedLayout;
+	    switch (layout.getIndex()) {
 	        case LayoutFactory.SQUARY_LAYOUT:
 	        case LayoutFactory.FLAT_LAYOUT:  
-	            selectedLayout = index;
+	            selectedLayout = layout;
 	            break;
-	        default:
-	            selectedLayout = LayoutFactory.SQUARY_LAYOUT;
 	    }
-	    firePropertyChange(LAYOUT_PROPERTY, new Integer(oldIndex), 
-	                    new Integer(selectedLayout));
+	    firePropertyChange(LAYOUT_PROPERTY, oldLayout, selectedLayout);
 	}
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSelectedLayout()
 	 */
-	public int getSelectedLayout() { return selectedLayout; }
+	public Layout getSelectedLayout() { return selectedLayout; }
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
@@ -468,19 +467,22 @@ class BrowserModel
 	    JComponent desktop = rootDisplay.getInternalDesktop();
 	    desktop.removeAll();
 	    Iterator i;
-	    if (selectedLayout == LayoutFactory.SQUARY_LAYOUT) {
-	        i = rootChildren.iterator();
-	        ImageDisplay child;
-	        while (i.hasNext()) {
-	            child = (ImageDisplay) i.next();
-	            desktop.add(child);
-	            addToDesktop(child);
-	        }
-	    } else if (selectedLayout == LayoutFactory.FLAT_LAYOUT) {
-	        i = getImageNodes().iterator();
-	        while (i.hasNext()) 
-	            desktop.add((ImageDisplay) i.next());    
-	    }
+	    switch (selectedLayout.getIndex()) {
+			case LayoutFactory.SQUARY_LAYOUT:
+				 i = rootChildren.iterator();
+			        ImageDisplay child;
+			        while (i.hasNext()) {
+			            child = (ImageDisplay) i.next();
+			            desktop.add(child);
+			            addToDesktop(child);
+			        }
+				break;
+	
+			case LayoutFactory.FLAT_LAYOUT:
+				 i = getImageNodes().iterator();
+			        while (i.hasNext()) 
+			            desktop.add((ImageDisplay) i.next());   
+		}
 	    rootDisplay.setCursor(
 	            Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

@@ -86,12 +86,6 @@ abstract class DataBrowserModel
     /** The collection of existing tags. */
     private Collection			existingTags;
     
-    /** 
-	 * Flag to control the zoom action when the user mouses over an 
-	 * {@link ImageNode}. 
-	 */
-	private boolean         	rollOver;
-    
 	/** Flag indicating that the thumbnails are loaded or not. */
 	protected boolean			thumbnailLoaded;
 	
@@ -110,6 +104,9 @@ abstract class DataBrowserModel
     /** The number of images loaded. */
     protected int				imagesLoaded;
     
+	/** The parent of the nodes. Used as back pointer. */
+    protected Object			parent;
+	
     /** Creates a new instance. */
     DataBrowserModel()
     {
@@ -118,6 +115,13 @@ abstract class DataBrowserModel
     }
     
     /**
+     * Returns the parent of the nodes if any.
+     * 
+     * @return See above.
+     */
+    Object getParent() { return parent; }
+    
+     /**
      * Returns the number of images.
      * 
      * @return See above.
@@ -129,8 +133,8 @@ abstract class DataBrowserModel
     {
     	if (browser == null) return;
     	//Do initial layout and set the icons.
-        Layout layout = LayoutFactory.getDefaultLayout(sorter);
-        browser.setSelectedLayout(layout.getIndex());
+        Layout layout = LayoutFactory.getDefaultLayout(sorter, 2);
+        browser.setSelectedLayout(layout);
         browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
 
@@ -353,11 +357,12 @@ abstract class DataBrowserModel
 	 */
 	Collection getExistingTags() { return existingTags; }
 	
-	void setRollOver(boolean rollOver)
-	{ 
-		this.rollOver = rollOver; 
-	}
-	
+	/**
+	 * Returns <code>true</code> is a magnified thumbnail is displayed when
+	 * the user mouses over a node, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
 	boolean isRollOver() { return browser.isRollOver(); }
 	
     /**

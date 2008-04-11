@@ -82,6 +82,9 @@ class SquaryLayout
     /** Collection of nodes previously layed out. */
     private Set				oldNodes;
     
+    /** The number of items per row. */
+    private int				itemsPerRow;
+    
     /** Maximum width of the BrowserView.*/
     private void setBrowserSize()
     {
@@ -220,12 +223,14 @@ class SquaryLayout
      * Package constructor so that objects can only be created by the
      * {@link LayoutFactory}.
      * 
-     * @param sorter A {@link ViewerSorter sorter} to order nodes.
+     * @param sorter 		A {@link ViewerSorter sorter} to order nodes.
+     * @param itemsPerRow 	The number of items per row.
      */
-    SquaryLayout(ViewerSorter sorter)
+    SquaryLayout(ViewerSorter sorter, int itemsPerRow)
     {
         setBrowserSize();
         this.sorter = sorter;
+        this.itemsPerRow = itemsPerRow;
     }
 
     /**
@@ -242,7 +247,7 @@ class SquaryLayout
                 return;
             }
         	if (node.containsImages()) 
-        		LayoutUtils.doSquareGridLayout(node, sorter);
+        		LayoutUtils.doSquareGridLayout(node, sorter, itemsPerRow);
         	else visitContainerNode(node);
         } else {
         	Set o = getOldChildren(node);
@@ -273,7 +278,7 @@ class SquaryLayout
                     return;
                 }
             	if (node.containsImages()) 
-            		LayoutUtils.doSquareGridLayout(node, sorter);
+            		LayoutUtils.doSquareGridLayout(node, sorter, itemsPerRow);
             	else visitContainerNode(node);
         	}
         		
@@ -309,5 +314,11 @@ class SquaryLayout
      * @see Layout#setOldNodes(Set)
      */
 	public void setOldNodes(Set oldNodes) { this.oldNodes = oldNodes; }
+	
+    /**
+     * Implemented as specified by the {@link Layout} interface.
+     * @see Layout#setImagesPerRow(int)
+     */
+	public void setImagesPerRow(int number) { itemsPerRow = number; }
 
 }

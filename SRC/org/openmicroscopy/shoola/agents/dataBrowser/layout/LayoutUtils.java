@@ -161,6 +161,7 @@ public class LayoutUtils
         int n = imageNodes.size();
         n = (int) Math.floor(Math.sqrt(n))+1;
         Dimension d;
+        
         try {
             for (int i = 0; i < n; ++i) {
                 for (int j = 0; j < n; ++j) {
@@ -186,10 +187,12 @@ public class LayoutUtils
      * The size of each cell in the grid will be that of the largest child
      * in the parent <code>node</code>.
      * 
-     * @param node The parent node. Mustn't be <code>null</code>.
-     * @param sorter The sorter.
+     * @param node 			The parent node. Mustn't be <code>null</code>.
+     * @param sorter 		The sorter.
+     * @param itemsPerRow 	The number of items per row.
      */
-    static void doSquareGridLayout(ImageDisplay node, ViewerSorter sorter)
+    static void doSquareGridLayout(ImageDisplay node, ViewerSorter sorter, int
+    								itemsPerRow)
     {
         //First find out the max dim among children.
         Dimension maxDim = maxChildDim(node);
@@ -208,12 +211,17 @@ public class LayoutUtils
        
         List l = new ArrayList();
         for (int i = 0; i < comps.length; i++) {
-			if (comps[i] instanceof ImageDisplay) {
+			if (comps[i] instanceof ImageDisplay)
 				l.add(comps[i]);
-			}
 		}
-        n = l.size();
-        n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+        //l = sorter.sort(l);
+        if (itemsPerRow > 1) {
+        	n = itemsPerRow;
+        } else {
+        	n = l.size();
+        	n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+        }
+       
         
         //Finally do layout.
         Dimension d;
@@ -221,10 +229,6 @@ public class LayoutUtils
         //Iterator children = node.getChildrenDisplay().iterator();
         
         ImageDisplay child;
-        
-        
-        
-        
         Iterator children = l.iterator();
         try {
             for (int i = 0; i < n; ++i) {

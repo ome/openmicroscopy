@@ -57,14 +57,7 @@ public interface DataBrowser
 {
 
 	/** Loads the thumbnails when we have <code>100</code> or less values. */
-	public static final int			MAX_ENTRIES = 1;
-	
-	
-	public static final int			ANNOTATE_SELECTION = 100;
-	
-	public static final int			ANNOTATE_IMAGES = 101;
-	
-	public static final int			ANNOTATE_CHILDREN = 102;
+	public static final int			MAX_ENTRIES = 100;
 	
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
@@ -230,12 +223,21 @@ public interface DataBrowser
 	 */
 	public void setFilteredNodes(List<DataObject> objects);
 
+	/**
+	 * Filters the images.
+	 * 
+	 * @param context The filtering context.
+	 */
 	public void filterByContext(FilterContext context);
 	
-	public void annotate(int index);
-
+	/** Loads the existing tags. */
 	public void loadExistingTags();
 
+	/**
+	 * Sets the existing tags.
+	 * 
+	 * @param collection The collection to set.
+	 */
 	public void setExistingTags(Collection collection);
 	
 	 /**

@@ -65,14 +65,16 @@ class ImagesModel
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param parent The parent.
 	 * @param images The collection to images the model is for.
 	 */
-	ImagesModel(Set<ImageData> images)
+	ImagesModel(Object parent, Set<ImageData> images)
 	{
 		super();
 		if (images  == null) 
 			throw new IllegalArgumentException("No images.");
 		this.images = images;
+		this.parent = parent;
 		numberOfImages = images.size();
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set visTrees = DataBrowserTranslator.transformImages(images, userID, 0);
