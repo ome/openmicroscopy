@@ -184,11 +184,14 @@ public class IconManager
     /** The <code>Metadata 48</code> icon. */
     public static int           METADATA_48 = 43;
     
+    /** The <code>Metadata 48</code> icon. */
+    public static int           DOC = 44;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 43;
+	private static int          MAX_ID = 44;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -197,7 +200,7 @@ public class IconManager
 		relPaths[REFRESH] = "nuvola_reload16.png";
 		relPaths[COLLAPSE] = "eclipse_collapseall16.png";
 		relPaths[ANNOTATION] = "nuvola_kwrite16.png";
-		relPaths[TAG] = "nuvola_knotes16.png";
+		relPaths[TAG] = "nuvola_message16.png";//"nuvola_knotes16.png";
 		relPaths[ATTACHMENT] = "nuvola_attach16.png";
 		relPaths[PROPERTIES] = "nuvola_kate16.png";
 		relPaths[URL] = "nuvola_browser16.png";
@@ -238,6 +241,7 @@ public class IconManager
         relPaths[ATTACHMENT_48] = "nuvola_attach48.png";
 		relPaths[URL_48] = "nuvola_browser48.png";
 		relPaths[METADATA_48] = "nuvola_browser48.png";
+		relPaths[DOC] = "nuvola_kword16.png";
 	}
    
 	/** The sole instance. */

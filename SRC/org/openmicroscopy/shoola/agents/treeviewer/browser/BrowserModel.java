@@ -249,6 +249,12 @@ class BrowserModel
         selectedNodes.add(selectedDisplay);
     }
     
+    void addFoundNode(TreeImageDisplay selectedDisplay)
+    {
+    	//if (!selectedNodes.contains(selectedDisplay))
+    		selectedNodes.add(selectedDisplay);
+    }
+    
     /**
      * Returns the location of the mouse click.
      * 

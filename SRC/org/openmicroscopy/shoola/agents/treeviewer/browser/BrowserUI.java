@@ -1173,5 +1173,32 @@ class BrowserUI
 			tm.reload(element);
 		}
 	}
+
+	void setFoundNode(TreeImageDisplay[] nodes, TreeImageDisplay node)
+	{
+		TreeCellRenderer renderer = (TreeCellRenderer) 
+				treeDisplay.getCellRenderer();
+		treeDisplay.removeTreeSelectionListener(selectionListener);
+		for (int i = 0; i < nodes.length; i++) {
+			System.err.println(nodes[i]);
+			treeDisplay.setSelectionPath( 
+					new TreePath( ((DefaultTreeModel)treeDisplay.getModel()).getPathToRoot( nodes[i]) ) );
+			//renderer.getTreeCellRendererComponent(treeDisplay, nodes[i], 
+			//		treeDisplay.isPathSelected(new TreePath(nodes[i].getPath())),
+            //		false, true, 0, false);
+		}
+		if (node != null) {
+			treeDisplay.setSelectionPath( new TreePath(
+					((DefaultTreeModel)treeDisplay.getModel()).getPathToRoot( 
+							node ) ) );
+            /*
+			TreePath path = new TreePath(node.getPath());
+            treeDisplay.setSelectionPath(path);
+            renderer.getTreeCellRendererComponent(treeDisplay, node, 
+            		treeDisplay.isPathSelected(path), false, true, 0, false);
+            		*/
+        }   
+		treeDisplay.addTreeSelectionListener(selectionListener);
+	}
     
 }

@@ -1155,5 +1155,27 @@ class BrowserComponent
 		}
 		
 	}
+
+	public void onSelectedNode(Object parent, Object selected)
+	{
+		if (selected instanceof DataObject) {
+			NodeSelectionVisitor visitor = new NodeSelectionVisitor(parent, 
+													(DataObject) selected);
+			accept(visitor);
+			TreeImageDisplay foundNode = visitor.getSelectedNode();
+			if (foundNode != null) {		
+				view.setFoundNode(model.getSelectedDisplays(), foundNode);
+				model.addFoundNode(foundNode);
+				
+				/*
+				TreeImageDisplay[] nodes = model.getSelectedDisplays();
+				for (int i = 0; i < nodes.length; i++) {
+					view.setFoundNode(nodes[i]);
+				}
+				*/
+			}
+		}
+		
+	}
     
 }

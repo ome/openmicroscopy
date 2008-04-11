@@ -586,7 +586,6 @@ class TreeViewerControl
 			}
 				
 		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
-			
 			model.setSelectedNode(pce.getNewValue());
 		}
 	}

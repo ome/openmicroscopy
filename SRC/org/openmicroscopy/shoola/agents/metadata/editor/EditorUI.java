@@ -236,10 +236,6 @@ public class EditorUI
 		
 		double h = TableLayout.PREFERRED;
 		boolean expanded = false;
-		if (model.getRefObjects() != null) {
-    		h = 0;
-    		expanded = true;
-    	}
 		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 				0, h, TableLayout.PREFERRED} }; //rows
@@ -334,6 +330,7 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
+    	
     	if (model.getRefObject() instanceof ExperimenterData)  {
     		userUI.buildUI();
     		userUI.repaint();
@@ -357,6 +354,7 @@ public class EditorUI
         		if (infoUI.isExpanded())
         			controller.showImageInfo();
         	}
+        	toolBar.setDecorator();
     	}
     	revalidate();
     	repaint();

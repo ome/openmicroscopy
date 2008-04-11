@@ -24,19 +24,21 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToolBar;
 
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -92,9 +94,6 @@ class ToolBar
 	private void initComponents()
 	{
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		double[][] size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED, 5, 5}};
-		setLayout(new TableLayout(size));
 		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		IconManager icons = IconManager.getInstance();
 		saveButton = new JButton(icons.getIcon(IconManager.SAVE));
@@ -181,15 +180,16 @@ class ToolBar
     		p.add(new JSeparator(JSeparator.VERTICAL));
         	p.add(buildImageToolBar());
     	}
-    	add(UIUtilities.buildComponentPanel(p), "0, 0");
-    	add(new JSeparator(JSeparator.HORIZONTAL), "0, 2");
+    	
+    	//add(UIUtilities.buildComponentPanel(p), "0, 0");
+    	//add(new JSeparator(JSeparator.HORIZONTAL), "0, 2");
+    	
+    	add(UIUtilities.buildComponentPanel(p));
+    	add(new JSeparator(JSeparator.HORIZONTAL));
     }
     
     /** Enables the various controls. */
-    void setControls()
-    {
-    	downloadButton.setEnabled(model.isArchived());
-    }
+    void setControls() { downloadButton.setEnabled(model.isArchived()); }
     
     /**
      * Enables the {@link #saveButton} depending on the passed value.
@@ -197,9 +197,51 @@ class ToolBar
      * @param b Pass <code>true</code> to save the data,
      * 			<code>false</code> otherwise. 
      */
-    void setDataToSave(boolean b)
+    void setDataToSave(boolean b) { saveButton.setEnabled(b); }
+    
+    /** 
+     * Indicates the types of annotations attached to the item
+     * using icons. 
+     */
+    void setDecorator()
     {
-    	saveButton.setEnabled(b);
+    	IconManager icons = IconManager.getInstance();
+    	JPanel p = new JPanel();
+    	p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    	JLabel label;
+    	int n = model.getTextualAnnotationCount();
+    	if (n > 0) {
+    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
+    										+n+AnnotationUI.RIGHT);
+    		label.setIcon(icons.getIcon(IconManager.ANNOTATION));
+    		p.add(label);
+    		p.add(Box.createHorizontalStrut(5));
+    	}
+    	n = model.getTagsCount();
+    	if (n > 0) {
+    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
+    										+n+AnnotationUI.RIGHT);
+    		label.setIcon(icons.getIcon(IconManager.TAG));
+    		p.add(label);
+    		p.add(Box.createHorizontalStrut(5));
+    	}
+    	n = model.getUrlsCount();
+    	if (n > 0) {
+    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
+    										+n+AnnotationUI.RIGHT);
+    		label.setIcon(icons.getIcon(IconManager.URL));
+    		p.add(label);
+    		p.add(Box.createHorizontalStrut(5));
+    	}
+    	n = model.getAttachmentsCount();
+    	if (n > 0) {
+    		label = UIUtilities.setTextFont(AnnotationUI.LEFT
+    										+n+AnnotationUI.RIGHT);
+    		label.setIcon(icons.getIcon(IconManager.DOC));
+    		p.add(label);
+    		p.add(Box.createHorizontalStrut(5));
+    	}
+    	add(p);
     }
     
     /**

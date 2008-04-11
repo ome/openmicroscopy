@@ -78,11 +78,11 @@ class UserUI
 		TreeComponent tree = new TreeComponent();
 		tree.insertNode(diskSpace, diskSpace.getCollapseComponent(), false);
 		tree.addPropertyChangeListener(TreeComponent.EXPANDED_PROPERTY, this);
-		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-				{TableLayout.PREFERRED}};
+		double[][] size = {{TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(profile, "0, 0");
-		add(tree, "1, 0");
+		add(tree, "0, 1");
 	}
 	
 	/**

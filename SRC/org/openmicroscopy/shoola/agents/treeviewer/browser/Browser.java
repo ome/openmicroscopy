@@ -42,7 +42,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.ProjectData;
 
 /** 
  * Defines the interface provided by the browser component.
@@ -507,7 +506,7 @@ public interface Browser
 	ExperimenterData getNodeOwner(TreeImageDisplay node);
 	
 	/** 
-	 * Sets the node the used wished to save before being prompt with
+	 * Sets the node the user wished to save before being prompt with
 	 * the Save data message box.
 	 */
     public void setSelectedNode();
@@ -525,8 +524,11 @@ public interface Browser
      *                               {@link #LOADING_HIERARCHY}.
      * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
      */
-    public void setHierarchyRoots(Set roots, TreeImageDisplay node, boolean refresh);
+    public void setHierarchyRoots(Set roots, TreeImageDisplay node, 
+    							boolean refresh);
 
 	public void browse(TreeImageDisplay node);
+	
+	public void onSelectedNode(Object parent, Object selected); 
 	
 }

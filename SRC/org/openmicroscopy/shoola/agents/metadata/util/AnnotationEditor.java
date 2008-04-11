@@ -172,7 +172,7 @@ public class AnnotationEditor
 		if (originalText == null)
 			throw new IllegalArgumentException("No annotation to edit.");
 		this.originalText = originalText;
-		setTitle("Edit Annotation");
+		setTitle("Editor");
 		setModal(true);
 		initComponents();
 		buildGUI();

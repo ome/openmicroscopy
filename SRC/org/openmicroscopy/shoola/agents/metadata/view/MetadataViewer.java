@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
-import java.awt.Component;
-import java.awt.Point;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
@@ -188,11 +186,10 @@ public interface MetadataViewer
 	 * 
 	 * @param toAdd		The annotations to add or update.
 	 * @param toRemove	The annotations to remove.
-	 * @param data		The data objects to annotate.
+	 * @param data		The data object to annotate.
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
-						List<AnnotationData> toRemove, 
-						Collection<DataObject> data);
+						List<AnnotationData> toRemove, DataObject data);
 	
 	/**
 	 * Returns <code>true</code> if data to save, <code>false</code>
@@ -227,10 +224,10 @@ public interface MetadataViewer
 	public void onDataSave(List<DataObject> dataObject);
 
 	/**
-	 * Returns the collection of ref objects if any.
+	 * Sets the collection of objects related to node of reference.
 	 * 
-	 * @return See above.
+	 * @param siblings The collection of siblings.
 	 */
-	public Collection<DataObject> getRefObjects();
+	public void setSiblings(Collection<DataObject> siblings);
 	
 }

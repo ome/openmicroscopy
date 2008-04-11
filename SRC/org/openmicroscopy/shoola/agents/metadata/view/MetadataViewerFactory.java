@@ -22,16 +22,15 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.view;
 
-import java.util.Collection;
-
-import pojos.DataObject;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
 
 /** 
  * Factory to create {@link MetadataViewer} component.
@@ -52,13 +51,6 @@ public class MetadataViewerFactory
 	/** The sole instance. */
 	private static final MetadataViewerFactory  
 						singleton = new MetadataViewerFactory();
-
-	public static MetadataViewer getViewer(Collection<DataObject> objects)
-	{
-		MetadataViewerModel model = new MetadataViewerModel(objects);
-		return singleton.createViewer(model, false, 
-									MetadataViewer.VERTICAL_LAYOUT);
-	}
 	
 	/**
 	 * Returns the {@link MetadataViewer}.

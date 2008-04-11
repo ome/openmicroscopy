@@ -279,8 +279,7 @@ class MoviePlayerControl
         if (valid) {
             model.setTimerDelay(val);
             view.setTimerDelay(val);
-        }
-        else {
+        } else {
             view.editor.selectAll();
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid value", "Please enter a value " +

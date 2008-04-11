@@ -893,13 +893,7 @@ class EditorModel
 	void fireAnnotationSaving(List<AnnotationData> toAdd,
 			List<AnnotationData> toRemove)
 	{
-		if (parent.getRefObjects() != null)
-			parent.saveData(toAdd, toRemove, parent.getRefObjects());
-		else {
-			List<DataObject> l = new ArrayList<DataObject>(1);
-			l.add((DataObject) refObject);
-			parent.saveData(toAdd, toRemove, l);
-		}
+		parent.saveData(toAdd, toRemove, (DataObject) refObject);
 	}
 	
 	/**
@@ -909,9 +903,7 @@ class EditorModel
 	 */
 	void fireDataObjectSaving(ExperimenterData exp)
 	{
-		List<DataObject> l = new ArrayList<DataObject>(1);
-		l.add(exp);
-		parent.saveData(null, null, l);
+		parent.saveData(null, null, exp);
 	}
 	
 	/**
@@ -988,12 +980,5 @@ class EditorModel
 		loader.load();
 		loaders.add(loader);
 	}
-	
-	/**
-	 * Returns the collection of ref objects if any.
-	 * 
-	 * @return See above.
-	 */
-	Collection<DataObject> getRefObjects() { return parent.getRefObjects(); }
 	
 }

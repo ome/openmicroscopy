@@ -24,9 +24,14 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 //Third-party libraries
 
@@ -36,10 +41,13 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.ProjectData;
 
 /** 
  * Implements the {@link MetadataViewer} interface to provide the functionality
@@ -103,14 +111,11 @@ class MetadataViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
-				if (model.getObjects() != null) {
-					UIUtilities.centerAndShow(view);
-				} else
-					setRootObject(model.getRefObject());
+				setRootObject(model.getRefObject());
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED state.");
+					"This method can't be invoked in the DISCARDED state.");
 		} 
 	}
 
@@ -251,12 +256,49 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#saveData(List, List, Collection)
+	 * @see MetadataViewer#saveData(List, List, DataObject)
 	 */
 	public void saveData(List<AnnotationData> toAdd, 
-				List<AnnotationData> toRemove, Collection<DataObject> data)
+				List<AnnotationData> toRemove, DataObject data)
 	{
-		model.fireSaving(toAdd, toRemove, data);
+		if (data == null) return;
+		Collection<DataObject> siblings = model.getSiblings();
+		List<DataObject> toSave = new ArrayList<DataObject>();
+		if (siblings == null || siblings.size() <= 1) {
+			toSave.add(data);
+			model.fireSaving(toAdd, toRemove, toSave);
+		} else {
+			MessageBox dialog = new MessageBox(view, "Save Annotations", 
+								"Do you want to annotate: ");
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			
+			String name = "";
+			if (data instanceof ImageData) name = "image";
+			else if (data instanceof DatasetData) name = "dataset";
+			else if (data instanceof ProjectData) name = "project";
+			
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton single = new JRadioButton();
+			single.setText("The first selected "+name);
+			single.setSelected(true);
+			p.add(single);
+			group.add(single);
+			JRadioButton all = new JRadioButton();
+			all.setText("All selected "+name+"s");
+			p.add(all);
+			group.add(all);
+			dialog.addBodyComponent(p);
+			int option = dialog.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
+				if (all.isSelected()) toSave.addAll(siblings);
+				else toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+			} else if (option == MessageBox.NO_OPTION) {
+				clearDataToSave();
+			}
+		}
+		
 	}
 	
 	/** 
@@ -332,11 +374,11 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#getRefObjects()
+	 * @see MetadataViewer#setSiblings(Collection)
 	 */
-	public Collection<DataObject> getRefObjects()
+	public void setSiblings(Collection<DataObject> siblings)
 	{
-		return model.getObjects();
+		model.setSiblings(siblings);
 	}
 	
 }

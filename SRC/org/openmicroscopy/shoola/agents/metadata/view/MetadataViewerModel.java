@@ -82,8 +82,8 @@ class MetadataViewerModel
 	/** The ref object for the viewer i.e. the root. */
 	private Object									refObject;
 	
-	/** The collection of objects to annotate. */
-	private Collection<DataObject>					objects;
+	/** The collection of objects related to the object of reference. */
+	private Collection<DataObject>					siblings;
 	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults					data;
@@ -109,20 +109,6 @@ class MetadataViewerModel
 		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
 		data = null;
 	}
-
-	/**
-	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
-	 * 
-	 * @param objects The collection of objects to annotate.
-	 */
-	MetadataViewerModel(Collection<DataObject> objects)
-	{
-		state = MetadataViewer.NEW;
-		this.objects = objects;
-		refObject = "";
-		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
-		data = null;
-	}
 	
 	/**
 	 * Called by the <code>MetadataViewer</code> after creation to allow this
@@ -144,11 +130,11 @@ class MetadataViewerModel
 	}
 	
 	/**
-	 * Returns the collection of objects to annotate if any.
+	 * Returns the collection of objects related to the object of reference.
 	 * 
 	 * @return See above.
 	 */
-	Collection<DataObject> getObjects() { return objects; }
+	Collection<DataObject> getSiblings() { return siblings; }
 	
 	/**
 	 * Returns the current state.
@@ -353,6 +339,16 @@ class MetadataViewerModel
 	{ 
 		if (data == null) return false;
 		return data.isArchived(); 
+	}
+
+	/**
+	 * Sets the collection of objects related to the reference objects.
+	 * 
+	 * @param siblings The collection to set.
+	 */
+	void setSiblings(Collection<DataObject> siblings)
+	{
+		this.siblings = siblings;
 	}
 	
 }

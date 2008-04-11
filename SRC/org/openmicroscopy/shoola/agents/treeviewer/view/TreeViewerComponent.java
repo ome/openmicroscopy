@@ -554,7 +554,6 @@ class TreeViewerComponent
         	  MetadataViewer metadata = model.getMetadataViewer();
         	  Object object = display.getUserObject();
               metadata.setRootObject(object);
-              DataBrowser db;
               showDataBrowser(object, display);
               /*
               if (object instanceof ImageData) {
@@ -600,6 +599,12 @@ class TreeViewerComponent
         }
 	}
 
+	/**
+	 * Displays the data browser corresponding to the passed node.
+	 * 
+	 * @param object
+	 * @param display
+	 */
 	private void showDataBrowser(Object object, TreeImageDisplay display)
 	{
 		DataBrowser db;
@@ -1449,7 +1454,34 @@ class TreeViewerComponent
 	public void setSelectedNode(Object object)
 	{
 		if (object == null) return;
-		model.getMetadataViewer().setRootObject(object);
+		if (!(object instanceof List)) return;
+		//Need to notify the browser without having 
+		List l = (List) object;
+		int n = l.size();
+		if (n > 2) return;
+		Object selected = l.get(0);
+		Object parent = null;
+		if (n == 2) parent = l.get(1);
+		
+		Browser browser = model.getSelectedBrowser();
+		browser.onSelectedNode(parent, selected);
+		MetadataViewer mv = model.getMetadataViewer();
+		//Check siblings first.
+		
+		mv.setRootObject(selected);
+		l = browser.getSelectedDataObjects();
+		if (l != null) {
+			List<DataObject> siblings = new ArrayList<DataObject>();
+			Iterator i = l.iterator();
+			Object o;
+			while (i.hasNext()) {
+				o = i.next();
+				if (o instanceof DataObject)
+					siblings.add((DataObject) o);
+			}
+			if (siblings.size() > 0)
+				mv.setSiblings(siblings);
+		}
 	}
 
 	/**
