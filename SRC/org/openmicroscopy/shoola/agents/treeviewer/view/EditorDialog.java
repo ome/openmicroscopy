@@ -406,7 +406,8 @@ class EditorDialog
      * Creates a new item or closes the dialog.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e)
+	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
 			case CANCEL:

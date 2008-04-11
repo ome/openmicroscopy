@@ -2803,4 +2803,31 @@ class OMEROGateway
 		*/
 	}
 	
+	/**
+	 * Retrieves all containers of a given type.
+	 * The containers are not linked to any of their children.
+	 * 
+	 * @param type		The type of container to retrieve.
+	 * @param userID	The id of the owne of the container.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Set fetchContainers(Class type, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			IQuery service = getQueryService();
+			String table = getTableForClass(type);
+			return PojoMapper.asDataObjects(service.findAllByQuery(
+	                "from "+table+" as p where p.details.owner.id = :id", 
+	                new Parameters().addId(userID)));
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the containers.");
+		}
+		return null;
+	}
+	
 }

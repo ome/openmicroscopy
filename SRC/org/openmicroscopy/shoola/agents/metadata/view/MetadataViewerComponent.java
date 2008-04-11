@@ -280,7 +280,7 @@ class MetadataViewerComponent
 			
 			ButtonGroup group = new ButtonGroup();
 			JRadioButton single = new JRadioButton();
-			single.setText("The first selected "+name);
+			single.setText("Only "+name+" "+model.getRefObjectName());
 			single.setSelected(true);
 			p.add(single);
 			group.add(single);

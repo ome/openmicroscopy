@@ -32,7 +32,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
@@ -267,5 +266,20 @@ public interface MetadataHandlerView
 
 	public CallHandle filterData(Class nodeType, Set<Long> nodeIds,
 			FilterContext context, long userID, AgentEventListener observer);
+
+	/** 
+	 * Creates a new <code>Dataobject</code> and adds the children to the
+	 * newly created node.
+	 * 
+	 * @param parent	The parent of the <code>DataObject</code> to create
+	 * 					or <code>null</code> if no parent specified.
+	 * @param data		The <code>DataObject</code> to create.
+	 * @param children	The nodes to add to the newly created 
+	 * 					<code>DataObject</code>.
+	 * @param observer	Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle createDataObject(DataObject parent, DataObject data,
+							Collection children, AgentEventListener observer);
 	
 }

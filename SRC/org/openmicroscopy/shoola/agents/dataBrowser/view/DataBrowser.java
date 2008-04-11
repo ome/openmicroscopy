@@ -56,6 +56,13 @@ public interface DataBrowser
 	extends ObservableComponent
 {
 
+	/** 
+	 * Bound property indicating that a <code>Dataobject</code> has 
+	 * been created.
+	 */
+	public static final String		DATA_OBJECT_CREATED_PROPERTY = 
+										"dataObjectCreated";
+	
 	/** Loads the thumbnails when we have <code>100</code> or less values. */
 	public static final int			MAX_ENTRIES = 100;
 	
@@ -259,5 +266,14 @@ public interface DataBrowser
      * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
      */
     public void setSlideViewImage(long imageID, BufferedImage thumb);
+
+    /**
+     * Creates a new data object containing the displayed nodes.
+     * 
+     * @param data The object to create.
+     */
+	public void createDataObject(DataObject data);
+
+	public void setDataObjectCreated(DataObject object);
 	
 }

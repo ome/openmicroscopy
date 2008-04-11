@@ -74,7 +74,7 @@ public class TreeViewerTranslator
 {
    
 	/** Text of the dummy TreeImageSet containing the orphaned datasets. */
-	public static final String ORPHANED_DATASETS = "Orphaned Datasets";
+	//public static final String ORPHANED_DATASETS = "Orphaned Datasets";
 	
 	/** Text of the dummy TreeImageSet containing the orphaned categories.*/
 	public static final String ORPHANED_CATEGORIES = "Ungrouped Tags";
@@ -393,6 +393,7 @@ public class TreeViewerTranslator
                 else if (ho instanceof ImageData) 
                     results.add(transformImage((ImageData) ho));	
                 else if (ho instanceof DatasetData) {
+                	/*
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_DATASETS);
                 		orphan.setChildrenLoaded(Boolean.TRUE);
@@ -400,6 +401,9 @@ public class TreeViewerTranslator
                 	}
                 	child = transformDataset((DatasetData) ho, userID, groupID);
                 	orphan.addChildDisplay(child);
+                	*/
+                	child = transformDataset((DatasetData) ho, userID, groupID);
+                	results.add(child);
                 } else if (ho instanceof CategoryData) {
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
@@ -517,11 +521,13 @@ public class TreeViewerTranslator
 	                    		expanded.contains(new Long(ho.getId())));
                     results.add(display); 
                 } else if (ho instanceof DatasetData) {
+                	/*
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_DATASETS);
                 		orphan.setChildrenLoaded(true);
                 		results.add(orphan); 
                 	}
+                	*/
                 	if (expandedTopNodes != null)
                 		expanded = 
                 			(List) expandedTopNodes.get(DatasetData.class);
@@ -533,8 +539,8 @@ public class TreeViewerTranslator
                 		if (expanded != null)
                 			display.setExpanded(
                 					expanded.contains(new Long(ho.getId())));
-                		orphan.addChildDisplay(display);
-                		//results.add(display); 
+                		//orphan.addChildDisplay(display);
+                		results.add(display); 
                 	}
                 	
                 } else if (ho instanceof CategoryData) {

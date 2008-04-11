@@ -174,7 +174,7 @@ public class ClassificationSaver
 					new HashSet<CategoryData>(categories.size());
 				while (i.hasNext()) {
 					cat = (CategoryData) 
-					os.createDataObject((CategoryData) i.next(), null);
+					os.createDataObject((CategoryData) i.next(), null, null);
 					newOnes.add(cat);
 				}
 				Set<ImageData> images = new HashSet<ImageData>(imageIDs.size());

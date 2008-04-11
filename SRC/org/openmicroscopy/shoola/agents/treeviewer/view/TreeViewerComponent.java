@@ -695,6 +695,20 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#onOrphanDataObjectCreated(DataObject, int)
+	 */
+	public void onOrphanDataObjectCreated(DataObject data)
+	{
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		Browser browser = model.getSelectedBrowser();
+		browser.onOrphanDataObjectCreated(data);
+		
+		setStatus(false, "", true);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onDataObjectSave(List, int)
 	 */
 	public void onDataObjectSave(List data, int operation)

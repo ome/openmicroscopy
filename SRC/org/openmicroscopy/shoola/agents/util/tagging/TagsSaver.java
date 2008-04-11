@@ -53,10 +53,10 @@ public class TagsSaver
 {
 
 	/** Indicates to tag the selected objects. */
-	public static final int 	LEVEL_ZERO = DataHandlerView.TAG_LEVEL_ZERO;
+	public static final int 	LEVEL_ZERO = 0;//DataHandlerView.TAG_LEVEL_ZERO;
 	
 	/** Indicates to tag the children of the selected objects. */
-	public static final int 	LEVEL_ONE = DataHandlerView.TAG_LEVEL_ONE;
+	public static final int 	LEVEL_ONE = 1;//DataHandlerView.TAG_LEVEL_ONE;
 	
 	/** The id of the objects to handle. */
 	private Set<Long> 			ids;
@@ -138,11 +138,13 @@ public class TagsSaver
 	 */
 	public void load()
 	{
+		/*
 		if (timeRef != null)
 			handle = dhView.tag(timeRef, rootType, tagLevel, data, toUpdate, 
 								this);
 		else 
 			handle = dhView.tag(ids, rootType, tagLevel, data, toUpdate, this);
+			*/
 	}
 	
 	/**

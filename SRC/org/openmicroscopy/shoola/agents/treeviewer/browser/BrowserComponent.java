@@ -681,8 +681,9 @@ class BrowserComponent
             long userID = model.getUserID();
             //long model.get
             long groupID = model.getUserGroupID();
+            //Get the user node.
             if (parentDisplay == null)
-                parentDisplay = getLastSelectedDisplay();
+            	parentDisplay = getLastSelectedDisplay();
             createNodes(nodes, 
                     TreeViewerTranslator.transformDataObject(object, userID, 
                             groupID), parentDisplay);
@@ -690,6 +691,20 @@ class BrowserComponent
         setSelectedNode();
     }
 
+	public void onOrphanDataObjectCreated(DataObject data) 
+	{
+		TreeImageDisplay loggedUser = view.getLoggedExperimenterNode();
+		List nodes = new ArrayList(1);
+        nodes.add(loggedUser);
+        long userID = model.getUserID();
+        //long model.get
+        long groupID = model.getUserGroupID();
+        createNodes(nodes, 
+                TreeViewerTranslator.transformDataObject(data, userID, 
+                        groupID), loggedUser);
+        setSelectedNode();
+	}
+	
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getSelectedDisplays()

@@ -129,16 +129,6 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#createDataObject(DataObject, DataObject)
-     */
-    public DataObject createDataObject(DataObject newObject, DataObject parent)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
      * @see OmeroDataService#updateDataObject(DataObject)
      */
     public DataObject updateDataObject(DataObject object)
@@ -444,6 +434,18 @@ public class NullOmeroPojoService
 	 */
 	public Collection getOriginalFiles(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#createDataObject(DataObject, DataObject, 
+	 * 											Collection)
+	 */
+	public DataObject createDataObject(DataObject newObject, DataObject parent, 
+				Collection children) 
+		throws DSOutOfServiceException, DSAccessException 
 	{
 		return null;
 	}

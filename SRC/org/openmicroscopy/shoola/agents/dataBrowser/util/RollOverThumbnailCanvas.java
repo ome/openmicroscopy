@@ -67,10 +67,10 @@ class RollOverThumbnailCanvas
     private final RollOverThumbnail	model;
     
     /** The pin image painted in the top-right corner. */
-    private ImageIcon           pinIcon;
+    private ImageIcon           	pinIcon;
     
     /** The location of the pin icon. */
-    private Rectangle           pinRectangle;
+    private Rectangle           	pinRectangle;
 
     /**
      * Creates a new instance. 

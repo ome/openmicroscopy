@@ -587,6 +587,9 @@ class TreeViewerControl
 				
 		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
 			model.setSelectedNode(pce.getNewValue());
+		} else if (DataBrowser.DATA_OBJECT_CREATED_PROPERTY.equals(name)) {
+			DataObject data = (DataObject) pce.getNewValue();
+			model.onOrphanDataObjectCreated(data);
 		}
 	}
 

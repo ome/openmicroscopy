@@ -37,10 +37,13 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.ObjectEditor;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
+import pojos.DataObject;
 
 /** 
  * 
@@ -162,6 +165,9 @@ class DataBrowserControl
            }
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
         	view.slideShowView(false, false);
+        } else if (ObjectEditor.CREATE_DATAOBJECT_PROPERTY.equals(name)) {
+        	DataObject object = (DataObject) evt.getNewValue();
+        	model.createDataObject(object);
         }
 	}
 

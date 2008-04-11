@@ -363,5 +363,27 @@ class DataBrowserComponent
 		if (state == LOADING_SLIDE_VIEW)
 			view.setSlideViewStatus(false, perc);
 	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#createDataObject(DataObject)
+	 */
+	public void createDataObject(DataObject data)
+	{
+		if (data == null) return;
+		//TODO: check state.
+		Browser browser = model.getBrowser();
+		Collection images = browser.getVisibleImages();
+		model.fireDataSaving(data, images);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setDataObjectCreated(DataObject)
+	 */
+	public void setDataObjectCreated(DataObject object)
+	{
+		firePropertyChange(DATA_OBJECT_CREATED_PROPERTY, null, object);
+	}
 	
 }

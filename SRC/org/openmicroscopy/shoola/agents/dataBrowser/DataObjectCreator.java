@@ -24,18 +24,13 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.DataObject;
 
 /** 
@@ -55,17 +50,38 @@ public class DataObjectCreator
 	extends DataBrowserLoader
 {
 
-	private DataObject				parent;
+	/** The parent of the <code>DataObject</code> to create. */
+	private DataObject	parent;
 	
-	private Collection<DataObject> 	children;
+	/** The <code>DataObject</code> to create. */
+	private DataObject	data;
+	
+	/**The nodes to add to the newly created object. */
+	private Collection	children;
 	
     /** Handle to the async call so that we can cancel it. */
     private CallHandle				handle;
    
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param parent	The parent of the <code>DataObject</code> to create
+     * 					or <code>null</code>.
+     * @param data		The <code>DataObject</code> to create.
+     * 					Mustn't be <code>null</code>.
+     * @param children	The nodes to add to the newly created object.
+     */
     public DataObjectCreator(DataBrowser viewer, DataObject parent, 
-    						Collection<DataObject> children)
+    						DataObject data, Collection children)
     {
     	super(viewer);
+    	if (data == null) 
+    		throw new IllegalArgumentException("No object to create.");
+    	this.data = data;
+    	this.parent = parent;
+    	this.children = children;
     }
     
     /** 
@@ -75,13 +91,12 @@ public class DataObjectCreator
 	public void cancel() { handle.cancel(); }
 
 	/** 
-	 * Loads the rating annotations for the specified nodes.
+	 * Creates a new <code>DataObject</code>.
 	 * @see DataBrowserLoader#load()
 	 */
 	public void load()
 	{
-		long userID = DataBrowserAgent.getUserDetails().getId();
-		//handle = mhView.filterData(nodeType, nodeIds, context, userID, this);
+		handle = mhView.createDataObject(parent, data, children, this);
 	}
 	
 	/**
@@ -91,7 +106,7 @@ public class DataObjectCreator
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	
+    	viewer.setDataObjectCreated((DataObject) result);
     }
     
 }

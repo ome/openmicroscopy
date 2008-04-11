@@ -237,16 +237,7 @@ public class ModelMapper
             Image unloadedImage = new Image(child.getId(), false);
             
             DatasetImageLink l = new DatasetImageLink();
-            l.link(unloadedDataset, unloadedImage);
-            return l;
-        } else if (parent instanceof Dataset) {
-            if (!(child instanceof Image))
-                throw new IllegalArgumentException("Child not valid.");
-            Dataset unloadedDataset = new Dataset(parent.getId(), false);
-            Image unloadedImage = new Image(child.getId(), false);
-            
-            DatasetImageLink l = new DatasetImageLink();
-            l.link(unloadedDataset, unloadedImage);
+             l.link(unloadedDataset, unloadedImage);
             return l;
         } else if (parent instanceof Category) {
             if (!(child instanceof Image))
@@ -349,13 +340,14 @@ public class ModelMapper
             model.setDescription(data.getDescription());
             return model;
         } else if (child instanceof DatasetData) {
-            if (!(parent instanceof ProjectData)) 
-                throw new IllegalArgumentException("Parent not valid.");
+            //if (!(parent instanceof ProjectData)) 
+            //    throw new IllegalArgumentException("Parent not valid.");
             DatasetData data = (DatasetData) child;
             Dataset model = new Dataset();
             model.setName(data.getName());
             model.setDescription(data.getDescription());
-            model.linkProject(new Project(new Long(parent.getId()), false));
+            if (parent != null)
+            	model.linkProject(new Project(new Long(parent.getId()), false));
             return model;
         } else if (child instanceof CategoryData) {
             CategoryData data = (CategoryData) child;

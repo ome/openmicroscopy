@@ -117,11 +117,14 @@ public class IconManager
     /** The <code>Create</code> icon. */
     public static int           CREATE = 22;
     
+    /** The <code>Create 48x48</code> icon. */
+    public static int           CREATE_48 = 23;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 22;
+    private static int          MAX_ID = 23;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -151,6 +154,7 @@ public class IconManager
         relPaths[MANAGER] = "eclipse_external_tools16.png";
         relPaths[ROLL_OVER] = "roll_over_image16.png";
         relPaths[CREATE] = "nuvola_filenew16.png"; 
+        relPaths[CREATE_48] = "nuvola_filenew48.png"; 
     }
     
     /** The sole instance. */

@@ -640,4 +640,6 @@ public interface TreeViewer
 	
     public void setHierarchyRoots(Object parent, Set nodes);
     
+    public void onOrphanDataObjectCreated(DataObject data);
+    
 }

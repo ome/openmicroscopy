@@ -328,16 +328,17 @@ public interface OmeroDataService
 	 * 
 	 * @param newObject The <code>DataObject</code> to create.
 	 *                  Mustn't be <code>null</code>.
-	 * @param parent    The parent of the <code>DataObject</code>. Can be 
-	 *                  <code>null</code> if <code>DataObject</code> to create
-	 *                  is either a <code>Project</code>,
-	 *                  <code>CategoryGroup</code>.
+	 * @param parent    The parent of the <code>DataObject</code> or  Can be 
+	 *                  <code>null</code> if no parent specified.
+	 * @param children	The nodes to add to the newly created 
+	 * 					<code>DataObject</code>.
 	 * @return          The newly created <code>DataObject</code>
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public DataObject createDataObject(DataObject newObject, DataObject parent)
+	public DataObject createDataObject(DataObject newObject, DataObject parent, 
+										Collection children)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -489,23 +490,6 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Map<GroupData, Set> getAvailableGroups()
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Retrieves the oprhans datasets or categories.
-	 * 
-	 * @param nodeType	The type of the rootNodes. It can either be
-	 *                  <code>Dataset</code> or <code>Image</code>.
-	 *                  Mustn't be <code>null</code>. 
-	 * @param b			Pass <code>true</code> to retrieve the images,
-	 * 					<code>false</code> otherwise.
-	 * @param userID	The Id of the root.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Set getOrphanContainers(Class nodeType, boolean b, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

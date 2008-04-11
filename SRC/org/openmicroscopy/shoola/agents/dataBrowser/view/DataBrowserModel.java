@@ -37,6 +37,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator;
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader;
@@ -319,6 +320,7 @@ abstract class DataBrowserModel
 	
 	/** 
 	 * Starts an asynchronous retrieval all the full size image.
+	 * 
 	 * @param images The value to handle.
 	 */
 	void fireFullSizeLoading(Collection<ImageNode> images)
@@ -341,6 +343,19 @@ abstract class DataBrowserModel
 			loader.load();
 			state = DataBrowser.LOADING_SLIDE_VIEW;
 		}
+	}
+	
+	/**
+	 * Starts an asynchronous retrieval 
+	 * 
+	 * @param data 		The <code>DataObject</code> to create.
+	 * @param images	The images to add to the <code>DataObject</code>.
+	 */
+	void fireDataSaving(DataObject data, Collection images)
+	{
+		DataObjectCreator loader = new DataObjectCreator(component, null, 
+												data, images);
+		loader.load();
 	}
 	
 	/**

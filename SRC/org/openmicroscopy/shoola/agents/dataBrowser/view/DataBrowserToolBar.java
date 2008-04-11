@@ -53,6 +53,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.ObjectEditor;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -158,6 +159,8 @@ class DataBrowserToolBar
 		manageMenu = new JPopupMenu();
 		
 		JMenuItem menuItem = new JMenuItem("New dataset");
+		menuItem.setToolTipText("Create a dataset containing the displayed " +
+								"images.");
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
@@ -482,7 +485,12 @@ class DataBrowserToolBar
 				view.setRollOver(rollOverItem.isSelected());
 				break;
 			case NEW_OBJECT:
-				//view.setRollOver(true);
+				Registry reg = DataBrowserAgent.getRegistry();
+				ObjectEditor dialog = new ObjectEditor(
+										reg.getTaskBar().getFrame(), 
+										ObjectEditor.DATASET);
+				dialog.addPropertyChangeListener(controller);
+				UIUtilities.centerAndShow(dialog);
 				break;
 			case ITEMS_PER_ROW:
 				parseItemsPerRow();

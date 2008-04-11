@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -78,15 +79,17 @@ public class DataObjectSaver
      * 
      * @param object    The <code>DataObject</code> to create.
      * @param parent    The parent of the <code>DataObject</code>.
+     * @param children	The children to add to the newly created node.
      * @return The {@link BatchCall}.
      */
-    private BatchCall create(final DataObject object, final DataObject parent)
+    private BatchCall create(final DataObject object, final DataObject parent, 
+    						final Collection children)
     {
         return new BatchCall("Create Data object.") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
-                result = os.createDataObject(object, parent);
+                result = os.createDataObject(object, parent, children);
             }
         };
     }
@@ -191,7 +194,7 @@ public class DataObjectSaver
         }
         switch (index) {
             case CREATE:
-                saveCall = create(userObject, parent);
+                saveCall = create(userObject, parent, null);
                 break;
             case UPDATE:
                 saveCall = update(userObject);
@@ -255,6 +258,25 @@ public class DataObjectSaver
             default:
                 throw new IllegalArgumentException("Operation not supported.");
         }
+    }
+    
+    /**
+     * Creates a new instance.
+     * If bad arguments are passed, we throw a runtime
+	 * exception so to fail early and in the caller's thread.
+     * 	
+     * @param parent	The parent of the <code>DataObject</code> to create
+	 * 					or <code>null</code> if no parent specified.
+	 * @param data		The <code>DataObject</code> to create.
+	 * @param children	The nodes to add to the newly created 
+	 * 					<code>DataObject</code>.
+     */
+    public DataObjectSaver(DataObject parent, DataObject data, 
+    						Collection children)
+    {
+    	if (data == null) 
+    		throw new IllegalArgumentException("No object to create.");
+    	saveCall = create(data, parent, children);
     }
     
 }

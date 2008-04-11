@@ -531,4 +531,6 @@ public interface Browser
 	
 	public void onSelectedNode(Object parent, Object selected); 
 	
+	public void onOrphanDataObjectCreated(DataObject data);
+	
 }

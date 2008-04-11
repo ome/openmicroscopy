@@ -36,7 +36,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.TagSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.CategoryData;
@@ -60,11 +59,6 @@ public interface DataHandlerView
 	extends DataServicesView
 {
 
-	/** Indicates to tag the selected objects. */
-	public static final int TAG_LEVEL_ZERO = TagSaver.TAG_LEVEL_ZERO;
-	
-	/** Indicates to tag the children of the selected objects. */
-	public static final int TAG_LEVEL_ONE = TagSaver.TAG_LEVEL_ONE;
 	
 	/** Identifies the <code>Declassification</code> algorithm. */
 	public static final int DECLASSIFICATION = 
@@ -250,28 +244,6 @@ public interface DataHandlerView
 	 */
 	public CallHandle annotateChildren(Set folders, 
 			AnnotationData annotation, AgentEventListener observer);
-
-	/**
-	 * Loads all tags for a given collection of images.
-	 * 
-	 * @param imageIDs	The id of the images to handle.
-	 * @param userID	The user's id.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadAllTags(Set<Long> imageIDs, long userID, 
-			AgentEventListener observer);
-	
-	/**
-	 * Loads the tags and tag sets linked to a given collection of images.
-	 * 
-	 * @param imageIDs	The id of the images to handle.
-	 * @param userID	The user's id.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadLinkedTags(Set<Long> imageIDs, long userID, 
-			AgentEventListener observer);
 	
 	/**
 	 * Loads the tags available and not linked to a given collection of images.
@@ -312,40 +284,6 @@ public interface DataHandlerView
 	 */
 	public CallHandle findCategoryPaths(Set<Long> imagesID, boolean leaves, 
 			long userID, 
-			AgentEventListener observer);
-
-	/**
-	 * Creates new tags and adds the tags to the specified objects
-	 * and updates the collection of tags.
-	 * 
-	 * @param ids		The id of the objects to tags.
-	 * @param rootType	The type of node to create.
-	 * @param tagLevel	One out of the following constants:
-	 * 					{@link #TAG_LEVEL_ONE} or {@link #TAG_LEVEL_ZERO}.
-	 * @param toCreate	The tags to create.			
-	 * @param toUpdate	The tags to update.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle tag(Set<Long> ids, Class rootType, int tagLevel, 
-			Set<CategoryData> toCreate, Set<CategoryData> toUpdate,
-			AgentEventListener observer);
-
-	/**
-	 * Creates new tags and adds the tags to the specified objects
-	 * and updates the collection of tags.
-	 * 
-	 * @param time		The object indicating the time interval.
-	 * @param rootType  The type of node to create.
-	 * @param tagLevel	One out of the following constants:
-	 * 					{@link #TAG_LEVEL_ONE} or {@link #TAG_LEVEL_ZERO}.s
-	 * @param toCreate	The tags to create.			
-	 * @param toUpdate	The tags to update.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle tag(TimeRefObject time, Class rootType, int tagLevel, 
-			Set<CategoryData> toCreate, Set<CategoryData> toUpdate,
 			AgentEventListener observer);
 	
 	/**

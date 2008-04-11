@@ -35,6 +35,7 @@ import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DataFilter;
+import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.FileDownloader;
 import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
@@ -279,6 +280,19 @@ class MetadataHandlerViewImpl
 			FilterContext context, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DataFilter(nodeType, nodeIds, context, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#createDataObject(DataObject, DataObject,
+	 * 									Collection, AgentEventListener)
+	 */
+	public CallHandle createDataObject(DataObject parent, DataObject data, 
+								Collection children, 
+								AgentEventListener observer)
+	{
+		BatchCallTree cmd = new DataObjectSaver(parent, data, children);
 		return cmd.exec(observer);
 	}
 	

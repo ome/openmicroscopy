@@ -179,12 +179,14 @@ class OmeroDataServiceImpl
 				klass = DatasetData.class;
 			else if (rootNodeType.equals(CategoryGroupData.class))
 				klass = CategoryData.class;
+			
 			if (klass != null) {
 				po = new PojoOptions(); 
 				po.exp(new Long(userID));
 				//options.allCounts();
 				po.noLeaves();
-				Set r = gateway.loadContainerHierarchy(klass, null, po.map());
+				//Set r = gateway.loadContainerHierarchy(klass, null, po.map());
+				Set r = gateway.fetchContainers(klass, userID);
 				Iterator i = parents.iterator();
 				DataObject parent;
 				Set children = new HashSet();
@@ -205,7 +207,7 @@ class OmeroDataServiceImpl
 					childrenIds.add(new Long(child.getId()));
 				}
 				Set orphans = new HashSet();
-				orphans.addAll(r);
+				if (r != null) orphans.addAll(r);
 				j = r.iterator();
 				while (j.hasNext()) {
 					child = (DataObject) j.next();
@@ -360,81 +362,13 @@ class OmeroDataServiceImpl
 		return PojoMapper.asDataObject(ModelMapper.getAnnotatedObject(object));
 	}
 
-
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#removeAnnotationFrom(DataObject, List)
+	 * @see OmeroDataService#createDataObject(DataObject, DataObject, 
+	 * 										Collection)
 	 */
-	public DataObject removeAnnotationFrom(DataObject annotatedObject, 
-			List data)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (data == null) 
-			throw new IllegalArgumentException("No annotation to delete.");
-		if (annotatedObject == null) 
-			throw new IllegalArgumentException("No annotated DataObject."); 
-		if (!(annotatedObject instanceof ImageData ||
-				annotatedObject instanceof DatasetData ||
-				annotatedObject instanceof ProjectData))
-			throw new IllegalArgumentException("This method only supports " +
-			"ImageData and DatasetData objects.");
-		//First make sure the data object is current;
-		Iterator i = data.iterator();
-		IObject ho, link;
-		AnnotationData d;
-		IObject parent = annotatedObject.asIObject();
-		IObject[] toRemove;
-		while (i.hasNext()) {
-			d = (AnnotationData) i.next();
-			ho = gateway.findIObject(d.asIObject());
-			//First delete the link
-			link = gateway.findAnnotationLink(parent, ho.getId());
-			toRemove = new IObject[2];
-			if (ho != null && link != null) {
-				toRemove[0] = link;
-				toRemove[1] = ho;
-				gateway.deleteObjects(toRemove);
-			}
-		}
-		ho = gateway.findIObject(parent);
-		return PojoMapper.asDataObject(ho);
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#updateAnnotationFor(DataObject, AnnotationData)
-	 */
-	public DataObject updateAnnotationFor(DataObject annotatedObject,
-			AnnotationData data)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (data == null) 
-			throw new IllegalArgumentException("No annotation to update.");
-		if (annotatedObject == null) 
-			throw new IllegalArgumentException("No annotated DataObject.");
-		if (!(annotatedObject instanceof ImageData) && 
-				!(annotatedObject instanceof DatasetData))
-			throw new IllegalArgumentException("This method only supports " +
-			"ImageData and DatasetData objects.");
-		Map options = (new PojoOptions()).map();
-		IObject object = annotatedObject.asIObject();
-		IObject ho = gateway.findIObject(object);
-		if (ho == null)  return null;
-
-		ModelMapper.fillIObject(object, ho);
-		ModelMapper.unloadCollections(ho);
-		IObject updated = gateway.updateObject(ho, options);
-		IObject toUpdate = data.asIObject();
-		ModelMapper.setAnnotatedObject(updated, toUpdate);
-		gateway.updateObject(toUpdate, options);
-		return PojoMapper.asDataObject(updated);
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#createDataObject(DataObject, DataObject)
-	 */
-	public DataObject createDataObject(DataObject child, DataObject parent)
+	public DataObject createDataObject(DataObject child, DataObject parent,
+										Collection children)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (child == null) 
@@ -447,9 +381,32 @@ class OmeroDataServiceImpl
 		Map options = (new PojoOptions()).map();
 
 		IObject created = gateway.createObject(obj, options);
-		if (parent != null) {
+		if (parent != null)
 			ModelMapper.linkParentToNewChild(created, parent.asIObject());
-		}  
+		if (children != null && children.size() > 0) {
+			Iterator i = children.iterator();
+			Object node;
+			List<ILink> links = new ArrayList<ILink>();
+			while (i.hasNext()) {
+				node = i.next();
+				if (node instanceof DataObject) {
+					links.add(ModelMapper.linkParentToChild(
+							((DataObject) node).asIObject(), created));
+				}
+			}
+			if (links.size() > 0) {
+				IObject[] array = new IObject[links.size()];
+				int index = 0;
+				i = links.iterator();
+				while (i.hasNext()) {
+					array[index] = (IObject) i.next();
+					index++;
+				}
+				gateway.createObjects(array, options);
+			}
+			
+			
+		}
 		return  PojoMapper.asDataObject(created);
 	}
 
@@ -807,57 +764,6 @@ class OmeroDataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getAvailableGroups();
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getOrphanContainers(Class, boolean, long)
-	 */
-	public Set getOrphanContainers(Class nodeType, boolean withLeaves, 
-			long userID)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (nodeType == null) return null;
-		if (!(nodeType.equals(DatasetData.class) || 
-				nodeType.equals(CategoryData.class)))
-			return null;
-		Set r = loadContainerHierarchy(nodeType, null, withLeaves, userID);
-		Set parents = null;
-		if (nodeType.equals(DatasetData.class)) {
-			parents = loadContainerHierarchy(ProjectData.class, null, false, 
-					userID);
-		} else if (nodeType.equals(CategoryData.class)) {
-			parents = loadContainerHierarchy(CategoryGroupData.class, null, 
-					false, userID);
-		}
-		if (parents == null) return null;
-		Iterator i = parents.iterator();
-		DataObject parent;
-		Set children = new HashSet();
-		while (i.hasNext()) {
-			parent = (DataObject) i.next();
-			if (nodeType.equals(DatasetData.class))
-				children.addAll(((ProjectData) parent).getDatasets());
-			else 
-				children.addAll(((CategoryGroupData) parent).getCategories());
-		}
-		Set<Long> childrenIds = new HashSet<Long>();
-
-		Iterator j = children.iterator();
-		DataObject child;
-		while (j.hasNext()) {
-			child = (DataObject) j.next();
-			childrenIds.add(new Long(child.getId()));
-		}
-		Set orphans = new HashSet();
-		orphans.addAll(r);
-		j = r.iterator();
-		while (j.hasNext()) {
-			child = (DataObject) j.next();
-			if (childrenIds.contains(new Long(child.getId())))
-				orphans.remove(child);
-		}
-		return orphans;
 	}
 
 	/**

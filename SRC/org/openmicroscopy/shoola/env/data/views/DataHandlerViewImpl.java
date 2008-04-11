@@ -42,10 +42,8 @@ import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
-import org.openmicroscopy.shoola.env.data.views.calls.TagSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
-import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -228,31 +226,6 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadAllTags(long, long, 
-	 * 											AgentEventListener)
-	 */
-	public CallHandle loadAllTags(Set<Long> imageIDs, long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationLoader(imageIDs,
-				ClassificationLoader.ALL_TAGS, userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadLinkedTags(long, long, 
-	 * 											AgentEventListener)
-	 */
-	public CallHandle loadLinkedTags(Set<Long> imageIDs, long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationLoader(imageIDs,
-				ClassificationLoader.TAGS_USED, userID);
-		return cmd.exec(observer);
-	}
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#findCategoryPaths(long, boolean, long, 
 	 * 											AgentEventListener)
 	 */
@@ -385,34 +358,6 @@ public class DataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 	
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#tag(Set, Class, int, Set, Set, AgentEventListener)
-	 */
-	public CallHandle tag(Set<Long> ids, Class rootType, int tagLevel, 
-			Set<CategoryData> toCreate, Set<CategoryData> toUpdate, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new TagSaver(ids, rootType, tagLevel, toCreate,
-										toUpdate);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#tag(TimeRefObject, Class, int, Set, Set, 
-	 * 							AgentEventListener)
-	 */
-	public CallHandle tag(TimeRefObject timeRef, Class rootType, int tagLevel, 
-			Set<CategoryData> toCreate, Set<CategoryData> toUpdate, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new TagSaver(timeRef, rootType, tagLevel, toCreate,
-				toUpdate);
-		return cmd.exec(observer);
-	}
-
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#loadAvailableGroups(AgentEventListener)
@@ -434,5 +379,5 @@ public class DataHandlerViewImpl
 				ClassificationLoader.TAGS_AVAILABLE, userID);
 		return cmd.exec(observer);
 	}
-		
+
 }
