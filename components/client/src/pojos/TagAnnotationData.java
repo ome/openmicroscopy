@@ -25,17 +25,24 @@ package pojos;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.containers.Dataset;
+import ome.model.core.Image;
+import ome.util.CBlock;
 
 /** 
- * 
+ * A tag annotaion can either be related to an image or a tag
+ * but not to both at the same time.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,6 +61,12 @@ public class TagAnnotationData
 	
 	/** The textual description of the tag. */
 	private TextualAnnotationData		description;
+	
+	/** The collection of images related to the tag. */
+	private Set<ImageData>				images;
+	
+	/** The collection of tags related to the tags. */
+	private Set<TagAnnotationData>		tags;
 	
 	/**
 	 * Creates a new instance.
@@ -102,6 +115,57 @@ public class TagAnnotationData
 		Iterator<TextAnnotation> i = value.iterator();
 		while (i.hasNext()) 
 			descriptions.add(new TextualAnnotationData(i.next()));
+	}
+	
+	/**
+	 * Sets the collection of images. 
+	 * 
+	 * @param images The value to set.
+	 */
+	public void setImages(Set<ImageData> images)
+	{
+		if (tags != null) 
+			throw new IllegalArgumentException("Cannot add images to " +
+					"a tagSet.");
+		this.images = images;
+	}
+	
+	/**
+	 * Sets the collection of tags. 
+	 * 
+	 * @param tags The value to set.
+	 */
+	public void setTags(Set<TagAnnotationData> tags)
+	{
+		if (images != null) 
+			throw new IllegalArgumentException("Cannot add tags to " +
+					"a tag with images.");
+		this.tags = tags;
+	}
+	
+	/**
+	 * Returns the collection of tags related to this tag.
+	 * 
+	 * @return See above.
+	 */
+	public Set<TagAnnotationData> getTags() { return tags; }
+	
+	/**
+	 * Returns the collection of images related to this tag.
+	 * 
+	 * @return See above.
+	 */
+	public Set<ImageData> getImages()
+	{ 
+		if (images == null && asAnnotation().sizeOfAnnotationLinks() >= 0) {
+			images = new HashSet<ImageData>(asAnnotation().eachLinkedAnnotation
+					(new CBlock<ImageData>() {
+                public ImageData call(IObject object) {
+                    return new ImageData((Image) object);
+                }
+            }));
+        }
+        return images == null ? null : new HashSet<ImageData>(images);
 	}
 	
 	/**
