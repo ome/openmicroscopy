@@ -260,41 +260,20 @@ public class IconManager
     /** The <code>add_12</code> icon. */
     public static int           ADD_12 = 68;
     
-    /** The <code>annotated by user</code> icon. */
-    public static int           IMAGE_ANNOTATED_BY_USER = 69;
+    /** The <code>Project annotated</code> icon. */
+    public static int           PROJECT_ANNOTATED = 69;
     
-    /** The <code>annotated by user</code> icon. */
-    public static int           IMAGE_ANNOTATED_BY_OTHER = 70;
+    /** The <code>Tags explorer</code> icon. */
+    public static int           TAGS_EXPLORER = 70;
     
-    /** The <code>annotated by user</code> icon. */
-    public static int           IMAGE_ANNOTATED_BY_ALL = 71;
-    
-    /** The <code>annotated by user</code> icon. */
-    public static int           DATASET_ANNOTATED_BY_USER = 72;
-    
-    /** The <code>annotated by user</code> icon. */
-    public static int           DATASET_ANNOTATED_BY_OTHER = 73;
-    
-    /** The <code>annotated by user</code> icon. */
-    public static int           DATASET_ANNOTATED_BY_ALL = 74;
-    
-    /** The <code>annotated by user</code> icon. */
-    public static int           PROJECT_ANNOTATED_BY_USER = 75;
-    
-    /** The <code>annotated by user</code> icon. */
-    public static int           PROJECT_ANNOTATED_BY_OTHER = 76;
-    
-    /** The <code>annotated by user</code> icon. */
-    public static int           PROJECT_ANNOTATED_BY_ALL = 77;
-    
-    /** The <code>project annotated</code> icon. */
-    public static int           PROJECT_ANNOTATED = 78;
+    /** The <code>Tag</code> icon. */
+    public static int           TAG = 71;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 78;
+    private static int          MAX_ID = 71;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -371,16 +350,9 @@ public class IconManager
         relPaths[SEARCH] = "nuvola_find16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
-        relPaths[IMAGE_ANNOTATED_BY_USER] = "nuvola_image_red16.png";//"annotatedByUser_image16.png";
-        relPaths[IMAGE_ANNOTATED_BY_OTHER] = "annotatedByOther_image16.png";
-        relPaths[IMAGE_ANNOTATED_BY_ALL] = "annotatedByAll_image16.png";
-        relPaths[DATASET_ANNOTATED_BY_USER] = "nuvola_folder_image_red16.png";//"annotatedByUser_dataset16.png";
-        relPaths[DATASET_ANNOTATED_BY_OTHER] = "annotatedByOther_dataset16.png";
-        relPaths[DATASET_ANNOTATED_BY_ALL] = "annotatedByAll_dataset16.png";
-        relPaths[PROJECT_ANNOTATED_BY_USER] = "nuvola_folder_red_open16.png";;//"annotatedByUser_project16.png";
-        relPaths[PROJECT_ANNOTATED_BY_OTHER] = "annotatedByOther_project16.png";
-        relPaths[PROJECT_ANNOTATED_BY_ALL] = "annotatedByAll_project16.png";
         relPaths[PROJECT_ANNOTATED] = "tagged_project16.png";
+        relPaths[TAGS_EXPLORER] = "eclipse_hierarchicalLayout16.png";
+        relPaths[TAG] = "nuvola_knotes16.png";
     }
     
     /** The sole instance. */

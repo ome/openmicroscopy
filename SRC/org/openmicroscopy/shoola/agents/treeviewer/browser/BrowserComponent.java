@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -281,7 +282,8 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setLeaves(Set, TreeImageSet, TreeImageSet)
      */
-    public void setLeaves(Set leaves, TreeImageSet parent, TreeImageSet expNode)
+    public void setLeaves(Set leaves, TreeImageSet parent, 
+    						TreeImageSet expNode)
     {
         if (model.getState() != LOADING_LEAVES) return;
         /*
@@ -443,6 +445,8 @@ class BrowserComponent
         switch (model.getBrowserType()) {
             case PROJECT_EXPLORER:
                 return im.getIcon(IconManager.HIERARCHY_EXPLORER);
+            case TAGS_EXPLORER:
+                return im.getIcon(IconManager.TAGS_EXPLORER);
             case CATEGORY_EXPLORER:
                 return im.getIcon(IconManager.CATEGORY_EXPLORER);
             case IMAGES_EXPLORER:
@@ -834,9 +838,9 @@ class BrowserComponent
 
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setExperimenterData(TreeImageDisplay, Set)
+     * @see Browser#setExperimenterData(TreeImageDisplay, Collection)
      */
-	public void setExperimenterData(TreeImageDisplay expNode, Set nodes)
+	public void setExperimenterData(TreeImageDisplay expNode, Collection nodes)
 	{
 		int state = model.getState();
         if (state != LOADING_DATA)

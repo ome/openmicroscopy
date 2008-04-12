@@ -413,5 +413,12 @@ public interface OmeroMetadataService
 	public Collection filterByAnnotation(Class nodeType, Set<Long> ids, 
 										FilterContext filter, long userID)
 		throws DSOutOfServiceException, DSAccessException;
+
+	public Collection loadTagsContainer(Long id, boolean images, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+
+	public Collection loadTagSetsContainer(Long id, boolean images,
+										long userID)
+		throws DSOutOfServiceException, DSAccessException;
 	
 }

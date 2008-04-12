@@ -65,6 +65,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.
@@ -330,9 +331,10 @@ class OmeroDataServiceImpl
 		//po.noCounts();
 		if (!(property.equals(IMAGES_PROPERTY)))
 			throw new IllegalArgumentException("Property not supported.");
-		Map m = gateway.getCollectionCount(rootNodeType, property, rootNodeIDs, 
+		if (rootNodeType.equals(TagAnnotationData.class))
+			return gateway.getImagesTaggedyCount(rootNodeIDs);
+		return gateway.getCollectionCount(rootNodeType, property, rootNodeIDs, 
 				po.map());
-		return m;
 	}
 
 	/**

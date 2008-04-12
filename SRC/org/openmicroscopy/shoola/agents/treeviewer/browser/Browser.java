@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java imports
 import java.awt.Point;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -116,6 +117,12 @@ public interface Browser
      */
     public static final int     	IMAGES_EXPLORER = 102;
     
+    /** 
+     * Indicates that the browser corresponds to a <code>Tags</code>
+     * explorer.
+     */
+    public static final int     	TAGS_EXPLORER = 103;
+    
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
     
@@ -155,6 +162,11 @@ public interface Browser
      * The browser's title corresponding to {@link #IMAGES_EXPLORER} type.
      */
     public static final String     IMAGES_TITLE = "Images"; 
+    
+    /** 
+     * The browser's title corresponding to {@link #TAGS_EXPLORER} type.
+     */
+    public static final String     TAGS_TITLE = "Tags";
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.
@@ -445,7 +457,7 @@ public interface Browser
 	 * @param expNode	The experimenter node. Mustn't be <code>null</code>.
 	 * @param nodes		The nodes to add.
 	 */
-	public void setExperimenterData(TreeImageDisplay expNode, Set nodes);
+	public void setExperimenterData(TreeImageDisplay expNode, Collection nodes);
 
 	/** 
 	 * Adds the passed experimenter to the display.

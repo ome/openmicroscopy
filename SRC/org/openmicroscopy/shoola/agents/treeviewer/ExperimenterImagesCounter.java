@@ -25,12 +25,10 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -42,7 +40,6 @@ import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.ExperimenterData;
 
 /** 

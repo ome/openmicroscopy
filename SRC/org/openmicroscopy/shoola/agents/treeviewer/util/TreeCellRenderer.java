@@ -49,6 +49,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Determines and sets the icon corresponding to a data object.
@@ -88,53 +89,23 @@ public class TreeCellRenderer
     	Object usrObject = node.getUserObject();
         Icon icon = icons.getIcon(IconManager.OWNER);
         if (usrObject instanceof ProjectData) {
-        	/*
-        	 a = CountUtil.isAnnotatedByCurrentUser(usrObject, userID);
-             b = CountUtil.isAnnotatedByOtherUser(usrObject, userID);
-             if (a && b) 
-            	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_ALL);
-             else if (a && !b) 
-            	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_USER);
-             else if (!a && b) 
-            	 icon = icons.getIcon(IconManager.PROJECT_ANNOTATED_BY_OTHER);
-             else 
-             */
         	if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.PROJECT_ANNOTATED);
         	else icon = icons.getIcon(IconManager.PROJECT);
         } else if (usrObject instanceof DatasetData) {
-        	/*
-        	a = CountUtil.isAnnotatedByCurrentUser(usrObject, userID);
-            b = CountUtil.isAnnotatedByOtherUser(usrObject, userID);
-            if (a && b)
-            	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_ALL);
-            else if (a && !b)
-            	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_USER);
-            else if (!a && b)
-            	icon = icons.getIcon(IconManager.DATASET_ANNOTATED_BY_OTHER);
-            */
             if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.DATASET_ANNOTATED);
             else icon = icons.getIcon(IconManager.DATASET);
         } else if (usrObject instanceof ImageData) {
-        	/*
-            a = CountUtil.isAnnotatedByCurrentUser(usrObject, userID);
-            b = CountUtil.isAnnotatedByOtherUser(usrObject, userID);
-            if (a && b)
-            	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_ALL);
-            else if (a && !b)
-            	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_USER);
-            else if (!a && b)
-            	icon = icons.getIcon(IconManager.IMAGE_ANNOTATED_BY_OTHER);
-            	*/
             if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.IMAGE_ANNOTATED);
             else icon = icons.getIcon(IconManager.IMAGE);
-        
         } else if (usrObject instanceof CategoryGroupData)
             icon = icons.getIcon(IconManager.CATEGORY_GROUP);
         else if (usrObject instanceof CategoryData)
             icon = icons.getIcon(IconManager.CATEGORY);
+        else if (usrObject instanceof TagAnnotationData)
+        	icon = icons.getIcon(IconManager.TAG);
         else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (usrObject instanceof String)

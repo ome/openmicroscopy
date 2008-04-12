@@ -48,6 +48,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Represents a component in the composite structure used to visualize an
@@ -440,7 +441,8 @@ public abstract class TreeImageDisplay
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
         	return exp.getFirstName()+" "+exp.getLastName();
-        }
+        } else if (obj instanceof TagAnnotationData)
+        	return ((TagAnnotationData) obj).getTagValue();
         else if (obj instanceof String) return (String) obj;
         return "";
     }

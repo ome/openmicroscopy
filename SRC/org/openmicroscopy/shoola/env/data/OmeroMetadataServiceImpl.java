@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
 import ome.model.IObject;
@@ -44,9 +45,6 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.core.OriginalFile;
 import ome.util.builders.PojoOptions;
-
-import org.apache.commons.collections.ListUtils;
-import org.apache.commons.collections.SetUtils;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -615,17 +613,20 @@ class OmeroMetadataServiceImpl
 									long objectID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Collection c = gateway.fetchAnnotation(annotationType, objectType, -1);
+		Collection c = gateway.fetchAnnotation(annotationType, objectType,
+											objectID);
 		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
 		if (c == null || c.size() == 0) return annotations;
 		Iterator i = c.iterator();
 		AnnotationData data;
+		long id;
+		FileAnnotation fa;
 		while (i.hasNext()) {
 			data = (AnnotationData) i.next();
 			if (annotationType.equals(data.getClass())) {
 				if (data instanceof FileAnnotationData) {
-					FileAnnotation fa = (FileAnnotation) data.asAnnotation();
-					long id = fa.getFile().getId();
+					fa = (FileAnnotation) data.asAnnotation();
+					id = fa.getFile().getId();
 					((FileAnnotationData) data).setContent(
 							gateway.getOriginalFile(id));
 				}
@@ -634,7 +635,6 @@ class OmeroMetadataServiceImpl
 				
 		}	
 		return annotations;
-		
 	}
 
 	/**
@@ -994,6 +994,23 @@ class OmeroMetadataServiceImpl
 		}
 		//r.put(RatingAnnotationData.class, found);
 		return filteredNodes;
+	}
+
+	public Collection loadTagSetsContainer(Long id, boolean images, 
+										long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Collection loadTagsContainer(Long id, boolean images, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (images) {
+			return gateway.loadTagImages(id, images);
+		}
+		return loadAnnotations(TagAnnotationData.class, null, id);
 	}
 	
 }

@@ -225,6 +225,9 @@ class TreeViewerControl
 	/** Identifies the <code>Search action</code>. */
 	static final Integer    SEARCH = new Integer(34);
 	
+	/** Identifies the <code>Tags action</code>. */
+	static final Integer    TAGS_EXPLORER = new Integer(35);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -250,6 +253,8 @@ class TreeViewerControl
 		actionsMap.put(PASTE_OBJECT, new PasteAction(model));
 		actionsMap.put(HIERARCHY_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.PROJECT_EXPLORER));
+		actionsMap.put(TAGS_EXPLORER, 
+				new BrowserSelectionAction(model, Browser.TAGS_EXPLORER));
 		actionsMap.put(CATEGORY_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.CATEGORY_EXPLORER));
 		actionsMap.put(IMAGES_EXPLORER, 

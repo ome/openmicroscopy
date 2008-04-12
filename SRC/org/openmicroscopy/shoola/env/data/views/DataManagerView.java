@@ -32,6 +32,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -378,5 +379,18 @@ public interface DataManagerView
 	 */
 	public CallHandle countExperimenterImages(long userID, 
 			Map<Integer, TimeRefObject> m, AgentEventListener observer);
+
+	/**
+	 * 
+	 * @param id
+	 * @param images	Pass <code>true</code> to load the images related 
+     * 					to the tags, <code>false</code> otherwise.
+	 * @param userID	The user id.
+	 * @param observer 	Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadTags(Long id, boolean images, long userID, 
+							AgentEventListener observer);
   
+	
 }

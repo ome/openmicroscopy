@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.TagAnnotationData;
 
 /** 
  * The Browser's Controller.
@@ -187,7 +188,8 @@ class BrowserControl
         	return;
         }
         //if (!expanded) return;
-        if ((ho instanceof DatasetData) || (ho instanceof CategoryData)) {
+        if ((ho instanceof DatasetData) || (ho instanceof CategoryData) ||
+        	(ho instanceof TagAnnotationData)) {
         	model.loadExperimenterData(getDataOwner(display), display);
         } else if (ho instanceof ExperimenterData) {
         	model.loadExperimenterData(display, null);

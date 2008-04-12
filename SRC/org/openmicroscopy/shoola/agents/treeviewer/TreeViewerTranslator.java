@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,6 +54,7 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * This class contains a collection of utility static methods that transform
@@ -232,6 +234,46 @@ public class TreeViewerTranslator
     }
     
     /**
+     * Transforms a {@link TagAnnotationData} into a visualisation object i.e.
+     * a {@link TreeImageSet}.
+     * 
+     * @param data      The {@link TagAnnotationData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.                 
+     * @return See above.
+     */
+    private static TreeImageDisplay transformTag(
+    					TagAnnotationData data, long userID, long groupID)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        TreeImageSet tag =  new TreeImageSet(data);
+        Set images = data.getImages();
+        //
+        if (images == null) tag.setNumberItems(-1);
+        else {
+        	tag.setChildrenLoaded(Boolean.TRUE);
+        	tag.setNumberItems(images.size());
+            Iterator i = images.iterator();
+            DataObject tmp;
+            ImageData child;
+            while (i.hasNext()) {
+            	tmp = (DataObject) i.next();
+                if (tmp instanceof ImageData) {
+                	 child = (ImageData) tmp;
+                	 if (isReadable(child, userID, groupID))
+                		 tag.addChildDisplay(transformImage(child));
+                }
+            }
+        }
+        
+        formatToolTipFor(tag);
+        return tag;
+    }
+    
+    /**
      * Transforms a {@link ProjectData} into a visualisation object i.e.
      * a {@link TreeImageSet}. The {@link DatasetData datasets} are also
      * transformed and linked to the newly created {@link TreeImageSet}.
@@ -368,7 +410,7 @@ public class TreeViewerTranslator
      *                      retrieving the data.    
      * @return A set of visualization objects.
      */
-    public static Set transformHierarchy(Set dataObjects, long userID, 
+    public static Set transformHierarchy(Collection dataObjects, long userID, 
                                         long groupID)
     {
         if (dataObjects == null)
@@ -413,7 +455,10 @@ public class TreeViewerTranslator
                 	child = transformCategory((CategoryData) ho, userID, 
                 								groupID);
                 	orphan.addChildDisplay(child);
-                }	
+                } else if (ho instanceof TagAnnotationData) {
+                	child = transformTag((TagAnnotationData) ho, userID, groupID);
+                	results.add(child);
+                }
             }   
         }
         if (orphan != null) orphan.setExpanded(false);

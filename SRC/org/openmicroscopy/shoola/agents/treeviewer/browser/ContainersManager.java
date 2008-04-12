@@ -42,6 +42,7 @@ import javax.swing.tree.DefaultTreeModel;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import pojos.CategoryData;
 import pojos.DatasetData;
+import pojos.TagAnnotationData;
 
 /** 
  * Manages the process of assigning the number of items to 
@@ -115,6 +116,8 @@ public class ContainersManager
                 id = new Long(((DatasetData) userObject).getId());
             else if (userObject instanceof CategoryData) 
                 id = new Long(((CategoryData) userObject).getId());
+            else if (userObject instanceof TagAnnotationData) 
+                id = new Long(((TagAnnotationData) userObject).getId());
             if (id != null) {
                 p = (Set) providers.get(id);
                 if (p == null) {

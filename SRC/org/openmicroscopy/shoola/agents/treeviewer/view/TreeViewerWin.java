@@ -148,8 +148,9 @@ class TreeViewerWin
                                             Browser.PROJECT_EXPLORER));
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
-        browser = (Browser) browsers.get(new Integer(
-                                            Browser.CATEGORY_EXPLORER));
+        //browser = (Browser) browsers.get(new Integer(
+        //                                    Browser.CATEGORY_EXPLORER));
+        browser = (Browser) browsers.get(new Integer(Browser.TAGS_EXPLORER));
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
         browser = (Browser) browsers.get(new Integer(Browser.IMAGES_EXPLORER));
@@ -201,18 +202,21 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
+        /*
         browser = (Browser) browsers.get(new Integer(
                                     Browser.CATEGORY_EXPLORER));
         item.setSelected(browser.isDisplayed());
         item.setAction(
                 controller.getAction(TreeViewerControl.CATEGORY_EXPLORER));
+                */
+        browser = (Browser) browsers.get(new Integer(Browser.TAGS_EXPLORER));
+        item.setSelected(browser.isDisplayed());
+        item.setAction(controller.getAction(TreeViewerControl.TAGS_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(new Integer(
-                            Browser.IMAGES_EXPLORER));
+        browser = (Browser) browsers.get(new Integer(Browser.IMAGES_EXPLORER));
         item.setSelected(browser.isDisplayed());
-        item.setAction(
-                controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
+        item.setAction(controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
         menu.add(item);
         return menu;
     }
@@ -276,9 +280,10 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.PASTE_OBJECT)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DELETE_OBJECT)));
+        /*
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
-        //menu.add(new JMenuItem(
-        //        controller.getAction(TreeViewerControl.FIND)));
+        menu.add(new JMenuItem(
+                controller.getAction(TreeViewerControl.FIND)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.CLEAR)));
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
@@ -286,6 +291,7 @@ class TreeViewerWin
                 controller.getAction(TreeViewerControl.CLASSIFY)));
         menu.add(new JMenuItem(
                 controller.getAction(TreeViewerControl.DECLASSIFY)));
+                */
         return menu;
     }
 

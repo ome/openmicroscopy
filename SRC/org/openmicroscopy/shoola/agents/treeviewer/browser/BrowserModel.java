@@ -56,6 +56,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * The Model component in the <code>Browser</code> MVC triad.
@@ -134,6 +135,7 @@ class BrowserModel
             case Browser.PROJECT_EXPLORER:
             case Browser.CATEGORY_EXPLORER:
             case Browser.IMAGES_EXPLORER:    
+            case Browser.TAGS_EXPLORER:    
                 break;
             default:
                 throw new IllegalArgumentException("Browser type not valid.");
@@ -320,6 +322,8 @@ class BrowserModel
             	type = ExperimenterDataLoader.DATASET;
             else if (ho instanceof CategoryData) 
             	type = ExperimenterDataLoader.CATEGORY;
+            else if (ho instanceof TagAnnotationData) 
+            	type = ExperimenterDataLoader.TAGS;
             currentLoader = new ExperimenterDataLoader(component, type, 
             					(TreeImageSet) expNode, (TreeImageSet) node);
     	}
@@ -531,6 +535,8 @@ class BrowserModel
 			case Browser.IMAGES_EXPLORER:
 				index = ExperimenterDataLoader.IMAGE;
 				break;
+			case Browser.TAGS_EXPLORER:
+				index = ExperimenterDataLoader.TAGS;
 		}
 		currentLoader = new ExperimenterDataLoader(component, index, expNode);
         currentLoader.load();
@@ -555,6 +561,8 @@ class BrowserModel
 			case Browser.IMAGES_EXPLORER:
 				klass =  ImageData.class;
 				break;
+			case Browser.TAGS_EXPLORER:
+				klass = TagAnnotationData.class;
 		}
         state = Browser.LOADING_DATA;
         currentLoader = new RefreshExperimenterDataLoader(component, klass,

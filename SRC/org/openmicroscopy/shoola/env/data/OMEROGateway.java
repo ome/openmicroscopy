@@ -89,6 +89,7 @@ import ome.parameters.QueryParameter;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
+import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
 import pojos.ArchivedAnnotationData;
@@ -268,7 +269,6 @@ class OMEROGateway
 		else if (klass.equals(ProjectData.class)) return "Project";
 		else if (klass.equals(CategoryGroupData.class)) return "CategoryGroup";
 		else if (klass.equals(ImageData.class)) return "Image";
-		//else if (klass.equals(ImageAnnotation.class)) return "ImageAnnotation";
 		return null;
 	}
 	
@@ -2830,4 +2830,94 @@ class OMEROGateway
 		return null;
 	}
 	
+	
+	//TMP solution. Need to move the call to server and optimize them
+	/**
+	 * Searches for the categories whose name contains the passed term.
+	 * Returns a collection of objects.
+	 * 
+	 * @param annotationType 	The class identifying the annotation to 
+	 * 							search for.
+	 * @param tagID 			The class identifying the object to search for.
+	 * @param id				The id of the parent annotation.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Set loadTagImages(long tagID, boolean images)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("tagID", tagID);
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append("select ann from Annotation as ann ");
+			sb.append("left outer join fetch ann.details.creationEvent ");
+			sb.append("left outer join fetch ann.details.owner ");
+
+			sb.append("where ann.id = :tagID");
+			IObject object = service.findByQuery(sb.toString(), param);
+			TagAnnotationData tag = 
+						(TagAnnotationData) PojoMapper.asDataObject(object);
+			//Condition
+			if (images) {
+				sb = new StringBuilder();
+				sb.append("select img from Image as img ");
+				sb.append("left outer join fetch "
+	                    + "img.annotationLinksCountPerOwner img_a_c ");
+				sb.append("left outer join fetch img.annotationLinks ail ");
+				sb.append("left outer join fetch img.pixels as pix ");
+	            sb.append("left outer join fetch pix.pixelsType as pt ");
+	            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+	            sb.append("where ail.child.id = :tagID");
+	            Set imgs = PojoMapper.asDataObjects(
+	            			service.findAllByQuery(sb.toString(), param));
+	            tag.setImages(imgs);
+			}
+			//sb.append("where ann.id = :tagID");
+			//Test
+			//
+			Set r = new HashSet();
+			r.add(tag);
+			return r;
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot retrieve the annotations");
+		}
+		return null;
+		//return service.results();
+	}
+	
+	Map getImagesTaggedyCount(Set rootNodeIDs)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append("select img from Image as img ");
+			sb.append("left outer join fetch img.annotationLinks ail ");
+            sb.append("where ail.child.id = :tagID");
+			String query = sb.toString();
+            Iterator i = rootNodeIDs.iterator();
+            Long id;
+            Map<Long, Integer> m = new HashMap<Long, Integer>();
+            
+            while (i.hasNext()) {
+				id = (Long) i.next();
+				param.addLong("tagID", id);
+				m.put(id, service.findAllByQuery(query, param).size());
+			}
+			return m;
+		} catch (Throwable t) {
+			handleException(t, "Cannot count the collection.");
+		}
+		return new HashMap();
+	}
 }

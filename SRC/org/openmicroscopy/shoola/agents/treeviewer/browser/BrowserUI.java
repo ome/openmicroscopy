@@ -670,6 +670,8 @@ class BrowserUI
                 return Browser.CATEGORY_TITLE;
             case Browser.IMAGES_EXPLORER:
                 return Browser.IMAGES_TITLE;
+            case Browser.TAGS_EXPLORER:
+                return Browser.TAGS_TITLE;
         }
         return "";
     }

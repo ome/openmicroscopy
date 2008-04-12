@@ -215,9 +215,14 @@ class TreeViewerModel
 		selectedBrowser = browser;
 		browser.setSelected(true);
 		browsers.put(new Integer(Browser.PROJECT_EXPLORER), browser);
+		browser = BrowserFactory.createBrowser(Browser.TAGS_EXPLORER,
+				component, experimenter);
+		browsers.put(new Integer(Browser.TAGS_EXPLORER), browser);
+		/*
 		browser = BrowserFactory.createBrowser(Browser.CATEGORY_EXPLORER,
 				component, experimenter);
 		browsers.put(new Integer(Browser.CATEGORY_EXPLORER), browser);
+		*/
 		browser = BrowserFactory.createBrowser(Browser.IMAGES_EXPLORER,
 				component, experimenter);
 		browsers.put(new Integer(Browser.IMAGES_EXPLORER), browser);

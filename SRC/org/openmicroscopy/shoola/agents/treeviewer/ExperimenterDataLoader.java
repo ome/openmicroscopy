@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -40,6 +41,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Loads a Project/Dataset/(Image) hierarchy rooted by a given Project
@@ -81,8 +83,11 @@ public class ExperimenterDataLoader
     /** Indicates that the root node is of type <code>Category</code>. */
     public static final int CATEGORY = 3;
     
-    /** Indicates that the root node is of type <code>Category</code>. */
+    /** Indicates that the root node is of type <code>Image</code>. */
     public static final int IMAGE = 4;
+    
+    /** Indicates that the root node is of type <code>Image</code>. */
+    public static final int TAGS = 5;
     
     /** 
      * Flag to indicate if the images are also retrieved.
@@ -117,7 +122,8 @@ public class ExperimenterDataLoader
             case PROJECT: return ProjectData.class;
             case CATEGORY_GROUP: return CategoryGroupData.class;
             case CATEGORY: return CategoryData.class;
-            case DATASET: return DatasetData.class;     
+            case DATASET: return DatasetData.class; 
+            case TAGS: return TagAnnotationData.class;
         }
         return null;
     }
@@ -168,15 +174,22 @@ public class ExperimenterDataLoader
     public void load()
     {
     	ExperimenterData exp = (ExperimenterData) expNode.getUserObject();
-    	if (parent == null) {
-    		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
-    												images, exp.getId(), this);	
+    	if (rootNodeType.equals(TagAnnotationData.class)) {
+    		long id = -1;
+    		if (parent != null) id = parent.getUserObjectId();
+    		handle = dmView.loadTags(id, images, exp.getId(), this);
     	} else {
-    		Set<Long> ids = new HashSet<Long>(1);
-    		ids.add(new Long(parent.getUserObjectId()));
-    		handle = dmView.loadContainerHierarchy(rootNodeType, ids, images,
-    												exp.getId(), this);
+    		if (parent == null) {
+        		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
+        											images, exp.getId(), this);	
+        	} else {
+        		Set<Long> ids = new HashSet<Long>(1);
+        		ids.add(new Long(parent.getUserObjectId()));
+        		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
+        										images, exp.getId(), this);
+        	}
     	}
+    	
     }
 
     /**
@@ -193,9 +206,9 @@ public class ExperimenterDataLoader
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         if (parent == null) 
-        	viewer.setExperimenterData(expNode, (Set) result);
+        	viewer.setExperimenterData(expNode, (Collection) result);
         else {
-        	Set nodes = (Set) result;
+        	Collection nodes = (Collection) result;
     		Iterator i = nodes.iterator();
     		DataObject object;
     		Class klass = parent.getUserObject().getClass();
@@ -209,6 +222,9 @@ public class ExperimenterDataLoader
 								parent, expNode);
 					} else if (object instanceof CategoryData) {
 						viewer.setLeaves(((CategoryData) object).getImages(), 
+								parent, expNode);
+					} else if (object instanceof TagAnnotationData) {
+						viewer.setLeaves(((TagAnnotationData) object).getImages(), 
 								parent, expNode);
 					}
 				}

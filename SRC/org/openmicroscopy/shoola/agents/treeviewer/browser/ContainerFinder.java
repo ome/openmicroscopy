@@ -35,6 +35,7 @@ import java.util.Set;
 //Application-internal dependencies
 import pojos.CategoryData;
 import pojos.DatasetData;
+import pojos.TagAnnotationData;
 
 /** 
  * Finds the {@link TreeImageSet} representing either a {@link CategoryData} or 
@@ -94,7 +95,8 @@ public class ContainerFinder
     {
         Object userObject = node.getUserObject();
         if ((userObject instanceof DatasetData) || 
-            (userObject instanceof CategoryData)) {
+            (userObject instanceof CategoryData) || 
+            userObject instanceof TagAnnotationData) {
             containerNodes.add(node); 
             containers.add(userObject);
         }

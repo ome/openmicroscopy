@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.TagAnnotationData;
 
 /** 
  * Command to retrieve the number of items contained in a specified collection
@@ -81,6 +82,9 @@ public class ContainerCounterLoader
             } else if (root instanceof CategoryData) {
                 rootType = CategoryData.class;
                 id = new Long(((CategoryData) root).getId());
+            } else if (root instanceof TagAnnotationData) {
+            	rootType = TagAnnotationData.class;
+                id = new Long(((TagAnnotationData) root).getId());
             }
             if (id != null) {
                 description = "Loading number of items for container: " +
@@ -90,7 +94,7 @@ public class ContainerCounterLoader
 				add(new BatchCall(description) {
 				    public void doCall() throws Exception
 				    { 
-				        HashSet ids = new HashSet(1);
+				        Set<Long> ids = new HashSet<Long>(1);
 				        ids.add(idFinal);
 				        OmeroDataService os = context.getDataService();
 				        currentMap = os.getCollectionCount(rootTypeFinal, 
