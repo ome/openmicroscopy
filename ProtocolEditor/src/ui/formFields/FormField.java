@@ -93,7 +93,8 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	Box horizontalBox;
 	JButton collapseButton;	
 	JLabel nameLabel;
-	Icon lockedIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOCKED_ICON);
+	Icon lockedTemplateIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOCKED_ICON);
+	Icon lockedAllIcon = ImageFactory.getInstance().getIcon(ImageFactory.LOCKED_RED_ICON);
 	JButton descriptionButton;
 	JLabel descriptionLabel;
 	Icon infoIcon;
@@ -339,20 +340,35 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	public void setNameText(String name) {
 		nameLabel.setText(name);
 		
-		String lockedTimeUTC = dataField.getAttribute(DataFieldConstants.LOCKED_FIELD_UTC);
-		if (lockedTimeUTC == null) {
+		String lockedLevel = dataField.getAttribute(DataFieldConstants.LOCK_LEVEL);
+		if (lockedLevel == null) {
 			nameLabel.setIcon(null);
 			nameLabel.setToolTipText(null);
 		} else {
-			Calendar lockedTime = new GregorianCalendar();
-			lockedTime.setTimeInMillis(new Long(lockedTimeUTC));
-			SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
+			String toolTipText = "";
+			Icon newIcon = lockedTemplateIcon;
+			
+			if (lockedLevel.equals(DataFieldConstants.LOCKED_TEMPLATE)) {
+				toolTipText += "Template Locked";
+			} else if (lockedLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)) {
+				toolTipText += "Field Locked";
+				newIcon = lockedAllIcon;
+			}
 			
 			String user = dataField.getAttribute(DataFieldConstants.LOCKED_FIELD_USER_NAME);
+			if (user != null)
+			toolTipText = toolTipText + " by " + user;
 			
-			String toolTipText = "Locked by " + user + " at " + time.format(lockedTime.getTime());
+			String lockedTimeUTC = dataField.getAttribute(DataFieldConstants.LOCKED_FIELD_UTC);
+			if (lockedTimeUTC != null) {
+				Calendar lockedTime = new GregorianCalendar();
+				lockedTime.setTimeInMillis(new Long(lockedTimeUTC));
+				SimpleDateFormat time = new SimpleDateFormat("HH:mm 'on' EEE, MMM d, yyyy");
+				toolTipText = toolTipText + " at " + time.format(lockedTime.getTime());
+			}
+			
 			nameLabel.setToolTipText(toolTipText);
-			nameLabel.setIcon(lockedIcon);
+			nameLabel.setIcon(newIcon);
 		}
 	}
 	

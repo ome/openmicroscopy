@@ -554,6 +554,7 @@ public class XMLView
 				}
 			});
 			helpMenu.add(sendCommentMenuItem);
+			helpMenu.add(new JMenuItem(controller.getAction(Controller.OPEN_WWW_FILE)));
 			menuBar.add(helpMenu);
 			
 			// search Field and button

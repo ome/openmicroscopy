@@ -331,11 +331,10 @@ public class DataField
 	}
 	
 	/**
-	 * This method looks for the highest locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
-	 * possessed by ancestors of this field. 
-	 * If the locking level DataFieldConstants.LOCKED_ALL_ATTRIBUTES is found, no more
-	 * ancestors are checked and 
-	 * this value is returned, since this is the highest locking level. 
+	 * This method looks for the locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
+	 * possessed by the closest ancestor of this field. 
+	 * Once a value is found for the closest ancestor, no more
+	 * ancestors are checked and this value is returned.
 	 * 
 	 * @return		String representing the highest lock_level of the ancestors of this field or null if not locked. 
 	 */
@@ -352,11 +351,7 @@ public class DataField
 				 * If there were more, you'd want to remember the highest one. 
 				 */
 				if (field.getAttribute(DataFieldConstants.LOCK_LEVEL) != null) {
-					lockLevel = field.getAttribute(DataFieldConstants.LOCK_LEVEL);
-					// if fully locked, return this value. 
-					if (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)) {
-						return lockLevel;
-					}
+					return field.getAttribute(DataFieldConstants.LOCK_LEVEL);
 				}
 			}
 		}
@@ -364,13 +359,11 @@ public class DataField
 	}
 	
 	/**
-	 * This method looks for the highest locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
-	 * possessed by this field or it's ancestors.  
-	 * Eg. this field may have TEMPLATE_LOCKED, but if an ancestor has LOCKED_ALL_ATTRIBUTES then
-	 * this value should be returned since this higher level also applies to this field. 
-	 * If the locking level DataFieldConstants.LOCKED_ALL_ATTRIBUTES is found, no more
-	 * ancestors are checked and 
-	 * this value is returned, since this is the highest locking level. 
+	 * This method looks for the locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
+	 * possessed by this field or it's closest locked ancestor (if this field is not locked)
+	 * Eg. this field may have TEMPLATE_LOCKED, so, even if an ancestor has LOCKED_ALL_ATTRIBUTES,
+	 * the value 'TEMPLATE_LOCKED' should be returned since this applies to this field. 
+	 * This allows 'nesting' of locking level, like CSS. 
 	 * 
 	 * @return		String representing the highest lock_level of this field or its ancestors or null if not locked.
 	 */
@@ -378,20 +371,14 @@ public class DataField
 		
 		String lockLevel = getAttribute(DataFieldConstants.LOCK_LEVEL);
 
-		// if fully locked, return this value. 
-		if ((lockLevel != null) && (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES))) {
+		// if this field is locked, return this value. 
+		if (lockLevel != null) {
 			return lockLevel; 
 		}
 		
+		// otherwise, get the lock level from the closest ancestor. 
 		else {
-			String ancestorLockedLevel = getAncestorLockedLevel();
-			// if ancestorLockedLevel is partially or fully locked...
-			if (ancestorLockedLevel != null) {
-				return ancestorLockedLevel;
-			} else {
-			// if ancestors not locked, return the lock level of this field.
-				return lockLevel;
-			}
+			return getAncestorLockedLevel();
 		}
 	}
 

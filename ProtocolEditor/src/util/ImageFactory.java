@@ -105,6 +105,7 @@ public class ImageFactory {
 	public static final String ALARM_GIF_64 = ACTION_ICONS_FILE + "kalarmAnimated64.gif";
 	public static final String RELOAD_ICON = ACTION_ICONS_FILE + "reload.png";
 	public static final String LOCKED_ICON = ACTION_ICONS_FILE + "encrypted.png";
+	public static final String LOCKED_RED_ICON = ACTION_ICONS_FILE + "encrypted_red.png";
 	public static final String LOCKED_ICON_48 = ACTION_ICONS_FILE + "encrypted48.png";
 	public static final String UNLOCKED_ICON = ACTION_ICONS_FILE + "decrypted.png";
 	public static final String NO_IMAGE_ICON = ACTION_ICONS_FILE + "file_broken32.png";

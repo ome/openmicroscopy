@@ -38,10 +38,10 @@ import java.net.URL;
 public class FileDownload {
 
 	// http://trac.openmicroscopy.org.uk/~will/protocolFiles/experiments/arwen_slice_1.exp"
-	public static void main (String[] args) {
+	public static void main (String[] args)  throws IOException {
 		
 		try {
-			downloadFile("http://cvs.openmicroscopy.org.uk/svn/specification/Xml/Working/completesample.xml");
+			downloadFile("http://cvs.openmicroscopy.org.uk/svn/specification/Xml/Working/completesample.xml", "test.pro.xml");
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -49,9 +49,9 @@ public class FileDownload {
 		
 	}
 	// downloads a url to temp file and returns an absolute path to it
-	public static File downloadFile (String fileUrl) throws MalformedURLException{
+	public static File downloadFile (String fileUrl, String newFileName) throws IOException{
 		
-		File outputFile = new File("temp");
+		File outputFile = new File(newFileName);
 		
 		try {
 			URL url = new URL (fileUrl);
@@ -81,8 +81,7 @@ public class FileDownload {
 		} catch (MalformedURLException e) {
 			throw e;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw e;
 		}
 		
 		return outputFile;

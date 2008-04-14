@@ -23,6 +23,7 @@
 package omeXml;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 
@@ -55,12 +56,15 @@ public class OmeXmlQueryer {
 	private OmeXmlQueryer() {
 		
 		try {
-			xmlFile = FileDownload.downloadFile("http://cvs.openmicroscopy.org.uk/svn/specification/Xml/Working/completesample.xml");
+			xmlFile = FileDownload.downloadFile("http://cvs.openmicroscopy.org.uk/svn/specification/Xml/Working/completesample.xml", "temp");
 			document = XMLMethods.readXMLtoDOM(xmlFile);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
