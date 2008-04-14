@@ -52,9 +52,10 @@ public class OpenWwwFileAction
 	}
 	
 	public void openWwwFile() {
-		Object[] possibilities = {"http://cvs.openmicroscopy.org.uk/svn/specification/Xml/Working/completesample.xml",
-				"http://trac.openmicroscopy.org.uk/~will/protocolFiles/experiments/AuroraB%20fix-stain.exp", 
-				"http://trac.openmicroscopy.org.uk/~will/protocolFiles/experiments/arwen_slice_1.exp"};
+		Object[] possibilities = {"http://users.openmicroscopy.org.uk/~will/protocolFiles/Oligofectamine-Invitrogen.pro.xml",
+				"http://users.openmicroscopy.org.uk/~will/protocolFiles/BubRI-staining.pro.xml",
+				"http://users.openmicroscopy.org.uk/~will/protocolFiles/OME-XML-completeExample.xml",
+				"http://users.openmicroscopy.org.uk/~will/protocolFiles/OntologiesExample.pro.xml"};
 		String url = (String)JOptionPane.showInputDialog(
                 frame,
                 "Enter a url for an XML file to open:",

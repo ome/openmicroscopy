@@ -88,6 +88,17 @@ public class Controller
 	public CalendarObject getCalendarForEvent(CalendarEvent calendarEvent) {
 		return monthModel.getCalendarForEvent(calendarEvent);
 	}
+	
+	/**
+	 * Get all the CalendarEvents for a Calendar.
+	 * This CalendarObject must have a value for CalendarID 
+	 * (CalendarObject must have been created by the database)
+	 * 
+	 * @return
+	 */
+	public List <CalendarEvent> getEventsForCalendar(CalendarObject calendar) {
+		return monthModel.getEventsForCalendar(calendar);
+	}
 
 	/**
 	 * This is fired when the Model changes

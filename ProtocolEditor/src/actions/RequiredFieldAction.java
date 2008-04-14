@@ -21,39 +21,44 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package omeroCal.model;
+package actions;
 
-import java.util.Calendar;
-import java.util.List;
+import java.awt.event.ActionEvent;
+
+import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
+
+import tree.Tree.Actions;
+import ui.IModel;
+import util.ImageFactory;
 
 
-
-public interface ICalendarModel {
-
-	/**
-	 * Get all the CalendarEvents for this month.
-	 * 
-	 * @return
-	 */
-	public List <CalendarEvent> getEventsForDates(Calendar fromDate, Calendar toDate);
+public class RequiredFieldAction 
+	extends ProtocolEditorAction {
 	
-	public void incrementMonth(int increment);
+	public RequiredFieldAction(IModel model) {
+
+		super(model);
 	
-	
-	/**
-	 * Gets the CalendarObject that this CalendarEvent belongs to.
-	 * 
-	 * @param calID		The unique ID used to identify a calendar
-	 * @return		A CalendarObject to which the CalendarEvent belongs (or null if not found)
-	 */
-	public CalendarObject getCalendarForEvent(CalendarEvent calendarEvent);
+		putValue(Action.NAME, "Required Field");
+		putValue(Action.SHORT_DESCRIPTION, "Mark the highlighted field as mandatory to fill out, so the field cannot be left blank");
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.RED_ASTERISK_ICON)); 
+	}
 	
 	/**
-	 * Get all the CalendarEvents for a Calendar.
-	 * This CalendarObject must have a value for CalendarID 
-	 * (CalendarObject must have been created by the database)
-	 * 
-	 * @return
+	 * Mark the currently highlighted fields (not their children) as "required fields"
 	 */
-	public List <CalendarEvent> getEventsForCalendar(CalendarObject calendar);
+	public void actionPerformed(ActionEvent e) {
+		model.editCurrentTree(Actions.REQUIRED_FIELDS);
+	}
+	
+	
+	
+	public void stateChanged(ChangeEvent e) {
+		/*
+		 * This action should only be enabled if a file is open
+		 */
+		setEnabled(filesOpen());
+	}
+
 }

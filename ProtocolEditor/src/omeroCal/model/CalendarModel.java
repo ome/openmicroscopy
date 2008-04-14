@@ -111,6 +111,19 @@ public class CalendarModel
 	}
 	
 	
+	/**
+	 * Get all the CalendarEvents for a Calendar.
+	 * This CalendarObject must have a value for CalendarID 
+	 * (CalendarObject must have been created by the database)
+	 * 
+	 * @return
+	 */
+	public List <CalendarEvent> getEventsForCalendar(CalendarObject calendar) {
+		int calendarID = calendar.getCalendarID();
+		return calendarDB.getEventsForCalendar(calendarID);
+	}
+	
+	
 	public void incrementMonth(int increment) {
 		currentDate.add(Calendar.MONTH, increment);
 	}

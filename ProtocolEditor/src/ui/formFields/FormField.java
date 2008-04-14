@@ -100,6 +100,11 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	Icon wwwIcon;
 	JButton urlButton;	// used (if url) to open browser 
 	Cursor handCursor;
+	
+	JButton requiredFieldButton;	// doesn't do anything. Just indicates that field is required. 
+	Icon requiredIcon;
+	Icon requiredWarningIcon;
+	
 	JButton collapseAllChildrenButton;
 	
 	Container childContainer;
@@ -201,6 +206,17 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		urlButton.setBorder(eb);
 		urlButton.setVisible(false);	// only made visible if url exists.
 		
+		/*
+		 * Required field button. Doesn't do anything, just indicates that the field is required.
+		 */
+		requiredIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_ASTERISK_ICON);
+		requiredWarningIcon = ImageFactory.getInstance().getIcon(ImageFactory.RED_ASTERISK_WARNING_ICON);
+		requiredFieldButton = new JButton(requiredIcon);
+		requiredFieldButton.setFocusable(false);
+		requiredFieldButton.setBackground(null);
+		requiredFieldButton.setBorder(eb);
+		requiredFieldButton.setVisible(false);	// only visible if requiredField = true;
+		
 		
 		/*
 		 * button to allow collapsing or expanding all children
@@ -227,6 +243,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		
 		horizontalBox.add(descriptionButton);
 		horizontalBox.add(urlButton);
+		horizontalBox.add(requiredFieldButton);
 		horizontalBox.add(collapseAllChildrenButton);
 		horizontalBox.add(Box.createHorizontalStrut(10));
 		contentsNorthPanel.add(horizontalBox, BorderLayout.CENTER);
@@ -258,12 +275,13 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		
 		refreshBackgroundColour();
 		
-		refreshLockedStatus();
+		refreshLockedStatus();	// also does required-Field status. 
 	}
 	
 	/**
 	 * This method checks to see if the current field is locked: 
-	 * Then it passes the locked status to enableEditing()
+	 * Then it passes the locked status to enableEditing().
+	 * Also does requiredField status. 
 	 */
 	public void refreshLockedStatus() {
 		
@@ -276,6 +294,12 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		} else {
 			enableEditing(!(lockedLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)));
 		}
+		
+		/*
+		 * Show the required field icon if requiredField attribute = true. 
+		 */
+		requiredFieldButton.setVisible(dataField.isAttributeTrue(DataFieldConstants.REQUIRED_FIELD));
+		requiredFieldButton.setIcon(isFieldFilled() ? requiredIcon : requiredWarningIcon);
 	}
 	
 	/**

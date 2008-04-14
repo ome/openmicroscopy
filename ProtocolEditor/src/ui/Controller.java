@@ -44,6 +44,7 @@ import actions.DeleteFieldAction;
 import actions.DemoteFieldAction;
 import actions.DuplicateFieldsAction;
 import actions.ExportAllTextAction;
+import actions.ExportCalendarAction;
 import actions.ExportHighltdTextAction;
 import actions.ImportFieldsAction;
 import actions.ImportTableAction;
@@ -64,6 +65,7 @@ import actions.ExportHighltdHtmlAction;
 import actions.PromoteFieldAction;
 import actions.RedoAction;
 import actions.RedoActionNoNameRefresh;
+import actions.RequiredFieldAction;
 import actions.SaveFileAction;
 import actions.SaveFileAsAction;
 import actions.UndoAction;
@@ -184,6 +186,12 @@ public class Controller
     /** Identifies the <code>ImportTableAction</code>. */
     static final Integer     IMPORT_TABLE = new Integer(34);
     
+    /** Identifies the <code>RequiredFieldAction</code>. */
+    static final Integer     REQUIRED_FIELD = new Integer(35);
+    
+    /** Identifies the <code>RequiredFieldAction</code>. */
+    static final Integer     EXPORT_CALENDAR = new Integer(36);
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -240,6 +248,8 @@ public class Controller
         actionsMap.put(LOCK_FIELDS, new LockFieldsAction(model));
         actionsMap.put(IMPORT_TEXT, new ImportTextAction(model));
         actionsMap.put(IMPORT_TABLE, new ImportTableAction(model));
+        actionsMap.put(REQUIRED_FIELD, new RequiredFieldAction(model));
+        actionsMap.put(EXPORT_CALENDAR, new ExportCalendarAction(model));
     }
     
     /**

@@ -755,5 +755,16 @@ public class XMLModel
 	public void repopulateCalendarDB() {
 		omeroEditorCalendar.repopulateDB();
 	}
+	
+	/**
+	 * Exports DateTime fields in the current File(tree) to an iCalendar(ics) format file,
+	 * specified by the exportFilePath. 
+	 * 
+	 * @param exportFilePath	The path and file name to export to.
+	 */
+	public void exportFileEventsToICalendar(String exportFilePath) {
+		File xmlFile = getCurrentTree().getFile();
+		CalendarMain.exportToICalendar(xmlFile, exportFilePath);
+	}
 
 }

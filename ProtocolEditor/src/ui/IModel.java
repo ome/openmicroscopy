@@ -165,4 +165,12 @@ public interface IModel {
 	 * Iterates through all files, adding those that contain dates to the calendar. 
 	 */
 	public void repopulateCalendarDB();
+	
+	/**
+	 * Exports DateTime fields in the current File(tree) to an iCalendar(ics) format file,
+	 * specified by the exportFilePath. 
+	 * 
+	 * @param exportFilePath	The path and file name to export to.
+	 */
+	public void exportFileEventsToICalendar(String exportFilePath);
 }

@@ -100,6 +100,7 @@ public class ImageFactory {
 	public static final String ROTATE_HORIZONTAL_ICON = ACTION_ICONS_FILE + "rotate_right_up.png";
 	public static final String ROTATE_VERTICAL_ICON = ACTION_ICONS_FILE + "rotate_down_left.png";
 	public static final String CALENDAR_ICON = ACTION_ICONS_FILE + "date.png";
+	public static final String CALENDAR_EXPORT_ICON = ACTION_ICONS_FILE + "date-export.png";
 	public static final String ALARM_ICON_64 = ACTION_ICONS_FILE + "kalarm64.png";
 	public static final String ALARM_GIF_64 = ACTION_ICONS_FILE + "kalarmAnimated64.gif";
 	public static final String RELOAD_ICON = ACTION_ICONS_FILE + "reload.png";
@@ -114,7 +115,8 @@ public class ImageFactory {
 	public static final String LINK_SCIENCE_ICON = ACTION_ICONS_FILE + "link_science.png";
 	public static final String LINK_SCIENCE_RELATIVE_ICON = ACTION_ICONS_FILE + "link_science_relative.png";
 	public static final String WRENCH_ICON = ACTION_ICONS_FILE + "configure.png";
-	
+	public static final String RED_ASTERISK_ICON = ACTION_ICONS_FILE + "red_asterisk.png";
+	public static final String RED_ASTERISK_WARNING_ICON = ACTION_ICONS_FILE + "red_asterisk_warning.png";
 	
 	
 	public Icon getIcon(String iconPathName) {

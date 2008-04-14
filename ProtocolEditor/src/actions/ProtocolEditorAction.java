@@ -71,11 +71,10 @@ public class ProtocolEditorAction
 	 * @return		true if a file is open and the currently highlighted fields and their ancestors are unlocked
 	 */
 	public boolean fieldsAreEditable() {
-		String[] fileList = model.getOpenFileList();
-		boolean filesOpen = !(fileList.length == 0);
+		
 		
 		// if no files open, action is disabled.
-		if (!filesOpen) {
+		if (!filesOpen()) {
 			return false;
 		}
 		
@@ -86,6 +85,15 @@ public class ProtocolEditorAction
 			
 			return (!locked && !ancestorsLocked);
 		}
+	}
+	
+	/**
+	 * This method used to check whether any files are open. 
+	 * @return	true if at least one file is open. 
+	 */
+	public boolean filesOpen() {
+		String[] fileList = model.getOpenFileList();
+		return (fileList.length > 0);
 	}
 	
 	/**

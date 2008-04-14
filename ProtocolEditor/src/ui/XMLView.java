@@ -246,6 +246,7 @@ public class XMLView
 				clearFieldsIcon, clearFieldsActions);
 		addButton(clearFieldsButton, fileManagerToolBarBorder, fileManagerWestToolBar);
 		
+		addButton(Controller.REQUIRED_FIELD, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 		addButton(Controller.MULTIPLY_VALUES, "", fileManagerToolBarBorder, fileManagerWestToolBar);
 		
 		fileManagerWestToolBar.add(new JSeparator(JSeparator.VERTICAL));
@@ -537,6 +538,7 @@ public class XMLView
 			calendarMenu.setBorder(menuItemBorder);
 			calendarMenu.add(new JMenuItem(controller.getAction(Controller.OPEN_CALENDAR)));
 			calendarMenu.add(new JMenuItem(controller.getAction(Controller.REPOPULATE_CALENDAR)));
+			calendarMenu.add(new JMenuItem(controller.getAction(Controller.EXPORT_CALENDAR)));
 			
 			menuBar.add(calendarMenu);
 			

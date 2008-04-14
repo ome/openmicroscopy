@@ -199,20 +199,14 @@ public class CalendarFile extends CalendarObject {
 					// Check to see if alarm has been set. If not attribute is null, string returns ""
 					String alarm = dateTimeElement.getAttribute(DataFieldConstants.ALARM_SECONDS);
 					if ((alarm != null) && (alarm.length() > 0)){
-						System.out.println("alarmSeconds = " + alarm);
 						int alarmSecs = Integer.parseInt(alarm);
-						System.out.println("alarmSeconds = " + alarmSecs);
+						//System.out.println("alarmSeconds = " + alarmSecs);
 						// create an alarm time ...
 						Calendar alarmTime = new GregorianCalendar();
 						alarmTime.setTime(gc.getTime());
 						// ... which is the event time +/- the alarm time 
 						// (alarm time will be -ve if it is before the event)
 						alarmTime.add(Calendar.SECOND, alarmSecs);
-						
-						
-						System.out.println("alarmTime is " 
-								+ CalendarTestCode.dateFormat.format(alarmTime.getTime()) + " " +
-								 CalendarTestCode.timeFormat.format(alarmTime.getTime()));
 						
 						newEvent.setAlarmTime(alarmTime.getTime());
 					}

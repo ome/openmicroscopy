@@ -77,6 +77,13 @@
   Artifacts: The lucene-core- jar under lib
   License: Apache License, Version 2.0
   License File: apache-v2.0.txt
+  
+  
+  Project: The iCal4j Project. Used to export dates and events in iCalendar (ics) format.
+  Web Site: http://ical4j.sourceforge.net/
+  Artifacts: The ical4j-  jar under lib/
+  License: iCal4j license.
+  License File: iCal4j license
 
   
   Project: The Log4j Project.  The logging framework used by OMERO.insight.

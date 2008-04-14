@@ -58,6 +58,7 @@ import tree.edit.EditMoveFieldsDown;
 import tree.edit.EditMoveFieldsUp;
 import tree.edit.EditMultiplyValues;
 import tree.edit.EditPromoteFields;
+import tree.edit.EditRequiredField;
 import tree.edit.EditUnlockFields;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
@@ -79,7 +80,7 @@ public class Tree
 		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), 
 		LOAD_DEFAULTS_HIGHLIGHTED_FIELDS("Load Defaults for Highlighted Fields"), 
 		CLEAR_FIELDS("Clear Fields"), CLEAR_FIELDS_HIGHLIGHTED_FIELDS("Clear Fields for Highlighted Fields"), 
-		 UNLOCK_HIGHLIGHTED_FIELDS("Unlock highlighted fields");
+		 UNLOCK_HIGHLIGHTED_FIELDS("Unlock highlighted fields"), REQUIRED_FIELDS("Set Highlighted Fields as mandatory");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -232,6 +233,10 @@ public class Tree
 				unlockHighlightedFields();
 				break;
 			}
+			case REQUIRED_FIELDS: {
+				setRequiredFields();
+				break;
+			}
 		}
 		
 	}
@@ -343,6 +348,21 @@ public class Tree
 			// or if the root node is highlighted, unlock it.
 		} else if (rootNode.isHighlighted()) {
 			UndoableEdit edit = new EditUnlockFields(rootNode);
+			undoSupport.postEdit(edit);
+		}
+		
+		selectionChanged();		// to update undo button etc
+	}
+	
+	private void setRequiredFields() {
+		// if fields are highlighted, unlock them.
+		if (highlightedFields.size() > 0) {
+			UndoableEdit edit = new EditRequiredField(highlightedFields);
+			undoSupport.postEdit(edit);
+			
+			// or if the root node is highlighted, unlock it.
+		} else if (rootNode.isHighlighted()) {
+			UndoableEdit edit = new EditRequiredField(rootNode);
 			undoSupport.postEdit(edit);
 		}
 		

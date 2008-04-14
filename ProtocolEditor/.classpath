@@ -16,5 +16,7 @@
 	<classpathentry kind="lib" path="lib/lucene-core-2.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
 	<classpathentry kind="lib" path="lib/TableLayout.jar"/>
+	<classpathentry kind="lib" path="lib/ical4j-1.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

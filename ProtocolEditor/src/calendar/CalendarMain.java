@@ -141,4 +141,13 @@ public class CalendarMain extends OmeroCal {
 		return FileManager.addCalendarFileToDB(xmlFile, getCalendarDataBase());
 	}
 
+	/**
+	 * Exports any date fields within the xmlFile as events in an iCalendar (ics) format.
+	 * 
+	 * @param xmlFile
+	 */
+	public static void exportToICalendar(File xmlFile, String filePath) {
+		
+		ExportCalendar.iCalendarExport(new CalendarFile(xmlFile), filePath);
+	}
 }

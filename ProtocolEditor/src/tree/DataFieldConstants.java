@@ -196,6 +196,15 @@ public class DataFieldConstants {
 	public static final String URL_LINK = "urlLink";
 	
 	/**
+	 * This attribute, with value = 'true' indicates that this field should be filled in, 
+	 * in order for the document to be complete or valid. Ie, formField.isFieldFilled() 
+	 * should be true when the Editor file is saved. 
+	 * This allows users to specify a number of "Mandatory Fields" required to form a
+	 * complete set of data. 
+	 */
+	public static final String REQUIRED_FIELD = "requiredField";
+	
+	/**
 	 * This is a field associated with the protocolTitle field, where users can add
 	 * words that summarize that protocol. 
 	 * However, this is very rarely used, and is not utilized by any search methods etc. 
