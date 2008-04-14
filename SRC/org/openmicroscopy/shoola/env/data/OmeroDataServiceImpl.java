@@ -327,14 +327,12 @@ class OmeroDataServiceImpl
 			rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		PojoOptions po = new PojoOptions();
-		//po.noCounts();
 		if (!(property.equals(IMAGES_PROPERTY)))
 			throw new IllegalArgumentException("Property not supported.");
 		if (rootNodeType.equals(TagAnnotationData.class))
-			return gateway.getImagesTaggedyCount(rootNodeIDs);
+			return gateway.getImagesTaggedCount(rootNodeIDs);
 		return gateway.getCollectionCount(rootNodeType, property, rootNodeIDs, 
-				po.map());
+				new PojoOptions().map());
 	}
 
 	/**

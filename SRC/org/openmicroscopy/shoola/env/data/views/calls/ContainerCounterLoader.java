@@ -63,12 +63,54 @@ public class ContainerCounterLoader
     /** The containers for which we need the value. */ 
     private Set		rootIDs;
 
+    /** 
+     * Creates a {@link BatchCall} to retrieve the number of items per 
+     * container.
+     * 
+     * @return See above
+     */
+    private BatchCall makeBatchCall()
+    {
+        Iterator i = rootIDs.iterator();
+        String description = "Counting items.";
+        DataObject root;
+        Long id = null;
+        Class rootType = null;
+        Set<Long> ids = new HashSet<Long>();
+        while (i.hasNext()) {
+            root = (DataObject) i.next();
+            if (root instanceof DatasetData) {
+                rootType = DatasetData.class;
+                id = new Long(((DatasetData) root).getId());
+            } else if (root instanceof CategoryData) {
+                rootType = CategoryData.class;
+                id = new Long(((CategoryData) root).getId());
+            } else if (root instanceof TagAnnotationData) {
+            	rootType = TagAnnotationData.class;
+                id = new Long(((TagAnnotationData) root).getId());
+            }
+            if (id != null) ids.add(id);
+        }
+        final Class rootTypeFinal = rootType;
+        final Set<Long> idFinal = ids;
+        return new BatchCall(description) {
+		    public void doCall() throws Exception
+		    { 
+		        OmeroDataService os = context.getDataService();
+		        currentMap = os.getCollectionCount(rootTypeFinal, 
+		                		OmeroDataService.IMAGES_PROPERTY, idFinal);
+		    }
+		};
+    }
+    
     /**
      * Adds a {@link BatchCall} to the tree for each value to retrieve.
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
     {
+    	add(makeBatchCall());
+    	/*
         Iterator i = rootIDs.iterator();
         String description;
         DataObject root;
@@ -103,6 +145,7 @@ public class ContainerCounterLoader
 				});
             }
         }
+        */
     }
     
     /**
@@ -113,14 +156,14 @@ public class ContainerCounterLoader
      * @return 	A Map whose key is the containerID and the value the number of 
      * 			items contained in the container.
      */
-    protected Object getPartialResult() { return currentMap; }
+    //protected Object getPartialResult() { return currentMap; }
 
     /**
      * Returns <code>null</code> as there's no final result.
      * In fact, values are progressively delivered with feedback events.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return null; }
+    protected Object getResult() { return currentMap; }
 
     /**
      * Creates a new instance.

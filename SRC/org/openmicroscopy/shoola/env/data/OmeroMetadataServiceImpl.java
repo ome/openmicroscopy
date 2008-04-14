@@ -1008,7 +1008,7 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (images) {
-			return gateway.loadTagImages(id, images);
+			return gateway.loadTagAndImages(id, images);
 		}
 		return loadAnnotations(TagAnnotationData.class, null, id);
 	}

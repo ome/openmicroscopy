@@ -1493,7 +1493,7 @@ class TreeViewerComponent
 				if (o instanceof DataObject)
 					siblings.add((DataObject) o);
 			}
-			if (siblings.size() > 0)
+			if (siblings.size() > 1)
 				mv.setSiblings(siblings);
 		}
 	}

@@ -93,9 +93,10 @@ public class ContainerCounterLoader
     public void cancel() { handle.cancel(); }
     
     /** 
-     * Feeds the thumbnails back to the viewer, as they arrive. 
+     * Feeds the result back to the viewer, as they arrive. 
      * @see DataBrowserLoader#update(DSCallFeedbackEvent)
      */
+    /*
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == Browser.DISCARDED) return; //Async cancel
@@ -114,12 +115,33 @@ public class ContainerCounterLoader
             }
         }
     }
-
+*/
+    /**
+     * Feeds the result back to the viewer.
+     * @see DataBrowserLoader#handleResult(Object)
+     */
+    public void handleResult(Object result)
+    {
+        if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        Map map = (Map) result;
+        System.err.println(map);
+        if (map == null) return;
+        Iterator i = map.keySet().iterator();
+        Long containerID;
+        Integer value;
+        while (i.hasNext()) {
+            containerID = (Long) i.next();
+            value = (Integer) map.get(containerID);
+            viewer.setContainerCountValue(containerID.longValue(),
+                    						value.intValue());
+        }
+    }
+    
     /**
      * Does nothing as the async call returns <code>null</code>.
      * The actual payload (number of items) is delivered progressively
      * during the updates.
      */
-    public void handleNullResult() {}
+    //public void handleNullResult() {}
     
 }

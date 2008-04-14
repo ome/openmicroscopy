@@ -77,7 +77,7 @@ class SquaryLayout
     private ViewerSorter    sorter;
     
     /** Maximum width used to displayed the thumbnail. */
-    private int             browserW;
+    private static int      browserWidth;
     
     /** Collection of nodes previously layed out. */
     private Set				oldNodes;
@@ -89,7 +89,7 @@ class SquaryLayout
     private void setBrowserSize()
     {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        browserW = 8*(screenSize.width/10);
+        browserWidth = 7*(screenSize.width/10);
     }
     
     /**
@@ -119,7 +119,7 @@ class SquaryLayout
         	d = child.getPreferredSize();
             child.setBounds(x, y, d.width, d.height);
             child.setCollapsed(false);
-            if (x+d.width <= browserW) {
+            if (x+d.width <= browserWidth) {
                 x += d.width;
                 maxY = Math.max(maxY, d.height); 
             } else {
@@ -233,6 +233,8 @@ class SquaryLayout
         this.itemsPerRow = itemsPerRow;
     }
 
+    static int getBrowserWidth() { return browserWidth; }
+    
     /**
      * Lays out the current container display.
      * @see Layout#visit(ImageSet)

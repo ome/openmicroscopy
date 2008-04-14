@@ -2846,7 +2846,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set loadTagImages(long tagID, boolean images)
+	Set loadTagAndImages(long tagID, boolean images)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
@@ -2892,7 +2892,7 @@ class OMEROGateway
 		//return service.results();
 	}
 	
-	Map getImagesTaggedyCount(Set rootNodeIDs)
+	Map getImagesTaggedCount(Set rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {

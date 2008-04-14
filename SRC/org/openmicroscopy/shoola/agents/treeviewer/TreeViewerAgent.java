@@ -73,6 +73,17 @@ public class TreeViewerAgent
     public static Registry getRegistry() { return registry; }
     
     /**
+	 * Helper method returningthe current user's details.
+	 * 
+	 * @return See above.
+	 */
+	public static ExperimenterData getUserDetails()
+	{ 
+		return (ExperimenterData) registry.lookup(
+								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+    /**
      * Handles the {@link CopyRndSettings} event.
      * 
      * @param evt The event to handle.

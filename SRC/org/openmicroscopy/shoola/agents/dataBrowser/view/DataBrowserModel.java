@@ -134,7 +134,7 @@ abstract class DataBrowserModel
     {
     	if (browser == null) return;
     	//Do initial layout and set the icons.
-        Layout layout = LayoutFactory.getDefaultLayout(sorter, 2);
+        Layout layout = LayoutFactory.getDefaultLayout(sorter, 1);
         browser.setSelectedLayout(layout);
         browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
     }

@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -124,6 +125,7 @@ public class ExperimenterImagesCounter
      * Feeds the thumbnails back to the viewer, as they arrive. 
      * @see DataBrowserLoader#update(DSCallFeedbackEvent)
      */
+	/*
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
@@ -136,6 +138,7 @@ public class ExperimenterImagesCounter
         	viewer.setExperimenterCount(expNode, index, map.get(index));
 		}
     }
+    */
     
     /**
      * Does nothing as the async call returns <code>null</code>.
@@ -167,6 +170,24 @@ public class ExperimenterImagesCounter
     {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
+    }
+    
+    /**
+     * Feeds the result back to the viewer.
+     * @see DataBrowserLoader#handleResult(Object)
+     */
+    public void handleResult(Object result)
+    {
+        if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        Map map = (Map) result;
+        if (map == null) return;
+        //if (map == null || map.size() != 1) return;
+        Iterator i = map.keySet().iterator();
+        Integer index;
+        while (i.hasNext()) {
+        	index = (Integer) i.next();
+        	viewer.setExperimenterCount(expNode, index, map.get(index));
+		}
     }
     
 }

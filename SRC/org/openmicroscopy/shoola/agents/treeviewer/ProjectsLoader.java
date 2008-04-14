@@ -22,25 +22,21 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
+
+
+//Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.ExperimenterData;
-import pojos.ProjectData;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ProjectData;
 
 /** 
  * 
@@ -76,7 +72,7 @@ public class ProjectsLoader
      */
     public void load()
     {
-    	long userID = DataBrowserAgent.getUserDetails().getId();
+    	long userID = TreeViewerAgent.getUserDetails().getId();
     	long id = node.getUserObjectId();
     	Set<Long> ids = new HashSet<Long>();
     	ids.add(id);

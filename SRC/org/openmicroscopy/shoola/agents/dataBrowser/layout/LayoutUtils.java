@@ -188,7 +188,7 @@ public class LayoutUtils
      * in the parent <code>node</code>.
      * 
      * @param node 			The parent node. Mustn't be <code>null</code>.
-     * @param sorter 		The sorter.
+     * @param sorter 		The node sorter.
      * @param itemsPerRow 	The number of items per row.
      */
     static void doSquareGridLayout(ImageDisplay node, ViewerSorter sorter, int
@@ -210,14 +210,13 @@ public class LayoutUtils
         Component[] comps = node.getInternalDesktop().getComponents();
        
         List l = new ArrayList();
-        for (int i = 0; i < comps.length; i++) {
+        for (int i = 0; i < comps.length; i++) 
 			if (comps[i] instanceof ImageDisplay)
 				l.add(comps[i]);
-		}
+		
         //l = sorter.sort(l);
-        if (itemsPerRow > 1) {
-        	n = itemsPerRow;
-        } else {
+        if (itemsPerRow > 1) n = itemsPerRow;
+        else {
         	n = l.size();
         	n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
         }
@@ -226,21 +225,23 @@ public class LayoutUtils
         //Finally do layout.
         Dimension d;
         //List l = sorter.sort(node.getChildrenDisplay());
-        //Iterator children = node.getChildrenDisplay().iterator();
         
         ImageDisplay child;
         Iterator children = l.iterator();
         try {
-            for (int i = 0; i < n; ++i) {
-                for (int j = 0; j < n; ++j) {
-                    if (!children.hasNext()) //Done, less than n^2 children.
-                        return;  //Go to finally.
-                    child = (ImageDisplay) children.next();
-                    d = child.getPreferredSize();
-                    child.setBounds(j*maxDim.width, i*maxDim.height, d.width, 
-                                        d.height);
-                }
-            }    
+        	int i = 0;
+        	while (children.hasNext()) {
+        		for (int j = 0; j < n; j++) {
+        			 if (!children.hasNext()) //Done, less than n^2 children.
+                         return;  //Go to finally.
+        			 child = (ImageDisplay) children.next();
+        			 d = child.getPreferredSize();
+                     child.setBounds(j*maxDim.width, i*maxDim.height, d.width, 
+                                         d.height);
+				}
+        		i++;
+			}
+        	
         } finally {
             Rectangle bounds = node.getContentsBounds();
             d = bounds.getSize();
@@ -378,4 +379,17 @@ public class LayoutUtils
     //B/c: r < [r]+1  =>  sz=r^2 < ([r]+1)^2  
     //Then: sz*A(maxDim) < [([r]+1)^2]*A(maxDim)
 
+    /*
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            if (!children.hasNext()) //Done, less than n^2 children.
+                return;  //Go to finally.
+            child = (ImageDisplay) children.next();
+            d = child.getPreferredSize();
+            child.setBounds(j*maxDim.width, i*maxDim.height, d.width, 
+                                d.height);
+        }
+    }  
+    */  
+    
 }
