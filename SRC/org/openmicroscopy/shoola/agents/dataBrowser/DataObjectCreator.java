@@ -106,7 +106,7 @@ public class DataObjectCreator
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	viewer.setDataObjectCreated((DataObject) result);
+    	viewer.setDataObjectCreated((DataObject) result, parent);
     }
     
 }

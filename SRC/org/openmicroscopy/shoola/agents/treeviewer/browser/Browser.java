@@ -384,9 +384,11 @@ public interface Browser
      * Refreshes the nodes hosting the specified <code>DataObject</code>.
      * 
      * @param object    The <code>DataObject</code> to handle.
+     * @param parent	The parent of the <code>DataObject</code>.
+     * 					This will be taken only when creating a new object.
      * @param op        The type of operation.
      */
-    public void refreshEdition(DataObject object, int op);
+    public void refreshEdition(DataObject object, DataObject parent, int op);
 
     /**
      * Sets the nodes as the selected nodes. Should only be 

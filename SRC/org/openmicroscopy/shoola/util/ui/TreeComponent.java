@@ -194,6 +194,22 @@ public class TreeComponent
 	}
 	
 	/**
+	 * Sets the enables flag on all nodes of the tree.
+	 * 
+	 * @param enabled The flag to set.
+	 */
+	public void setTreeEnabled(boolean enabled)
+	{
+		Iterator<TreeComponentNode> i = nodes.iterator();
+		TreeComponentNode node;
+		while (i.hasNext()) {
+			node = i.next();
+			node.setNodeEnabled(enabled);
+			node.updateUI();
+		}
+	}
+	
+	/**
 	 * Revalidates the component and fires a property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */

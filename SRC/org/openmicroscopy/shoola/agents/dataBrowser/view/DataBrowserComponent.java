@@ -27,8 +27,10 @@ import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -396,11 +398,13 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#setDataObjectCreated(DataObject)
+	 * @see DataBrowser#setDataObjectCreated(DataObject, DataObject)
 	 */
-	public void setDataObjectCreated(DataObject object)
+	public void setDataObjectCreated(DataObject object, DataObject parent)
 	{
-		firePropertyChange(DATA_OBJECT_CREATED_PROPERTY, null, object);
+		Map<Object, Object> m = new HashMap<Object, Object>(1);
+		m.put(object, parent);
+		firePropertyChange(DATA_OBJECT_CREATED_PROPERTY, null, m);
 	}
 
 	/**

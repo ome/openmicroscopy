@@ -356,8 +356,14 @@ public class EditorUI
         	setDataToSave(false);
         	if (added) addTopLeftComponent(topLeftPane);
         	if (model.getRefObject() instanceof ImageData) {
-        		if (viewedByUI.isExpanded())
-        			loadThumbnails(true);
+        		boolean count =  model.getViewedByCount() > 0;
+        		viewByTree.setTreeEnabled(count);
+        		if (count) {
+        			if (viewedByUI.isExpanded())
+            			loadThumbnails(true);
+        		} else {
+        			viewedByUI.setExpanded(false);
+        		}
         		if (infoUI.isExpanded())
         			controller.showImageInfo();
         	}

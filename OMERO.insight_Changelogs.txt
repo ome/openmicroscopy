@@ -7,6 +7,12 @@
   maintained at an OMERO server site. OMERO.insight is completely written in 
   Java.
 --------------------------------------------------------------------------------
+ Last update: 14/04/2008 (revision 5350)
+ Version: Beta 3 rc1
+
+  - New version of the client with data manager, browser and metadata browser
+   combined.
+--------------------------------------------------------------------------------
  Last update: 15/12/2007 (revision 5176)
  Version: For Beta 2.3 rc3
 

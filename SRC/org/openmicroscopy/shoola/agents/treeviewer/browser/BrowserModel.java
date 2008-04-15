@@ -609,10 +609,15 @@ class BrowserModel
 		return false;
 	}
 
-	void browse(TreeImageDisplay node)
+	/**
+	 * Browses the node hosting the project to browse.
+	 * 
+	 * @param node The node to browse
+	 */
+	void browseProject(TreeImageDisplay node)
 	{
 		currentLoader = new ProjectsLoader(component, node);
 		currentLoader.load();
 	}
-	
+
 }

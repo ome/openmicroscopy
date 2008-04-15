@@ -928,7 +928,6 @@ public class UIUtilities
      */
     public static String formatShortDateTime(Timestamp time) 
     {
-    	
     	if (time == null) return "";
     	return DateFormat.getDateTimeInstance(
     			DateFormat.SHORT, DateFormat.SHORT).format(time);  

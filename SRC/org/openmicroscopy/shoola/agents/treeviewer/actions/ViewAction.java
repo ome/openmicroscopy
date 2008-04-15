@@ -111,6 +111,8 @@ public class ViewAction
             if (browser != null) {
                 if (browser.getSelectedDisplays().length > 1) {
                     setEnabled(true);
+                    //for this version
+                    setEnabled(false);
                     name = BROWSE;
                     putValue(Action.SMALL_ICON, 
                     			icons.getIcon(IconManager.BROWSER)); 

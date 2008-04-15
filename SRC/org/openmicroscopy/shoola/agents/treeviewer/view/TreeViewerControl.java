@@ -593,8 +593,24 @@ class TreeViewerControl
 		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
 			model.setSelectedNode(pce.getNewValue());
 		} else if (DataBrowser.DATA_OBJECT_CREATED_PROPERTY.equals(name)) {
-			DataObject data = (DataObject) pce.getNewValue();
-			model.onOrphanDataObjectCreated(data);
+			Map map = (Map) pce.getNewValue();
+			if (map != null && map.size() == 1) {
+				DataObject data = null;
+				Iterator i = map.keySet().iterator();
+				Object o;
+				DataObject parent = null;
+				while (i.hasNext()) {
+					data = (DataObject) i.next();
+					o = map.get(data);
+					if (o != null)
+						parent = (DataObject) o;
+					break;
+				}
+				if (parent == null)
+					model.onOrphanDataObjectCreated(data);
+				else model.onDataObjectSave(data, parent, 
+									TreeViewer.CREATE_OBJECT);
+			}
 		}
 	}
 

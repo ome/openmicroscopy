@@ -306,7 +306,7 @@ class BrowserComponent
     				TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
         }
         model.setState(READY);
-        model.getParentModel().setLeaves(parent.getUserObject(), leaves);
+        model.getParentModel().setLeaves(parent, leaves);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
     }
@@ -646,7 +646,7 @@ class BrowserComponent
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#refreshEdition(DataObject, int)
      */
-    public void refreshEdition(DataObject object, int op)
+    public void refreshEdition(DataObject object, DataObject parent, int op)
     {
         switch (model.getState()) {
             case NEW:
@@ -669,28 +669,34 @@ class BrowserComponent
                 parentDisplay = loggedUser;
                 //nodes.add(view.getTreeRoot());
                 //parentDisplay = view.getTreeRoot();
-            } else 
+            } else if (parent != null)
                 o = node.getUserObject();
         }
-        if (nodes == null) {
-            EditVisitor visitor = new EditVisitor(this, o);
+        if (nodes == null && parent == null) {
+            EditVisitor visitor = new EditVisitor(this, o, null);
             //accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
             loggedUser.accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
             nodes = visitor.getFoundNodes();
+        }
+        if (parent != null) {
+        	EditVisitor visitor = new EditVisitor(this, null, parent);
+            //accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
+            loggedUser.accept(visitor, TreeImageDisplayVisitor.ALL_NODES);
+            nodes = visitor.getParentNodes();
         }
         
         if (op == TreeViewer.UPDATE_OBJECT) view.updateNodes(nodes, object);
         else if (op == TreeViewer.REMOVE_OBJECT) removeNodes(nodes);
         else if (op == TreeViewer.CREATE_OBJECT) {
             long userID = model.getUserID();
-            //long model.get
             long groupID = model.getUserGroupID();
             //Get the user node.
             if (parentDisplay == null)
             	parentDisplay = getLastSelectedDisplay();
-            createNodes(nodes, 
-                    TreeViewerTranslator.transformDataObject(object, userID, 
-                            groupID), parentDisplay);
+            TreeImageDisplay newNode = 
+            		TreeViewerTranslator.transformDataObject(object, userID, 
+            								groupID);
+            createNodes(nodes, newNode, parentDisplay);
         }     
         setSelectedNode();
     }
@@ -1183,8 +1189,11 @@ class BrowserComponent
 	public void browse(TreeImageDisplay node)
 	{
 		if (node == null) return;
+		if (node instanceof TreeImageTimeSet) {
+			
+		}
 		if (node.getUserObject() instanceof ProjectData) {
-			model.browse(node);
+			model.browseProject(node);
 		} 
 		//TODO: browse tag and time node
 		

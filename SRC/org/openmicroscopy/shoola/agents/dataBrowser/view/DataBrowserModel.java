@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
@@ -108,6 +109,8 @@ abstract class DataBrowserModel
 	/** The parent of the nodes. Used as back pointer. */
     protected Object			parent;
 	
+    protected Object 			grandParent;
+    
     /** Creates a new instance. */
     DataBrowserModel()
     {
@@ -170,6 +173,13 @@ abstract class DataBrowserModel
     	state = DataBrowser.LOADING;
     	loader.load();
     }
+    
+    /**
+     * Sets the grand parent of the browsed nodes.
+     * 
+     * @param grandParent The value to set.
+     */
+    void setGrandParent(Object grandParent) { this.grandParent = grandParent; }
     
     /**
      * Returns the browser.
@@ -353,8 +363,12 @@ abstract class DataBrowserModel
 	 */
 	void fireDataSaving(DataObject data, Collection images)
 	{
-		DataObjectCreator loader = new DataObjectCreator(component, null, 
-												data, images);
+		DataObject p = null;
+		if (parent instanceof DataObject) p = (DataObject) parent;
+		if (grandParent != null && grandParent instanceof DataObject)
+			p = (DataObject) grandParent;
+		DataObjectCreator loader = new DataObjectCreator(component, p, data, 
+														images);
 		loader.load();
 	}
 	

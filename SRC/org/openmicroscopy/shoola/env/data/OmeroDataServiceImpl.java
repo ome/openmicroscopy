@@ -382,7 +382,7 @@ class OmeroDataServiceImpl
 
 		IObject created = gateway.createObject(obj, options);
 		if (parent != null)
-			ModelMapper.linkParentToNewChild(created, parent.asIObject());
+			ModelMapper.linkParentToChild(created, parent.asIObject());
 		if (children != null && children.size() > 0) {
 			Iterator i = children.iterator();
 			Object node;

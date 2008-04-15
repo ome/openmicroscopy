@@ -62,14 +62,16 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
-	 * @param parent	The parent's node.
-	 * @param images	The collection to set.
+	 * @param grandParent	The grandparent of the node.
+	 * @param parent		The parent's node.
+	 * @param images		The collection to set.
 	 * @return See above.
 	 */
-	public static final DataBrowser getDataBrowser(Object parent, 
+	public static final DataBrowser getDataBrowser(Object grandParent, 
+										Object parent, 
 										Set<ImageData> images)
 	{
-		return singleton.createImagesDataBrowser(parent, images);
+		return singleton.createImagesDataBrowser(grandParent, parent, images);
 	}
 	
 	/**
@@ -96,7 +98,7 @@ public class DataBrowserFactory
 		
 		return singleton.browsers.get(parent.toString());
 	}
-	
+
 	/** Map used to keep track of the browsers. */
 	private Map<String, DataBrowser> browsers;
 	
@@ -109,14 +111,18 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
-	 * @param parent	The parent's node.
+	 * @param grandParent	The grandParent of the node.
+	 * @param parent		The parent's node.
 	 * @param images		The collection to set.
 	 * @return See above.
 	 */
-	private DataBrowser createImagesDataBrowser(Object parent, 
+	private DataBrowser createImagesDataBrowser(Object grandParent, 
+												Object parent, 
 										Set<ImageData> images)
 	{
 		DataBrowserModel model = new ImagesModel(parent, images);
+		System.err.println(grandParent);
+		model.setGrandParent(grandParent);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
@@ -134,7 +140,7 @@ public class DataBrowserFactory
 	private DataBrowser createDatasetsDataBrowser(DataObject parent, 
 											Set<DatasetData> datasets)
 	{
-		DataBrowserModel model = new DatasetsModel(datasets);
+		DataBrowserModel model = new DatasetsModel(parent, datasets);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

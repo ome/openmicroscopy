@@ -65,14 +65,16 @@ class DatasetsModel
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param datasets The collection to datasets the model is for.
+	 * @param parent	The parent of the datasets.
+	 * @param datasets 	The collection to datasets the model is for.
 	 */
-	DatasetsModel(Set<DatasetData> datasets)
+	DatasetsModel(Object parent, Set<DatasetData> datasets)
 	{
 		super();
 		if (datasets  == null) 
 			throw new IllegalArgumentException("No images.");
 		this.datasets = datasets;
+		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, 
 							userID, 0);

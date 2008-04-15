@@ -39,7 +39,7 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * Node hosting a data object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -97,7 +97,7 @@ public class ImageTableNode
 				if (ho instanceof ImageData) {
 					Timestamp time = EditorUtil.getCreationTime((ImageData) ho);
 					if (time == null) return "--";
-					return UIUtilities.formatWDMYDate(time);
+					return UIUtilities.formatShortDateTime(time);
 				}
 				return "--";
 			case ImageTable.ANNOTATED_COL:

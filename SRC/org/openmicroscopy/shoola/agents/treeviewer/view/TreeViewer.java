@@ -37,6 +37,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -323,7 +324,21 @@ public interface TreeViewer
 	 */
 	public void onDataObjectSave(DataObject data, int operation);
 	
-
+	/**
+	 * Updates the views when the data object is saved.
+	 * The method only supports map of size one. 
+	 * The key is one the following constants: 
+	 * <code>CREATE_OBJECT</code>, <code>UPDATE_OBJECT</code> or
+	 * <code>REMOVE_OBJECT</code>.
+	 * The value is the <code>DataObject</code> created, removed or updated.
+	 * 
+	 * @param data      The save <code>DataObject</code>. Mustn't be 
+	 *                  <code>null</code>.
+	 * @param parent	The parent of the <code>DataObject</code>.
+	 * @param op 		The type of operation.
+	 */
+	public void onDataObjectSave(DataObject data, DataObject parent, int op);
+	
 	/**
 	 * Updates the views when the data object is saved.
 	 * The method only supports map of size one. 
@@ -634,12 +649,21 @@ public interface TreeViewer
 	 */
 	public void createObject(DataObject object);
 
-	public void setLeaves(Object parent, Set leaves);
+	public void setLeaves(TreeImageSet parent, Set leaves);
 
-	public void setSelectedNode(Object newValue);
+	/**
+	 * 
+	 * @param newValue
+	 */
+	public void setSelectedNode(Object object);
 	
     public void setHierarchyRoots(Object parent, Set nodes);
     
+    /** 
+     * Adds a dataset without project.
+     * 
+     * @param data The object to add.
+     */
     public void onOrphanDataObjectCreated(DataObject data);
     
 }

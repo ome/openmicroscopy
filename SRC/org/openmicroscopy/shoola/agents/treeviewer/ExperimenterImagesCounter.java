@@ -125,7 +125,6 @@ public class ExperimenterImagesCounter
      * Feeds the thumbnails back to the viewer, as they arrive. 
      * @see DataBrowserLoader#update(DSCallFeedbackEvent)
      */
-	/*
     public void update(DSCallFeedbackEvent fe) 
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
@@ -138,7 +137,6 @@ public class ExperimenterImagesCounter
         	viewer.setExperimenterCount(expNode, index, map.get(index));
 		}
     }
-    */
     
     /**
      * Does nothing as the async call returns <code>null</code>.
@@ -178,6 +176,7 @@ public class ExperimenterImagesCounter
      */
     public void handleResult(Object result)
     {
+    	/*
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         Map map = (Map) result;
         if (map == null) return;
@@ -188,6 +187,7 @@ public class ExperimenterImagesCounter
         	index = (Integer) i.next();
         	viewer.setExperimenterCount(expNode, index, map.get(index));
 		}
+		*/
     }
     
 }

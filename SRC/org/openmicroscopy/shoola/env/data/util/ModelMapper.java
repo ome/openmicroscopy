@@ -237,7 +237,7 @@ public class ModelMapper
             Image unloadedImage = new Image(child.getId(), false);
             
             DatasetImageLink l = new DatasetImageLink();
-             l.link(unloadedDataset, unloadedImage);
+            l.link(unloadedDataset, unloadedImage);
             return l;
         } else if (parent instanceof Category) {
             if (!(child instanceof Image))

@@ -60,19 +60,22 @@ class TreeComponentNode
 	static final String EXPANDED_NODE_PROPERTY = "expandedNode";
 	
 	/** The label hosting the selected icon. */
-	private JLabel 		iconLabel;
+	private JLabel 			iconLabel;
 	
 	/** The {@link #elapse} component. */
-	private JComponent	elapse;
+	private JComponent		elapse;
 	
 	/** The {@link #collapse} component. */
-	private JComponent	collapse;
+	private JComponent		collapse;
 	
 	/** Flag indicating the component selected. */
-	private boolean 	expanded;
+	private boolean 		expanded;
 	
 	/** The layout manager. */
-	private TableLayout layout;
+	private TableLayout 	layout;
+	
+	/** Listener used to expand/collapse the node. */
+	private MouseAdapter	adapter;
 	
 	/** Updates the display. */
 	void updateDisplay()
@@ -103,14 +106,15 @@ class TreeComponentNode
 	private void initialize()
 	{
 		iconLabel = new JLabel();
-		iconLabel.addMouseListener(new MouseAdapter() {
+		adapter = new MouseAdapter() {
 		
 			public void mouseReleased(MouseEvent e)
 			{ 
 				expanded = !expanded;
 				updateDisplay(); 
 			}
-		});
+		};
+		iconLabel.addMouseListener(adapter);
 		//set the layout 
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
 						{20, TableLayout.FILL} }; //rows
@@ -149,6 +153,11 @@ class TreeComponentNode
 		buildGUI();
 	}
 
+	/**
+	 * Sets the {@link #expanded} flag used to set the correct icon.
+	 * 
+	 * @param expanded	The value to set.
+	 */
 	void setExpanded(boolean expanded)
 	{
 		this.expanded = expanded;
@@ -173,5 +182,18 @@ class TreeComponentNode
 	 * @return See above.
 	 */
 	boolean isExpanded() { return expanded; }
+	
+	/**
+	 * Allows or not the user to expand/collpase the node.
+	 * 
+	 * @param enabled Pass <code>true</code> to allow operation, 
+	 * 				<code>false</code> otherwise.
+	 */
+	void setNodeEnabled(boolean enabled)
+	{
+		iconLabel.setEnabled(enabled);
+		iconLabel.removeMouseListener(adapter);
+		if (enabled) iconLabel.addMouseListener(adapter);
+	}
 	
 }

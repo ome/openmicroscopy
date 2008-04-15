@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
@@ -645,6 +646,16 @@ class TreeViewerComponent
 	 */
 	public void onDataObjectSave(DataObject data, int operation)
 	{
+		onDataObjectSave(data, null, operation);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#onDataObjectSave(DataObject, DataObject, int)
+	 */
+	public void onDataObjectSave(DataObject data, DataObject parent, 
+								int operation)
+	{
 		int state = model.getState();
 		if (operation == REMOVE_OBJECT && state != SAVE)
 			throw new IllegalStateException("This method can only be " +
@@ -672,7 +683,7 @@ class TreeViewerComponent
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getSelectedBrowser();
-		browser.refreshEdition(data, operation);
+		browser.refreshEdition(data, parent, operation);
 		//Browser browser = model.getSelectedBrowser();
 		//browser.refreshEdition(data, operation);
 		//browser.refreshLoggedExperimenterData();
@@ -692,7 +703,7 @@ class TreeViewerComponent
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onOrphanDataObjectCreated(DataObject, int)
@@ -1449,12 +1460,16 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setLeaves(Object, Set)
+	 * @see TreeViewer#setLeaves(TreeImageSet, Set)
 	 */
-	public void setLeaves(Object parent, Set leaves)
+	public void setLeaves(TreeImageSet parent, Set leaves)
 	{
+		Object parentObject = parent.getUserObject();
+		TreeImageDisplay display = parent.getParentDisplay();
+		Object grandParentObject = null;
+		if (display != null) grandParentObject =  display.getUserObject();
 		DataBrowser dataBrowser = DataBrowserFactory.getDataBrowser(
-									parent, leaves);
+					grandParentObject, parentObject, leaves);
 		dataBrowser.addPropertyChangeListener(controller);
 		dataBrowser.activate();
 		view.removeAllFromWorkingPane();

@@ -59,8 +59,13 @@ public class EditVisitor
     /** The original node. */
     private Object              	originalNode;
     
+    private DataObject				parent;
+    
     /** The collection of found {@link TreeImageDisplay nodes}. */
     private List<TreeImageDisplay>	foundNodes;
+    
+    /** The collection of found {@link TreeImageDisplay nodes}. */
+    private List<TreeImageDisplay>	parentNodes;
     
     /**
      * Returns the id of the specified object, <code>-1</code> if it's the 
@@ -83,11 +88,13 @@ public class EditVisitor
      */
     private void analyse(TreeImageDisplay node)
     {
-        Object object = node.getUserObject();
-        if (object.getClass().equals(originalNode.getClass()) && 
-            originalNodeID == getNodeID(object)) {
-            foundNodes.add(node);
-        }
+    	if (originalNode != null) {
+    		Object object = node.getUserObject();
+            if (object.getClass().equals(originalNode.getClass()) && 
+                originalNodeID == getNodeID(object)) {
+                foundNodes.add(node);
+            }
+    	}
     }
     
     /**
@@ -97,15 +104,16 @@ public class EditVisitor
      *                      Mustn't be <code>null</code>.
      * @param originalNode  The object hosted by the tree node.
      * 						Mustn't be <code>null</code>.
+     * @param parent		The parent of the data object to create.
      */
-    public EditVisitor(Browser model, Object originalNode)
+    public EditVisitor(Browser model, Object originalNode, DataObject parent)
     {
         super(model);
-        if (originalNode == null) 
-            throw new IllegalArgumentException("No node.");
         this.originalNode = originalNode;
+        this.parent = parent;
         originalNodeID = getNodeID(originalNode);
         foundNodes = new ArrayList<TreeImageDisplay>();
+        parentNodes = new ArrayList<TreeImageDisplay>();
     }
     
     /**
@@ -114,6 +122,13 @@ public class EditVisitor
      * @return See above.
      */
     public List getFoundNodes() { return foundNodes; }
+    
+    /**
+     * Returns the collection of found {@link TreeImageDisplay nodes}.
+     * 
+     * @return See above.
+     */
+    public List getParentNodes() { return parentNodes; }
     
     /**
      * Retrieves the nodes hosting a <code>DataObject</code> with the same ID
@@ -127,6 +142,18 @@ public class EditVisitor
      * than {@link #originalNodeID}.
      * @see BrowserVisitor#visit(TreeImageSet)
      */
-    public void visit(TreeImageSet node) { analyse(node); }
+    public void visit(TreeImageSet node)
+    { 
+    	if (parent != null) {
+    		Object n = node.getUserObject();
+    		if (n instanceof DataObject) {
+    			if (((DataObject) n).getId() == parent.getId()) {
+    				System.err.println("node: "+node);
+    				parentNodes.add(node);
+    			}
+    		}
+    	}
+    	analyse(node); 
+    }
     
 }

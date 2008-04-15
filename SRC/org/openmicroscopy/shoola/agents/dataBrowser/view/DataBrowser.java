@@ -274,7 +274,7 @@ public interface DataBrowser
      */
 	public void createDataObject(DataObject data);
 
-	public void setDataObjectCreated(DataObject object);
+	public void setDataObjectCreated(DataObject object, DataObject parent);
 
 	public void setTableNodesSelected(List<ImageDisplay> selected);
 	

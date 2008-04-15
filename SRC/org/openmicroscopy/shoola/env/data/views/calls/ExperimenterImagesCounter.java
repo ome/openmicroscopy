@@ -101,7 +101,7 @@ public class ExperimenterImagesCounter
 			context.getLogger().error(this, msg);
 		}
 	}
-
+	
 	/**
 	 * Adds a {@link BatchCall} to the tree for each container.
 	 * The batch call simply invokes {@link #loadThumbail(int)}.
