@@ -34,8 +34,8 @@
 				<h:outputText value="#{msg.myaccountPassword}*" />
 
 				<h:inputSecret id="password" value="#{IAEManagerBean.password}"
-					maxlength="255">
-					<f:validateLength maximum="255" />
+					maxlength="50">
+					<f:validateLength maximum="50" />
 				</h:inputSecret>
 
 				<h:message styleClass="errorText" id="passwordError" for="password" />
@@ -43,8 +43,8 @@
 				<h:outputText value="#{msg.myaccountPassword2}*" />
 
 				<h:inputSecret id="password2" value="#{IAEManagerBean.password2}"
-					maxlength="255">
-					<f:validateLength maximum="255" />
+					maxlength="50">
+					<f:validateLength maximum="50" />
 				</h:inputSecret>
 
 				<h:message styleClass="errorText" id="password2Error"
