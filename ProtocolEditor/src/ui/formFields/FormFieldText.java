@@ -84,7 +84,8 @@ public class FormFieldText extends FormField {
 	 * @return	True if the field has been filled out by user (Required values are not null)
 	 */
 	public boolean isFieldFilled() {
-		return (dataField.getAttribute(DataFieldConstants.VALUE) != null);
+		String value = dataField.getAttribute(DataFieldConstants.VALUE);
+		return ((value != null) && (value.length() > 0));
 	}
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField
