@@ -225,9 +225,7 @@ class BrowserModel
 	    rollOverNode = newNode;
 	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, newNode);
 	}
-	
-	
-	
+
 	/**
 	 * Sets the color of the selected and deselected nodes.
 	 * 

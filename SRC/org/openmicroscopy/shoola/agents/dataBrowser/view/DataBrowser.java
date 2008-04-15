@@ -270,9 +270,12 @@ public interface DataBrowser
     /**
      * Creates a new data object containing the displayed nodes.
      * 
-     * @param data The object to create.
+     * @param data 			The object to create.
+     * @param visibleNodes 	Pass <code>true</code> to add the visible nodes
+     * 						to the newly created <code>DataObject</code>,
+     * 						<code>false</code> to add the selected nodes.
      */
-	public void createDataObject(DataObject data);
+	public void createDataObject(DataObject data, boolean visibleNodes);
 
 	public void setDataObjectCreated(DataObject object, DataObject parent);
 

@@ -166,8 +166,13 @@ class DataBrowserControl
         } else if (SlideShowView.CLOSE_SLIDE_VIEW_PROPERTY.equals(name)) {
         	view.slideShowView(false, false);
         } else if (ObjectEditor.CREATE_DATAOBJECT_PROPERTY.equals(name)) {
-        	DataObject object = (DataObject) evt.getNewValue();
-        	model.createDataObject(object);
+        	List l = (List) evt.getNewValue();
+        	if (l != null && l.size() == 2) {
+        		boolean visible = (Boolean) l.get(0);
+            	DataObject object = (DataObject) l.get(1);
+            	model.createDataObject(object, visible);
+        	}
+        	
         } else if (ImageTableView.TABLE_NODES_SELECTION_PROPERTY.equals(name)) {
         	List<ImageDisplay> selected = (List) evt.getNewValue();
         	model.setTableNodesSelected(selected);

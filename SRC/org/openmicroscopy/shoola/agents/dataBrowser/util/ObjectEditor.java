@@ -29,14 +29,19 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -94,19 +99,25 @@ public class ObjectEditor
 	private static final int		SAVE = 11;
 	
 	/** One of the creation type defined by this class. */
-	private int 		index;
+	private int 			index;
 	
 	/** Button to close the dialog. */
-	private JButton		cancelButton;
+	private JButton			cancelButton;
 	
 	/** Button to create a new data object. */
-	private JButton		saveButton;
+	private JButton			saveButton;
 	
     /** Area where to enter the name of the <code>DataObject</code>. */
-    private JTextField	nameArea;
+    private JTextField		nameArea;
      
     /** Area where to enter the description of the <code>DataObject</code>. */
-    private JTextArea	descriptionArea;
+    private JTextArea		descriptionArea;
+    
+    /** Button indicating to add the selected images to the dataset. */
+    private JRadioButton	selectedImages;
+    
+    /** Button indicating to add the displayed images to the dataset. */
+    private JRadioButton	displayedImages;
     
 	/** Sets the properties. */
 	private void setProperties()
@@ -133,6 +144,12 @@ public class ObjectEditor
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		ButtonGroup group = new ButtonGroup();
+		selectedImages = new JRadioButton("Add selected images.");
+		group.add(selectedImages);
+		displayedImages = new JRadioButton("Add visible images.");
+		group.add(displayedImages);
+		displayedImages.setSelected(true);
 		nameArea = new JTextField();
 		nameArea.getDocument().addDocumentListener(this);
         UIUtilities.setTextAreaDefault(nameArea);
@@ -219,6 +236,20 @@ public class ObjectEditor
         return content;
     }
     
+    /**
+     * Builds the component with the various options.
+     * 
+     * @return See above.
+     */
+    private JPanel buildOptionsPanel()
+    {
+    	JPanel content = new JPanel();
+    	content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+    	content.add(selectedImages);
+    	content.add(displayedImages);
+    	return content;
+    }
+    
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -228,6 +259,7 @@ public class ObjectEditor
     	contentPanel.setLayout(new BoxLayout(contentPanel, 
     								BoxLayout.Y_AXIS));
     	contentPanel.add(buildContentPanel());
+    	contentPanel.add(buildOptionsPanel());
     	c.add(buildTitlePanel(), BorderLayout.NORTH);
         c.add(contentPanel, BorderLayout.CENTER);
         c.add(buildToolBar(), BorderLayout.SOUTH);
@@ -252,8 +284,14 @@ public class ObjectEditor
 				object = d;
 				break;
 		}
-		if (object != null)
-			firePropertyChange(CREATE_DATAOBJECT_PROPERTY, null, object);
+		if (object != null) {
+			List<Object> r = new ArrayList<Object>(2);
+			boolean visible = true;
+			if (selectedImages.isSelected()) visible = false;
+			r.add(visible);
+			r.add(object);
+			firePropertyChange(CREATE_DATAOBJECT_PROPERTY, null, r);
+		}
 		cancel();
 	}
 	

@@ -203,7 +203,6 @@ class ClosableTabbedPaneUI
 
 		String title = tabPane.getTitleAt(tabIndex);
 		Font font = tabPane.getFont();
-//		SwingUtilities2.getFontMetrics(tabPane, g, font);
 		FontMetrics metrics = tabPane.getFontMetrics(font);
 		Icon icon = getIconForTab(tabIndex);
 
@@ -220,7 +219,7 @@ class ClosableTabbedPaneUI
 		
 		 if (!(images.containsKey(tabIndex)))
 			 images.put(tabIndex, closeImage);
-		 int x = rect.x+rect.width-19;
+		 int x = 2+rect.x+rect.width-19;
 		 int y = rect.y+2;
 		 int w = 0, h = 0;
 		 Image img = images.get(tabIndex);

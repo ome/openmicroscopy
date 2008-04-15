@@ -28,9 +28,11 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -387,12 +389,29 @@ class DataBrowserComponent
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#createDataObject(DataObject)
 	 */
-	public void createDataObject(DataObject data)
+	public void createDataObject(DataObject data, boolean visible)
 	{
 		if (data == null) return;
 		//TODO: check state.
 		Browser browser = model.getBrowser();
-		Collection images = browser.getVisibleImages();
+		Collection images;
+		if (visible) images = browser.getVisibleImages();
+		else {
+			images = new HashSet();
+			Set set = browser.getSelectedDisplays();
+			if (set != null) {
+				Iterator i = set.iterator();
+				ImageDisplay display;
+				Object ho;
+				while (i.hasNext()) {
+					display = (ImageDisplay) i.next();
+					ho = display.getHierarchyObject();
+					if (ho instanceof DataObject) {
+						images.add(ho);
+					}
+				}
+			}
+		}
 		model.fireDataSaving(data, images);
 	}
 
