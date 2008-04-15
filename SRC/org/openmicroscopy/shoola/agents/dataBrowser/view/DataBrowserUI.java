@@ -38,12 +38,15 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
+import pojos.DataObject;
 
 /** 
  * The view.
@@ -175,7 +178,10 @@ class DataBrowserUI
 			}
 			
 		}
-		if (nodes == null || nodes.size() == 0) return;
+		if (nodes == null || nodes.size() == 0) {
+			toolBar.enableSlideShow(true);
+			return;
+		}
 		List<ImageNode> selection = new ArrayList<ImageNode>(nodes.size());
 		ImageNode n;
 		i = nodes.iterator();
@@ -255,7 +261,29 @@ class DataBrowserUI
 			case COLUMNS_VIEW:
 				selectedView = index;
 				add(toolBar, BorderLayout.NORTH);
-				add(model.createImageTableView(), BorderLayout.CENTER);
+				
+				ImageTableView existed = model.getTableView();
+				ImageTableView v = model.createImageTableView();
+				if (existed == null) {
+					Set nodes = model.getBrowser().getSelectedDisplays();
+					if (nodes != null) {
+						Iterator i = nodes.iterator();
+						List<DataObject> objects = new ArrayList<DataObject>();
+						ImageDisplay display;
+						Object ho;
+						while (i.hasNext()) {
+							display = (ImageDisplay) i.next();
+							ho = display.getHierarchyObject();
+							System.err.println(display);
+							if (ho instanceof DataObject)
+								objects.add((DataObject) ho);
+						}
+						v.setSelectedNodes(objects);
+					}
+				}
+				v.addPropertyChangeListener(controller);
+				add(v, BorderLayout.CENTER);
+				
 				break;
 		}
     	toolBar.setSelectedViewIndex(selectedView);

@@ -695,10 +695,14 @@ class BrowserComponent
         setSelectedNode();
     }
 
+    /**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#onOrphanDataObjectCreated(DataObject)
+     */
 	public void onOrphanDataObjectCreated(DataObject data) 
 	{
 		TreeImageDisplay loggedUser = view.getLoggedExperimenterNode();
-		List nodes = new ArrayList(1);
+		List<TreeImageDisplay> nodes = new ArrayList<TreeImageDisplay>(1);
         nodes.add(loggedUser);
         long userID = model.getUserID();
         //long model.get
@@ -1161,21 +1165,37 @@ class BrowserComponent
 		view.refreshExperimenter();
 	}
 
-	public void setHierarchyRoots(Set roots, TreeImageDisplay node, boolean refresh)
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setHierarchyRoots(Set, TreeImageDisplay, boolean)
+	 */
+	public void setHierarchyRoots(Set roots, TreeImageDisplay node, 
+								boolean refresh)
 	{
 		model.getParentModel().setHierarchyRoots(node.getUserObject(), roots);
 		
 	}
 
-	public void browse(TreeImageDisplay node) {
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#browse(TreeImageDisplay)
+	 */
+	public void browse(TreeImageDisplay node)
+	{
 		if (node == null) return;
 		if (node.getUserObject() instanceof ProjectData) {
 			model.browse(node);
-		}
+		} 
+		//TODO: browse tag and time node
 		
 	}
 
-	public void onSelectedNode(Object parent, Object selected)
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#onSelectedNode(Object, Object, Boolean)
+	 */
+	public void onSelectedNode(Object parent, Object selected, 
+					Boolean multiSelection)
 	{
 		if (selected instanceof DataObject) {
 			NodeSelectionVisitor visitor = new NodeSelectionVisitor(parent, 
@@ -1183,18 +1203,12 @@ class BrowserComponent
 			accept(visitor);
 			TreeImageDisplay foundNode = visitor.getSelectedNode();
 			if (foundNode != null) {		
-				view.setFoundNode(model.getSelectedDisplays(), foundNode);
-				model.addFoundNode(foundNode);
-				
-				/*
-				TreeImageDisplay[] nodes = model.getSelectedDisplays();
-				for (int i = 0; i < nodes.length; i++) {
-					view.setFoundNode(nodes[i]);
-				}
-				*/
-			}
+				if (multiSelection) model.addFoundNode(foundNode);
+				else model.setSelectedDisplay(foundNode);
+				view.setFoundNode(model.getSelectedDisplays());
+			} else 
+				view.setFoundNode(null);
 		}
-		
 	}
     
 }

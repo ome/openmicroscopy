@@ -471,7 +471,7 @@ class EditorModel
 			if (def.getExperimenter().getId() != userID)
 				results.add(def);
 		}
-		return l;//results; 
+		return results; 
 	}
 	
 	/**

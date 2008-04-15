@@ -168,6 +168,9 @@ class DataBrowserControl
         } else if (ObjectEditor.CREATE_DATAOBJECT_PROPERTY.equals(name)) {
         	DataObject object = (DataObject) evt.getNewValue();
         	model.createDataObject(object);
+        } else if (ImageTableView.TABLE_NODES_SELECTION_PROPERTY.equals(name)) {
+        	List<ImageDisplay> selected = (List) evt.getNewValue();
+        	model.setTableNodesSelected(selected);
         }
 	}
 

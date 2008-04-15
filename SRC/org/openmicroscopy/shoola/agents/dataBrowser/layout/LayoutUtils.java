@@ -241,7 +241,6 @@ public class LayoutUtils
 				}
         		i++;
 			}
-        	
         } finally {
             Rectangle bounds = node.getContentsBounds();
             d = bounds.getSize();

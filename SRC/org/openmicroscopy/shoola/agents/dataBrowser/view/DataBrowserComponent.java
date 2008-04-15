@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -41,6 +44,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
+import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
@@ -154,7 +158,9 @@ class DataBrowserComponent
 	{
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
-		 objects.add(object);
+		objects.add(model.getBrowser().isMultiSelection());
+		objects.add(object);
+		
 		if (object instanceof DataObject) {
 			ImageDisplay p = node.getParentDisplay();
 			Object parent = p.getHierarchyObject();
@@ -171,6 +177,8 @@ class DataBrowserComponent
 	 */
 	public void setSelectedNodes(List<DataObject> objects)
 	{
+		ImageTableView tbView = model.getTableView();
+		if (tbView != null) tbView.setSelectedNodes(objects);
 		model.getBrowser().setSelectedNodes(objects);
 	}
 
@@ -250,7 +258,16 @@ class DataBrowserComponent
 			text += i.next().trim();
 		
 		Browser browser = model.getBrowser();
-		RegexFinder finder = new RegexFinder(RegExFactory.createPattern(text));
+		Pattern pattern;
+		try {
+			pattern = RegExFactory.createPattern(text);
+		} catch (PatternSyntaxException pse) {
+            UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+            un.notifyInfo("Find", "The phrase cannot contain +, ? or *");
+            return;
+        }
+		
+		RegexFinder finder = new RegexFinder(pattern);
 		//browser.visitOriginal(finder);
 		browser.accept(finder);
 		List<ImageDisplay> nodes = finder.getFoundNodes();
@@ -384,6 +401,15 @@ class DataBrowserComponent
 	public void setDataObjectCreated(DataObject object)
 	{
 		firePropertyChange(DATA_OBJECT_CREATED_PROPERTY, null, object);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setTableNodesSelected(List)
+	 */
+	public void setTableNodesSelected(List<ImageDisplay> nodes)
+	{
+		model.getBrowser().setNodesSelection(nodes);
 	}
 	
 }

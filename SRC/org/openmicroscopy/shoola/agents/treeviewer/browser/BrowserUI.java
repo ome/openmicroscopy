@@ -62,6 +62,8 @@ import javax.swing.tree.TreeSelectionModel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.TreeCellRenderer;
@@ -69,6 +71,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * The Browser's View.
@@ -247,7 +250,15 @@ class BrowserUI
                 //if (!released) controller.onClick();
             } else if (me.getClickCount() == 2 && released) {
             	//controller.cancel();
-                model.viewDataObject();
+                //model.viewDataObject();
+            	TreeImageDisplay d  = model.getLastSelectedDisplay();
+                if (d == null) return;
+                Object o = d.getUserObject();
+                if (o instanceof ImageData) {
+                	Rectangle r = model.getParentModel().getUI().getBounds();
+        			TreeViewerAgent.getRegistry().getEventBus().post(
+        					new ViewImage((ImageData) o, r));
+                }
             }
         }
     }
@@ -1176,30 +1187,24 @@ class BrowserUI
 		}
 	}
 
-	void setFoundNode(TreeImageDisplay[] nodes, TreeImageDisplay node)
+	/**
+	 * Sets the nodes selecting via other views.
+	 * 
+	 * @param newSelection	The collection of nodes to select.
+	 */
+	void setFoundNode(TreeImageDisplay[] newSelection)
 	{
-		TreeCellRenderer renderer = (TreeCellRenderer) 
-				treeDisplay.getCellRenderer();
 		treeDisplay.removeTreeSelectionListener(selectionListener);
-		for (int i = 0; i < nodes.length; i++) {
-			System.err.println(nodes[i]);
-			treeDisplay.setSelectionPath( 
-					new TreePath( ((DefaultTreeModel)treeDisplay.getModel()).getPathToRoot( nodes[i]) ) );
-			//renderer.getTreeCellRendererComponent(treeDisplay, nodes[i], 
-			//		treeDisplay.isPathSelected(new TreePath(nodes[i].getPath())),
-            //		false, true, 0, false);
+		treeDisplay.clearSelection();
+		if (newSelection != null) {
+			TreePath[] paths = new TreePath[newSelection.length];
+			for (int i = 0; i < newSelection.length; i++) 
+				paths[i] = new TreePath(newSelection[i].getPath());
+
+			treeDisplay.setSelectionPaths(paths);
 		}
-		if (node != null) {
-			treeDisplay.setSelectionPath( new TreePath(
-					((DefaultTreeModel)treeDisplay.getModel()).getPathToRoot( 
-							node ) ) );
-            /*
-			TreePath path = new TreePath(node.getPath());
-            treeDisplay.setSelectionPath(path);
-            renderer.getTreeCellRendererComponent(treeDisplay, node, 
-            		treeDisplay.isPathSelected(path), false, true, 0, false);
-            		*/
-        }   
+		
+		treeDisplay.repaint();
 		treeDisplay.addTreeSelectionListener(selectionListener);
 	}
     

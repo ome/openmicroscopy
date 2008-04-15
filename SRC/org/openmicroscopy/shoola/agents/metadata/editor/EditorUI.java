@@ -110,8 +110,11 @@ public class EditorUI
 	/** The component hosting the {@link #infoUI}. */
 	private TreeComponent 				infoTree;
 
-	/** The tool bar with various control. */
-	private ToolBar						toolBar;
+	/** The tool bar with various controls. */
+	private ToolBar						toolBarTop;
+	
+	/** The tool bar with various controls. */
+	private ToolBar						toolBarBottom;
 	
 	/** The left hand side component. */
 	private JPanel 						leftPane;
@@ -164,7 +167,8 @@ public class EditorUI
 		infoUI = new ImageInfoUI(model);
 		userUI = new UserUI(model, controller);
 		leftPane = new JPanel();
-		toolBar = new ToolBar(model, this, controller);
+		toolBarTop = new ToolBar(model, this, controller, ToolBar.TOP);
+		toolBarBottom = new ToolBar(model, this, controller, ToolBar.BOTTOM);
 		propertiesUI = new PropertiesUI(model);
 		attachmentsUI = new AttachmentsUI(model);
 		linksUI = new LinksUI(model);
@@ -271,11 +275,12 @@ public class EditorUI
 
 				double[][] finalSize = {{TableLayout.FILL}, 
 						{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-						TableLayout.PREFERRED}};
+						TableLayout.PREFERRED, TableLayout.PREFERRED}};
 				content.setLayout(new TableLayout(finalSize));
-				content.add(toolBar, "0, 0,");
+				content.add(toolBarTop, "0, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "0, 2");
+				content.add(toolBarBottom, "0, 3");
 				break;
 			case Editor.GRID_LAYOUT:
 			default:
@@ -292,7 +297,7 @@ public class EditorUI
 					{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 
 				content.setLayout(new TableLayout(size));
-				content.add(toolBar, "0, 0, 2, 0");
+				content.add(toolBarTop, "0, 0, 2, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "2, 1");
 				content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
@@ -344,8 +349,10 @@ public class EditorUI
         	tagsUI.buildUI();
         	attachmentsUI.buildUI();
         	propertiesUI.buildUI();
-        	toolBar.buildGUI();
-        	toolBar.setControls();
+        	toolBarTop.buildGUI();
+        	toolBarBottom.buildGUI();
+        	toolBarTop.setControls();
+        	toolBarBottom.setControls();
         	setDataToSave(false);
         	if (added) addTopLeftComponent(topLeftPane);
         	if (model.getRefObject() instanceof ImageData) {
@@ -354,7 +361,8 @@ public class EditorUI
         		if (infoUI.isExpanded())
         			controller.showImageInfo();
         	}
-        	toolBar.setDecorator();
+        	toolBarTop.setDecorator();
+        	//toolBarBottom.setDecorator();
     	}
     	revalidate();
     	repaint();
@@ -365,7 +373,8 @@ public class EditorUI
 	{
 		saved = true;
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		toolBar.setDataToSave(false);
+		toolBarTop.setDataToSave(false);
+    	toolBarBottom.setDataToSave(false);
 		if (model.getRefObject() instanceof ExperimenterData) {
 			ExperimenterData exp = userUI.getExperimenterToSave();
 			model.fireDataObjectSaving(exp);
@@ -418,30 +427,33 @@ public class EditorUI
 		switch (layout) {
 			case Editor.GRID_LAYOUT:
 				if (object instanceof ExperimenterData) {
-					content.add(toolBar, "0, 0, 2, 0");
+					content.add(toolBarTop, "0, 0, 2, 0");
 					content.add(userUI, "0, 1, 2, 1");
 					userUI.buildUI();
 					revalidate();
 			    	repaint();
 					return;
 				}
-				content.add(toolBar, "0, 0, 2, 0");
+				content.add(toolBarTop, "0, 0, 2, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "2, 1");
+				//content.add(toolBarBottom, "0, 0, 2, 0");
 				break;
 	
 			case Editor.VERTICAL_LAYOUT:
 				if (object instanceof ExperimenterData) {
-					content.add(toolBar, "0, 0");
+					content.add(toolBarTop, "0, 0");
 					content.add(userUI, "0, 1");
+					content.add(toolBarBottom, "0, 2");
 					userUI.buildUI();
 					revalidate();
 			    	repaint();
 					return;
 				}
-				content.add(toolBar, "0, 0");
+				content.add(toolBarTop, "0, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "0, 2");
+				content.add(toolBarBottom, "0, 3");
 				break;
 		}
 		
@@ -548,7 +560,11 @@ public class EditorUI
      * @param b Pass <code>true</code> to save the data,
      * 			<code>false</code> otherwise.
      */
-    void setDataToSave(boolean b) { toolBar.setDataToSave(b); }
+    void setDataToSave(boolean b)
+    { 
+    	toolBarTop.setDataToSave(b); 
+    	toolBarBottom.setDataToSave(b); 
+    }
     
     /**
 	 * Returns <code>true</code> if data to save, <code>false</code>
@@ -565,7 +581,7 @@ public class EditorUI
 			setDataToSave(false);
 			return false;
 		}
-		toolBar.setDataToSave(true);
+		setDataToSave(true);
 		Iterator<AnnotationUI> i = components.iterator();
 		boolean b = false;
 		AnnotationUI ui;

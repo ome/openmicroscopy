@@ -42,6 +42,7 @@ import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 
@@ -110,10 +111,19 @@ public class OMETreeTable
 	/** The mouse listener. */
 	protected MouseListener			mouseListener;
 	
+	/** Initializes the table. */
+	private void initialize()
+	{
+		ColumnHeaderRenderer l = 
+			(ColumnHeaderRenderer) getTableHeader().getDefaultRenderer();
+		l.setHorizontalAlignment(SwingConstants.CENTER);
+	}
+	
 	/** Creates a new instance. */
 	public OMETreeTable()
 	{
 		super();
+		initialize();
 	}
 	
 	/**
@@ -125,6 +135,7 @@ public class OMETreeTable
 	{
 		super(model);
 		setTableModel(model);
+		initialize();
 	}
 	
 	/**

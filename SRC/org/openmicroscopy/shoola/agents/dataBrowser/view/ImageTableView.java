@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.util.List;
+
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -34,6 +36,8 @@ import javax.swing.JScrollPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+
+import pojos.DataObject;
 
 /** 
  * 
@@ -52,6 +56,11 @@ class ImageTableView
 	extends JPanel
 {
 
+	/**
+	 * Bound property indicating that the nodes in the table have been selected.
+	 */
+	static final String	TABLE_NODES_SELECTION_PROPERTY = "tableNodesSelection";
+	
 	/** Reference to the table displaying the nodes. */
 	private ImageTable table;
 	
@@ -62,7 +71,7 @@ class ImageTableView
 	 */
 	private void initComponents(ImageDisplay root)
 	{
-		table = new ImageTable(root);
+		table = new ImageTable(root, this);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -85,5 +94,27 @@ class ImageTableView
 	
 	/** Refreshes the table when filtering data. */
 	void refreshTable() { table.refreshTable(); }
+	
+	/** 
+	 * Sets the collection of selected nodes.
+	 * 
+	 * @param nodes The nodes to set.
+	 */
+	void selectNodes(List<ImageDisplay> nodes) 
+	{
+		firePropertyChange(TABLE_NODES_SELECTION_PROPERTY, null, nodes);
+	}
+
+	/**
+	 * Selects the nodes in the table.
+	 * The nodes has been selected via other views.
+	 * 
+	 * @param objects The selected data objects.
+	 */
+	void setSelectedNodes(List<DataObject> objects)
+	{
+		table.setSelectedNodes(objects);
+	}
+
 	
 }

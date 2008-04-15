@@ -45,13 +45,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.ViewCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
-
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -251,10 +248,22 @@ class BrowserModel
         selectedNodes.add(selectedDisplay);
     }
     
+    /**
+     * Adds the passed node to the collection of selected nodes.
+     * 
+     * @param selectedDisplay The node to add.
+     */
     void addFoundNode(TreeImageDisplay selectedDisplay)
     {
+    	if (selectedDisplay == null) return;
     	//if (!selectedNodes.contains(selectedDisplay))
-    		selectedNodes.add(selectedDisplay);
+    	TreeImageDisplay display = getLastSelectedDisplay();
+    	if (display != null) {
+    		if (!display.getUserObject().getClass().equals(
+    				selectedDisplay.getUserObject().getClass()))
+    			selectedNodes.removeAll(selectedNodes);
+    	}
+    	selectedNodes.add(selectedDisplay);
     }
     
     /**
@@ -467,21 +476,6 @@ class BrowserModel
     { 
     	return (ExperimenterData) TreeViewerAgent.getRegistry().lookup(
 				LookupNames.CURRENT_USER_DETAILS);
-    }
-    
-    /**
-     * Brings up the viewer if the last selected data object 
-     * is an <code>Image</code>.
-     */
-    void viewDataObject()
-    {
-        TreeImageDisplay d  = getLastSelectedDisplay();
-        if (d == null) return;
-        Object o = d.getUserObject();
-        if (o instanceof ImageData) {
-            ViewCmd cmd = new ViewCmd(parent, (DataObject) o);
-            cmd.execute();
-        }
     }
     
     /**

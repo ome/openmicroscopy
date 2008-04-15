@@ -25,22 +25,30 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import javax.swing.Icon;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTreeTable;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -98,7 +106,16 @@ class ImageTable
 	}
 	
 	/** The root node of the table. */
-	private ImageTableNode tableRoot;
+	private ImageTableNode 			tableRoot;
+	
+	/** Listen to the node selection. */
+	private TreeSelectionListener	selectionListener;
+
+	/** The component hosting the table. */
+	private ImageTableView			view;
+	
+	/** Collection used when visiting the tree structure. */
+	private List<ImageTableNode> 	nodes;
 	
 	/**
 	 * Builds the node.
@@ -124,28 +141,96 @@ class ImageTable
 		}
 	}
 	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param root The root of the tree.
-	 */
-	ImageTable(ImageDisplay root)
+	/** Reacts to nodes selection in the tree. */
+	private void onNodeSelection()
 	{
-		super();
-		tableRoot = new ImageTableNode(root);
-		Component[] comp = root.getInternalDesktop().getComponents();
-		buildTreeNode(tableRoot, comp);
+		TreePath[] paths = getTreeSelectionModel().getSelectionPaths();
+    	if (paths == null) return;
+        int n = paths.length;
+        if (n == 0) return;
+        
+        List<ImageDisplay> nodes = new ArrayList<ImageDisplay>();
+        Object node;
+        for (int i = 0; i < n; i++) {
+			node = paths[i].getLastPathComponent();
+			if (node instanceof ImageTableNode)
+				nodes.add((ImageDisplay)
+						((ImageTableNode) node).getUserObject());
+		}
+        view.selectNodes(nodes);
+	}
+	
+	/** Initializes the component. */
+	private void initialize()
+	{
+		nodes  = new ArrayList<ImageTableNode>();
 		setTableModel(new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS));
 		setTreeCellRenderer(new ImageTableRenderer());
 		setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		setDefaultRenderer(String.class, new NumberCellRenderer());
-		
 		setRootVisible(false);
 		setColumnSelectionAllowed(true);
 		setRowSelectionAllowed(true);
 		setHorizontalScrollEnabled(true);
 		setColumnControlVisible(true);
 		
+		selectionListener = new TreeSelectionListener() {
+	        
+            public void valueChanged(TreeSelectionEvent e)
+            {
+            	onNodeSelection();
+            }
+        };
+        addTreeSelectionListener(selectionListener);
+	}
+	
+	/**
+	 * Visits the tree.
+	 * 
+	 * @param node		The node to visit.
+	 * @param objects	The collection of <code>DataObject</code> to search for.
+	 */
+	private void visitAllNodes(ImageTableNode node, List<DataObject> objects)
+	{
+        // node is visited exactly once
+        //process(node);
+		Object ho = node.getHierarchyObject();
+		if (ho instanceof DataObject) {
+			Iterator<DataObject> i = objects.iterator();
+			DataObject object = (DataObject) ho;
+			DataObject data;
+			while (i.hasNext()) {
+				data = i.next();
+				if (data.getId() == object.getId()) {
+					nodes.add(node);
+					break;
+				}
+			}
+		}
+    
+        if (node.getChildCount() >= 0) {
+            for (Enumeration e = node.children(); e.hasMoreElements();) {
+                visitAllNodes((ImageTableNode) e.nextElement(), objects);
+            }
+        }
+    }
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param root The root of the tree.
+	 * @param view The component hosting that table.
+	 */
+	ImageTable(ImageDisplay root, ImageTableView view)
+	{
+		super();
+		if (view == null)
+			throw new IllegalArgumentException("No view");
+		this.view = view;
+		tableRoot = new ImageTableNode(root);
+		Component[] comp = root.getInternalDesktop().getComponents();
+		buildTreeNode(tableRoot, comp);
+		initialize();
 	}
 
 	/** Refreshes the table. */
@@ -160,6 +245,30 @@ class ImageTable
 		invalidate();
 		repaint();
 	}
+
+	/**
+	 * Sets the selected nodes, the nodes have been selected via other views.
+	 * 
+	 * @param objects The selected objects.
+	 */
+	void setSelectedNodes(List<DataObject> objects)
+	{
+		removeTreeSelectionListener(selectionListener);
+		visitAllNodes(tableRoot, objects);
+		Iterator<ImageTableNode> i = nodes.iterator();
+		ImageTableNode node;
+		int row = 0;
+		selectionModel.clearSelection();
+		while (i.hasNext()) {
+			node = i.next();
+			row = getRowForPath(node.getPath());
+			selectionModel.addSelectionInterval(row, row);
+		}
+		nodes.clear();
+		repaint();
+        addTreeSelectionListener(selectionListener);
+	}
+	
 	
 	/** Helper class to render that table. */
 	private class ImageTableRenderer
@@ -204,5 +313,5 @@ class ImageTable
 			return this;
 		}
 	}
-	
+
 }

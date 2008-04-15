@@ -43,7 +43,6 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import com.sun.java.swing.SwingUtilities2;
 
 
 //Third-party libraries
@@ -204,7 +203,8 @@ class ClosableTabbedPaneUI
 
 		String title = tabPane.getTitleAt(tabIndex);
 		Font font = tabPane.getFont();
-		FontMetrics metrics = SwingUtilities2.getFontMetrics(tabPane, g, font);
+//		SwingUtilities2.getFontMetrics(tabPane, g, font);
+		FontMetrics metrics = tabPane.getFontMetrics(font);
 		Icon icon = getIconForTab(tabIndex);
 
 		layoutLabel(tabPlacement, metrics, tabIndex, title, icon, 

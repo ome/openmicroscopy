@@ -183,31 +183,6 @@ class BrowserModel
 	}
 	
 	/**
-	 * Sets the color of the selected and deselected nodes.
-	 * 
-	 * @param toSelect		The collection of selected nodes.
-	 * @param toDeselect	The collection of deselected nodes.
-	 */
-	void setNodesColor(List toSelect, Set toDeselect)
-    {
-    	//paint the nodes
-        Colors colors = Colors.getInstance();
-        Iterator i = toSelect.iterator();
-        ImageDisplay node;
-        while (i.hasNext()) {
-			node = (ImageDisplay) i.next();
-			node.setHighlight(colors.getSelectedHighLight(node));
-		}
-        if (toDeselect == null) return;
-        i = toDeselect.iterator();
-        while (i.hasNext()) {
-        	node = (ImageDisplay) i.next();
-            if (node != null)
-            	node.setHighlight(colors.getDeselectedHighLight(node));
-        }
-    }
-	
-	/**
 	 * String-ifies the path from the specified node to the
 	 * {@link #rootDisplay}.
 	 * 
@@ -250,6 +225,33 @@ class BrowserModel
 	    rollOverNode = newNode;
 	    firePropertyChange(ROLL_OVER_PROPERTY, previousNode, newNode);
 	}
+	
+	
+	
+	/**
+	 * Sets the color of the selected and deselected nodes.
+	 * 
+	 * @param toSelect		The collection of selected nodes.
+	 * @param toDeselect	The collection of deselected nodes.
+	 */
+	void setNodesColor(List toSelect, Set toDeselect)
+    {
+    	//paint the nodes
+        Colors colors = Colors.getInstance();
+        Iterator i = toSelect.iterator();
+        ImageDisplay node;
+        while (i.hasNext()) {
+			node = (ImageDisplay) i.next();
+			node.setHighlight(colors.getSelectedHighLight(node));
+		}
+        if (toDeselect == null) return;
+        i = toDeselect.iterator();
+        while (i.hasNext()) {
+        	node = (ImageDisplay) i.next();
+            if (node != null)
+            	node.setHighlight(colors.getDeselectedHighLight(node));
+        }
+    }
 	
 	/** 
 	 * Returns the set with all the children of the root node. 
@@ -567,6 +569,21 @@ class BrowserModel
 	    ImageFinder finder = new ImageFinder();
 	    accept(finder, ImageDisplayVisitor.IMAGE_SET_ONLY);
 	    return finder.getVisibleImageNodes();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setNodesSelection(List)
+	 */
+	public void setNodesSelection(List<ImageDisplay> nodes)
+	{
+		if (nodes == null) return;
+		setNodesColor(nodes, getSelectedDisplays());
+		Iterator<ImageDisplay> i = nodes.iterator();
+		boolean multiSelection = nodes.size() > 1;
+		
+		while (i.hasNext()) 
+			setSelectedDisplay(i.next(), multiSelection);
 	}
 	
 }

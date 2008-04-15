@@ -523,6 +523,7 @@ public interface Browser
 	 */
     public void setSelectedNode();
     
+    /** Refreshes the experimenter data. */
     public void refreshExperimenter();
     
     /**
@@ -530,6 +531,7 @@ public interface Browser
      * hierarchy.
      * 
      * @param roots 	The root nodes.
+     * @param node		
      * @param refresh	Pass <code>false</code> if we retrieve the data for
      * 					the first time, <code>true</code> otherwise.            
      * @throws IllegalStateException If the current state is not
@@ -539,10 +541,30 @@ public interface Browser
     public void setHierarchyRoots(Set roots, TreeImageDisplay node, 
     							boolean refresh);
 
+    /**
+     * Browses the specified node.
+     * 
+     * @param node The node to browse.
+     */
 	public void browse(TreeImageDisplay node);
 	
-	public void onSelectedNode(Object parent, Object selected); 
+	/**
+	 * Updates the view when a node is selected in the thumbnail view
+	 * or table view.
+	 * 
+	 * @param parent			The parent of the selected node.
+	 * @param selected			The selected node.
+	 * @param multiSelection	Pass <code>true</code> if multi selection is
+	 * 							<code>false</code> otherwise.
+	 */
+	public void onSelectedNode(Object parent, Object selected, 
+							Boolean multiSelection); 
 	
+	/**
+	 * Updates the view when a dataset not linked to a project is created.
+	 * 
+	 * @param data The newly created dataset.
+	 */
 	public void onOrphanDataObjectCreated(DataObject data);
 	
 }

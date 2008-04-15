@@ -1472,13 +1472,14 @@ class TreeViewerComponent
 		//Need to notify the browser without having 
 		List l = (List) object;
 		int n = l.size();
-		if (n > 2) return;
-		Object selected = l.get(0);
+		if (n > 3) return;
+		Object multiSelection = l.get(0);
+		Object selected = l.get(1);
 		Object parent = null;
-		if (n == 2) parent = l.get(1);
+		if (n == 3) parent = l.get(2);
 		
 		Browser browser = model.getSelectedBrowser();
-		browser.onSelectedNode(parent, selected);
+		browser.onSelectedNode(parent, selected, (Boolean) multiSelection);
 		MetadataViewer mv = model.getMetadataViewer();
 		//Check siblings first.
 		

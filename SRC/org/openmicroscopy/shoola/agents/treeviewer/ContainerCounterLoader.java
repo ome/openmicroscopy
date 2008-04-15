@@ -33,7 +33,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 /** 
@@ -124,7 +123,6 @@ public class ContainerCounterLoader
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
         Map map = (Map) result;
-        System.err.println(map);
         if (map == null) return;
         Iterator i = map.keySet().iterator();
         Long containerID;

@@ -63,14 +63,29 @@ class ToolBar
 	implements ActionListener
 {
 
+	/** 
+	 * Index indicating that the tool bar is added to the top of a component, 
+	 * useful to set the separator.
+	 */
+	static final int			TOP = 100;
+	
+	/** 
+	 * Index indicating that the tool bar is added to the bottom of a component, 
+	 * useful to set the separator.
+	 */
+	static final int			BOTTOM = 101;
+	
 	/** Action ID to save the data. */
-	private static final int SAVE = 0;
+	private static final int 	SAVE = 0;
 	
 	/** Action ID to display info. */
-	private static final int INFO = 1;
+	private static final int 	INFO = 1;
 	
 	/** Action ID to download archived files. */
-	private static final int DOWNLOAD = 2;
+	private static final int	DOWNLOAD = 2;
+	
+	/** One of the location constants defined by this class. */
+	private int				index;
 	
 	/** Button to save the annotations. */
 	private JButton			saveButton;
@@ -150,11 +165,15 @@ class ToolBar
     /**
      * Creates a new instance.
      * 
-     * @param model 		Reference to the model. Mustn't be <code>null</code>.
+     * @param model 		Reference to the model. 
+     * 						Mustn't be <code>null</code>.
      * @param view 			Reference to the view. Mustn't be <code>null</code>.
      * @param controller 	Reference to the view. Mustn't be <code>null</code>.
+     * @param index			 One of the location constants defined by this 
+     * 						class.	
      */
-    ToolBar(EditorModel model, EditorUI view, EditorControl controller)
+    ToolBar(EditorModel model, EditorUI view, EditorControl controller, 
+    		int index)
     {
     	if (model == null)
     		throw new IllegalArgumentException("No model.");
@@ -165,6 +184,7 @@ class ToolBar
     	this.model = model;
     	this.view = view;
     	this.controller = controller;
+    	this.index = index;
     	initComponents();
     	buildGUI();
     }
@@ -183,9 +203,17 @@ class ToolBar
     	
     	//add(UIUtilities.buildComponentPanel(p), "0, 0");
     	//add(new JSeparator(JSeparator.HORIZONTAL), "0, 2");
-    	
-    	add(UIUtilities.buildComponentPanel(p));
-    	add(new JSeparator(JSeparator.HORIZONTAL));
+    	switch (index) {
+			case BOTTOM:
+	    		add(new JSeparator(JSeparator.HORIZONTAL));
+	    		add(UIUtilities.buildComponentPanel(p));
+				break;
+			case TOP:
+			default:
+				add(UIUtilities.buildComponentPanel(p));
+	    		add(new JSeparator(JSeparator.HORIZONTAL));
+				break;
+		}
     }
     
     /** Enables the various controls. */

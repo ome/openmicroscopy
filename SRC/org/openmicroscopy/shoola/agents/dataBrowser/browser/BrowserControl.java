@@ -162,15 +162,14 @@ public class BrowserControl
             if (newNode == null) return;
             view.setTitle(model.currentPathString(newNode));
             //paint the nodes
-            List selected = new ArrayList();
+            List<ImageDisplay> selected = new ArrayList<ImageDisplay>();
             selected.add(newNode);
            
             Set nodes = (Set) evt.getOldValue();
             if (nodes != null && !model.isMultiSelection())
             	model.setNodesColor(selected, nodes);
             else 
-            	model.setNodesColor(selected, null);
-            
+            	model.setNodesColor(selected, null); 
         } else if (ImageNode.PIN_THUMBNAIL_PROPERTY.equals(name)) {
         	ImageNode node = (ImageNode) evt.getNewValue();
         	model.setThumbSelected(true, node);

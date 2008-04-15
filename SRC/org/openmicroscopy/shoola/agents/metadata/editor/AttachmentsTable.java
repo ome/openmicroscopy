@@ -27,12 +27,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.SwingConstants;
 import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -115,6 +118,9 @@ class AttachmentsTable
 	/** Sets the properties of the table. */
 	private void setProperties()
 	{
+		ColumnHeaderRenderer l = 
+			(ColumnHeaderRenderer) getTableHeader().getDefaultRenderer();
+		l.setHorizontalAlignment(SwingConstants.CENTER);
 		Highlighter[] highlighters = new Highlighter[1];
 		highlighters[0] = HighlighterFactory.createAlternateStriping();
 		setHighlighters(highlighters);

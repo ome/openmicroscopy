@@ -344,4 +344,6 @@ public interface Browser
 	
 	public Layout getSelectedLayout();
 	
+	public void setNodesSelection(List<ImageDisplay> nodes);
+	
 }
