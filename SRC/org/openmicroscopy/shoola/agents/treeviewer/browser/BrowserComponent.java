@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +119,15 @@ class BrowserComponent
                             TreeImageDisplay parentDisplay)
     {
         setSelectedDisplay(display);
+        display.setChildrenLoaded(Boolean.FALSE);
         view.createNodes(nodes, display, parentDisplay);
+        
+        Object o = display.getUserObject();
+        if (o instanceof DataObject) {
+        	Set<DataObject> ids = new HashSet<DataObject>();
+        	ids.add((DataObject) o);
+        	model.fireContainerCountLoading(ids);
+        }
     }
     
     /**
@@ -696,6 +705,7 @@ class BrowserComponent
             TreeImageDisplay newNode = 
             		TreeViewerTranslator.transformDataObject(object, userID, 
             								groupID);
+           
             createNodes(nodes, newNode, parentDisplay);
         }     
         setSelectedNode();
@@ -802,7 +812,7 @@ class BrowserComponent
         //long groupID = model.getUserGroupID();
         //view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
         //            expandedTopNodes, userID, groupID)); 
-        model.fireContainerCountLoading();
+        model.fireContainerCountLoading(null);
         model.getParentModel().setStatus(false, "", true);
         PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
@@ -867,7 +877,7 @@ class BrowserComponent
 					exp.getId(), exp.getDefaultGroup().getId());
         view.setExperimenterData(convertedNodes, expNode);
         model.setState(READY);
-        model.fireContainerCountLoading();
+        model.fireContainerCountLoading(null);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}
@@ -1056,7 +1066,7 @@ class BrowserComponent
 			}
 		}
 		model.setState(READY);
-		model.fireContainerCountLoading();
+		model.fireContainerCountLoading(null);
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);

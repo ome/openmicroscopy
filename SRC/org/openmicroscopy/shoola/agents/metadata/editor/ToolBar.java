@@ -195,8 +195,10 @@ class ToolBar
     	removeAll();
     	JPanel p = new JPanel();
     	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+    	//p.setLayout(new FlowLayout(FlowLayout.RIGHT));
     	p.add(buildGeneralBar());
     	if (model.getRefObject() instanceof ImageData) {
+    		p.add(Box.createHorizontalStrut(2));
     		p.add(new JSeparator(JSeparator.VERTICAL));
         	p.add(buildImageToolBar());
     	}

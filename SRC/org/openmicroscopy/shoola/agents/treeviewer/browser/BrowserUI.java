@@ -800,6 +800,7 @@ class BrowserUI
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         //buildEmptyNode(newNode);
         boolean toLoad = false;
+        TreeImageDisplay n;
         while (i.hasNext()) {
             parent = (TreeImageDisplay) i.next();
             //problem will come when we have images
@@ -808,9 +809,11 @@ class BrowserUI
                 list = sorter.sort(parent.getChildrenDisplay());
                 parent.removeAllChildren();
                 j = list.iterator();
-                while (j.hasNext())
-                    dtm.insertNodeInto((TreeImageDisplay) j.next(), parent,
-                                    parent.getChildCount());
+                while (j.hasNext()) {
+                	n = (TreeImageDisplay) j.next();
+                	buildEmptyNode(n);
+                	dtm.insertNodeInto(n, parent, parent.getChildCount());
+                }
                 dtm.reload(parent);
                 expandNode(parent);
                 if (parent.equals(parentDisplay))

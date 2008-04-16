@@ -159,8 +159,7 @@ class DataBrowserToolBar
 		manageMenu = new JPopupMenu();
 		
 		JMenuItem menuItem = new JMenuItem("New dataset");
-		menuItem.setToolTipText("Create a dataset containing the displayed " +
-								"images.");
+		menuItem.setToolTipText("Create a dataset.");
 		menuItem.setIcon(icons.getIcon(IconManager.CREATE));
 		menuItem.addActionListener(this);
 		menuItem.setActionCommand(""+NEW_OBJECT);
@@ -203,11 +202,11 @@ class DataBrowserToolBar
 	{
 		if (slideViewMenu != null) return slideViewMenu;
 		slideViewMenu = new JPopupMenu();
-		JMenuItem item = new JMenuItem("View selected images");
+		JMenuItem item = new JMenuItem("View Selected Images");
 		item.addActionListener(this);
 		item.setActionCommand(""+SLIDE_SHOW_SELECTION);
 		slideViewMenu.add(item);
-		item = new JMenuItem("View displayed images");
+		item = new JMenuItem("View Available Images");
 		item.addActionListener(this);
 		item.setActionCommand(""+SLIDE_SHOW_IMAGES);
 		slideViewMenu.add(item);

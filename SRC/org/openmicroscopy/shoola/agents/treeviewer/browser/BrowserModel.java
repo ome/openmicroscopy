@@ -344,9 +344,11 @@ class BrowserModel
      * in the <code>TreeImageSet</code> containing images e.g. a 
      * <code>Dataset</code> and sets the state to {@link Browser#COUNTING_ITEMS}
      */
-    void fireContainerCountLoading()
+    void fireContainerCountLoading(Set ids)
     {
-        Set containers = component.getContainersWithImages();
+    	Set containers;
+    	if (ids != null) containers = ids;
+    	else containers = component.getContainersWithImages();
         if (containers.size() == 0) {
             state = Browser.READY;
             return;
@@ -357,6 +359,7 @@ class BrowserModel
         numberLoader = new ContainerCounterLoader(component, containers);
         numberLoader.load();
     }
+    
     
     /**
      * Sets the object in the {@link Browser#DISCARDED} state.

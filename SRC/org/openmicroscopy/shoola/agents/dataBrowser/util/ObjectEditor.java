@@ -145,9 +145,9 @@ public class ObjectEditor
 	private void initComponents()
 	{
 		ButtonGroup group = new ButtonGroup();
-		selectedImages = new JRadioButton("Add selected images.");
+		selectedImages = new JRadioButton("Add Selected Images");
 		group.add(selectedImages);
-		displayedImages = new JRadioButton("Add visible images.");
+		displayedImages = new JRadioButton("Add Available Images");
 		group.add(displayedImages);
 		displayedImages.setSelected(true);
 		nameArea = new JTextField();
