@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
+import tree.DataFieldConstants;
 import tree.Tree.Actions;
 import ui.IModel;
 
@@ -63,6 +64,14 @@ public class LoadDefaultsAllAction
 		 * This action should only be enabled if a file is open etc and
 		 *  NO fields are locked. 
 		 */
-		setEnabled(fieldsAreEditable() && (!model.isAnyFieldLocked()));
+		boolean enabled = filesOpen();
+		if (enabled) {
+			String lockLevel = model.getMaxLockingLevel();
+			if (lockLevel != null) {
+				enabled = (lockLevel.equals(DataFieldConstants.LOCKED_TEMPLATE));
+			}
+		}
+		
+		setEnabled(enabled);
 	}
 }

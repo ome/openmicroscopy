@@ -23,7 +23,9 @@
 
 package ui.formFields;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,6 +38,10 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -80,7 +86,11 @@ public class FormFieldLink extends FormField {
 
 	Icon editorRelativeLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.LINK_SCIENCE_RELATIVE_ICON);
 	
-	
+	/**
+	 * A custom dialog that contains the fileChooser for getting a link from users. 
+	 * Also contains a checkBox for "Relative Link";
+	 */
+	JDialog customGetLinkDialog;
 	
 	/**
 	 * This is the type of link that is currently set for this field. 
@@ -106,7 +116,6 @@ public class FormFieldLink extends FormField {
 	 */
 	JButton getLinkButton;
 	
-	
 	public FormFieldLink(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
 		
@@ -125,12 +134,11 @@ public class FormFieldLink extends FormField {
 		
 		Icon chooseLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.WRENCH_ICON);
 		
-		Action[] getImageActions = new Action[] {
+		Action[] getLinkActions = new Action[] {
 				new GetURLAction(),
-				new GetAbsoluteImagePathAction(),
-				new GetRelativeImagePathAction()};
+				new GetAbsoluteImagePathAction()};
 		getLinkButton = new PopupMenuButton("Choose a link to a URL or local file", 
-				chooseLinkIcon, getImageActions);
+				chooseLinkIcon, getLinkActions);
 		
 		getLinkButton.setBorder(toolBarButtonBorder);
 		getLinkButton.setBackground(null);
@@ -246,111 +254,108 @@ public class FormFieldLink extends FormField {
 	public class GetAbsoluteImagePathAction extends AbstractAction {
 		
 		public GetAbsoluteImagePathAction() {
-			putValue(Action.NAME, "Set Absolute link to local file");
-			putValue(Action.SHORT_DESCRIPTION, "Link to a local file that will stay in the same absolute file location.");
+			putValue(Action.NAME, "Set Link to local file");
+			putValue(Action.SHORT_DESCRIPTION, "Choose a file, that will be linked from this file");
 			putValue(Action.SMALL_ICON, linkLocalIcon); 
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			String imagePath = getImagePath();
-			if (imagePath == null) // user canceled
-				return;
-			
-			// Save the absolute Path
-			saveLinkToDataField(DataFieldConstants.ABSOLUTE_FILE_LINK, imagePath);
+			getAndSaveLink();
 		}
 	}
 	
 	/**
-	 * The action that allows users to choose a Relative image path. 
-	 * @author will
-	 *
+	 * This method takes an absolute file path, converts and saves it as a relative link. 
+	 * Updating dataField with this attribute will notify this field, which will display it.
 	 */
-	public class GetRelativeImagePathAction extends AbstractAction {
+	public void setRelativeLink(String linkedFilePath) {
 		
-		public GetRelativeImagePathAction() {
-			putValue(Action.NAME, "Set Relative link to local file");
-			putValue(Action.SHORT_DESCRIPTION, "Link to a local file that will stay in the same file location, relative to this file");
-			putValue(Action.SMALL_ICON, linkRelativeIcon); 
+		/*
+		 * First, check that the user has saved the current editor file somewhere. 
+		 */
+		File editorFile = ((DataField)dataField).getNode().getTree().getFile();
+			
+		/*
+		 * If the file does not exist, forget about it!!
+		 */
+		if (!editorFile.exists()) {
+			JOptionPane.showMessageDialog(null, "This editor file has not yet been saved. \n" +
+					"You must first save the editor file, before a relative " +
+					"image file path can be defined.", 
+					"Please save file first", JOptionPane.ERROR_MESSAGE);
+			return;
 		}
 		
-		public void actionPerformed(ActionEvent e) {
-			
-			/*
-			 * First, check that the user has saved the current editor file somewhere. 
-			 */
-			File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-			String editorFilePath = editorFile.getAbsolutePath();
-				
-			/*
-			 * If the file does not exist, forget about it!!
-			 */
-			if (!editorFile.exists()) {
-				JOptionPane.showMessageDialog(null, "This editor file has not yet been saved. \n" +
-						"You must first save the editor file, before a relative " +
-						"image file path can be defined.", 
-						"Please save file first", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			
-			/*
-			 * If the file exists, but contains "untitled", it may have been saved in a 
-			 * temporary location (not in a correct folder). 
-			 * Need to check that the user has saved it where they want. 
-			 */
-			if (editorFile.getName().contains("untitled")) {
-				
-				Object[] options = {"Cancel", "Continue anyway"};
-				
-				int yesNo = JOptionPane.showOptionDialog(null, "The current file is called 'untitled' and \n" +
-						"may therefore be in a temporary file location. \n" +
-						"If so, please cancel and save the file in its 'proper' place.", 
-						"Temporary file?", JOptionPane.YES_NO_OPTION, 
-						JOptionPane.WARNING_MESSAGE, null, options, options[1]);
-				
-				if (yesNo == 0) {
-					return;
-				}
-				
-			}
-			
-			String imagePath = getImagePath();
-			if (imagePath == null) // user canceled
-				return;
-			
-			/*
-			 * Calculate what the relative path is, based on the location of the editorFile. 
-			 */
-			String relativePath = FilePathMethods.getRelativePathFromAbsolutePath(editorFile, imagePath);
-			
-			// Save the relative Path
-			saveLinkToDataField(DataFieldConstants.RELATIVE_FILE_LINK, relativePath);
-		}
+		/*
+		 * Calculate what the relative path is, based on the location of the editorFile. 
+		 */
+		String relativePath = FilePathMethods.getRelativePathFromAbsolutePath(editorFile, linkedFilePath);
+		
+		/*
+		 * Save the relative Path.
+		 * This will cause the field to update, and display the new link
+		 */ 
+		saveLinkToDataField(DataFieldConstants.RELATIVE_FILE_LINK, relativePath);
 	}
 	
 	/**
 	 * Opens a fileChooser, for the user to pick a file.
-	 * Returns the absolute path for the chosen file. 
-	 * 
-	 * @return	Absolute file path for chosen file.
+	 * Then this file path is saved to dataField. 
+	 * If the user checks "Relative link" then filePath is saved as relative. 
 	 */
-	public static String getImagePath() {
+	public void getAndSaveLink() {
 		
-		// open any file?
-		String[] fileExtensions = {""};
 		String currentFilePath = PreferencesManager.getPreference(PreferencesManager.CURRENT_IMAGES_FOLDER);
 		
 		// Create a file chooser
-		FileChooserReturnFile fc = new FileChooserReturnFile(fileExtensions, currentFilePath);
-		File file = fc.getFileFromUser();
+		JFileChooser fc = new JFileChooser();
+		fc.setDialogType(JFileChooser.OPEN_DIALOG);
+		if (currentFilePath != null)
+			fc.setCurrentDirectory(new File(currentFilePath));
 		
+		JCheckBox relativeLink = new JCheckBox("Relative link");
+		relativeLink.setToolTipText("<html>The link to the chosen file will be 'relative' to the OMERO.editor file you are editing.<br>" +
+				"Choose this option if the location of both files is likely to change in a similar way (eg saved in the same folder).");
+		
+		customGetLinkDialog = new JDialog();
+		Container dialogPane = customGetLinkDialog.getContentPane();
+		dialogPane.setLayout(new BorderLayout());
+		dialogPane.add(fc, BorderLayout.CENTER);
+		
+		dialogPane.add(relativeLink, BorderLayout.SOUTH);
+		
+		fc.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				customGetLinkDialog.setVisible(false);
+			}});
+		customGetLinkDialog.pack();
+		customGetLinkDialog.setModal(true);
+		customGetLinkDialog.setLocationRelativeTo(this);
+		customGetLinkDialog.setVisible(true);
+		
+		File file = fc.getSelectedFile();
 		// remember where folder was
-		if (file != null) {
-			PreferencesManager.setPreference(PreferencesManager.CURRENT_IMAGES_FOLDER, file.getParent());
-			return file.getAbsolutePath();
-		}
+		if (file == null) 
+		return;
 		
-		return null;
+		System.out.println("FormFieldLink getImagePath() " + file.getAbsolutePath() +
+				" " + relativeLink.isSelected());
+		PreferencesManager.setPreference(PreferencesManager.CURRENT_IMAGES_FOLDER, file.getParent());
+		
+		String linkedFilePath = file.getAbsolutePath();
+		
+		/*
+		 * If the user checked the "Relative Link" checkBox, save as a relative link.
+		 * Otherwise, save as absolute link.
+		 * Either will cause the field to refresh, displaying the new link. 
+		 */
+		if (relativeLink.isSelected()) {
+			setRelativeLink(linkedFilePath);
+		} else {
+			// Save the absolute Path
+			saveLinkToDataField(DataFieldConstants.ABSOLUTE_FILE_LINK, linkedFilePath);
+		}
 		
 	}
 	

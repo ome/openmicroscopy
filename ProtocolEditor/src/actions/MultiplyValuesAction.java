@@ -55,7 +55,7 @@ public class MultiplyValuesAction extends ProtocolEditorAction {
 		 * This action should only be enabled if a file is open and the
 		 * currently highlighted fields are unlocked. 
 		 */
-		setEnabled(fieldsAreEditable());
+		setEnabled(fieldTemplatesEditable());
 	}
 	
 	

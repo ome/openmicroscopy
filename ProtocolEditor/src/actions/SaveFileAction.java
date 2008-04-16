@@ -48,6 +48,23 @@ public class SaveFileAction
 		// if the current file is not saved (still called eg "untitled2")
 		if (model.getCurrentFile() == null) return;
 		
+		/*
+		 * If there are required fields that haven't been filled out..
+		 */
+		if (model.isAnyRequiredFieldEmpty()) {
+			Object[] options = {"Cancel", "Save Anyway"};
+			/*
+			 * Give the user chance to cancel
+			 */
+			int cancelSave = JOptionPane.showOptionDialog(null, 
+					"This file contains some 'Required' fields that have not been filled\n" +
+					"Do you wish to continue with saving?", 
+					"Required Fields not filled", JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+			if (cancelSave == 0)
+				return;
+		}
+		
 		// This will work unless the user has previously saved their file as "untitled"!
 		if (model.getCurrentFile().getName().contains("untitled")) {
 			Action action = new SaveFileAsAction(model);

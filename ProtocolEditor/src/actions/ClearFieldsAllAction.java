@@ -27,6 +27,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 
+import tree.DataFieldConstants;
 import tree.Tree.Actions;
 import ui.IModel;
 
@@ -65,20 +66,17 @@ public class ClearFieldsAllAction extends ProtocolEditorAction {
 	 */
 	public void stateChanged(ChangeEvent e) {
 		
-		boolean anyFieldLocked = model.isAnyFieldLocked();
-		if (anyFieldLocked) {
-			//System.out.println("ClearFieldsAllAction anyFieldsLocked true");
-			// This doesn't seem to change the toolTipText?!?!?!
-			putValue(Action.SHORT_DESCRIPTION, "Cannot clear all fields because at least one field is locked");
-		} 
-		else {
-			putValue(Action.SHORT_DESCRIPTION, TOOL_TIP_TEXT);
-		}
-		
 		/*
 		 * This action should only be enabled if a file is open etc and
 		 *  NO fields are locked. 
 		 */
-		setEnabled(fieldsAreEditable() && (!anyFieldLocked));
+		boolean enabled = filesOpen();
+		if (enabled) {
+			String lockLevel = model.getMaxLockingLevel();
+			if (lockLevel != null) {
+				enabled = (lockLevel.equals(DataFieldConstants.LOCKED_TEMPLATE));
+			}
+		}
+		setEnabled(enabled);
 	}
 }

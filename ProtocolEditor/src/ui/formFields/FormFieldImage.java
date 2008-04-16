@@ -124,6 +124,7 @@ public class FormFieldImage extends FormField {
 		toolBarContainer.add(imageToolBar, BorderLayout.SOUTH);
 		
 		JPanel imageLabelContainer = new JPanel(new BorderLayout());
+		imageLabelContainer.setBackground(null);
 		imageLabelContainer.add(imageLabel, BorderLayout.WEST);
 		imageLabelContainer.add(toolBarContainer, BorderLayout.CENTER);
 		

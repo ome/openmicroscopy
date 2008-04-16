@@ -30,6 +30,7 @@ import javax.swing.JFrame;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import tree.DataFieldConstants;
 import ui.AbstractComponent;
 import ui.Controller;
 import ui.IModel;
@@ -70,8 +71,7 @@ public class ProtocolEditorAction
 	 *  
 	 * @return		true if a file is open and the currently highlighted fields and their ancestors are unlocked
 	 */
-	public boolean fieldsAreEditable() {
-		
+	public boolean fieldTemplatesEditable() {
 		
 		// if no files open, action is disabled.
 		if (!filesOpen()) {
@@ -80,10 +80,37 @@ public class ProtocolEditorAction
 		
 		// if files are open, check to see if highlighted fields are locked
 		else {
-			boolean locked = model.areHighlightedFieldsLocked();
-			boolean ancestorsLocked = model.areAncestorFieldsLocked();
-			
-			return (!locked && !ancestorsLocked);
+			String lockLevel = model.getMaxHighlightedLockingLevel();
+			if (lockLevel == null) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * This method is used by any Actions that edit field values, to set their enabled state. 
+	 * Highlighted fields' values are editable as long as a file is open, and the 
+	 * highlighted fields are not locked OR template-locked,
+	 *  
+	 * @return		true if a file is open and the currently highlighted fields are not fully 
+	 */
+	public boolean fieldValuesEditable() {
+		
+		// if no files open, action is disabled.
+		if (!filesOpen()) {
+			return false;
+		}
+		
+		// if files are open, check to see if highlighted fields are locked
+		else {
+			String lockLevel = model.getMaxHighlightedLockingLevel();
+			if ((lockLevel == null) || (lockLevel.equals(DataFieldConstants.LOCKED_TEMPLATE))){
+				return true;
+			} else {
+				return false;
+			}
 		}
 	}
 	

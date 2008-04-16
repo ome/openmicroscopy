@@ -41,6 +41,16 @@ import tree.Tree.Actions;
 public interface IModel {
 	
 	/**
+	 * This checks to see if any field marked as "Required" (DataFieldConstants.REQUIRED_FIELD = 'true')
+	 * is also not filled out (ie dataField.isFieldFilled() is false). 
+	 * Used for ensuring that "required" fields are not left blank when the form is saved.
+	 * This is delegated to Tree. 
+	 * 
+	 * @return	True if any required field is not filled out. 
+	 */
+	public boolean isAnyRequiredFieldEmpty();
+	
+	/**
 	 * This method tests to see if any of the currently highlighted fields 
 	 * are locked. 
 	 * If so, various editing actions are disabled. 
@@ -71,13 +81,28 @@ public interface IModel {
 	public boolean areAncestorFieldsLocked();
 	
 	/**
-	 * This checks whether ANY fields in this tree are locked (ie have the attribute FIELD_LOCKED_UTC).
-	 * Presence of this attribute indicates that at least one field is "Locked" and editing actions that 
-	 * apply to the whole tree (eg Clear All Fields or Load Defaults All Fields) should be disabled. 
+	 * This checks whether the highlighted fields are locked (ie have the attribute LOCK_LEVEL)
+	 * and returns the "max" level of locking for all the highlighted fields.
+	 * ie LOCKED_ALL_ATTRIBUTES is a 'higher' level than LOCKED_TEMPLATE. Returns null if no
+	 * fields are locked. 
+	 * Editing actions that apply to the currently highlighted fields can setEnabled(), based
+	 * on this locking level. 
 	 * 
-	 * @return	True if any fields in the tree are locked. 
+	 * @return	the max "lockLevel" of highlighted fields, or null if none are locked.
 	 */
-	public boolean isAnyFieldLocked();
+	public String getMaxHighlightedLockingLevel();
+	
+	/**
+	 * This checks whether ANY fields in this tree are locked (ie have the attribute LOCK_LEVEL)
+	 * and returns the "max" level of locking for the tree.
+	 * ie LOCKED_ALL_ATTRIBUTES is a 'higher' level than LOCKED_TEMPLATE. Returns null if no
+	 * fields are locked. Editing actions that 
+	 * apply to the whole tree (eg Clear All Fields or Load Defaults All Fields) should be disabled 
+	 * if all attributes locked, but enabled if only the template is locked. 
+	 * 
+	 * @return	the max "lockLevel" if any fields in the tree are locked, or null if no fields locked.
+	 */
+	public String getMaxLockingLevel();
 	
 	/**
 	 * This adds a time-stamp (UTCmillisecs) to each field, to indicate

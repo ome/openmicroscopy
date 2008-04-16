@@ -47,7 +47,7 @@ public class ImportFieldsAction
 		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.IMPORT_ICON)); 
 		
 		// update enabled status
-		setEnabled(fieldsAreEditable());
+		setEnabled(fieldTemplatesEditable());
 	}
 	
 	public void actionPerformed(ActionEvent e) {
@@ -62,7 +62,7 @@ public class ImportFieldsAction
 		 * This action should only be enabled if a file is open and the
 		 * currently highlighted fields are unlocked. 
 		 */
-		setEnabled(fieldsAreEditable());
+		setEnabled(fieldTemplatesEditable());
 	}
 
 }

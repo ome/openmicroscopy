@@ -63,6 +63,7 @@ import tree.edit.EditUnlockFields;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.fieldEditors.FieldEditor;
+import ui.formFields.FormField;
 import ui.formFields.FormFieldNumber;
 import validation.XMLSchema;
 import xmlMVC.XMLModel;
@@ -324,11 +325,13 @@ public class Tree
 		if (highlightedFields.size() > 0) {
 			UndoableEdit edit = new EditLockFields(highlightedFields, lockingAttributes);
 			undoSupport.postEdit(edit);
+			setTreeEdited(true);
 			
 		// or if the root node is highlighted, lock it.
 		} else if (rootNode.isHighlighted()) {
 			UndoableEdit edit = new EditLockFields(rootNode, lockingAttributes);
 			undoSupport.postEdit(edit);
+			setTreeEdited(true);
 		}
 		
 		selectionChanged();		// to update undo button etc
@@ -344,11 +347,13 @@ public class Tree
 		if (highlightedFields.size() > 0) {
 			UndoableEdit edit = new EditUnlockFields(highlightedFields);
 			undoSupport.postEdit(edit);
+			setTreeEdited(true);
 			
 			// or if the root node is highlighted, unlock it.
 		} else if (rootNode.isHighlighted()) {
 			UndoableEdit edit = new EditUnlockFields(rootNode);
 			undoSupport.postEdit(edit);
+			setTreeEdited(true);
 		}
 		
 		selectionChanged();		// to update undo button etc
@@ -359,11 +364,13 @@ public class Tree
 		if (highlightedFields.size() > 0) {
 			UndoableEdit edit = new EditRequiredField(highlightedFields);
 			undoSupport.postEdit(edit);
+			setTreeEdited(true);
 			
 			// or if the root node is highlighted, unlock it.
 		} else if (rootNode.isHighlighted()) {
 			UndoableEdit edit = new EditRequiredField(rootNode);
 			undoSupport.postEdit(edit);
+			setTreeEdited(true);
 		}
 		
 		selectionChanged();		// to update undo button etc
@@ -1213,20 +1220,87 @@ public class Tree
 	}
 	
 	/**
-	 * This checks whether ANY fields in this tree are locked (ie have the attribute FIELD_LOCKED_UTC).
-	 * Presence of this attribute indicates that at least one field is "Locked" and editing actions that 
-	 * apply to the whole tree (eg Clear All Fields or Load Defaults All Fields) should be disabled. 
+	 * This checks whether ANY fields in this tree are locked (ie have the attribute LOCK_LEVEL)
+	 * and returns the "max" level of locking for the tree.
+	 * ie LOCKED_ALL_ATTRIBUTES is a 'higher' level than LOCKED_TEMPLATE. Returns null if no
+	 * fields are locked. Editing actions that 
+	 * apply to the whole tree (eg Clear All Fields or Load Defaults All Fields) should be disabled 
+	 * if all attributes locked, but enabled if only the template is locked. 
 	 * 
-	 * @return	True if any fields in the tree are locked. 
+	 * @return	the max "lockLevel" if any fields in the tree are locked, or null if no fields locked.
 	 */
-	public boolean isAnyFieldLocked() {
+	public String getMaxLockingLevel() {
+		
+		Iterator<DataFieldNode> iterator = rootNode.iterator();
+		String maxLockLevel = null;
+		
+		while (iterator.hasNext()) {
+			DataFieldNode node = iterator.next();
+			DataField field = node.getDataField();
+			String lockLevel = field.getAttribute(DataFieldConstants.LOCK_LEVEL);
+			if(lockLevel == null)
+				continue;
+			if (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES))
+				return lockLevel;
+			else {
+				maxLockLevel = lockLevel;
+			}
+		}
+		return maxLockLevel;
+	}
+	
+	/**
+	 * This checks whether the highlighted fields are locked (ie have the attribute LOCK_LEVEL)
+	 * and returns the "max" level of locking for all the highlighted fields.
+	 * ie LOCKED_ALL_ATTRIBUTES is a 'higher' level than LOCKED_TEMPLATE. Returns null if no
+	 * fields are locked. 
+	 * Editing actions that apply to the currently highlighted fields can setEnabled(), based
+	 * on this locking level. 
+	 * 
+	 * @return	the max "lockLevel" of highlighted fields, or null if none are locked.
+	 */
+	public String getMaxHighlightedLockingLevel() {
+		
+		String maxLockLevel = null;
+		
+		for (DataFieldNode node: highlightedFields) {
+			DataField field = node.getDataField();
+			String lockLevel = field.getLockedLevel();
+			if(lockLevel == null)
+				continue;
+			if (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES))
+				return lockLevel;
+			else {
+				maxLockLevel = lockLevel;
+			}
+		}
+		return maxLockLevel;
+	}
+	
+	/**
+	 * This checks to see if any field marked as "Required" (DataFieldConstants.REQUIRED_FIELD = 'true')
+	 * is also not filled out (ie dataField.isFieldFilled() is false). 
+	 * Used for ensuring that "required" fields are not left blank when the form is saved.
+	 * 
+	 * @return	True if any required field is not filled out. 
+	 */
+	public boolean isAnyRequiredFieldEmpty() {
 		
 		Iterator<DataFieldNode> iterator = rootNode.iterator();
 		
 		while (iterator.hasNext()) {
 			DataFieldNode node = iterator.next();
-			if (AncestorChecker.isAttributeNotNull(DataFieldConstants.LOCKED_FIELD_UTC, node))
-				return true;
+			DataField field = node.getDataField();
+			/*
+			 * If this is a required field...
+			 */
+			if (field.isAttributeTrue(DataFieldConstants.REQUIRED_FIELD)) {
+				/*
+				 * And it isn't filled out, return false. 
+				 */
+				if (! field.isFieldFilled())
+					return true;
+			}
 		}
 		return false;
 	}

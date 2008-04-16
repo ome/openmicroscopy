@@ -60,9 +60,9 @@ public class ClearFieldsHighltdAction extends ProtocolEditorAction {
 		
 		/*
 		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields are unlocked. 
+		 * currently highlighted fields have editable values (not locked).
 		 */
-		setEnabled(fieldsAreEditable());
+		setEnabled(fieldValuesEditable());
 	}
 }
 

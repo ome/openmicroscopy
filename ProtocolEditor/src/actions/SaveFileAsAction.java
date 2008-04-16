@@ -53,6 +53,23 @@ public class SaveFileAsAction
 	
 	public void saveFileAs() {
 		
+		/*
+		 * If there are required fields that haven't been filled out..
+		 */
+		if (model.isAnyRequiredFieldEmpty()) {
+			Object[] options = {"Cancel", "Save Anyway"};
+			/*
+			 * Give the user chance to cancel
+			 */
+			int cancelSave = JOptionPane.showOptionDialog(null, 
+					"This file contains some 'Required' fields that have not been filled\n" +
+					"Do you wish to continue with saving?", 
+					"Required Fields not filled", JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+			if (cancelSave == 0)
+				return;
+		}
+		
 		final JFileChooser fc = new JFileChooser();
 		fc.setFileFilter(new ProtocolFileFilter());
 		

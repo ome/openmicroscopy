@@ -422,6 +422,23 @@ public class DataField
 		return formField.getHeightOfPanelBottom();
 	}
 	
+	/**
+	 * This method tests to see whether the field has been filled out. 
+	 * ie, Has the user entered a "valid" value into the Form. 
+	 * For fields that have a single 'value', this method will return true if 
+	 * that value is filled (not null). 
+	 * For fields with several attributes, it depends on what is considered 'filled'.
+	 * This method can be used to check that 'Obligatory Fields' have been completed 
+	 * when a file is saved. 
+	 * Subclasses should override this method.
+	 * 
+	 * @return	True if the field has been filled out by user. Required values are not null. 
+	 */
+	public boolean isFieldFilled() {
+		if (formField == null) getFormField();	// make sure there is one
+		return formField.isFieldFilled();
+	}
+	
 	// used for getting the destination attribute for storing value of this field
 	// (eg where to copy the default value when loading defaults).
 	public String[] getValueAttributes() {
