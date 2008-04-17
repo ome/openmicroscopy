@@ -163,6 +163,9 @@ class TagsUI
     /** The location of the mouse click. */
     private Point					popupPoint;
 	
+    /** The edited tag component. */
+    private TagComponent			editedTag;
+    
     /** Loads the tags and adds code completion. */
     private void handleTagInsert()
     {
@@ -286,7 +289,7 @@ class TagsUI
 		String name = nameArea.getText();
 		if (name == null || name.length() == 0) return;
 		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
-		Rectangle2D r;
+		Rectangle2D r = new Rectangle();
 		Graphics context = nameArea.getGraphics();
 		int l = 0;
 		String v;
@@ -295,7 +298,8 @@ class TagsUI
 		TagAnnotationData item;
 		for (int i = 0; i < names.length; i++) {
 			v = names[i];
-			r = metrics.getStringBounds(v, context);
+			if (metrics != null)
+				r = metrics.getStringBounds(v, context);
 			vl = (int) r.getWidth();
 			if (p.x >= l && p.x <= (l+vl)) {
 				v = v.trim();
@@ -513,9 +517,11 @@ class TagsUI
 	 */
 	private JPanel layoutTags(List<TagComponent> tags)
 	{
+		JPanel pane = new JPanel();
+		if (tags.size() == 0) return pane;
 		Iterator<TagComponent> i = tags.iterator();
 		TagComponent tag;
-		JPanel pane = new JPanel();
+		
 		pane.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -523,6 +529,8 @@ class TagsUI
 		c.gridx = 0;
 		c.gridy = 0;
 		int index = 0;
+		pane.add(Box.createHorizontalStrut(2), c);
+		c.gridx++;
 		while (i.hasNext()) {
 			++c.gridx;
 			tag = i.next();
@@ -654,7 +662,6 @@ class TagsUI
 	void setSelectedTag(boolean isShiftDown, TagComponent data)
 	{
 		if (!isShiftDown) clearSelectedTags();
-		data.setComponentFont(Font.BOLD);
 		selectedTags.add(data);
 	}
 	
@@ -668,12 +675,15 @@ class TagsUI
 	/**
 	 * Edits the passed annotation only if the tag.
 	 * 
-	 * @param location	The location of the mouse click.
-	 * @param data 		The tag to edit.
+	 * @param location		The location of the mouse click.
+	 * @param tagComponent	The component hosting the tag to edit. 	
 	 */
-	void editAnnotation(Point location, AnnotationData data)
+	void editAnnotation(Point location, TagComponent tagComponent)
 	{
 		popupPoint = location;
+		if (tagComponent == null) return;
+		editedTag = tagComponent;
+		AnnotationData data = editedTag.getAnnotation();
 		if (data == null) return;
 		TagAnnotationData tag = (TagAnnotationData) data;
 		List l = tag.getTagDescriptions();
@@ -733,8 +743,7 @@ class TagsUI
 		//should only have one tag.
 		int n = selectedTags.size();
 		if (n != 1) return;
-		TagComponent comp = selectedTags.get(0);
-		editAnnotation(popupPoint, comp.getAnnotation());
+		editAnnotation(popupPoint, selectedTags.get(0));
 	}
 	
 	/** Browses the selected tags. */
@@ -881,7 +890,7 @@ class TagsUI
 		addedTags.clear();
 		removedTags.clear();
 		selectedTags.clear();
-		//existingTags = null;
+		editedTag = null;
 		historyDialog = null;
 		nameArea.setText("");
 		descriptionArea.setText("");
@@ -941,6 +950,11 @@ class TagsUI
 			addedTags.add(tag);
 			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 					Boolean.TRUE);
+		} else if (AnnotationEditor.CLOSE_PROPERTY.equals(name)) {
+			if (editedTag != null) {
+				editedTag.resetFont();
+				existingTags.repaint();
+			}
 		}
 	}
 	

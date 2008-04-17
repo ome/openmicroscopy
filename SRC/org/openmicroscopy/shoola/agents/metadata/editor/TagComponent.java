@@ -136,7 +136,8 @@ class TagComponent
 	 */
 	void setComponentFont(int style)
 	{
-		setFont(getFont().deriveFont(style));
+		//setFont(getFont().deriveFont(style));
+		repaint();
 	}
 	
 	/**
@@ -153,9 +154,10 @@ class TagComponent
 	 */
 	public void mousePressed(MouseEvent e)
 	{
-		if (e.getClickCount() == 2)
-			uiDelegate.editAnnotation(e.getPoint(), data);
-		else
+		if (e.getClickCount() == 2) {
+			setComponentFont(Font.BOLD);
+			uiDelegate.editAnnotation(e.getPoint(), this);
+		} else
 			uiDelegate.setSelectedTag(e.isShiftDown(), this);
 		
 		if (e.isPopupTrigger())

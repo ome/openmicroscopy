@@ -45,6 +45,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Reloads the data for the specified experimenters.
@@ -82,7 +83,8 @@ public class RefreshExperimenterDataLoader
     private void checkClass(Class klass)
     {
         if (ProjectData.class.equals(klass) || ImageData.class.equals(klass) ||
-        	CategoryGroupData.class.equals(klass))
+        	CategoryGroupData.class.equals(klass) ||
+        	TagAnnotationData.class.equals(klass))
             return;
         throw new IllegalArgumentException("Root node not supported.");
     }

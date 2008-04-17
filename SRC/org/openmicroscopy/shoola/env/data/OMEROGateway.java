@@ -50,21 +50,20 @@ import javax.ejb.EJBException;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
-
 import ome.api.IAdmin;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
+import ome.api.ISession;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.api.Search;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
+import ome.conditions.SessionTimeoutException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
@@ -84,9 +83,12 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Format;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
+import ome.system.EventContext;
 import ome.system.Login;
+import ome.system.Principal;
 import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.util.CBlock;
@@ -167,7 +169,12 @@ class OMEROGateway
 
 	/** Server instance to log in. */
 	private Server                  server;
+	
+	private Login 					login;
 
+	/** The id of the current session. */
+	private String					sessionUUID;
+	
 	/** The port to use in order to connect. */
 	private int                     port;
 
@@ -202,10 +209,23 @@ class OMEROGateway
 		} else if (cause instanceof ValidationException) {
 			String s = "Cannot access data, specified parameters not valid \n"; 
 			throw new DSAccessException(s+message, t);
-		} else 
+		} else
 			throw new DSOutOfServiceException(message, t);
 	}
 
+	/** Keeps the actual session alive. */
+	private void isSessionAlive()
+	{
+		ISession service = getSessionService();
+		try {
+			service.getSession(sessionUUID);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Principal p = new Principal(login.getName(), "user", "User");
+			service.createSession(p, sessionUUID);
+		}
+	}
+	
 	/**
 	 * Utility method to print the error message
 	 * 
@@ -331,6 +351,16 @@ class OMEROGateway
 		if (v.contains("*")) v = v.replace("*", "%");
 		if (v.contains("?")) v = v.replace("?", "_");
 		return v;
+	}
+	
+	/**
+	 * Returns the {@link ISession} service.
+	 * 
+	 * @return See above.
+	 */
+	public ISession getSessionService()
+	{
+		return entry.getSessionService();
 	}
 	
 	/**
@@ -702,8 +732,11 @@ class OMEROGateway
 		try {
 			compression = compressionLevel;
 			server = new Server(hostName, port);
-			entry = new ServiceFactory(server, new Login(userName, password)); 
+			login = new Login(userName, password);
+			entry = new ServiceFactory(server, login); 
 			connected = true;
+			EventContext ctx = getAdminService().getEventContext();
+			sessionUUID = ctx.getCurrentSessionUuid();
 			return getUserDetails(userName);
 		} catch (Throwable e) {
 			connected = false;
@@ -716,9 +749,13 @@ class OMEROGateway
 	/** Log out. */
 	void logout()
 	{
-		//TODO
 		connected = false;
 		if (thumbnailService != null) thumbnailService.close();
+		try {
+			entry.closeSession();
+		} catch (Exception e) {
+			//session already dead.
+		}
 	}
 
 	/**
@@ -825,6 +862,7 @@ class OMEROGateway
 	throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(
 					service.findAnnotations(convertPojos(nodeType), nodeIDs, 

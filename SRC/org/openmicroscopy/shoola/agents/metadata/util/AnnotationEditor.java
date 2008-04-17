@@ -67,6 +67,9 @@ public class AnnotationEditor
 	/** Bound property indicating the tag has been edited. */
 	public static final String	EDIT_PROPERTY = "edit";
 	
+	/** Bound property indicating the tag has been edited. */
+	public static final String	CLOSE_PROPERTY = "close";
+	
 	/** Action command id to cancel the edition. */
 	private static final int	CANCEL = 0;
 	
@@ -119,6 +122,7 @@ public class AnnotationEditor
 	/** Closes the window and disposes. */
 	private void cancel()
 	{
+		firePropertyChange(CLOSE_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		setVisible(false);
 		dispose();
 	}

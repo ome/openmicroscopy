@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.login;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Insets;
@@ -42,6 +43,7 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -326,7 +328,7 @@ public class ScreenLogin
 	 */
 	private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
 	{
-		double[][] size = new double[][]{{TableLayout.PREFERRED, 150}, {30}};
+		double[][] size = new double[][]{{TableLayout.PREFERRED, 170}, {30}};
 
 		JPanel panel = new JPanel();
 		panel.setOpaque(false);
@@ -353,7 +355,7 @@ public class ScreenLogin
 	{
 		double topTable[][] =  {{TableLayout.FILL, 5, TableLayout.FILL, 
 								TableLayout.FILL, TableLayout.PREFERRED}, // columns
-				{TableLayout.PREFERRED, TableLayout.FILL}}; // rows
+				{TableLayout.PREFERRED, 5, TableLayout.FILL}}; // rows
 		JPanel topPanel = new JPanel();
 		topPanel.setOpaque(false);
 		TableLayout layout = new TableLayout(topTable);
@@ -371,16 +373,20 @@ public class ScreenLogin
 		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(serverText);
 		p.add(connectionSpeedText);
-		//p.add(configButton);
-		//topPanel.add(serverText, "2, 0, r, c"); //Add to panel.
-		//topPanel.add(connectionSpeedText, "3, 0, r, c"); //Add to panel.
 		JPanel panel = UIUtilities.buildComponentPanelRight(p);
 		panel.setOpaque(false);
 		topPanel.add(panel, "1, 0, 3, 0");
 		topPanel.add(configButton, "4, 0, c, c");
 		
-		topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 2, 1");
-		topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "3, 1, 4, 1");
+		JPanel namePanel = new JPanel();
+		namePanel.setOpaque(false);
+		namePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		namePanel.add(buildTextPanel(user, 'U', USER_TEXT));
+		namePanel.add(Box.createHorizontalStrut(20));
+		namePanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT));
+		//topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 2, 1");
+		//topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "3, 1, 4, 1");
+		topPanel.add(namePanel, "0, 2, 4, 2");
 		return topPanel;
 	}
 
@@ -698,6 +704,42 @@ public class ScreenLogin
 		else pass.requestFocus();
 	}
 
+	/**
+	 * Sets the text of the {@link #cancel}.
+	 * 
+	 * @param text The text to set.
+	 */
+	public void setQuitButtonText(String text) 
+	{
+		if (text == null) return;
+		text = text.trim();
+		if (text.length() == 0) return;
+		if (cancel.getText() == text) return;
+		cancel.setText(text);
+		char c = text.toUpperCase().charAt(0);
+		setQuiteButtonMnemonic(c);
+	}
+	
+	/**
+	 * Sets the text displays when the cursor lingers over the component.
+	 * 
+	 * @param toolTipText The text to set.
+	 */
+	public void setQuitButtonToolTipText(String toolTipText)
+	{
+		cancel.setToolTipText(toolTipText);
+	}
+	
+	/**
+	 * Sets the keyboard mnemonic.
+	 * 
+	 * @param mnemonic The value to set.
+	 */
+	public void setQuiteButtonMnemonic(int mnemonic)
+	{
+		cancel.setMnemonic(mnemonic);
+	}
+	
 	/**
 	 * Reacts to property changes fired by the <code>ScreenDialog</code>
 	 * window.
