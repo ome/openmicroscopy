@@ -103,7 +103,7 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @param sizeY
      *            the Y-axis width of the thumbnail. <code>null</code>
      *            specifies the default size of 48.
-     * @param
+     * @param pixelsIds the Pixels sets to retrieve thumbnails for.
      * @throws ApiUsageException
      *             if:
      *             <ul>
@@ -118,6 +118,33 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      * @see getThumbnail()
      */
     public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY, 
+    		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
+    
+    /**
+     * Retrieves a number of thumbnails for pixels sets using given sets of 
+     * rendering settings (RenderingDef). If the Thumbnails exist in the 
+     * on-disk cache they will be returned directly, otherwise they will be
+     * created as in {@link #getThumbnailByLongestSideDirect}. The longest 
+     * side of the image will be used to calculate the size for the smaller 
+     * side in order to keep the aspect ratio of the original image. Unlike the 
+     * other thumbnail retrieval methods, this method <b>may</b> be called 
+     * without first calling {@link #setPixelsId()}.
+     * 
+     * @param size
+     *            the size of the longest side of the thumbnail requested.
+     *            <code>null</code> specifies the default size of 48.
+     * @param pixelsIds the Pixels sets to retrieve thumbnails for.
+     * @throws ApiUsageException
+     *             if:
+     *             <ul>
+     *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
+     *             <li>{@link setPixelsId()} has not yet been called</li>
+     *             </ul>
+     * @return a {@link Map} whose keys are pixels ids and values are JPEG 
+     * thumbnail byte buffers.
+     * @see getThumbnailSet()
+     */
+    public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer sizeX,
     		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
 
     /**

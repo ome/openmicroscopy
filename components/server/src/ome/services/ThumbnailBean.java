@@ -634,6 +634,28 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	}
     	return toReturn;
     }
+    
+    /* (non-Javadoc)
+     * @see ome.api.ThumbnailStore#getThumbnailByLongestSideSet(java.lang.Integer, java.util.Set)
+     */
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer size,
+                                                          Set<Long> pixelsIds)
+    {
+    	Map<Long, byte[]> toReturn = new HashMap<Long, byte[]>();
+    	for (Long pixelsId : pixelsIds)
+    	{
+    		if (!setPixelsId(pixelsId))
+    		{
+    			resetDefaults();
+    			setPixelsId(pixelsId);
+    		}
+    		byte[] thumbnail = getThumbnailByLongestSide(size);
+    		toReturn.put(pixelsId, thumbnail);
+    	}
+    	return toReturn;
+    }
 
     /*
      * (non-Javadoc)
