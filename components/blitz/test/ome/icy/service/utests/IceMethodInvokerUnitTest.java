@@ -173,6 +173,11 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
                 Set<Long> pixelsIds) {
             return null;
         }
+        
+        public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer size,
+                Set<Long> pixelsIds) {
+            return null;
+        }
 
         public void resetDefaults() {
         }
