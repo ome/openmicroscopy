@@ -823,8 +823,7 @@ class EditorModel
 	 */
 	void setExistingTags(Collection tags)
 	{
-		if (tags != null)
-			existingTags = sorter.sort(tags);
+		if (tags != null) existingTags = sorter.sort(tags);
 	}
 	
 	/**

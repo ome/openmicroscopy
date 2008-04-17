@@ -659,7 +659,7 @@ public class UIUtilities
     {
         area.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         //area.setForeground(STEELBLUE);
-        area.setBackground(Color.WHITE);
+        area.setBackground(BACKGROUND);
         area.setOpaque(true);
         if (area instanceof JTextComponent) 
         	((JTextComponent) area).setEditable(true);

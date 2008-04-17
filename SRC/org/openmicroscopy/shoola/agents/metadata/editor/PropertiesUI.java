@@ -26,10 +26,13 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -185,7 +188,7 @@ class PropertiesUI
         box.setEnabled(false);
         p.add(box);
         content.add(label, "0, 1, l, c");
-        content.add(p, "1,1, l, c"); 
+        content.add(p, "1, 1, l, c"); 
         //OTHER
         label = UIUtilities.setTextFont(EditorUtil.WORLD);
         p = new JPanel();
@@ -283,29 +286,32 @@ class PropertiesUI
      */
     private JPanel buildContentPanel()
     {
-        JPanel content = new JPanel();
-        double[][] tl = {{WIDTH}, //columns
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-        	TableLayout.PREFERRED, 5, 80}};
-        content.setLayout(new TableLayout(tl));
-        /*
-        double[][] tl = {{TableLayout.PREFERRED, 5,  WIDTH}, //columns
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-        		TableLayout.PREFERRED, 80}};
-        content.add(UIUtilities.setTextFont("ID"), "0, 0");
-        content.add(new JLabel(""+model.getRefObjectID()), "2, 0");
-        content.add(UIUtilities.setTextFont("Name"), "0, 2");
-        content.add(nameArea, "2, 2");
-        content.add(UIUtilities.setTextFont("Description"), "0, 4");
-        content.add(new JScrollPane(descriptionArea), "2, 4, 2, 5");
-        */
-        //content.add(UIUtilities.setTextFont("ID: "+model.getRefObjectID()), 
-        //			"0, 0");
-        content.add(UIUtilities.setTextFont("Name"), "0, 0");
-        content.add(nameArea, "0, 2");
-        content.add(UIUtilities.setTextFont("Description"), "0, 4");
-        content.add(new JScrollPane(descriptionArea), "0, 6");
-        return content;
+        JPanel p = new JPanel();
+        p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		p.add(UIUtilities.setTextFont("Name"), c);
+		c.gridx++;
+		p.add(Box.createHorizontalStrut(5), c);
+		c.gridx++;
+		c.weightx = 0.5;
+		p.add(nameArea, c);
+		c.gridy++;
+		p.add(Box.createVerticalStrut(5), c);
+		c.gridx = 0;
+		c.gridy++;
+		c.weightx = 0;
+		p.add (UIUtilities.setTextFont("Description"), c);
+		c.gridx++;
+		p.add(Box.createHorizontalStrut(5), c);
+		c.gridx++;
+		c.weightx = 0.5;
+		c.ipady = 80; 
+		p.add(new JScrollPane(descriptionArea), c);
+        return p;
     }
     
     /**

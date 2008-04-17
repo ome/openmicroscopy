@@ -610,12 +610,13 @@ class OmeroMetadataServiceImpl
 	 * @see OmeroMetadataService#loadAnnotations(Class, Class, long)
 	 */
 	public Collection loadAnnotations(Class annotationType, Class objectType, 
-									long objectID) 
+									long objectID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Collection c = gateway.fetchAnnotation(annotationType, objectType,
 											objectID);
 		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
+		System.err.println("collection: "+c);
 		if (c == null || c.size() == 0) return annotations;
 		Iterator i = c.iterator();
 		AnnotationData data;
@@ -1010,7 +1011,7 @@ class OmeroMetadataServiceImpl
 		if (images) {
 			return gateway.loadTagAndImages(id, images);
 		}
-		return loadAnnotations(TagAnnotationData.class, null, id);
+		return loadAnnotations(TagAnnotationData.class, null, id, userID);
 	}
 	
 }

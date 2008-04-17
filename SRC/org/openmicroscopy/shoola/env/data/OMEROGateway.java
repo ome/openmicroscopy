@@ -2634,8 +2634,6 @@ class OMEROGateway
 				sql += " where ann.id = :id";
 				param.addLong("id", id);
 			}
-			
-			
 			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
 		} catch (Exception e) {
 			e.printStackTrace();

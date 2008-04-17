@@ -65,10 +65,7 @@ public class RollOverThumbnail
     
     /** The maximum magnification value. */
     final static int		MAXIMUM_ZOOM = 2;
-    
-    /** ImageNode displayed. */
-    private ImageNode        		node;
-    
+     
     /** The image to display. */
     private BufferedImage   		image;
     
@@ -167,7 +164,6 @@ public class RollOverThumbnail
     {
         if (node == null)
             throw new IllegalArgumentException("No node.");
-        this.node = node;
         canvas.setToolTipText(node.toString());
         Thumbnail prv = node.getThumbnail();
         BufferedImage full = prv.getFullScaleThumb();

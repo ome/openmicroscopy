@@ -118,7 +118,8 @@ class TagsUI
 												""+SearchUtil.COMMA_SEPARATOR;
 	
 	/** Color for the tags selected. */
-	private static final Color	EXISTING_TAGS = Color.RED;
+	private static final String	DESCRIPTION_EXISTING_TAGS = "Double click on " +
+			"the tag to edit it.";
 	
 	/** Button to add existing tags. */
 	private JButton					addButton;
@@ -271,7 +272,7 @@ class TagsUI
 		DataObject ho = o.getDataObject();
 		if (ho instanceof TagAnnotationData) {
 			handleTagEnter((TagAnnotationData) ho);
-			layoutExistingTags();
+			createExistingTagsPane();
 		}
 	}
 	
@@ -409,7 +410,6 @@ class TagsUI
 	private JPanel layoutNewTags()
 	{
 		JPanel p = new JPanel();
-		
 		p.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -444,31 +444,13 @@ class TagsUI
 	 */
 	private JPanel createExistingTagsPane()
 	{
-		JPanel p = new JPanel();
-		p.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		p.add(UIUtilities.setTextFont("Tags: "), c);
-		c.gridx++;
-		layoutExistingTags();
-		c.weightx = 0.5;
-		p.add(existingTags, c);
-		return p;
-	}
-	
-	/** Lays out the tags associated to the object. */
-	private void layoutExistingTags()
-	{
+		if (existingTags == null) existingTags = new JPanel();
+		else existingTags.removeAll();
+		
 		Collection l = model.getTags();
 		Iterator i;
-		TagComponent comp;
 		AnnotationData data;
 		List<TagComponent> tags = new ArrayList<TagComponent>();
-		if (existingTags != null) existingTags.removeAll();
-		else existingTags = new JPanel();
-		
 		if (l != null) {
 			i = l.iterator();
 			while (i.hasNext()) {
@@ -477,38 +459,90 @@ class TagsUI
 					tags.add(new TagComponent(this, data));
 			}
 		}
-		i = addedTags.iterator();
-		while (i.hasNext()) {
-			data = (AnnotationData) i.next();
-			comp = new TagComponent(this, data);
-			comp.setForeground(EXISTING_TAGS);
-			tags.add(comp);
+		
+		
+		//Lay out tags
+		existingTags.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		existingTags.add(UIUtilities.setTextFont("Tagged with: "), c);
+		c.gridx++;
+		c.weightx = 0.5;
+
+		//Layout the tags
+		existingTags.add(layoutTags(tags), c);
+		
+		c.gridy++;
+		c.gridx = 0;
+		existingTags.add(Box.createVerticalStrut(5));
+		c.gridy++;
+		c.weightx = 0;
+		existingTags.add(UIUtilities.setTextFont("Tags to Add: "), c);
+		c.gridx++;
+		c.weightx = 0.5;
+		
+		if (addedTags.size() > 0) {
+			i = addedTags.iterator();
+			tags.clear();
+			while (i.hasNext()) {
+				data = (AnnotationData) i.next();
+				tags.add(new TagComponent(this, data));
+			}
+			existingTags.add(layoutTags(tags), c);
 		}
+		c.gridy++;
+		c.gridx = 0;
+		existingTags.add(Box.createVerticalStrut(5));
+		c.gridx++;
+		c.gridy++;
+		existingTags.add(UIUtilities.setTextFont(DESCRIPTION_EXISTING_TAGS, 
+												Font.ITALIC, 10), c);
+		existingTags.revalidate();
+		existingTags.repaint();
+		return existingTags;
+	}
+	
+	/**
+	 * Lays out the list of <code>TagComponent</code>s
+	 * 
+	 * @param tags The collection to layout.
+	 * @return See above.
+	 */
+	private JPanel layoutTags(List<TagComponent> tags)
+	{
+		Iterator<TagComponent> i = tags.iterator();
+		TagComponent tag;
 		JPanel pane = new JPanel();
 		pane.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.WEST;
-		c.gridy = 0;
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
+		c.gridy = 0;
 		int index = 0;
-		i = tags.iterator();
 		while (i.hasNext()) {
 			++c.gridx;
-			comp = (TagComponent) i.next();
-			pane.add(comp, c);
+			tag = i.next();
+			pane.add(tag, c);
 			++c.gridx;
 			pane.add(Box.createHorizontalStrut(5), c);
-			if (index%4 == 0 && index != 0) {
+			if (index%3 == 0 && index != 0) {
 				c.gridy++;
 				c.gridx = 0;
 			}
 			index++;
 		}
 		
-		existingTags.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		existingTags.add(pane);
-		existingTags.revalidate();
-		existingTags.repaint();
+		JPanel content = new JPanel();
+		content.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		content.add(pane);
+		pane.setBackground(UIUtilities.BACKGROUND);
+		content.setBackground(UIUtilities.BACKGROUND);
+		content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		return content;
 	}
 	
 	/** Shows the collection of existing tags. */
@@ -690,7 +724,7 @@ class TagsUI
 			else removedTags.add(tag);
 		}
 		clearSelectedTags();
-		layoutExistingTags();
+		createExistingTagsPane();
 	}
 	
 	/** Edits the selected tags. */
@@ -737,7 +771,7 @@ class TagsUI
 		UIUtilities.setBoldTitledBorder(title, this);
 		//setBorder(border);
 		getCollapseComponent().setBorder(border);
-		
+		//setLayout(new BorderLayout());
 		add(createExistingTagsPane());
 		add(Box.createVerticalStrut(5));
 		add(new JSeparator());
@@ -847,7 +881,7 @@ class TagsUI
 		addedTags.clear();
 		removedTags.clear();
 		selectedTags.clear();
-		existingTags = null;
+		//existingTags = null;
 		historyDialog = null;
 		nameArea.setText("");
 		descriptionArea.setText("");
@@ -885,7 +919,7 @@ class TagsUI
 			DataObject ho = ((TagItem) item).getDataObject();
 			if (ho instanceof TagAnnotationData) {
 				handleTagEnter((TagAnnotationData) ho);
-				layoutExistingTags();
+				createExistingTagsPane();
 				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 						Boolean.TRUE);
 			}
@@ -895,7 +929,7 @@ class TagsUI
 			Iterator i = l.iterator();
 	    	while (i.hasNext()) 
 	    		handleTagEnter((TagAnnotationData) i.next());
-	    	layoutExistingTags();
+	    	createExistingTagsPane();
 	    	firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 					Boolean.TRUE);
 		} else if (AnnotationEditor.EDIT_PROPERTY.equals(name)) {
