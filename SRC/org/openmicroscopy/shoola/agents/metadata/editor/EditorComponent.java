@@ -231,7 +231,7 @@ class EditorComponent
 	public void setDiskSpace(List list)
 	{
 		if (list == null || list.size() != 2) return;
-		model.setDiskSpace(list);
+		view.setDiskSpace(list);
 		view.layoutUI();
 	}
 

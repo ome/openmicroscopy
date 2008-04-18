@@ -65,6 +65,25 @@ public class EditorUI
 	extends JPanel
 {
  
+	/** 
+	 * Size of the table layout used to lay out vertically components contained
+	 * in the {@link #content} component.
+	 */
+	private static final double[][]		CONTENT_VERTICAL = {{TableLayout.FILL}, 
+													{TableLayout.PREFERRED, 
+													TableLayout.PREFERRED, 
+													TableLayout.PREFERRED,
+													TableLayout.PREFERRED}};
+	
+	/** 
+	 * Size of the table layout used to lay out as a grid components contained
+	 * in the {@link #content} component.
+	 */
+	private static final double[][]		CONTENT_GRID = {{TableLayout.FILL, 
+														5, TableLayout.FILL}, 
+														{TableLayout.PREFERRED, 
+														TableLayout.PREFERRED}};
+	
 	/** Reference to the controller. */
 	private EditorControl				controller;
 	
@@ -263,7 +282,6 @@ public class EditorUI
 		
 		switch (layout) {
 			case Editor.VERTICAL_LAYOUT:
-				
 				left.insertNode(textualAnnotationsUI, 
 						textualAnnotationsUI.getCollapseComponent(), expanded);
 				left.insertNode(tagsUI, tagsUI.getCollapseComponent(), 
@@ -273,10 +291,7 @@ public class EditorUI
 				tree.insertNode(attachmentsUI, 
 							attachmentsUI.getCollapseComponent(), false);
 
-				double[][] finalSize = {{TableLayout.FILL}, 
-						{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-						TableLayout.PREFERRED, TableLayout.PREFERRED}};
-				content.setLayout(new TableLayout(finalSize));
+				content.setLayout(new TableLayout(CONTENT_VERTICAL));
 				content.add(toolBarTop, "0, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "0, 2");
@@ -293,10 +308,9 @@ public class EditorUI
 				
 				
 				
-				double[][] size = {{TableLayout.FILL, 5, TableLayout.FILL}, 
-					{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+				
 
-				content.setLayout(new TableLayout(size));
+				content.setLayout(new TableLayout(CONTENT_GRID));
 				content.add(toolBarTop, "0, 0, 2, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "2, 1");
@@ -335,7 +349,6 @@ public class EditorUI
     /** Lays out the UI when data are loaded. */
     void layoutUI()
     {
-    	
     	if (model.getRefObject() instanceof ExperimenterData)  {
     		userUI.buildUI();
     		userUI.repaint();
@@ -430,8 +443,12 @@ public class EditorUI
 		clearData();
 		Object object = model.getRefObject();
 		content.removeAll();
+		//content.revalidate();
+		//content.repaint();
+	
 		switch (layout) {
 			case Editor.GRID_LAYOUT:
+				content.setLayout(new TableLayout(CONTENT_GRID));
 				if (object instanceof ExperimenterData) {
 					content.add(toolBarTop, "0, 0, 2, 0");
 					content.add(userUI, "0, 1, 2, 1");
@@ -443,10 +460,9 @@ public class EditorUI
 				content.add(toolBarTop, "0, 0, 2, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "2, 1");
-				//content.add(toolBarBottom, "0, 0, 2, 0");
 				break;
-	
 			case Editor.VERTICAL_LAYOUT:
+				content.setLayout(new TableLayout(CONTENT_VERTICAL));
 				if (object instanceof ExperimenterData) {
 					content.add(toolBarTop, "0, 0");
 					content.add(userUI, "0, 1");
@@ -641,4 +657,11 @@ public class EditorUI
 	/** Displays the wizard with the collection of URLs already uploaded. */
 	void setExistingURLs() { linksUI.showSelectionWizard(); }
 	 
+	/**
+	 * Sets the disk space information.
+	 * 
+	 * @param space The value to set.
+	 */
+	void setDiskSpace(List space) { userUI.setDiskSpace(space); }
+
 }

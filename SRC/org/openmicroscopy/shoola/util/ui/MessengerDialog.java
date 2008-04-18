@@ -240,7 +240,7 @@ public class MessengerDialog
 											EMAIL_MESSAGE,
 					icons.getIcon(IconManager.INFORMATION_MESSAGE));
 			box.hideNoButton();
-			box.setYesLabel("OK");
+			box.setYesText("OK");
 			box.centerMsgBox();
 			return;
 		}

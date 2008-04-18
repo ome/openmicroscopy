@@ -126,15 +126,9 @@ class EditorModel
     
     /** Used to sort the various collection. */
     private ViewerSorter			sorter;
-    
-    /** The id of the currently logged in user. */
-    private long					userID;
-    
+
 	/** Flag indicating to load the thumbnail. */
 	private boolean					thumbnailRequired;
-	
-	/** The disk space. */
-	private List					space;
 	
     /** 
      * Sorts the passed collection of annotations by date starting with the
@@ -181,7 +175,6 @@ class EditorModel
 		this.thumbnailRequired = thumbnailRequired;
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
-		userID = MetadataViewerAgent.getUserDetails().getId();
 	}
 	
 	/**
@@ -625,7 +618,6 @@ class EditorModel
 		textualAnnotationsByUsers = null;
 		textualAnnotationsByDate = null;
 		data = null;
-		space = null;
 	    existingAttachments = null;
 	    existingURLs = null;
 	    emissionsWavelengths = null;
@@ -927,13 +919,6 @@ class EditorModel
 		loaders.add(loader);
 	}
 
-	/** 
-	 * Returns the list with disk space information.
-	 * 
-	 * @return See above.
-	 */
-	List isDiskSpaceLoaded() { return space; }
-
 	/** Starts an asynchronous call to retrieve disk space information. */
 	void loadDiskSpace()
 	{
@@ -959,14 +944,7 @@ class EditorModel
 		loaders.addAll(toKeep);
 		
 	}
-
-	/**
-	 * Sets the disk space information.
-	 * 
-	 * @param space The value to set.
-	 */
-	void setDiskSpace(List space) { this.space = space; }
-
+	
 	/**
 	 * Fires an asynchronous call to modify the password.
 	 * 

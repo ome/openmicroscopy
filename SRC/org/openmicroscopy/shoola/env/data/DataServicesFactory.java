@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -82,20 +84,26 @@ public class DataServicesFactory
 		return singleton;
 	}
 	
+	/** 
+	 * Reference to the container, to exit the application when the session
+	 * has expired.
+	 */
+	private Container				container;
+
 	/** A reference to the container's registry. */
 	private Registry               registry;
-	
+
 	/** Unified access point to the various OMERO services. */
-    private OMEROGateway            omeroGateway;
-	
-    /** The omero service adapter. */
-    private OmeroDataService		ds;
-    
-    /** The image service adapter. */
-    private OmeroImageService		is;
-    
-    /** The metadata service adapter. */
-    private OmeroMetadataService 	ms;
+	private OMEROGateway            omeroGateway;
+
+	/** The omero service adapter. */
+	private OmeroDataService		ds;
+
+	/** The image service adapter. */
+	private OmeroImageService		is;
+
+	/** The metadata service adapter. */
+	private OmeroMetadataService 	ms;
     
 	/**
 	 * Attempts to create a new instance.
@@ -108,6 +116,7 @@ public class DataServicesFactory
 		throws DSOutOfServiceException
 	{
 		registry = c.getRegistry();
+		container = c;
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
         omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
 		//Create the adapters.
@@ -140,6 +149,23 @@ public class DataServicesFactory
 						LookupNames.COMPRESSIOM_LOW_QUALITY);
 				return value.floatValue();
 		}
+	}
+	
+	/** 
+	 * Brings up a dialog indicating that the session has expired and
+	 * quits the application.
+	 */
+	void sessionExpiredExit()
+	{
+		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
+							"Time out", "Your session has expired.\n" +
+    						"You need to restart the application.");
+        msg.setYesText("Exit");
+        msg.hideNoButton();
+        if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+        	shutdown();
+    		container.exit();
+        }
 	}
 	
     /**

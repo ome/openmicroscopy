@@ -64,6 +64,12 @@ class UserUI
 	/** Component displaying the disk space. */
 	private UserDiskSpace 	diskSpace;
 	
+	/** The tree hosting the {@link #UserDiskSpace}. */
+	private TreeComponent	diskTree;
+	
+	/** The disk space. */
+	private List			space;
+	
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
@@ -73,16 +79,17 @@ class UserUI
 	{
 		profile = new UserProfile(model);
 		profile.addPropertyChangeListener(control);
-		diskSpace = new UserDiskSpace(model);
+		diskSpace = new UserDiskSpace(this);
 		
-		TreeComponent tree = new TreeComponent();
-		tree.insertNode(diskSpace, diskSpace.getCollapseComponent(), false);
-		tree.addPropertyChangeListener(TreeComponent.EXPANDED_PROPERTY, this);
+		diskTree = new TreeComponent();
+		diskTree.insertNode(diskSpace, diskSpace.getCollapseComponent(), false);
+		diskTree.addPropertyChangeListener(TreeComponent.EXPANDED_PROPERTY, 
+											this);
 		double[][] size = {{TableLayout.PREFERRED}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		setLayout(new TableLayout(size));
 		add(profile, "0, 0");
-		add(tree, "0, 1");
+		add(diskTree, "0, 1");
 	}
 	
 	/**
@@ -113,6 +120,20 @@ class UserUI
 	}
 	
 	/**
+	 * Sets the disk space information.
+	 * 
+	 * @param space The value to set.
+	 */
+	void setDiskSpace(List space) { this.space = space; }
+	
+	/** 
+	 * Returns the list with disk space information.
+	 * 
+	 * @return See above.
+	 */
+	List isDiskSpaceLoaded() { return space; }
+
+	/**
 	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()
 	 */
@@ -128,13 +149,27 @@ class UserUI
 	 * No-op implementation in our case.
 	 * @see AnnotationUI#clearData()
 	 */
-	protected void clearData() {}
+	protected void clearData()
+	{
+		space = null;
+		clearDisplay();
+	}
 
 	/**
 	 * Removes all components.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() { removeAll(); }
+	protected void clearDisplay()
+	{ 
+		diskSpace.removeAll();
+		profile.removeAll();
+		diskTree.collapseNodes();
+		removeAll();
+		diskSpace.revalidate();
+		profile.revalidate();
+		revalidate();
+		repaint();
+	}
 
 	/**
 	 * No-op implementation in our case.
@@ -170,9 +205,8 @@ class UserUI
 		String name = evt.getPropertyName();
 		if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
 			boolean b = (Boolean) evt.getNewValue();
-			List l = model.isDiskSpaceLoaded();
 			if (model.getRefObject() instanceof ExperimenterData) {
-				if (l == null) {
+				if (space == null) {
 					if (b) model.loadDiskSpace();
 					else model.cancelDiskSpaceLoading();
 				}

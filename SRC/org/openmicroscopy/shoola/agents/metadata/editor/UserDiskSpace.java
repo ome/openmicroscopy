@@ -64,19 +64,22 @@ class UserDiskSpace
 	static final String TITLE = "Disk Space";
 
 	/** Reference to the model. */
-	private EditorModel model;
+	//private EditorModel model;
 	
 	/** The collapse version of this component. */
 	private JPanel		collapseComponent;
 	
+	/** Reference to the view. */
+	private UserUI		view;
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param view Reference to the view. Mustn't be <code>null</code>.
 	 */
-	UserDiskSpace(EditorModel model)
+	UserDiskSpace(UserUI view)
 	{
-		this.model = model;
+		this.view = view;
 		setLayout(new BorderLayout());
 		setBorder(new TitledLineBorder(TITLE, getBackground()));
 		setPreferredSize(new Dimension(300, 200));
@@ -100,9 +103,8 @@ class UserDiskSpace
 	/** Builds and lays out the GUI. */
 	void buildGUI()
 	{
-		
 		removeAll();
-		List list = model.isDiskSpaceLoaded();
+		List list = view.isDiskSpaceLoaded();
 		if (list != null) {
 			DefaultPieDataset dataset = new DefaultPieDataset();
 			long free = (Long) list.get(0);
@@ -121,7 +123,6 @@ class UserDiskSpace
 			bar.setIndeterminate(true);
 			p.add(UIUtilities.buildComponentPanelRight(bar));
 			add(p, BorderLayout.NORTH);
-			//add(new JPanel(), BorderLayout.CENTER);
 		}
 		revalidate();
 		repaint();

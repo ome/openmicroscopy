@@ -156,9 +156,7 @@ class OMEROGateway
 	/** The search stateful service. */
 	private Search					searchService;
 	
-	/**
-	 * Tells whether we're currently connected and logged into <i>OMERO</i>.
-	 */
+	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 connected;
 
 	/** 
@@ -172,9 +170,6 @@ class OMEROGateway
 	
 	private Login 					login;
 
-	/** The id of the current session. */
-	private String					sessionUUID;
-	
 	/** The port to use in order to connect. */
 	private int                     port;
 
@@ -216,13 +211,12 @@ class OMEROGateway
 	/** Keeps the actual session alive. */
 	private void isSessionAlive()
 	{
-		ISession service = getSessionService();
 		try {
-			service.getSession(sessionUUID);
+			EventContext ctx = getAdminService().getEventContext();
+			getSessionService().getSession(ctx.getCurrentSessionUuid());
 		} catch (Exception e) {
-			e.printStackTrace();
-			Principal p = new Principal(login.getName(), "user", "User");
-			service.createSession(p, sessionUUID);
+			dsFactory.sessionExpiredExit();
+			//entry = new ServiceFactory(server, login);
 		}
 	}
 	
@@ -539,6 +533,9 @@ class OMEROGateway
 	 */
 	private void resetFactory(String userName, String password)
 	{
+		//First close the previous session
+		entry.closeSession();
+		login = new Login(userName, password);
 		entry = new ServiceFactory(server, new Login(userName, password));
 		if (thumbnailService != null) thumbnailService.close();
 		thumbnailService = null;
@@ -735,8 +732,7 @@ class OMEROGateway
 			login = new Login(userName, password);
 			entry = new ServiceFactory(server, login); 
 			connected = true;
-			EventContext ctx = getAdminService().getEventContext();
-			sessionUUID = ctx.getCurrentSessionUuid();
+			
 			return getUserDetails(userName);
 		} catch (Throwable e) {
 			connected = false;

@@ -241,14 +241,14 @@ public class TaskBarManager
 	{
 		try {
 			DataServicesFactory f = DataServicesFactory.getInstance(container);
-			 if (f.isConnected()) {
-			 	f.shutdown();
-			 	synchConnectionButtons();
-			 } else {
-			 	EventBus bus = container.getRegistry().getEventBus();
-			 	bus.post(new ServiceActivationRequest(
-									ServiceActivationRequest.DATA_SERVICES));
-			 }
+			if (f.isConnected()) {
+				f.shutdown();
+				synchConnectionButtons();
+			} else {
+				EventBus bus = container.getRegistry().getEventBus();
+				bus.post(new ServiceActivationRequest(
+						ServiceActivationRequest.DATA_SERVICES));
+			}
 		} catch (DSOutOfServiceException oose) {
 			synchConnectionButtons();
 		} 
@@ -393,8 +393,17 @@ public class TaskBarManager
     			"Do you really want to close the application?", 
     			icons.getIcon(IconManager.QUESTION));
         int option = msg.centerMsgBox();
-		if (option == MessageBox.YES_OPTION)
+		if (option == MessageBox.YES_OPTION) {
+			try {
+				DataServicesFactory f = 
+								DataServicesFactory.getInstance(container);
+				if (f.isConnected())
+					f.shutdown();
+			} catch (Exception e) {}
+			
 			container.exit();
+		}
+		
     }
 
 	/**  Displays information about software. */

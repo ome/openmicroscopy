@@ -281,11 +281,11 @@ public class OptionsDialog
 	}
 	
 	/**
-	 * Sets the label of the {@link #yesButton}.
+	 * Sets the text of the {@link #yesButton}.
 	 * 
 	 * @param txt The value to set.
 	 */
-	public void setYesLabel(String txt)
+	public void setYesText(String txt)
 	{
 		if (txt == null || txt.trim().length() == 0) return;
 		yesButton.setText(txt);
@@ -296,7 +296,7 @@ public class OptionsDialog
 	 * 
 	 * @param txt The value to set.
 	 */
-	public void setNoLabel(String txt)
+	public void setNoText(String txt)
 	{
 		if (txt == null || txt.trim().length() == 0) return;
 		noButton.setText(txt);
@@ -305,7 +305,8 @@ public class OptionsDialog
 	/** Hides the {@link #noButton}. */
 	public void hideNoButton()
 	{
-		mainPanel.remove(noButton);
+		controlPanel.remove(noButton);
+		controlPanel.revalidate();
 		repaint();
 	}
 	
