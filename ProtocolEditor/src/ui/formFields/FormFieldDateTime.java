@@ -129,6 +129,8 @@ public class FormFieldDateTime extends FormField {
 		// Spinners for choosing a time (hrs & mins)
 		hoursModel = new SpinnerNumberModel(0, 0, 23, 1);
 		hoursSpinner = new JSpinner(hoursModel);
+		JSpinner.NumberEditor hrEditor = new JSpinner.NumberEditor(hoursSpinner, "00");
+		hoursSpinner.setEditor(hrEditor);
 		((DefaultEditor)hoursSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		hoursSpinner.setMaximumSize(spinnerSize);
 		hoursSpinner.setPreferredSize(spinnerSize);
@@ -137,6 +139,8 @@ public class FormFieldDateTime extends FormField {
 		
 		minsModel = new SpinnerNumberModel(0, 0, 59, 1);
 		minsSpinner = new JSpinner(minsModel);
+		JSpinner.NumberEditor minEditor = new JSpinner.NumberEditor(minsSpinner, "00");
+		minsSpinner.setEditor(minEditor);
 		((DefaultEditor)minsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		minsSpinner.setMaximumSize(spinnerSize);
 		minsSpinner.setPreferredSize(spinnerSize);

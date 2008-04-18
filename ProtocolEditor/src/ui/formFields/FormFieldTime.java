@@ -55,6 +55,8 @@ public class FormFieldTime extends FormField {
 		
 		hoursModel = new SpinnerNumberModel(0, 0, 99, 1);
 		hoursSpinner = new JSpinner(hoursModel);
+		JSpinner.NumberEditor hrEditor = new JSpinner.NumberEditor(hoursSpinner, "00");
+		hoursSpinner.setEditor(hrEditor);
 		((DefaultEditor)hoursSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		hoursSpinner.setMaximumSize(spinnerSize);
 		hoursSpinner.setPreferredSize(spinnerSize);
@@ -62,6 +64,8 @@ public class FormFieldTime extends FormField {
 		
 		minsModel = new SpinnerNumberModel(0, 0, 59, 1);
 		minsSpinner = new JSpinner(minsModel);
+		JSpinner.NumberEditor minEditor = new JSpinner.NumberEditor(minsSpinner, "00");
+		minsSpinner.setEditor(minEditor);
 		((DefaultEditor)minsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		minsSpinner.setMaximumSize(spinnerSize);
 		minsSpinner.setPreferredSize(spinnerSize);
@@ -69,6 +73,8 @@ public class FormFieldTime extends FormField {
 		
 		secsModel = new SpinnerNumberModel(0, 0, 59, 1);
 		secsSpinner = new JSpinner(secsModel);
+		JSpinner.NumberEditor secsEditor = new JSpinner.NumberEditor(secsSpinner, "00");
+		secsSpinner.setEditor(secsEditor);
 		((DefaultEditor)secsSpinner.getEditor()).getTextField().addFocusListener(componentFocusListener);
 		secsSpinner.setMaximumSize(spinnerSize);
 		secsSpinner.setPreferredSize(spinnerSize);
