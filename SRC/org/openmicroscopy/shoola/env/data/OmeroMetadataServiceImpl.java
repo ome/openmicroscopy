@@ -616,7 +616,6 @@ class OmeroMetadataServiceImpl
 		Collection c = gateway.fetchAnnotation(annotationType, objectType,
 											objectID);
 		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
-		System.err.println("collection: "+c);
 		if (c == null || c.size() == 0) return annotations;
 		Iterator i = c.iterator();
 		AnnotationData data;

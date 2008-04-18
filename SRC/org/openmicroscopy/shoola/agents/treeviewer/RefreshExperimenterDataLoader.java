@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -101,8 +102,8 @@ public class RefreshExperimenterDataLoader
     	Map<DataObject, Set> map;
     	Map expandedNodes = node.getExpandedTopNodes();
         if (expandedNodes == null || expandedNodes.size() == 0 
-        	|| result instanceof Set) {
-        	Set set = (Set) result;
+        	|| result instanceof Collection) {
+        	Collection set = (Collection) result;
             Iterator j = set.iterator();
             map = new HashMap<DataObject, Set>();
             DataObject parent;
@@ -117,6 +118,9 @@ public class RefreshExperimenterDataLoader
                 	children = new HashSet(1);
                 	children.add(parent);
                 } else if (parent instanceof CategoryData) {
+                	children = new HashSet(1);
+                	children.add(parent);
+                } else if (parent instanceof TagAnnotationData) {
                 	children = new HashSet(1);
                 	children.add(parent);
                 }

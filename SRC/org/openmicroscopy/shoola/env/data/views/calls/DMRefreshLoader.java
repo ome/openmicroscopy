@@ -47,6 +47,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Command to refresh a data trees.
@@ -161,9 +162,10 @@ public class DMRefreshLoader
     }
     
     /**
-     * Creates a {@link BatchCall} to retrieve the images
+     * Creates a {@link BatchCall} to retrieve the images.
      * 
-     * @param nodes   		
+     * @param nodes The map whose keys are the id of user and the values 
+     * 				are the corresponding collections of data objects to reload.  		
      * @return The {@link BatchCall}.
      */
     private BatchCall makeImagesBatchCall(final Map<Long, List> nodes)
@@ -177,22 +179,21 @@ public class DMRefreshLoader
                 List containers;
                 Iterator j ;
                 TimeRefObject ref;
-                Timestamp lowerTime, upperTime;
                 while (users.hasNext()) {
                 	userID = (Long) users.next();
                 	containers = nodes.get(userID);
                 	j = containers.iterator();
                 	while (j.hasNext()) {
                 		ref = (TimeRefObject) j.next();
-    
-        				ref.setResults(os.getImagesPeriod(ref.getStartTime(), ref.getEndTime(), 
-									userID));
+        				ref.setResults(os.getImagesPeriod(ref.getStartTime(), 
+        								ref.getEndTime(), userID));
 					}
                 }
                 results = nodes;
             }
         };
     }
+    
     /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
@@ -210,10 +211,10 @@ public class DMRefreshLoader
      * If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the caller's thread.
      * 
-     * @param rootNodeType	The type of the root node. Can either:
-     *                      {@link ProjectData} or
-     *                      {@link CategoryGroupData}.
-     * @param nodes           The Id of the root. 
+     * @param rootNodeType	The type of the root node. 
+     * @param nodes        	The map whose keys are the id of user
+     * 						and the values are the corresponding collections of
+     * 						data objects to reload.
      */
     public DMRefreshLoader(Class rootNodeType, Map<Long, List> nodes)
     {

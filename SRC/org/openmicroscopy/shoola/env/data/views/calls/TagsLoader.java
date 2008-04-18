@@ -27,11 +27,20 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
+import pojos.DataObject;
 
 /** 
  * 
@@ -61,6 +70,62 @@ public class TagsLoader
     
     /** Loads the specified experimenter groups. */
     private BatchCall   loadCall;
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the tags.
+     * 
+     * @param nodes T
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall reloadTags(final Map<Long, List> nodes)
+    {
+    	return new BatchCall("Reloadingtags.") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+            	Iterator i = nodes.keySet().iterator();
+            	Long userID;
+            	List containers;
+            	Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
+                Object value;
+                long id = -1;
+                Iterator j;
+                Collection c;
+                DataObject data;
+                List l;
+                List loaded = new ArrayList();
+            	while (i.hasNext()) {
+            		userID = (Long) i.next();
+            		containers = nodes.get(userID);
+            		if (containers == null || containers.size() == 0) {
+            			value = os.loadTagsContainer(id, false, userID);
+            		} else {
+            			l = new ArrayList();
+            			j = containers.iterator();
+            			while (j.hasNext()) {
+            				data = (DataObject) j.next();
+            				id = data.getId();
+            				loaded.add(id);
+            				c = os.loadTagsContainer(id, true, userID);
+            				if (c != null && c.size() > 0);
+            				l.addAll(c);
+						}
+            			c = os.loadTagsContainer(-1L, false, userID);
+            			j = c.iterator();
+            			while (j.hasNext()) {
+            				data = (DataObject) j.next();
+            				id = data.getId();
+            				if (!loaded.contains(id))
+            					l.add(data);
+						}
+            			value = l;
+            		}
+            		r.put(userID, value);
+				}
+            	result = r;
+            }
+        };
+    }
     
     /**
      * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
@@ -121,7 +186,8 @@ public class TagsLoader
     /**
      * Creates a new instance.
      * 
-     * @param id
+     * @param id		The id of the parent the tags are related to, or 
+     * 					<code>-1</code>.
      * @param index 	One of the constants defined by this class.
      * @param images	Pass <code>true</code> to load the images related 
      * 					to the tags, <code>false</code> otherwise.
@@ -135,6 +201,20 @@ public class TagsLoader
 				break;
 			case LEVEL_TAG_SET:
 				loadCall = loadTagSetsCall(id, images, userID);
+				break;
+			default:
+				throw new IllegalArgumentException("Index not supported.");
+		}
+	}
+	
+	public TagsLoader(int index, Map<Long, List> nodes)
+	{
+		switch (index) {
+			case LEVEL_TAG:
+				loadCall = reloadTags(nodes);
+				break;
+			case LEVEL_TAG_SET:
+				//loadCall = loadTagSetsCall(id, images, userID);
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");

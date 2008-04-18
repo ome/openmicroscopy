@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.TagAnnotationData;
 
 /** 
 * Implementation of the {@link DataManagerView} implementation.
@@ -316,7 +317,10 @@ class DataManagerViewImpl
 	public CallHandle refreshHierarchy(Class rootNodeType,
 			Map<Long, List> m, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new DMRefreshLoader(rootNodeType, m);
+		BatchCallTree cmd;
+		if (TagAnnotationData.class.equals(rootNodeType))
+			cmd = new TagsLoader(TagsLoader.LEVEL_TAG, m);
+		else cmd = new DMRefreshLoader(rootNodeType, m);
 		return cmd.exec(observer);
 	}
 

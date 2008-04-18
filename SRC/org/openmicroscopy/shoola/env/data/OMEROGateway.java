@@ -63,7 +63,6 @@ import ome.api.RawPixelsStore;
 import ome.api.Search;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
-import ome.conditions.SessionTimeoutException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
@@ -208,7 +207,7 @@ class OMEROGateway
 			throw new DSOutOfServiceException(message, t);
 	}
 
-	/** Keeps the actual session alive. */
+	/** Checks if the session is still alive. */
 	private void isSessionAlive()
 	{
 		try {
@@ -216,7 +215,6 @@ class OMEROGateway
 			getSessionService().getSession(ctx.getCurrentSessionUuid());
 		} catch (Exception e) {
 			dsFactory.sessionExpiredExit();
-			//entry = new ServiceFactory(server, login);
 		}
 	}
 	
@@ -734,6 +732,20 @@ class OMEROGateway
 			connected = true;
 			
 			return getUserDetails(userName);
+		} catch (Throwable e) {
+			connected = false;
+			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
+			s += printErrorText(e);
+			throw new DSOutOfServiceException(s, e);  
+		} 
+	}
+
+	void reconnect()
+		throws DSOutOfServiceException
+	{
+		try {
+			entry = new ServiceFactory(server, login); 
+			connected = true;
 		} catch (Throwable e) {
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
@@ -2871,14 +2883,15 @@ class OMEROGateway
 	 * @param annotationType 	The class identifying the annotation to 
 	 * 							search for.
 	 * @param tagID 			The class identifying the object to search for.
-	 * @param id				The id of the parent annotation.
+	 * @param images			Pass <code>true</code> to load the images,
+	 * 							<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set loadTagAndImages(long tagID, boolean images)
+	List loadTagAndImages(long tagID, boolean images)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
@@ -2913,11 +2926,10 @@ class OMEROGateway
 			//sb.append("where ann.id = :tagID");
 			//Test
 			//
-			Set r = new HashSet();
+			List r = new ArrayList();
 			r.add(tag);
 			return r;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;

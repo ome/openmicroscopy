@@ -1059,9 +1059,8 @@ class BrowserComponent
 				view.refreshTimeFolder(expNode, results);
 			} else {
 				convertedNodes = TreeViewerTranslator.refreshHierarchy(
-						node.getResults(),
-						node.getExpandedTopNodes(), exp.getId(), 
-						exp.getDefaultGroup().getId());
+						node.getResults(), node.getExpandedTopNodes(), 
+						exp.getId(), exp.getDefaultGroup().getId());
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}

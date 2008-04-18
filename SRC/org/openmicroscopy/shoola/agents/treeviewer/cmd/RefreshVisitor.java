@@ -43,6 +43,7 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 
 /** 
@@ -120,8 +121,21 @@ public class RefreshVisitor
                 	l = new ArrayList<Long>();
                 	expandedTopNodes.put(DatasetData.class, l);
                 }
-                l.add(new Long(id));
+                l.add(id);
     		}
+        } else if ((userObject instanceof TagAnnotationData) && 
+        		node.isChildrenLoaded() && node.isExpanded()) {
+        	
+        	/*
+        	long id = ((DataObject) userObject).getId();
+            List l = expandedTopNodes.get(TagAnnotationData.class);
+            if (l == null) {
+            	l = new ArrayList<Long>();
+            	expandedTopNodes.put(TagAnnotationData.class, l);
+            }
+             l.add(id);
+            */
+        	foundNodes.add((DataObject) userObject);
         } else if ((userObject instanceof CategoryData) && 
         		node.isChildrenLoaded() && node.isExpanded()) {
         	parent = node.getParentDisplay();

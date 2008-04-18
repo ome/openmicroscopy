@@ -461,12 +461,9 @@ public class ScreenLogin
 	private String getConnectionSpeed()
 	{
 		switch (speedIndex) {
-			case LoginCredentials.HIGH:
-				return " [LAN]";
-			case LoginCredentials.MEDIUM:
-				return " [High]";
-			case LoginCredentials.LOW:
-				return " [Low]";
+			case LoginCredentials.HIGH: return " [LAN]";
+			case LoginCredentials.MEDIUM: return " [High]";
+			case LoginCredentials.LOW: return " [Low]";
 		}
 		return null;
 	}
@@ -659,7 +656,7 @@ public class ScreenLogin
 	/** Sets the text of all textFields to <code>null</code>. */
 	public void cleanFields()
 	{
-		setCursor(Cursor.getDefaultCursor());
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		user.setText("");
 		pass.setText("");
 	}
@@ -673,7 +670,7 @@ public class ScreenLogin
 	 */
 	public void cleanField(int fieldID)
 	{
-		setCursor(Cursor.getDefaultCursor());
+		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		switch (fieldID) {
 			case USERNAME_FIELD:
 				user.setText("");
@@ -717,7 +714,7 @@ public class ScreenLogin
 		if (cancel.getText() == text) return;
 		cancel.setText(text);
 		char c = text.toUpperCase().charAt(0);
-		setQuiteButtonMnemonic(c);
+		setQuitButtonMnemonic(c);
 	}
 	
 	/**
@@ -735,7 +732,7 @@ public class ScreenLogin
 	 * 
 	 * @param mnemonic The value to set.
 	 */
-	public void setQuiteButtonMnemonic(int mnemonic)
+	public void setQuitButtonMnemonic(int mnemonic)
 	{
 		cancel.setMnemonic(mnemonic);
 	}

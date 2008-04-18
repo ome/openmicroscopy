@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.LoginService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 
 import pojos.ExperimenterData;
@@ -159,12 +160,22 @@ public class DataServicesFactory
 	{
 		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
 							"Time out", "Your session has expired.\n" +
-    						"You need to restart the application.");
-        msg.setYesText("Exit");
-        msg.hideNoButton();
-        if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
+    						"You can either reconnect or exit the application");
+        msg.setYesText("Reconnect");
+        msg.setNoText("Exit");
+        if (msg.centerMsgBox() == MessageBox.NO_OPTION) {
         	shutdown();
     		container.exit();
+        } else {
+        	try {
+        		omeroGateway.reconnect();
+			} catch (Exception e) {
+				UserNotifier un = registry.getUserNotifier();
+				un.notifyInfo("Reconnect", "An error while trying to " +
+						"reconnect.\n The application will now exit. ");
+				shutdown();
+	    		container.exit();
+			}
         }
 	}
 	

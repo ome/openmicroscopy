@@ -252,7 +252,7 @@ public class TreeViewerTranslator
         TreeImageSet tag =  new TreeImageSet(data);
         Set images = data.getImages();
         //
-        if (images == null) tag.setNumberItems(-1);
+        if (images == null || images.size() == 0) tag.setNumberItems(-1);
         else {
         	tag.setChildrenLoaded(Boolean.TRUE);
         	tag.setNumberItems(images.size());
@@ -578,8 +578,9 @@ public class TreeViewerTranslator
                 			(List) expandedTopNodes.get(DatasetData.class);
                 	Set r = (Set) nodes.get(ho); //should only have one element
                 	Iterator k = r.iterator();
+                	DatasetData element;
                 	while (k.hasNext()) {
-                		DatasetData element = (DatasetData) k.next();
+                		element = (DatasetData) k.next();
                 		display = transformDataset(element, userID, groupID);
                 		if (expanded != null)
                 			display.setExpanded(
@@ -587,7 +588,22 @@ public class TreeViewerTranslator
                 		//orphan.addChildDisplay(display);
                 		results.add(display); 
                 	}
-                	
+                } else if (ho instanceof TagAnnotationData) {
+                	if (expandedTopNodes != null)
+                		expanded = 
+                		(List) expandedTopNodes.get(TagAnnotationData.class);
+                	Set r = (Set) nodes.get(ho); //should only have one element
+                	Iterator k = r.iterator();
+                	TagAnnotationData element;
+                	while (k.hasNext()) {
+                		element = (TagAnnotationData) k.next();
+                		display = transformTag(element, userID, groupID);
+                		if (expanded != null)
+                			display.setExpanded(
+                					expanded.contains(new Long(ho.getId())));
+                		//orphan.addChildDisplay(display);
+                		results.add(display); 
+                	}
                 } else if (ho instanceof CategoryData) {
                 	if (orphan == null) {
                 		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
