@@ -322,7 +322,9 @@ public class ImViewerFactory
 		ImViewerComponent comp;
 		while (v.hasNext()) {
 			comp = (ImViewerComponent) v.next();
-			if (model.isSameDisplay(comp.getModel())) return comp;
+			if (comp.getModel().getPixelsID() == model.getPixelsID())  
+				return comp;
+			//if (model.isSameDisplay(comp.getModel())) return comp;
 		}
 		comp = new ImViewerComponent(model);
 		comp.initialize();
