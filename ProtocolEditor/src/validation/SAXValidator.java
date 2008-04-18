@@ -51,6 +51,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import tree.DataFieldConstants;
 import util.XMLMethods;
 import xmlMVC.XMLModel;
 
@@ -58,6 +59,14 @@ public class SAXValidator {
 	
 	private static ArrayList<String> errorMessages = new ArrayList<String>();
 	
+	/**
+	 * This method attempts to validate the XML (xmlFile) against it's schema
+	 * (as referenced in the root element). 
+	 * Need to be on-line for this!
+	 * 
+	 * @param xmlFile	The file to be validated
+	 * @return	True if XML file is valid wrt it's schema (no errors). 
+	 */
 	public static boolean isFileValidEditorFile(File xmlFile) {
 		
 		try {
@@ -65,6 +74,30 @@ public class SAXValidator {
 			List<String> validationErrMsgs = SAXValidator.validate(document);
 			
 			return (validationErrMsgs.size() == 0);
+		} catch (SAXException e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * This is a lightweight method to determine whether a file is an OMERO.editor file. 
+	 * It simply checks whether the root element of the file is called "ProtocolTitle".
+	 * It does not check whether the file is valid against it's XSD schema.
+	 * To do that, use isFileValidEditorFile(xmlFile)
+	 * 
+	 * @param xmlFile	The file to be checked 
+	 * @return		True if the file is an XML document that begins with "ProtocolTitle" element.
+	 */
+	public static boolean isFileEditorFile(File xmlFile) {
+		
+		try {
+			Document document = XMLMethods.readXMLtoDOM(xmlFile);
+			
+			Element rootElement = document.getDocumentElement();
+			String rootName = rootElement.getNodeName();
+			
+			return (rootName.equals(DataFieldConstants.PROTOCOL_TITLE));
+			
 		} catch (SAXException e) {
 			return false;
 		}

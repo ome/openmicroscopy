@@ -373,7 +373,7 @@ public class FormFieldLink extends FormField {
 		URLlink = dataField.getAttribute(DataFieldConstants.ABSOLUTE_FILE_LINK);
 		if (URLlink != null) {
 			if ((isEditorFileExtension(URLlink))
-				&& (SAXValidator.isFileValidEditorFile(new File(URLlink))))
+				&& (SAXValidator.isFileEditorFile(new File(URLlink))))
 					linkType = LOCAL_EDITOR_LINK;
 			else
 				linkType = LOCAL_LINK;
@@ -387,7 +387,8 @@ public class FormFieldLink extends FormField {
 				File editorFile = ((DataField)dataField).getNode().getTree().getFile();
 				URLlink = FilePathMethods.getAbsolutePathFromRelativePath(editorFile, URLlink);
 				
-				if (isEditorFileExtension(URLlink)) 
+				if ((isEditorFileExtension(URLlink)) 
+					&& (SAXValidator.isFileEditorFile(new File(URLlink))))
 					linkType = RELATIVE_EDITOR_LINK;
 				else
 					linkType = RELATIVE_LINK;
