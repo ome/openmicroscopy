@@ -62,8 +62,7 @@ public class FormDisplay
 			((AbstractComponent)model).addChangeListener(this);
 		}
 		
-		this.setLayout(new BorderLayout());
-		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		initialise();
 		
 		initTreeBuild();
 	}
@@ -74,11 +73,15 @@ public class FormDisplay
 		
 		this.rootNode = rootNode;
 		
-		this.setLayout(new BorderLayout());
-		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		
+		initialise();
 				
 		initTreeBuild();
+	}
+	
+	public void initialise() {
+		this.setLayout(new BorderLayout());
+		this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		this.setBackground(Color.white);
 	}
 	
 	public void initTreeBuild() {

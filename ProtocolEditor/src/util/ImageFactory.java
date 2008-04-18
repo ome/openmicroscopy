@@ -119,6 +119,25 @@ public class ImageFactory {
 	public static final String RED_ASTERISK_ICON = ACTION_ICONS_FILE + "red_asterisk.png";
 	public static final String RED_ASTERISK_WARNING_ICON = ACTION_ICONS_FILE + "red_asterisk_warning.png";
 	
+	public static final String BORDER_TOP_LEFT = ACTION_ICONS_FILE + "BorderImages/topLeft.gif";
+	public static final String BORDER_TOP = ACTION_ICONS_FILE + "BorderImages/top.gif";
+	public static final String BORDER_TOP_RIGHT = ACTION_ICONS_FILE + "BorderImages/topRight.gif";
+	public static final String BORDER_LEFT = ACTION_ICONS_FILE + "BorderImages/left.gif";
+	public static final String BORDER_RIGHT = ACTION_ICONS_FILE + "BorderImages/right.gif";
+	public static final String BORDER_BOTTOM_LEFT = ACTION_ICONS_FILE + "BorderImages/bottomLeft.gif";
+	public static final String BORDER_BOTTOM = ACTION_ICONS_FILE + "BorderImages/bottom.gif";
+	public static final String BORDER_BOTTOM_RIGHT = ACTION_ICONS_FILE + "BorderImages/bottomRight.gif";
+	
+	public static final String BORDER_TOP_LEFT_HLT = ACTION_ICONS_FILE + "BorderImages/topLeftHlt.gif";
+	public static final String BORDER_TOP_HLT = ACTION_ICONS_FILE + "BorderImages/topHlt.gif";
+	public static final String BORDER_TOP_RIGHT_HLT = ACTION_ICONS_FILE + "BorderImages/topRightHlt.gif";
+	public static final String BORDER_LEFT_HLT = ACTION_ICONS_FILE + "BorderImages/leftHlt.gif";
+	public static final String BORDER_RIGHT_HLT = ACTION_ICONS_FILE + "BorderImages/rightHlt.gif";
+	public static final String BORDER_BOTTOM_LEFT_HLT = ACTION_ICONS_FILE + "BorderImages/bottomLeftHlt.gif";
+	public static final String BORDER_BOTTOM_HLT = ACTION_ICONS_FILE + "BorderImages/bottomHlt.gif";
+	public static final String BORDER_BOTTOM_RIGHT_HLT = ACTION_ICONS_FILE + "BorderImages/bottomRightHlt.gif";
+	
+	
 	
 	public Icon getIcon(String iconPathName) {
 		try {

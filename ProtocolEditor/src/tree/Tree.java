@@ -39,6 +39,7 @@ import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import javax.swing.undo.UndoableEditSupport;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -429,9 +430,14 @@ public class Tree
 			 String oldInputType = allAttributes.get(DataFieldConstants.INPUT_TYPE);
 			 allAttributes.put(DataFieldConstants.INPUT_TYPE, DataField.getNewInputTypeFromOldInputType(oldInputType));
 		 } else {
-			 // inputType is null, this is the new xml version: Use NodeName for inputType
-			 // if this is not recognised later (ie reading custom xml) it will get set to CUSTOM 
-			 allAttributes.put(DataFieldConstants.INPUT_TYPE, elementName);
+			 /* 
+			  * InputType is null: Therefore this is the 'new' xml version: 
+			  * Use <NodeName> for inputType IF the inputType is recognised.
+			  */
+			 if (DataFieldConstants.isInputTypeRecognised(elementName))
+				 allAttributes.put(DataFieldConstants.INPUT_TYPE, elementName);
+			 else 
+				 allAttributes.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.CUSTOM);
 		 }
 		 
 		 // if the xml file's elements don't have "elementName" attribute, use the <tagName>
@@ -860,8 +866,8 @@ public class Tree
 			buildDOMchildrenFromTree(document, treeRootNode, element);
 			
 			
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		} catch (DOMException ex) {
+			throw ex;
 		}
 		
 	}
@@ -907,10 +913,16 @@ public class Tree
 	private static void parseAttributesMapToElement(HashMap<String, String> allAttributes, Element element) {
 		
 		String inputType = allAttributes.get(DataFieldConstants.INPUT_TYPE);
+		
+		System.out.println("Tree parseAttributesMapToElement: inputType = " + inputType);
+		
 		boolean customElement = false;
 		if ((inputType == null)) customElement = true;
 		else if (inputType.equals(DataFieldConstants.CUSTOM)) customElement = true;
-				
+		
+		System.out.println("Tree parseAttributesMapToElement: customElement = " + customElement);
+		
+		
 		Iterator keyIterator = allAttributes.keySet().iterator();
 		
 		while (keyIterator.hasNext()) {
@@ -1299,6 +1311,66 @@ public class Tree
 				 * And it isn't filled out, return false. 
 				 */
 				if (! field.isFieldFilled())
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * This checks to see if any field that has a default value, also has a value that 
+	 * would be over-written if defaults were loaded. 
+	 * Used to give users a warning that loading defaults (whole tree) would over-write stuff. 
+	 * 
+	 * @return	True if any field with a default value is not cleared.
+	 */
+	public boolean isAnyDefaultFieldFilled() {
+		
+		Iterator<DataFieldNode> iterator = rootNode.iterator();
+		
+		while (iterator.hasNext()) {
+			DataFieldNode node = iterator.next();
+			DataField field = node.getDataField();
+			/*
+			 * If this field has a default value...
+			 */
+			if (field.getAttribute(DataFieldConstants.DEFAULT) != null) {
+				/*
+				 * And the destination to copy this value isn't empty...
+				 * return true.
+				 */
+				String valueAttribute = EditCopyDefaultValues.getValueAttributeForLoadingDefault(field);
+				String currentValue = field.getAttribute(valueAttribute);
+				if ((currentValue != null) && (currentValue.length() > 0))
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * This checks to see if any highlighted field that has a default value, also has a value that 
+	 * would be over-written if defaults were loaded. 
+	 * Used to give users a warning that loading defaults (highlighted fields) would over-write stuff. 
+	 * 
+	 * @return	True if any highlighted field with a default value is not empty.
+	 */
+	public boolean isAnyHighlightedDefaultFieldFilled() {
+		
+		for (DataFieldNode node : highlightedFields) {
+			DataField field = node.getDataField();
+			/*
+			 * If this field has a default value...
+			 */
+			if (field.getAttribute(DataFieldConstants.DEFAULT) != null) {
+				/*
+				 * And the destination to copy this value isn't empty...
+				 * return true.
+				 */
+				String valueAttribute = EditCopyDefaultValues.getValueAttributeForLoadingDefault(field);
+				String currentValue = field.getAttribute(valueAttribute);
+				if ((currentValue != null) && (currentValue.length() > 0))
 					return true;
 			}
 		}

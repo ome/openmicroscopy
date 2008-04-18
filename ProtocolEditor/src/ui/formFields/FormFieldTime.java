@@ -128,8 +128,8 @@ public class FormFieldTime extends FormField {
 	 * @return	the name of the attribute that holds the "value" of this field
 	 */
 	public String[] getValueAttributes() {
-		return new String[] {DataFieldConstants.VALUE,		// this is the old attribute (not used now)
-				DataFieldConstants.SECONDS};		
+		return new String[] {DataFieldConstants.SECONDS,
+				DataFieldConstants.VALUE};	// this is the old attribute (not used now)	
 	}
 	
 	/**

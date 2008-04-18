@@ -41,6 +41,24 @@ import tree.Tree.Actions;
 public interface IModel {
 	
 	/**
+	 * This checks to see if any highlighted field that has a default value, also has a value that 
+	 * would be over-written if defaults were loaded. 
+	 * Used to give users a warning that loading defaults (highlighted fields) would over-write stuff. 
+	 * 
+	 * @return	True if any highlighted field with a default value is not empty.
+	 */
+	public boolean isAnyHighlightedDefaultFieldFilled();
+	
+	/**
+	 * This checks to see if any field that has a default value, also has a value that 
+	 * would be over-written if defaults were loaded. 
+	 * Used to give users a warning that loading defaults (whole tree) would over-write stuff. 
+	 * 
+	 * @return	True if any field with a default value is not cleared.
+	 */
+	public boolean isAnyDefaultFieldFilled();
+	
+	/**
 	 * This checks to see if any field marked as "Required" (DataFieldConstants.REQUIRED_FIELD = 'true')
 	 * is also not filled out (ie dataField.isFieldFilled() is false). 
 	 * Used for ensuring that "required" fields are not left blank when the form is saved.
@@ -128,7 +146,14 @@ public interface IModel {
 	
 	public File getCurrentFile();
 	
-	public void saveTreeToXmlFile(File file);
+	/**
+	 * This Saves the data in the current Tree, into an XML file, as
+	 * defined by "file";
+	 * This method is used by "Save" and "Save-As" actions.
+	 * 
+	 * @return 	true if saving went OK (no exceptions etc). 
+	 */
+	public boolean saveTreeToXmlFile(File file);
 
 	public String[] getOpenFileList();
 	

@@ -354,5 +354,30 @@ public class DataFieldConstants {
 		"Image", "Ontology Term", "Phenote Observation"
 		};
 
-	
+	/**
+	 * When importing XML, need to distinguish between OMERO.editor elements and "Custom" XML elements
+	 * generated elsewhere. 
+	 * This method checks all the OMERO.editor input types, and returns true if found.
+	 * 
+	 * @param inputType		The String that defines the <inputType> of an imported element.
+	 * @return		true if inputType equals a recognised OMERO.editor input type. 
+	 */
+	public static boolean isInputTypeRecognised(String inputType) {
+		
+		/*
+		 * Check each of INPUT_TYPES, and check PROTOCOL_TITLE
+		 */
+		for (int i=0; i<INPUT_TYPES.length; i++) {
+			if (inputType.equals(INPUT_TYPES[i]))
+				return true;
+		}
+		if (inputType.equals(PROTOCOL_TITLE))
+			return true;
+		
+		// Also, the deprecated Date Field.
+		if (inputType.equals(DATE))
+			return true;
+		
+		return false;
+	}
 }

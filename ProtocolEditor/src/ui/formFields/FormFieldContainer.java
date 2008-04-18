@@ -75,6 +75,7 @@ public class FormFieldContainer extends JPanel {
 		
 		this.dataFieldNode = dataFieldNode;
 		
+		this.setBackground(null);
 		setLayout(new BorderLayout());
 		//setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 		
@@ -89,6 +90,7 @@ public class FormFieldContainer extends JPanel {
 		
 		childContainer = new JToolBar(JToolBar.VERTICAL);
 		//childContainer.setBorder(new EtchedBorder());
+		childContainer.setBackground(null);
 		childContainer.setFloatable(false);
 		childContainer.setBorder(BorderFactory.createEmptyBorder(0, childLeftIndent, 0, 0));
 	
@@ -96,6 +98,7 @@ public class FormFieldContainer extends JPanel {
 		formField.setChildContainer(childContainer);
 		
 		JPanel nicerLayoutPanel = new JPanel(new BorderLayout());
+		nicerLayoutPanel.setBackground(null);
 		nicerLayoutPanel.add(childContainer, BorderLayout.NORTH);
 		
 		add(nicerLayoutPanel, BorderLayout.CENTER);

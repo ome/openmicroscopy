@@ -75,8 +75,11 @@ public class SaveFileAction
 					"\n This will over-write the original file",
 					"Save Changes?", JOptionPane.OK_CANCEL_OPTION);
 			if (option == JOptionPane.OK_OPTION) {
-				model.saveTreeToXmlFile(model.getCurrentFile());
-				JOptionPane.showMessageDialog(frame, "Experiment saved.");
+				/*
+				 * Try saving the file, and give a confirmation if it was successful. 
+				 */
+				if(model.saveTreeToXmlFile(model.getCurrentFile()))
+					JOptionPane.showMessageDialog(frame, "Experiment saved.");
 			}
 		}
 	}

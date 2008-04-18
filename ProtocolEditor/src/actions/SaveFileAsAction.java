@@ -107,8 +107,11 @@ public class SaveFileAsAction
             		return;
             	}
         	}
-            
-            model.saveTreeToXmlFile(xmlFile);
+            /*
+			 * Try saving the file, and give a confirmation if it was successful. 
+			 */
+			if(model.saveTreeToXmlFile(xmlFile))
+				JOptionPane.showMessageDialog(frame, "Experiment saved.");
             
             // refreshFileEdited();
 		}

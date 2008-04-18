@@ -111,7 +111,8 @@ public class FormFieldOLS extends FormField {
 	 * @return	True if the field has been filled out by user (Required values are not null)
 	 */
 	public boolean isFieldFilled() {
-		return (dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID) != null);
+		String value = dataField.getAttribute(DataFieldConstants.ONTOLOGY_TERM_ID);
+		return ((value != null) && (value.length() > 0));
 	}
 	
 	// when a term is loaded (constructor) or selected from the drop-down options 

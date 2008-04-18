@@ -344,21 +344,23 @@ public class XMLModel
 	}
 	
 	// convert the tree data-structure to it's xml representation as a DOM document
-	public void writeTreeToDOM() {
+	public boolean writeTreeToDOM() {
 		
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		
 		try {
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			outputDocument = db.newDocument();
+			Tree tree = getCurrentTree();
+			Tree.buildDOMfromTree(tree.getRootNode(), outputDocument);
+			return true;
 		} catch (Exception ex) { 
 			// show error and give user a chance to submit error
 			ExceptionHandler.showErrorDialog("File failed to export to XML.",
 					"Cannot create new output DOM Document", ex);
-			
+			return false;
 		}
-		Tree tree = getCurrentTree();
-		Tree.buildDOMfromTree(tree.getRootNode(), outputDocument);
+		
 	} 
 	
 	
@@ -399,18 +401,24 @@ public class XMLModel
 	 * This is used by SaveFileAs action as well as Save action (once user has confirmed over-write).
 	 * Can't tell at this stage whether outputFile is new or being overwritten.
 	 * This also saves (or updates) the file to the calendar database. 
+	 * 
+	 * @return 	true if saving went OK (no exceptions etc). 
 	 */
-	public void saveTreeToXmlFile(File outputFile) {
-		saveToXmlFile(outputFile);
+	public boolean saveTreeToXmlFile(File outputFile) {
+		boolean savedOK = saveToXmlFile(outputFile);
 		
-		// try to over-write an existing file in the calendar database (returns false if none found).
-		boolean fileInDB = omeroEditorCalendar.updateCalendarFileInDB(outputFile);
-		
-		if (!fileInDB) {
-			omeroEditorCalendar.addCalendarFileToDB(outputFile);
+		if (savedOK) {
+			// try to over-write an existing file in the calendar database (returns false if none found).
+			boolean fileInDB = omeroEditorCalendar.updateCalendarFileInDB(outputFile);
+			
+			if (!fileInDB) {
+				omeroEditorCalendar.addCalendarFileToDB(outputFile);
+			}
 		}
 		
 		selectionChanged();		// updates View with any changes in file names
+		
+		return savedOK;
 	}
 	
 	/**
@@ -419,9 +427,10 @@ public class XMLModel
 	 * Each Node (or dataField) of the tree will become an XML element and the
 	 * structure of the tree will be replicated in the XML file. 
 	 * 
-	 * @param outputFile	The XML file to which the current tree will be saved. 
+	 * @param outputFile	The XML file to which the current tree will be saved.
+	 * @return 		true if the save action went OK 
 	 */
-	private void saveToXmlFile(File outputFile) {
+	private boolean saveToXmlFile(File outputFile) {
 //		 always note the xml version (unless this is custom element)
 		if (!getRootNode().getDataField().isCustomInputType()) {
 			
@@ -438,25 +447,56 @@ public class XMLModel
 			getRootNode().getDataField().notifyDataFieldObservers();
 		}
 		
-		// now you can save
-		writeTreeToDOM();
+		/*
+		 * Now you can save.
+		 * If writeTreeToDOM() returns false, there was a problem creating the outputDocument,
+		 * so DON'T overwrite the existing file
+		 */
+		boolean writtenToDOM = writeTreeToDOM();
+		
+		if ((!writtenToDOM) && (outputFile.exists())) {
 			
-		Transformer transformer;
-		try {
-			transformer = TransformerFactory.newInstance().newTransformer();
-			Source source = new DOMSource(outputDocument);
-			Result output = new StreamResult(outputFile);
-			transformer.transform(source, output);
+			JOptionPane.showMessageDialog(null, "Error in saving file \n" +
+					"(Problem creating DOM document)\n" +
+					"It is not possible to save the complete file.\n" +
+					"Use 'SAVE-AS' to save as much as possible without\n" +
+					"over-writing the existing file.", "Save Error", JOptionPane.ERROR_MESSAGE);
 			
-			setCurrentFile(outputFile);	// remember the current file. 
-			getCurrentTree().setTreeEdited(false);
+			return false;
 			
-		} catch (TransformerException e) {
+		} else {
+			/*
+			 * It is OK to save (won't overwrite) but still give warning if 
+			 * there was a problem..
+			 */
+			if (!writtenToDOM) {
+				JOptionPane.showMessageDialog(null, "Problem in saving file \n" +
+						"(Problem creating DOM document)\n" +
+						"Part of the file may not have been saved", 
+						"Save Error", JOptionPane.ERROR_MESSAGE);
+			}
 			
-			// show error and give user a chance to submit error
-			ExceptionHandler.showErrorDialog("XML Transformer Exception",
-					"Error in saving file.", e);
+			/*
+			 * If outputDocument created OK, save to file...
+			 */
+			Transformer transformer;
+			try {
+				transformer = TransformerFactory.newInstance().newTransformer();
+				Source source = new DOMSource(outputDocument);
+				Result output = new StreamResult(outputFile);
+				transformer.transform(source, output);
+				
+				setCurrentFile(outputFile);	// remember the current file. 
+				getCurrentTree().setTreeEdited(false);
+				
+			} catch (TransformerException e) {
+				
+				// show error and give user a chance to submit error
+				ExceptionHandler.showErrorDialog("XML Transformer Exception",
+						"Error in saving file.", e);
+			}
 			
+			return (writtenToDOM);
 		}
 	}
 	
@@ -602,6 +642,30 @@ public class XMLModel
 	public boolean isAnyRequiredFieldEmpty() {
 		if (getCurrentTree() == null) return false;
 		return getCurrentTree().isAnyRequiredFieldEmpty();
+	}
+	
+	/**
+	 * This checks to see if any field that has a default value, also has a value that 
+	 * would be over-written if defaults were loaded. 
+	 * Used to give users a warning that loading defaults (whole tree) would over-write stuff. 
+	 * 
+	 * @return	True if any field with a default value is not cleared.
+	 */
+	public boolean isAnyDefaultFieldFilled() {
+		if (getCurrentTree() == null) return false;
+		return getCurrentTree().isAnyDefaultFieldFilled();
+	}
+	
+	/**
+	 * This checks to see if any highlighted field that has a default value, also has a value that 
+	 * would be over-written if defaults were loaded. 
+	 * Used to give users a warning that loading defaults (highlighted fields) would over-write stuff. 
+	 * 
+	 * @return	True if any highlighted field with a default value is not empty.
+	 */
+	public boolean isAnyHighlightedDefaultFieldFilled() {
+		if (getCurrentTree() == null) return false;
+		return getCurrentTree().isAnyHighlightedDefaultFieldFilled();
 	}
 	
 	// works on numerical fields only

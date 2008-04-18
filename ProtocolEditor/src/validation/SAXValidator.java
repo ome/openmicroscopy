@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -43,22 +44,38 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import util.XMLMethods;
+import xmlMVC.XMLModel;
+
 public class SAXValidator {
 	
 	private static ArrayList<String> errorMessages = new ArrayList<String>();
+	
+	public static boolean isFileValidEditorFile(File xmlFile) {
+		
+		try {
+			Document document = XMLMethods.readXMLtoDOM(xmlFile);
+			List<String> validationErrMsgs = SAXValidator.validate(document);
+			
+			return (validationErrMsgs.size() == 0);
+		} catch (SAXException e) {
+			return false;
+		}
+	}
 	
 	
 	// validate a DOM document. 
 	// need to convert to SAX first....
 	static public ArrayList<String> validate(Document document) throws SAXException {
 		Transformer transformer;
-		File tempFile = new File("temp");
+		File tempFile = new File(XMLModel.OMERO_EDITOR_FILE + "/xmlValidation.xml");
 		try {
 			// transform to SAX by outputting to temp file...
 			transformer = TransformerFactory.newInstance().newTransformer();
@@ -68,6 +85,10 @@ public class SAXValidator {
 			
 			// now validate file via SAX
 			validate(tempFile.getAbsolutePath());
+			
+			// and delete the temp file
+			//tempFile.delete();
+			
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace();
 		} catch (TransformerFactoryConfigurationError e) {

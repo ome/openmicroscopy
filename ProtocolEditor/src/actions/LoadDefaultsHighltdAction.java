@@ -25,6 +25,7 @@ package actions;
 import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 
 import tree.Tree.Actions;
@@ -51,6 +52,20 @@ public class LoadDefaultsHighltdAction extends ProtocolEditorAction {
 	}
 	
 	public void actionPerformed(ActionEvent e) {
+		
+		/*
+		 * Check to see if you will overwrite any existing values with defaults...
+		 */
+		if (model.isAnyHighlightedDefaultFieldFilled()) {
+			// ..if so, give user option to cancel
+			int okCancel = JOptionPane.showConfirmDialog(frame, 
+					"Loading defaults will over-write existing values.\n" +
+					"Are you sure you want to continue?", "Overwrite existing values?",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (okCancel == JOptionPane.CANCEL_OPTION)
+				return;
+		}
+		
 		model.editCurrentTree(Actions.LOAD_DEFAULTS_HIGHLIGHTED_FIELDS);
 	}
 	

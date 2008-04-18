@@ -63,17 +63,36 @@ public class EditCopyDefaultValues extends AbstractUndoableEdit {
 		
 		while (iterator.hasNext()) {
 			DataField field = (DataField)iterator.next().getDataField();
-			String[] valueAttbs = field.getValueAttributes();
-			if (valueAttbs.length != 1) 
-				continue;
-			String valueAttribute = valueAttbs[0];		// find where the "value" of this field is stored
-			String oldValue = field.getAttribute(valueAttribute);	// may be null
+	
 			String newValue = field.getAttribute(DataFieldConstants.DEFAULT);
 			
 			if (newValue != null) {		// make a list of all fields that have a default value
+				
+				String valueAttribute = getValueAttributeForLoadingDefault(field);
+				String oldValue = field.getAttribute(valueAttribute);	// may be null
+				
 				editedFields.add(new EditDataFieldAttribute(field, valueAttribute, oldValue, newValue));	// keep a reference to fields that have been edited
 			}
 		}
+	}
+	
+	/**
+	 * Fields that have a default value (DataFieldConstants.DEFAULT attribute) should 
+	 * have a corresponding "value" attribute, where the default value is copied 
+	 * when loading default values. 
+	 * Assume that fields with a default value only have ONE value attribute, returned 
+	 * by DataField.getValueAttributes(), or that the value for loading defaults is the
+	 * first in this list. 
+	 * 
+	 * @param field
+	 * @return
+	 */
+	public static String getValueAttributeForLoadingDefault(DataField field) {
+		String[] valueAttbs = field.getValueAttributes();
+		if (valueAttbs.length == 0) 
+			return null;
+		
+		return valueAttbs[0];		// find where the "value" of this field is stored
 	}
 	
 	public void undo() {

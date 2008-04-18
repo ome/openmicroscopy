@@ -117,6 +117,7 @@ public class FormFieldImage extends FormField {
 
 		
 		JToolBar imageToolBar = new JToolBar("Close to dock");
+		imageToolBar.setBackground(null);
 		imageToolBar.add(getImageButton);
 		imageToolBar.add(zoomButton);
 		JPanel toolBarContainer = new JPanel(new BorderLayout());

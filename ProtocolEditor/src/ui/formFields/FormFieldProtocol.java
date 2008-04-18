@@ -55,7 +55,7 @@ public class FormFieldProtocol extends FormField {
 		
 		horizontalBox.add(Box.createHorizontalStrut(5));
 		
-		this.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
+		// this.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 	}
 	
 	// overridden by subclasses if they have other attributes to retrieve from dataField

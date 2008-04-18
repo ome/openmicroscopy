@@ -55,6 +55,7 @@ import util.BareBonesBrowserLaunch;
 import util.FilePathMethods;
 import util.ImageFactory;
 import util.PreferencesManager;
+import validation.SAXValidator;
 
 
 public class FormFieldLink extends FormField {
@@ -371,8 +372,9 @@ public class FormFieldLink extends FormField {
 		 */
 		URLlink = dataField.getAttribute(DataFieldConstants.ABSOLUTE_FILE_LINK);
 		if (URLlink != null) {
-			if (isEditorFileExtension(URLlink)) 
-				linkType = LOCAL_EDITOR_LINK;
+			if ((isEditorFileExtension(URLlink))
+				&& (SAXValidator.isFileValidEditorFile(new File(URLlink))))
+					linkType = LOCAL_EDITOR_LINK;
 			else
 				linkType = LOCAL_LINK;
 		}

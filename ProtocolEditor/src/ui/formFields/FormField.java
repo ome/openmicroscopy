@@ -59,6 +59,7 @@ import tree.IDataFieldSelectable;
 import ui.FormDisplay;
 import ui.IModel;
 import ui.XMLView;
+import ui.components.ImageBorder;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
@@ -89,7 +90,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	/*
 	 * swing components
 	 */ 
-	Box horizontalFrameBox;
+	JPanel horizontalFrameBox;
 	Box horizontalBox;
 	JButton collapseButton;	
 	JLabel nameLabel;
@@ -113,7 +114,11 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	boolean childrenCollapsed = false; 	// used for root field only - to toggle all collapsed
 	
 	boolean highlighted = false;
-	Color backgroundColour = null;
+	Color paintedColour = null;
+	public static final Color DEFAULT_BACKGROUND = new Color(237, 239, 246);
+	
+	Border imageBorder;
+	Border imageBorderHighlight;
 	
 	Icon collapsedIcon;
 	Icon notCollapsedIcon;
@@ -138,8 +143,13 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		//System.out.println("FormField Constructor: name is " + dataField.getAttribute(DataFieldConstants.ELEMENT_NAME));
 		
 		// build the formField panel
-		Border eb = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-		this.setBorder(eb);
+		Border eb = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+		
+		imageBorder = ImageBorder.getImageBorder();
+		imageBorderHighlight = ImageBorder.getImageBorderHighLight();
+		
+		this.setBorder(imageBorder);
+		this.setBackground(DEFAULT_BACKGROUND);
 		this.setLayout(new BorderLayout());
 		//this.setFocusable(true);
 		this.addMouseListener(new FormPanelMouseListener());
@@ -153,18 +163,25 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		 * This button is only visible if this field has some children. 
 		 */
 		collapseButton = new JButton();
+		//collapseButton.setBorder(BorderFactory.createLineBorder(Color.red));
 		collapseButton.setFocusable(false);
 		collapseButton.setVisible(false);	// only made visible if hasChildren
 		collapseButton.setBackground(null);
-		unifiedButtonLookAndFeel(collapseButton);
+		//unifiedButtonLookAndFeel(collapseButton);
 		collapsedIcon = ImageFactory.getInstance().getIcon(ImageFactory.COLLAPSED_ICON);
 		notCollapsedIcon = ImageFactory.getInstance().getIcon(ImageFactory.NOT_COLLAPSED_ICON);
 		if (subStepsCollapsed) collapseButton.setIcon(collapsedIcon);
 		else collapseButton.setIcon(notCollapsedIcon);
 		collapseButton.setToolTipText("Collapse or Expand sub-steps");
 		collapseButton.setBorder(new EmptyBorder(2,2,2,2));
+		//collapseButton.setOpaque(true);
 		collapseButton.addActionListener(new CollapseListener());
 		collapseButton.addMouseListener(new FormPanelMouseListener());
+		/*
+		JPanel collapseButtonContainer = new JPanel(new BorderLayout());
+		collapseButtonContainer.setBackground(null);
+		collapseButtonContainer.add(collapseButton, BorderLayout.WEST);
+		*/
 		
 		/*
 		 * A label to display the name of the field.
@@ -235,8 +252,9 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		 * horizontalFrameBox holds collapseButton and then the BorderLayout JPanel
 		 * nameLabel is in the WEST of this, then the horizontalBox for all other items is in the CENTER
 		 */
-		horizontalFrameBox = Box.createHorizontalBox();
-		horizontalFrameBox.add(collapseButton);
+		horizontalFrameBox = new JPanel(new BorderLayout());
+		horizontalFrameBox.setBackground(null);
+		horizontalFrameBox.add(collapseButton, BorderLayout.WEST);
 		
 		JPanel contentsNorthPanel = new JPanel(new BorderLayout());
 		contentsNorthPanel.setBackground(null);
@@ -248,7 +266,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		horizontalBox.add(collapseAllChildrenButton);
 		horizontalBox.add(Box.createHorizontalStrut(10));
 		contentsNorthPanel.add(horizontalBox, BorderLayout.CENTER);
-		horizontalFrameBox.add(contentsNorthPanel);
+		horizontalFrameBox.add(contentsNorthPanel, BorderLayout.CENTER);
 
 		// refresh the current state
 		// can't call dataFieldUpdated() because subclasses override it, and try to 
@@ -423,9 +441,11 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	private void refreshHighlighted() {
 		if (highlighted) { 
 			this.setBackground(XMLView.BLUE_HIGHLIGHT);
+			this.setBorder(imageBorderHighlight);
 		}
 		else {
-			this.setBackground(backgroundColour);
+			this.setBackground((paintedColour == null) ? DEFAULT_BACKGROUND : paintedColour);
+			this.setBorder(imageBorder);
 		}
 	}
 	
@@ -625,8 +645,9 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
     }
 	
 	private void refreshBackgroundColour() {
-		backgroundColour = getColorFromString(dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR));
-		horizontalFrameBox.setBackground(backgroundColour);
+		paintedColour = getColorFromString(dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR));
+		
+		refreshHighlighted();
 	}
 	
 	// used to convert a stored string Colour attribute to a Color
@@ -652,7 +673,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	 */ 
 	public int getHeightOfPanelBottom() {
 		if (isThisRootField()) {
-			System.out.println("FormField getHeightOfPanelBottom ROOT = " + getHeight());
+			//System.out.println("FormField getHeightOfPanelBottom ROOT = " + getHeight());
 			return this.getHeight();
 		// if panel has a parent, this panel will be within a box, below the parent
 		} else {
@@ -660,7 +681,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 			// then add parent's position - will call recursively 'till root.
 			//y = y + ((FormField)df.getNode().getParentNode().getDataField().getFormField()).getHeightOfPanelBottom();
 			y = y + ((FormFieldContainer)this.getParent()).getYPositionWithinRootContainer();
-			System.out.println("   FormField getHeightOfPanelBottom = " + y);
+			//System.out.println("   FormField getHeightOfPanelBottom = " + y);
 			return y;
 		}
 	}
