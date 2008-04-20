@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -39,7 +38,6 @@ import javax.swing.JOptionPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.annotations.FileAnnotation;
 import ome.model.core.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -51,7 +49,6 @@ import org.openmicroscopy.shoola.svc.transport.HttpChannel;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.FileAnnotationData;
 
 /** 
  * Acts a controller. Listens to property changes fired by the 
@@ -237,9 +234,10 @@ class UserNotifierManager
 	/**
 	 * Starts to download the file corresponding to the passed object.
 	 * 
-	 * @param file The file to handle.
+	 * @param file 		The file to handle.
+	 * @param directory The directory where to save locally the file.
 	 */
-	void saveFileToDisk(OriginalFile file)
+	void saveFileToDisk(OriginalFile file, File directory)
 	{
 		if (file == null) return;
 		if (download == null) {
@@ -248,15 +246,15 @@ class UserNotifierManager
 			download = new DownloadsDialog(f, IconManager.getInstance(reg));
 			download.addPropertyChangeListener(this);
 		}
-		//Need to make sure that file with same name does not exist.
-		JFileChooser chooser = new JFileChooser();
-		//File dir = UIUtilities.getDefaultFolder();
-        //if (dir != null) chooser.setCurrentDirectory(dir);
+		if (directory == null) {
+			//Need to make sure that file with same name does not exist.
+			JFileChooser chooser = new JFileChooser();
+	        //Get the current directory
+			directory = chooser.getCurrentDirectory();
+		}
 		
-        //Get the current directory
-        File dir = chooser.getCurrentDirectory();
-        File[] files = dir.listFiles();
-        String dirPath = dir+File.separator;
+        File[] files = directory.listFiles();
+        String dirPath = directory+File.separator;
         String name = getFileName(files, file, file.getName(), dirPath, 1);
         String path = dirPath+name;
 		FileLoader loader = new FileLoader(component, 
@@ -274,9 +272,10 @@ class UserNotifierManager
 	/**
 	 * Starts to download the file corresponding to the passed object.
 	 * 
-	 * @param data The data to handle.
+	 * @param data 		The data to handle.
+	 * @param directory The directory where to save locally the files.
 	 */
-	void saveFileToDisk(Collection data)
+	void saveFileToDisk(Collection data, File directory)
 	{
 		if (data == null) return;
 		if (download == null) {
@@ -285,15 +284,17 @@ class UserNotifierManager
 			download = new DownloadsDialog(f, IconManager.getInstance(reg));
 			download.addPropertyChangeListener(this);
 		}
-		//Need to make sure that file with same name does not exist.
-		JFileChooser chooser = new JFileChooser();
-		//File dir = UIUtilities.getDefaultFolder();
-        //if (dir != null) chooser.setCurrentDirectory(dir);
+		if (directory == null) {
+			JFileChooser chooser = new JFileChooser();
+			//File dir = UIUtilities.getDefaultFolder();
+	        //if (dir != null) chooser.setCurrentDirectory(dir);
+			
+	        //Get the current directory
+			directory = chooser.getCurrentDirectory();
+		}
 		
-        //Get the current directory
-		File dir = chooser.getCurrentDirectory();
-        File[] files = dir.listFiles();
-        String dirPath = dir+File.separator;
+        File[] files = directory.listFiles();
+        String dirPath = directory+File.separator;
         Iterator i = data.iterator();
         String name;
         String path;

@@ -28,7 +28,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -53,9 +52,9 @@ import java.util.Set;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -164,58 +163,61 @@ class AttachmentsUI
 	private static final Dimension 	SCROLL_SIZE = new Dimension (100, 150);
 
 	/** Button to add a new file. */
-	private JButton							addButton;
+	private JButton								addButton;
 	
 	/** Collection of annotation files to remove. */
-	private List<AnnotationData> 			removedFiles;
+	private List<AnnotationData> 				removedFiles;
 	
 	/** Collection of supported file formats. */
-	private List<FileFilter>				filters;
+	private List<FileFilter>					filters;
 	
 	/** Collection of files to attach to the object. */
-	private List<File>						addedFiles;
+	private List<File>							addedFiles;
 	
 	/** Collection of files to attach to the object. */
-	private List<FileAnnotationData>		addedFileAnnotations;
+	private List<FileAnnotationData>			addedFileAnnotations;
 	
 	/** Map used to handle the files to add. */
-	private Map<Integer, Object>			rows;
+	private Map<Integer, Object>				rows;
 	
-	/** Map hosting the label displaying the files that can be downloaded. */
-	private Map<JLabel, FileAnnotationData> toDownload;
+	/** Collection of {@link AttachmentComponent}s. */
+	private List<AttachmentComponent> 			toDownload;
 	
 	/** The label corresponding to the selected file. */
-	private JLabel							selectedFile;
+	private AttachmentComponent					selectedFile;
+	
+	/** The selected annotation. Used to synchronize the various view. */
+	private FileAnnotationData					selectedAnnotation;
 	
 	/** The toolbar displaying the layout options. */
-	private JToolBar						toolBar;
+	private JToolBar							toolBar;
 	
 	/** The layout index used to display the attachments. */
-	private int								viewIndex;
+	private int									viewIndex;
 	
 	/** The selection menu. */
-	private JPopupMenu						selectionMenu;
+	private JPopupMenu							selectionMenu;
 	
 	/** The order by menu. */
-	private JPopupMenu						orderByMenu;
+	private JPopupMenu							orderByMenu;
 	
 	/** The management menu. */
-	private JPopupMenu						managementMenu;
+	private JPopupMenu							managementMenu;
 	
 	/** The panel hosting the added files. */
-	private JPanel							toAddPane;
+	private JPanel								toAddPane;
 	
 	/** The panel hosting the attachments. */
-	private JScrollPane 					pane;
+	private JScrollPane 						pane;
 	
 	/** Button used to display the {@link #orderByMenu}. */
-	private JButton 						arrangeByButton;
+	private JButton 							arrangeByButton;
 	
 	/** The layout index used to display the attachments. */
-	private int								orderByIndex;
+	private int									orderByIndex;
 	
 	/** Keeps tracks of the comparator. */
-	private Map<Integer, Comparator>		comparators;
+	private Map<Integer, Comparator>			comparators;
 	
 	/**
 	 * Creates the order by menu.
@@ -249,31 +251,6 @@ class AttachmentsUI
 		item.setToolTipText(tip+"kind.");
 		orderByMenu.add(item);
 		return orderByMenu;
-	}
-	
-	/**
-	 * Creates the management menu.
-	 * 
-	 * @return See above.
-	 */
-	private JPopupMenu createManagementMenu()
-	{
-		if (managementMenu != null) return managementMenu;
-		IconManager icons = IconManager.getInstance();
-		managementMenu = new JPopupMenu();
-		JMenuItem item = new JMenuItem("Remove");
-		item.addActionListener(this);
-		item.setActionCommand(DELETE_ACTION);
-		item.setIcon(icons.getIcon(IconManager.REMOVE));
-		item.setToolTipText("Remove the attachment.");
-		managementMenu.add(item);
-		item = new JMenuItem("Download");
-		item.addActionListener(this);
-		item.setActionCommand(DOWNLOAD_ACTION);
-		item.setIcon(icons.getIcon(IconManager.DOWNLOAD));
-		item.setToolTipText("Download the file.");
-		managementMenu.add(item);
-		return managementMenu;
 	}
 	
 	/**
@@ -323,7 +300,7 @@ class AttachmentsUI
 		group.add(iconsView);
 		group.add(columnsView);
 		
-		toDownload = new HashMap<JLabel, FileAnnotationData>();
+		toDownload = new ArrayList<AttachmentComponent>();
 		rows = new HashMap<Integer, Object>();
 		addedFiles = new ArrayList<File>();
 		filters = new ArrayList<FileFilter>();
@@ -496,12 +473,21 @@ class AttachmentsUI
 	 * 
 	 * @param source The source of the click.
 	 */
-	private void viewFile(JLabel source)
+	void viewFile(AttachmentComponent source)
 	{
-		FileAnnotationData data = toDownload.get(source);
+		FileAnnotationData data = source.getFile();
 		if (data == null) return;
-		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile());
+		Registry reg = MetadataViewerAgent.getRegistry();
+		
+		FileChooser chooser = new FileChooser(reg.getTaskBar().getFrame(), 
+					FileChooser.FOLDER_CHOOSER, "Directory selection",
+					"Select the folder where to save the files.");
+		if (chooser.showDialog() == JFileChooser.APPROVE_OPTION) {
+			File dir = chooser.getSelectedFile();
+			UserNotifier un = reg.getUserNotifier();
+			un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile(),
+								dir);
+		}
 	}
 	
 	/**
@@ -510,7 +496,7 @@ class AttachmentsUI
 	 * @param f The value to format.
 	 * @return See above.
 	 */
-	public static String formatTootTip(FileAnnotationData f)
+	static String formatTootTip(FileAnnotationData f)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
@@ -526,115 +512,6 @@ class AttachmentsUI
 		buf.append("<br>");
 		buf.append("</body></html>");
 		return buf.toString();
-	}
-	
-	/**
-	 * Builds an element composing the display of the uploaded files
-	 * 
-	 * @param f	The annotation to display.
-	 * @return See above.
-	 */
-	private JPanel buildIconEntry(FileAnnotationData f)
-	{
-		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.TEXT_DOC);;
-		
-		String format = f.getFileFormat();
-		if (FileAnnotationData.PDF.equals(format))
-			icon = icons.getIcon(IconManager.PDF_DOC);
-		else if (FileAnnotationData.TEXT.equals(format))
-			icon = icons.getIcon(IconManager.TEXT_DOC);
-		else if (FileAnnotationData.MS_WORD.equals(format))
-			icon = icons.getIcon(IconManager.WORD_DOC);
-		else if (FileAnnotationData.MS_EXCEL.equals(format))
-			icon = icons.getIcon(IconManager.EXCEL_DOC);
-		else if (FileAnnotationData.MS_POWER_POINT.equals(format))
-			icon = icons.getIcon(IconManager.PPT_DOC);
-		else if (FileAnnotationData.XML.equals(format) ||
-				FileAnnotationData.HTML.equals(format) ||
-				FileAnnotationData.HTM.equals(format))
-			icon = icons.getIcon(IconManager.XML_DOC);
-		
-		String toolTip = formatTootTip(f);
-		JPanel p = new JPanel();
-		String name = f.getFileName();
-		JLabel label = new JLabel(icon);
-		label.setToolTipText(toolTip);
-		toDownload.put(label, f);
-		label.addMouseListener(new MouseAdapter() {
-		
-			/** 
-			 * Brings up a dialog box indicating to download 
-			 * the file associated to the component.
-			 */
-			public void mouseReleased(MouseEvent e) {
-				Object src = e.getSource();
-				if (e.getClickCount() == 2)
-					viewFile((JLabel) src);
-				else if (e.isPopupTrigger())
-					createManagementMenu().show(e.getComponent(), e.getX(), 
-							e.getY());
-			}
-			
-			/** 
-			 * Sets the selected label and shows the menu.
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				Object src = e.getSource();
-				selectedFile = (JLabel) src;
-				if (e.isPopupTrigger())
-					createManagementMenu().show(e.getComponent(), e.getX(), 
-											e.getY());
-			}
-		
-			/**
-			 * Modifies the cursor when entered.
-			 */
-			public void mouseEntered(MouseEvent e) {
-				Object src = e.getSource();
-				if (src instanceof JLabel) {
-					((JLabel) src).setCursor(
-							Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				}
-				
-			}
-		
-		});
-		p.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridy = 0;
-		p.add(label, c);
-		JLabel l = new JLabel(name);
-		
-		FontMetrics fm = l.getFontMetrics(l.getFont());
-		int width = fm.stringWidth(name);
-		int iconWith = icon.getIconWidth()+20;
-		if (width > iconWith) {
-			StringBuffer buf = new StringBuffer();
-			buf.append("<html><body>");
-			for (int i = 0; i < name.length(); i++) {
-				buf.append(name.charAt(i));
-				if (i%15 == 0 && i != 0) buf.append("<br>");
-			}
-			buf.append("</body></html>");
-			l.setText(buf.toString());
-		}
-			
-		l.setOpaque(false);
-		c.gridy++;
-		p.add(l, c);
-		c.gridy++;
-		p.add(Box.createVerticalStrut(10), c);
-		label.setOpaque(false);
-		l.setOpaque(false);
-		p.setOpaque(false);
-		label.setBackground(UIUtilities.BACKGROUND);
-		l.setBackground(UIUtilities.BACKGROUND);
-		p.setBackground(UIUtilities.BACKGROUND);
-		return p;
 	}
 	
 	/**
@@ -657,10 +534,13 @@ class AttachmentsUI
 		FileAnnotationData f;
 		Iterator i = toLayout.iterator();
 		toDownload.clear();
+		AttachmentComponent comp;
 		while (i.hasNext()) {
 			++c.gridx;
 			f = (FileAnnotationData) i.next();
-			content.add(buildIconEntry(f), c);
+			comp = new AttachmentComponent(this, f);
+			toDownload.add(comp);
+			content.add(comp, c);
 			++c.gridx;
 			content.add(Box.createHorizontalStrut(10), c);
 			if (index%3 == 0 && index != 0) {
@@ -670,10 +550,21 @@ class AttachmentsUI
 			index++;
 		}
 		
+		
 		content.setOpaque(false);
 		content.setBackground(UIUtilities.BACKGROUND);
 		JPanel p = UIUtilities.buildComponentPanel(content);
 		p.setBackground(UIUtilities.BACKGROUND);
+		p.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Resets the selection.
+			 */
+			public void mousePressed(MouseEvent e) {
+				setSelectedFile(null);
+			}
+		
+		});
 		return p;
 	}
 	
@@ -844,10 +735,11 @@ class AttachmentsUI
 	private void removeSelectedAttachment() 
 	{
 		if (selectedFile == null) return;
-		FileAnnotationData data = toDownload.get(selectedFile);
+		FileAnnotationData data = selectedFile.getFile();
 		if (data == null) return;
 		toDownload.remove(selectedFile);
 		selectedFile = null;
+		selectedAnnotation = null;
 		removedFiles.add(data);
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 							Boolean.TRUE);
@@ -907,12 +799,12 @@ class AttachmentsUI
 						int x, int y)
 	{
 		if (data == null) return;
-		Iterator<JLabel> i = toDownload.keySet().iterator();
+		Iterator<AttachmentComponent> i = toDownload.iterator();
 		FileAnnotationData f;
-		JLabel l;
+		AttachmentComponent l;
 		while (i.hasNext()) {
 			l = i.next();
-			f = toDownload.get(l);
+			f = l.getFile();
 			if (f.getId() == data.getId()) {
 				selectedFile = l;
 				break;
@@ -968,6 +860,78 @@ class AttachmentsUI
 	}
 	
 	/**
+	 * Creates the management menu.
+	 * 
+	 * @return See above.
+	 */
+	JPopupMenu createManagementMenu()
+	{
+		if (managementMenu != null) return managementMenu;
+		IconManager icons = IconManager.getInstance();
+		managementMenu = new JPopupMenu();
+		JMenuItem item = new JMenuItem("Remove");
+		item.addActionListener(this);
+		item.setActionCommand(DELETE_ACTION);
+		item.setIcon(icons.getIcon(IconManager.REMOVE));
+		item.setToolTipText("Remove the attachment.");
+		managementMenu.add(item);
+		item = new JMenuItem("Download");
+		item.addActionListener(this);
+		item.setActionCommand(DOWNLOAD_ACTION);
+		item.setIcon(icons.getIcon(IconManager.DOWNLOAD));
+		item.setToolTipText("Download the file.");
+		managementMenu.add(item);
+		return managementMenu;
+	}
+	
+	/** Sets the selected component. */
+	void setSelected()
+	{
+		Iterator<AttachmentComponent> i = toDownload.iterator();
+		AttachmentComponent comp;
+		long id = -1;
+		if (selectedAnnotation != null) id = selectedAnnotation.getId();
+		while (i.hasNext()) {
+			comp = i.next();
+			comp.setSelectedBackground((comp.getFile().getId() == id));
+		}
+	}
+	
+	/**
+	 * Sets the selected annotation.
+	 * 
+	 * @param selectedFile The value to set.
+	 */
+	void setSelectedFile(AttachmentComponent selectedFile)
+	{
+		Iterator<AttachmentComponent> i = toDownload.iterator();
+		while (i.hasNext()) 
+			i.next().setSelectedBackground(false);
+		this.selectedFile = selectedFile;
+		if (selectedFile != null) {
+			selectedAnnotation = selectedFile.getFile();
+			selectedFile.setSelectedBackground(true);
+		} else selectedAnnotation = null;	
+	}
+	
+	/**
+	 * Sets the selected annotation.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setSelectedFileAnnotation(FileAnnotationData data)
+	{
+		selectedAnnotation = data;
+	}
+	
+	/**
+	 * Returns the selected annotation.
+	 * 
+	 * @return See above.
+	 */
+	FileAnnotationData getSelectedAnnotation() { return selectedAnnotation; }
+	
+	/**
 	 * Overridden to lay out the tags.
 	 * @see AnnotationUI#buildUI()
 	 */
@@ -982,6 +946,7 @@ class AttachmentsUI
 		getCollapseComponent().setBorder(border);
 		if (n > 0) add(layoutAttachments());
 		add(layoutContent());
+		setSelected();
 	}
 	
 	/**

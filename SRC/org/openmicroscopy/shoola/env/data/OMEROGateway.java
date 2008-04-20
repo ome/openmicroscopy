@@ -82,15 +82,12 @@ import ome.model.display.RenderingDef;
 import ome.model.enums.Format;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
-import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 import ome.system.EventContext;
 import ome.system.Login;
-import ome.system.Principal;
 import ome.system.Server;
 import ome.system.ServiceFactory;
-import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
 import pojos.ArchivedAnnotationData;
@@ -167,6 +164,7 @@ class OMEROGateway
 	/** Server instance to log in. */
 	private Server                  server;
 	
+	/** The login instance. */
 	private Login 					login;
 
 	/** The port to use in order to connect. */

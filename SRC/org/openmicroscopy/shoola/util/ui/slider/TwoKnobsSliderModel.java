@@ -298,8 +298,8 @@ class TwoKnobsSliderModel
 	 */
 	void setStartValue(int startValue)
 	{ 
-		if (startValue >= endValue)
-			throw new IllegalArgumentException("Start value not valid.");
+		if (startValue >= endValue) return;
+			//throw new IllegalArgumentException("Start value not valid.");
 		if (startValue < absoluteMin) startValue = absoluteMin;
 		if (startValue <= partialMin) partialMin = startValue;
 		this.startValue = startValue;
@@ -313,8 +313,8 @@ class TwoKnobsSliderModel
 	 */
 	void setEndValue(int endValue)
 	{ 
-		if (endValue <= startValue)
-			throw new IllegalArgumentException("End value not valid.");
+		if (endValue <= startValue) return;
+			//throw new IllegalArgumentException("End value not valid.");
 		if (endValue > absoluteMax) endValue = absoluteMax;
 		if (endValue >= partialMax) partialMax = endValue;
 		this.endValue = endValue;

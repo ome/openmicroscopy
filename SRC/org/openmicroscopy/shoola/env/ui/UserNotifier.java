@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
+import java.io.File;
 import java.util.Collection;
 
 import javax.swing.Icon;
@@ -150,6 +151,22 @@ public interface UserNotifier
      * @param data	The data to handle.
      */
     public void notifyDownload(Collection data);
+    
+    /**
+     * Brings up a dialog displaying the downloading process.
+     * 
+     * @param data		The data to handle.
+     * @param directory The directory where to save locally the file.
+     */
+    public void notifyDownload(OriginalFile data, File directory);
+    
+    /**
+     * Brings up a dialog displaying the downloading process.
+     * 
+     * @param data		The data to handle.
+     * @param directory The directory where to save locally the file.
+     */
+    public void notifyDownload(Collection data, File directory);
     
     /**
      * Sets the loading status.

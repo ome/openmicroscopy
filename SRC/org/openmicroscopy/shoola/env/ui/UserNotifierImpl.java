@@ -24,10 +24,10 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Collection;
-
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.FileAnnotationData;
 
 /** 
  * Implements the {@link UserNotifier} interface. 
@@ -277,17 +275,29 @@ public class UserNotifierImpl
 
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#notifyDownload(OriginalFile, File)
+	 */ 
+	public void notifyDownload(OriginalFile data, File directory)
+	{
+		manager.saveFileToDisk(data, directory);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
+	 * @see UserNotifier#notifyDownload(Collection, File)
+	 */ 
+	public void notifyDownload(Collection data, File directory)
+	{
+		manager.saveFileToDisk(data, directory);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link UserNotifier}. 
 	 * @see UserNotifier#notifyDownload(OriginalFile)
 	 */ 
 	public void notifyDownload(OriginalFile data)
 	{
-		manager.saveFileToDisk(data);
-		/*
-		OpeningFileDialog d = new OpeningFileDialog(SHARED_FRAME, 
-						manager.getIconManager(), data);
-		d.addPropertyChangeListener(manager);
-		UIUtilities.centerAndShow(d);
-		*/
+		manager.saveFileToDisk(data, null);
 	}
 
 	/** 
@@ -296,7 +306,7 @@ public class UserNotifierImpl
 	 */ 
 	public void notifyDownload(Collection data)
 	{
-		manager.saveFileToDisk(data);
+		manager.saveFileToDisk(data, null);
 	}
 	
 	/** 

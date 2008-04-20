@@ -27,8 +27,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
@@ -99,6 +100,9 @@ class AttachmentsTable
 	/** Reference to the view. */
 	private AttachmentsUI			uiDelegate;
 	
+	/** The model's listener. */
+	private ListSelectionListener	listener;
+	
 	/**
 	 * Selects the annotation and brings up the management menu at
 	 * the specified location.
@@ -126,6 +130,7 @@ class AttachmentsTable
 		setHighlighters(highlighters);
 		setModel(new AttachmentTableModel());
 		getTableHeader().setReorderingAllowed(false);
+		
 		addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -145,6 +150,40 @@ class AttachmentsTable
 			}
 		
 		});
+		listener = new ListSelectionListener() {
+		
+			public void valueChanged(ListSelectionEvent e) {
+				if (e.getSource() == getSelectionModel()
+	              && getRowSelectionAllowed() && e.getValueIsAdjusting()) {
+					int row = getSelectedRow();
+					if (row != -1) {
+						FileAnnotationData f = data[row];
+						if (f != null)
+							uiDelegate.setSelectedFileAnnotation(f);
+					}
+	            }
+			}
+		
+		};
+		getSelectionModel().addListSelectionListener(listener);
+	}
+	
+	/** Sets the selected node. */
+	private void setSelected()
+	{
+		getSelectionModel().removeListSelectionListener(listener);
+		long id = -1;
+		FileAnnotationData selected = uiDelegate.getSelectedAnnotation();
+		if (selected != null) id = selected.getId();
+		int row = -1;
+		for (int i = 0; i < data.length; i++) {
+			if (data[i].getId() == id) {
+				row = i;
+				break;
+			}
+		}
+		if (row != -1) getSelectionModel().setSelectionInterval(row, row);
+		getSelectionModel().addListSelectionListener(listener);
 	}
 	
 	/**
@@ -168,7 +207,7 @@ class AttachmentsTable
 			index++;
 		}
 		setProperties();
-		
+		setSelected();
 	}
 	
 	/** Helper class used to format the {@link FileAnnotation}s. */
