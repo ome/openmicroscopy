@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.io.File;
 import java.util.Collection;
 import javax.swing.Icon;
 
@@ -102,15 +103,27 @@ public class NullUserNotifier
 	 * @see UserNotifier#notifyDownload(OriginalFile)
 	 */
 	public void notifyDownload(OriginalFile data) {}
+	
+	/**
+	 * @see UserNotifier#notifyDownload(OriginalFile, File)
+	 */
+	public void notifyDownload(OriginalFile data, File directory) {}
+	
+	/**
+	 * @see UserNotifier#notifyDownload(Collection)
+	 */
+	public void notifyDownload(Collection data) {}
+	
+	/**
+	 * @see UserNotifier#notifyDownload(Collection, File)
+	 */
+	public void notifyDownload(Collection data, File directory) {}
 
 	/**
 	 * @see UserNotifier#setLoadingStatus(int, long, String)
 	 */
 	public void setLoadingStatus(int percent, long id, String name) {}
 
-	/**
-	 * @see UserNotifier#notifyDownload(Collection)
-	 */
-	public void notifyDownload(Collection data) {}
+	
 
 }
