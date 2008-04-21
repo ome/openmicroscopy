@@ -148,6 +148,16 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 iQuery.findAllByQuery(loadCountsImages, new Parameters()
                         .addSet("list", images));
             }
+            // WORKAROUND ticket:907
+            // Destructive changes in this block
+            if (!po.isLeaves()) {
+                EvictBlock<Dataset> evict = new EvictBlock<Dataset>();
+                for (IObject o : l) {
+                    Dataset d = (Dataset) o;
+                    evict.call(d);
+                    d.putAt(Dataset.IMAGELINKS, null);
+                }
+            }
         }
         return new HashSet<IObject>(l);
 
@@ -178,13 +188,6 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         //
         // Destructive changes below this point.
         //
-        @SuppressWarnings("unchecked")
-        class EvictBlock<E extends IObject> implements CBlock {
-            public E call(IObject object) {
-                iQuery.evict(object);
-                return (E) object;
-            };
-        }
 
         // TODO; this if-else statement could be removed if Transformations
         // did their own dispatching
@@ -572,6 +575,14 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                     + " is an unknown property on type " + type);
         }
 
+    }
+
+    @SuppressWarnings("unchecked")
+    class EvictBlock<E extends IObject> implements CBlock {
+        public E call(IObject object) {
+            iQuery.evict(object);
+            return (E) object;
+        };
     }
 
 }
