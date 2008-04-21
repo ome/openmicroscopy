@@ -228,6 +228,9 @@ class ImViewerUI
 	 * {@link #HISTORY_AND_RENDERER}.
 	 */
 	private int							displayMode;
+	
+	private int							previousDisplayMode;
+	
 
 	/** Item used to control show or hide the renderer. */
 	private JCheckBoxMenuItem			rndItem;
@@ -858,9 +861,9 @@ class ImViewerUI
 		int width = 0, height = 0;
 		JComponent rightComponent;
 		//int divider = 0;
+		int vExtra = 2;
 		switch (displayMode) {
 			case HISTORY:
-
 				historyUI.doGridLayout();
 				historySplit.removeAll();
 				historySplit.setLeftComponent(tabs);
@@ -868,15 +871,15 @@ class ImViewerUI
 				height = restoreSize.height;
 				width = restoreSize.width;
 				d = historyUI.getIdealSize();
-				//divider += d.height;
 				height += d.height;
+				/*
 				heightAdded = historySplit.getDividerSize()+
 								(refInsets.top+refInsets.bottom);
 				height += historySplit.getDividerSize()+
 							2*(refInsets.top+refInsets.bottom);
+							*/
 				historyUI.setPreferredSize(new Dimension(width, d.height));
 				container.add(historySplit, BorderLayout.CENTER);
-				
 				break;
 			case RENDERER:
 				rightComponent = model.getRenderer().getUI();
@@ -884,18 +887,25 @@ class ImViewerUI
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
+				else {
+					height += vExtra;
+					heightAdded = vExtra;
+				}
+				//
+				/*
 				height += 2*heightAdded;
-				//heightAdded += historySplit.getDividerSize();
-				//height += historySplit.getDividerSize()+
-				//			(refInsets.top+refInsets.bottom);
+				heightAdded += historySplit.getDividerSize();
+				height += historySplit.getDividerSize()+
+							(refInsets.top+refInsets.bottom);
+							*/
 				width = restoreSize.width+d.width;
 				
+				// check when pref on, seems to be the problem
 				widthAdded = rendererSplit.getDividerSize();
 				width += rendererSplit.getDividerSize()+
 							2*(refInsets.left+refInsets.right);
+				
 				addComponents(rendererSplit, tabs, rightComponent);
-				
-				
 				container.add(rendererSplit, BorderLayout.CENTER);
 				break;
 			case HISTORY_AND_RENDERER:
@@ -903,27 +913,30 @@ class ImViewerUI
 				historyUI.doGridLayout();
 				rightComponent = model.getRenderer().getUI();
 				addComponents(rendererSplit, tabs, rightComponent);
-				//addComponents(historySplit, rendererSplit, historyUI);
 				historySplit.removeAll();
 				historySplit.setLeftComponent(rendererSplit);
 				historySplit.setRightComponent(historyUI);
 				d = rightComponent.getPreferredSize();
-				//height = restoreSize.height;
 				height = restoreSize.height;
 				diff = d.height-restoreSize.height;
 				if (diff > 0) height += diff;
+				else {
+					height += 2*vExtra;
+					heightAdded = 2*vExtra;
+				}
 				width = restoreSize.width+d.width;
-				//heightAdded = (refInsets.top+refInsets.bottom);
-				height += 2*heightAdded;
 				widthAdded = rendererSplit.getDividerSize();
 				width += rendererSplit.getDividerSize()+
 						(refInsets.left+refInsets.right);
 				d = historyUI.getIdealSize();
+				height += d.height;
 				//divider += d.height;
+				/*
 				height += d.height;
 				heightAdded += historySplit.getDividerSize();
 				height += historySplit.getDividerSize()+
 							(refInsets.top+refInsets.bottom);
+							*/
 				//divider += historySplit.getDividerSize()
 				//				+(refInsets.top+refInsets.bottom);
 				historyUI.setPreferredSize(new Dimension(width, d.height));
@@ -939,7 +952,7 @@ class ImViewerUI
 				heightAdded = 0;
 				break;
 		}
-		if (!fromPreferences) {
+		//if (!fromPreferences) {
 			d = getIdealSize(width, height);
 			Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
 			int w = (int) (screen.width*SCREEN_RATIO);
@@ -947,7 +960,7 @@ class ImViewerUI
 			if (d.width > w || d.height > h) {
 				setSize(width, height);
 			} else setSize(d);
-		}
+		//}
 		container.addHierarchyBoundsListener(boundsAdapter);
 	}
 
@@ -1706,7 +1719,6 @@ class ImViewerUI
 	void setRestoreSize(int width, int height)
 	{
 		restoreSize = new Dimension(width, height);
-		//
 	}
 	
 	/**

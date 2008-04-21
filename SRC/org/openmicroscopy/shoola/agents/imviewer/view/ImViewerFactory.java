@@ -277,7 +277,7 @@ public class ImViewerFactory
 	 */
 	static void setPreferences(ViewerPreferences pref)
 	{
-		singleton.pref = pref;
+		singleton.pref = null;//pref;
 	}
 	
 	/** All the tracked components. */

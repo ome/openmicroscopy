@@ -227,11 +227,14 @@ public class IconManager
     /** The <code>History</code> icon. */
     public static int           HISTORY = 55;
     
+    /** The <code>Clear 12x12</code> icon. */
+    public static int           HISTORY_CLEAR_12 = 56;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 55;
+    private static int          MAX_ID = 56;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -294,6 +297,7 @@ public class IconManager
         relPaths[USER] = "nuvola_kdmconfig16.png";
         relPaths[SEARCH] = "nuvola_find16.png";
         relPaths[HISTORY] = "nuvola_history16.png";
+        relPaths[HISTORY_CLEAR_12] = "nuvola_history_clear12.png";
     }
     
     /** The sole instance. */

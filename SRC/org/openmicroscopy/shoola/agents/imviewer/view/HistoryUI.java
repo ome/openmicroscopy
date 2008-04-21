@@ -33,6 +33,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -85,27 +87,6 @@ class HistoryUI
 	/** UI component hosting the controls.*/
 	private JPanel			toolBar;
 	
-	/** Clear the history. */
-	private void clearHistory()
-	{
-		model.clearHistory();
-		JComponent desktop = canvas.getInternalDesktop();
-		desktop.removeAll();
-		List nodes = model.getHistory();
-		Iterator i = nodes.iterator();
-		while (i.hasNext()) 
-			desktop.add((HistoryItem) i.next());
-
-		Rectangle r = getBounds();
-		Rectangle bounds = canvas.getContentsBounds();
-		Insets insets = canvas.getInsets();
-		int w = r.width-insets.left-insets.right-4;
-		if (w < 0) return;
-        Dimension d = new Dimension(w, bounds.height);//bounds.getSize();
-        desktop.setSize(d);
-        desktop.setPreferredSize(d);
-	}
-	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -139,7 +120,7 @@ class HistoryUI
 	{
 		setLayout(new BorderLayout(0, 0));
 		setBorder(null);
-		add(toolBar, BorderLayout.NORTH);
+		//add(toolBar, BorderLayout.NORTH);
 		add(canvas, BorderLayout.CENTER);
 	}
 	
@@ -159,6 +140,27 @@ class HistoryUI
 		this.view = view;
 		initComponents();
 		buildGUI();
+	}
+	
+	/** Clears the history. */
+	void clearHistory()
+	{
+		model.clearHistory();
+		JComponent desktop = canvas.getInternalDesktop();
+		desktop.removeAll();
+		List nodes = model.getHistory();
+		Iterator i = nodes.iterator();
+		while (i.hasNext()) 
+			desktop.add((HistoryItem) i.next());
+
+		Rectangle r = getBounds();
+		Rectangle bounds = canvas.getContentsBounds();
+		Insets insets = canvas.getInsets();
+		int w = r.width-insets.left-insets.right-4;
+		if (w < 0) return;
+        Dimension d = new Dimension(w, bounds.height);//bounds.getSize();
+        desktop.setSize(d);
+        desktop.setPreferredSize(d);
 	}
 	
 	/** Lays out the node. */
@@ -209,9 +211,10 @@ class HistoryUI
 	Dimension getIdealSize()
 	{
 		Dimension d = getSize();
-		int height = toolBar.getPreferredSize().height;
+		int height = 0;//toolBar.getPreferredSize().height;
 		height += canvas.getTitleBar().getPreferredSize().height;
-		height += 3*ImViewer.MINIMUM_SIZE/2;
+		//height += canvas.getInternalDesktop().getPreferredSize().height;
+		height += 4*ImViewer.MINIMUM_SIZE/3;
 		return new Dimension(d.width, height);
 	}
 

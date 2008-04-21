@@ -127,6 +127,9 @@ class TitleBar
     /** The Model this title bar is for. */
     private TinyPane        model;
     
+    /** Flag indicating to hide original buttons. */
+    private boolean			hideAllButtons;
+    
     /**
      * Asks all current sub-components to register with the Model.
      * Called after switching to a different title bar type.
@@ -190,7 +193,9 @@ class TitleBar
                 break;
             case TinyPane.SMALL_BAR:
                 fixedHeight = 12;
-                if (closeButton != null) add(closeButton);
+                if (!hideAllButtons)
+                	 if (closeButton != null) add(closeButton);
+                
                 while (i.hasNext()) 
                 	add((JComponent) i.next());
                     
@@ -199,7 +204,8 @@ class TitleBar
                 break;
             case TinyPane.SMALL_TITLE_BAR:
                 fixedHeight = 12;
-                if (closeButton != null) add(closeButton);
+                if (!hideAllButtons)
+                	if (closeButton != null) add(closeButton);
                 while (i.hasNext()) 
                 	add((JComponent) i.next());
                     
@@ -210,11 +216,14 @@ class TitleBar
                 fixedHeight = 18;
                 icon = new TinyPaneIcon(model);
                 add(icon);
-                if (closeButton != null) add(closeButton);
                 viewModeButton = new ViewModeButton(model);
-                add(viewModeButton);
                 sizeButton = new SizeButton(model);
-                add(sizeButton);
+                if (!hideAllButtons) {
+                	if (closeButton != null) add(closeButton);
+                    add(viewModeButton);
+                    add(sizeButton);
+                }
+                
                 while (i.hasNext())
                     add((JComponent) i.next());
                 title = new TinyPaneTitle(model);
@@ -283,6 +292,14 @@ class TitleBar
     	else closeButton = null;
     	update(model.getTitleBarType(), model.getDecoration());
     }
+    
+    /** Removes all buttons, added by default, from the tool bar. */
+    void clearDefaultButtons()
+    { 
+    	hideAllButtons = true;
+    	update(model.getTitleBarType(), model.getDecoration());
+    }
+    
     
     /** 
      * Overridden to do custom painting required for this component. 

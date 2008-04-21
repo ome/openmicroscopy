@@ -664,6 +664,9 @@ public class TinyPane
      */
     public void allowClose(boolean b) {  uiDelegate.allowClose(b); }
     
+    /** Removes all buttons, added by default, from the tool bar. */
+    public void clearDefaultButtons() { uiDelegate.clearDefaultButtons(); }
+     
     /**
      * Overridden to return the title of the frame.
      * @see JPanel#toString()

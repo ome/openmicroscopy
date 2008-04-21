@@ -25,15 +25,20 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JScrollPane;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 
@@ -54,8 +59,28 @@ class HistoryCanvas
 	extends TinyPane
 {
 
+	/** The Description of the {@link #clearButton}. */
+	private static final String CLEAR_DESCRIPTION = "Clear the history.";
+	
 	/** Reference to the Model. */
 	private ImViewerModel model;
+	
+	/** Adds button to the tool bar. */
+	private void addDecoration()
+	{
+		IconManager icons = IconManager.getInstance();
+		JButton clearButton = new JButton(icons.getIcon(
+								IconManager.HISTORY_CLEAR_12));
+		clearButton.setToolTipText(CLEAR_DESCRIPTION);
+		clearButton.setContentAreaFilled(false);
+		clearButton.setBorder(BorderFactory.createEmptyBorder()); 
+		clearButton.setMargin(new Insets(0, 0, 0, 0));
+		clearButton.setOpaque(false);  
+		clearButton. setFocusPainted(false);  
+		List<JButton> nodes = new ArrayList<JButton>();
+		nodes.add(clearButton);
+		setDecoration(nodes);
+	}
 	
 	/**
      * Creates a new instance.
@@ -64,8 +89,11 @@ class HistoryCanvas
      */
 	HistoryCanvas(ImViewerModel model)
 	{
-		noDecoration();
-		setTitleBarType(SMALL_TITLE_BAR);
+		//noDecoration();
+		clearDefaultButtons();
+		addDecoration();
+		//setTitleBarType(SMALL_TITLE_BAR);
+		//setTitleBarType(SMALL_BAR);
 		setListenToBorder(false);
 		this.model = model;
 	}
@@ -108,7 +136,6 @@ class HistoryCanvas
         int finalWidth = nodes.size()*maxDim.width;
         if (finalWidth > width) {
         	//Rectangle bounds = child.getBounds();
-        	
         	Rectangle pBounds = getBounds();
         	JScrollPane dskDecorator = getDeskDecorator();
         	Dimension d = new Dimension(finalWidth, pBounds.height);
@@ -118,7 +145,6 @@ class HistoryCanvas
         	//if (!viewRect.contains(bounds)) {
         	dskDecorator.getHorizontalScrollBar().setValue(finalWidth);
         }
-
 	}
 	
 }

@@ -272,6 +272,9 @@ class TinyPaneUI
      */
     void allowClose(boolean b) { titleBar.allowClose(b); }
     
+    /** Removes all buttons, added by default, from the tool bar. */
+    void clearDefaultButtons() { titleBar.clearDefaultButtons(); }
+    
     /**
      * Monitors frame's state changes and updates the UI accordingly.
      * 

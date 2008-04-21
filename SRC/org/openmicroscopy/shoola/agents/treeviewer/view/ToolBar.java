@@ -152,7 +152,7 @@ class ToolBar
         bars.setBorder(null);
         bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
         bars.add(createManagementBar());
-        bars.add(createEditBar());
+        //bars.add(createEditBar());
         bars.add(createSearchBar());
         outerPanel.setBorder(null);
         outerPanel.setLayout(new BoxLayout(outerPanel, BoxLayout.X_AXIS));

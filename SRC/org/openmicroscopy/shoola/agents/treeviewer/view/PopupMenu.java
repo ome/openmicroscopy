@@ -249,7 +249,7 @@ class PopupMenu
 				add(createManagementMenu());
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(browseClassificationElement);
-				add(classifyElement);
+				//add(classifyElement);
 				//add(declassifyElement);
 				//add(classifyChildrenElement);
 				//add(new JSeparator(JSeparator.HORIZONTAL));
