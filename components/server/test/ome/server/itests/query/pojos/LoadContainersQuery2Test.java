@@ -108,6 +108,25 @@ public class LoadContainersQuery2Test extends AbstractManagedContextTest {
         assertTrue(i.toString(), i.getAnnotationLinksCountPerOwner() != null);
     }
 
+    @Test(groups = "ticket:907")
+    public void testRootDatasetAlwaysLoadsLeaves() throws Exception {
+        Dataset d = createDataset();
+
+        // with leaves
+        Set<Dataset> ds = this.iPojos.loadContainerHierarchy(Dataset.class,
+                Collections.singleton(d.getId()), new PojoOptions().leaves()
+                        .map());
+        assertTrue(ds.size() == 1);
+        assertTrue(ds.iterator().next().sizeOfImageLinks() == 1);
+
+        // without leaves
+        ds = this.iPojos.loadContainerHierarchy(Dataset.class, Collections
+                .singleton(d.getId()), new PojoOptions().noLeaves().map());
+        assertTrue(ds.size() == 1);
+        assertTrue(ds.iterator().next().sizeOfImageLinks() < 0);
+
+    }
+
     // Helpers
     // =======================================
 
