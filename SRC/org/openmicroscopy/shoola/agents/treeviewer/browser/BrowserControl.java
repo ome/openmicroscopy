@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -222,8 +223,25 @@ class BrowserControl
         ArrayList<TreeImageDisplay> l = new ArrayList<TreeImageDisplay>();
         l.add(node);
        
+        Object ho = node.getUserObject();
+        if (ho instanceof ImageData) {
+        	ImageData img = (ImageData) ho;
+    		try {
+    			img.getDefaultPixels();
+    		} catch (Exception e) {
+    			UserNotifier un = 
+    				TreeViewerAgent.getRegistry().getUserNotifier();
+    			un.notifyInfo("Image Not valid", 
+    					"The selected image is not valid");
+    			pathsToRemove.add(paths[0]);
+    			
+    			view.removeTreePaths(pathsToRemove);
+    			view.setFoundNode(model.getSelectedDisplays());
+    			return;
+    		}
+        }
         Object uo;
-        Class nodeClass = node.getUserObject().getClass();
+        Class nodeClass = ho.getClass();
         for (int i = 1; i < n; i++) {
             o = paths[i].getLastPathComponent();
             if (o instanceof TreeImageDisplay) {
@@ -248,6 +266,7 @@ class BrowserControl
             un.notifyInfo("Node selection", "You can only select " +
                     "node of the same type e.g. images.");
             view.removeTreePaths(pathsToRemove);
+            view.setFoundNode(model.getSelectedDisplays());
             //model.setSelectedDisplay(null);
             //return;
         }

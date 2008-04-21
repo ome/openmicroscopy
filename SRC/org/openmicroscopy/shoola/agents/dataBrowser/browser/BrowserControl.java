@@ -38,9 +38,13 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+
 import pojos.ImageData;
 
 /** 
@@ -88,6 +92,31 @@ public class BrowserControl
             else break;
         }
         return null;
+    }
+    
+    /**
+     * Checks if the passed image has pixels set related to it.
+     * Returns <code>true</code> if some pixels set are linked, 
+     * <code>false</code> otherwise.
+     * 
+     * @param node The node hosting the image.
+     * @return See above.
+     */
+    private boolean isSelectionValid(ImageNode node)
+    {
+    	ImageData img = (ImageData) node.getHierarchyObject();
+		try {
+			img.getDefaultPixels();
+			return true;
+		} catch (Exception e) {
+			UserNotifier un = 
+				DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Image Not valid", 
+					"The selected image is not valid");
+			node.setHighlight(
+					Colors.getInstance().getDeselectedHighLight(node));
+			return false;
+		}
     }
     
     /**
@@ -199,7 +228,8 @@ public class BrowserControl
         if (!(d.equals(previousDisplay))) {
             if (d instanceof ImageNode) {
                 if (!(previousDisplay instanceof ImageNode)) b = false;
-                model.setSelectedDisplay(d, b);
+                if (isSelectionValid((ImageNode) d))
+                	model.setSelectedDisplay(d, b);
             } else model.setSelectedDisplay(d);
         }
         if (me.isPopupTrigger()) popupTrigger = true;
@@ -218,7 +248,7 @@ public class BrowserControl
             Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
             if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                && me.getClickCount() == 2) {
+                && me.getClickCount() == 2 && isSelectionValid((ImageNode) d)) {
             	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
             	bus.post(new ViewImage(
             				(ImageData) d.getHierarchyObject(), null));

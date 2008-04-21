@@ -247,7 +247,6 @@ class BrowserUI
                 model.setClickPoint(p);
                 if (me.isPopupTrigger()) 
                 	controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
-                //if (!released) controller.onClick();
             } else if (me.getClickCount() == 2 && released) {
             	//controller.cancel();
                 //model.viewDataObject();

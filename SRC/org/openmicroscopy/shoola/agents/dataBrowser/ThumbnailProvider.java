@@ -122,7 +122,17 @@ public class ThumbnailProvider
     //laid out.  Sort this out.
     private void computeDims()
     {
-        PixelsData pxd = imgInfo.getDefaultPixels();
+        PixelsData pxd = null;
+        try {
+        	pxd = imgInfo.getDefaultPixels();
+		} catch (Exception e) { //no pixels linked to it.
+			width = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
+	        height = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+	        originalWidth = THUMB_MAX_WIDTH;
+	        originalHeight = THUMB_MAX_HEIGHT;
+	        return;
+		}
+        
         int w = THUMB_MAX_WIDTH;
         int h = THUMB_MAX_HEIGHT;
         double pixSizeX = pxd.getSizeX();

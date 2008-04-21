@@ -105,7 +105,10 @@ public class ThumbnailLoader
      */
     private void loadThumbail(ImageData image, long userID) 
     {
-        PixelsData pxd = image.getDefaultPixels();
+        PixelsData pxd = null;
+        try {
+        	pxd = image.getDefaultPixels();
+		} catch (Exception e) {} //something went wrong during import
         BufferedImage thumbPix = null;
         if (pxd == null) {
         	thumbPix = Factory.createDefaultImageThumbnail();

@@ -1492,7 +1492,18 @@ class TreeViewerComponent
 		Object selected = l.get(1);
 		Object parent = null;
 		if (n == 3) parent = l.get(2);
-		
+		if (selected instanceof ImageData) {
+			ImageData img = (ImageData) selected;
+			try {
+				img.getDefaultPixels();
+			} catch (Exception e) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Image Not valid", 
+						"The selected image is not valid");
+				return;
+			}
+		}
 		Browser browser = model.getSelectedBrowser();
 		browser.onSelectedNode(parent, selected, (Boolean) multiSelection);
 		MetadataViewer mv = model.getMetadataViewer();
