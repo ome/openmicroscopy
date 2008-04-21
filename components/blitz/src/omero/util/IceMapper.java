@@ -761,7 +761,7 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     public Object handleOutput(Class type, Object o) throws ServerError {
-        if (o == null) {
+    if (o == null) {
             return null;
         } else if (RType.class.isAssignableFrom(type)) {
             return o;
@@ -796,6 +796,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         } else {
             throw new ApiUsageException(null, null, "Can't handle output "
                     + type);
-        }
+        } 
     }
 }
