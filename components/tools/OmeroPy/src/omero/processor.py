@@ -47,6 +47,9 @@ class ProcessI(omero.grid.Process):
         self.env["ICE_CONFIG"] = self.config_name
         self.env["PATH"] = os.environ["PATH"]
         self.env["PYTHONPATH"] = os.environ["PYTHONPATH"]
+        self.env["DYLD_LIBRARY_PATH"] = os.environ["DYLD_LIBRARY_PATH"]
+        self.env["LD_LIBRARY_PATH"] = os.environ["LD_LIBRARY_PATH"]
+        self.env["MLABRAW_CMD_STR"] = os.environ["MLABRAW_CMD_STR"]
         self.make_config()
 
     def activate(self):

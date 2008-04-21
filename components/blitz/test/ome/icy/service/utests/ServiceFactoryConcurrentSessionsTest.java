@@ -14,6 +14,7 @@ import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.state.CacheFactory;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import omero.api.IAdminPrx;
@@ -26,6 +27,13 @@ import org.testng.annotations.Test;
 
 @Test
 public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
+
+    protected Executor executor = new Executor(null, null, null, null) {
+        @Override
+        public Object execute(Principal p, Work work) {
+            return work.doWork(null, null, null);
+        }
+    };
 
     Ehcache cache1, cache2;
     ServiceFactoryI sf1, sf2;
@@ -68,13 +76,13 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
 
         Principal p = new Principal("user1", "group", "event");
 
-        sf1 = new ServiceFactoryI(ctx, manager, p,
+        sf1 = new ServiceFactoryI(ctx, manager, executor, p,
                 new ArrayList<HardWiredInterceptor>());
         curr1.id = id1;
         curr1.adapter = adapter;
 
         Principal p2 = new Principal("user2", "group", "event");
-        sf2 = new ServiceFactoryI(ctx, manager, p2,
+        sf2 = new ServiceFactoryI(ctx, manager, executor, p2,
                 new ArrayList<HardWiredInterceptor>());
         curr2.id = id2;
         curr2.adapter = adapter;

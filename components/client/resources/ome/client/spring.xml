@@ -108,11 +108,6 @@
     <property name="proxyInterface" value="ome.api.IAdmin"/>
   </bean>
 
-  <bean id="managed:ome.api.IScript" parent="jndi">
-    <property name="jndiName" value="omero/${server.transport}/ome.api.IScript"/>
-    <property name="proxyInterface" value="ome.api.IScript"/>
-  </bean>
-    
   <bean id="managed:ome.api.IAnalysis" parent="jndi">
     <property name="jndiName" value="omero/${server.transport}/ome.api.IAnalysis"/>
     <property name="proxyInterface" value="ome.api.IAnalysis"/>

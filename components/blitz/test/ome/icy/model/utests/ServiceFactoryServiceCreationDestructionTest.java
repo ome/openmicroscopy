@@ -18,6 +18,7 @@ import ome.icy.service.utests.Ref;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import omero.api.IAdminPrxHelper;
@@ -34,6 +35,13 @@ import Ice.OperationMode;
 
 public class ServiceFactoryServiceCreationDestructionTest extends
         MockObjectTestCase {
+
+    protected Executor executor = new Executor(null, null, null, null) {
+        @Override
+        public Object execute(Principal p, Work work) {
+            return work.doWork(null, null, null);
+        }
+    };
 
     Ice.Current curr;
     Mock mockCache, mockAdapter, mockManager;
@@ -94,7 +102,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         });
 
         Principal p = new Principal("session", "group", "type");
-        sf = new ServiceFactoryI(context, manager, p, hwi);
+        sf = new ServiceFactoryI(context, manager, executor, p, hwi);
     };
 
     @Test

@@ -13,6 +13,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.Principal;
 import omero.api.ServiceInterfacePrx;
 import omero.api._IQueryTie;
@@ -24,6 +25,13 @@ import org.testng.annotations.Test;
 
 @Test
 public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
+
+    protected Executor executor = new Executor(null, null, null, null) {
+        @Override
+        public Object execute(Principal p, Work work) {
+            return work.doWork(null, null, null);
+        }
+    };
 
     Element elt = new Element(null, null);
     Mock cacheMock, proxyMock, managerMock;
@@ -49,8 +57,8 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
                 .will(returnValue(true));
         cacheMock.expects(once()).method("get").will(
                 returnValue(new Element("activeServants", map)));
-        sf = new ServiceFactoryI(null, manager, new Principal("a", "b", "c"),
-                null);
+        sf = new ServiceFactoryI(null, manager, executor, new Principal("a",
+                "b", "c"), null);
     }
 
     @Test

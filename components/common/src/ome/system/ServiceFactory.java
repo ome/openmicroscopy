@@ -9,7 +9,6 @@ package ome.system;
 
 // Java imports
 import java.util.Properties;
-import ome.api.IScript;
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
@@ -171,10 +170,6 @@ public class ServiceFactory {
 
     // ~ Stateless services
     // =========================================================================
-
-    public IScript getScriptService() {
-        return getServiceByClass(IScript.class);
-    }
 
     public IAdmin getAdminService() {
         return getServiceByClass(IAdmin.class);

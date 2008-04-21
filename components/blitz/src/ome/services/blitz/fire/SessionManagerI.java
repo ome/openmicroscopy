@@ -17,6 +17,7 @@ import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -62,9 +63,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected final SessionManager sessionManager;
 
-    public SessionManagerI(SecuritySystem secSys, SessionManager sessionManager) {
+    protected final Executor executor;
+
+    public SessionManagerI(SecuritySystem secSys,
+            SessionManager sessionManager, Executor executor) {
         this.securitySystem = secSys;
         this.sessionManager = sessionManager;
+        this.executor = executor;
     }
 
     public void setApplicationContext(ApplicationContext applicationContext)
@@ -98,7 +103,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Ice.Object servant = current.adapter.find(id);
             if (servant == null) {
                 ServiceFactoryI session = new ServiceFactoryI(context,
-                        sessionManager, sp, CPTORS);
+                        sessionManager, executor, sp, CPTORS);
 
                 _prx = current.adapter.add(session, id);
                 if (log.isDebugEnabled()) {

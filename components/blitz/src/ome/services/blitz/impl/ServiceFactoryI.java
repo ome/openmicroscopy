@@ -26,6 +26,7 @@ import ome.services.blitz.util.ServantDefinition;
 import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -33,8 +34,6 @@ import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
-import omero.api.IScriptPrx;
-import omero.api.IScriptPrxHelper;
 import omero.api.IConfigPrx;
 import omero.api.IConfigPrxHelper;
 import omero.api.ILdapPrx;
@@ -49,6 +48,8 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IRenderingSettingsPrxHelper;
 import omero.api.IRepositoryInfoPrx;
 import omero.api.IRepositoryInfoPrxHelper;
+import omero.api.IScriptPrx;
+import omero.api.IScriptPrxHelper;
 import omero.api.ISessionPrx;
 import omero.api.ISessionPrxHelper;
 import omero.api.ITypesPrx;
@@ -72,7 +73,6 @@ import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
 import omero.api._ServiceFactoryDisp;
-import omero.constants.SCRIPTSERVICE;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CONFIGSERVICE;
 import omero.constants.JOBHANDLE;
@@ -85,6 +85,7 @@ import omero.constants.RAWPIXELSSTORE;
 import omero.constants.RENDERINGENGINE;
 import omero.constants.RENDERINGSETTINGS;
 import omero.constants.REPOSITORYINFO;
+import omero.constants.SCRIPTSERVICE;
 import omero.constants.SEARCH;
 import omero.constants.SESSIONSERVICE;
 import omero.constants.THUMBNAILSTORE;
@@ -124,6 +125,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     final SessionManager sessionManager;
 
     /**
+     * {@link Executor} to be used by servant implementations which do not
+     * delegate to the server package where all instances are wrapped with AOP
+     * for dealing with Hibernate.
+     */
+    final Executor executor;
+
+    /**
      * Stored by {@link String} since {@link Ice.Identity} does not behave
      * properly as a key.
      */
@@ -145,9 +153,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // =========================================================================
 
     public ServiceFactoryI(OmeroContext context, SessionManager manager,
-            Principal p, List<HardWiredInterceptor> interceptors) {
+            Executor executor, Principal p,
+            List<HardWiredInterceptor> interceptors) {
         this.context = context;
         this.sessionManager = manager;
+        this.executor = executor;
         this.helper = new ServantHelper();
         this.principal = p;
         this.cptors = interceptors;
@@ -183,8 +193,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public IScriptPrx getScriptService(Ice.Current current) throws ServerError {
-    	return IScriptPrxHelper.uncheckedCast(
-    			getByName(SCRIPTSERVICE.value, current));
+        Ice.Identity id = getIdentity(current, SCRIPTSERVICE.value);
+        Ice.Object servant = current.adapter.find(id);
+        if (servant == null) {
+            servant = new ScriptI(this);
+            registerServant(current, id, servant);
+        }
+        Ice.ObjectPrx prx = current.adapter.createProxy(id);
+        return IScriptPrxHelper.uncheckedCast(prx);
     }
 
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {

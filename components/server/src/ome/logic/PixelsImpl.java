@@ -8,6 +8,7 @@
 package ome.logic;
 
 // Java imports
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,6 +38,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
+import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.services.util.OmeroAroundInvoke;
 
@@ -111,21 +113,25 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
                         new Parameters().addLong("pixid", pixId).addLong(
                                 "ownerid", userId));
     }
-    
+
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public Long copyAndResizePixels(long pixelsId, Integer sizeX, Integer sizeY,
-            Integer sizeZ, Integer sizeT, String methodology)
+            Integer sizeZ, Integer sizeT, List<Integer> channelList, String methodology)
     {
-        // Ensure we have no values out of bounds
+        Pixels from = retrievePixDescription(pixelsId);
+        Pixels to = new Pixels();
+        
+        //      Ensure we have no values out of bounds
         outOfBoundsCheck(sizeX, "sizeX");
         outOfBoundsCheck(sizeY, "sizeY");
         outOfBoundsCheck(sizeZ, "sizeZ");
         outOfBoundsCheck(sizeT, "sizeT");
+        // Check that the channels in the list are valid indexes. 
+        if(channelList!=null)
+        	channelOutOfBounds(channelList, "channel", from);
         
         // Copy basic metadata
-        Pixels from = iQuery.get(Pixels.class, pixelsId);
-        Pixels to = new Pixels();
         to.setDimensionOrder(from.getDimensionOrder());
         to.setMethodology(methodology);
         to.setPixelsDimensions(from.getPixelsDimensions());
@@ -135,29 +141,27 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         to.setSizeY(sizeY != null? sizeY : from.getSizeY());
         to.setSizeZ(sizeZ != null? sizeZ : from.getSizeZ());
         to.setSizeT(sizeT != null? sizeT : from.getSizeT());
-        to.setSizeC(from.getSizeC());
+        to.setSizeC(channelList!= null ? channelList.size() : from.getSizeC());
         to.setSha1("Pending...");
         
         // Deal with Image linkage
         Image image = from.getImage();
         image.addPixels(to);
         
-        // Copy channel data
-        Iterator<Channel> i = from.iterateChannels();
-        while (i.hasNext())
-        {
-            Channel cFrom = i.next();
-            Channel cTo = new Channel();
-            cTo.setColorComponent(cFrom.getColorComponent());
-            cTo.setLogicalChannel(cFrom.getLogicalChannel());
-            to.addChannel(cTo);
-        }
-        
+        // Copy channel data, if the channel list is null copy all channels.
+        // or copy the channels in the channelList if it's not null.
+        if(channelList!=null)
+        	for(Integer channel : channelList)
+        		copyChannel(channel, from, to);
+        else
+        	for(int channel = 0 ; channel < from.sizeOfChannels(); channel++)
+        		copyChannel(channel, from, to);
+     
         // Save and return our newly created Pixels Id
         image = iUpdate.saveAndReturnObject(image);
         return image.getPixels(image.sizeOfPixels() - 1).getId();
     }
-
+    
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public void saveRndSettings(RenderingDef rndSettings) {
@@ -193,4 +197,43 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
             throw new ValidationException(name + ": " + value + " <= 0");
         }
     }
+    
+    /**
+     * Ensures that a particular dimension value in a list is not out of 
+     * range (ex. less than zero).
+     * @param channelList The list of channels to check.
+     * @param name The name of the value to be used for error repording.
+     * @param pixels the pixels the channel list belongs to.
+     * @throws ValidationException If <code>value</code> is out of range.
+     */
+    private void channelOutOfBounds(List<Integer> channelList, String name, 
+    		Pixels pixels)
+    {
+    	if(channelList.size() == 0)
+    		throw new ValidationException("Channel List is not null but size == 0");
+    	for(int i = 0 ; i < channelList.size() ; i++)
+    	{
+    		int value = channelList.get(i);
+    		if (value < 0 || value >= pixels.sizeOfChannels())
+    			throw new ValidationException(name + ": " + i + " out of bounds");
+    	}
+    }
+    
+    /**
+     * Copy the channel from the pixels to the pixels called to.
+     * @param channel the channel index.
+     * @param from the pixel to copy from.
+     * @param to the pixels to copy to.
+     */
+    private void copyChannel(int channel, Pixels from, Pixels to)
+    {
+       	Channel cFrom = from.getChannel(channel);
+        Channel cTo = new Channel();
+        cTo.setColorComponent(cFrom.getColorComponent());
+        cTo.setLogicalChannel(cFrom.getLogicalChannel());
+        cTo.setStatsInfo(new StatsInfo(cFrom.getStatsInfo().getGlobalMin(),
+        						cFrom.getStatsInfo().getGlobalMax()));
+        to.addChannel(cTo);
+    }
+
 }

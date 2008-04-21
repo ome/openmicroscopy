@@ -14,6 +14,7 @@ package ome.api;
 // Application-internal dependencies
 import java.util.List;
 
+import ome.annotations.Validate;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.display.RenderingDef;
@@ -107,16 +108,20 @@ public interface IPixels extends ServiceInterface {
      * copy should maintain the same size.
      * @param sizeT The new number of timepoints. <code>null</code> if the
      * copy should maintain the same number.
+     * @param channelList The channels that should be copied into the new Pixels
+     * set.
      * @param methodology An optional string signifying the methodology that
      * will be used to produce this new Pixels set.
      * @return Id of the new Pixels object on success or <code>null</code> on
      * failure.
-     * @throws ValidationException If the X, Y, Z or T dimensions are out
+     * @throws ValidationException If the X, Y, Z, T or channelList dimensions are out
      * of bounds or the Pixels object corresponding to <code>pixelsId</code> is 
      * unlocatable. 
      */
     public Long copyAndResizePixels(long pixelsId, Integer sizeX, Integer sizeY,
-                                    Integer sizeZ, Integer sizeT,
+                                    Integer sizeZ, Integer sizeT, 
+                                    @Validate(Integer.class)
+                                    List<Integer> channelList,
                                     String methodology);
 
     /**
@@ -156,4 +161,6 @@ public interface IPixels extends ServiceInterface {
      * @return List of all enumeration objects for the <i>klass</i>.
      */
     public <T extends IObject> List<T> getAllEnumerations(Class<T> klass);
+    
+	
 }
