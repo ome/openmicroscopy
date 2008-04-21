@@ -90,7 +90,8 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	/*
 	 * swing components
 	 */ 
-	JPanel horizontalFrameBox;
+	JPanel contentsPanel;
+	
 	Box horizontalBox;
 	JButton collapseButton;	
 	JLabel nameLabel;
@@ -122,6 +123,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	
 	Icon collapsedIcon;
 	Icon notCollapsedIcon;
+	Icon spacerIcon;		// A blank icon to replace collapsedIcon if there are no children.
 	
 	// used in Diff (comparing two trees), to get a ref to all components, to colour red if different!
 	ArrayList<JComponent> visibleAttributes = new ArrayList<JComponent>();
@@ -148,8 +150,8 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		imageBorder = ImageBorder.getImageBorder();
 		imageBorderHighlight = ImageBorder.getImageBorderHighLight();
 		
-		this.setBorder(imageBorder);
-		this.setBackground(DEFAULT_BACKGROUND);
+		this.setBorder(null);
+		this.setBackground(null);
 		this.setLayout(new BorderLayout());
 		//this.setFocusable(true);
 		this.addMouseListener(new FormPanelMouseListener());
@@ -165,11 +167,13 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		collapseButton = new JButton();
 		//collapseButton.setBorder(BorderFactory.createLineBorder(Color.red));
 		collapseButton.setFocusable(false);
-		collapseButton.setVisible(false);	// only made visible if hasChildren
+		//collapseButton.setVisible(false);	// only made visible if hasChildren
 		collapseButton.setBackground(null);
+		collapseButton.setOpaque(true);
 		//unifiedButtonLookAndFeel(collapseButton);
 		collapsedIcon = ImageFactory.getInstance().getIcon(ImageFactory.COLLAPSED_ICON);
 		notCollapsedIcon = ImageFactory.getInstance().getIcon(ImageFactory.NOT_COLLAPSED_ICON);
+		spacerIcon = ImageFactory.getInstance().getIcon(ImageFactory.SPACER_ICON);
 		if (subStepsCollapsed) collapseButton.setIcon(collapsedIcon);
 		else collapseButton.setIcon(notCollapsedIcon);
 		collapseButton.setToolTipText("Collapse or Expand sub-steps");
@@ -188,20 +192,20 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		 * This is the only component that is always visible (but could be "")
 		 */
 		nameLabel = new JLabel();
+		nameLabel.setBackground(null);
+		nameLabel.setOpaque(false);
 		nameLabel.addMouseListener(new FormPanelMouseListener());
-		
-		
-		
 		
 		/*
 		 * A description label displays description below the field. Visibility false unless 
 		 * descriptionButton is clicked.
 		 */
 		descriptionLabel = new JLabel();
+		descriptionLabel.setBackground(null);
 		visibleAttributes.add(descriptionLabel);
 		infoIcon = ImageFactory.getInstance().getIcon(ImageFactory.INFO_ICON);
 		descriptionButton = new JButton(infoIcon);
-		unifiedButtonLookAndFeel(descriptionButton);
+		//unifiedButtonLookAndFeel(descriptionButton);
 		descriptionButton.setFocusable(false); // so it is not selected by tabbing
 		descriptionButton.addActionListener(new ToggleDescriptionListener());
 		descriptionButton.setBackground(null);
@@ -252,21 +256,23 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		 * horizontalFrameBox holds collapseButton and then the BorderLayout JPanel
 		 * nameLabel is in the WEST of this, then the horizontalBox for all other items is in the CENTER
 		 */
-		horizontalFrameBox = new JPanel(new BorderLayout());
-		horizontalFrameBox.setBackground(null);
-		horizontalFrameBox.add(collapseButton, BorderLayout.WEST);
-		
-		JPanel contentsNorthPanel = new JPanel(new BorderLayout());
-		contentsNorthPanel.setBackground(null);
-		contentsNorthPanel.add(nameLabel, BorderLayout.WEST);
+		contentsPanel = new JPanel(new BorderLayout());
 		
 		horizontalBox.add(descriptionButton);
 		horizontalBox.add(urlButton);
 		horizontalBox.add(requiredFieldButton);
 		horizontalBox.add(collapseAllChildrenButton);
 		horizontalBox.add(Box.createHorizontalStrut(10));
-		contentsNorthPanel.add(horizontalBox, BorderLayout.CENTER);
-		horizontalFrameBox.add(contentsNorthPanel, BorderLayout.CENTER);
+		
+		contentsPanel.add(nameLabel, BorderLayout.WEST);
+		contentsPanel.add(horizontalBox, BorderLayout.CENTER);
+		contentsPanel.add(descriptionLabel, BorderLayout.SOUTH);
+		
+		contentsPanel.setBackground(Color.red);
+		contentsPanel.setBorder(imageBorder);
+		
+		this.add(collapseButton, BorderLayout.WEST);
+		this.add(contentsPanel, BorderLayout.CENTER);
 
 		// refresh the current state
 		// can't call dataFieldUpdated() because subclasses override it, and try to 
@@ -279,8 +285,8 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		
 		refreshBackgroundColour();
 		
-		this.add(horizontalFrameBox, BorderLayout.NORTH);
-		this.add(descriptionLabel, BorderLayout.WEST);
+		//this.add(horizontalFrameBox, BorderLayout.NORTH);
+		//this.add(descriptionLabel, BorderLayout.WEST);
 		
 	}
 	
@@ -440,12 +446,12 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	}
 	private void refreshHighlighted() {
 		if (highlighted) { 
-			this.setBackground(XMLView.BLUE_HIGHLIGHT);
-			this.setBorder(imageBorderHighlight);
+			contentsPanel.setBackground(XMLView.BLUE_HIGHLIGHT);
+			contentsPanel.setBorder(imageBorderHighlight);
 		}
 		else {
-			this.setBackground((paintedColour == null) ? DEFAULT_BACKGROUND : paintedColour);
-			this.setBorder(imageBorder);
+			contentsPanel.setBackground((paintedColour == null) ? DEFAULT_BACKGROUND : paintedColour);
+			contentsPanel.setBorder(imageBorder);
 		}
 	}
 	
@@ -508,22 +514,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		}
 	}
 	
-	//public void checkForChildren() {
-	//	refreshHasChildren(dataField.hasChildren());
-	//}
-
-	public void refreshHasChildren(boolean hasChildren) {
-		if (!hasChildren) {
-			// if this node has just lost it's children, need to un-collapse it
-			// if it had children previously, the collapseButton will be visible
-			if (collapseButton.isVisible()) {
-				dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.FALSE, false);
-				// reset to uncollapsed state
-				collapseButton.setIcon(notCollapsedIcon);
-			}
-		}
-		collapseButton.setVisible(hasChildren);
-	}
+	
 	
 	public class CollapseListener implements ActionListener {
 		public void actionPerformed(ActionEvent event) {
@@ -542,22 +533,29 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		}
 	}
 	
-	// called when formField panel is loaded into UI, so that it is displayed correctly
-	// also called when user collapses or expands sub-steps
+	// called when formField panel is loaded into UI, so that it is displayed correctly.
+	// UI is rebuilt when hierarchy structure changes. 
+	// also called when user collapses or expands sub-steps.
 	public void refreshTitleCollapsed() {
 		
 		boolean collapsed = subStepsCollapsed();
 		
 		//System.out.println("FormField   refreshTitleCollapsed()  collapsed=" + collapsed);
 		
-		collapseButton.setIcon(collapsed ? collapsedIcon : notCollapsedIcon);
+		if (hasChildren()) {
+			collapseButton.setIcon(collapsed ? collapsedIcon : notCollapsedIcon);
+		} else {
+			collapseButton.setIcon(spacerIcon);
+			// this is only needed when building UI (superfluous when simply collapsing)
+			// if this node has just lost it's children, need to un-collapse it (if collapsed)
+			if (dataField.isAttributeTrue(DataFieldConstants.SUBSTEPS_COLLAPSED)) {
+				dataField.setAttribute(DataFieldConstants.SUBSTEPS_COLLAPSED, DataFieldConstants.FALSE, false);
+			}
+		}
 		
 		showChildren(!collapsed);
 		
 		refreshChildDisplayOrientation();
-		
-		// this is only needed when building UI (superfluous when simply collapsing)
-		refreshHasChildren(hasChildren());
 	}
 	
 	public boolean subStepsCollapsed() {

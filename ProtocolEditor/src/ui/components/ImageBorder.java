@@ -93,8 +93,8 @@ public class ImageBorder extends AbstractBorder {
     
     
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        g.setColor(Color.white);
-        g.fillRect(x,y,width,height);
+        // g.setColor(Color.white);
+        //g.fillRect(x,y,width,height);
 
         Graphics2D g2 = (Graphics2D)g;
         

@@ -65,6 +65,7 @@ public class ImageFactory {
 	public static final String PROTOCOL_ICON = ICONS_FILE + "edu_science.png";
 	public static final String COLLAPSED_ICON = ACTION_ICONS_FILE + "1rightarrow.png";
 	public static final String NOT_COLLAPSED_ICON = ACTION_ICONS_FILE + "1downarrow.png";
+	public static final String SPACER_ICON = ACTION_ICONS_FILE + "spacer16x16.png";
 	public static final String WWW_ICON = ACTION_ICONS_FILE + "www.png";
 	public static final String MORE_LIKE_THIS_ICON = ACTION_ICONS_FILE + "moreLikeThis.png";
 	public static final String INFO_ICON = ACTION_ICONS_FILE + "messagebox_info.png";
