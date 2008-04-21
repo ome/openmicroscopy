@@ -136,11 +136,13 @@ public class PojoMapper
         	BooleanAnnotation ann = (BooleanAnnotation) object;
         	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ann.getNs()))
         		return new ArchivedAnnotationData(ann);
-        }
-        else if (object instanceof Pixels) 
+        } else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
-        else if (object instanceof Experimenter) 
-            return new ExperimenterData((Experimenter) object); 
+        else if (object instanceof Experimenter) {
+        	ExperimenterData exp = new ExperimenterData((Experimenter) object); 
+        	//System.err.println(exp.getGroups());
+        	return exp;
+        }
         else if (object instanceof ExperimenterGroup) 
             return new GroupData((ExperimenterGroup) object); 
         throw new IllegalArgumentException("Unknown IObject type: "+

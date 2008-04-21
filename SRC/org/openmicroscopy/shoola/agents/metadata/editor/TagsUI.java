@@ -572,7 +572,7 @@ class TagsUI
 			}
 		}
 		
-		if (addedTags.size() > 0) {
+		if (addedTags.size() > 0 && tags != null) {
 			i = tags.iterator();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();

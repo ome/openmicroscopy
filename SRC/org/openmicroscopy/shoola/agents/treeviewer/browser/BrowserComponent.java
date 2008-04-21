@@ -874,7 +874,7 @@ class BrowserComponent
         ExperimenterData exp = (ExperimenterData) uo;
         //depending on the type of browser, present data 
         Set convertedNodes = TreeViewerTranslator.transformHierarchy(nodes, 
-					exp.getId(), exp.getDefaultGroup().getId());
+					exp.getId(), -1);//exp.getDefaultGroup().getId());
         view.setExperimenterData(convertedNodes, expNode);
         model.setState(READY);
         model.fireContainerCountLoading(null);

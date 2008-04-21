@@ -175,13 +175,14 @@ class UserNotifierManager
 	{
 		String path = dirPath+original;
 		boolean exist = false;
-        for (int i = 0; i < files.length; i++) {
-        	 if ((files[i].getAbsolutePath()).equals(path)) {
-                 exist = true;
-                 break;
-             }
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+	        	 if ((files[i].getAbsolutePath()).equals(path)) {
+	                 exist = true;
+	                 break;
+	             }
+			}
 		}
-
         if (!exist) return original;
         String name = f.getName();
     	int lastDot = name.lastIndexOf(".");
