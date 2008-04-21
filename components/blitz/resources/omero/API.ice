@@ -194,6 +194,7 @@ module omero {
 	                                 omero::RInt sizeY,
 	                                 omero::RInt sizeZ,
 	                                 omero::RInt sizeT,
+									 omero::sys::IntList channelList,
 	                                 string methodology) throws ServerError;
       };
 
