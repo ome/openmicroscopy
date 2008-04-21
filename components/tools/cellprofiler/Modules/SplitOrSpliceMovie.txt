@@ -1,0 +1,14 @@
+%textVAR01 = Do you want to split (create multiple smaller movies from one large movie) or splice (create one large movie from multiple smaller movies)?
+%choiceVAR01 = Split
+%choiceVAR01 = Splice
+%inputtypeVAR01 = popupmenu
+%pathnametextVAR02 = Where are the existing avi-formatted movie files?
+%pathnametextVAR03 = Where do you want to put the resulting file(s)?
+%textVAR04 = For SPLICE, what is the common text in your movie files? For SPLIT, what is the entire name, including extension, of the movie file to be split?
+%defaultVAR04 = GFPstain.avi
+%textVAR05 = For SPLIT, how many frames per movie do you want?
+%defaultVAR05 = 100
+%textVAR06 = For SPLICE, what do you want to call the final movie?
+%defaultVAR06 = GFPstainSPLICED.avi
+%textVAR07 = Note: This module is run by itself in a pipeline; there is no need to use a Load Images or Save Images module.
+%%%VariableRevisionNumber = 2

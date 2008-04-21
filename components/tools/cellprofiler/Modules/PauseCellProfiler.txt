@@ -1,0 +1,2 @@
+%textVAR01 = This module pauses CellProfiler until the dialog box is clicked.
+%%%VariableRevisionNumber = 1

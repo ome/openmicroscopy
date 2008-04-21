@@ -1,0 +1,12 @@
+%textVAR01 = Which image would you like to measure?
+%infotypeVAR01 = imagegroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What do you want the image subsample size to be?
+%defaultVAR02 = 0.25
+%textVAR03 = What fraction of the resulting image do you want to sample?
+%defaultVAR03 = 0.25
+%textVAR04 = What is the size of the structuring element?
+%defaultVAR04 = 10
+%textVAR05 = What do you want to be the length of the granular spectrum?
+%defaultVAR05 = 16
+%%%VariableRevisionNumber = 1

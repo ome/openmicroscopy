@@ -1,0 +1,13 @@
+%textVAR01 = What type of database do you want to use?
+%choiceVAR01 = MySQL
+%choiceVAR01 = Oracle
+%inputtypeVAR01 = popupmenu
+%textVAR02 = For MySQL only, what is the name of the database to use?
+%defaultVAR02 = DefaultDB
+%textVAR03 = What prefix should be used to name the tables in the database (should be unique per experiment, or leave "/" to have generic Per_Image and Per_Object tables)?
+%defaultVAR03 = /
+%textVAR04 = What prefix should be used to name the SQL files?
+%defaultVAR04 = SQL_
+%pathnametextVAR05 = Enter the directory where the SQL files are to be saved.  Type period (.) to use the default output folder.
+%defaultVAR05 = .
+%%%VariableRevisionNumber = 4

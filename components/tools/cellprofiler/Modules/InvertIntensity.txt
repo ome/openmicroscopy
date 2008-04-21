@@ -1,0 +1,7 @@
+%textVAR01 = What did you call the image to be inverted (made negative)?
+%infotypeVAR01 = imagegroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What do you want to call the inverted image?
+%defaultVAR02 = InvertedBlue
+%infotypeVAR02 = imagegroup indep
+%%%VariableRevisionNumber = 1

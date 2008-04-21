@@ -1,0 +1,19 @@
+%textVAR01 = What did you call the image to be thresholded?
+%infotypeVAR01 = imagegroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What do you want to call the thresholded image?
+%defaultVAR02 = ThreshBlue
+%infotypeVAR02 = imagegroup indep
+%textVAR03 = Pixels below this value (Range = 0-1) will be set to zero (0 will not threshold any pixels)
+%defaultVAR03 = 0
+%textVAR04 = If your answer was not 0, do you want to shift the remaining pixels'' intensities down by that intensity or retain their original values?
+%choiceVAR04 = Retain
+%choiceVAR04 = Shift
+%inputtypeVAR04 = popupmenu
+%textVAR05 = Pixels above this value (Range = 0-1) will be set to zero (1 will not threshold any pixels)
+%defaultVAR05 = 1
+%textVAR06 = If your answer was not 1, you can expand the thresholding around those excluded bright pixels by entering the number of pixels to expand here:
+%defaultVAR06 = 0
+%textVAR07 = Binary option: Enter the threshold to use to make the incoming image binary (black and white) where pixels equal to or below this value will be zero and above this value will be 1. If instead you want to use the settings above to preserve grayscale information, enter 0 here.
+%defaultVAR07 = 0
+%%%VariableRevisionNumber = 4

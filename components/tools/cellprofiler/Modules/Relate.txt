@@ -1,0 +1,11 @@
+%textVAR01 = What objects are the children objects (subobjects)?
+%infotypeVAR01 = objectgroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What are the parent objects?
+%infotypeVAR02 = objectgroup
+%inputtypeVAR02 = popupmenu
+%textVAR03 = What other object do you want to find distances to? (Must be one object per parent object, e.g. Nuclei)
+%infotypeVAR03 = objectgroup
+%choiceVAR03 = None
+%inputtypeVAR03 = popupmenu
+%%%VariableRevisionNumber = 2

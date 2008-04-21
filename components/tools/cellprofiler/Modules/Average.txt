@@ -1,0 +1,11 @@
+%textVAR01 = What did you call the images to be averaged (made into a projection)?
+%infotypeVAR01 = imagegroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What do you want to call the averaged image?
+%defaultVAR02 = AveragedBlue
+%infotypeVAR02 = imagegroup indep
+%textVAR03 = Are the images you want to use to be loaded straight from a Load Images module, or are they being produced by the pipeline?
+%choiceVAR03 = Load Images module
+%choiceVAR03 = Pipeline
+%inputtypeVAR03 = popupmenu
+%%%VariableRevisionNumber = 1

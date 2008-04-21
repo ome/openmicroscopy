@@ -1,0 +1,13 @@
+%textVAR01 = What did you call the larger identified objects?
+%infotypeVAR01 = objectgroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What did you call the smaller identified objects?
+%infotypeVAR02 = objectgroup
+%inputtypeVAR02 = popupmenu
+%textVAR03 = What do you want to call the new subregions?
+%defaultVAR03 = Cytoplasm
+%infotypeVAR03 = objectgroup indep
+%textVAR04 = What do you want to call the outlines of the identified objects (optional)?
+%defaultVAR04 = Do not save
+%infotypeVAR04 = outlinegroup indep
+%%%VariableRevisionNumber = 1

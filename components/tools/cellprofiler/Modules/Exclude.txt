@@ -1,0 +1,17 @@
+%textVAR01 = What did you call the objects you want to filter?
+%infotypeVAR01 = objectgroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What did you call the region outside of which objects should be excluded?
+%infotypeVAR02 = objectgroup
+%inputtypeVAR02 = popupmenu
+%textVAR03 = What do you want to call the remaining objects?
+%defaultVAR03 = FilteredObjects
+%infotypeVAR03 = objectgroup indep
+%textVAR04 = For the remaining objects, do you want to retain their original number or renumber them consecutively?
+%choiceVAR04 = Renumber
+%choiceVAR04 = Retain
+%inputtypeVAR04 = popupmenu
+%textVAR05 = What do you want to call the outlines of the remaining objects (optional)?
+%defaultVAR05 = Do not save
+%infotypeVAR05 = outlinegroup indep
+%%%VariableRevisionNumber = 1

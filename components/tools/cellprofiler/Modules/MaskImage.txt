@@ -1,0 +1,11 @@
+%textVAR01 = From which object would you like to make a mask?
+%choiceVAR01 = Image
+%infotypeVAR01 = objectgroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = Which image do you want to mask?
+%infotypeVAR02 = imagegroup
+%inputtypeVAR02 = popupmenu
+%textVAR03 = What do you want to call the masked image?
+%defaultVAR03 = MaskBlue
+%infotypeVAR03 = imagegroup indep
+%%%VariableRevisionNumber = 2

@@ -1,0 +1,7 @@
+%textVAR01 = What did you call the image to be corrected?
+%infotypeVAR01 = imagegroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What do you want to call the corrected image?
+%defaultVAR02 = CorrBlue
+%infotypeVAR02 = imagegroup indep
+%%%VariableRevisionNumber = 1

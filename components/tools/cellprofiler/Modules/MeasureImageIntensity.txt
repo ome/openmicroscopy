@@ -1,0 +1,10 @@
+%textVAR01 = What did you call the images you want to process?
+%infotypeVAR01 = imagegroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = Ignore pixels below this intensity level (Range = 0-1)
+%defaultVAR02 = 0
+%textVAR03 = Ignore pixels above this intensity level (Range = 0-1)
+%defaultVAR03 = 1
+%textVAR04 = Exclude pixels within this many pixels of an excluded bright object
+%defaultVAR04 = 0
+%%%VariableRevisionNumber = 2

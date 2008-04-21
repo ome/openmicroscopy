@@ -1,0 +1,6 @@
+%filenametextVAR01 = What is the file containing the text that you want to load?
+%textVAR02 = What would you like to call the loaded text?
+%defaultVAR02 = names
+%infotypeVAR02 = datagroup indep
+%pathnametextVAR03 = Enter the path name to the folder where the text file to be loaded is located.  Type period (.) for the default image folder.
+%%%VariableRevisionNumber = 2

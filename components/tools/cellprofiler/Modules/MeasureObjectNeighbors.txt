@@ -1,0 +1,16 @@
+%textVAR01 = What did you call the objects whose neighbors you want to measure?
+%infotypeVAR01 = objectgroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = Objects are considered neighbors if they are within this distance, in pixels. If you want your objects to be touching before you count neighbors (for instance, in an image of tissue), use the ExpandOrShrink module to expand your objects:
+%defaultVAR02 = 0
+%textVAR03 = What do you want to call the objects colored by number of neighbors, which are compatible for converting to a color image using the Convert To Image and Save Images modules?
+%defaultVAR03 = Do not save
+%infotypeVAR03 = objectgroup indep
+%textVAR04 = What do you want to call the image of the objects with grayscale values corresponding to the number of neighbors, which is compatible for saving in .mat format using the Save Images module for further analysis in Matlab?
+%defaultVAR04 = Do not save
+%infotypeVAR04 = imagegroup indep
+%textVAR05 = Do you want to calculate the extra measures?
+%choiceVAR05 = No
+%choiceVAR05 = Yes
+%inputtypeVAR05 = popupmenu
+%%%VariableRevisionNumber = 5

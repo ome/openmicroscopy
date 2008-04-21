@@ -1,0 +1,12 @@
+%textVAR01 = What did you call the images you want to use to manually identify an object?
+%infotypeVAR01 = imagegroup
+%inputtypeVAR01 = popupmenu
+%textVAR02 = What do you want to call the objects identified by this module?
+%defaultVAR02 = Cells
+%infotypeVAR02 = objectgroup indep
+%textVAR03 = Enter the maximum image height or width (in pixels) to display for the manual identification. Very large images will be resized to this maximum dimension for the manual identification step. Enter "Do not resize" to display the unaltered image.
+%defaultVAR03 = Do not resize
+%textVAR04 = What do you want to call the outlines of the identified objects (optional)?
+%defaultVAR04 = Do not save
+%infotypeVAR04 = outlinegroup indep
+%%%VariableRevisionNumber = 2
