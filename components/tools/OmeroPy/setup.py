@@ -1,4 +1,4 @@
-#!/opt/local/bin/python2.4
+#!/usr/bin/env python
 """
    setuptools entry point
 
