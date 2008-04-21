@@ -137,7 +137,7 @@ public class FormFieldLink extends FormField {
 		
 		Action[] getLinkActions = new Action[] {
 				new GetURLAction(),
-				new GetAbsoluteImagePathAction()};
+				new GetLinkPathAction()};
 		getLinkButton = new PopupMenuButton("Choose a link to a URL or local file", 
 				chooseLinkIcon, getLinkActions);
 		
@@ -181,6 +181,7 @@ public class FormFieldLink extends FormField {
 			
 			newValues.put(name, value);
 			
+			// Updates new values, and adds to undo queue as one action. 
 			dataField.setAttributes("Link", newValues, true);
 		}
 			
@@ -252,9 +253,9 @@ public class FormFieldLink extends FormField {
 		}
 	}
 	
-	public class GetAbsoluteImagePathAction extends AbstractAction {
+	public class GetLinkPathAction extends AbstractAction {
 		
-		public GetAbsoluteImagePathAction() {
+		public GetLinkPathAction() {
 			putValue(Action.NAME, "Set Link to local file");
 			putValue(Action.SHORT_DESCRIPTION, "Choose a file, that will be linked from this file");
 			putValue(Action.SMALL_ICON, linkLocalIcon); 

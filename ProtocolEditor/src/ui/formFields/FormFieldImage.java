@@ -25,6 +25,7 @@ package ui.formFields;
 
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -37,6 +38,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.StringTokenizer;
 
 import javax.swing.AbstractAction;
@@ -44,6 +46,8 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -80,6 +84,8 @@ public class FormFieldImage extends FormField {
 	JButton getImageButton;
 	JButton zoomButton;
 	
+	JDialog customGetImageDialog;
+	
 	
 	public FormFieldImage(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
@@ -90,11 +96,7 @@ public class FormFieldImage extends FormField {
 		
 		Icon openImageIcon = ImageFactory.getInstance().getIcon(ImageFactory.OPEN_IMAGE_ICON);
 		
-		Action[] getImageActions = new Action[] {
-				new GetAbsoluteImagePathAction(),
-				new GetRelativeImagePathAction()};
-		getImageButton = new PopupMenuButton("Choose an image to display", 
-				openImageIcon, getImageActions);
+		getImageButton = new JButton(new GetImagePathAction());
 		
 		getImageButton.setBorder(toolBarButtonBorder);
 		
@@ -136,6 +138,64 @@ public class FormFieldImage extends FormField {
 		
 		// enable or disable components based on the locked status of this field
 		refreshLockedStatus();
+	}
+	
+	
+	/**
+	 * Opens a fileChooser, for the user to pick a file.
+	 * Then this file path is saved to dataField. 
+	 * If the user checks "Relative link" then filePath is saved as relative. 
+	 */
+	public void getAndSaveLink() {
+		
+		String currentFilePath = PreferencesManager.getPreference(PreferencesManager.CURRENT_IMAGES_FOLDER);
+		String[] fileExtensions = {".jpg", ".png", ".gif"};
+		
+		// Create a file chooser
+		FileChooserReturnFile fc = new FileChooserReturnFile(fileExtensions, currentFilePath);
+		
+		JCheckBox relativeLink = new JCheckBox("Relative image location");
+		relativeLink.setToolTipText("<html>The link to the chosen image will be 'relative' to the OMERO.editor file you are editing.<br>" +
+				"Choose this option if the location of both files is likely to change in a similar way (eg saved in the same folder).");
+		
+		customGetImageDialog = new JDialog();
+		Container dialogPane = customGetImageDialog.getContentPane();
+		dialogPane.setLayout(new BorderLayout());
+		dialogPane.add(fc, BorderLayout.CENTER);
+		
+		dialogPane.add(relativeLink, BorderLayout.SOUTH);
+		
+		fc.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				customGetImageDialog.setVisible(false);
+			}});
+		customGetImageDialog.pack();
+		customGetImageDialog.setModal(true);
+		customGetImageDialog.setLocationRelativeTo(this);
+		customGetImageDialog.setVisible(true);
+		
+		File file = fc.getSelectedFile();
+		// remember where folder was
+		if (file == null) 
+		return;
+		
+		PreferencesManager.setPreference(PreferencesManager.CURRENT_IMAGES_FOLDER, file.getParent());
+		
+		String linkedFilePath = file.getAbsolutePath();
+		
+		/*
+		 * If the user checked the "Relative Link" checkBox, save as a relative link.
+		 * Otherwise, save as absolute link.
+		 * Either will cause the field to refresh, displaying the new link. 
+		 */
+		if (relativeLink.isSelected()) {
+			setRelativeImagePath(linkedFilePath);
+		} else {
+			// Save the absolute Path
+			saveLinkToDataField(DataFieldConstants.ABSOLUTE_IMAGE_PATH, linkedFilePath);
+		}
+		
 	}
 	
 	/**
@@ -180,101 +240,98 @@ public class FormFieldImage extends FormField {
 				(dataField.getAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH) != null));
 	}
 	
-	public class GetAbsoluteImagePathAction extends AbstractAction {
+	public class GetImagePathAction extends AbstractAction {
 		
-		public GetAbsoluteImagePathAction() {
-			putValue(Action.NAME, "Set Absolute Image Path");
-			putValue(Action.SHORT_DESCRIPTION, "Link to an image that will stay in the same absolute file location.");
+		public GetImagePathAction() {
+			putValue(Action.NAME, "");
+			putValue(Action.SHORT_DESCRIPTION, "Link to an image on your computer, to display the image in this field.");
 			putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.OPEN_IMAGE_ICON)); 
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			String imagePath = getImagePath();
-			if (imagePath == null) // user canceled
-				return;
-			
-			// Save the absolute Path
-			// (first overwrite the relative path (if not null). Add to undo queue.
-			if (dataField.getAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH) != null)
-				dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, null, true);
-			// this will cause this field to refresh, displaying the image.
-			dataField.setAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH, imagePath, true);
+			getAndSaveLink();
 		}
+	}
+	
+	public void setRelativeImagePath(String imagePath) {
+		/*
+		 * First, check that the user has saved the current editor file somewhere. 
+		 */
+		File editorFile = ((DataField)dataField).getNode().getTree().getFile();
+		String editorFilePath = editorFile.getAbsolutePath();
+			
+		/*
+		 * If the file does not exist, forget about it!!
+		 */
+		if (!editorFile.exists()) {
+			JOptionPane.showMessageDialog(null, "This editor file has not yet been saved. \n" +
+					"You must first save the editor file, before a relative " +
+					"image file path can be defined.", 
+					"Please save file first", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		/*
+		 * If the file exists, but contains "untitled", it may have been saved in a 
+		 * temporary location (not in a correct folder). 
+		 * Need to check that the user has saved it where they want. 
+		 */
+		if (editorFile.getName().contains("untitled")) {
+			
+			Object[] options = {"Cancel", "Continue anyway"};
+			
+			int yesNo = JOptionPane.showOptionDialog(null, "The current file is called 'untitled' and \n" +
+					"may therefore be in a temporary file location. \n" +
+					"If so, please cancel and save the file in its 'proper' place.", 
+					"Temporary file?", JOptionPane.YES_NO_OPTION, 
+					JOptionPane.WARNING_MESSAGE, null, options, options[1]);
+			
+			if (yesNo == 0) {
+				return;
+			}
+			
+		}
+		
+		if (imagePath == null) // user canceled
+			return;
+		
+		/*
+		 * Calculate what the relative path is, based on the location of the editorFile. 
+		 */
+		String relativePath = FilePathMethods.getRelativePathFromAbsolutePath(editorFile, imagePath);
+		
+		
+		// Save the relative Path (sets AbsolutePath attribute to null)
+		saveLinkToDataField(DataFieldConstants.RELATIVE_IMAGE_PATH, relativePath);
 	}
 	
 	/**
-	 * The action that allows users to choose a Relative image path. 
-	 * @author will
-	 *
+	 * To ensure that only one type of link is saved to dataField.
+	 * Update several attributes at once, making sure that all apart from 
+	 * one are null.
+	 * 
+	 * @param name
+	 * @param value
 	 */
-	public class GetRelativeImagePathAction extends AbstractAction {
+	public void saveLinkToDataField(String name, String value) {
 		
-		public GetRelativeImagePathAction() {
-			putValue(Action.NAME, "Set Relative Image Path");
-			putValue(Action.SHORT_DESCRIPTION, "Link to an image that will stay in the same file location, relative to this file");
-			putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.OPEN_IMAGE_ICON)); 
+		if (name.equals(DataFieldConstants.ABSOLUTE_IMAGE_PATH) || 
+				name.equals(DataFieldConstants.RELATIVE_IMAGE_PATH)) {
+			
+			/*
+			 * Make a map with all values null, then update one.
+			 */
+			HashMap<String, String> newValues = new HashMap<String, String>();
+			newValues.put(DataFieldConstants.ABSOLUTE_IMAGE_PATH, null);
+			newValues.put(DataFieldConstants.RELATIVE_IMAGE_PATH, null);
+			
+			newValues.put(name, value);
+			
+			// Updates new values, and adds to undo queue as one action. 
+			dataField.setAttributes("Image", newValues, true);
 		}
-		
-		public void actionPerformed(ActionEvent e) {
 			
-			/*
-			 * First, check that the user has saved the current editor file somewhere. 
-			 */
-			File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-			String editorFilePath = editorFile.getAbsolutePath();
-				
-			/*
-			 * If the file does not exist, forget about it!!
-			 */
-			if (!editorFile.exists()) {
-				JOptionPane.showMessageDialog(null, "This editor file has not yet been saved. \n" +
-						"You must first save the editor file, before a relative " +
-						"image file path can be defined.", 
-						"Please save file first", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			
-			/*
-			 * If the file exists, but contains "untitled", it may have been saved in a 
-			 * temporary location (not in a correct folder). 
-			 * Need to check that the user has saved it where they want. 
-			 */
-			if (editorFile.getName().contains("untitled")) {
-				
-				Object[] options = {"Cancel", "Continue anyway"};
-				
-				int yesNo = JOptionPane.showOptionDialog(null, "The current file is called 'untitled' and \n" +
-						"may therefore be in a temporary file location. \n" +
-						"If so, please cancel and save the file in its 'proper' place.", 
-						"Temporary file?", JOptionPane.YES_NO_OPTION, 
-						JOptionPane.WARNING_MESSAGE, null, options, options[1]);
-				
-				if (yesNo == 0) {
-					return;
-				}
-				
-			}
-			
-			String imagePath = getImagePath();
-			if (imagePath == null) // user canceled
-				return;
-			
-
-			/*
-			 * Calculate what the relative path is, based on the location of the editorFile. 
-			 */
-			String relativePath = FilePathMethods.getRelativePathFromAbsolutePath(editorFile, imagePath);
-			
-			
-			// Save the relative Path
-			// (first overwrite the absolute path (if not null). Add to undo queue.
-			if (dataField.getAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH) != null)
-				dataField.setAttribute(DataFieldConstants.ABSOLUTE_IMAGE_PATH, null, true);
-			// This will cause this field to Refresh, displaying the image.
-			dataField.setAttribute(DataFieldConstants.RELATIVE_IMAGE_PATH, relativePath, true);
-		}
 	}
-	
 	
 	
 	public void setImagePath(String imagePath) {
