@@ -89,6 +89,9 @@ public interface Search extends ome.api.StatefulServiceInterface,
      */
     public final static boolean DEFAULT_RETURN_UNLOADED = false;
 
+    /**
+     * Default {@link #isAllowLeadingWildcard() leading-wildcard setting}
+     */
     public final static boolean ALLOW_LEADING_WILDCARD = false;
 
     // Non-Query State ~
@@ -190,6 +193,25 @@ public interface Search extends ome.api.StatefulServiceInterface,
      */
     boolean isReturnUnloaded();
 
+    /**
+     * Permits full-text queries with a leading query if true.
+     * 
+     * @see #isAllowLeadingWildcard()
+     * @see #byFullText(String)
+     * @see #bySomeMustNone(String[], String[], String[])
+     */
+    void setAllowLeadingWildcard(boolean allowLeadingWildcard);
+
+    /**
+     * Returns the current leading-wildcard setting. If false,
+     * {@link #byFullText(String)} and
+     * {@link #bySomeMustNone(String[], String[], String[])} will throw an
+     * {@link ApiUsageException}, since leading-wildcard searches are quite
+     * slow. Use {@link #setAllowLeadingWildcard()} in order to permit this
+     * usage.
+     */
+    boolean isAllowLeadingWildcard();
+
     // Filters ~~~~~~~~~~~~~~~~~~~~~
 
     /**
@@ -203,8 +225,6 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * guaranteed to be one of these types.
      */
     <T extends IObject> void onlyTypes(Class<T>... classes);
-
-    void setAllowLeadingWildcard();
 
     /**
      * Permits all types to be returned. For some types of queries, this carries

@@ -57,13 +57,19 @@ public class FullText extends SearchAction {
         if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
             throw new ApiUsageException(
                     "Searches by full text are currently limited to a single type.\n"
-                            + "Plese use Search.onlyType() or if you use leading wildcard"
-                            + " use setAllowLeadingWildcard()");
+                            + "Plese use Search.onlyType()");
         }
 
         if (query == null || query.length() < 1) {
             throw new IllegalArgumentException("Query string must be non-empty");
         }
+
+        if (query.startsWith("*") && !values.leadingWildcard) {
+            throw new ApiUsageException("Searches starting with a leading "
+                    + "wildcard can be slow.\nPlease use "
+                    + "setAllowLeadingWildcard() to permit this usage.");
+        }
+
         this.queryStr = query;
         try {
             parser.setAllowLeadingWildcard(values.leadingWildcard);

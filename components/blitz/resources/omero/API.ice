@@ -419,12 +419,13 @@ module omero {
         bool isUseProjections() throws ServerError;
         void setReturnUnloaded(bool returnUnloaded) throws ServerError;
         bool isReturnUnloaded() throws ServerError;
+        void setAllowLeadingWildcard(bool allowLeadingWildcard) throws ServerError;
+        bool isAllowLeadingWildcard() throws ServerError;
 
         // Filters ~~~~~~~~~~~~~~~~~~~~~~
 
         void onlyType(string klass) throws ServerError;
         void onlyTypes(StringSet classes) throws ServerError;
-        void setAllowLeadingWildcard() throws ServerError;
         void allTypes() throws ServerError;
         void onlyIds(omero::sys::LongList ids) throws ServerError;
         void onlyOwnedBy(omero::model::Details d) throws ServerError;

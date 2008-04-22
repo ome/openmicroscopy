@@ -219,6 +219,39 @@ public class SearchTest extends AbstractTest {
         search.close();
     }
 
+    @Test
+    public void testWildcardFullTextSearch() {
+
+        Image i = new Image();
+        i.setName(uuid());
+        i = iUpdate.saveAndReturnObject(i);
+
+        iUpdate.indexObject(i);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.byFullText(i.getName());
+        assertResults(search, 1);
+
+        String leadingWildcard = "*"
+                + i.getName().substring(1, i.getName().length());
+        try {
+            search.byFullText(leadingWildcard);
+            fail("Should throw AUE");
+        } catch (ApiUsageException e) {
+            // ok, and clear
+            while (search.hasNext()) {
+                search.results();
+            }
+        }
+        search.setAllowLeadingWildcard(true);
+        search.byFullText(leadingWildcard);
+        assertResults(search, 1);
+        search.close();
+
+    }
+
     String[] sa(String... arr) {
         return arr;
     }

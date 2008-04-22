@@ -517,9 +517,9 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     @Transactional
     @RolesAllowed("user")
     @SuppressWarnings("unchecked")
-    public void setAllowLeadingWildcard() {
+    public void setAllowLeadingWildcard(boolean allowLeadingWildcard) {
         synchronized (values) {
-            values.leadingWildcard = true;
+            values.leadingWildcard = allowLeadingWildcard;
         }
     }
 
@@ -552,6 +552,14 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void fetchAlso(String... fetches) {
         synchronized (values) {
             values.fetches = Arrays.asList(fetches);
+        }
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public boolean isAllowLeadingWildcard() {
+        synchronized (values) {
+            return values.leadingWildcard;
         }
     }
 
