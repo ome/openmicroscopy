@@ -166,25 +166,30 @@ class MetadataViewerComponent
 	{
 		if (node == null)
 			throw new IllegalArgumentException("No node specified.");
+		//
 		Object userObject = node.getUserObject();
-		Browser browser = model.getBrowser();
-		if (result instanceof StructuredDataResults) {
-			browser.setStructuredDataResults(node, 
-											(StructuredDataResults) result);
-			model.getEditor().setStructuredDataResults( 
-								(StructuredDataResults) result);
-			model.setStructuredDataResults((StructuredDataResults) result);
-			view.setOnScreen();
-			return;
-		}
+		Object refObject = model.getRefObject();
+		if (refObject == userObject) {
+			Browser browser = model.getBrowser();
+			if (result instanceof StructuredDataResults) {
+				browser.setStructuredDataResults(node, 
+												(StructuredDataResults) result);
+				model.getEditor().setStructuredDataResults( 
+									(StructuredDataResults) result);
+				model.setStructuredDataResults((StructuredDataResults) result);
+				view.setOnScreen();
+				return;
+			}
+				
+			if (!(userObject instanceof String)) return;
+			String name = (String) userObject;
 			
-		if (!(userObject instanceof String)) return;
-		String name = (String) userObject;
+			if (browser == null) return;
+			if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
+				browser.setParents((TreeBrowserSet) node, (Collection) result);
+			model.notifyLoadingEnd(node);
+		}
 		
-		if (browser == null) return;
-		if (Browser.DATASETS.equals(name) || Browser.PROJECTS.equals(name)) 
-			browser.setParents((TreeBrowserSet) node, (Collection) result);
-		model.notifyLoadingEnd(node);
 	}
 
 	/** 

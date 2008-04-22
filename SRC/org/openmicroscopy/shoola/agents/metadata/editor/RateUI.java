@@ -73,14 +73,19 @@ class RateUI
 	/** The last selected value. */
 	private int				selectedValue;
 	
+	/** The initial value of the rating. */
+	private int 			initialValue;
+	
 	/** Initializes the components composing the UI. */
 	private void initComponents()
 	{
 		int n = model.getRatingCount();
 		String s = "";
 		selectedValue = 0;
+		
 		if (n > 0)
 			selectedValue = model.getRatingAverage();
+		initialValue = selectedValue;
 		rating = new RatingComponent(selectedValue, 
 									RatingComponent.MEDIUM_SIZE);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
@@ -109,7 +114,6 @@ class RateUI
 	{
 		removeAll();
 		initComponents();
-		
 		JLabel label = UIUtilities.setTextFont(getComponentTitle());
 		label.setLabelFor(rating);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -150,8 +154,7 @@ class RateUI
 	protected boolean hasDataToSave()
 	{
 		//if (selectedValue == -1) return false;
-		int value = model.getRatingAverage();
-		return (selectedValue != value);
+		return (selectedValue != initialValue);
 	}
 
 	/**
@@ -160,7 +163,7 @@ class RateUI
 	 */
 	protected void clearData()
 	{
-		selectedValue = model.getRatingAverage();
+		selectedValue = 0;//model.getRatingAverage();
 	}
 	
 	/**
@@ -169,6 +172,7 @@ class RateUI
 	 */
 	protected void clearDisplay() 
 	{
+		selectedValue = 0;
 		removeAll();
 	}
 	
@@ -180,9 +184,13 @@ class RateUI
 	{
 		String name = evt.getPropertyName();
 		if (RatingComponent.RATE_PROPERTY.equals(name)) {
-			selectedValue = (Integer) evt.getNewValue();
-			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-								Boolean.TRUE);
+			int newValue = (Integer) evt.getNewValue();
+			System.err.println("newValue: "+newValue+" "+selectedValue);
+			if (newValue != selectedValue) {
+				selectedValue = newValue;
+				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+									Boolean.TRUE);
+			}
 		}
 	}
 	

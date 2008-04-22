@@ -98,7 +98,13 @@ class PropertiesUI
 
     /** Panel hosting the main display. */
     private JComponent			contentPanel;
-
+    
+    /** The name before possible modification. */
+    private String				originalName;
+    
+    /** The description before possible modification. */
+    private String				originalDescription;
+    
     /**
      * Builds and lays out the panel displaying the permissions of the edited
      * file.
@@ -375,8 +381,10 @@ class PropertiesUI
 		removeAll();
 		nameArea.getDocument().removeDocumentListener(this);
 		descriptionArea.getDocument().removeDocumentListener(this);
-		nameArea.setText(model.getRefObjectName());
-        descriptionArea.setText(model.getRefObjectDescription());
+		originalName = model.getRefObjectName();
+		nameArea.setText(originalName);
+		originalDescription = model.getRefObjectDescription();
+        descriptionArea.setText(originalDescription);
         boolean b = model.isCurrentUserOwner(model.getRefObject());
         nameArea.setEnabled(b);
         descriptionArea.setEnabled(b);
@@ -453,11 +461,11 @@ class PropertiesUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		String name = model.getRefObjectName().trim();
+		String name = originalName;//model.getRefObjectName().trim();
 		String value = nameArea.getText();
 		if (!name.equals(value.trim())) return true;
 		
-		name = model.getRefObjectDescription();
+		name = originalDescription;//model.getRefObjectDescription();
 		value = descriptionArea.getText();
 		value = value.trim();
 		if (name == null) 
@@ -473,10 +481,18 @@ class PropertiesUI
 	 */
 	protected void clearData()
 	{
-		nameArea.setText(model.getRefObjectName().trim());
-		String name = model.getRefObjectDescription();
+		nameArea.getDocument().removeDocumentListener(this);
+		descriptionArea.getDocument().removeDocumentListener(this);
+		nameArea.setText("");
+		descriptionArea.setText("");
+		nameArea.getDocument().addDocumentListener(this);
+		descriptionArea.getDocument().addDocumentListener(this);
+		/*
+		nameArea.setText(originalName);
+		String name = originalDescription;//model.getRefObjectDescription();
 		if (name != null)
 			descriptionArea.setText(name.trim());
+			*/
 	}
 	
 	/**

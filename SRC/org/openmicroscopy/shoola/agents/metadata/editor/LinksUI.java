@@ -58,10 +58,12 @@ import javax.swing.event.DocumentListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
@@ -191,7 +193,6 @@ class LinksUI
 		urlComponents = new HashMap<Integer, URLAnnotationData>();
 		if (urls != null) {
 			i = urls.iterator();
-			
 			while (i.hasNext()) {
 				url = (URLAnnotationData) i.next();
 				if (!toRemove.contains(url)) {
@@ -401,7 +402,6 @@ class LinksUI
 		}
 		
 		if (l.size() > 0) {
-			
 			i = l.iterator();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
@@ -419,7 +419,7 @@ class LinksUI
 		SelectionWizard wizard = new SelectionWizard(
 										reg.getTaskBar().getFrame(), r);
 		IconManager icons = IconManager.getInstance();
-		wizard.setTitle("Upload URls Selection" , "Select Urls already " +
+		wizard.setTitle("Upload URls Selection", "Select Urls already " +
 				"updloaded to the server", 
 				icons.getIcon(IconManager.URL_48));
 		wizard.addPropertyChangeListener(this);
@@ -440,13 +440,6 @@ class LinksUI
 		//setBorder(border);
 		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
-		/*
-		if (n == 0) {
-			add(layoutAddContent());
-			revalidate();
-			return;
-		} 
-		*/
 		add(layoutURL());
 		add(Box.createVerticalStrut(5));
 		add(layoutAddContent());
@@ -480,12 +473,32 @@ class LinksUI
 	 */
 	private URLAnnotationData createAnnotation(String value)
 	{
+		if (value == null) return null;
+		LogMessage msg;
+		String[] URLS = new String[1];
+		URLS[0] = "http";
 		try {
 			return new URLAnnotationData(value);
 		} catch (Exception e) {
-			value = URLAnnotationData.HTTP+"://"+value;
-			return createAnnotation(value);
+			if (!value.contains(URLAnnotationData.HTTP) && 
+					!value.contains(URLAnnotationData.HTTPS)) {
+				value = URLAnnotationData.HTTP+"://"+value;
+				try {
+					return new URLAnnotationData(value);
+				} catch (Exception ex) {
+					msg = new LogMessage();
+					msg.print("URL Creation");
+					msg.print(ex);
+					DataBrowserAgent.getRegistry().getLogger().error(this, msg);
+					return null;
+				}
+			}
+			msg = new LogMessage();
+			msg.print("URL Creation");
+			msg.print(e);
+			DataBrowserAgent.getRegistry().getLogger().error(this, msg);
 		}
+		return null;
 	}
 	
 	/**
@@ -498,13 +511,19 @@ class LinksUI
 		Iterator i = areas.iterator();
 		JTextField area;
 		String value;
+		URLAnnotationData data;
+		UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
 		while (i.hasNext()) {
 			area = (JTextField) i.next();
 			value = area.getText();
 			if (value != null) {
 				value = value.trim();
 				if (value.length() > 0) {
-					l.add(createAnnotation(value));
+					data = createAnnotation(value);
+					if (data != null) l.add(data);
+					else {
+						un.notifyInfo("URL", "The url entered is not valid.");
+					}
 				}
 			}
 		}

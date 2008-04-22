@@ -296,6 +296,8 @@ class TagsUI
 		int vl;
 		Iterator j;
 		TagAnnotationData item;
+		/*
+		Collection tags = model.getTags();
 		for (int i = 0; i < names.length; i++) {
 			v = names[i];
 			if (metrics != null)
@@ -303,19 +305,23 @@ class TagsUI
 			vl = (int) r.getWidth();
 			if (p.x >= l && p.x <= (l+vl)) {
 				v = v.trim();
-				j = model.getTags().iterator();
-				while (j.hasNext()) {
-					item = (TagAnnotationData) j.next();
-					if (item.getTagValue().equals(v)) {
-						//descriptionArea.setText(item.getDescription());
-						return;
+				if (tags != null) {
+					j = tags.iterator();
+					while (j.hasNext()) {
+						item = (TagAnnotationData) j.next();
+						if (item.getTagValue().equals(v)) {
+							//descriptionArea.setText(item.getT);
+							return;
+						}
 					}
 				}
+				
 				//descriptionArea.setText("");
 				return;
 			}
 			l += vl;
 		}
+		*/
 	}
 	
 	/** Initializes the {@link HistoryDialog} used for code completion. */

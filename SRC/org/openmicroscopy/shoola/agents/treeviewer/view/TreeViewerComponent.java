@@ -136,30 +136,45 @@ class TreeViewerComponent
 		}
 		UIUtilities.centerAndShow(switchUserDialog);
 	}
-
+	
 	/**
-	 * Saves the data and replaces the view
-	 * or only replaces the view depending on the passed flag.
+	 * Displays the data browser corresponding to the passed node.
 	 * 
-	 * @param b Pass <code>true</code> to save and replace, <code>false</code>
-	 * 			to replace.
+	 * @param object
+	 * @param display
 	 */
-	private void saveInEditor(boolean b)
+	private void showDataBrowser(Object object, TreeImageDisplay display)
 	{
-		if (model.getState() == DISCARDED)
-			throw new IllegalStateException(
-					"This method cannot be invoked in the DISCARDED state.");
-		if (b) {
-			model.getMetadataViewer().saveData();
-			//model.getEditor().saveData();
-			//model.setEditor(null);
-			//onSelectedDisplay();
-		} else {
-			model.getMetadataViewer().clearDataToSave();
-			//removeEditor();
-			Browser browser = model.getSelectedBrowser();
-			if (browser != null) browser.setSelectedNode();
-		}
+		DataBrowser db;
+		TreeImageDisplay parent = display.getParentDisplay();
+		if (object instanceof ImageData) {
+      	  
+      	  if (parent != null) {
+      		  db = DataBrowserFactory.getDataBrowser(
+      				  				parent.getUserObject());
+      		  if (db != null) {
+              	  view.removeAllFromWorkingPane();
+              	  view.addComponent(db.getUI());
+              	  List<DataObject> nodes = new ArrayList<DataObject>();
+              	  nodes.add((DataObject) object);
+              	  db.setSelectedNodes(nodes);
+      		  } else showDataBrowser(object, parent.getParentDisplay());
+      	  } else {
+      		view.removeAllFromWorkingPane();
+      	  }
+        } else {
+        	db = DataBrowserFactory.getDataBrowser(object);
+        	if (db != null) {
+        		view.removeAllFromWorkingPane();
+        		view.addComponent(db.getUI());
+        		List<DataObject> nodes = new ArrayList<DataObject>();
+        		nodes.add((DataObject) object);
+        		db.setSelectedNodes(nodes);
+        	} else {
+        		if (parent == null) view.removeAllFromWorkingPane();
+        		else showDataBrowser(object, parent);
+        	}
+        }
 	}
 	
 	/**
@@ -556,90 +571,9 @@ class TreeViewerComponent
         	  Object object = display.getUserObject();
               metadata.setRootObject(object);
               showDataBrowser(object, display);
-              /*
-              if (object instanceof ImageData) {
-            	  TreeImageDisplay parent = display.getParentDisplay();
-            	  if (parent != null) {
-            		  db = DataBrowserFactory.getDataBrowser(
-            				  				parent.getUserObject());
-            		  if (db != null) {
-                    	  view.removeAllFromWorkingPane();
-                    	  view.addComponent(db.getBrowser());
-                    	  List<DataObject> nodes = new ArrayList<DataObject>();
-                    	  nodes.add((DataObject) object);
-                    	  db.setSelectedNodes(nodes);
-            		  }
-            	  }
-              } else {
-            	  db = DataBrowserFactory.getDataBrowser(object);
-            	  System.err.println(object+"db "+db);
-            	  if (db != null) {
-                	  view.removeAllFromWorkingPane();
-                	  view.addComponent(db.getBrowser());
-        		  }
-              }
-              */
-              //Need to decide of a strategy
-              /**
-              DataBrowser db = DataBrowserFactory.getDataBrowser(object);
-              if (db != null) {
-            	  view.removeAllFromWorkingPane();
-            	  view.addComponent(db.getBrowser());
-              } else {
-            	  if (dataBrowser != null && object instanceof DataObject) {
-                	  List<DataObject> nodes = new ArrayList<DataObject>();
-                	  nodes.add((DataObject) object);
-                	  dataBrowser.setSelectedNodes(nodes);
-                  }
-              }
-              */
-              
-             
-            	
-              //view.addComponent(model.getMetadataViewer().getEditorUI());
         }
 	}
 
-	/**
-	 * Displays the data browser corresponding to the passed node.
-	 * 
-	 * @param object
-	 * @param display
-	 */
-	private void showDataBrowser(Object object, TreeImageDisplay display)
-	{
-		DataBrowser db;
-		TreeImageDisplay parent = display.getParentDisplay();
-		if (object instanceof ImageData) {
-      	  
-      	  if (parent != null) {
-      		  db = DataBrowserFactory.getDataBrowser(
-      				  				parent.getUserObject());
-      		  if (db != null) {
-              	  view.removeAllFromWorkingPane();
-              	  view.addComponent(db.getUI());
-              	  List<DataObject> nodes = new ArrayList<DataObject>();
-              	  nodes.add((DataObject) object);
-              	  db.setSelectedNodes(nodes);
-      		  } else showDataBrowser(object, parent.getParentDisplay());
-      	  } else {
-      		view.removeAllFromWorkingPane();
-      	  }
-        } else {
-        	db = DataBrowserFactory.getDataBrowser(object);
-        	if (db != null) {
-        		view.removeAllFromWorkingPane();
-        		view.addComponent(db.getUI());
-        		List<DataObject> nodes = new ArrayList<DataObject>();
-        		nodes.add((DataObject) object);
-        		db.setSelectedNodes(nodes);
-        	} else {
-        		if (parent == null) view.removeAllFromWorkingPane();
-        		else showDataBrowser(object, parent);
-        	}
-        }
-	}
-	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onDataObjectSave(DataObject, int)
@@ -1111,7 +1045,14 @@ class TreeViewerComponent
 		MessageBox dialog = new MessageBox(view, "Save data", 
 				"Do you want to save the modified \n" +
 				"data before selecting a new item?");
-		saveInEditor(dialog.centerMsgBox() == MessageBox.YES_OPTION);
+		if (dialog.centerMsgBox() == MessageBox.YES_OPTION) {
+			model.getMetadataViewer().saveData();
+		} else {
+			model.getMetadataViewer().clearDataToSave();
+			//removeEditor();
+			Browser browser = model.getSelectedBrowser();
+			//if (browser != null) browser.setSelectedNode();
+		}
 	}
 
 	/**
@@ -1504,6 +1445,12 @@ class TreeViewerComponent
 				return;
 			}
 		}
+		System.err.println("Selected");
+		if (hasDataToSave()) {
+			System.err.println("HHH");
+			return;
+		}
+		
 		Browser browser = model.getSelectedBrowser();
 		browser.onSelectedNode(parent, selected, (Boolean) multiSelection);
 		MetadataViewer mv = model.getMetadataViewer();

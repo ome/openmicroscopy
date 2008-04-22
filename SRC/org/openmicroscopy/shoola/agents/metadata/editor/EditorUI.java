@@ -45,6 +45,7 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import pojos.AnnotationData;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 
@@ -597,19 +598,22 @@ public class EditorUI
 	boolean hasDataToSave()
 	{
 		if (saved) return false;
-		if (model.getRefObject() instanceof ExperimenterData)
+		Object ref = model.getRefObject();
+		if (!(ref instanceof DataObject)) return false;
+		if (ref instanceof ExperimenterData)
 			return userUI.hasDataToSave();
 		if (!propertiesUI.isNameValid()) {
 			setDataToSave(false);
 			return false;
 		}
-		setDataToSave(true);
+		//setDataToSave(true);
 		Iterator<AnnotationUI> i = components.iterator();
 		boolean b = false;
 		AnnotationUI ui;
 		while (i.hasNext()) {
 			ui = i.next();
 			if (ui.hasDataToSave()) {
+				System.err.println(ui+" "+ui.hasDataToSave());
 				b = true;
 				break;
 			}

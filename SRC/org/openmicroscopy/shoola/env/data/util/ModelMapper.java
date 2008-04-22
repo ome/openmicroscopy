@@ -438,8 +438,13 @@ public class ModelMapper
     										(Long) data.getContent());
     	} else if (data instanceof URLAnnotationData) {
     		annotation = new UrlAnnotation();
-    		((UrlAnnotation) annotation).setTextValue(
-    									data.getContentAsString());
+    		try {
+    			((UrlAnnotation) annotation).setTextValue(
+						data.getContentAsString());
+			} catch (Exception e) { //Need to propagate that.
+				return null;
+			}
+    		
     	} else if (data instanceof TagAnnotationData) {
     		annotation = new TagAnnotation();
     		((TagAnnotation) annotation).setTextValue(

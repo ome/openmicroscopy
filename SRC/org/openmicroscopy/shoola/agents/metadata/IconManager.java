@@ -234,7 +234,7 @@ public class IconManager
         relPaths[PPT_DOC] = "alienOSX_Microsoft_PowerPoint22.png";
         relPaths[EXCEL_DOC] = "alienOSX_Microsoft_Excel22.png";
         relPaths[XML_DOC] = "nuvola_acroread22.png";
-        relPaths[SAVE] = "nuvola_filesaveas16.png";
+        relPaths[SAVE] = "nuvola_filesave16.png";
         relPaths[COLUMNS_VIEW] = "nuvola_view_left_right16.png";
         relPaths[UPLOAD] = "nuvola_download_manager_green_flipped16.png";
         relPaths[SORT] = "nuvola_player_play_gray16.png";
