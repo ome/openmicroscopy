@@ -120,5 +120,6 @@
 	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/nanoxml.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-validator.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
