@@ -126,7 +126,8 @@ public interface IAdmin extends ServiceInterface {
 
     /**
      * Looks up all {@link ExperimenterGroups groups} present and all related
-     * {@link Experimenter experimenters}.
+     * {@link Experimenter experimenters}. The experimenters' groups are also
+     * loaded.
      * 
      * @return all Groups. Never null.
      */
