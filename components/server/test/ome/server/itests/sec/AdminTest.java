@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.testng.annotations.ExpectedExceptions;
-import org.testng.annotations.Test;
-
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
@@ -26,6 +23,9 @@ import ome.model.meta.ExperimenterGroup;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.system.Roles;
 import ome.util.IdBlock;
+
+import org.testng.annotations.ExpectedExceptions;
+import org.testng.annotations.Test;
 
 public class AdminTest extends AbstractManagedContextTest {
 
@@ -419,6 +419,16 @@ public class AdminTest extends AbstractManagedContextTest {
         assertTrue(test_e.linkedExperimenterGroupList().size() == 2);
         assertTrue(test_g.eachLinkedExperimenter(new IdBlock()).contains(
                 e.getId()));
+    }
+
+    @Test(groups = "ticket:910")
+    public void testLookupGroupsReturnsExperimentersWithGroupsLoaded() {
+        loginRoot();
+
+        List<ExperimenterGroup> list = iAdmin.lookupGroups();
+        ExperimenterGroup group = list.get(0);
+        Experimenter exp = group.linkedExperimenterList().get(0);
+        assertNotNull(exp.getPrimaryGroupExperimenterMap());
     }
 
     // ~ IAdmin.unlock

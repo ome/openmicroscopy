@@ -78,7 +78,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -155,11 +154,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     protected transient SessionFactory sf;
 
     protected transient OmeroContext context;
-    
+
     protected transient MailSender mailSender;
-    
+
     protected transient SimpleMailMessage templateMessage;
-    
+
     /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
         getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
@@ -184,7 +183,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public void setTemplateMessage(SimpleMailMessage templateMessage) {
         this.templateMessage = templateMessage;
     }
-    
+
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IAdmin.class;
     }
@@ -370,7 +369,9 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public List<ExperimenterGroup> lookupGroups() {
         return iQuery.findAllByQuery("select g from ExperimenterGroup g "
                 + "left outer join fetch g.groupExperimenterMap m "
-                + "left outer join fetch m.child", null);
+                + "left outer join fetch m.child u "
+                + "left outer join fetch u.groupExperimenterMap m2 "
+                + "left outer join fetch m2.parent", null);
     }
 
     @RolesAllowed("user")
@@ -916,21 +917,22 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                             "User is authenticated by LDAP server you cannot reset this password.");
                 } else {
                     String passwd = PasswordUtil.generateRandomPasswd();
-                    sendEmail(e, passwd);  
+                    sendEmail(e, passwd);
                     changeUserPassword(e.getOmeName(), passwd);
                 }
             }
         });
-    }   
+    }
 
     private boolean isDnById(long id) {
         String dn = PasswordUtil.getDnById(jdbc, id);
-        if (dn != null)
-            return true;    
-        else 
+        if (dn != null) {
+            return true;
+        } else {
             return false;
+        }
     }
-    
+
     private boolean sendEmail(Experimenter e, String newPassword) {
         // Create a thread safe "copy" of the template message and customize it
         SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
@@ -942,10 +944,15 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         try {
             this.mailSender.send(msg);
         } catch (Exception ex) {
-            throw new RuntimeException("Exception: "+ex.getMessage()+". " +
-                    "Password was not changed because email could not be sent " +
-                    "to the " + e.getOmeName()+". Please turn on the debuge " +
-                    "mode in omero.properties by the: omero.resetpassword.mail.debug=true");
+            throw new RuntimeException(
+                    "Exception: "
+                            + ex.getMessage()
+                            + ". "
+                            + "Password was not changed because email could not be sent "
+                            + "to the "
+                            + e.getOmeName()
+                            + ". Please turn on the debuge "
+                            + "mode in omero.properties by the: omero.resetpassword.mail.debug=true");
         }
         return true;
     }
