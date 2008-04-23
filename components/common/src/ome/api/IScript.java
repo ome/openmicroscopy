@@ -51,5 +51,5 @@ public interface IScript
 	long uploadScript(String script) throws ApiUsageException, SecurityViolation;
 	String getScript(String name) throws ApiUsageException;
 	Map getParams(String script) throws ApiUsageException;
-	Map runScript(String script, Map paramMap) throws ApiUsageException, SecurityViolation;
+	Map runScript(long id, Map paramMap) throws ApiUsageException, SecurityViolation;
 }
