@@ -82,9 +82,7 @@ class RateUI
 		int n = model.getRatingCount();
 		String s = "";
 		selectedValue = 0;
-		
-		if (n > 0)
-			selectedValue = model.getRatingAverage();
+		if (n > 0) selectedValue = model.getRatingAverage();
 		initialValue = selectedValue;
 		rating = new RatingComponent(selectedValue, 
 									RatingComponent.MEDIUM_SIZE);
@@ -153,7 +151,6 @@ class RateUI
 	 */
 	protected boolean hasDataToSave()
 	{
-		//if (selectedValue == -1) return false;
 		return (selectedValue != initialValue);
 	}
 
@@ -164,6 +161,7 @@ class RateUI
 	protected void clearData()
 	{
 		selectedValue = 0;//model.getRatingAverage();
+		initialValue = 0;
 	}
 	
 	/**
@@ -173,6 +171,7 @@ class RateUI
 	protected void clearDisplay() 
 	{
 		selectedValue = 0;
+		initialValue = 0;
 		removeAll();
 	}
 	
@@ -185,7 +184,6 @@ class RateUI
 		String name = evt.getPropertyName();
 		if (RatingComponent.RATE_PROPERTY.equals(name)) {
 			int newValue = (Integer) evt.getNewValue();
-			System.err.println("newValue: "+newValue+" "+selectedValue);
 			if (newValue != selectedValue) {
 				selectedValue = newValue;
 				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 

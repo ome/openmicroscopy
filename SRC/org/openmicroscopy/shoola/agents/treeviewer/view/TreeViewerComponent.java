@@ -1051,7 +1051,7 @@ class TreeViewerComponent
 			model.getMetadataViewer().clearDataToSave();
 			//removeEditor();
 			Browser browser = model.getSelectedBrowser();
-			//if (browser != null) browser.setSelectedNode();
+			if (browser != null) browser.setSelectedNode();
 		}
 	}
 
@@ -1445,10 +1445,15 @@ class TreeViewerComponent
 				return;
 			}
 		}
-		System.err.println("Selected");
 		if (hasDataToSave()) {
-			System.err.println("HHH");
-			return;
+			MessageBox dialog = new MessageBox(view, "Save data", 
+					"Do you want to save the modified \n" +
+					"data before selecting a new item?");
+			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) {
+				model.getMetadataViewer().saveData();
+			} else {
+				model.getMetadataViewer().clearDataToSave();
+			}
 		}
 		
 		Browser browser = model.getSelectedBrowser();

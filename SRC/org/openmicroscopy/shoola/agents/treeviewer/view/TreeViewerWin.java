@@ -311,7 +311,7 @@ class TreeViewerWin
     	rightPane.setContinuousLayout(true);
     	rightPane.setLeftComponent(workingPane);
     	rightPane.setRightComponent(model.getMetadataViewer().getEditorUI());
-    	rightPane.setResizeWeight(1);
+    	rightPane.setResizeWeight(0.85);
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);

@@ -50,7 +50,7 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 
 /** 
- * 
+ * Component hosting the various {@link AnnotationUI} entities.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -613,7 +613,6 @@ public class EditorUI
 		while (i.hasNext()) {
 			ui = i.next();
 			if (ui.hasDataToSave()) {
-				System.err.println(ui+" "+ui.hasDataToSave());
 				b = true;
 				break;
 			}
