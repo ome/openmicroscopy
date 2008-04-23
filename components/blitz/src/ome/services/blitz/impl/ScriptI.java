@@ -24,24 +24,17 @@
 package ome.services.blitz.impl;
 
 // Java imports
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+import java.util.UUID;
 
-import net.n3.nanoxml.IXMLElement;
-import net.n3.nanoxml.IXMLParser;
-import net.n3.nanoxml.IXMLReader;
-import net.n3.nanoxml.StdXMLReader;
-import net.n3.nanoxml.XMLParserFactory;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.conditions.ApiUsageException;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
-import ome.parameters.ScriptParams;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import omero.RType;
@@ -72,48 +65,6 @@ public class ScriptI extends _IScriptDisp {
     /** The text representation of the format in a python script. */
     private final static String PYTHONSCRIPT = "text/x-python";
 
-    /** The start of the script element in script. */
-    private final static String SCRIPTSTART = "<script>";
-
-    /** The end tag of the script element type. */
-    private final static String SCRIPTEND = "</script>";
-
-    /** The script tag denoting the start of the script description. */
-    private final static String SCRIPTTAG = "script";
-
-    /** The name of the script. */
-    private final static String NAMETAG = "name";
-
-    /** The description element of the script and variable. */
-    private final static String DESCRIPTIONTAG = "description";
-
-    /**
-     * The parameter block in the script, contains list of variables passed as
-     * parameters.
-     */
-    private final static String PARAMETERTAG = "parameters";
-
-    /**
-     * The return block in the script, contains list of variables returned by
-     * the script.
-     */
-    private final static String RETURNTAG = "return";
-
-    /** The variable described in the return and parameter tags. */
-    private final static String VARIABLETAG = "variable";
-
-    /** The type of the variable, should be RType, or iceType. */
-    private final static String TYPEATTRIBUTE = "type";
-
-    /** Is the variable optional. */
-    private final static String OPTIONALATTRIBUTE = "optional";
-
-    /** the name of the variable. */
-    private final static String NAMEATTRIBUTE = "name";
-
-    /** A constant to represent an empty string in the attributes . */
-    private final static String EMPTYSTRING = "";
-
     protected final ServiceFactoryI factory;
 
     public ScriptI(ServiceFactoryI factory) {
@@ -128,6 +79,7 @@ public class ScriptI extends _IScriptDisp {
      * 
      * @param scriptName
      *            Name of the script to find id for.
+     * @param __current ice context.
      * @return The id of the script, -1 if no script found, or more than one
      *         script with that name.
      */
@@ -146,7 +98,7 @@ public class ScriptI extends _IScriptDisp {
      * parameters and return types as JavaDoc in the header of the script.
      * 
      * @param script
-     *            String containing the script
+     * @param __current ice context. 
      * @return id of the script.
      */
     public long uploadScript(final String script, Current __current)
@@ -154,49 +106,25 @@ public class ScriptI extends _IScriptDisp {
         if (!validateScript(script)) {
             throw new ApiUsageException("Invalid script");
         }
-        String paramString = extractXML(script);
-        ScriptParams params = getScriptParams(paramString);
-        final OriginalFile scriptFile = new OriginalFile();
-        scriptFile.setName(params.getScriptName());
-        scriptFile.setPath(params.getScriptName());
-        scriptFile.setFormat(getFormat(PYTHONSCRIPT));
-        scriptFile.setSize((long) script.getBytes().length);
-        scriptFile.setSha1("FIXME"); // FIXME
-
-        factory.executor.execute(factory.principal, new Executor.Work() {
-
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
-                IUpdate update = sf.getUpdateService();
-                OriginalFile object = update.saveAndReturnObject(scriptFile);
-
-                RawFileStore rawFileStore = sf.createRawFileStore();
-                rawFileStore.setFileId(object.getId());
-                rawFileStore.write(script.getBytes(), 0,
-                        script.getBytes().length);
-
-                return object;
-            }
-        });
-
-        /*
-         * XmlAnnotation xmlAnnotation = new XmlAnnotation();
-         * xmlAnnotation.setName("scriptParams");
-         * xmlAnnotation.setTextValue(extractXML(script)); ILink link =
-         * scriptFile.linkAnnotation(xmlAnnotation); link =
-         * iUpdate.saveAndReturnObject(link);
-         */
+        final OriginalFile tempFile = makeFile(script);
+        System.err.println("tempFile : " + tempFile.getName());
+        writeContent(tempFile, script);
+        JobParams params = getScriptParams(tempFile, __current);
+        tempFile.setName(params.name);
+        tempFile.setPath(params.name);
+        writeContent(tempFile, script);
+        OriginalFile scriptFile = updateFile(tempFile);
         return scriptFile.getId();
     }
-
+    
     /**
      * Return the script with the name to the user.
      * 
-     * @param name
-     *            see above.
+     * @param name see above.
+     * @param __current ice context.
      * @return see above.
+     * @throws ServerError validation, api usage. 
      */
-
     public String getScript(String name, Current __current) throws ServerError {
 
         final OriginalFile file = getOriginalFile(name);
@@ -232,11 +160,11 @@ public class ScriptI extends _IScriptDisp {
     /**
      * Get the Parameters of the script.
      * 
-     * @param script
-     *            see above.
+     * @param script see above.
+     * @param __current Ice context
      * @return see above.
+     * @throws ServerError validation, api usage. 
      */
-
     public Map<String, RType> getParams(String script, Current __current)
             throws ServerError {
 
@@ -244,7 +172,6 @@ public class ScriptI extends _IScriptDisp {
 
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10);
         JobParams params = proc.params();
-
         Map<String, RType> temporary = new HashMap<String, RType>();
         for (String key : params.inputs.keySet()) {
             Param p = params.inputs.get(key);
@@ -254,18 +181,20 @@ public class ScriptI extends _IScriptDisp {
     }
 
     /**
-     * Run the script. Does not work :)
+     * Run the script. 
      * 
-     * @param script
-     * @param parameters
+     * @param id of the script to run
+     * @param map the map of parameters {String:RType} 
      *            map of the parameters name, value.
-     * @return The results.
+     * @param __current ice context.
+     * @return The results, map {String:RType}
+     * @throws ServerError validation, api usage. 
      */
-    public Map<String, RType> runScript(String script, Map<String, RType> map,
+    public Map<String, RType> runScript(long id, Map<String, RType> map,
             Current __current) throws ServerError {
 
-        ScriptJobI job = buildJob(script);
-        InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10);
+        ScriptJobI job = buildJob(id);
+        InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10, __current);
         omero.grid.ProcessPrx prx = proc.execute(new omero.RMap(map));
         prx._wait();
         return proc.getResults(prx).val;
@@ -274,13 +203,14 @@ public class ScriptI extends _IScriptDisp {
 
     /**
      * Get Scripts will return all the scripts by name available on the server.
-     * 
+     * @param __current ice context,
      * @return see above.
+     * @throws ServerError validation, api usage. 
      */
     public List<String> getScripts(Current __current) throws ServerError {
         final ArrayList<String> scriptList = new ArrayList<String>();
         final long fmt = getFormat(PYTHONSCRIPT).getId();
-        final String queryString = "from OriginalFile as o where o.format.value = "
+        final String queryString = "from OriginalFile as o where o.format.id = "
                 + fmt;
         factory.executor.execute(factory.principal, new Executor.Work() {
 
@@ -297,8 +227,103 @@ public class ScriptI extends _IScriptDisp {
         return scriptList;
     }
 
+    /**
+     * Get the script params for the file. 
+     * @param file the original file.
+     * @param __current cirrent 
+     * @return jobparams of the script.
+     * @throws ServerError
+     */
+    private JobParams getScriptParams(OriginalFile file,  Current __current) throws ServerError {
+    	ScriptJobI job = new ScriptJobI();
+    	OriginalFileI oFile = new OriginalFileI(file.getId(), false);
+    	job.linkOriginalFile(oFile);
+    	InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10, __current);
+    	return proc.params();
+    }
+
+    /**
+     * Make the file, this is a temporary file which will be changed when the script
+     * is validated.
+     * @param script script.
+     * @return OriginalFile tempfile..
+     * @throws ServerError
+     */
+    private OriginalFile makeFile(final String script) throws ServerError {
+    	String fName = "ScriptName"+UUID.randomUUID();
+        OriginalFile tempFile = new OriginalFile();
+        tempFile.setName(fName);
+        tempFile.setPath(fName);
+        tempFile.setFormat(getFormat(PYTHONSCRIPT));
+        tempFile.setSize((long) script.getBytes().length);
+        tempFile.setSha1("FIXME"); // FIXME
+        return updateFile(tempFile);
+    }
+    
+    /**
+     * Update the file with new data.
+     * @param file new file data to be updated.
+     * @return updated file.
+     * @throws ServerError
+     */
+    private OriginalFile updateFile(final OriginalFile file) throws ServerError
+    {
+        OriginalFile updatedFile = (OriginalFile) factory.executor.execute(factory.principal,
+            new Executor.Work() 
+        {
+
+                public Object doWork(TransactionStatus status,
+                        Session session, ServiceFactory sf) 
+                {
+                    IUpdate update = sf.getUpdateService();
+                    return update.saveAndReturnObject(file);
+                }
+        	
+        });
+        return updatedFile;
+        
+    }
+    
+    /**
+     * Write the content of the script to the script to the originalfile. 
+     * @param file file
+     * @param script script
+     * @throws ServerError
+     */
+    private void  writeContent(final OriginalFile file, 
+    						final String script) throws ServerError
+    {
+    	Object o = factory.executor.execute(factory.principal, new Executor.Work() {
+        public Object doWork(TransactionStatus status, Session session,
+                     ServiceFactory sf) {
+           
+        		RawFileStore rawFileStore = sf.createRawFileStore();
+              	rawFileStore.setFileId(file.getId());
+            	rawFileStore.write(script.getBytes(), 0, 
+            						script.getBytes().length);
+           	  	return file.getId();
+              }
+          }); 
+    }
+
+    /**
+     * Build a job from a script name
+     * @param script
+     * @return job.
+     * @throws ServerError
+     */
     private ScriptJobI buildJob(String script) throws ServerError {
         long id = getScriptID(script);
+        return buildJob(id);
+    }
+
+    /**
+     * Build a job for the script with id.
+     * @param id script id.
+     * @return the job.
+     * @throws ServerError
+     */
+    private ScriptJobI buildJob(long id) throws ServerError {
         OriginalFileI file = new OriginalFileI(id, false);
         ScriptJobI job = new ScriptJobI();
         job.linkOriginalFile(file);
@@ -315,7 +340,7 @@ public class ScriptI extends _IScriptDisp {
      */
     @SuppressWarnings("unchecked")
     private OriginalFile getOriginalFile(String name) {
-        final String queryString = "from OriginalFile as o where o.format.value = "
+        final String queryString = "from OriginalFile as o where o.format.id = "
                 + getFormat(PYTHONSCRIPT).getId()
                 + " and o.name = '"
                 + name
@@ -338,7 +363,7 @@ public class ScriptI extends _IScriptDisp {
 
     /**
      * Get the iFormat object.
-     * 
+     * @param fmt the format to retrieve.
      * @return see above.
      */
     Format getFormat(String fmt) {
@@ -365,149 +390,5 @@ public class ScriptI extends _IScriptDisp {
         return true;
     }
 
-    /**
-     * Get the parameters from the script.
-     * 
-     * @param xmlHeader
-     *            The xml extracted from the script containing the param
-     *            information.
-     * @return A map of the parameters from the script.
-     */
-    private ScriptParams getScriptParams(String xmlHeader) {
-        ScriptParams scriptParams = new ScriptParams();
-        scriptParams = parseScriptTag(xmlHeader);
-        return scriptParams;
-    }
-
-    /**
-     * Parse the scripts tag in the script and build the scriptParams object
-     * which will contain name, descrption, param and return maps.
-     * 
-     * @param script
-     *            see above.
-     * @param params
-     *            see above.
-     * @return script params object.
-     * @throws ApiUsageException
-     */
-    private ScriptParams parseScriptTag(String script) throws ApiUsageException {
-        ScriptParams params = new ScriptParams();
-        IXMLElement scriptElement;
-        IXMLParser parser;
-        IXMLReader reader;
-        ByteArrayInputStream bin;
-        try {
-            parser = XMLParserFactory.createDefaultXMLParser();
-        } catch (Exception ex) {
-            ApiUsageException e = new ApiUsageException(
-                    "Unable to instantiate NanoXML Parser");
-            throw e;
-        }
-        try {
-            bin = new ByteArrayInputStream(script.getBytes());
-        } catch (Exception ex) {
-            ApiUsageException e = new ApiUsageException(
-                    "ByteArrayInputStream bin=new ByteArrayInputStream(script.getBytes());");
-            throw e;
-        }
-        try {
-            reader = new StdXMLReader(bin);
-        } catch (Exception ex) {
-            ApiUsageException e = new ApiUsageException(
-                    "	reader=new StdXMLReader(bin);");
-            throw e;
-        }
-        try {
-            parser.setReader(reader);
-            scriptElement = (IXMLElement) parser.parse();
-        } catch (Exception ex) {
-            ApiUsageException e = new ApiUsageException(
-                    "scriptElement=(IXMLElement) parser.parse()" + script);
-            throw e;
-        }
-
-        IXMLElement scriptName = scriptElement.getFirstChildNamed(NAMETAG);
-        if (scriptName == null) {
-            throw new ApiUsageException("No name supplied in the <script> tag");
-        }
-        IXMLElement scriptDescription = scriptElement
-                .getFirstChildNamed(DESCRIPTIONTAG);
-        if (scriptDescription == null) {
-            throw new ApiUsageException("No name supplied in the <script> tag");
-        }
-        params.setScriptName(scriptName.getContent());
-        params.setScriptDescription(scriptDescription.getContent());
-        IXMLElement parameterElement = scriptElement
-                .getFirstChildNamed(PARAMETERTAG);
-        IXMLElement returnElement = scriptElement.getFirstChildNamed(RETURNTAG);
-        if (parameterElement == null) {
-            throw new ApiUsageException("No Parameter tags.");
-        }
-        if (returnElement == null) {
-            throw new ApiUsageException("No Return tags.");
-        }
-        params.setParamMap(buildVariableMap(parameterElement));
-        params.setReturnMap(buildVariableMap(returnElement));
-        return params;
-    }
-
-    /**
-     * Build a variable map from the param and return string block of code.
-     * 
-     * @param variableElements
-     *            The xml element containing the params or return elements
-     * @return see above.
-     * @throws ApiUsageException
-     */
-    private Map<String, String> buildVariableMap(IXMLElement variableElements)
-            throws ApiUsageException {
-        HashMap<String, String> variableMap = new HashMap<String, String>();
-        Vector<IXMLElement> elements = variableElements
-                .getChildrenNamed(VARIABLETAG);
-        for (IXMLElement parameter : elements) {
-            String name = parameter.getAttribute(NAMEATTRIBUTE, EMPTYSTRING);
-            if (name.equals(EMPTYSTRING)) {
-                throw new ApiUsageException(
-                        "No name attribute specified in variable");
-            }
-
-            String type = parameter.getAttribute(TYPEATTRIBUTE, EMPTYSTRING);
-            if (type.equals(EMPTYSTRING)) {
-                throw new ApiUsageException(
-                        "No type attribute specified in variable");
-            }
-            String optional = parameter.getAttribute(OPTIONALATTRIBUTE,
-                    EMPTYSTRING);
-            String description;
-            IXMLElement descriptionElement = parameter
-                    .getFirstChildNamed(DESCRIPTIONTAG);
-            if (descriptionElement != null) {
-                description = descriptionElement.getContent();
-            }
-            variableMap.put(name, type);
-        }
-        return variableMap;
-    }
-
-    /**
-     * Extract the XML from the script <script></script> tags and remove any
-     * comment strings from the text.
-     * 
-     * @param str
-     *            see above.
-     * @return see above.
-     * @throws ApiUsageException
-     */
-    private String extractXML(String str) throws ApiUsageException {
-        int start = str.indexOf(SCRIPTSTART);
-        int end = str.indexOf(SCRIPTEND) + SCRIPTEND.length();
-        if (end == -1 || start == -1 || end < start) {
-            throw new ApiUsageException("Script does not "
-                    + "contain valid XML specification.");
-        }
-        String xmlStrWithComments = str.substring(start, end);
-        String xmlStr = xmlStrWithComments.replace("#", " ");
-        return xmlStr;
-    }
 
 }

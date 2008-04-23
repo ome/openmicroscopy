@@ -148,7 +148,7 @@ module omero {
 	long uploadScript(string script) throws ServerError;
 	idempotent string getScript(string name) throws ServerError;
 	idempotent RTypeDict getParams(string script) throws ServerError;
-	RTypeDict runScript(string script, RTypeDict map) throws ServerError;
+	RTypeDict runScript(long id, RTypeDict map) throws ServerError;
      };
 
     interface IConfig extends ServiceInterface
