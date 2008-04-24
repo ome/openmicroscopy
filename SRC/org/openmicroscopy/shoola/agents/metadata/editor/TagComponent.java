@@ -136,8 +136,19 @@ class TagComponent
 	 */
 	void setComponentFont(int style)
 	{
-		//setFont(getFont().deriveFont(style));
+		setFont(getFont().deriveFont(style));
 		repaint();
+	}
+	
+	/**
+	 * Adds the passed string to the text.
+	 * 
+	 * @param separator The value to set.
+	 */
+	void setSeparator(String separator)
+	{
+		String s = getText();
+		setText(s+separator);
 	}
 	
 	/**
@@ -154,8 +165,8 @@ class TagComponent
 	 */
 	public void mousePressed(MouseEvent e)
 	{
+		setComponentFont(Font.BOLD);
 		if (e.getClickCount() == 2) {
-			setComponentFont(Font.BOLD);
 			uiDelegate.editAnnotation(e.getPoint(), this);
 		} else
 			uiDelegate.setSelectedTag(e.isShiftDown(), this);
@@ -165,11 +176,21 @@ class TagComponent
 	}
 
 	/**
+	 * Resets the font.
+	 * @see MouseListener#mouseExited(MouseEvent)
+	 */
+	public void mouseExited(MouseEvent e)
+	{
+		resetFont();
+	}
+	
+	/**
 	 * Displays the menu if right click occurs.
 	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
 	public void mouseReleased(MouseEvent e)
 	{
+
 		if (e.isPopupTrigger()) 
 			uiDelegate.showMenu(e.getPoint(), e.getComponent());
 	}
@@ -188,11 +209,6 @@ class TagComponent
 	 */
 	public void mouseEntered(MouseEvent e) {}
 
-	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation
-	 * in our case.
-	 * @see MouseListener#mouseExited(MouseEvent)
-	 */
-	public void mouseExited(MouseEvent e) {}
+
 
 }

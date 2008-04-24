@@ -531,25 +531,40 @@ class TagsUI
 		pane.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
 		int index = 0;
 		pane.add(Box.createHorizontalStrut(2), c);
-		c.gridx++;
+		int n = tags.size();
+		JPanel row = new JPanel();
+		row.setBackground(UIUtilities.BACKGROUND);
+		row.setLayout(new GridBagLayout());
+		GridBagConstraints cRow = new GridBagConstraints();
+		cRow.anchor = GridBagConstraints.FIRST_LINE_START;
+		cRow.gridx = 0;
 		while (i.hasNext()) {
-			++c.gridx;
 			tag = i.next();
-			pane.add(tag, c);
-			++c.gridx;
-			pane.add(Box.createHorizontalStrut(5), c);
-			if (index%3 == 0 && index != 0) {
+			if (n > 1) 
+				tag.setSeparator(SearchUtil.COMMA_SEPARATOR);
+			
+			++cRow.gridx;
+			row.add(tag, cRow);
+			++cRow.gridx;
+			row.add(Box.createHorizontalStrut(5), cRow);
+			n--;
+			if (index%2 == 0 && index != 0) {
+				pane.add(row, c);
 				c.gridy++;
-				c.gridx = 0;
+				row = new JPanel();
+				row.setLayout(new GridBagLayout());
+				row.setBackground(UIUtilities.BACKGROUND);
+				cRow.gridx = 0;
 			}
 			index++;
 		}
 		
+		if (row.getComponentCount() > 0)
+			pane.add(row, c);
 		JPanel content = new JPanel();
 		content.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		content.add(pane);
@@ -667,7 +682,8 @@ class TagsUI
 	 */
 	void setSelectedTag(boolean isShiftDown, TagComponent data)
 	{
-		if (!isShiftDown) clearSelectedTags();
+		//if (!isShiftDown) 
+		clearSelectedTags();
 		selectedTags.add(data);
 	}
 	
@@ -702,12 +718,14 @@ class TagsUI
 				ann = (TextualAnnotationData) i.next();
 				if (ann.getOwner().getId() == userID) {
 					text = ann.getText();
+				
 					break;
 				}
 			}
 		}
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		AnnotationEditor editor = new AnnotationEditor(f, text);
+		AnnotationEditor editor = new AnnotationEditor(f, tag.getTagValue(),
+														text);
 		editor.addPropertyChangeListener(AnnotationEditor.EDIT_PROPERTY, this);
 		SwingUtilities.convertPointToScreen(popupPoint, this);
 		editor.setLocation(popupPoint);

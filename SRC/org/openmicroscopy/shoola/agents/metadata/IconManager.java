@@ -184,7 +184,7 @@ public class IconManager
     /** The <code>Metadata 48</code> icon. */
     public static int           METADATA_48 = 43;
     
-    /** The <code>Metadata 48</code> icon. */
+    /** The <code>Doc</code> icon. */
     public static int           DOC = 44;
     
 	/** 

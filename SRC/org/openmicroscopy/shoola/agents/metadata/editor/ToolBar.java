@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 
 /** 
- * 
+ * The tool bar of the editor.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,6 +84,9 @@ class ToolBar
 	/** Action ID to download archived files. */
 	private static final int	DOWNLOAD = 2;
 	
+	/** Action ID to collapse all extanded nodes. */
+	private static final int	COLLAPSE = 3;
+	
 	/** One of the location constants defined by this class. */
 	private int				index;
 	
@@ -95,6 +98,9 @@ class ToolBar
 	
 	/** Button to download the original image. */
 	private JButton			downloadButton;
+	
+	/** Button to collapse all the extanded nodes. */
+	private JButton			collapseButton;
 	
 	/** Reference to the Model. */
 	private EditorModel		model;
@@ -125,9 +131,15 @@ class ToolBar
 		infoButton.setToolTipText("View image's info.");
 		infoButton.addActionListener(this);
 		infoButton.setActionCommand(""+INFO);
+		
+		collapseButton = new JButton(icons.getIcon(IconManager.COLLAPSE));
+		collapseButton.setToolTipText("Collapse all nodes.");
+		collapseButton.addActionListener(this);
+		collapseButton.setActionCommand(""+COLLAPSE);
+		
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(infoButton);
-		//UIUtilities.unifiedButtonLookAndFeel(saveButton);
+		UIUtilities.unifiedButtonLookAndFeel(collapseButton);
 	}
     
     /** 
@@ -159,6 +171,21 @@ class ToolBar
     	bar.setRollover(true);
     	bar.setBorder(null);
     	bar.add(saveButton);
+    	return bar;
+    }
+    
+    /** 
+     * Builds the controls bar.
+     * 
+     * @return See above.
+     */
+    private JComponent buildControlsBar()
+    {
+    	JToolBar bar = new JToolBar();
+    	bar.setFloatable(false);
+    	bar.setRollover(true);
+    	bar.setBorder(null);
+    	bar.add(collapseButton);
     	return bar;
     }
     
@@ -212,6 +239,9 @@ class ToolBar
 				break;
 			case TOP:
 			default:
+				p.add(Box.createHorizontalStrut(2));
+    			p.add(new JSeparator(JSeparator.VERTICAL));
+    			p.add(buildControlsBar());
 				add(UIUtilities.buildComponentPanel(p));
 	    		add(new JSeparator(JSeparator.HORIZONTAL));
 				break;
@@ -290,6 +320,9 @@ class ToolBar
 				break;
 			case INFO:
 				controller.showImageInfo();
+				break;
+			case COLLAPSE:
+				view.collapseAllNodes();
 		}
 		
 	}

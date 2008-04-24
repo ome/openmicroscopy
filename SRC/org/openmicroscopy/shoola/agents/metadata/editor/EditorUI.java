@@ -165,6 +165,9 @@ public class EditorUI
     /** One of the layout constants defined by {@link Editor}. */
     private int							layout;
     
+    /** Collection of trees. */
+    private List<TreeComponent>			trees;
+    
 	/**
 	 * Loads or cancels any on-going thumbnails loading.
 	 * 
@@ -184,6 +187,7 @@ public class EditorUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		trees = new ArrayList<TreeComponent>();
 		infoUI = new ImageInfoUI(model);
 		userUI = new UserUI(model, controller);
 		leftPane = new JPanel();
@@ -213,6 +217,7 @@ public class EditorUI
 				}
 			
 			});
+		trees.add(viewByTree);
 		infoTree = new TreeComponent();
 		infoTree.setVisible(false);
 		infoTree.insertNode(infoUI, infoUI.getCollapseComponent(), false);
@@ -227,6 +232,7 @@ public class EditorUI
 				}
 			
 			});
+		trees.add(infoTree);
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);
 		components.add(attachmentsUI);
@@ -254,9 +260,11 @@ public class EditorUI
 		
 		viewTreePanel.add(viewByTree, "0, 1");
 		TreeComponent propertiesTree = new TreeComponent(); 
+		trees.add(propertiesTree);
 		propertiesTree.insertNode(propertiesUI, 
 							propertiesUI.getCollapseComponent());
 		TreeComponent left = new TreeComponent();
+		trees.add(left);
 		
 		double h = TableLayout.PREFERRED;
 		boolean expanded = false;
@@ -275,10 +283,11 @@ public class EditorUI
 				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
-		TreeComponent tree = new TreeComponent();
-
-		rightPane.add(tree, "0, 0");
 		
+		TreeComponent tree = new TreeComponent();
+		trees.add(tree);
+		
+		rightPane.add(tree, "0, 0");
 		content = new JPanel();
 		
 		switch (layout) {
@@ -306,11 +315,6 @@ public class EditorUI
 				tree.insertNode(textualAnnotationsUI, 
 						textualAnnotationsUI.getCollapseComponent());
 				tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
-				
-				
-				
-				
-
 				content.setLayout(new TableLayout(CONTENT_GRID));
 				content.add(toolBarTop, "0, 0, 2, 0");
 				content.add(leftPane, "0, 1");
@@ -382,7 +386,6 @@ public class EditorUI
         			controller.showImageInfo();
         	}
         	toolBarTop.setDecorator();
-        	//toolBarBottom.setDecorator();
     	}
     	revalidate();
     	repaint();
@@ -666,5 +669,18 @@ public class EditorUI
 	 * @param space The value to set.
 	 */
 	void setDiskSpace(List space) { userUI.setDiskSpace(space); }
+	
+	/** Collapses all nodes. */
+	void collapseAllNodes()
+	{
+		Iterator<TreeComponent> i = trees.iterator();
+		TreeComponent comp;
+		while (i.hasNext()) {
+			comp = i.next();
+			comp.collapseNodes();
+		}
+		revalidate();
+    	repaint();
+	}
 
 }

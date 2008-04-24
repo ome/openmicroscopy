@@ -189,7 +189,7 @@ public class TreeComponent
 			node = i.next();
 			node.setExpanded(false);
 			node.setIcons(collapseIcon, elapseIcon);
-			node.updateUI();
+			node.updateDisplay();
 		}
 	}
 	
@@ -205,7 +205,7 @@ public class TreeComponent
 		while (i.hasNext()) {
 			node = i.next();
 			node.setNodeEnabled(enabled);
-			node.updateUI();
+			node.updateDisplay();
 		}
 	}
 	

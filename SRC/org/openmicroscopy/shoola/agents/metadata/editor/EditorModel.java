@@ -453,6 +453,7 @@ class EditorModel
 	 */
 	Collection getViewedBy()
 	{ 
+		if (data == null) return null;
 		Collection l = data.getViewedBy(); 
 		if (l == null) return null;
 		Iterator i = l.iterator();

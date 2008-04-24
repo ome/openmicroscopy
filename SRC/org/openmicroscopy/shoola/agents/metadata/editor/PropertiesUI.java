@@ -82,7 +82,7 @@ class PropertiesUI
 	static final String			TITLE = "Properties";
 
 	/** The details string. */
-    private static final String DETAILS = "Details";
+    private static final String DETAILS = "Owner";
     
     /** The maximum width of the name area. */
     private static final int	WIDTH = 250;

@@ -93,7 +93,7 @@ class TagPopupMenu
 		edit.setActionCommand(""+EDIT);
 		edit.setIcon(icons.getIcon(IconManager.EDIT));
 		edit.setToolTipText("Edit the selected tags.");
-		edit.setEnabled(uiDelegate.getSelectedTagsCount() == 1);
+		//edit.setEnabled(uiDelegate.getSelectedTagsCount() == 1);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -101,7 +101,7 @@ class TagPopupMenu
 	{
 		add(edit);
 		add(delete);
-		add(browse);
+		//add(browse);
 	}
 
 	/**

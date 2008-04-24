@@ -168,15 +168,16 @@ public class AnnotationEditor
 	 * Creates a new instance.
 	 * 
 	 * @param owner 		The owner of the dialog.
+	 * @param title			The title of the frame.
 	 * @param originalText	The text to edit. Mustn't be <code>null</code>.
 	 */
-	public AnnotationEditor(JFrame owner, String originalText)
+	public AnnotationEditor(JFrame owner, String title, String originalText)
 	{
 		super(owner);
 		if (originalText == null)
 			throw new IllegalArgumentException("No annotation to edit.");
 		this.originalText = originalText;
-		setTitle("Editor");
+		setTitle("Edit: "+title);
 		setModal(true);
 		initComponents();
 		buildGUI();
