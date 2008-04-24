@@ -282,6 +282,7 @@ class DataBrowserToolBar
 		zoomSlider.setArrowsImageIcon(
 				icons.getImageIcon(IconManager.ZOOM_IN), 
 				icons.getImageIcon(IconManager.ZOOM_OUT));
+		zoomSlider.addChangeListener(this);
 		search = new QuickFiltering();
 		search.addPropertyChangeListener(controller);
 		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));

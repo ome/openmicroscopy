@@ -224,9 +224,8 @@ public class ScreenLogin
 			 * @see MouseListener#mousePressed(MouseEvent)
 			 */
 			public void mousePressed(MouseEvent e) {
-				if (user.getText() != null) {
+				if (user.getText() != null) 
 					user.selectAll();
-				}
 			}
 
 			/**
@@ -236,7 +235,9 @@ public class ScreenLogin
 			public void mouseClicked(MouseEvent e) {
 				firePropertyChange(TO_FRONT_PROPERTY, Boolean.FALSE, 
 									Boolean.TRUE);
-				//user.requestFocus();
+				user.requestFocus();
+				if (user.getText() != null) 
+					user.selectAll();
 			}
 
 		});

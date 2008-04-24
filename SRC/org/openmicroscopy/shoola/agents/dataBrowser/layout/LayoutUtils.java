@@ -46,7 +46,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 
 /** 
- * 
+ * Helper class providint methods to lay out the nodes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -214,7 +214,7 @@ public class LayoutUtils
 			if (comps[i] instanceof ImageDisplay)
 				l.add(comps[i]);
 		
-        //l = sorter.sort(l);
+        l = sorter.sort(l);
         if (itemsPerRow > 1) n = itemsPerRow;
         else {
         	n = l.size();

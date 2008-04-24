@@ -233,6 +233,11 @@ class SquaryLayout
         this.itemsPerRow = itemsPerRow;
     }
 
+    /**
+     * Returns the width of the browser.
+     * 
+     * @return See above.
+     */
     static int getBrowserWidth() { return browserWidth; }
     
     /**

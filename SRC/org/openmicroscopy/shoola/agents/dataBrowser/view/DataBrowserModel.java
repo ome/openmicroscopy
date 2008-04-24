@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
@@ -137,9 +136,12 @@ abstract class DataBrowserModel
     {
     	if (browser == null) return;
     	//Do initial layout and set the icons.
-        Layout layout = LayoutFactory.getDefaultLayout(sorter, 1);
-        browser.setSelectedLayout(layout);
-        browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
+    	if (browser.getSelectedLayout() == null) {
+    		Layout layout = LayoutFactory.getDefaultLayout(sorter, 1);
+            browser.setSelectedLayout(layout);
+    	}
+        browser.accept(browser.getSelectedLayout(), 
+        				ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
 
     /**
