@@ -176,8 +176,8 @@ for i = 1:numImages(ImageName)
     end
     minValue = min(Image(:));
     maxValue = max(Image(:));
-    minField = strcat('Min',ImageName{i});
-    maxField = strcat('Max',ImageName{i});
+    minField = strcat('Min',num2str(i));
+    maxField = strcat('Max',num2str(i));
     minFieldValue = [];
     maxFieldValue = [];
     if(isfield(handles.Pipeline,minField))
@@ -197,9 +197,9 @@ for i = 1:numImages(ImageName)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     drawnow
     uploadPixelsID = handles.Pipeline.('uploadPixelsID');
-    blitzGateway.uploadPlane(uploadPixelsID, str2num(channel), str2num(t), str2num(z), Image);
+    blitzGateway.uploadPlane(uploadPixelsID, i-1, str2num(t), str2num(z), Image);
     pixels = getPixelsOMERO(blitzGateway, uploadPixelsID);
-    c = pixels.channels.get(str2num(channel));
+    c = pixels.channels.get(i-1);
     stats = c.statsInfo;
     stats.globalMin = omero.RDouble(minValue);
     stats.globalMax = omero.RDouble(maxValue);
