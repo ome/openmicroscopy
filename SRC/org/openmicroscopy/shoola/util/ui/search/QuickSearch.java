@@ -34,7 +34,6 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -110,6 +109,12 @@ public class QuickSearch
 	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
+	
+	/** Bound property indicating to search for given terms. */
+	public static final String	VK_UP_SEARCH_PROPERTY = "vkUpSearch";
+	
+	/** Bound property indicating to search for given terms. */
+	public static final String	VK_DOWN_SEARCH_PROPERTY = "vkDownSearch";
 	
 	/** Removes the text from the text field. */
 	private static final int 	CLEAR = 0;
@@ -198,7 +203,13 @@ public class QuickSearch
 					case KeyEvent.VK_ENTER:
 						handleKeyEnter();
 						break;
-					
+					case KeyEvent.VK_UP:
+						firePropertyChange(VK_UP_SEARCH_PROPERTY, 
+											Boolean.FALSE, Boolean.TRUE);
+						break;
+					case KeyEvent.VK_DOWN:
+						firePropertyChange(VK_DOWN_SEARCH_PROPERTY, 
+											Boolean.FALSE, Boolean.TRUE);
 				}
             }
         });
@@ -235,7 +246,7 @@ public class QuickSearch
 		IconManager icons = IconManager.getInstance();
 		//check when to create it
 		menuButton = new JButton(icons.getIcon(IconManager.FILTER_MENU));
-		menuButton.setToolTipText("Display the search options");
+		menuButton.setToolTipText("Display the filtering options");
 		UIUtilities.setTextAreaDefault(menuButton);
 		menuButton.setBorder(null);
 		menuButton.addMouseListener(new MouseAdapter() {
@@ -431,11 +442,11 @@ public class QuickSearch
 	{
 		List<SearchObject> nodes = new ArrayList<SearchObject>();
     	SearchObject node = new SearchObject(FULL_TEXT, null, 
-    								"Name/Description search");
+    								"Name/Description filter");
     	nodes.add(node);
-    	node = new SearchObject(TAGS, null, "Tags search");
+    	node = new SearchObject(TAGS, null, "Tags filter");
     	nodes.add(node);
-    	node = new SearchObject(COMMENTS, null, "Comments search");
+    	node = new SearchObject(COMMENTS, null, "Comments filter");
     	nodes.add(node);
     	node = new SearchObject(UNTAGGED, null, "Untagged");
     	nodes.add(node);
@@ -494,39 +505,9 @@ public class QuickSearch
 	public void setSearchValue(String text)
 	{
 		if (text == null) return;
-		String result = "";
     	List<String> l = SearchUtil.splitTerms(getSearchValue(), 
 				SearchUtil.COMMA_SEPARATOR);
-    	if (l != null) {
-    		Iterator<String> i = l.iterator();
-    		boolean exist = false;
-    		String value;
-    		while (i.hasNext()) {
-    			value = i.next();
-				if (value != null && value.equals(text))
-					exist = true;
-			}
-    		if (exist) {
-    			i = l.iterator();
-    			int index = 0;
-    			int n = l.size()-1;
-    			while (i.hasNext()) {
-        			value = i.next();
-        			result += value;
-    				if (index != n) 
-    					result += SearchUtil.COMMA_SEPARATOR+" ";
-    				index++;
-    			}
-    		} else {
-    			i = l.iterator();
-    			while (i.hasNext()) {
-        			value = i.next();
-        			result += value;
-    				result += SearchUtil.COMMA_SEPARATOR+" ";
-    			}
-    			result += text;
-    		}
-    	} else result = text;
+    	String result = SearchUtil.formatString(text, l);
     	searchArea.getDocument().removeDocumentListener(this);
     	searchArea.setText(result);
     	searchArea.getDocument().addDocumentListener(this);

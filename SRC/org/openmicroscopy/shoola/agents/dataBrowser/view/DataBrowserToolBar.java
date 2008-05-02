@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,6 +33,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -44,8 +46,6 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
@@ -61,7 +61,6 @@ import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
  * The tool bar of {@link DataBrowser}. 
@@ -78,7 +77,7 @@ import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
  */
 class DataBrowserToolBar 
 	extends JPanel
-	implements ActionListener, ChangeListener
+	implements ActionListener
 {
 
 	/** The text of the menu. */
@@ -111,9 +110,6 @@ class DataBrowserToolBar
 	/** Reference to the quick search. */
 	private QuickFiltering 		search;
 	
-	/** Slider to zoom the nodes. */
-	private OneKnobSlider		zoomSlider;
-	
 	/** Button to bring up the filtering dialog. */
 	private JButton				filterButton;
 	
@@ -125,6 +121,12 @@ class DataBrowserToolBar
 	
 	/** Button to select the table view. */
 	private JToggleButton		columnsView;
+	
+	/** Button to order alphabetically. */
+	private JToggleButton		orderByName;
+	
+	/** Button to order by imported date. */
+	private JToggleButton		orderByDate;
 	
 	/** Button to select the slide show view. */
 	private JButton				slideShowView;
@@ -146,6 +148,9 @@ class DataBrowserToolBar
 	
 	/** TextField hosting the number of items per row. */
 	private JTextField			itemsPerRow;
+	
+	/** Indicates how many images are shown. */
+	private JLabel				filteringLabel;
 	
 	/**
 	 * Creates the menu displaying various management options options.
@@ -273,16 +278,9 @@ class DataBrowserToolBar
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		filteringLabel = new JLabel();
+		filteringLabel.setFont(filteringLabel.getFont().deriveFont(Font.BOLD));
 		IconManager icons = IconManager.getInstance();
-		
-		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 1, 10, 5);
-		zoomSlider.setEnabled(true);
-		zoomSlider.setShowArrows(true);
-		zoomSlider.setToolTipText("Magnifies all thumbnails.");
-		zoomSlider.setArrowsImageIcon(
-				icons.getImageIcon(IconManager.ZOOM_IN), 
-				icons.getImageIcon(IconManager.ZOOM_OUT));
-		zoomSlider.addChangeListener(this);
 		search = new QuickFiltering();
 		search.addPropertyChangeListener(controller);
 		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));
@@ -343,6 +341,20 @@ class DataBrowserToolBar
 		
 		});
 		UIUtilities.unifiedButtonLookAndFeel(managementButton);
+		
+		//
+		group = new ButtonGroup();
+		orderByName = new JToggleButton(
+				icons.getIcon(IconManager.SORT_BY_NAME));
+		orderByName.addActionListener(this);
+		orderByName.setActionCommand(""+DataBrowserUI.SORT_BY_NAME);
+		orderByName.setSelected(true);
+		group.add(orderByName);
+		orderByDate = new JToggleButton(
+				icons.getIcon(IconManager.SORT_BY_DATE));
+		orderByDate.addActionListener(this);
+		orderByDate.setActionCommand(""+DataBrowserUI.SORT_BY_DATE);
+		group.add(orderByDate);
 	}
 	
 	/**
@@ -361,6 +373,11 @@ class DataBrowserToolBar
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
+		bar.add(orderByName);
+		bar.add(orderByDate);
+		bar.add(Box.createHorizontalStrut(2));
+		bar.add(new JSeparator(JSeparator.VERTICAL));
+		bar.add(Box.createHorizontalStrut(2));
 		bar.add(slideShowView);
 		bar.add(managementButton);
 		//bar.add(Box.createHorizontalStrut(2));
@@ -371,12 +388,19 @@ class DataBrowserToolBar
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		JPanel p = new JPanel();
 		p.add(filterButton);
 		p.add(search);
 		p.add(buildViewsBar());
+		content.add(p);
+		JPanel labelPane = new JPanel();
+		labelPane.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		labelPane.add(filteringLabel);
+		content.add(labelPane);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(p);
+		add(content);
 	}
 	
 	/** Sets the number of items per row. */
@@ -400,8 +424,9 @@ class DataBrowserToolBar
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param view 		Reference to the view. Mustn't be <code>null</code>.
-	 * @param controller Reference to the control. Mustn't be <code>null</code>.
+	 * @param view 			Reference to the view. Mustn't be <code>null</code>.
+	 * @param controller 	Reference to the control. 
+	 * 						Mustn't be <code>null</code>.
 	 */
 	DataBrowserToolBar(DataBrowserUI view, DataBrowserControl controller)
 	{
@@ -453,22 +478,24 @@ class DataBrowserToolBar
 	{
 		if (filteringDialog != null && filteringDialog.isVisible()) 
 			filteringDialog.setTags(tags);
-		else 
-			search.setTags(tags);
-	}
-	
-	/** 
-	 * Zooms in or out the thumbnails.
-	 * @see ChangeListener#stateChanged(ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		Object src = e.getSource();
-		if (src == zoomSlider) {
-			
-		}
+		//else 
+		search.setTags(tags);
 	}
 
+	/**
+	 * Sets the number of images.
+	 * 
+	 * @param value The number of images displayed.
+	 * @param total	The total number of images.
+	 */
+	void setNumberOfImages(int value, int total)
+	{
+		String s = "Showing "+value+" of "+total+" image";
+		if (total > 1) s += "s";
+		filteringLabel.setText(s);
+		filteringLabel.repaint();
+	}
+	
 	/** 
 	 * Sets the specified view.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -500,6 +527,10 @@ class DataBrowserToolBar
 				break;	
 			case SLIDE_SHOW_SELECTION:
 				view.slideShowView(true, false);
+				break;	
+			case DataBrowserUI.SORT_BY_NAME:
+			case DataBrowserUI.SORT_BY_DATE:
+				view.sortBy(index);
 				break;	
 		}
 	}

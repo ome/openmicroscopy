@@ -239,7 +239,7 @@ public class AdvancedFinder
 													searchContext);
 		loader.load();
 		finderHandlers.add(loader);
-		state = SEARCH;
+		//state = SEARCH;
 		setSearchEnabled(true);
 	}
 	
@@ -286,7 +286,7 @@ public class AdvancedFinder
 	 */
 	public AdvancedFinder(DataObject refObject)
 	{
-		super(FinderFactory.getRefFrame());
+		//super(FinderFactory.getRefFrame());
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);

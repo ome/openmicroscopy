@@ -521,6 +521,21 @@ class OMEROGateway
 	}
 
 	/**
+	 * Returns a collection of users contained in the specified group.
+	 * 
+	 * @param groupID	The id of the group.
+	 * @return See above.
+	 */
+	private List<Experimenter> containedExperimenters(long groupID)
+	{
+		IQuery service = getQueryService();
+		 return service.findAllByQuery("select e from Experimenter e "
+	                + "left outer join fetch e.groupExperimenterMap m "
+	                + "left outer join fetch m.parent g where g.id = :id", 
+	                new Parameters().addId(groupID));
+	}
+	
+	/**
 	 * Reconnects to server. This method should be invoked when the password
 	 * is reset.
 	 * 
@@ -738,6 +753,11 @@ class OMEROGateway
 		} 
 	}
 
+	/** 
+	 * Tries to reconnect to the server.
+	 * 
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 */
 	void reconnect()
 		throws DSOutOfServiceException
 	{
@@ -1581,15 +1601,15 @@ class OMEROGateway
 			List<ExperimenterGroup> groups = service.lookupGroups();
 			Iterator i = groups.iterator();
 			ExperimenterGroup group;
-			Experimenter[] experimenters;
+			//Experimenter[] experimenters;
+			List<Experimenter> experimenters;
 			Map<GroupData, Set> pojos = new HashMap<GroupData, Set>();
 			DataObject pojoGroup;
 			while (i.hasNext()) {
 				group = (ExperimenterGroup) i.next();
 				if (!isSystemGroup(group)) {
 					pojoGroup = PojoMapper.asDataObject(group);
-					experimenters = service.containedExperimenters(
-							group.getId());
+					experimenters = containedExperimenters(group.getId());
 					pojos.put((GroupData) pojoGroup, 
 							PojoMapper.asDataObjects(experimenters));
 				}

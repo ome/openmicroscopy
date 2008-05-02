@@ -125,6 +125,7 @@ public class QuickFiltering
 	{
 		setSingleSelection(true);
 		setDefaultSearchContext();
+		addPropertyChangeListener(this);
 	}
 	
 	/**
@@ -169,6 +170,12 @@ public class QuickFiltering
 				String v = ((TagAnnotationData) ho).getTagValue();
 				setSearchValue(v);
 			}
+		} else if (VK_UP_SEARCH_PROPERTY.equals(name)) {
+			if (tagsDialog != null && tagsDialog.isVisible())
+				tagsDialog.setSelectedIndex(false);
+		} else if (VK_DOWN_SEARCH_PROPERTY.equals(name)) {
+			if (tagsDialog != null && tagsDialog.isVisible())
+				tagsDialog.setSelectedIndex(true);
 		}
 	}
 	

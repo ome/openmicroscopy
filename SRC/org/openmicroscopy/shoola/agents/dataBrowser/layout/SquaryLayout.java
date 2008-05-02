@@ -106,7 +106,7 @@ class SquaryLayout
             return;
         }
 
-        Object[] children = sorter.sortArray(node.getChildrenDisplay());
+        Object[] children = sorter.sortAsArray(node.getChildrenDisplay());
         //Finally do layout.
         //ImageDisplay[] children = 
         //    LayoutUtils.sortChildrenByPrefWidth(node, false);

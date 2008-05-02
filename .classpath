@@ -24,13 +24,13 @@
 	<classpathentry kind="lib" path="LIB/persistence-api-1.0.jar"/>
 	<classpathentry kind="lib" path="LIB/hibernate-search-3.0.0.GA.jar"/>
 	<classpathentry kind="lib" path="LIB/hibernate-annotations-3.3.0.GA.jar"/>
-	<classpathentry kind="lib" path="LIB/model-psql-3.0-Beta3.jar"/>
 	<classpathentry kind="lib" path="LIB/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-validator.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-digester.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-beanutils.jar"/>
-	<classpathentry kind="lib" path="LIB/client-3.0-Beta3.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="LIB/model-psql-3.0-Beta3.jar"/>
 	<classpathentry kind="lib" path="LIB/common-3.0-Beta3.jar"/>
+	<classpathentry kind="lib" path="LIB/client-3.0-Beta3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

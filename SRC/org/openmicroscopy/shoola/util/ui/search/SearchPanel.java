@@ -1082,7 +1082,8 @@ class SearchPanel
 	{
 		String name = evt.getPropertyName();
 		if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
-			model.pack();
+			model.notifyNodeExpanded();
+			//model.pack();
 		} else if (DATE_CALENDAR_PROPERTY.equals(name)) {
 			//if (evt.getNewValue() != null) 
 				//toDate.setDate(new Date());

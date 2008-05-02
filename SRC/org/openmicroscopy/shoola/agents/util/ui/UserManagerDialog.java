@@ -267,7 +267,7 @@ public class UserManagerDialog
 				selectedIndex = index;
 				selectedGroup = g;
 			}
-			children = sorter.sortArray((Set) map.get(g));
+			children = sorter.sortAsArray((Set) map.get(g));
 			orderedMap.put(g, children);
 			index++;
 		}

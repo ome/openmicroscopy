@@ -131,6 +131,13 @@ abstract class DataBrowserModel
      */
     int getNumberOfImages() { return numberOfImages; }
     
+    /**
+     * Returns the {@link ViewerSorter}.
+     * 
+     * @return See above.
+     */
+    ViewerSorter getSorter() { return sorter; }
+    
     /** Lays out the browser. */
     void layoutBrowser()
     {
@@ -152,7 +159,7 @@ abstract class DataBrowserModel
     ImageTableView createImageTableView()
     {
     	if (tableView != null) return tableView;
-    	tableView = new ImageTableView((ImageDisplay) browser.getUI());
+    	tableView = new ImageTableView(this, (ImageDisplay) browser.getUI());
     	return tableView;
     }
     

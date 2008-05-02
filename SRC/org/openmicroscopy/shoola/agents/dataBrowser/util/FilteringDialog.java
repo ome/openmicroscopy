@@ -93,7 +93,7 @@ public class FilteringDialog
 	public static final String	FILTER_PROPERTY = "filter";
 	
 	/** The title of the dialog. */
-	private static final String TITLE = "Filtering and Searching";
+	private static final String TITLE = "Filtering";
 	
 	/** Action id indicating to close the dialog. */
 	private static final int	CANCEL = 0;
@@ -172,40 +172,10 @@ public class FilteringDialog
      */
     private void enterTag(TagAnnotationData tag)
     {
-    	String result = "";
     	String text = tag.getTagValue();
     	List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
 				SearchUtil.COMMA_SEPARATOR);
-    	if (l != null) {
-    		Iterator<String> i = l.iterator();
-    		boolean exist = false;
-    		String value;
-    		while (i.hasNext()) {
-    			value = i.next();
-				if (value != null && value.equals(text))
-					exist = true;
-			}
-    		if (exist) {
-    			i = l.iterator();
-    			int index = 0;
-    			int n = l.size()-1;
-    			while (i.hasNext()) {
-        			value = i.next();
-        			result += value;
-    				if (index != n) 
-    					result += SearchUtil.COMMA_SEPARATOR+" ";
-    				index++;
-    			}
-    		} else {
-    			i = l.iterator();
-    			while (i.hasNext()) {
-        			value = i.next();
-        			result += value;
-    				result += SearchUtil.COMMA_SEPARATOR+" ";
-    			}
-    			result += text;
-    		}
-    	} else result = text;
+    	String result = SearchUtil.formatString(text, l);
     	tagsArea.getDocument().removeDocumentListener(this);
     	tagsArea.setText(result);
     	tagsArea.getDocument().addDocumentListener(this);
@@ -267,6 +237,21 @@ public class FilteringDialog
 		setModal(true);
 	}
 	
+	/** Handles text entered in the tagging area. */
+	private void handleEnter()
+	{
+		if (tagsDialog == null || !tagsDialog.isVisible())
+			return;
+		String name = tagsArea.getText();
+		if (name == null) return;
+		TagItem o = (TagItem) tagsDialog.getSelectedTextValue();
+		if (o == null) return;
+		DataObject ho = o.getDataObject();
+		if (ho instanceof TagAnnotationData) {
+			enterTag((TagAnnotationData) ho);
+		}
+	}
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -290,6 +275,8 @@ public class FilteringDialog
             	Object source = e.getSource();
             	if (source != tagsArea) return;
             	switch (e.getKeyCode()) {
+            		case KeyEvent.VK_ENTER:
+            			handleEnter();
 					case KeyEvent.VK_UP:
 						if (tagsDialog != null && tagsDialog.isVisible())
 							tagsDialog.setSelectedIndex(false);
@@ -297,7 +284,6 @@ public class FilteringDialog
 					case KeyEvent.VK_DOWN:
 						if (tagsDialog != null && tagsDialog.isVisible())
 							tagsDialog.setSelectedIndex(true);
-						break;
 				}
                 
             }
@@ -313,7 +299,7 @@ public class FilteringDialog
 		filterButton.setToolTipText("Filter the data.");
 		filterButton.setActionCommand(""+FILTER);
 		filterButton.addActionListener(this);
-		getRootPane().setDefaultButton(filterButton);
+		//getRootPane().setDefaultButton(filterButton);
 	}
 
 	/** Organizes the filtering parameters. */

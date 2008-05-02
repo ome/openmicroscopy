@@ -311,7 +311,7 @@ public class EditorUtil
      * @return The map whose keys are the field names, and the values 
      * 			the corresponding fields' values.
      */
-    public static Map<String, String> fomratExperimenter(ExperimenterData data)
+    public static Map<String, String> convertExperimenter(ExperimenterData data)
     {
         LinkedHashMap<String, String> details = 
         							new LinkedHashMap<String, String>(3);

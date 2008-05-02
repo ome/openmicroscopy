@@ -25,21 +25,20 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -47,8 +46,6 @@ import javax.swing.JProgressBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.IconManager;
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -65,10 +62,10 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 public class SearchComponent
-	extends JDialog
+	extends JPanel//JDialog
 	implements ActionListener
 {
-	
+
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";
 	
@@ -78,27 +75,27 @@ public class SearchComponent
 	/** Bound property indicating to select the owner. */
 	public static final String 		OWNER_PROPERTY = "owner";
     
-    /** The window's title. */
-	private static final String		TITLE = "Advanced Search";
-	
-	/** The textual decription of the window. */
-	private static final String 	TEXT = "";
-	
+	/** Bound property indicating that nodes are expanded. */
+	public static final String 		NODES_EXPANDED_PROPERTY = "nodesExpanded";
+
 	/** Action command ID indicating to cancel. */
-	private static final int 		CANCEL = 0;
+	public static final int 		CANCEL = 0;
 	
 	/** Action command ID indicating to search. */
-	private static final int 		SEARCH = 1;
-
+	public static final int 		SEARCH = 1;
+	
+	/** Action command ID indicating to search. */
+	public static final int 		COLLAPSE = 2;
+	
+	/** Action command ID indicating to search. */
+	public static final int 		HELP = 3;
+	
 	/** Action command ID indicating to set the date. */
-	static final int 				DATE = 3;
+	static final int 				DATE = 4;
 	
 	/** Action command ID indicating to select the user who owns the object. */
-	static final int 				OWNER = 4;
-	
-	/** Action command ID indicating to search. */
-	static final int 				HELP = 5;
-	
+	static final int 				OWNER = 5;
+
 	/** 
 	 * Action command ID indicating to select the user who annotated the 
 	 * object. 
@@ -112,35 +109,58 @@ public class SearchComponent
     static final Dimension  		H_SPACER_SIZE = new Dimension(5, 10);
     
 	/** The UI with all the search fields. */
-	private SearchPanel 		uiDelegate;
+	private SearchPanel 			uiDelegate;
 	
 	/** Button to close the dialog. */
-	private JButton				cancelButton;
+	private JButton					cancelButton;
 	
 	/** Button to close the dialog. */
-	private JButton				searchButton;
+	private JButton					searchButton;
 	
 	/** Progress bar visible while searching. */
-	private JProgressBar		progressBar;
+	private JProgressBar			progressBar;
 	
 	/** Displays the search message. */
-	private JLabel				progressLabel;
+	private JLabel					progressLabel;
 	
 	/** The available nodes. */
-	private List<SearchObject>	nodes;
+	private List<SearchObject>		nodes;
 	
 	/** The possible types. */
-	private List<SearchObject>	types;
+	private List<SearchObject>		types;
 	
 	/** Either {@link #ANNOTATOR} or {@link #OWNER}. */
-	private int					userIndex;
+	private int						userIndex;
 	
 	/** The default search context. */
-	private SearchContext 		searchContext;
+	private SearchContext 			searchContext;
+	
+	/** Map hosting various actions. */
+	private Map<Integer, Action>	actionsMap;
+	
+	/** Creates the actions. */
+	private void createActionsMap()
+	{
+		actionsMap = new HashMap<Integer, Action>();
+		AbstractAction a = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) { cancel(); }
+		
+		};
+		actionsMap.put(CANCEL, a);
+		a = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) { search(); }
+		};
+		actionsMap.put(SEARCH, a);
+		a = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) { collapseNodes(); }
+		};
+		actionsMap.put(COLLAPSE, a);
+	}
 	
 	/** Sets the window properties. */
 	private void setProperties()
 	{
+		/*
 		setModal(true);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter()
@@ -153,27 +173,31 @@ public class SearchComponent
         		cancel();
         	}
         });
+        */
 		
 	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		createActionsMap();
 		uiDelegate = new SearchPanel(this);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Cancel the search");
-		cancelButton.setActionCommand(""+CANCEL);
-		cancelButton.addActionListener(this);
+		//cancelButton.setActionCommand(""+CANCEL);
+		cancelButton.setAction(getAction(CANCEL));
+		//cancelButton.addActionListener(this);
 		searchButton = new JButton("Search");
 		searchButton.setToolTipText("Search");
-		searchButton.setActionCommand(""+SEARCH);
-		searchButton.addActionListener(this);
+		//searchButton.setActionCommand(""+SEARCH);
+		//searchButton.addActionListener(this);
+		searchButton.setAction(getAction(SEARCH));
 		progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
 		progressBar.setVisible(false);
 		progressLabel = new JLabel("");
 		progressLabel.setEnabled(false);
-		getRootPane().setDefaultButton(searchButton);
+		
 	}
 	
 	/**
@@ -207,30 +231,34 @@ public class SearchComponent
         return UIUtilities.buildComponentPanel(progressPanel);
 	}
 	
-	/** Builds and lays out the UI. 
+	/** 
+	 * Builds and lays out the UI. 
 	 * 
-	 * @param text The subtitle.
+	 * @param showControl	Pass <code>true</code> to display the buttons,
+	 * 						<code>false</code> otherwise.
 	 */
-	private void buildGUI(String text)
+	private void buildGUI(boolean showControl)
 	{
-		Container c = getContentPane();
-		IconManager icons = IconManager.getInstance();
-		TitlePanel titlePanel = new TitlePanel(TITLE, text, 
-				icons.getIcon(IconManager.SEARCH_48));
-		c.add(titlePanel, BorderLayout.NORTH);
 		JPanel controls = new JPanel();
         controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
         controls.add(UIUtilities.buildComponentPanel(uiDelegate));
-        controls.add(buildToolBar());
-        controls.add(Box.createVerticalStrut(10));
-		c.add(controls, BorderLayout.CENTER);
-		c.add(buildStatusPanel(), BorderLayout.SOUTH);
+        if (showControl) {
+        	 controls.add(buildToolBar());
+             controls.add(Box.createVerticalStrut(10));
+        }
+		add(controls, BorderLayout.CENTER);
+	}
+	
+	/** Collapses all nodes. */
+	private void collapseNodes()
+	{
+		
 	}
 	
 	/** Closes and disposes of the window. */
 	private void cancel()
 	{
-		setVisible(false);
+		//setVisible(false);
 		firePropertyChange(CANCEL_SEARCH_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		//dispose();
 	}
@@ -238,8 +266,8 @@ public class SearchComponent
 	/** Brings up the Help dialog. */
 	private void showHelp()
 	{
-		SearchHelp helpDialog = new SearchHelp((JFrame) getOwner());
-		UIUtilities.centerAndShow(helpDialog);
+		//SearchHelp helpDialog = new SearchHelp((JFrame) getOwner());
+		//UIUtilities.centerAndShow(helpDialog);
 	}
 	
 	/** Fires a property change to search. */
@@ -310,54 +338,24 @@ public class SearchComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param owner 	The owner of this dialog.
-	 * @param context	The context of the search.
-	 * @param subtitle	The subtitle of this component.
+	 * @param context		The context of the search.
+	 * @param showControl	Pass <code>true</code> to display the buttons,
+	 * 						<code>false</code> otherwise.
 	 */
-	public SearchComponent(JFrame owner, SearchContext context, 
-							String subtitle)
+	public SearchComponent(SearchContext context, boolean showControl)
 	{
-		super(owner);
 		searchContext = context;
 		setDefaultContext();
 		setProperties();
 		initComponents();
-		if (subtitle == null || subtitle.trim().length() == 0)
-			subtitle = TEXT;
-		buildGUI(subtitle);
-		pack();
+		
+		buildGUI(showControl);
 	}
 	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param owner 	The owner of this dialog.
-	 * @param context	The context of the search.
-	 */
-	public SearchComponent(JFrame owner, SearchContext context)
+	/** Creates a new instance. */
+	public SearchComponent()
 	{
-		this(owner, context, null);
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param owner The owner of this dialog.
-	 */
-	public SearchComponent(JFrame owner)
-	{
-		this(owner, null, null);
-	}
-
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param owner 	The owner of this dialog.
-	 * @param subtitle	The subtitle of this component.
-	 */
-	public SearchComponent(JFrame owner, String subtitle)
-	{
-		this(owner, null, subtitle);
+		this(null, true);
 	}
 	
 	/**
@@ -380,6 +378,24 @@ public class SearchComponent
 	 * @return See above.
 	 */
 	List<SearchObject> getTypes() { return types; }
+	
+	/** Fires a property when the nodes are expanded. */
+	void notifyNodeExpanded()
+	{
+		firePropertyChange(NODES_EXPANDED_PROPERTY,Boolean.FALSE, Boolean.TRUE);
+	}
+	
+	/**
+	 * Returns the action corresponding to the passed index, 
+	 * or <code>null</code> if no action defined.
+	 * 
+	 * @param index The index.
+	 * @return See above.
+	 */
+	public Action getAction(int index)
+	{
+		return actionsMap.get(index);
+	}
 	
 	/**
 	 * Sets the buttons enabled when performing  search.
@@ -436,12 +452,14 @@ public class SearchComponent
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
+			/*
 			case CANCEL:
 				cancel();
 				break;
 			case SEARCH:
 				search();
 				break;
+				*/
 			case DATE:
 				uiDelegate.setDateIndex();
 				break;
@@ -457,5 +475,5 @@ public class SearchComponent
 				showHelp();
 		}
 	}
-	
+
 }

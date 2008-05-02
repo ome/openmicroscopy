@@ -79,18 +79,25 @@ class RateUI
 	/** Initializes the components composing the UI. */
 	private void initComponents()
 	{
-		int n = model.getRatingCount();
-		String s = "";
 		selectedValue = 0;
-		if (n > 0) selectedValue = model.getRatingAverage();
 		initialValue = selectedValue;
 		rating = new RatingComponent(selectedValue, 
 									RatingComponent.MEDIUM_SIZE);
 		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
-		s += n+NAME;
-		if (n > 1) s += "s";
-		ratingsLabel = new JLabel("("+s+")");
+		
+		ratingsLabel = new JLabel();
 		ratingsLabel.setFont(ratingsLabel.getFont().deriveFont(Font.ITALIC));
+	}
+	
+	/** Lays out the UI. */
+	private void layoutUI()
+	{
+		JLabel label = UIUtilities.setTextFont(getComponentTitle());
+		label.setLabelFor(rating);
+		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		add(label);
+		add(rating);
+		add(ratingsLabel);
 	}
 	
 	/**
@@ -101,7 +108,9 @@ class RateUI
 	RateUI(EditorModel model)
 	{
 		super(model);
+		initComponents();
 		title = TITLE;
+		layoutUI();
 	}
 	
 	/**
@@ -110,14 +119,18 @@ class RateUI
 	 */
 	protected void buildUI()
 	{
-		removeAll();
-		initComponents();
-		JLabel label = UIUtilities.setTextFont(getComponentTitle());
-		label.setLabelFor(rating);
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(label);
-		add(rating);
-		add(ratingsLabel);
+		//set values.
+		int n = model.getRatingCount();
+		String s = "";
+		selectedValue = 0;
+		if (n > 0) selectedValue = model.getRatingAverage();
+		initialValue = selectedValue;
+		rating.setValue(selectedValue);
+		s += n+NAME;
+		if (n > 1) s += "s";
+		ratingsLabel.setText("("+s+")");
+		revalidate();
+		repaint();
 	}
 	
 	/**
@@ -172,7 +185,7 @@ class RateUI
 	{
 		selectedValue = 0;
 		initialValue = 0;
-		removeAll();
+		//removeAll();
 	}
 	
 	/**

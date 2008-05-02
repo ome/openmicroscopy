@@ -225,6 +225,7 @@ class DataBrowserComponent
 		model.getBrowser().showAll();
 		//model.layoutBrowser();
 		view.layoutUI();
+		view.setNumberOfImages(model.getNumberOfImages());
 	}
 
 	/**
@@ -254,7 +255,7 @@ class DataBrowserComponent
 			//showAll();
 			return;
 		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		
 		String text = "";
 		Iterator<String> i = terms.iterator();
 		while (i.hasNext()) 
@@ -269,7 +270,7 @@ class DataBrowserComponent
             un.notifyInfo("Find", "The phrase cannot contain +, ? or *");
             return;
         }
-		
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		RegexFinder finder = new RegexFinder(pattern);
 		//browser.visitOriginal(finder);
 		browser.accept(finder);
@@ -315,9 +316,7 @@ class DataBrowserComponent
 		}
 		browser.setFilterNodes(nodes);
 		view.layoutUI();
-		//
-		//model.layoutBrowser();
-		//browser.getUI().repaint();
+		view.setNumberOfImages(nodes.size());
 		model.setState(READY);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}

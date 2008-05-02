@@ -118,6 +118,7 @@ public interface DataHandlerView
 	 *                          <code>ImageData</code>.   
 	 *                          Mustn't be <code>null</code>.
 	 * @param data              Collection of annotation objects to delete. 
+	 * 
 	 *                          Mustn't be <code>null</code>.
 	 * @param observer          Callback handler.
 	 * @return A handle that can be used to cancel the call.

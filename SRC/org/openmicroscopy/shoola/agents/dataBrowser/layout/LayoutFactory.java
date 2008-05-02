@@ -58,7 +58,7 @@ public class LayoutFactory
      * @param type     		One of the constants defined by this class.
      * @param sorter    	Class used to sort the nodes by date or 
      * 						alphabetically. 
-     * @param itemsPerRow 	The number of items oer row.
+     * @param itemsPerRow 	The number of items per row.
      * @return          A layout object for the given layout <code>type</code>.
      * @throws IllegalArgumentException If <code>type</code> is not one of
      *          the constants defined by this class.

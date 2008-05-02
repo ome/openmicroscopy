@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
@@ -85,6 +86,44 @@ public class SearchUtil
 			}
 		}
 		return l;
+	}
+	
+	
+	public static String formatString(String termToAdd, List<String> terms)
+	{
+		if (terms == null) return termToAdd;
+    	int n = terms.size();
+    	if (n == 0) return termToAdd;
+    	String result = "";
+    	Iterator<String> i = terms.iterator();
+		boolean exist = false;
+		String value;
+		while (i.hasNext()) {
+			value = i.next();
+			if (value != null && value.equals(termToAdd))
+				exist = true;
+		}
+		if (exist) {
+			i = terms.iterator();
+			int index = 0;
+			n = n-1;
+			while (i.hasNext()) {
+    			value = i.next();
+    			result += value;
+				if (index != n) 
+					result += COMMA_SEPARATOR+" ";
+				index++;
+			}
+			return result;
+		}
+		terms.remove(n-1);
+		i = terms.iterator();
+		while (i.hasNext()) {
+			result += i.next();
+			result += COMMA_SEPARATOR+" ";
+		}
+		result += termToAdd;
+		return result;
 	}
 	
 }

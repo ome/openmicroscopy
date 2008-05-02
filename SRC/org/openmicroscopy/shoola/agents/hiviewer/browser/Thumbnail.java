@@ -56,7 +56,7 @@ public interface Thumbnail
     public static final double  SCALING_FACTOR = 0.5;
     
     /** The minimum magnification factor. */
-    public static final double  MIN_SCALING_FACTOR = 0.25;
+    public static final double  MIN_SCALING_FACTOR = 0.1;//0.25;
     
     /**
      * Returns the width, in pixels, of the thumbnail.

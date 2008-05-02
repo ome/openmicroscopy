@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor 
+ * org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,24 +22,20 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
-
-
 //Java imports
-import java.util.Collection;
-import java.util.Iterator;
-import javax.swing.JComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
-
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 
 /** 
- * 
+ * Magnifies the {@link ImageNode}s contained in the selected {@link ImageSet}.
+ * This visitor is accepted by an {@link ImageSet} not by the browser.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,50 +47,42 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
  * </small>
  * @since OME3.0
  */
-public class ResetNodesVisitor 	
+public class MagnificationVisitor
 	implements ImageDisplayVisitor
 {
 
-	/** The collection of nodes to reset. */
-	private Collection<ImageDisplay> 	nodes;
+	/** The magnification factor. */
+	private double factor;
 	
 	/**
-	 * Creates a new instance.
+	 * Creates a new instace.
 	 * 
-	 * @param nodes The collection of <code>DataObject</code>s to find.
+	 * @param factor The magnfication factor.
 	 */
-	public ResetNodesVisitor(Collection<ImageDisplay> nodes)
+	public MagnificationVisitor(double factor)
 	{
-		if (nodes == null)
-			throw new IllegalArgumentException("No nodes to find.");
-		this.nodes = nodes;
+		if (factor > Thumbnail.MAX_SCALING_FACTOR) 
+			factor = Thumbnail.MAX_SCALING_FACTOR;
+		else if (factor < Thumbnail.MIN_SCALING_FACTOR)
+			factor = Thumbnail.MIN_SCALING_FACTOR;
+		this.factor = factor;
 	}
 	
-    /** 
+	/** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageNode)
      */
-	public void visit(ImageNode node) {}
+	public void visit(ImageNode node)
+	{
+		 Thumbnail th = node.getThumbnail();
+	     double sf = th.getScalingFactor();
+	     if (sf != factor) th.scale(factor); 	 
+	}
 
     /** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
-	public void visit(ImageSet node)
-	{ 
-		if (node.containsImages()) {
-			JComponent desktop = node.getInternalDesktop();
-			desktop.removeAll();
-			Iterator<ImageDisplay> i = nodes.iterator();
-			ImageDisplay child;
-			ImageDisplay parent;
-	        while (i.hasNext()) {
-	        	child = i.next();
-	        	parent = child.getParentDisplay();
-	        	if (parent == null || node == parent) 
-	        		desktop.add(child);
-	        }
-		}
-	}
+	public void visit(ImageSet node) {}
 	
 }

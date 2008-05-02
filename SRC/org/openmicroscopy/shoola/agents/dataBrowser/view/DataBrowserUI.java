@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -42,10 +43,10 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
-
 import pojos.DataObject;
 
 /** 
@@ -71,20 +72,29 @@ class DataBrowserUI
 	/** ID to select the columns view. */
 	static final int			COLUMNS_VIEW = 1;
 	
+	/** ID to sort the node alphabetically. */
+	static final int			SORT_BY_NAME = 2;
+	
+	/** ID to sort the node by date. */
+	static final int			SORT_BY_DATE = 3;
+	
 	/** Reference to the tool bar. */
-	private DataBrowserToolBar toolBar;
+	private DataBrowserToolBar 		toolBar;
+	
+	/** Reference to the tool bar. */
+	private DataBrowserStatusBar 	statusBar;
 	
 	/** Reference to the model. */
-	private DataBrowserModel	model;
+	private DataBrowserModel		model;
 	
 	/** Reference to the control. */
-	private DataBrowserControl	controller;
+	private DataBrowserControl		controller;
 	
 	/** The slide show view. */
-	private SlideShowView 		slideShowView;
+	private SlideShowView 			slideShowView;
 	
 	/** The selected view. */
-	private int					selectedView;
+	private int						selectedView;
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -92,6 +102,7 @@ class DataBrowserUI
 		setLayout(new BorderLayout(0, 0));
 		add(toolBar, BorderLayout.NORTH);
 		add(model.getBrowser().getUI(), BorderLayout.CENTER);
+		add(statusBar, BorderLayout.SOUTH);
 	}
 	
 	/** Creates a new instance. */
@@ -114,7 +125,9 @@ class DataBrowserUI
 		this.model = model;
 		this.controller = controller;
 		toolBar = new DataBrowserToolBar(this, controller);
+		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;
+		setNumberOfImages(-1);
 		buildGUI();
 	}
 	
@@ -274,7 +287,6 @@ class DataBrowserUI
 						while (i.hasNext()) {
 							display = (ImageDisplay) i.next();
 							ho = display.getHierarchyObject();
-							System.err.println(display);
 							if (ho instanceof DataObject)
 								objects.add((DataObject) ho);
 						}
@@ -325,4 +337,47 @@ class DataBrowserUI
 		browser.accept(layout, ImageDisplayVisitor.IMAGE_SET_ONLY);
 	}
     
+	/**
+	 * Sets the number of images.
+	 * 
+	 * @param value The number of images displayed.
+	 */
+	void setNumberOfImages(int value)
+	{
+		if (value < 0) value = model.getNumberOfImages();
+		toolBar.setNumberOfImages(value, model.getNumberOfImages());
+	}
+	
+	/** 
+	 * Sorts the thumbnails either alphabetically or by date.
+	 * 
+	 * @param index Th e sorting index.
+	 */
+	void sortBy(int index)
+	{
+		model.getSorter().setByDate(SORT_BY_DATE == index);
+        setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        Browser browser = model.getBrowser();
+        browser.accept(browser.getSelectedLayout(), 
+        					ImageDisplayVisitor.IMAGE_SET_ONLY);
+        
+        ImageTableView v = model.getTableView();
+		if (v != null) v.refreshTable();
+        setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+
+	/**
+	 * Magnifies the images nodes.
+	 * 
+	 * @param factor The magnification factor.
+	 */
+	void setMagnificationFactor(double factor)
+	{
+		MagnificationVisitor visitor = new MagnificationVisitor(factor);
+		Browser browser = model.getBrowser();
+		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+		browser.accept(browser.getSelectedLayout(), 
+						ImageDisplayVisitor.IMAGE_SET_ONLY);
+	}
+	
 }

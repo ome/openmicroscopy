@@ -152,6 +152,7 @@ class UserProfile
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+    	boolean isOwner = model.isCurrentUserOwner(model.getRefObject());
     	passwordButton =  new JButton("Change password");
     	passwordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  
@@ -193,11 +194,10 @@ class UserProfile
 		groups.setRenderer(new GroupsRenderer());
 		if (objects.length != 0)
 			groups.setSelectedIndex(selectedIndex);
-		if (model.isCurrentUserOwner(model.getRefObject())) {
+		if (isOwner) {
 			groups.addActionListener(this);
 			groups.setEnabled(true);
 		} else groups.setEnabled(false);
-		
     }
     
     /**
@@ -209,7 +209,7 @@ class UserProfile
     {
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	boolean editable = model.isCurrentUserOwner(user);
-    	details = EditorUtil.fomratExperimenter(user);
+    	details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         double[] columns = {150, 200};
@@ -229,6 +229,7 @@ class UserProfile
         String key, value;
         int index = 1;
         int j;
+        boolean isOwner = model.isCurrentUserOwner(model.getRefObject());
         while (i.hasNext()) {
             key = (String) i.next();
             value = (String) details.get(key);
@@ -246,6 +247,7 @@ class UserProfile
             	 area.setEditable(editable);
             	 area.getDocument().addDocumentListener(this);
             }
+            area.setEnabled(isOwner);
             label.setLabelFor(area);
             content.add(area, "1, "+index);
             items.put(key, area);
@@ -339,7 +341,8 @@ class UserProfile
     					{TableLayout.PREFERRED, TableLayout.PREFERRED}}; 
     	setLayout(new TableLayout(tl));
     	add(contentPanel, "0, 0, f, t");
-    	add(buildPasswordPanel(), "0, 1, f, t");
+    	if (model.isCurrentUserOwner(model.getRefObject()))
+    			add(buildPasswordPanel(), "0, 1, f, t");
     }
     
 	/** Clears the password fields. */

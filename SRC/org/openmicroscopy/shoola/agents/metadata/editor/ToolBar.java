@@ -102,6 +102,9 @@ class ToolBar
 	/** Button to collapse all the extanded nodes. */
 	private JButton			collapseButton;
 	
+	/** The decorator. */
+	private JPanel			decorator;
+	
 	/** Reference to the Model. */
 	private EditorModel		model;
 	
@@ -140,6 +143,9 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(infoButton);
 		UIUtilities.unifiedButtonLookAndFeel(collapseButton);
+		
+		decorator = new JPanel();
+    	decorator.setLayout(new BoxLayout(decorator, BoxLayout.X_AXIS));
 	}
     
     /** 
@@ -220,29 +226,25 @@ class ToolBar
     void buildGUI()
     {
     	removeAll();
-    	JPanel p = new JPanel();
-    	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-    	//p.setLayout(new FlowLayout(FlowLayout.RIGHT));
-    	p.add(buildGeneralBar());
+    	decorator.removeAll();
+    	decorator.add(buildGeneralBar());
     	if (model.getRefObject() instanceof ImageData) {
-    		p.add(Box.createHorizontalStrut(2));
-    		p.add(new JSeparator(JSeparator.VERTICAL));
-        	p.add(buildImageToolBar());
+    		decorator.add(Box.createHorizontalStrut(2));
+    		decorator.add(new JSeparator(JSeparator.VERTICAL));
+    		decorator.add(buildImageToolBar());
     	}
     	
-    	//add(UIUtilities.buildComponentPanel(p), "0, 0");
-    	//add(new JSeparator(JSeparator.HORIZONTAL), "0, 2");
     	switch (index) {
 			case BOTTOM:
 	    		add(new JSeparator(JSeparator.HORIZONTAL));
-	    		add(UIUtilities.buildComponentPanel(p));
+	    		add(UIUtilities.buildComponentPanel(decorator));
 				break;
 			case TOP:
 			default:
-				p.add(Box.createHorizontalStrut(2));
-    			p.add(new JSeparator(JSeparator.VERTICAL));
-    			p.add(buildControlsBar());
-				add(UIUtilities.buildComponentPanel(p));
+				decorator.add(Box.createHorizontalStrut(2));
+				decorator.add(new JSeparator(JSeparator.VERTICAL));
+				decorator.add(buildControlsBar());
+				add(UIUtilities.buildComponentPanel(decorator));
 	    		add(new JSeparator(JSeparator.HORIZONTAL));
 				break;
 		}
@@ -267,7 +269,7 @@ class ToolBar
     {
     	IconManager icons = IconManager.getInstance();
     	JPanel p = new JPanel();
-    	p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+    	p.setLayout(new FlowLayout(FlowLayout.LEFT));
     	JLabel label;
     	int n = model.getTextualAnnotationCount();
     	if (n > 0) {
@@ -301,7 +303,12 @@ class ToolBar
     		p.add(label);
     		p.add(Box.createHorizontalStrut(5));
     	}
-    	add(p);
+    	decorator.add(Box.createHorizontalStrut(10));
+    	//decorator.add(new JSeparator(JSeparator.VERTICAL));
+    	decorator.add(p);
+    	decorator.revalidate();
+    	decorator.repaint();
+    	//add(decorator);
     }
     
     /**

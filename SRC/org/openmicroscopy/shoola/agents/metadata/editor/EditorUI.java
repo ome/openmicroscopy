@@ -355,6 +355,7 @@ public class EditorUI
     void layoutUI()
     {
     	if (model.getRefObject() instanceof ExperimenterData)  {
+    		toolBarTop.buildGUI();
     		userUI.buildUI();
     		userUI.repaint();
     	} else {
@@ -380,6 +381,7 @@ public class EditorUI
         			if (viewedByUI.isExpanded())
             			loadThumbnails(true);
         		} else {
+        			viewByTree.collapseNodes();
         			viewedByUI.setExpanded(false);
         		}
         		if (infoUI.isExpanded())

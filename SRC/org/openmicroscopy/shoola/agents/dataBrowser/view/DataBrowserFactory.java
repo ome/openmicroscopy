@@ -30,6 +30,8 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -100,7 +102,7 @@ public class DataBrowserFactory
 	}
 
 	/** Map used to keep track of the browsers. */
-	private Map<String, DataBrowser> browsers;
+	private Map<String, DataBrowser> 	browsers;
 	
 	/** Creates a new instance. */
 	private DataBrowserFactory()
@@ -121,7 +123,6 @@ public class DataBrowserFactory
 										Set<ImageData> images)
 	{
 		DataBrowserModel model = new ImagesModel(parent, images);
-		System.err.println(grandParent);
 		model.setGrandParent(grandParent);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);

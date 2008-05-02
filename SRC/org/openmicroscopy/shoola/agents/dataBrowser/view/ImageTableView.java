@@ -36,6 +36,7 @@ import javax.swing.JScrollPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 import pojos.DataObject;
 
@@ -62,7 +63,10 @@ class ImageTableView
 	static final String	TABLE_NODES_SELECTION_PROPERTY = "tableNodesSelection";
 	
 	/** Reference to the table displaying the nodes. */
-	private ImageTable table;
+	private ImageTable 			table;
+	
+	/** Reference to the model. */
+	private DataBrowserModel 	model;
 	
 	/** 
 	 * Initializes the components composing the display. 
@@ -84,14 +88,24 @@ class ImageTableView
 	/** 
 	 * Creates a new instance. 
 	 * 
-	 * @param root The root of the tree.
+	 * @param model	Reference to the Model. Mustn't be <code>null</code>.
+	 * @param root 	The root of the tree.
 	 */
-	ImageTableView(ImageDisplay root)
+	ImageTableView(DataBrowserModel model, ImageDisplay root)
 	{
+		if (model == null) throw new IllegalArgumentException("No model.");
+		this.model = model;
 		initComponents(root);
 		buildGUI();
 	}
 	
+	/**
+     * Returns the {@link ViewerSorter}.
+     * 
+     * @return See above.
+     */
+    ViewerSorter getSorter() { return model.getSorter(); }
+    
 	/** Refreshes the table when filtering data. */
 	void refreshTable() { table.refreshTable(); }
 	

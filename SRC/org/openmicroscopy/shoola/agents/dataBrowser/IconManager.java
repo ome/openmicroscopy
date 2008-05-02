@@ -120,11 +120,17 @@ public class IconManager
     /** The <code>Create 48x48</code> icon. */
     public static int           CREATE_48 = 23;
     
+    /** The <code>Sort by date</code> icon. */
+    public static int           SORT_BY_DATE = 24;
+    
+    /** The <code>Sort by name</code> icon. */
+    public static int           SORT_BY_NAME = 25;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 23;
+    private static int          MAX_ID = 25;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -155,6 +161,8 @@ public class IconManager
         relPaths[ROLL_OVER] = "roll_over_image16.png";
         relPaths[CREATE] = "nuvola_filenew16.png"; 
         relPaths[CREATE_48] = "nuvola_filenew48.png"; 
+        relPaths[SORT_BY_DATE] = "eclipse_trace_persp16.png";
+        relPaths[SORT_BY_NAME] = "eclipse_alphab_sort_co16.png";
     }
     
     /** The sole instance. */

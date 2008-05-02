@@ -34,7 +34,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.hiviewer.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.hiviewer.treeview.TreeViewNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 
@@ -450,6 +450,24 @@ public class ViewerSorter
     public void setByDate(boolean b) { byDate = b; }
 
     /**
+     * Sorts the passed array.
+     * 
+     * @param array The array to sort.
+     * @return A list of ordered values.
+     */
+    public List sort(Object[] array)
+    {
+    	if (array == null) 
+            throw new NullPointerException("No collection to sort.");
+    	List<Object> l = new ArrayList<Object>();
+    	for (int i = 0; i < array.length; i++) {
+			l.add(array[i]);
+		} 
+    	this.collection = l;
+        return sort();
+    }
+    
+    /**
      * Sorts the specified collection.
      * 
      * @param collection The collection to sort.
@@ -496,12 +514,30 @@ public class ViewerSorter
      * @param collection The collection to sort.
      * @return An array of ordered values.
      */
-    public Object[] sortArray(Collection collection)
+    public Object[] sortAsArray(Collection collection)
     {
     	if (collection == null) 
             throw new NullPointerException("No collection to sort.");
         this.collection = collection;
-        return sortArray();
+        return sortAsArray();
+    }
+    
+    /**
+     * Sorts the passed array.
+     * 
+     * @param array The array to sort.
+     * @return An array of ordered values.
+     */
+    public Object[] sortAsArray(Object[] array)
+    {
+    	if (array == null) 
+            throw new NullPointerException("No collection to sort.");
+    	List<Object> l = new ArrayList<Object>();
+    	for (int i = 0; i < array.length; i++) {
+			l.add(array[i]);
+		} 
+    	this.collection = l;
+    	return sortAsArray();
     }
     
     /**
@@ -509,7 +545,7 @@ public class ViewerSorter
      * 
      * @return An array of ordered values.
      */
-    public Object[] sortArray()
+    public Object[] sortAsArray()
     {
     	if (collection == null) 
             throw new NullPointerException("No collection to sort.");

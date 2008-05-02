@@ -83,7 +83,7 @@ class ImageTable
 	static final String					NAME =  "Name";
 	
 	/** The texf of the {@link #DATE_COL}. */
-	static final String					DATE =  "Date Added";
+	static final String					DATE =  "Date Imported";
 	
 	/** The texf of the {@link #ANNOTATED_COL}. */
 	static final String					ANNOTATED =  "Annotated";
@@ -121,24 +121,27 @@ class ImageTable
 	 * Builds the node.
 	 * 
 	 * @param parent 	The parent node.
-	 * @param comp		The node to add to the parent.
+	 * @param comp		The nodes to add to the parent.
 	 */
-	private void buildTreeNode(ImageTableNode parent, Component[] comp)
+	private void buildTreeNode(ImageTableNode parent, List comp)
 	{
 		if (parent == null) return;
-		if (comp == null || comp.length == 0) return;
+		if (comp == null || comp.size() == 0) return;
 		ImageDisplay display;
 		ImageTableNode n;
-		Component c;
-		for (int i = 0; i < comp.length; i++) {
-			c = comp[i];
+		Object c;
+		Iterator i = comp.iterator();
+		while (i.hasNext()) {
+			c = i.next();
 			if (c instanceof ImageDisplay) {
 				display = (ImageDisplay) c;
 				n = new ImageTableNode(display);
 				parent.insert(n, parent.getChildCount());
-				buildTreeNode(n, display.getInternalDesktop().getComponents());
+				buildTreeNode(n, view.getSorter().sort(
+						display.getInternalDesktop().getComponents()));
 			}
 		}
+		
 	}
 	
 	/** Reacts to nodes selection in the tree. */
@@ -229,7 +232,7 @@ class ImageTable
 		this.view = view;
 		tableRoot = new ImageTableNode(root);
 		Component[] comp = root.getInternalDesktop().getComponents();
-		buildTreeNode(tableRoot, comp);
+		buildTreeNode(tableRoot, view.getSorter().sort(comp));
 		initialize();
 	}
 
@@ -239,7 +242,7 @@ class ImageTable
 		ImageDisplay root = ((ImageDisplay) tableRoot.getUserObject());
 		tableRoot = new ImageTableNode(root);
 		Component[] comp = root.getInternalDesktop().getComponents();
-		buildTreeNode(tableRoot, comp);
+		buildTreeNode(tableRoot, view.getSorter().sort(comp));
 		setTableModel(new OMETreeTableModel(tableRoot, COLUMNS, RENDERERS));
 		setDefaultRenderer(String.class, new NumberCellRenderer());
 		invalidate();
