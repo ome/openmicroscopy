@@ -137,7 +137,7 @@ This template generates the document footer.
 -->
 <xsl:template name="document-footer">
 <document-footer>
-Copyright &#169; 2006-2007 University of Dundee. All Rights reserved.
+Copyright &#169; 2006-2008 University of Dundee. All Rights reserved.
 </document-footer>
 </xsl:template>	
 
