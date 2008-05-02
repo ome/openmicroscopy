@@ -408,6 +408,10 @@ public class XMLModel
 		boolean savedOK = saveToXmlFile(outputFile);
 		
 		if (savedOK) {
+			
+			setCurrentFile(outputFile);	// remember the current file. 
+			getCurrentTree().setTreeEdited(false);
+			
 			// try to over-write an existing file in the calendar database (returns false if none found).
 			boolean fileInDB = omeroEditorCalendar.updateCalendarFileInDB(outputFile);
 			
@@ -419,6 +423,24 @@ public class XMLModel
 		selectionChanged();		// updates View with any changes in file names
 		
 		return savedOK;
+	}
+	
+	
+	/**
+	 * This provides the same functionality as 
+	 * saveTreeToXmlFile(file) except:
+	 * The tree's file is not updated with the xmlFile - Still references the file the tree came from.
+	 * The tree method setEdited(false) is not called.
+	 * The calendar database is not updated with the newly saved file. 
+	 * 
+	 * This method is simply for exporting the tree, as a file, without changing the tree. 
+	 * 
+	 * @param xmlFile
+	 * @return	true if successful
+	 * @see  saveToXmlFile(file);
+	 */
+	public boolean exportTreeToXmlFile(File xmlFile) {
+		return saveToXmlFile(xmlFile);
 	}
 	
 	/**
@@ -466,7 +488,7 @@ public class XMLModel
 			
 		} else {
 			/*
-			 * It is OK to save (won't overwrite) but still give warning if 
+			 * It is OK to save (won't overwrite since file does not exist) but still give warning if 
 			 * there was a problem..
 			 */
 			if (!writtenToDOM) {
@@ -485,9 +507,6 @@ public class XMLModel
 				Source source = new DOMSource(outputDocument);
 				Result output = new StreamResult(outputFile);
 				transformer.transform(source, output);
-				
-				setCurrentFile(outputFile);	// remember the current file. 
-				getCurrentTree().setTreeEdited(false);
 				
 			} catch (TransformerException e) {
 				

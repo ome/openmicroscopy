@@ -154,6 +154,22 @@ public interface IModel {
 	 * @return 	true if saving went OK (no exceptions etc). 
 	 */
 	public boolean saveTreeToXmlFile(File file);
+	
+	
+	/**
+	 * This provides the same functionality as 
+	 * saveTreeToXmlFile(file) except:
+	 * The tree's file is not updated with the xmlFile - Still references the file the tree came from.
+	 * The tree method setEdited(false) is not called.
+	 * The calendar database is not updated with the newly saved file. 
+	 * 
+	 * This method is simply for exporting the tree, as a file, without changing the tree. 
+	 * 
+	 * @param xmlFile
+	 * @return	true if successful
+	 * @see  saveToXmlFile(file);
+	 */
+	public boolean exportTreeToXmlFile(File xmlFile);
 
 	public String[] getOpenFileList();
 	

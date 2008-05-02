@@ -70,6 +70,7 @@ import actions.SaveFileAction;
 import actions.SaveFileAsAction;
 import actions.UndoAction;
 import actions.UndoActionNoNameRefresh;
+import actions.ValidateXMLAction;
 
 import tree.DataFieldNode;
 import tree.Tree.Actions;
@@ -189,8 +190,11 @@ public class Controller
     /** Identifies the <code>RequiredFieldAction</code>. */
     static final Integer     REQUIRED_FIELD = new Integer(35);
     
-    /** Identifies the <code>RequiredFieldAction</code>. */
+    /** Identifies the <code>ExportCalendarAction</code>. */
     static final Integer     EXPORT_CALENDAR = new Integer(36);
+
+    /** Identifies the <code>ValidateXMLAction</code>. */
+    static final Integer     VALIDATE_XML = new Integer(37);
     
     
     /** Maps actions ids onto actual <code>Action</code> object. */
@@ -250,6 +254,7 @@ public class Controller
         actionsMap.put(IMPORT_TABLE, new ImportTableAction(model));
         actionsMap.put(REQUIRED_FIELD, new RequiredFieldAction(model));
         actionsMap.put(EXPORT_CALENDAR, new ExportCalendarAction(model));
+        actionsMap.put(VALIDATE_XML, new ValidateXMLAction(model));
     }
     
     /**

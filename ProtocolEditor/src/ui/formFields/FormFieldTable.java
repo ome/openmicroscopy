@@ -33,6 +33,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
@@ -123,7 +124,16 @@ public class FormFieldTable extends FormField {
         }
         horizontalBox.add(warningMessage);
         
-		this.add(tableScroller, BorderLayout.SOUTH);
+        /*
+         * Want to add the table to the SOUTH of contentsPanel (where descriptionLabel is). 
+         * Create new panel to hold both. 
+         */
+        JPanel tableContainer = new JPanel(new BorderLayout());
+        tableContainer.setBackground(null);
+        tableContainer.add(descriptionLabel, BorderLayout.NORTH);
+        tableContainer.add(tableScroller, BorderLayout.SOUTH);
+        
+		contentsPanel.add(tableContainer, BorderLayout.SOUTH);
 		
 		// update new rows etc.
 		tableModel.fireTableStructureChanged();

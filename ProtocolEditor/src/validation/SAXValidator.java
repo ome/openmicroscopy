@@ -104,6 +104,30 @@ public class SAXValidator {
 	}
 	
 	
+	
+	/**
+	 * This method attempts to validate the XML (xmlFile) against it's schema
+	 * (as referenced in the root element). 
+	 * Need to be on-line for this!
+	 * Returns a list of error messages (empty if no messages - XML is valid vv schema).
+	 * 
+	 * @param xmlFile	The file to be validated
+	 * @return		A list of messages (strings). 
+	 */
+	public static List<String> validateXML(File xmlFile) {
+		
+		try {
+			Document document = XMLMethods.readXMLtoDOM(xmlFile);
+			return SAXValidator.validate(document);
+			
+		} catch (SAXException e) {
+			
+			List <String> errMsg = new ArrayList<String>();
+			errMsg.add("SAXException thrown during validation: " + e.getMessage());
+			return errMsg;
+		}
+	}
+	
 	// validate a DOM document. 
 	// need to convert to SAX first....
 	static public ArrayList<String> validate(Document document) throws SAXException {

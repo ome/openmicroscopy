@@ -450,6 +450,7 @@ public class XMLView
 			
 			printsubMenu.add(new JMenuItem(controller.getAction(Controller.EXPORT_HIGHLT_HTML)));
 			
+			fileMenu.add(new JMenuItem(controller.getAction(Controller.VALIDATE_XML)));
 			fileMenu.add(new JMenuItem(controller.getAction(Controller.INDEX_FILES)));
 			
 			menuBar.add(fileMenu);
