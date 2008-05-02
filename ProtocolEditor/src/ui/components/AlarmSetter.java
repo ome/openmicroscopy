@@ -60,7 +60,8 @@ public class AlarmSetter
 	public static final int DAYS = 0;
 	public static final int HOURS = 1;
 	public static final int MINS = 2;
-	public static final String[] timeUnits = {"Days", "Hours", "Minutes"};
+	public static final int NO_ALARM = 3;
+	public static final String[] timeUnits = {"Days", "Hours", "Minutes", "No Alarm"};
 	public static final int[] secondsInTimeUnit = {24*3600, 3600, 60};
 	
 	public static final int BEFORE = 0;
@@ -94,6 +95,7 @@ public class AlarmSetter
 		timeSpinner.setMaximumSize(spinnerSize);
 		timeSpinner.setPreferredSize(spinnerSize);
 		timeSpinner.addChangeListener(timeChangedListener);
+		timeSpinner.setEnabled(false);
 		this.add(timeSpinner);
 		
 		timeUnitChooser = new CustomComboBox(timeUnits);
@@ -104,6 +106,7 @@ public class AlarmSetter
 		
 		beforeAfterChooser = new CustomComboBox(beforeAfterOptions);
 		beforeAfterChooser.addActionListener(timeActionListener);
+		beforeAfterChooser.setEnabled(false);
 		this.add(beforeAfterChooser);
 		
 		// update the display with value from dataField
@@ -126,6 +129,12 @@ public class AlarmSetter
 		int timeValue = Integer.parseInt(timeModel.getValue().toString());
 		
 		int timeUnit = timeUnitChooser.getSelectedIndex();
+		
+		if (timeUnit == NO_ALARM) {
+			dataField.setAttribute(attributeName, null, true);
+			return;
+		}
+		
 		int secondsOfTimeUnit = secondsInTimeUnit[timeUnit];
 		
 		int secondsAfterEvent = timeValue * secondsOfTimeUnit;
@@ -149,11 +158,24 @@ public class AlarmSetter
 	 */
 	public void setAlarmTime(String seconds) {
 		
-		if ((seconds == null) || (seconds.equals("0"))) {
-			timeSpinner.removeChangeListener(timeChangedListener);
-			timeModel.setValue(0);
-			timeSpinner.addChangeListener(timeChangedListener);
+		if (seconds == null) {
+			setTimeUnitChooserIndex(NO_ALARM);
 			
+			setTimeSpinnerValue(0);
+			setBeforeAfterChooserIndex(BEFORE);
+			timeSpinner.setEnabled(false);
+			beforeAfterChooser.setEnabled(false);
+			
+			return;
+		}
+
+		timeSpinner.setEnabled(true);
+		beforeAfterChooser.setEnabled(true);
+		
+		if	(seconds.equals("0")) {
+			setTimeSpinnerValue(0);
+			setTimeUnitChooserIndex(MINS);
+			setBeforeAfterChooserIndex(BEFORE);
 			return;
 		}
 		
