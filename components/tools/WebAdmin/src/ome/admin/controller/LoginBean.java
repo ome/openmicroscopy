@@ -444,22 +444,28 @@ public class LoginBean implements java.io.Serializable {
      */
     public String logout() {
         FacesContext facesContext = FacesContext.getCurrentInstance();
+        FacesMessage message = null;
+        try {
+            LoginBean lb = (LoginBean) facesContext.getApplication()
+                    .getVariableResolver().resolveVariable(facesContext,
+                            "LoginBean");
+            Session s = queryService.find(Session.class, lb.getSessionId());
+            lb.getSessionServices().closeSession(s);
+            HttpSession session = (HttpSession) facesContext
+                    .getExternalContext().getSession(false);
 
-        LoginBean lb = (LoginBean) facesContext.getApplication()
-                .getVariableResolver().resolveVariable(facesContext,
-                        "LoginBean");
-        Session s = queryService.find(Session.class, lb.getSessionId());
-        lb.getSessionServices().closeSession(s);
+            if (session != null)
+                session.invalidate();
+            message = new FacesMessage("Loged out.");
 
-        HttpSession session = (HttpSession) facesContext.getExternalContext()
-                .getSession(false);
-
-        if (session != null)
-            session.invalidate();
-
-        FacesMessage message = new FacesMessage("Loged out.");
+        } catch (Exception e) {
+            HttpSession session = (HttpSession) facesContext
+                    .getExternalContext().getSession(false);
+            if (session != null)
+                session.invalidate();
+            message = new FacesMessage("Loged out. "+e.fillInStackTrace());
+        }
         facesContext.addMessage("loginForm", message);
-
         return NavigationResults.LOGOUT;
     }
 

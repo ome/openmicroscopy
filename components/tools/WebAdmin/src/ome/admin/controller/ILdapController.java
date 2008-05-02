@@ -64,7 +64,7 @@ public class ILdapController implements java.io.Serializable {
     /**
      * {@link ome.admin.logic.ILdapManagerDelegate}
      */
-    private ILdapManagerDelegate ildap = new ILdapManagerDelegate();
+    private ILdapManagerDelegate ildap = null;
 
     /**
      * boolean value for providing Search/Add form in one JSP.
@@ -85,6 +85,7 @@ public class ILdapController implements java.io.Serializable {
      * Creates a new instance of ILdapController.
      */
     public ILdapController() {
+        this.ildap = new ILdapManagerDelegate();
         this.userModel.setWrappedData(ildap.getAndSortItems(sortItem, sort));
     }
 

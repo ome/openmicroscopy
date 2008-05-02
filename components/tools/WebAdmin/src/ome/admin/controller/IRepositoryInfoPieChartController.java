@@ -41,12 +41,12 @@ public class IRepositoryInfoPieChartController {
     /**
      * {@link org.jfree.data.general.DefaultPieDataset}
      */
-    private DefaultPieDataset pieDataSet = new DefaultPieDataset();
+    private DefaultPieDataset pieDataSet = null;
 
     /**
      * {@link ome.admin.logic.IRepositoryInfoManagerDelegator}
      */
-    private IRepositoryInfoManagerDelegator iRepository = new IRepositoryInfoManagerDelegator();
+    private IRepositoryInfoManagerDelegator iRepository = null;
 
     private Long freeSpace = 0L;
 
@@ -56,6 +56,8 @@ public class IRepositoryInfoPieChartController {
      * Creates a new instance of IRepositoryInfoPieChartController.
      */
     public IRepositoryInfoPieChartController() {
+        this.pieDataSet = new DefaultPieDataset();
+        this.iRepository = new IRepositoryInfoManagerDelegator();
         this.freeSpace = iRepository.getSpaceInKilobytes("free");
         this.usedSpace = iRepository.getSpaceInKilobytes("used");
     }

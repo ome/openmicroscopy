@@ -77,7 +77,7 @@ public class ImportController implements java.io.Serializable {
     /**
      * {@link ome.admin.logic.UpdateManagerDelegate}
      */
-    private UpdateManagerDelegate update = new UpdateManagerDelegate();
+    private UpdateManagerDelegate update = null;
 
     /**
      * {@link java.lang.String}
@@ -113,8 +113,16 @@ public class ImportController implements java.io.Serializable {
     /**
      * {@link ome.admin.logic.ImportManagerDelegate}.
      */
-    private ImportManagerDelegate imp = new ImportManagerDelegate();
+    private ImportManagerDelegate imp = null;
 
+    /**
+     * Creates a new instance of ImportController.
+     */
+    public ImportController(){
+        update = new UpdateManagerDelegate();
+        imp = new ImportManagerDelegate();
+    }
+    
     /**
      * Gets data for generating tree structure
      * 

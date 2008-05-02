@@ -55,7 +55,7 @@ public class IAdminMyAccountController {
     /**
      * {@link ome.admin.logic.IAdminExperimenterManagerDelegate}
      */
-    private IAdminExperimenterManagerDelegate iadmin = new IAdminExperimenterManagerDelegate();
+    private IAdminExperimenterManagerDelegate iadmin = null;
 
     /**
      * Not-null. Might must pass validation in the security sub-system.
@@ -72,6 +72,7 @@ public class IAdminMyAccountController {
      * Creates a new instance of IAdminMyAccountController
      */
     public IAdminMyAccountController() {
+        this.iadmin = new IAdminExperimenterManagerDelegate();
         try {
             FacesContext facesContext = FacesContext.getCurrentInstance();
             LoginBean lb = (LoginBean) facesContext.getApplication()

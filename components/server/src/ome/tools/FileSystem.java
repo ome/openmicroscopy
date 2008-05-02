@@ -83,7 +83,7 @@ public class FileSystem extends File {
 	 * 
 	 * @return
 	 */
-	private long size() {
+	public long size() {
 		long totalSpace = length();
 
 		if (isDirectory()) {
@@ -124,7 +124,7 @@ public class FileSystem extends File {
 		long result = 0L;
 
 		try {
-			result = FileSystemUtils.freeSpace(mountRoot);
+			result = FileSystemUtils.freeSpaceKb(mountRoot);
 		} catch (IOException ioex) {
 			throw new RuntimeException(ioex.getMessage());
 		} catch (IllegalArgumentException illex) {
@@ -142,8 +142,9 @@ public class FileSystem extends File {
 	 * @return
 	 */
 	public String toString() {
-		String s = new String("FileSystem: " + getName());
-		return s;
+        StringBuffer s = new StringBuffer("FileSystem: ");
+        s.append(getName());
+		return s.toString();
 	}
 
 	/**
@@ -174,9 +175,10 @@ public class FileSystem extends File {
 		return (getName() != null ? getName().hashCode() : 0);
 	}
 	
-	public static void main(String[] args) {
-		FileSystem file = new FileSystem("/usr/local");
+	public static void main(String[] args) throws IOException {
+		FileSystem file = new FileSystem("/OMERO");
 		long free = file.free("/");
+
 		if (log.isDebugEnabled()) {
 		    log.debug("Free kilobytes: " + free);
             log.debug("Time prior to check: " + System.currentTimeMillis());

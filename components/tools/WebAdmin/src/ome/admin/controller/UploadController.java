@@ -43,7 +43,7 @@ public class UploadController {
     /**
      * Uploaded file
      */
-    private UploadedFile uploadedNewFile;
+    private UploadedFile uploadedNewFile = null;
 
     /**
      * boolean value for providing edit form in JSP.

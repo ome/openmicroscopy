@@ -79,7 +79,7 @@ public class ITypesEnumController implements java.io.Serializable {
     /**
      * {@link ome.admin.logic.ITypesEnumManagerDelegate}
      */
-    private ITypesEnumManagerDelegate itype = new ITypesEnumManagerDelegate();
+    private ITypesEnumManagerDelegate itype = null;
 
     /**
      * boolean value for providing Add/Edit form in one JSP.
@@ -110,6 +110,7 @@ public class ITypesEnumController implements java.io.Serializable {
      * Creates a new instance of ITypesEnumController
      */
     public ITypesEnumController() {
+        this.itype = new ITypesEnumManagerDelegate();
         try {
             this.enumerationModel.setWrappedData(itype.getAndSortItems(
                     sortItem, sort));

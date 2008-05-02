@@ -50,7 +50,7 @@
     <dependency org="webadmin" name="tomahawk" rev="${versions.tomahawk}" />
     <dependency org="webadmin" name="tomahawk-sandbox" rev="${versions.tomahawk-sandbox}" />
     <dependency org="webadmin" name="ajax4jsf" rev="${versions.ajax4jsf}" />
-    <dependency org="commons-io" name="commons-io" rev="1.1" conf="build->default"/>
+    <dependency org="commons-io" name="commons-io" rev="1.4" conf="build->default"/>
     <dependency org="webadmin" name="nekohtml" rev="${versions.nekohtml}" />
     <dependency org="webadmin" name="jdom" rev="${versions.jdom}" />
     <dependency org="webadmin" name="htmlunit" rev="${versions.htmlunit}" />

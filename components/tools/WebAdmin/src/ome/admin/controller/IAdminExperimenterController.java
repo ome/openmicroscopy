@@ -70,7 +70,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
     /**
      * {@link ome.admin.logic.IAdminExperimenterManagerDelegate}.
      */
-    private IAdminExperimenterManagerDelegate iadmin = new IAdminExperimenterManagerDelegate();
+    private IAdminExperimenterManagerDelegate iadmin = null;
 
     /**
      * boolean value for providing Add/Edit form in one JSP.
@@ -107,6 +107,7 @@ public class IAdminExperimenterController implements java.io.Serializable {
      * Creates a new instance of IAdminExperimenterController.
      */
     public IAdminExperimenterController() {
+        this.iadmin = new IAdminExperimenterManagerDelegate();
         this.userModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
         this.scrollerMode = iadmin.setScroller();
     }

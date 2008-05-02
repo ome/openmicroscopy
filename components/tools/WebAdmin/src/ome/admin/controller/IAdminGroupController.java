@@ -71,7 +71,7 @@ public class IAdminGroupController implements java.io.Serializable {
     /**
      * {@link ome.admin.logic.IAdminGroupManagerDelegate}
      */
-    private IAdminGroupManagerDelegate iadmin = new IAdminGroupManagerDelegate();
+    private IAdminGroupManagerDelegate iadmin = null;
 
     /**
      * {@link java.util.List}<{@link java.lang.String}> List of
@@ -111,6 +111,7 @@ public class IAdminGroupController implements java.io.Serializable {
      * Creates a new instance of IAdminGroupController
      */
     public IAdminGroupController() {
+        this.iadmin = new IAdminGroupManagerDelegate();
         this.groupModel.setWrappedData(iadmin.getAndSortItems(sortItem, sort));
         this.scrollerMode = iadmin.setScroller();
     }

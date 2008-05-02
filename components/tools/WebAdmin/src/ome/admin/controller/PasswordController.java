@@ -83,7 +83,7 @@ public class PasswordController implements java.io.Serializable {
     /**
      * {@link ome.admin.logic.ITypesEnumManagerDelegate}
      */
-    private PasswordManagerDelegator passwd;
+    private PasswordManagerDelegator passwd = null;
 
     public boolean isTypeForm() {
         return this.typeForm;
