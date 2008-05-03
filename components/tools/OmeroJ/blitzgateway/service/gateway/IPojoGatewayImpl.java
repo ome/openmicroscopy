@@ -1,5 +1,5 @@
 /*
- * util.ui.DatasetTable 
+ * blitzgateway.service.gateway.IPojoGatewayImpl 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,24 +20,26 @@
  *
  *------------------------------------------------------------------------------
  */
-package util.ui;
+package blitzgateway.service.gateway;
+
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JPanel;
-import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RType;
+import omero.api.IPojosPrx;
+import omero.model.IObject;
+
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
-import blitzgateway.service.ServiceFactory;
+import blitzgateway.util.ServiceUtilities;
 
 /** 
  * 
@@ -52,51 +54,57 @@ import blitzgateway.service.ServiceFactory;
  * </small>
  * @since OME3.0
  */
-public class DatasetTree
+class IPojoGatewayImpl
+	implements IPojoGateway
 {
-	/** Link to the data service which is part of the ServiceFactory. */
-	ServiceFactory	service;
+
+	private BlitzGateway blitzGateway;
 	
-	DatasetModel model;
-	DatasetView view;
-	
-	/** 
-	 * Create the DatasetTree which accesses the datasets in the DataService
-	 * @param dataService see above.
-	 * @throws DSAccessException 
-	 * @throws DSOutOfServiceException 
-	 */
-	public DatasetTree(ServiceFactory service) 
-		throws DSOutOfServiceException, DSAccessException
+	IPojoGatewayImpl(BlitzGateway gateway)
 	{
-		this.service = service;
-		model = new DatasetModel(service);
-		view = new DatasetView(model.getTree());
+		blitzGateway = gateway;
+	}
+	
+	/* (non-Javadoc)
+	 * @see IPojoGateway#getImages(String, List, Map)
+	 */
+	public <T extends omero.model.IObject>List<T> getImages(String nodeType, 
+			List<Long> nodeIDs, Map<String, RType> options)	throws 
+			DSOutOfServiceException, DSAccessException
+	{
+		try 
+		{
+			IPojosPrx service = blitzGateway.getPojosService();
+			return  (List<T>)service.getImages(nodeType, nodeIDs, options);
+		} 
+		catch (Throwable t) 
+		{
+			ServiceUtilities.handleException(t, "Cannot find images for "+
+				nodeType+".");
+		}
+	return new ArrayList();
 	}
 
-	/** 
-	 * Create the tree in a JPanel and return the panel.
-	 * @return see above.
+
+	/* (non-Javadoc)
+	 * @see IPojoGateway#loadContainerHierarchy(String, List, Map)
 	 */
-	public JPanel createTree()
+	@SuppressWarnings("unchecked")
+	public <T extends IObject>List<T> loadContainerHierarchy(String rootType,
+		List<Long> leaves, Map<String, RType> options) throws 
+		DSOutOfServiceException, DSAccessException
 	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(view, BorderLayout.CENTER);
-		return panel;
+		try {
+			IPojosPrx service = blitzGateway.getPojosService();
+			return (List<T>) (service.loadContainerHierarchy
+				(rootType, leaves, options));
+		} catch (Throwable t) {
+			ServiceUtilities.handleException(t, "In loadContainerHierarchy : " +
+					"Cannot find hierarchy for "+ rootType+".");
+		}
+		return new ArrayList<T>();
 	}
 	
-	/**
-	 * Get the current selection in the tree. This should be a Project, 
-	 * or dataset. 
-	 * @return see above.
-	 */
-	public DefaultMutableTreeNode getSelection()
-	{
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-        view.getLastSelectedPathComponent();
-		return node;
-	}
 }
 
 

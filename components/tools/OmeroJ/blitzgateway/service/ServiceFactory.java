@@ -31,10 +31,12 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
+import blitzgateway.service.gateway.GatewayFactory;
 import blitzgateway.util.OMEROClass;
 import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.PixelsType;
 import omero.model.PixelsTypeI;
 import omero.model.Project;
 
@@ -52,9 +54,11 @@ import omero.model.Project;
  * @since OME3.0
  */
 public class ServiceFactory
-{	
-	/** The blitz gateway object. */
-	private BlitzGateway 	gateway;
+{		
+	/** The gateway factory to create make connection, create and access 
+	 *  services .
+	 */
+	private GatewayFactory 	gatewayFactory;
 	
 	/** The dataservice object. */
 	private DataService 	dataService;
@@ -73,9 +77,7 @@ public class ServiceFactory
 	public ServiceFactory(String iceConfig) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		gateway = new BlitzGateway(iceConfig);
-		dataService = new DataServiceImpl(gateway);
-		imageService = new ImageServiceImpl(gateway);
+		gatewayFactory = new GatewayFactory(iceConfig);
 	}
 	
 	/**
@@ -84,7 +86,7 @@ public class ServiceFactory
 	 */
 	public boolean isClosed()
 	{
-		return gateway.isClosed();
+		return gatewayFactory.isClosed();
 	}
 	
 	/**
@@ -92,7 +94,7 @@ public class ServiceFactory
 	 */
 	public void close()
 	{
-		gateway.close();
+		gatewayFactory.close();
 		dataService = null;
 		imageService = null;
 	}
@@ -107,7 +109,15 @@ public class ServiceFactory
 	public void createSession(String username, String password) 
 				throws DSOutOfServiceException, DSAccessException
 	{
-		gateway.createSession(username, password);
+		gatewayFactory.createSession(username, password);
+		dataService = new DataServiceImpl(gatewayFactory.getIPojoGateway(), 
+										  gatewayFactory.getIQueryGateway(), 
+										  gatewayFactory.getITypeGateway());
+		imageService = new ImageServiceImpl(
+									gatewayFactory.getRawPixelsStoreGateway(), 
+									gatewayFactory.getIPixelsGateway(), 
+									gatewayFactory.getIQueryGateway(), 
+									gatewayFactory.getIUpdateGateway());
 	}
 	
 	/**
@@ -230,7 +240,7 @@ public class ServiceFactory
 	 */
 	public String getUserName()
 	{
-		return dataService.getUserName();
+		return gatewayFactory.getUserName();
 	}
 	
 	/**
@@ -271,26 +281,41 @@ public class ServiceFactory
 		imageService.uploadPlane(pixelsId, c, t, z, data);
 	}
 
+	/**
+	 * Update the pixels object to the new object.
+	 * @param object see above.
+	 * @return the new updated pixels.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	public Pixels updatePixels(Pixels object) 
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.updatePixels(object);
 	}
 
-	public List<PixelsTypeI> getPixelTypes() 
+	/**
+	 * Get the pixelsTypes.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<PixelsType> getPixelTypes() 
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getPixelTypes();
 	}
 
-	public PixelsTypeI getPixelsType(String type) 
-		throws DSOutOfServiceException, DSAccessException
+	/**
+	 * Get the pixelsTypes.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public PixelsType getPixelType(String type) 
+	throws DSOutOfServiceException, DSAccessException
 	{
-		List<PixelsTypeI> pixelsTypes = getPixelTypes();
-		for(int i = 0 ; i < pixelsTypes.size(); i++)
-			if(pixelsTypes.get(i).value.val.equals(type))
-				return pixelsTypes.get(i);
-		return null;
+		return dataService.getPixelType(type);
 	}
 }
 

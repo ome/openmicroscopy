@@ -30,6 +30,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.api.RawPixelsStore;
 import omero.model.Channel;
 import omero.model.Image;
 import omero.model.Pixels;
@@ -42,6 +43,10 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
 
+import blitzgateway.service.gateway.IPixelsGateway;
+import blitzgateway.service.gateway.IQueryGateway;
+import blitzgateway.service.gateway.IUpdateGateway;
+import blitzgateway.service.gateway.RawPixelsStoreGateway;
 import blitzgateway.util.PixelTypes;
 
 /** 
@@ -60,16 +65,23 @@ import blitzgateway.util.PixelTypes;
 class ImageServiceImpl
 	implements ImageService
 {	
-	/** The blitzgatway object. */
-	BlitzGateway	blitzGateway;
+	
+	IQueryGateway 			iQuery;
+	RawPixelsStoreGateway	pixelsStore;
+	IPixelsGateway			iPixels;
+	IUpdateGateway			iUpdate;
 	
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gateway
 	 */
-	ImageServiceImpl(BlitzGateway gateway)
+	ImageServiceImpl(RawPixelsStoreGateway 	pixelsStore, IPixelsGateway iPixels, 
+					IQueryGateway iQuery, IUpdateGateway iUpdate) 
 	{
-		blitzGateway = gateway;
+		this.iUpdate = iUpdate;
+		this.iQuery = iQuery;
+		this.iPixels = iPixels;
+		this.pixelsStore = pixelsStore;
 	}
 
 	/* (non-Javadoc)
@@ -78,7 +90,7 @@ class ImageServiceImpl
 	public double[][] getPlane(long pixelsId, int z, int c, int t) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		blitzGateway.setPixelsId(pixelsId);
+		pixelsStore.setPixelsId(pixelsId);
 		Pixels pixels = getPixels(pixelsId);
 		return convertRawPlane(pixels, z, c, t);
 	}
@@ -91,8 +103,8 @@ class ImageServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		byte[] plane;
-		blitzGateway.setPixelsId(pixelsId);
-		plane = blitzGateway.getPlane(z, c, t);
+		pixelsStore.setPixelsId(pixelsId);
+		plane = pixelsStore.getPlane(z, c, t);
 		return plane;
 	}
 	
@@ -129,7 +141,7 @@ class ImageServiceImpl
 			"left outer join fetch c.statsInfo " + 
 			"left outer join fetch c.colorComponent " + 
 			"where p.id = " + pixelsId);
-		return (Pixels)blitzGateway.findByQuery(queryStr);
+		return (Pixels)iQuery.findByQuery(queryStr);
 		
 	}
 
@@ -141,7 +153,7 @@ class ImageServiceImpl
 	{
 		String queryStr = new String("select i from Image as i where i.id = " 
 			+ imageID);
-		return (Image)blitzGateway.findByQuery(queryStr);
+		return (Image)iQuery.findByQuery(queryStr);
 	}
 
 	/* (non-Javadoc)
@@ -150,7 +162,8 @@ class ImageServiceImpl
 	public Long copyPixels(long pixelsID, int x, int y, int t, int z, List<Integer> channelList,
 			String methodology) throws DSOutOfServiceException, DSAccessException
 	{
-		Long newID = blitzGateway.copyPixels(pixelsID, x, y, t, z, channelList, methodology);
+		Long newID = iPixels.copyAndResizePixels
+						(pixelsID, x, y, t, z, channelList, methodology);
 		return newID;
 	}
 	
@@ -171,7 +184,8 @@ class ImageServiceImpl
 	{
 		Pixels pixels = getPixels(pixelsId);
 		byte[] convertedData = convertClientToServer(pixels, data);
-		blitzGateway.uploadBytes(pixelsId, c, t, z, convertedData);
+		pixelsStore.setPixelsId(pixelsId);
+		pixelsStore.setPlane(convertedData, z,c,t);
 	}
 
 	/**
@@ -321,10 +335,19 @@ class ImageServiceImpl
 		return DataSink.mapServerToClient(clientBytes, pixels.sizeX.val, 
 			pixels.sizeY.val, pixels.pixelsType.value.val);
 	}
+	
+	/**
+	 * update the pixels object, and return the new pixels.
+	 * @param object the pixels object.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException 
+	 */
 	public Pixels updatePixels(Pixels object) 
 	throws DSOutOfServiceException, DSAccessException
 	{
-		return blitzGateway.updatePixels(object);
+	
+		return (Pixels)iUpdate.saveAndReturnObject(object);
 	}
 
 }

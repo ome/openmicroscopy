@@ -23,7 +23,6 @@
 package blitzgateway.service;
 
 //Java imports
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,15 +35,17 @@ import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsTypeI;
+import omero.model.PixelsType;
 import omero.model.Project;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
-import util.data.ProjectData;
-
+import blitzgateway.service.gateway.IPojoGateway;
+import blitzgateway.service.gateway.IQueryGateway;
+import blitzgateway.service.gateway.ITypeGateway;
 import blitzgateway.util.OMEROClass;
+import blitzgateway.util.ServiceUtilities;
 
 /** 
  * 
@@ -62,16 +63,24 @@ import blitzgateway.util.OMEROClass;
 class DataServiceImpl
 	implements DataService
 {	
-	/** The Blitz gateway. */
-	BlitzGateway	blitzGateway;
+	/** The IPojoGateway */
+	IPojoGateway 	pojoGateway;
+	
+	/** The IQuerygateway. */
+	IQueryGateway 	iQueryGateway;
+
+	/** The ITypegateway. */
+	ITypeGateway 	iTypeGateway;
 	
 	/**
 	 * Constructor for the DataService Implementation.
-	 * @param gateway bltiz gateway object.
+	 * @param gateway blitz gateway object.
 	 */
-	DataServiceImpl(BlitzGateway gateway)
+	DataServiceImpl(IPojoGateway pojo, IQueryGateway query, ITypeGateway type)
 	{
-		blitzGateway = gateway;
+		pojoGateway = pojo;
+		iQueryGateway = query;
+		iTypeGateway = type;
 	}
 	
 	/**
@@ -83,8 +92,8 @@ class DataServiceImpl
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		//map.put(omero.constants.POJOLEAVES.value, new RBool(false));
-		return collectionCast(Image.class,
-			blitzGateway.getContainerImages(convertPojos(nodeType), nodeIds, map));
+		return ServiceUtilities.collectionCast(Image.class,
+			pojoGateway.getImages(convertPojos(nodeType), nodeIds, map));
 	}
 	
 	
@@ -98,8 +107,9 @@ class DataServiceImpl
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		map.put(omero.constants.POJOLEAVES.value, new RBool(getLeaves));
-		return collectionCast(Dataset.class, 
-			blitzGateway.loadContainerHierarchy(OMEROClass.Dataset, ids, map));
+		return ServiceUtilities.collectionCast(Dataset.class, 
+			pojoGateway.loadContainerHierarchy(
+				convertPojos(OMEROClass.Dataset), ids,	map));
 	}
 
 	/**
@@ -111,56 +121,11 @@ class DataServiceImpl
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		map.put(omero.constants.POJOLEAVES.value, new RBool(getLeaves));
-		return collectionCast(Project.class, blitzGateway.loadContainerHierarchy(
-			OMEROClass.Project, ids, map));
+		return ServiceUtilities.collectionCast(Project.class, 
+			pojoGateway.loadContainerHierarchy(
+				convertPojos(OMEROClass.Project), ids, map));
 	}
 
-	/**
-	 * Get the username.
-	 * @return see above.
-	 */
-	public String getUserName()
-	{
-		return blitzGateway.getUserName();
-	}
-	
-	/** 
-	 * Helper method for the conversion of base types in containers(normally 
-	 * of type IObject) to a concrete type.  
-	 * @param <T> new type.
-	 * @param klass new type class.
-	 * @param list container.
-	 * @return see above.
-	 */
-	public static <T extends IObject> List<T> 
-    collectionCast(Class<T> klass, List<IObject> list)
-    {
-        List<T> newList = new ArrayList<T>(list.size());
-        for (IObject o : list)
-        {
-            newList.add((T) o);
-        }
-        return newList;
-    }
-	
-	/** 
-	 * Helper method for the conversion of base types in containers(normally 
-	 * of type IObject) to a concrete type.  
-	 * @param <T> new type.
-	 * @param klass new type class.
-	 * @param list container.
-	 * @return see above.
-	 */
-	public static List<ProjectData> 
-    projectMapper(List<IObject> list)
-    {
-        List<ProjectData> newList = new ArrayList<ProjectData>(list.size());
-        for (IObject o : list)
-        {
-            newList.add(new ProjectData((Project)o));
-        }
-        return newList;
-    }
 	/**
 	 * Converts the specified POJO into the corresponding model.
 	 *  
@@ -182,15 +147,28 @@ class DataServiceImpl
 		String queryStr = new String("select p from Pixels as p left outer " +
 			"join fetch p.pixelsType as pt left outer join fetch " +
 			"p.pixelsDimensions where p.image = " + imageId + " order by relatedto");
-		return blitzGateway.collectionCast(Pixels.class, 
-							blitzGateway.findAllByQuery(queryStr));
+		return ServiceUtilities.collectionCast(Pixels.class, 
+			iQueryGateway.findAllByQuery(queryStr));
 	}
 	
-	public List<PixelsTypeI> getPixelTypes() 
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getPixelTypes(String)
+	 */
+	public List<PixelsType> getPixelTypes() 
 	throws DSOutOfServiceException, DSAccessException
 	{
-		List<IObject> list = blitzGateway.getAllEnumerations("PixelsType"); 
-		return blitzGateway.collectionCast(PixelsTypeI.class, list);
+		List<IObject> list = iTypeGateway.allEnumerations("PixelsType"); 
+		return ServiceUtilities.collectionCast(PixelsType.class, list);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getPixelType(java.lang.String)
+	 */
+	public PixelsType getPixelType(String type) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return (PixelsType)iQueryGateway.findByString("PixelsType", "value",
+			type);
 	}
 	
 }

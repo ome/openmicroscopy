@@ -1,5 +1,5 @@
 /*
- * util.ui.DatasetModel 
+ * blitzgateway.service.gateway.ITypeServiceGateway 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,19 +20,14 @@
  *
  *------------------------------------------------------------------------------
  */
-package util.ui;
+package blitzgateway.service.gateway;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import omero.model.IObject;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-
-import omero.model.Dataset;
-import omero.model.Project;
-import blitzgateway.service.ServiceFactory;
 
 //Java imports
 
@@ -53,50 +48,26 @@ import blitzgateway.service.ServiceFactory;
  * </small>
  * @since OME3.0
  */
-public class DatasetModel
+public interface ITypeGateway
 {	
-	ServiceFactory service;
-	UserNode 	userNode;
+	public List<IObject> allEnumerations(String klass) 
+	throws DSOutOfServiceException, DSAccessException;
 	
-	public DatasetModel(ServiceFactory service) 
-			throws DSOutOfServiceException, DSAccessException
-	{
-		this.service = service;
-		populateDataModel();
-	}
-	
-	/**
-	 * Populate the Datamodel with the project->dataset list.
-	 * @throws DSAccessException 
-	 * @throws DSOutOfServiceException 
+	/*
+	 * 
 	 *
-	 */
-	private void populateDataModel() 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		userNode = new UserNode(service.getUserName());
-		List<Project> projects = service.getProjects(null, false);
-		for(Project p : projects)
-		{
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(p.id.val);
-			List<Dataset> datasets = service.getDatasets(ids, false);
-			ProjectNode projectNode = new ProjectNode(p);
-			for(Dataset d : datasets)
-				projectNode.add(new DatasetNode(d));
-			userNode.add(projectNode);
-		}
-	}
-	
-	/**
-	 * Get the tree constructed. 
-	 * @return see above.
-	 */
-	public UserNode getTree()
-	{
-		return userNode;
-	}
-	
+	 	IObject createEnumeration(IObject newEnum) throws  DSOutOfServiceException, DSAccessException;
+     	IObject getEnumeration(string type, string value) throws  DSOutOfServiceException, DSAccessException;
+DONE	List<IObject> allEnumerations(string type) throws  DSOutOfServiceException, DSAccessException;
+     	IObject updateEnumeration(IObject oldEnum) throws  DSOutOfServiceException, DSAccessException;
+     	void updateEnumerations(List<IObject> oldEnums) throws  DSOutOfServiceException, DSAccessException;
+     	void deleteEnumeration(IObject oldEnum) throws  DSOutOfServiceException, DSAccessException;
+     	List<String> getEnumerationTypes() throws  DSOutOfServiceException, DSAccessException; 
+     	List<String> getAnnotationTypes() throws  DSOutOfServiceException, DSAccessException;
+     	List<IObject>Map getEnumerationsWithEntries() throws  DSOutOfServiceException, DSAccessException;
+     	List<IObject> getOriginalEnumerations() throws  DSOutOfServiceException, DSAccessException;
+     	void resetEnumerations(string enumClass) throws  DSOutOfServiceException, DSAccessException;
+     */
 }
 
 

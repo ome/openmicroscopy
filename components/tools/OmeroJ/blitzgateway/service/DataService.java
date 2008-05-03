@@ -32,7 +32,7 @@ import java.util.List;
 import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.PixelsTypeI;
+import omero.model.PixelsType;
 import omero.model.Project;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
@@ -54,7 +54,7 @@ import blitzgateway.util.OMEROClass;
  * </small>
  * @since OME3.0
  */
-public interface DataService
+interface DataService
 {		
 	/**
 	 * Retrieves the images contained in containers specified by the 
@@ -102,13 +102,24 @@ public interface DataService
 	throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Get the username of the logged in user.
+	 * Get the PixelTypes available in the system.
 	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
 	 */
-	public String getUserName();
-	
-	public List<PixelsTypeI> getPixelTypes() 
+	public List<PixelsType> getPixelTypes() 
 	throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Get the pixelsType with type.
+	 * @param type see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public PixelsType getPixelType(String type) 
+	throws DSOutOfServiceException, DSAccessException;
+
 
 }
 

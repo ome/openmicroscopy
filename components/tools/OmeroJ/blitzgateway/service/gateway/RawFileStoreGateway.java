@@ -1,5 +1,5 @@
 /*
- * util.ui.DatasetModel 
+ * blitzgateway.service.gateway.RawFileStore 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,19 +20,10 @@
  *
  *------------------------------------------------------------------------------
  */
-package util.ui;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.tree.DefaultMutableTreeNode;
+package blitzgateway.service.gateway;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-
-import omero.model.Dataset;
-import omero.model.Project;
-import blitzgateway.service.ServiceFactory;
 
 //Java imports
 
@@ -53,50 +44,36 @@ import blitzgateway.service.ServiceFactory;
  * </small>
  * @since OME3.0
  */
-public class DatasetModel
+public interface RawFileStoreGateway
 {	
-	ServiceFactory service;
-	UserNode 	userNode;
 	
-	public DatasetModel(ServiceFactory service) 
-			throws DSOutOfServiceException, DSAccessException
-	{
-		this.service = service;
-		populateDataModel();
-	}
+	void setFileId(long fileId) 
+							throws DSOutOfServiceException, DSAccessException;
+	byte[] read(long position, int length) 
+							throws DSOutOfServiceException, DSAccessException;
+	void write(byte[] buf, long position, int length) 
+							throws DSOutOfServiceException, DSAccessException;
+	boolean exists() 
+							throws DSOutOfServiceException, DSAccessException;
+
 	
-	/**
-	 * Populate the Datamodel with the project->dataset list.
-	 * @throws DSAccessException 
-	 * @throws DSOutOfServiceException 
+	/* 
+	 * RawFileStore java to ICE Mappings from the API.ice slice definition.
+	 * Below are all the calls in the RawFileStore service. 
+	 * As the are created in the RawFileStoreGateway they will be marked as done.
 	 *
-	 */
-	private void populateDataModel() 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		userNode = new UserNode(service.getUserName());
-		List<Project> projects = service.getProjects(null, false);
-		for(Project p : projects)
-		{
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(p.id.val);
-			List<Dataset> datasets = service.getDatasets(ids, false);
-			ProjectNode projectNode = new ProjectNode(p);
-			for(Dataset d : datasets)
-				projectNode.add(new DatasetNode(d));
-			userNode.add(projectNode);
-		}
-	}
-	
-	/**
-	 * Get the tree constructed. 
-	 * @return see above.
-	 */
-	public UserNode getTree()
-	{
-		return userNode;
-	}
-	
+	 *
+	 *
+	 *
+		void setFileId(long fileId) 
+							throws DSOutOfServiceException, DSAccessException;
+		Byte[] read(long position, int length) 
+							throws DSOutOfServiceException, DSAccessException;
+		void write(Byte[] buf, long position, int length) 
+							throws DSOutOfServiceException, DSAccessException;
+		boolean exists() 
+							throws DSOutOfServiceException, DSAccessException;
+ 	*/
 }
 
 

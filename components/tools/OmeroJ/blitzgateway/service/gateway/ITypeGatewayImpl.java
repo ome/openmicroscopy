@@ -1,5 +1,5 @@
 /*
- * util.ui.DatasetModel 
+ * blitzgateway.service.gateway.ITypeServiceGatewayImpl 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,19 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package util.ui;
+package blitzgateway.service.gateway;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import omero.ServerError;
+import omero.api.ITypesPrx;
+import omero.model.IObject;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
-import omero.model.Dataset;
-import omero.model.Project;
-import blitzgateway.service.ServiceFactory;
+import blitzgateway.util.ServiceUtilities;
 
 //Java imports
 
@@ -53,50 +52,31 @@ import blitzgateway.service.ServiceFactory;
  * </small>
  * @since OME3.0
  */
-public class DatasetModel
+public class ITypeGatewayImpl
+	implements ITypeGateway
 {	
-	ServiceFactory service;
-	UserNode 	userNode;
 	
-	public DatasetModel(ServiceFactory service) 
-			throws DSOutOfServiceException, DSAccessException
+	private BlitzGateway blitzGateway;
+	
+	ITypeGatewayImpl(BlitzGateway gateway)
 	{
-		this.service = service;
-		populateDataModel();
+		blitzGateway = gateway;
 	}
-	
-	/**
-	 * Populate the Datamodel with the project->dataset list.
-	 * @throws DSAccessException 
-	 * @throws DSOutOfServiceException 
-	 *
-	 */
-	private void populateDataModel() 
-		throws DSOutOfServiceException, DSAccessException
+
+	public List<IObject> allEnumerations(String klass) 
+	throws DSOutOfServiceException, DSAccessException
 	{
-		userNode = new UserNode(service.getUserName());
-		List<Project> projects = service.getProjects(null, false);
-		for(Project p : projects)
+		ITypesPrx typesService = blitzGateway.getTypesService();
+		try
 		{
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(p.id.val);
-			List<Dataset> datasets = service.getDatasets(ids, false);
-			ProjectNode projectNode = new ProjectNode(p);
-			for(Dataset d : datasets)
-				projectNode.add(new DatasetNode(d));
-			userNode.add(projectNode);
+			return typesService.allEnumerations(klass);
 		}
+		catch(ServerError e)
+		{
+			ServiceUtilities.handleException(e, "Unable to retrieve Enumerations for : " + klass);
+		}
+		return null;
 	}
-	
-	/**
-	 * Get the tree constructed. 
-	 * @return see above.
-	 */
-	public UserNode getTree()
-	{
-		return userNode;
-	}
-	
 }
 
 
