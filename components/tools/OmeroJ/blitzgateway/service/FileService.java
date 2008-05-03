@@ -24,12 +24,11 @@ package blitzgateway.service;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
 import omero.model.Format;
 import omero.model.OriginalFile;
 

@@ -22,19 +22,18 @@
  */
 package blitzgateway.service.gateway;
 
-import omero.api.RawFileStorePrx;
-
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-
-import blitzgateway.util.ServiceUtilities;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.api.RawFileStorePrx;
 
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+
+import blitzgateway.util.ServiceUtilities;
 /** 
  * 
  *

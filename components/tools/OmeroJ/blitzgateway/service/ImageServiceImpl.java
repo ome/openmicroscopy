@@ -30,13 +30,8 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.RawPixelsStore;
-import omero.model.Channel;
 import omero.model.Image;
 import omero.model.Pixels;
-import omero.model.StatsInfo;
-import omero.model.StatsInfoHolder;
-import omero.model.StatsInfoPrx;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;

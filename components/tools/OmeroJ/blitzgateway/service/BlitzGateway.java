@@ -24,7 +24,7 @@ package blitzgateway.service;
 
 
 //Java imports
-import java.io.File;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -35,8 +35,6 @@ import java.util.Set;
 //Third-party libraries
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
-import Ice.ObjectPrx;
-
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -64,15 +62,9 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ThumbnailStore;
 import omero.api.ThumbnailStorePrx;
-import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Pixels;
-import omero.model.PixelsI;
-import omero.model.PixelsPrx;
-import omero.model.StatsInfo;
-import omero.model.StatsInfoPrx;
-import omero.model.StatsInfoPrxHelper;
 
 /** 
  * 

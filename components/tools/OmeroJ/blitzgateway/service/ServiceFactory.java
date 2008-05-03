@@ -37,7 +37,6 @@ import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
-import omero.model.PixelsTypeI;
 import omero.model.Project;
 
 /** 

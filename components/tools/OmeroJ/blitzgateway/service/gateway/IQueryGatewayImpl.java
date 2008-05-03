@@ -22,8 +22,14 @@
  */
 package blitzgateway.service.gateway;
 
+
+
+//Java imports
 import java.util.List;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import omero.ServerError;
 import omero.api.IQueryPrx;
 import omero.model.IObject;
@@ -32,12 +38,6 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 import blitzgateway.util.ServiceUtilities;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 

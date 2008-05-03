@@ -22,14 +22,14 @@
  */
 package blitzgateway.service.gateway;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 
@@ -46,13 +46,43 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  */
 public interface RawFileStoreGateway
 {	
-	
+	/**
+	 * Set the fileId of the RawfileStore to fileId
+	 * @param fileId see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	void setFileId(long fileId) 
 							throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Read from the file, who's fileId has been set by setFileId.
+	 * @param position position to start read.
+	 * @param length length of read.
+	 * @return raw file in bytes.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	byte[] read(long position, int length) 
 							throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Write to the file at position with length bytes.
+	 * @param buf bytes to write.
+	 * @param position position to start write.
+	 * @param length length of write.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	void write(byte[] buf, long position, int length) 
 							throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Does file exist. 
+ 	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	boolean exists() 
 							throws DSOutOfServiceException, DSAccessException;
 

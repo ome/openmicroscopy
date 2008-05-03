@@ -22,18 +22,18 @@
  */
 package blitzgateway.service.gateway;
 
-import java.util.List;
 
-import omero.model.IObject;
-
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.IObject;
+
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 
