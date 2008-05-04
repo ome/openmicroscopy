@@ -34,7 +34,9 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import blitzgateway.service.gateway.GatewayFactory;
 import blitzgateway.util.OMEROClass;
 import omero.model.Dataset;
+import omero.model.Format;
 import omero.model.Image;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Project;
@@ -64,6 +66,9 @@ public class ServiceFactory
 	
 	/** The Image service object. */
 	private ImageService	imageService;
+
+	/** The File service object. */
+	private FileService		fileService;
 
 	/**
 	 * Create the service factory which creates the gateway and services
@@ -96,6 +101,7 @@ public class ServiceFactory
 		gatewayFactory.close();
 		dataService = null;
 		imageService = null;
+		fileService = null;
 	}
 	
 	/**
@@ -117,6 +123,9 @@ public class ServiceFactory
 									gatewayFactory.getIPixelsGateway(), 
 									gatewayFactory.getIQueryGateway(), 
 									gatewayFactory.getIUpdateGateway());
+		fileService = new FileServiceImpl(
+									gatewayFactory.getRawFileStoreGateway(), 
+									gatewayFactory.getIQueryGateway());
 	}
 	
 	/**
@@ -315,6 +324,110 @@ public class ServiceFactory
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getPixelType(type);
+	}
+	
+	/**
+	 * Get the original file with id.
+	 * @param id see above.
+	 * @return the original file.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public OriginalFile getOriginalFile(long id)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return fileService.getOriginalFile(id);
+	}
+	
+	/**
+	 * Get the file as String with id.
+	 * @param id see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public String getFileAsString(long id)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return fileService.getFileAsString(id);
+	}
+	
+	/**
+	 * Get the file as raw bytes with id.
+	 * @param id see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public byte[] getRawFile(long id)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return fileService.getRawFile(id);
+	}
+	
+	/**
+	 * Does an original file with id exist.
+	 * @param id see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public boolean fileExists(long id)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return fileService.fileExists(id);
+	}
+	
+	/**
+	 * Get all file id's for filename with format fmt.
+	 * @param fileName see above.
+	 * @param fmt see above.
+	 * @return list of file ids.
+	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException
+	 */
+	public List<Long> findFile(String fileName, Format fmt) 
+	throws DSAccessException, DSOutOfServiceException
+	{
+		return fileService.findFile(fileName, fmt);
+	}
+	
+	/**
+	 * Get all the formats in the system.
+	 * @return see above.
+	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException
+	 */
+	public List<Format> getAllFormats() 
+	throws DSAccessException, DSOutOfServiceException
+	{
+		return fileService.getAllFormats();
+	}
+	
+	/**
+	 * Get the format with id.
+	 * @param id see above.
+	 * @return see above.
+	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException
+	 */
+	public Format getFormat(long id)
+	throws DSAccessException, DSOutOfServiceException
+	{
+		return fileService.getFileFormat(id);
+	}
+	
+	/**
+	 * Get the format with name fmt.
+	 * @param fmt see above.
+	 * @return see above.
+	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException
+	 */
+	public Format getFormat(String fmt)
+	throws DSAccessException, DSOutOfServiceException
+	{
+		return fileService.getFormat(fmt);
 	}
 }
 

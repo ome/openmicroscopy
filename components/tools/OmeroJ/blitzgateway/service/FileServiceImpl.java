@@ -81,6 +81,9 @@ class FileServiceImpl
 		return rawFileStore.exists();
 	}
 
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.FileService#getOriginalFile(long)
+	 */
 	public OriginalFile getOriginalFile(long id) throws DSAccessException, 
 			DSOutOfServiceException
 	{
