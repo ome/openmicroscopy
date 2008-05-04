@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.conditions.ApiUsageException;
 import omero.model.Format;
 import omero.model.OriginalFile;
 
@@ -152,8 +153,8 @@ class FileServiceImpl
 	public byte[] getRawFile(long id) throws DSAccessException,
 			DSOutOfServiceException
 	{
-		rawFileStore.setFileId(id);
 		OriginalFile file = getOriginalFile(id);
+		rawFileStore.setFileId(id);
 		return rawFileStore.read(0, (int)file.size.val);
 	}
 

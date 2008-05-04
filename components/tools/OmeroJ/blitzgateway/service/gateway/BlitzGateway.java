@@ -92,10 +92,17 @@ class BlitzGateway
 	ThumbnailStorePrx thumbnailStore;
 	
 	/**
-	 * The pixels store.
+	 * The rawFile store.
 	 */
 	RawPixelsStorePrx pixelsStore;
+
+	/**
+	 * The pixels store.
+	 */
+	RawFileStorePrx 	fileStore;
 	
+	/** The rendering Engine. */
+	RenderingEnginePrx  renderingEngine;
 	
 	/** Maximum size of pixels read at once. */
 	private static final int		INC = 256000;
@@ -120,6 +127,7 @@ class BlitzGateway
 	
 	/** Session closed variable, determining if session closed. */
 	private boolean sessionClosed = true;
+	
 	
 	/**
 	 * Instantiate the BlitzGateway object.
@@ -157,11 +165,20 @@ class BlitzGateway
 			session = blitzClient.createSession(user, password);
 			userName = user;
 			sessionClosed = false;
+			createServices();
 		}
 		catch(Exception e)
 		{
 			ServiceUtilities.handleException(e, "Cannot create session");
 		}
+	}
+	
+	private void createServices()
+	{
+		fileStore = null;
+		pixelsStore = null;
+		renderingEngine = null;
+		thumbnailStore = null;
 	}
 	
 	/** Close the connection to the blitz server. */
@@ -383,7 +400,9 @@ class BlitzGateway
 		String currentService = "RawFileStore";
 		try
 		{
-			return getSession().createRawFileStore();
+			if( fileStore == null)
+				fileStore = getSession().createRawFileStore();
+			return fileStore;
 		}
 		catch (ServerError e)
 		{
@@ -403,12 +422,12 @@ class BlitzGateway
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "RenderingEngine";
-		RenderingEnginePrx engine;
 		try
 		{
-			engine = getSession().createRenderingEngine();
-			engine.setCompressionLevel(compression);
-			return engine;
+			if( renderingEngine == null)
+				renderingEngine = getSession().createRenderingEngine();
+			renderingEngine.setCompressionLevel(compression);
+			return renderingEngine;
 		}
 		catch (ServerError e)
 		{
@@ -440,12 +459,6 @@ class BlitzGateway
 		}
 		return null;
 	}
-	
-	
-
-
-
-	
 	
 	/**
 	 * Returns <code>true</code> if the passed group is an experimenter group
@@ -496,10 +509,7 @@ class BlitzGateway
 	{
 		return userName;
 	}
-	
-	
 
-	
 	/**
 	 * Determines the table name corresponding to the specified class.
 	 * 
@@ -515,25 +525,6 @@ class BlitzGateway
 		else if (klass.equals(OMEROClass.CategoryGroup)) 
 			table = "CategoryGroupCategoryLink";
 		return table;
-	}
-
-	
-	
-
-
-	public Pixels updatePixels(Pixels object) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try
-		{
-			IUpdatePrx service = getUpdateService();
-			return (Pixels) service.saveAndReturnObject(object);
-		}
-		catch (Exception e)
-		{
-			ServiceUtilities.handleException(e, "Cannot update pixels.");
-		}
-		return null;
 	}
 	
 	public ITypesPrx getTypesService() 
@@ -551,20 +542,6 @@ class BlitzGateway
 		return null;
 	}
 	
-	public List<IObject> getAllEnumerations(String klass) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		ITypesPrx typesService = getTypesService();
-		try
-		{
-			return typesService.allEnumerations(klass);
-		}
-		catch(ServerError e)
-		{
-			ServiceUtilities.handleException(e, "Unable to retrieve Enumerations for : " + klass);
-		}
-		return null;
-	}
 }
 
 
