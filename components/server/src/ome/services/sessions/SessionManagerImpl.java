@@ -115,10 +115,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         this.defaultTimeToLive = defaultTimeToLive;
     }
 
+    /**
+     * Initialization method called by the Spring run-time to acquire an initial
+     * {@link Session}. Once this has been done, the server is ready to begin
+     * taking connections, and so is also starts the background scheduler via
+     * the {@link Executor} instance.
+     */
     public void init() {
         asroot = new Principal(internal_uuid, "system", "Sessions");
         sc = new InternalSessionContext(executeInternalSession(), roles);
         cache.putSession(internal_uuid, sc);
+        executor.init();
     }
 
     // ~ Session definition

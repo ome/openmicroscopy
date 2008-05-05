@@ -178,8 +178,11 @@
     </constructor-arg>
   </bean>
   
-  <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean"
-    depends-on="securityInitialization"><!-- Have to slow down scheduler creation. -->
+  <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean">
+    <!-- In order to slow down the scheduler background tasks, we are now
+    starting it inactive, and once the session-manager is ready to accept logins,
+    then it signals to the Executor that  -->
+    <property name="autoStartup" value="false"/>
     <property name="schedulerName" value="OMERO.scheduler"/>
     <property name="jobDetails">
       <list>

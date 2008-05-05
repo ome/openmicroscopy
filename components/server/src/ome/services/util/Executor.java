@@ -122,6 +122,19 @@ public class Executor implements ApplicationContextAware {
         }
     }
 
+    /**
+     * Initialization method called by server (not Spring) when background
+     * processing can begin.
+     */
+    public void init() {
+        try {
+            this.scheduler.start();
+            this.log.info("Background schedular activated.");
+        } catch (SchedulerException se) {
+            throw new RuntimeException("Failed to startup scheduler.", se);
+        }
+    }
+
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         this.context = (OmeroContext) applicationContext;
