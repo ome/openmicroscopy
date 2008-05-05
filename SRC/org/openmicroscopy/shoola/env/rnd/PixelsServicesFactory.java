@@ -44,6 +44,8 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
+import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 
@@ -197,7 +199,6 @@ public class PixelsServicesFactory
 			proxy.shutDown();
 			proxy.setRenderingEngine(re);
 		}
-			
 		return proxy;
 	}
 
@@ -389,8 +390,8 @@ public class PixelsServicesFactory
 		if (rnd != null) return rnd;
 		int l = singleton.rndSvcProxies.size();
 		RndProxyDef proxyDef = convert(def);
-		rnd = new RenderingControlProxy(re, pixels, metadata, compression,
-										proxyDef);
+		rnd = new RenderingControlProxy(registry, re, pixels, metadata, 
+										compression, proxyDef);
 		//reset the size of the caches.
 		Iterator i = singleton.rndSvcProxies.keySet().iterator();
 		RenderingControlProxy proxy;

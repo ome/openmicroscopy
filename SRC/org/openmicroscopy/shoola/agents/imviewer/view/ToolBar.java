@@ -151,7 +151,7 @@ class ToolBar
         button = new JButton(
         		controller.getAction(ImViewerControl.IMAGE_DETAILS));
         UIUtilities.unifiedButtonLookAndFeel(button);
-        bar.add(button);
+        //bar.add(button);
         button = new JButton(controller.getAction(ImViewerControl.DOWNLOAD));
         UIUtilities.unifiedButtonLookAndFeel(button);
         //bar.add(button);  
@@ -195,6 +195,7 @@ class ToolBar
     {
     	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(UIUtilities.buildComponentPanel(bar));
+        /*
         JButton button = new JButton(
         			controller.getAction(ImViewerControl.SEARCH));
         UIUtilities.unifiedButtonLookAndFeel(button);
@@ -203,7 +204,8 @@ class ToolBar
         bar.setRollover(true);
         bar.setBorder(null);
         bar.add(button);
-        add(UIUtilities.buildComponentPanelRight(bar));
+        */
+        //add(UIUtilities.buildComponentPanelRight(bar));
     }
     
     /**

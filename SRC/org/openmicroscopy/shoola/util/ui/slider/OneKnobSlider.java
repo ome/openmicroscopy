@@ -226,4 +226,14 @@ public class OneKnobSlider
 		super.setMinorTickSpacing(s);
 	}
 	
+	/**
+	 * Overridden to enable the slider and the icons displayed on each
+	 * side of the slider if any.
+	 * @see JSlider#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+	}
+	
 }

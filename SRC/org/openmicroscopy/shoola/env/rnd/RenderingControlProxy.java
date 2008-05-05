@@ -35,13 +35,14 @@ import java.util.List;
 import javax.ejb.EJBException;
 import javax.imageio.ImageIO;
 
-
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.conditions.RemovedSessionException;
+import ome.conditions.SessionTimeoutException;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.CodomainMapContext;
@@ -50,7 +51,10 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
@@ -106,6 +110,9 @@ class RenderingControlProxy
     /** Indicates if the compression level. */
     private int						compression;
     
+    /** Helper reference to the registry. */
+    private Registry				context;
+    
     /**
      * Helper method to handle exceptions thrown by the connection library.
      * Methods in this class are required to fill in a meaningful context
@@ -120,9 +127,9 @@ class RenderingControlProxy
     private void handleException(Throwable e, String message)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-    	Throwable cause = e.getCause();
-    	if (e instanceof EJBException || 
-    			cause instanceof IllegalStateException) {
+    	//Throwable cause = e.getCause();
+    	if (e instanceof RemovedSessionException || 
+    			e instanceof SessionTimeoutException) {
     		shutDown();
     		throw new DSOutOfServiceException(message+"\n\n"+
 					printErrorText(e), e);
@@ -386,6 +393,7 @@ class RenderingControlProxy
     /**
      * Creates a new instance.
      * 
+     * @param context		Helper reference to the registry.
      * @param re   			The service to render a pixels set.
      *                  	Mustn't be <code>null</code>.
      * @param pixels   		The pixels set.
@@ -396,13 +404,16 @@ class RenderingControlProxy
 	 * @param rndDef		Local copy of the rendering settings used to 
 	 * 						speed-up the client.
      */
-    RenderingControlProxy(RenderingEngine re, Pixels pixels, List m,
-    					int compression, RndProxyDef rndDef)
+    RenderingControlProxy(Registry context, RenderingEngine re, Pixels pixels,
+    					List m, int compression, RndProxyDef rndDef)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
         if (pixels == null)
             throw new NullPointerException("No pixels set.");
+        if (context == null)
+            throw new NullPointerException("No registry.");
+        this.context = context;
         servant = re;
         pixs = pixels;//servant.getPixels();
         this.pixDims = pixels.getPixelsDimensions();
@@ -444,6 +455,7 @@ class RenderingControlProxy
     void resetRenderingEngine(RenderingEngine servant, RndProxyDef rndDef)
     {
     	if (servant == null) return;
+    	DataServicesFactory.isSessionAlive(context);
     	invalidateCache();
     	this.servant = servant;
     	if (rndDef == null) {
@@ -467,6 +479,7 @@ class RenderingControlProxy
     void setRenderingEngine(RenderingEngine servant)
     {
     	if (servant == null) return;
+    	DataServicesFactory.isSessionAlive(context);
     	this.servant = servant;
     	
     	// reset default of the rendering engine.
@@ -532,6 +545,7 @@ class RenderingControlProxy
     public void setModel(String value)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		Iterator i = models.iterator();
             RenderingModel model;
@@ -574,6 +588,7 @@ class RenderingControlProxy
     public void setDefaultZ(int z)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setDefaultZ(z);
             rndDef.setDefaultZ(z);
@@ -590,6 +605,7 @@ class RenderingControlProxy
     public void setDefaultT(int t)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setDefaultT(t);
             rndDef.setDefaultT(t);
@@ -607,7 +623,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
         //TODO: need to convert value.
-    	
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		checkBitResolution(bitResolution);
             servant.setQuantumStrategy(bitResolution);
@@ -626,6 +642,7 @@ class RenderingControlProxy
     public void setCodomainInterval(int start, int end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setCodomainInterval(start, end);
             rndDef.setCodomain(start, end);
@@ -644,6 +661,7 @@ class RenderingControlProxy
                                     boolean noiseReduction)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		List list = servant.getAvailableFamilies();
             Iterator i = list.iterator();
@@ -699,6 +717,7 @@ class RenderingControlProxy
     public void setChannelWindow(int w, double start, double end)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setChannelWindow(w, start, end);
             rndDef.getChannel(w).setInterval(start, end);
@@ -734,6 +753,7 @@ class RenderingControlProxy
     public void setRGBA(int w, Color c)
     	throws RenderingServiceException, DSOutOfServiceException
     {
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setRGBA(w, c.getRed(), c.getGreen(), c.getBlue(), 
     						c.getAlpha());
@@ -762,6 +782,7 @@ class RenderingControlProxy
     public void setActive(int w, boolean active)
     	throws RenderingServiceException, DSOutOfServiceException
     { 
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.setActive(w, active);
             rndDef.getChannel(w).setActive(active);
@@ -830,6 +851,7 @@ class RenderingControlProxy
     public void saveCurrentSettings()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.saveCurrentSettings();
 		} catch (Throwable e) {
@@ -844,6 +866,7 @@ class RenderingControlProxy
     public void resetDefaults()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
+    	DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
     		 invalidateCache();
@@ -1060,6 +1083,7 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
+		DataServicesFactory.isSessionAlive(context);
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
 		ChannelBindingsProxy c;
@@ -1086,6 +1110,7 @@ class RenderingControlProxy
 		if (rndDef.getNumberOfChannels() != getPixelsDimensionsC())
 			throw new IllegalArgumentException("Rendering settings not " +
 					"compatible.");
+		DataServicesFactory.isSessionAlive(context);
 		setModel(rndDef.getColorModel());
 		setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
 		setQuantumStrategy(rndDef.getBitResolution());
@@ -1154,6 +1179,7 @@ class RenderingControlProxy
     {
         if (pDef == null) 
             throw new IllegalArgumentException("Plane def cannot be null.");
+        DataServicesFactory.isSessionAlive(context);
         if (isCompressed()) return renderPlaneCompressed(pDef);
         return renderPlaneUncompressed(pDef);
     }
@@ -1164,6 +1190,7 @@ class RenderingControlProxy
 	 */
 	public void setCompression(int compression)
 	{
+		DataServicesFactory.isSessionAlive(context);
 		this.compression = compression;
 		float f = PixelsServicesFactory.getCompressionQuality(compression);
 		servant.setCompressionLevel(f);

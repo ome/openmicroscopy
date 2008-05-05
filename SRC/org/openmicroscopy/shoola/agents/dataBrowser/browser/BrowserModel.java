@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 //Java imports
 import java.awt.Cursor;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -97,7 +98,7 @@ class BrowserModel
 	private boolean         	multiSelection;
 	
 	/** The selected nodes. */
-	private Set<ImageDisplay>	selectedDisplays;
+	private List<ImageDisplay>	selectedDisplays;
 	
 	/** Indicates if the image's title bar is visible. */
 	private boolean         	titleBarVisible;
@@ -141,7 +142,7 @@ class BrowserModel
 	    super();
 	    if (view == null) throw new NullPointerException("No view.");
 	    rootDisplay = view;
-	    selectedDisplays = new HashSet<ImageDisplay>();
+	    selectedDisplays = new ArrayList<ImageDisplay>();
 	    originalNodes = new HashSet<ImageDisplay>();
 	    titleBarVisible = true;
 	    Set nodes = rootDisplay.getChildrenDisplay();
@@ -232,7 +233,7 @@ class BrowserModel
 	 * @param toSelect		The collection of selected nodes.
 	 * @param toDeselect	The collection of deselected nodes.
 	 */
-	void setNodesColor(List toSelect, Set toDeselect)
+	void setNodesColor(List toSelect, Collection toDeselect)
     {
     	//paint the nodes
         Colors colors = Colors.getInstance();
@@ -262,7 +263,7 @@ class BrowserModel
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#getSelectedDisplays()
 	 */
-	public Set getSelectedDisplays() { return selectedDisplays; }
+	public Collection getSelectedDisplays() { return selectedDisplays; }
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.

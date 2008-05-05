@@ -229,9 +229,8 @@ class ImViewerUI
 	 */
 	private int							displayMode;
 	
-	private int							previousDisplayMode;
+	//private int							previousDisplayMode;
 	
-
 	/** Item used to control show or hide the renderer. */
 	private JCheckBoxMenuItem			rndItem;
 	

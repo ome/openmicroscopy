@@ -102,6 +102,9 @@ class PropertiesUI
     /** The name before possible modification. */
     private String				originalName;
     
+    /** The name before possible modification. */
+    private String				originalDisplayedName;
+    
     /** The description before possible modification. */
     private String				originalDescription;
     
@@ -383,6 +386,9 @@ class PropertiesUI
 		descriptionArea.getDocument().removeDocumentListener(this);
 		originalName = model.getRefObjectName();
 		nameArea.setText(originalName);
+		originalDisplayedName = EditorUtil.getPartialName(originalName);
+		nameArea.setText(originalDisplayedName);
+		nameArea.setToolTipText(originalName);
 		originalDescription = model.getRefObjectDescription();
         descriptionArea.setText(originalDescription);
         boolean b = model.isCurrentUserOwner(model.getRefObject());
@@ -463,7 +469,10 @@ class PropertiesUI
 	{
 		String name = originalName;//model.getRefObjectName().trim();
 		String value = nameArea.getText();
-		if (!name.equals(value.trim())) return true;
+		value = value.trim();
+		
+		if (!name.equals(value) && !originalDisplayedName.equals(value))
+			return true;
 		
 		name = originalDescription;//model.getRefObjectDescription();
 		value = descriptionArea.getText();

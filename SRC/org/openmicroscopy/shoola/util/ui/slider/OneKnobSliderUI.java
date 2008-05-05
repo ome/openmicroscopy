@@ -468,7 +468,7 @@ public class OneKnobSliderUI
 		if (slider.isEnabled())
 			g.drawImage(thumbImage, thumbRect.x, thumbRect.y, thumbRect.width, 
 					thumbRect.height, null);
-		else
+		else 
 			g.drawImage(disabledThumbImage, thumbRect.x, thumbRect.y, 
 					thumbRect.width, thumbRect.height, null);
 	}

@@ -178,7 +178,7 @@ class DataBrowserUI
 		Iterator i;
 		if (images) nodes = browser.getVisibleImageNodes();
 		else {
-			Set selection = browser.getSelectedDisplays();
+			Collection selection = browser.getSelectedDisplays();
 			nodes = new ArrayList<ImageNode>();
 			if (selection != null) {
 				i = selection.iterator();
@@ -278,7 +278,7 @@ class DataBrowserUI
 				ImageTableView existed = model.getTableView();
 				ImageTableView v = model.createImageTableView();
 				if (existed == null) {
-					Set nodes = model.getBrowser().getSelectedDisplays();
+					Collection nodes = model.getBrowser().getSelectedDisplays();
 					if (nodes != null) {
 						Iterator i = nodes.iterator();
 						List<DataObject> objects = new ArrayList<DataObject>();
@@ -295,10 +295,11 @@ class DataBrowserUI
 				}
 				v.addPropertyChangeListener(controller);
 				add(v, BorderLayout.CENTER);
-				
 				break;
 		}
+    	add(statusBar, BorderLayout.SOUTH);
     	toolBar.setSelectedViewIndex(selectedView);
+    	statusBar.setSelectedViewIndex(selectedView);
     	revalidate();
     	repaint();
     }

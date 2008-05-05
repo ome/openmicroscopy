@@ -396,7 +396,7 @@ class DataBrowserComponent
 		if (visible) images = browser.getVisibleImages();
 		else {
 			images = new HashSet();
-			Set set = browser.getSelectedDisplays();
+			Collection set = browser.getSelectedDisplays();
 			if (set != null) {
 				Iterator i = set.iterator();
 				ImageDisplay display;

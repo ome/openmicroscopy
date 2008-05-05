@@ -30,6 +30,8 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JComponent;
@@ -223,8 +225,20 @@ public class BrowserControl
     {
         ImageDisplay d = findParentDisplay(me.getSource());
         d.moveToFront();
+       
         ImageDisplay previousDisplay = model.getLastSelectedDisplay();
         boolean b = me.isShiftDown();
+        /*
+        if (b) { //multi selection
+        	Collection nodes = model.getSelectedDisplays();
+        	Iterator i = nodes.iterator();
+        } else {
+        	 if (!(d.equals(previousDisplay))) {
+        		 model.setSelectedDisplay(d);
+             }
+        }
+        */
+
         if (!(d.equals(previousDisplay))) {
             if (d instanceof ImageNode) {
                 if (!(previousDisplay instanceof ImageNode)) b = false;
@@ -232,6 +246,7 @@ public class BrowserControl
                 	model.setSelectedDisplay(d, b);
             } else model.setSelectedDisplay(d);
         }
+     
         if (me.isPopupTrigger()) popupTrigger = true;
     }
 

@@ -226,7 +226,7 @@ public interface Browser
 	 * 
 	 * @return See above.
 	 */
-	public Set getSelectedDisplays();
+	public Collection getSelectedDisplays();
 	
 	/**
 	 * Returns <code>true</code> if the image's title bar is visible,

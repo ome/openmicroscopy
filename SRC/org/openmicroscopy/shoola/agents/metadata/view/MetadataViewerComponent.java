@@ -189,7 +189,6 @@ class MetadataViewerComponent
 				browser.setParents((TreeBrowserSet) node, (Collection) result);
 			model.notifyLoadingEnd(node);
 		}
-		
 	}
 
 	/** 
@@ -279,16 +278,26 @@ class MetadataViewerComponent
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			
 			String name = "";
-			if (data instanceof ImageData) name = "image";
-			else if (data instanceof DatasetData) name = "dataset";
+			String parentName = null;
+			if (data instanceof ImageData) {
+				name = "image";
+				parentName = "dataset";
+			} else if (data instanceof DatasetData) name = "dataset";
 			else if (data instanceof ProjectData) name = "project";
 			
 			ButtonGroup group = new ButtonGroup();
 			JRadioButton single = new JRadioButton();
-			single.setText("Only "+name+" "+model.getRefObjectName());
+			//single.setText("Only "+name+" "+model.getRefObjectName());
+			single.setText("The selected "+name);
 			single.setSelected(true);
 			p.add(single);
 			group.add(single);
+			JRadioButton batchAnnotation = new JRadioButton();
+			if (parentName != null) {
+				batchAnnotation.setText("All "+name+"s in "+parentName);
+				p.add(batchAnnotation);
+				group.add(batchAnnotation);
+			}
 			JRadioButton all = new JRadioButton();
 			all.setText("All selected "+name+"s");
 			p.add(all);

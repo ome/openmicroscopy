@@ -92,10 +92,10 @@ public class DataServicesFactory
 	private Container				container;
 
 	/** A reference to the container's registry. */
-	private Registry               registry;
+	private static Registry         registry;
 
 	/** Unified access point to the various OMERO services. */
-	private OMEROGateway            omeroGateway;
+	private static OMEROGateway		omeroGateway;
 
 	/** The omero service adapter. */
 	private OmeroDataService		ds;
@@ -160,7 +160,8 @@ public class DataServicesFactory
 	{
 		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
 							"Time out", "Your session has expired.\n" +
-    						"You can either reconnect or exit the application");
+    						"You can either reconnect or exit the " +
+    						"application.");
         msg.setYesText("Reconnect");
         msg.setNoText("Exit");
         if (msg.centerMsgBox() == MessageBox.NO_OPTION) {
@@ -177,6 +178,18 @@ public class DataServicesFactory
 	    		container.exit();
 			}
         }
+	}
+	
+	/**
+	 * Checks if the session is still alive.
+	 * 
+	 * @param reg Reference to the container registry.
+	 */
+	public static void isSessionAlive(Registry reg)
+	{
+		if (!(reg.equals(registry)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		omeroGateway.isSessionAlive();
 	}
 	
     /**

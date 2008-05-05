@@ -70,10 +70,10 @@ import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.events.FreeCacheEvent;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -465,14 +465,15 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#activate()
+	 * @see ImViewer#activate(RndProxyDef)
 	 */
-	public void activate()
+	public void activate(RndProxyDef settings)
 	{
 		int state = model.getState();
 		switch (state) {
 			case NEW:
 				//model.fireCategoriesLoading();
+				model.setAlternativeSettings(settings);
 				model.fireRenderingControlLoading(model.getPixelsID());
 				fireStateChange();
 				break;
@@ -883,10 +884,10 @@ class ImViewerComponent
 		model.setRenderingControl(result);
 		//Register the renderer
 		model.getRenderer().addPropertyChangeListener(controller);
-		if (rnd == null) {
-			LoadingWindow window = view.getLoadingWindow();
-			window.setStatus("rendering settings. Loading: metadata");
-			window.setProgress(50);
+		if (rnd == null) { //initial 
+			//LoadingWindow window = view.getLoadingWindow();
+			//window.setStatus("rendering settings. Loading: metadata");
+			//window.setProgress(50);
 			//User preference
 			view.buildComponents();
 			view.setOnScreen();
@@ -904,7 +905,6 @@ class ImViewerComponent
 		}
 		
 		renderXYPlane();
-		//model.fireCategoriesLoading();
 		fireStateChange();
 	}
 
@@ -1715,6 +1715,10 @@ class ImViewerComponent
 			}
 			newPlane = false;
 		} else if (e instanceof DSOutOfServiceException) {
+			logger.debug(this, "Reload rendering Engine.");
+			model.fireRenderingControlReloading();
+			fireStateChange();
+			/*
 			MessageBox msg = new MessageBox(view, "Rendering timeout", 
 					"The rendering engine has timed out. " +
 			"Do you want to restart it?");
@@ -1726,6 +1730,7 @@ class ImViewerComponent
 				logger.debug(this, e.getMessage());
 				discard();
 			}
+			*/
 		}
 	}
 

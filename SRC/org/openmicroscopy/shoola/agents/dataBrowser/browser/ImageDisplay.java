@@ -39,7 +39,6 @@ import javax.swing.JLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -153,17 +152,7 @@ public abstract class ImageDisplay
      */
     protected String getPartialName(String originalName)
     {
-    	String[] l = UIUtilities.splitString(originalName);
-    	if (l != null) {
-    		int n = l.length;
-    		switch (n) {
-				case 0: return originalName;
-				case 1: return l[0];
-				case 2: return l[n-2]+"/"+l[n-1]; 
-				default: return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
-			}
-    	}
-        return originalName;
+    	return EditorUtil.getPartialName(originalName);
     }
     
     /**

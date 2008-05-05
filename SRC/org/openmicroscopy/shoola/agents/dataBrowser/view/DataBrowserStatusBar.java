@@ -54,6 +54,9 @@ class DataBrowserStatusBar
 	implements ChangeListener
 {
 
+	/** The factor to use to set the magnification factor. */
+	private static final int	FACTOR = 10;
+
 	/** Reference to the view. */
 	private DataBrowserUI		view;
 	
@@ -66,9 +69,9 @@ class DataBrowserStatusBar
 		IconManager icons = IconManager.getInstance();
 		
 		zoomSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 
-				(int) (Thumbnail.MIN_SCALING_FACTOR*10), 
-				(int) (Thumbnail.MAX_SCALING_FACTOR*10), 
-				(int) (Thumbnail.SCALING_FACTOR*10));
+				(int) (Thumbnail.MIN_SCALING_FACTOR*FACTOR), 
+				(int) (Thumbnail.MAX_SCALING_FACTOR*FACTOR), 
+				(int) (Thumbnail.SCALING_FACTOR*FACTOR));
 		zoomSlider.setEnabled(true);
 		zoomSlider.setShowArrows(true);
 		zoomSlider.setToolTipText("Magnifies all thumbnails.");
@@ -100,6 +103,16 @@ class DataBrowserStatusBar
 		buildGUI();
 	}
 	
+	/**
+	 * Sets the selected view index.
+	 * 
+	 * @param index The value to set.
+	 */
+	void setSelectedViewIndex(int index)
+	{
+		zoomSlider.setEnabled(index == DataBrowserUI.THUMB_VIEW);
+	}
+	
 	/** 
 	 * Zooms in or out the thumbnails.
 	 * @see ChangeListener#stateChanged(ChangeEvent)
@@ -109,7 +122,7 @@ class DataBrowserStatusBar
 		Object src = e.getSource();
 		if (src == zoomSlider) {
 			int v = zoomSlider.getValue();
-			view.setMagnificationFactor((double) v/10);
+			view.setMagnificationFactor((double) v/FACTOR);
 		}
 	}
 	

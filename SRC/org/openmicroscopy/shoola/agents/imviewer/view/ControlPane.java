@@ -42,6 +42,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -517,7 +518,8 @@ class ControlPane
         controls.setLayout(new TableLayout(size));
         controls.add(Box.createVerticalStrut(20), "0, 0");
         controls.add(buildToolBar(), "0, 1, c, c");
-        controls.add(p, "0, 2");
+        if (data.length > 10) controls.add(new JScrollPane(p), "0, 2");
+        else controls.add(p, "0, 2");
         controls.add(ratioSlider, "0, 3, c, c");
         return UIUtilities.buildComponentPanel(controls);
     }

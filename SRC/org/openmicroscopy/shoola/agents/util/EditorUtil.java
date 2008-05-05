@@ -424,46 +424,26 @@ public class EditorUtil
 		return !set.contains(userID);
 	}
 	
-	public static Map getAnnotations(Object object, Map userGroups)
-	{
-		Map<ExperimenterData, Long> 
-			result = new HashMap<ExperimenterData, Long>();
-		if (object == null) return result;
-		Map<Long, Long> counts = null;
-		if (object instanceof ImageData)
-			counts = ((ImageData) object).getAnnotationsCounts();
-		else if (object instanceof DatasetData)
-			counts = ((DatasetData) object).getAnnotationsCounts();
-		else if (object instanceof ProjectData) 
-			counts = ((ProjectData) object).getAnnotationsCounts();
-		
-		if (counts == null) return result;
-		Iterator i = userGroups.keySet().iterator(), j;
-		GroupData g;
-		Map<Long, ExperimenterData> 
-			users = new HashMap<Long, ExperimenterData>();
-		Set children;
-		ExperimenterData user;
- 		while (i.hasNext()) {
-			g = (GroupData) i.next();
-			children = g.getExperimenters();
-			if (children != null) {
-				j = children.iterator();
-				while (j.hasNext()) {
-					user = (ExperimenterData) j.next();
-					users.put(user.getId(), user);
-				}
+	/**
+     * Returns the partial name of the image's name
+     * 
+     * @param originalName The original name.
+     * @return See above.
+     */
+    public static String getPartialName(String originalName)
+    {
+    	String[] l = UIUtilities.splitString(originalName);
+    	if (l != null) {
+    		int n = l.length;
+    		switch (n) {
+				case 0: return originalName;
+				case 1: return l[0];
+				case 2: return l[n-2]+"/"+l[n-1];
+				default: 
+					return UIUtilities.DOTS+l[n-2]+"/"+l[n-1]; 
 			}
-		}
- 		i = counts.keySet().iterator();
- 		Long id;
- 		while (i.hasNext()) {
- 			id = (Long) i.next();
- 			user = users.get(id);
- 			if (user != null)
- 				result.put(users.get(id), counts.get(id));
-		}
-		return result;
-	}
-	
+    	}
+        return originalName;
+    }
+
 }

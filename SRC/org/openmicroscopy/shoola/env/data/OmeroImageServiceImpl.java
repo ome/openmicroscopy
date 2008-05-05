@@ -145,8 +145,6 @@ class OmeroImageServiceImpl
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
 			Pixels pix = gateway.getPixels(pixelsID);
-			//tmp to create a new set of pixels
-			gateway.createPixelsSet(pix);
 			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
 			List l = context.getDataService().getChannelsMetadata(pixelsID);
 			proxy = PixelsServicesFactory.createRenderingControl(context, re,

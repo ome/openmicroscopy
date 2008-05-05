@@ -205,6 +205,9 @@ class ImViewerModel
 	/** Reference to the rendering control. */
 	private RenderingControl    		currentRndControl;
 
+	/** The rendering settings set by another user. */
+	private RndProxyDef					alternativeSettings;
+	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -268,6 +271,16 @@ class ImViewerModel
 				LookupNames.CURRENT_USER_DETAILS);
 	}
 
+	/**
+	 * Sets the settings set by another user.
+	 * 
+	 * @param alternativeSettings The value to set.
+	 */
+	void setAlternativeSettings(RndProxyDef alternativeSettings)
+	{
+		this.alternativeSettings = alternativeSettings;
+	}
+	
 	/**
 	 * Compares another model to this one to tell if they would result in
 	 * having the same display.
@@ -498,10 +511,16 @@ class ImViewerModel
 	{
 		loaders.remove(RND);
 		this.currentRndControl = rndControl;
+		
 		if (renderer == null) {
 			renderer = RendererFactory.createRenderer(component, rndControl,
 					ImViewerFactory.getPreferences());
 			state = ImViewer.RENDERING_CONTROL_LOADED;
+			try {
+				if (alternativeSettings != null)
+					currentRndControl.resetSettings(alternativeSettings);
+				alternativeSettings = null;
+			} catch (Exception e) {}
 		} else {
 			renderer.setRenderingControl(rndControl);
 		}
@@ -1070,7 +1089,8 @@ class ImViewerModel
 			pixels = os.loadPixels(ImViewerFactory.getRefPixelsID());
 		}
 		if (currentRndControl.validatePixels(pixels)) {
-			currentRndControl.resetSettings(ImViewerFactory.getRenderingSettings());
+			currentRndControl.resetSettings(
+					ImViewerFactory.getRenderingSettings());
 			renderer.resetRndSettings();
 			return true;
 		}

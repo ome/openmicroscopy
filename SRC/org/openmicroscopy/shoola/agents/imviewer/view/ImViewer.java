@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ExperimenterData;
 
@@ -188,9 +189,10 @@ public interface ImViewer
 	 * If the state is not {@link #NEW}, then this method simply moves the
 	 * window to front.
 	 * 
+	 * @param settings The settings set by another user.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate();
+	public void activate(RndProxyDef settings);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.

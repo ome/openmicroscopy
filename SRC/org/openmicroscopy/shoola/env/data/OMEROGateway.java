@@ -204,17 +204,6 @@ class OMEROGateway
 		} else
 			throw new DSOutOfServiceException(message, t);
 	}
-
-	/** Checks if the session is still alive. */
-	private void isSessionAlive()
-	{
-		try {
-			EventContext ctx = getAdminService().getEventContext();
-			getSessionService().getSession(ctx.getCurrentSessionUuid());
-		} catch (Exception e) {
-			dsFactory.sessionExpiredExit();
-		}
-	}
 	
 	/**
 	 * Utility method to print the error message
@@ -529,7 +518,7 @@ class OMEROGateway
 	private List<Experimenter> containedExperimenters(long groupID)
 	{
 		IQuery service = getQueryService();
-		 return service.findAllByQuery("select e from Experimenter e "
+		return service.findAllByQuery("select e from Experimenter e "
 	                + "left outer join fetch e.groupExperimenterMap m "
 	                + "left outer join fetch m.parent g where g.id = :id", 
 	                new Parameters().addId(groupID));
@@ -782,6 +771,7 @@ class OMEROGateway
 		} catch (Exception e) {
 			//session already dead.
 		}
+		return;
 	}
 
 	/**
@@ -811,6 +801,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(service.loadContainerHierarchy(
 					convertPojos(rootNodeType), rootNodeIDs, options));
@@ -846,6 +837,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
 					convertPojos(rootNodeType), leavesIDs, options));
@@ -894,7 +886,6 @@ class OMEROGateway
 					service.findAnnotations(convertPojos(nodeType), nodeIDs, 
 							annotatorIDs, options));
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot find annotations for "+nodeType+".");
 		}
 		return new HashMap();
@@ -938,6 +929,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(service.findCGCPaths(imgIDs, 
 					mapAlgorithmToString(algorithm),
@@ -968,6 +960,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImages(
 					convertPojos(nodeType), nodeIDs, options));
@@ -993,6 +986,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(service.getUserImages(options));
 		} catch (Throwable t) {
@@ -1023,6 +1017,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
@@ -1050,6 +1045,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return service.createDataObject(object, options);
 		} catch (Throwable t) {
@@ -1073,6 +1069,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			IObject[] results = service.createDataObjects(objects, options);
 			return results;
@@ -1095,6 +1092,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IUpdate service = getUpdateService();
 			service.deleteObject(object);
 		} catch (Throwable t) {
@@ -1115,7 +1113,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			//IPojos service = getIPojosService();
+			isSessionAlive();
 			IUpdate service = getUpdateService();
 			for (int i = 0; i < objects.length; i++) {
 				service.deleteObject(objects[i]);
@@ -1140,6 +1138,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return service.updateDataObject(object, options);
 		} catch (Throwable t) {
@@ -1164,6 +1163,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IPojos service = getPojosService();
 			return service.updateDataObjects(objects, options);
 		} catch (Throwable t) {
@@ -1185,7 +1185,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			Pixels pixs = getPixels(pixelsID);
+			if (pixs == null) return null;
 			return pixs.getPixelsDimensions();
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the dimension of " +
@@ -1207,6 +1209,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IQuery service = getQueryService();
 			Pixels pixs = (Pixels) service.findByQuery(
 					"select p from Pixels as p " +
@@ -1236,6 +1239,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IQuery service = getQueryService();
 			Pixels pixs = (Pixels) service.findByQuery(
 					"select p from Pixels as p " +
@@ -1270,6 +1274,7 @@ class OMEROGateway
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
+			isSessionAlive();
 			ThumbnailStore service = getThumbService();
 			needDefault(pixelsID, null);
 			return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
@@ -1302,9 +1307,10 @@ class OMEROGateway
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
+			isSessionAlive();
 			ThumbnailStore service = getThumbService();
 			needDefault(pixelsID, null);
-			return service.getThumbnailByLongestSideDirect(maxLength);
+			return service.getThumbnailByLongestSide(maxLength);
 		} catch (Throwable t) {
 			if (thumbnailService != null) thumbnailService.close();
 			thumbnailService = null;
@@ -1330,6 +1336,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			RenderingEngine service = getRenderingService();
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
@@ -1356,6 +1363,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IQuery service = getQueryService();
 			String table = getTableForAnnotationLink(parent.getClass());
 			if (table == null) return null;
@@ -1394,6 +1402,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IQuery service = getQueryService();
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
@@ -1428,6 +1437,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
@@ -1459,6 +1469,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
@@ -1491,6 +1502,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
@@ -1523,6 +1535,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
@@ -1553,6 +1566,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IQuery service = getQueryService();
 			return service.find(o.getClass(), o.getId().longValue());
 		} catch (Throwable t) {
@@ -1576,6 +1590,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IQuery service = getQueryService();
 			return service.find(klass, id);
 		} catch (Throwable t) {
@@ -1597,6 +1612,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
+			isSessionAlive();
 			IAdmin service = getAdminService();
 			List<ExperimenterGroup> groups = service.lookupGroups();
 			Iterator i = groups.iterator();
@@ -1636,6 +1652,7 @@ class OMEROGateway
 	{
 		Set<Long> ids = new HashSet<Long>();
 		ids.add(pixelsID);
+		isSessionAlive();
 		try {
 			IPojos service = getPojosService();
 			Map m = service.findAnnotations(Pixels.class, ids, null, 
@@ -1673,6 +1690,7 @@ class OMEROGateway
 	Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
 		throws DSAccessException
 	{
+		isSessionAlive();
 		IQuery service = getQueryService();
 		List files = null;
 		try {
@@ -1744,6 +1762,7 @@ class OMEROGateway
 	File downloadFile(File file, long fileID, long size)
 		throws DSAccessException
 	{
+		isSessionAlive();
 		RawFileStore store = getRawFileService();
 		store.setFileId(fileID);
 		String path = file.getAbsolutePath();
@@ -1784,6 +1803,7 @@ class OMEROGateway
 	OriginalFile getOriginalFile(long id)
 		throws DSAccessException
 	{
+		isSessionAlive();
 		IQuery service = getQueryService();
 		OriginalFile of;
 		try {
@@ -1810,6 +1830,7 @@ class OMEROGateway
 	List getOriginalFiles(long pixelsID)
 		throws DSAccessException
 	{
+		isSessionAlive();
 		IQuery service = getQueryService();
 		List files = null;
 		try {
@@ -1839,6 +1860,7 @@ class OMEROGateway
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
+		isSessionAlive();
 		Format f = getQueryService().findByString(Format.class, "value", 
 												format);
 		OriginalFile oFile = new OriginalFile();
@@ -1880,6 +1902,7 @@ class OMEROGateway
 	void changePassword(String userName, String password)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IAdmin service = getAdminService();
 		try {
 			service.changePassword(password);
@@ -1900,6 +1923,7 @@ class OMEROGateway
 	void updateExperimenter(Experimenter exp) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IAdmin service = getAdminService();
 		try {
 			service.updateSelf(exp);
@@ -1925,6 +1949,7 @@ class OMEROGateway
 	synchronized byte[] getPlane(long pixelsID, int z, int t, int c)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		RawPixelsStore service = getPixelsStore();
 		try {
 			service.setPixelsId(pixelsID);
@@ -1949,6 +1974,7 @@ class OMEROGateway
 	long getFreeSpace()
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IRepositoryInfo service = getRepositoryService();
 		try {
 			return service.getFreeSpaceInKilobytes();
@@ -1971,6 +1997,7 @@ class OMEROGateway
 	long getUsedSpace()
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IRepositoryInfo service = getRepositoryService();
 		try {
 			return service.getUsedSpaceInKilobytes();
@@ -1996,7 +2023,7 @@ class OMEROGateway
 	List getImagesDuring(Timestamp startTime, Timestamp endTime, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-
+		isSessionAlive();
 		try {
 			String  sql = "select i from Image as i left outer join fetch " +
 			"i.details.creationEvent as c where " +
@@ -2042,6 +2069,7 @@ class OMEROGateway
 	Set getImages(Map map)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			IPojos service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImagesByOptions(map));
@@ -2074,6 +2102,7 @@ class OMEROGateway
 	{
 		Set<Long> success = new HashSet<Long>();
 		Set<Long> failure = new HashSet<Long>();
+		isSessionAlive();
 		try {
 			IRenderingSettings service = getRenderingSettingsService();
 			Class klass = convertPojos(rootNodeType);
@@ -2112,6 +2141,7 @@ class OMEROGateway
 	{
 		Set<Long> success = new HashSet<Long>();
 		Set<Long> failure = new HashSet<Long>();
+		isSessionAlive();
 		try {
 			IRenderingSettings service = getRenderingSettingsService();
 			Class klass = convertPojos(rootNodeType);
@@ -2195,6 +2225,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Map map = new HashMap();
+		isSessionAlive();
 		try {
 			String sql =  "select rdef from RenderingDef as rdef "
                 + "left outer join fetch rdef.quantization "
@@ -2242,6 +2273,8 @@ class OMEROGateway
 	RenderingDef getRenderingDef(long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		//This method should be pushed server side.
+		isSessionAlive();
 		try {
 			String sql =  "select rdef from RenderingDef as rdef "
                 + "left outer join fetch rdef.quantization "
@@ -2290,6 +2323,7 @@ class OMEROGateway
 					boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IQuery service = getQueryService();
 		Parameters param = new Parameters();
 		Iterator i = terms.iterator();
@@ -2392,6 +2426,7 @@ class OMEROGateway
 					boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IQuery service = getQueryService();
 		Parameters param = new Parameters();
 		
@@ -2479,6 +2514,7 @@ class OMEROGateway
 					String separator, boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IQuery service = getQueryService();
 		Parameters param = new Parameters();
 		Iterator i = terms.iterator();
@@ -2587,6 +2623,7 @@ class OMEROGateway
 					String separator, boolean caseSensitive)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		IQuery service = getQueryService();
 		Parameters param = new Parameters();
 		
@@ -2688,6 +2725,7 @@ class OMEROGateway
 			
 		}
 		*/
+		isSessionAlive();
 		try {
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
@@ -2709,6 +2747,7 @@ class OMEROGateway
 	
 	Map performSearch(SearchDataContext context)
 	{
+		isSessionAlive();
 		Search service = getSearchService();
 		
 		service.setCaseSentivice(context.isCaseSensitive());
@@ -2836,6 +2875,7 @@ class OMEROGateway
 				Timestamp start, Timestamp end, ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			Search service = getSearchService();
 			service.onlyAnnotatedBetween(start, end);
@@ -2855,16 +2895,6 @@ class OMEROGateway
 		return new ArrayList();
 	}
 	
-	//For testing purposing only.
-	void createPixelsSet(Pixels pix)
-	{
-		/*
-		IPixels service = getPixelsService();
-		service.copyAndResizePixels(pix.getId(), pix.getSizeX(), pix.getSizeY(), 
-				pix.getSizeZ(), pix.getSizeT(), "copy");
-		*/
-	}
-	
 	/**
 	 * Retrieves all containers of a given type.
 	 * The containers are not linked to any of their children.
@@ -2880,6 +2910,7 @@ class OMEROGateway
 	Set fetchContainers(Class type, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			IQuery service = getQueryService();
 			String table = getTableForClass(type);
@@ -2912,6 +2943,7 @@ class OMEROGateway
 	List loadTagAndImages(long tagID, boolean images)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
@@ -2954,6 +2986,14 @@ class OMEROGateway
 		//return service.results();
 	}
 	
+	/**
+	 * Returns the number of images related to a given tag.
+	 * 
+	 * @param rootNodeIDs
+	 * @return See above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	Map getImagesTaggedCount(Set rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -2982,4 +3022,16 @@ class OMEROGateway
 		}
 		return new HashMap();
 	}
+	
+	/** Checks if the session is still alive. */
+	void isSessionAlive()
+	{
+		try {
+			EventContext ctx = getAdminService().getEventContext();
+			getSessionService().getSession(ctx.getCurrentSessionUuid());
+		} catch (Exception e) {
+			dsFactory.sessionExpiredExit();
+		}
+	}
+	
 }
