@@ -1,7 +1,7 @@
 <ivy-module version="1.0">
 	<info organisation="org/hibernate"
 		module="hibernate"
-		revision="3.2.5.ga"
+		revision="3.2.6.ga"
 		status="release"
 		publication="20070625113948"
 		default="true"
