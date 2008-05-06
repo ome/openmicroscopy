@@ -155,7 +155,7 @@ public class UpgradeCheck implements Runnable {
             conn.setReadTimeout(timeout);
             conn.connect();
 
-            log.debug("Attempting to conncet to " + query);
+            log.debug("Attempting to connect to " + query);
 
             InputStream in = conn.getInputStream();
             BufferedInputStream bufIn = new BufferedInputStream(in);
