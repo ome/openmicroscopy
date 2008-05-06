@@ -22,7 +22,7 @@ javac.debuglevel=lines,vars,source
 javac.maxmem=300m
 javadoc.maxmem=300m
 # Prevents test failures from stopping the build
-test.with.failure=false
+test.with.fail=false
 
 # Determines which Ivy resolver to use for
 # finding the loci libraries. Look in 
