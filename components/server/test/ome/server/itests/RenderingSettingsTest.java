@@ -59,7 +59,7 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
         Long from = p1.getId();
         Long to = p2.getId();
 
-        rsx.applySettingsToPixel(from, to);
+        rsx.applySettingsToPixels(from, to);
 
         rsx.resetDefaultsInImage(p2.getImage().getId());
     }
