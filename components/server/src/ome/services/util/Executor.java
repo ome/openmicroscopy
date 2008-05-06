@@ -9,7 +9,6 @@ package ome.services.util;
 
 import java.sql.SQLException;
 
-import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -23,14 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
 import org.springframework.aop.ProxyMethodInvocation;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.TransactionStatus;
@@ -98,7 +94,6 @@ public class Executor implements ApplicationContextAware {
     }
 
     protected OmeroContext context;
-    protected Scheduler scheduler;
 
     final protected ProxyFactoryBean proxyFactory;
     final protected SecuritySystem secSystem;
@@ -122,27 +117,10 @@ public class Executor implements ApplicationContextAware {
         }
     }
 
-    /**
-     * Initialization method called by server (not Spring) when background
-     * processing can begin.
-     */
-    public void init() {
-        try {
-            this.scheduler.start();
-            this.log.info("Background schedular activated.");
-        } catch (SchedulerException se) {
-            throw new RuntimeException("Failed to startup scheduler.", se);
-        }
-    }
-
     public void setApplicationContext(ApplicationContext applicationContext)
             throws BeansException {
         this.context = (OmeroContext) applicationContext;
         this.proxyFactory.setBeanFactory(context);
-    }
-
-    public void setScheduler(Scheduler scheduler) {
-        this.scheduler = scheduler;
     }
 
     /**
@@ -223,27 +201,6 @@ public class Executor implements ApplicationContextAware {
                 }, true);
             }
         });
-    }
-
-    /**
-     * Runs an {@link ExecutionThread} via
-     * {@link TaskExecutor#execute(Runnable)}. The {@link ExecutionThread}
-     * performs the necessary {@link Thread} initialization.
-     * 
-     * @param thread
-     *            Not null.
-     */
-    public void trigger(String name) {
-        if (scheduler == null) {
-            throw new InternalException("Executor not configured for trigger.");
-        }
-
-        try {
-            scheduler.triggerJob(name, "DEFAULT");
-        } catch (SchedulerException e) {
-            log.error("Error signaling job: " + name, e);
-            throw new RuntimeException(e);
-        }
     }
 
     /**

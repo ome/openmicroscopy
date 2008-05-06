@@ -166,7 +166,6 @@
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="statelessInterceptors"/>
-    <property name="scheduler" ref="scheduler"/>
   </bean>
 
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
@@ -178,11 +177,12 @@
     </constructor-arg>
   </bean>
   
-  <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean">
+  <bean id="scheduler" class="ome.services.scheduler.SchedulerFactoryBean"
+    depends-on="sessionManager">
     <!-- In order to slow down the scheduler background tasks, we are now
-    starting it inactive, and once the session-manager is ready to accept logins,
-    then it signals to the Executor that  -->
-    <property name="autoStartup" value="false"/>
+    starting it active but waiting on session-manager to accept logins,
+    then it can start processing  -->
+    <property name="autoStartup" value="true"/>
     <property name="schedulerName" value="OMERO.scheduler"/>
     <property name="jobDetails">
       <list>
