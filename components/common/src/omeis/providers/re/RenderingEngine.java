@@ -125,9 +125,21 @@ public interface RenderingEngine extends SelfConfigurableService,
      * @param pixelsId
      *            The pixels set ID.
      * @return <code>true</code> if a <code>RenderingDef</code> exists for the
-     * <code>Pixels</code> set, otherwise <code>false</code>
+     * <code>Pixels</code> set, otherwise <code>false</code>.
      */
     public boolean lookupRenderingDef(long pixelsId);
+    
+    /**
+     * Loads a specific set of rendering settings that does not necessarily
+     * have to be linked to the given Pixels set. However, the rendering
+     * settings <b>must</b> be linked to a compatible Pixels set as defined
+     * by {@IRenderingSettings#sanityCheckPixels(Pixels, Pixels)}.
+     * @param renderingDefId The rendering definition ID.
+     * @throws ValidationException If a <code>RenderingDef</code> does not
+     * exist with the ID <code>renderingDefId</code> or if the
+     * <code>RenderingDef</code> is incompatible due to differing pixels sets.
+     */
+    public void loadRenderingDef(long renderingDefId);
 
     /** Creates a instance of the rendering engine. */
     public void load();
@@ -259,7 +271,7 @@ public interface RenderingEngine extends SelfConfigurableService,
     public Family getChannelFamily(int w);
 
     /**
-     * Returns <code>true</code> if the noise reduction algortihm used to map
+     * Returns <code>true</code> if the noise reduction algorithm used to map
      * the pixels intensity values is turned on, <code>false</code> if the
      * algorithm is turned off. Each channel has an algorithm associated to it.
      * 
@@ -383,7 +395,7 @@ public interface RenderingEngine extends SelfConfigurableService,
     public void addCodomainMap(CodomainMapContext mapCtx);
 
     /**
-     * Upadtes the specified context. The codomain chain already contains the
+     * Updates the specified context. The codomain chain already contains the
      * specified context. Each time a new context is updated, the second LUT is
      * rebuilt.
      * 
@@ -450,7 +462,7 @@ public interface RenderingEngine extends SelfConfigurableService,
 	
 	/**
      * Returns the minimum value for that channels depending on the pixels
-     * type and the orginal range (globalmax, globalmin)
+     * type and the original range (globalmax, globalmin)
      * 
      * @param w The channel index.
      * @return See above.
@@ -459,7 +471,7 @@ public interface RenderingEngine extends SelfConfigurableService,
 
 	/**
      * Returns the maximum value for that channels depending on the pixels
-     * type and the orginal range (globalmax, globalmin)
+     * type and the original range (globalmax, globalmin)
      * 
      * @param w The channel index.
      * @return See above.

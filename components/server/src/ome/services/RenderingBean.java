@@ -32,6 +32,7 @@ import javax.interceptor.Interceptors;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IPixels;
+import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
@@ -153,6 +154,9 @@ public class RenderingBean extends AbstractLevel2Service implements
 
     /** Reference to the service used to compress pixel data. */
     private transient LocalCompress compressionSrv;
+    
+    /** Reference to the service used to manage rendering settings. */
+    private transient IRenderingSettings settingsSrv;
 
     /**
      * read-write lock to prevent READ-calls during WRITE operations. Unneeded
@@ -184,6 +188,13 @@ public class RenderingBean extends AbstractLevel2Service implements
     public void setPixelsData(PixelsService dataService) {
         getBeanHelper().throwIfAlreadySet(this.pixDataSrv, dataService);
         pixDataSrv = dataService;
+    }
+    
+    /** set injector. For use during configuration. Can only be called once. */
+    public void setSettingsService(IRenderingSettings settingsService)
+    {
+        getBeanHelper().throwIfAlreadySet(this.settingsSrv, settingsService);
+        settingsSrv = settingsService;
     }
 
     // ~ Lifecycle methods
@@ -326,6 +337,66 @@ public class RenderingBean extends AbstractLevel2Service implements
     				+ " succeeded: " + this.rendDefObj);
     	}
     	return true;
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#loadRenderingDef(long)
+     */
+    @RolesAllowed("user")
+    public void loadRenderingDef(long renderingDefId)
+    {
+        rwl.writeLock().lock();
+
+        try
+        {
+            rendDefObj = pixMetaSrv.loadRndSettings(renderingDefId);
+            if (rendDefObj == null)
+            {
+                throw new ValidationException(
+                        "No rendering definition exists with ID: " + 
+                        renderingDefId);
+            }
+            if (!settingsSrv.sanityCheckPixels(
+                    pixelsObj, rendDefObj.getPixels()))
+            {
+                rendDefObj = null;
+                throw new ValidationException(
+                        "The rendering definition " + renderingDefId + 
+                        " is incompatible with pixels set " + 
+                        pixelsObj.getId());
+            }
+            closeRenderer();
+            renderer = null;
+
+            // Ensure that the pixels object is unloaded to avoid transactional
+            // headaches later due to Hibernate object caching techniques. If
+            // this is not performed, rendDefObj.pixels may be the same
+            // instance as pixelsObj; which if passed to IUpdate will be
+            // set unloaded by the service. We *really* don't want this.
+            // Furthermore, as rendDefObj.pixels may be owned by another user
+            // as rendDefObj can be owned by anyone we really don't want to be
+            // saddled with this object being attached.
+            // *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
+            Pixels unloadedPixels = 
+                new Pixels(rendDefObj.getPixels().getId(), false);
+            rendDefObj.setPixels(unloadedPixels);
+
+            // Ensure that we do not have "dirty" pixels or rendering settings
+            // left around in the Hibernate session cache.
+            iQuery.clear();
+        }
+        finally
+        {
+            rwl.writeLock().unlock();
+        }
+        
+        if (log.isDebugEnabled())
+        {
+            log.debug("loadRenderingDef for RenderingDef=" + renderingDefId
+                    + " succeeded: " + this.rendDefObj);
+        }
     }
 
     /**
@@ -482,7 +553,8 @@ public class RenderingBean extends AbstractLevel2Service implements
     public void resetDefaults() {
         rwl.writeLock().lock();
 
-        try {
+        try
+        {
             errorIfNullPixels();
             long pixelsId = pixelsObj.getId();
 
@@ -493,50 +565,30 @@ public class RenderingBean extends AbstractLevel2Service implements
 				RenderingDef def = pixMetaSrv.retrieveRndSettings(pixelsId); 
 				if (def != null)
 				{
+				    // We've been called before lookupRenderingDef() or
+				    // loadRenderingDef(), report an error.
 					errorIfInvalidState();
 				}
-                List<Family> families =
-                	pixMetaSrv.getAllEnumerations(Family.class);
-                List<RenderingModel> renderingModels =
-                	pixMetaSrv.getAllEnumerations(RenderingModel.class);
-                QuantumFactory quantumFactory = new QuantumFactory(families);
-           		PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
-           		def = Renderer.createNewRenderingDef(pixelsObj);
-           		Renderer.resetDefaults(def, pixelsObj, quantumFactory,
-           		                       renderingModels, buffer);
-           		buffer.close();
-            	pixMetaSrv.saveRndSettings(def);
+				def = settingsSrv.createNewRenderingDef(pixelsObj);
+				settingsSrv.resetDefaults(def, pixelsObj);
             }
             else
             {
             	errorIfInvalidState();
-            	renderer.resetDefaults();
-            	
-            	// Increment the version of the rendering settings so that we 
-            	// can have some notification that either the RenderingDef 
-            	// object itself or one of its children in the object graph has 
-            	// been updated. FIXME: This should be implemented using 
-            	// IUpdate.touch() or similar once that functionality exists.
-                rendDefObj.setVersion(rendDefObj.getVersion() + 1);
-                
-                // Actually save the rendering settings
-                pixMetaSrv.saveRndSettings(rendDefObj);
+            	settingsSrv.resetDefaults(rendDefObj, pixelsObj);
+
                 rendDefObj = reload(rendDefObj);
             	
             	// The above save step sets the rendDefObj instance (for which 
-            	// the renderer hold a reference) unloaded, which *will* cause 
+            	// the renderer holds a reference) unloaded, which *will* cause 
             	// IllegalStateExceptions if we're not careful. To compensate
             	// we will now reload the renderer.
             	// *** Ticket #848 -- Chris Allan <callan@blackcat.ca> ***
                 load();
             }
-        } catch (IOException e) {
-            if (log.isDebugEnabled()) {
-                log.debug("An I/O error occurred.", e);
-            }
-            throw new ResourceError(e.getMessage()
-                    + " Please check server log.");
-        } finally {
+        }
+        finally
+        {
             rwl.writeLock().unlock();
         }
     }
@@ -551,7 +603,7 @@ public class RenderingBean extends AbstractLevel2Service implements
         rwl.writeLock().lock();
         try {
             errorIfInvalidState();
-            renderer.resetDefaults();
+            settingsSrv.resetDefaultsNoSave(rendDefObj, pixelsObj);
         } finally {
             rwl.writeLock().unlock();
         }

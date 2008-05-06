@@ -29,6 +29,7 @@
     <property name="scaleService" ref="internal:ome.api.IScale"/>
     <property name="compressionService" ref="internal:ome.api.ICompress"/>
     <property name="IRepositoryInfo" ref="internal:ome.api.IRepositoryInfo"/>
+    <property name="settingsService" ref="internal:ome.api.IRenderingSettings"/>
   </bean>
   
   <bean id="managed:ome.api.ThumbnailStore" parent="managedStatefulService" singleton="false">

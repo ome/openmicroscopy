@@ -34,37 +34,37 @@ public class ColorsFactory {
     static final int DEFAULT_ALPHA = 255;
 
     /**
-     * Lower bound of the emission wavelenght interval corresponding to a
+     * Lower bound of the emission wavelength interval corresponding to a
      * <code>BLUE</code> color.
      */
     private static final int BLUE_MIN = 400;
 
     /**
-     * Upper bound of the emission wavelenght interval corresponding to a
+     * Upper bound of the emission wavelength interval corresponding to a
      * <code>BLUE</code> color.
      */
     private static final int BLUE_MAX = 500;
 
     /**
-     * Lower bound of the emission wavelenght interval corresponding to a
+     * Lower bound of the emission wavelength interval corresponding to a
      * <code>GREEN</code> color.
      */
     private static final int GREEN_MIN = 501;
 
     /**
-     * Upper bound of the emission wavelenght interval corresponding to a
+     * Upper bound of the emission wavelength interval corresponding to a
      * <code>GREEN</code> color.
      */
     private static final int GREEN_MAX = 600;
 
     /**
-     * Lower bound of the emission wavelenght interval corresponding to a
+     * Lower bound of the emission wavelength interval corresponding to a
      * <code>RED</code> color.
      */
     private static final int RED_MIN = 601;
 
     /**
-     * Upper bound of the emission wavelenght interval corresponding to a
+     * Upper bound of the emission wavelength interval corresponding to a
      * <code>RED</code> color.
      */
     private static final int RED_MAX = 700;

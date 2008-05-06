@@ -40,7 +40,7 @@ import omeis.providers.re.quantum.QuantumStrategy;
 class GreyScaleStrategy extends RenderingStrategy {
 
     /** The logger for this particular class */
-    private static Log log = LogFactory.getLog(Renderer.class);
+    private static Log log = LogFactory.getLog(GreyScaleStrategy.class);
     
     /** The channel we're operating on */
     private int channel;

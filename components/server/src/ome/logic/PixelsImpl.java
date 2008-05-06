@@ -8,8 +8,6 @@
 package ome.logic;
 
 // Java imports
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -30,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
 import ome.conditions.ValidationException;
-import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
@@ -71,7 +68,17 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IPixels.class;
     }
-
+    
+    /** Standard rendering definition HQL query prefix */
+    private static final String RENDERING_DEF_QUERY_PREFIX =
+        "select rdef from RenderingDef as rdef " + 
+        "left outer join fetch rdef.quantization " + 
+        "left outer join fetch rdef.model " +
+        "left outer join fetch rdef.waveRendering as cb " +
+        "left outer join fetch cb.color " +
+        "left outer join fetch cb.family " +
+        "left outer join fetch rdef.spatialDomainEnhancement where ";
+    
     // ~ Service methods
     // =========================================================================
 
@@ -93,27 +100,31 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         return p;
     }
 
-    // TODO we need to validate and make sure only one RndDef per user.
     @RolesAllowed("user")
-    public RenderingDef retrieveRndSettings(final long pixId) {
+    public RenderingDef retrieveRndSettings(long pixId) {
+        Long userId = getSecuritySystem().getEventContext().getCurrentUserId();
+        Parameters params = new Parameters();
+        params.addLong("p_id", pixId);
+        params.addLong("o_id", userId);
 
-        final Long userId = getSecuritySystem().getEventContext()
-                .getCurrentUserId();
-
-        return (RenderingDef) iQuery
-                .findByQuery(
-                        "select rdef from RenderingDef as rdef "
-                                + "left outer join fetch rdef.quantization "
-                                + "left outer join fetch rdef.model "
-                                + "left outer join fetch rdef.waveRendering as cb "
-                                + "left outer join fetch cb.color "
-                                + "left outer join fetch cb.family "
-                                + "left outer join fetch rdef.spatialDomainEnhancement where "
-                                + "rdef.pixels.id = :pixid and rdef.details.owner.id = :ownerid",
-                        new Parameters().addLong("pixid", pixId).addLong(
-                                "ownerid", userId));
+        List<RenderingDef> l = iQuery.findAllByQuery(
+                RENDERING_DEF_QUERY_PREFIX +
+                "rdef.pixels.id = :p_id and rdef.details.owner.id = :o_id " +
+                "order by rdef.details.updateEvent.time", params);
+        if (l.size() > 0)
+        {
+            return l.get(0);
+        }
+        return null;
     }
 
+    @RolesAllowed("user")
+    public RenderingDef loadRndSettings(long renderingDefId) {
+        return (RenderingDef) iQuery.findByQuery(
+                RENDERING_DEF_QUERY_PREFIX + "rdef.id = :id",
+                new Parameters().addId(renderingDefId));
+    }
+    
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public Long copyAndResizePixels(long pixelsId, Integer sizeX, Integer sizeY,
@@ -187,7 +198,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
      * Ensures that a particular dimension value is not out of range (ex. less
      * than zero).
      * @param value The value to check.
-     * @param name The name of the value to be used for error repording.
+     * @param name The name of the value to be used for error reporting.
      * @throws ValidationException If <code>value</code> is out of range.
      */
     private void outOfBoundsCheck(Integer value, String name)
@@ -202,7 +213,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
      * Ensures that a particular dimension value in a list is not out of 
      * range (ex. less than zero).
      * @param channelList The list of channels to check.
-     * @param name The name of the value to be used for error repording.
+     * @param name The name of the value to be used for error reporting.
      * @param pixels the pixels the channel list belongs to.
      * @throws ValidationException If <code>value</code> is out of range.
      */

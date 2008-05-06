@@ -33,6 +33,7 @@ import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 import ome.api.IPixels;
+import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
 import ome.api.IScale;
 import ome.api.ServiceInterface;
@@ -121,6 +122,9 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     
     /** The JPEG compression service. */
     private transient LocalCompress compressionService;
+    
+    /** The rendering settings service. */
+    private transient IRenderingSettings settingsService;
 
     /** is file service checking for disk overflow */
     private transient boolean diskSpaceChecking;
@@ -276,11 +280,31 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	                        settings, buffer);
     }
 
+    /* (non-Javadoc)
+     * @see ome.api.ThumbnailStore#setRenderingDefId(java.lang.Long)
+     */
     @RolesAllowed("user")
-    public void setRenderingDefId(Long id) {
-        // FIXME: This currently is useless as the rendering engine does
-        // not accept arbitrary rendering definitions.
-        return;
+    public void setRenderingDefId(long id)
+    {
+        RenderingDef newSettings = iPixels.loadRndSettings(id);
+        if (newSettings == null)
+        {
+            throw new ValidationException(
+                    "No rendering definition exists with ID: " + id);
+        }
+        if (!settingsService.sanityCheckPixels(pixels, newSettings.getPixels()))
+        {
+            throw new ValidationException(
+                    "The rendering definition " + id + " is incompatible " +
+                    "with pixels set " + pixels.getId());
+        }
+        settings = newSettings;
+        if (log.isDebugEnabled())
+        {
+            log.debug("setRenderingDefId for RenderingDef=" + id
+                      + " succeeded: " + this.settings);
+        }
+        load();
     }
 
     /**
@@ -350,6 +374,18 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
     
     /**
+     * Rendering settings service Bean injector.
+     * 
+     * @param settingsService
+     *            an <code>IRenderingSettings</code>.
+     */
+    public void setSettingsService(IRenderingSettings settingsService) {
+        getBeanHelper().throwIfAlreadySet(this.settingsService,
+                                          settingsService);
+        this.settingsService = settingsService;
+    }
+    
+    /**
      * Compresses a buffered image thumbnail to disk.
      * 
      * @param thumb
@@ -383,14 +419,17 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *         not exist.
      */
     private Thumbnail getThumbnailMetadata(int sizeX, int sizeY) {
+        Long userId = getSecuritySystem().getEventContext().getCurrentUserId();
         Parameters param = new Parameters();
         param.addId(pixels.getId());
         param.addInteger("x", sizeX);
         param.addInteger("y", sizeY);
+        param.addLong("ownerid", userId);
 
         Thumbnail thumb = iQuery.findByQuery(
         	"select t from Thumbnail as t join fetch t.details.updateEvent " +
-        	"where t.pixels.id = :id and t.sizeX = :x and t.sizeY = :y", param);
+        	"where t.pixels.id = :id and t.sizeX = :x and t.sizeY = :y and " +
+        	"t.details.owner.id = :ownerid", param);
         return thumb;
     }
 
@@ -402,9 +441,11 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *         not exist.
      */
     private List<Thumbnail> getThumbnailMetadata() {
+        Long userId = getSecuritySystem().getEventContext().getCurrentUserId();
         List<Thumbnail> thumbs = iQuery.findAllByQuery(
-                "select t from Thumbnail as t where t.pixels.id = :id",
-                new Parameters().addId(pixels.getId()));
+                "select t from Thumbnail as t where t.pixels.id = :id and " +
+                "t.details.owner.id = :ownerid", new Parameters().
+                addId(pixels.getId()).addLong("ownerid", userId));
         return thumbs;
     }
 
@@ -429,7 +470,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         thumb.setMimeType(DEFAULT_MIME_TYPE);
         thumb.setSizeX(sizeX);
         thumb.setSizeY(sizeY);
-        return iUpdate.saveAndReturnObject(thumb);
+        return thumb;
     }
 
     /**
@@ -560,15 +601,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @Transactional(readOnly = false)
     public void createThumbnail(Integer sizeX, Integer sizeY)
     {
-    	_createThumbnail(sizeX, sizeY);
-        
-    	// Ensure that we do not have "dirty" pixels or rendering settings left
-    	// around in the Hibernate session cache.
-    	iQuery.clear();
-    }
-    
-    /** Actually does the work specified by {@link createThumbnail()}.*/
-    public void _createThumbnail(Integer sizeX, Integer sizeY) {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
         if (sizeX == null) {
@@ -578,15 +610,32 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             sizeY = DEFAULT_Y_WIDTH;
         }
         sanityCheckThumbnailSizes(sizeX, sizeY);
-
+    	_createThumbnail(sizeX, sizeY);
+        
+    	// Ensure that we do not have "dirty" pixels or rendering settings left
+    	// around in the Hibernate session cache.
+    	iQuery.clear();
+    }
+    
+    /** Actually does the work specified by {@link createThumbnail()}.*/
+    private Thumbnail _createThumbnail(Integer sizeX, Integer sizeY) {
         Thumbnail metadata = getThumbnailMetadata(sizeX, sizeY);
         if (metadata == null) {
             metadata = createThumbnailMetadata(sizeX, sizeY);
+        } else {
+            // Increment the version of the thumbnail so that its
+            // update event has a timestamp equal to or after that of
+            // the rendering settings. FIXME: This should be 
+            // implemented using IUpdate.touch() or similar once that 
+            // functionality exists.
+            metadata.setVersion(metadata.getVersion() + 1);
         }
-
+        iUpdate.saveAndReturnObject(metadata);
+        
         BufferedImage image = createScaledImage(sizeX, sizeY, null, null);
         try {
             compressThumbnailToDisk(metadata, image);
+            return metadata;
         } catch (IOException e) {
             log.error("Thumbnail could not be compressed.", e);
             throw new ResourceError(e.getMessage());
@@ -692,26 +741,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             	|| (thumbTime != null && settingsTime.after(thumbTime)))
             {
             	log.info("Cache miss, thumbnail missing or out of date.");
-                // First create a scaled buffered image
-                BufferedImage image = 
-                	createScaledImage(sizeX, sizeY, null, null);
-
-                // Now write it to the disk cache and return what we've written
-                if (metadata == null)
-                {
-                	metadata = createThumbnailMetadata(sizeX, sizeY);
-                }
-                else
-                {
-                	// Increment the version of the thumbnail so that its
-                	// update event has a timestamp equal to or after that of
-                	// the rendering settings. FIXME: This should be 
-                	// implemented using IUpdate.touch() or similar once that 
-                	// functionality exists.
-                	metadata.setVersion(metadata.getVersion() + 1);
-                	iUpdate.saveAndReturnObject(metadata);
-                }
-                compressThumbnailToDisk(metadata, image);
+            	metadata = _createThumbnail(sizeX, sizeY);
             }
             else
             {
@@ -725,7 +755,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         }
         catch (IOException e)
         {
-            log.error("Could not obtain thumbnail metadata", e);
+            log.error("Could not obtain thumbnail", e);
             throw new ResourceError(e.getMessage());
         }
     }
@@ -762,8 +792,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
     
     /** Actually does the work specified by {@link getThumbnailDirect()}.*/
-    public byte[] _getThumbnailDirect(Integer sizeX, Integer sizeY,
-                                      Integer theZ, Integer theT)
+    private byte[] _getThumbnailDirect(Integer sizeX, Integer sizeY,
+                                       Integer theZ, Integer theT)
     {
     	// Set defaults and sanity check thumbnail sizes
     	errorIfInvalidState();
@@ -824,8 +854,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
     
     /** Actually does the work specified by {@link getThumbnailByLongestSideDirect()}.*/
-    public byte[] _getThumbnailByLongestSideDirect(Integer size, Integer theZ, 
-                                                   Integer theT)
+    private byte[] _getThumbnailByLongestSideDirect(Integer size, Integer theZ, 
+                                                    Integer theT)
     {
         // Set defaults and sanity check thumbnail sizes
         errorIfInvalidState();
@@ -905,7 +935,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     @Transactional(readOnly = false)
     public void resetDefaults()
     {
-        // Ensure that setPixelsId() has been called at all.
+        // Ensure that setPixelsId() has been called first.
         errorIfNullPixels();
         
         // Ensure that we haven't just been called before setPixelsId() and that
@@ -919,29 +949,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         		"performed using the RenderingEngine or IRenderingSettings.");
         }
         
-        // Lookup associated metadata and reset the settings.
-        List<Family> families = iPixels.getAllEnumerations(Family.class);
-        List<RenderingModel> renderingModels =
-        	iPixels.getAllEnumerations(RenderingModel.class);
-        QuantumFactory quantumFactory = new QuantumFactory(families);
-        PixelBuffer buffer = pixelDataService.getPixelBuffer(pixels);
-        RenderingDef def = Renderer.createNewRenderingDef(pixels);
-        Renderer.resetDefaults(def, pixels, quantumFactory,
-                               renderingModels, buffer);
-
-        // Cleanup and save
-        try
-        {
-        	buffer.close();
-        }
-        catch (IOException e)
-        {
-        	ResourceError re = new ResourceError(
-        			"IO error while resetting defaults: " + e.getMessage());
-        	re.initCause(e);
-        	throw re;
-        }
-        iPixels.saveRndSettings(def);
+        RenderingDef def = settingsService.createNewRenderingDef(pixels);
+        settingsService.resetDefaults(def, pixels);
     }
 
 	public boolean isDiskSpaceChecking() {

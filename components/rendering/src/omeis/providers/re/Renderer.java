@@ -30,7 +30,6 @@ import ome.model.enums.Family;
 import ome.model.enums.PixelsType;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
-import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
@@ -130,12 +129,6 @@ public class Renderer {
      */
     private RenderingStats stats;
 
-    /** Quantum factory instance for enumeration lookup and verification. */
-    private QuantumFactory quantumFactory;
-    
-    /** An enumerated list of rendering models. */
-    private List<RenderingModel> renderingModels;
-    
     /** Renderer optimizations. */
     private Optimizations optimizations = new Optimizations();
 
@@ -165,89 +158,6 @@ public class Renderer {
     	return otherBindings;
     }
     
-    /**
-     * Implemented as specified by the {@link PixelsMetadata} interface.
-     * @see PixelsMetadata#computeLocationStats(PlaneDef)
-     */
-    private static void computeLocationStats(Pixels pixels,
-            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
-        if (planeDef == null) {
-            throw new NullPointerException("No plane definition.");
-        }
-        StatsFactory sf = new StatsFactory();
-
-        int w = 0;
-        List<Channel> channels = pixels.<Channel>collectChannels(null);
-        for (Channel channel : channels) {
-            // FIXME: This is where we need to have the ChannelBinding -->
-            // Channel linkage. Without it, we have to assume that the order in
-            // which the channel bindings was created matches up with the order
-            // of the channels linked to the pixels set.
-            ChannelBinding cb = cbs.get(w);
-            sf.computeLocationStats(pixels, buf, planeDef, w);
-            cb.setNoiseReduction(sf.isNoiseReduction());
-            cb.setInputStart(new Float(sf.getInputStart()));
-            cb.setInputEnd(new Float(sf.getInputEnd()));
-            w++;
-        }
-    }
-    
-    /**
-	 * Resets the channel bindings for the current active pixels set.
-	 * 
-	 * @param def
-	 *            the rendering definition to link to.
-	 * @param pixels
-	 *            the pixels set to reset the bindings based upon.
-	 * @param quantumFactory
-	 *            a populated quantum factory.
-	 * @param buffer
-	 *            a pixel buffer which maps to the <i>planeDef</i>.
-	 */
-	private static void resetChannelBindings(RenderingDef def, Pixels pixels,
-	        QuantumFactory quantumFactory, PixelBuffer buffer) {
-	    // The actual channel bindings we are returning
-	    List<ChannelBinding> channelBindings = def.<ChannelBinding>collectWaveRendering(null);
-	
-	    // Default plane definition for our rendering definition
-	    PlaneDef planeDef = getDefaultPlaneDef(def);
-	
-	    int i = 0;
-	    for (Channel channel : pixels.<Channel>collectChannels(null)) {
-	        Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
-	
-	        ChannelBinding channelBinding = channelBindings.get(i);
-	        channelBinding.setFamily(family);
-	        channelBinding.setCoefficient(new Double(1));
-	
-	        // If we have more than one channel set each of the first three
-	        // active, otherwise only activate the first.
-	        if (i < 3) {
-	            channelBinding.setActive(true);
-	        } else {
-	            channelBinding.setActive(false);
-	        }
-	
-	        // Handle updating or recreating a color for this channel.
-	        Color defaultColor = ColorsFactory.getColor(i, channel);
-	        if (channelBinding.getColor() == null) {
-	        	channelBinding.setColor(ColorsFactory.getColor(i, channel));
-	        } else {
-	        	Color color = channelBinding.getColor();
-	        	color.setRed(defaultColor.getRed());
-	        	color.setGreen(defaultColor.getGreen());
-	        	color.setBlue(defaultColor.getBlue());
-	        	color.setAlpha(defaultColor.getAlpha());
-	        }
-	        channelBinding.setNoiseReduction(false);
-	        i++;
-	    }
-	
-	    // Set the input start and input end for each channel binding based upon
-	    // the computation of the pixels set's location statistics.
-	    computeLocationStats(pixels, channelBindings, planeDef, buffer);
-	}
-
 	/**
 	 * Returns <code>true</code> if the color is black or white, 
 	 * <code>false</code> otherwise.
@@ -274,7 +184,7 @@ public class Renderer {
      * number of active channels < 4, each of the active channels is mapped
      * to a primary color (0xFF0000 [Red], 0x00FF00 [Green], 0x0000FF [Blue])
      * and there are no duplicate mappings (two channels mapped to Green for 
-     * example). It is also dependant on alphaless rendering being enabled.
+     * example). It is also dependent on alphaless rendering being enabled.
      */
     private void checkOptimizations()
     {
@@ -371,24 +281,6 @@ public class Renderer {
     }
 
     /**
-     * Creates new channel bindings for each channel in the pixels set.
-     * 
-     * @param p
-     *            the pixels set to create channel bindings based upon.
-     * @return a new set of blank channel bindings.
-     */
-    private static List<ChannelBinding> createNewChannelBindings(Pixels p) {
-        ArrayList<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
-        ChannelBinding binding;
-        for (int i = 0; i < p.getSizeC(); i++) {
-        	binding = new ChannelBinding();
-        	binding.setColor(new Color());
-            cbs.add(binding);
-        }
-        return cbs;
-    }
- 
-    /**
      * Creates a new instance to render the specified pixels set and get this
      * new instance ready for rendering.
      * 
@@ -405,8 +297,6 @@ public class Renderer {
         metadata = pixelsObj;
         rndDef = renderingDefObj;
         buffer = bufferObj;
-        this.quantumFactory = quantumFactory;
-        this.renderingModels = renderingModels;
 
         if (metadata == null) {
             throw new NullPointerException("Expecting not null metadata");
@@ -478,33 +368,6 @@ public class Renderer {
     }
 
     /**
-     * Creates the default plane definition to use for the generation of the
-     * very first image displayed by <i>2D</i> viewers.
-     * 
-     * @return The default <i>XY</i>-plane.
-     */
-    public PlaneDef getDefaultPlaneDef() {
-        PlaneDef pd = new PlaneDef(PlaneDef.XY, rndDef.getDefaultT());
-        pd.setZ(rndDef.getDefaultZ());
-        return pd;
-    }
-
-    /**
-     * Creates the default plane definition to use for generation of the very
-     * first image displayed by <i>2D</i> viewers based upon a rendering
-     * definition.
-     * 
-     * @param renderingDef
-     *            the rendering definition to base the plane definition upon.
-     * @return The default <i>XY</i>-plane for the <i>renderingDef</i>.
-     */
-    public static PlaneDef getDefaultPlaneDef(RenderingDef renderingDef) {
-        PlaneDef pd = new PlaneDef(PlaneDef.XY, renderingDef.getDefaultT());
-        pd.setZ(renderingDef.getDefaultZ());
-        return pd;
-    }
-
-    /**
      * Updates the {@link QuantumManager} and configures it according to the
      * current quantum definition.
      */
@@ -526,7 +389,7 @@ public class Renderer {
      *            or <i>Z</i> axes.
      * @return An <i>RGB</i> image ready to be displayed on screen.
      * @throws IOException
-     *             If an error occured while trying to pull out data from the
+     *             If an error occurred while trying to pull out data from the
      *             pixels data repository.
      * @throws QuantizationException
      *             If an error occurred while quantizing the pixels raw data.
@@ -866,78 +729,6 @@ public class Renderer {
     	return optimizations;
     }
 
-    /** Resets the rendering engine defaults. */
-    public RenderingDef resetDefaults() {
-        // Reset our default rendering definition parameters.
-        resetDefaults(rndDef, getMetadata(), quantumFactory,
-                      renderingModels, buffer);
-
-        // Keep up with rendering engine model state.
-        setModel(rndDef.getModel());
-
-        // Keep up with the quantum manager state (Basically reset it).
-        getQuantumManager().initStrategies(rndDef.getQuantization(),
-                metadata.getPixelsType(), rndDef.<ChannelBinding>collectWaveRendering(null));
-
-        // Remove all the codomainMapCtx except the identity. (Also keeping up
-        // with rendering engine state)
-        if (getCodomainChain() != null) {
-            getCodomainChain().remove();
-        }
-        
-        return rndDef;
-    }
-    
-    /**
-	 * Resets a rendering definition to its predefined defaults.
-	 * 
-	 * @param def the rendering definition to reset.
-	 * @param pixels the pixels set to reset the definition based upon.
-	 * @param quantumFactory a populated quantum factory.
-	 * @param renderingModels an enumerated list of all rendering models.
-	 * @param buffer a pixel buffer which maps to the <i>planeDef</i>.
-	 */
-	public static void resetDefaults(RenderingDef def, Pixels pixels,
-	        QuantumFactory quantumFactory, List<RenderingModel> renderingModels,
-	        PixelBuffer buffer) {
-	    // The default rendering definition settings
-	    def.setDefaultZ(pixels.getSizeZ() / 2);
-	    def.setDefaultT(0);
-
-	    // Set the rendering model to RGB if there is more than one channel,
-	    // otherwise set it to greyscale.
-	    RenderingModel defaultModel = null;
-	    if (pixels.sizeOfChannels() > 1) {
-	    	for (RenderingModel model : renderingModels)
-	    	{
-	    		if (model.getValue().equals(MODEL_HSB))
-	    			defaultModel = model;
-	    	}
-	    } else {
-	    	for (RenderingModel model : renderingModels)
-	    	{
-	    		if (model.getValue().equals(MODEL_GREYSCALE))
-	    			defaultModel = model;
-	    	}
-	    }
-	    if (defaultModel == null)
-	    {
-	    	throw new IllegalArgumentException(
-	    		"Unable to find default rendering model in enumerated list.");
-	    }
-	    def.setModel(defaultModel);
-
-	    // Quantization settings
-	    QuantumDef quantumDef = def.getQuantization();
-	    quantumDef.setCdStart(0);
-	    quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
-	    quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
-	    def.setQuantization(quantumDef);
-
-	    // Reset the channel bindings
-	    resetChannelBindings(def, pixels, quantumFactory, buffer);
-	}
-
 	/**
      * Closes the buffer, cleaning up file state.
      * 
@@ -958,34 +749,7 @@ public class Renderer {
     }
 
     /**
-     * Creates a new rendering definition object along with its sub-objects.
-     * 
-     * @param p
-     *            the Pixels set to link to the rendering definition.
-     * @return a new, blank rendering definition and sub-objects.
-     */
-    public static RenderingDef createNewRenderingDef(Pixels p) {
-        RenderingDef r = new RenderingDef();
-        //The default rendering definition settings
-	    r.setDefaultZ(p.getSizeZ() / 2);
-	    r.setDefaultT(0);
-        r.setQuantization(new QuantumDef());
-
-        List<ChannelBinding> list = createNewChannelBindings(p);
-        r.clearWaveRendering();
-        for (ChannelBinding channelBinding : list) {
-            r.addChannelBinding(channelBinding);
-        }
-        // Unload the pixels object to avoid transactional headaches
-        Pixels unloadedPixels = new Pixels();
-        unloadedPixels.setId(p.getId());
-        unloadedPixels.unload();
-        r.setPixels(unloadedPixels);
-        return r;
-    }
-
-    /**
-     * Returns an array  whose ascending indicies represent the color
+     * Returns an array  whose ascending indices represent the color
      * components Red, Green and Blue.
      * 
      * @param color the color to decompose into an array.
@@ -1014,7 +778,7 @@ public class Renderer {
 	
     /**
      * Returns the minimum value for that channels depending on the pixels
-     * type and the orginal range (globalmax, globalmin)
+     * type and the original range (globalmax, globalmin)
      * 
      * @param w The channel index.
      * @return See above.
@@ -1027,7 +791,7 @@ public class Renderer {
 
 	/**
      * Returns the maximum value for that channels depending on the pixels
-     * type and the orginal range (globalmax, globalmin)
+     * type and the original range (globalmax, globalmin)
      * 
      * @param w The channel index.
      * @return See above.

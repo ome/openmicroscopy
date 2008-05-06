@@ -185,6 +185,7 @@ module omero {
       {
 	idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
 	idempotent omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
+	idempotent omero::model::RenderingDef loadRenderingSettings(long renderingSettingsId) throws ServerError;
 	void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
 	idempotent int getBitDepth(omero::model::PixelsType type) throws ServerError;
 	idempotent omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
@@ -286,7 +287,11 @@ module omero {
     dictionary<bool, omero::sys::LongList> BooleanIdListMap;
     interface IRenderingSettings extends ServiceInterface
       {
+        bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo);
         omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
+        omero::model::RenderingDef createNewRenderingDef(omero::model::Pixels pixels) throws ServerError;
+        void resetDefaults(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
+        void resetDefaultsNoSave(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
         void resetDefaultsInImage(long imageId) throws ServerError;
         omero::sys::LongList resetDefaultsInCategory(long categoryId) throws ServerError;
         omero::sys::LongList resetDefaultsInDataset(long dataSetId) throws ServerError;
@@ -365,6 +370,7 @@ module omero {
 	Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
 	void lookupPixels(long pixelsId) throws ServerError;
 	bool lookupRenderingDef(long pixelsId) throws ServerError;
+	void loadRenderingDef(long renderingDefId) throws ServerError;
 	void load() throws ServerError;
 	void setModel(omero::model::RenderingModel model) throws ServerError;
 	omero::model::RenderingModel getModel() throws ServerError;

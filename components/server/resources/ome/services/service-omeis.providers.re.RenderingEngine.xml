@@ -26,6 +26,7 @@
     <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
     <property name="pixelsData"     ref="/OMERO/Pixels"/>
     <property name="compressionService" ref="internal:ome.api.ICompress"/>
+    <property name="settingsService" ref="internal:ome.api.IRenderingSettings"/>
   </bean>
 
   <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedStatefulService" singleton="false">

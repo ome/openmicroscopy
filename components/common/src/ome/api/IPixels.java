@@ -82,6 +82,26 @@ public interface IPixels extends ServiceInterface {
     public RenderingDef retrieveRndSettings(long pixelsId);
     
     /**
+     * Loads a specific set of rendering settings with the following objects 
+     * pre-linked:
+     * <ul>
+     * <li>renderingDef.quantization</li>
+     * <li>renderingDef.model</li>
+     * <li>renderingDef.waveRendering</li>
+     * <li>renderingDef.waveRendering.color</li>
+     * <li>renderingDef.waveRendering.family</li>
+     * <li>renderingDef.spatialDomainEnhancement</li>
+     * </ul>
+     * 
+     * @param renderingDefId
+     *            Rendering definition id.
+     * @throws ValidationException If no <code>RenderingDef</code> matches the
+     * ID <code>renderingDefId</code>.
+     * @return Rendering definition.
+     */
+    public RenderingDef loadRndSettings(long renderingDefId);
+    
+    /**
      * Copies the metadata, and <b>only</b> the metadata linked to a Pixels
      * object into a new Pixels object of equal or differing size across one
      * or many of its three physical dimensions or temporal dimension.

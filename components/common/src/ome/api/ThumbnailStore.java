@@ -33,8 +33,8 @@ public interface ThumbnailStore extends StatefulServiceInterface {
     /**
      * This method manages the state of the service; it must be invoked before
      * using any other methods. As the <pre>ThumbnailStore</pre> relies on the
-     * <pre>RenderingEngine</pre>, a valid rendering definition must be available
-     * for it to work. 
+     * <pre>RenderingEngine</pre>, a valid rendering definition must be 
+     * available for it to work. 
      * 
      * @param pixelsId
      *            an {@link ome.model.core.Pixels} id.
@@ -57,11 +57,11 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *            an {@link ome.model.display.RenderingDef} id.
      *            <code>null</code> specifies the user's currently active
      *            rendering settings to be used.
-     * @throws ApiUsageException
+     * @throws ValidationException
      *             if no rendering definition exists with the ID
      *             <i>renderingDefId</i>.
      */
-    public void setRenderingDefId(Long renderingDefId);
+    public void setRenderingDefId(long renderingDefId);
 
     /**
      * Retrieves a thumbnail for a pixels set using a given set of rendering
