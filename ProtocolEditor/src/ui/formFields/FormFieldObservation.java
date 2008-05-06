@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.Box;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import tree.DataFieldConstants;
@@ -65,7 +66,16 @@ public class FormFieldObservation extends FormField {
 		termSelectorsVerticalBox.add(attributeTermSelector);
 		termSelectorsVerticalBox.add(unitTermSelector);
 		
-		this.add(termSelectorsVerticalBox, BorderLayout.CENTER);
+		/*
+         * Want to add the termSelectorBox to the SOUTH of contentsPanel (where descriptionLabel is). 
+         * Create new panel to hold both. 
+         */
+        JPanel termBoxContainer = new JPanel(new BorderLayout());
+        termBoxContainer.setBackground(null);
+        termBoxContainer.add(descriptionLabel, BorderLayout.NORTH);
+        termBoxContainer.add(termSelectorsVerticalBox, BorderLayout.SOUTH);
+		
+		contentsPanel.add(termBoxContainer, BorderLayout.SOUTH);
 		
 		// set controls etc.
 		refreshUnitTermSelectorVisibility();
