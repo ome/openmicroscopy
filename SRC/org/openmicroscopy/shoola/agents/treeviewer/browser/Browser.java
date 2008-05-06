@@ -563,6 +563,18 @@ public interface Browser
 							Boolean multiSelection); 
 	
 	/**
+	 * Updates the view when a node is deselected in the thumbnail view
+	 * or table view.
+	 * 
+	 * @param parent			The parent of the selected node.
+	 * @param selected			The node to deselect.
+	 * @param multiSelection	Pass <code>true</code> if multi selection is
+	 * 							<code>false</code> otherwise.
+	 */
+	public void onDeselectedNode(Object parent, Object selected, 
+							Boolean multiSelection); 
+	
+	/**
 	 * Updates the view when a dataset not linked to a project is created.
 	 * 
 	 * @param data The newly created dataset.

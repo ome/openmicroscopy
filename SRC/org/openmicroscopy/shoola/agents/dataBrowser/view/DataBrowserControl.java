@@ -149,6 +149,10 @@ class DataBrowserControl
 			ImageDisplay node = (ImageDisplay) evt.getNewValue();
             if (node == null) return;
 			model.setSelectedDisplay(node);
+		} else if (Browser.UNSELECTED_DISPLAY_PROPERTY.equals(name)) {
+			ImageDisplay node = (ImageDisplay) evt.getNewValue();
+            if (node == null) return;
+			model.setUnselectedDisplay(node);
 		} else if (QuickSearch.QUICK_SEARCH_PROPERTY.equals(name)) {
 			filterNodes();
 		} else if (FilteringDialog.FILTER_PROPERTY.equals(name)) {

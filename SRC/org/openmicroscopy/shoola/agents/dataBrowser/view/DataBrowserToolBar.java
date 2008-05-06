@@ -315,7 +315,7 @@ class DataBrowserToolBar
 		slideShowView = new JButton(
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
 		slideShowView.setToolTipText("Slideshow");
-		UIUtilities.unifiedButtonLookAndFeel(slideShowView);
+		//UIUtilities.unifiedButtonLookAndFeel(slideShowView);
 		slideShowView.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -340,7 +340,7 @@ class DataBrowserToolBar
 			}
 		
 		});
-		UIUtilities.unifiedButtonLookAndFeel(managementButton);
+		//UIUtilities.unifiedButtonLookAndFeel(managementButton);
 		
 		//
 		group = new ButtonGroup();

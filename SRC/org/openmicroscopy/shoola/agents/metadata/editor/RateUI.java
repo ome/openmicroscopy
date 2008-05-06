@@ -175,18 +175,18 @@ class RateUI
 	{
 		selectedValue = 0;//model.getRatingAverage();
 		initialValue = 0;
+		rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, 
+											this);
+		rating.setValue(selectedValue);
+		rating.addPropertyChangeListener(RatingComponent.RATE_PROPERTY, this);
+		ratingsLabel.setText("("+0+NAME+")");
 	}
 	
 	/**
 	 * Clears the UI.
 	 * @see AnnotationUI#clearDisplay()
 	 */
-	protected void clearDisplay() 
-	{
-		selectedValue = 0;
-		initialValue = 0;
-		//removeAll();
-	}
+	protected void clearDisplay() { clearData(); }
 	
 	/**
 	 * Sets the currently selected rating value.

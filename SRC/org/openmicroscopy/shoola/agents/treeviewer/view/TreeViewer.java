@@ -652,10 +652,11 @@ public interface TreeViewer
 	public void setLeaves(TreeImageSet parent, Set leaves);
 
 	/**
+	 * Sets the selected node.
 	 * 
-	 * @param newValue
+	 * @param node The value to set.
 	 */
-	public void setSelectedNode(Object object);
+	public void setSelectedNode(Object node);
 	
     public void setHierarchyRoots(Object parent, Set nodes);
     
@@ -665,5 +666,12 @@ public interface TreeViewer
      * @param data The object to add.
      */
     public void onOrphanDataObjectCreated(DataObject data);
+
+    /**
+     * Unselects the passed node.
+     * 
+     * @param node The node to deselect.
+     */
+	public void setUnselectedNode(Object node);
     
 }

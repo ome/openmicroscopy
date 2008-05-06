@@ -233,6 +233,7 @@ class MetadataViewerComponent
 	 */
 	public void setRootObject(Object root)
 	{
+		if (root == null) root = "";
 		model.setRootObject(root);
 		view.setRootObject();
 	}

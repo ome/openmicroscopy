@@ -70,6 +70,13 @@ public interface Browser
 	public static final String SELECTED_DISPLAY_PROPERTY = "selectedDisplay";
 	
 	/** 
+	 * Bound property name indicating an {@link ImageDisplay} object has been
+	 * unselected in the visualization tree. 
+	 */
+	public static final String UNSELECTED_DISPLAY_PROPERTY = 
+														"unselectedDisplay";
+	
+	/** 
 	 * Bound property name indicating a {@link Thumbnail} has been selected
 	 * within an {@link ImageNode}.
 	 * The associated property change event is always dispatched <i>after</i>
@@ -342,8 +349,25 @@ public interface Browser
 	 */
 	public List<ImageNode> getVisibleImageNodes();
 	
+	/**
+	 * Returns the selected layout.
+	 * 
+	 * @return See above.
+	 */
 	public Layout getSelectedLayout();
 	
+	/**
+	 * Returns the collection of selected nodes.
+	 * 
+	 * @param nodes The selected nodes.
+	 */
 	public void setNodesSelection(List<ImageDisplay> nodes);
+	
+	/** 
+	 * Removes the passed node from the selection.
+	 * 
+	 * @param node The node to remove from the list.
+	 */
+	public void removeSelectedDisplay(ImageDisplay node);
 	
 }

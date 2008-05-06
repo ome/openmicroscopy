@@ -47,7 +47,8 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * Implements {@link Browser} to maintain presentation state, thus acting
+ * as the Model in MVC.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -98,7 +99,7 @@ class BrowserModel
 	private boolean         	multiSelection;
 	
 	/** The selected nodes. */
-	private List<ImageDisplay>	selectedDisplays;
+	private Set<ImageDisplay>	selectedDisplays;
 	
 	/** Indicates if the image's title bar is visible. */
 	private boolean         	titleBarVisible;
@@ -142,7 +143,7 @@ class BrowserModel
 	    super();
 	    if (view == null) throw new NullPointerException("No view.");
 	    rootDisplay = view;
-	    selectedDisplays = new ArrayList<ImageDisplay>();
+	    selectedDisplays = new HashSet<ImageDisplay>();
 	    originalNodes = new HashSet<ImageDisplay>();
 	    titleBarVisible = true;
 	    Set nodes = rootDisplay.getChildrenDisplay();
@@ -233,7 +234,7 @@ class BrowserModel
 	 * @param toSelect		The collection of selected nodes.
 	 * @param toDeselect	The collection of deselected nodes.
 	 */
-	void setNodesColor(List toSelect, Collection toDeselect)
+	void setNodesColor(Collection toSelect, Collection toDeselect)
     {
     	//paint the nodes
         Colors colors = Colors.getInstance();
@@ -252,10 +253,9 @@ class BrowserModel
         }
     }
 	
-	/** 
-	 * Returns the set with all the children of the root node. 
-	 * 
-	 * @return See above.
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getRootNodes()
 	 */
 	public Set getRootNodes() { return rootDisplay.getChildrenDisplay(); }
 	
@@ -583,6 +583,20 @@ class BrowserModel
 		
 		while (i.hasNext()) 
 			setSelectedDisplay(i.next(), multiSelection);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#removeSelectedDisplay(ImageDisplay)
+	 */
+	public void removeSelectedDisplay(ImageDisplay node)
+	{
+		if (node == null) return;
+		List<ImageDisplay> nodes = new ArrayList<ImageDisplay>(1);
+		nodes.add(node);
+		setNodesColor(getSelectedDisplays(), nodes);
+		selectedDisplays.remove(node);
+		firePropertyChange(UNSELECTED_DISPLAY_PROPERTY, null, node);
 	}
 	
 }

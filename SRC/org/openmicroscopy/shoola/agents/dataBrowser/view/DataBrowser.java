@@ -63,6 +63,20 @@ public interface DataBrowser
 	public static final String		DATA_OBJECT_CREATED_PROPERTY = 
 										"dataObjectCreated";
 	
+	/** 
+	 * Bound property name indicating an {@link ImageDisplay} object has been
+	 * selected in the visualization tree. 
+	 */
+	public static final String 		SELECTED_NODE_DISPLAY_PROPERTY = 
+												"selectedNodeDisplay";
+	
+	/** 
+	 * Bound property name indicating an {@link ImageDisplay} object has been
+	 * unselected in the visualization tree. 
+	 */
+	public static final String 		UNSELECTED_NODE_DISPLAY_PROPERTY = 
+												"unselectedNodeDisplay";
+	
 	/** Loads the thumbnails when we have <code>100</code> or less values. */
 	public static final int			MAX_ENTRIES = 100;
 	
@@ -92,13 +106,6 @@ public interface DataBrowser
 	
 	/** Indicates to retrieve the node rated two or higher. */
 	public static final int			UNRATED = RateFilter.UNRATED;;
-	
-	/** 
-	 * Bound property name indicating an {@link ImageDisplay} object has been
-	 * selected in the visualization tree. 
-	 */
-	public static final String 		SELECTED_NODE_DISPLAY_PROPERTY = 
-												"selectedNodeDisplay";
 	
 	/** Flag to denote the <i>New</i> state. */
     public static final int     	NEW = 1;
@@ -277,8 +284,25 @@ public interface DataBrowser
      */
 	public void createDataObject(DataObject data, boolean visibleNodes);
 
+	/**
+	 * Sets the newly created data object.
+	 * 
+	 * @param object	The created object.
+	 * @param parent	The parent of the object.
+	 */
 	public void setDataObjectCreated(DataObject object, DataObject parent);
 
+	/**
+	 * Sets the collection of nodes, selected via the table view.
+	 * 
+	 * @param selected The collection of selected nodes.
+	 */
 	public void setTableNodesSelected(List<ImageDisplay> selected);
 	
+	/**
+	 * Sets the unselected node.
+	 * 
+	 * @param node The unselected node.
+	 */
+	public void setUnselectedDisplay(ImageDisplay node);
 }

@@ -43,7 +43,6 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
@@ -101,11 +100,12 @@ public class BrowserControl
      * Returns <code>true</code> if some pixels set are linked, 
      * <code>false</code> otherwise.
      * 
-     * @param node The node hosting the image.
+     * @param node The node to handle.
      * @return See above.
      */
-    private boolean isSelectionValid(ImageNode node)
+    private boolean isSelectionValid(ImageDisplay node)
     {
+    	if (!(node instanceof ImageNode)) return true;
     	ImageData img = (ImageData) node.getHierarchyObject();
 		try {
 			img.getDefaultPixels();
@@ -223,22 +223,33 @@ public class BrowserControl
      */
     public void mousePressed(MouseEvent me)
     {
-        ImageDisplay d = findParentDisplay(me.getSource());
-        d.moveToFront();
-       
-        ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-        boolean b = me.isShiftDown();
-        /*
-        if (b) { //multi selection
-        	Collection nodes = model.getSelectedDisplays();
-        	Iterator i = nodes.iterator();
-        } else {
-        	 if (!(d.equals(previousDisplay))) {
-        		 model.setSelectedDisplay(d);
-             }
-        }
-        */
+    	ImageDisplay d = findParentDisplay(me.getSource());
+    	d.moveToFront();
 
+    	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
+    	boolean b = me.isShiftDown();
+
+    	if (b) { //multi selection
+    		Collection nodes = model.getSelectedDisplays();
+    		Iterator i = nodes.iterator();
+    		ImageDisplay node;
+    		boolean remove = false;
+    		while (i.hasNext()) {
+    			node = (ImageDisplay) i.next();
+				if (node.equals(d)) {
+					remove = true;
+					break;
+				}
+			}
+    		if (remove) model.removeSelectedDisplay(d);
+    		else model.setSelectedDisplay(d, true);
+    	} else {
+    		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) 
+    			model.setSelectedDisplay(d);
+    	}
+
+
+        /*
         if (!(d.equals(previousDisplay))) {
             if (d instanceof ImageNode) {
                 if (!(previousDisplay instanceof ImageNode)) b = false;
@@ -246,7 +257,7 @@ public class BrowserControl
                 	model.setSelectedDisplay(d, b);
             } else model.setSelectedDisplay(d);
         }
-     
+     */
         if (me.isPopupTrigger()) popupTrigger = true;
     }
 

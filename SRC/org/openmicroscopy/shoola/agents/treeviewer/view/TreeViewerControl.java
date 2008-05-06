@@ -592,6 +592,8 @@ class TreeViewerControl
 				
 		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
 			model.setSelectedNode(pce.getNewValue());
+		} else if (DataBrowser.UNSELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
+			model.setUnselectedNode(pce.getNewValue());
 		} else if (DataBrowser.DATA_OBJECT_CREATED_PROPERTY.equals(name)) {
 			Map map = (Map) pce.getNewValue();
 			if (map != null && map.size() == 1) {

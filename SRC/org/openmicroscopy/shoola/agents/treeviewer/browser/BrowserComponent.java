@@ -1228,5 +1228,26 @@ class BrowserComponent
 				view.setFoundNode(null);
 		}
 	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#onDeselectedNode(Object, Object, Boolean)
+	 */
+	public void onDeselectedNode(Object parent, Object selected, 
+			Boolean multiSelection)
+	{
+		if (selected instanceof DataObject) {
+			NodeSelectionVisitor visitor = new NodeSelectionVisitor(parent, 
+													(DataObject) selected);
+			accept(visitor);
+			TreeImageDisplay foundNode = visitor.getSelectedNode();
+			if (foundNode != null) {
+				model.removeDisplay(foundNode);
+				view.setFoundNode(model.getSelectedDisplays());
+			} else 
+				view.setFoundNode(null);
+		}
+		
+	}
     
 }

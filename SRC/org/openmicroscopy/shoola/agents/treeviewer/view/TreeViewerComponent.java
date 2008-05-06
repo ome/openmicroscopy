@@ -1499,5 +1499,60 @@ class TreeViewerComponent
 			view.addComponent(dataBrowser.getUI());
 		}
 	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setUnselectedNode(Object)
+	 */
+	public void setUnselectedNode(Object object)
+	{
+		if (object == null) return;
+		if (!(object instanceof List)) return;
+		//Need to notify the browser without having 
+		List l = (List) object;
+		int n = l.size();
+		if (n > 3) return;
+		Object multiSelection = l.get(0);
+		Object selected = l.get(1);
+		Object parent = null;
+		if (n == 3) parent = l.get(2);
+		if (selected instanceof ImageData) {
+			ImageData img = (ImageData) selected;
+			try {
+				img.getDefaultPixels();
+			} catch (Exception e) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Image Not valid", 
+						"The selected image is not valid");
+				return;
+			}
+		}
+
+		Browser browser = model.getSelectedBrowser();
+		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
+		MetadataViewer mv = model.getMetadataViewer();
+		//Check siblings first.
+
+		l = browser.getSelectedDataObjects();
+		if (l != null && l.size() > 0) {
+			int size = l.size()-1;
+			mv.setRootObject(l.get(size));
+			l.remove(l.get(size));
+			List<DataObject> siblings = new ArrayList<DataObject>();
+			Iterator i = l.iterator();
+			Object o;
+			while (i.hasNext()) {
+				o = i.next();
+				if ((o instanceof DataObject) && !o.equals(selected))
+					siblings.add((DataObject) o);
+			}
+			if (siblings.size() > 1)
+				mv.setSiblings(siblings);
+		} else {
+			mv.setRootObject(null);
+			mv.setSiblings(null);
+		}
+	}
 	
 }

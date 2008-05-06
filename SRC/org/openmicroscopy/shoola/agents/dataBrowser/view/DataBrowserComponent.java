@@ -159,6 +159,7 @@ class DataBrowserComponent
 	 */
 	public void setSelectedDisplay(ImageDisplay node)
 	{
+		if (node == null) return;
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
 		objects.add(model.getBrowser().isMultiSelection());
@@ -431,6 +432,28 @@ class DataBrowserComponent
 	public void setTableNodesSelected(List<ImageDisplay> nodes)
 	{
 		model.getBrowser().setNodesSelection(nodes);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setUnselectedDisplay(ImageDisplay)
+	 */
+	public void setUnselectedDisplay(ImageDisplay node)
+	{
+		if (node == null) return;
+		Object object = node.getHierarchyObject();
+		List<Object> objects = new ArrayList<Object>();
+		objects.add(model.getBrowser().isMultiSelection());
+		objects.add(object);
+		
+		if (object instanceof DataObject) {
+			ImageDisplay p = node.getParentDisplay();
+			Object parent = p.getHierarchyObject();
+			if (!(parent instanceof DataObject))
+				parent = model.getParent();
+			objects.add(parent);
+		}
+		firePropertyChange(UNSELECTED_NODE_DISPLAY_PROPERTY, null, objects);
 	}
 	
 }

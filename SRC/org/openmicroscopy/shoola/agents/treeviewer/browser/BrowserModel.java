@@ -623,4 +623,14 @@ class BrowserModel
 		currentLoader.load();
 	}
 
+	/**
+	 * Removes the passed node.
+	 * 
+	 * @param foundNode The node to remove.
+	 */
+	void removeDisplay(TreeImageDisplay foundNode)
+	{
+		if (foundNode != null) selectedNodes.remove(foundNode);
+	}
+
 }
