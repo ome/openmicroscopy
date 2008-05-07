@@ -114,6 +114,7 @@ public class ScriptI extends _IScriptDisp {
         JobParams params = getScriptParams(tempFile, __current);
 		if(originalFileExists(params.name))
 		{
+			System.err.println("tempFile.name : " + tempFile.getName() + " params.name : " + params.name);
 			deleteOriginalFile(tempFile);
 			throw new ApiUsageException("A script with name " + params.name + " already exists on server.");
 		}
@@ -408,8 +409,8 @@ public class ScriptI extends _IScriptDisp {
 	                });		
 		if(fileList==null)
 			return false;
-		if(fileList.size() != 0)
-			return true;
+		if(fileList.size() == 0)
+			return false;
 		return true;
 	}
 
