@@ -24,6 +24,7 @@
 package ome.services.blitz.impl;
 
 // Java imports
+import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -168,11 +169,9 @@ public class ScriptI extends _IScriptDisp {
      */
     public Map<String, RType> getParams(long id, Current __current)
             throws ServerError {
-        ScriptJobI job = buildJob(id);
-
-        InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10);
-        JobParams params = proc.params();
-        Map<String, RType> temporary = new HashMap<String, RType>();
+        OriginalFile file = getOriginalFile(id);
+        JobParams params = getScriptParams(file, __current);
+		Map<String, RType> temporary = new HashMap<String, RType>();
         for (String key : params.inputs.keySet()) {
             Param p = params.inputs.get(key);
             temporary.put(key, p.prototype);
@@ -181,7 +180,8 @@ public class ScriptI extends _IScriptDisp {
     }
 
     /**
-     * Run the script. 
+     * Run the script. This script also tests the parameters against the script params, checking that
+	 * the names of the parameters match and their types match.
      * 
      * @param id of the script to run
      * @param map the map of parameters {String:RType} 
@@ -192,6 +192,20 @@ public class ScriptI extends _IScriptDisp {
      */
     public Map<String, RType> runScript(long id, Map<String, RType> map,
             Current __current) throws ServerError {
+		Map<String, RType> params = getParams(id, __current);
+		Iterator<String> paramIterator = params.keySet().iterator();
+		while(paramIterator.hasNext())	{
+			String paramName = paramIterator.next();
+			RType scriptParamType = params.get(paramName);
+			if(!map.containsKey(paramName))
+				throw new ApiUsageException("Script takes parameter " + paramName + 
+				" which has not supplied input params to runScript.");
+			RType inputParamType = map.get(paramName);
+			if(!scriptParamType.getClass().equals(inputParamType.getClass()))
+				throw new ApiUsageException("Script takes parameter " + paramName + 
+				" of type " + scriptParamType + " runScript was passed parameter " + 
+				paramName + " of type "+ inputParamType+".");
+		}
         ScriptJobI job = buildJob(id);
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10, __current);
         omero.grid.ProcessPrx prx = proc.execute(new omero.RMap(map));
