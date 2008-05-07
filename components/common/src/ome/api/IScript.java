@@ -46,10 +46,11 @@ public interface IScript
 	* 
 	*
 	*/
-	List<String> getScripts() throws ApiUsageException, SecurityViolation;
+	Map getScripts() throws ApiUsageException, SecurityViolation;
+	void deleteScript(long id) throws ApiUsageException, SecurityViolation; 
 	long getScriptID(String scriptName) throws ApiUsageException, SecurityViolation;
 	long uploadScript(String script) throws ApiUsageException, SecurityViolation;
-	String getScript(String name) throws ApiUsageException;
-	Map getParams(String script) throws ApiUsageException;
+	String getScript(long id) throws ApiUsageException;
+	Map getParams(long id) throws ApiUsageException;
 	Map runScript(long id, Map paramMap) throws ApiUsageException, SecurityViolation;
 }

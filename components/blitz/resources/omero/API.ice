@@ -153,6 +153,7 @@ module omero {
 	idempotent string getScript(long id) throws ServerError;
 	idempotent RTypeDict getParams(long id) throws ServerError;
 	RTypeDict runScript(long id, RTypeDict map) throws ServerError;
+	void deleteScript(long id) throws ServerError;
      };
 
     interface IConfig extends ServiceInterface

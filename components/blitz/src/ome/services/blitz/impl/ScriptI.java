@@ -112,6 +112,11 @@ public class ScriptI extends _IScriptDisp {
         final OriginalFile tempFile = makeFile(script);
         writeContent(tempFile, script);
         JobParams params = getScriptParams(tempFile, __current);
+		if(originalFileExists(params.name))
+		{
+			deleteOriginalFile(tempFile);
+			throw new ApiUsageException("A script with name " + params.name + " already exists on server.");
+		}
         tempFile.setName(params.name);
         tempFile.setPath(params.name);
         writeContent(tempFile, script);
@@ -219,7 +224,8 @@ public class ScriptI extends _IScriptDisp {
      * @return see above.
      * @throws ServerError validation, api usage. 
      */
-    public Map<Long, String> getScripts(Current __current) throws ServerError {
+    public Map<Long, String> getScripts(Current __current) throws ServerError 
+	{
         final Map<Long, String> scriptMap = new HashMap<Long, String>();
         final long fmt = getFormat(PYTHONSCRIPT).getId();
         final String queryString = "from OriginalFile as o where o.format.id = "
@@ -238,6 +244,18 @@ public class ScriptI extends _IScriptDisp {
         });
         return scriptMap;
     }
+	/**
+	* Delete the script with id from the server. 
+	* @param id the id of the script to delete.
+	*
+	**/
+	public void deleteScript(long id, Current __current) throws ServerError 
+	{
+		OriginalFile file = getOriginalFile(id);
+		if(file==null)
+			throw new ApiUsageException("No script with id " + id + " on server.");
+		deleteOriginalFile(file);
+	}
 
     /**
      * Get the script params for the file. 
@@ -246,7 +264,8 @@ public class ScriptI extends _IScriptDisp {
      * @return jobparams of the script.
      * @throws ServerError
      */
-    private JobParams getScriptParams(OriginalFile file,  Current __current) throws ServerError {
+    private JobParams getScriptParams(OriginalFile file,  Current __current) throws ServerError 
+	{
     	ScriptJobI job = new ScriptJobI();
     	OriginalFileI oFile = new OriginalFileI(file.getId(), false);
     	job.linkOriginalFile(oFile);
@@ -261,7 +280,8 @@ public class ScriptI extends _IScriptDisp {
      * @return OriginalFile tempfile..
      * @throws ServerError
      */
-    private OriginalFile makeFile(final String script) throws ServerError {
+    private OriginalFile makeFile(final String script) throws ServerError 
+	{
     	String fName = "ScriptName"+UUID.randomUUID();
         OriginalFile tempFile = new OriginalFile();
         tempFile.setName(fName);
@@ -272,6 +292,7 @@ public class ScriptI extends _IScriptDisp {
         return updateFile(tempFile);
     }
     
+
     /**
      * Update the file with new data.
      * @param file new file data to be updated.
@@ -341,6 +362,56 @@ public class ScriptI extends _IScriptDisp {
         job.linkOriginalFile(file);
         return job;
     }
+
+	/** 
+	* Method to delete the original file 
+	* @param file the original file.
+	* 
+	*/
+	private void deleteOriginalFile(final OriginalFile file)
+	{
+		factory.executor.execute(factory.principal,
+            new Executor.Work() 
+        {
+
+                public Object doWork(TransactionStatus status,
+                        Session session, ServiceFactory sf) 
+                {
+                    IUpdate update = sf.getUpdateService();
+                    update.deleteObject(file);
+					return true;
+                }
+        	
+        });
+	}
+
+	/** 
+	* Method to check that an originalFile exists in the server. 
+	* @param fileName name of the script file.
+	* @return see above.
+	*/
+	private boolean originalFileExists(String fileName)
+	{
+		 final String queryString = "from OriginalFile as o where o.format.id = "
+	                + getFormat(PYTHONSCRIPT).getId()
+	                + " and o.name = '"
+	                + fileName
+	                + "'";
+	        List<OriginalFile> fileList = (List<OriginalFile>) factory.executor
+	                .execute(factory.principal, new Executor.Work() {
+
+	                    public Object doWork(TransactionStatus status,
+	                            Session session, ServiceFactory sf) {
+	                        return sf.getQueryService().findAllByQuery(queryString,
+	                                null);
+	                    }
+	                });		
+		if(fileList==null)
+			return false;
+		if(fileList.size() != 0)
+			return true;
+		return true;
+	}
 
     /**
      * Method to get the original file of the script with name
