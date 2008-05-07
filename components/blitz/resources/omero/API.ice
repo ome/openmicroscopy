@@ -72,6 +72,10 @@ module omero {
 
     ["java:type:java.util.ArrayList<String>:java.util.List<String>"]
       sequence<string> StringSet;
+	
+	dictionary<long, string> ScriptIDNameMap;
+
+
 
     /*
      * Service marker similar to ome.api.ServiceInterface
@@ -143,11 +147,11 @@ module omero {
 
     interface IScript extends ServiceInterface
       {
-	idempotent StringSet getScripts() throws ServerError;
-	idempotent long getScriptID(string scriptName) throws  ServerError;
+	idempotent ScriptIDNameMap getScripts() throws ServerError;
+	idempotent long getScriptID(string name) throws  ServerError;
 	long uploadScript(string script) throws ServerError;
-	idempotent string getScript(string name) throws ServerError;
-	idempotent RTypeDict getParams(string script) throws ServerError;
+	idempotent string getScript(long id) throws ServerError;
+	idempotent RTypeDict getParams(long id) throws ServerError;
 	RTypeDict runScript(long id, RTypeDict map) throws ServerError;
      };
 
@@ -185,7 +189,7 @@ module omero {
       {
 	idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
 	idempotent omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
-	idempotent omero::model::RenderingDef loadRenderingSettings(long renderingSettingsId) throws ServerError;
+	idempotent omero::model::RenderingDef loadRndSettings(long renderingSettingsId) throws ServerError;
 	void saveRndSettings(omero::model::RenderingDef rndSettings) throws ServerError;
 	idempotent int getBitDepth(omero::model::PixelsType type) throws ServerError;
 	idempotent omero::RObject getEnumeration(string enumClass, string value) throws ServerError;
@@ -287,7 +291,7 @@ module omero {
     dictionary<bool, omero::sys::LongList> BooleanIdListMap;
     interface IRenderingSettings extends ServiceInterface
       {
-        bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo);
+        bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
         omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
         omero::model::RenderingDef createNewRenderingDef(omero::model::Pixels pixels) throws ServerError;
         void resetDefaults(omero::model::RenderingDef def, omero::model::Pixels pixels) throws ServerError;
@@ -301,7 +305,7 @@ module omero {
         BooleanIdListMap applySettingsToDataset(long from, long to) throws ServerError;
         BooleanIdListMap applySettingsToCategory(long from, long to) throws ServerError;
         bool applySettingsToImage(long from, long to) throws ServerError;
-        bool applySettingsToPixel(long from, long to) throws ServerError;
+        bool applySettingsToPixels(long from, long to) throws ServerError;
       };
 
     interface IRepositoryInfo extends ServiceInterface

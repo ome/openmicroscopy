@@ -37,6 +37,8 @@ import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
+import omero.RLong;
+import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.api._IScriptDisp;
@@ -107,7 +109,6 @@ public class ScriptI extends _IScriptDisp {
             throw new ApiUsageException("Invalid script");
         }
         final OriginalFile tempFile = makeFile(script);
-        System.err.println("tempFile : " + tempFile.getName());
         writeContent(tempFile, script);
         JobParams params = getScriptParams(tempFile, __current);
         tempFile.setName(params.name);
@@ -125,9 +126,9 @@ public class ScriptI extends _IScriptDisp {
      * @return see above.
      * @throws ServerError validation, api usage. 
      */
-    public String getScript(String name, Current __current) throws ServerError {
+    public String getScript(long id, Current __current) throws ServerError {
 
-        final OriginalFile file = getOriginalFile(name);
+        final OriginalFile file = getOriginalFile(id);
         if (file == null) {
             return null;
         }
@@ -160,15 +161,14 @@ public class ScriptI extends _IScriptDisp {
     /**
      * Get the Parameters of the script.
      * 
-     * @param script see above.
+     * @param id see above.
      * @param __current Ice context
      * @return see above.
      * @throws ServerError validation, api usage. 
      */
-    public Map<String, RType> getParams(String script, Current __current)
+    public Map<String, RType> getParams(long id, Current __current)
             throws ServerError {
-
-        ScriptJobI job = buildJob(script);
+        ScriptJobI job = buildJob(id);
 
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10);
         JobParams params = proc.params();
@@ -192,23 +192,21 @@ public class ScriptI extends _IScriptDisp {
      */
     public Map<String, RType> runScript(long id, Map<String, RType> map,
             Current __current) throws ServerError {
-
         ScriptJobI job = buildJob(id);
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10, __current);
         omero.grid.ProcessPrx prx = proc.execute(new omero.RMap(map));
         prx._wait();
         return proc.getResults(prx).val;
-
     }
 
     /**
-     * Get Scripts will return all the scripts by name available on the server.
+     * Get Scripts will return all the scripts by id and name available on the server.
      * @param __current ice context,
      * @return see above.
      * @throws ServerError validation, api usage. 
      */
-    public List<String> getScripts(Current __current) throws ServerError {
-        final ArrayList<String> scriptList = new ArrayList<String>();
+    public Map<Long, String> getScripts(Current __current) throws ServerError {
+        final Map<Long, String> scriptMap = new HashMap<Long, String>();
         final long fmt = getFormat(PYTHONSCRIPT).getId();
         final String queryString = "from OriginalFile as o where o.format.id = "
                 + fmt;
@@ -219,12 +217,12 @@ public class ScriptI extends _IScriptDisp {
                 List<OriginalFile> fileList = sf.getQueryService()
                         .findAllByQuery(queryString, null);
                 for (OriginalFile file : fileList) {
-                    scriptList.add(file.getName());
+                	scriptMap.put(new Long(file.getId()), file.getName());
                 }
                 return null;
             }
         });
-        return scriptList;
+        return scriptMap;
     }
 
     /**
@@ -361,6 +359,31 @@ public class ScriptI extends _IScriptDisp {
         }
     }
 
+    /**
+     * Method to get the original file of the script with id
+     * 
+     * @param name
+     *            See above.
+     * @return original file or null if script does not exist or more than one
+     *         script with name exists.
+     */
+    @SuppressWarnings("unchecked")
+    private OriginalFile getOriginalFile(long id) {
+        final String queryString = "from OriginalFile as o where o.format.id = "
+                + getFormat(PYTHONSCRIPT).getId()
+                + " and o.id = " + id;
+ 			OriginalFile file = (OriginalFile) factory.executor
+                .execute(factory.principal, new Executor.Work() {
+
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+                        return sf.getQueryService().findByQuery(queryString,
+                                null);
+                    }
+                });
+        		return file;
+    }
+    
     /**
      * Get the iFormat object.
      * @param fmt the format to retrieve.
