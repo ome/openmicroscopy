@@ -19,6 +19,8 @@ import java.util.UUID;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Permissions;
@@ -231,6 +233,52 @@ public class FullTextTest extends AbstractTest {
 
         list = iQuery.findAllByFullText(Image.class, i.getName(), null);
         assertTrue(list.size() == 2);
+
+    }
+
+    /*
+     * This test shows first that ProjectsWithImageNameBridge works, but also
+     * that when an object is reparsed, that its Document in the index is
+     * completely replaced.
+     */
+    public void testProjectsWithImagesCustomBridge() throws Exception {
+
+        final String before = UUID.randomUUID().toString();
+        final String after = UUID.randomUUID().toString();
+        final String query = "image_name:" + before;
+
+        ome.model.containers.Project p = new ome.model.containers.Project();
+        Dataset d = new Dataset("middle");
+        Image i = new Image(before);
+
+        // Save the project and the image should be found
+        p.setName("bridged");
+        p.linkDataset(d);
+        d.linkImage(i);
+        p = iUpdate.saveAndReturnObject(p);
+        iUpdate.indexObject(p);
+
+        List<Project> list;
+
+        list = iQuery.findAllByFullText(Project.class, query, null);
+        assertTrue("should find it now", list.size() == 1);
+        list = iQuery.findAllByFullText(Project.class, before, null);
+        assertTrue("should find it now in combined", list.size() == 1);
+
+        // Change the name and the project should be changed too
+        i = p.linkedDatasetList().get(0).linkedImageList().get(0);
+        i.setName(after);
+        iUpdate.saveAndReturnObject(i);
+
+        // Re-indexing project
+        iUpdate.indexObject(p);
+
+        list = iQuery.findAllByFullText(Project.class, query, null);
+        assertTrue("should NOT find it now", list.size() == 0);
+        list = iQuery.findAllByFullText(Project.class, before, null);
+        assertTrue("should NOT find it now in combined", list.size() == 0);
+        list = iQuery.findAllByFullText(Project.class, after, null);
+        assertTrue("BUT should find it with new name", list.size() == 1);
 
     }
 

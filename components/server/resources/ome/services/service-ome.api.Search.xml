@@ -47,6 +47,7 @@
   <bean id="fullTextBridge" class="ome.services.fulltext.FullTextBridge">
     <constructor-arg ref="fileParsers"/>
     <constructor-arg ref="/OMERO/Files"/>
+    <constructor-arg value="${omero.search.bridges}"/>
   </bean>
   
   <!-- Use "*" as a wildcard parser -->

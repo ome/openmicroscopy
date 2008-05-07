@@ -28,8 +28,6 @@ import ome.model.meta.ExperimenterGroup;
 import ome.util.DetailsFieldBridge;
 import ome.util.Utils;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -38,216 +36,275 @@ import org.hibernate.search.bridge.builtin.DateBridge;
 
 /**
  * Primary definition of what will be indexed via Hibernate Search. This class
- * is delegated to by the {@link DetailsFieldBridge}.
+ * is delegated to by the {@link DetailsFieldBridge}, and further delegates to
+ * classes as defined under "SearchBridges".
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  * @DEV.TODO insert/update OR delete regular type OR annotated type OR
  *           originalfile
+ * @see <a href="http://trac.openmicroscopy.org.uk/omero/FileParsers">Parsers</a
+ *      href>
+ * @see <a href="http://trac.openmicroscopy.org.uk/omero/SearchBridges">Bridges</a
+ *      href>
  */
-public class FullTextBridge implements FieldBridge {
-
-    private final static Log log = LogFactory.getLog(FullTextBridge.class);
-
-    // TODO add combined_fields to constants
-    public final static String COMBINED = "combined_fields";
+public class FullTextBridge extends BridgeHelper {
 
     final protected OriginalFilesService files;
     final protected Map<String, FileParser> parsers;
+    final protected Class<FieldBridge>[] classes;
 
     /**
      * Since this constructor provides the instance with no way of parsing
      * {@link OriginalFile} binaries, all files will be assumed to have blank
-     * content.
+     * content. Further, no custom bridges are provided and so only the default
+     * indexing will take place.
      */
     public FullTextBridge() {
-        files = null;
-        parsers = null;
+        this(null, null);
     }
 
+    /**
+     * Constructor which provides an empty set of custom
+     * {@link FieldBridge bridges}.
+     */
+    @SuppressWarnings("unchecked")
     public FullTextBridge(OriginalFilesService files,
             Map<String, FileParser> parsers) {
+        this(files, parsers, new Class[] {});
+    }
+
+    /**
+     * Main constructor.
+     * 
+     * @param files
+     *            {@link OriginalFileServce} for getting access to binary files.
+     * @param parsers
+     *            List of {@link FileParser} instances which are currently
+     *            configured.
+     * @param bridgeClasses
+     *            set of {@link FieldBridge bridge classes} which will be
+     *            instantiated via a no-arg constructor.
+     * @see <a
+     *      href="http://trac.openmicroscopy.org.uk/omero/SearchBridges">Bridges</a
+     *      href>
+     */
+    @SuppressWarnings("unchecked")
+    public FullTextBridge(OriginalFilesService files,
+            Map<String, FileParser> parsers, Class<FieldBridge>[] bridgeClasses) {
         this.files = files;
         this.parsers = parsers;
+        this.classes = bridgeClasses == null ? new Class[] {} : bridgeClasses;
     }
 
+    /**
+     * Default implementation of the
+     * {@link #set(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}
+     * method which calls
+     * {@link #set_file(String, IObject, Document, Store, org.apache.lucene.document.Field.Index, Float)}
+     * {@link #set_annotations(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)},
+     * {@link #set_details(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)},
+     * and finally
+     * {@link #set_custom(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}.
+     * as well as all {@link Annotation annotations}.
+     */
+    @Override
     public void set(final String name, final Object value,
-            final Document document, final Field.Store store2,
+            final Document document, final Field.Store store,
             final Field.Index index, final Float boost) {
 
-        try {
-            // TODO Temporarily storing all values for easier testing;
-            final Field.Store store = Field.Store.YES;
-            IObject object = (IObject) value;
+        IObject object = (IObject) value;
 
-            // Store class in COMBINED
-            String cls = Utils.trueClass(object.getClass()).getName();
-            add(document, null, cls, store, index, boost);
+        // Store class in COMBINED
+        String cls = Utils.trueClass(object.getClass()).getName();
+        add(document, null, cls, store, index, boost);
 
-            if (object instanceof OriginalFile) {
-                OriginalFile file = (OriginalFile) object;
-                for (Reader parsed : parse(file)) {
-                    add(document, "file", parsed, boost);
-                }
+        set_file(name, object, document, store, index, boost);
+        set_annotations(name, object, document, store, index, boost);
+        set_details(name, object, document, store, index, boost);
+        set_custom(name, object, document, store, index, boost);
+
+    }
+
+    /**
+     * Uses {@link #parse(OriginalFile)} to get a {@link Reader} for the given
+     * file which is then passed to
+     * {@link #add(Document, String, Reader, Float)} using the field name
+     * "file".
+     * 
+     * @param name
+     * @param object
+     * @param document
+     * @param store
+     * @param index
+     * @param boost
+     */
+    public void set_file(final String name, final IObject object,
+            final Document document, final Field.Store store,
+            final Field.Index index, final Float boost) {
+
+        if (object instanceof OriginalFile) {
+            OriginalFile file = (OriginalFile) object;
+            for (Reader parsed : parse(file)) {
+                add(document, "file", parsed, boost);
             }
+        }
 
-            if (object instanceof IAnnotated) {
-                IAnnotated annotated = (IAnnotated) object;
-                List<Annotation> list = annotated.linkedAnnotationList();
-                for (Annotation annotation : list) {
-                    try {
-                        if (annotation instanceof TextAnnotation) {
-                            TextAnnotation text = (TextAnnotation) annotation;
-                            String textValue = text.getTextValue();
-                            textValue = textValue == null ? "" : textValue;
-                            add(document, "annotation", textValue, store,
-                                    index, boost);
-                            if (annotation instanceof TagAnnotation) {
-                                add(document, "tag", textValue, store, index,
-                                        boost);
-                                List<Annotation> list2 = annotation
-                                        .linkedAnnotationList();
-                                for (Annotation annotation2 : list2) {
-                                    if (annotation2 instanceof TextAnnotation) {
-                                        TextAnnotation text2 = (TextAnnotation) annotation2;
-                                        String textValue2 = text2
-                                                .getTextValue();
-                                        textValue2 = textValue2 == null ? ""
-                                                : textValue2;
-                                        add(document, "annotation", textValue2,
-                                                store, index, boost);
-                                    }
-                                }
-                            }
-                        } else if (annotation instanceof FileAnnotation) {
-                            FileAnnotation fileAnnotation = (FileAnnotation) annotation;
-                            OriginalFile file = fileAnnotation.getFile();
-                            for (Reader parsed : parse(file)) {
-                                add(document, "annotation", parsed, boost);
+    }
+
+    /**
+     * Walks the various {@link Annotation} instances attached to the object
+     * argument and adds various levels to the index.
+     * 
+     * @param name
+     * @param object
+     * @param document
+     * @param store
+     * @param index
+     * @param boost
+     */
+    public void set_annotations(final String name, final IObject object,
+            final Document document, final Field.Store store,
+            final Field.Index index, final Float boost) {
+
+        if (object instanceof IAnnotated) {
+            IAnnotated annotated = (IAnnotated) object;
+            List<Annotation> list = annotated.linkedAnnotationList();
+            for (Annotation annotation : list) {
+                if (annotation instanceof TextAnnotation) {
+                    TextAnnotation text = (TextAnnotation) annotation;
+                    String textValue = text.getTextValue();
+                    textValue = textValue == null ? "" : textValue;
+                    add(document, "annotation", textValue, store, index, boost);
+                    if (annotation instanceof TagAnnotation) {
+                        add(document, "tag", textValue, store, index, boost);
+                        List<Annotation> list2 = annotation
+                                .linkedAnnotationList();
+                        for (Annotation annotation2 : list2) {
+                            if (annotation2 instanceof TextAnnotation) {
+                                TextAnnotation text2 = (TextAnnotation) annotation2;
+                                String textValue2 = text2.getTextValue();
+                                textValue2 = textValue2 == null ? ""
+                                        : textValue2;
+                                add(document, "annotation", textValue2, store,
+                                        index, boost);
                             }
                         }
-                    } catch (NullValueException nve) {
-                        throw nve.convert(object);
                     }
-
+                } else if (annotation instanceof FileAnnotation) {
+                    FileAnnotation fileAnnotation = (FileAnnotation) annotation;
+                    OriginalFile file = fileAnnotation.getFile();
+                    for (Reader parsed : parse(file)) {
+                        add(document, "annotation", parsed, boost);
+                    }
                 }
             }
-
-            Details details = object.getDetails();
-            if (details != null) {
-                Experimenter e = details.getOwner();
-                if (e != null && e.isLoaded()) {
-                    String omename = e.getOmeName();
-                    String firstName = e.getFirstName();
-                    String lastName = e.getLastName();
-                    add(document, "details.owner.omeName", omename, Store.YES,
-                            index, boost);
-                    add(document, "details.owner.firstName", firstName, store,
-                            index, boost);
-                    add(document, "details.owner.lastName", lastName, store,
-                            index, boost);
-                }
-
-                ExperimenterGroup g = details.getGroup();
-                if (g != null && g.isLoaded()) {
-                    String groupName = g.getName();
-                    add(document, "details.group.name", groupName, Store.YES,
-                            index, boost);
-
-                }
-
-                Event creationEvent = details.getCreationEvent();
-                if (creationEvent != null) {
-                    add(document, "details.creationEvent.id", creationEvent
-                            .getId().toString(), Store.YES,
-                            Field.Index.UN_TOKENIZED, boost);
-                    if (creationEvent.isLoaded()) {
-                        String creation = DateBridge.DATE_SECOND
-                                .objectToString(creationEvent.getTime());
-                        add(document, "details.creationEvent.time", creation,
-                                Store.YES, Field.Index.UN_TOKENIZED, boost);
-                    }
-                }
-
-                Event updateEvent = details.getUpdateEvent();
-                if (updateEvent != null) {
-                    add(document, "details.updateEvent.id", updateEvent.getId()
-                            .toString(), Store.YES, Field.Index.UN_TOKENIZED,
-                            boost);
-                    if (updateEvent.isLoaded()) {
-                        String update = DateBridge.DATE_SECOND
-                                .objectToString(updateEvent.getTime());
-                        add(document, "details.updateEvent.time", update,
-                                Store.YES, Field.Index.UN_TOKENIZED, boost);
-                    }
-                }
-
-                Permissions perms = details.getPermissions();
-                if (perms != null) {
-                    add(document, "details.permissions", perms.toString(),
-                            Store.YES, index, boost);
-                }
-            }
-        } catch (NullValueException nve) {
-            throw nve.convert(value);
         }
     }
 
-    protected void add(Document d, String field, String value,
-            Field.Store store, Field.Index index, Float boost)
-            throws NullValueException {
+    /**
+     * Parses all ownership and time-based details to the index for the given
+     * object.
+     * 
+     * @param name
+     * @param object
+     * @param document
+     * @param store
+     * @param index
+     * @param boost
+     */
+    public void set_details(final String name, final IObject object,
+            final Document document, final Field.Store store,
+            final Field.Index index, final Float boost) {
 
-        Field f;
-
-        if (value == null) {
-            throw new NullValueException(field);
-        }
-
-        // If the field == null, then we ignore it, to allow easy addition
-        // of Fields as COMBINED
-        if (field != null) {
-            f = new Field(field, value, store, index);
-            if (boost != null) {
-                f.setBoost(boost);
+        Details details = object.getDetails();
+        if (details != null) {
+            Experimenter e = details.getOwner();
+            if (e != null && e.isLoaded()) {
+                String omename = e.getOmeName();
+                String firstName = e.getFirstName();
+                String lastName = e.getLastName();
+                add(document, "details.owner.omeName", omename, Store.YES,
+                        index, boost);
+                add(document, "details.owner.firstName", firstName, store,
+                        index, boost);
+                add(document, "details.owner.lastName", lastName, store, index,
+                        boost);
             }
-            d.add(f);
+
+            ExperimenterGroup g = details.getGroup();
+            if (g != null && g.isLoaded()) {
+                String groupName = g.getName();
+                add(document, "details.group.name", groupName, Store.YES,
+                        index, boost);
+
+            }
+
+            Event creationEvent = details.getCreationEvent();
+            if (creationEvent != null) {
+                add(document, "details.creationEvent.id", creationEvent.getId()
+                        .toString(), Store.YES, Field.Index.UN_TOKENIZED, boost);
+                if (creationEvent.isLoaded()) {
+                    String creation = DateBridge.DATE_SECOND
+                            .objectToString(creationEvent.getTime());
+                    add(document, "details.creationEvent.time", creation,
+                            Store.YES, Field.Index.UN_TOKENIZED, boost);
+                }
+            }
+
+            Event updateEvent = details.getUpdateEvent();
+            if (updateEvent != null) {
+                add(document, "details.updateEvent.id", updateEvent.getId()
+                        .toString(), Store.YES, Field.Index.UN_TOKENIZED, boost);
+                if (updateEvent.isLoaded()) {
+                    String update = DateBridge.DATE_SECOND
+                            .objectToString(updateEvent.getTime());
+                    add(document, "details.updateEvent.time", update,
+                            Store.YES, Field.Index.UN_TOKENIZED, boost);
+                }
+            }
+
+            Permissions perms = details.getPermissions();
+            if (perms != null) {
+                add(document, "details.permissions", perms.toString(),
+                        Store.YES, index, boost);
+            }
         }
 
-        // Never storing in combined fields, since it's duplicated
-        f = new Field(COMBINED, value, Store.NO, index);
-        if (boost != null) {
-            f.setBoost(boost);
-        }
-        d.add(f);
     }
 
-    protected void add(Document d, String field, Reader reader, Float boost)
-            throws NullValueException {
+    /**
+     * Loops over each {@link #classes field bridge class} and calls its
+     * {@link FieldBridge#set(String, Object, Document, Store, org.apache.lucene.document.Field.Index, Float)}
+     * method. Any exceptions are logged but do not cancel execution.
+     * 
+     * @param name
+     * @param object
+     * @param document
+     * @param store
+     * @param index
+     * @param boost
+     */
+    public void set_custom(final String name, final IObject object,
+            final Document document, final Field.Store store,
+            final Field.Index index, final Float boost) {
 
-        Field f;
-
-        if (reader == null) {
-            throw new NullValueException(field);
-        }
-
-        // If the field == null, then we ignore it, to allow easy addition
-        // of Fields as COMBINED
-        if (field != null) {
-            f = new Field(field, reader);
-            if (boost != null) {
-                f.setBoost(boost);
+        for (Class<FieldBridge> bridgeClass : classes) {
+            if (bridgeClass != null) {
+                FieldBridge bridge = null;
+                try {
+                    bridge = bridgeClass.newInstance();
+                    bridge.set(name, object, document, store, index, boost);
+                } catch (Exception e) {
+                    final String msg = String
+                            .format(
+                                    "Error calling set on custom bridge type:%s; instance:%s",
+                                    bridgeClass, bridge);
+                    logger().error(msg, e);
+                }
             }
-            d.add(f);
         }
 
-        // However, we're not copying Reader information to the combined field
-        // here, because can only read from a reader once.
-
-        // Never storing in combined fields, since it's duplicated
-        /*
-         * f = new Field(COMBINED, reader); if (boost != null) {
-         * f.setBoost(boost); } d.add(f);
-         */
     }
 
     /**
@@ -278,21 +335,4 @@ public class FullTextBridge implements FieldBridge {
         return FileParser.EMPTY;
     }
 
-    private static class NullValueException extends Exception {
-
-        String field;
-
-        public NullValueException(String field) {
-            this.field = field;
-        }
-
-        /**
-         * Takes the cause of the exception and converts itself to a
-         * {@link RuntimeException}
-         */
-        public RuntimeException convert(Object o) {
-            throw new RuntimeException(String.format(
-                    "Object %s had a null value in the field %s", o, field));
-        }
-    }
 }
