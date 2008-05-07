@@ -124,7 +124,7 @@ public class FileSystem extends File {
 		long result = 0L;
 
 		try {
-			result = FileSystemUtils.freeSpace(mountRoot);
+			result = FileSystemUtils.freeSpaceKb(mountRoot);
 		} catch (IOException ioex) {
 			throw new RuntimeException(ioex.getMessage());
 		} catch (IllegalArgumentException illex) {
