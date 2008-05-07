@@ -94,6 +94,7 @@ class DatasetsModel
 	 */
 	protected DataBrowserLoader createDataLoader(boolean refresh)
 	{
+		/*
 		if (refresh) {
 			Iterator<DatasetData> i = datasets.iterator();
 			Set<ImageData> images = new HashSet<ImageData>();
@@ -104,6 +105,7 @@ class DatasetsModel
 			}
 			return new ThumbnailLoader(component, images);
 		}
+		*/
 		if (imagesLoaded == numberOfImages) return null;
 		//only load thumbnails not loaded.
 		List<ImageNode> nodes = browser.getVisibleImageNodes();

@@ -38,10 +38,13 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -597,6 +600,20 @@ class BrowserModel
 		setNodesColor(getSelectedDisplays(), nodes);
 		selectedDisplays.remove(node);
 		firePropertyChange(UNSELECTED_DISPLAY_PROPERTY, null, node);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#viewDisplay(ImageDisplay)
+	 */
+	public void viewDisplay(ImageDisplay node)
+	{
+		if (node == null) return;
+		if (node instanceof ImageNode) {
+			EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
+	    	bus.post(new ViewImage((ImageData) node.getHierarchyObject(), 
+	    				null));
+		}
 	}
 	
 }

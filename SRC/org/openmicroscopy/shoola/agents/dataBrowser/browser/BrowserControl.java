@@ -103,7 +103,7 @@ public class BrowserControl
      * @param node The node to handle.
      * @return See above.
      */
-    private boolean isSelectionValid(ImageDisplay node)
+    boolean isSelectionValid(ImageDisplay node)
     {
     	if (!(node instanceof ImageNode)) return true;
     	ImageData img = (ImageData) node.getHierarchyObject();
@@ -274,10 +274,8 @@ public class BrowserControl
             Object src = me.getSource();
             ImageDisplay d = findParentDisplay(src);
             if (d instanceof ImageNode && !(d.getTitleBar() == src) 
-                && me.getClickCount() == 2 && isSelectionValid((ImageNode) d)) {
-            	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-            	bus.post(new ViewImage(
-            				(ImageData) d.getHierarchyObject(), null));
+                && me.getClickCount() == 2 && isSelectionValid(d)) {
+            	model.viewDisplay(d);
             }   
         }
         popupTrigger = false; 

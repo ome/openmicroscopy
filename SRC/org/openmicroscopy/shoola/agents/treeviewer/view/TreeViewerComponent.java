@@ -46,6 +46,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowserFactory;
 import org.openmicroscopy.shoola.agents.events.SaveData;
+import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -59,6 +60,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.tagging.view.TaggerFactory;
@@ -837,7 +839,7 @@ class TreeViewerComponent
 		//Check if current user can write in object
 		long id = model.getUserDetails().getId();
 		long groupId = model.getUserGroupID();
-		return TreeViewerTranslator.isWritable(ho, id, groupId);
+		return EditorUtil.isWritable(ho, id, groupId);
 	}
 
 	/**
@@ -1206,7 +1208,7 @@ class TreeViewerComponent
 		//Check if current user can write in object
 		long id = model.getUserDetails().getId();
 		long groupId = model.getUserGroupID();
-		return TreeViewerTranslator.isReadable(ho, id, groupId);
+		return EditorUtil.isReadable(ho, id, groupId);
 	}
 
 	/**
@@ -1553,6 +1555,23 @@ class TreeViewerComponent
 			mv.setRootObject(null);
 			mv.setSiblings(null);
 		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#copyRndSettings()
+	 */
+	public void copyRndSettings()
+	{
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		TreeImageDisplay node = browser.getLastSelectedDisplay();
+		Object o = node.getUserObject();
+		if (!(o instanceof ImageData)) return;
+		ImageData img = (ImageData) o;
+		long pixelsID = img.getDefaultPixels().getId();
+		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+		bus.post(new CopyRndSettings(pixelsID));
 	}
 	
 }

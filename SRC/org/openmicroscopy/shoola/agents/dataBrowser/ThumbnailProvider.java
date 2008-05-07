@@ -66,6 +66,12 @@ public class ThumbnailProvider
     /** The maximum height of the thumbnail. */
     static final int            THUMB_MAX_HEIGHT = Factory.THUMB_DEFAULT_HEIGHT;
     
+    /** 
+     * The magnification factor used when the thumbnail of max size 
+     * is magnified. 
+     */
+    private final double		ZOOM_FACTOR = 1.5;
+    
     /** The thickness of the border added to the icon. */
     private static final int    BORDER = 1;
     
@@ -209,9 +215,10 @@ public class ThumbnailProvider
      */
     public void setFullScaleThumb(BufferedImage t)
     {
-        if (t == null) throw new NullPointerException("No thumbnail.");
+        //if (t == null) throw new NullPointerException("No thumbnail.");
         fullScaleThumb = t;
-        scale(scalingFactor);
+        fullSizeImage = null;
+        if (fullScaleThumb != null) scale(scalingFactor);
     }
     
     /**
@@ -270,7 +277,7 @@ public class ThumbnailProvider
      */
     public BufferedImage getZoomedFullScaleThumb()
     {
-    	return magnifyImage(1.5, fullScaleThumb);
+    	return magnifyImage(ZOOM_FACTOR, fullScaleThumb);
     }
     
     /**

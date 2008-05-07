@@ -370,4 +370,11 @@ public interface Browser
 	 */
 	public void removeSelectedDisplay(ImageDisplay node);
 	
+	/**
+	 * Views the passed node.
+	 * 
+	 * @param node The node to view.
+	 */
+	public void viewDisplay(ImageDisplay node);
+	
 }

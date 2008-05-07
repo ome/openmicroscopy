@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import pojos.DataObject;
@@ -173,10 +174,15 @@ abstract class DataBrowserModel
     /**
      * Loads the data.
      * 
-     * @param refresh
+     * @param refresh 	Pass <code>false</code> if we retrieve the data for
+     * 					the first time, <code>true</code> otherwise.
      */
     void loadData(boolean refresh)
     {
+    	if (refresh) {
+    		browser.accept(new ResetThumbnailVisitor(), 
+    				ImageDisplayVisitor.IMAGE_NODE_ONLY);
+    	}
     	loader = createDataLoader(refresh);
     	if (loader == null) return;
     	state = DataBrowser.LOADING;
@@ -407,8 +413,8 @@ abstract class DataBrowserModel
      * Creates a data loader that can retrieve the hierarchy objects needed
      * by this model.
      * 
-     * @param refresh	Pass <code>false</code> if we load data for the first 
-     * 					time, <code>true</code> otherwise.
+     * @param refresh 	Pass <code>false</code> if we retrieve the data for
+     * 					the first time, <code>true</code> otherwise.
      * @return A suitable data loader.
      */
     protected abstract DataBrowserLoader createDataLoader(boolean refresh);

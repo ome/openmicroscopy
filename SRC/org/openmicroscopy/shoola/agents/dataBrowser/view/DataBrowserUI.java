@@ -27,11 +27,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Cursor;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -96,6 +96,9 @@ class DataBrowserUI
 	/** The selected view. */
 	private int						selectedView;
 	
+	 /** The popup menu. */
+	private PopupMenu				popupMenu;
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
@@ -126,6 +129,7 @@ class DataBrowserUI
 		this.controller = controller;
 		toolBar = new DataBrowserToolBar(this, controller);
 		statusBar = new DataBrowserStatusBar(this);
+		popupMenu = new PopupMenu(controller);
 		selectedView = THUMB_VIEW;
 		setNumberOfImages(-1);
 		buildGUI();
@@ -381,4 +385,17 @@ class DataBrowserUI
 						ImageDisplayVisitor.IMAGE_SET_ONLY);
 	}
 	
+    /**
+     * Brings up the popup menu on top of the specified component at the
+     * specified point.
+     * 
+     * @param p The point at which to display the menu, relative to the 
+     *          <code>component</code>'s coordinates.         
+     */
+    void showPopup(Point p)
+    { 
+    	ImageDisplay c = model.getBrowser().getLastSelectedDisplay();
+    	if (c != null) popupMenu.show(c, p.x, p.y); 
+    }
+    
 }

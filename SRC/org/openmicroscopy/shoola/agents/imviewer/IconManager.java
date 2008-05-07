@@ -253,7 +253,7 @@ public class IconManager
         relPaths[CONTRAST_STRETCHING_BIG] = 
                                 "openOffice_stock_new-drawing-48.png";
         relPaths[PLANE_SLICING_BIG] = "openOffice_stock_new-labels-48.png";
-        relPaths[SAVE_SETTINGS] = "nuvola_filesaveas16.png";
+        relPaths[SAVE_SETTINGS] = "filesaveRnd16.png";
         relPaths[RESET_SETTINGS] = "nuvola_undo16.png";
         relPaths[HISTOGRAM] = "histogram16.png";
         relPaths[PLAY] = "nuvola_player_play16.png";

@@ -33,6 +33,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.RateFilter;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -76,6 +77,30 @@ public interface DataBrowser
 	 */
 	public static final String 		UNSELECTED_NODE_DISPLAY_PROPERTY = 
 												"unselectedNodeDisplay";
+	
+	/** Bound property indicating to copy the rendering settings. */
+	public static final String		COPY_RND_SETTINGS_PROPERTY = 
+										"copyRndSettings";
+	
+	/** Bound property indicating to paste the rendering settings. */
+	public static final String		PASTE_RND_SETTINGS_PROPERTY = 
+										"pasteRndSettings";
+	
+	/** Bound property indicating to reset the rendering settings. */
+	public static final String		RESET_RND_SETTINGS_PROPERTY = 
+										"resetRndSettings";
+	
+	/** Bound property indicating to copy the items. */
+	public static final String		COPY_ITEMS_PROPERTY = "copyItems";
+	
+	/** Bound property indicating to paste the items. */
+	public static final String		PASTE_ITEMS_PROPERTY = "pasteItems";
+	
+	/** Bound property indicating to cut the items. */
+	public static final String		CUT_ITEMS_PROPERTY = "cutItems";
+	
+	/** Bound property indicating to remove the items. */
+	public static final String		REMOVE_ITEMS_PROPERTY = "removeItems";
 	
 	/** Loads the thumbnails when we have <code>100</code> or less values. */
 	public static final int			MAX_ENTRIES = 100;
@@ -305,4 +330,60 @@ public interface DataBrowser
 	 * @param node The unselected node.
 	 */
 	public void setUnselectedDisplay(ImageDisplay node);
+
+	/**
+	 * Returns the {@link Browser} I/F.
+	 * 
+	 * @return See above.
+	 */
+	public Browser getBrowser();
+
+	/** 
+	 * Pastes the stored rendering settings if any across the selected images. 
+	 */
+	public void pasteRndSettings();
+
+	/** 
+	 * Resets the stored rendering settings if any across the selected images. 
+	 */
+	public void resetRndSettings();
+	
+	/** 
+	 * Copies the rendering settings if any across the selected images. 
+	 */
+	public void copyRndSettings();
+	
+	/** Copies the selected items. */
+	public void copy();
+	
+	/** Pastes the selected items. */
+	public void paste();
+	
+	/** Cuts the selected items. */
+	public void cut();
+	
+	/** Removes the selected items. */
+	public void remove();
+	
+	/**
+	 * Returns <code>true</code> if the specified object is writable,
+	 * <code>false</code> otherwise, depending on the permission.
+	 * 
+	 * @param ho    The data object to check.
+	 * @return See above.
+	 */
+	public boolean isObjectWritable(Object ho);
+
+	/**
+	 * Returns <code>true</code> if the specified object is readable,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param hierarchyObject    The data object to check.
+	 * @return See above.
+	 */
+	public boolean isReadable(DataObject hierarchyObject);
+
+	/** Refreshes the display. */
+	public void refresh();
+
 }

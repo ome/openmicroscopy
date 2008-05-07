@@ -100,7 +100,7 @@ class DataBrowserToolBar
 	
 	/** ID to bring up the metadata browser. */
 	private static final int	ITEMS_PER_ROW = 15;
-	
+
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
 	
@@ -134,6 +134,9 @@ class DataBrowserToolBar
 	/** Button to add the metadata. */
 	private JButton				managementButton;
 
+	/** Button to refresh the display. */
+	private JButton				refreshButton;
+	
 	/** Menu displaying the annotated options. */
 	private JPopupMenu			slideViewMenu;
 	
@@ -355,6 +358,9 @@ class DataBrowserToolBar
 		orderByDate.addActionListener(this);
 		orderByDate.setActionCommand(""+DataBrowserUI.SORT_BY_DATE);
 		group.add(orderByDate);
+		
+		refreshButton = new JButton(controller.getAction(
+								DataBrowserControl.REFRESH));
 	}
 	
 	/**
@@ -380,6 +386,7 @@ class DataBrowserToolBar
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(slideShowView);
 		bar.add(managementButton);
+		bar.add(refreshButton);
 		//bar.add(Box.createHorizontalStrut(2));
 		//bar.add(new JSeparator(JSeparator.VERTICAL));
 		return bar;
@@ -531,7 +538,6 @@ class DataBrowserToolBar
 			case DataBrowserUI.SORT_BY_NAME:
 			case DataBrowserUI.SORT_BY_DATE:
 				view.sortBy(index);
-				break;	
 		}
 	}
 	

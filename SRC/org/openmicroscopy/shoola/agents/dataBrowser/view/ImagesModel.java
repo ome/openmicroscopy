@@ -81,11 +81,11 @@ class ImagesModel
 	
 	/**
 	 * Creates a concrete loader.
-	 * @see DataBrowserModel#createDataLoader(boolean)
+	 * @see DataBrowserModel#createDataLoader(boolean refresh)
 	 */
 	protected DataBrowserLoader createDataLoader(boolean refresh)
 	{
-		if (refresh) return new ThumbnailLoader(component, images);
+		if (refresh) imagesLoaded = 0;
 		//only load thumbnails not loaded.
 		if (imagesLoaded == numberOfImages) return null;
 		List<ImageNode> nodes = browser.getVisibleImageNodes();

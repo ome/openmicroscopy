@@ -187,7 +187,7 @@ public class TreeViewerTranslator
         CategoryData child;
         while (i.hasNext()) {
             child = (CategoryData) i.next();
-            if (isWritable(child, userID, groupID))
+            if (EditorUtil.isWritable(child, userID, groupID))
                 group.addChildDisplay(transformCategoryCheckNode(child));
         }
             
@@ -223,7 +223,7 @@ public class TreeViewerTranslator
             	tmp = (DataObject) i.next();
                 if (tmp instanceof ImageData) {
                 	 child = (ImageData) tmp;
-                	 if (isReadable(child, userID, groupID))
+                	 if (EditorUtil.isReadable(child, userID, groupID))
                          dataset.addChildDisplay(transformImage(child));
                 }
             }
@@ -263,7 +263,7 @@ public class TreeViewerTranslator
             	tmp = (DataObject) i.next();
                 if (tmp instanceof ImageData) {
                 	 child = (ImageData) tmp;
-                	 if (isReadable(child, userID, groupID))
+                	 if (EditorUtil.isReadable(child, userID, groupID))
                 		 tag.addChildDisplay(transformImage(child));
                 }
             }
@@ -298,7 +298,7 @@ public class TreeViewerTranslator
             DatasetData child;
             while (i.hasNext()) {
                 child = (DatasetData) i.next();
-                if (isReadable(child, userID, groupID))
+                if (EditorUtil.isReadable(child, userID, groupID))
                     project.addChildDisplay(transformDataset(child, userID, 
                                                             groupID));
             }
@@ -337,7 +337,7 @@ public class TreeViewerTranslator
             ImageData child;
             while (i.hasNext()) {
                 child = (ImageData) i.next();
-                if (isReadable(child, userID, groupID))
+                if (EditorUtil.isReadable(child, userID, groupID))
                     category.addChildDisplay(transformImage(child));
             }
         }
@@ -369,7 +369,7 @@ public class TreeViewerTranslator
             CategoryData child;
             while (i.hasNext())  {
                 child = (CategoryData) i.next();
-                if (isReadable(child, userID, groupID))
+                if (EditorUtil.isReadable(child, userID, groupID))
                     group.addChildDisplay(transformCategory(child, userID, 
                                                             groupID));
             }   
@@ -423,7 +423,7 @@ public class TreeViewerTranslator
         TreeImageDisplay child;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isReadable(ho, userID, groupID)) {
+            if (EditorUtil.isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData)
                   results.add(transformProject((ProjectData) ho, 
                             ((ProjectData) ho).getDatasets(), userID, 
@@ -492,7 +492,7 @@ public class TreeViewerTranslator
                 j = ((ProjectData) ho).getDatasets().iterator();
                 while (j.hasNext()) {
                     child = (DataObject) j.next();
-                    if (isReadable(child, userID, groupID))
+                    if (EditorUtil.isReadable(child, userID, groupID))
                         results.add(transformDataset((DatasetData) child, 
                                                     userID, groupID));
                 }  
@@ -500,16 +500,16 @@ public class TreeViewerTranslator
                 j = ((CategoryGroupData) ho).getCategories().iterator();
                 while (j.hasNext()) {
                     child = (DataObject) j.next();
-                    if (isReadable(child, userID, groupID))
+                    if (EditorUtil.isReadable(child, userID, groupID))
                         results.add(transformCategory((CategoryData) child, 
                                                     userID, groupID));
                 }   
             } else if (ho instanceof DatasetData) {
-            	if (isReadable(ho, userID, groupID))
+            	if (EditorUtil.isReadable(ho, userID, groupID))
                     results.add(transformDataset((DatasetData) ho, 
                                                 userID, groupID));
             } else if (ho instanceof CategoryData) {
-            	if (isReadable(ho, userID, groupID))
+            	if (EditorUtil.isReadable(ho, userID, groupID))
             		results.add(transformCategory((CategoryData) ho, 
                             userID, groupID));
             }
@@ -542,7 +542,7 @@ public class TreeViewerTranslator
         TreeImageSet orphan = null;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isReadable(ho, userID, groupID)) {
+            if (EditorUtil.isReadable(ho, userID, groupID)) {
                 if (ho instanceof ProjectData) {
                 	if (expandedTopNodes != null)
                 		expanded = (List) expandedTopNodes.get(
@@ -649,7 +649,7 @@ public class TreeViewerTranslator
     {
         if (object == null)
             throw new IllegalArgumentException("No object.");
-        if (!(isReadable(object, userID, groupID)))
+        if (!(EditorUtil.isReadable(object, userID, groupID)))
             throw new IllegalArgumentException("Data object not readable.");
         if (object instanceof ProjectData)
             return transformProject((ProjectData) object, 
@@ -691,7 +691,7 @@ public class TreeViewerTranslator
         DataObject ho;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isWritable(ho, userID, groupID)) {
+            if (EditorUtil.isWritable(ho, userID, groupID)) {
                 if (ho instanceof CategoryGroupData) {
                     Set categories = ((CategoryGroupData) ho).getCategories();
                     if (categories != null && categories.size() != 0)
@@ -727,7 +727,7 @@ public class TreeViewerTranslator
         DataObject ho;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
-            if (isWritable(ho, userID, groupID)) {
+            if (EditorUtil.isWritable(ho, userID, groupID)) {
                 if (ho instanceof DatasetData)
                     results.add(transformDatasetCheckNode((DatasetData) ho));
                 else if (ho instanceof CategoryData)
@@ -737,103 +737,6 @@ public class TreeViewerTranslator
             }
         }
         return results;
-    }
-
-    /**
-     * Returns <code>true</code> if the specified data object is readable,
-     * <code>false</code> otherwise, depending on the permission.
-     * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
-     * @return See above.
-     */
-    public static boolean isReadable(Object ho, long userID, long groupID)
-    {
-    	if (ho == null || ho instanceof ExperimenterData || 
-        		ho instanceof String)
-        		return false;
-    	if (!(ho instanceof DataObject)) return false;
-    	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
-        if (userID == data.getOwner().getId())
-            return permissions.isUserRead();
-        /*
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (groupID == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) return permissions.isGroupRead();
-        return permissions.isWorldRead();
-        */ 
-        return permissions.isGroupRead();
-    }
-    
-    /**
-     * Returns <code>true</code> if the specified data object is writable,
-     * <code>false</code> otherwise, depending on the permission.
-     * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
-     * @return See above.
-     */
-    public static boolean isWritable(Object ho, long userID, long groupID)
-    {
-    	if (ho == null || ho instanceof ExperimenterData || 
-    		ho instanceof String)
-    		return false;
-    	if (!(ho instanceof DataObject)) return false;
-    	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
-        if (userID == data.getOwner().getId())
-            return permissions.isUserWrite();
-        /*
-        Set groups = ho.getOwner().getGroups();
-        Iterator i = groups.iterator();
-        long id = -1;
-        boolean groupRead = false;
-        while (i.hasNext()) {
-            id = ((GroupData) i.next()).getId();
-            if (groupID == id) {
-                groupRead = true;
-                break;
-            }
-        }
-        if (groupRead) return permissions.isGroupWrite();
-        return permissions.isWorldWrite();
-        */
-        return permissions.isGroupWrite();
-    }
-    
-    /**
-     * Returns <code>true</code> if the specified data object is writabla by 
-     * group members,
-     * <code>false</code> otherwise, depending on the permission.
-     * 
-     * @param ho        The data object to check.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.
-     * @return See above.
-     */
-    public static boolean isGroupWritable(Object ho)
-    {
-    	if (ho == null || ho instanceof ExperimenterData || 
-        		ho instanceof String) return false;
-    	if (!(ho instanceof DataObject)) return false;
-    	DataObject data = (DataObject) ho;
-    	PermissionData permissions = data.getPermissions();
-    	return permissions.isGroupWrite();
     }
     
     /**
@@ -914,7 +817,7 @@ public class TreeViewerTranslator
             j = images.iterator();
             while (j.hasNext()) {
             	ho = (ImageData) j.next();
-            	if (isReadable(ho, userID, groupID))
+            	if (EditorUtil.isReadable(ho, userID, groupID))
             		converted.add(transformImage(ho));
 			}
             r.put(node.getIndex(), converted);

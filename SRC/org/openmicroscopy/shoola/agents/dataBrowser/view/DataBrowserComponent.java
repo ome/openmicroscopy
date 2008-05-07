@@ -32,7 +32,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -48,6 +47,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
@@ -99,8 +99,8 @@ class DataBrowserComponent
 	{
 		controller = new DataBrowserControl();
 		view = new DataBrowserUI();
-		view.initialize(model, controller);
 		controller.initialize(this, view);
+		view.initialize(model, controller);
 	}
 	
 	/**
@@ -128,10 +128,11 @@ class DataBrowserComponent
 		
 	}
 
-	public int getHierarchyType() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#getHierarchyType()
+	 */
+	public int getHierarchyType() { return 0; }
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
@@ -139,6 +140,10 @@ class DataBrowserComponent
 	 */
 	public int getState() { return model.getState(); }
 
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setStatus(String, int)
+	 */
 	public void setStatus(String description, int perc) {
 		// TODO Auto-generated method stub
 		
@@ -454,6 +459,152 @@ class DataBrowserComponent
 			objects.add(parent);
 		}
 		firePropertyChange(UNSELECTED_NODE_DISPLAY_PROPERTY, null, objects);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#getBrowser()
+	 */
+	public Browser getBrowser()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		return model.getBrowser();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#pasteRndSettings()
+	 */
+	public void pasteRndSettings()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#resetRndSettings()
+	 */
+	public void resetRndSettings()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(RESET_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#copyRndSettings()
+	 */
+	public void copyRndSettings()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(COPY_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#copy()
+	 */
+	public void copy()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(COPY_ITEMS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#cut()
+	 */
+	public void cut()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(CUT_ITEMS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#paste()
+	 */
+	public void paste()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(PASTE_ITEMS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#remove()
+	 */
+	public void remove()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(REMOVE_ITEMS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#isObjectWritable(Object)
+	 */
+	public boolean isObjectWritable(Object ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		long id = DataBrowserAgent.getUserDetails().getId();
+		long groupId = -1;
+		return EditorUtil.isWritable(ho, id, groupId);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#isReadable(DataObject)
+	 */
+	public boolean isReadable(DataObject ho)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+					"This method cannot be invoked in the DISCARDED state.");
+		//Check if current user can write in object
+		long id = DataBrowserAgent.getUserDetails().getId();
+		long groupId = -1;
+		return EditorUtil.isReadable(ho, id, groupId);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#refresh()
+	 */
+	public void refresh()
+	{
+		switch (model.getState()) {
+			case DISCARDED:
+				throw new IllegalStateException("This method cannot be" +
+						"invoked in the DISCARDED state.");
+			case NEW:
+				return;
+		}
+		model.loadData(true);
+		fireStateChange();
 	}
 	
 }

@@ -41,10 +41,12 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.ProjectData;
 
@@ -446,4 +448,101 @@ public class EditorUtil
         return originalName;
     }
 
+    /**
+     * Returns <code>true</code> if the specified data object is readable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho        The data object to check.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.
+     * @return See above.
+     */
+    public static boolean isReadable(Object ho, long userID, long groupID)
+    {
+    	if (ho == null || ho instanceof ExperimenterData || 
+        		ho instanceof String)
+        		return false;
+    	if (!(ho instanceof DataObject)) return false;
+    	DataObject data = (DataObject) ho;
+        PermissionData permissions = data.getPermissions();
+        if (userID == data.getOwner().getId())
+            return permissions.isUserRead();
+        /*
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (groupID == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupRead();
+        return permissions.isWorldRead();
+        */ 
+        return permissions.isGroupRead();
+    }
+    
+    /**
+     * Returns <code>true</code> if the specified data object is writable,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho        The data object to check.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.
+     * @return See above.
+     */
+    public static boolean isWritable(Object ho, long userID, long groupID)
+    {
+    	if (ho == null || ho instanceof ExperimenterData || 
+    		ho instanceof String)
+    		return false;
+    	if (!(ho instanceof DataObject)) return false;
+    	DataObject data = (DataObject) ho;
+        PermissionData permissions = data.getPermissions();
+        if (userID == data.getOwner().getId())
+            return permissions.isUserWrite();
+        /*
+        Set groups = ho.getOwner().getGroups();
+        Iterator i = groups.iterator();
+        long id = -1;
+        boolean groupRead = false;
+        while (i.hasNext()) {
+            id = ((GroupData) i.next()).getId();
+            if (groupID == id) {
+                groupRead = true;
+                break;
+            }
+        }
+        if (groupRead) return permissions.isGroupWrite();
+        return permissions.isWorldWrite();
+        */
+        return permissions.isGroupWrite();
+    }
+    
+    /**
+     * Returns <code>true</code> if the specified data object is writabla by 
+     * group members,
+     * <code>false</code> otherwise, depending on the permission.
+     * 
+     * @param ho        The data object to check.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.
+     * @return See above.
+     */
+    public static boolean isGroupWritable(Object ho)
+    {
+    	if (ho == null || ho instanceof ExperimenterData || 
+        		ho instanceof String) return false;
+    	if (!(ho instanceof DataObject)) return false;
+    	DataObject data = (DataObject) ho;
+    	PermissionData permissions = data.getPermissions();
+    	return permissions.isGroupWrite();
+    }
+    
 }

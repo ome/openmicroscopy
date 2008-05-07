@@ -126,11 +126,32 @@ public class IconManager
     /** The <code>Sort by name</code> icon. */
     public static int           SORT_BY_NAME = 25;
     
+    /** The <code>View</code> icon. */
+    public static int           VIEWER = 26;
+    
+    /** The <code>Copy</code> icon. */
+    public static int           COPY = 27;
+    
+    /** The <code>Paste</code> icon. */
+    public static int           PASTE = 28;
+    
+    /** The <code>Remove</code> icon. */
+    public static int           REMOVE = 29;
+    
+    /** The <code>Refresh</code> icon. */
+    public static int           REFRESH = 30;
+    
+    /** The <code>Cut</code> icon. */
+    public static int           CUT = 31;
+    
+    /** The <code>Redo</code> icon. */
+    public static int           REDO = 32;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 25;
+    private static int          MAX_ID = 32;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -163,6 +184,13 @@ public class IconManager
         relPaths[CREATE_48] = "nuvola_filenew48.png"; 
         relPaths[SORT_BY_DATE] = "eclipse_trace_persp16.png";
         relPaths[SORT_BY_NAME] = "eclipse_alphab_sort_co16.png";
+        relPaths[VIEWER] = "viewer16.png";
+        relPaths[COPY] = "eclipse_copy_edit16.png";
+        relPaths[PASTE] = "eclipse_paste_edit16.png";
+        relPaths[REMOVE] = "eclipse_delete_edit16.png";
+        relPaths[REFRESH] = "nuvola_reload16.png";
+        relPaths[CUT] = "nuvola_editcut16.png";
+        relPaths[REDO] = "nuvola_redo16.png";
     }
     
     /** The sole instance. */

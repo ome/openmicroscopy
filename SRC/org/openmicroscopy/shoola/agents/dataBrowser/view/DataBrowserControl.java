@@ -25,14 +25,22 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javax.swing.Action;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
@@ -62,15 +70,66 @@ class DataBrowserControl
 	implements PropertyChangeListener
 {
 
+	/** Identifies the <code>View action</code>. */
+    static final Integer     VIEW = new Integer(0);
+    
+    /** Identifies the <code>Copy object action</code>. */
+	static final Integer	COPY_OBJECT = new Integer(1);
+
+	/** Identifies the <code>Paste object action</code>. */
+	static final Integer	PASTE_OBJECT = new Integer(2);
+
+	/** Identifies the <code>Remove object action</code>. */
+	static final Integer	REMOVE_OBJECT = new Integer(3);
+	
+	/** Identifies the <code>Cut object action</code>. */
+	static final Integer	CUT_OBJECT = new Integer(4);
+	
+	/** Identifies the <code>Paste rendering settings action</code>. */
+	static final Integer    PASTE_RND_SETTINGS = new Integer(5);
+
+	/** Identifies the <code>Copy rendering settings action</code>. */
+	static final Integer    COPY_RND_SETTINGS = new Integer(6);
+	
+	/** Identifies the <code>Reset rendering settings action</code>. */
+	static final Integer    RESET_RND_SETTINGS = new Integer(7);
+	
+	/** Identifies the <code>Refresh action</code>. */
+	static final Integer    REFRESH = new Integer(8);
+
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
 	 */
-	private DataBrowser 	model;
+	private DataBrowser 			model;
 	
 	/** Reference to the view. */
-	private DataBrowserUI	view;
+	private DataBrowserUI			view;
 	
+	 /** Maps actions ids onto actual <code>Action</code> object. */
+    private Map<Integer, Action>	actionsMap;
+    
+    /** Helper method to create all the UI actions. */
+    private void createActions()
+    {
+    	actionsMap.put(VIEW, new ViewAction(model));
+    	actionsMap.put(COPY_OBJECT, new ManageObjectAction(model,
+    								ManageObjectAction.COPY));
+    	actionsMap.put(PASTE_OBJECT, new ManageObjectAction(model,
+									ManageObjectAction.PASTE));
+    	actionsMap.put(REMOVE_OBJECT,new ManageObjectAction(model,
+									ManageObjectAction.REMOVE));
+    	actionsMap.put(CUT_OBJECT,new ManageObjectAction(model,
+								ManageObjectAction.CUT));
+    	actionsMap.put(PASTE_RND_SETTINGS, new ManageRndSettingsAction(model, 
+    						ManageRndSettingsAction.PASTE));
+    	actionsMap.put(COPY_RND_SETTINGS, new ManageRndSettingsAction(model, 
+									ManageRndSettingsAction.COPY));
+    	actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model, 
+								ManageRndSettingsAction.RESET));
+    	actionsMap.put(REFRESH, new RefreshAction(model));
+    }
+    
 	/** Filters the nodes. */
 	private void filterNodes()
 	{
@@ -136,7 +195,17 @@ class DataBrowserControl
 		
 		this.model = model;
 		this.view = view;
+		actionsMap = new HashMap<Integer, Action>();
+		createActions();
 	}
+	
+	/**
+	 * Returns the action corresponding to the specified id.
+	 * 
+	 * @param id One of the flags defined by this class.
+	 * @return The specified action.
+	 */
+	Action getAction(Integer id) { return actionsMap.get(id); }
 	
 	/**
 	 * Loads data, filters nodes or sets the selected node.
@@ -176,11 +245,13 @@ class DataBrowserControl
             	DataObject object = (DataObject) l.get(1);
             	model.createDataObject(object, visible);
         	}
-        	
         } else if (ImageTableView.TABLE_NODES_SELECTION_PROPERTY.equals(name)) {
         	List<ImageDisplay> selected = (List) evt.getNewValue();
         	model.setTableNodesSelected(selected);
-        }
+        } else if (Browser.POPUP_POINT_PROPERTY.equals(name)) {
+			Point p = (Point) evt.getNewValue();
+            if (p != null) view.showPopup(p);
+		}
 	}
 
 }

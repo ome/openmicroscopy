@@ -62,15 +62,19 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.CopyRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistoryAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.InfoAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.LensAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.SaveRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SearchAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ShowViewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.TextVisibleAction;
@@ -282,6 +286,18 @@ class ImViewerControl
 	/** Identifies the <code>History</code> action. */
 	static final Integer     HISTORY = new Integer(57);
 	
+	/** Identifies the <code>Paste rendering settings</code> action. */
+	static final Integer     PASTE_RND_SETTINGS = new Integer(58);
+	
+	/** Identifies the <code>Copy rendering settings</code> action. */
+	static final Integer     COPY_RND_SETTINGS = new Integer(59);
+	
+	/** Identifies the <code>Save rendering settings</code> action. */
+	static final Integer     SAVE_RND_SETTINGS = new Integer(60);
+	
+	/** Identifies the <code>Reset rendering settings</code> action. */
+	static final Integer     RESET_RND_SETTINGS = new Integer(61);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -374,6 +390,10 @@ class ImViewerControl
 		actionsMap.put(TAB_GRID, new ShowViewAction(model, 
 									ShowViewAction.SPLIT));
 		actionsMap.put(HISTORY, new HistoryAction(model));
+		actionsMap.put(PASTE_RND_SETTINGS, new PasteRndSettingsAction(model));
+		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
+		actionsMap.put(SAVE_RND_SETTINGS, new SaveRndSettingsAction(model));
+		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
 	}
 
 	/** 

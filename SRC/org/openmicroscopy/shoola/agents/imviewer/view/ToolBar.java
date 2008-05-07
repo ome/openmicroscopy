@@ -25,10 +25,13 @@ package org.openmicroscopy.shoola.agents.imviewer.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -80,7 +83,10 @@ class ToolBar
 	 */
 	static final int				LOW = 2;
 	
-    /** Default text describing the compression check box.  */
+	/** Horizontal space between the buttons. */
+	private static final Dimension	H_SPACE = new Dimension(2, 5);
+	
+	/** Default text describing the compression check box.  */
     private static final String		COMPRESSED_DESCRIPTION = 
     				"View your image has umcompressed or select " +
     				"the desired compression quality.";
@@ -116,6 +122,9 @@ class ToolBar
     /** Box displaying the pixels sets associated to the image.*/
     private JComboBox		pixelsBox;
     
+    /** Button to paste the rendering settings. */
+	private JButton			pasteButton;
+	
     /** Helper method to create the tool bar hosting the buttons. */
     private void createControlsBar()
     {
@@ -123,16 +132,36 @@ class ToolBar
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
+        pasteButton = new JButton(controller.getAction(
+        		ImViewerControl.PASTE_RND_SETTINGS));
+        UIUtilities.unifiedButtonLookAndFeel(pasteButton);
+        pasteButton.setEnabled(view.hasSettingsToPaste());
         rndButton = new JToggleButton();
         rndButton.setSelected(view.isRendererShown());
         rndButton.setAction(controller.getAction(ImViewerControl.RENDERER));
-        //UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(rndButton);
         historyButton = new JToggleButton();
         historyButton.setSelected(view.isHistoryShown());
         historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
         bar.add(historyButton);
-        JButton button =  new JButton(
+        bar.add(Box.createRigidArea(H_SPACE));
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        bar.add(Box.createRigidArea(H_SPACE));
+        JButton button = new JButton(
+        			controller.getAction(ImViewerControl.COPY_RND_SETTINGS));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);    
+        bar.add(pasteButton);    
+        button = new JButton(
+    			controller.getAction(ImViewerControl.RESET_RND_SETTINGS));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
+        button = new JButton(
+    			controller.getAction(ImViewerControl.SAVE_RND_SETTINGS));
+        UIUtilities.unifiedButtonLookAndFeel(button);
+        bar.add(button);
+        bar.add(new JSeparator(JSeparator.VERTICAL));
+        button =  new JButton(
         			controller.getAction(ImViewerControl.MOVIE));
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);    
@@ -149,7 +178,7 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
         button = new JButton(
-        		controller.getAction(ImViewerControl.IMAGE_DETAILS));
+        			controller.getAction(ImViewerControl.IMAGE_DETAILS));
         UIUtilities.unifiedButtonLookAndFeel(button);
         //bar.add(button);
         button = new JButton(controller.getAction(ImViewerControl.DOWNLOAD));
@@ -160,6 +189,7 @@ class ToolBar
         button.addMouseListener(a);
         UIUtilities.unifiedButtonLookAndFeel(button);
         bar.add(button);
+       
     }
     
     /** Initializes the components composing this tool bar. */
@@ -253,6 +283,14 @@ class ToolBar
     /** Selects or deselects the {@link #historyButton}. */
     void displayHistory() { historyButton.setSelected(view.isHistoryShown()); }
     
+	/**
+	 * Sets the {@link #pasteButton} enable.
+	 * 
+	 * @param b Pass <code>true</code> to enable the button, <code>false</code>
+	 * 			otherwise.
+	 */
+	void enablePasteButton(boolean b) { pasteButton.setEnabled(b); }
+
     /**
      * Reacts to the selection of the {@link #compressionBox}.
      * @see ActionListener#actionPerformed(ActionEvent)

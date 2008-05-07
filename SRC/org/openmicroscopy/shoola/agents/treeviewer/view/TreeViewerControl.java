@@ -83,6 +83,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
@@ -613,6 +618,28 @@ class TreeViewerControl
 				else model.onDataObjectSave(data, parent, 
 									TreeViewer.CREATE_OBJECT);
 			}
+		} else if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name)) {
+			model.copyRndSettings();
+		} else if (DataBrowser.PASTE_RND_SETTINGS_PROPERTY.equals(name)) {
+			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
+											PasteRndSettingsCmd.PASTE);
+			cmd.execute();
+		} else if (DataBrowser.RESET_RND_SETTINGS_PROPERTY.equals(name)) {
+			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
+					PasteRndSettingsCmd.RESET);
+			cmd.execute();
+		} else if (DataBrowser.CUT_ITEMS_PROPERTY.equals(name)) {
+			CutCmd cmd = new CutCmd(model);
+			cmd.execute();
+		} else if (DataBrowser.COPY_ITEMS_PROPERTY.equals(name)) {
+			CopyCmd cmd = new CopyCmd(model);
+			cmd.execute();
+		} else if (DataBrowser.PASTE_ITEMS_PROPERTY.equals(name)) {
+			PasteCmd cmd = new PasteCmd(model);
+			cmd.execute();
+		} else if (DataBrowser.REMOVE_ITEMS_PROPERTY.equals(name)) {
+			DeleteCmd cmd = new DeleteCmd(model);
+	        cmd.execute();
 		}
 	}
 

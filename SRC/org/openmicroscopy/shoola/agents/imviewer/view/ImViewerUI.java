@@ -1836,6 +1836,22 @@ class ImViewerUI
      */
     long getPixelsID() { return model.getPixelsID(); }
     
+	/**
+	 * Returns <code>true</code> if there is some rendering settings to save,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+    boolean hasSettingsToPaste() { return model.hasRndToPaste(); }
+    
+	/**
+	 * Sets the {@link #pasteButton} enable.
+	 * 
+	 * @param b Pass <code>true</code> to enable the button, <code>false</code>
+	 * 			otherwise.
+	 */
+	void enablePasteButton(boolean b) { toolBar.enablePasteButton(b); }
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

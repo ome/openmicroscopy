@@ -25,16 +25,22 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 
 /** 
- * 
+ * Top class that each action should extend.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,10 +54,39 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
  */
 public class DataBrowserAction 
 	extends AbstractAction
+	implements ChangeListener, PropertyChangeListener
 {
 
-	  /** A reference to the Model. */
+	 /** A reference to the Model. */
     protected DataBrowser      model;
+    
+    /**
+     * Callback to notify of a change in the currently selected display
+     * in the {@link Browser}. Subclasses override the method.
+     * 
+     * @param selectedDisplay The newly selected display node.
+     */
+    protected void onDisplayChange(ImageDisplay selectedDisplay) {}
+    
+    /**
+     * Callback to notify of a state change in the  {@link Browser}.
+     * Subclasses override the method.
+     */
+    protected void onStateChange() {}
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+    public DataBrowserAction(DataBrowser model)
+    {
+    	super();
+        setEnabled(false);
+        if (model == null) throw new IllegalArgumentException("No Model.");
+        this.model = model;
+        model.addChangeListener(this);
+    }
     
 	/** 
 	 * Subclasses should implement the method.
@@ -59,5 +94,36 @@ public class DataBrowserAction
 	 */
     public void actionPerformed(ActionEvent e) {}
 
-    
+    /**
+     * Reacts to property changes in the {@link Browser}.
+     * Highlights the selected node, and update the status of the
+     * action.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+    	String name = evt.getPropertyName();
+    	if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
+    		Object node = evt.getNewValue();
+    		if (node instanceof ImageDisplay)
+    			onDisplayChange((ImageDisplay) node);
+    		else onDisplayChange(null);
+    	}
+    }
+
+    /** 
+     * Listens to {@link Browser} change events. 
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
+    public void stateChanged(ChangeEvent e)
+    {
+    	int state = model.getState();
+    	if (state == DataBrowser.LOADING || (state == DataBrowser.READY &&
+    			model.getBrowser().getImages().size() == 0)) {
+    		model.getBrowser().addPropertyChangeListener(this);
+    		onStateChange();
+    	} else if (state == DataBrowser.READY)
+    		onStateChange();
+    }
+
 }

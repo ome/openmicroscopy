@@ -29,13 +29,10 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 
@@ -122,15 +119,7 @@ public class CopyRndSettingsAction
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		TreeImageDisplay node = browser.getLastSelectedDisplay();
-		Object o = node.getUserObject();
-		if (!(o instanceof ImageData)) return;
-		ImageData img = (ImageData) o;
-		long pixelsID = img.getDefaultPixels().getId();
-		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-		bus.post(new CopyRndSettings(pixelsID));
+		model.copyRndSettings();
 	}
 
 }

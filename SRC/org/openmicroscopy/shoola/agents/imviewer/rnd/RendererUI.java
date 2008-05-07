@@ -139,7 +139,7 @@ class RendererUI
 		copyButton.setActionCommand(""+COPY);
 		copyButton.addActionListener(this);
 		pasteButton = new JButton(icons.getIcon(IconManager.PASTE));
-		pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
+		//pasteButton.setEnabled(model.getParentModel().hasSettingsToPaste());
 		pasteButton.setToolTipText(
 			UIUtilities.formatToolTipText("Paste the rendering settings."));
 		pasteButton.setActionCommand(""+PASTE);
@@ -220,7 +220,7 @@ class RendererUI
 		pane.addToTree(cp, UIUtilities.buildCollapsePanel(cp.getPaneName()));
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
-		add(createButtonsPanel(), BorderLayout.SOUTH);
+		//add(createButtonsPanel(), BorderLayout.SOUTH);
 	}
 
 	/**

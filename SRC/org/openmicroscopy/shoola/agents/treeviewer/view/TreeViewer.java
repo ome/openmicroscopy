@@ -673,5 +673,7 @@ public interface TreeViewer
      * @param node The node to deselect.
      */
 	public void setUnselectedNode(Object node);
+
+	public void copyRndSettings();
     
 }
