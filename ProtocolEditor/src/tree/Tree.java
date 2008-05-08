@@ -1158,6 +1158,11 @@ public class Tree
 	}
 	
 	public ArrayList<DataFieldNode> getHighlightedFields() {
+		if (rootNode.isHighlighted()) {
+			ArrayList<DataFieldNode> newList = new ArrayList<DataFieldNode>();
+			newList.add(rootNode);
+			return newList;
+		}
 		return highlightedFields;
 	}
 	
