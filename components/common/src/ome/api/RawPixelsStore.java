@@ -12,7 +12,6 @@ package ome.api;
 // Third-party libraries
 
 // Application-internal dependencies
-import ome.annotations.NotNull;
 
 /**
  * metadata gateway for the {@link omeis.providers.re.RenderingEngine}. This
@@ -22,8 +21,8 @@ import ome.annotations.NotNull;
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date:
- *          2005/06/08 15:21:59 $) </small>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date: 2005/06/08
+ *          15:21:59 $) </small>
  * @since OME2.2
  */
 public interface RawPixelsStore extends StatefulServiceInterface {
@@ -37,95 +36,52 @@ public interface RawPixelsStore extends StatefulServiceInterface {
      * @return
      * @see ome.io.nio.PixelBuffer#getPlaneSize()
      */
-    public Integer getPlaneSize();
+    public int getPlaneSize();
 
-    public Integer getRowSize();
+    public int getRowSize();
 
-    public Integer getStackSize();
+    public int getStackSize();
 
-    public Integer getTimepointSize();
+    public int getTimepointSize();
 
-    public Integer getTotalSize();
+    public int getTotalSize();
 
-    public Long getRowOffset(@NotNull
-    Integer y, @NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t);
+    public long getRowOffset(int y, int z, int c, int t);
 
-    public Long getPlaneOffset(@NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t);
+    public long getPlaneOffset(int z, int c, int t);
 
-    public Long getStackOffset(@NotNull
-    Integer c, @NotNull
-    Integer t);
+    public long getStackOffset(int c, int t);
 
-    public Long getTimepointOffset(@NotNull
-    Integer t);
+    public long getTimepointOffset(int t);
 
-    public byte[] getRegion(@NotNull
-    Integer size, Long offset);
+    public byte[] getRegion(int size, long offset);
 
-    public byte[] getRow(@NotNull
-    Integer y, @NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t);
+    public byte[] getRow(int y, int z, int c, int t);
 
-    public byte[] getPlaneRegion(@NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t, @NotNull 
-    Integer count, @NotNull
-    Integer offset);
-    
-    public byte[] getPlane(@NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t);
+    public byte[] getPlaneRegion(int z, int c, int t, int count, int offset);
 
-    public byte[] getStack(@NotNull
-    Integer c, @NotNull
-    Integer t);
+    public byte[] getPlane(int z, int c, int t);
 
-    public byte[] getTimepoint(@NotNull
-    Integer t);
+    public byte[] getStack(int c, int t);
 
-    public void setRegion(@NotNull
-    Integer size, Long offset, @NotNull
-    byte[] buffer);
+    public byte[] getTimepoint(int t);
 
-    public void setRow(@NotNull
-    byte[] buffer, @NotNull
-    Integer y, @NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t);
+    public void setRegion(int size, long offset, byte[] buffer);
 
-    public void setPlane(@NotNull
-    byte[] buffer, @NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t);
+    public void setRow(byte[] buffer, int y, int z, int c, int t);
 
-    public void setStack(@NotNull
-    byte[] buffer, @NotNull
-    Integer z, @NotNull
-    Integer c, @NotNull
-    Integer t);
+    public void setPlane(byte[] buffer, int z, int c, int t);
 
-    public void setTimepoint(@NotNull
-    byte[] buffer, @NotNull
-    Integer t);
+    public void setStack(byte[] buffer, int z, int c, int t);
+
+    public void setTimepoint(byte[] buffer, int t);
 
     public int getByteWidth();
-    
+
     public boolean isSigned();
-    
+
     public boolean isFloat();
-    
+
     public byte[] calculateMessageDigest();
 
 }

@@ -301,7 +301,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     // =========================================================================
 
     @RolesAllowed("user")
-    public Experimenter getExperimenter(final Long id) {
+    public Experimenter getExperimenter(final long id) {
         Experimenter e = iQuery.execute(new UserQ(new Parameters().addId(id)));
 
         if (e == null) {
@@ -337,12 +337,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public String lookupLdapAuthExperimenter(Long id) {
+    public String lookupLdapAuthExperimenter(long id) {
         return LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
     }
 
     @RolesAllowed("user")
-    public ExperimenterGroup getGroup(Long id) {
+    public ExperimenterGroup getGroup(long id) {
         ExperimenterGroup g = iQuery.execute(new GroupQ(new Parameters()
                 .addId(id)));
 
@@ -375,7 +375,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public Experimenter[] containedExperimenters(Long groupId) {
+    public Experimenter[] containedExperimenters(long groupId) {
         List<Experimenter> experimenters = iQuery.findAllByQuery(
                 "select e from Experimenter as e left outer "
                         + "join e.groupExperimenterMap as map left outer join "
@@ -385,7 +385,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     @RolesAllowed("user")
-    public ExperimenterGroup[] containedGroups(Long experimenterId) {
+    public ExperimenterGroup[] containedGroups(long experimenterId) {
         List<ExperimenterGroup> groups = iQuery
                 .findAllByQuery(
                         "select g from ExperimenterGroup as g left "
@@ -654,7 +654,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @RolesAllowed("user")
     public ExperimenterGroup getDefaultGroup(@NotNull
-    Long experimenterId) {
+    long experimenterId) {
         ExperimenterGroup g = iQuery.findByQuery(
                 "select g from ExperimenterGroup g, Experimenter e "
                         + "join e.groupExperimenterMap m "

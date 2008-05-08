@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +15,18 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.Roles;
+import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
 import omero.RInt;
+import omero.RList;
+import omero.RLong;
+import omero.RObject;
 import omero.RString;
+import omero.RTime;
 import omero.RType;
 import omero.ServerError;
 
@@ -32,6 +40,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
+ * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/894">ticket:894</a>
  */
 public class ApiConsistencyCheck implements BeanPostProcessor {
 
@@ -43,17 +52,17 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
 
         if (arg0 instanceof ServantDefinition) {
 
-            List<String> differences = new ArrayList<String>();
+            final List<String> differences = new ArrayList<String>();
 
-            ServantDefinition sd = (ServantDefinition) arg0;
-            Class ops = sd.getOperationsClass();
-            Class api = sd.getServiceClass();
+            final ServantDefinition sd = (ServantDefinition) arg0;
+            final Class ops = sd.getOperationsClass();
+            final Class api = sd.getServiceClass();
 
-            Method[] opsMethods = ops.getDeclaredMethods();
-            Method[] apiMethods = api.getDeclaredMethods();
+            final Method[] opsMethods = ops.getDeclaredMethods();
+            final Method[] apiMethods = api.getDeclaredMethods();
 
-            Map<String, Method> opsMap = map(opsMethods);
-            Map<String, Method> apiMap = map(apiMethods);
+            final Map<String, Method> opsMap = map(opsMethods);
+            final Map<String, Method> apiMap = map(apiMethods);
 
             for (String name : opsMap.keySet()) {
                 if (!apiMap.containsKey(name)) {
@@ -67,15 +76,18 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 }
             }
 
-            for (String name : apiMap.keySet()) {
-                Method opsMethod = opsMap.get(name);
+            for (final String name : apiMap.keySet()) {
+
+                final Method apiMethod = apiMap.get(name);
+                final Method opsMethod = opsMap.get(name);
+
                 if (opsMethod == null) {
                     differences.add("Missing method: " + name);
                     continue;
                 }
 
-                Class[] opsParams = opsMethod.getParameterTypes();
-                Class[] apiParams = apiMap.get(name).getParameterTypes();
+                final Class[] opsParams = opsMethod.getParameterTypes();
+                final Class[] apiParams = apiMethod.getParameterTypes();
 
                 // Blitz always has one more for the Ice.Current
                 if (opsParams.length - 1 != apiParams.length) {
@@ -85,17 +97,29 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                             apiParams.length, opsParams.length));
                     continue;
                 }
+
+                // Check actual values
                 for (int i = 0; i < apiParams.length; i++) {
                     Class apiType = apiParams[i];
                     Class opsType = opsParams[i];
                     if (!matches(apiType, opsType)) {
                         differences.add(String.format(
-                                "Parameter type mismatch: %s & %s", apiType,
-                                opsType));
+                                "Parameter type mismatch in %s: %s <> %s",
+                                apiMethod, apiType, opsType));
                         continue;
                     }
                 }
 
+                // Now check the return type
+
+                Class opsReturn = opsMethod.getReturnType();
+                Class apiReturn = apiMethod.getReturnType();
+
+                if (!matches(apiReturn, opsReturn)) {
+                    differences.add(String.format(
+                            "Return type mismatch in %s: %s <> %s", apiMethod,
+                            apiReturn, opsReturn));
+                }
             }
 
             if (differences.size() > 0) {
@@ -126,22 +150,28 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
      * @param opsType
      */
     public static boolean matches(Class apiType, Class opsType) {
-        if (apiType == opsType) {
+
+        // Check for equality
+        if (apiType == opsType || apiType.equals(opsType)) {
             return true;
         }
 
-        if (apiType.equals(opsType)) {
-            return true;
+        final ApiCheck check = new ApiCheck(apiType, opsType);
+
+        //
+        // Blacklist. If any of these match, we return false.
+        //
+
+        if (check.matches(Integer.class, int.class)
+                || check.matches(Long.class, long.class)
+                || check.matches(Double.class, double.class)
+                || check.matches(Float.class, float.class)) {
+            return false;
         }
 
-        if (apiType.equals(Long.class) && opsType.equals(long.class)) {
-            return true;
-        }
-
-        if (IObject.class.isAssignableFrom(apiType)
-                && omero.model.IObject.class.isAssignableFrom(opsType)) {
-            return true;
-        }
+        //
+        // Whitelist. If any one these match, we return true.
+        //
 
         if (apiType.isArray()
                 && (opsType.isArray() || Collection.class
@@ -149,64 +179,28 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
             return true;
         }
 
-        if (Collection.class.isAssignableFrom(apiType)
-                && List.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Permissions.class.isAssignableFrom(apiType)
-                && omero.model.Permissions.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (String.class.isAssignableFrom(apiType)
-                && RString.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Integer.class.isAssignableFrom(apiType)
-                && int.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Integer.class.isAssignableFrom(apiType)
-                && RInt.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Class.class.isAssignableFrom(apiType)
-                && String.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Parameters.class.isAssignableFrom(apiType)
-                && omero.sys.Parameters.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Filter.class.isAssignableFrom(apiType)
-                && omero.sys.Filter.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Principal.class.isAssignableFrom(apiType)
-                && omero.sys.Principal.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (PlaneDef.class.isAssignableFrom(apiType)
-                && omero.romio.PlaneDef.class.isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (CodomainMapContext.class.isAssignableFrom(apiType)
-                && omero.romio.CodomainMapContext.class
-                        .isAssignableFrom(opsType)) {
-            return true;
-        }
-
-        if (Details.class.isAssignableFrom(apiType)
-                && omero.model.Details.class.isAssignableFrom(opsType)) {
+        if (check.matches(Collection.class, List.class)
+                || check.matches(CodomainMapContext.class,
+                        omero.romio.CodomainMapContext.class)
+                || check.matches(Date.class, RTime.class)
+                || check.matches(Details.class, omero.model.Details.class)
+                || check.matches(Class.class, String.class)
+                || check.matches(EventContext.class,
+                        omero.sys.EventContext.class)
+                || check.matches(Filter.class, omero.sys.Filter.class)
+                || check.matches(Integer.class, RInt.class)
+                || check.matches(IObject.class, omero.model.IObject.class)
+                || check.matches(IObject.class, RObject.class)
+                || check.matches(List.class, RList.class)
+                || check.matches(Long.class, RLong.class)
+                || check.matches(Parameters.class, omero.sys.Parameters.class)
+                || check.matches(PlaneDef.class, omero.romio.PlaneDef.class)
+                || check.matches(Permissions.class,
+                        omero.model.Permissions.class)
+                || check.matches(Principal.class, omero.sys.Principal.class)
+                || check.matches(RGBBuffer.class, omero.romio.RGBBuffer.class)
+                || check.matches(Roles.class, omero.sys.Roles.class)
+                || check.matches(String.class, RString.class)) {
             return true;
         }
 
@@ -258,5 +252,27 @@ class ApiConsistencyException extends RuntimeException {
         sb.append("and Blitz:");
         sb.append(ops.toString());
         return sb.toString();
+    }
+}
+
+/**
+ * Class to be used as a simple white or black list for checking consistency. To
+ * perform a white list, create an {@link ApiCheck} with the start value of
+ * false. Then
+ * 
+ */
+class ApiCheck {
+
+    final Class apiType;
+    final Class opsType;
+
+    public ApiCheck(Class api, Class ops) {
+        this.apiType = api;
+        this.opsType = ops;
+    }
+
+    boolean matches(Class apiTest, Class opsTest) {
+        return apiTest.isAssignableFrom(apiType)
+                && opsTest.isAssignableFrom(opsType);
     }
 }

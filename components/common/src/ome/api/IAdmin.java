@@ -57,8 +57,7 @@ public interface IAdmin extends ServiceInterface {
      * @throws ome.conditions.ApiUsageException
      *             if id does not exist.
      */
-    Experimenter getExperimenter(@NotNull
-    Long id);
+    Experimenter getExperimenter(long id);
 
     /**
      * look up an {@link Experimenter} and all related
@@ -95,8 +94,7 @@ public interface IAdmin extends ServiceInterface {
      * 
      * @return Experimenter. Never null.
      */
-    String lookupLdapAuthExperimenter(@NotNull
-    Long id);
+    String lookupLdapAuthExperimenter(long id);
 
     /**
      * fetch an {@link ExperimenterGroup} and all contained
@@ -108,8 +106,7 @@ public interface IAdmin extends ServiceInterface {
      * @throws ome.conditions.ApiUsageException
      *             if id does not exist.
      */
-    ExperimenterGroup getGroup(@NotNull
-    Long id);
+    ExperimenterGroup getGroup(long id);
 
     /**
      * look up an {@link ExperimenterGroup} and all contained
@@ -142,8 +139,7 @@ public interface IAdmin extends ServiceInterface {
      *            id of the ExperimenterGroup
      * @return non-null array of all {@link Experimenter users} in this group.
      */
-    Experimenter[] containedExperimenters(@NotNull
-    Long groupId);
+    Experimenter[] containedExperimenters(long groupId);
 
     /**
      * fetch all {@link ExperimenterGroup groups} of which the given user is a
@@ -155,8 +151,7 @@ public interface IAdmin extends ServiceInterface {
      * @return non-null array of all {@link ExperimenterGroup groups} for this
      *         user.
      */
-    ExperimenterGroup[] containedGroups(@NotNull
-    Long experimenterId);
+    ExperimenterGroup[] containedGroups(long experimenterId);
 
     /**
      * retrieve the default {@link ExperimenterGroup group} for the given user
@@ -167,8 +162,7 @@ public interface IAdmin extends ServiceInterface {
      * @return non-null {@link ExperimenterGroup}. If no default group is
      *         found, an exception will be thrown.
      */
-    ExperimenterGroup getDefaultGroup(@NotNull
-    Long experimenterId);
+    ExperimenterGroup getDefaultGroup(long experimenterId);
 
     // ~ Updating users and groups
     // =========================================================================
