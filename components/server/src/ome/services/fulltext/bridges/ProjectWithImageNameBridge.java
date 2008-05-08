@@ -7,6 +7,9 @@
 
 package ome.services.fulltext.bridges;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -49,9 +52,9 @@ public class ProjectWithImageNameBridge extends BridgeHelper {
             final float reduced_boost = boost.floatValue() / 2;
 
             final Project p = (Project) value;
-            for (ProjectDatasetLink pdl : p.unmodifiableDatasetLinks()) {
+            for (final ProjectDatasetLink pdl : p.unmodifiableDatasetLinks()) {
                 final Dataset d = pdl.child();
-                for (DatasetImageLink dil : d.unmodifiableImageLinks()) {
+                for (final DatasetImageLink dil : d.unmodifiableImageLinks()) {
                     final Image i = dil.child();
 
                     // Name is never null, but as an example it is important
@@ -65,6 +68,25 @@ public class ProjectWithImageNameBridge extends BridgeHelper {
                                 reduced_boost);
                     }
                 }
+            }
+        } else if (value instanceof Image) {
+
+            logger().info(
+                    "Scheduling all project containers of " + value
+                            + " for re-indexing");
+
+            final Image i = (Image) value;
+            final List<Project> list = new ArrayList<Project>();
+
+            for (final DatasetImageLink dil : i.unmodifiableDatasetLinks()) {
+                final Dataset d = dil.parent();
+                for (final ProjectDatasetLink pdl : d
+                        .unmodifiableProjectLinks()) {
+                    list.add(pdl.parent());
+                }
+            }
+            if (list.size() > 0) {
+                reindexAll(list);
             }
         }
     }

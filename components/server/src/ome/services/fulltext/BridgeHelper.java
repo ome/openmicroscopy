@@ -8,8 +8,12 @@
 package ome.services.fulltext;
 
 import java.io.Reader;
+import java.util.List;
 
+import ome.conditions.ApiUsageException;
+import ome.model.IObject;
 import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.services.messages.ReindexMessage;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +21,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.hibernate.search.bridge.FieldBridge;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
 /**
  * Base class for building custom {@link FieldBridge} implementations.
@@ -31,7 +37,8 @@ import org.hibernate.search.bridge.FieldBridge;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public abstract class BridgeHelper implements FieldBridge {
+public abstract class BridgeHelper implements FieldBridge,
+        ApplicationEventPublisherAware {
 
     /**
      * Name of the {@link Field} which contains the union of all fields. This is
@@ -45,8 +52,14 @@ public abstract class BridgeHelper implements FieldBridge {
 
     private final Log log = LogFactory.getLog(getClass());
 
+    private ApplicationEventPublisher publisher;
+
     public final Log logger() {
         return log;
+    }
+
+    public void setApplicationEventPublisher(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
     }
 
     /**
@@ -175,6 +188,32 @@ public abstract class BridgeHelper implements FieldBridge {
          * f = new Field(COMBINED, reader); if (boost != null) {
          * f.setBoost(boost); } d.add(f);
          */
+    }
+
+    /**
+     * Publishes a {@link ReindexMessage} which will get processed
+     * asynchronously.
+     */
+    protected <T extends IObject> void reindex(T object) {
+        if (publisher == null) {
+            throw new ApiUsageException(
+                    "Bridge is not configured for sending messages.");
+        }
+        final ReindexMessage<T> rm = new ReindexMessage<T>(this, object);
+        publisher.publishEvent(rm);
+    }
+
+    /**
+     * Publishes a {@link ReindexMessage} which will get processed
+     * asynchronously.
+     */
+    protected <T extends IObject> void reindexAll(List<T> list) {
+        if (publisher == null) {
+            throw new ApiUsageException(
+                    "Bridge is not configured for sending messages.");
+        }
+        final ReindexMessage<T> rm = new ReindexMessage<T>(this, list);
+        publisher.publishEvent(rm);
     }
 
 }
