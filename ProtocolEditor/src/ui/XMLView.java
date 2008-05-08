@@ -276,17 +276,31 @@ public class XMLView
 		fileManagerEastToolBar.add(new FileListSelector(xmlModel));
 		
 
-		// more-like this button
+		searchController = new SearchController(xmlModel);
 		
+		// more-like this button
 		JButton moreLikeThisButton = new JButton(moreLikeThisIcon);
 		moreLikeThisButton.setActionCommand(SearchController.MORE_LIKE_THIS_SEARCH);
 		moreLikeThisButton.setToolTipText("'More Like This' search to find files like the current one");;
 		moreLikeThisButton.setBorder(new EmptyBorder(0,2,0,4));
-		searchController = new SearchController(xmlModel);
 		searchController.addSearchActionSource(moreLikeThisButton);
 		
-		
 		fileManagerEastToolBar.add(moreLikeThisButton);
+		
+		/*
+		 * template-search button
+		 * This is hidden for now, since this functionality is not finished.
+		 * Will return to work on the after Beta-3.0
+		 
+		Icon templateSearchIcon = ImageFactory.getInstance().getIcon(ImageFactory.TEMPLATE_SEARCH_ICON);
+		JButton templateSearchButton = new JButton(templateSearchIcon);
+		templateSearchButton.setActionCommand(SearchController.TEMPLATE_SEARCH);
+		templateSearchButton.setToolTipText("Use the current file as a search form. Fill in only those fields you wish to search for.");
+		templateSearchButton.setBorder(new EmptyBorder(0,2,0,4));
+		searchController.addSearchActionSource(templateSearchButton);
+		
+		fileManagerEastToolBar.add(templateSearchButton);
+		*/
 		
 		// close-file button
 		addButton(Controller.CLOSE_FILE, "", fileManagerToolBarBorder, fileManagerEastToolBar);

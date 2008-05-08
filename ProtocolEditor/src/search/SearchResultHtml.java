@@ -86,16 +86,16 @@ public class SearchResultHtml {
 				
 				// this returns a hashMap of attributes for each element. 
 				// key is elementPath/attributeName, value is attribute value.
-	        	ArrayList<HashMap> elements = new XMLMethods().getAllXmlFileAttributes(file);
+	        	ArrayList<HashMap<String, String>> elements = new XMLMethods().getAllXmlFileAttributes(file);
 	        	
-	        	for (HashMap element: elements) {
+	        	for (HashMap<String, String> element: elements) {
 	    
 	        		Iterator attributeIterator = element.keySet().iterator();
 	        		while (attributeIterator.hasNext()) {
 	        			
 	        			Object key = attributeIterator.next();
-	        			String attributePathAndName = (String)key;
-	        			String value = (String)element.get(key);
+	        			String attributePathAndName = key.toString();
+	        			String value = element.get(key);
 	        			
 	        			// look for each search term within the document. 
 	        			// if it's there, present it in context

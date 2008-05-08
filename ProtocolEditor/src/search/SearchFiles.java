@@ -75,7 +75,7 @@ public class SearchFiles {
 	
 	public static int HITS_PER_PAGE = 10;
 	
-	public static String index = "index";
+	public static String index = IndexFiles.INDEX_PATH;
 	public static String field = "contents";
 
   /** Use the norms from one field for all fields.  Norms are read into memory,

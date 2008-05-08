@@ -25,31 +25,16 @@
 
 package search;
 
-/**
- * 
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import org.apache.lucene.index.IndexWriter;
+import org.xml.sax.SAXParseException;
 
+import tree.DataFieldConstants;
 import util.PreferencesManager;
+import util.XMLMethods;
 import xmlMVC.XMLModel;
 
 import java.io.File;
@@ -57,39 +42,40 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.JFileChooser;
 
 // almost all Lucene demo code for indexing files. 
 
 /** Index all text files under a directory. */
-public class IndexFiles {
+public class IndexTemplateFields {
   
-  private IndexFiles() {}
+  private IndexTemplateFields() {}
 
-  public static final String INDEX_PATH = XMLModel.OMERO_EDITOR_FILE + File.separator + "index";
+  public static final String INDEX_TEMPLATE_PATH = XMLModel.OMERO_EDITOR_FILE + File.separator + "indexTemplate";
   
-  static final File INDEX_DIR = new File(INDEX_PATH);
+  // this index is separate from the keyword search index
+  static final File INDEX_DIR = new File(INDEX_TEMPLATE_PATH);
   
   static DateFormat fDateFormat = DateFormat.getDateInstance (DateFormat.LONG);
   static DateFormat timeFormat = DateFormat.getTimeInstance(DateFormat.SHORT);
   
-  /** Index all text files under a directory. */
-  public static void indexFiles(String[] args) {
-    String usage = "java org.apache.lucene.demo.IndexFiles <root_directory>";
-    if (args.length == 0) {
-      System.err.println("Usage: " + usage);
-      System.exit(1);
-    }
-
+  /** Index all xml files that contain elements and attributes that match a template*/
+  
+  public static void indexFiles(String rootFolder) {
+    
     if (INDEX_DIR.exists()) {
     	System.out.println("Index already exists. Writing over old index...>!");
       //System.out.println("Cannot save index to '" +INDEX_DIR+ "' directory, please delete it first");
       //System.exit(1);
     }
     
-    final File docDir = new File(args[0]);
+    final File docDir = new File(rootFolder);
     if (!docDir.exists() || !docDir.canRead()) {
       System.out.println("Document directory '" +docDir.getAbsolutePath()+ "' does not exist or is not readable, please check the path");
       System.exit(1);
@@ -148,37 +134,39 @@ public class IndexFiles {
                     Field.Store.YES, Field.Index.UN_TOKENIZED));
     		
     		// the whole doc is read with a File Reader, not saved, used for searching.
-    		doc.add(new Field("contents", new FileReader(file)));
+    		//doc.add(new Field("contents", new FileReader(file)));
     		
     		// need a "snippet" field for clustering search results with Carrot2
     		// this should be a String????
     		// but for clustering, want all of the document (or a large chunk?)
-    		/* 
-    		 String wholeDocText = "";
+    		
+    		
         	try{
-        		ArrayList<HashMap> elements = new XMLMethods().getAllXmlFileAttributes(file);
+        		XMLMethods xmlMethods = new XMLMethods();
+        		ArrayList<HashMap<String, String>> elements = xmlMethods.getAllXmlFileAttributes(file, xmlMethods.new ElementAttributesHashMapHandler());
         	
         		// got through the whole doc (not sure that this improves clustering over eg 10 elements)
-        		for (HashMap element: elements) {
+        		for (HashMap<String, String> element: elements) {
     
-        			Iterator attributeIterator = element.keySet().iterator();
-        			while (attributeIterator.hasNext()) {
-        			
-        				Object key = attributeIterator.next();
-        				String attributePathAndName = (String)key;
-        				String value = (String)element.get(key);
+        				String attributeName = element.get(DataFieldConstants.ELEMENT_NAME);
+        				String value = element.get(DataFieldConstants.VALUE);
         				
-        				wholeDocText = wholeDocText + attributePathAndName + " ";
-        				if (value != null) wholeDocText = wholeDocText + value + " ";
-        			}
+        				if ((value != null) && (attributeName != null)){
+        					
+        					attributeName = attributeName.replace(" ", "");
+        					System.out.println("IndexTemplateFields   " + attributeName + "    " + value);
+        					
+        					doc.add(new Field(attributeName, value, Field.Store.YES,
+        		    				Field.Index.UN_TOKENIZED));
+        				}
+        			
         		}
         	} catch (FileNotFoundException ex) {
-	        } catch (SAXParseException ex) {
-	        }
+	        } catch (SAXParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	        
-    		
-    		doc.add(new Field("snippet", wholeDocText, Field.Store.YES, Field.Index.TOKENIZED));
-			*/
     		
             writer.addDocument(doc);
             
@@ -194,7 +182,8 @@ public class IndexFiles {
     }
   }
   
-  public static void indexFolderContents() {
+  
+  public static void indexTemplateFields() {
 		 //Create a file chooser
 		final JFileChooser fc = new JFileChooser();
 			
@@ -210,9 +199,9 @@ public class IndexFiles {
 		int returnVal = fc.showOpenDialog(null);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File folderToIndex = fc.getSelectedFile();
-			String[] path = {folderToIndex.getAbsolutePath()};
+			String path = folderToIndex.getAbsolutePath();
 			// remember this location
-			PreferencesManager.setPreference(PreferencesManager.ROOT_FILES_FOLDER, folderToIndex.getAbsolutePath());
+			PreferencesManager.setPreference(PreferencesManager.ROOT_FILES_FOLDER, path);
 	            
 			indexFiles(path);
 		}

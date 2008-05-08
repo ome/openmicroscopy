@@ -68,6 +68,7 @@ public class ImageFactory {
 	public static final String SPACER_ICON = ACTION_ICONS_FILE + "spacer16x16.png";
 	public static final String WWW_ICON = ACTION_ICONS_FILE + "www.png";
 	public static final String MORE_LIKE_THIS_ICON = ACTION_ICONS_FILE + "moreLikeThis.png";
+	public static final String TEMPLATE_SEARCH_ICON = ACTION_ICONS_FILE + "templateSearch.png";
 	public static final String INFO_ICON = ACTION_ICONS_FILE + "messagebox_info.png";
 	public static final String SEARCH_ICON = ICONS_FILE + "xmag.png";
 	public static final String TWO_LEFT_ARROW = ACTION_ICONS_FILE + "2leftarrow.png";

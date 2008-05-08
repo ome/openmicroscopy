@@ -127,7 +127,7 @@ public class SearchPanel extends JPanel {
 		
 			int result = JOptionPane.showConfirmDialog(this, "Search index not found.\n" +
 					"You need to create an index of all the files you want to search.\n"+
-					"Please choose the root directory containing all your files","Index not found" ,JOptionPane.YES_NO_OPTION);
+					"Please choose the root directory containing all your files","Index not found" ,JOptionPane.OK_CANCEL_OPTION);
     		if (result == JOptionPane.YES_OPTION) {
     			IndexFiles.indexFolderContents();
     			

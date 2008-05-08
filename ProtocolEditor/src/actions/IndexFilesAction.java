@@ -45,6 +45,9 @@ public class IndexFilesAction
 	}
 	
 	public void actionPerformed(ActionEvent e) {
+		/*
+		 * This action will ask the user to locate the root directory.
+		 */
 		IndexFiles.indexFolderContents();
 	}
 	

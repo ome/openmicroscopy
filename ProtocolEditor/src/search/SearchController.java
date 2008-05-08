@@ -4,7 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
@@ -13,10 +16,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
+import org.xml.sax.SAXParseException;
+
+import tree.DataFieldConstants;
 import ui.AbstractComponent;
 import ui.IModel;
 import ui.XMLView;
 import util.ImageFactory;
+import util.XMLMethods;
+import util.XMLMethods.ElementAttributesHashMapHandler;
 import xmlMVC.XMLModel;
 
 /*
@@ -69,6 +77,13 @@ public class SearchController
 	 * More-Like-This-Search uses a file to build a search query, to return similar files
 	 */
 	public static final String MORE_LIKE_THIS_SEARCH = "moreLikeThisSearch";
+	
+	/**
+	 * Action command for determining which search to perform;
+	 * Template-Search uses a file to build a search query string. 
+	 * Fields that are filled in are used as search fields (like a search form). 
+	 */
+	public static final String TEMPLATE_SEARCH = "templateSearch";
 	
 	/**
 	 * Model, passed to SearchPanel, so results files can be opened. 
@@ -144,6 +159,9 @@ public class SearchController
 	public void actionPerformed(ActionEvent event) {
 		if (event.getActionCommand().equals(MORE_LIKE_THIS_SEARCH)) {
 			findMoreLikeThis();
+		} else 
+		if (event.getActionCommand().equals(TEMPLATE_SEARCH)) {
+			searchWithCurrentFileAsForm();
 		} else
 			searchFiles();
 	}
@@ -162,30 +180,68 @@ public class SearchController
 	}
 	
 	/**
+	 * Starts the search using a given search term.
+	 * Creates an instance of <code>SearchPanel</code>
+	 */
+	public void searchFiles(String searchQuery) {
+		if (searchQuery == null) 
+			return;
+		JPanel newResultPanel = new SearchPanel(searchQuery, model);
+		setSearchResultsPanel(newResultPanel);
+	}
+	
+	public void searchWithCurrentFileAsForm() {
+		File file = new File(XMLModel.OMERO_EDITOR_FILE + File.separator + "searchFile");
+			
+		model.exportTreeToXmlFile(file);
+		
+		XMLMethods xmlMethods = new XMLMethods();
+		try {
+			String searchQuery = "";
+			
+			ArrayList<HashMap<String, String>> elements = xmlMethods.getAllXmlFileAttributes(file, xmlMethods.new ElementAttributesHashMapHandler());
+			
+			for (HashMap<String, String> element : elements) {
+				String attributeName = element.get(DataFieldConstants.ELEMENT_NAME);
+				String value = element.get(DataFieldConstants.VALUE);
+				
+				if ((value != null) && (value.length() > 0) && 
+						(attributeName != null) && (attributeName.length() > 0)) {
+					attributeName = attributeName.replace(" ", "");
+					
+					searchQuery = searchQuery  + attributeName + ":" + "\"" + value + "\" ";
+				}
+			}
+			
+			System.out.println("SearchController searchWithCurrentFileAsForm() searchQuery = " + searchQuery);
+			
+			searchFiles(searchQuery);
+		
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		file.delete();
+	}
+
+	/**
 	 * Uses the currently opened file from <code>IModel</code> to start a more-like-this search.
 	 */
 	public void findMoreLikeThis() {
-		File file = model.getCurrentFile();
+		File file = new File(XMLModel.OMERO_EDITOR_FILE + File.separator + "searchFile");
+		
+		model.exportTreeToXmlFile(file);
 		
 		if (file == null) return;
+				
+		searchFiles(file);
+				
+		file.delete();
 		
-		/*
-		 * if file has not been saved yet, needs to be saved, so file can be passed to search.
-		 */ 
-		if (!file.exists()) {
-			
-			// Need to save the file, to use it for searching...
-			model.saveTreeToXmlFile(file);
-				
-			searchFiles(file);
-				
-			// but don't want to leave it there, otherwise it will be used for future searches! 
-			file.delete();
-				
-		} else {
-			searchFiles(file);
-		}
-
 	}
 
 	/**
@@ -198,6 +254,8 @@ public class SearchController
 		JPanel newResultPanel = new SearchPanel(file, model);
 		setSearchResultsPanel(newResultPanel);
 	}
+	
+	
 	
 	/**
 	 * Takes a JPanel from a search and places it within <code>searchControllerPanel</code>,

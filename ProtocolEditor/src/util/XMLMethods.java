@@ -38,6 +38,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
@@ -49,8 +50,10 @@ import tree.DataFieldConstants;
 
 public class XMLMethods {
 
-	ArrayList<HashMap> elementList = new ArrayList<HashMap>();
+	ArrayList<HashMap<String, String>> elementList = new ArrayList<HashMap<String, String>>();
 		
+	public static final String ELEMENT_SEPARATOR = "/";
+	
 	/**
 	 * Given an xml file, this method returns an arrayList of elements, 
 	 * each one as a hashmap of attributes (elementPath+attributeName, value)
@@ -58,13 +61,59 @@ public class XMLMethods {
 	 * This is used for displaying the results of file searches: Need to highlight the 
 	 * context of the search keyword by showing which element it is in etc. 
 	 */
-	public ArrayList<HashMap> getAllXmlFileAttributes(File file) throws FileNotFoundException, SAXParseException {
+	public ArrayList<HashMap<String, String>> getAllXmlFileAttributes(File file) throws FileNotFoundException, SAXParseException {
 	
+		if (elementList == null) {
+			elementList = new ArrayList<HashMap<String, String>>();
+		}
+		elementList.clear();
+		
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
 			XMLReader xmlReader = saxParser.getXMLReader();
-			xmlReader.setContentHandler(new XMLContentHandler());
+			xmlReader.setContentHandler(new ElementPathHashMapHandler());
+			xmlReader.parse(file.toURL().toString());
+		
+		} catch (SAXParseException spEx) {
+			throw spEx;
+		} catch (SAXException sEx) {
+			sEx.printStackTrace();
+		} catch (ParserConfigurationException pcEx) {
+			pcEx.printStackTrace();
+		} catch (FileNotFoundException fnfEx) {
+			throw fnfEx;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return elementList;
+	}
+	
+	
+	/**
+	 * Given an xml file, this method returns an arrayList of elements, 
+	 * each one as a hashmap of attributes (elementPath+attributeName, value)
+	 * 
+	 * This is used for displaying the results of file searches: Need to highlight the 
+	 * context of the search keyword by showing which element it is in etc. 
+	 */
+	public ArrayList<HashMap<String, String>> getAllXmlFileAttributes(File file, ContentHandler handler) 
+		throws FileNotFoundException, SAXParseException {
+	
+		if (elementList == null) {
+			elementList = new ArrayList<HashMap<String, String>>();
+		}
+		elementList.clear();
+		
+		try {
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParser saxParser = factory.newSAXParser();
+			XMLReader xmlReader = saxParser.getXMLReader();
+			xmlReader.setContentHandler(handler);
 			xmlReader.parse(file.toURL().toString());
 		
 		} catch (SAXParseException spEx) {
@@ -90,10 +139,19 @@ public class XMLMethods {
 	 * This is the content handler that builds a hashMap from each XML element, and adds
 	 * each hashMap to the elementList. 
 	 * 
+	 * The element path is built-up as the XML hierarchy is traversed, then shortened at the 
+	 * end of each element. 
+	 * The element path is made up of elementName attribute from each element in the hierarchy,
+	 * separated by ELEMENT_SEPARATOR.
+	 * 
+	 * For each element the attributes are converted to a hashMap, where
+	 * key is elementPath (including name of current element) + ELEMENT_SEPARATOR + attributeName
+	 * and value is the attribute value. 
+	 * 
 	 * @author will
 	 *
 	 */
-	public class XMLContentHandler extends DefaultHandler {
+	public class ElementPathHashMapHandler extends DefaultHandler {
 		
 		String elementPath = "";
 		
@@ -102,13 +160,13 @@ public class XMLMethods {
 			String elementName = attribs.getValue(DataFieldConstants.ELEMENT_NAME);
 			if (elementName != null) elementName = elementName.replace("/", "-");	// don't add any confusing / into path
 			
-			elementPath = elementPath + "/" + elementName;
+			elementPath = elementPath + ELEMENT_SEPARATOR + elementName;
 			
 			HashMap attributeMap = new HashMap();
 			
 			for (int i=0; i<attribs.getLength(); i++) {
 				
-				attributeMap.put(elementPath + "/" + attribs.getQName(i), attribs.getValue(i));
+				attributeMap.put(elementPath + ELEMENT_SEPARATOR + attribs.getQName(i), attribs.getValue(i));
 				
 			}
 			elementList.add(attributeMap);
@@ -122,6 +180,36 @@ public class XMLMethods {
 			int lastSlashIndex = elementPath.lastIndexOf("/");
 			if (lastSlashIndex > 1)
 				elementPath = elementPath.substring(0, lastSlashIndex);
+		}
+		
+	}
+	
+	
+	/**
+	 * This is the content handler that builds a hashMap from each XML element, and adds
+	 * each hashMap to the elementList. However, the hashMap contains no reference to the
+	 * position of that element in the XML document. 
+	 * 
+	 * For each element the attributes are converted to a hashMap, where
+	 * key is attributeName
+	 * and value is the attribute value. 
+	 * 
+	 * @author will
+	 *
+	 */
+	public class ElementAttributesHashMapHandler extends DefaultHandler {
+		
+		public void startElement(String uri, String localName, String qualName, Attributes attribs) {
+
+			HashMap attributeMap = new HashMap();
+			
+			for (int i=0; i<attribs.getLength(); i++) {
+				
+				attributeMap.put(attribs.getQName(i), attribs.getValue(i));
+				
+			}
+			elementList.add(attributeMap);
+			
 		}
 		
 	}
