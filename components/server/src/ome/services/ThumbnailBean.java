@@ -673,13 +673,22 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	Map<Long, byte[]> toReturn = new HashMap<Long, byte[]>();
     	for (Long pixelsId : pixelsIds)
     	{
-    		if (!setPixelsId(pixelsId))
-    		{
-    			resetDefaults();
-    			setPixelsId(pixelsId);
-    		}
-    		byte[] thumbnail = getThumbnail(sizeX, sizeY);
-    		toReturn.put(pixelsId, thumbnail);
+    	    try
+    	    {
+    	        if (!setPixelsId(pixelsId))
+    	        {
+    	            resetDefaults();
+    	            setPixelsId(pixelsId);
+    	        }
+    	        byte[] thumbnail = getThumbnail(sizeX, sizeY);
+    	        toReturn.put(pixelsId, thumbnail);
+    	    }
+            catch (Throwable t)
+            {
+                log.warn("WARNING: Retrieving thumbnail in set for Pixels ID "
+                         + pixelsId + " failed.", t);
+                toReturn.put(pixelsId, null);
+            }
     	}
     	return toReturn;
     }
@@ -695,13 +704,22 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	Map<Long, byte[]> toReturn = new HashMap<Long, byte[]>();
     	for (Long pixelsId : pixelsIds)
     	{
-    		if (!setPixelsId(pixelsId))
-    		{
-    			resetDefaults();
-    			setPixelsId(pixelsId);
-    		}
-    		byte[] thumbnail = getThumbnailByLongestSide(size);
-    		toReturn.put(pixelsId, thumbnail);
+    	    try
+    	    {
+    	        if (!setPixelsId(pixelsId))
+    	        {
+    	            resetDefaults();
+    	            setPixelsId(pixelsId);
+    	        }
+    	        byte[] thumbnail = getThumbnailByLongestSide(size);
+    	        toReturn.put(pixelsId, thumbnail);
+    	    }
+    	    catch (Throwable t)
+    	    {
+    	        log.warn("WARNING: Retrieving thumbnail in set for Pixels ID "
+    	                 + pixelsId + " failed.", t);
+    	        toReturn.put(pixelsId, null);
+    	    }
     	}
     	return toReturn;
     }

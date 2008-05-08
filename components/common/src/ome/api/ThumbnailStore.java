@@ -104,17 +104,10 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *            the Y-axis width of the thumbnail. <code>null</code>
      *            specifies the default size of 48.
      * @param pixelsIds the Pixels sets to retrieve thumbnails for.
-     * @throws ApiUsageException
-     *             if:
-     *             <ul>
-     *             <li><i>sizeX</i> > pixels.sizeX</li>
-     *             <li><i>sizeX</i> is negative</li>
-     *             <li><i>sizeY</i> > pixels.sizeY</li>
-     *             <li><i>sizeY</i> is negative</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
-     *             </ul>
      * @return a {@link Map} whose keys are pixels ids and values are JPEG 
-     * thumbnail byte buffers.
+     * thumbnail byte buffers or <code>null</code> if an exception was thrown 
+     * while attempting to retrieve the thumbnail for that particular Pixels
+     * set.
      * @see getThumbnail()
      */
     public Map<Long, byte[]> getThumbnailSet(Integer sizeX, Integer sizeY, 
@@ -134,17 +127,13 @@ public interface ThumbnailStore extends StatefulServiceInterface {
      *            the size of the longest side of the thumbnail requested.
      *            <code>null</code> specifies the default size of 48.
      * @param pixelsIds the Pixels sets to retrieve thumbnails for.
-     * @throws ApiUsageException
-     *             if:
-     *             <ul>
-     *             <li><i>size</i> > pixels.sizeX and pixels.sizeY</li>
-     *             <li>{@link setPixelsId()} has not yet been called</li>
-     *             </ul>
      * @return a {@link Map} whose keys are pixels ids and values are JPEG 
-     * thumbnail byte buffers.
+     * thumbnail byte buffers or <code>null</code> if an exception was thrown 
+     * while attempting to retrieve the thumbnail for that particular Pixels
+     * set.
      * @see getThumbnailSet()
      */
-    public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer sizeX,
+    public Map<Long, byte[]> getThumbnailByLongestSideSet(Integer size,
     		@NotNull @Validate(Long.class) Set<Long> pixelsIds);
 
     /**
