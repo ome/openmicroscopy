@@ -2119,6 +2119,44 @@ class OMEROGateway
 	}
   
 	/**
+	 * Resets the rendering settings for the images contained in the 
+	 * specified datasets or categories
+	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * Resets the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param nodes			The nodes to apply settings to. 
+	 * @return <true> if the call was successful, <code>false</code> otherwise.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Map setRenderingSettings(Class rootNodeType, Set nodes) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Set<Long> success = new HashSet<Long>();
+		Set<Long> failure = new HashSet<Long>();
+		isSessionAlive();
+		try {
+			IRenderingSettings service = getRenderingSettingsService();
+			Class klass = convertPojos(rootNodeType);
+			if (klass.equals(Image.class) || klass.equals(Dataset.class) ||
+					klass.equals(Category.class))
+				success = service.resetDefaultsInSet(klass, nodes);
+		} catch (Exception e) {
+			handleException(e, "Cannot reset the rendering settings.");
+		}
+		Map<Boolean, Set> result = new HashMap<Boolean, Set>(2);
+		result.put(Boolean.TRUE, success);
+		result.put(Boolean.FALSE, failure);
+		return result;
+	}
+	
+	/**
 	 * Applies the rendering settings associated to the passed pixels set 
 	 * to the images contained in the specified datasets or categories
 	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.

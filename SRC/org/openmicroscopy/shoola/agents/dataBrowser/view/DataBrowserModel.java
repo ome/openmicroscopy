@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -147,6 +148,7 @@ abstract class DataBrowserModel
     	if (browser.getSelectedLayout() == null) {
     		Layout layout = LayoutFactory.getDefaultLayout(sorter, 1);
             browser.setSelectedLayout(layout);
+          
     	}
         browser.accept(browser.getSelectedLayout(), 
         				ImageDisplayVisitor.IMAGE_SET_ONLY);
@@ -216,7 +218,10 @@ abstract class DataBrowserModel
      * 
      * @param component The embedding component.
      */
-    void initialize(DataBrowser component) { this.component = component; }
+    void initialize(DataBrowser component)
+    {
+    	this.component = component;
+    }
 
     /**
      * Sets the specified thumbnail for all image nodes in the display that

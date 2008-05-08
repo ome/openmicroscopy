@@ -24,16 +24,13 @@ package org.openmicroscopy.shoola.agents.dataBrowser.actions;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -55,7 +52,7 @@ public class RefreshAction
 {
 
     /** Description of the action. */
-    private static final String DESCRIPTION = "Refresh.";
+    private static final String DESCRIPTION = "Refresh thumbnails.";
     
 	/**
 	 * Creates a new instance.
@@ -73,12 +70,9 @@ public class RefreshAction
 	}
 	
 	/**
-     * Refreshes.
+     * Reloads the thumbnails.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	model.refresh();
-    }
+    public void actionPerformed(ActionEvent e) { model.reloadThumbnails(); }
     
 }

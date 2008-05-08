@@ -84,7 +84,8 @@ class EditorControl
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
-	public void propertyChange(PropertyChangeEvent evt) {
+	public void propertyChange(PropertyChangeEvent evt)
+	{
 		String name = evt.getPropertyName();
 		if (SAVE_PROPERTY.equals(name)) {
 			view.setDataToSave(view.hasDataToSave());

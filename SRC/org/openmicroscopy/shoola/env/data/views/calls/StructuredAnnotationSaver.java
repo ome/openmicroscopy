@@ -84,6 +84,30 @@ public class StructuredAnnotationSaver
     }
     
     /**
+     * Creates a {@link BatchCall} to retrieve the users who viewed 
+     * the specified set of pixels and also retrieve the rating associated
+     * to that set.
+     * 
+     * @param data		The data objects to handle.
+     * @param toAdd		The annotations to add.
+     * @param toRemove	The annotations to remove.
+     * @param userID	The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadBatchCall(final Collection<DataObject> data, final
+    		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
+    		final long userID)
+    {
+        return new BatchCall("Saving") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+            	result = os.saveBatchData(data, toAdd, toRemove, userID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -102,14 +126,19 @@ public class StructuredAnnotationSaver
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
      * @param userID	The id of the user.
+     * @param batch		Pass <code>true</code> to indicate that it is a batch
+     * 					annotation, <code>false</code> otherwise.
      */
     public StructuredAnnotationSaver(Collection<DataObject> data, 
     		List<AnnotationData> toAdd, List<AnnotationData> toRemove, long
-    		userID)
+    		userID, boolean batch)
     {
     	if (data == null)
     		throw new IllegalArgumentException("No object to save.");
-    	loadCall = loadCall(data, toAdd, toRemove, userID);
+    	if (batch)
+    		loadCall = loadBatchCall(data, toAdd, toRemove, userID);
+    	else 
+    		loadCall = loadCall(data, toAdd, toRemove, userID);
     }
     
 }

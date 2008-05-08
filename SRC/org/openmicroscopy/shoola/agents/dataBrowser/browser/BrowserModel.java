@@ -517,8 +517,10 @@ class BrowserModel
 	 */
 	public void setFilterNodes(Collection<ImageDisplay> nodes)
 	{
-		rootDisplay.accept(new ResetNodesVisitor(nodes), 
-							ImageDisplayVisitor.IMAGE_SET_ONLY);
+		ResetNodesVisitor visitor = new ResetNodesVisitor(nodes, true);
+		rootDisplay.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
+		firePropertyChange(VISIBLE_NODES_PROPERTY, null, 
+							visitor.getVisibleImages());
 	}
 
 	/**

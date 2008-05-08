@@ -269,11 +269,14 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static int           TAG = 71;
     
+    /** The <code>Tag</code> icon. */
+    public static int           SET_RND_SETTINGS = 72;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 71;
+    private static int          MAX_ID = 72;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -346,13 +349,14 @@ public class IconManager
         relPaths[BROWSER] = "zoom16.png";
         relPaths[DISK_SPACE] = "nuvola_kcmpartitions16.png";
         relPaths[DATE] = "nuvola_date16.png";
-        relPaths[REDO] = "nuvola_redo16.png";
+        relPaths[REDO] = "nuvola_undo16.png";
         relPaths[SEARCH] = "nuvola_find16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
         relPaths[PROJECT_ANNOTATED] = "tagged_project16.png";
         relPaths[TAGS_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[TAG] = "nuvola_knotes16.png";
+        relPaths[SET_RND_SETTINGS] = "nuvola_redo16.png";
     }
     
     /** The sole instance. */

@@ -145,13 +145,16 @@ public class IconManager
     public static int           CUT = 31;
     
     /** The <code>Redo</code> icon. */
-    public static int           REDO = 32;
+    public static int           UNDO = 32;
+    
+    /** The <code>Tag</code> icon. */
+    public static int           SET_ORIGINAL_RND_SETTINGS = 33;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 32;
+    private static int          MAX_ID = 33;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -190,7 +193,8 @@ public class IconManager
         relPaths[REMOVE] = "eclipse_delete_edit16.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[CUT] = "nuvola_editcut16.png";
-        relPaths[REDO] = "nuvola_redo16.png";
+        relPaths[UNDO] = "nuvola_undo16.png";
+        relPaths[SET_ORIGINAL_RND_SETTINGS] = "nuvola_redo16.png";
     }
     
     /** The sole instance. */

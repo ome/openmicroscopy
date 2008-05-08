@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
@@ -47,6 +46,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -113,8 +113,13 @@ class DataBrowserComponent
 		if (model.getNumberOfImages() < MAX_ENTRIES)
 			model.loadData(false); 
 		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
-		if (model.getBrowser() != null)
-			model.getBrowser().addPropertyChangeListener(controller);
+		if (model.getBrowser() != null) {
+			Browser browser = model.getBrowser();
+	    	ResetNodesVisitor visitor = new ResetNodesVisitor(null, false);
+	    	browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
+	    	browser.addPropertyChangeListener(controller);
+	    	setVisibleNodes(visitor.getVisibleImages());
+		}
 		fireStateChange();
 	}
 
@@ -592,9 +597,9 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#refresh()
+	 * @see DataBrowser#reloadThumbnails()
 	 */
-	public void refresh()
+	public void reloadThumbnails()
 	{
 		switch (model.getState()) {
 			case DISCARDED:
@@ -605,6 +610,28 @@ class DataBrowserComponent
 		}
 		model.loadData(true);
 		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setVisibleNodes(Collection)
+	 */
+	public void setVisibleNodes(Collection nodes)
+	{
+		firePropertyChange(VISIBLE_NODES_PROPERTY, null, nodes);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setOriginalSettings()
+	 */
+	public void setOriginalSettings()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be " +
+					"invoked in the DISCARDED state.");
+		firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
 	}
 	
 }

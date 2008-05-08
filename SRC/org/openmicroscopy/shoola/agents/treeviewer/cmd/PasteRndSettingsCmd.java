@@ -65,6 +65,9 @@ public class PasteRndSettingsCmd
 	/** Indicates to reset the rendering settings. */
 	public static final int RESET = 1;
 	
+	/** Indicates to reset the rendering settings. */
+	public static final int SET = 2;
+	
 	/** Reference to the model. */
     private TreeViewer	model;
     
@@ -81,6 +84,7 @@ public class PasteRndSettingsCmd
     	switch (i) {
 			case PASTE:
 			case RESET:
+			case SET:
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -150,6 +154,10 @@ public class PasteRndSettingsCmd
 				if (ref != null) model.resetRndSettings(ref);
 				else model.resetRndSettings(ids, klass);
 				break;
+			case SET:
+				if (ref != null) model.setRndSettings(ref);
+				else model.setRndSettings(ids, klass);
+				
 		}
     }
     

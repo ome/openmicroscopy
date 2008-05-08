@@ -178,4 +178,15 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#setRenderingSettings(Class, Set)
+     */
+	public Map setRenderingSettings(Class rootNodeType, Set<Long> nodeIDs) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -90,6 +90,10 @@ public interface DataBrowser
 	public static final String		RESET_RND_SETTINGS_PROPERTY = 
 										"resetRndSettings";
 	
+	/** Bound property indicating to set the original rendering settings. */
+	public static final String		SET__ORIGINAL_RND_SETTINGS_PROPERTY = 
+										"setOriginalRndSettings";
+	
 	/** Bound property indicating to copy the items. */
 	public static final String		COPY_ITEMS_PROPERTY = "copyItems";
 	
@@ -101,6 +105,9 @@ public interface DataBrowser
 	
 	/** Bound property indicating to remove the items. */
 	public static final String		REMOVE_ITEMS_PROPERTY = "removeItems";
+	
+	/** Bound property indicating the visible nodes. */
+	public static final String  	VISIBLE_NODES_PROPERTY = "visibleNodes";
 	
 	/** Loads the thumbnails when we have <code>100</code> or less values. */
 	public static final int			MAX_ENTRIES = 100;
@@ -383,7 +390,17 @@ public interface DataBrowser
 	 */
 	public boolean isReadable(DataObject hierarchyObject);
 
-	/** Refreshes the display. */
-	public void refresh();
+	/** Reloads the thumbnails. */
+	public void reloadThumbnails();
+
+	/**
+	 * Fires a property changes indicating the filtered nodes.
+	 * 
+	 * @param nodes The collection of filtered nodes.
+	 */
+	public void setVisibleNodes(Collection nodes);
+
+	/** Sets the original rendering settings. */
+	public void setOriginalSettings();
 
 }

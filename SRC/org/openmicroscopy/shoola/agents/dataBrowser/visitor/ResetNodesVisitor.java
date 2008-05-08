@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
 
 //Java imports
+import java.awt.Component;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.swing.JComponent;
@@ -36,10 +38,11 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
+import pojos.DataObject;
 
 
 /** 
- * 
+ * Adds the visible nodes to the desktop.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -58,17 +61,37 @@ public class ResetNodesVisitor
 	/** The collection of nodes to reset. */
 	private Collection<ImageDisplay> 	nodes;
 	
+	/** The collection of data object hosted by the visible nodes. */
+	private Collection<DataObject>		visibleImages;
+	
+	/** 
+	 * Flag indicating if the visitor is used to reset the nodes or
+	 * to collect the nodes displayed.
+	 */
+	private boolean						reset;
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param nodes The collection of <code>DataObject</code>s to find.
+	 * @param reset Pass <code>true</code> to reset the nodes, 
+	 * 				<code>false</code> to count the visible nodes.
 	 */
-	public ResetNodesVisitor(Collection<ImageDisplay> nodes)
+	public ResetNodesVisitor(Collection<ImageDisplay> nodes, boolean reset)
 	{
-		if (nodes == null)
+		if (nodes == null && reset)
 			throw new IllegalArgumentException("No nodes to find.");
 		this.nodes = nodes;
+		visibleImages = new ArrayList<DataObject>();
+		this.reset = reset;
 	}
+	
+	/**
+	 * Returns the collection of data object hosted by the visible nodes.
+	 * 
+	 * @return See above.
+	 */
+	public Collection<DataObject> getVisibleImages() { return visibleImages; }
 	
     /** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
@@ -84,16 +107,33 @@ public class ResetNodesVisitor
 	{ 
 		if (node.containsImages()) {
 			JComponent desktop = node.getInternalDesktop();
-			desktop.removeAll();
-			Iterator<ImageDisplay> i = nodes.iterator();
 			ImageDisplay child;
-			ImageDisplay parent;
-	        while (i.hasNext()) {
-	        	child = i.next();
-	        	parent = child.getParentDisplay();
-	        	if (parent == null || node == parent) 
-	        		desktop.add(child);
-	        }
+			if (reset) {
+				desktop.removeAll();
+				Iterator<ImageDisplay> i = nodes.iterator();
+				ImageDisplay parent;
+		        while (i.hasNext()) {
+		        	child = i.next();
+		        	parent = child.getParentDisplay();
+		        	if (parent == null || node == parent) {
+		        		visibleImages.add(
+		        					(DataObject) child.getHierarchyObject());
+		        		desktop.add(child);
+		        	}
+		        }
+			} else {
+				Component[] comps = desktop.getComponents();
+				Component comp;
+				
+				for (int i = 0; i < comps.length; i++) {
+					comp = comps[i];
+					if (comp instanceof ImageDisplay) {
+						child = (ImageDisplay) comp;
+						visibleImages.add(
+	        					(DataObject) child.getHierarchyObject());
+					}
+				}
+			}
 		}
 	}
 	

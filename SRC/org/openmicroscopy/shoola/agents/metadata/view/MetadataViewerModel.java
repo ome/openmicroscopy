@@ -33,6 +33,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
@@ -97,6 +98,15 @@ class MetadataViewerModel
 	/** The active data loaders. */
 	private Map<TreeBrowserDisplay, MetadataLoader>	loaders;
 	
+	/** 
+	 * Flag indicating if the {@link MetadataViewer} is in a single view
+	 * context.
+	 */
+	private boolean									singleViewMode;
+	
+	/** The collection of visible images. */
+	private Collection<DataObject>					visibleImages;
+	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
@@ -127,6 +137,25 @@ class MetadataViewerModel
 		browser = BrowserFactory.createBrowser(component, refObject);
 		editor = EditorFactory.createEditor(component, refObject, 
 										thumbnailRequired, layout);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the {@link MetadataViewer} is in a single
+	 * view context, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleViewMode() { return singleViewMode; }
+	
+	/**
+	 * Sets to <code>true</code> if the {@link MetadataViewer} is in a single
+	 * view context, <code>false</code> otherwise.
+	 * 
+	 * @param singleViewMode The value to set.
+	 */
+	void setSingleViewMode(boolean singleViewMode)
+	{ 
+		this.singleViewMode = singleViewMode;
 	}
 	
 	/**
@@ -349,6 +378,40 @@ class MetadataViewerModel
 	void setSiblings(Collection<DataObject> siblings)
 	{
 		this.siblings = siblings;
+	}
+
+	/**
+	 * Sets the collection of visible nodes.
+	 * 
+	 * @param visibleImages The collection to set.
+	 */
+	void setVisibleImages(Collection visibleImages)
+	{
+		this.visibleImages = visibleImages;
+	}
+	
+	/**
+	 * Returns the collection of objects related to the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	Collection getVisibleImages() { return visibleImages; }
+	
+	/**
+	 * Fires an asynchronous call to save the objects contained
+	 * in the passed <code>DataObject</code> to save, add (resp. remove)
+	 * annotations to (resp. from) the object.
+	 * 
+	 * @param toAdd		Collection of annotations to add.
+	 * @param toRemove	Collection of annotations to remove.
+	 * @param toSave		The object to update.
+	 */
+	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
+						toRemove, List<DataObject> toSave)
+	{
+		DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
+				toRemove);
+		loader.load();
 	}
 	
 }

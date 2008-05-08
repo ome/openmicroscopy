@@ -104,6 +104,9 @@ public interface Browser
 	/** Bound property indicating to magnify the node when moused over. */
 	public static final String  ROLL_OVER_PROPERTY = "rollOver";
 	
+	/** Bound property indicating the visible nodes. */
+	public static final String  VISIBLE_NODES_PROPERTY = "visibleNodes";
+	
 	/**
 	 * Sets the specified <code>node</code> to be the currently selected
 	 * node in the visualization tree.

@@ -287,6 +287,7 @@ class DataBrowserToolBar
 		search = new QuickFiltering();
 		search.addPropertyChangeListener(controller);
 		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));
+		filterButton.setToolTipText("Filter images.");
 		filterButton.addMouseListener(new MouseAdapter() {
 		
 			/**
@@ -305,12 +306,14 @@ class DataBrowserToolBar
 		int index = view.getSelectedView();
 		thumbView = new JToggleButton(
 					icons.getIcon(IconManager.THUMBNAIL_VIEW));
+		thumbView.setToolTipText("Thumbnails View.");
 		thumbView.addActionListener(this);
 		thumbView.setActionCommand(""+DataBrowserUI.THUMB_VIEW);
 		thumbView.setSelected(index == DataBrowserUI.THUMB_VIEW);
 		group.add(thumbView);
 		columnsView = new JToggleButton(
 				icons.getIcon(IconManager.COLUMN_VIEW));
+		columnsView.setToolTipText("Table View.");
 		columnsView.addActionListener(this);
 		columnsView.setActionCommand(""+DataBrowserUI.COLUMNS_VIEW);
 		columnsView.setSelected(index == DataBrowserUI.COLUMNS_VIEW);
@@ -332,6 +335,7 @@ class DataBrowserToolBar
 		});
 		//group.add(slideShowView);
 		managementButton = new JButton(icons.getIcon(IconManager.MANAGER));
+		managementButton.setToolTipText("Manage images.");
 		managementButton.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -343,18 +347,18 @@ class DataBrowserToolBar
 			}
 		
 		});
-		//UIUtilities.unifiedButtonLookAndFeel(managementButton);
-		
-		//
+
 		group = new ButtonGroup();
 		orderByName = new JToggleButton(
 				icons.getIcon(IconManager.SORT_BY_NAME));
+		orderByName.setToolTipText("Order images by name.");
 		orderByName.addActionListener(this);
 		orderByName.setActionCommand(""+DataBrowserUI.SORT_BY_NAME);
 		orderByName.setSelected(true);
 		group.add(orderByName);
 		orderByDate = new JToggleButton(
 				icons.getIcon(IconManager.SORT_BY_DATE));
+		orderByDate.setToolTipText("Order images by imported date.");
 		orderByDate.addActionListener(this);
 		orderByDate.setActionCommand(""+DataBrowserUI.SORT_BY_DATE);
 		group.add(orderByDate);

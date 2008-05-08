@@ -1366,8 +1366,7 @@ class TreeViewerComponent
 	{
 		if (ids == null || ids.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Reset settings", "Please select the nodes" +
-			"you wish to reset the rendering settings.");
+			un.notifyInfo("Reset settings", "Please select at one element.");
 			return;
 		}
 		model.fireResetRenderingSettings(ids, klass);
@@ -1382,8 +1381,7 @@ class TreeViewerComponent
 	{
 		if (ref == null) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Reset settings", "Please select the nodes" +
-			"you wish to reset the rendering settings.");
+			un.notifyInfo("Reset settings", "Please select at one element.");
 			return;
 		}
 		model.fireResetRenderingSettings(ref);
@@ -1572,6 +1570,36 @@ class TreeViewerComponent
 		long pixelsID = img.getDefaultPixels().getId();
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new CopyRndSettings(pixelsID));
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setRndSettings(Set, Class)
+	 */
+	public void setRndSettings(Set<Long> ids, Class klass)
+	{
+		if (ids == null || ids.size() == 0) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Set settings", "Please select at one element.");
+			return;
+		}
+		model.fireResetRenderingSettings(ids, klass);
+		fireStateChange();
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setRndSettings(TimeRefObject)
+	 */
+	public void setRndSettings(TimeRefObject ref)
+	{
+		if (ref == null) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Set settings", "Please select at one element.");
+			return;
+		}
+		model.fireResetRenderingSettings(ref);
+		fireStateChange();
 	}
 	
 }

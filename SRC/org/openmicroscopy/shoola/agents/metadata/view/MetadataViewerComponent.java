@@ -267,6 +267,105 @@ class MetadataViewerComponent
 				List<AnnotationData> toRemove, DataObject data)
 	{
 		if (data == null) return;
+		Object refObject = model.getRefObject();
+		Collection<DataObject> siblings = model.getSiblings();
+		List<DataObject> toSave = new ArrayList<DataObject>();
+		MessageBox dialog;
+		if (refObject instanceof ProjectData) {
+			if (siblings != null && siblings.size() > 1)
+				toSave.addAll(siblings);
+			toSave.add(data);
+			model.fireSaving(toAdd, toRemove, toSave);
+		} else if (refObject instanceof DatasetData) {
+			//Only properties to save
+			if ((toAdd.size() == 0 && toRemove.size() == 0) 
+				|| model.isSingleViewMode()) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
+			}
+			dialog = new MessageBox(view, "Save Annotations", 
+									"Do you want to annotate: ");
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton single = new JRadioButton();
+			group.add(single);
+			single.setSelected(true);
+			p.add(single);
+			String s = "The selected dataset";
+			if (siblings != null && siblings.size() > 1) s += "s";
+			single.setText(s);
+			JRadioButton batchAnnotation = new JRadioButton();
+			group.add(batchAnnotation);
+			p.add(batchAnnotation);
+			s = "Images contained in the selected dataset";
+			if (siblings != null && siblings.size() > 1) s += "s";
+			batchAnnotation.setText(s);
+			dialog.addBodyComponent(p);
+			int option = dialog.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
+				if (siblings != null && siblings.size() > 1)
+					toSave.addAll(siblings);
+				toSave.add(data);
+				if (single.isSelected()) 
+					model.fireSaving(toAdd, toRemove, toSave);
+				else
+					model.fireBatchSaving(toAdd, toRemove, toSave);
+			} else if (option == MessageBox.NO_OPTION) {
+				clearDataToSave();
+			}
+		} else if (refObject instanceof ImageData) {
+			//Only properties to save
+			if ((toAdd.size() == 0 && toRemove.size() == 0) 
+					|| model.isSingleViewMode()) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
+			}
+			Collection visibleImages = model.getVisibleImages();
+			if (visibleImages == null || visibleImages.size() <= 1) {
+				//toSave.add(data);
+				//model.fireSaving(toAdd, toRemove, toSave);
+				//return;
+			}
+			dialog = new MessageBox(view, "Save Annotations", 
+								"Do you want to annotate: ");
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton single = new JRadioButton();
+			group.add(single);
+			single.setSelected(true);
+			p.add(single);
+			String s = "The selected image";
+			if (siblings != null && siblings.size() > 1) s += "s";
+			single.setText(s);
+			JRadioButton all = new JRadioButton();
+			if (visibleImages != null && visibleImages.size() > 1) {
+				group.add(all);
+				p.add(all);
+				all.setText("The visible images");
+			}
+			dialog.addBodyComponent(p);
+			int option = dialog.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
+				if (single.isSelected()) {
+					if (siblings != null && siblings.size() > 1)
+						toSave.addAll(siblings);
+					toSave.add(data);
+					model.fireSaving(toAdd, toRemove, toSave);
+				} else {
+					if (visibleImages != null && visibleImages.size() > 1)
+						toSave.addAll(visibleImages);
+					//toSave.add(data);
+					model.fireSaving(toAdd, toRemove, toSave);
+				}
+			} else if (option == MessageBox.NO_OPTION) {
+				clearDataToSave();
+			}
+		} 
+		/*
 		Collection<DataObject> siblings = model.getSiblings();
 		List<DataObject> toSave = new ArrayList<DataObject>();
 		if (siblings == null || siblings.size() <= 1) {
@@ -313,7 +412,7 @@ class MetadataViewerComponent
 				clearDataToSave();
 			}
 		}
-		
+		*/
 	}
 	
 	/** 
@@ -394,6 +493,15 @@ class MetadataViewerComponent
 	public void setSiblings(Collection<DataObject> siblings)
 	{
 		model.setSiblings(siblings);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#setVisibleImages(Collection)
+	 */
+	public void setVisibleImages(Collection nodes)
+	{
+		model.setVisibleImages(nodes);
 	}
 	
 }

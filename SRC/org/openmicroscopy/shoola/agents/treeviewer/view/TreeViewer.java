@@ -674,6 +674,11 @@ public interface TreeViewer
      */
 	public void setUnselectedNode(Object node);
 
+	/** Copies the rendering settings. */
 	public void copyRndSettings();
+
+	public void setRndSettings(Set<Long> ids, Class klass);
+
+	public void setRndSettings(TimeRefObject ref);
     
 }

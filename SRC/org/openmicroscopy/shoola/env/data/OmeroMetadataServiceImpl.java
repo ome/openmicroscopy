@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -673,6 +674,73 @@ class OmeroMetadataServiceImpl
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#saveBatchData(Collection, List, List, long)
+	 */
+	public Object saveBatchData(Collection<DataObject> data, 
+				List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+				long userID) 
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (data == null)
+			throw new IllegalArgumentException("No data to save");
+		OmeroDataService service = context.getDataService();
+		Iterator i;
+		Iterator<DataObject> j = data.iterator();
+		DataObject object, child;
+		Set<Long> ids;
+		Set images = null;
+		PojoOptions po = new PojoOptions();
+		po.allExps();
+		Map m = po.map();
+		Iterator k;
+		List result = null;
+		while (j.hasNext()) {
+			object = j.next();
+			if (result == null) result = new ArrayList();
+			if (object instanceof DatasetData) {
+				//retrieve all images in the dataset.
+				//Tmp solution, this code should be pushed server side.
+				ids = new HashSet<Long>(1);
+				ids.add(object.getId());
+				images = gateway.getContainerImages(DatasetData.class, ids, m);
+				if (images != null) {
+					k = images.iterator();
+					while (k.hasNext()) {
+						child = (DataObject) k.next();
+						result.add(child);
+						if (toAdd != null) {
+							i = toAdd.iterator();
+							while (i.hasNext())
+								annotate(child, (AnnotationData) i.next());
+						}
+						if (toRemove != null) {
+							i = toRemove.iterator();
+							while (i.hasNext())
+								removeAnnotation((AnnotationData) i.next(), 
+													child);
+						}
+					}
+				}
+			} else if (object instanceof ImageData) {
+				service.updateDataObject(object);
+				if (toAdd != null) {
+					i = toAdd.iterator();
+					while (i.hasNext())
+						annotate(object, (AnnotationData) i.next());
+				}
+				if (toRemove != null) {
+					i = toRemove.iterator();
+					while (i.hasNext())
+						removeAnnotation((AnnotationData) i.next(), object);
+				}
+			}
+		}
+		if (result == null) return data;
+		return result;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#downloadFile(String, long, int)
 	 */
 	public File downloadFile(File file, long fileID, long size) 
@@ -996,20 +1064,25 @@ class OmeroMetadataServiceImpl
 		return filteredNodes;
 	}
 
-	public Collection loadTagSetsContainer(Long id, boolean images, 
-										long userID)
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadTagSetsContainer(Long, boolean, long)
+	 */
+	public Collection loadTagSetsContainer(Long id, boolean images, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadTagsContainer(Long, boolean, long)
+	 */
 	public Collection loadTagsContainer(Long id, boolean images, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		if (images) {
-			return gateway.loadTagAndImages(id, images);
-		}
+		if (images) return gateway.loadTagAndImages(id, images);
 		return loadAnnotations(TagAnnotationData.class, null, id, userID);
 	}
 	

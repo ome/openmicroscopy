@@ -229,5 +229,12 @@ public interface MetadataViewer
 	 * @param siblings The collection of siblings.
 	 */
 	public void setSiblings(Collection<DataObject> siblings);
+
+	/**
+	 * Sets the collection of visible images.
+	 * 
+	 * @param nodes The collection to set.
+	 */
+	public void setVisibleImages(Collection nodes);
 	
 }

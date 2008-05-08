@@ -735,7 +735,8 @@ class TreeViewerModel
 	void fireResetRenderingSettings(Set<Long> ids, Class klass)
 	{
 		//TODO: add state change.
-		currentLoader = new RndSettingsSaver(component, klass, ids);
+		currentLoader = new RndSettingsSaver(component, klass, ids, 
+											RndSettingsSaver.RESET);
 		currentLoader.load();
 	}
 
@@ -747,10 +748,38 @@ class TreeViewerModel
 	void fireResetRenderingSettings(TimeRefObject ref)
 	{
 		//TODO: add state change.
-		currentLoader = new RndSettingsSaver(component, ref);
+		currentLoader = new RndSettingsSaver(component, ref, 
+										RndSettingsSaver.RESET);
 		currentLoader.load();
 	}
 
+	/**
+	 * Fires an asynchronous call to paste the rendering settings.
+	 * 
+	 * @param ids 	Collection of nodes ids.
+	 * @param klass Either dataset, catgory or image.
+	 */
+	void fireSetRenderingSettings(Set<Long> ids, Class klass)
+	{
+		//TODO: add state change.
+		currentLoader = new RndSettingsSaver(component, klass, ids, 
+										RndSettingsSaver.SET);
+		currentLoader.load();
+	}
+
+	/**
+	 * Fires an asynchronous call to paste the rendering settings.
+	 * 
+	 * @param ref The time reference object.	
+	 */
+	void fireSetRenderingSettings(TimeRefObject ref)
+	{
+		//TODO: add state change.
+		currentLoader = new RndSettingsSaver(component, ref, 
+											RndSettingsSaver.SET);
+		currentLoader.load();
+	}
+	
 	/** 
 	 * Starts an asynchronous call to save a data object.
 	 * 
@@ -780,7 +809,7 @@ class TreeViewerModel
 	MetadataViewer getMetadataViewer()
 	{
 		if (metadataViewer == null) 
-			metadataViewer = MetadataViewerFactory.getViewer("", false,
+			metadataViewer = MetadataViewerFactory.getViewer("", false, false,
 					MetadataViewer.VERTICAL_LAYOUT);
 
 		return metadataViewer;

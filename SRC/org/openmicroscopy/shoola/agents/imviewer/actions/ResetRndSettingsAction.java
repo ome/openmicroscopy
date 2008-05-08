@@ -22,22 +22,21 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
-import java.awt.event.ActionEvent;
 
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * Resets the default rendering settings.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -76,11 +75,12 @@ public class ResetRndSettingsAction
 	}
 
 	/** 
-     * Saves the default rendering settings.
+     * Resets the default rendering settings.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
     	model.resetDefaultRndSettings();
     }
+    
 }

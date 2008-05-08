@@ -64,6 +64,9 @@ public class RndSettingsSaver
 	/** Indicates to reset the rendering settings. */
 	public static final int RESET = 1;
 	
+	/** Indicates to set the rendering settings. */
+	public static final int SET = 2;
+	
 	/** The id of the pixels set of reference. */
 	private long 			pixelsID;
 
@@ -114,11 +117,12 @@ public class RndSettingsSaver
 	 * @param pixelsID	The id of the pixels of reference.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids)
+	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids,
+							int index)
 	{
 		super(viewer);
 		checkRootType(rootType);
-		this.index = RESET;
+		this.index = index;
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
 		this.rootType = rootType;
@@ -132,11 +136,12 @@ public class RndSettingsSaver
 	 * @param viewer	The TreeViewer this data loader is for.
 	 *               	Mustn't be <code>null</code>.
 	 * @param ref		The time reference object.
+	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref)
+	public RndSettingsSaver(TreeViewer viewer, TimeRefObject ref, int index)
 	{
 		super(viewer);
-		this.index = RESET;
+		this.index = index;
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
 		this.ref = ref;
@@ -217,6 +222,12 @@ public class RndSettingsSaver
 					handle = dhView.resetRndSettings(rootType, ids, this);
 				else 
 					handle = dhView.resetRndSettings(ref, this);
+				break;
+			case SET:
+				if (ref == null)
+					handle = dhView.setRndSettings(rootType, ids, this);
+				else 
+					handle = dhView.setRndSettings(ref, this);
 		}
 	}
 

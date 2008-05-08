@@ -35,6 +35,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -551,10 +552,8 @@ class TreeViewerWin
      */
     void setStatusIcon(boolean b)
     {
-        if (b) 
-            setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-        else
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        if (b) setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+        else setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         statusBar.setStatusIcon(b); 
     }
 
@@ -585,6 +584,16 @@ class TreeViewerWin
 		}
     }
 	
+    /**
+     * Sets the collection of visible images.
+     * 
+     * @param nodes The value to set.
+     */
+    void setVisibleNodes(Collection nodes)
+    {
+    	model.getMetadataViewer().setVisibleImages(nodes);
+    }
+    
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {

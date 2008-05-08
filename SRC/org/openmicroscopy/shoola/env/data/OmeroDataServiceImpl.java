@@ -1062,7 +1062,6 @@ class OmeroDataServiceImpl
 		
 		return loadContainerHierarchy(CategoryData.class, ids, leaves, userID);
 	}
-	
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

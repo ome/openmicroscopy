@@ -66,6 +66,9 @@ public class ManageRndSettingsAction
 	/** Identified the reset action. */
 	public static final int 	RESET = 2;
 	
+	/** Identified the reset action. */
+	public static final int 	SET_ORIGINAL = 3;
+	
 	/** The default name of the action if the index is {@link #COPY}. */
     private static final String NAME_COPY = "Copy Settings";
     
@@ -86,6 +89,13 @@ public class ManageRndSettingsAction
     /** The description of the action if the index is {@link #RESET}. */
     private static final String DESCRIPTION_RESET = 
     									"Reset the rendering settings.";
+    
+    /** The default name of the action if the index is {@link #SET_ORIGINAL}. */
+    private static final String NAME_SET_ORIGINAL = "Set Original Settings";
+    
+    /** The description of the action if the index is {@link #SET_ORIGINAL}. */
+    private static final String DESCRIPTION_SET_ORIGINAL = 
+    									"Set the original rendering settings.";
     
     /** Helper reference to the icons manager. */
 	private IconManager icons;
@@ -117,7 +127,14 @@ public class ManageRndSettingsAction
 				putValue(Action.NAME, NAME_RESET);
 				putValue(Action.SHORT_DESCRIPTION, 
 						UIUtilities.formatToolTipText(DESCRIPTION_RESET));
-				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.REDO));
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.UNDO));
+				break;
+			case SET_ORIGINAL:
+				putValue(Action.NAME, NAME_SET_ORIGINAL);
+				putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_SET_ORIGINAL));
+				putValue(Action.SMALL_ICON, 
+						icons.getIcon(IconManager.SET_ORIGINAL_RND_SETTINGS));
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
@@ -166,6 +183,12 @@ public class ManageRndSettingsAction
 				if (!(ho instanceof ImageData || ho instanceof DatasetData))
 					setEnabled(false);
 				else setEnabled(true);
+				break;
+			case SET_ORIGINAL:
+				if (!(ho instanceof ImageData || ho instanceof DatasetData))
+					setEnabled(false);
+				else setEnabled(true);
+				
 		}
     }
     
@@ -198,6 +221,9 @@ public class ManageRndSettingsAction
 				break;
 			case RESET:
 				model.resetRndSettings();
+				break;
+			case SET_ORIGINAL:
+				model.setOriginalSettings();
 		}
     }
 	

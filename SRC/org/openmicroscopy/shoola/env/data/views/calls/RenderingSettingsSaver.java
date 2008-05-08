@@ -63,10 +63,13 @@ public class RenderingSettingsSaver
 {
 
 	/** Indicates to paste the rendering settings. */
-	private static final int PASTE = 0;
+	public static final int PASTE = 0;
 	
 	/** Indicates to reset the rendering settings. */
-	private static final int RESET = 1;
+	public static final int RESET = 1;
+	
+	/** Indicates to reset the rendering settings. */
+	public static final int SET = 2;
 	
 	/** Result of the call. */
 	private Object    	result;
@@ -112,6 +115,9 @@ public class RenderingSettingsSaver
 						break;
 					case RESET:
 						result = rds.resetRenderingSettings(rootType, ids);
+						break;
+					case SET:
+						result = rds.setRenderingSettings(rootType, ids);
 				}
 				
 			}
@@ -154,6 +160,10 @@ public class RenderingSettingsSaver
 						case RESET:
 							result = rds.resetRenderingSettings(ImageData.class, 
 																ids);
+							break;
+						case SET:
+							result = rds.setRenderingSettings(ImageData.class, 
+									ids);
 					}
 				}
 
@@ -183,13 +193,14 @@ public class RenderingSettingsSaver
 	 * 						<code>CategoryData</code>.
 	 * @param ids			The nodes to apply settings to. 
 	 * 						Mustn't be <code>null</code>.
+	 * @param index			One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(Class rootNodeType, Set<Long> ids)
+	public RenderingSettingsSaver(Class rootNodeType, Set<Long> ids, int index)
 	{
 		checkRootType(rootNodeType);
 		if (ids == null || ids.size() == 0)
 			throw new IllegalArgumentException("No nodes specified.");
-		loadCall = makeBatchCall(-1, rootNodeType, ids, RESET);
+		loadCall = makeBatchCall(-1, rootNodeType, ids, index);
 	}
 
 	/**
@@ -232,15 +243,14 @@ public class RenderingSettingsSaver
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param pixelsID	The id of the pixels set of reference.
 	 * @param ref		The time reference object.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(TimeRefObject ref)
+	public RenderingSettingsSaver(TimeRefObject ref, int index)
 	{
 		if (ref == null)
 			throw new IllegalArgumentException("Period not valid.");
-		loadCall = makeBatchCall(-1, ref, RESET);
+		loadCall = makeBatchCall(-1, ref, index);
 	}
 
 }

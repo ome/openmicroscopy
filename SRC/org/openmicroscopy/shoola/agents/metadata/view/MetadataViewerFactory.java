@@ -58,13 +58,16 @@ public class MetadataViewerFactory
 	 * @param refObject			The object viewed as the root of the browser.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param singleViewMode	Pass <code>true</code> if the 
+	 * 							{@link MetadataViewer} is in a single
+	 * 							view context, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(Object refObject, boolean
-										thumbnailRequired)
+									thumbnailRequired, boolean singleViewMode)
 	{
 		return  MetadataViewerFactory.getViewer(refObject, thumbnailRequired, 
-										MetadataViewer.GRID_LAYOUT);
+									singleViewMode, MetadataViewer.GRID_LAYOUT);
 	}
 	
 	/**
@@ -75,12 +78,17 @@ public class MetadataViewerFactory
 	 * 							thumbnail, <code>false</code> otherwise.
 	 * @param layout			One of the layout constants defined by the 
 	 * 							{@link MetadataViewer} I/F.
+	 * @param singleViewMode	Pass <code>true</code> if the 
+	 * 							{@link MetadataViewer} is in a single
+	 * 							view context, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(Object refObject, boolean
-										thumbnailRequired, int layout)
+									thumbnailRequired, boolean singleViewMode,
+										int layout)
 	{
 		MetadataViewerModel model = new MetadataViewerModel(refObject);
+		model.setSingleViewMode(singleViewMode);
 		return singleton.createViewer(model, thumbnailRequired, layout);
 	}
 	
@@ -94,7 +102,7 @@ public class MetadataViewerFactory
 	 */
 	public static MetadataViewer getViewer(Object refObject, int layout)
 	{
-		return MetadataViewerFactory.getViewer(refObject, true, layout);
+		return MetadataViewerFactory.getViewer(refObject, true, false, layout);
 	}
 	
 	/**
@@ -105,7 +113,7 @@ public class MetadataViewerFactory
 	 */
 	public static MetadataViewer getViewer(Object refObject)
 	{
-		return  MetadataViewerFactory.getViewer(refObject, true, 
+		return  MetadataViewerFactory.getViewer(refObject, true, false,
 										MetadataViewer.GRID_LAYOUT);
 	}
 	

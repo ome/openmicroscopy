@@ -352,6 +352,25 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Saves the objects contained in the specified objects, 
+	 * adds (resp. removes) annotations to(resp. from) the object if any.
+	 * 
+	 * @param data		The data object to handle.
+	 * @param toAdd		Collection of annotations to add.
+	 * @param toRemove	Collection of annotations to remove.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object saveBatchData(Collection<DataObject> data, 
+							List<AnnotationData> toAdd, 
+							List<AnnotationData> toRemove, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Downloads a file previously uploaded to the server.
 	 * 
 	 * @param file		The file to write the data into.
@@ -416,9 +435,31 @@ public interface OmeroMetadataService
 										FilterContext filter, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * 
+	 * @param id
+	 * @param images
+	 * @param userID
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	public Collection loadTagsContainer(Long id, boolean images, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * 
+	 * @param id
+	 * @param images
+	 * @param userID
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	public Collection loadTagSetsContainer(Long id, boolean images,
 										long userID)
 		throws DSOutOfServiceException, DSAccessException;

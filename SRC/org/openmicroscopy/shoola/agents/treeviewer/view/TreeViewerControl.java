@@ -30,6 +30,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -78,6 +79,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNod
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ViewAction;
@@ -233,6 +235,9 @@ class TreeViewerControl
 	/** Identifies the <code>Tags action</code>. */
 	static final Integer    TAGS_EXPLORER = new Integer(35);
 	
+	/** Identifies the <code>Set rnd settings</code>. */
+	static final Integer    SET_RND_SETTINGS = new Integer(36);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -292,6 +297,7 @@ class TreeViewerControl
 		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
 		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
 		actionsMap.put(SEARCH, new SearchAction(model));
+		actionsMap.put(SET_RND_SETTINGS, new SetRndSettingsAction(model));
 	}
 
 	/** 
@@ -628,6 +634,11 @@ class TreeViewerControl
 			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
 					PasteRndSettingsCmd.RESET);
 			cmd.execute();
+		} else if (DataBrowser.SET__ORIGINAL_RND_SETTINGS_PROPERTY.equals(
+				name)) {
+			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
+									PasteRndSettingsCmd.SET);
+			cmd.execute();
 		} else if (DataBrowser.CUT_ITEMS_PROPERTY.equals(name)) {
 			CutCmd cmd = new CutCmd(model);
 			cmd.execute();
@@ -640,6 +651,9 @@ class TreeViewerControl
 		} else if (DataBrowser.REMOVE_ITEMS_PROPERTY.equals(name)) {
 			DeleteCmd cmd = new DeleteCmd(model);
 	        cmd.execute();
+		} else if (DataBrowser.VISIBLE_NODES_PROPERTY.equals(name)) {
+			Collection nodes = (Collection) pce.getNewValue();
+			view.setVisibleNodes(nodes);
 		}
 	}
 
@@ -651,25 +665,25 @@ class TreeViewerControl
 	public void stateChanged(ChangeEvent ce)
 	{
 		switch (model.getState()) {
-		case TreeViewer.DISCARDED:
-			view.closeViewer();
-			break;
-		case TreeViewer.LOADING_DATA:
-			view.setStatus(TreeViewer.LOADING_TITLE, false);
-			view.setStatusIcon(true);
-			view.onStateChanged(false);
-			break;
-		case TreeViewer.SAVE:
-			view.setStatus(TreeViewer.SAVING_TITLE, false);
-			view.setStatusIcon(true);
-			view.onStateChanged(false);
-			break;
-		case TreeViewer.READY:
-		case TreeViewer.LOADING_SELECTION:
-			view.setStatus(null, true);
-			view.setStatusIcon(false);
-			view.onStateChanged(true);
-			break;  
+			case TreeViewer.DISCARDED:
+				view.closeViewer();
+				break;
+			case TreeViewer.LOADING_DATA:
+				view.setStatus(TreeViewer.LOADING_TITLE, false);
+				view.setStatusIcon(true);
+				view.onStateChanged(false);
+				break;
+			case TreeViewer.SAVE:
+				view.setStatus(TreeViewer.SAVING_TITLE, false);
+				view.setStatusIcon(true);
+				view.onStateChanged(false);
+				break;
+			case TreeViewer.READY:
+			case TreeViewer.LOADING_SELECTION:
+				view.setStatus(null, true);
+				view.setStatusIcon(false);
+				view.onStateChanged(true);
+				break;  
 		}
 	}
 

@@ -77,6 +77,9 @@ class PopupMenu
 
 	/** Button to copy the rendering settings. */
 	private JMenuItem			copyRndSettings;
+	
+	/** Button to set the original rendering settings. */
+	private JMenuItem			setOriginalRndSettings;
 
 	/**
 	 * Initializes the menu items with the given actions.
@@ -100,6 +103,9 @@ class PopupMenu
 				controller.getAction(DataBrowserControl.RESET_RND_SETTINGS));
 		copyRndSettings = new JMenuItem(
 				controller.getAction(DataBrowserControl.COPY_RND_SETTINGS));
+		setOriginalRndSettings = new JMenuItem(
+				controller.getAction(
+						DataBrowserControl.SET_ORIGINAL_RND_SETTINGS));
 	}
 	
 	/**
@@ -131,6 +137,7 @@ class PopupMenu
 		add(copyRndSettings);
 		add(pasteRndSettings);
 		add(resetRndSettings);
+		add(setOriginalRndSettings);
 	}
 	
 	/** 

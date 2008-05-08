@@ -116,6 +116,9 @@ class PopupMenu
 	
 	/** Button to reset default Rnd settings. */
 	private JMenuItem			resetRndElement;
+	
+	/** Button to reset default Rnd settings. */
+	private JMenuItem			setRndElement;
 
 	/** Button to quit the application. */
 	private JMenuItem			quitElement;
@@ -200,6 +203,9 @@ class PopupMenu
 			a = controller.getAction(TreeViewerControl.RESET_RND_SETTINGS);
 			resetRndElement = new JMenuItem(a);
 			initMenuItem(resetRndElement, a.getActionName());
+			a = controller.getAction(TreeViewerControl.SET_RND_SETTINGS);
+			setRndElement = new JMenuItem(a);
+			initMenuItem(setRndElement, a.getActionName());
 			break;
 		case TreeViewer.PARTIAL_POP_UP_MENU:
 			a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -217,7 +223,6 @@ class PopupMenu
 			initMenuItem(quitElement, a.getActionName());
 			break;
 		}
-
 	}
 
 	/**
@@ -258,6 +263,7 @@ class PopupMenu
 				add(copyRndElement);
 				add(pasteRndElement);
 				add(resetRndElement);
+				add(setRndElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(refreshExperimenterElement);
 				add(removeExperimenterElement);

@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -94,6 +97,10 @@ public class FilteringDialog
 	
 	/** The title of the dialog. */
 	private static final String TITLE = "Filtering";
+	
+	/** Text indicating how to use the tag entries. */
+	private static final String DESCRIPTION = "Separate tags with " +
+												""+SearchUtil.COMMA_SEPARATOR;
 	
 	/** Action id indicating to close the dialog. */
 	private static final int	CANCEL = 0;
@@ -392,9 +399,23 @@ public class FilteringDialog
 	public JPanel buildTagsPane()
 	{
 		JPanel p = new JPanel();
-		p.add(tagsBox);
-		p.add(tagsArea);
-		return UIUtilities.buildComponentPanel(p, 0, 0);
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		p.add(tagsBox, c);
+		c.gridx++;
+		p.add(Box.createHorizontalStrut(5), c);
+		c.gridx++;
+		c.weightx = 0.5;
+		p.add(tagsArea, c);
+		c.gridy++;
+		p.add(UIUtilities.setTextFont(DESCRIPTION, Font.ITALIC, 10), c);
+		//p.add(tagsBox);
+		//p.add(tagsArea);
+		return UIUtilities.buildComponentPanel(p, 5, 5);
 	}
 	
 	/**

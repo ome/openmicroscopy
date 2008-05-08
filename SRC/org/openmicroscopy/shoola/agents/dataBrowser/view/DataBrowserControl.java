@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,8 +95,13 @@ class DataBrowserControl
 	/** Identifies the <code>Reset rendering settings action</code>. */
 	static final Integer    RESET_RND_SETTINGS = new Integer(7);
 	
+	/** 
+	 * Identifies the <code>Set the original rendering settings action</code>. 
+	 */
+	static final Integer    SET_ORIGINAL_RND_SETTINGS = new Integer(8);
+	
 	/** Identifies the <code>Refresh action</code>. */
-	static final Integer    REFRESH = new Integer(8);
+	static final Integer    REFRESH = new Integer(9);
 
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
@@ -128,6 +134,9 @@ class DataBrowserControl
     	actionsMap.put(RESET_RND_SETTINGS, new ManageRndSettingsAction(model, 
 								ManageRndSettingsAction.RESET));
     	actionsMap.put(REFRESH, new RefreshAction(model));
+    	actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
+    			new ManageRndSettingsAction(model, 
+    					ManageRndSettingsAction.SET_ORIGINAL));
     }
     
 	/** Filters the nodes. */
@@ -251,7 +260,10 @@ class DataBrowserControl
         } else if (Browser.POPUP_POINT_PROPERTY.equals(name)) {
 			Point p = (Point) evt.getNewValue();
             if (p != null) view.showPopup(p);
+		} else if (Browser.VISIBLE_NODES_PROPERTY.equals(name)) {	
+			Collection nodes = (Collection) evt.getNewValue();
+			model.setVisibleNodes(nodes);
 		}
 	}
-
+	
 }

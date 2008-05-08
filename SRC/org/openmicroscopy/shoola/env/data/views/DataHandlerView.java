@@ -365,6 +365,35 @@ public interface DataHandlerView
 										AgentEventListener observer);
 
 	/**
+	 * Resets the rendering settings for the images contained in the 
+	 * specified datasets or categories
+	 * if the rootType is <code>DatasetData</code> or <code>CategoryData</code>.
+	 * Resets the settings to the passed images if the type is 
+	 * <code>ImageData</code>.
+	 * 
+	 * @param rootNodeType	The type of nodes. Can either be 
+	 * 						<code>ImageData</code>, <code>DatasetData</code> or 
+	 * 						<code>CategoryData</code>.
+	 * @param ids			The ids of the nodes to apply settings to. 
+	 * 						Mustn't be <code>null</code>.
+	 * @param observer		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle setRndSettings(Class rootNodeType, Set<Long> ids, 
+									AgentEventListener observer);
+
+	/**
+	 * Resets the rendering settings associated for the images imported during 
+	 * a period of time
+	 * 
+	 * @param ref			The time reference object.
+	 * @param observer		Callback handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle setRndSettings(TimeRefObject ref, 
+										AgentEventListener observer);
+	
+	/**
 	 * Classifies the images imported during the given period of time.
 	 * 
 	 * @param timeRef		The time reference.

@@ -294,7 +294,8 @@ public class DataHandlerViewImpl
 	public CallHandle resetRndSettings(Class rootNodeType, Set<Long> ids, 
 										AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids);
+		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
+								RenderingSettingsSaver.RESET);
 		return cmd.exec(observer);
 	}
 
@@ -305,9 +306,35 @@ public class DataHandlerViewImpl
 	public CallHandle resetRndSettings(TimeRefObject ref, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new RenderingSettingsSaver(ref);
+		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
+									RenderingSettingsSaver.RESET);
 		return cmd.exec(observer);
 	}
+	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#setRndSettings(Class, Set, AgentEventListener)
+	 */
+	public CallHandle setRndSettings(Class rootNodeType, Set<Long> ids, 
+										AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
+									RenderingSettingsSaver.SET);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataHandlerView#setRndSettings(TimeRefObject, AgentEventListener)
+	 */
+	public CallHandle setRndSettings(TimeRefObject ref, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
+								RenderingSettingsSaver.SET);
+		return cmd.exec(observer);
+	}
+	
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#annotateChildren(TimeRefObject, AnnotationData, 

@@ -216,10 +216,24 @@ class MetadataHandlerViewImpl
 			long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
-									toAdd, toRemove, userID);
+									toAdd, toRemove, userID, false);
 		return cmd.exec(observer);
 	}
 
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#saveBatchData(Collection, List, List, long, 
+	 * 									AgentEventListener)
+	 */
+	public CallHandle saveBatchData(Collection<DataObject> data, 
+			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+			long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
+									toAdd, toRemove, userID, true);
+		return cmd.exec(observer);
+	}
+	
 	/**
 	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#loadFile(File, long, int, 
