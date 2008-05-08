@@ -11,6 +11,7 @@
 
 #include <omero/fwd.ice>
 #include <omero/RTypes.ice>
+#include <Ice/BuiltinSequences.ice>
 
 /*
  * The omero::system module combines the ome.system and ome.parameters
@@ -69,6 +70,13 @@ module omero {
      */
     ["java:type:java.util.HashMap"]
     dictionary<string,omero::RType> ParamMap;
+
+    /*
+     * IdByteMap is used by the ThumbnailService for the multiple thumbnail
+     * retrieval methods.
+     */
+    ["java:type:java.util.HashMap"]
+    dictionary<long,Ice::ByteSeq> IdByteMap;
 
     /*
      * Holder for all the parameters which can be taken to a query.

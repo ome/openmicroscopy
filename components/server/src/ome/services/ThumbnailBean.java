@@ -775,10 +775,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
             size = DEFAULT_X_WIDTH;
         }
         sanityCheckThumbnailSizes(size, size);
-        
-        // Ensure that we do not have "dirty" pixels or rendering settings 
-        // left around in the Hibernate session cache.
-        iQuery.clear();
 
         int sizeX = pixels.getSizeX();
         int sizeY = pixels.getSizeY();
