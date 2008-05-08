@@ -22,19 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 
 /** 
- * 
+ * Sets the thumnail to <code>null</code> for each visited {@link ImageNode}s.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

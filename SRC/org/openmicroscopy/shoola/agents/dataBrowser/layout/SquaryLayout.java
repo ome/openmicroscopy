@@ -42,7 +42,9 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * Recursively lays out all nodes in a container display in a square grid.
+ * The size of each cell in the grid is that of the largest child in the
+ * container. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

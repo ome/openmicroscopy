@@ -40,7 +40,17 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import pojos.ImageData;
 
 /** 
- * 
+ * Manages the process of assigning thumbnails to {@link ImageNode}s in a
+ * visualization tree.
+ * This class encapsulates the strategy used to share thumbnail pixels.
+ * A given <i>OME</i> Image can be contained in more than one hierarchy
+ * container &#151; like a Dataset or Category, in which case it would
+ * end up being contained in more than one {@link ImageNode} in the
+ * visualization tree &#151; this is because {@link ImageNode}s can't be
+ * shared among <code>ImageSet</code>s.  Even if we can have more than one
+ * {@link ImageNode} to represent the same Image in a visualization tree,
+ * usually just one thumbnail is required to display all the nodes.  This
+ * class enforces the sharing strategy. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

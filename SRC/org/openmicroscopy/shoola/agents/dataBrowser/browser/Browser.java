@@ -41,7 +41,12 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * Defines the interface provided by the browser component.
+ * The browser provides a <code>JComponent</code> to host and display one or
+ * more visualization trees.  That is, one or more {@link ImageDisplay} top
+ * nodes, each representing an image hierarchy.
+ * Use the {@link BrowserFactory} to create an object implementing this 
+ * interface.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

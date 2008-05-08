@@ -42,7 +42,9 @@ import pojos.DataObject;
 import pojos.RatingAnnotationData;
 
 /** 
- * 
+ * Filters the nodes by rate.
+ * This class calls the <code>loadRatings</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

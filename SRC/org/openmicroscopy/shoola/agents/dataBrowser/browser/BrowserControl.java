@@ -42,14 +42,17 @@ import javax.swing.JComponent;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-
 import pojos.ImageData;
 
 /** 
- * 
+ * Handles input events originating from the {@link Browser}'s View.
+ * That is, from the {@link RootDisplay} containing all the visualization
+ * trees. 
+ * This class takes on the role of the browser's Controller (as in MVC).
+ *
+ * @see BrowserModel
+ * @see RootDisplay
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

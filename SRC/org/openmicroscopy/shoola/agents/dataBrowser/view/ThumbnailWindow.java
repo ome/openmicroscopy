@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.DataObject;
 
 /** 
- * 
+ * A floating window to display a thumbnail at its maximum scaling size.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

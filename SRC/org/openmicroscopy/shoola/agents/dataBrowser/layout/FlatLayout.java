@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 
 /** 
- * 
+ * Recursively lays out all nodes regardless of the container.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -22,30 +22,22 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.DataObject;
-import pojos.TagAnnotationData;
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.TagAnnotationData;
 
 /** 
- * 
+ * Loads the available tags owned by the currently logged in user.
+ * This class calls the <code>loadExistingAnnotations</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

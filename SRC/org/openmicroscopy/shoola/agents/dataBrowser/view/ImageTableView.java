@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 
 /** 
- * 
+ * Embed the {@link ImageTable}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

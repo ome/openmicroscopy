@@ -27,13 +27,12 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Map;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;

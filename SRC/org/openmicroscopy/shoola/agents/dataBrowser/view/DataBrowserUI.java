@@ -50,8 +50,11 @@ import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 
 /** 
- * The view.
- *
+ * The {@link DataBrowser}'s View. Embeds the <code>Browser</code>'s UI.
+ * Also provides a menu bar and a status bar.
+ * 
+ * @see Browser
+ * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;

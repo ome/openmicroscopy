@@ -42,7 +42,9 @@ import pojos.DataObject;
 import pojos.TagAnnotationData;
 
 /** 
- * 
+ * Filters the nodes by tags.
+ * This class calls the <code>filterByAnnotation</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

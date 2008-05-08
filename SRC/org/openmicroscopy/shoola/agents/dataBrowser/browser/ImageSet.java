@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
-
 //Java imports
 
 //Third-party libraries
@@ -32,7 +31,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 /** 
- * 
+ * Represents a container in the composite structure used to visualize an
+ * image hierarchy.
+ * An <code>ImageSet</code> may contain either {@link ImageNode}s or other
+ * <code>ImageSet</code>s, but not both.
+ *
+ * @see ImageDisplay
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

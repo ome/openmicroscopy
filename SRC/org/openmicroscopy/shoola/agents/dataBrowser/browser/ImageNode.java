@@ -36,7 +36,10 @@ import java.util.Date;
 import pojos.ImageData;
 
 /** 
- * 
+ * Represents a leaf in the composite structure used to visualize an
+ * image hierarchy.
+ *
+ * @see ImageDisplay
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

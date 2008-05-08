@@ -41,7 +41,34 @@ import pojos.DataObject;
 
 
 /** 
- * 
+ * Defines the interface provided by the hierarchy viewer component.
+ * The hierarchy viewer provides a top-level window to host a hierarchy display
+ * and let the user interact with it.  A hierarchy display is a screen with
+ * one or more visualization trees, all of the same kind.  A visualization tree
+ * is a graphical tree that represents objects in a given <i>OME</i> hierarchy,
+ * like Project/Dataset/Image or Category Group/Category/Image.  Two such trees
+ * are said to be of the same kind if they represent objects which belong in 
+ * the same logical hierarchy.
+ * <p>The typical life-cycle of a hierarchy viewer is as follows. The object
+ * is first created using the {@link DataBrowserFactory} and specifying what
+ * kind of hierarchy the viewer is for along with the root nodes to load. After
+ * creation the object is in the {@link #NEW} state and is waiting for the
+ * {@link #activate() activate} method to be called. 
+ * Such a call triggers the
+ * retrieval of all the <i>OME</i> objects of the specified hierarchy kind that
+ * are rooted by the specified nodes and the hierarchy display is built and set
+ * on screen and the object automatically starts loading the thumbnails for all 
+ * the images in the display, which makes
+ * it transition to the {@link #LOADING} state. When all thumbnails
+ * have been downloaded, the object is {@link #READY} for interacting with the
+ * user.  (The viewer allows the user to interact with it even before the
+ * {@link #READY} state is reached, as long as the data required for the
+ * interaction is already in memory.)  When the user quits the window, the
+ * {@link #discard() discard} method is invoked and the object transitions to
+ * the {@link #DISCARDED} state.  At which point, all clients should 
+ * de-reference the component to allow for garbage collection.</p>
+ *
+ * @see Browser
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

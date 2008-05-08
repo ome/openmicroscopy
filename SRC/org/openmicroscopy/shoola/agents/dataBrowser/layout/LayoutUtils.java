@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -61,6 +62,8 @@ import pojos.DataObject;
 public class LayoutUtils 
 {
 
+	private static final int	DEFAULT_PER_ROW = 10;
+	
 	/**
 	 * Scales the thumbnail of the specified new node.
 	 * 
@@ -112,7 +115,6 @@ public class LayoutUtils
         return maxDim;  //[0, 0] if no children.
         */
         Component[] comps = node.getInternalDesktop().getComponents();
-        ImageDisplay child;
         Component c;
         for (int i = 0; i < comps.length; i++) {
 			c = comps[i];
@@ -216,9 +218,11 @@ public class LayoutUtils
 		
         l = sorter.sort(l);
         if (itemsPerRow > 1) n = itemsPerRow;
+        
         else {
         	n = l.size();
-        	n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
+        	if (n > DEFAULT_PER_ROW)
+        		n = (int) Math.floor(Math.sqrt(n))+1;  //See note.
         }
        
         

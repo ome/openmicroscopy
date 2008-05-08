@@ -55,7 +55,12 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 
 /** 
- * 
+ * Implements the {@link DataBrowser} interface to provide the functionality
+ * required of the hierarchy viewer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -39,7 +39,9 @@ import javax.swing.JComponent;
 import pojos.ImageData;
 
 /** 
- * 
+ * Initializes two sets: one containing the imageNodes displayed
+ * and a second containing the corresponding <code>DataObject</code>s.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -37,7 +37,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 /** 
- * 
+ * Collection of convenience methods to determine the color of the
+ * nodes depending on its status.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

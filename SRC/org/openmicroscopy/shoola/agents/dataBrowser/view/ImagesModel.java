@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import pojos.ImageData;
 
 /** 
- * 
+ * A concrete Model for a collection of images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

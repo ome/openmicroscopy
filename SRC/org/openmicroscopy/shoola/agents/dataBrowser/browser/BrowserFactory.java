@@ -22,18 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
-import java.util.Iterator;
-import java.util.Set;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.Set;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Factory to create {@link Browser} objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -34,7 +34,9 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
 /** 
- * 
+ * Creates a data objects e.g. a dataset and links it to the specified children.
+ * This class calls the <code>filterByAnnotation</code> method in the
+ * <code>createDataObject</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,7 +62,7 @@ public class DataObjectCreator
 	private Collection	children;
 	
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle				handle;
+    private CallHandle	handle;
    
     /**
      * Creates a new instance.

@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
-
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;

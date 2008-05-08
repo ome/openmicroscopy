@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 //Third-party libraries
 
@@ -41,7 +40,12 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Factory to create {@link DataBrowser} components.
+ * This class keeps track of all {@link DataBrowser} instances that have been
+ * created and are not yet {@link DataBrowser#DISCARDED discarded}. A new
+ * component is only created if none of the <i>tracked</i> ones is already
+ * displaying the given hierarchy.  Otherwise, the existing component is
+ * recycled.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

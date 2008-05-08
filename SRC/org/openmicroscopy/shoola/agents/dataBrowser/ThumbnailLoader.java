@@ -37,7 +37,9 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ImageData;
 
 /** 
- * 
+ * Loads all thumbnails for the specified images.
+ * This class calls the <code>loadThumbnails</code> method in the
+ * <code>HierarchyBrowsingView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

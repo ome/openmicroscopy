@@ -36,11 +36,11 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
 
 /** 
- * 
+ * The DataBrowser agent. This agent manages and presents a thumbnail view
+ * of a <code>DataObject</code> and its children.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -99,7 +99,6 @@ public class DataBrowserAgent
     public void setContext(Registry ctx)
     {
         registry = ctx;
-        EventBus bus = registry.getEventBus();
     }
     
     /**

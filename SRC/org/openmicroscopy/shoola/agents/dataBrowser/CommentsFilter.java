@@ -23,9 +23,6 @@
 package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
-
-
-
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,7 +42,9 @@ import pojos.DataObject;
 import pojos.TextualAnnotationData;
 
 /** 
- * 
+ * Filters the nodes by comments i.e. textual annotations.
+ * This class calls the <code>filterByAnnotation</code> method in the
+ * <code>MetadataHandlerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

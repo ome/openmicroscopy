@@ -46,7 +46,12 @@ import pojos.PermissionData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * This class contains a collection of utility static methods that transform
+ * an hierarchy of {@link DataObject}s into a visualisation tree.
+ * The tree is then displayed in the DataBrowser. For example,
+ * A list of Projects-Datasets-Images is passed to the 
+ * {@link #transformProjects(Set, long, long)} method and transforms into a set
+ * of ImageSet-ImageSet-ImageNode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

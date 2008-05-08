@@ -49,7 +49,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
-import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -57,7 +56,14 @@ import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
- * 
+ * The Model component in the <code>DataBrowser</code> MVC triad.
+ * This class tracks the <code>DataBrowser</code>'s state and knows how to
+ * initiate data retrievals. It also knows how to store and manipulate
+ * the results. However, this class doesn't know the actual hierarchy
+ * the <code>DataBrowser</code> is for. Subclasses fill this gap and provide  
+ * a suitable data loader. The {@link DataBrowserComponent} intercepts the 
+ * results of data loadings, feeds them back to this class and fires state
+ * transitions as appropriate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -110,6 +116,7 @@ abstract class DataBrowserModel
 	/** The parent of the nodes. Used as back pointer. */
     protected Object			parent;
 	
+    /** The grandparent of the node. Used as back pointer. */
     protected Object 			grandParent;
     
     /** Creates a new instance. */
@@ -282,10 +289,12 @@ abstract class DataBrowserModel
 		
 	}
 	
-	void setState(int state)
-	{
-		this.state = state;
-	}
+	/** 
+	 * Sets the current state.
+	 * 
+	 * @param state The value to set.
+	 */
+	void setState(int state) { this.state = state; }
 	
 	/**
 	 * Filters the passed <code>DataObject</code>s by rate.

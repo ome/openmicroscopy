@@ -33,7 +33,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 
 /** 
- * 
+ * Interface for layout classes.
+ * A layout class visits visualization trees and lays their nodes out.
+ * This interface extends {@link ImageDisplayVisitor} so that a layout
+ * object can be passed to the browser and visit the whole image display.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

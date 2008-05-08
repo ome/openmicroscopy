@@ -43,7 +43,8 @@ import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
- * 
+ * A concrete Model for a collection of D/D hierarchy consisting of a single 
+ * tree rooted by given Datasets.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
