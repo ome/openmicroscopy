@@ -1211,6 +1211,7 @@ public class Tree
 				lockedAttributes.put(DataFieldConstants.ELEMENT_NAME, field.getAttribute(DataFieldConstants.ELEMENT_NAME));
 				lockedAttributes.put(DataFieldConstants.LOCKED_FIELD_UTC, field.getAttribute(DataFieldConstants.LOCKED_FIELD_UTC));
 				lockedAttributes.put(DataFieldConstants.LOCKED_FIELD_USER_NAME, field.getAttribute(DataFieldConstants.LOCKED_FIELD_USER_NAME));
+				lockedAttributes.put(DataFieldConstants.LOCK_LEVEL, field.getAttribute(DataFieldConstants.LOCK_LEVEL));
 				
 				lockedFieldsAttributes.add(lockedAttributes);
 			}

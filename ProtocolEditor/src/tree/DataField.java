@@ -331,12 +331,46 @@ public class DataField
 	}
 	
 	/**
+	 * This method looks for the "highest" locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
+	 * possessed by any ancestor of this field. 
+	 * Once the highest value is found, no more
+	 * ancestors are checked and this value is returned.
+	 * 
+	 * @return		String representing the highest lock_level of any ancestors of this field or null if not locked. 
+	 */
+	public String getHighestAncestorLockedLevel() {
+		
+		String highestLockLevel = null;
+		
+		if (node != null) {
+			// iterate through the ancestors of this field...
+			Iterator<DataFieldNode> iterator = new AncestorIterator(node);
+			
+			while(iterator.hasNext()) {
+				IAttributeSaver field = iterator.next().getDataField();
+				/*
+				 * If locked, remember lock level. 
+				 * If it's the highest lock level (lock all attributes), return it.
+				 */
+				String lockLevel = field.getAttribute(DataFieldConstants.LOCK_LEVEL);
+				if (lockLevel != null) {
+					if (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)) {
+						return lockLevel;
+					}
+					highestLockLevel = lockLevel;
+				}
+			}
+		}
+		return highestLockLevel;
+	}
+	
+	/**
 	 * This method looks for the locking level (value of DataFieldConstants.LOCK_LEVEL attribute)
 	 * possessed by the closest ancestor of this field. 
 	 * Once a value is found for the closest ancestor, no more
 	 * ancestors are checked and this value is returned.
 	 * 
-	 * @return		String representing the highest lock_level of the ancestors of this field or null if not locked. 
+	 * @return		String representing the lock_level of the closest locked ancestors of this field or null if not locked. 
 	 */
 	public String getAncestorLockedLevel() {
 		String lockLevel = null;
@@ -346,9 +380,7 @@ public class DataField
 			while(iterator.hasNext()) {
 				IAttributeSaver field = iterator.next().getDataField();
 				/*
-				 * Remember lock level. 
-				 * Currently there is only one level (apart from "fully locked")
-				 * If there were more, you'd want to remember the highest one. 
+				 * Return the first locked level that is not null. 
 				 */
 				if (field.getAttribute(DataFieldConstants.LOCK_LEVEL) != null) {
 					return field.getAttribute(DataFieldConstants.LOCK_LEVEL);

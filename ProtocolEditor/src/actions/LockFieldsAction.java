@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 
 import tree.DataFieldConstants;
+import tree.DataFieldNode;
 import tree.Tree.Actions;
 import ui.IModel;
 import util.ImageFactory;
@@ -117,6 +118,13 @@ public class LockFieldsAction extends ProtocolEditorAction {
 		
 		else if (currentState.equals(LOCKED_ANCESTOR_UNLOCKED)) {
 			unlockFields();
+			
+		} else if (currentState.equals(UNLOCKED_ANCESTOR_LOCKED)) {
+			lockFields();
+			
+		} else if (currentState.equals(LOCKED_ANCESTOR_LOCKED)) {
+			unlockFields();
+			
 		}
 	}
 	
@@ -217,18 +225,10 @@ public class LockFieldsAction extends ProtocolEditorAction {
 		}
 		
 		/*
-		 * If files are open, need to set enabled an icon, depending on whether the 
+		 * If files are open, need to set enabled and icon, depending on whether the 
 		 * highlighted fields are locked, their ancestors are locked, etc...
 		 */
 		else {
-			
-			/*
-			 * If the ancestors of highlighted field are locked, this
-			 * action should be disabled, since turning lock on/off will not affect
-			 * whether this field is locked. 
-			 */
-			boolean ancestorsLocked = model.areAncestorFieldsLocked();
-			setEnabled(!ancestorsLocked);
 			
 			/*
 			 * The icon is in the "locked" state if the highlighted field OR ancestors are locked
@@ -236,7 +236,25 @@ public class LockFieldsAction extends ProtocolEditorAction {
 			 * The toolTipText is set depending on the locked state of the highlighted field and
 			 * it's ancestors. 
 			 */
+			boolean ancestorsLocked = model.areAncestorFieldsLocked();
 			boolean fieldsLocked = model.areHighlightedFieldsLocked();
+			
+			/*
+			 * if ancestor is fully locked, this action should be disabled.
+			 * Otherwise, users could set this to "template-locked" and then edit values!
+			 */ 
+			setEnabled(true);
+			if (ancestorsLocked) {
+				List<DataFieldNode> highlightedFields = model.getHighlightedFields();
+				
+				for (DataFieldNode node: highlightedFields) {
+					String lockedLevel = node.getDataField().getHighestAncestorLockedLevel();
+					
+					if (DataFieldConstants.LOCKED_ALL_ATTRIBUTES.equals(lockedLevel)) {
+						setEnabled(false);
+					}
+				}
+			}
 			
 			//System.out.println("LockFieldsAction  fieldsLocked: " + 
 			//		fieldsLocked + " ancestorsLocked: " + ancestorsLocked);

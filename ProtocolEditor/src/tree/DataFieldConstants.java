@@ -252,7 +252,7 @@ public class DataFieldConstants {
 	public static final String LOCKED_FIELD_USER_NAME = "fieldLockedUserName";
 
 	/**
-	 * An attribute to describe the level of locking. If null, assume fully locked. 
+	 * An attribute to describe the level of locking. If null, assume unlocked. 
 	 * @see TEMPLATE_LOCKED
 	 */
 	public static final String LOCK_LEVEL = "lockLevel";

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import tree.DataField;
+import tree.DataFieldConstants;
 import tree.DataFieldNode;
 import tree.Tree;
 import tree.Tree.Actions;
@@ -81,7 +82,11 @@ public interface IModel {
 	/**
 	 * This method is used to get details of the highlighted fields that are locked. 
 	 * Each highlighted field that is locked is represented by a HashMap, 
-	 * containing "locking attributes" of the field, such as timeStamp and userName. 
+	 * containing "locking attributes" of the field, such as:
+	 * DataFieldConstants.ELEMENT_NAME
+	 * DataFieldConstants.LOCKED_FIELD_UTC
+	 * DataFieldConstants.LOCKED_FIELD_USER_NAME
+	 * DataFieldConstants.LOCK_LEVEL
 	 * 
 	 * @return		A list of hashMaps, corresponding to the list of highlighted locked fields. 
 	 */
