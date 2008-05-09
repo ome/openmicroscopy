@@ -104,7 +104,7 @@ public class CalendarFile extends CalendarObject {
 					String millisecs = dateTimeElement.getAttribute(DataFieldConstants.UTC_MILLISECS);
 					System.out.println("CalendarFile millisecs = " + millisecs);
 					
-					if (millisecs == null) {
+					if ((millisecs == null) || (millisecs.length() == 0)) {
 						// no time is set, ignore this field
 						continue;
 					}

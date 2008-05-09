@@ -252,7 +252,7 @@ public class Tree
 		DataField rootField = rootNode.getDataField();
 		
 		rootField.setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.PROTOCOL_TITLE, false);
-		rootField.setAttribute(DataFieldConstants.ELEMENT_NAME, "Title - click to edit", false);
+		//rootField.setAttribute(DataFieldConstants.ELEMENT_NAME, "Title - click to edit", false);
 		
 		DataFieldNode newNode = new DataFieldNode(this);// make a new default-type field
 		rootNode.addChild(newNode);
