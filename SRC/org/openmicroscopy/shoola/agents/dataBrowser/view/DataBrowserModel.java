@@ -78,6 +78,18 @@ import pojos.ImageData;
 abstract class DataBrowserModel
 {
 
+	/** Identifies the <code>DatasetsModel</code>. */
+	static final int	DATASETS = 0;
+	
+	/** Identifies the <code>ImagesModel</code>. */
+	static final int	IMAGES = 1;
+	
+	/** Identifies the <code>ProjectsModel</code>. */
+	static final int	PROJECTS = 2;
+	
+	/** Identifies the <code>SearchModel</code>. */
+	static final int	SEARCH = 3;
+	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
     private int					state;
     
@@ -433,4 +445,11 @@ abstract class DataBrowserModel
      */
     protected abstract DataBrowserLoader createDataLoader(boolean refresh);
 
+    /** 
+     * Returns the type of the model. 
+     * 
+     * @return See above.
+     */
+    protected abstract int getType(); 
+    
 }

@@ -218,7 +218,6 @@ public class ThumbnailProvider
      */
     public void setFullScaleThumb(BufferedImage t)
     {
-        //if (t == null) throw new NullPointerException("No thumbnail.");
         fullScaleThumb = t;
         fullSizeImage = null;
         if (fullScaleThumb != null) scale(scalingFactor);

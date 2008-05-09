@@ -57,4 +57,10 @@ class ProjectsModel
 		return null;
 	}
 	
+	/**
+	 * Returns the type of this model.
+	 * @see DataBrowserModel#getType()
+	 */
+	protected int getType() { return DataBrowserModel.PROJECTS; }
+	
 }

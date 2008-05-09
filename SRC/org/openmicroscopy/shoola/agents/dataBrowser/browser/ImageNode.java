@@ -239,8 +239,9 @@ public class ImageNode
      */
     public ImageNode copy()
     {
-    	ImageNode img = new ImageNode(this.getTitle(), 
-    							this.getHierarchyObject(), thumbnail);
+    	ImageNode img = new ImageNode(getTitle(), getHierarchyObject(), 
+    								getThumbnail());
+    	img.setCanvasSize(canvas.getWidth(), canvas.getHeight());
     	return img;
     }
     

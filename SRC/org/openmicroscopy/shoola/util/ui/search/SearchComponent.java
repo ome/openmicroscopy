@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -32,7 +31,6 @@ import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -169,7 +167,6 @@ public class SearchComponent
 		progressBar.setVisible(false);
 		progressLabel = new JLabel("");
 		progressLabel.setEnabled(false);
-		
 	}
 	
 	/**
@@ -184,7 +181,7 @@ public class SearchComponent
         //bar.add(cancelButton);
        // bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(searchButton);
-        return UIUtilities.buildComponentPanelRight(bar);
+        return UIUtilities.buildComponentPanel(bar);
 	}
 	
 	/** 
@@ -195,14 +192,9 @@ public class SearchComponent
 	 */
 	private void buildGUI(boolean showControl)
 	{
-		JPanel controls = new JPanel();
-        controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
-        controls.add(UIUtilities.buildComponentPanel(uiDelegate));
-        if (showControl) {
-        	 controls.add(buildToolBar());
-             controls.add(Box.createVerticalStrut(10));
-        }
-		add(controls, BorderLayout.CENTER);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(uiDelegate);
+        if (showControl) add(buildToolBar());
 	}
 	
 	/** Closes and disposes of the window. */

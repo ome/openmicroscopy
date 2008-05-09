@@ -79,4 +79,5 @@ class ThumbnailCanvas
         if (img == null) return;
         ((Graphics2D) g).drawImage(img, null, 0, 0);
     }
+    
 }

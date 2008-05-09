@@ -83,9 +83,11 @@ class PopupMenu
 	/**
 	 * Initializes the menu items with the given actions.
 	 * 
-	 * @param controller The Controller.
+	 * @param controller 	The Controller.
+	 * @param model			The model.
 	 */
-	private void initComponents(DataBrowserControl controller)
+	private void initComponents(DataBrowserControl controller, 
+								DataBrowserModel model)
 	{
 		view = new JMenuItem(controller.getAction(DataBrowserControl.VIEW));
 		copyElement = new JMenuItem(
@@ -105,6 +107,12 @@ class PopupMenu
 		setOriginalRndSettings = new JMenuItem(
 				controller.getAction(
 						DataBrowserControl.SET_ORIGINAL_RND_SETTINGS));
+		if (model.getType() == DataBrowserModel.SEARCH) {
+			copyElement.setEnabled(false);
+			pasteElement.setEnabled(false);
+			removeElement.setEnabled(false);
+			cutElement.setEnabled(false);
+		}
 	}
 	
 	/**
@@ -142,13 +150,16 @@ class PopupMenu
 	/** 
 	 * Creates a new instance.
 	 *
-	 * @param controller The Controller. Mustn't be <code>null</code>.
+	 * @param controller 	The Controller. Mustn't be <code>null</code>.
+	 * @param model 		The Model. Mustn't be <code>null</code>.
 	 */
-	PopupMenu(DataBrowserControl controller)
+	PopupMenu(DataBrowserControl controller, DataBrowserModel model)
 	{
 		if (controller == null) 
 			throw new IllegalArgumentException("No control.");
-		initComponents(controller);
+		if (model == null) 
+			throw new IllegalArgumentException("No model.");
+		initComponents(controller, model);
 		buildGUI() ;
 	}
 	

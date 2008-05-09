@@ -536,6 +536,7 @@ class SearchPanel
 		p.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         p.add(user, c);
 		p.add(others, c);
 		return UIUtilities.buildComponentPanel(p);
@@ -553,6 +554,7 @@ class SearchPanel
         //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         //c.insets = new Insets(3, 3, 3, 3);
         List<SearchObject> nodes = model.getNodes();
 		SearchObject n;
@@ -600,6 +602,7 @@ class SearchPanel
         //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(3, 3, 3, 3);
         List<SearchObject> nodes = model.getTypes();
         List<Integer> ctxNodes = null;
@@ -655,6 +658,7 @@ class SearchPanel
         //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(3, 3, 3, 3);
        
         Iterator i = areas.keySet().iterator();
@@ -706,6 +710,7 @@ class SearchPanel
 		p.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.gridy = 1;
         p.add(box, c);
         p.add(field, c);
@@ -745,6 +750,7 @@ class SearchPanel
 		content.setLayout(new GridBagLayout());
 		c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.gridy = 0;
 		c.gridx = 0;
 		//c.gridy++;
@@ -784,6 +790,7 @@ class SearchPanel
 		p.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
         c.gridy = 0;
         c.ipady = 10;
         p.add(content, c);
@@ -792,16 +799,16 @@ class SearchPanel
         p.add(dates, c);
         c.gridy++;
 		p.add(buildTimeRange(), c);
-		JPanel panel = UIUtilities.buildComponentPanel(p);
-		UIUtilities.setBoldTitledBorder(DATE_TITLE, panel);
-		return panel;
+		
+		UIUtilities.setBoldTitledBorder(DATE_TITLE, p);
+		return p;//panel;
 	}
 
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		JPanel content = new JPanel();
-		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		//JPanel content = new JPanel();
+		//content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		TreeComponent tree = new TreeComponent();
 		tree.insertNode(buildSearchFor(), 
 							UIUtilities.buildCollapsePanel(SEARCH_TITLE));
@@ -814,10 +821,10 @@ class SearchPanel
 		tree.insertNode(buildDate(), UIUtilities.buildCollapsePanel(DATE_TITLE),
 						false);
 		tree.addPropertyChangeListener(this);
-		content.add(tree);
+		//content.add(tree);
 		setBorder(null);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
-		add(content);
+		add(tree);
 		setDateIndex();
 	}
 	

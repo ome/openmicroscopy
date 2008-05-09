@@ -1641,6 +1641,7 @@ class TreeViewerComponent
 		
 		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
+			db.addPropertyChangeListener(controller);
 			db.activate();
 			view.removeAllFromWorkingPane();
 			view.addComponent(db.getUI());

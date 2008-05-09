@@ -105,4 +105,10 @@ class SearchModel
 		return new ThumbnailLoader(component, imgs);
 	}
 
+	/**
+	 * Returns the type of this model.
+	 * @see DataBrowserModel#getType()
+	 */
+	protected int getType() { return DataBrowserModel.SEARCH; }
+	
 }

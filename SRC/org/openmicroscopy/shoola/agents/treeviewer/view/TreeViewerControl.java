@@ -553,17 +553,6 @@ class TreeViewerControl
 
 			while (i.hasNext()) 
 				((Browser) i.next()).refreshTree();
-		} else if (name.equals(DataHandler.ANNOTATED_PROPERTY) ||
-				name.equals(DataHandler.CLASSIFIED_PROPERTY) ) {
-			
-			if (view.getDataHandler() == null) return;
-			view.discardDataHandler();
-			Map browsers = model.getBrowsers();
-			Iterator i = browsers.values().iterator();
-
-			while (i.hasNext()) 
-				((Browser) i.next()).refreshTree();
-
 		} else if (UserManagerDialog.USER_SWITCH_PROPERTY.equals(name)) {
 			Map m = (Map) pce.getNewValue();
 			Iterator i = m.keySet().iterator();

@@ -155,5 +155,5 @@ public interface Thumbnail
      * @param image The value to set.
      */
     public void setFullSizeImage(BufferedImage image);
-   
+    
 }

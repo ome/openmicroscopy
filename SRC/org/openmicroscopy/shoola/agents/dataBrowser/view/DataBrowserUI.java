@@ -132,7 +132,6 @@ class DataBrowserUI
 		this.controller = controller;
 		toolBar = new DataBrowserToolBar(this, controller);
 		statusBar = new DataBrowserStatusBar(this);
-		popupMenu = new PopupMenu(controller);
 		selectedView = THUMB_VIEW;
 		setNumberOfImages(-1);
 		buildGUI();
@@ -210,8 +209,7 @@ class DataBrowserUI
 			selection.add(n.copy());
 		}
 		Registry reg = DataBrowserAgent.getRegistry();
-		slideShowView = new SlideShowView(
-										reg.getTaskBar().getFrame(), 
+		slideShowView = new SlideShowView(reg.getTaskBar().getFrame(), 
 										selection);
 		slideShowView.addPropertyChangeListener(controller);
 		model.fireFullSizeLoading(selection);
@@ -397,6 +395,7 @@ class DataBrowserUI
      */
     void showPopup(Point p)
     { 
+    	if (popupMenu == null) popupMenu = new PopupMenu(controller, model);
     	ImageDisplay c = model.getBrowser().getLastSelectedDisplay();
     	if (c != null) popupMenu.show(c, p.x, p.y); 
     }
