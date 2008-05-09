@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
+import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -119,6 +120,12 @@ class TreeViewerWin
     /** The bounds of the component invoking the component. */
     private Rectangle			invokerBounds;
     
+    /** Constants indicating the display mode. */
+    private int					displayMode;
+    
+	/** The scrollPane hosting the advanced finder. */
+	private JScrollPane			finderScrollPane;
+	
     /**
      * Checks if the specified {@link Browser} is already visible.
      * 
@@ -354,6 +361,7 @@ class TreeViewerWin
         this.controller = controller;
         invokerBounds = bounds;
         this.model = model;
+        displayMode = TreeViewer.EXPLORER_MODE;
         statusBar = new StatusBar(controller);
         statusBar.addPropertyChangeListener(controller);
         toolBar = new ToolBar(controller);
@@ -492,6 +500,38 @@ class TreeViewerWin
         c.validate();
     }
   
+    /** Displays or hides the search component. */
+    void showAdvancedFinder()
+    {
+    	if (displayMode == TreeViewer.SEARCH_MODE)
+    		displayMode = TreeViewer.EXPLORER_MODE;
+    	else if (displayMode == TreeViewer.EXPLORER_MODE)
+    		displayMode = TreeViewer.SEARCH_MODE;
+    	splitPane.setDividerLocation(splitPane.getDividerLocation());
+    	if (finderScrollPane == null) {
+    		AdvancedFinder finder = model.getAdvancedFinder();
+    		finder.addPropertyChangeListener(controller);
+    		finderScrollPane = new JScrollPane(finder);
+    	}
+    	switch (displayMode) {
+			case TreeViewer.SEARCH_MODE:
+				splitPane.remove(tabs);
+	    		splitPane.setLeftComponent(finderScrollPane);
+				break;
+			case TreeViewer.EXPLORER_MODE:
+				splitPane.remove(finderScrollPane);
+	    		splitPane.setLeftComponent(tabs);
+				break;
+		}
+    }
+    
+    /**
+     * Returns the {@link #displayMode}.
+     * 
+     * @return See above.
+     */
+    int getDisplayMode() { return displayMode; }
+    
     /**
      * Brings up the menu on top of the specified component at 
      * the specified location.

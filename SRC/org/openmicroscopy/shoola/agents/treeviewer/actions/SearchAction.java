@@ -33,14 +33,12 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
-import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Brings up the widget to perform and advanced search.
+ * Displays the searching component.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,7 +58,13 @@ public class SearchAction
     private static final String NAME = "Search ";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the Advanced search.";
+    private static final String DESCRIPTION = "Advanced search.";
+    
+    /**
+     * Sets the action enabled.
+     * @see TreeViewerAction#onDisplayMode()
+     */
+    protected void onDisplayMode() { setEnabled(true); }
     
 	/**
 	 * Creates a new instance.
@@ -79,14 +83,12 @@ public class SearchAction
 	}
 
 	/** 
-     * Retrieves the rendering settings set by other users.
+     * Displays or hides the search component.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-    	AdvancedFinder dialog = FinderFactory.getAdvancedFinder(
-    								TreeViewerAgent.getRegistry());
-        UIUtilities.centerAndShow(dialog);
+    	model.showSearch();
     }
 
 }

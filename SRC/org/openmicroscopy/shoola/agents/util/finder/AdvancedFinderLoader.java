@@ -23,17 +23,12 @@
 package org.openmicroscopy.shoola.agents.util.finder;
 
 //Java imports
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 
 /** 
  * Searches for data
@@ -104,6 +99,7 @@ public class AdvancedFinderLoader
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
+    	/*
         EventBus bus = registry.getEventBus();
         SearchResult r = (SearchResult) result;
         if (r == null) {
@@ -126,6 +122,7 @@ public class AdvancedFinderLoader
         	return;
         }
         Browse event = new Browse(set, Browse.IMAGES, getUserDetails(), null); 
+        */
         /*
         Iterator i = values.iterator();
         String s = " for \"";
@@ -145,10 +142,7 @@ public class AdvancedFinderLoader
         	index++;
 		}
         */
-        String s = "Results";
-        //event.setSearchContext(s);
-		bus.post(event); 
-		viewer.dispose();
+        viewer.setResult(result);
     }
 
 }

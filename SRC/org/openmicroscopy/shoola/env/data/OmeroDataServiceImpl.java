@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.env.data.model.Mapper;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -1067,15 +1066,14 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#advancedSearchFor(SearchDataContext)
 	 */
-	public SearchResult advancedSearchFor(SearchDataContext context) 
+	public Object advancedSearchFor(SearchDataContext context) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (context == null)
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
-		gateway.performSearch(context); 
-		return null;
+		return gateway.performSearch(context); 
 	}
 
 	/**

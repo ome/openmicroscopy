@@ -92,6 +92,9 @@ public abstract class TreeViewerAction
      */
     protected void onBrowserSelection(Browser browser) {};
     
+    /** Callback to notify that the display mode has changed. */
+    protected void onDisplayMode() {};
+    
     /**
      * Creates a new instance.
      * 
@@ -109,6 +112,7 @@ public abstract class TreeViewerAction
                 TreeViewer.SELECTED_BROWSER_PROPERTY, this);
         model.addPropertyChangeListener(
                 TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY, this);
+        model.addPropertyChangeListener(TreeViewer.DISPLAY_MODE_PROPERTY, this);
         Map browsers = model.getBrowsers();
         Iterator i = browsers.values().iterator();
         Browser browser;
@@ -162,8 +166,23 @@ public abstract class TreeViewerAction
         if (name.equals(TreeViewer.SELECTED_BROWSER_PROPERTY)) {
             onBrowserSelection((Browser) evt.getNewValue());
             return;
-        } else if (name.equals(TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY)) 
-        {
+        } else if (name.equals(TreeViewer.DISPLAY_MODE_PROPERTY)) {
+        	int displayMode = ((Integer) evt.getNewValue()).intValue();
+        	switch (displayMode) {
+				case TreeViewer.SEARCH_MODE:
+					setEnabled(false);
+					break;
+				case TreeViewer.EXPLORER_MODE:
+					Browser browser = model.getSelectedBrowser();
+					TreeImageDisplay v = null;
+					if (browser != null) v = browser.getLastSelectedDisplay();
+					onBrowserStateChange(browser);
+					onDisplayChange(v);
+			}
+        	onDisplayMode();
+        	return;
+        } else if (name.equals(
+        		TreeViewer.ON_COMPONENT_STATE_CHANGED_PROPERTY)) {
             Browser browser = model.getSelectedBrowser();
             TreeImageDisplay v = null;
             if (browser != null) v = browser.getLastSelectedDisplay();

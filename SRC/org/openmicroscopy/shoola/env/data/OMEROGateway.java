@@ -2783,7 +2783,18 @@ class OMEROGateway
 		//return service.results();
 	}
 	
-	Map performSearch(SearchDataContext context)
+	/**
+	 * Searches for data.
+	 * 
+	 * @param context The context of search.
+	 * @return The found objects.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Object performSearch(SearchDataContext context)
+		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		Search service = getSearchService();
@@ -2849,9 +2860,6 @@ class OMEROGateway
 		
 		List<Class> types = context.getTypes();
 		List<Class> scopes = context.getScope();
-		if (scopes != null) {
-			
-		}
 		Class[] dataTypes = null;
 		if (types != null) {
 			i = types.iterator();
@@ -2861,12 +2869,18 @@ class OMEROGateway
 				dataTypes[index] = convertPojos((Class) i.next());
 				index++;
 			}
-			
-			//service.onlyTypes(t); //
 		}
 		String[] some = context.getSome();
 		String[] must = context.getMust();
 		String[] none = context.getNone();
+		for (int j = 0; j < some.length; j++) {
+			if (startWithWildCard(some[j])) {
+				service.setAllowLeadingWildcard(true);
+				break;
+			}
+		}
+		
+		
 		if (scopes != null) {
 			if (scopes.contains(String.class) && dataTypes != null) {
 				for (int j = 0; j < dataTypes.length; j++) {
@@ -2877,20 +2891,34 @@ class OMEROGateway
 			}
 			i = scopes.iterator();
 			while (i.hasNext()) {
-				//type element = (//type) i.next();
 				
 			}
 		}
-		
-		
+
 		if (service.hasNext()) {
-			//Map results = service.results();
+			List l = service.results();
+			Set<Long> ids = new HashSet<Long>();
+			Iterator k = l.iterator();
+			IObject object;
+			Set<IObject> others = new HashSet<IObject>();
+			while (k.hasNext()) {
+				object = (IObject) k.next();
+				if (object instanceof Image)
+					ids.add(object.getId());
+				else others.add(object);
+			}
+			Set r = new HashSet();
+			if (ids.size() > 0) 
+				r.addAll(getContainerImages(ImageData.class, ids, 
+						new PojoOptions().map()));
+			
+			if (others.size() > 0)
+				r.addAll(PojoMapper.asDataObjects(others));
 			service.close();
-			//return results;
-			return new HashMap();
+			return r;
 		}
 		service.close();
-		return new HashMap();
+		return new HashSet();
 	}
 	
 	/**
@@ -3070,6 +3098,20 @@ class OMEROGateway
 		} catch (Exception e) {
 			dsFactory.sessionExpiredExit();
 		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if the specified value starts with a wild card,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	private boolean startWithWildCard(String value)
+	{
+		if (value == null) return false;
+		if (value.startsWith("*")) return true;
+		return false;
 	}
 	
 }

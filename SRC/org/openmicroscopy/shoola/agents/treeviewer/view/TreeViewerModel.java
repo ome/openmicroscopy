@@ -53,6 +53,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.annotator.view.AnnotatorFactory;
 import org.openmicroscopy.shoola.agents.util.classifier.view.ClassifierFactory;
+import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
+import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import pojos.CategoryData;
@@ -137,6 +139,8 @@ class TreeViewerModel
 
 	/** The viewer displaying the metadata. */
 	private MetadataViewer 			metadataViewer;
+	
+	private AdvancedFinder			advancedFinder;
 	
 	/** Reference to the component that embeds this model. */
 	protected TreeViewer            component;
@@ -811,8 +815,20 @@ class TreeViewerModel
 		if (metadataViewer == null) 
 			metadataViewer = MetadataViewerFactory.getViewer("", false, false,
 					MetadataViewer.VERTICAL_LAYOUT);
-
 		return metadataViewer;
+	}
+	
+	/**
+	 * Creates the advanced finder.
+	 * 
+	 * @return See above.
+	 */
+	AdvancedFinder getAdvancedFinder()
+	{ 
+		if (advancedFinder == null)
+			advancedFinder = FinderFactory.getAdvancedFinder(
+							TreeViewerAgent.getRegistry());
+		return advancedFinder; 
 	}
 
 }

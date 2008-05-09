@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -50,6 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -81,6 +81,9 @@ class SearchPanel
 	implements PropertyChangeListener
 {
 
+	/** The title of the Advanced search UI component. */
+	private static final String		ADVANCED_SEARCH_TITLE = "Advanced Search";
+	
 	/** The title of the search UI component. */
 	private static final String		SEARCH_TITLE = "Search For";
 	
@@ -91,28 +94,32 @@ class SearchPanel
 	private static final String		DATE_TITLE = "Date";
 	
 	/** The title of the scope UI component. */
-	private static final String		SCOPE_TITLE = "Scope";
+	private static final String		SCOPE_TITLE = "Context";
 	
 	/** The title of the type UI component. */
 	private static final String		TYPE_TITLE = "Type";
 	
 	/** Wild card used. */
-	private static final String		WILD_CARD = 
-									"(* = any string, ? = any character)";
+	//private static final String		WILD_CARD = 
+	//								"(* = any string, ? = any character)";
 	
 	/** Search Tip. */
-	private static final String		SEARCH_TIP = "Tip: Use these options to " +
-			"look for an exact phrase or to exclude certain words.";
+	private static final String		SEARCH_TIP = "<html><i>Tip: " +
+			"Use these options to look for an <br> exact phrase or to exclude" +
+			"certain words.</i></html>";
 	
 	/** Users Tip. */
-	private static final String		USERS_TIP = "Tip: Add a minus in front " +
-			"of a name to exclude the user.";
+	//private static final String		USERS_TIP = "Tip: Add a minus in front " +
+	//		"of a name to exclude the user.";
 	
 	/** The type of font used for the tips. */
 	private static final int		TIP_FONT_TYPE = Font.ITALIC;
 	
 	/** The size of font used for the tips. */
 	private static final int		TIP_FONT_SIZE = 10;
+	
+	/** The number of columns of the search areas. */
+	private static final int		AREA_COLUMNS = 12;
 	
 	/** Description of the {@link #allTermsArea}. */
 	private static final String		ALL_WORDS = 
@@ -197,6 +204,9 @@ class SearchPanel
 	//private JComboBox				results;
 	
 	/** The terms to search for. */
+	private JTextField				fullTextArea;
+	
+	/** The terms to search for. */
 	private JTextField				allTermsArea;
 	
 	/** The terms to search for. */
@@ -259,13 +269,14 @@ class SearchPanel
  		fromDate = UIUtilities.createDatePicker();
 		toDate = UIUtilities.createDatePicker();
 
-		allTermsArea = new JTextField(20);
-		exactPhraseArea = new JTextField(20);
-		atLeastTermsArea = new JTextField(20);
-		withoutTermsArea = new JTextField(20);
+		fullTextArea = new JTextField(AREA_COLUMNS+2);
+		allTermsArea = new JTextField(AREA_COLUMNS);
+		exactPhraseArea = new JTextField(AREA_COLUMNS);
+		atLeastTermsArea = new JTextField(AREA_COLUMNS);
+		withoutTermsArea = new JTextField(AREA_COLUMNS);
 	
-		usersAsOwner = new JTextField(20);
-		usersAsAnnotator = new JTextField(20);
+		usersAsOwner = new JTextField(AREA_COLUMNS);
+		usersAsAnnotator = new JTextField(AREA_COLUMNS);
 		usersAsAnnotator.setEditable(false);
 		usersAsOwner.setEditable(false);
 		
@@ -635,9 +646,13 @@ class SearchPanel
 		JPanel searchFor = new JPanel();
 		searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
 		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, searchFor);
+		JPanel basicPanel = new JPanel();
+		basicPanel.add(fullTextArea);
+
 		JPanel p = new JPanel();
+		p.setBorder(new TitledBorder(ADVANCED_SEARCH_TITLE));
 		p.setLayout(new GridBagLayout());
-        p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.insets = new Insets(3, 3, 3, 3);
@@ -654,7 +669,8 @@ class SearchPanel
             c.weightx = 0.0;  
             p.add(label, c);
             label.setLabelFor(area);
-            c.gridx = 1;
+            //c.gridx = 1;
+            ++c.gridy;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
             c.fill = GridBagConstraints.HORIZONTAL;
             c.weightx = 1.0;
@@ -665,7 +681,13 @@ class SearchPanel
         c.weightx = 0.0; 
         p.add(UIUtilities.setTextFont(SEARCH_TIP, TIP_FONT_TYPE, 
         							TIP_FONT_SIZE), c); 
-        searchFor.add(UIUtilities.buildComponentPanel(p));
+        
+        //searchFor.add(UIUtilities.buildComponentPanel(p));
+        TreeComponent tree = new TreeComponent();
+        tree.insertNode(p, UIUtilities.buildCollapsePanel(
+        					ADVANCED_SEARCH_TITLE), false);
+        searchFor.add(UIUtilities.buildComponentPanel(basicPanel));
+        searchFor.add(tree);
 		return searchFor;
 	}
 	
@@ -706,25 +728,37 @@ class SearchPanel
 		GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.gridy = 0;
+        c.gridwidth = 2;
         content.add(UIUtilities.setTextFont("Owned by "), c);
-        c.gridx = 1;
+        c.gridy++;
+        c.gridwidth = 1;
+        c.gridx = 0;
         content.add(currentUserAsOwner, c);
 		c.gridy++;
 		c.ipady = 10;
 		content.add(buildUserSelection(othersAsOwner, usersAsOwner, 
 										ownerButton), c);
 		
+		usersPanel.add(UIUtilities.buildComponentPanel(content));
+		usersPanel.add(new JSeparator());
+		content = new JPanel();
+		content.setLayout(new GridBagLayout());
+		c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.gridy = 0;
 		c.gridx = 0;
-		c.gridy++;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		//c.gridy++;
+		//c.fill = GridBagConstraints.HORIZONTAL;
+		//c.gridwidth = 2;
+		//c.ipady = 5;
+		//content.add(new JSeparator(), c);
+		//c.ipady = 0;
 		c.gridwidth = 2;
-		c.ipady = 5;
-		content.add(new JSeparator(), c);
-		c.ipady = 0;
-		c.gridwidth = 1;
 		c.gridy++;
 		content.add(UIUtilities.setTextFont("Annotated by "), c);
-        c.gridx = 1;
+		c.gridy++;
+	    c.gridwidth = 1;
+        c.gridx = 0;
         content.add(currentUserAsAnnotator, c);
 		c.gridy++;
 		content.add(buildUserSelection(othersAsAnnotator, usersAsAnnotator, 
@@ -776,11 +810,12 @@ class SearchPanel
 		tree.insertNode(buildScope(), 
 				UIUtilities.buildCollapsePanel(SCOPE_TITLE));
 		tree.insertNode(buildUsers(), 
-							UIUtilities.buildCollapsePanel(USER_TITLE));
-		tree.insertNode(buildDate(), 
-									UIUtilities.buildCollapsePanel(DATE_TITLE));
+							UIUtilities.buildCollapsePanel(USER_TITLE), false);
+		tree.insertNode(buildDate(), UIUtilities.buildCollapsePanel(DATE_TITLE),
+						false);
 		tree.addPropertyChangeListener(this);
 		content.add(tree);
+		setBorder(null);
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(content);
 		setDateIndex();
@@ -898,7 +933,20 @@ class SearchPanel
 	 */
 	String[] getSome()
 	{
-		String text = atLeastTermsArea.getText();
+		
+		String text = fullTextArea.getText();
+		if (text != null && text.trim().length() > 0) {
+			List<String> l = 
+				SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
+			if (l.size() > 0) 
+				return (String[]) l.toArray(new String[] {});
+			
+			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
+			if (l.size() > 0)
+			return (String[]) l.toArray(new String[] {});
+		}
+
+		text = atLeastTermsArea.getText();
 		List<String> l = 
 			SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
 		String[] terms = null;

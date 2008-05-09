@@ -143,7 +143,7 @@ public class FinderFactory
 	{
 		if (finder != null)
 			return finder;
-		finder = new AdvancedFinder(refObject);
+		finder = new AdvancedFinder();
 		return finder;
 	}
 	

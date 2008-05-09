@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +86,16 @@ public interface TreeViewer
 	extends ObservableComponent
 {
 
+	/** 
+	 * Indicates that the {@link TreeViewer} displayed the various explorers.
+	 */
+	public static final int			EXPLORER_MODE = 100;
+	
+	/** 
+	 * Indicates that the {@link TreeViewer} displayed the various explorers.
+	 */
+	public static final int			SEARCH_MODE = 101;
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int         NEW = 1;
 
@@ -172,7 +183,11 @@ public interface TreeViewer
 
 	/** Bound property indicating to state of the components has changed. */
 	public static final String      ON_COMPONENT_STATE_CHANGED_PROPERTY = 
-		"onComponentStateChanged";
+									"onComponentStateChanged";
+	
+	/** Bound property indicating that the mode. */
+	public static final String		DISPLAY_MODE_PROPERTY = "searchMode";
+	
 	/** 
 	 * The title displayed in the {@link LoadingWindow} during the saving 
 	 * process.
@@ -649,6 +664,12 @@ public interface TreeViewer
 	 */
 	public void createObject(DataObject object);
 
+	/**
+	 * Sets the leaves linked to the specified parent.
+	 * 
+	 * @param parent 	The node the leaves are related to.
+	 * @param leaves	The leaves to convert and add to the node.
+	 */
 	public void setLeaves(TreeImageSet parent, Set leaves);
 
 	/**
@@ -658,6 +679,11 @@ public interface TreeViewer
 	 */
 	public void setSelectedNode(Object node);
 	
+	/**
+	 * 
+	 * @param parent
+	 * @param nodes
+	 */
     public void setHierarchyRoots(Object parent, Set nodes);
     
     /** 
@@ -677,8 +703,31 @@ public interface TreeViewer
 	/** Copies the rendering settings. */
 	public void copyRndSettings();
 
+	/**
+	 * Sets the original rendering settings for the images identified by 
+	 * the specified parameters.
+	 * 
+	 * @param ids		The collection of objects id.
+	 * @param klass		The class identifying the object.
+	 */
 	public void setRndSettings(Set<Long> ids, Class klass);
 
+	/**
+	 * Sets the original rendering settings for images 
+	 * imported during the specified period of time.
+	 * 
+	 * @param ref The object storing the time interval information.
+	 */
 	public void setRndSettings(TimeRefObject ref);
+
+	/** Shows or hides the searching component. */
+	public void showSearch();
     
+	/**
+	 * Sets the result of the search.
+	 * 
+	 * @param results The result of the search.
+	 */
+	public void setSearchResult(Collection<DataObject> results);
+	
 }

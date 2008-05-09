@@ -697,7 +697,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public SearchResult advancedSearchFor(SearchDataContext context)
+	public Object advancedSearchFor(SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException;
 
 	

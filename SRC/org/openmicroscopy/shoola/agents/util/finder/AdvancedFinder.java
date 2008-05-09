@@ -46,14 +46,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
-
-import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * The class actually managing the search.
@@ -72,7 +70,7 @@ public class AdvancedFinder
 	extends SearchComponent
 	implements Finder, PropertyChangeListener
 {
-
+	
 	/** The default title of the notification message. */
 	private static final String 	TITLE = "Search";
 	
@@ -85,9 +83,6 @@ public class AdvancedFinder
 	/** Collection of selected users. */
 	private Map<String, ExperimenterData>	users;
 	
-	/** Object of reference to limit the context of the search. */
-	private DataObject						refObject;
-	
 	/**
 	 * Determines the scope of the search.
 	 * 
@@ -98,15 +93,17 @@ public class AdvancedFinder
 	{
 		switch (value) {
 			case SearchContext.TEXT_ANNOTATION:
-				return AnnotationData.class;
+				return TextualAnnotationData.class;
 			case SearchContext.TAGS:
-				return CategoryData.class;
+				return TagAnnotationData.class;
 			case SearchContext.DATASETS:
 				return DatasetData.class;
 			case SearchContext.PROJECTS:
 				return ProjectData.class;
 			case SearchContext.IMAGES:
 				return ImageData.class;
+			case SearchContext.NAME_DESCRIPTION:
+				return String.class;
 			default:
 				return null;
 		}
@@ -239,7 +236,7 @@ public class AdvancedFinder
 													searchContext);
 		loader.load();
 		finderHandlers.add(loader);
-		//state = SEARCH;
+		state = Finder.SEARCH;
 		setSearchEnabled(true);
 	}
 	
@@ -278,13 +275,8 @@ public class AdvancedFinder
 		UIUtilities.centerAndShow(dialog);
 	}
 	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param refObject Object of reference. The search is limited to that 
-	 * 					object.
-	 */
-	public AdvancedFinder(DataObject refObject)
+	/** Creates a new instance. */
+	AdvancedFinder()
 	{
 		//super(FinderFactory.getRefFrame());
 		finderHandlers = new ArrayList<FinderLoader>();
@@ -292,7 +284,6 @@ public class AdvancedFinder
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
 		users = new HashMap<String, ExperimenterData>();
-		this.refObject = refObject;
 	}
 
 	/** 
@@ -332,6 +323,16 @@ public class AdvancedFinder
 	{
 		if (text == null) text = "";
 		setSearchEnabled(text, status);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#setResult(Object)
+	 */
+	public void setResult(Object result)
+	{
+		setSearchEnabled(false);
+		firePropertyChange(RESULTS_FOUND_PROPERTY, null, result);
 	}
 	
 	/**

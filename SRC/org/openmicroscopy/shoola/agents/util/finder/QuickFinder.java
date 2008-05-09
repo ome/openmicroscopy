@@ -116,7 +116,7 @@ public class QuickFinder
 	{
 		//SearchObject node = (SearchObject) evt.getNewValue();
 		if (getSelectedNode() == null) return;
-		List values = getSelectedNode().getResult();
+		List values = null;//getSelectedNode().getResult();
 		if (values == null || values.size() == 0) {
 			UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
 			un.notifyInfo("Quick Search", "Please enter a term to search for.");
@@ -196,6 +196,11 @@ public class QuickFinder
 	public void setStatus(String text, boolean status)
 	{
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+	}
+
+	public void setResult(Object result) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

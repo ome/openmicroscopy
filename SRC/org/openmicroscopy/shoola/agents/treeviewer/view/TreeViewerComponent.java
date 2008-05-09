@@ -1601,5 +1601,50 @@ class TreeViewerComponent
 		model.fireResetRenderingSettings(ref);
 		fireStateChange();
 	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setRndSettings(TimeRefObject)
+	 */
+	public void showSearch()
+	{
+		int oldMode = view.getDisplayMode();
+		view.showAdvancedFinder();
+		DataBrowser db = DataBrowserFactory.getSearchBrowser();
+		int newMode = view.getDisplayMode();
+		switch (newMode) {
+			case EXPLORER_MODE:
+				view.removeAllFromWorkingPane();
+				onSelectedDisplay();
+				break;
+			case SEARCH_MODE:
+				if (db != null) {
+					view.removeAllFromWorkingPane();
+					view.addComponent(db.getUI());
+				}
+		}
+
+		firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setSearchResult(List)
+	 */
+	public void setSearchResult(Collection<DataObject> results)
+	{
+		if (results == null || results.size() == 0) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo("Search", "No results found.");
+			return;
+		}
+		
+		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
+		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
+			db.activate();
+			view.removeAllFromWorkingPane();
+			view.addComponent(db.getUI());
+		}
+	}
 	
 }

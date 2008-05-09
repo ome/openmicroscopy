@@ -31,11 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -49,7 +45,7 @@ import javax.swing.JProgressBar;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Dialog with advanced search options.
+ * Component with advanced search options.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,7 +58,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since OME3.0
  */
 public class SearchComponent
-	extends JPanel//JDialog
+	extends JPanel
 	implements ActionListener
 {
 
@@ -135,28 +131,6 @@ public class SearchComponent
 	/** The default search context. */
 	private SearchContext 			searchContext;
 	
-	/** Map hosting various actions. */
-	private Map<Integer, Action>	actionsMap;
-	
-	/** Creates the actions. */
-	private void createActionsMap()
-	{
-		actionsMap = new HashMap<Integer, Action>();
-		AbstractAction a = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) { cancel(); }
-		
-		};
-		actionsMap.put(CANCEL, a);
-		a = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) { search(); }
-		};
-		actionsMap.put(SEARCH, a);
-		a = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) { collapseNodes(); }
-		};
-		actionsMap.put(COLLAPSE, a);
-	}
-	
 	/** Sets the window properties. */
 	private void setProperties()
 	{
@@ -180,18 +154,16 @@ public class SearchComponent
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		createActionsMap();
 		uiDelegate = new SearchPanel(this);
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton();
 		cancelButton.setToolTipText("Cancel the search");
-		//cancelButton.setActionCommand(""+CANCEL);
-		cancelButton.setAction(getAction(CANCEL));
-		//cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL);
+		cancelButton.setText("Cancel");
+		cancelButton.addActionListener(this);
 		searchButton = new JButton("Search");
 		searchButton.setToolTipText("Search");
-		//searchButton.setActionCommand(""+SEARCH);
-		//searchButton.addActionListener(this);
-		searchButton.setAction(getAction(SEARCH));
+		searchButton.setActionCommand(""+SEARCH);
+		searchButton.addActionListener(this);
 		progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
 		progressBar.setVisible(false);
@@ -209,26 +181,10 @@ public class SearchComponent
 	{
 		JPanel bar = new JPanel();
         bar.setBorder(null);
-        bar.add(cancelButton);
-        bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        //bar.add(cancelButton);
+       // bar.add(Box.createRigidArea(H_SPACER_SIZE));
         bar.add(searchButton);
         return UIUtilities.buildComponentPanelRight(bar);
-	}
-	
-	/**
-	 * Builds and lays out the progress bar and the message.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildStatusPanel()
-	{
-		JPanel progressPanel = new JPanel();
-        progressPanel.setLayout(new BoxLayout(progressPanel, BoxLayout.X_AXIS));  
-        progressPanel.add(progressLabel);
-        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-        progressPanel.add(progressBar);
-        progressPanel.add(Box.createRigidArea(H_SPACER_SIZE));
-        return UIUtilities.buildComponentPanel(progressPanel);
 	}
 	
 	/** 
@@ -247,12 +203,6 @@ public class SearchComponent
              controls.add(Box.createVerticalStrut(10));
         }
 		add(controls, BorderLayout.CENTER);
-	}
-	
-	/** Collapses all nodes. */
-	private void collapseNodes()
-	{
-		
 	}
 	
 	/** Closes and disposes of the window. */
@@ -278,7 +228,6 @@ public class SearchComponent
 		String[] must = uiDelegate.getMust();
 		String[] none = uiDelegate.getNone();
 	
-		//Determine the time
 		List<Integer> scope = uiDelegate.getScope();
 		SearchContext ctx = new SearchContext(some, must, none, scope);
 		int index = uiDelegate.getSelectedDate();
@@ -386,18 +335,6 @@ public class SearchComponent
 	}
 	
 	/**
-	 * Returns the action corresponding to the passed index, 
-	 * or <code>null</code> if no action defined.
-	 * 
-	 * @param index The index.
-	 * @return See above.
-	 */
-	public Action getAction(int index)
-	{
-		return actionsMap.get(index);
-	}
-	
-	/**
 	 * Sets the buttons enabled when performing  search.
 	 * 
 	 * @param b Pass <code>true</code> to enable the {@link #searchButton}, 
@@ -452,14 +389,12 @@ public class SearchComponent
 	{
 		int index = Integer.parseInt(e.getActionCommand());
 		switch (index) {
-			/*
 			case CANCEL:
 				cancel();
 				break;
 			case SEARCH:
 				search();
 				break;
-				*/
 			case DATE:
 				uiDelegate.setDateIndex();
 				break;

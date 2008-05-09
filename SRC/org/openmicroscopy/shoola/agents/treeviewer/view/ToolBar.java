@@ -35,6 +35,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -113,34 +114,15 @@ class ToolBar
      * 
      * @return See above.
      */
-    private JToolBar createEditBar()
-    {
-        JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        TreeViewerAction a = controller.getAction(TreeViewerControl.CLASSIFIER);
-        JButton b = new JButton(a);
-        b.addMouseListener((ClassifierAction) a);
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        bar.add(new JSeparator(JSeparator.VERTICAL));
-        return bar;
-    }
-    
-    /**
-     * Helper method to create the tool bar hosting the edit items.
-     * 
-     * @return See above.
-     */
     private JToolBar createSearchBar()
     {
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        JButton b = new JButton(controller.getAction(TreeViewerControl.SEARCH));
-        UIUtilities.unifiedButtonLookAndFeel(b);
+        JToggleButton b = new JToggleButton(
+        		controller.getAction(TreeViewerControl.SEARCH));
+        //UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         return bar;
     }

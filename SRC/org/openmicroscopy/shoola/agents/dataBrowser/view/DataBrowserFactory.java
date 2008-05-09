@@ -24,7 +24,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
@@ -65,6 +67,34 @@ public class DataBrowserFactory
 	private static final DataBrowserFactory  
 						singleton = new DataBrowserFactory();
 	
+	/** Discards all the tracked {@link DataBrowser}s. */
+	public static final void discardAll()
+	{
+		
+	}
+	
+	/**
+	 * Creates a browser to display the results.
+	 * 
+	 * @param result The value to set.
+	 * @return See above.
+	 */
+	public static final DataBrowser getSearchBrowser(Collection<DataObject> 
+													result)
+	{
+		return singleton.createSearchDataBrowser(result);
+	}
+
+	/**
+	 * Returns the {@link SearchBrowser} if any.
+	 * 
+	 * @return See above.
+	 */
+	public static final DataBrowser getSearchBrowser()
+	{
+		return singleton.searchBrowser;
+	}
+	
 	/**
 	 * Creates a new {@link DataBrowser} for the passed collection of images.
 	 * 
@@ -101,17 +131,20 @@ public class DataBrowserFactory
 	 */
 	public static final DataBrowser getDataBrowser(Object parent)
 	{
-		
 		return singleton.browsers.get(parent.toString());
 	}
 
 	/** Map used to keep track of the browsers. */
 	private Map<String, DataBrowser> 	browsers;
 	
+	/** The {@link DataBrowser} displaying the result of a search. */
+	private DataBrowser					searchBrowser;
+	
 	/** Creates a new instance. */
 	private DataBrowserFactory()
 	{
 		browsers = new HashMap<String, DataBrowser>();
+		searchBrowser = null;
 	}
 	
 	/**
@@ -150,6 +183,23 @@ public class DataBrowserFactory
 		model.initialize(comp);
 		comp.initialize();
 		browsers.put(parent.toString(), comp);
+		return comp;
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed result.
+	 * 
+	 * @param result	The result of the search.
+	 * @return See above.
+	 */
+	private DataBrowser createSearchDataBrowser(Collection<DataObject> 
+												result)
+	{
+		DataBrowserModel model = new SearchModel(result);
+		DataBrowserComponent comp = new DataBrowserComponent(model);
+		model.initialize(comp);
+		comp.initialize();
+		searchBrowser = comp;
 		return comp;
 	}
 

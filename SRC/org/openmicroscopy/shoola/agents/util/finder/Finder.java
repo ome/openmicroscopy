@@ -44,14 +44,18 @@ package org.openmicroscopy.shoola.agents.util.finder;
 public interface Finder
 {
 
+	/** 
+	 * Bound property indicating that some results matching 
+	 * the passed criteria have been found.
+	 */
+	public static final String	RESULTS_FOUND_PROPERTY = "resultsFound";
+	
 	/** Identified the <code>DISCARD</code> state. */
-	public static final int		DISCARDED = 0;
+	public static final int		DISCARDED = 100;
 	
 	/** Identified the <code>SEARCH</code> state. */
-	public static final int		SEARCH = 1;
+	public static final int		SEARCH = 101;
 	
-	/** The maximum number of results. */
-	static final int			MAX_RESULTS = 100;
 	
 	/** Cancels any ongoing search. */
 	public void cancel();
@@ -74,5 +78,12 @@ public interface Finder
 	 * 					<code>false</code> otherwise.
 	 */
 	public void setStatus(String text, boolean status);
+
+	/**
+	 * Sets the results of the search.
+	 * 
+	 * @param result The value to set.
+	 */
+	public void setResult(Object result);
 
 }
