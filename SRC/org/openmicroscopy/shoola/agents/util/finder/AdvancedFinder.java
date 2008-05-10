@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
+import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -286,6 +287,16 @@ public class AdvancedFinder
 		users = new HashMap<String, ExperimenterData>();
 	}
 
+	/**
+	 * Brings up the <code>Help</code> dialog.
+	 * @see #help()
+	 */
+	protected void help()
+	{
+		SearchHelp help = new SearchHelp(FinderFactory.getRefFrame());
+		UIUtilities.centerAndShow(help);
+	}
+	
 	/** 
 	 * Implemented as specified by {@link Finder} I/F
 	 * @see Finder#cancel()

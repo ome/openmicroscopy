@@ -26,17 +26,21 @@ package org.openmicroscopy.shoola.util.ui.search;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Dialog presenting how to use the Search widget.
@@ -51,17 +55,33 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * </small>
  * @since OME3.0
  */
-class SearchHelp 
+public class SearchHelp 
 	extends JDialog
 {
 
 	/** Button to close the window. */
 	private JButton closeButton;
 	
+	/** Closes and disposes. */
+	private void close()
+	{
+		setVisible(false);
+		dispose();
+	}
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		closeButton = new JButton();
+		closeButton = new JButton("Close");
+		closeButton.addActionListener(new ActionListener() {
+		
+			public void actionPerformed(ActionEvent e) {
+				close();
+		
+			}
+		
+		});
+		getRootPane().setDefaultButton(closeButton);
 	}
 	
 	/** 
@@ -72,10 +92,21 @@ class SearchHelp
 	private JPanel buildMain()
 	{
 		JPanel content = new JPanel();
+		content.setBorder(new TitledBorder(""));
 		content.add(new JLabel(formatText()));
-		
-	   
 		return content;
+	}
+	
+	/**
+	 * Builds and lays out the various controls.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildControl()
+	{
+		JPanel content = new JPanel();
+		content.add(closeButton);
+		return UIUtilities.buildComponentPanelRight(content);
 	}
 	
 	/** 
@@ -95,8 +126,9 @@ class SearchHelp
 		buf.append("<h3 bgcolor=#FFFFF0>Boosting a Term</h3>");
 		buf.append("<p>Boosting allows you to control the relevance " +
 				"of a document by boosting its term. </p> " +
-				"<p>To boost a term use the caret, \"^\", symbol with a boost " +
-				"factor (a number) at the end of the term you are searching. " +
+				"<p>To boost a term use the caret, \"^\", symbol with a boost" +
+				" factor (a number) <br> at the end of the term you are " +
+				"searching." +
 				"</p> <p>The higher the boost factor, the more relevant the " +
 				"term will be.</p>");
 		buf.append("</body></html>");
@@ -112,6 +144,7 @@ class SearchHelp
 							icons.getIcon(IconManager.HELP_48));
 		c.add(title, BorderLayout.NORTH);
 		c.add(buildMain(), BorderLayout.CENTER);
+		c.add(buildControl(), BorderLayout.SOUTH);
 	}
 	
 	/** 
@@ -119,11 +152,14 @@ class SearchHelp
 	 * 
 	 * @param owner The owner of the frame.
 	 */
-	SearchHelp(JFrame owner)
+	public SearchHelp(JFrame owner)
 	{
 		super(owner);
+		setModal(true);
+		setResizable(false);
 		initComponents();
 		buildGUI();
+		setSize(520, 315);
 	}
 	
 }

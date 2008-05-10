@@ -1612,16 +1612,14 @@ class TreeViewerComponent
 		view.showAdvancedFinder();
 		DataBrowser db = DataBrowserFactory.getSearchBrowser();
 		int newMode = view.getDisplayMode();
+		view.removeAllFromWorkingPane();
 		switch (newMode) {
 			case EXPLORER_MODE:
-				view.removeAllFromWorkingPane();
 				onSelectedDisplay();
 				break;
 			case SEARCH_MODE:
-				if (db != null) {
-					view.removeAllFromWorkingPane();
+				if (db != null) 
 					view.addComponent(db.getUI());
-				}
 		}
 
 		firePropertyChange(DISPLAY_MODE_PROPERTY, oldMode, newMode);

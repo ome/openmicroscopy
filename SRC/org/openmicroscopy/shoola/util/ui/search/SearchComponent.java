@@ -31,13 +31,13 @@ import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -192,9 +192,12 @@ public class SearchComponent
 	 */
 	private void buildGUI(boolean showControl)
 	{
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(uiDelegate);
-        if (showControl) add(buildToolBar());
+		double[][] size = {{TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
+		setLayout(new TableLayout(size));
+		add(uiDelegate, "0, 0");
+		if (showControl) 
+			add(buildToolBar(), "0, 1");
 	}
 	
 	/** Closes and disposes of the window. */
@@ -203,13 +206,6 @@ public class SearchComponent
 		//setVisible(false);
 		firePropertyChange(CANCEL_SEARCH_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		//dispose();
-	}
-	
-	/** Brings up the Help dialog. */
-	private void showHelp()
-	{
-		//SearchHelp helpDialog = new SearchHelp((JFrame) getOwner());
-		//UIUtilities.centerAndShow(helpDialog);
 	}
 	
 	/** Fires a property change to search. */
@@ -289,7 +285,6 @@ public class SearchComponent
 		setDefaultContext();
 		setProperties();
 		initComponents();
-		
 		buildGUI(showControl);
 	}
 	
@@ -399,8 +394,11 @@ public class SearchComponent
 				firePropertyChange(OWNER_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 				break;
 			case HELP:
-				showHelp();
+				help();
 		}
 	}
 
+	/** Subclasses should override this method. */
+	protected void help() {}
+	
 }

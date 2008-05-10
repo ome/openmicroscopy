@@ -245,7 +245,7 @@ class BrowserModel
         ImageDisplay node;
         while (i.hasNext()) {
 			node = (ImageDisplay) i.next();
-			node.setHighlight(colors.getSelectedHighLight(node));
+			node.setHighlight(colors.getSelectedHighLight(node));	
 		}
         if (toDeselect == null) return;
         i = toDeselect.iterator();

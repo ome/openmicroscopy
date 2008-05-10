@@ -429,7 +429,7 @@ public class IconManager
         relPaths[CLOSE] = "nuvola_fileclose16.png";
         relPaths[CLOSE_OVER] = "filecloseRed16.png";
         relPaths[HELP] = "nuvola_help16.png";
-        relPaths[HELP_48] ="nuvola_kdmconfig48.png";
+        relPaths[HELP_48] ="nuvola_help48.png";
         relPaths[ANNOTATION] ="nuvola_kwrite16.png";
         relPaths[FILE_ANNOTATION] ="nuvola_attach16.png";
         relPaths[URL_ANNOTATION] ="nuvola_browser16.png";

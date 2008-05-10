@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.util.ui.search;
 
 
 //Java imports
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -54,6 +53,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
+import layout.TableLayout;
 import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
@@ -650,7 +650,9 @@ class SearchPanel
 		searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
 		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, searchFor);
 		JPanel basicPanel = new JPanel();
+		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.X_AXIS));
 		basicPanel.add(fullTextArea);
+		basicPanel.add(helpButton);
 
 		JPanel p = new JPanel();
 		p.setBorder(new TitledBorder(ADVANCED_SEARCH_TITLE));
@@ -823,8 +825,12 @@ class SearchPanel
 		tree.addPropertyChangeListener(this);
 		//content.add(tree);
 		setBorder(null);
-		setLayout(new FlowLayout(FlowLayout.LEFT));
-		add(tree);
+		//setLayout(new FlowLayout(FlowLayout.LEFT));
+		double[][] size = {{TableLayout.FILL}, //columns
+				{TableLayout.PREFERRED}}; //rows
+		setLayout(new TableLayout(size));
+		add(tree, "0, 0");
+		//add(tree);
 		setDateIndex();
 	}
 	

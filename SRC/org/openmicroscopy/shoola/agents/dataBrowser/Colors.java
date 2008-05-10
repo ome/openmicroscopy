@@ -50,28 +50,14 @@ import org.openmicroscopy.shoola.env.config.Registry;
  * </small>
  * @since OME3.0
  */
-public class Colors {
+public class Colors
+{
 
 	/** Identifies the color used to highlight the title bar. */
     public static final int     TITLE_BAR_HIGHLIGHT = 0;
     
     /** Identifies the color of the title bar. */
     public static final int     TITLE_BAR = 1;
-    
-    /**
-     * Identifies the color used to highlight the title bar when the 
-     * regular expression is found in the annotation and the node is selected.
-     */
-    public static final int     REGEX_HIGHLIGHT = 2;
-    
-    /**
-     * Identifies the color used to highlight the title bar when the 
-     * node is selected and annotated.
-     */
-    public static final int     ANNOTATED_HIGHLIGHT = 3;
-    
-    /** Identifies the color of the annotated elements. */
-    public static final int     ANNOTATED = 4;
     
     /** The sole instance. */
     private static Colors   	singleton;
@@ -103,13 +89,6 @@ public class Colors {
         colorsMap.put(new Integer(TITLE_BAR_HIGHLIGHT), c);
         c = (Color) registry.lookup("/resources/colors/TitleBar");
         colorsMap.put(new Integer(TITLE_BAR), c);
-        c = (Color) registry.lookup("/resources/colors/AnnotatedHighlight");
-        colorsMap.put(new Integer(ANNOTATED_HIGHLIGHT), c);
-        c = (Color) registry.lookup("/resources/colors/Annotated");
-        colorsMap.put(new Integer(ANNOTATED), c);
-        c = (Color) 
-            registry.lookup("/resources/colors/RegExHighlight");
-        colorsMap.put(new Integer(REGEX_HIGHLIGHT), c);
     }
     
     /**
@@ -152,17 +131,7 @@ public class Colors {
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
         Color c = node.getHighlight();
         if (c == null) return null;
-        if (c.equals(getColor(TITLE_BAR_HIGHLIGHT))) {
-        	Color pc = node.getPreviousHighlight();
-        	if (getColor(REGEX_HIGHLIGHT).equals(pc)) c = pc;
-        	else c = null;
-        }
-        else if (c.equals(getColor(ANNOTATED_HIGHLIGHT))) 
-            c = getColor(ANNOTATED);
-        else if (c.equals(getColor(REGEX_HIGHLIGHT))) {
-        	c = getColor(REGEX_HIGHLIGHT);
-        }
-        	
+        if (c.equals(getColor(TITLE_BAR_HIGHLIGHT))) c = null;	
         return c;
     }
     
@@ -178,11 +147,7 @@ public class Colors {
         if (node.getParentDisplay() == null) return getColor(TITLE_BAR);
         Color c = node.getHighlight();
         if (c == null) c = getColor(TITLE_BAR_HIGHLIGHT);
-        else if (c.equals(getColor(ANNOTATED))) 
-            c = getColor(ANNOTATED_HIGHLIGHT);
-        else if (c.equals(getColor(REGEX_HIGHLIGHT))) 
-        	c = getColor(TITLE_BAR_HIGHLIGHT);//getColor(REGEX_HIGHLIGHT);
         return c;
     }
-    
+
 }
