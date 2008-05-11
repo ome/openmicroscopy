@@ -60,8 +60,8 @@ import ome.model.display.QuantumDef;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
+import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
-import ome.services.ThumbnailBean;
 import ome.services.util.OmeroAroundInvoke;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;
@@ -115,44 +115,408 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     
     /** An enumerated list of rendering models. */
     protected transient List<RenderingModel> renderingModels;
+     
+    /**
+     * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
+     * 
+     * @param image The image to handle.
+     */
+    private void setOriginalSettings(Image image)
+    {
+    	if (image == null) return;
+    	setOriginalSettings(image.getPrimaryPixels());
+    }
     
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
+     * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
      * 
-     * @see IRenderingSettings#sanityCheckPixels(Pixels, Pixels)
+     * @param image The image to handle.
      */
-    public boolean sanityCheckPixels(Pixels pFrom, Pixels pTo) {
-        if (pTo == null || pFrom == null)
-            return false;
-        String vFrom = pFrom.getPixelsType().getValue();
-        String vTo = pTo.getPixelsType().getValue();
-        if (!vFrom.equals(vTo))
-            return false;
-        if (pFrom.getSizeC().compareTo(pTo.getSizeC()) != 0)
-            return false;
-        Iterator<Channel> i = pFrom.iterateChannels();
-        Channel c;
-        List<Integer> wavelengths = new ArrayList<Integer>(pFrom
-                .sizeOfChannels());
-        // Problem no access to channel index.
-        LogicalChannel lc;
-        while (i.hasNext()) {
-            c = i.next();
-            lc = c.getLogicalChannel();
-            if (lc != null)
-                wavelengths.add(lc.getEmissionWave());
+    private void resetDefaults(Image image)
+    {
+    	if (image == null) return;
+    	resetDefaults(image.getPrimaryPixels());
+    }
+    
+    /**
+     * Resets a specific set of rendering settings back to those that are 
+     * specified by the rendering engine intelligent <i>pretty good image 
+     * (PG)</i> logic and a given pixels set.
+     * 
+     * @param pixels The pixels object whose rendering settings are to be reset.
+     * @param settings The rendering settings which are to be reset.
+     * @param save Whether or not the rendering settings should be saved.
+     * @param computeStats Pass <code>true</code> to compute the stats 
+     * 					   determining the input interval, <code>false</code>
+     *                     otherwise.
+     * @return See above.
+     */
+    private RenderingDef resetDefaults(RenderingDef settings, Pixels pixels,
+                                       boolean save, boolean computeStats)
+    {
+        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
+        renderingModels = 
+            pixelsMetadata.getAllEnumerations(RenderingModel.class);
+        quantumFactory = new QuantumFactory(families);
+        try
+        {
+            PixelBuffer buffer = pixelsData.getPixelBuffer(pixels);
+            resetDefaults(settings, pixels, quantumFactory,
+                    renderingModels, buffer, computeStats);
+            buffer.close();
+            
+            // Increment the version of the rendering settings so that we 
+            // can have some notification that either the RenderingDef 
+            // object itself or one of its children in the object graph has 
+            // been updated. FIXME: This should be implemented using 
+            // IUpdate.touch() or similar once that functionality exists.
+            settings.setVersion(settings.getVersion() + 1);
+            
+            if (save)
+            {
+                pixelsMetadata.saveRndSettings(settings);
+            }
+            return settings;
+        } 
+        catch (IOException e)
+        {
+            log.debug("An I/O error occurred while attempting to reset " +
+                      "rendering settings " + settings + " for pixels set " + 
+                      pixels, e);
+            throw new ResourceError(
+                    e.getMessage() + " Please check server log.");
         }
-        i = pTo.iterateChannels();
-        int r = 0;
-        while (i.hasNext()) {
-            c = i.next();
-            lc = c.getLogicalChannel();
-            if (lc != null && wavelengths.contains(lc.getEmissionWave()))
-                r++;
+    }
+    
+    /**
+     * Resets a pixel's rendering settings back to those that are specified by
+     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+     * 
+     * @param pixels The pixels object whose rendering settings are to be set.
+     */
+    private void setOriginalSettings(Pixels pixels)
+    {
+    	if (pixels == null) return;
+        RenderingDef settings = getRenderingSettings(pixels.getId());
+        resetDefaults(settings, pixels, true, false);
+	}
+    
+    /**
+     * Resets a pixel's rendering settings back to those that are specified by
+     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+     * 
+     * @param pixels The pixels object whose rendering settings are to be reset.
+     */
+    private void resetDefaults(Pixels pixels)
+    {
+    	if (pixels == null) return;
+        RenderingDef settings = getRenderingSettings(pixels.getId());
+        resetDefaults(settings, pixels, true, true);
+	}
+
+	/**
+	 * Performs the logic specified by {@link #resetDefaultsInCategory(long)}.
+	 * 
+	 * @param category The category to handle.
+	 * @return The collection of images linked to the category.
+	 */
+	private Set<Long> resetDefaults(Category category)
+	{
+		if (category == null) return new HashSet<Long>();
+		String sql = "select i from Image i "
+			+ " left outer join fetch i.categoryLinks cil "
+			+ " left outer join fetch cil.parent c where c.id = :id";
+		List<Image> images = 
+			iQuery.findAllByQuery(sql, new Parameters().addId(category.getId()));
+		return resetDefaults(new HashSet<Image>(images));
+	}
+
+	/**
+	 * Performs the logic specified by {@link #resetDefaultsInDataset(long)}.
+	 * 
+	 * @param dataset The dataset to handle.
+	 * @return The collection of images linked to the dataset.
+	 */
+	private Set<Long> resetDefaults(Dataset dataset)
+	{
+		if (dataset == null) return new HashSet<Long>();
+		String sql = "select i from Image i "
+			+ " left outer join fetch i.datasetLinks dil "
+			+ " left outer join fetch dil.parent d where d.id = :id";
+		List<Image> images = 
+			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
+		return resetDefaults(new HashSet<Image>(images));
+	}
+
+	/**
+	 * Sets the original settings for the images linked to the specified 
+	 * dataset.
+	 * 
+	 * @param dataset The dataset to handle.
+	 * @return The collection of images linked to the dataset.
+	 */
+	private Set<Long> setOriginalSettings(Dataset dataset)
+	{
+		if (dataset == null) return new HashSet<Long>();
+		String sql = "select i from Image i "
+			+ " left outer join fetch i.datasetLinks dil "
+			+ " left outer join fetch dil.parent d where d.id = :id";
+		List<Image> images = 
+			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
+		return setOriginalSettings(new HashSet<Image>(images));
+	}
+	
+	/**
+     * Resets a rendering settings back to one or many <code>Images</code>
+     * that are specified by the rendering engine intelligent <i>pretty good
+     * image (PG)</i> logic.
+     * 
+     * @param images A {@link java.util.Set} of images to reset the rendering
+     * settings.
+     * @return A {@link java.util.Set} of image IDs that have had their
+     * rendering settings reset.
+     */
+	private Set<Long> setOriginalSettings(Set<Image> images) {
+		if (images == null || images.isEmpty())
+			throw new ValidationException("Target does not contain any " +
+					"Images.");
+		Set<Long> imageIds = new HashSet<Long>();
+		for (Image image : images) 
+			setOriginalSettingsInImage(image.getId());
+		
+		return imageIds;
+	}
+	
+	/**
+     * Resets a rendering settings back to one or many <code>Images</code>
+     * that are specified by the rendering engine intelligent <i>pretty good
+     * image (PG)</i> logic.
+     * 
+     * @param images A {@link java.util.Set} of images to reset the rendering
+     * settings.
+     * @return A {@link java.util.Set} of image IDs that have had their
+     * rendering settings reset.
+     */
+	private Set<Long> resetDefaults(Set<Image> images) {
+		if (images == null || images.isEmpty())
+			throw new ValidationException("Target does not contain any " +
+					"Images.");
+		Set<Long> imageIds = new HashSet<Long>();
+		for (Image image : images) {
+			resetDefaultsInImage(image.getId());
+		}
+		return imageIds;
+	}
+	
+    /**
+     * Resets a rendering definition to its predefined defaults.
+     * 
+     * @param def The rendering definition to reset.
+     * @param pixels The pixels set to reset the definition based upon.
+     * @param quantumFactory A populated quantum factory.
+     * @param renderingModels An enumerated list of all rendering models.
+     * @param buffer A pixel buffer which maps to the <i>planeDef</i>.
+     * @param computeStats Pass <code>true</code> to compute the stats,
+     * 			           <code>false</code> otherwise
+     */
+    private void resetDefaults(RenderingDef def, Pixels pixels,
+            QuantumFactory quantumFactory, List<RenderingModel> renderingModels,
+            PixelBuffer buffer, boolean computeStats) {
+        // The default rendering definition settings
+        def.setDefaultZ(pixels.getSizeZ() / 2);
+        def.setDefaultT(0);
+    
+        // Set the rendering model to RGB if there is more than one channel,
+        // otherwise set it to greyscale.
+        RenderingModel defaultModel = null;
+        if (pixels.sizeOfChannels() > 1) {
+            for (RenderingModel model : renderingModels)
+            {
+                if (model.getValue().equals(Renderer.MODEL_HSB))
+                    defaultModel = model;
+            }
+        } else {
+            for (RenderingModel model : renderingModels)
+            {
+                if (model.getValue().equals(Renderer.MODEL_GREYSCALE))
+                    defaultModel = model;
+            }
         }
-        if (r != wavelengths.size())
-            return false;
-        return true;
+        if (defaultModel == null)
+        {
+            throw new IllegalArgumentException(
+                "Unable to find default rendering model in enumerated list.");
+        }
+        def.setModel(defaultModel);
+    
+        // Quantization settings
+        QuantumDef quantumDef = def.getQuantization();
+        quantumDef.setCdStart(0);
+        quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
+        quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
+        def.setQuantization(quantumDef);
+    
+        // Reset the channel bindings
+        resetChannelBindings(def, pixels, quantumFactory, buffer, computeStats);
+    }
+    
+    /**
+     * Resets the channel bindings for the current active pixels set.
+     * 
+     * @param def
+     *            the rendering definition to link to.
+     * @param pixels
+     *            the pixels set to reset the bindings based upon.
+     * @param quantumFactory
+     *            a populated quantum factory.
+     * @param buffer
+     *            a pixel buffer which maps to the <i>planeDef</i>.
+     * @param computeStats 
+     * 			  Pass <code>true</code> to compute the stats,
+     * 			  <code>false</code> otherwise
+     */
+    private void resetChannelBindings(RenderingDef def, Pixels pixels,
+            QuantumFactory quantumFactory, PixelBuffer buffer, boolean
+            computeStats) {
+        // The actual channel bindings we are returning
+        List<ChannelBinding> 
+        	channelBindings = def.<ChannelBinding>collectWaveRendering(null);
+    
+        // Default plane definition for our rendering definition
+        PlaneDef planeDef = getDefaultPlaneDef(def);
+    
+        int i = 0;
+        ChannelBinding channelBinding;
+        for (Channel channel : pixels.<Channel>collectChannels(null)) {
+            Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
+    
+            channelBinding = channelBindings.get(i);
+            channelBinding.setFamily(family);
+            channelBinding.setCoefficient(new Double(1));
+    
+            // If we have more than one channel set each of the first three
+            // active, otherwise only activate the first.
+            if (i < 3) {
+                channelBinding.setActive(true);
+            } else {
+                channelBinding.setActive(false);
+            }
+    
+            // Handle updating or recreating a color for this channel.
+            Color defaultColor = ColorsFactory.getColor(i, channel);
+            if (channelBinding.getColor() == null) {
+                channelBinding.setColor(ColorsFactory.getColor(i, channel));
+            } else {
+                Color color = channelBinding.getColor();
+                color.setRed(defaultColor.getRed());
+                color.setGreen(defaultColor.getGreen());
+                color.setBlue(defaultColor.getBlue());
+                color.setAlpha(defaultColor.getAlpha());
+            }
+            channelBinding.setNoiseReduction(false);
+            i++;
+        }
+    
+        // Set the input start and input end for each channel binding based upon
+        // the computation of the pixels set's location statistics.
+        if (computeStats)
+        	computeLocationStats(pixels, channelBindings, planeDef, buffer);
+        else {
+        	StatsInfo stats;
+            for (int w = 0; w < pixels.sizeOfChannels(); w++) {
+                // FIXME: This is where we need to have the ChannelBinding -->
+                // Channel linkage. Without it, we have to assume that the order in
+                // which the channel bindings was created matches up with the order
+                // of the channels linked to the pixels set.
+            	channelBinding = channelBindings.get(w);
+            	stats = pixels.getChannel(w).getStatsInfo();
+            	 if (stats == null)
+                 	throw new ResourceError("Pixels set is missing statistics" +
+                 			" for channel '"+ w +"'. This suggests an image " +
+                 		    "import error or failed image import.");
+            	 channelBinding.setInputStart(stats.getGlobalMin().floatValue());
+            	 channelBinding.setInputEnd(stats.getGlobalMax().floatValue());
+            }
+        }
+    }
+    
+    /**
+     * Computes the location statistics for a set of rendering settings.
+     * 
+     * @param pixels	The pixels set.
+     * @param cbs		The collection of settings corresponding to channel.
+     * @param planeDef	The 2D-plane. Mustn't be <code>null</code>
+     * @param buf		The buffer.
+     */
+    private void computeLocationStats(Pixels pixels,
+            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
+        if (planeDef == null) {
+            throw new NullPointerException("No plane definition.");
+        }
+        StatsFactory sf = new StatsFactory();
+        ChannelBinding cb;
+        for (int w = 0; w < pixels.sizeOfChannels(); w++) {
+            // FIXME: This is where we need to have the ChannelBinding -->
+            // Channel linkage. Without it, we have to assume that the order in
+            // which the channel bindings was created matches up with the order
+            // of the channels linked to the pixels set.
+            cb = cbs.get(w);
+            sf.computeLocationStats(pixels, buf, planeDef, w);
+            cb.setNoiseReduction(sf.isNoiseReduction());
+            cb.setInputStart(new Float(sf.getInputStart()));
+            cb.setInputEnd(new Float(sf.getInputEnd()));
+        }
+    }
+    
+    /**
+     * Creates the default plane definition to use for generation of the very
+     * first image displayed by <i>2D</i> viewers based upon a rendering
+     * definition.
+     * 
+     * @param renderingDef
+     *            the rendering definition to base the plane definition upon.
+     * @return The default <i>XY</i>-plane for the <i>renderingDef</i>.
+     */
+    private PlaneDef getDefaultPlaneDef(RenderingDef renderingDef) {
+        PlaneDef pd = new PlaneDef(PlaneDef.XY, renderingDef.getDefaultT());
+        pd.setZ(renderingDef.getDefaultZ());
+        return pd;
+    }
+
+    /**
+     * Creates new channel bindings for each channel in the pixels set.
+     * 
+     * @param p
+     *            the pixels set to create channel bindings based upon.
+     * @return a new set of blank channel bindings.
+     */
+    private List<ChannelBinding> createNewChannelBindings(Pixels p) {
+        List<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
+        ChannelBinding binding;
+        for (int i = 0; i < p.getSizeC(); i++) {
+            binding = new ChannelBinding();
+            binding.setColor(new Color());
+            cbs.add(binding);
+        }
+        return cbs;
+    }
+    
+    /**
+     * Loads objects from the Hibernate store in a list context.
+     * @param klass The type of object to load.
+     * @param nodeIds The object IDs to load.
+     * @return A typed {@link java.util.List} of objects retrieved from the
+     * Hibernate store.
+     */
+    private <T extends IObject> List<T> loadObjects(Class<T> klass, 
+    												Set<Long> nodeIds)
+    {
+    	List<T> toReturn = new ArrayList<T>();
+    	for (Long nodeId : nodeIds)
+    	{
+    		toReturn.add(iQuery.get(klass, nodeId));
+    	}
+    	return toReturn;
     }
 
     /**
@@ -203,6 +567,45 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
         return result;
     }
+    
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F
+     * 
+     * @see IRenderingSettings#sanityCheckPixels(Pixels, Pixels)
+     */
+    public boolean sanityCheckPixels(Pixels pFrom, Pixels pTo) {
+        if (pTo == null || pFrom == null)
+            return false;
+        String vFrom = pFrom.getPixelsType().getValue();
+        String vTo = pTo.getPixelsType().getValue();
+        if (!vFrom.equals(vTo))
+            return false;
+        if (pFrom.getSizeC().compareTo(pTo.getSizeC()) != 0)
+            return false;
+        Iterator<Channel> i = pFrom.iterateChannels();
+        Channel c;
+        List<Integer> wavelengths = new ArrayList<Integer>(pFrom
+                .sizeOfChannels());
+        // Problem no access to channel index.
+        LogicalChannel lc;
+        while (i.hasNext()) {
+            c = i.next();
+            lc = c.getLogicalChannel();
+            if (lc != null)
+                wavelengths.add(lc.getEmissionWave());
+        }
+        i = pTo.iterateChannels();
+        int r = 0;
+        while (i.hasNext()) {
+            c = i.next();
+            lc = c.getLogicalChannel();
+            if (lc != null && wavelengths.contains(lc.getEmissionWave()))
+                r++;
+        }
+        if (r != wavelengths.size())
+            return false;
+        return true;
+    }
 
     /**
      * Sets injector. For use during configuration. Can only be called once.
@@ -230,7 +633,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 
     /**
      * Returns the interface this implementation is for.
-     * 
      * @see AbstractLevel2Service#getServiceInterface()
      */
     @RolesAllowed("user")
@@ -239,19 +641,18 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
-     * 
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
      * @see IRenderingSettings#applySettingsToSet(long, Class, Set)
      */
     @RolesAllowed("user")
-    public <T extends IObject> void applySettingsToSet(long from, Class<T> toType, Set<T> to) {
+    public <T extends IObject> void applySettingsToSet(long from, 
+    		Class<T> toType, Set<T> to) {
         // TODO Auto-generated method stub
 
     }
 
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
-     * 
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
      * @see IRenderingSettings#applySettingsToCategory(long, long)
      */
     @RolesAllowed("user")
@@ -266,8 +667,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
-     * 
+     * Implemented as specified by the {@link IRenderingSettings} I/F. 
      * @see IRenderingSettings#applySettingsToProject(long, long)
      */
     @RolesAllowed("user")
@@ -285,8 +685,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
-     * 
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
      * @see IRenderingSettings#applySettingsToDataset(long, long)
      */
     @RolesAllowed("user")
@@ -420,7 +819,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public void resetDefaults(RenderingDef def, Pixels pixels) {
-        resetDefaults(def, pixels, true);
+        resetDefaults(def, pixels, true, true);
     }
     
     /**
@@ -430,12 +829,11 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public RenderingDef resetDefaultsNoSave(RenderingDef def, Pixels pixels) {
-        return resetDefaults(def, pixels, false);
+        return resetDefaults(def, pixels, false, true);
     }
     
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
-     * 
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
      * @see IRenderingSettings#resetDefaultsInImage(long)
      */
     @RolesAllowed("user")
@@ -445,7 +843,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
      * 
      * @see IRenderingSettings#resetDefaultsInDataset(long)
      */
@@ -465,300 +863,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	Category category = iQuery.get(Category.class, categoryId);
     	return resetDefaults(category);
     }
-    
-    /**
-     * Performs the logic specified by {@link resetDefaultsInImage()}.
-     */
-    private void resetDefaults(Image image)
-    {
-    	resetDefaults(image.getPrimaryPixels());
-    }
-    
-    /**
-     * Resets a specific set of rendering settings back to those that are 
-     * specified by the rendering engine intelligent <i>pretty good image 
-     * (PG)</i> logic and a given pixels set.
-     * 
-     * @param pixels The pixels object whose rendering settings are to be reset.
-     * @param settings The rendering settings which are to be reset.
-     * @param save Whether or not the rendering settings should be saved.
-     */
-    private RenderingDef resetDefaults(RenderingDef settings, Pixels pixels,
-                                       boolean save)
-    {
-        List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
-        renderingModels = 
-            pixelsMetadata.getAllEnumerations(RenderingModel.class);
-        quantumFactory = new QuantumFactory(families);
-        try
-        {
-            PixelBuffer buffer = pixelsData.getPixelBuffer(pixels);
-            resetDefaults(settings, pixels, quantumFactory,
-                    renderingModels, buffer);
-            buffer.close();
-            
-            // Increment the version of the rendering settings so that we 
-            // can have some notification that either the RenderingDef 
-            // object itself or one of its children in the object graph has 
-            // been updated. FIXME: This should be implemented using 
-            // IUpdate.touch() or similar once that functionality exists.
-            settings.setVersion(settings.getVersion() + 1);
-            
-            if (save)
-            {
-                pixelsMetadata.saveRndSettings(settings);
-            }
-            return settings;
-        } 
-        catch (IOException e)
-        {
-            log.debug("An I/O error occurred while attempting to reset " +
-                      "rendering settings " + settings + " for pixels set " + 
-                      pixels, e);
-            throw new ResourceError(
-                    e.getMessage() + " Please check server log.");
-        }
-    }
-    
-    /**
-     * Resets a pixel's rendering settings back to those that are specified by
-     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * 
-     * @param pixels The pixels object whose rendering settings are to be reset.
-     */
-    private void resetDefaults(Pixels pixels) {
-        RenderingDef settings = getRenderingSettings(pixels.getId());
-        resetDefaults(settings, pixels, true);
-	}
-
-	/**
-	 * Performs the logic specified by {@link resetDefaultsInCategory()}.
-	 */
-	private Set<Long> resetDefaults(Category category)
-	{
-		String sql = "select i from Image i "
-			+ " left outer join fetch i.categoryLinks cil "
-			+ " left outer join fetch cil.parent c where c.id = :id";
-		List<Image> images = 
-			iQuery.findAllByQuery(sql, new Parameters().addId(category.getId()));
-		return resetDefaults(new HashSet<Image>(images));
-	}
-
-	/**
-	 * Performs the logic specified by {@link resetDefaultsInDataset()}.
-	 */
-	private Set<Long> resetDefaults(Dataset dataset)
-	{
-		String sql = "select i from Image i "
-			+ " left outer join fetch i.datasetLinks dil "
-			+ " left outer join fetch dil.parent d where d.id = :id";
-		List<Image> images = 
-			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
-		return resetDefaults(new HashSet<Image>(images));
-	}
-
-	/**
-     * Resets a rendering settings back to one or many <code>Images</code>
-     * that are specified by the rendering engine intelligent <i>pretty good
-     * image (PG)</i> logic.
-     * 
-     * @param images A {@link java.util.Set} of images to reset the rendering
-     * settings.
-     * @return A {@link java.util.Set} of image IDs that have had their
-     * rendering settings reset.
-     */
-	private Set<Long> resetDefaults(Set<Image> images) {
-		if (images.isEmpty())
-			throw new ValidationException("Target does not contain any Images.");
-		Set<Long> imageIds = new HashSet<Long>();
-		for (Image image : images) {
-			resetDefaultsInImage(image.getId());
-		}
-		return imageIds;
-	}
-	
-    /**
-     * Resets a rendering definition to its predefined defaults.
-     * 
-     * @param def the rendering definition to reset.
-     * @param pixels the pixels set to reset the definition based upon.
-     * @param quantumFactory a populated quantum factory.
-     * @param renderingModels an enumerated list of all rendering models.
-     * @param buffer a pixel buffer which maps to the <i>planeDef</i>.
-     */
-    private void resetDefaults(RenderingDef def, Pixels pixels,
-            QuantumFactory quantumFactory, List<RenderingModel> renderingModels,
-            PixelBuffer buffer) {
-        // The default rendering definition settings
-        def.setDefaultZ(pixels.getSizeZ() / 2);
-        def.setDefaultT(0);
-    
-        // Set the rendering model to RGB if there is more than one channel,
-        // otherwise set it to greyscale.
-        RenderingModel defaultModel = null;
-        if (pixels.sizeOfChannels() > 1) {
-            for (RenderingModel model : renderingModels)
-            {
-                if (model.getValue().equals(Renderer.MODEL_HSB))
-                    defaultModel = model;
-            }
-        } else {
-            for (RenderingModel model : renderingModels)
-            {
-                if (model.getValue().equals(Renderer.MODEL_GREYSCALE))
-                    defaultModel = model;
-            }
-        }
-        if (defaultModel == null)
-        {
-            throw new IllegalArgumentException(
-                "Unable to find default rendering model in enumerated list.");
-        }
-        def.setModel(defaultModel);
-    
-        // Quantization settings
-        QuantumDef quantumDef = def.getQuantization();
-        quantumDef.setCdStart(0);
-        quantumDef.setCdEnd(QuantumFactory.DEPTH_8BIT);
-        quantumDef.setBitResolution(QuantumFactory.DEPTH_8BIT);
-        def.setQuantization(quantumDef);
-    
-        // Reset the channel bindings
-        resetChannelBindings(def, pixels, quantumFactory, buffer);
-    }
-    
-    /**
-     * Resets the channel bindings for the current active pixels set.
-     * 
-     * @param def
-     *            the rendering definition to link to.
-     * @param pixels
-     *            the pixels set to reset the bindings based upon.
-     * @param quantumFactory
-     *            a populated quantum factory.
-     * @param buffer
-     *            a pixel buffer which maps to the <i>planeDef</i>.
-     */
-    private void resetChannelBindings(RenderingDef def, Pixels pixels,
-            QuantumFactory quantumFactory, PixelBuffer buffer) {
-        // The actual channel bindings we are returning
-        List<ChannelBinding> channelBindings = def.<ChannelBinding>collectWaveRendering(null);
-    
-        // Default plane definition for our rendering definition
-        PlaneDef planeDef = getDefaultPlaneDef(def);
-    
-        int i = 0;
-        for (Channel channel : pixels.<Channel>collectChannels(null)) {
-            Family family = quantumFactory.getFamily(QuantumFactory.LINEAR);
-    
-            ChannelBinding channelBinding = channelBindings.get(i);
-            channelBinding.setFamily(family);
-            channelBinding.setCoefficient(new Double(1));
-    
-            // If we have more than one channel set each of the first three
-            // active, otherwise only activate the first.
-            if (i < 3) {
-                channelBinding.setActive(true);
-            } else {
-                channelBinding.setActive(false);
-            }
-    
-            // Handle updating or recreating a color for this channel.
-            Color defaultColor = ColorsFactory.getColor(i, channel);
-            if (channelBinding.getColor() == null) {
-                channelBinding.setColor(ColorsFactory.getColor(i, channel));
-            } else {
-                Color color = channelBinding.getColor();
-                color.setRed(defaultColor.getRed());
-                color.setGreen(defaultColor.getGreen());
-                color.setBlue(defaultColor.getBlue());
-                color.setAlpha(defaultColor.getAlpha());
-            }
-            channelBinding.setNoiseReduction(false);
-            i++;
-        }
-    
-        // Set the input start and input end for each channel binding based upon
-        // the computation of the pixels set's location statistics.
-        computeLocationStats(pixels, channelBindings, planeDef, buffer);
-    }
-    
-    /**
-     * Computes the location statistics for a set of rendering settings.
-     */
-    private void computeLocationStats(Pixels pixels,
-            List<ChannelBinding> cbs, PlaneDef planeDef, PixelBuffer buf) {
-        if (planeDef == null) {
-            throw new NullPointerException("No plane definition.");
-        }
-        StatsFactory sf = new StatsFactory();
-
-        for (int w = 0; w < pixels.sizeOfChannels(); w++) {
-            // FIXME: This is where we need to have the ChannelBinding -->
-            // Channel linkage. Without it, we have to assume that the order in
-            // which the channel bindings was created matches up with the order
-            // of the channels linked to the pixels set.
-            ChannelBinding cb = cbs.get(w);
-            sf.computeLocationStats(pixels, buf, planeDef, w);
-            cb.setNoiseReduction(sf.isNoiseReduction());
-            cb.setInputStart(new Float(sf.getInputStart()));
-            cb.setInputEnd(new Float(sf.getInputEnd()));
-        }
-    }
-    
-    /**
-     * Creates the default plane definition to use for generation of the very
-     * first image displayed by <i>2D</i> viewers based upon a rendering
-     * definition.
-     * 
-     * @param renderingDef
-     *            the rendering definition to base the plane definition upon.
-     * @return The default <i>XY</i>-plane for the <i>renderingDef</i>.
-     */
-    private PlaneDef getDefaultPlaneDef(RenderingDef renderingDef) {
-        PlaneDef pd = new PlaneDef(PlaneDef.XY, renderingDef.getDefaultT());
-        pd.setZ(renderingDef.getDefaultZ());
-        return pd;
-    }
 
     /**
-     * Creates new channel bindings for each channel in the pixels set.
-     * 
-     * @param p
-     *            the pixels set to create channel bindings based upon.
-     * @return a new set of blank channel bindings.
-     */
-    private List<ChannelBinding> createNewChannelBindings(Pixels p) {
-        List<ChannelBinding> cbs = new ArrayList<ChannelBinding>();
-        ChannelBinding binding;
-        for (int i = 0; i < p.getSizeC(); i++) {
-            binding = new ChannelBinding();
-            binding.setColor(new Color());
-            cbs.add(binding);
-        }
-        return cbs;
-    }
-    
-    /**
-     * Loads objects from the Hibernate store in a list context.
-     * @param klass The type of object to load.
-     * @param nodeIds The object IDs to load.
-     * @return A typed {@link java.util.List} of objects retrieved from the
-     * Hibernate store.
-     */
-    private <T extends IObject> List<T> loadObjects(Class<T> klass, Set<Long> nodeIds)
-    {
-    	List<T> toReturn = new ArrayList<T>();
-    	for (Long nodeId : nodeIds)
-    	{
-    		toReturn.add(iQuery.get(klass, nodeId));
-    	}
-    	return toReturn;
-    }
-
-    /**
-     * Implemented as specified by the {@link IRenderingSettings} I/F
-     * 
+     * Implemented as specified by the {@link IRenderingSettings} I/F. 
      * @see IRenderingSettings#resetDefaultsInSet(Class, Set)
      */
     @RolesAllowed("user")
@@ -793,4 +900,51 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         }
         return imageIds;
     }
+    
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
+     * @see IRenderingSettings#setOriginalSettingsInImage(long)
+     */
+    @RolesAllowed("user")
+    public void setOriginalSettingsInImage(long to) {
+        setOriginalSettings(iQuery.get(Image.class, to));
+    }
+    
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F.
+     * @see IRenderingSettings#setOriginalSettingsInDataset(long)
+     */
+    @RolesAllowed("user")
+    public Set<Long> setOriginalSettingsInDataset(long to) {
+        return setOriginalSettings(iQuery.get(Dataset.class, to));
+    }
+    
+    /**
+     * Implemented as specified by the {@link IRenderingSettings} I/F. 
+     * @see IRenderingSettings#setOriginalSettingsInSet(Class, Set)
+     */
+    @RolesAllowed("user")
+    public Set<Long> setOriginalSettingsInSet(Class<IObject> klass, 
+    											Set<Long> nodeIds)
+    {
+    	if (!Dataset.class.equals(klass) && !Image.class.equals(klass))
+    		throw new IllegalArgumentException(
+    				"Class parameter for resetDefaultsInSet() must be in "
+    				+ "{Dataset, Image}, not " + klass);
+
+    	List<IObject> objects = loadObjects(klass, nodeIds);
+    	Set<Long> imageIds = new HashSet<Long>();
+    	Image image;
+    	for (IObject object : objects) {
+    		if (object instanceof Dataset) {
+    			imageIds.addAll(setOriginalSettings((Dataset) object));
+    		} else if (object instanceof Image) {
+    			image = (Image) object;
+    			setOriginalSettings(image);
+    			imageIds.add(image.getId());
+    		}
+    	}
+    	return imageIds;
+    }
+    
 }
