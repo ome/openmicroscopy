@@ -33,6 +33,7 @@ import ome.model.display.RenderingDef;
  * @since 3.0
  */
 public interface IRenderingSettings extends ServiceInterface {
+	
     /**
      * Checks if the specified sets of pixels are compatible. Returns
      * <code>true</code> if the pixels set is valid, <code>false</code>
@@ -71,7 +72,7 @@ public interface IRenderingSettings extends ServiceInterface {
      * rendering engine intelligent <i>pretty good image (PG)</i> logic for
      * the pixels set linked to that set of rendering settings. <b>NOTE:</b> 
      * This method should only be used to reset a rendering definition that has
-     * been retrieved via {@link IPixels.retrieveRenderingSettings(long)} as
+     * been retrieved via {@link IPixels#§retrieveRenderingSettings(long)} as
      * it relies on certain objects being loaded. The rendering settings are
      * saved upon completion.
      * 
@@ -81,7 +82,6 @@ public interface IRenderingSettings extends ServiceInterface {
      * @param pixels The Pixels set for <code>def</code>.
      * @throws ValidationException if the image qualified by 
      * <code>pixelsId</code> is unlocatable.
-     * @see resetDefaultsNoSave(RenderingDef)
      */
     void resetDefaults(@NotNull RenderingDef def, @NotNull Pixels pixels);
     
@@ -90,7 +90,7 @@ public interface IRenderingSettings extends ServiceInterface {
      * rendering engine intelligent <i>pretty good image (PG)</i> logic for
      * the pixels set linked to that set of rendering settings. <b>NOTE:</b> 
      * This method should only be used to reset a rendering definition that has
-     * been retrieved via {@link IPixels.retrieveRenderingSettings(long)} as
+     * been retrieved via {@link IPixel#retrieveRenderingSettings(long)} as
      * it relies on certain objects being loaded. The rendering settings are
      * not saved.
      * 
@@ -98,10 +98,9 @@ public interface IRenderingSettings extends ServiceInterface {
      * def.pixels will be <i>unloaded</i> and that the actual linked Pixels set
      * will be provided in the <code>pixels</code> argument.
      * @param pixels The Pixels set for <code>def</code>.
+     * @return <code>def</code> with the rendering settings reset.
      * @throws ValidationException if the image qualified by 
      * <code>pixelsId</code> is unlocatable.
-     * @returns <code>def</code> with the rendering settings reset.
-     * @see resetDefaults(RenderingDef)
      */
     RenderingDef resetDefaultsNoSave(@NotNull RenderingDef def,
                                      @NotNull Pixels pixels);
@@ -121,7 +120,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * Resets a category's rendering settings back to those that are specified
 	 * by the rendering engine intelligent <i>pretty good image (PG)</i> logic.
 	 * 
-	 * @param categoriesId The Id of the <code>Category</code>.
+	 * @param categoryId The Id of the <code>Category</code>.
 	 * @return A {@link java.util.Set} of image IDs that have had their 
 	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
@@ -146,12 +145,14 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * specified by the rendering engine intelligent <i>pretty good image
 	 * (PG)</i> logic.
 	 * 
+	 * @param type The type of nodes to handle.
 	 * @param nodeIds Ids of the node type.
 	 * @return A {@link java.util.Set} of image IDs that have had their 
 	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
 	 */
-	Set<Long> resetDefaultsInSet(Class<IObject> type, @NotNull @Validate(Long.class) Set<Long> noteIds);
+	Set<Long> resetDefaultsInSet(Class<IObject> type, 
+			@NotNull @Validate(Long.class) Set<Long> nodeIds);
 	
 	/**
 	 * Applies rendering settings to one or many containers. If a container such 
@@ -169,7 +170,8 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * @throws ValidationException if an illegal <code>toType</code> is
 	 * passed in or the rendering settings <code>from</code> is unlocatable.
 	 */
-	<T extends IObject> void applySettingsToSet(@NotNull long from, Class<T> toType, @NotNull Set<T> to);
+	<T extends IObject> void applySettingsToSet(@NotNull long from, 
+			Class<T> toType, @NotNull Set<T> to);
 	
 	/**
 	 * Applies rendering settings to all images in all <code>Datasets</code> 
@@ -244,4 +246,38 @@ public interface IRenderingSettings extends ServiceInterface {
 	 */
 	boolean applySettingsToPixels(@NotNull long from, @NotNull long to);
 
+	/**
+	 * Resets a dataset's rendering settings back to the original settings.
+	 * 
+	 * @param datasetId The id of the dataset to handle.
+	 * @return A {@link java.util.Set} of image IDs that have had their 
+	 * rendering settings reset. 
+	 * @throws ValidationException if the image qualified by 
+	 * <code>dataSetId</code> is unlocatable.
+	 */
+	Set<Long> setOriginalSettingsInDataset(@NotNull long datasetId);
+	
+	/**
+	 * Resets a rendering settings back to one or many containers that
+	 * 
+	 * @param type The type of nodes to handle.
+	 * @param nodeIds Ids of the node type.
+	 * @return A {@link java.util.Set} of image IDs that have had their 
+	 * rendering settings reset. 
+	 * @throws ValidationException if the image qualified by 
+	 */
+	Set<Long> setOriginalSettingsInSet(Class<IObject> type, 
+							@NotNull @Validate(Long.class) Set<Long> nodeIds);
+	
+	/**
+	 * Resets an image's default rendering settings back to those that are 
+	 * specified by the rendering engine intelligent <i>pretty good image 
+	 * (PG)</i> logic.
+	 * 
+	 * @param imageId The Id of the <code>Image</code>.
+	 * @throws ValidationException if the image qualified by 
+	 * <code>pixelsId</code> is unlocatable.
+	 */
+	void setOriginalSettingsInImage(@NotNull long imageId);
+	
 }
