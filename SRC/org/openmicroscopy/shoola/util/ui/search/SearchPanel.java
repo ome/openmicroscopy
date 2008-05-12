@@ -28,6 +28,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
@@ -270,6 +272,21 @@ class SearchPanel
 		toDate = UIUtilities.createDatePicker();
 
 		fullTextArea = new JTextField(AREA_COLUMNS+2);
+		fullTextArea.addKeyListener(new KeyAdapter() {
+
+            /** Finds the phrase. */
+            public void keyPressed(KeyEvent e)
+            {
+            	Object source = e.getSource();
+            	if (source != fullTextArea) return;
+            	switch (e.getKeyCode()) {
+					case KeyEvent.VK_ENTER:
+						model.search();
+				}
+            }
+        });
+		
+		
 		allTermsArea = new JTextField(AREA_COLUMNS);
 		exactPhraseArea = new JTextField(AREA_COLUMNS);
 		atLeastTermsArea = new JTextField(AREA_COLUMNS);

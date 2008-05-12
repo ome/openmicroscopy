@@ -31,6 +31,8 @@ import java.awt.event.ActionListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -177,11 +179,25 @@ public class SearchComponent
 	private JPanel buildToolBar()
 	{
 		JPanel bar = new JPanel();
-        bar.setBorder(null);
-        //bar.add(cancelButton);
-       // bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        bar.setBorder(null); 
         bar.add(searchButton);
+        bar.add(Box.createRigidArea(H_SPACER_SIZE));
+        bar.add(cancelButton);
         return UIUtilities.buildComponentPanel(bar);
+	}
+	
+	/** 
+	 * Lays out the components indicating the status.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildStatusBar()
+	{
+		JPanel bar = new JPanel();
+		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+		bar.add(progressLabel);
+		bar.add(UIUtilities.buildComponentPanelRight(progressBar));
+		return bar;
 	}
 	
 	/** 
@@ -193,56 +209,19 @@ public class SearchComponent
 	private void buildGUI(boolean showControl)
 	{
 		double[][] size = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+					TableLayout.PREFERRED}}; //rows
 		setLayout(new TableLayout(size));
 		add(uiDelegate, "0, 0");
 		if (showControl) 
 			add(buildToolBar(), "0, 1");
+		add(buildStatusBar(), "0, 2");
 	}
 	
 	/** Closes and disposes of the window. */
 	private void cancel()
 	{
-		//setVisible(false);
 		firePropertyChange(CANCEL_SEARCH_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-		//dispose();
-	}
-	
-	/** Fires a property change to search. */
-	private void search()
-	{
-		//Terms cannot be null
-		String[] some = uiDelegate.getSome();
-		String[] must = uiDelegate.getMust();
-		String[] none = uiDelegate.getNone();
-	
-		List<Integer> scope = uiDelegate.getScope();
-		SearchContext ctx = new SearchContext(some, must, none, scope);
-		int index = uiDelegate.getSelectedDate();
-		Timestamp start, end;
-		
-		switch (index) {
-			case SearchContext.RANGE:
-				start = uiDelegate.getFromDate();
-				end = uiDelegate.getToDate();
-				if (start != null && end != null && start.after(end)) 
-					ctx.setTime(end, start);
-				else ctx.setTime(start, end);
-				break;
-			default:
-				ctx.setTime(index);
-		}
-		ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
-		ctx.setAnnotatorSearchContext(uiDelegate.getAnnotatorSearchContext());
-		ctx.setOwners(uiDelegate.getOwners());
-		ctx.setAnnotators(uiDelegate.getAnnotators());
-		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
-		ctx.setType(uiDelegate.getType());
-		ctx.setAttachmentType(uiDelegate.getAttachment());
-		ctx.setTimeType(uiDelegate.getTimeIndex());
-		ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
-		ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
-		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
 	
 	/** Sets the default contexts. */
@@ -319,6 +298,43 @@ public class SearchComponent
 	void notifyNodeExpanded()
 	{
 		firePropertyChange(NODES_EXPANDED_PROPERTY,Boolean.FALSE, Boolean.TRUE);
+	}
+	
+	/** Fires a property change to search. */
+	void search()
+	{
+		//Terms cannot be null
+		String[] some = uiDelegate.getSome();
+		String[] must = uiDelegate.getMust();
+		String[] none = uiDelegate.getNone();
+	
+		List<Integer> scope = uiDelegate.getScope();
+		SearchContext ctx = new SearchContext(some, must, none, scope);
+		int index = uiDelegate.getSelectedDate();
+		Timestamp start, end;
+		
+		switch (index) {
+			case SearchContext.RANGE:
+				start = uiDelegate.getFromDate();
+				end = uiDelegate.getToDate();
+				if (start != null && end != null && start.after(end)) 
+					ctx.setTime(end, start);
+				else ctx.setTime(start, end);
+				break;
+			default:
+				ctx.setTime(index);
+		}
+		ctx.setOwnerSearchContext(uiDelegate.getOwnerSearchContext());
+		ctx.setAnnotatorSearchContext(uiDelegate.getAnnotatorSearchContext());
+		ctx.setOwners(uiDelegate.getOwners());
+		ctx.setAnnotators(uiDelegate.getAnnotators());
+		ctx.setCaseSensitive(uiDelegate.isCaseSensitive());
+		ctx.setType(uiDelegate.getType());
+		ctx.setAttachmentType(uiDelegate.getAttachment());
+		ctx.setTimeType(uiDelegate.getTimeIndex());
+		ctx.setExcludedOwners(uiDelegate.getExcludedOwners());
+		ctx.setExcludedAnnotators(uiDelegate.getExcludedAnnotators());
+		firePropertyChange(SEARCH_PROPERTY, null, ctx);
 	}
 	
 	/**

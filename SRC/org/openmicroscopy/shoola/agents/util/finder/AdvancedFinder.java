@@ -34,6 +34,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -83,7 +90,7 @@ public class AdvancedFinder
 	
 	/** Collection of selected users. */
 	private Map<String, ExperimenterData>	users;
-	
+    
 	/**
 	 * Determines the scope of the search.
 	 * 
@@ -275,7 +282,7 @@ public class AdvancedFinder
 		dialog.setDefaultSize();
 		UIUtilities.centerAndShow(dialog);
 	}
-	
+
 	/** Creates a new instance. */
 	AdvancedFinder()
 	{

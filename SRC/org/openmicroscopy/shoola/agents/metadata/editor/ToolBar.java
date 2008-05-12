@@ -105,6 +105,9 @@ class ToolBar
 	/** The decorator. */
 	private JPanel			decorator;
 	
+	/** The decorator. */
+	private JPanel			annotation;
+	
 	/** Reference to the Model. */
 	private EditorModel		model;
 	
@@ -268,44 +271,46 @@ class ToolBar
     void setDecorator()
     {
     	IconManager icons = IconManager.getInstance();
-    	JPanel p = new JPanel();
-    	p.setLayout(new FlowLayout(FlowLayout.LEFT));
+    	if (annotation == null) {
+    		annotation = new JPanel();
+        	annotation.setLayout(new FlowLayout(FlowLayout.LEFT));
+    	} else annotation.removeAll();
     	JLabel label;
     	int n = model.getTextualAnnotationCount();
     	if (n > 0) {
     		label = UIUtilities.setTextFont(AnnotationUI.LEFT
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.ANNOTATION));
-    		p.add(label);
-    		p.add(Box.createHorizontalStrut(5));
+    		annotation.add(label);
+    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	n = model.getTagsCount();
     	if (n > 0) {
     		label = UIUtilities.setTextFont(AnnotationUI.LEFT
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.TAG));
-    		p.add(label);
-    		p.add(Box.createHorizontalStrut(5));
+    		annotation.add(label);
+    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	n = model.getUrlsCount();
     	if (n > 0) {
     		label = UIUtilities.setTextFont(AnnotationUI.LEFT
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.URL));
-    		p.add(label);
-    		p.add(Box.createHorizontalStrut(5));
+    		annotation.add(label);
+    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	n = model.getAttachmentsCount();
     	if (n > 0) {
     		label = UIUtilities.setTextFont(AnnotationUI.LEFT
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.DOC));
-    		p.add(label);
-    		p.add(Box.createHorizontalStrut(5));
+    		annotation.add(label);
+    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	decorator.add(Box.createHorizontalStrut(10));
     	//decorator.add(new JSeparator(JSeparator.VERTICAL));
-    	decorator.add(p);
+    	decorator.add(annotation);
     	decorator.revalidate();
     	decorator.repaint();
     	//add(decorator);

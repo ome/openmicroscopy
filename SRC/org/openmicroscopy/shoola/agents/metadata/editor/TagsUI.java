@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -154,9 +153,6 @@ class TagsUI
      */
     private boolean					wizard;
 
-    /** Helper reference to the font metrics. */
-    private FontMetrics				metrics;
-    
     /** The UI component hosting the existing tags. */
     private JPanel					existingTags;
     
@@ -166,6 +162,10 @@ class TagsUI
     /** The edited tag component. */
     private TagComponent			editedTag;
     
+	/** The border displaying the title. */
+	private TitledLineBorder		border;
+	
+	
     /** Loads the tags and adds code completion. */
     private void handleTagInsert()
     {
@@ -366,7 +366,6 @@ class TagsUI
 		newButton.setActionCommand(NEW_ACTION);
 		newButton.addActionListener(this);
 		nameArea = new JTextField();
-		metrics = nameArea.getFontMetrics(nameArea.getFont());
 		nameArea.getDocument().addDocumentListener(this);
 		
 		nameArea.addKeyListener(new KeyAdapter() {
@@ -664,8 +663,7 @@ class TagsUI
 		super(model);
 		title = TITLE;
 		initComponents();
-		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		//setBorder(border);
+		border = new TitledLineBorder(title, getBackground());
 		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
 		add(layoutNewTags());
@@ -800,10 +798,8 @@ class TagsUI
 		removeAll();
 		int n = model.getTagsCount();
 		title = TITLE+LEFT+n+RIGHT;
-		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		UIUtilities.setBoldTitledBorder(title, this);
-		//setBorder(border);
-		getCollapseComponent().setBorder(border);
+		border.setTitle(title);
+		
 		//setLayout(new BorderLayout());
 		add(createExistingTagsPane());
 		add(Box.createVerticalStrut(5));
@@ -918,6 +914,9 @@ class TagsUI
 		historyDialog = null;
 		nameArea.setText("");
 		descriptionArea.setText("");
+		int n = model.getTagsCount();
+		title = TITLE+LEFT+n+RIGHT;
+		border.setTitle(title);
 	}
 	
 	/**

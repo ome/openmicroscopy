@@ -447,6 +447,7 @@ public class EditorUI
 	void setRootObject()
 	{
 		clearData();
+		toolBarTop.setDecorator();
 		Object object = model.getRefObject();
 		content.removeAll();
 		//content.revalidate();

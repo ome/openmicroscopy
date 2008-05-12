@@ -124,6 +124,9 @@ class LinksUI
 	/** The selection menu. */ 
 	private JPopupMenu						selectionMenu;
 	
+	/** The border displaying the title. */
+	private TitledLineBorder 				border;
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
@@ -372,8 +375,7 @@ class LinksUI
 		toRemove = new HashSet<URLAnnotationData>();
 		title = TITLE;
 		initComponents();
-		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		//setBorder(border);
+		border = new TitledLineBorder(title, getBackground());
 		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
 		
@@ -433,12 +435,9 @@ class LinksUI
 	protected void buildUI()
 	{
 		removeAll();
-		addedContent.removeAll();
 		int n = model.getUrlsCount()-toRemove.size();
 		title = TITLE+LEFT+n+RIGHT;
-		TitledLineBorder border = new TitledLineBorder(title, getBackground());
-		//setBorder(border);
-		UIUtilities.setBoldTitledBorder(title, this);
+		border.setTitle(title);
 		getCollapseComponent().setBorder(border);
 		add(layoutURL());
 		add(Box.createVerticalStrut(5));
@@ -575,8 +574,12 @@ class LinksUI
 	 */
 	protected void clearDisplay() 
 	{
-		removeAll();
 		clearData();
+		removeAll();
+		addedContent.removeAll();
+		int n = model.getUrlsCount()-toRemove.size();
+		title = TITLE+LEFT+n+RIGHT;
+		border.setTitle(title);
 	}
 	
 	/**

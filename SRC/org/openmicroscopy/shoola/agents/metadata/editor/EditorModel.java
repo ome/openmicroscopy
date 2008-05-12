@@ -519,6 +519,7 @@ class EditorModel
 	 */
 	Collection getTextualAnnotations()
 	{
+		if (data == null) return null;
 		return data.getTextualAnnotations();
 	}
 	

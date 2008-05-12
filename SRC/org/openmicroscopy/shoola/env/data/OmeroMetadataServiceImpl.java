@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.util.ViewedByDef;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -310,8 +311,18 @@ class OmeroMetadataServiceImpl
 				object.getId(), userID));
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
-			results.setArchived(gateway.hasArchivedFiles(
-					img.getDefaultPixels().getId()));
+			try {
+				results.setArchived(gateway.hasArchivedFiles(
+						img.getDefaultPixels().getId()));
+			} catch (Exception e) {
+				String s = "Data Retrieval Failure: ";
+				LogMessage msg = new LogMessage();
+		        msg.print(s);
+		        msg.print(e);
+		        context.getLogger().error(this, msg);
+		        results.setArchived(false);
+			}
+			
 			results.setViewedBy(loadViewedBy(img.getId(), 
 								img.getDefaultPixels().getId()));
 		}

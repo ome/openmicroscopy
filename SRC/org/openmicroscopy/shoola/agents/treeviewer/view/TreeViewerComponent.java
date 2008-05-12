@@ -1618,6 +1618,7 @@ class TreeViewerComponent
 				onSelectedDisplay();
 				break;
 			case SEARCH_MODE:
+				model.getMetadataViewer().setRootObject(null);
 				if (db != null) 
 					view.addComponent(db.getUI());
 		}
