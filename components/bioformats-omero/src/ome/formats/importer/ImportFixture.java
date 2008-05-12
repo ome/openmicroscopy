@@ -89,7 +89,7 @@ public class ImportFixture
      */
     public void setUp() throws Exception
     {
-        this.library = new ImportLibrary(store, reader, fadMap(this.fads));
+        this.library = new ImportLibrary(store, reader);
     }
 
     /**

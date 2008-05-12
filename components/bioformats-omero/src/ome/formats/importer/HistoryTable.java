@@ -11,6 +11,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -49,11 +50,13 @@ import ome.formats.importer.util.GuiCommonElements;
 
 public class HistoryTable
     extends JPanel
-    implements ActionListener, PropertyChangeListener, IObserver
+    implements ActionListener, PropertyChangeListener, IObserver, IObservable
 {
     /**
      * 
      */
+    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    
     private static final long serialVersionUID = 1L;
     public HistoryTableModel table = new HistoryTableModel();
     public ETable eTable = new ETable(table);
@@ -72,9 +75,6 @@ public class HistoryTable
     // width of certain columns
     int statusWidth = 100;
     int dateWidth = 180;
-    
-    Main    viewer;
-    
 
     // Add graphic for add button
     String searchIcon = "gfx/add.png";
@@ -103,6 +103,7 @@ public class HistoryTable
     JCheckBox               pendingCheckBox;
     
     JButton         searchBtn;
+    JButton         reimportBtn;
     JButton         clearBtn;
     
     public static HistoryDB db = null;
@@ -115,23 +116,18 @@ public class HistoryTable
     JList thisWeekList = new JList(outlookBar.thisWeek);
     JList lastWeekList = new JList(outlookBar.lastWeek);
     JList thisMonthList = new JList(outlookBar.thisMonth);
+    private boolean unknownProjectDatasetFlag;
     
-    HistoryTable(Main viewer)
-    {
-        this.viewer = viewer;
-        
+    HistoryTable()
+    {   
         try {
-            viewer.fileQueueHandler.addPropertyChangeListener(this);
             outlookBar.addPropertyChangeListener(this);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
         
         db = HistoryDB.getHistoryDB();
-
-        viewer.loginHandler.addObserver(this);
         db.addObserver(this);
-        
         gui = new GuiCommonElements();
         
         // set to layout that will maximize on resizing
@@ -238,6 +234,10 @@ public class HistoryTable
                 
        // *****Bottom right most row containing the history table*****
         TableColumnModel cModel =  eTable.getColumnModel();
+        
+        TableColumn hiddenColumn = cModel.getColumn(4);
+        cModel.removeColumn(hiddenColumn);
+        
         MyTableHeaderRenderer myHeader = new MyTableHeaderRenderer();
         
         // Create a custom header for the table
@@ -266,6 +266,12 @@ public class HistoryTable
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(eTable);
 
+        reimportBtn = gui.addButton(filterPanel, "Reimport", 'R', "Click here to reimport these images", "5,0,r,c", debug);
+        reimportBtn.setEnabled(false);
+        
+        reimportBtn.setActionCommand(Actions.HISTORYREIMPORT);
+        reimportBtn.addActionListener(this);
+        
         mainPanel.add(scrollPane, "2,3,3,5");
         mainPanel.add(bottomSidePanel, "0,4,0,0"); 
         mainPanel.add(topSidePanel, "0,0,0,3");
@@ -274,10 +280,36 @@ public class HistoryTable
         this.add(mainPanel);
     }
     
+    
+    public static synchronized HistoryTable getHistoryTable()
+    {
+        if (ref == null) 
+        try
+        {
+            ref = new HistoryTable();
+        } catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(null,
+                    "We were not able to connect to the history DB.\n" +
+                    "Make sure you do not have a second importer\n" +
+                    "running and try again.\n\n" +
+                    "Click OK to exit.",
+                    "Warning",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();    // could not start db
+            System.exit(0);
+
+        }
+        return ref;
+    }
+
+    private static HistoryTable ref;
+    
     private void getExperimenterID()
     {
         try {
-            store = viewer.loginHandler.getMetadataStore();
+            LoginHandler loginHandler = LoginHandler.getLoginHandler();
+            store = loginHandler.getMetadataStore();
             this.experimenterID = store.getExperimenterID();
         } catch (NullPointerException e)
         {
@@ -295,6 +327,10 @@ public class HistoryTable
                     fromDate.getDate(), toDate.getDate());
         if (src == clearBtn)
             ClearHistory();
+        if (src == reimportBtn)
+        {
+            notifyObservers("REIMPORT", null);
+        }
     }
 
     private void ClearHistory()
@@ -319,7 +355,7 @@ public class HistoryTable
     implements TableModelListener {
     
     private static final long serialVersionUID = 1L;
-    private String[] columnNames = {"File Name", "Project/Dataset", "Import Date/Time", "Status"};
+    private String[] columnNames = {"File Name", "Project/Dataset", "Import Date/Time", "Status", "FilePath"};
 
     public void tableChanged(TableModelEvent arg0) { }
     
@@ -489,7 +525,7 @@ public class HistoryTable
             ResultSet rs = db.getFileResults(db, "file_table", importID, experimenterID, string, 
                     doneCheckBox.isSelected(), failedCheckBox.isSelected(), invalidCheckBox.isSelected(),
                     pendingCheckBox.isSelected(), from, to);
-            
+                       
             // the order of the rows in a cursor
             // are implementation dependent unless you use the SQL ORDER statement
             //ResultSetMetaData meta = rs.getMetaData();
@@ -516,13 +552,25 @@ public class HistoryTable
                 if (oldDatasetID != datasetID)
                 {
                     oldDatasetID = datasetID;
-                    datasetName = store.getDatasetName(rs.getLong("datasetID"));                    
+                    try {
+                        datasetName = store.getDatasetName(rs.getLong("datasetID"));
+                    } catch (Exception e)
+                    {
+                        datasetName = "unknown";
+                        displayAccessError();
+                    } 
                 }
                 
                 if (oldProjectID != projectID)
                 {
                     oldProjectID = projectID;
-                    projectName = store.getProjectName(rs.getLong("projectID"));
+                    try {
+                        projectName = store.getProjectName(rs.getLong("projectID"));
+                    } catch (Exception e)
+                    {
+                        projectName = "unknown";
+                        displayAccessError();
+                    }
                 }
                 
                 dayString = db.day.format(rs.getObject("date"));
@@ -541,9 +589,16 @@ public class HistoryTable
                 row.add(projectName + "/" + datasetName);
                 row.add(dayString + " " + hourString);
                 row.add(rs.getObject("status"));
+                row.add(rs.getObject("filepath"));
                 table.addRow(row);
                 table.fireTableDataChanged();
+                unknownProjectDatasetFlag = false;
             }
+            
+            if (rs.getFetchSize() > 0)
+                reimportBtn.setEnabled(true);
+            else
+                reimportBtn.setEnabled(false);
             
             rs.close();
             //db.shutdown();
@@ -554,6 +609,23 @@ public class HistoryTable
         } // results are null
     }
     
+    private void displayAccessError()
+    {
+        if (unknownProjectDatasetFlag) return;
+        
+        unknownProjectDatasetFlag = true;
+        JOptionPane.showMessageDialog(null,
+                "We were not able to retrieve the project/dataset for\n" +
+                "one or more of the imports in this history selection.\n" +
+                "The most like cause is that the original project or\n" +
+                "dataset was deleted.\n\n" +
+                "As a result, the imported items in question cannot be\n" +
+                "reimported automatically using the \"reimport\" button.\n\n" +
+                "Click OK to continue.",
+                "Warning",
+                JOptionPane.ERROR_MESSAGE);
+    }
+
     private void updateOutlookBar()
     {
         GregorianCalendar newCal = new GregorianCalendar( );
@@ -605,6 +677,27 @@ public class HistoryTable
             {
                 updateOutlookBar();
             }
+    }
+
+    // Observable methods
+    
+    public boolean addObserver(IObserver object)
+    {
+        return observers.add(object);
+    }
+    
+    public boolean deleteObserver(IObserver object)
+    {
+        return observers.remove(object);
+        
+    }
+
+    public void notifyObservers(Object message, Object[] args)
+    {
+        for (IObserver observer:observers)
+        {
+            observer.update(this, message, args);
+        }
     }   
     
 }

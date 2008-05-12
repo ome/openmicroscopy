@@ -17,14 +17,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -46,12 +53,15 @@ import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 
 /**
  * @author Brian W. Loranger
  */
 
-public class Main extends JFrame implements ActionListener, WindowListener, IObserver
+public class Main extends JFrame implements ActionListener, WindowListener, IObserver, PropertyChangeListener, WindowStateListener, WindowFocusListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
@@ -77,37 +87,48 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     public static Point splashLocation = Splasher.location;
 
     // -- Constants --
-
+    private final static boolean useSplashScreenAbout   = false;
+    private static boolean USE_QUAQUA = true;
+    public final static boolean DO_SHA1 = true;
+    
+    
     public final static String TITLE            = "OMERO.importer";
     public final static String splash           = "gfx/importer_splash.png";
-    private final static boolean useSplashScreenAbout   = false;
      
     private final static int width = 980;
     private final static int height = 580;
 
     public static final String ICON = "gfx/icon.png";
+    public static final String QUIT_ICON = "gfx/nuvola_exit16.png";
+    public static final String LOGIN_ICON = "gfx/nuvola_login16.png";
+    public static final String COMMENT_ICON = "gfx/nuvola_sendcomment16.png";
+    public static final String ABOUT_ICON = "gfx/nuvola_about16.png";
+    public static final String HISTORY_ICON = "gfx/nuvola_history16.png";
+    public static final String CHOOSER_ICON = "gfx/nuvola_chooser16.png";
+    public static final String OUTPUT_ICON = "gfx/nuvola_output16.png";
+    public static final String BUG_ICON = "gfx/nuvola_bug16.png";
     
     public LoginHandler         loginHandler;
     
-    public FileQueueHandler    fileQueueHandler;
+    public FileQueueHandler     fileQueueHandler;
     
-    public static HistoryDB db = null;
+    public static HistoryDB     db;
 
     public StatusBar            statusBar;
 
+    private JMenuBar            menubar;
     private JMenu               fileMenu;
-
-    private JMenu               helpMenu;
-  
+    private JMenuItem           fileQuit;
     private JMenuItem           login;
+    private JMenu               helpMenu;
+    private JMenuItem           helpComment;
+    private JMenuItem           helpAbout;
     
     public Boolean              loggedIn;
 
     private JTextPane           outputTextPane;
 
     private JTextPane           debugTextPane;
-    
-    private JTextPane           historyTextPane;
 
     @SuppressWarnings("unused")
     private String              username;
@@ -121,6 +142,10 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     @SuppressWarnings("unused")
     private String              port;
 
+    ScreenLogin view;
+    
+    GuiCommonElements   gui;
+    
     /**
      * Main entry class for the application
      */
@@ -128,12 +153,12 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     {
         super(TITLE);
         
-        GuiCommonElements gui = new GuiCommonElements();
-        
+        gui = new GuiCommonElements();
+         
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        JPanel pane = new JPanel();
-        pane.setLayout(new BorderLayout());
-        setContentPane(pane);
+        //JPanel pane = new JPanel();
+        //pane.setLayout(new BorderLayout());
+        //setContentPane(pane);
         setPreferredSize(new Dimension(width, height)); // default size
         pack();
         setLocationRelativeTo(null);
@@ -143,28 +168,28 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         setIconImage(gui.getImageIcon(Main.ICON).getImage());
 
         // menu bar
-        JMenuBar menubar = new JMenuBar();
-        setJMenuBar(menubar);
+        menubar = new JMenuBar();
         fileMenu = new JMenu("File");
         menubar.add(fileMenu);
-        login = new JMenuItem("Login to the server...");
+        login = new JMenuItem("Login to the server...", gui.getImageIcon(LOGIN_ICON));
         login.setActionCommand("login");
         login.addActionListener(this);        
         fileMenu.add(login);
-        JMenuItem fileQuit = new JMenuItem("Quit");
+        fileQuit = new JMenuItem("Quit", gui.getImageIcon(QUIT_ICON));
         fileQuit.setActionCommand("quit");
         fileQuit.addActionListener(this);
         fileMenu.add(fileQuit);
         helpMenu = new JMenu("Help");
         menubar.add(helpMenu);
-        JMenuItem helpComment = new JMenuItem("Send a Comment...");
+        helpComment = new JMenuItem("Send a Comment...", gui.getImageIcon(COMMENT_ICON));
         helpComment.setActionCommand("comment");
         helpComment.addActionListener(this);
-        JMenuItem helpAbout = new JMenuItem("About the Importer...");
+        helpAbout = new JMenuItem("About the Importer...", gui.getImageIcon(ABOUT_ICON));
         helpAbout.setActionCommand("about");
         helpAbout.addActionListener(this);
         helpMenu.add(helpComment);
         helpMenu.add(helpAbout);
+        setJMenuBar(menubar);
 
 
         // tabbed panes
@@ -179,7 +204,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         //splitPane.setResizeWeight(0.5);
 
         filePanel.add(fileQueueHandler, BorderLayout.CENTER);
-        tPane.addTab("File Viewer", null, filePanel,
+        tPane.addTab("File Chooser", gui.getImageIcon(CHOOSER_ICON), filePanel,
         "Add and delete images here to the import queue.");
         tPane.setMnemonicAt(0, KeyEvent.VK_1);
 
@@ -188,7 +213,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         historyPanel.setOpaque(false);
         historyPanel.setLayout(new BorderLayout());
         
-        tPane.addTab("Import History", null, historyPanel,
+        tPane.addTab("Import History", gui.getImageIcon(HISTORY_ICON), historyPanel,
                 "Import history is displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_4);
 
@@ -215,7 +240,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 
         outputPanel.add(outputScrollPane, BorderLayout.CENTER);
 
-        tPane.addTab("Output Text", null, outputPanel,
+        tPane.addTab("Output Text", gui.getImageIcon(OUTPUT_ICON), outputPanel,
                 "Standard output text goes here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_2);
 
@@ -242,7 +267,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 
         debugPanel.add(debugScrollPane, BorderLayout.CENTER);
 
-        tPane.addTab("Debug Text", null, debugPanel,
+        tPane.addTab("Debug Text", gui.getImageIcon(BUG_ICON), debugPanel,
                 "Debug messages are displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_3);
 
@@ -265,12 +290,42 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         appendToOutputLn("> Build date: " + getPrintableKeyword(revisionDate));
         appendToOutputLn("> Release date: " + releaseDate);
         
-        loginHandler = new LoginHandler(this, false, false);
-        HistoryHandler historyHandler = new HistoryHandler(this);
-        historyPanel.add(historyHandler, BorderLayout.CENTER);       
-
+        loginHandler = LoginHandler.getLoginHandler(this, false, false);
+        HistoryHandler historyHandler = HistoryHandler.getHistoryHandler();
+        historyPanel.add(historyHandler, BorderLayout.CENTER);
+        //displayLoginDialog(this, true);
     }
 
+    public boolean displayLoginDialog(Object viewer, boolean modal)
+    {       
+        Image img = Toolkit.getDefaultToolkit().createImage(ICON);
+        view = new ScreenLogin(TITLE, gui.getImageIcon("gfx/login_background.png"), img,
+                versionText);
+        view.showConnectionSpeed(false);
+        ScreenLogo viewTop = new ScreenLogo(TITLE, gui.getImageIcon(splash), img);
+        viewTop.setStatusVisible(false);
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension d = viewTop.getExtendedSize();
+        Dimension dlogin = view.getPreferredSize();
+        int totalHeight = d.height+dlogin.height;
+        viewTop.setBounds((screenSize.width-d.width)/2, 
+                     (screenSize.height-totalHeight)/2, d.width, 
+                     viewTop.getSize().height);
+        Rectangle r = viewTop.getBounds();
+        view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
+        view.addPropertyChangeListener((PropertyChangeListener) viewer);
+        viewTop.addPropertyChangeListener((PropertyChangeListener) viewer);
+        view.addWindowStateListener((WindowStateListener) viewer);
+        viewTop.addWindowStateListener((WindowStateListener) viewer);
+        view.addWindowFocusListener((WindowFocusListener) viewer);
+        viewTop.addWindowFocusListener((WindowFocusListener) viewer); 
+        
+        viewTop.setVisible(true);
+        view.setVisible(true);
+        
+        return true;
+    }
+    
     /**
      * @param s This method appends data to the output window.
      */
@@ -359,7 +414,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
                 loginHandler = null;
             } else 
             {                
-                loginHandler = new LoginHandler(this, true, true);
+                loginHandler = LoginHandler.getLoginHandler(this, true, true);
                 db = HistoryDB.getHistoryDB();
             }
         } else if ("quit".equals(cmd)) {
@@ -448,7 +503,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         this.username = username;
     }
 
-    private boolean quitConfirmed(JFrame frame) {
+    boolean quitConfirmed(JFrame frame) {
         String s1 = "Quit";
         String s2 = "Don't Quit";
         Object[] options = {s1, s2};
@@ -498,7 +553,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         //laf = "com.sun.java.swing.plaf.motif.MotifLookAndFeel";
         //laf = "javax.swing.plaf.metal.MetalLookAndFeel";
 
-        if (laf.equals("apple.laf.AquaLookAndFeel"))
+        if (laf.equals("apple.laf.AquaLookAndFeel") && USE_QUAQUA)
         {
             System.setProperty("Quaqua.design", "panther");
             
@@ -513,6 +568,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             } catch (Exception e) 
            { System.err.println(laf + " not supported."); }
         }
+
         new Main();
     }
 
@@ -550,5 +606,39 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             appendToOutputLn("> Successfully stored with pixels id \"" + args[5] + "\".");
             appendToOutputLn("> [" + args[1] + "] Image imported successfully!");
         }
+    }
+
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        String name = evt.getPropertyName();
+        if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
+            LoginCredentials lc = (LoginCredentials) evt.getNewValue();
+            if (lc != null) login(lc);
+        } else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
+            if (quitConfirmed(this) == true)
+            {
+                System.exit(0);
+            }
+        } else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name) || 
+                ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
+            //updateView();
+        }
+    }
+
+    public void login(LoginCredentials lc)
+    {
+        
+    }
+
+    public void windowStateChanged(WindowEvent arg0)
+    {
+    }
+
+    public void windowGainedFocus(WindowEvent arg0)
+    {
+    }
+
+    public void windowLostFocus(WindowEvent arg0)
+    {
     }
 }

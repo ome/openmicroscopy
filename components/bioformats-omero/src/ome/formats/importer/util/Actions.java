@@ -26,4 +26,5 @@ public class Actions
     public static final Object IMPORT_STEP = "import_step";
     public static final Object DATA_STORED = "data_stored";
     public static final Object IMPORT_DONE = "import_done";
+    public static final String HISTORYREIMPORT = "history_reimport";
 }

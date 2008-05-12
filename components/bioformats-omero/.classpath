@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="loci/formats/auto/MetadataAutogen.java|loci/formats/gui/CacheComponent.java|loci/formats/meta/AggregateMetadata.java|loci/formats/ome/OMEXML2003FCMetadata.java|loci/formats/ome/OMEXML200706Metadata.java|loci/formats/ome/OMEXMLMetadata.java|loci/formats/ome/OmeisImporter.java|loci/formats/out/" kind="src" path="src"/>
 	<classpathentry kind="src" path="resources"/>
-	<classpathentry kind="src" path="target"/>
 	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/bufr-1.1.00.jar"/>
 	<classpathentry kind="lib" path="lib/client-3.0-Beta3.jar"/>
 	<classpathentry kind="lib" path="lib/common-3.0-Beta3.jar"/>
@@ -11,27 +11,28 @@
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/grib-5.1.03.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate-3.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/ij.jar"/>
 	<classpathentry kind="lib" path="lib/jai_imageio.jar"/>
 	<classpathentry kind="lib" path="lib/jbossall-client-4.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="lib/jboss-annotations-ejb3-4.2.1.GA.jar"/>
-	<classpathentry kind="lib" path="lib/jboss-aop-jdk50-4.2.1.GA.jar"/>
-	<classpathentry kind="lib" path="lib/jboss-aop-jdk50-client-4.2.1.GA.jar"/>
-	<classpathentry kind="lib" path="lib/jboss-aspect-library-jdk50-4.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="lib/jboss-ejb3-4.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="lib/jboss-ejb3x-4.2.1.GA.jar"/>
-	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="lib/model-psql-3.0-Beta3.jar"/>
 	<classpathentry kind="lib" path="lib/netcdf-4.0.jar"/>
+	<classpathentry kind="lib" path="lib/ome-java.jar"/>
+	<classpathentry kind="lib" path="lib/omero-clients-util.jar"/>
+	<classpathentry kind="lib" path="lib/persistence-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/poi-loci.jar"/>
 	<classpathentry kind="lib" path="lib/quaqua-filechooser-only.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-jdk14.jar"/>
 	<classpathentry kind="lib" path="lib/spring-2.0.6.jar"/>
-	<classpathentry kind="lib" path="lib/swing-layout.jar"/>
-	<classpathentry kind="lib" path="lib/TableLayout.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/swingx-2007_09_16.jar"/>
+	<classpathentry kind="lib" path="lib/TableLayout.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="Beta 3.0/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

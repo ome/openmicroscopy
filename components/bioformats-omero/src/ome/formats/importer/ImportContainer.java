@@ -10,14 +10,12 @@ package ome.formats.importer;
 import java.io.File;
 
 import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-
 
 public class ImportContainer
 {
         public File file;
         public Long projectID;
-        public Dataset dataset; 
+        private Dataset dataset; 
         public String imageName;
         public boolean archive;
         
@@ -28,5 +26,15 @@ public class ImportContainer
             this.dataset = dataset;
             this.imageName = imageName;
             this.archive = archive2;
+        }
+        
+        public Long getDatasetId()
+        {
+            return dataset.getId();
+        }
+        
+        public Dataset getDataset()
+        {
+            return dataset;
         }
 }

@@ -1,30 +1,26 @@
 package ome.formats.importer;
 
 import java.awt.BorderLayout;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-public class HistoryHandler
+public class HistoryHandler 
     extends JPanel 
-    implements PropertyChangeListener
 {
 
-    private Main            viewer;
+    ArrayList<IObserver> observers = new ArrayList<IObserver>();
+    
     private HistoryTable    table;
     
-    
-    
-    HistoryHandler(Main viewer)
+    HistoryHandler()
     {
-        this.viewer = viewer;
         this.setOpaque(false);
         setLayout(new BorderLayout());
         
-        table = new HistoryTable(viewer);
+        table = HistoryTable.getHistoryTable();
         
         //JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
         //        null, table);
@@ -33,6 +29,23 @@ public class HistoryHandler
         
         add(table, BorderLayout.CENTER);
     }
+    
+    
+    /**
+     * Creates a singularity of the History Handler
+     * @param viewer
+     * @return
+     */
+    public static synchronized HistoryHandler getHistoryHandler()
+    {
+        if (ref == null) 
+            ref = new HistoryHandler();
+        return ref;
+    }
+    
+    private static HistoryHandler ref;
+    
+    
     /**
      * @param args
      */
@@ -60,16 +73,11 @@ public class HistoryHandler
             { System.err.println(laf + " not supported."); }
         }
         
-        HistoryHandler hh = new HistoryHandler(null); 
+        HistoryHandler hh = new HistoryHandler(); 
         JFrame f = new JFrame();   
         f.getContentPane().add(hh);
         f.setVisible(true);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();
     }
-
-    public void propertyChange(PropertyChangeEvent arg0)
-    {
-    }
-
 }

@@ -13,6 +13,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -44,8 +45,7 @@ import ome.model.containers.Dataset;
 public class FileQueueTable 
     extends JPanel
     implements ActionListener, IObserver
-{
-
+{   
     public QueueTableModel table = new QueueTableModel();
     public ETable queue = new ETable(table);
 
@@ -67,7 +67,7 @@ public class FileQueueTable
     public boolean doneFiles;
     
     FileQueueTable() {
-
+            
 // ----- Variables -----
         // Debug Borders
         Boolean debugBorders = false;
@@ -342,6 +342,26 @@ public class FileQueueTable
             queue.clearSelection();
             firePropertyChange(Actions.IMPORT, false, true); 
         }
+    }
+    
+
+    public void centerOnRow(int row)
+    {
+        queue.getSelectionModel().setSelectionInterval(row, row);
+        Rectangle visibleRect = queue.getVisibleRect();
+        int centerY = visibleRect.y + visibleRect.height/2;
+        Rectangle cellRect = queue.getCellRect(row, 0, true);
+        if (centerY < cellRect.y)
+        {
+            // need to scroll up
+            cellRect.y = cellRect.y - visibleRect.y + centerY;
+        }
+        else
+        {
+            // need to scroll down
+            cellRect.y = cellRect.y + visibleRect.y - centerY;                    
+        }
+        queue.scrollRectToVisible(cellRect);
     }
 
     class QueueTableModel 

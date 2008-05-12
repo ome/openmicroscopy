@@ -41,7 +41,7 @@ loci.formats.in.DeltavisionReader  # dv, r3d
 #loci.formats.in.GatanReader        # dm3
 loci.formats.in.ImarisReader       # ims
 loci.formats.in.OpenlabRawReader   # raw
-#loci.formats.in.OMEXMLReader       # ome
+loci.formats.in.OMEXMLReader       # ome
 loci.formats.in.LIFReader          # lif
 #loci.formats.in.AVIReader          # avi
 #loci.formats.in.QTReader           # mov
@@ -88,7 +88,7 @@ loci.formats.in.LeicaReader        # lei, tif
 #loci.formats.in.PrairieReader      # xml, cfg, tif
 #loci.formats.in.MicromanagerReader # txt, tif
 loci.formats.in.ImprovisionTiffReader # tif
-#loci.formats.in.OMETiffReader # tif
+loci.formats.in.OMETiffReader # tif
 loci.formats.in.MetamorphTiffReader # tif
 
 # standard TIFF reader must go last (it accepts any TIFF)

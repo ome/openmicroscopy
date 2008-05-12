@@ -36,7 +36,7 @@ import ome.model.containers.Dataset;
 @SuppressWarnings("serial")
 public class FileQueueHandler 
     extends JPanel 
-    implements ActionListener, PropertyChangeListener
+    implements ActionListener, PropertyChangeListener, IObserver
 {
 
     private Preferences    userPrefs = 
@@ -54,7 +54,7 @@ public class FileQueueHandler
     
     FileQueueChooser fileChooser = null;
     public FileQueueTable qTable = null;
-
+    private HistoryTable historyTable = null;
     
     /**
      * @param viewer
@@ -76,6 +76,11 @@ public class FileQueueHandler
         
         qTable = new FileQueueTable();
         qTable.addPropertyChangeListener(this);
+        
+        // Functionality to allows the reimport button to work
+        historyTable = HistoryTable.getHistoryTable();
+        historyTable.addObserver(this);
+        addPropertyChangeListener(historyTable);
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 fileChooser, qTable);
@@ -121,32 +126,39 @@ public class FileQueueHandler
         }
     }
 
+    
+    private void mustSelectFile()
+    {
+        JOptionPane.showMessageDialog(viewer, 
+                "You must select at least one importable file to\n" +
+                "add to the import queue. Choose an image in the\n" +
+                "left-hand panel first before continuing.");
+    }
+    
     public void propertyChange(PropertyChangeEvent e)
     {
         String prop = e.getPropertyName();
         if (prop.equals(Actions.ADD))
         {
-            files = fileChooser.getSelectedFiles();
-            store = viewer.loginHandler.getMetadataStore();                    
-
-            Boolean fileSelected = false;
-            for (File f : files)
+            if (fileChooser.getSelectedFile() == null)
             {
-                if (f.isFile() && reader.isThisType(f.getAbsolutePath(), true)) 
-                    fileSelected = true;
-            }
-
-
-            if (fileSelected != true)
-            {
-                JOptionPane.showMessageDialog(viewer, 
-                        "You must select at least one importable file to\n" +
-                        "add to the import queue. Choose an image in the\n" +
-                "left-hand panel first before continuing.");
+                mustSelectFile();
                 return;
             }
+            files = fileChooser.getSelectedFiles();                    
 
-            if (fileSelected == true && store != null)
+            for (File f : files)
+            {
+                if (!f.isFile()) 
+                {
+                    mustSelectFile();
+                    return;
+                }
+            }
+
+            store = viewer.loginHandler.getMetadataStore();
+            
+            if (store != null)
             {
                 ImportDialog dialog = 
                     new ImportDialog(viewer, "Import", true, store);
@@ -154,7 +166,7 @@ public class FileQueueHandler
                     return;                    
                 for (File f : files)
                 {
-                    if (f.isFile() && reader.isThisType(f.getAbsolutePath(), true)) 
+                    if (f.isFile()) 
                         addFileToQueue(f, dialog.dataset, 
                                 dialog.dataset.getName(), 
                                 dialog.project.getName(),
@@ -163,12 +175,15 @@ public class FileQueueHandler
                                 dialog.archiveImage.isSelected(),
                                 dialog.project.getId());
                 }
+                
+                qTable.centerOnRow(qTable.queue.getRowCount()-1);
+                
             } else {
                 JOptionPane.showMessageDialog(viewer, 
                         "Due to an error the application is unable to \n" +
                         "retrieve an OMEROMetadataStore and cannot continue." +
                         "The most likely cause for this error is that you" +
-                "are not logged in. Please try to login again.");
+                        "are not logged in. Please try to login again.");
             }
         }
         if (prop.equals(Actions.REMOVE))
@@ -220,10 +235,15 @@ public class FileQueueHandler
                 }  
                 qTable.clearFailedBtn.setEnabled(false);
         }
-        
-        
         if (prop.equals(Actions.IMPORT))
         {
+            if (viewer.loggedIn == false)
+            {
+                JOptionPane.showMessageDialog(viewer, 
+                        "You must be logged in before you can import.");
+                return;
+            }
+            
             qTable.clearDoneBtn.setEnabled(false);
             qTable.clearFailedBtn.setEnabled(false);
             try {
@@ -261,8 +281,7 @@ public class FileQueueHandler
         {
             savedDirectory = fileChooser.getCurrentDirectory().getAbsolutePath();
             userPrefs.put("savedDirectory", savedDirectory);
-        }
-        
+        }       
         if (prop.equals(Actions.REFRESH))
         {
             fileChooser.setVisible(false);
@@ -385,5 +404,18 @@ public class FileQueueHandler
         f.setVisible(true);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();
+    }
+
+
+    public void update(IObservable observable, Object message, Object[] args)
+    {
+        if (message == "REIMPORT")
+        {
+            int count = historyTable.table.getRowCount();
+            for (int r = count - 1; r >= 0; r--)
+            {
+                historyTable.table.removeRow(r);
+            }
+        }
     }
 }

@@ -99,13 +99,14 @@ public class HistoryDB implements IObservable
                     "projectID BIGINT, " +
                     "datasetID BIGINT, " +
                     "date DATETIME, " +
-                    "status VARCHAR(64)" +
+                    "status VARCHAR(64), " +
+                    "filepath VARCHAR(256)" +
                     " )" );
            
         } catch (SQLException ex2) { 
             //ex2.printStackTrace(); 
         } //ignore SQL error if table already exists
-    } // History()
+    } // HistoryDB()
 
     public static synchronized HistoryDB getHistoryDB()
     {
@@ -304,12 +305,12 @@ public class HistoryDB implements IObservable
     }
     
     public int insertFileHistory(long importID, long experimenterID, int rowNum, 
-            String filename, long projectID, long datasetID, String status) 
+            String filename, long projectID, long datasetID, String status, File file) 
     throws SQLException
     {
         return update(
                 "INSERT INTO file_table(importID, experimenterID, rowNum, filename, " +
-                "projectID, datasetID, date, status) " +
+                "projectID, datasetID, date, status, filepath) " +
                 "VALUES(" + 
                     importID + ", " +
                     experimenterID + ", " +
@@ -318,7 +319,8 @@ public class HistoryDB implements IObservable
                     projectID + ", " +
                     datasetID + ", " +
                     "'" + sqlDateTimeFormat.format(new Date()) + "', " +
-                    "'" + status + "'" + 
+                    "'" + status + "', " + 
+                    "'" + file.getAbsolutePath() + "'" + 
                     " )");
     } // insertHistory()
 

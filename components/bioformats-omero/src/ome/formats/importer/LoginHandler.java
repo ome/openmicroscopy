@@ -13,6 +13,12 @@
 
 package ome.formats.importer;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.PrintWriter;
@@ -31,6 +37,9 @@ import ome.formats.importer.util.Actions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
+import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 
 //import ome.api.IPojos;
 //import ome.model.core.Pixels;
@@ -43,7 +52,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Brian Loranger brain at lifesci.dundee.ac.uk
  * @basedOnCodeFrom Curtis Rueden ctrueden at wisc.edu
  */
-public class LoginHandler implements IObservable, PropertyChangeListener
+public class LoginHandler implements IObservable, ActionListener, WindowListener, PropertyChangeListener, WindowStateListener, WindowFocusListener
 {
     
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
@@ -76,6 +85,7 @@ public class LoginHandler implements IObservable, PropertyChangeListener
 
     private boolean modal;
     
+    private HistoryTable historyTable = null;
 
     LoginHandler(Main viewer, boolean modal, boolean center)
     {
@@ -83,8 +93,13 @@ public class LoginHandler implements IObservable, PropertyChangeListener
         this.center = center;
         this.modal = modal;
         
+        historyTable = HistoryTable.getHistoryTable();
+        addObserver(historyTable);
+        
+        
         viewer.enableMenus(false);
         boolean cancelled = displayLoginDialog(viewer, modal);
+        //boolean cancelled = viewer.displayLoginDialog(this, modal);
         
         if (modal == true && cancelled == true)
         {
@@ -98,6 +113,38 @@ public class LoginHandler implements IObservable, PropertyChangeListener
         
     }
 
+    
+    public static synchronized LoginHandler getLoginHandler(Main viewer, boolean modal, boolean center)
+    {
+        if (ref == null) 
+        try
+        {
+            ref = new LoginHandler(viewer, modal, center);
+        } catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(null,
+                    "We were not able to connect to the history DB.\n" +
+                    "Make sure you do not have a second importer\n" +
+                    "running and try again.\n\n" +
+                    "Click OK to exit.",
+                    "Warning",
+                    JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();    // could not start db
+            System.exit(0);
+
+        }
+        return ref;
+    }
+    
+    public static synchronized LoginHandler getLoginHandler()
+    {
+        if (ref == null)
+            throw new RuntimeException ("LoginHandler not created yet.");
+        return ref;
+    }
+    
+    private static LoginHandler ref;
+    
     public void tryLogin()
     {
         new Thread()
@@ -240,9 +287,9 @@ public class LoginHandler implements IObservable, PropertyChangeListener
         return store;
     }
 
-    public void propertyChange(PropertyChangeEvent ev)
+    public void propertyChange(PropertyChangeEvent evt)
     {
-        String prop = ev.getPropertyName();
+        String prop = evt.getPropertyName();
         if (prop.equals(Actions.LOGIN))
         {
             tryLogin();
@@ -251,6 +298,25 @@ public class LoginHandler implements IObservable, PropertyChangeListener
         {
             loginCancelled();
         }
+
+        /*
+        if (prop.equals(ScreenLogin.LOGIN_PROPERTY)) {
+            LoginCredentials lc = (LoginCredentials) evt.getNewValue();
+            if (lc != null)
+                {
+                    tryLogin();
+                }
+        } else if (ScreenLogin.QUIT_PROPERTY.equals(prop)) {
+            if (viewer.quitConfirmed(viewer) == true)
+            {
+                loginCancelled();
+                //System.exit(0);
+            }
+        } else if (ScreenLogin.TO_FRONT_PROPERTY.equals(prop) || 
+                ScreenLogo.MOVE_FRONT_PROPERTY.equals(prop)) {
+            //updateView();
+        }
+        */
     }
 
     // Observable methods
@@ -272,5 +338,49 @@ public class LoginHandler implements IObservable, PropertyChangeListener
         {
             observer.update(this, message, args);
         }
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+    }
+
+    public void windowActivated(WindowEvent e)
+    {
+    }
+
+    public void windowClosed(WindowEvent e)
+    {
+    }
+
+    public void windowClosing(WindowEvent e)
+    {
+    }
+
+    public void windowDeactivated(WindowEvent e)
+    {
+    }
+
+    public void windowDeiconified(WindowEvent e)
+    {
+    }
+
+    public void windowIconified(WindowEvent e)
+    {
+    }
+
+    public void windowOpened(WindowEvent e)
+    {
+    }
+
+    public void windowStateChanged(WindowEvent e)
+    {
+    }
+
+    public void windowGainedFocus(WindowEvent e)
+    {
+    }
+
+    public void windowLostFocus(WindowEvent e)
+    {
     }
 }

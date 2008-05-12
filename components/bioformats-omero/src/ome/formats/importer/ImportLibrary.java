@@ -17,11 +17,11 @@ package ome.formats.importer;
 // Java imports
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,8 +30,8 @@ import loci.formats.FormatTools;
 import loci.formats.DataTools;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
+import ome.model.annotations.BooleanAnnotation;
 import ome.model.containers.Dataset;
-import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
@@ -116,15 +116,12 @@ public class ImportLibrary implements IObservable
      * @param reader not null
      * @param fads2 not null, length > 0
      */
-    public ImportLibrary(OMEROMetadataStore store, OMEROWrapper reader,
-            ImportContainer[] fads)
+    public ImportLibrary(OMEROMetadataStore store, OMEROWrapper reader)
     {
         this.store = store;
         this.reader = reader;
-        this.fads = fads;
-        
-        if (store == null || reader == null || fads == null
-                || fads.length == 0)
+
+        if (store == null || reader == null)
         {
             throw new ApiUsageException(
                     "All arguments to ImportLibrary() must be non-null.");
@@ -345,7 +342,12 @@ public class ImportLibrary implements IObservable
         {
             files[i] = new File(fileNameList[i]); 
         }
-        store.setOriginalFiles(files); 
+        String formatString = reader.getImageReader().getReader().getClass().toString();
+        formatString = formatString.replace("class loci.formats.in.", "");
+        formatString = formatString.replace("Reader", "");
+        System.err.println(formatString);
+        store.setOriginalFiles(files, formatString);
+        
         reader.getUsedFiles();
         
         List<Pixels> pixList = importMetadata(imageName);
@@ -363,7 +365,13 @@ public class ImportLibrary implements IObservable
             args[7] = series;
             
             notifyObservers(Actions.DATASET_STORED, args);
-
+            
+            BooleanAnnotation annotation = new BooleanAnnotation();
+            annotation.setBoolValue(archive);
+            annotation.setNs("openmicroscopy.org/omero/importer/archived"); // openmicroscopy.org/omero/importer/archived
+            
+            store.addBooleanAnnotationToPixels(annotation, pixList.get(series));
+            
             importData(pixId, fileName, series, new ImportLibrary.Step()
             {
                 @Override
@@ -374,8 +382,8 @@ public class ImportLibrary implements IObservable
                 }
             });
             
-            notifyObservers(Actions.DATA_STORED, args);
-
+            notifyObservers(Actions.DATA_STORED, args);  
+           
             if (archive == true)
             {
                 //qTable.setProgressArchiving(index);
@@ -407,7 +415,17 @@ public class ImportLibrary implements IObservable
         byte[] arrayBuf = new byte[sizeX * sizeY * bytesPerPixel];
 
         reader.setSeries(series);
-
+        MessageDigest md;
+        
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+        
+        store.setPixelsId(pixId);
+        
         for (int t = 0; t < sizeT; t++)
         {
             for (int c = 0; c < sizeC; c++)
@@ -419,12 +437,22 @@ public class ImportLibrary implements IObservable
                     ByteBuffer buf =
                         reader.openPlane2D(fileName, planeNumber, arrayBuf).getData();
                     arrayBuf = swapIfRequired(buf, fileName);
+                    if (Main.DO_SHA1)
+                    {
+                        try {
+                            md.update(arrayBuf);
+                        } catch (Exception e) {
+                            // This better not happen. :)
+                            throw new RuntimeException(e);
+                        }
+                    }
                     step.step(series, i);
                     store.setPlane(pixId, arrayBuf, z, c, t);
                     i++;
                 }
             }
         }
+        reader.populateSHA1(pixId, md);
         reader.populateMinMax(pixId, series);
     }
     

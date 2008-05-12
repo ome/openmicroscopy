@@ -33,6 +33,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +50,8 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
 import ome.model.IObject;
+import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.PixelsAnnotationLink;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -69,6 +76,7 @@ import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.api.IRepositoryInfo;
+import ome.formats.importer.Main;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -119,6 +127,8 @@ public class OMEROMetadataStore implements MetadataStore
     private Experimenter    exp;
     
     private RawFileStore    rawFileStore;
+
+    private Timestamp creationTimestamp;
     
     /**
      * Creates a new instance.
@@ -149,13 +159,8 @@ public class OMEROMetadataStore implements MetadataStore
             Login login = new Login(username, password);
             // Instantiate our service factory
             sf = new ServiceFactory(server, login);
-
-            // Now initialize all our services
-            iQuery = sf.getQueryService();
-            iUpdate = sf.getUpdateService();
-            pservice = sf.createRawPixelsStore();
-            rawFileStore = sf.createRawFileStore();
-            iInfo = sf.getRepositoryInfoService();
+            
+            InitializeServices(sf);
             
             exp = iQuery.findByString(Experimenter.class, "omeName", username);
         } catch (Throwable t)
@@ -183,14 +188,30 @@ public class OMEROMetadataStore implements MetadataStore
         try
         {
             // Now initialize all our services
-            iQuery = sf.getQueryService();
-            iUpdate = sf.getUpdateService();
-            pservice = sf.createRawPixelsStore();
+            InitializeServices(sf);
+            
         } catch (Throwable t)
         {
             throw new Exception(t);
         }
     }
+    
+    
+    /**
+     * Private class used by constructor to initialze the services of the service factory.
+     * 
+     * @param factory a non-null, active {@link ServiceFactory}
+     */
+    private void InitializeServices(ServiceFactory sf)
+    {
+        // Now initialize all our services
+        iQuery = sf.getQueryService();
+        iUpdate = sf.getUpdateService();
+        pservice = sf.createRawPixelsStore();
+        rawFileStore = sf.createRawFileStore();
+        iInfo = sf.getRepositoryInfoService();
+    }
+
 
     /*
      * (non-Javadoc)
@@ -295,8 +316,20 @@ public class OMEROMetadataStore implements MetadataStore
     {
         if (pservice == null) pservice = sf.createRawPixelsStore();
 
-        pservice.setPixelsId(id);
         pservice.setPlane(pixels, theZ, theC, theT);
+    }
+    
+    
+    /**
+     * Sets the pixels id in the OMERO image repository.
+     * 
+     * @param id the primary <i>id</i> of the pixels set.
+     */
+    public void setPixelsId(Long id)
+    {
+        if (pservice == null) pservice = sf.createRawPixelsStore();
+        
+        pservice.setPixelsId(id);
     }
 
     /**
@@ -331,6 +364,16 @@ public class OMEROMetadataStore implements MetadataStore
 
         // Now update the dataset object in the database
         iUpdate.saveObject(link);
+    }
+    
+    public void addBooleanAnnotationToPixels(BooleanAnnotation ba, Pixels p)
+    {
+        Pixels unloadedPixels = new Pixels(p.getId(), false);
+        PixelsAnnotationLink link = new PixelsAnnotationLink();
+        link.setParent(unloadedPixels);
+        link.setChild(ba);
+        iUpdate.saveObject(link);
+        
     }
 
     /**
@@ -413,20 +456,28 @@ public class OMEROMetadataStore implements MetadataStore
      * fully populating the metadata store.
      * @param files The list of File objects to translate to OriginalFile
      * objects and link.
+     * @param formatString 
      */
-    public void setOriginalFiles(File[] files)
+    public void setOriginalFiles(File[] files, String formatString)
     {
         for (File file: files)
         {
-            // FIXME: This is **incorrect** quite obviously, not every file
-            // is of format "DV".
-            Format f = iQuery.findByString(Format.class, "value", "DV");
+            Format f = iQuery.findByString(Format.class, "value", formatString);
             OriginalFile oFile = new OriginalFile();
             oFile.setName(file.getName());
             oFile.setPath(file.getAbsolutePath());
             oFile.setSize(file.length());
             oFile.setSha1("pending");
             oFile.setFormat(f);
+            // TODO: There is no creation or access time in Java, will have to find a solution
+            Timestamp mTime = new Timestamp(file.lastModified());
+            oFile.setAtime(mTime);
+            if (creationTimestamp != null)
+                oFile.setCtime(creationTimestamp);
+            else
+                oFile.setCtime(mTime);
+            oFile.setMtime(mTime);
+            
             for (Pixels pixels : pixelsList)
             {
                 pixels.linkOriginalFile(oFile);
@@ -440,6 +491,15 @@ public class OMEROMetadataStore implements MetadataStore
         {
             for (File file : files)
             {
+                MessageDigest md;
+                
+                try {
+                    md = MessageDigest.getInstance("SHA-1");
+                } catch (NoSuchAlgorithmException e) {
+                    throw new RuntimeException(
+                            "Required SHA-1 message digest algorithm unavailable.");
+                }
+                
                 Parameters p = new Parameters();
                 p.addId(pixelsId);
                 p.addString("path", file.getAbsolutePath());
@@ -464,6 +524,21 @@ public class OMEROMetadataStore implements MetadataStore
                     pos += rlen;
                     ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
                     nioBuffer.limit(rlen);
+                    if (Main.DO_SHA1)
+                    {
+                        try {
+                            md.update(nioBuffer);
+                        } catch (Exception e) {
+                            // This better not happen. :)
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+                
+                if (md != null)
+                {
+                    o.setSha1(byteArrayToHexString(md.digest()));
+                    iUpdate.saveObject(o);
                 }
             }
             
@@ -474,6 +549,43 @@ public class OMEROMetadataStore implements MetadataStore
            
     }
 
+    public void populateSHA1(MessageDigest md, Long id)
+    {
+        Pixels p = iQuery.get(Pixels.class, id);
+        p.setSha1(byteArrayToHexString(md.digest()));
+        iUpdate.saveObject(p);
+    }
+    
+    
+    static String byteArrayToHexString(byte in[]) {
+
+        byte ch = 0x00;
+        int i = 0;
+
+        if (in == null || in.length <= 0) {
+            return null;
+        }
+
+        String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "a", "b", "c", "d", "e", "f" };
+
+        StringBuffer out = new StringBuffer(in.length * 2);
+
+        while (i < in.length) {
+
+            ch = (byte) (in[i] & 0xF0);
+            ch = (byte) (ch >>> 4);
+            ch = (byte) (ch & 0x0F);
+            out.append(pseudo[ch]);
+            ch = (byte) (in[i] & 0x0F);
+            out.append(pseudo[ch]);
+            i++;
+
+        }
+
+        String rslt = new String(out);
+        return rslt;
+    }
     /**
      * Check the MinMax values stored in the DB and sync them with the new values
      * we generate in the channelMinMax reader, then save them to the DB. 
@@ -663,7 +775,20 @@ public class OMEROMetadataStore implements MetadataStore
     {
         log.debug(String.format(
                 "Setting Image[%d] creation date: '%s'", imageIndex, creationDate));
-        log.debug("FIXME: Creation date is ignored.");
+        
+        if (creationDate != null)
+        {
+            try
+            {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+                java.util.Date date = sdf.parse(creationDate);
+                creationTimestamp = new Timestamp(date.getTime());
+            }
+            catch (ParseException pe)
+            {
+                creationTimestamp = null;
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -671,6 +796,8 @@ public class OMEROMetadataStore implements MetadataStore
      */
     public void setImageDescription(String description, int imageIndex)
     {
+        if (description != null) 
+            description = description.trim();
         log.debug(String.format(
                 "Setting Image[%d] description: '%s'", imageIndex, description));
         Image i = getImage(imageIndex);
@@ -943,6 +1070,8 @@ public class OMEROMetadataStore implements MetadataStore
         
     }
 
+    
+    
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setPlaneTheZ(java.lang.Integer, int, int, int)
      */
@@ -1224,6 +1353,13 @@ public class OMEROMetadataStore implements MetadataStore
             LogicalChannel lc = 
                 p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setExcitationWave(exWave);
+            if (lc.getPhotometricInterpretation() == null)
+            {
+                log.debug("Setting Photometric iterpretation to monochrome");
+                PhotometricInterpretation pi = (PhotometricInterpretation) 
+                    getEnumeration(PhotometricInterpretation.class, "Monochrome");
+                lc.setPhotometricInterpretation(pi);
+            }
         }
     }
 
@@ -1246,6 +1382,13 @@ public class OMEROMetadataStore implements MetadataStore
             LogicalChannel lc = 
                 p.getChannel(logicalChannelIndex).getLogicalChannel();
             lc.setEmissionWave(emWave);
+            if (lc.getPhotometricInterpretation() == null)
+            {
+                log.debug("Setting Photometric iterpretation to monochrome");
+                PhotometricInterpretation pi = (PhotometricInterpretation) 
+                    getEnumeration(PhotometricInterpretation.class, "Monochrome");
+                lc.setPhotometricInterpretation(pi);
+            }
         }
     }
 
@@ -1311,7 +1454,7 @@ public class OMEROMetadataStore implements MetadataStore
                     imageIndex, p, logicalChannelIndex, pockelCellSetting));
             LogicalChannel lc = 
                 p.getChannel(logicalChannelIndex).getLogicalChannel();
-            lc.setPockelCellSetting(pockelCellSetting.toString());
+            lc.setPockelCellSetting(pockelCellSetting);
             // FIXME: Should pockel cell be String or Integer?
         }
     }
@@ -1657,5 +1800,101 @@ public class OMEROMetadataStore implements MetadataStore
             int imageIndex, int logicalChannelIndex)
     {
         throw new RuntimeException("Un-implemented.");
+    }
+
+    public void setChannelComponentColorDomain(String colorDomain,
+            int imageIndex, int logicalChannelIndex, int channelComponentIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setChannelComponentIndex(Integer index, int imageIndex,
+            int logicalChannelIndex, int channelComponentIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDetectorNodeID(String nodeID, int instrumentIndex,
+            int detectorIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDisplayOptionsNodeID(String nodeID, int imageIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDisplayOptionsProjectionZStart(Integer start, int imageIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDisplayOptionsProjectionZStop(Integer stop, int imageIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDisplayOptionsTimeTStart(Integer start, int imageIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDisplayOptionsTimeTStop(Integer stop, int imageIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setDisplayOptionsZoom(Float zoom, int imageIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setExperimenterNodeID(String nodeID, int experimenterIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setImageNodeID(String nodeID, int imageIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setInstrumentNodeID(String nodeID, int instrumentIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLightSourceNodeID(String nodeID, int instrumentIndex,
+            int lightSourceIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setLogicalChannelNodeID(String nodeID, int imageIndex,
+            int logicalChannelIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setOTFNodeID(String nodeID, int instrumentIndex, int otfIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setObjectiveNodeID(String nodeID, int instrumentIndex,
+            int objectiveIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setPixelsNodeID(String nodeID, int imageIndex, int pixelsIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
+    }
+
+    public void setROINodeID(String nodeID, int imageIndex, int roiIndex)
+    {
+        throw new RuntimeException("Not implemented yet.");
     }
 }

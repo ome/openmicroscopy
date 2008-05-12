@@ -19,6 +19,7 @@ import java.awt.Dimension;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -242,7 +244,10 @@ public class DebugMessenger extends JDialog implements ActionListener
         try {
             HtmlMessenger messenger = new HtmlMessenger(url, map);
             String serverReply = messenger.executePost();
-            JOptionPane.showMessageDialog(this, serverReply);
+            JEditorPane reply = new JEditorPane("text/html", serverReply);
+            reply.setEditable(false);
+            reply.setOpaque(false);
+            JOptionPane.showMessageDialog(this, reply);
             this.dispose();
         }
         catch( Exception e ) {
@@ -255,12 +260,17 @@ public class DebugMessenger extends JDialog implements ActionListener
             
             e.printStackTrace();
             gui.appendTextToDocument(debugDocument, debugStyle, "----\n"+debugText);
-            JOptionPane.showMessageDialog(this, 
-                    "Sorry, but due to an error we were not able to automatically \n" +
-                    "send your debug information. \n\n" +
-                    "You can still send us the error message by clicking on the \n" +
-                    "error message tab, copying the error message to the clipboard, \n" +
-                    "and sending it to comments@openmicroscopy.org.uk.");
+            String internalURL = "Sorry, but due to an error we were not able " +
+            "to automatically \n send your debug information. \n\n" +
+            "You can still send us the error message by clicking on the \n" +
+            "error message tab, copying the error message to the clipboard, \n" +
+            "and sending it to <a href='mailto:comments@openmicroscopy.org.uk'>.";
+            JEditorPane message;
+            try
+            {
+                message = new JEditorPane(internalURL);
+                JOptionPane.showMessageDialog(this, message);
+            } catch (IOException e1){}
         }
     }
         

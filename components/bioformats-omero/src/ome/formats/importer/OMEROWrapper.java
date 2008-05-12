@@ -3,6 +3,8 @@ package ome.formats.importer;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import loci.formats.ChannelFiller;
@@ -93,7 +95,7 @@ public class OMEROWrapper extends MinMaxCalculator
         else
             return false;
     }
-    
+     
     public String getImageName(int series)
     {
         if (reader.getSeriesCount() > 1)
@@ -185,6 +187,15 @@ public class OMEROWrapper extends MinMaxCalculator
          if (isMinMaxSet() == false)
              super.updateMinMax(b, ndx);
    }
+     
+     public void populateSHA1(Long id, MessageDigest md)
+     {
+         if (md != null)
+         {
+             OMEROMetadataStore store = (OMEROMetadataStore) reader.getMetadataStore();
+             store.populateSHA1(md, id);  
+         }
+     }
      
      public void populateMinMax(Long id, Integer i) throws FormatException, IOException
      {

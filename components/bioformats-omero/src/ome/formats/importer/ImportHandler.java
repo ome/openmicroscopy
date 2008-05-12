@@ -42,6 +42,7 @@ public class ImportHandler
     private static boolean   runState = false;
     private Thread runThread;
     HistoryDB db = null;
+    ImportContainer[] importContainer = null;
 
     
     //private ProgressMonitor monitor;
@@ -57,8 +58,9 @@ public class ImportHandler
     private int numOfDone = 0;
 
     public ImportHandler(Main viewer, FileQueueTable qTable, OMEROMetadataStore store,
-            OMEROWrapper reader, ImportContainer[] fads)
+            OMEROWrapper reader, ImportContainer[] importContainer)
     {
+        this.importContainer = importContainer;
         db = HistoryDB.getHistoryDB();
         
         if (runState == true)
@@ -72,7 +74,7 @@ public class ImportHandler
             this.viewer = viewer;
             this.store = store;
             this.qTable = qTable;
-            this.library = new ImportLibrary(store, reader, fads);
+            this.library = new ImportLibrary(store, reader);
             library.addObserver(qTable);
             library.addObserver(viewer);
                        
@@ -119,7 +121,6 @@ public class ImportHandler
         viewer.appendToOutputLn("> Starting import at: " + myDate + "\n");
         viewer.statusBar.setStatusIcon("gfx/import_icon_16.png", "Now importing.");
         
-        ImportContainer[] fads = library.getFilesAndDatasets();
         qTable.importBtn.setText("Cancel");
         qTable.importing = true;
         
@@ -135,14 +136,14 @@ public class ImportHandler
             e.printStackTrace();
         }
         
-        for(int i = 0; i < fads.length; i++)
+        for(int i = 0; i < importContainer.length; i++)
         {                
            	if (qTable.setProgressPending(i))
            	{
                 numOfPendings++;
                	try {
-               	    db.insertFileHistory(importKey, store.getExperimenterID(), i, fads[i].imageName, 
-               	         fads[i].projectID, fads[i].dataset.getId(), "pending");
+               	    db.insertFileHistory(importKey, store.getExperimenterID(), i, importContainer[i].imageName, 
+               	         importContainer[i].projectID, importContainer[i].getDatasetId(), "pending", importContainer[i].file);
                	} catch (Exception e) { 
                	    e.printStackTrace();
                	}
@@ -153,25 +154,25 @@ public class ImportHandler
         viewer.statusBar.setProgressMaximum(numOfPendings);
         
         numOfDone = 0;
-        for (int j = 0; j < fads.length; j++)
+        for (int j = 0; j < importContainer.length; j++)
         {
             if (qTable.table.getValueAt(j, 2).equals("pending") 
                     && qTable.cancel == false)
             {
                 numOfDone++;
-                String filename = fads[j].file.getAbsolutePath();
+                String filename = importContainer[j].file.getAbsolutePath();
                 
                 viewer.appendToOutputLn("> [" + j + "] Importing \"" + filename
                         + "\"");
                 
-                library.setDataset(fads[j].dataset);
+                library.setDataset(importContainer[j].getDataset());
                 
                 try
                 {
-                	library.importImage(fads[j].file, j,
+                	library.importImage(importContainer[j].file, j,
                 			    numOfDone, numOfPendings,
-                			    fads[j].imageName,
-                			    fads[j].archive);
+                			    importContainer[j].imageName,
+                			    importContainer[j].archive);
                 	store.createRoot();
                     try
                     {
@@ -201,7 +202,7 @@ public class ImportHandler
                         .showMessageDialog(
                                 viewer,
                                 "\nThe importer cannot import the lossless JPEG images used by the file" +
-                                "\n" + fads[j].imageName +
+                                "\n" + importContainer[j].imageName +
                                 "\n\nThere maybe be a native library available for your operating system" +
                                 "\nthat will support this format. For details on this error, check:" +
                                 "\nhttp://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG");

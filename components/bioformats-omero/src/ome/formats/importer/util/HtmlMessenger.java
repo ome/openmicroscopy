@@ -32,8 +32,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Map;
 
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
 
 /**
  * @author TheBrain
@@ -44,13 +46,36 @@ import org.apache.commons.httpclient.methods.PostMethod;
 public class HtmlMessenger
 {
 
+    /** proxy host. */
+    static final String        PROXY_HOST = "http.proxyHost";
+    
+    /** proxy port. */
+    static final String        PROXY_PORT = "http.proxyPort";
+    
+    /** connection_timeout **/
+    static final int           CONN_TIMEOUT = 10000;
+    
     HttpClient client = null;
     PostMethod method = null;
     
     public HtmlMessenger(String url,  Map <String, String> postHashMap) throws HtmlMessengerException
     {
         try {
+            HostConfiguration cfg = new HostConfiguration();
+            cfg.setHost(url);
+            String proxyHost = System.getProperty(PROXY_HOST);
+            String proxyPort = System.getProperty(PROXY_PORT);
+            if (proxyHost != null && proxyPort != null) {
+                int port = Integer.parseInt(proxyPort);
+                cfg.setProxy(proxyHost, port);
+            }
+            
             client = new HttpClient();
+            client.setHostConfiguration(cfg);
+            HttpClientParams params = new HttpClientParams();
+            params.setConnectionManagerTimeout(CONN_TIMEOUT);
+            client.setParams(params);
+            
             method = new PostMethod( url );
         } catch (Exception e)
         {
