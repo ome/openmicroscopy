@@ -113,19 +113,25 @@ public class CalendarFile extends CalendarObject {
 					Calendar testForAbsoluteDate = new GregorianCalendar();
 					testForAbsoluteDate.setTimeInMillis(new Long(millisecs));
 					
+					System.out.println("CalendarFile testForAbsoluteDate: " 
+							+ CalendarTestCode.dateFormat.format(testForAbsoluteDate.getTime()));
 					
 					// First, need to know if this is an absolute Date (eg April 23rd 2008) or
 					// if this is a relative date (eg 3 days later).
 					// If it is a relative date, Year will be 1970 (epoch) since relative days will 
 					// be in millisecs. 
-					// If an absolute date, Year will be == 1970
+					// If an absolute date, Year will be NOT be 1970
 					
 					int year = testForAbsoluteDate.get(Calendar.YEAR);
+					System.out.println("CalendarFile testForAbsoluteDate: year = " + year);
 					if (year != 1970) {
 						// create a new calendar (don't want to change time of calendars added to list).
 						gc = new GregorianCalendar();
 						gc.setTimeInMillis(new Long(millisecs));
 				
+						System.out.println("CalendarFile testForAbsoluteDate = TRUE (year != 1970) " + 
+								CalendarTestCode.dateFormat.format(gc.getTime()));
+						
 						// you have at least one date in this file
 						fileContainsDate = true;
 						
@@ -167,6 +173,15 @@ public class CalendarFile extends CalendarObject {
 							// Ignore - just don't add to calendar
 							continue;
 						}
+					} 
+					
+					else {	
+						/*
+						 * Date is not an absolute date AND 
+						 * no absolute date has yet been found. 
+						 * Therefore, ignore this field. 
+						 */ 
+						continue;
 					}
 					
 					// by this point, you have the date of the new Event... 
