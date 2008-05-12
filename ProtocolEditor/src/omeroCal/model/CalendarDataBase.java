@@ -280,8 +280,8 @@ public class CalendarDataBase
     	String query = "INSERT INTO " + CALENDAR_TABLE + 
 			" ( " + CAL_NAME + ", " + CAL_INFO + ", " + CAL_COLOUR + ", " + CAL_VISIBLE + " ) " +
 			"VALUES (" + 
-			"'" + calendarName + "', " +
-			"'" + calendarInfo + "', " +
+			formatStringForSQLQuery(calendarName) + ", " +
+			formatStringForSQLQuery(calendarInfo) + ", " +
 			calendarColour + ", " +
 			calendarVisible + 
 			" )";
@@ -551,7 +551,8 @@ public class CalendarDataBase
 	public static String formatStringForSQLQuery(String string) {
 		
 		if(string != null) {
-			return "'" + string + "'";
+			String noQuotes = string.replace("'", "");
+			return "'" + noQuotes + "'";
 		} else {
 			return "null";
 		}
