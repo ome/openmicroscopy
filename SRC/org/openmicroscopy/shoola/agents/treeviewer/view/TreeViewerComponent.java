@@ -1574,37 +1574,37 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setRndSettings(Set, Class)
+	 * @see TreeViewer#setOriginalRndSettings(Set, Class)
 	 */
-	public void setRndSettings(Set<Long> ids, Class klass)
+	public void setOriginalRndSettings(Set<Long> ids, Class klass)
 	{
 		if (ids == null || ids.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Set settings", "Please select at one element.");
 			return;
 		}
-		model.fireResetRenderingSettings(ids, klass);
+		model.fireSetOriginalRenderingSettings(ids, klass);
 		fireStateChange();
 	}
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setRndSettings(TimeRefObject)
+	 * @see TreeViewer#setOriginalRndSettings(TimeRefObject)
 	 */
-	public void setRndSettings(TimeRefObject ref)
+	public void setOriginalRndSettings(TimeRefObject ref)
 	{
 		if (ref == null) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Set settings", "Please select at one element.");
 			return;
 		}
-		model.fireResetRenderingSettings(ref);
+		model.fireSetOriginalRenderingSettings(ref);
 		fireStateChange();
 	}
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setRndSettings(TimeRefObject)
+	 * @see TreeViewer#setOriginalRndSettings(TimeRefObject)
 	 */
 	public void showSearch()
 	{

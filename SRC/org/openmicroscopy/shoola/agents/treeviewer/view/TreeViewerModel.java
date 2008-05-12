@@ -763,7 +763,7 @@ class TreeViewerModel
 	 * @param ids 	Collection of nodes ids.
 	 * @param klass Either dataset, catgory or image.
 	 */
-	void fireSetRenderingSettings(Set<Long> ids, Class klass)
+	void fireSetOriginalRenderingSettings(Set<Long> ids, Class klass)
 	{
 		//TODO: add state change.
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
@@ -776,7 +776,7 @@ class TreeViewerModel
 	 * 
 	 * @param ref The time reference object.	
 	 */
-	void fireSetRenderingSettings(TimeRefObject ref)
+	void fireSetOriginalRenderingSettings(TimeRefObject ref)
 	{
 		//TODO: add state change.
 		currentLoader = new RndSettingsSaver(component, ref, 

@@ -245,7 +245,8 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map setRenderingSettings(Class rootNodeType, Set<Long> nodeIDs)
+	public Map setOriginalRenderingSettings(Class rootNodeType, 
+											Set<Long> nodeIDs)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

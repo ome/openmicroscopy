@@ -319,7 +319,7 @@ public class DataHandlerViewImpl
 										AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
-									RenderingSettingsSaver.SET);
+									RenderingSettingsSaver.SET_ORIGINAL);
 		return cmd.exec(observer);
 	}
 
@@ -331,7 +331,7 @@ public class DataHandlerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(ref, 
-								RenderingSettingsSaver.SET);
+								RenderingSettingsSaver.SET_ORIGINAL);
 		return cmd.exec(observer);
 	}
 	

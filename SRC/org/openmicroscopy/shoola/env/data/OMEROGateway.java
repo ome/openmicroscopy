@@ -2135,7 +2135,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map setRenderingSettings(Class rootNodeType, Set nodes) 
+	Map setOriginalRenderingSettings(Class rootNodeType, Set nodes) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Set<Long> success = new HashSet<Long>();
@@ -2144,9 +2144,8 @@ class OMEROGateway
 		try {
 			IRenderingSettings service = getRenderingSettingsService();
 			Class klass = convertPojos(rootNodeType);
-			if (klass.equals(Image.class) || klass.equals(Dataset.class) ||
-					klass.equals(Category.class))
-				success = service.resetDefaultsInSet(klass, nodes);
+			if (klass.equals(Image.class) || klass.equals(Dataset.class))
+				success = service.setOriginalSettingsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}

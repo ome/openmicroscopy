@@ -710,7 +710,7 @@ public interface TreeViewer
 	 * @param ids		The collection of objects id.
 	 * @param klass		The class identifying the object.
 	 */
-	public void setRndSettings(Set<Long> ids, Class klass);
+	public void setOriginalRndSettings(Set<Long> ids, Class klass);
 
 	/**
 	 * Sets the original rendering settings for images 
@@ -718,7 +718,7 @@ public interface TreeViewer
 	 * 
 	 * @param ref The object storing the time interval information.
 	 */
-	public void setRndSettings(TimeRefObject ref);
+	public void setOriginalRndSettings(TimeRefObject ref);
 
 	/** Shows or hides the searching component. */
 	public void showSearch();

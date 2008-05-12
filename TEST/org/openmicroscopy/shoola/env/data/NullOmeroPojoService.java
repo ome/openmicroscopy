@@ -224,16 +224,6 @@ public class NullOmeroPojoService
 
     /**
      * No-op implementation
-     * @see OmeroDataService#getOrphanContainers(Class, boolean, long)
-     */
-	public Set getOrphanContainers(Class nodeType, boolean b, long rootLevelID) 
-	throws DSOutOfServiceException, DSAccessException 
-	{
-		return null;
-	}
-
-    /**
-     * No-op implementation
      * @see OmeroDataService#getExperimenterImages(long)
      */
 	public Set getExperimenterImages(long userID) 
