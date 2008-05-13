@@ -787,20 +787,25 @@ class TreeViewerModel
 	/** 
 	 * Starts an asynchronous call to save a data object.
 	 * 
-	 * @param object The object to create.
+	 * @param object 	 The object to create.
+	 * @param withParent Sets to <code>true</code> if the object will 
+	 * 						have a parent, <code>false</code> otherwise.
 	 */
-	void fireDataObjectCreation(DataObject object)
+	void fireDataObjectCreation(DataObject object, boolean withParent)
 	{
-		Browser browser = getSelectedBrowser();
-		TreeImageDisplay node = browser.getLastSelectedDisplay();
-        DataObject data = null;
-        if (node != null) {
-            Object p =  node.getUserObject();
-            if (!((object instanceof ProjectData) || 
-                    (object instanceof CategoryGroupData)))//root.
-                data = ((DataObject) p);
-        
-        }
+		DataObject data = null;
+		if (withParent) {
+			Browser browser = getSelectedBrowser();
+			TreeImageDisplay node = browser.getLastSelectedDisplay();
+	        
+	        if (node != null) {
+	            Object p =  node.getUserObject();
+	            if (!((object instanceof ProjectData) || 
+	                (object instanceof CategoryGroupData)))//root.
+	             data = ((DataObject) p);
+	        }
+		}
+		
 		currentLoader = new DataObjectCreator(component, object, data);
 		currentLoader.load();
 	}

@@ -57,6 +57,15 @@ public class CreateTopContainerAction
     extends TreeViewerAction
 {
 
+	/** Indicates to create a <code>Project</code>. */
+	public static final int PROJECT = CreateCmd.PROJECT;
+	
+	/** Indicates to create a <code>Dataset</code>. */
+	public static final int DATASET = CreateCmd.DATASET;
+	
+	/** Indicates to create a <code>Tag</code>. */
+	public static final int TAG = CreateCmd.TAG;;
+	
     /** The name of the action for the creation of a <code>Project</code>. */
     private static final String NAME = "New...";
     
@@ -68,6 +77,18 @@ public class CreateTopContainerAction
      */
     private static final String NAME_CATEGORY_GROUP = "New Tag Set...";
     
+    /** The name of the action for the creation of a <code>Dataset</code>. */
+    private static final String NAME_DATASET = "New Dataset...";
+    
+    /** The name of the action for the creation of a <code>Tag</code>. */
+    private static final String NAME_TAG = "New Tag...";
+    
+    /** Description of the action for a <code>Tag</code> . */
+    private static final String DESCRIPTION_TAG = "Create a new Tag.";
+    
+    /** Description of the action for a <code>Dataset</code> . */
+    private static final String DESCRIPTION_DATASET = "Create a new Dataset.";
+    
     /** Description of the action for a <code>Project</code> . */
     private static final String DESCRIPTION_PROJECT = "Create a new Project.";
     
@@ -77,6 +98,39 @@ public class CreateTopContainerAction
     
     /** The type of node to create. */
     private int nodeType;
+    
+    /** 
+     * Checks if the passed value is supported.
+     * 
+     * @param value The value to handle.
+     */
+    private void checkType(int value)
+    {
+        IconManager icons = IconManager.getInstance();
+    	switch (value) {
+			case PROJECT:
+				name = NAME;
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECT));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
+				break;
+			case DATASET:
+				name = NAME_DATASET;
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.DATASET));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+				break;
+			case TAG:
+				name = NAME_TAG;
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.TAG));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_TAG));
+				break;
+	
+			default:
+				throw new IllegalArgumentException("Type not supported.");
+		}
+    }
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -103,11 +157,12 @@ public class CreateTopContainerAction
      */
     protected void onBrowserSelection(Browser browser)
     {
-        nodeType = -1;
+       // nodeType = -1;
         if (browser == null) {
             setEnabled(false);
             name = NAME;
         } else {
+        	/*
             switch (browser.getBrowserType()) {
                 case Browser.PROJECT_EXPLORER:
                     setEnabled(true);
@@ -128,7 +183,7 @@ public class CreateTopContainerAction
                     //setEnabled(true);
                     setEnabled(false);
                     name = NAME;
-            }
+            }*/
         }
         description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
@@ -136,16 +191,16 @@ public class CreateTopContainerAction
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param model 	Reference to the Model. Mustn't be <code>null</code>.
+     * @param nodeType 	The Type of node to create. 
+     * 					One of the constants defined by this class.
      */
-    public CreateTopContainerAction(TreeViewer model)
+    public CreateTopContainerAction(TreeViewer model, int nodeType)
     {
         super(model);
+        checkType(nodeType);
+        this.nodeType = nodeType;
         onBrowserSelection(model.getSelectedBrowser());
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.ADD_CONTAINER));
     } 
     
     /**
@@ -154,8 +209,10 @@ public class CreateTopContainerAction
      */
     public void actionPerformed(ActionEvent e)
     {
+
         if (nodeType == -1) return;
         CreateCmd cmd = new CreateCmd(model, nodeType);
+        cmd.setWithParent(false);
         cmd.execute();
     }
     

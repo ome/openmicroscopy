@@ -183,7 +183,18 @@ public class DataObjectSaver
     {
         if (userObject == null)
             throw new IllegalArgumentException("No DataObject.");
+        /*
         if (index == CREATE || index == REMOVE) {
+            if (userObject instanceof DatasetData) {
+                if (!(parent instanceof ProjectData))
+                throw new IllegalArgumentException("Parent not valid.");
+            } else if (userObject instanceof CategoryData) {
+                if (!(parent instanceof CategoryGroupData))
+                    throw new IllegalArgumentException("Parent not valid.");
+            }
+        }
+        */
+        if (index == REMOVE) {
             if (userObject instanceof DatasetData) {
                 if (!(parent instanceof ProjectData))
                 throw new IllegalArgumentException("Parent not valid.");

@@ -212,7 +212,7 @@ class PopupMenu
 			refreshTreeElement = new JMenuItem(a);
 			initMenuItem(refreshTreeElement, a.getActionName());
 			a = controller.getAction(
-					TreeViewerControl.CREATE_TOP_CONTAINER);
+					TreeViewerControl.CREATE_TOP_PROJECT);
 			createTopElement = new JMenuItem(a);
 			initMenuItem(createTopElement, a.getActionName());
 			a = controller.getAction(TreeViewerControl.SWITCH_USER);

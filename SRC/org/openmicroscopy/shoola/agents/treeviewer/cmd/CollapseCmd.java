@@ -23,18 +23,18 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
 
 
 //Java imports
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplayVisitor;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Collapse all the nodes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

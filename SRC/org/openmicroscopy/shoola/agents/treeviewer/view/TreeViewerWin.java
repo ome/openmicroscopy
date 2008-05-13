@@ -239,7 +239,7 @@ class TreeViewerWin
         JMenu menu = new JMenu("File");
         menu.setMnemonic(KeyEvent.VK_F);
         TreeViewerAction a = controller.getAction(
-                            TreeViewerControl.CREATE_TOP_CONTAINER);
+                            TreeViewerControl.CREATE_TOP_PROJECT);
         JMenuItem item = new JMenuItem(a);
         item.setText(a.getActionName());
         menuItems.add(item);

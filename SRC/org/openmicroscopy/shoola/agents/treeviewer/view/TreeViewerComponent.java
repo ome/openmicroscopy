@@ -358,9 +358,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#createDataObject(DataObject)
+	 * @see TreeViewer#createDataObject(DataObject, boolean)
 	 */
-	public void createDataObject(DataObject object)
+	public void createDataObject(DataObject object, boolean withParent)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
@@ -370,24 +370,9 @@ class TreeViewerComponent
 						"or SAVE state.");
 		}
 		if (object == null) return;
-		EditorDialog d = new EditorDialog(view, object);
+		EditorDialog d = new EditorDialog(view, object, withParent);
 		d.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(d);
-		/*
-		removeEditor();
-		//tmp solution
-		if (object == null) return;
-		TreeImageDisplay parent =  
-							model.getSelectedBrowser().getLastSelectedDisplay();
-		int editorType = CREATE_EDITOR;
-		Editor editor = EditorFactory.getEditor(this, object, editorType, 
-				parent);
-		editor.addPropertyChangeListener(controller);
-		editor.activate();
-		editorDialog = new EditorDialog(view, editor);
-		UIUtilities.centerAndShow(editorDialog);
-		onComponentStateChange(false);
-		*/
 	}
 	
 	/**
@@ -1390,12 +1375,12 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#createObject(DataObject)
+	 * @see TreeViewer#createObject(DataObject, boolean)
 	 */
-	public void createObject(DataObject object)
+	public void createObject(DataObject object, boolean withParent)
 	{
 		//TODO: check state
-		model.fireDataObjectCreation(object);
+		model.fireDataObjectCreation(object, withParent);
 		fireStateChange();
 	}
 

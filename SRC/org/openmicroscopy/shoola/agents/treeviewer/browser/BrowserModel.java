@@ -342,7 +342,10 @@ class BrowserModel
     /**
      * Starts the asynchronous retrieval of the number of items contained 
      * in the <code>TreeImageSet</code> containing images e.g. a 
-     * <code>Dataset</code> and sets the state to {@link Browser#COUNTING_ITEMS}
+     * <code>Dataset</code> and sets the state to 
+     * {@link Browser#COUNTING_ITEMS}.
+     * 
+     * @param ids The collection of node id.
      */
     void fireContainerCountLoading(Set ids)
     {

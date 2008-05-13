@@ -160,11 +160,8 @@ class TreeViewerControl
 	/** Identifies the <code>Add action</code> in the Edit menu. */
 	static final Integer    ADD_OBJECT = new Integer(16);
 
-	/** 
-	 * Identifies the <code>Create top container action</code> in the 
-	 * File menu.
-	 */
-	static final Integer    CREATE_TOP_CONTAINER = new Integer(17);
+	/** Identifies the <code>Create project</code> in the File menu. */
+	static final Integer    CREATE_TOP_PROJECT = new Integer(17);
 
 	/** 
 	 * Identifies the <code>Refresh tree action</code> in the 
@@ -238,6 +235,12 @@ class TreeViewerControl
 	/** Identifies the <code>Set rnd settings</code>. */
 	static final Integer    SET_RND_SETTINGS = new Integer(36);
 	
+	/** Identifies the <code>Create dataset</code> in the File menu. */
+	static final Integer    CREATE_TOP_DATASET = new Integer(37);
+	
+	/** Identifies the <code>Create tag</code> in the File menu. */
+	static final Integer    CREATE_TOP_TAG = new Integer(38);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -277,8 +280,15 @@ class TreeViewerControl
 		actionsMap.put(CLEAR, new ClearAction(model));
 		actionsMap.put(EXIT, new ExitApplicationAction(model));
 		actionsMap.put(ADD_OBJECT,  new AddAction(model));
-		actionsMap.put(CREATE_TOP_CONTAINER,  
-				new CreateTopContainerAction(model));
+		actionsMap.put(CREATE_TOP_PROJECT,  
+				new CreateTopContainerAction(model, 
+						CreateTopContainerAction.PROJECT));
+		actionsMap.put(CREATE_TOP_DATASET,  
+				new CreateTopContainerAction(model, 
+						CreateTopContainerAction.DATASET));
+		actionsMap.put(CREATE_TOP_TAG,  
+				new CreateTopContainerAction(model, 
+						CreateTopContainerAction.TAG));
 		actionsMap.put(REFRESH_TREE, new RefreshTreeAction(model));
 		actionsMap.put(CLASSIFIER, new ClassifierAction(model));
 		actionsMap.put(MANAGER, new ManagerAction(model));
@@ -578,7 +588,10 @@ class TreeViewerControl
 				*/
 		} else if (EditorDialog.CREATE_PROPERTY.equals(name)) {
 			DataObject data = (DataObject) pce.getNewValue();
-			model.createObject(data);
+			model.createObject(data, true);
+		} else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
+			DataObject data = (DataObject) pce.getNewValue();
+			model.createObject(data, false);
 		} else if (MetadataViewer.ON_DATA_SAVE_PROPERTY.equals(name)) {
 			Object object =  pce.getNewValue();
 			if (object != null) {

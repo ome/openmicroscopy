@@ -53,8 +53,10 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -123,7 +125,7 @@ class BrowserComponent
         view.createNodes(nodes, display, parentDisplay);
         
         Object o = display.getUserObject();
-        if (o instanceof DataObject) {
+        if (o instanceof DatasetData || o instanceof TagAnnotationData) {
         	Set<DataObject> ids = new HashSet<DataObject>();
         	ids.add((DataObject) o);
         	model.fireContainerCountLoading(ids);
@@ -672,7 +674,8 @@ class BrowserComponent
         if (op == TreeViewer.CREATE_OBJECT) {
             TreeImageDisplay node = getLastSelectedDisplay();
             if ((object instanceof ProjectData) ||
-                (object instanceof CategoryGroupData)) {
+                (object instanceof CategoryGroupData) ||
+                ((object instanceof DatasetData) && parent == null)) {
                 nodes = new ArrayList(1);
                 nodes.add(loggedUser);
                 parentDisplay = loggedUser;

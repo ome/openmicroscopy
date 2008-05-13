@@ -81,6 +81,9 @@ class EditorDialog
 	/** Bound property indicating to create an object. */
 	static final String				CREATE_PROPERTY = "create";
 	
+	/** Bound property indicating to create an object. */
+	static final String				CREATE_NO_PARENT_PROPERTY = "createNoParent";
+	
     /** The default size of the dialog. */
     private static final Dimension 	WIN_DIM = new Dimension(600, 350);
    
@@ -107,6 +110,12 @@ class EditorDialog
     
     /** The objec to create. */
     private DataObject			data;
+    
+    /** 
+     * Sets to <code>true</code> if the object will have a parent,
+     * <code>false</code> otherwise. 
+     */ 
+    private boolean				withParent;
     
     /**
      * Builds and lays out the panel displaying the permissions of the edited
@@ -357,7 +366,8 @@ class EditorDialog
 			d.setDescription(descriptionArea.getText().trim());
 			data = d;
     	}
-    	firePropertyChange(CREATE_PROPERTY, null, data);
+    	if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
+    	else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
     	close();
     }
     
@@ -388,15 +398,18 @@ class EditorDialog
     /**
      * Creates a new instance.
      * 
-     * @param owner	The owner of the frame.
-     * @param data 	The type of object to create.
+     * @param owner			The owner of the frame.
+     * @param data 			The type of object to create.
+     * @param withParent 	Sets to <code>true</code> if the object will 
+     * 						have a parent, <code>false</code> otherwise. 
      */
-    EditorDialog(JFrame owner, DataObject data)
+    EditorDialog(JFrame owner, DataObject data, boolean withParent)
     {
         super(owner);
         setTitle(TITLE);
         checkData(data);
         this.data = data;
+        this.withParent = withParent;
         initComponents();
         buildGUI();
         setSize(WIN_DIM);

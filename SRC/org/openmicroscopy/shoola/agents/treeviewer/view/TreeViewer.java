@@ -265,9 +265,11 @@ public interface TreeViewer
 	/**
 	 * Brings up the editor to create a data object.
 	 * 
-	 * @param object The {@link DataObject} to create.
+	 * @param object 		The {@link DataObject} to create.
+	 * @param withParent	Sets to <code>true</code> if the object will 
+	 * 						have a parent, <code>false</code> otherwise.
 	 */
-	public void createDataObject(DataObject object);
+	public void createDataObject(DataObject object, boolean withParent);
 
 	/**
 	 * Removes the {@link DataObject} hosted by the passed node.
@@ -659,9 +661,11 @@ public interface TreeViewer
 	/**
 	 * Creates the passed object.
 	 * 
-	 * @param object The object to create.
+	 * @param object 		The object to create.
+	 * @param withParent	Sets to <code>true</code> if the object will 
+	 * 						have a parent, <code>false</code> otherwise.
 	 */
-	public void createObject(DataObject object);
+	public void createObject(DataObject object, boolean withParent);
 
 	/**
 	 * Sets the leaves linked to the specified parent.

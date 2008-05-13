@@ -64,6 +64,9 @@ public class CreateCmd
     /** Indicates to create a <code>Category</code>. */
     public static final int CATEGORY = 3;
     
+    /** Indicates to create a <code>Category</code>. */
+    public static final int TAG = 4;
+    
     /** Reference to the model. */
     private TreeViewer  model;
     
@@ -72,6 +75,9 @@ public class CreateCmd
      * defined by this class.
      */
     private DataObject  userObject;
+    
+    /** Flag indicating if the node to create has a parent. */
+    private boolean		withParent;
     
     /**
      * Checks that the specified type is currently supported
@@ -103,6 +109,18 @@ public class CreateCmd
         if (model == null) throw new IllegalArgumentException("No model.");
         userObject = checkNodeType(type);
         this.model = model;
+        withParent = true;
+    }
+    
+    /** 
+     * Sets to <code>true</code> if the node will have a parent,
+     * <code>false</code> otherwise.
+     * 
+     * @param withParent The value to set.
+     */
+    public void setWithParent(boolean withParent)
+    { 
+    	this.withParent = withParent;
     }
     
     /** Implemented as specified by {@link ActionCmd}. */
@@ -112,7 +130,7 @@ public class CreateCmd
         if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
         //model.showProperties(userObject, TreeViewer.CREATE_EDITOR);
-        model.createDataObject(userObject);
+        model.createDataObject(userObject, withParent);
     }
     
 }
