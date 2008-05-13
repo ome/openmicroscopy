@@ -36,6 +36,7 @@ import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 
 import omeroCal.model.CalendarEvent;
@@ -78,7 +79,8 @@ public class EventLabel
 		this.setFont(calendarFont);
 		this.setBackground(backgroundColor);
 		this.setForeground(foregroundColor);
-		this.setBorder(null);
+		this.setBorder(new EmptyBorder(0,0,0,0));
+		this.setOpaque(true);
 		this.setFocusable(true);
 		this.addFocusListener(new FocusGainedListener());
 		this.addMouseListener(new EventMouseAdapter());
