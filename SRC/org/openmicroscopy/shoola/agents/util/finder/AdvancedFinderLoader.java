@@ -99,49 +99,6 @@ public class AdvancedFinderLoader
     public void handleResult(Object result)
     {
     	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
-    	/*
-        EventBus bus = registry.getEventBus();
-        SearchResult r = (SearchResult) result;
-        if (r == null) {
-        	UserNotifier un = registry.getUserNotifier();
-        	un.notifyInfo("Search", "No results matching your criteria.");
-        	viewer.setStatus("", false);
-        	return;
-        }
-        Set<Long> set = r.getNodeIDs();
-        if (set == null || set.size() == 0) {
-        	UserNotifier un = registry.getUserNotifier();
-        	un.notifyInfo("Search", "No results matching your criteria.");
-        	viewer.setStatus("", false);
-        	return;
-        }
-        int size = set.size();
-        if (size > Finder.MAX_RESULTS) {
-        	viewer.setStatus("Found: "+size+" results. " +
-        					"Please refine your search", false);
-        	return;
-        }
-        Browse event = new Browse(set, Browse.IMAGES, getUserDetails(), null); 
-        */
-        /*
-        Iterator i = values.iterator();
-        String s = " for \"";
-        while (i.hasNext()) {
-			s += (String) i.next();
-			s += " ";
-		}
-        s = s.substring(0, s.length()-1);
-        s += "\" in ";
-        i = scope.iterator();
-        
-        int index = 0;
-        int l = scope.size()-1;
-        while (i.hasNext()) {
-        	s += convertType((Class) i.next());
-        	if (index != l) s +=", ";
-        	index++;
-		}
-        */
         viewer.setResult(result);
     }
 

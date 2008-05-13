@@ -68,8 +68,10 @@ import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.UrlAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -96,11 +98,13 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.URLAnnotationData;
 
 /** 
 * Unified access point to the various <i>OMERO</i> services.
@@ -120,13 +124,23 @@ class OMEROGateway
 {
 
 	/** Maximum size of pixels read at once. */
-	private static final int		INC = 256000;
+	private static final int				INC = 256000;
 	
 	/** 
 	 * The maximum number of thumbnails retrieved before restarting the
 	 * thumbnails service.
 	 */
-	private static final int		MAX_RETRIEVAL = 100;
+	private static final int				MAX_RETRIEVAL = 100;
+	
+	/** The collection of escaping characters we allow in the search. */
+	private static final List<Character>	SUPPORTED_SPECIAL_CHAR;
+	
+	static {
+		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
+		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('['));
+		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
+	}
 	
 	/**
 	 * The number of thumbnails already retrieved. Resets to <code>0</code>
@@ -629,6 +643,40 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Formats the terms to search for.
+	 * 
+	 * @param terms		The terms to search for.
+	 * @param service	The search service.
+	 * @return See above.
+	 */
+	private String[] prepareTextSearch(String[] terms, Search service) 
+	{
+		if (terms == null) return null;
+		String value;
+		int n;
+		char[] arr;
+		String v;
+		String[] formattedTerms = new String[terms.length];
+		for (int j = 0; j < terms.length; j++) {
+			value = terms[j];
+			if (startWithWildCard(value)) 
+				service.setAllowLeadingWildcard(true);
+			//format string
+			n = value.length();
+			arr = new char[n];
+			v = "";
+			value.getChars(0, n, arr, 0);  
+			for (int i = 0; i < arr.length; i++) {
+				if (SUPPORTED_SPECIAL_CHAR.contains(arr[i])) 
+					v += "\\"+arr[i];
+				else v += arr[i];
+			}
+			formattedTerms[j] = v;
+		}
+		return formattedTerms;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param port      The value of the port.
@@ -664,6 +712,10 @@ class OMEROGateway
 			return TagAnnotation.class;
 		else if (nodeType.equals(TextualAnnotationData.class)) 
 			return TextAnnotation.class;
+		else if (nodeType.equals(FileAnnotationData.class))
+			return FileAnnotation.class;
+		else if (nodeType.equals(URLAnnotationData.class))
+			return UrlAnnotation.class;
 		else throw new IllegalArgumentException("NodeType not supported");
 	}
 	
@@ -2797,7 +2849,8 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		Search service = getSearchService();
-		
+		service.clearQueries();
+		service.setAllowLeadingWildcard(false);
 		service.setCaseSentivice(context.isCaseSensitive());
 		
 		Timestamp start = context.getStart();
@@ -2859,27 +2912,23 @@ class OMEROGateway
 		
 		List<Class> types = context.getTypes();
 		List<Class> scopes = context.getScope();
+		List<Class> supportedTypes = new ArrayList<Class>();
 		Class[] dataTypes = null;
 		if (types != null) {
 			i = types.iterator();
 			dataTypes = new Class[types.size()];
 			int index = 0;
+			Class k;
 			while (i.hasNext()) {
-				dataTypes[index] = convertPojos((Class) i.next());
+				k = (Class) i.next();
+				dataTypes[index] = convertPojos(k);
+				supportedTypes.add(k);
 				index++;
 			}
 		}
-		String[] some = context.getSome();
-		String[] must = context.getMust();
-		String[] none = context.getNone();
-		for (int j = 0; j < some.length; j++) {
-			if (startWithWildCard(some[j])) {
-				service.setAllowLeadingWildcard(true);
-				break;
-			}
-		}
-		
-		
+		String[] some = prepareTextSearch(context.getSome(), service);
+		String[] must = prepareTextSearch(context.getMust(), service);
+		String[] none = prepareTextSearch(context.getNone(), service);
 		if (scopes != null) {
 			if (scopes.contains(String.class) && dataTypes != null) {
 				for (int j = 0; j < dataTypes.length; j++) {
@@ -2889,30 +2938,58 @@ class OMEROGateway
 				scopes.remove(String.class);
 			}
 			i = scopes.iterator();
-			while (i.hasNext()) {
-				
+			if (scopes.size() > 0) {
+				Class[] klass = new Class[scopes.size()]; 
+				int index = 0;
+				while (i.hasNext()) {
+					klass[index] = convertPojos((Class) i.next());
+					index++;
+				}
+				service.onlyAnnotatedWith(klass);
+				for (int j = 0; j < dataTypes.length; j++) {
+					service.onlyType(dataTypes[j]);
+					service.bySomeMustNone(some, must, none);
+				}
 			}
+			
 		}
 
-		if (service.hasNext()) {
+		boolean hasNext = false;
+		try {
+			hasNext = service.hasNext();
+		} catch (Exception e) {
+			int size = service.getBatchSize();
+			service.close();
+			return new Integer(size);
+		}
+		
+		//Need to check the number of hits
+		if (hasNext) {
 			List l = service.results();
 			Set<Long> ids = new HashSet<Long>();
 			Iterator k = l.iterator();
 			IObject object;
 			Set<IObject> others = new HashSet<IObject>();
+			long id;
 			while (k.hasNext()) {
 				object = (IObject) k.next();
-				if (object instanceof Image)
-					ids.add(object.getId());
-				else others.add(object);
+				if (object instanceof Image) {
+					id = object.getId();
+					if (!ids.contains(id)) ids.add(id);
+				} else {
+					System.err.println(object);
+					if (supportedTypes.contains(object.getClass()))
+						others.add(object);
+				}
+				
 			}
 			Set r = new HashSet();
 			if (ids.size() > 0) 
 				r.addAll(getContainerImages(ImageData.class, ids, 
 						new PojoOptions().map()));
-			
 			if (others.size() > 0)
 				r.addAll(PojoMapper.asDataObjects(others));
+
 			service.close();
 			return r;
 		}

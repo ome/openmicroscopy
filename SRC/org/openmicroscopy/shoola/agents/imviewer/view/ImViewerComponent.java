@@ -2205,6 +2205,9 @@ class ImViewerComponent
      */
     public void resetDefaultRndSettings()
     {
+    	if (model.getState() == DISCARDED)
+			throw new IllegalStateException(
+			"This method can't be invoked in the DISCARDED state.");
     	try {
     		addHistoryItem();
     		model.resetDefaultRndSettings();
@@ -2373,6 +2376,28 @@ class ImViewerComponent
 		//TODO: check state.
 		if (pixelsID == model.getPixelsID()) return;
 		model.fireRenderingControlLoading(pixelsID);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setOriginalRndSettings()
+	 */
+	public void setOriginalRndSettings()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+    	try {
+    		addHistoryItem();
+    		model.setOriginalRndSettings();
+    		view.resetDefaults();
+    		model.getRenderer().resetRndSettings();
+			renderXYPlane();
+		} catch (Exception ex) {
+			model.removeLastHistoryItem();
+			reload(ex);
+		}
+		
 	}
 
 }

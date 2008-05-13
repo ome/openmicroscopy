@@ -83,7 +83,7 @@ import pojos.DataObject;
 public interface DataBrowser 
 	extends ObservableComponent
 {
-
+	
 	/** 
 	 * Bound property indicating that a <code>Dataobject</code> has 
 	 * been created.

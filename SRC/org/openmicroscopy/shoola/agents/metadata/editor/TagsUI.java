@@ -273,12 +273,22 @@ class TagsUI
 		TagItem o = (TagItem) historyDialog.getSelectedTextValue();
 		if (o == null) return;
 		DataObject ho = o.getDataObject();
-		if (ho instanceof TagAnnotationData) {
-			handleTagEnter((TagAnnotationData) ho);
-			createExistingTagsPane();
-		}
+		if (ho instanceof TagAnnotationData) 
+			handleTag((TagAnnotationData) ho);
 	}
 	
+	/**
+	 * Handles the addition of tag.
+	 * 
+	 * @param tag The tag to handle.
+	 */
+	private void handleTag(TagAnnotationData tag)
+	{
+		handleTagEnter(tag);
+		createExistingTagsPane();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+							Boolean.TRUE);
+	}
 	/**
 	 * Displays the description of the category if it exists.
 	 * 
@@ -949,12 +959,8 @@ class TagsUI
 			Object item = evt.getNewValue();
 			if (!(item instanceof TagItem)) return;
 			DataObject ho = ((TagItem) item).getDataObject();
-			if (ho instanceof TagAnnotationData) {
-				handleTagEnter((TagAnnotationData) ho);
-				createExistingTagsPane();
-				firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-						Boolean.TRUE);
-			}
+			if (ho instanceof TagAnnotationData) 
+				handleTag((TagAnnotationData) ho);
 		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 			Collection l = (Collection) evt.getNewValue();
 			if (l == null || l.size() == 0) return;

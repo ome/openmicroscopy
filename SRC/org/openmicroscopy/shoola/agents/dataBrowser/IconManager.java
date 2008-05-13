@@ -150,11 +150,14 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static int           SET_ORIGINAL_RND_SETTINGS = 33;
     
+    /** The <code>Annotation 8</code> icon. */
+    public static int			OWNER_8 = 34;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 33;
+    private static int          MAX_ID = 34;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -194,7 +197,7 @@ public class IconManager
         relPaths[REFRESH] = "nuvola_reload16.png";
         relPaths[CUT] = "nuvola_editcut16.png";
         relPaths[UNDO] = "nuvola_undo16.png";
-        relPaths[SET_ORIGINAL_RND_SETTINGS] = "nuvola_redo16.png";
+        relPaths[OWNER_8] = "nuvola_kdmconfig8.png";
     }
     
     /** The sole instance. */

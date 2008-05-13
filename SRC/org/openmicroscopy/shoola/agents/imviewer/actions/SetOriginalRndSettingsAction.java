@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction 
+ * org.openmicroscopy.shoola.agents.imviewer.actions.SetOriginalRndSettingsAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,8 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.dataBrowser.actions;
-
+package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
@@ -30,14 +29,12 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to view an image or a collection of images.
+ * Sets the original rendering settings.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,55 +46,39 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class ViewAction 
-	extends DataBrowserAction
+public class SetOriginalRndSettingsAction 	
+	extends ViewerAction
 {
-
-	/** The default name of the action. */
-    private static final String NAME = "View";
+	
+	/** The name of the action. */
+    private static final String NAME = "Set Original Settings";
     
-    /** Description of the action. */
-    private static final String DESCRIPTION = "View the selected image.";
+	/** The description of the action. */
+    private static final String DESCRIPTION = "Set the original settings.";
     
     /**
-     * Sets the action enabled depending on the currently selected display
-     * @see DataBrowserAction#onDisplayChange(ImageDisplay)
+     * Creates a new instance.
+     * 
+     * @param model     Reference to the model. Mustn't be <code>null</code>.
      */
-    protected void onDisplayChange(ImageDisplay node)
-    {
-    	if (node == null && node.getParentDisplay() == null) {
-            setEnabled(false);
-            return;
-        }
-    	setEnabled(true);
-    }
-    
-	/**
-	 * Creates a new instance.
-	 * 
-	 * 
-	 * @param model Reference to the Model. Mustn't be <code>null</code>.
-	 */
-	public ViewAction(DataBrowser model)
+	public SetOriginalRndSettingsAction(ImViewer model)
 	{
 		super(model);
-		putValue(Action.NAME, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION));
-		IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.VIEWER));
+		name = NAME;
+    	IconManager icons = IconManager.getInstance();
+    	putValue(Action.SMALL_ICON, icons.getIcon(
+    							IconManager.SET_RND_SETTINGS));
+    	putValue(Action.SHORT_DESCRIPTION, 
+    			UIUtilities.formatToolTipText(DESCRIPTION));
 	}
-	
-	/**
-     * Views the selected images.
+
+	/** 
+     * Sets the original rendering settings.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)
     {
-    	Browser browser = model.getBrowser();
-    	if (browser != null) {
-    		browser.viewDisplay(browser.getLastSelectedDisplay());
-    	}
+    	model.setOriginalRndSettings();
     }
-	
+    
 }

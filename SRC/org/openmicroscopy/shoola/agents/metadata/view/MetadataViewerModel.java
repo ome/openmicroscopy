@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -163,7 +164,11 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Collection<DataObject> getSiblings() { return siblings; }
+	Collection<DataObject> getSiblings()
+	{ 
+		if (siblings == null) return new ArrayList<DataObject>();
+		return siblings; 
+	}
 	
 	/**
 	 * Returns the current state.
@@ -395,7 +400,11 @@ class MetadataViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getVisibleImages() { return visibleImages; }
+	Collection getVisibleImages()
+	{ 
+		if (visibleImages == null) return new ArrayList();
+		return visibleImages; 
+	}
 	
 	/**
 	 * Fires an asynchronous call to save the objects contained

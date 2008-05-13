@@ -830,5 +830,8 @@ public interface ImViewer
 	 * @param pixelsID The id of the pixels set.
 	 */
 	public void loadRenderingControl(long pixelsID);
+
+	/** Sets the original rendering settings. */
+	public void setOriginalRndSettings();
 	
 }

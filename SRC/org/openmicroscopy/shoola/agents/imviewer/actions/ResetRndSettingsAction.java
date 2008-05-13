@@ -52,7 +52,7 @@ public class ResetRndSettingsAction
 	extends ViewerAction
 {
 	
-	/** The description of the action. */
+	/** The name of the action. */
     private static final String NAME = "Reset Settings";
     
 	/** The description of the action. */

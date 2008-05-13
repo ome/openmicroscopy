@@ -91,7 +91,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
-import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
@@ -645,7 +644,7 @@ class TreeViewerControl
 			Collection nodes = (Collection) pce.getNewValue();
 			view.setVisibleNodes(nodes);
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
-			model.setSearchResult((Collection) pce.getNewValue());
+			model.setSearchResult(pce.getNewValue());
 		}
 	}
 

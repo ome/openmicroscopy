@@ -41,7 +41,6 @@ import javax.swing.JToolBar;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManagerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;

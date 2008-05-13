@@ -42,6 +42,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -286,8 +287,15 @@ public class QuickSearch
 		searchPanel.setBorder(
 					BorderFactory.createBevelBorder(BevelBorder.LOWERED));
 		//searchPanel.add(searchButton, "0, 0, f, c");
-		if (menuButton != null) 
-			searchPanel.add(menuButton, "1, 0, f, c");
+		if (menuButton != null) {
+			JToolBar bar = new JToolBar();
+	        bar.setFloatable(false);
+	        bar.setRollover(true);
+	        bar.setBorder(null);
+	        bar.add(menuButton);
+			searchPanel.add(bar, "1, 0, f, c");
+		}
+			
 		searchPanel.add(searchArea, "2, 0, f, c");
 		
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));

@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -726,8 +725,9 @@ public interface TreeViewer
 	/**
 	 * Sets the result of the search.
 	 * 
-	 * @param results The result of the search.
+	 * @param result 	Either a collection of objects or
+	 * 					or an integer with the maximum number of results
 	 */
-	public void setSearchResult(Collection<DataObject> results);
+	public void setSearchResult(Object result);
 	
 }

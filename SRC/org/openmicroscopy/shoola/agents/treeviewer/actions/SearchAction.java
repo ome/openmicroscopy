@@ -33,7 +33,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -58,7 +57,8 @@ public class SearchAction
     private static final String NAME = "Search ";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Advanced search.";
+    private static final String DESCRIPTION = "Toggle between File " +
+    											"Explorer and Search.";
     
     /**
      * Sets the action enabled.
@@ -83,7 +83,7 @@ public class SearchAction
 	}
 
 	/** 
-     * Displays or hides the search component.
+     * Toggles between the explorer and the search view.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

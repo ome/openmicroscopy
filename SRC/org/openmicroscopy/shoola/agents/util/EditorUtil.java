@@ -461,8 +461,8 @@ public class EditorUtil
     public static boolean isReadable(Object ho, long userID, long groupID)
     {
     	if (ho == null || ho instanceof ExperimenterData || 
-        		ho instanceof String)
-        		return false;
+    		ho instanceof String)
+        	return false;
     	if (!(ho instanceof DataObject)) return false;
     	DataObject data = (DataObject) ho;
         PermissionData permissions = data.getPermissions();

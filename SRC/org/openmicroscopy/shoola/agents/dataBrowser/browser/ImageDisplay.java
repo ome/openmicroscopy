@@ -37,11 +37,13 @@ import javax.swing.JLabel;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -285,17 +287,26 @@ public abstract class ImageDisplay
     public Object getHierarchyObject() { return hierarchyObject; }
     
     /**
-     * Adds an <code>AnnotatedButton</code> and/or <code>ClassifiedButton</code>
-     * depending on the hosted <code>DataObject</code> status.
+     * Adds an <code>Annotated</code> icon if the object 
+     * has annotation linked to it. Adds an <code>Owner</code> icon if
+     * the owner is not the user currently logged in.
      */
     public void setNodeDecoration()
     {
-    	if (EditorUtil.isAnnotated(hierarchyObject)) {
-    		 List<JLabel> nodes = new ArrayList<JLabel>();
-    		 IconManager icons = IconManager.getInstance();
-    		 nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
-    		 setDecoration(nodes);
+    	List<JLabel> nodes = new ArrayList<JLabel>();
+    	IconManager icons = IconManager.getInstance();
+    	if (hierarchyObject instanceof DataObject) {
+    		ExperimenterData owner = ((DataObject) hierarchyObject).getOwner();
+    		if (owner != null) {
+    			ExperimenterData exp = DataBrowserAgent.getUserDetails();
+    			if (exp.getId() != owner.getId()) 
+    				nodes.add(new JLabel(icons.getIcon(IconManager.OWNER_8)));
+    		}
     	}
+    	if (EditorUtil.isAnnotated(hierarchyObject)) 
+    		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));
+    	
+    	if (nodes.size() > 0) setDecoration(nodes);
     }
     
     /**

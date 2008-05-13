@@ -50,7 +50,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
+import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -262,9 +262,18 @@ class SearchPanel
 	/** The possible file formats. */
 	private JComboBox				formats;
 	
+	/** The tree hosting the advanced search component. */
+	private TreeComponent			searchTree;
+	
+	/** Flag indicating that the search is in the advanced mode. */
+	private boolean					advancedSearch;
+	
 	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
+		advancedSearch = false;
+		searchTree = new TreeComponent();
+		searchTree.addPropertyChangeListener(this);
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
@@ -602,7 +611,7 @@ class SearchPanel
 				scopes.put(n.getIndex(), box);
 			}
 		}
-		
+
 		UIUtilities.setBoldTitledBorder(SCOPE_TITLE, p);
 		return p;
 	}
@@ -669,10 +678,16 @@ class SearchPanel
 		JPanel basicPanel = new JPanel();
 		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.X_AXIS));
 		basicPanel.add(fullTextArea);
-		basicPanel.add(helpButton);
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setRollover(true);
+		bar.setBorder(null);
+		bar.add(helpButton);
+		basicPanel.add(bar);
 
 		JPanel p = new JPanel();
-		p.setBorder(new TitledBorder(ADVANCED_SEARCH_TITLE));
+		UIUtilities.setBoldTitledBorder(ADVANCED_SEARCH_TITLE, p);
+		//p.setBorder(new TitledBorder(ADVANCED_SEARCH_TITLE));
 		p.setLayout(new GridBagLayout());
         //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
@@ -704,13 +719,11 @@ class SearchPanel
         c.weightx = 0.0; 
         p.add(UIUtilities.setTextFont(SEARCH_TIP, TIP_FONT_TYPE, 
         							TIP_FONT_SIZE), c); 
-        
         //searchFor.add(UIUtilities.buildComponentPanel(p));
-        TreeComponent tree = new TreeComponent();
-        tree.insertNode(p, UIUtilities.buildCollapsePanel(
+        searchTree.insertNode(p, UIUtilities.buildCollapsePanel(
         					ADVANCED_SEARCH_TITLE), false);
         searchFor.add(UIUtilities.buildComponentPanel(basicPanel));
-        searchFor.add(tree);
+        searchFor.add(searchTree);
 		return searchFor;
 	}
 	
@@ -831,8 +844,9 @@ class SearchPanel
 		TreeComponent tree = new TreeComponent();
 		tree.insertNode(buildSearchFor(), 
 							UIUtilities.buildCollapsePanel(SEARCH_TITLE));
-		tree.insertNode(buildType(), 
-						UIUtilities.buildCollapsePanel(TYPE_TITLE));
+		buildType();
+		//tree.insertNode(buildType(), 
+		//		UIUtilities.buildCollapsePanel(TYPE_TITLE));
 		tree.insertNode(buildScope(), 
 				UIUtilities.buildCollapsePanel(SCOPE_TITLE));
 		tree.insertNode(buildUsers(), 
@@ -849,6 +863,22 @@ class SearchPanel
 		add(tree, "0, 0");
 		//add(tree);
 		setDateIndex();
+	}
+	
+	/** 
+	 * Greys out the {@link #fullTextArea} if the advanced search is 
+	 * expanded, activates it otherwise.
+	 */
+	private void handleAdvancedSearch()
+	{
+		advancedSearch = !advancedSearch;
+		if (advancedSearch) {
+			fullTextArea.setEnabled(false);
+			atLeastTermsArea.requestFocus();
+		} else {
+			fullTextArea.setEnabled(true);
+			fullTextArea.requestFocus();
+		}
 	}
 	
 	/** 
@@ -963,37 +993,24 @@ class SearchPanel
 	 */
 	String[] getSome()
 	{
-		
-		String text = fullTextArea.getText();
-		if (text != null && text.trim().length() > 0) {
-			List<String> l = 
-				SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
-			if (l.size() > 0) 
-				return (String[]) l.toArray(new String[] {});
-			
-			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
-			if (l.size() > 0)
-			return (String[]) l.toArray(new String[] {});
+		String text;
+		if (!advancedSearch) {
+			text = fullTextArea.getText();
+			if (text != null && text.trim().length() > 0) {
+				List<String> l = SearchUtil.splitTerms(text);
+				if (l.size() > 0) 
+					return (String[]) l.toArray(new String[] {});
+			}
 		}
-
 		text = atLeastTermsArea.getText();
-		List<String> l = 
-			SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
-		String[] terms = null;
-		if (l.size() > 0) {
-			//terms = (String[]) l.toArray(new String[] {});
-		} else {
-			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
-			//if (l.size() > 0)
-			//	terms = (String[]) l.toArray(new String[] {});
-		}
+		List<String> l = SearchUtil.splitTerms(text);
+
 		text = exactPhraseArea.getText();
-		if (text != null) {
-			l.addAll(SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR));
-		}
+		if (text != null)
+			l.addAll(SearchUtil.splitTerms(text.trim()));
 		if (l.size() > 0)
-			terms = (String[]) l.toArray(new String[] {});
-		return terms;
+			return (String[]) l.toArray(new String[] {});
+		return null;
 	}
 	
 	/**
@@ -1004,17 +1021,11 @@ class SearchPanel
 	String[] getMust()
 	{
 		String text = atLeastTermsArea.getText();
-		List l = SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
-		String[] terms = null;
-		if (l.size() > 0) {
-			terms = (String[]) l.toArray(new String[] {});
+		List l = SearchUtil.splitTerms(text);
+		if (l.size() > 0) 
+			return (String[]) l.toArray(new String[] {});
 			
-		} else {
-			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
-			if (l.size() > 0)
-				terms = (String[]) l.toArray(new String[] {});
-		}
-		return terms;
+		return null;
 	}
 	
 	/**
@@ -1025,16 +1036,10 @@ class SearchPanel
 	String[] getNone()
 	{
 		String text = withoutTermsArea.getText();
-		List l = SearchUtil.splitTerms(text, SearchUtil.QUOTE_SEPARATOR);
-		String[] terms = null;
-		if (l.size() > 0) {
-			terms = (String[]) l.toArray(new String[] {});
-		} else {
-			l = SearchUtil.splitTerms(text, SearchUtil.SPACE_SEPARATOR);
-			if (l.size() > 0)
-				terms = (String[]) l.toArray(new String[] {});
-		}
-		return terms;
+		List l = SearchUtil.splitTerms(text);
+		if (l.size() > 0) 
+			return (String[]) l.toArray(new String[] {});
+		return null;
 	}
 	
 	/**
@@ -1161,7 +1166,7 @@ class SearchPanel
 		String name = evt.getPropertyName();
 		if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
 			model.notifyNodeExpanded();
-			//model.pack();
+			if (evt.getSource() == searchTree) handleAdvancedSearch();
 		} else if (DATE_CALENDAR_PROPERTY.equals(name)) {
 			//if (evt.getNewValue() != null) 
 				//toDate.setDate(new Date());

@@ -1628,10 +1628,19 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setSearchResult(List)
+	 * @see TreeViewer#setSearchResult(Object)
 	 */
-	public void setSearchResult(Collection<DataObject> results)
+	public void setSearchResult(Object result)
 	{
+		if (result instanceof Integer) {
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+        	un.notifyInfo("Search", "Too many results found (Max: "
+        			+((Integer) result).intValue()+
+        			").\n Please refine your search");
+			return;
+			
+		}
+		Collection<DataObject> results = (Collection<DataObject>) result;
 		if (results == null || results.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Search", "No results found.");

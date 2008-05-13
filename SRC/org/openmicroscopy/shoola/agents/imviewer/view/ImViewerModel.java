@@ -1110,6 +1110,19 @@ class ImViewerModel
 		currentRndControl.resetDefaults(); 
 	}
 	
+	/** 
+	 * Sets the original default settings. 
+	 * 
+	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	void setOriginalRndSettings()
+		throws RenderingServiceException, DSOutOfServiceException
+	{ 
+		currentRndControl.setOriginalRndSettings(); 
+	}
+	
 	/** Sets the reference to the pixels set to <code>null</code>. */
 	void copyRndSettings() { pixels = null; }
 

@@ -32,7 +32,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.DataObject;
 import pojos.ExperimenterData;
 
 /** 
@@ -70,12 +69,15 @@ public class SearchDataContext
 	 */
 	public static final int			EXCLUDE_ANNOTATOR = 103;
 	
-	/** The default value of the returned value. */
-	private static final int		DEFAULT_RESULTS = 200;
-	
 	/** One the time constants defined by this class. */
 	private int						timeIndex;
 	
+	/** 
+	 * Set to <code>true</code> if it is an union of contexts, or
+	 * <code>false</code> if it is an intersection of contexts.
+	 */
+	private boolean 				unionOfContexts;
+
 	/** 
 	 * Set to <code>true</code> if the case is taken into account, 
 	 * <code>false</code> otherwise.
@@ -126,10 +128,7 @@ public class SearchDataContext
 	
 	/** The number of results returned. */
 	private int						numberOfResults;
-	
-	/** 
-	private DataObject				refObject;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -153,7 +152,27 @@ public class SearchDataContext
 		this.scope = scope;
 		this.types = types;
 		numberOfResults = -1;
+		unionOfContexts = true;
 	}
+	
+	/** 
+	 * Sets to <code>true</code> if it is an union of contexts, or
+	 * <code>false</code> if it is an intersection of contexts.
+	 * 
+	 * @param unionOfContexts The value to set.
+	 */
+	public void setUnionOfContexts(boolean unionOfContexts)
+	{
+		this.unionOfContexts = unionOfContexts;
+	}
+	
+	/** 
+	 * Returns <code>true</code> if it is an union of contexts, or
+	 * <code>false</code> if it is an intersection of contexts.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isUnionOfContexts() { return unionOfContexts; }
 	
 	/**
 	 * Returns <code>true</code> if the case is taken into account, 

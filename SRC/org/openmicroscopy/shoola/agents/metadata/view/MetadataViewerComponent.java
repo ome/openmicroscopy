@@ -324,11 +324,13 @@ class MetadataViewerComponent
 				return;
 			}
 			Collection visibleImages = model.getVisibleImages();
-			if (visibleImages == null || visibleImages.size() <= 1) {
-				//toSave.add(data);
-				//model.fireSaving(toAdd, toRemove, toSave);
-				//return;
+			int visible = visibleImages.size();
+			if (visible <= 1 && siblings.size() <= 1) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
 			}
+			
 			dialog = new MessageBox(view, "Save Annotations", 
 								"Do you want to annotate: ");
 			JPanel p = new JPanel();
@@ -342,7 +344,7 @@ class MetadataViewerComponent
 			if (siblings != null && siblings.size() > 1) s += "s";
 			single.setText(s);
 			JRadioButton all = new JRadioButton();
-			if (visibleImages != null && visibleImages.size() > 1) {
+			if (visible > 1) {
 				group.add(all);
 				p.add(all);
 				all.setText("The visible images");
@@ -365,54 +367,6 @@ class MetadataViewerComponent
 				clearDataToSave();
 			}
 		} 
-		/*
-		Collection<DataObject> siblings = model.getSiblings();
-		List<DataObject> toSave = new ArrayList<DataObject>();
-		if (siblings == null || siblings.size() <= 1) {
-			toSave.add(data);
-			model.fireSaving(toAdd, toRemove, toSave);
-		} else {
-			MessageBox dialog = new MessageBox(view, "Save Annotations", 
-								"Do you want to annotate: ");
-			JPanel p = new JPanel();
-			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-			
-			String name = "";
-			String parentName = null;
-			if (data instanceof ImageData) {
-				name = "image";
-				parentName = "dataset";
-			} else if (data instanceof DatasetData) name = "dataset";
-			else if (data instanceof ProjectData) name = "project";
-			
-			ButtonGroup group = new ButtonGroup();
-			JRadioButton single = new JRadioButton();
-			//single.setText("Only "+name+" "+model.getRefObjectName());
-			single.setText("The selected "+name);
-			single.setSelected(true);
-			p.add(single);
-			group.add(single);
-			JRadioButton batchAnnotation = new JRadioButton();
-			if (parentName != null) {
-				batchAnnotation.setText("All "+name+"s in "+parentName);
-				p.add(batchAnnotation);
-				group.add(batchAnnotation);
-			}
-			JRadioButton all = new JRadioButton();
-			all.setText("All selected "+name+"s");
-			p.add(all);
-			group.add(all);
-			dialog.addBodyComponent(p);
-			int option = dialog.centerMsgBox();
-			if (option == MessageBox.YES_OPTION) {
-				if (all.isSelected()) toSave.addAll(siblings);
-				else toSave.add(data);
-				model.fireSaving(toAdd, toRemove, toSave);
-			} else if (option == MessageBox.NO_OPTION) {
-				clearDataToSave();
-			}
-		}
-		*/
 	}
 	
 	/** 

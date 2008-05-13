@@ -1209,5 +1209,39 @@ class RenderingControlProxy
 	 * @see RenderingControl#getCompressionLevel()
 	 */
 	public int getCompressionLevel() { return compression; }
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#setOriginalRndSettings()
+	 */
+	public void setOriginalRndSettings() 
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		DataServicesFactory.isSessionAlive(context);
+    	try {
+    		 servant.resetDefaultsNoSave();
+    		 List list = servant.getAvailableFamilies();
+    		 ChannelMetadata m;
+    		 Iterator j;
+    		 Family family;
+    		 for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+    			 j = list.iterator();
+    			 while (j.hasNext()) {
+    				 family= (Family) j.next();
+    				 if (family.getValue().equals(getChannelFamily(i))) {
+    					 servant.setQuantizationMap(i, family, 
+    							 getChannelCurveCoefficient(i), false);
+    				 }
+    			 }
+    			 m = getChannelData(i);
+				 servant.setChannelWindow(i, m.getGlobalMin(),
+						 				m.getGlobalMax());
+			 }
+    		 invalidateCache();
+    		 initialize();
+		} catch (Throwable e) {
+			handleException(e, ERROR+"default settings.");
+		}
+	}
     
 }

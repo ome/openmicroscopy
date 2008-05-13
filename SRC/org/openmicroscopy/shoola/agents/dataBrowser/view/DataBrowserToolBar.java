@@ -321,7 +321,7 @@ class DataBrowserToolBar
 		slideShowView = new JButton(
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
 		slideShowView.setToolTipText("Slideshow");
-		//UIUtilities.unifiedButtonLookAndFeel(slideShowView);
+		UIUtilities.unifiedButtonLookAndFeel(slideShowView);
 		slideShowView.addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -335,6 +335,7 @@ class DataBrowserToolBar
 		});
 		//group.add(slideShowView);
 		managementButton = new JButton(icons.getIcon(IconManager.MANAGER));
+		UIUtilities.unifiedButtonLookAndFeel(managementButton);
 		managementButton.setToolTipText("Manage images.");
 		managementButton.addMouseListener(new MouseAdapter() {
 			
@@ -365,6 +366,7 @@ class DataBrowserToolBar
 		
 		refreshButton = new JButton(controller.getAction(
 								DataBrowserControl.REFRESH));
+		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
 	}
 	
 	/**
@@ -402,7 +404,12 @@ class DataBrowserToolBar
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		JPanel p = new JPanel();
-		p.add(filterButton);
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setBorder(null);
+		bar.setRollover(true);
+		bar.add(filterButton);
+		p.add(bar);
 		p.add(search);
 		p.add(buildViewsBar());
 		content.add(p);

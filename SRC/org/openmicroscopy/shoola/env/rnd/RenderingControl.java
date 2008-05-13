@@ -643,5 +643,15 @@ public interface RenderingControl
 	 * @return See above.
 	 */
 	public int getCompressionLevel();
+
+	/** 
+     * Sets the original rendering settings. 
+     * 
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
+    public void setOriginalRndSettings()
+    	throws RenderingServiceException, DSOutOfServiceException;
 	
 }

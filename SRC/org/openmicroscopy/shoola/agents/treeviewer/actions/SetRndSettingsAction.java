@@ -66,7 +66,7 @@ extends TreeViewerAction
 	private static final String NAME = "Set Original Settings";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Set the settings.";
+	private static final String DESCRIPTION = "Set the original settings.";
 
 	/**
 	 * Callback to notify of a change in the currently selected display

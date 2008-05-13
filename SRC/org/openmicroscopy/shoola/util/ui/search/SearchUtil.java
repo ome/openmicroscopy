@@ -89,6 +89,38 @@ public class SearchUtil
 	}
 	
 	
+	/**
+	 * Splits the passed string around matches of the given pattern.
+	 * Returns a list of elements
+	 * 
+	 * @param text		The string to split.
+	 * @return See above.
+	 */
+	public static List<String> splitTerms(String text)
+	{
+		List<String> l = new ArrayList<String>();
+		if (text == null) return l;
+		text = text.trim();
+		String[] r = text.split(QUOTE_SEPARATOR);
+		String value; 
+		for (int i = 0; i < r.length; i++) {
+			value = r[i];
+			if (value != null) {
+				value = value.trim();
+				if (value.length() != 0 && !value.equals(ALL) && 
+						!value.equals(COMMA_SEPARATOR)) l.add(value);
+			}
+		}
+		return l;
+	}
+	
+	/**
+	 * Adds the passed string to the list of the terms.
+	 * 
+	 * @param termToAdd	The value to add.
+	 * @param terms		Collection of terms to handle.
+	 * @return See above.
+	 */
 	public static String formatString(String termToAdd, List<String> terms)
 	{
 		if (terms == null) return termToAdd;

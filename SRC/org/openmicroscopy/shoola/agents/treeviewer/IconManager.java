@@ -269,7 +269,7 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static int           TAG = 71;
     
-    /** The <code>Tag</code> icon. */
+    /** The <code>Set original Rendering settings</code> icon. */
     public static int           SET_RND_SETTINGS = 72;
     
     /** 

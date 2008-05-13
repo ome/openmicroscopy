@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ResetRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SaveRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.SearchAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.SetOriginalRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ShowViewAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.TextVisibleAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarAction;
@@ -299,6 +300,11 @@ class ImViewerControl
 	static final Integer     RESET_RND_SETTINGS = new Integer(61);
 	
 	/** 
+	 * Identifies the <code>Set the original rendering settings</code> action. 
+	 */
+	static final Integer     SET_ORIGINAL_RND_SETTINGS = new Integer(62);
+	
+	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
 	 */
@@ -394,6 +400,8 @@ class ImViewerControl
 		actionsMap.put(COPY_RND_SETTINGS, new CopyRndSettingsAction(model));
 		actionsMap.put(SAVE_RND_SETTINGS, new SaveRndSettingsAction(model));
 		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
+		actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
+						new SetOriginalRndSettingsAction(model));
 	}
 
 	/** 
