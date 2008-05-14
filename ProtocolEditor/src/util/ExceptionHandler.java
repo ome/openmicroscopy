@@ -139,7 +139,9 @@ public class ExceptionHandler implements PropertyChangeListener {
     	
     	d.setVersion(XMLModel.EDITOR_VERSION_NUMBER);
     	d.addPropertyChangeListener(new ExceptionHandler());
-    	d.setModal(true);
+    	// Insight has setModal(true), but I prefer false, so that users can reproduce some
+    	// behavior while composing a message.
+    	d.setModal(false);
     	UIUtilities.centerAndShow(d);
     }
 	
