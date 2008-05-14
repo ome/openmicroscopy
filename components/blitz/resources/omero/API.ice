@@ -307,6 +307,9 @@ module omero {
         BooleanIdListMap applySettingsToCategory(long from, long to) throws ServerError;
         bool applySettingsToImage(long from, long to) throws ServerError;
         bool applySettingsToPixels(long from, long to) throws ServerError;
+        void setOriginalSettingsInImage(long imageId) throws ServerError;
+        omero::sys::LongList setOriginalSettingsInDataset(long dataSetId) throws ServerError;
+        omero::sys::LongList setOriginalSettingsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
       };
 
     interface IRepositoryInfo extends ServiceInterface
