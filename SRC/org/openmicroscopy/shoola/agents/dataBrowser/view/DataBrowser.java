@@ -430,4 +430,14 @@ public interface DataBrowser
 	/** Sets the original rendering settings. */
 	public void setOriginalSettings();
 
+	/**
+	 * Shows the annotated nodes if the passed value is <code>true</code>,
+	 * shows the nodes not yet annotated if the passed value is 
+	 * <code>false</code>.
+	 * 
+	 * @param annotated Pass <code>true</code> to show the annotated nodes,
+	 * 					<code>false</code> to show the nodes not yet annotated.
+	 */
+	public void filterByAnnotated(boolean annotated);
+
 }

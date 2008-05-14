@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
+import org.openmicroscopy.shoola.agents.dataBrowser.visitor.AnnotatedNodesVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
@@ -637,6 +638,28 @@ class DataBrowserComponent
 					"invoked in the DISCARDED state.");
 		firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
 						Boolean.TRUE);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#filterByAnnotated(boolean)
+	 */
+	public void filterByAnnotated(boolean annotated)
+	{
+		if (model.getState() == FILTERING) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			return;
+		}
+		Browser browser = model.getBrowser();
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		AnnotatedNodesVisitor visitor = new AnnotatedNodesVisitor(annotated);
+		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+		browser.setFilterNodes(visitor.getFoundNodes());
+		model.layoutBrowser();
+		browser.getUI().repaint();
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		
 	}
 	
 }

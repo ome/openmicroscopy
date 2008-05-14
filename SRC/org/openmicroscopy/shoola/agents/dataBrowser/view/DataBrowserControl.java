@@ -182,6 +182,13 @@ class DataBrowserControl
 				break;	
 			case QuickSearch.SHOW_ALL:
 				model.showAll();
+				break;
+			case QuickSearch.ANNOTATED:
+				model.filterByAnnotated(true);
+				break;
+			case QuickSearch.UNANNOTATED:
+				model.filterByAnnotated(false);
+				break;
 		}
 	}
 	
