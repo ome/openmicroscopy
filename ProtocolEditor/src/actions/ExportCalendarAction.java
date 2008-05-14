@@ -43,8 +43,8 @@ public class ExportCalendarAction
 
 		super(model);
 	
-		putValue(Action.NAME, "Export to iCalendar");
-		putValue(Action.SHORT_DESCRIPTION, "Export the Date-Time fields in this file to iCalendar (.ics) file");
+		putValue(Action.NAME, "Export to .ics");
+		putValue(Action.SHORT_DESCRIPTION, "Export the Date-Time fields in this file to iCalendar (.ics) format, for use by other calendar applications.");
 		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.CALENDAR_EXPORT_ICON)); 
 	}
 	

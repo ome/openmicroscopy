@@ -58,7 +58,7 @@ public class RequiredFieldAction
 		/*
 		 * This action should only be enabled if a file is open
 		 */
-		setEnabled(filesOpen());
+		setEnabled(fieldTemplatesEditable());
 	}
 
 }
