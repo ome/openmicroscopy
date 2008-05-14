@@ -339,6 +339,8 @@ class XmlReport(object):
 			self.hasCustomAttributes = handlerContent.hasCustomAttributes;
 		except 	sax.SAXParseException:
 			self.errorList.append(ParseMessage(None, None, None, "XmlError",None, "Parsing of XML failed"))
+		self.errorList.extend(handlerContent.errorList)
+		self.warningList.extend(handlerContent.warningList)
 		self.errorList.extend(handlerError.errorList)
 		self.warningList.extend(handlerError.warningList)
 		
@@ -530,6 +532,10 @@ class ParseErrorHandler(sax.ErrorHandler):
 # Used to process all Elements by sax parser
 class ElementAggregator(sax.ContentHandler):
 	inBinData = False
+	
+	def __init__(self):
+		self.errorList = list()
+		self.warningList = list()
 	
 	def startDocument(self):
 		'''
