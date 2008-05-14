@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="src" path="target/generated/resources"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/omero-importer"/>
+	<classpathentry kind="lib" path="target/libs/hsqldb.jar"/>
+	<classpathentry kind="lib" path="target/libs/omero-client-utils.jar"/>
+	<classpathentry kind="lib" path="target/libs/quaqua-filechooser-only.jar"/>
+	<classpathentry kind="lib" path="target/libs/swingx.jar"/>
+	<classpathentry kind="lib" path="target/libs/TableLayout.jar"/>
+	<classpathentry kind="lib" path="target/libs/commons-httpclient.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

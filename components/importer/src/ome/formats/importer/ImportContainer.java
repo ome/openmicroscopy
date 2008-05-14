@@ -11,19 +11,30 @@ import java.io.File;
 
 import ome.model.containers.Dataset;
 
-
 public class ImportContainer
 {
         public File file;
-        public Dataset dataset; 
+        public Long projectID;
+        private Dataset dataset; 
         public String imageName;
         public boolean archive;
         
-        public ImportContainer(File file, Dataset dataset, String imageName, boolean archive2)
+        public ImportContainer(File file, Long projectID, Dataset dataset, String imageName, boolean archive2)
         {
             this.file = file;
+            this.projectID = projectID;
             this.dataset = dataset;
             this.imageName = imageName;
             this.archive = archive2;
+        }
+        
+        public Long getDatasetId()
+        {
+            return dataset.getId();
+        }
+        
+        public Dataset getDataset()
+        {
+            return dataset;
         }
 }

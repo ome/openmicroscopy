@@ -14,11 +14,9 @@ import ome.model.core.Image;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 
-import org.openmicroscopy.ds.st.ImageAnnotation;
-
 /**
  * {@link AdminAction} which queries all {@link Dataset datasets} and
- * {@link ImageAnnotation annotations} beloging to the given {@link Image}
+ * {@link Annotation annotations} belonging to the given {@link Image}
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3

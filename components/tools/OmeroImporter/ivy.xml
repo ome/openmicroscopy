@@ -1,0 +1,27 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="OmeroImporter"
+      status="integration"/>
+  <configurations>
+    <conf name="core"/>
+    <conf name="build" extends="core"/>
+    <conf name="test"  extends="core"/>
+  </configurations>
+  <publications>
+    <artifact name="OmeroImporter" type="jar" conf="core" />
+  </publications>
+  <dependencies>
+    <!-- Internal -->
+    <dependency name="importer" rev="${omero.version}" changing="true" />
+    <dependency name="client" rev="${omero.version}" changing="true" />
+    <!-- Gui -->
+    <dependency org="gui" name="TableLayout" rev="unknown" conf="build->default"/>
+    <dependency org="gui" name="hsqldb" rev="1.8.0.9" conf="build->default"/>
+    <dependency org="gui" name="quaqua-filechooser-only" rev="unknown" conf="build->default"/>
+    <dependency org="gui" name="swingx" rev="2007_09_16" conf="build->default"/>
+    <dependency org="gui" name="libquaqua" rev="unknown" conf="build->default"/>
+    <dependency org="gui" name="omero-client-utils" rev="unknown" conf="build->default"/>
+    <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}" conf="build->default"/>
+  </dependencies>
+</ivy-module>

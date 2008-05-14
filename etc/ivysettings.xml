@@ -21,15 +21,19 @@
     searching in OMERO_HOME/lib/overrides as described in overrides/README.txt -->
 
     <chain name="omero-resolver" returnFirst="true">
-      <filesystem name="repository">
+      <filesystem name="nested_repo">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[organization]/[module]/[revision]/[artifact]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[organization]/[module]/[revision]/ivy.xml"/>
       </filesystem>
-      <filesystem name="flatrepository">
+      <filesystem name="repo">
         <artifact pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].[type]" />
         <ivy pattern="${ivy.settings.dir}/../lib/repository/[module]-[revision].ivy"/>
       </filesystem>
-    </chain>
+      <filesystem name="importer_repo">
+        <artifact pattern="${ivy.settings.dir}/../lib/repository/importer/[module]-[revision].[type]" />
+        <ivy pattern="${ivy.settings.dir}/../lib/repository/importer/[module]-[revision].ivy"/>
+      </filesystem>
+   </chain>
 
     <!-- Example maven2 configuration. Unused. -->
     <ibiblio name="ibiblio-maven2" m2compatible="true" />
