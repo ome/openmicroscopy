@@ -114,6 +114,15 @@ public class XMLModel
 	public static final String EDITOR_VERSION_NUMBER = "3.0-3.0";
 	
 	/**
+	 * This is an identifier, eg. for Exception handler's bug reporter.
+	 * It consists of the EDITOR_VERSION_NUMBER, as well as any release candidate id,
+	 * So, 3.0-Beta-3.0, release candidate 2 will be "3.0-3.0rc2".
+	 * For the Milestone releases, the editor release Id will be the same as 
+	 * the EDITOR_VERSION_NUMBER.
+	 */
+	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "rc1";
+	
+	/**
 	 * DOM Document used to pass XML files between methods such as readXMLtoDOM() and openXMLFile()
 	 */
 	//private Document document; 
