@@ -43,12 +43,19 @@ public class AttributeUrlEditor extends AttributeEditor {
 	// called to update dataField with attribute
 	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
 		
-		try {
-			URL url = new URL(value);
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			value = "http://" + value;
+		/*
+		 * If the user entered a value, check that it is a URL. If not, add "http://"
+		 */
+		if ((value != null) && (value.length() > 0)) {
+			try {
+				URL url = new URL(value);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				value = "http://" + value;
+			}
 		}
+		
+		// Now set attribute as normal. 
 		
 		dataField.setAttribute(attributeName, value, notifyUndoRedo);
 	}
