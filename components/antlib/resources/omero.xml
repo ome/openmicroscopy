@@ -47,6 +47,7 @@
 		<include name="omero.properties"/>
 		<include name="hibernate.properties"/>
 		<include name="log4j.properties"/>
+		<include name="c3p0.properties"/>
 	</patternset>
 
 	<target name="usage"
@@ -78,11 +79,12 @@
 		</jar>
 		<delete dir="${temp.dir}"/>
 
-		<available file="${basedir}/blitz/blitz.jar}" property="update.blitz"/>	
+		<available file="${basedir}/blitz/blitz.jar" property="update.blitz"/>
+                <antcall target="update-blitz" inheritAll="true" inheritRefs="true"/>
 	</target>
 
 	<target name="update-blitz" if="update.blitz">
-		<jar update="true" 
+		<jar update="true"
 		  destfile="blitz/blitz.jar">
 			<fileset dir="${basedir}/etc">
 				<patternset refid="etc.files"/>
@@ -96,6 +98,7 @@
 	</target>
 
 	<target name="deploy" depends="update">
+                <fail unless="env.JBOSS_HOME"/>
 		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>
 		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>
 		<copy todir="${jboss.deploy.dir}">
