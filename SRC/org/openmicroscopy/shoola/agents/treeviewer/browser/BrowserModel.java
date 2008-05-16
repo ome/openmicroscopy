@@ -327,14 +327,19 @@ class BrowserModel
     	} else {
     		Object ho = node.getUserObject();
             int type = -1;
+            int level = -1;
             if (ho instanceof DatasetData) 
             	type = ExperimenterDataLoader.DATASET;
             else if (ho instanceof CategoryData) 
             	type = ExperimenterDataLoader.CATEGORY;
-            else if (ho instanceof TagAnnotationData) 
+            else if (ho instanceof TagAnnotationData) {
             	type = ExperimenterDataLoader.TAGS;
+            	level = ExperimenterDataLoader.TAG_LEVEL;
+            }	
             currentLoader = new ExperimenterDataLoader(component, type, 
             					(TreeImageSet) expNode, (TreeImageSet) node);
+            if (level != -1)
+            	((ExperimenterDataLoader) currentLoader).setTagLevel(level);	
     	}
         currentLoader.load();
     }
@@ -349,6 +354,7 @@ class BrowserModel
      */
     void fireContainerCountLoading(Set ids)
     {
+    	/*
     	Set containers;
     	if (ids != null) containers = ids;
     	else containers = component.getContainersWithImages();
@@ -357,10 +363,9 @@ class BrowserModel
             return;
         }
         //state = Browser.COUNTING_ITEMS;
-        //currentLoader = new ContainerCounterLoader(component, containers);
-        //currentLoader.load();
         numberLoader = new ContainerCounterLoader(component, containers);
         numberLoader.load();
+        */
     }
     
     
@@ -589,8 +594,8 @@ class BrowserModel
 		if (containersManager == null)
             containersManager = new ContainersManager(indexes);
 		//state = Browser.COUNTING_ITEMS;
-        numberLoader = new ExperimenterImagesCounter(component, expNode, n);
-        numberLoader.load();  
+        //numberLoader = new ExperimenterImagesCounter(component, expNode, n);
+        //numberLoader.load();  
 	}
 	
 	/**

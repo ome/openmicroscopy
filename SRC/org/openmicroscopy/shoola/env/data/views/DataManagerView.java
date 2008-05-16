@@ -32,7 +32,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -381,9 +380,10 @@ public interface DataManagerView
 			Map<Integer, TimeRefObject> m, AgentEventListener observer);
 
 	/**
+	 * Loads the tags containing tags and creates a pseudo hierarchy.
 	 * 
-	 * @param id
-	 * @param images	Pass <code>true</code> to load the images related 
+	 * @param id        The id of the tag or <code>-1</code> if no id passed.
+	 * @param images    Pass <code>true</code> to load the images related 
      * 					to the tags, <code>false</code> otherwise.
 	 * @param userID	The user id.
 	 * @param observer 	Callback handler.
@@ -391,6 +391,9 @@ public interface DataManagerView
 	 */
 	public CallHandle loadTags(Long id, boolean images, long userID, 
 							AgentEventListener observer);
+	
+	public CallHandle loadTagSets(Long id, boolean images, long userID, 
+			AgentEventListener observer);
   
 	
 }

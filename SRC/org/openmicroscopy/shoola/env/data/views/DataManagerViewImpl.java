@@ -348,5 +348,17 @@ class DataManagerViewImpl
 				userID);
 		return cmd.exec(observer);
 	}
+	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#loadTagSets(Long, boolean, long, AgentEventListener)
+	 */
+	public CallHandle loadTagSets(Long id, boolean images, long userID, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new TagsLoader(TagsLoader.LEVEL_TAG_SET, id, images, 
+				userID);
+		return cmd.exec(observer);
+	}
   
 }

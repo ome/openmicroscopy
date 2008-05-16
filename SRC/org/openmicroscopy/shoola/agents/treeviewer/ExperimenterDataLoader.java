@@ -71,6 +71,12 @@ public class ExperimenterDataLoader
 	extends DataBrowserLoader
 {
 
+	/** Indicates to load the tags linked to images. */
+	public static final int TAG_LEVEL = 0;
+	
+	/** Indicates to load the tags linked to tags. */
+	public static final int TAG_SET_LEVEL = 1;
+	
 	/** Indicates that the root node is of type <code>Project</code>. */
     public static final int PROJECT = 0;
     
@@ -107,6 +113,9 @@ public class ExperimenterDataLoader
     
     /** Handle to the async call so that we can cancel it. */
     private CallHandle  		handle;
+    
+    /** Indicates to load the tags linked tags or tags linked to images. */
+    private int					tagLevel;
     
     /**
      * Returns the class corresponding to the specified type.
@@ -165,7 +174,18 @@ public class ExperimenterDataLoader
         if (rootNodeType == null)
             throw new IllegalArgumentException("Type not supported");
         if (parent != null)  images = true;
+        tagLevel = -1;
     } 
+    
+    /**
+     * Sets the passed level.
+     * 
+     * @param tagLevel The value to set.
+     */
+    public void setTagLevel(int tagLevel)
+    {
+    	this.tagLevel = tagLevel;
+    }
     
     /**
      * Retrieves the data.
@@ -177,7 +197,15 @@ public class ExperimenterDataLoader
     	if (rootNodeType.equals(TagAnnotationData.class)) {
     		long id = -1;
     		if (parent != null) id = parent.getUserObjectId();
-    		handle = dmView.loadTags(id, images, exp.getId(), this);
+    		switch (tagLevel) {
+				case TAG_SET_LEVEL:
+				default:
+					handle = dmView.loadTagSets(id, images, exp.getId(), this);
+					break;
+	
+				case TAG_LEVEL:
+					handle = dmView.loadTags(id, images, exp.getId(), this);
+			}
     	} else {
     		if (parent == null) {
         		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
@@ -189,7 +217,6 @@ public class ExperimenterDataLoader
         										images, exp.getId(), this);
         	}
     	}
-    	
     }
 
     /**

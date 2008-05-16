@@ -1187,8 +1187,18 @@ class OmeroMetadataServiceImpl
 	public Collection loadTagSetsContainer(Long id, boolean images, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		// TODO Auto-generated method stub
-		return null;
+		Collection c = gateway.loagTagSets(userID);
+		Iterator i = c.iterator();
+		AnnotationData data;
+		DataObject object;
+		while (i.hasNext()) {
+			object = (AnnotationData) i.next();
+			if (object instanceof TagAnnotationData) {
+				data = (TagAnnotationData) object;
+			}
+			
+		}
+		return c;
 	}
 
 	/**
@@ -1271,6 +1281,7 @@ class OmeroMetadataServiceImpl
 				}
 				break;
 			case OmeroMetadataService.LEVEL_TAG_SET:
+				//Need to review that code 
 				links = gateway.findlinkedTags(ids, false);
 				//find the tag containing tags.
 				if (links != null) {

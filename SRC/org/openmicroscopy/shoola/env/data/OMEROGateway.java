@@ -2952,18 +2952,7 @@ class OMEROGateway
 			
 			if (asChild) sql += " where link.child.id in (:ids)";
 			else sql += " where link.parent.id in (:ids)";
-			/*
-			String sql =  "select link from AnnotationAnnotationLink as link "
-			        + "left outer join fetch link.details.owner";
-				
-			if (asChild) {
-				sql += " left outer join fetch link.child child "
-				+ "left outer join fetch child.details.creationEvent "
-                + "left outer join fetch child.details.owner";
-				sql += " where link.child.id in (:ids)";
-			}
-			else  sql += " where link.parent in (:ids)";
-			*/
+
 			if (userID >= 0) {
 				sql += "and link.details.owner.id = :uid";
 				param.addLong("uid", userID);
@@ -3304,6 +3293,59 @@ class OMEROGateway
 			handleException(t, "Cannot count the collection.");
 		}
 		return new HashMap();
+	}
+	
+	Set loagTagSets(long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			String type = "ome.model.annotations.TagAnnotation";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("uid", userID);
+			String sql =  "select ann from Annotation as ann "
+				+ "left outer join ann.annotationLinks link "
+                + "left outer join fetch ann.details.creationEvent "
+                + "left outer join fetch ann.details.owner ";
+				//+ "left outer join fetch link.child child ";
+				//+ "left outer join fetch child.details.creationEvent "
+	             //   + "left outer join fetch child.details.owner";
+			sql += " where link.parent.id member of "+type;
+			sql += " and link.child member of "+type;
+			sql += " and link.details.owner.id = :uid";
+			List l = service.findAllByQuery(sql, param);
+			Set results = new HashSet();
+			if (l != null) {
+				Iterator<IObject> i = l.iterator();
+				Annotation object;
+				TagAnnotationData tag;
+				while (i.hasNext()) {
+					param = new Parameters();
+					tag = (TagAnnotationData) PojoMapper.asDataObject(i.next());
+					param.addLong("id", tag.getId());
+					sql =  "select link from AnnotationAnnotationLink as link "
+						+ "left outer join link.child ann";
+					sql += " where link.parent.id = :id";
+					Set children = new HashSet();
+					List r = service.findAllByQuery(sql, param);
+					Iterator j = r.iterator();
+					ILink link;
+					while (j.hasNext()) {
+						link = (ILink) j.next();
+						children.add(PojoMapper.asDataObject(link.getChild()));
+					}
+					tag.setTags(children);
+					results.add(tag);
+				}
+			}
+			
+			return results;
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot retrieve the annotations");
+		}
+		return null;
 	}
 	
 	/** Checks if the session is still alive. */

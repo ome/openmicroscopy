@@ -250,6 +250,21 @@ public class TreeViewerTranslator
         if (data == null)
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet tag =  new TreeImageSet(data);
+        formatToolTipFor(tag);
+        
+        Set tags = data.getTags();
+        if (tags != null && tags.size() > 0) {
+        	tag.setChildrenLoaded(Boolean.TRUE);
+        	
+            Iterator i = tags.iterator();
+            TagAnnotationData tmp;
+            while (i.hasNext()) {
+            	tmp = (TagAnnotationData) i.next();
+            	tag.addChildDisplay(transformTag(tmp, userID, groupID));
+            }
+            tag.setNumberItems(tags.size());
+            return tag;
+        }
         Set images = data.getImages();
         //
         if (images == null || images.size() == 0) tag.setNumberItems(-1);
@@ -268,8 +283,7 @@ public class TreeViewerTranslator
                 }
             }
         }
-        
-        formatToolTipFor(tag);
+
         return tag;
     }
     
@@ -456,7 +470,8 @@ public class TreeViewerTranslator
                 								groupID);
                 	orphan.addChildDisplay(child);
                 } else if (ho instanceof TagAnnotationData) {
-                	child = transformTag((TagAnnotationData) ho, userID, groupID);
+                	child = transformTag((TagAnnotationData) ho, userID, 
+                			            groupID);
                 	results.add(child);
                 }
             }   

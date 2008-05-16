@@ -188,9 +188,8 @@ class BrowserControl
         	model.loadExperimenterData(getDataOwner(display), node);
         	return;
         }
-        //if (!expanded) return;
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData) ||
-        	(ho instanceof TagAnnotationData)) {
+            (ho instanceof TagAnnotationData)) {
         	model.loadExperimenterData(getDataOwner(display), display);
         } else if (ho instanceof ExperimenterData) {
         	model.loadExperimenterData(display, null);

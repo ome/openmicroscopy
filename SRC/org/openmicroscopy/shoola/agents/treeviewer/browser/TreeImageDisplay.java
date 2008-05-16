@@ -41,7 +41,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;

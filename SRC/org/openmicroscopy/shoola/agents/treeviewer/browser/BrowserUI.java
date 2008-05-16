@@ -419,7 +419,6 @@ class BrowserUI
             }
         };
         treeDisplay.addTreeSelectionListener(selectionListener);
-        
         treeDisplay.addKeyListener(new KeyAdapter() {
 	
 			public void keyPressed(KeyEvent e)
@@ -443,7 +442,6 @@ class BrowserUI
 				}
 			}
 		});
-        
     }
 
     /**
@@ -990,7 +988,7 @@ class BrowserUI
         } else buildEmptyNode(expNode);
         Iterator j = nodesToReset.iterator();
         while (j.hasNext()) {
-			setExpandedParent((TreeImageDisplay) j.next(), true);
+			//setExpandedParent((TreeImageDisplay) j.next(), true);
 		}
 	}
 

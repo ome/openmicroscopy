@@ -400,7 +400,7 @@ public class EditorUI
         	} else if (refObject instanceof TagAnnotationData) {
         		commentsTree.collapseNodes();
         		propertiesUI.setObjectDescription();
-        		//commentsTree.setTreeEnabled(false);
+        		commentsTree.setTreeEnabled(false);
         	}
         	toolBarTop.setDecorator();
     	}
