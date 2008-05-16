@@ -527,6 +527,8 @@ public class ModelMapper
     		return ((ProjectAnnotationLink) annotation).getParent();
     	else if (annotation instanceof ImageAnnotationLink)
     		return ((ImageAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof AnnotationAnnotationLink)
+    		return ((AnnotationAnnotationLink) annotation).getParent();
     	return null;
     }
     

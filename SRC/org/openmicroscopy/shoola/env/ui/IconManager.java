@@ -171,6 +171,11 @@ public class IconManager
      */  
     private static final String		LOGO_ABOUT ="graphx/omeabout-bk.png";
     
+    /** 
+     * The pathname, relative to this class, of the upgrade icon.
+     */  
+    private static final String		UPGRADE ="graphx/omeabout-bk.png";
+    
 	/** ID of the <code>help</code> icon. */
 	static final int		HELP = 0;
 	
@@ -436,6 +441,13 @@ public class IconManager
         return createIcon(DEFAULT_PLUS_OVER_PATH);
     }
     
+    /**
+	 * Returns the upgrade icon to use for notification dialogs.
+	 * 
+	 * @return See above.
+	 */
+	public static Icon getUpgradeIcon() { return createIcon(UPGRADE); }
+	
 	/**
 	 * Returns the <code>IconManager</code> object. 
 	 * 

@@ -119,18 +119,17 @@ public class TaskBarManager
 	private Map<Agent, Integer> 	exitResponses;
 	
 	/** 
-	 * Parses the <code>about.xml</code> file to determine the value
-	 * of the url.
+	 * Parses the passed file to determine the value of the url.
 	 * 
+	 * @param refFile	The file to parse
 	 * @return See above.
 	 */
-	private String parse()
+	private String parse(String refFile)
 	{
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(
-            		new File(container.resolveConfigFile(ABOUT_FILE)));
+            Document document = builder.parse(new File(refFile));
             //parse 
             
             NodeList list = document.getElementsByTagName(A_TAG); //length one
@@ -143,8 +142,8 @@ public class TaskBarManager
             return url;
         } catch (Exception e) { 
         	if (suDialog != null) suDialog.close();
-        	UserNotifier un = container.getRegistry().getUserNotifier();
-			un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
+        	//UserNotifier un = container.getRegistry().getUserNotifier();
+			//un.notifyInfo("Launch Browser", "Cannot launch the web browser.");
         }   
         return null;
 	}
@@ -407,12 +406,14 @@ public class TaskBarManager
     }
 
 	/**  Displays information about software. */
-    private void softWareUpdates()
+    private void softwareAbout()
     {
     	//READ content of the about file.
-    	String message = loadAbout(container.resolveConfigFile(ABOUT_FILE));
+    	String refFile = container.resolveConfigFile(ABOUT_FILE);
+    	String message = loadAbout(refFile);
     	
-        suDialog = new SoftwareUpdateDialog(view, message);
+        suDialog = new SoftwareUpdateDialog(view, message, refFile);
+        suDialog.setTitle(SoftwareUpdateDialog.TITLE_ABOUT);
         suDialog.addPropertyChangeListener(
         		SoftwareUpdateDialog.OPEN_URL_PROPERTY, this);
         UIUtilities.centerAndShow(suDialog);
@@ -443,7 +444,7 @@ public class TaskBarManager
 		view.getButton(TaskBarView.HOWTO_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.UPDATES_MI).addActionListener(
                 new ActionListener() {       
-            public void actionPerformed(ActionEvent ae) { softWareUpdates(); }
+            public void actionPerformed(ActionEvent ae) { softwareAbout(); }
         });
 		view.getButton(TaskBarView.ABOUT_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.HELP_BTN).addActionListener(noOp);
@@ -563,9 +564,10 @@ public class TaskBarManager
 	{
 		String name = evt.getPropertyName();
 		if (SoftwareUpdateDialog.OPEN_URL_PROPERTY.equals(name)) {
-			openURL(parse());
+			String refFile = (String) evt.getNewValue();
+			if (refFile != null) openURL(parse(refFile));
 		} else if (MacOSMenuHandler.ABOUT_APPLICATION_PROPERTY.equals(name)) {
-			softWareUpdates();
+			softwareAbout();
 		} else if (MacOSMenuHandler.QUIT_APPLICATION_PROPERTY.equals(name)) {
 			Registry reg = container.getRegistry();;
 			Object exp = reg.lookup(LookupNames.CURRENT_USER_DETAILS);

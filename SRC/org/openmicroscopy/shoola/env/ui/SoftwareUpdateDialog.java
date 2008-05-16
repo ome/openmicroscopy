@@ -73,18 +73,23 @@ class SoftwareUpdateDialog
 {
 
 	/** Bounds property indicating to launch the web site. */
-	static final String	OPEN_URL_PROPERTY = "openURL";
+	static final String		OPEN_URL_PROPERTY = "openURL";
 	
 	/** The window's title. */
-	private static final String		TITLE = "About OMERO.insight...";
+	static final String		TITLE_ABOUT = "About OMERO.insight...";
+	
+	/** The window's title. */
+	static final String		TITLE_UPDATE = "Update OMERO.insight...";
 	
     /** The close button. */
     private JButton closeButton;
     
+    /** The file of reference. */
+    private String	refFile;
+    
     /** Sets the propertie of thsi window. */
     private void setWindowProperties()
     {
-    	setTitle(TITLE);
         setModal(true);
         setResizable(false);
     }
@@ -139,8 +144,7 @@ class SoftwareUpdateDialog
 				if (c.getCursor().equals(
 					Cursor.getPredefinedCursor(Cursor.HAND_CURSOR))) {
 					c.setCursor(Cursor.getDefaultCursor());
-					firePropertyChange(OPEN_URL_PROPERTY, 
-									Boolean.FALSE, Boolean.TRUE);
+					firePropertyChange(OPEN_URL_PROPERTY, null, refFile);
 				}
 			}
 		
@@ -178,10 +182,12 @@ class SoftwareUpdateDialog
      * 
      * @param owner 		The owner of the frame.
      * @param aboutMessage	The message retrieved from the About file.
+	 * @param refFile		The file of reference.
      */
-    SoftwareUpdateDialog(JFrame owner, String aboutMessage)
+    SoftwareUpdateDialog(JFrame owner, String aboutMessage, String refFile)
     {
         super(owner);
+        this.refFile = refFile;
         setWindowProperties();
         initComponents();
         buildGUI(aboutMessage);

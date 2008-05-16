@@ -23,23 +23,19 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
 import pojos.DataObject;
 
 /** 
@@ -59,12 +55,15 @@ public class TagsLoader
 	extends BatchCallTree
 {
 	
-	/** Indicates to retrieves the tags. */
-	public static final int LEVEL_TAG = 0;
+	/** Indicates to retrieve the tags. */
+	public static final int LEVEL_TAG = OmeroMetadataService.LEVEL_TAG;
 	
-	/** Indicates to retrieves the tag sets. */
-	public static final int LEVEL_TAG_SET = 1;
+	/** Indicates to retrieve the tag sets. */
+	public static final int LEVEL_TAG_SET = OmeroMetadataService.LEVEL_TAG_SET;
 
+	/** Indicates to retrieve the tag sets and the tags. */
+	public static final int LEVEL_ALL = OmeroMetadataService.LEVEL_ALL;
+	
 	/** The result of the call. */
     private Object		result;
     
@@ -123,6 +122,43 @@ public class TagsLoader
             		r.put(userID, value);
 				}
             	result = r;
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
+     * user.
+     * 
+     * @param userID	The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadExistingDataCall(final long userID)
+    {
+        return new BatchCall("Loading tags.") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+            	//result = os.loadTagsContainer(id, images, userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the tagSets owned by the passed
+     * user.
+     * 
+     * @param level   The level of tags to retrieve.
+     * @param userID  The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadExistingTagsCall(final int level, final long userID)
+    {
+        return new BatchCall("Loading tags.") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+            	result = os.loadTags(level, userID);
             }
         };
     }
@@ -207,6 +243,16 @@ public class TagsLoader
 		}
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param id		The id of the parent the tags are related to, or 
+	 * 					<code>-1</code>.
+	 * @param index 	One of the constants defined by this class.
+	 * @param images	Pass <code>true</code> to load the images related 
+	 * 					to the tags, <code>false</code> otherwise.
+	 * @param userID	The id of the user who owns the tags or tag sets.
+	 */
 	public TagsLoader(int index, Map<Long, List> nodes)
 	{
 		switch (index) {
@@ -218,6 +264,18 @@ public class TagsLoader
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
+		}
+	}
+	
+	public TagsLoader(int level, long userID)
+	{
+		switch (level) {
+			case LEVEL_TAG:
+			case LEVEL_TAG_SET:
+				loadCall = loadExistingTagsCall(level, userID);
+				break;
+			case LEVEL_ALL:
+				loadCall = loadExistingDataCall(userID);
 		}
 	}
 	

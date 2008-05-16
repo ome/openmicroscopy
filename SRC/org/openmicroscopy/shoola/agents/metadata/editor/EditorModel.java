@@ -67,6 +67,7 @@ import pojos.PermissionData;
 import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
+import pojos.TagAnnotationData;
 
 /** 
  * 
@@ -114,6 +115,9 @@ class EditorModel
     
     /** Collection of existing tags if any. */
     private Collection				existingTags;
+    
+    /** Collection of existing tags if any. */
+    private Collection				existingTagSets;
     
     /** Collection of existing attachments if any. */
     private Collection				existingAttachments;
@@ -231,7 +235,9 @@ class EditorModel
 		else if (refObject instanceof DatasetData)
 			return ((DatasetData) refObject).getName();
 		else if (refObject instanceof ProjectData)
-		return ((ProjectData) refObject).getName();
+			return ((ProjectData) refObject).getName();
+		else if (refObject instanceof TagAnnotationData)
+			return ((TagAnnotationData) refObject).getTagValue();
 		return "";
 	}
 	
@@ -247,7 +253,7 @@ class EditorModel
 		else if (refObject instanceof DatasetData)
 			return ((DatasetData) refObject).getDescription();
 		else if (refObject instanceof ProjectData)
-		return ((ProjectData) refObject).getDescription();
+			return ((ProjectData) refObject).getDescription();
 		return "";
 	}
 	
@@ -741,7 +747,10 @@ class EditorModel
 	/** Fires an asynchronous retrieval of existing tags. */
 	void loadExistingTags()
 	{
-		TagsLoader loader = new TagsLoader(component);
+		int level = TagsLoader.LEVEL_TAG;
+		if (getRefObject() instanceof TagAnnotationData)
+			level = TagsLoader.LEVEL_TAG_SET;
+		TagsLoader loader = new TagsLoader(component, level);
 		loader.load();
 		loaders.add(loader);
 	}

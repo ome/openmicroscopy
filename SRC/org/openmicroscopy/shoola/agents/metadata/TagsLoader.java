@@ -31,7 +31,7 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.TagAnnotationData;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 
 /** 
  * Loads the existing tags.
@@ -52,18 +52,51 @@ public class TagsLoader
 	extends EditorLoader
 {
 
+	/** Indicates to retrieve the tags. */
+	public static final int LEVEL_TAG = MetadataHandlerView.LEVEL_TAG;
+	
+	/** Indicates to retrieve the tag sets. */
+	public static final int LEVEL_TAG_SET = MetadataHandlerView.LEVEL_TAG_SET;
+
+	/** Indicates to retrieve the tag sets and the tags. */
+	public static final int LEVEL_ALL = MetadataHandlerView.LEVEL_ALL;
+	
     /** Handle to the async call so that we can cancel it. */
     private CallHandle	handle;
+    
+    /** One of the constants defined by this class. */
+    private int			level;
+    
+    /** 
+     * Checks the passed level is supported
+     * 
+     * @param value The value to control.
+     */
+    private void checkLevel(int value)
+    {
+    	switch (value) {
+			case LEVEL_TAG:
+			case LEVEL_TAG_SET:
+			case LEVEL_ALL:
+				break;
+	
+			default:
+				throw new IllegalArgumentException("Level not supported.");
+		}
+    }
     
 	 /**	
      * Creates a new instance.
      * 
      * @param viewer 	The viewer this data loader is for.
      *               	Mustn't be <code>null</code>.
+     * @param level		One of the constants defined by this class.
      */
-    public TagsLoader(Editor viewer)
+    public TagsLoader(Editor viewer, int level)
     {
     	 super(viewer);
+    	 checkLevel(level);
+    	 this.level = level;
     }
     
 	/** 
@@ -73,8 +106,7 @@ public class TagsLoader
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, null,
-												userID, this);
+		handle = mhView.loadExistingTags(level, userID, this);
 	}
 	
 	/** 
@@ -91,7 +123,15 @@ public class TagsLoader
     {
     	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	//viewer.setMetadata(refNode, result);
-    	viewer.setExistingTags((Collection) result);
+    	switch (level) {
+			case LEVEL_TAG:
+			case LEVEL_TAG_SET:
+				viewer.setExistingTags((Collection) result);
+				break;
+	
+			case LEVEL_ALL:
+				break;
+		}
     } 
 	
 }

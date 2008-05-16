@@ -55,6 +55,15 @@ import pojos.DataObject;
 public interface OmeroMetadataService
 {
 
+	/** Indicates to retrieve the tags. */
+	public static final int LEVEL_TAG = 0;
+	
+	/** Indicates to retrieve the tag sets. */
+	public static final int LEVEL_TAG_SET = 1;
+	
+	/** Indicates to retrieve the tag sets and the tags. */
+	public static final int LEVEL_ALL = 2;
+	
 	/**
 	 * Retrieves the textual annotations
 	 * 
@@ -462,6 +471,22 @@ public interface OmeroMetadataService
 	 */
 	public Collection loadTagSetsContainer(Long id, boolean images,
 										long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Loads the tags linked to images or without links if the passed level
+	 * equals {@link #LEVEL_TAG}, loads the tags linked to other tags or without
+	 * links if the passed level is {@link #LEVEL_TAG_SET}.
+	 * 
+	 * @param level  Either {@link #LEVEL_TAG} or {@link #LEVEL_TAG_SET}.
+	 * @param userID The id of the user who owns the tag or tag sets.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection loadTags(int level, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

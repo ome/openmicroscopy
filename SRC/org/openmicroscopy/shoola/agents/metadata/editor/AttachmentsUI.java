@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -65,6 +66,7 @@ import javax.swing.JTextArea;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JViewport;
+import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -773,6 +775,15 @@ class AttachmentsUI
 		repaint();
 	}
 	
+	/** Sets the title of the components. */
+	private void setNodesTitle()
+	{
+		int n = model.getAttachmentsCount()-removedFiles.size();
+		title = TITLE+LEFT+n+RIGHT;
+		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -784,7 +795,6 @@ class AttachmentsUI
 		title = TITLE;
 		initComponents();
 		border = new TitledLineBorder(title, getBackground());
-		//setBorder(border);
 		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
 		add(layoutContent());
@@ -941,14 +951,6 @@ class AttachmentsUI
 	protected void buildUI()
 	{
 		clearDisplay();
-		/*
-		removeAll();
-		int n = model.getAttachmentsCount()-removedFiles.size();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
-		UIUtilities.setBoldTitledBorder(title, this);
-		getCollapseComponent().setBorder(border);
-		*/
 		int n = model.getAttachmentsCount()-removedFiles.size();
 		if (n > 0) add(layoutAttachments());
 		add(layoutContent());
@@ -1021,9 +1023,7 @@ class AttachmentsUI
 	protected void clearDisplay() 
 	{
 		removeAll();
-		int n = model.getAttachmentsCount()-removedFiles.size();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
+		setNodesTitle();
 	}
 	
 	/**

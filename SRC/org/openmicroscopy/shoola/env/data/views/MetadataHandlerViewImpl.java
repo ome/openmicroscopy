@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
@@ -307,6 +308,17 @@ class MetadataHandlerViewImpl
 								AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DataObjectSaver(parent, data, children);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadExistingTags(int, long, AgentEventListener)
+	 */
+	public CallHandle loadExistingTags(int level, long userID, 
+			                         AgentEventListener observer)
+	{
+		BatchCallTree cmd = new TagsLoader(level, userID);
 		return cmd.exec(observer);
 	}
 	

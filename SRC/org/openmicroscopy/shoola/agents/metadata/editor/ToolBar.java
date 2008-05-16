@@ -44,6 +44,7 @@ import javax.swing.JToolBar;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
+import pojos.TagAnnotationData;
 
 /** 
  * The tool bar of the editor.
@@ -277,7 +278,8 @@ class ToolBar
     	} else annotation.removeAll();
     	JLabel label;
     	int n = model.getTextualAnnotationCount();
-    	if (n > 0) {
+    	Object refObject = model.getRefObject();
+    	if (n > 0  && !(refObject instanceof TagAnnotationData)) {
     		label = UIUtilities.setTextFont(AnnotationUI.LEFT
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.ANNOTATION));

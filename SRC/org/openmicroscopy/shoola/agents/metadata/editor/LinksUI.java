@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -52,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -364,6 +366,15 @@ class LinksUI
 		return false;
 	}
 	
+	/** Sets the title of the components. */
+	private void setNodesTitle()
+	{
+		int n = model.getUrlsCount()-toRemove.size();
+		title = TITLE+LEFT+n+RIGHT;
+		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -435,9 +446,7 @@ class LinksUI
 	protected void buildUI()
 	{
 		removeAll();
-		int n = model.getUrlsCount()-toRemove.size();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
+		setNodesTitle();
 		getCollapseComponent().setBorder(border);
 		add(layoutURL());
 		add(Box.createVerticalStrut(5));
@@ -577,9 +586,7 @@ class LinksUI
 		clearData();
 		removeAll();
 		addedContent.removeAll();
-		int n = model.getUrlsCount()-toRemove.size();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
+		setNodesTitle();
 	}
 	
 	/**

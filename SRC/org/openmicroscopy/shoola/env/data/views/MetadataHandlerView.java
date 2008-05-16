@@ -33,6 +33,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -55,6 +56,15 @@ public interface MetadataHandlerView
 	extends DataServicesView
 {
 
+	/** Indicates to retrieve the tags. */
+	public static final int LEVEL_TAG = TagsLoader.LEVEL_TAG;
+	
+	/** Indicates to retrieve the tag sets. */
+	public static final int LEVEL_TAG_SET = TagsLoader.LEVEL_TAG_SET;
+
+	/** Indicates to retrieve the tag sets and the tags. */
+	public static final int LEVEL_ALL = TagsLoader.LEVEL_ALL;
+	
 	/**
 	 * Loads the tags related to the object identified the the passed type
 	 * and ID. Retrieves the tags created by the specified user if the 
@@ -319,4 +329,6 @@ public interface MetadataHandlerView
 	public CallHandle createDataObject(DataObject parent, DataObject data,
 							Collection children, AgentEventListener observer);
 	
+	public CallHandle loadExistingTags(int level, long userID, 
+			                  AgentEventListener observer);
 }

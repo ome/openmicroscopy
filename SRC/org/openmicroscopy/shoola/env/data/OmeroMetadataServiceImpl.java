@@ -40,9 +40,12 @@ import java.util.Set;
 import org.apache.commons.collections.ListUtils;
 
 //Application-internal dependencies
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.TagAnnotation;
 import ome.model.core.OriginalFile;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -100,6 +103,59 @@ class OmeroMetadataServiceImpl
 	}
 	
 	/**
+	 * Updates the passed annotation.
+	 * 
+	 * @param ann The annotation to update.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	private void updateAnnotationData(DataObject ann)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		long id;
+		Class ioType;
+		IObject ho;
+		IObject link = null;
+		
+		if (ann instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) ann;
+			TextualAnnotationData description = tag.getTagDescription();
+			if (description != null) {
+				id = tag.getId();
+				if (id >= 0) {
+					List links = gateway.findAnnotationLinks(Annotation.class, 
+							                      id, null);
+					if (links != null) {
+						Iterator i = links.iterator();
+						long userID = getUserDetails().getId();
+						AnnotationAnnotationLink aaLink;
+						List<IObject> toRemove = new ArrayList<IObject>(); 
+						while (i.hasNext()) {
+							aaLink = (AnnotationAnnotationLink) i.next();
+							ho = aaLink.getChild();
+							if (ho.getDetails().getOwner().getId() == userID) {
+								toRemove.add(ho);
+								gateway.deleteObject(aaLink);
+							}
+						}
+						i = toRemove.iterator();
+						while (i.hasNext()) {
+							gateway.deleteObject((IObject) i.next());
+						}
+					}
+				}	
+				ioType = gateway.convertPojos(TagAnnotationData.class);
+				ho = gateway.findIObject(ioType, id);
+				link = ModelMapper.createAnnotation(ho, description);
+				if (link != null) 
+					gateway.createObject(link, (new PojoOptions()).map());
+			}
+		}
+		
+	}
+	
+	/**
 	 * Clears the passed annotations linked to the annotation 
 	 * specifed by the id.
 	 * 
@@ -110,7 +166,7 @@ class OmeroMetadataServiceImpl
 	 * retrieve data from OMEDS service. 
 	 */
 	private void clearAnnotationAnnotationLink(long parentID, 
-										List childrenAnnotations)
+			                                 List childrenAnnotations)
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (childrenAnnotations == null || 
@@ -250,19 +306,29 @@ class OmeroMetadataServiceImpl
 		return result;
 	}
 
+	private TagAnnotationData loadTagDescription(TagAnnotationData tag, 
+			                                    long userID)
+	    throws DSOutOfServiceException, DSAccessException 
+	{
+		Collection descriptions;
+		descriptions = loadTextualAnnotations(TagAnnotationData.class, 
+				                              tag.getId(), userID);
+		if (descriptions != null && descriptions.size() > 0)
+		tag.setTagDescriptions((List) descriptions);
+		return tag;
+	}
+	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadStructuredData(DataObject, long)
 	 */
 	public StructuredDataResults loadStructuredData(DataObject object, 
-													long userID) 
-		throws DSOutOfServiceException, DSAccessException 
+			                                        long userID) 
+	    throws DSOutOfServiceException, DSAccessException 
 	{
 		if (object == null)
 			throw new IllegalArgumentException("Object not valid.");
 		StructuredDataResults results = new StructuredDataResults(object);
-		
-		
 		Collection annotations = loadStructuredAnnotations(object.getClass(),
 													object.getId(), userID);
 		if (annotations != null && annotations.size() > 0) {
@@ -273,31 +339,49 @@ class OmeroMetadataServiceImpl
 			List<AnnotationData> ratings = new ArrayList<AnnotationData>();
 			Iterator i = annotations.iterator();
 			AnnotationData data;
-			Collection descriptions;
+			long id;
+			TagAnnotationData tag;
+			FileAnnotation fa;
+			boolean isChild = true;
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
 				if (data instanceof URLAnnotationData)
 					urls.add(data);
 				else if (data instanceof TextualAnnotationData)
 					texts.add(data);
-				else if (data instanceof TagAnnotationData) {
-					long id = data.getId();
-					descriptions = loadTextualAnnotations(
-							TagAnnotationData.class, id, userID);
-					TagAnnotationData tag = (TagAnnotationData) data;
-					if (descriptions != null && descriptions.size() > 0)
-					tag.setTagDescriptions(
-									(List<TextualAnnotationData>) descriptions);
-					tags.add(tag);
+				else if ((data instanceof TagAnnotationData)) {
+					System.err.println(data.getContentAsString());
+					if (!(object instanceof TagAnnotationData)) {
+						tag = loadTagDescription((TagAnnotationData) data, 
+				                userID);
+						tags.add(tag);
+					} else isChild = false;
+					
 					//need to load the description
 				} else if (data instanceof RatingAnnotationData)
 					ratings.add(data);
 				else if (data instanceof FileAnnotationData) {
-					FileAnnotation fa = (FileAnnotation) data.asAnnotation();
-					long id = fa.getFile().getId();
+					fa = (FileAnnotation) data.asAnnotation();
+					id = fa.getFile().getId();
 					((FileAnnotationData) data).setContent(
 							gateway.getOriginalFile(id));
 					attachments.add(data);
+				}
+			}
+			if ((object instanceof TagAnnotationData) && isChild) {
+				List<Long> ids = new ArrayList<Long>();
+				ids.add(object.getId());
+				Collection r = gateway.fetchAnnotations(ids, userID, true);
+				if (r != null) {
+					i = r.iterator();
+					while (i.hasNext()) {
+						data = (AnnotationData) i.next();
+						if (data instanceof TagAnnotationData) {
+							tag = loadTagDescription((TagAnnotationData) data, 
+					                userID);
+			                tags.add(tag);
+						}
+					}
 				}
 			}
 			results.setTextualAnnotations(texts);
@@ -352,18 +436,35 @@ class OmeroMetadataServiceImpl
 			throw new IllegalArgumentException("DataObject cannot be null");
 		Class ioType = gateway.convertPojos(type);
 		IObject ho = gateway.findIObject(ioType, id);
-		IObject link = null;
+		ILink link = null;
 		boolean exist = false;
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
-			if (tag.getId() < 0) 
-				link = ModelMapper.createAnnotation(ho, annotation);
-			else {
-				link = gateway.findAnnotationLink(ho, tag.getId());
-				if (link == null)
-					link = ModelMapper.linkAnnotation(ho, tag.asIObject());
-				else exist = true;
+			//tag a tag
+			if (TagAnnotationData.class.equals(type)) {
+				if (tag.getId() < 0) {
+					TagAnnotation ann = new TagAnnotation();
+		    		ann.setTextValue(tag.getContentAsString());
+		    		link = ModelMapper.linkAnnotation(ann, ho);
+				} else {
+					link = (ILink) gateway.findAnnotationLink(
+							AnnotationData.class, tag.getId(), ho.getId());
+					if (link == null) 
+						link = ModelMapper.linkAnnotation(tag.asIObject(), ho);
+				}
+				
+			} else {
+				if (tag.getId() < 0) 
+					link = ModelMapper.createAnnotation(ho, annotation);
+				else {
+					link = (ILink) gateway.findAnnotationLink(ho.getClass(), 
+														ho.getId(), tag.getId());
+					if (link == null)
+						link = ModelMapper.linkAnnotation(ho, tag.asIObject());
+					else exist = true;
+				}
 			}
+			
 				
 		} else if (annotation instanceof RatingAnnotationData) {
 			//only one annotation of type rating.
@@ -392,6 +493,7 @@ class OmeroMetadataServiceImpl
 			if (exist) object = link;
 			else object = gateway.createObject(link, map);
 			if (annotation instanceof TagAnnotationData) {
+				//Add description to the object.
 				TagAnnotationData tag = (TagAnnotationData) annotation;
 				TextualAnnotationData description = tag.getTagDescription();
 				if (description != null) {
@@ -508,8 +610,8 @@ class OmeroMetadataServiceImpl
 		if (object == null)
 			throw new IllegalArgumentException("No objec to handle.");
 		IObject ho = gateway.findIObject(annotation.asIObject());
-		IObject link = gateway.findAnnotationLink(object.asIObject(), 
-						ho.getId());
+		IObject link = gateway.findAnnotationLink(object.getClass(), 
+				                         object.getId(), ho.getId());
 		if (ho != null && link != null) {
 			gateway.deleteObject(link);
 			gateway.deleteObject(ho);
@@ -528,13 +630,15 @@ class OmeroMetadataServiceImpl
 		if (annotation == null)
 			throw new IllegalArgumentException("No annotation to remove.");
 		if (objects == null || objects.size() == 0)
-			throw new IllegalArgumentException("No objec to handle.");
+			throw new IllegalArgumentException("No object to handle.");
 		IObject ho = gateway.findIObject(annotation.asIObject());
 		List<IObject> links = new ArrayList<IObject>();
 		Iterator i = objects.iterator();
+		DataObject object;
 		while (i.hasNext()) {
-			links.add(gateway.findAnnotationLink(
-					((DataObject) i.next()).asIObject(), ho.getId()));
+			object = (DataObject) i.next();
+			links.add(gateway.findAnnotationLink(object.getClass(), 
+					                   object.getId(), ho.getId()));
 		}
 		i = links.iterator();
 		while (i.hasNext()) {
@@ -570,7 +674,7 @@ class OmeroMetadataServiceImpl
 	 * @see OmeroMetadataService#loadStructuredAnnotations(Class, long, long)
 	 */
 	public Collection loadStructuredAnnotations(Class type, long id, 
-												long userID)
+			                                    long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (id < 0)
@@ -622,11 +726,10 @@ class OmeroMetadataServiceImpl
 	 * @see OmeroMetadataService#loadAnnotations(Class, Class, long)
 	 */
 	public Collection loadAnnotations(Class annotationType, Class objectType, 
-									long objectID, long userID) 
+			                         long objectID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Collection c = gateway.fetchAnnotation(annotationType, objectType,
-											objectID);
+		Collection c = gateway.fetchAnnotation(objectID, userID);
 		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
 		if (c == null || c.size() == 0) return annotations;
 		Iterator i = c.iterator();
@@ -644,18 +747,17 @@ class OmeroMetadataServiceImpl
 				}
 				annotations.add(data);
 			}
-				
 		}	
 		return annotations;
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#saveData(Collection, List, List, long)
 	 */
 	public Object saveData(Collection<DataObject> data, 
-				List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-				long userID) 
+			        List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+			        long userID) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -664,9 +766,12 @@ class OmeroMetadataServiceImpl
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		DataObject object;
+		System.err.println("save");
 		while (j.hasNext()) {
 			object = j.next();
-			service.updateDataObject(object);
+			if (object instanceof AnnotationData) {
+				updateAnnotationData(object);
+			} else service.updateDataObject(object);
 			
 			if (toAdd != null) {
 				i = toAdd.iterator();
@@ -1095,6 +1200,114 @@ class OmeroMetadataServiceImpl
 	{
 		if (images) return gateway.loadTagAndImages(id, images);
 		return loadAnnotations(TagAnnotationData.class, null, id, userID);
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#loadTags(int, long)
+	 */
+	public Collection loadTags(int tagLevel, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
+		Collection c = loadAnnotations(TagAnnotationData.class, null, -1, 
+										userID);
+//		All the tags.
+		Iterator i;
+		Long id;
+		List links;
+		ILink link;
+		TagAnnotationData tag;
+		List<Long> ids = new ArrayList<Long>();
+		Map<Long, TagAnnotationData> 
+		     map = new HashMap<Long, TagAnnotationData>(); 
+		i = c.iterator();
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			ids.add(tag.getId());
+			map.put(tag.getId(), tag);
+		}
+		switch (tagLevel) {
+			case OmeroMetadataService.LEVEL_TAG:
+				links = gateway.findAnnotationLinks(ImageData.class, -1, ids);
+				if (links != null) {
+					i = links.iterator();
+					while (i.hasNext()) {
+						link = (ILink) i.next();
+						id = link.getChild().getId();
+						tag = map.get(id);
+						if (tag != null) {
+							map.remove(id);
+							ids.remove(id);
+							annotations.add(tag);
+						}
+					}
+				}
+				//Need to retrieve the one not linked.
+				if (map.size() > 0) {
+					links = gateway.findlinkedTags(ids, true);
+					if (links != null) {
+						i = links.iterator();
+						while (i.hasNext()) {
+							link = (ILink) i.next();
+							id = link.getChild().getId();
+							tag = map.get(id);
+							if (tag != null) {
+								map.remove(id);
+							} else {
+								id = link.getParent().getId();
+								tag = map.get(id);
+								if (tag != null) map.remove(id);
+							}
+						}
+					}
+					if (map.size() > 0) {
+						i = map.keySet().iterator();
+						while (i.hasNext()) {
+							tag = map.get(i.next());
+							annotations.add(tag);
+						}
+					}
+				}
+				break;
+			case OmeroMetadataService.LEVEL_TAG_SET:
+				links = gateway.findlinkedTags(ids, false);
+				//find the tag containing tags.
+				if (links != null) {
+					i = links.iterator();
+					while (i.hasNext()) {
+						link = (ILink) i.next();
+						id = link.getParent().getId();
+						tag = map.get(id);
+						if (tag != null) {
+							map.remove(id);
+							ids.remove(id);
+							annotations.add(tag);
+						}
+					}
+				}
+				//find tag linked to images.
+				links = gateway.findAnnotationLinks(ImageData.class, -1, ids);
+				if (links != null) {
+					i = links.iterator();
+					while (i.hasNext()) {
+						link = (ILink) i.next();
+						id = link.getChild().getId();
+						tag = map.get(id);
+						if (tag != null) 
+							map.remove(id);
+					}
+				}
+				if (map.size() > 0) {
+					i = map.keySet().iterator();
+					while (i.hasNext()) {
+						tag = map.get(i.next());
+						annotations.add(tag);
+					}
+				}
+				break;
+		}
+		return annotations;
 	}
 	
 }

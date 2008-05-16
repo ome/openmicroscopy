@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import pojos.AnnotationData;
+import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
 
@@ -233,8 +236,6 @@ class TextualAnnotationsUI
 		p.setLayout(layout);
 		p.add(UIUtilities.setTextFont("Comment"), "0, 0, l, c");
 		p.add(new JScrollPane(area), "2, 0, 2, 1");
-		
-		
 		return p;
 	}
 	
@@ -348,9 +349,12 @@ class TextualAnnotationsUI
 	/** Sets the title of the components. */
 	private void setNodesTitle()
 	{
-		int n = model.getTextualAnnotationCount()-toRemove.size();
+		int n = 0;
+		if (model.getRefObject() instanceof TagAnnotationData) n = 0;
+		else n = model.getTextualAnnotationCount()-toRemove.size();
 		title = TITLE+LEFT+n+RIGHT;
 		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**
@@ -475,6 +479,7 @@ class TextualAnnotationsUI
 	 */
 	protected boolean hasDataToSave()
 	{
+		if (model.getRefObject() instanceof TagAnnotationData) return false;
 		List<AnnotationData> l = getAnnotationToRemove();
 		if (l.size() > 0) return true;
 		String text = area.getText();

@@ -48,6 +48,7 @@ import javax.swing.event.DocumentListener;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.MultilineLabel;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
@@ -59,6 +60,8 @@ import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * Displays the properties of the selected object.
@@ -398,7 +401,30 @@ class PropertiesUI
         	nameArea.getDocument().addDocumentListener(this);
     		descriptionArea.getDocument().addDocumentListener(this);
         }
+        if (model.getRefObject() instanceof TagAnnotationData) {
+        	nameArea.getDocument().removeDocumentListener(this);
+        	nameArea.setEnabled(false);
+        }
         buildGUI();
+	}
+	
+	/** Sets the description of the object if the object is a tag annotation. */
+	void setObjectDescription()
+	{
+		if (!(model.getRefObject() instanceof TagAnnotationData))  return;
+		boolean b = model.isCurrentUserOwner(model.getRefObject());
+		if (b)
+			descriptionArea.getDocument().removeDocumentListener(this);
+		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
+		long userID = MetadataViewerAgent.getUserDetails().getId();
+		List l = annotations.get(userID);
+		if (l != null && l.size() > 0) {
+			TextualAnnotationData data = (TextualAnnotationData) l.get(0);
+			descriptionArea.setText(data.getText());
+			originalDescription = descriptionArea.getText();
+		}
+		if (b)
+			descriptionArea.getDocument().addDocumentListener(this);
 	}
 	
     /** Sets the focus on the name area. */
@@ -426,6 +452,9 @@ class PropertiesUI
 			if (name.length() > 0)
 				p.setName(name);
 			p.setDescription(desc);
+		} else if (object instanceof TagAnnotationData) {
+			TagAnnotationData p = (TagAnnotationData) object;
+			p.setTagDescription(desc);
 		}
 	}
 	

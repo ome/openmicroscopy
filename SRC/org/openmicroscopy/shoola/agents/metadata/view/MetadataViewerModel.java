@@ -166,7 +166,7 @@ class MetadataViewerModel
 	 */
 	Collection<DataObject> getSiblings()
 	{ 
-		if (siblings == null) return new ArrayList<DataObject>();
+		if (siblings == null) siblings = new ArrayList<DataObject>();
 		return siblings; 
 	}
 	
@@ -402,7 +402,7 @@ class MetadataViewerModel
 	 */
 	Collection getVisibleImages()
 	{ 
-		if (visibleImages == null) return new ArrayList();
+		if (visibleImages == null) visibleImages = new ArrayList();
 		return visibleImages; 
 	}
 	

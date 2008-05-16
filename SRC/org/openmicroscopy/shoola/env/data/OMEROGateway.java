@@ -40,6 +40,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
@@ -90,8 +91,10 @@ import ome.system.EventContext;
 import ome.system.Login;
 import ome.system.Server;
 import ome.system.ServiceFactory;
+import ome.system.UpgradeCheck;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
+import pojos.AnnotationData;
 import pojos.ArchivedAnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -101,6 +104,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -135,11 +139,18 @@ class OMEROGateway
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<Character>	SUPPORTED_SPECIAL_CHAR;
 	
+	/** The collection of escaping characters we allow in the search. */
+	private static final List<String>		WILD_CARDS;
+	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character('['));
 		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
+		
+		WILD_CARDS = new ArrayList<String>();
+		WILD_CARDS.add("*");
+		WILD_CARDS.add("?");
 	}
 	
 	/**
@@ -265,6 +276,16 @@ class OMEROGateway
 		else if (klass.equals(Image.class)) table = "ImageAnnotationLink";
 		else if (klass.equals(Pixels.class)) table = "PixelAnnotationLink";
 		else if (klass.equals(Annotation.class))
+			table = "AnnotationAnnotationLink";
+		else if (klass.equals(DatasetData.class)) 
+			table = "DatasetAnnotationLink";
+		else if (klass.equals(ProjectData.class)) 
+			table = "ProjectAnnotationLink";
+		else if (klass.equals(ImageData.class)) 
+			table = "ImageAnnotationLink";
+		else if (klass.equals(PixelsData.class)) 
+			table = "PixelAnnotationLink";
+		else if (klass.equals(AnnotationData.class))
 			table = "AnnotationAnnotationLink";
 		return table;
 	}
@@ -676,6 +697,25 @@ class OMEROGateway
 		return formattedTerms;
 	}
 	
+	
+	/**
+	 * Returns <code>true</code> if the specified value starts with a wild card,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	private boolean startWithWildCard(String value)
+	{
+		if (value == null) return false;
+		Iterator<String> i = WILD_CARDS.iterator();
+		while (i.hasNext()) {
+			if (value.startsWith(i.next())) return true;
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -761,6 +801,22 @@ class OMEROGateway
 	}
 
 	/**
+	 * Returns <code>true</code> if an upgrade is required, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isUpgradeRequired()
+	{
+		ResourceBundle bundle = ResourceBundle.getBundle("omero");
+	    String version = bundle.getString("omero.version");
+	    String url = bundle.getString("omero.upgrades.url");
+	    UpgradeCheck check = new UpgradeCheck(url, version, "insight"); 
+	    check.run();
+	    return check.isUpgradeNeeded();
+	}
+	
+	/**
 	 * Tries to connect to <i>OMERO</i> and log in by using the supplied
 	 * credentials.
 	 * 
@@ -803,6 +859,10 @@ class OMEROGateway
 		throws DSOutOfServiceException
 	{
 		try {
+			logout();
+			thumbnailService = null;
+			thumbRetrieval = 0;
+			fileStore = null;
 			entry = new ServiceFactory(server, login); 
 			connected = true;
 		} catch (Throwable e) {
@@ -1411,19 +1471,19 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	IObject findAnnotationLink(IObject parent, long childID)
+	IObject findAnnotationLink(Class type, long parentID, long childID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			IQuery service = getQueryService();
-			String table = getTableForAnnotationLink(parent.getClass());
+			String table = getTableForAnnotationLink(type);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
 			"link.parent.id = :parentID"; 
 			
 			Parameters param = new Parameters();
-			param.addLong("parentID", parent.getId());
+			param.addLong("parentID", parentID);
 			if (childID >= 0) {
 				sql += " and link.child.id = :childID";
 				param.addLong("childID", childID);
@@ -1432,7 +1492,7 @@ class OMEROGateway
 			return service.findByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
-					"parent ID: "+parent.getId()+" and child " +
+					"parent ID: "+parentID+" and child " +
 					"ID: "+childID);
 		}
 		return null;
@@ -1458,19 +1518,69 @@ class OMEROGateway
 			IQuery service = getQueryService();
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
-			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID"; 
-			
+			String sql = "select link from "+table+" as link";
 			Parameters param = new Parameters();
-			param.addLong("parentID", parentID);
-			if (children == null || children.size() == 0) {
-				sql += " and link.child.id in (:childIDs)";
-				param.addList("childIDs", children);
+			if (parentID > 0) {
+				sql += " where link.parent.id = :parentID";
+				if (children != null && children.size() > 0) {
+					sql += " and link.child.id in (:childIDs)";
+					param.addList("childIDs", children);
+				}
+				param.addLong("parentID", parentID);
+			} else {
+				if (children != null && children.size() > 0) {
+					sql += " where link.child.id in (:childIDs)";
+					param.addList("childIDs", children);
+				}
 			}
 			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the annotation links for "+
 					"parent ID: "+parentID);
+		}
+		return null;
+	}	
+	
+	/**
+	 * Finds the link if any between the specified parent and child.
+	 * 
+	 * @param ids   The ids of either the parent or the child.
+	 * @param union
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	List findlinkedTags(List<Long> ids, boolean union)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			if (ids == null) return null;
+			IQuery service = getQueryService();
+			String table = getTableForAnnotationLink(Annotation.class);
+			if (table == null) return null;
+			Parameters param = new Parameters();
+			param.addList("ids", ids);
+			List r = null;
+			String sql = "select link from "+table+" as link";
+			if (union) {
+				sql += " where link.child.id in (:ids)";
+				r = service.findAllByQuery(sql, param);
+				sql = "select link from "+table+" as link";
+				sql += " where link.parent.id in (:ids)";
+				r.addAll(service.findAllByQuery(sql, param));
+			} else {
+				//param.addList("parentIds", ids);
+				sql += " where link.child.id in (:ids) and";
+				sql += " link.parent.id in (:ids)";
+				r = service.findAllByQuery(sql, param);
+			}
+			
+			return r;
+		} catch (Throwable t) {
+			t.printStackTrace();
+			handleException(t, "Cannot retrieve the annotation links");
 		}
 		return null;
 	}	
@@ -2790,30 +2900,17 @@ class OMEROGateway
 	 * Searches for the categories whose name contains the passed term.
 	 * Returns a collection of objects.
 	 * 
-	 * @param annotationType 	The class identifying the annotation to 
-	 * 							search for.
-	 * @param type 				The class identifying the object to search for.
-	 * @param id				The id of the parent annotation.
+	 * @param id				The id of the annotation.
+	 * @param userID			The id of the user the annotations are for.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Set fetchAnnotation(Class annotationType, Class type, long id)
-		throws DSOutOfServiceException, DSAccessException
+	Set fetchAnnotation(long id, long userID)
+	    throws DSOutOfServiceException, DSAccessException
 	{
-		/*
-		Search service = getSearchService();
-		Class[] object = new Class[1];
-		object[0] = convertPojos(annotationType);
-		service.onlyType(Dataset.class);
-		service.fetchAnnotations(object);
-		if (!service.hasNext()) return new ArrayList();
-		if (type != null) {
-			
-		}
-		*/
 		isSessionAlive();
 		try {
 			IQuery service = getQueryService();
@@ -2821,9 +2918,55 @@ class OMEROGateway
 			String sql =  "select ann from Annotation as ann "
                 + "left outer join fetch ann.details.creationEvent "
                 + "left outer join fetch ann.details.owner";
-			if (id >= 0) {
+			if (id >= 0 && userID >= 0) {
+				sql += " where ann.id = :id and ann.details.owner.id = :uid";
+				param.addLong("id", id);
+				param.addLong("uid", userID);
+			} else if (id < 0 && userID >= 0) {
+				sql += " where ann.details.owner.id = :uid";
+				param.addLong("uid", userID);
+			} else if (id >= 0 && userID < 0) {
 				sql += " where ann.id = :id";
 				param.addLong("id", id);
+			}
+			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the annotations");
+		}
+		return null;
+	}
+	
+	Set fetchAnnotations(List<Long> ids, long userID, boolean asChild)
+	    throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			if (ids == null || ids.size() == 0) return null;
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addList("ids", ids);
+			String sql =  "select ann from Annotation as ann "
+				+ "left outer join ann.annotationLinks link "
+                + "left outer join fetch ann.details.creationEvent "
+                + "left outer join fetch ann.details.owner";
+			
+			if (asChild) sql += " where link.child.id in (:ids)";
+			else sql += " where link.parent.id in (:ids)";
+			/*
+			String sql =  "select link from AnnotationAnnotationLink as link "
+			        + "left outer join fetch link.details.owner";
+				
+			if (asChild) {
+				sql += " left outer join fetch link.child child "
+				+ "left outer join fetch child.details.creationEvent "
+                + "left outer join fetch child.details.owner";
+				sql += " where link.child.id in (:ids)";
+			}
+			else  sql += " where link.parent in (:ids)";
+			*/
+			if (userID >= 0) {
+				sql += "and link.details.owner.id = :uid";
+				param.addLong("uid", userID);
 			}
 			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
 		} catch (Exception e) {
@@ -2831,7 +2974,6 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;
-		//return service.results();
 	}
 	
 	/**
@@ -2977,7 +3119,6 @@ class OMEROGateway
 					id = object.getId();
 					if (!ids.contains(id)) ids.add(id);
 				} else {
-					System.err.println(object);
 					if (supportedTypes.contains(object.getClass()))
 						others.add(object);
 				}
@@ -3174,20 +3315,6 @@ class OMEROGateway
 		} catch (Exception e) {
 			dsFactory.sessionExpiredExit();
 		}
-	}
-	
-	/**
-	 * Returns <code>true</code> if the specified value starts with a wild card,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param value The value to handle.
-	 * @return See above.
-	 */
-	private boolean startWithWildCard(String value)
-	{
-		if (value == null) return false;
-		if (value.startsWith("*")) return true;
-		return false;
 	}
 	
 }

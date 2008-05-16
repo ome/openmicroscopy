@@ -48,6 +48,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Implements the {@link MetadataViewer} interface to provide the functionality
@@ -284,6 +285,7 @@ class MetadataViewerComponent
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
 			}
+			
 			dialog = new MessageBox(view, "Save Annotations", 
 									"Do you want to annotate: ");
 			JPanel p = new JPanel();
@@ -318,7 +320,7 @@ class MetadataViewerComponent
 		} else if (refObject instanceof ImageData) {
 			//Only properties to save
 			if ((toAdd.size() == 0 && toRemove.size() == 0) 
-					|| model.isSingleViewMode()) {
+				|| model.isSingleViewMode()) {
 				toSave.add(data);
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
@@ -347,7 +349,7 @@ class MetadataViewerComponent
 			if (visible > 1) {
 				group.add(all);
 				p.add(all);
-				all.setText("The visible images");
+				all.setText("The available images");
 			}
 			dialog.addBodyComponent(p);
 			int option = dialog.centerMsgBox();
@@ -366,7 +368,59 @@ class MetadataViewerComponent
 			} else if (option == MessageBox.NO_OPTION) {
 				clearDataToSave();
 			}
-		} 
+		} else if (refObject instanceof TagAnnotationData) {
+			//Only properties to save
+			if ((toAdd.size() == 0 && toRemove.size() == 0) 
+				|| model.isSingleViewMode()) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
+			}
+			
+			//Only properties to save
+			if ((toAdd.size() == 0 && toRemove.size() == 0) 
+				|| model.isSingleViewMode()) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
+			}
+			
+			if (siblings.size() <= 1) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
+			}
+			dialog = new MessageBox(view, "Save Annotations", 
+									"Do you want to annotate: ");
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton single = new JRadioButton();
+			group.add(single);
+			single.setSelected(true);
+			p.add(single);
+			String s = "The last selected tag";
+			single.setText(s);
+			JRadioButton batchAnnotation = new JRadioButton();
+			group.add(batchAnnotation);
+			p.add(batchAnnotation);
+			s = "All selected tags";
+	
+			batchAnnotation.setText(s);
+			dialog.addBodyComponent(p);
+			int option = dialog.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
+				if (siblings != null && siblings.size() > 1)
+					toSave.addAll(siblings);
+				toSave.add(data);
+				if (single.isSelected()) 
+					model.fireSaving(toAdd, toRemove, toSave);
+				else
+					model.fireBatchSaving(toAdd, toRemove, toSave);
+			} else if (option == MessageBox.NO_OPTION) {
+				clearDataToSave();
+			}
+		}
 	}
 	
 	/** 

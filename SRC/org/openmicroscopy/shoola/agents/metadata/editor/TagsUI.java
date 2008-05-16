@@ -62,6 +62,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -663,6 +664,15 @@ class TagsUI
 		selectedTags.clear();
 	}
 	
+	/** Sets the title of the components. */
+	private void setNodesTitle()
+	{
+		int n = model.getTagsCount();
+		title = TITLE+LEFT+n+RIGHT;
+		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -797,7 +807,7 @@ class TagsUI
 	        setSelectedTextValue(name.split(SearchUtil.COMMA_SEPARATOR));
 		}
 		wizard = false;
-	}
+	}	
 	
 	/**
 	 * Overridden to lay out the tags.
@@ -806,9 +816,8 @@ class TagsUI
 	protected void buildUI()
 	{
 		removeAll();
-		int n = model.getTagsCount();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
+		setNodesTitle();
+		
 		
 		//setLayout(new BorderLayout());
 		add(createExistingTagsPane());

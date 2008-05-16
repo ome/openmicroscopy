@@ -48,6 +48,7 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.TagAnnotationData;
 
 /** 
  * Component hosting the various {@link AnnotationUI} entities.
@@ -130,6 +131,9 @@ public class EditorUI
 	/** The component hosting the {@link #infoUI}. */
 	private TreeComponent 				infoTree;
 
+	/** The component hosting the {@link #commentsTree}. */
+	private TreeComponent 				commentsTree;
+	
 	/** The tool bar with various controls. */
 	private ToolBar						toolBarTop;
 	
@@ -187,6 +191,7 @@ public class EditorUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		
 		trees = new ArrayList<TreeComponent>();
 		infoUI = new ImageInfoUI(model);
 		userUI = new UserUI(model, controller);
@@ -201,7 +206,10 @@ public class EditorUI
 		textualAnnotationsUI = new TextualAnnotationsUI(model);
 		viewedByUI = new ViewedByUI(model);
 		topLeftPane = null;
-		
+		commentsTree = new TreeComponent();
+		commentsTree.insertNode(textualAnnotationsUI, 
+								textualAnnotationsUI.getCollapseComponent(),
+								false);
 		viewByTree = new TreeComponent();
 		viewByTree.setVisible(false);
 		viewByTree.insertNode(viewedByUI, viewedByUI.getCollapseComponent(),
@@ -270,13 +278,14 @@ public class EditorUI
 		boolean expanded = false;
 		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				0, h, TableLayout.PREFERRED} }; //rows
+				0, h, TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		
 		leftPane.add(viewTreePanel, "0, 1");
 		leftPane.add(infoTree, "0, 2");
 		leftPane.add(propertiesTree, "0, 3");
-		leftPane.add(left, "0, 4");
+		leftPane.add(commentsTree, "0, 4");
+		leftPane.add(left, "0, 5");
 		
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
@@ -292,8 +301,8 @@ public class EditorUI
 		
 		switch (layout) {
 			case Editor.VERTICAL_LAYOUT:
-				left.insertNode(textualAnnotationsUI, 
-						textualAnnotationsUI.getCollapseComponent(), expanded);
+				//left.insertNode(textualAnnotationsUI, 
+					//	textualAnnotationsUI.getCollapseComponent(), expanded);
 				left.insertNode(tagsUI, tagsUI.getCollapseComponent(), 
 								expanded);
 
@@ -374,7 +383,9 @@ public class EditorUI
         	toolBarBottom.setControls();
         	setDataToSave(false);
         	if (added) addTopLeftComponent(topLeftPane);
-        	if (model.getRefObject() instanceof ImageData) {
+        	Object refObject = model.getRefObject();
+        	commentsTree.setTreeEnabled(true);
+        	if (refObject instanceof ImageData) {
         		boolean count =  model.getViewedByCount() > 0;
         		viewByTree.setTreeEnabled(count);
         		if (count) {
@@ -386,6 +397,10 @@ public class EditorUI
         		}
         		if (infoUI.isExpanded())
         			controller.showImageInfo();
+        	} else if (refObject instanceof TagAnnotationData) {
+        		commentsTree.collapseNodes();
+        		propertiesUI.setObjectDescription();
+        		//commentsTree.setTreeEnabled(false);
         	}
         	toolBarTop.setDecorator();
     	}
