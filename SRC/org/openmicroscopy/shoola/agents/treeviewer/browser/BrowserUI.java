@@ -987,9 +987,8 @@ class BrowserUI
                         (DefaultTreeModel) treeDisplay.getModel());
         } else buildEmptyNode(expNode);
         Iterator j = nodesToReset.iterator();
-        while (j.hasNext()) {
-			//setExpandedParent((TreeImageDisplay) j.next(), true);
-		}
+        while (j.hasNext()) 
+			setExpandedParent((TreeImageDisplay) j.next(), true);
 	}
 
 	/**

@@ -1187,16 +1187,33 @@ class OmeroMetadataServiceImpl
 	public Collection loadTagSetsContainer(Long id, boolean images, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		//Collection of tags linked to tags.
 		Collection c = gateway.loagTagSets(userID);
+		List<Long> ids = new ArrayList<Long>();
 		Iterator i = c.iterator();
-		AnnotationData data;
-		DataObject object;
+		TagAnnotationData tag, child;
+		Set children;
+		Iterator j;
 		while (i.hasNext()) {
-			object = (AnnotationData) i.next();
-			if (object instanceof TagAnnotationData) {
-				data = (TagAnnotationData) object;
+			tag = (TagAnnotationData) i.next();
+			ids.add(tag.getId());
+			children = tag.getTags();
+			if (children != null) {
+				j = children.iterator();
+				while (j.hasNext()) {
+					child = (TagAnnotationData) j.next();
+					if (!ids.contains(child.getId()))
+						ids.add(child.getId());
+				}
 			}
-			
+		}
+		Collection allTags = loadAnnotations(TagAnnotationData.class, null, -1, 
+				                             userID);
+		i = allTags.iterator();
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			if (!ids.contains(tag.getId()))
+				c.add(tag);
 		}
 		return c;
 	}

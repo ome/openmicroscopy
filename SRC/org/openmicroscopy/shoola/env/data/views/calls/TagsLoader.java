@@ -26,9 +26,11 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -36,7 +38,13 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+
+import pojos.CategoryData;
+import pojos.CategoryGroupData;
 import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * 
@@ -87,18 +95,22 @@ public class TagsLoader
             	List containers;
             	Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
                 Object value;
-                long id = -1;
-                Iterator j;
-                Collection c;
+                Iterator j, c;
                 DataObject data;
                 List l;
+                Set children = null;
+                Long id;
+                Class klass = null;
+                Set newChildren;
                 List loaded = new ArrayList();
             	while (i.hasNext()) {
             		userID = (Long) i.next();
             		containers = nodes.get(userID);
             		if (containers == null || containers.size() == 0) {
-            			value = os.loadTagsContainer(id, false, userID);
+            			value = os.loadTagSetsContainer(-1L, false, userID);
             		} else {
+            			value = os.loadTagSetsContainer(-1L, false, userID);
+            			/*
             			l = new ArrayList();
             			j = containers.iterator();
             			while (j.hasNext()) {
@@ -118,6 +130,7 @@ public class TagsLoader
             					l.add(data);
 						}
             			value = l;
+            			*/
             		}
             		r.put(userID, value);
 				}
@@ -139,7 +152,10 @@ public class TagsLoader
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-            	//result = os.loadTagsContainer(id, images, userID);
+            	List l = new ArrayList();
+            	l.addAll(os.loadTags(LEVEL_TAG, userID));
+                l.addAll(os.loadTags(LEVEL_TAG_SET, userID));
+            	result = l;
             }
         };
     }
@@ -257,16 +273,20 @@ public class TagsLoader
 	{
 		switch (index) {
 			case LEVEL_TAG:
-				loadCall = reloadTags(nodes);
-				break;
 			case LEVEL_TAG_SET:
-				//loadCall = loadTagSetsCall(id, images, userID);
+				loadCall = reloadTags(nodes);
 				break;
 			default:
 				throw new IllegalArgumentException("Index not supported.");
 		}
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param level  One of the constants defined by this class.
+	 * @param userID The id of the user this loader is for.
+	 */
 	public TagsLoader(int level, long userID)
 	{
 		switch (level) {

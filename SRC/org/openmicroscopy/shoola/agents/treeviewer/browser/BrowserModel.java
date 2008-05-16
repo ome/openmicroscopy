@@ -350,22 +350,17 @@ class BrowserModel
      * <code>Dataset</code> and sets the state to 
      * {@link Browser#COUNTING_ITEMS}.
      * 
-     * @param ids The collection of node id.
+     * @param containers The collection of node id.
      */
-    void fireContainerCountLoading(Set ids)
+    void fireContainerCountLoading(Set containers)
     {
-    	/*
-    	Set containers;
-    	if (ids != null) containers = ids;
-    	else containers = component.getContainersWithImages();
-        if (containers.size() == 0) {
+        if (containers == null || containers.size() == 0) {
             state = Browser.READY;
             return;
         }
         //state = Browser.COUNTING_ITEMS;
         numberLoader = new ContainerCounterLoader(component, containers);
         numberLoader.load();
-        */
     }
     
     
@@ -594,8 +589,8 @@ class BrowserModel
 		if (containersManager == null)
             containersManager = new ContainersManager(indexes);
 		//state = Browser.COUNTING_ITEMS;
-        //numberLoader = new ExperimenterImagesCounter(component, expNode, n);
-        //numberLoader.load();  
+        numberLoader = new ExperimenterImagesCounter(component, expNode, n);
+        numberLoader.load();  
 	}
 	
 	/**

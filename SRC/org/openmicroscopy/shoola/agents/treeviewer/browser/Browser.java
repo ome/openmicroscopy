@@ -349,15 +349,7 @@ public interface Browser
      * @return See above.
      */
     public Set getContainersWithImagesNodes();
-    
-    /**
-     * Returns a collection of containers which contain <code>Image</code>s
-     * e.g. a <code>Dataset</code>.
-     * 
-     * @return See above.
-     */
-    public Set getContainersWithImages();
-    
+
     /**
      * Sets the nodes found corresponding to a pattern.
      * 

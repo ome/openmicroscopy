@@ -3308,9 +3308,6 @@ class OMEROGateway
 				+ "left outer join ann.annotationLinks link "
                 + "left outer join fetch ann.details.creationEvent "
                 + "left outer join fetch ann.details.owner ";
-				//+ "left outer join fetch link.child child ";
-				//+ "left outer join fetch child.details.creationEvent "
-	             //   + "left outer join fetch child.details.owner";
 			sql += " where link.parent.id member of "+type;
 			sql += " and link.child member of "+type;
 			sql += " and link.details.owner.id = :uid";

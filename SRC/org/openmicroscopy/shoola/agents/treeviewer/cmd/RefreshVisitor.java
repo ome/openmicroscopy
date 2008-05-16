@@ -113,7 +113,7 @@ public class RefreshVisitor
         	&& node.isExpanded()) {
         	parent = node.getParentDisplay();
     		if (parent.isExpanded()) 
-    			foundNodes.add((DataObject) userObject);
+    			foundNodes.add(userObject);
     		if (!(parent.getUserObject() instanceof ProjectData)) {
     			long id = ((DataObject) userObject).getId();
                 List l = expandedTopNodes.get(DatasetData.class);
@@ -123,9 +123,20 @@ public class RefreshVisitor
                 }
                 l.add(id);
     		}
-        } else if ((userObject instanceof TagAnnotationData) && 
-        		node.isChildrenLoaded() && node.isExpanded()) {
-        	
+        } else if ((userObject instanceof TagAnnotationData) 
+        		&& node.isChildrenLoaded() && node.isExpanded()) {
+        	parent = node.getParentDisplay();
+    		if (parent.isExpanded()) 
+    			foundNodes.add(userObject);
+    		if (!(parent.getUserObject() instanceof TagAnnotationData)) {
+    			long id = ((DataObject) userObject).getId();
+                List l = expandedTopNodes.get(TagAnnotationData.class);
+                if (l == null) {
+                	l = new ArrayList<Long>();
+                	expandedTopNodes.put(TagAnnotationData.class, l);
+                }
+                l.add(id);
+    		}
         	/*
         	long id = ((DataObject) userObject).getId();
             List l = expandedTopNodes.get(TagAnnotationData.class);
@@ -135,7 +146,6 @@ public class RefreshVisitor
             }
              l.add(id);
             */
-        	foundNodes.add((DataObject) userObject);
         } else if ((userObject instanceof CategoryData) && 
         		node.isChildrenLoaded() && node.isExpanded()) {
         	parent = node.getParentDisplay();

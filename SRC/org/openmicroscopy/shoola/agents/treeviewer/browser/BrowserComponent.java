@@ -56,7 +56,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
-import pojos.TagAnnotationData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -79,7 +78,7 @@ class BrowserComponent
     implements Browser
 {
 
-	 /** The Model sub-component. */
+	/** The Model sub-component. */
     private BrowserModel    	model;
     
     /** The View sub-component. */
@@ -123,13 +122,16 @@ class BrowserComponent
         setSelectedDisplay(display);
         display.setChildrenLoaded(Boolean.FALSE);
         view.createNodes(nodes, display, parentDisplay);
-        
-        Object o = display.getUserObject();
-        if (o instanceof DatasetData || o instanceof TagAnnotationData) {
+        //Object o = display.getUserObject();
+        countItems(null);
+        /*
+        if (o instanceof DatasetData) {// || o instanceof TagAnnotationData) {
         	Set<DataObject> ids = new HashSet<DataObject>();
         	ids.add((DataObject) o);
-        	model.fireContainerCountLoading(ids);
-        }
+        	//countItems(ids);
+        	
+        	//model.fireContainerCountLoading(ids);
+        }*/
     }
     
     /**
@@ -159,7 +161,22 @@ class BrowserComponent
         }
         return false;
     }
-    
+
+	/** 
+	 * Retrieves the nodes to count the value for.
+	 * 
+	 * @param items The collection to handle.
+	 */
+	private void countItems(Set items)
+	{
+		if (items == null) {
+			ContainerFinder finder = new ContainerFinder();
+			accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
+			items = finder.getContainers();
+		} 
+		model.fireContainerCountLoading(items);
+	}
+	
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -551,19 +568,6 @@ class BrowserComponent
         accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
         return finder.getContainerNodes();
     }
-
-    /**
-     * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#getContainersWithImages()
-     */
-    public Set getContainersWithImages()
-    {
-        //Note: avoid caching b/c we don't know yet what we are going
-        //to do with updates
-        ContainerFinder finder = new ContainerFinder();
-        accept(finder, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
-        return finder.getContainers();
-    }
     
     /**
      * Implemented as specified by the {@link Browser} interface.
@@ -815,7 +819,7 @@ class BrowserComponent
         //long groupID = model.getUserGroupID();
         //view.setViews(TreeViewerTranslator.refreshHierarchy(nodes,
         //            expandedTopNodes, userID, groupID)); 
-        model.fireContainerCountLoading(null);
+        countItems(null);
         model.getParentModel().setStatus(false, "", true);
         PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
@@ -852,13 +856,12 @@ class BrowserComponent
 	                    "LOADING_LEAVES state.");
 		}   
 		
-        if (n == null)
-        	model.fireExperimenterDataLoading((TreeImageSet) exp);
+        if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
         else model.fireLeavesLoading(exp, n);
         model.getParentModel().setStatus(true, TreeViewer.LOADING_TITLE, false);
         fireStateChange();
 	}
-
+	
 	/**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setExperimenterData(TreeImageDisplay, Collection)
@@ -880,7 +883,7 @@ class BrowserComponent
 					exp.getId(), -1);//exp.getDefaultGroup().getId());
         view.setExperimenterData(convertedNodes, expNode);
         model.setState(READY);
-        model.fireContainerCountLoading(null);
+        countItems(null);
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}
@@ -1068,7 +1071,7 @@ class BrowserComponent
 			}
 		}
 		model.setState(READY);
-		model.fireContainerCountLoading(null);
+		countItems(null);
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);

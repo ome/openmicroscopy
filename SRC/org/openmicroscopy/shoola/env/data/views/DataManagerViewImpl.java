@@ -319,7 +319,7 @@ class DataManagerViewImpl
 	{
 		BatchCallTree cmd;
 		if (TagAnnotationData.class.equals(rootNodeType))
-			cmd = new TagsLoader(TagsLoader.LEVEL_TAG, m);
+			cmd = new TagsLoader(TagsLoader.LEVEL_TAG_SET, m);
 		else cmd = new DMRefreshLoader(rootNodeType, m);
 		return cmd.exec(observer);
 	}
