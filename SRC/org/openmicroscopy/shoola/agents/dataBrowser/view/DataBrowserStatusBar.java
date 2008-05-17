@@ -25,7 +25,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.FlowLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -34,6 +39,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
 
 /** 
@@ -63,6 +69,12 @@ class DataBrowserStatusBar
 	/** Slider to zoom the nodes. */
 	private OneKnobSlider		zoomSlider;
 	
+    /** The bar notifying the user for the data retrieval progress. */
+    private JProgressBar        progressBar;
+
+    /** Displays the status message. */
+    private JLabel              status;
+    
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -79,14 +91,23 @@ class DataBrowserStatusBar
 				icons.getImageIcon(IconManager.ZOOM_IN), 
 				icons.getImageIcon(IconManager.ZOOM_OUT));
 		zoomSlider.addChangeListener(this);
+		progressBar = new JProgressBar();
+        status = new JLabel();
 		
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(zoomSlider);
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		JPanel right = new JPanel();
+		right.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        right.add(progressBar);
+        JPanel left = new JPanel();
+        left.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        left.add(zoomSlider);
+        add(left);
+		add(right);
 	}
 	
 	/**
@@ -113,6 +134,31 @@ class DataBrowserStatusBar
 		zoomSlider.setEnabled(index == DataBrowserUI.THUMB_VIEW);
 	}
 	
+	/** 
+     * Sets the status message.
+     * 
+     * @param s The message to display.
+     */
+    void setStatus(String s) { status.setText(s); }
+    
+    /**
+     * Sets the value of the progress bar.
+     * 
+     * @param hide  Pass <code>true</code> to hide the progress bar, 
+     *              <code>false</otherwise>.
+     * @param perc  The value to set.
+     */
+    void setProgress(boolean hide, int perc)
+    {
+        progressBar.setVisible(!hide);
+        if (perc < 0) progressBar.setIndeterminate(true);
+        else {
+            progressBar.setStringPainted(true);
+            progressBar.setIndeterminate(false);
+            progressBar.setValue(perc);
+        }
+    }
+    
 	/** 
 	 * Zooms in or out the thumbnails.
 	 * @see ChangeListener#stateChanged(ChangeEvent)

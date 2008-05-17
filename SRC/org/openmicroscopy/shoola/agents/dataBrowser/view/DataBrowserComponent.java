@@ -155,9 +155,10 @@ class DataBrowserComponent
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setStatus(String, int)
 	 */
-	public void setStatus(String description, int perc) {
-		// TODO Auto-generated method stub
-		
+	public void setStatus(String description, int perc)
+	{
+		int state = model.getState();
+        view.setStatus(description, state != LOADING, perc);
 	}
 
 	/**

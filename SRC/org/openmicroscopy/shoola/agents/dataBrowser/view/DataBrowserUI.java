@@ -400,4 +400,22 @@ class DataBrowserUI
     	if (c != null) popupMenu.show(c, p.x, p.y); 
     }
     
+    /**
+     * Adjusts the status bar according to the specified arguments.
+     * 
+     * @param status Textual description to display.
+     * @param hideProgressBar Whether or not to hide the progress bar.
+     * @param progressPerc  The percentage value the progress bar should
+     *                      display.  If negative, it is iterpreted as
+     *                      not available and the progress bar will be
+     *                      set to indeterminate mode.  This argument is
+     *                      only taken into consideration if the progress
+     *                      bar shouldn't be hidden.
+     */
+    void setStatus(String status, boolean hideProgressBar, int progressPerc)
+    {
+        statusBar.setStatus(status);
+        statusBar.setProgress(hideProgressBar, progressPerc);
+    }
+    
 }
