@@ -50,6 +50,7 @@
          <fileset dir="${etc.dir}" includes="omero.properties"/>
          <fileset dir="${etc.dir}" includes="hibernate.properties"/>
          <fileset dir="${etc.dir}" includes="local.properties"/>
+         <fileset dir="${etc.dir}" includes="c3p0.properties"/>
          <fileset dir="${target.dir}/libs" includes="*.jar" />
          <manifest>
             <attribute name="Product-Name"      value="${product.name}"/>
