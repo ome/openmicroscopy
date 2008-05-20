@@ -29,7 +29,7 @@ _install(){
     fi
 }
 
-OUTPUT=`$OMERO_HOME/bin/admin.sh -e "application add $OMERO_HOME/etc/OMERO.xml $*" 2>&1`
+OUTPUT=`$OMERO_HOME/bin/admin.sh -e "application add $OMERO_HOME/etc/grid/default.xml $*" 2>&1`
 RETCODE=$?
 
 _install "$OUTPUT" "$RETCODE"

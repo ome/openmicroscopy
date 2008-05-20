@@ -6,4 +6,4 @@
 #
 
 OMERO_HOME=${OMERO_HOME:-"."}
-$OMERO_HOME/bin/admin.sh -e "application update $OMERO_HOME/etc/OMERO.xml $*"
+$OMERO_HOME/bin/admin.sh -e "application update $OMERO_HOME/etc/grid/default.xml $*"
