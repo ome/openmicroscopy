@@ -13,28 +13,6 @@ import test.integration.library as lib
 import omero, tempfile, unittest
 
 PINGFILE = """
-#<script>
-#   <name>
-#       ping
-#   </name>
-#   <description>
-#       Simple ping
-#   </description>
-#   <parameters>
-#       <variable name="inputParam" type="type" optional="true">
-#           <description>
-#               This variable can have a name, type and be optional.
-#           </description>
-#       </variable>
-#   </parameters>
-#   <return>
-#       <variable name="outputParam" type="type">
-#           <description>
-#               crap.
-#           </description>
-#       </variable>
-#   </return>
-#</script>
 #!/usr/bin/env python
 
 print "Printing to stdout"
@@ -68,7 +46,9 @@ class TestPing(lib.ITest):
             input.val["a"] = omero.RInt(1)
             input.val["b"] = omero.RString("c")
             process = p.execute(input)
-            process.wait()
+            rc = process.wait()
+            if rc:
+                self.assert_(rc == 0, "Non-zero return code")
             output = p.getResults(process)
             self.assert_( 1 == output.val["a"].val )
         finally:
