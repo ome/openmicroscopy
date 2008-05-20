@@ -20,6 +20,8 @@ import ome.services.procs.Process;
 import ome.services.procs.ProcessCallback;
 import ome.services.procs.ProcessManager;
 import ome.services.procs.Processor;
+import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 
 import org.jmock.Mock;
@@ -42,9 +44,12 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
     private Processor processor;
     private Process process;
     private ProcessCallback callback;
+    private Executor executor;
+    private SessionManager manager;
 
     protected Mock mockQuery, mockUpdate, mockTypes, mockSec, mockEc,
-            mockProcessor, mockProcess, mockCallback;
+            mockProcessor, mockProcess, mockCallback, mockExecutor,
+            mockManager;
 
     protected ProcessManager pm;
 
@@ -52,6 +57,9 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
+
+        mockManager = mock(SessionManager.class);
+        mockExecutor = mock(Executor.class);
         mockQuery = mock(LocalQuery.class);
         mockUpdate = mock(IUpdate.class);
         mockTypes = mock(ITypes.class);
@@ -60,6 +68,8 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
         mockProcessor = mock(Processor.class);
         mockProcess = mock(Process.class);
         mockCallback = mock(ProcessCallback.class);
+        manager = (SessionManager) mockManager.proxy();
+        executor = (Executor) mockExecutor.proxy();
         iQuery = (LocalQuery) mockQuery.proxy();
         iTypes = (ITypes) mockTypes.proxy();
         iUpdate = (IUpdate) mockUpdate.proxy();
@@ -71,10 +81,7 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
         mockEc.setDefaultStub(stub);
         mockProcessor.setDefaultStub(stub);
 
-        pm = new ProcessManager(processor);
-        pm.setTypesService(iTypes);
-        pm.setQueryService(iQuery);
-        pm.setUpdateService(iUpdate);
+        pm = new ProcessManager(manager, sec, executor, processor);
 
     }
 
@@ -98,7 +105,7 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
                 returnValue(list));
         mockProcessor.expects(once()).method("process").will(
                 returnValue(process));
-        pm.process();
+        pm.run();
     }
 
     @Test
@@ -110,9 +117,9 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
         mockProcessor.expects(once()).method("process").with(eq(id)).will(
                 returnValue(process));
 
-        // Then startProcess will register a Process a turn over the lifecycle
-        // to the processor
-        pm.startProcess(id);
+        // After run, startProcess will register a Process a turn over the
+        // lifecycle to the processor
+        pm.run();
         Process p = pm.runningProcess(id);
         assertEquals(p, process);
     }
@@ -139,7 +146,7 @@ public class ProcessManagerMockTest extends MockObjectTestCase {
         mockProcessor.expects(once()).method("process").will(
                 returnValue(process));
         willGetSubmitted();
-        pm.process();
+        pm.run();
 
         Process p = pm.runningProcess(1L);
         assertTrue(p != null);

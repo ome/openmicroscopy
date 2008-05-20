@@ -161,7 +161,7 @@
   =======================================================================
 -->
 
-  <bean id="executor" class="ome.services.util.Executor">
+  <bean id="executor" class="ome.services.util.Executor$Impl">
     <constructor-arg ref="securitySystem"/>
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
@@ -186,8 +186,8 @@
     <property name="schedulerName" value="OMERO.scheduler"/>
     <property name="jobDetails">
       <list>
-        <ref bean="process-jobs-manual" />
-        <ref bean="update-cache-manual" />
+        <ref bean="process-jobs-run" />
+        <ref bean="update-cache-run" />
       </list>
     </property>
     <property name="triggers">

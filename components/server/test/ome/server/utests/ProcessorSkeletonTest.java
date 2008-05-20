@@ -56,4 +56,9 @@ public class ProcessorSkeletonTest extends MockObjectTestCase {
         assertTrue(null == processor.process(1L));
     }
 
+    @Test
+    public void testJobRunAsOwner() throws Exception {
+        fail("NYI");
+    }
+
 }

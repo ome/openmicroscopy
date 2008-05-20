@@ -28,14 +28,17 @@ import ome.api.ServiceInterface;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
+import ome.model.internal.Details;
 import ome.model.jobs.Job;
 import ome.model.jobs.JobStatus;
+import ome.parameters.Parameters;
 import ome.security.SecureAction;
 import ome.services.procs.IProcessManager;
 import ome.services.procs.Process;
 import ome.services.procs.ProcessCallback;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.EventContext;
+import ome.util.ShallowCopy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -112,7 +115,9 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
      * 
      * @see ome.api.StatefulServiceInterface#close()
      */
+    @RolesAllowed("user")
     @Remove
+    @Transactional(readOnly = true)
     public void close() {
         // FIXME do we need to check on the process here?
         // or callbacks? probably.
@@ -137,11 +142,6 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
         newJob.setUsername(ec.getCurrentUserName());
         newJob.setGroupname(ec.getCurrentGroupName());
         newJob.setType(ec.getCurrentEventType());
-        newJob.setMessage(""); // TODO Should the user be able to set a message
-        // as
-        // a
-        // check??
-        newJob.setStatus(new JobStatus(JobHandle.SUBMITTED));
         newJob.setStarted(null);
         newJob.setFinished(null);
         newJob.setSubmitted(now);
@@ -150,6 +150,34 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
         Timestamp t = newJob.getScheduledFor();
         if (t == null || t.getTime() < now.getTime()) {
             newJob.setScheduledFor(now);
+        }
+        JobStatus s = newJob.getStatus();
+        if (s == null) {
+            newJob.setStatus(new JobStatus(JobHandle.SUBMITTED));
+        } else {
+            // Verifying the status
+            if (s.getId() != null) {
+                try {
+                    s = iQuery.get(JobStatus.class, s.getId());
+                } catch (Exception e) {
+                    throw new ApiUsageException("Unknown job status: " + s);
+                }
+            }
+
+            if (s.getValue() == null) {
+                throw new ApiUsageException(
+                        "JobStatus must have id or value set.");
+            } else {
+                if (!(s.getValue().equals(SUBMITTED) || s.getValue().equals(
+                        WAITING))) {
+                    throw new ApiUsageException(
+                            "Currently only SUBMITTED and WAITING are accepted as JobStatus");
+                }
+            }
+        }
+        String m = newJob.getMessage();
+        if (m == null) {
+            newJob.setMessage("");
         }
 
         // Here it is necessary to perform a {@link SecureAction} since
@@ -248,11 +276,31 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     public Job getJob() {
         errorIfInvalidState();
         checkAndRegister();
-        Job job = iQuery.find(Job.class, jobId);
+        Job job = iQuery.findByQuery("select j from Job j "
+                + "left outer join fetch j.status status "
+                + "left outer join fetch j.originalFileLinks links "
+                + "left outer join fetch links.child file "
+                + "left outer join fetch j.details.owner owner "
+                + "left outer join fetch owner.groupExperimenterMap map "
+                + "left outer join fetch map.parent where j.id = :id",
+                new Parameters().addId(jobId));
         if (job == null) {
             throw new ApiUsageException("Unknown job:" + jobId);
         }
-        return job;
+
+        //
+        // FIXME Unknown lazy initialization exceptions. Cleaning up for the
+        // moment.
+        //
+        iQuery.evict(job);
+        Job copy = new ShallowCopy().copy(job);
+        // 
+        iQuery.evict(job.getStatus());
+        Details unloadedDetails = job.getStatus().getDetails().shallowCopy();
+        job.getStatus().getDetails().shallowCopy(unloadedDetails);
+        copy.setStatus(job.getStatus());
+
+        return copy;
     }
 
     @RolesAllowed("user")
@@ -272,12 +320,13 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
     @RolesAllowed("user")
     public boolean jobRunning() {
-        return getJob().getStatus().getValue().equals("Running"); // FIXME
+        return JobHandle.RUNNING.equals(getJob().getStatus().getValue());
     }
 
     @RolesAllowed("user")
     public boolean jobError() {
-        return getJob().getStatus().getValue().equals("Error"); // FIXME
+        return JobHandle.ERROR.equals(getJob().getStatus().getValue().equals(
+                "Error"));
     }
 
     @Transactional(readOnly = false)

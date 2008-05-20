@@ -55,7 +55,7 @@
     <constructor-arg ref="sessionCache"/>
   </bean>
 
-  <bean id="update-cache-manual" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+  <bean id="update-cache-run" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="updateCache" />
     <property name="targetMethod" value="run" />
   </bean>

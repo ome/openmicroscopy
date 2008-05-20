@@ -12,10 +12,7 @@ import java.util.UUID;
 
 import junit.framework.TestCase;
 import ome.api.IQuery;
-import ome.api.ITypes;
 import ome.api.JobHandle;
-import ome.api.local.LocalQuery;
-import ome.api.local.LocalUpdate;
 import ome.conditions.SecurityViolation;
 import ome.model.jobs.Job;
 import ome.model.jobs.JobStatus;
@@ -25,7 +22,10 @@ import ome.server.itests.ManagedContextFixture;
 import ome.services.JobBean;
 import ome.services.procs.ProcessManager;
 import ome.services.procs.ProcessorSkeleton;
+import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.ServiceFactory;
+import ome.util.ContextFilter;
 
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-@Test(groups = { "jobs", "integration", "ignore"} )
+@Test(groups = { "jobs", "integration" })
 public class JobHandleTest extends TestCase {
 
     protected ManagedContextFixture fixture;
@@ -51,9 +51,8 @@ public class JobHandleTest extends TestCase {
         super.setUp();
         fixture = new ManagedContextFixture();
         sf = fixture.sf;
-        mgr = new PManager(new P(sf.getQueryService()), fixture.sec,
-                (LocalUpdate) sf.getUpdateService(), (LocalQuery) sf
-                        .getQueryService(), sf.getTypesService());
+        mgr = new PManager(new P(sf.getQueryService()), fixture.mgr,
+                fixture.sec, fixture.ex);
         JobBean bean = (JobBean) fixture.ctx
                 .getBean("internal:ome.api.JobHandle");
         Field pm = bean.getClass().getDeclaredField("pm");
@@ -61,8 +60,7 @@ public class JobHandleTest extends TestCase {
         pm.set(bean, mgr);
         // Fixing notifications
         Scheduler sched = (Scheduler) fixture.ctx.getBean("scheduler");
-        JobDetail manual = (JobDetail) fixture.ctx
-                .getBean("process-jobs-manual");
+        JobDetail manual = (JobDetail) fixture.ctx.getBean("process-jobs-run");
         manual.getJobDataMap().put("processManager", mgr);
         sched.addJob(manual, true);
     }
@@ -141,6 +139,7 @@ public class JobHandleTest extends TestCase {
     @Test
     public void testJobSwitchedToWaitingIfNoProcessorTakesIt() throws Exception {
         testJobIsSavedToDatabase();
+        mgr.run();
         assertEquals(JobHandle.WAITING, jh.jobStatus().getValue());
     }
 
@@ -176,16 +175,18 @@ public class JobHandleTest extends TestCase {
     }
 
     @Test
-    public void testJobRunAsOwner() throws Exception {
-        fail("NYI");
-    }
-
-    @Test
     public void testJobRetrievalCanBeSpecifiedViaQuery() throws Exception {
         fail("NYI");
         // Job job = iQuery.findByQuery("job.query."+job.getClass(),idParams);
     }
 
+    @Test
+    public void testWalkingThroughReturnedJob() throws Exception {
+        testJobIsSavedToDatabase();
+        Job job = jh.getJob();
+        job.acceptFilter(new ContextFilter() {
+        });
+    }
 }
 
 class P extends ProcessorSkeleton {
@@ -196,24 +197,19 @@ class P extends ProcessorSkeleton {
 }
 
 class PManager extends ProcessManager {
-    public PManager(P p, SecuritySystem sec, LocalUpdate update,
-            LocalQuery query, ITypes types) {
-        super(p);
-        if (sec == null || update == null || query == null || types == null) {
+    public PManager(P p, SessionManager mgr, SecuritySystem sec, Executor ex) {
+        super(mgr, sec, ex, p);
+        if (sec == null || ex == null) {
             throw new RuntimeException("Null argument");
         }
-        setSecuritySystem(sec);
-        setUpdateService(update);
-        setTypesService(types);
-        setQueryService(query);
     }
 
     public volatile boolean called = false;
 
     @Override
-    public void process() {
+    public void doRun() {
         called = true;
-        super.process();
+        super.doRun();
     }
 
     public void waitFor(long timeout) {

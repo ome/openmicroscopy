@@ -13,21 +13,20 @@ package ome.services.procs;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public interface IProcessManager {
+public interface IProcessManager extends Runnable {
 
     /**
      * Runs the processing phase as root. This method should be called in a
      * separate {@link Thread}.
      */
-    public void process();
+    public void run();
 
     /**
      * Called iteratively for each job by {@link #process()}.
      * 
      * @param jobId
      */
-    public void startProcess(long jobId);
-
+    // public void startProcess(long jobId);
     /**
      * Returns a running {@link Process} for the {@link Job id} or null.
      */

@@ -10,7 +10,10 @@ import java.util.UUID;
 
 import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
+import ome.model.meta.Session;
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.tools.spring.ManagedServiceFactory;
@@ -22,6 +25,8 @@ import ome.tools.spring.ManagedServiceFactory;
 public class ManagedContextFixture {
 
     public OmeroContext ctx = OmeroContext.getManagedServerContext();
+    public SessionManager mgr = (SessionManager) ctx.getBean("sessionManager");
+    public Executor ex = (Executor) ctx.getBean("executor");
     public ManagedServiceFactory sf = new ManagedServiceFactory();
     public SecuritySystem sec;
 
@@ -60,6 +65,9 @@ public class ManagedContextFixture {
     }
 
     public void setCurrentUser(String user) {
-        sec.login(new Principal(user, "user", "Test"));
+        Principal p = new Principal(user, "user", "Test");
+        Session s = mgr.create(p);
+        p = new Principal(s.getUuid(), "user", "Test");
+        sec.login(p);
     }
 }

@@ -8,6 +8,7 @@ package ome.api;
 
 import java.sql.Timestamp;
 
+import ome.annotations.NotNull;
 import ome.conditions.ApiUsageException;
 import ome.model.jobs.Job;
 import ome.model.jobs.JobStatus;
@@ -40,7 +41,18 @@ public interface JobHandle extends StatefulServiceInterface {
     public final static String FINISHED = "Finished";
     public final static String CANCELLED = "Cancelled";
 
-    long submit(Job job);
+    /**
+     * Submits a {@link Job} and returns its database id. The only fields
+     * directly on status which are editable are <em>message</em>,
+     * <em>scheduledFor</em> and <em>status</em>. The latter two must be
+     * sensible.
+     * 
+     * @param job
+     *            Not null
+     * @return id
+     */
+    long submit(@NotNull
+    Job job);
 
     /**
      * @return the current {@link JobStatus} for the {@link Job id}

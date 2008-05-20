@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-@Test(groups = {"jobs","broken"})
+@Test(groups = { "jobs", "broken" })
 public class JobHandleMockTest extends MockObjectTestCase {
 
     protected JobHandle jh;
@@ -73,7 +73,7 @@ public class JobHandleMockTest extends MockObjectTestCase {
         jn = new JobNotification() {
             @Override
             public void notice(long jobId) {
-                pm.process();
+                pm.run();
             }
         };
 

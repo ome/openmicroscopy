@@ -13,9 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ome.api.IQuery;
-import ome.api.ITypes;
-import ome.api.IUpdate;
 import ome.api.JobHandle;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
@@ -24,36 +21,136 @@ import ome.model.jobs.JobStatus;
 import ome.parameters.Parameters;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
+import ome.services.sessions.SessionManager;
+import ome.services.util.ExecutionThread;
+import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
+import org.springframework.transaction.TransactionStatus;
 
 /**
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
-public class ProcessManager implements IProcessManager {
+public class ProcessManager extends ExecutionThread implements IProcessManager {
+
+    /**
+     * Task performed by the {@link ProcessManager} on each invocation of
+     * {@link ProcessManager#run()}.
+     */
+    public static class Work implements Executor.Work {
+
+        /**
+         * processors available for processing. This array will never be null.
+         */
+        final protected List<Processor> processors;
+
+        /**
+         * {@link SecuritySystem} in order to perform a secure save on the
+         * {@link Job} instance.
+         */
+        final protected SecuritySystem sec;
+
+        /**
+         * Map of all active {@link Process processes}.
+         */
+        protected Map<Long, Process> procMap = Collections
+                .synchronizedMap(new HashMap<Long, Process>());
+
+        public Work(SecuritySystem sec, Processor... procs) {
+            this.sec = sec;
+            if (procs == null || procs.length == 0) {
+                throw new ApiUsageException(
+                        "Processor[] argument to ProcessManager constructor "
+                                + "may not be null or empty.");
+            }
+            this.processors = Arrays.asList(procs);
+        }
+
+        public List<Job> doWork(TransactionStatus status, Session session,
+                ServiceFactory sf) {
+            final List<Job> jobs = sf.getQueryService().findAllByQuery(
+                    "select j from Job j where status.id = :id",
+                    new Parameters().addId(getSubmittedStatus(sf).getId()));
+
+            for (Job job : jobs) {
+                startProcess(sf, job.getId());
+            }
+
+            return null;
+        }
+
+        /**
+         * 
+         */
+        public void startProcess(final ServiceFactory sf, final long jobId) {
+            Process p = null;
+
+            for (Processor proc : processors) {
+                p = proc.process(jobId);
+                // Take first processor
+                if (p != null) {
+                    break;
+                }
+            }
+
+            if (p == null) {
+                if (log.isWarnEnabled()) {
+                    log.warn("No processor found for job:" + jobId);
+                }
+
+                Job job = job(sf, jobId);
+                job.setStatus(getWaitingStatus(sf));
+                job.setMessage("No processor found for job.");
+                sec.doAction(new SecureAction() {
+                    public <T extends IObject> T updateObject(T... objs) {
+                        return sf.getUpdateService().saveAndReturnObject(
+                                objs[0]);
+                    }
+
+                }, job);
+            } else {
+                procMap.put(jobId, p);
+            }
+
+        }
+
+        // Helpers ~
+        // =========================================================================
+
+        protected Job job(ServiceFactory sf, long id) {
+            Job job = sf.getQueryService().find(Job.class, id);
+            return job;
+        }
+
+        private JobStatus getStatus(ServiceFactory sf, String status) {
+            JobStatus statusObj = sf.getTypesService().getEnumeration(
+                    JobStatus.class, status);
+            return statusObj;
+        }
+
+        private JobStatus getSubmittedStatus(ServiceFactory sf) {
+            return getStatus(sf, JobHandle.SUBMITTED);
+        }
+
+        private JobStatus getWaitingStatus(ServiceFactory sf) {
+            return getStatus(sf, JobHandle.WAITING);
+        }
+    } // End Work
+
+    //
+    // ProcessManager
+    //
 
     private static Log log = LogFactory.getLog(ProcessManager.class);
 
-    // TODO this should probably be replaced by a DAO
-    private SecuritySystem sec;
-    private IQuery query;
-    private ITypes types;
-    private IUpdate update;
-
-    /**
-     * processors available for processing. This array will never be null.
-     */
-    protected List<Processor> processors;
-
-    protected Map<Long, Process> procMap = Collections
-            .synchronizedMap(new HashMap<Long, Process>());
-
-    private ProcessManager() {
-    }; // We need the processors
+    private static Principal PRINCIPAL = new Principal("root", "user",
+            "Processing");
 
     /**
      * main constructor which takes a non-null array of {@link Processor}
@@ -63,55 +160,30 @@ public class ProcessManager implements IProcessManager {
      * @param processors
      *            Array of Processors. Not null.
      */
-    public ProcessManager(Processor... procs) {
-        if (procs == null || procs.length == 0) {
-            throw new ApiUsageException(
-                    "Processor[] argument to ProcessManager constructor "
-                            + "may not be null or empty.");
-        }
-        this.processors = Arrays.asList(procs);
-    }
-
-    public void setQueryService(IQuery queryService) {
-        this.query = queryService;
-    }
-
-    public void setTypesService(ITypes typesService) {
-        this.types = typesService;
-    }
-
-    public void setUpdateService(IUpdate updateService) {
-        this.update = updateService;
-    }
-
-    public void setSecuritySystem(SecuritySystem securitySystem) {
-        this.sec = securitySystem;
+    public ProcessManager(SessionManager manager, SecuritySystem sec,
+            Executor executor, Processor... procs) {
+        super(manager, executor, new Work(sec, procs), PRINCIPAL);
     }
 
     // Main methods ~
     // =========================================================================
 
-    public void process() {
+    @Override
+    @SuppressWarnings("unchecked")
+    public void doRun() {
 
         if (log.isDebugEnabled()) {
             log.debug("Starting processing...");
         }
 
         try {
-            sec.login(new Principal("root", "user", "Processing"));
-            List<Job> jobs = query.findAllByQuery(
-                    "select j from Job j where status.id = :id",
-                    new Parameters().addId(getSubmittedStatus().getId()));
 
-            for (Job job : jobs) {
-                startProcess(job.getId());
-            }
+            this.executor.execute(getPrincipal(), this.work, true);
+
         } catch (Exception e) {
             if (log.isErrorEnabled()) {
                 log.error("Error while processing", e);
             }
-        } finally {
-            sec.logout();
         }
 
         if (log.isDebugEnabled()) {
@@ -120,67 +192,9 @@ public class ProcessManager implements IProcessManager {
 
     }
 
-    /**
-     * 
-     */
-    public void startProcess(long jobId) {
-        Process p = null;
-
-        for (Processor proc : processors) {
-            p = proc.process(jobId);
-            // Take first processor
-            if (p != null) {
-                break;
-            }
-        }
-
-        if (p == null) {
-            if (log.isWarnEnabled()) {
-                log.warn("No processor found for job:" + jobId);
-            }
-            Job job = job(jobId);
-            job.setStatus(getWaitingStatus());
-            job.setMessage("No processor found for job.");
-            sec.doAction(new SecureAction() {
-                public <T extends IObject> T updateObject(T... objs) {
-                    return update.saveAndReturnObject(objs[0]);
-                }
-
-            }, job);
-        } else {
-            procMap.put(jobId, p);
-        }
-
-    }
-
     public Process runningProcess(long jobId) {
-        Process p = procMap.get(jobId);
+        Process p = ((Work) work).procMap.get(jobId);
         return p;
-    }
-
-    // Helpers ~
-    // =========================================================================
-
-    protected Job job(long id) {
-        Job job = query.find(Job.class, id);
-        return job;
-    }
-
-    private JobStatus getStatus(String status) {
-        JobStatus statusObj = types.getEnumeration(JobStatus.class, status);
-        return statusObj;
-    }
-
-    private JobStatus getSubmittedStatus() {
-        return getStatus(JobHandle.SUBMITTED);
-    }
-
-    private JobStatus getRunningStatus() {
-        return getStatus(JobHandle.RUNNING);
-    }
-
-    private JobStatus getWaitingStatus() {
-        return getStatus(JobHandle.WAITING);
     }
 
 }

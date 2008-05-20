@@ -38,35 +38,24 @@
   </bean>
   
   <bean id="processManager" class="ome.services.procs.ProcessManager">
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="securitySystem"/>
+    <constructor-arg ref="executor"/>
     <constructor-arg>
       <list>
         <bean class="ome.services.procs.ImportProcessor"/>
       </list>
     </constructor-arg>
-    <property name="securitySystem" ref="securitySystem"/>
-    <property name="queryService" ref="managed:ome.api.IQuery"/>
-    <property name="typesService" ref="managed:ome.api.ITypes"/>
-    <property name="updateService" ref="managed:ome.api.IUpdate"/>
   </bean>
 
-  <bean id="process-jobs-manual" class="org.springframework.scheduling.quartz.JobDetailBean">
-    <property name="durability" value="true"/>
-    <property name="jobClass" value="ome.services.JobNotification$Go"/>
-    <property name="jobDataAsMap">
-      <map>
-        <entry key="processManager" value-ref="processManager"/>
-      </map>
-    </property>
-  </bean>
-
-  <bean id="process-jobs-async" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+  <bean id="process-jobs-run" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
     <property name="targetObject" ref="processManager" />
-    <property name="targetMethod" value="process" />
+    <property name="targetMethod" value="run" />
     <property name="concurrent" value="false" />
   </bean>
 
   <bean id="process-jobs-every-30-seconds" class="org.springframework.scheduling.quartz.CronTriggerBean">
-    <property name="jobDetail" ref="process-jobs-async" />
+    <property name="jobDetail" ref="process-jobs-run" />
     <property name="cronExpression" value="0,30 * * * * ?" />
   </bean>
 

@@ -8,12 +8,9 @@
 package ome.services;
 
 import ome.model.jobs.Job;
-import ome.services.procs.ProcessManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 
 /**
@@ -43,20 +40,11 @@ public class JobNotification {
 
     public void notice(long jobId) {
         try {
-            scheduler
-                    .triggerJob("process-jobs-manual", Scheduler.DEFAULT_GROUP);
+            scheduler.triggerJob("process-jobs-run", Scheduler.DEFAULT_GROUP);
         } catch (Exception e) {
-            log.error("Could not trigger process-jobs-manual", e);
+            log.error("Could not trigger process-jobs-run", e);
         }
 
     }
 
-    public static class Go implements org.quartz.Job {
-        public void execute(JobExecutionContext arg0)
-                throws JobExecutionException {
-            ProcessManager pm = (ProcessManager) arg0.getJobDetail()
-                    .getJobDataMap().get("processManager");
-            pm.process();
-        }
-    }
 }
