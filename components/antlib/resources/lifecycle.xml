@@ -41,6 +41,7 @@
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
 		<copyResource file="${root.dir}/etc/log4j.properties"/>
 		<copyResource file="${root.dir}/etc/jndi.properties"/>
+		<copyResource file="${root.dir}/etc/c3p0.properties"/>
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
 		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
 		<condition property="skip.ice">
@@ -261,12 +262,12 @@
 					<exclude name="**/dbtests/**/*"/>
 				</fileset>
 			</batchtest>
-		</junit>	
+		</junit> 
 	</target>
-		
+
 	<target name="package" depends="test">
 		<pathconvert property="mf.classpath"
-			refid="omero.classpath" 
+			refid="omero.classpath"
 			pathsep=" " dirsep="/">
 			<flattenmapper/>
 		</pathconvert>
@@ -275,7 +276,7 @@
 				<attribute name="Class-Path" value="${mf.classpath} services.jar extensions.jar"/>
 				<attribute name="Main-Class" value="${main.class}"/>
 			</manifest>
-			<fileset dir="${classes.dir}">	
+			<fileset dir="${classes.dir}">
 				<exclude name="local.properties"/>
 				<exclude name="omero.properties"/>
 				<exclude name="hibernate.properties"/>
@@ -367,7 +368,7 @@
 
   <target name="standalone">
     <copy todir="${target.dir}/standalone">
-      <fileset dir="${deps.lib.dir}" includes="**/*.jar"/>
+      <fileset dir="${deps.lib.dir}" includes="**/*"/>
       <fileset dir="${target.dir}" includes="*.jar"/>
     </copy>
     <jar update="true" destfile="${target.dir}/standalone/${ivy.module}.jar">
