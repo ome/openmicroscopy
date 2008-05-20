@@ -121,11 +121,14 @@ public class ScriptI extends _IScriptDisp {
         final OriginalFile tempFile = makeFile(script);
         writeContent(tempFile, script);
         JobParams params = getScriptParams(tempFile, __current);
-	if (originalFileExists(params.name)) {
-	     System.err.println("tempFile.name : " + tempFile.getName() + " params.name : " + params.name);
-	     deleteOriginalFile(tempFile);
-	     throw new ApiUsageException("A script with name " + params.name + " already exists on server.");
-	}
+        if (params == null) {
+            throw new ApiUsageException("Script error: no params found.");
+        }
+        if (originalFileExists(params.name)) {
+            System.err.println("tempFile.name : " + tempFile.getName() + " params.name : " + params.name);
+            deleteOriginalFile(tempFile);
+            throw new ApiUsageException("A script with name " + params.name + " already exists on server.");
+        }
         tempFile.setName(params.name);
         tempFile.setPath(params.name);
         writeContent(tempFile, script);

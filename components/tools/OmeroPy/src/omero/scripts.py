@@ -17,7 +17,8 @@
 
 """
 
-import sys, exceptions, omero
+import exceptions, omero
+from omero_ext import pysys
 
 class Type:
     def __init__(self, name, optional = False, out = False):
@@ -103,7 +104,7 @@ def client(name, description = None, *args):
 
         c.createSession()
         c.setOutput("omero.scripts.parse", omero.RInternal(params))
-        sys.exit(0)
+        pysys.exit(0)
     else:
         return c
 

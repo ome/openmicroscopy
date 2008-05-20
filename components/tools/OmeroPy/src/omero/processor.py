@@ -7,6 +7,7 @@
 
 import omero, Ice
 import os, signal, subprocess, sys, threading, tempfile, time, traceback
+from omero_model_OriginalFileI import OriginalFileI
 
 CONFIG="""
 Ice.ACM.Client=0
@@ -16,6 +17,39 @@ Ice.Warn.Connections=1
 Ice.ImplicitContext=Shared
 Ice.GC.Interval=60
 """
+
+class Resources:
+    """
+    Container class for storing resources which should be
+    cleaned up on close.
+    """
+    def __init__(self):
+        self.stuff = []
+    def add(self, object, cleanupMethod = "cleanup"):
+        lock = threading.RLock()
+        lock.acquire()
+        try:
+            self.stuff.append((object,cleanupMethod))
+        finally:
+            lock.release()
+    def cleanupNext(self):
+        lock = threading.RLock()
+        lock.acquire()
+        try:
+            try:
+                if len(self.stuff) > 0:
+                    m = self.stuff.pop(0)
+                    method = getattr(m[0],m[1])
+                    method()
+                    return len(self.stuff) > 0
+                else:
+                    return False
+            except:
+                print "Error cleaning resource:",m
+                traceback.print_exc()
+        finally:
+            lock.release()
+
 class Environment:
     """
     Simple class for creating an executable environment
@@ -67,6 +101,8 @@ class ProcessI(omero.grid.Process):
     """
 
     def __init__(self, interpreter, properties, log):
+        self.active = False
+        self.dead = False
         self.interpreter = interpreter
         self.properties = properties
         self.log = log
@@ -98,35 +134,79 @@ class ProcessI(omero.grid.Process):
         self.stdout = open(self.stdout_name, "w")
         self.stderr = open(self.stderr_name, "w")
         self.popen = subprocess.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env(), stdout=self.stdout, stderr=self.stderr)
-        print self.popen
+        self.active = True
 
     def __del__(self):
         """
         Cleans up the temporary directory used by the process, and terminates
         the Popen process if running.
         """
+        try:
+            self.lock.acquire()
+            if not self.dead:
+                self.cleanup_popen()
+                self.cleanup_output()
+                self.upload_output()
+                self.cleanup_tmpdir()
+        finally:
+            self.dead = True
+            self.lock.release()
 
+    def cleanup_popen(self):
+        """
+        If self.popen is active, then first call cancel, wait a period of
+        time, and finally call kill.
+        """
         if hasattr(self, "popen") and None == self.popen.poll():
             self.cancel()
 
             for i in range(5,0,-1):
                 time.sleep(6)
-                if self.popen.poll():
+                if None != self.popen.poll():
                     self.log.warning("Process %s terminated cleanly." % str(self.popen.pid))
                     break
                 else:
                     self.log.warning("%s still active. Killing in %s seconds." % (str(self.popen.pid),6*(i-1)+1))
             self.kill()
 
+    def cleanup_output(self):
+        """
+        Flush and close the stderr and stdout streams.
+        """
         if hasattr(self, "stderr"):
             self.stderr.flush()
             self.stderr.close()
         if hasattr(self, "stdout"):
             self.stdout.flush()
             self.stdout.close()
-        # os.removedirs(self.dir)
+
+    def upload_output(self):
+        """
+        If non-null, uploads the stdout and stderr files
+        related to this process.
+        """
+        client = omero.client(["--Ice.Config=%s" % self.config_name])
+        client.createSession()
+        if os.path.getsize(self.stdout_name):
+            outfile = OriginalFileI()
+            client.upload(self.stdout_name, type="text/plain")
+        if os.path.getsize(self.stderr_name):
+            client.upload(self.stderr_name, type="text/plain")
+
+    def cleanup_tmpdir(self):
+        """
+        Remove all known files and finally the temporary directory.
+        If other files exist, an exception will be raised.
+        """
+        for path in [self.config_name, self.stdout_name, self.stderr_name, self.script_name]:
+            if os.path.exists(path):
+                os.remove(path)
+        os.removedirs(self.dir)
 
     def make_config(self):
+        """
+        Creates the ICE_CONFIG file used by the client.
+        """
         config_file = open(self.config_name, "w")
         try:
             config_file.write(CONFIG)
@@ -139,32 +219,38 @@ class ProcessI(omero.grid.Process):
         rv = self.popen.poll()
         if None == rv:
             return None
-
         rv = omero.RInt(rv)
         self.allcallbacks("processFinished", rv)
+        self.__del__()
         return rv
 
     def wait(self, current = None):
         rv = self.popen.wait()
         self.allcallbacks("processFinished",rv)
+        self.__del__()
         return rv
 
     def _send(self, sig):
-        if not self.popen.poll():
+        if None == self.popen.poll():
             try:
                 os.kill(self.popen.pid, sig)
             except OSError, oserr:
                 # Already gone
                 pass
-        return True
+        return self.popen.poll() != None
 
     def cancel(self, current = None):
         rv = self._send(signal.SIGTERM)
         self.allcallbacks("processCancelled", rv)
+        if rv:
+            self.__del__()
+        return rv
 
     def kill(self, current = None):
         rv = self._send(signal.SIGKILL)
         self.allcallbacks("processKilled", rv)
+        self.__del__()
+        return rv
 
     def registerCallback(self, callback, current = None):
         self.lock.acquire()
@@ -198,7 +284,7 @@ class ProcessorI(omero.grid.Processor):
         self.log = log
         self.cfg = os.path.join(os.curdir, "etc", "ice.config")
         self.cfg = os.path.abspath(self.cfg)
-        print "init"
+        self.resources = Resources()
 
     def parseJob(self, session, job, current = None):
         properties = {}
@@ -249,11 +335,20 @@ class ProcessorI(omero.grid.Processor):
         properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
         process = ProcessI("python", properties, self.log)
+        self.resources.add(process,"__del__")
         client.download(file, process.script_name)
         process.activate()
 
         prx = current.adapter.addWithUUID(process)
         return omero.grid.ProcessPrx.uncheckedCast(prx)
+
+    def cleanup(self):
+        """
+        Cleanups all resoures created by this Processor, namely
+        the Process instances.
+        """
+        while self.resources.cleanupNext():
+            pass
 
 class Server(Ice.Application):
     """
@@ -264,17 +359,27 @@ class Server(Ice.Application):
         self.objectfactory = omero.ObjectFactory()
         self.objectfactory.registerObjectFactory(self.communicator())
         self.adapter = self.communicator().createObjectAdapter("ProcessorAdapter")
-        p = ProcessorI(self.communicator().getLogger())
-        p.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
+        self.p = ProcessorI(self.communicator().getLogger())
+        self.p.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
 
-        self.adapter.add(p, Ice.stringToIdentity("Processor"))
+        self.adapter.add(self.p, Ice.stringToIdentity("Processor"))
         self.adapter.activate()
         self.communicator().waitForShutdown()
-        if self.interrupted():
-            print self.appName()+": terminating"
-            return 0
-        self.adapter
+        self.cleanup()
+
+    def cleanup(self):
+        """
+        Cleans up all resources that were created by this server.
+        Primarily the one ProcessorI instance.
+        """
+        if hasattr(self,"p"):
+            try:
+                self.p.cleanup()
+            finally:
+                self.p = None
 
 if __name__ == "__main__":
     app=Server()
     sys.exit(app.main(sys.argv))
+
+

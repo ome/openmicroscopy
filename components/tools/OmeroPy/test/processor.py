@@ -100,7 +100,7 @@ client = s.client("name","description",s.Long("l"))
         env.append("PATH", os.path.join(os.getcwd(), "lib"))
 
     def testEnvironemnt2(self):
-        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Route":"foo"}
+        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"foo"}
         process = omero.processor.ProcessI("python",p,log())
         print process.env()
 
