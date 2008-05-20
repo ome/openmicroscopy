@@ -258,6 +258,20 @@ public class IceMethodInvoker {
         } else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
             omero.ResourceError re = new omero.ResourceError();
             return IceMapper.fillServerError(re, t);
+        } else if (ome.conditions.RemovedSessionException.class.isAssignableFrom(c)) {
+            omero.RemovedSessionException rse = new omero.RemovedSessionException();
+            return IceMapper.fillServerError(rse, t);
+        } else if (ome.conditions.SessionTimeoutException.class.isAssignableFrom(c)) {
+            omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
+            return IceMapper.fillServerError(ste, t);
+        } else if (ome.conditions.AuthenticationException.class.isAssignableFrom(c)) {
+            // not an omero.ServerError()
+            omero.AuthenticationException ae = new omero.AuthenticationException(t.getMessage());
+            return ae;
+        } else if (ome.conditions.ExpiredCredentialException.class.isAssignableFrom(c)) {
+            // not an omero.ServerError()
+            omero.ExpiredCredentialException ece = new omero.ExpiredCredentialException(t.getMessage());
+            return ece;
         } else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
             // Not returning but logging error message.
             log
@@ -272,5 +286,4 @@ public class IceMethodInvoker {
         return IceMapper.fillServerError(ie, t);
 
     }
-
 }

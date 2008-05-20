@@ -15,10 +15,15 @@ import omero, tempfile, unittest
 PINGFILE = """
 #!/usr/bin/env python
 
-print "Printing to stdout"
+import os, uuid
+for k,v in os.environ.items():
+    print "%s => %s" %(k,v)
+
+uuid = str(uuid.uuid4())
+print "I am the script named %s" % uuid
 
 import omero, omero.scripts as s
-client = s.client("ping.py", "simple ping script", s.Long("a").inout(), s.String("b").inout())
+client = s.client(uuid, "simple ping script", s.Long("a").inout(), s.String("b").inout())
 client.createSession()
 print "Session"
 print client.getSession()
@@ -42,6 +47,9 @@ class TestPing(lib.ITest):
             j.linkOriginalFile(file)
 
             p = self.client.sf.acquireProcessor(j, 100)
+            jp = p.params()
+            self.assert_(jp, "Non-zero params")
+
             input = omero.RMap({})
             input.val["a"] = omero.RInt(1)
             input.val["b"] = omero.RString("c")

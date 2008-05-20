@@ -34,8 +34,13 @@ import java.util.UUID;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.conditions.ApiUsageException;
+import ome.conditions.ValidationException;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
+import ome.model.jobs.JobStatus;
+import ome.model.jobs.JobOriginalFileLink;
+import ome.model.jobs.ScriptJob;
+import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import omero.RLong;
@@ -48,6 +53,7 @@ import omero.grid.JobParams;
 import omero.grid.Param;
 import omero.model.OriginalFileI;
 import omero.model.ScriptJobI;
+import omero.model.TagAnnotationI;
 
 import org.hibernate.Session;
 import org.springframework.transaction.TransactionStatus;
@@ -67,6 +73,9 @@ public class ScriptI extends _IScriptDisp {
 
     /** The text representation of the format in a python script. */
     private final static String PYTHONSCRIPT = "text/x-python";
+
+    /** Message used in jobs which are only being parsed */
+    private final static String PARSING = "ScriptI.parsing_only";
 
     protected final ServiceFactoryI factory;
 
@@ -112,12 +121,11 @@ public class ScriptI extends _IScriptDisp {
         final OriginalFile tempFile = makeFile(script);
         writeContent(tempFile, script);
         JobParams params = getScriptParams(tempFile, __current);
-		if(originalFileExists(params.name))
-		{
-			System.err.println("tempFile.name : " + tempFile.getName() + " params.name : " + params.name);
-			deleteOriginalFile(tempFile);
-			throw new ApiUsageException("A script with name " + params.name + " already exists on server.");
-		}
+	if (originalFileExists(params.name)) {
+	     System.err.println("tempFile.name : " + tempFile.getName() + " params.name : " + params.name);
+	     deleteOriginalFile(tempFile);
+	     throw new ApiUsageException("A script with name " + params.name + " already exists on server.");
+	}
         tempFile.setName(params.name);
         tempFile.setPath(params.name);
         writeContent(tempFile, script);
@@ -177,7 +185,7 @@ public class ScriptI extends _IScriptDisp {
             throws ServerError {
         OriginalFile file = getOriginalFile(id);
         JobParams params = getScriptParams(file, __current);
-		Map<String, RType> temporary = new HashMap<String, RType>();
+	Map<String, RType> temporary = new HashMap<String, RType>();
         for (String key : params.inputs.keySet()) {
             Param p = params.inputs.get(key);
             temporary.put(key, p.prototype);
@@ -187,7 +195,7 @@ public class ScriptI extends _IScriptDisp {
 
     /**
      * Run the script. This script also tests the parameters against the script params, checking that
-	 * the names of the parameters match and their types match.
+     * the names of the parameters match and their types match.
      * 
      * @param id of the script to run
      * @param map the map of parameters {String:RType} 
@@ -203,14 +211,16 @@ public class ScriptI extends _IScriptDisp {
 		while(paramIterator.hasNext())	{
 			String paramName = paramIterator.next();
 			RType scriptParamType = params.get(paramName);
-			if(!map.containsKey(paramName))
-				throw new ApiUsageException("Script takes parameter " + paramName + 
+			if(!map.containsKey(paramName)) {
+                throw new ApiUsageException("Script takes parameter " + paramName + 
 				" which has not supplied input params to runScript.");
+            }
 			RType inputParamType = map.get(paramName);
-			if(!scriptParamType.getClass().equals(inputParamType.getClass()))
-				throw new ApiUsageException("Script takes parameter " + paramName + 
+			if(!scriptParamType.getClass().equals(inputParamType.getClass())) {
+                throw new ApiUsageException("Script takes parameter " + paramName + 
 				" of type " + scriptParamType + " runScript was passed parameter " + 
 				paramName + " of type "+ inputParamType+".");
+            }
 		}
         ScriptJobI job = buildJob(id);
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10, __current);
@@ -253,8 +263,9 @@ public class ScriptI extends _IScriptDisp {
 	public void deleteScript(long id, Current __current) throws ServerError 
 	{
 		OriginalFile file = getOriginalFile(id);
-		if(file==null)
-			throw new ApiUsageException("No script with id " + id + " on server.");
+		if(file==null) {
+            throw new ApiUsageException("No script with id " + id + " on server.");
+        }
 		deleteOriginalFile(file);
 	}
 
@@ -267,11 +278,14 @@ public class ScriptI extends _IScriptDisp {
      */
     private JobParams getScriptParams(OriginalFile file,  Current __current) throws ServerError 
 	{
-    	ScriptJobI job = new ScriptJobI();
-    	OriginalFileI oFile = new OriginalFileI(file.getId(), false);
-    	job.linkOriginalFile(oFile);
-    	InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10, __current);
-    	return proc.params();
+        if (file == null || file.getId() == null) {
+            throw new ApiUsageException(file + " is not persistent.");
+        }
+        ScriptJobI job = buildJob(file.getId());
+        InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10, __current);
+        JobParams rv = proc.params();
+	deleteTempJob(proc.getJob().id.val);
+	return rv;
     }
 
     /**
@@ -357,33 +371,79 @@ public class ScriptI extends _IScriptDisp {
      * @return the job.
      * @throws ServerError
      */
-    private ScriptJobI buildJob(long id) throws ServerError {
-        OriginalFileI file = new OriginalFileI(id, false);
-        ScriptJobI job = new ScriptJobI();
-        job.linkOriginalFile(file);
-        return job;
+    private ScriptJobI buildJob(final long id) throws ServerError {
+	final OriginalFileI file = new OriginalFileI(id, false);
+	final ScriptJobI job = new ScriptJobI();
+	job.linkOriginalFile(file);
+	return job;
     }
 
-	/** 
+    /**
+     * Delete a temporary job used for parsing.
+     */
+    private void deleteTempJob(final long id) throws ServerError {
+	
+	Boolean success = (Boolean) factory.executor.execute(factory.principal, new Executor.Work() {
+
+                public Object doWork(TransactionStatus status,
+				     Session session, ServiceFactory sf) 
+                {
+		    try {
+			IUpdate update = sf.getUpdateService();
+			update.deleteObject(new ome.model.jobs.ScriptJob(id, false));
+                    } catch (ValidationException ve) {
+			return false;
+                    }
+		    return true;
+                }
+        	
+	    });
+	
+	if (success == null || !success) {
+	    throw new omero.ApiUsageException(null, null, "Cannot delete "+
+					      new ome.model.jobs.ScriptJob(id, false)
+					      +"\nIs in use by other objects");
+	}
+    }
+
+       /** 
 	* Method to delete the original file 
 	* @param file the original file.
 	* 
 	*/
-	private void deleteOriginalFile(final OriginalFile file)
+	private void deleteOriginalFile(final OriginalFile file) throws ServerError
 	{
-		factory.executor.execute(factory.principal,
-            new Executor.Work() 
-        {
+	    Boolean success = (Boolean) factory.executor.execute(factory.principal, new Executor.Work() {
 
                 public Object doWork(TransactionStatus status,
                         Session session, ServiceFactory sf) 
                 {
                     IUpdate update = sf.getUpdateService();
-                    update.deleteObject(file);
-					return true;
+                    List<JobOriginalFileLink> links = 
+                        sf.getQueryService().findAllByQuery(
+                                "select link from JobOriginalFileLink link "+
+				"join link.child as file " +
+				"join link.parent as job " +
+                                "where file.id = :id and "+
+				"job.message = :msg",
+                                new Parameters().addId(file.getId()).addString("msg", PARSING));
+                    try {
+                        for (JobOriginalFileLink jobOriginalFileLink : links) {
+                            update.deleteObject(jobOriginalFileLink);
+                        }
+                        update.deleteObject(file);
+                    } catch (ValidationException ve) {
+			return false;
+                    }
+		    return true;
                 }
         	
-        });
+		});
+	    
+	    if (success == null || !success) {
+                        throw new omero.ApiUsageException(null, null,
+			        "Cannot delete "+file+"\nIs in use by other objects");
+	    }
 	}
 
 	/** 
@@ -407,10 +467,12 @@ public class ScriptI extends _IScriptDisp {
 	                                null);
 	                    }
 	                });		
-		if(fileList==null)
-			return false;
-		if(fileList.size() == 0)
-			return false;
+		if(fileList==null) {
+            return false;
+        }
+		if(fileList.size() == 0) {
+            return false;
+        }
 		return true;
 	}
 

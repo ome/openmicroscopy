@@ -43,6 +43,15 @@ class Environment:
         """
         self.env[key] = value
 
+    def append(self, key, addition):
+        """
+        Manually adds a value to the environment string
+        """
+        if self.env.has_key(key):
+            self.env[key] = os.pathsep.join([self.env[key], addition])
+        else:
+            self.set(key, addition)
+
 class ProcessI(omero.grid.Process):
     """
     Wrapper around a subprocess.Popen instance. Returned by ProcessorI
@@ -71,6 +80,14 @@ class ProcessI(omero.grid.Process):
         self.stderr_name = os.path.join(self.dir, "err")
         self.env = Environment("PATH","PYTHONPATH","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","MLABRAW_CMD_STR")
         self.env.set("ICE_CONFIG", self.config_name)
+        # WORKAROUND
+        # Currently duplicating the logic here as in the PYTHONPATH
+        # setting of the grid application descriptor (see etc/grid/*.xml)
+        # This should actually be taken care of in the descriptor itself
+        # by having setting PYTHONPATH to an absolute value. This is
+        # not currently possible with IceGrid (without using icepatch --
+        # see 39.17.2 "node.datadir).
+        self.env.append("PYTHONPATH", os.path.join(os.getcwd(), "lib"))
         self.make_config()
 
     def activate(self):

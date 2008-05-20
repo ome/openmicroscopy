@@ -8,7 +8,7 @@
 
 """
 
-import unittest
+import unittest, os
 import omero.processor
 
 class log:
@@ -93,6 +93,16 @@ client = s.client("name","description",s.Long("l"))
         process.activate()
         process.wait()
         process.poll()
+
+    def testEnvironment(self):
+        env = omero.processor.Environment("PATH")
+        env.append("PATH", os.pathsep.join(["bob","cat"]))
+        env.append("PATH", os.path.join(os.getcwd(), "lib"))
+
+    def testEnvironemnt2(self):
+        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Route":"foo"}
+        process = omero.processor.ProcessI("python",p,log())
+        print process.env()
 
 if __name__ == '__main__':
     unittest.main()
