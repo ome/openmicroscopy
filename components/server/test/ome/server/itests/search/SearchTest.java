@@ -28,6 +28,7 @@ import ome.model.annotations.TextAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
+import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -1644,6 +1645,21 @@ public class SearchTest extends AbstractTest {
     }
 
     /**
+     * Attempting to make a lone "*" expand in other situations.
+     */
+    @Test(groups = "ticket:897")
+    public void testWildcardWithTerm() {
+
+        final String query = "* term";
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.setAllowLeadingWildcard(true);
+        search.byFullText(query);
+        // Seems to be ok.
+    }
+
+    /**
      * This was a first test for #975 which always passed.
      */
     @Test(groups = "ticket:975")
@@ -1703,7 +1719,58 @@ public class SearchTest extends AbstractTest {
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
         search.bySomeMustNone(new String[] { "an*" }, null, null);
+        for (IObject test : search.results()) {
+            assertTrue(test.toString(), test instanceof Image);
+        }
 
+        Class[] klass = new Class[1];
+        klass[0] = TagAnnotation.class;
+        search.onlyAnnotatedWith(klass);
+        search.onlyType(Image.class);
+        search.bySomeMustNone(new String[] { "an*" }, null, null);
+
+        for (IObject test : search.results()) {
+            assertTrue(test.toString(), test instanceof Image);
+            ids.remove(test.getId());
+        }
+        assertTrue(ids + " should be empty", ids.size() == 0);
+
+    }
+
+    /**
+     * Checking for a security leak due to this issue.
+     */
+    @Test(groups = "ticket:975")
+    public void testImagesAndTagsReturnedMultiuser() {
+
+        final List<Long> ids = new ArrayList<Long>();
+        final IUpdate update = this.factory.getUpdateService();
+
+        // Save a public image
+        Experimenter user1 = loginNewUser();
+        Image i = new Image("foo");
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+        ids.add(i.getId());
+
+        // Create a private tag on the image
+        Experimenter user2 = loginNewUser();
+        i = this.factory.getQueryService()
+                .findByQuery(
+                        "select i from Image i "
+                                + "left outer join fetch i.annotationLinks "
+                                + "where i.id = :id",
+                        new Parameters().addId(i.getId()));
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("annotation");
+        tag.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        i.linkAnnotation(tag);
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+
+        // Return to first user and see if it sees the TagAnnotation
+        loginUser(user1.getOmeName());
+        Search search = this.factory.createSearchService();
         Class[] klass = new Class[1];
         klass[0] = TagAnnotation.class;
         search.onlyAnnotatedWith(klass);

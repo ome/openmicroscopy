@@ -466,16 +466,15 @@ class TypeEqualityExpression extends SimpleExpression {
             return typedValue;
         }
 
-        /** replace leading and trailing apostrophes* */
+        //
+        // If begins and ends with a quote,
+        // then replace leading and trailing apostrophes,
+        // otherwise return
+        //
         String svalue = value.toString();
-
         if (svalue.charAt(0) == '\''
                 && svalue.charAt(svalue.length() - 1) == '\'') {
-            value = svalue.substring(0, svalue.length() - 1).substring(1);
-            /** ***************************************** */
-        }
-
-        if (!value.equals(typedValue.getValue())) {
+            value = svalue.substring(1, svalue.length() - 1);
             return new TypedValue(typedValue.getType(), value, EntityMode.POJO);
         } else {
             return typedValue;
