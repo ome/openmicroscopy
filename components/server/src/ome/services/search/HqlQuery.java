@@ -7,15 +7,15 @@
 
 package ome.services.search;
 
+import ome.api.IQuery;
 import ome.parameters.Parameters;
-import ome.services.SearchBean;
 import ome.system.ServiceFactory;
 
 import org.hibernate.Session;
 import org.springframework.transaction.TransactionStatus;
 
 /**
- * Query template used by {@link SearchBean} to store user requests.
+ * Delegate to {@link IQuery#findAllByQuery(String, Parameters)}.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3

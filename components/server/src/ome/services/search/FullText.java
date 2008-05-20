@@ -7,7 +7,10 @@
 
 package ome.services.search;
 
+import java.util.List;
+
 import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
 import ome.model.IAnnotated;
 import ome.services.SearchBean;
 import ome.system.ServiceFactory;
@@ -18,8 +21,6 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.Criteria;
-import org.hibernate.Query;
-import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.SimpleExpression;
@@ -29,27 +30,19 @@ import org.hibernate.search.Search;
 import org.springframework.transaction.TransactionStatus;
 
 /**
- * Query template used by {@link SearchBean} to store user requests.
+ * Search based on Lucene's {@link Query} class. Takes a Google-like search
+ * string and returns fully formed objects via Hibernate Search.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public class FullText extends SearchAction {
 
-    private final static QueryParser parser = new QueryParser(
-            "combined_fields", new StandardAnalyzer());
-
     private static final long serialVersionUID = 1L;
 
     private final String queryStr;
 
-    private FullTextSession session;
-
-    private org.apache.lucene.search.Query q;
-
-    private Query query;
-
-    private ScrollableResults scroll;
+    private final org.apache.lucene.search.Query q;
 
     public FullText(SearchValues values, String query) {
         super(values);
@@ -78,6 +71,8 @@ public class FullText extends SearchAction {
 
         this.queryStr = query;
         try {
+            final QueryParser parser = new QueryParser("combined_fields",
+                    new StandardAnalyzer());
             parser.setAllowLeadingWildcard(values.leadingWildcard);
             q = parser.parse(queryStr);
         } catch (ParseException pe) {
@@ -87,12 +82,11 @@ public class FullText extends SearchAction {
         }
     }
 
-    public Object doWork(TransactionStatus status, Session session,
-            ServiceFactory sf) {
+    public Object doWork(TransactionStatus status, Session s, ServiceFactory sf) {
 
-        Class cls = values.onlyTypes.get(0);
+        final Class<?> cls = values.onlyTypes.get(0);
 
-        this.session = Search.createFullTextSession(session);
+        FullTextSession session = Search.createFullTextSession(s);
         Criteria criteria = session.createCriteria(cls);
         AnnotationCriteria ann = new AnnotationCriteria(criteria,
                 values.fetchAnnotations);
@@ -117,7 +111,7 @@ public class FullText extends SearchAction {
                     // Annotations, and so our results are null
                     return null; // EARLY EXIT !
                 } else {
-                    for (Class annCls : values.onlyAnnotatedWith) {
+                    for (Class<?> annCls : values.onlyAnnotatedWith) {
                         SimpleExpression ofType = new TypeEqualityExpression(
                                 "class", annCls);
                         ann.getChild().add(ofType);
@@ -129,7 +123,7 @@ public class FullText extends SearchAction {
         }
 
         // Main query
-        FullTextQuery ftQuery = this.session.createFullTextQuery(this.q);
+        FullTextQuery ftQuery = session.createFullTextQuery(this.q, cls);
         ftQuery.setCriteriaQuery(criteria);
 
         // orderBy
@@ -150,8 +144,22 @@ public class FullText extends SearchAction {
             ftQuery.setSort(new Sort(sorts));
         }
 
-        query = ftQuery;
-        return query.list();
-    }
+        final String ticket975 = "ticket:975 - Wrong return type: %s instead of %s\n"
+                + "Under some circumstances, byFullText and related methods \n"
+                + "like bySomeMustNone can return instances of the wrong \n"
+                + "types. One known case is the use of onlyAnnotatedWith(). \n"
+                + "If you are recieving this error, please try using the \n"
+                + "intersection/union methods to achieve the same results.";
 
+        List<?> check975 = ftQuery.list();
+
+        // WORKAROUND
+        for (Object object : check975) {
+            if (!cls.isAssignableFrom(object.getClass())) {
+                throw new ApiUsageException(String.format(ticket975, object
+                        .getClass(), cls));
+            }
+        }
+        return check975;
+    }
 }

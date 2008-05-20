@@ -7,6 +7,7 @@
 
 package ome.services.search;
 
+import java.io.Serializable;
 import java.util.List;
 
 import ome.conditions.ApiUsageException;
@@ -35,7 +36,8 @@ import org.hibernate.engine.TypedValue;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public abstract class SearchAction implements ome.services.util.Executor.Work {
+public abstract class SearchAction implements Serializable,
+        ome.services.util.Executor.Work {
 
     protected final SearchValues values = new SearchValues();
 
@@ -45,6 +47,12 @@ public abstract class SearchAction implements ome.services.util.Executor.Work {
                     "SearchValues argument must not be null");
         }
         this.values.copy(values);
+    }
+
+    public SearchValues copyOfValues() {
+        SearchValues copy = new SearchValues();
+        copy.copy(this.values);
+        return copy;
     }
 
     protected void ids(Criteria criteria) {

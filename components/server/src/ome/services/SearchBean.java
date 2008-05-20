@@ -7,10 +7,10 @@
 
 package ome.services;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -30,17 +30,21 @@ import javax.interceptor.Interceptors;
 import ome.api.Search;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.internal.Details;
 import ome.parameters.Parameters;
 import ome.services.search.AnnotatedWith;
+import ome.services.search.Complement;
 import ome.services.search.FullText;
 import ome.services.search.HqlQuery;
+import ome.services.search.Intersection;
 import ome.services.search.SearchAction;
 import ome.services.search.SearchValues;
 import ome.services.search.SomeMustNone;
 import ome.services.search.TagsAndGroups;
+import ome.services.search.Union;
 import ome.services.util.Executor;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.SelfConfigurableService;
@@ -72,8 +76,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     /** The logger for this class. */
     private final static Log log = LogFactory.getLog(SearchBean.class);
 
-    private final List<SearchAction> actions = Collections
-            .synchronizedList(new ArrayList<SearchAction>());
+    private final ActionList actions = new ActionList();
 
     private final SearchValues values = new SearchValues();
 
@@ -211,6 +214,26 @@ public class SearchBean extends AbstractStatefulBean implements Search {
         throw new UnsupportedOperationException();
     }
 
+    // LOGICAL COMBINATIONS
+
+    @Transactional
+    @RolesAllowed("user")
+    public void union() {
+        actions.union();
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void intersection() {
+        actions.intersection();
+    }
+
+    @Transactional
+    @RolesAllowed("user")
+    public void complement() {
+        actions.complement();
+    }
+
     //
     // FETCH METHODS
     //
@@ -232,7 +255,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
         if (actions.size() == 0) {
             return false;
         }
-        SearchAction action = actions.remove(0);
+        SearchAction action = actions.popFirst();
         List<IObject> list = (List<IObject>) executor.execute(null, action);
         results.add(list);
         return hasNext(); // recursive call
@@ -639,6 +662,88 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void addResult(List<IObject> result) {
         synchronized (results) {
             results.add(result); // Can be null as flag?
+        }
+    }
+
+    /**
+     * Synchronized helper collection for maintaining {@link SearchAction}
+     * instances. Also knows how to do logical joins (union, etc.)
+     */
+    private static class ActionList implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        enum State {
+            normal, union, intersection, complement;
+        }
+
+        private State state = State.normal;
+
+        final private List<SearchAction> actions = new ArrayList<SearchAction>();
+
+        synchronized void union() {
+            state = State.union;
+        }
+
+        synchronized void intersection() {
+            state = State.intersection;
+        }
+
+        synchronized void complement() {
+            state = State.complement;
+        }
+
+        synchronized void add(SearchAction b) {
+
+            // Any call to "add" reset the state of the ActionList
+            State previousState = state;
+            this.state = State.normal;
+
+            SearchAction a;
+            switch (previousState) {
+            case normal:
+                actions.add(b);
+                break;
+            case union:
+                a = popLast();
+                actions.add(new Union(b.copyOfValues(), a, b));
+                break;
+            case intersection:
+                a = popLast();
+                actions.add(new Intersection(b.copyOfValues(), a, b));
+                break;
+            case complement:
+                a = popLast();
+                actions.add(new Complement(b.copyOfValues(), a, b));
+                break;
+            default:
+                throw new InternalException("Unknown state:" + state);
+            }
+        }
+
+        synchronized int size() {
+            return actions.size();
+        }
+
+        synchronized void clear() {
+            actions.clear();
+        }
+
+        synchronized SearchAction popFirst() {
+            assertNonZero();
+            return actions.remove(0);
+        }
+
+        synchronized SearchAction popLast() {
+            assertNonZero();
+            return actions.remove(actions.size() - 1);
+        }
+
+        synchronized void assertNonZero() {
+            if (actions.size() == 0) {
+                throw new ApiUsageException("There must be at least 1"
+                        + " active query for this operation.");
+            }
         }
     }
 }

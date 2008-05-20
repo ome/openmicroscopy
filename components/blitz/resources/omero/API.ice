@@ -436,6 +436,7 @@ module omero {
         void setAllowLeadingWildcard(bool allowLeadingWildcard) throws ServerError;
         bool isAllowLeadingWildcard() throws ServerError;
 
+
         // Filters ~~~~~~~~~~~~~~~~~~~~~~
 
         void onlyType(string klass) throws ServerError;
@@ -451,6 +452,7 @@ module omero {
         void notAnnotatedBy(omero::model::Details d) throws ServerError;
         void onlyAnnotatedWith(StringSet classes) throws ServerError;
 
+
         // Fetches, order, counts, etc ~~~~~~~~~~~~~~~~~~~~~~
 
         void addOrderByAsc(string path) throws ServerError;
@@ -459,27 +461,37 @@ module omero {
         void fetchAnnotations(StringSet classes) throws ServerError;
         void fetchAlso(StringSet fetches) throws ServerError;
 
+
         // Reset ~~~~~~~~~~~~~~~~~~~~~~~~~
 
         void resetDefaults() throws ServerError;
 
+
         // Query state  ~~~~~~~~~~~~~~~~~~~~~~~~~
+
         void byGroupForTags(string group) throws ServerError;
         void byTagForGroups(string tag) throws ServerError;
         void byFullText(string query) throws ServerError;
+        void byHqlQuery(string query, omero::sys::Parameters params) throws ServerError;
         void bySomeMustNone(StringSet some, StringSet must, StringSet none) throws ServerError;
         void byAnnotatedWith(AnnotationList examples) throws ServerError;
         void clearQueries() throws ServerError;
 
+        void union() throws ServerError;
+        void intersection() throws ServerError;
+        void complement() throws ServerError;
+
+
         // Retrieval  ~~~~~~~~~~~~~~~~~~~~~~~~~
+
         bool hasNext() throws ServerError;
         omero::model::IObject next() throws ServerError;
         IObjectList results() throws ServerError;
-        
+
         // Currently unused
         SearchMetadata currentMetadata() throws ServerError;
         SearchMetadataList currentMetadataList() throws ServerError;
-        
+
         // Unused; Part of Java Iterator interface
         void remove() throws ServerError;
       };

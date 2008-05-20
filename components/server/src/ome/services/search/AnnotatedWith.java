@@ -17,9 +17,13 @@ import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.DoubleAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.QueryAnnotation;
+import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.ThumbnailAnnotation;
 import ome.model.annotations.TimestampAnnotation;
+import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.XmlAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
@@ -106,7 +110,18 @@ public class AnnotatedWith extends SearchAction {
         this.fetchAnnotationsCopy.addAll(values.fetchAnnotations);
         for (int i = 0; i < annotation.length; i++) {
             if (annotation[i] instanceof TextAnnotation) {
-                annCls[i] = TextAnnotation.class;
+                // FIXME This should be unneccessary. See ticket:976
+                if (annotation[i] instanceof TagAnnotation) {
+                    annCls[i] = TagAnnotation.class;
+                } else if (annotation[i] instanceof QueryAnnotation) {
+                    annCls[i] = QueryAnnotation.class;
+                } else if (annotation[i] instanceof UrlAnnotation) {
+                    annCls[i] = UrlAnnotation.class;
+                } else if (annotation[i] instanceof XmlAnnotation) {
+                    annCls[i] = XmlAnnotation.class;
+                } else {
+                    annCls[i] = TextAnnotation.class;
+                }
                 type[i] = String.class;
                 path[i] = "textValue";
                 value[i] = ((TextAnnotation) annotation[i]).getTextValue();
@@ -144,12 +159,22 @@ public class AnnotatedWith extends SearchAction {
                 throw new ApiUsageException("Unsupported annotation type:"
                         + annotation);
             }
-            // fetch annotations
+
+            // If we have an example of the given annoation, then we can
+            // fetch it directly and don't need to use the fetchAnnotationsCopy
+            // collection.
             for (Class ac : values.fetchAnnotations) {
                 if (annCls[i].isAssignableFrom(ac)) {
                     fetch[i] = true;
                     fetchAnnotationsCopy.remove(ac);
                 }
+            }
+            // On the other hand, if the value is null, then we might as well
+            // treat this as a fetch request and search only on Ann.class =.
+            // See the guards around the Joins section and the the call to
+            // notNullOrLikeOrEqual below.
+            if (value[i] == null) {
+                fetchAnnotationsCopy.add(annCls[i]);
             }
         }
 
@@ -164,11 +189,15 @@ public class AnnotatedWith extends SearchAction {
         QueryBuilder qb = new QueryBuilder();
         qb.select("this");
         qb.from(cls.getName(), "this");
+
+        // Joins
         for (int i = 0; i < ann.length; i++) {
-            link[i] = qb.unique_alias("link");
-            ann[i] = link[i] + "_child";
-            qb.join("this.annotationLinks", link[i], false, fetch[i]);
-            qb.join(link[i] + ".child", ann[i], false, fetch[i]);
+            if (value[i] != null) {
+                link[i] = qb.unique_alias("link");
+                ann[i] = link[i] + "_child";
+                qb.join("this.annotationLinks", link[i], false, fetch[i]);
+                qb.join(link[i] + ".child", ann[i], false, fetch[i]);
+            }
         }
 
         // fetch annotations
@@ -190,12 +219,19 @@ public class AnnotatedWith extends SearchAction {
         for (int j = 0; j < annotation.length; j++) {
             // Main criteria
             if (useNamespace) {
-                notNullOrLikeOrEqual(qb, ann + ".name", type[j], annotation[j]
+                notNullOrLikeOrEqual(qb, ann + ".ns", type[j], annotation[j]
                         .getNs(), useLike, values.caseSensitive);
             }
 
-            notNullOrLikeOrEqual(qb, ann[j] + "." + path[j], type[j], value[j],
-                    useLike, values.caseSensitive);
+            // If the value of the annotation is null, we assume that we are not
+            // actually searching for null annotations (whose nullability is
+            // actually a by-product of polymorphism), instead we assume the
+            // null acts like a wildcard, in which case this search has been
+            // added to the fetchAnnotationsCopy collection above.
+            if (value[j] != null) {
+                notNullOrLikeOrEqual(qb, ann[j] + "." + path[j], type[j],
+                        value[j], useLike, values.caseSensitive);
+            }
 
             annotatedBetween(qb, ann[j] + ".");
             annotatedBy(qb, ann[j] + ".");

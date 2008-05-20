@@ -456,9 +456,9 @@ public interface Search extends ome.api.StatefulServiceInterface,
     void bySomeMustNone(String[] some, String[] must, String[] none);
 
     /**
-     * Provides the main {@link IQuery} method here to take advantage of the
-     * various filters which are provided. See
-     * {@link IQuery#findAllByQuery(String, Parameters)} for the semantics.
+     * Delegates to {@link IQuery#findAllByQuery(String, Parameters)} method to
+     * take advantage of the {@link #intersection()}, {@link #union()}, and
+     * {@link #complement()} methods, or queue-semantics.
      * 
      * @param query
      *            Not null.
@@ -466,11 +466,8 @@ public interface Search extends ome.api.StatefulServiceInterface,
      *            May be null. Defaults are then in effect.
      * @see IQuery#findAllByQuery(String, Parameters)
      */
-    // Disabling. This needs to be more intelligent before it can
-    // be provided here. Something of the form byHql(String[] join, String[]
-    // where) etc.
-    // Quite possibly note worth it.
-    // void byHqlQuery(String query, Parameters p);
+    void byHqlQuery(String query, Parameters p);
+
     /**
      * Finds entities annotated with an {@link Annotation} similar to the
      * example. This does not use Hibernate's
@@ -480,11 +477,89 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * <li>the main content of the annotation : String,
      * {@link OriginalFile#getId()}, etc.</li>
      * </ul>
+     * <p>
+     * If the main content is <em>null</em> it is assumed to be a wildcard
+     * searched, and only the type of the annotation is searched. Currently,
+     * ListAnnotations are not supported.
+     * <p>
      * 
      * @param examples
      *            Not empty.
      */
     void byAnnotatedWith(Annotation... examples);
+
+    /**
+     * Applies the next by* method to the previous by* method, so that a call
+     * {@link #hasNext()}, {@link #next()}, or {@link #results()} sees only
+     * the union of the two calls.
+     * 
+     * For example,
+     * 
+     * <pre>
+     * service.onlyType(Image.class);
+     * service.byFullText(&quot;foo&quot;);
+     * service.union();
+     * service.onlyType(Dataset.class);
+     * service.byFullText(&quot;foo&quot;);
+     * </pre>
+     * 
+     * will return both Images and Datasets together.
+     * 
+     * Calling this method overrides a previous setting of
+     * {@link #intersection()} or {@link #complement()}. If there is no active
+     * queries (i.e. {@link #activeQueries()} > 0), then an
+     * {@link ApiUsageException} will be thrown.
+     */
+    void union();
+
+    /**
+     * Applies the next by* method to the previous by* method, so that a call
+     * {@link #hasNext()}, {@link #next()}, or {@link #results()} sees only
+     * the intersection of the two calls.
+     * 
+     * For example,
+     * 
+     * <pre>
+     * service.onlyType(Image.class);
+     * service.byFullText(&quot;foo&quot;);
+     * service.intersection();
+     * service.byAnnotatedWith(TagAnnotation.class);
+     * </pre>
+     * 
+     * will return only the Images with TagAnnotations.
+     * 
+     * <p>
+     * Calling this method overrides a previous setting of {@link #union()} or
+     * {@link #complement()}. If there is no active queries (i.e.
+     * {@link #activeQueries()} > 0), then an {@link ApiUsageException} will be
+     * thrown.
+     * </p>
+     */
+    void intersection();
+
+    /**
+     * Applies the next by* method to the previous by* method, so that a call
+     * {@link #hasNext()}, {@link #next()}, or {@link #results()} sees only
+     * the intersection of the two calls.
+     * 
+     * For example,
+     * 
+     * <pre>
+     * service.onlyType(Image.class);
+     * service.byFullText(&quot;foo&quot;);
+     * service.complement();
+     * service.byAnnotatedWith(TagAnnotation.class);
+     * </pre>
+     * 
+     * will return all the Images <em>not</em> annotated with TagAnnotation.
+     * <p>
+     * Calling this method overrides a previous setting of {@link #union()} or
+     * {@link #intersection()}. If there is no active queries (i.e.
+     * {@link #activeQueries()} > 0), then an {@link ApiUsageException} will be
+     * thrown.
+     * </p>
+     */
+    void complement();
 
     /**
      * Returns entities with the given UUID strings

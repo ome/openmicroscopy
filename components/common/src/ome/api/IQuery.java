@@ -213,6 +213,26 @@ public interface IQuery extends ServiceInterface {
      * StringQuerySource is configured on the server and the user running the
      * query has proper permissions.
      * 
+     * Queries can only return lists of {@link IObject} instances. This means
+     * all must be of the form:
+     * 
+     * <pre>
+     * select this from SomeModelClass this ...
+     * </pre>
+     * 
+     * though the alias "this" is unimportant. Do not try to return multiple
+     * classes in one call like:
+     * 
+     * <pre>
+     * select this, that from SomeClass this, SomeOtherClass that ...
+     * </pre>
+     * 
+     * nor to project values out of an object:
+     * 
+     * <pre>
+     * select this.name from SomeClass this ...
+     * </pre>
+     * 
      * If a {@link Page} is desired, add it to the query parameters.
      * 
      * @param queryName

@@ -6,7 +6,9 @@
  */
 package ome.server.itests.search;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -29,12 +31,20 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
+import ome.services.util.Executor;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 import ome.testing.ObjectFactory;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.aop.framework.Advised;
+import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.Test;
 
 @Test(groups = { "query", "fulltext", "search" })
@@ -54,6 +64,13 @@ public class SearchTest extends AbstractTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         oos.writeObject(internal);
+
+        byte[] array = baos.toByteArray();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(array);
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        internal = (Search) ois.readObject();
+        assertAtLeastResults(search, 1);
     }
 
     // by<Query>
@@ -427,15 +444,33 @@ public class SearchTest extends AbstractTest {
         search.byAnnotatedWith(ex2);
         assertResults(search, 1);
 
-        // Now check if an empty example return results
-        search.byAnnotatedWith(new FileAnnotation());
-        assertAtLeastResults(search, 1);
-
         // Finding by superclass
         TextAnnotation txtAnn = new TextAnnotation();
         txtAnn.setTextValue(uuid);
         search.byAnnotatedWith(txtAnn);
         assertResults(search, 1);
+    }
+
+    @Test
+    public void testAnnotatedWithNoValue() {
+
+        String uuid = uuid();
+        Image i = new Image(uuid);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue(uuid);
+        i.linkAnnotation(tag);
+        i = iUpdate.saveAndReturnObject(i);
+        iUpdate.indexObject(i);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // Now check if an empty example return results
+        tag = new TagAnnotation();
+        search.byAnnotatedWith(tag);
+        assertContainsObject(search, i);
+
     }
 
     @Test
@@ -475,6 +510,61 @@ public class SearchTest extends AbstractTest {
         assertAtLeastResults(search, 1);
 
         search.byAnnotatedWith(ta, ba);
+        assertResults(search, 1);
+
+    }
+
+    // boolean combinations
+    // ========================================================================
+    // tests combinations of union, intersection, and complement.
+
+    @Test
+    public void testSimpleCombinations() {
+
+        String uuid1 = uuid();
+        String uuid2 = uuid();
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // A + B
+        search.byFullText(uuid1);
+        search.union();
+        search.byFullText(uuid2);
+        assertResults(search, 2);
+
+        // A & B
+        search.byFullText(uuid1);
+        search.intersection();
+        search.byFullText(uuid2);
+        assertResults(search, 0);
+
+        // A - B
+        search.byFullText(uuid1);
+        search.complement();
+        search.byFullText(uuid2);
+        assertResults(search, 1);
+
+        // A + B - B = A
+        search.byFullText(uuid1);
+        search.union();
+        search.byFullText(uuid2);
+        search.complement();
+        search.byFullText(uuid2);
+        assertResults(search, 1);
+
+        // With HQL
+        search.onlyType(Event.class);
+        search.byFullText("root");
+        search.intersection();
+        search.byHqlQuery("select e from Event e where e.id = 0", null);
         assertResults(search, 1);
 
     }
@@ -1700,13 +1790,10 @@ public class SearchTest extends AbstractTest {
     @Test(groups = "ticket:975")
     public void testImagesAndTagsReturnedAccurate() {
 
-        List<Long> ids = new ArrayList<Long>();
-
         Image i = new Image("annotation");
         IUpdate update = this.factory.getUpdateService();
         i = update.saveAndReturnObject(i);
         update.indexObject(i);
-        ids.add(i.getId());
 
         i = new Image("foo");
         TagAnnotation tag = new TagAnnotation();
@@ -1714,7 +1801,6 @@ public class SearchTest extends AbstractTest {
         i.linkAnnotation(tag);
         i = update.saveAndReturnObject(i);
         update.indexObject(i);
-        ids.add(i.getId());
 
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
@@ -1729,11 +1815,10 @@ public class SearchTest extends AbstractTest {
         search.onlyType(Image.class);
         search.bySomeMustNone(new String[] { "an*" }, null, null);
 
-        for (IObject test : search.results()) {
+        List<IObject> results = assertContainsObject(search, i);
+        for (IObject test : results) {
             assertTrue(test.toString(), test instanceof Image);
-            ids.remove(test.getId());
         }
-        assertTrue(ids + " should be empty", ids.size() == 0);
 
     }
 
@@ -1755,12 +1840,7 @@ public class SearchTest extends AbstractTest {
 
         // Create a private tag on the image
         Experimenter user2 = loginNewUser();
-        i = this.factory.getQueryService()
-                .findByQuery(
-                        "select i from Image i "
-                                + "left outer join fetch i.annotationLinks "
-                                + "where i.id = :id",
-                        new Parameters().addId(i.getId()));
+        i = reloadImageWithAnnotationLinks(i);
         TagAnnotation tag = new TagAnnotation();
         tag.setTextValue("annotation");
         tag.getDetails().setPermissions(Permissions.USER_PRIVATE);
@@ -1785,6 +1865,156 @@ public class SearchTest extends AbstractTest {
 
     }
 
+    /**
+     * Attempts to solve #975 by using the {@link Search#union()} method.
+     */
+    @Test(groups = "ticket:975")
+    public void testImagesAndTagsReturnedIntersection() {
+
+        IUpdate update = this.factory.getUpdateService();
+
+        Image i = new Image("foo");
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("annotation");
+        i.linkAnnotation(tag);
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        String[] q = new String[] { "an*" };
+
+        // checking manually
+        search.bySomeMustNone(q, null, null);
+        assertContainsObject(search, i);
+        search.byAnnotatedWith(new TagAnnotation());
+        assertContainsObject(search, i);
+
+        // checking via intersection
+        search.bySomeMustNone(q, null, null);
+        search.intersection();
+        search.byAnnotatedWith(new TagAnnotation());
+
+        assertContainsObject(search, i);
+
+    }
+
+    /**
+     * Attempts to solve #975 by using the {@link Search#union()} method.
+     */
+    @Test(groups = "ticket:975")
+    public void testImagesAndTagsReturnedMultipleIntersection() {
+
+        IUpdate update = this.factory.getUpdateService();
+
+        Image i = new Image("foo");
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("annotation");
+        FileAnnotation file = new FileAnnotation();
+        i.linkAnnotation(tag);
+        i.linkAnnotation(file);
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        String[] q = new String[] { "an*" };
+
+        // checking manually
+        search.bySomeMustNone(q, null, null);
+        assertContainsObject(search, i);
+        search.byAnnotatedWith(new TagAnnotation(), new FileAnnotation());
+        assertContainsObject(search, i);
+
+        // checking via intersection
+        search.bySomeMustNone(q, null, null);
+        search.intersection();
+        search.byAnnotatedWith(new TagAnnotation(), new FileAnnotation());
+
+        assertContainsObject(search, i);
+
+    }
+
+    /**
+     * Checking for a security leak due to this issue when using union.
+     */
+    @Test(groups = "ticket:975")
+    public void testImagesAndTagsReturnedMultiuserIntersection() {
+
+        final List<Long> ids = new ArrayList<Long>();
+        final IUpdate update = this.factory.getUpdateService();
+
+        // Save a public image
+        Experimenter user1 = loginNewUser();
+        Image i = new Image("foo");
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+        ids.add(i.getId());
+
+        // Create a private tag on the image
+        Experimenter user2 = loginNewUser();
+        i = reloadImageWithAnnotationLinks(i);
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("annotation");
+        tag.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        i.linkAnnotation(tag);
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+
+        // Return to first user and see if it sees the TagAnnotation
+        loginUser(user1.getOmeName());
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.bySomeMustNone(new String[] { "an*" }, null, null);
+        search.intersection();
+        search.byAnnotatedWith(new TagAnnotation());
+
+        for (IObject test : search.results()) {
+            assertTrue(test.toString(), test instanceof Image);
+            ids.remove(test.getId());
+        }
+        assertTrue(ids + " should be empty", ids.size() == 0);
+
+    }
+
+    /**
+     * Checking for a security leak due to this issue when using union.
+     */
+    @Test(groups = "ticket:975")
+    public void testCriteriaSearchToReproduceSecurityViolation() {
+
+        Executor ex = (Executor) this.applicationContext.getBean("executor");
+
+        Experimenter user1 = loginNewUser();
+        Image i = new Image("user1");
+        i = this.iUpdate.saveAndReturnObject(i);
+
+        Experimenter user2 = loginNewUser();
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("tag");
+        i = reloadImageWithAnnotationLinks(i);
+        tag.getDetails().setPermissions(Permissions.USER_PRIVATE);
+        tag = this.iUpdate.saveAndReturnObject(tag);
+
+        loginUser(user1.getOmeName());
+        String uuid = this.iAdmin.getEventContext().getCurrentSessionUuid();
+        Principal p = new Principal(uuid, "user", "Test");
+        ex.execute(p, new Executor.Work() {
+
+            public Object doWork(TransactionStatus status, Session session,
+                    ServiceFactory sf) {
+                Criteria c = session.createCriteria(Image.class);
+                Criteria links = c.createCriteria("annotationLinks");
+                Criteria ann = links.createCriteria("child");
+                ann.add(Restrictions.eq("textValue", "tag"));
+                return null;
+            }
+        });
+        fail("Surprising to reach here");
+    }
+
     // Helpers
     // =========================================================================
 
@@ -1798,6 +2028,52 @@ public class SearchTest extends AbstractTest {
 
     void assertAtLeastResults(Search search, int k) {
         assertTrue(search.results().size() >= k);
+        // Clearing possible overflowing values.
+        while (search.hasNext()) {
+            search.results();
+        }
     }
 
+    List<IObject> assertContainsObject(Search search, IObject test) {
+
+        // Because of the weird subclassing issues, we use reflection here
+        // to obtain a "true" proxy of this object, and then compare
+        // against that.
+        test = proxy(test);
+
+        boolean found = false;
+        List<IObject> results = new ArrayList<IObject>();
+        while (search.hasNext()) {
+            for (IObject obj : search.results()) {
+                if (test.getClass().isAssignableFrom(obj.getClass())) {
+                    if (obj.getId().equals(test.getId())) {
+                        found = true;
+                    }
+                } else {
+                    results.add(obj);
+                }
+            }
+        }
+        assertTrue(test + " not found in results:" + results, found);
+        return results;
+    }
+
+    private IObject proxy(IObject test) {
+        try {
+            return (IObject) test.getClass().getMethod("proxy").invoke(test);
+        } catch (Exception e) {
+            fail("Could not obtain a proxy for:" + test);
+        }
+        return null;
+    }
+
+    private Image reloadImageWithAnnotationLinks(Image i) {
+        i = this.factory.getQueryService()
+                .findByQuery(
+                        "select i from Image i "
+                                + "left outer join fetch i.annotationLinks "
+                                + "where i.id = :id",
+                        new Parameters().addId(i.getId()));
+        return i;
+    }
 }
