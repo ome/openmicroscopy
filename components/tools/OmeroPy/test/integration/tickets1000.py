@@ -32,5 +32,21 @@ class TestTicket1000(lib.ITest):
         self.assert_(i.id != None)
         self.assert_(i.details != None)
 
+    def test883WithoutClose(self):
+        s = self.client.sf.createSearchService()
+        s.onlyType("Image")
+        s.byFullText("root")
+        if s.hasNext():
+            s.results()
+        #s.close()
+
+    def test883WithClose(self):
+        s = self.client.sf.createSearchService()
+        s.onlyType("Image")
+        s.byFullText("root")
+        if s.hasNext():
+            s.results()
+        s.close()
+
 if __name__ == '__main__':
     unittest.main()

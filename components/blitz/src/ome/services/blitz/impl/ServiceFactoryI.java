@@ -464,20 +464,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public void close(Ice.Current current) {
+
         if (log.isInfoEnabled()) {
             log.info(String.format("Closing %s session", this));
         }
 
-        try {
-            current.adapter.remove(ServiceFactoryI.sessionId(principal
-                    .getName()));
-            sessionManager.close(this.principal.getName());
-        } catch (Throwable t) {
-            // FIXME
-            InternalException ie = new InternalException(t.getMessage());
-            ie.setStackTrace(t.getStackTrace());
-        }
+        // Cleaning up resources
 
+        // INTERACTIVE
         Set<String> ipIds = interactiveSlots.keySet();
         for (String id : ipIds) {
             InteractiveProcessorI ip = (InteractiveProcessorI) interactiveSlots
@@ -487,13 +481,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             interactiveSlots.remove(id);
         }
 
-        List<String> ids = activeServices(current);
-
+        // SERVANTS
         // Here we call the "close()" method on all methods which require that
-        // logic
-        // allowing the IceMethodInvoker to raise the UnregisterServantEvent,
-        // other-
-        // wise there is a recursive call back to close.
+        // logic allowing the IceMethodInvoker to raise the
+        // UnregisterServantEvent, otherwise there is a recursive call back
+        // to close.
+        List<String> ids = activeServices(current);
         for (String idString : ids) {
             Ice.Identity id = Ice.Util.stringToIdentity(idString);
             Ice.Object obj = current.adapter.find(id);
@@ -514,6 +507,19 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             } catch (Exception e) {
                 log.error("Failure to close: " + idString + "=" + obj, e);
             }
+        }
+
+        // All resources cleaned up to the best of our ability,
+        // now we can remove the current session. If an exception if thrown,
+        // there's not much we can do.
+        try {
+            current.adapter.remove(ServiceFactoryI.sessionId(principal
+                    .getName()));
+            sessionManager.close(this.principal.getName());
+        } catch (Throwable t) {
+            // FIXME
+            InternalException ie = new InternalException(t.getMessage());
+            ie.setStackTrace(t.getStackTrace());
         }
     }
 
