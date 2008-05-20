@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import ome.api.IUpdate;
 import ome.api.Search;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
@@ -1567,6 +1568,11 @@ public class SearchTest extends AbstractTest {
         assertEquals(4, t.sizeOfAnnotationLinks());
     }
 
+    @Test
+    public void testFetchAlso() {
+        fail("NYI");
+    }
+
     // bugs
     // =========================================================================
 
@@ -1608,6 +1614,108 @@ public class SearchTest extends AbstractTest {
         search.onlyOwnedBy(d);
         search.byFullText("root");
         search.next();
+    }
+
+    @Test(groups = "ticket:897", expectedExceptions = ApiUsageException.class)
+    public void testLeadingQuestionMarkAlsoNotAllowed() {
+
+        final String query = "?oo";
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        // search.setAllowLeadingWildcard(true);
+        search.byFullText(query);
+        fail("This should not be reached");
+    }
+
+    @Test(groups = "ticket:897", expectedExceptions = ApiUsageException.class)
+    public void testOnlyWildcardThrowsException() {
+
+        // This seems only to be caused by a leading "*" and not a
+        // leading "?"
+
+        final String query = "*";
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.setAllowLeadingWildcard(true);
+        search.byFullText(query);
+        fail("This should not be reached");
+    }
+
+    /**
+     * This was a first test for #975 which always passed.
+     */
+    @Test(groups = "ticket:975")
+    public void testImagesAndTagsReturnedSimple() {
+
+        Image i = new Image("annotation");
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("annotation");
+        i.linkAnnotation(tag);
+
+        IUpdate update = this.factory.getUpdateService();
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+
+        Search search = this.factory.createSearchService();
+        search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.bySomeMustNone(new String[] { "an*" }, null, null);
+
+        boolean found = false;
+        if (search.hasNext()) {
+            List<IObject> l = search.results();
+            for (IObject object : l) {
+                assertTrue("Must be an image", object instanceof Image);
+                if (object.getId().equals(i.getId())) {
+                    found = true;
+                }
+            }
+        } else {
+            fail("Should have had results.");
+        }
+        assertTrue("Must be found", found);
+    }
+
+    /**
+     * This displays the error that Jean-Marie was actually seeing.
+     */
+    @Test(groups = "ticket:975")
+    public void testImagesAndTagsReturnedAccurate() {
+
+        List<Long> ids = new ArrayList<Long>();
+
+        Image i = new Image("annotation");
+        IUpdate update = this.factory.getUpdateService();
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+        ids.add(i.getId());
+
+        i = new Image("foo");
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("annotation");
+        i.linkAnnotation(tag);
+        i = update.saveAndReturnObject(i);
+        update.indexObject(i);
+        ids.add(i.getId());
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.bySomeMustNone(new String[] { "an*" }, null, null);
+
+        Class[] klass = new Class[1];
+        klass[0] = TagAnnotation.class;
+        search.onlyAnnotatedWith(klass);
+        search.onlyType(Image.class);
+        search.bySomeMustNone(new String[] { "an*" }, null, null);
+
+        for (IObject test : search.results()) {
+            assertTrue(test.toString(), test instanceof Image);
+            ids.remove(test.getId());
+        }
+        assertTrue(ids + " should be empty", ids.size() == 0);
+
     }
 
     // Helpers

@@ -64,10 +64,16 @@ public class FullText extends SearchAction {
             throw new IllegalArgumentException("Query string must be non-empty");
         }
 
-        if (query.startsWith("*") && !values.leadingWildcard) {
+        if ((query.startsWith("*") || query.startsWith("?"))
+                && !values.leadingWildcard) {
             throw new ApiUsageException("Searches starting with a leading "
-                    + "wildcard can be slow.\nPlease use "
+                    + "wildcard (*,?) can be slow.\nPlease use "
                     + "setAllowLeadingWildcard() to permit this usage.");
+        }
+
+        if (query.equals("*")) {
+            throw new ApiUsageException(
+                    "Wildcard searches (*) must contain more than a single wildcard. ");
         }
 
         this.queryStr = query;
