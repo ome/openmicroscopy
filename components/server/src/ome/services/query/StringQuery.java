@@ -18,12 +18,11 @@ package ome.services.query;
 import java.sql.SQLException;
 import java.util.Collection;
 
-// Third-party libraries
+import ome.conditions.ApiUsageException;
+import ome.parameters.Parameters;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-
-// Application-internal dependencies
-import ome.parameters.Parameters;
 
 /**
  * simple HQL query. Parameters are added as named parameters ({@link org.hibernate.Query#setParameter(java.lang.String, java.lang.Object)}.
@@ -53,7 +52,14 @@ public class StringQuery extends Query {
     @Override
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
-        org.hibernate.Query query = session.createQuery((String) value(STRING));
+        org.hibernate.Query query;
+        try {
+            query = session.createQuery((String) value(STRING));
+        } catch (IllegalStateException e) {
+            // Caused by a query parser error in Hibernate.
+            throw new ApiUsageException("Illegal query:" + value(STRING) + "\n"
+                    + e.getMessage());
+        }
         String[] nParams = query.getNamedParameters();
         for (int i = 0; i < nParams.length; i++) {
             String p = nParams[i];
