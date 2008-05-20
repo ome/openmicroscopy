@@ -86,7 +86,8 @@ public class ProjectWithImageNameBridge extends BridgeHelper {
                 }
             }
             if (list.size() > 0) {
-                reindexAll(list);
+                // ticket:955 Disabling for the moment.
+                // reindexAll(list);
             }
         }
     }
