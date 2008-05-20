@@ -7,6 +7,7 @@
 package ome.server.itests.sec;
 
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManagerImpl;
@@ -75,6 +76,27 @@ public class SessionManagerTest extends AbstractManagedContextTest {
         Experimenter e = loginNewUser();
         loginRoot();
         iAdmin.deleteExperimenter(e);
+
+    }
+
+    @Test
+    public void testUpdateSessionPermitsChangingDefaultGroup() {
+        login("root", "user", "User");
+        assertEquals("system", iAdmin.getEventContext().getCurrentGroupName());
+
+        String uuid = uuid();
+        ExperimenterGroup newGroup = new ExperimenterGroup(uuid);
+        long gid = iAdmin.createGroup(newGroup);
+        iAdmin.addGroups(new Experimenter(0L, false), new ExperimenterGroup(
+                gid, false));
+
+        String sid = iAdmin.getEventContext().getCurrentSessionUuid();
+        Session sess = factory.getSessionService().getSession(sid);
+        ExperimenterGroup group = iAdmin.lookupGroup(uuid);
+        sess.getDetails().setGroup(group);
+        factory.getSessionService().updateSession(sess);
+
+        assertEquals(uuid, iAdmin.getEventContext().getCurrentGroupName());
 
     }
 

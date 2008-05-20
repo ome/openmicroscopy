@@ -223,9 +223,30 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // TODO // FIXME
         // =====================================================
         // This needs to get smarter
-        //
-        Principal principal = new Principal(ctx.getCurrentUserName(), ctx
-                .getCurrentGroupName(), ctx.getCurrentEventType());
+
+        // Allow user to change default group
+        String defaultGroup = null;
+        final ome.model.internal.Details d = session.getDetails();
+        if (d != null) {
+            final ExperimenterGroup group = d.getGroup();
+            if (group != null) {
+                try {
+                    defaultGroup = this.executeGroupProxy(group.getId())
+                            .getName();
+                } catch (Exception e) {
+                    throw new ApiUsageException(
+                            "Cannot change default group to " + group + "\n"
+                                    + e.getMessage());
+                }
+            }
+        }
+
+        if (defaultGroup == null) {
+            defaultGroup = ctx.getCurrentGroupName();
+        }
+
+        Principal principal = new Principal(ctx.getCurrentUserName(),
+                defaultGroup, ctx.getCurrentEventType());
         principal = checkPrincipalNameAndDefaultGroup(principal);
 
         // Unconditionally settable; these are open to the user for change
