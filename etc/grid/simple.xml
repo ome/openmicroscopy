@@ -1,0 +1,31 @@
+<icegrid>
+
+<!--
+    OMERO Grid Application Descriptor
+    Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
+    Use is subject to license terms supplied in LICENSE.txt
+-->
+
+  <application name="OMERO">
+
+    <description>
+    Basic OMERO.grid configuration which permits no processing capabilities
+    </description>
+
+    <replica-group id="BlitzAdapters">
+      <load-balancing type="adaptive" load-sample="5" n-replicas="2"/>
+      <object identity="BlitzVerifier" type="::Glacier2::PermissionVerifier"/>
+      <object identity="BlitzManager" type="::Glacier2::SessionManager"/>
+    </replica-group>
+
+    <node name="master">
+      <server-instance template="Glacier2Template"
+        client-endpoints="tcp -h 127.0.0.1 -p 4063"
+        session-timeout="300"
+        server-endpoints="tcp -h 127.0.0.1"/>
+      <server-instance template="BlitzTemplate" index="0"/>
+   </node>
+
+  </application>
+
+</icegrid>
