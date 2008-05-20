@@ -10,7 +10,7 @@ package ome.services.scheduler;
 import org.quartz.Scheduler;
 
 /**
- * Produces a <a href="http://www.opensymphony.com/quartz/"Quartz</a>
+ * Produces a <a href="http://www.opensymphony.com/quartz/Quartz</a>
  * {@link Scheduler} which automatically loads all the triggers it can find.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
@@ -19,4 +19,7 @@ import org.quartz.Scheduler;
 public class SchedulerFactoryBean extends
         org.springframework.scheduling.quartz.SchedulerFactoryBean {
 
+    {
+
+    }
 }
