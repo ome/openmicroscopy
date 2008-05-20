@@ -13,7 +13,7 @@ import omero.processor
 
 class log:
     def warning(self, string):
-        print string
+        print "Warning:",string
 
 class TestProcess(unittest.TestCase):
 
@@ -32,6 +32,12 @@ class TestProcess(unittest.TestCase):
                 self._killed = success
 
         class Popen(object):
+            """
+            TODO: This might be useful for testing a situation
+            in which an active process gets pass directly to
+            ProcessI.__init__(self, popen). At the moment, there's
+            no use case for this, so skipping.
+            """
             def __init__(self):
                 self._poll = None
                 self._wait = None
@@ -41,8 +47,11 @@ class TestProcess(unittest.TestCase):
             def wait(self):
                 return self._wait
 
-        popen = Popen()
-        process = omero.processor.ProcessI(None, popen)
+        print """
+        SKIPPED! direct opening of popen
+        """
+        return
+        process = omero.processor.ProcessI("python",Popen())
         print process.poll()
         self.assert_( not process.poll() )
         popen._poll = 1
@@ -58,19 +67,21 @@ class TestProcess(unittest.TestCase):
 
     def testPopen(self):
 
-        p = {"name":"name","pasw":"pass", "conn":"conn"}
+        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"conn"}
         process = omero.processor.ProcessI("python",p,log())
         f = open(process.script_name, "w")
         f.write("""
 print "Hello"
         """)
+        f.close()
         process.activate()
-        process.wait()
-        process.poll()
+        print process.dir
+        self.assert_( None != process.wait() )
+        self.assert_( None != process.poll() )
 
     def testParameters(self):
 
-        p = {"name":"name","pasw":"pass", "conn":"conn"}
+        p = {"omero.user":"sessionId","omero.pass":"sessionId", "Ice.Default.Router":"conn"}
         p["omero.scripts.parse"] = "1"
         process = omero.processor.ProcessI("python",p,log())
         f = open(process.script_name, "w")
@@ -78,6 +89,7 @@ print "Hello"
 import omero, omero.scripts s
 client = s.client("name","description",s.Long("l"))
         """)
+        f.close()
         process.activate()
         process.wait()
         process.poll()

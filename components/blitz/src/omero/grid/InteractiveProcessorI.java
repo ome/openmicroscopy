@@ -65,6 +65,16 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
     private Session session;
 
+    /**
+     * 
+     * @param p
+     * @param mgr
+     * @param prx
+     * @param job
+     *            Unloaded {@link Job} instance, which will be used by
+     *            {@link omero.grid.Processor} to reload the {@link Job}
+     * @param timeout
+     */
     public InteractiveProcessorI(Principal p, SessionManager mgr,
             ProcessorPrx prx, Job job, long timeout) {
         this.principal = p;

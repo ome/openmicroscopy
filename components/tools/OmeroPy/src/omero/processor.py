@@ -16,6 +16,32 @@ Ice.Warn.Connections=1
 Ice.ImplicitContext=Shared
 Ice.GC.Interval=60
 """
+class Environment:
+    """
+    Simple class for creating an executable environment
+    """
+
+    def __init__(self,*args):
+        """
+        Takes an number of environment variable names which
+        should be copied to the target environment if present
+        in the current execution environment.
+        """
+        self.env = {}
+        for arg in args:
+            if os.environ.has_key(arg):
+                self.env[arg] = os.environ[arg]
+    def __call__(self):
+        """
+        Returns the environment map when called.
+        """
+        return self.env
+
+    def set(self, key, value):
+        """
+        Manually sets a value in the target environment.
+        """
+        self.env[key] = value
 
 class ProcessI(omero.grid.Process):
     """
@@ -27,7 +53,7 @@ class ProcessI(omero.grid.Process):
     Call is equivalent to:
 
     cd TMP_DIR
-    ICE_CONFIG=./config interpreter ./script
+    ICE_CONFIG=./config interpreter ./script >out 2>err &
 
     """
 
@@ -43,13 +69,8 @@ class ProcessI(omero.grid.Process):
         self.config_name = os.path.join(self.dir, "config")
         self.stdout_name = os.path.join(self.dir, "out")
         self.stderr_name = os.path.join(self.dir, "err")
-        self.env = {}
-        self.env["ICE_CONFIG"] = self.config_name
-        self.env["PATH"] = os.environ["PATH"]
-        self.env["PYTHONPATH"] = os.environ["PYTHONPATH"]
-        self.env["DYLD_LIBRARY_PATH"] = os.environ["DYLD_LIBRARY_PATH"]
-        self.env["LD_LIBRARY_PATH"] = os.environ["LD_LIBRARY_PATH"]
-        self.env["MLABRAW_CMD_STR"] = os.environ["MLABRAW_CMD_STR"]
+        self.env = Environment("PATH","PYTHONPATH","DYLD_LIBRARY_PATH","LD_LIBRARY_PATH","MLABRAW_CMD_STR")
+        self.env.set("ICE_CONFIG", self.config_name)
         self.make_config()
 
     def activate(self):
@@ -59,7 +80,7 @@ class ProcessI(omero.grid.Process):
         """
         self.stdout = open(self.stdout_name, "w")
         self.stderr = open(self.stderr_name, "w")
-        self.popen = subprocess.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env, stdout=self.stdout, stderr=self.stderr)
+        self.popen = subprocess.Popen([self.interpreter, "./script"], cwd=self.dir, env=self.env(), stdout=self.stdout, stderr=self.stderr)
         print self.popen
 
     def __del__(self):
@@ -184,24 +205,28 @@ class ProcessorI(omero.grid.Processor):
         sf = client.createSession(session, session)
         ec = sf.getAdminService().getEventContext()
 
-        # Should actually reload the Job here.
-        if not job.originalFileLinksLoaded or \
-                len(job.originalFileLinks) != 1:
-            raise omero.ApiUsageException(\
-                None, None, "Job should have one file")
+        handle = sf.createJobHandle()
+        handle.attach(job.id.val)
+        if handle.jobFinished():
+            raise omero.ApiUsageException("Job already finished.")
 
-        file = job.originalFileLinks[0].child
         file = sf.getQueryService().findByQuery(\
-            """select o from OriginalFile o
-             join fetch o.format where o.id = %d
+            """select o from Job j
+             join j.originalFileLinks links
+             join links.child o
+             join o.format
+             where
+                 j.id = %d
              and o.details.owner.id = 0
              and o.format.value = 'text/x-python'
-             """ % file.id.val, None)
+             """ % job.id.val, None)
+
 
         if not file:
             raise omero.ApiUsageException(\
-                None, None, "File does not match processor criteria")
+                None, None, "Job should have one executable file attached.")
 
+        properties["omero.job"]  = str(job.id.val)
         properties["omero.user"] = session
         properties["omero.pass"] = session
         properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")

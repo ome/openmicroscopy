@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import ome.api.JobHandle;
 import ome.api.ServiceInterface;
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
@@ -97,14 +98,18 @@ import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
 import omero.model.Job;
+import omero.model.JobStatusI;
+import omero.util.IceMapper;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.transaction.TransactionStatus;
 
 import Ice.Current;
 
@@ -339,29 +344,84 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return StatefulServiceInterfacePrxHelper.uncheckedCast(prx);
     }
 
-    public InteractiveProcessorPrx acquireProcessor(Job job, int seconds,
-            Current current) throws ServerError {
+    public InteractiveProcessorPrx acquireProcessor(final Job submittedJob,
+            int seconds, Current current) throws ServerError {
 
         if (seconds > (3 * 60)) {
             ApiUsageException aue = new ApiUsageException();
             aue.message = "Delay is too long. Maximum = 3 minutes.";
         }
 
-        // First create the job
-        // This section is being temporarily omitted. It is necessary to be
-        // able to add jobs which are delayed until actively consumed. This
-        // could be done via setting the scheduledFor time
-        // JobHandlePrx handle = createJobHandle(current);
+        final IceMapper mapper = new IceMapper();
+
+        // First create the job with a status of WAITING.
+        // The InteractiveProcessor will be responsible for its
+        // further lifetime.
+        final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) this.executor
+                .execute(this.principal, new Executor.Work() {
+
+                    public ome.model.jobs.Job doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+
+                        final JobHandle handle = sf.createJobHandle();
+                        try {
+                            submittedJob.status = new JobStatusI();
+                            submittedJob.status.value = new omero.RString(
+                                    JobHandle.WAITING);
+                            submittedJob.message = new omero.RString(
+                                    "Interactive job. Waiting.");
+
+                            handle.submit((ome.model.jobs.Job) mapper
+                                    .reverse(submittedJob));
+                            return handle.getJob();
+                        } catch (ApiUsageException e) {
+                            return null;
+                        } finally {
+                            if (handle != null) {
+                                handle.close();
+                            }
+                        }
+                    }
+                });
+
+        if (savedJob == null) {
+            throw new ApiUsageException(null, null, "Could not submit job. ");
+        }
+
+        // Unloading job to prevent lazy-initialization exceptions.
+        Job unloadedJob = (Job) mapper.map(savedJob);
+        unloadedJob.unload();
 
         // Lookup processor
         // Create wrapper (InteractiveProcessor)
         // Create session (with session)
         // Setup environment
         // Send off to processor
-
         long start = System.currentTimeMillis();
         long stop = seconds < 0 ? start : (start + (seconds * 1000));
         do {
+
+            Ice.ObjectPrx objectPrx = current.adapter.getCommunicator()
+                    .stringToProxy("IceGrid/Query");
+            IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
+                    .checkedCast(objectPrx);
+            Ice.ObjectPrx[] candidates = query
+                    .findAllObjectsByType("::omero::grid::Processor");
+
+            // //current.con
+
+            for (Ice.ObjectPrx op : candidates) {
+                ProcessorPrx p;
+                try {
+                    p = ProcessorPrxHelper.checkedCast(op);
+                    if (p != null) {
+                        // p.login()
+                    }
+                } catch (Exception e) {
+                    // continue
+                }
+            }
+
             Ice.ObjectPrx prx = current.adapter.getCommunicator()
                     .stringToProxy("Processor");
             if (prx != null) {
@@ -372,7 +432,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
                         InteractiveProcessorI ip = new InteractiveProcessorI(
                                 this.principal, this.sessionManager, processor,
-                                job, timeout);
+                                unloadedJob, timeout);
                         Ice.Identity id = new Ice.Identity();
                         id.category = current.id.name;
                         id.name = Ice.Util.generateUUID();
