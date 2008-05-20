@@ -34,5 +34,6 @@
 <blue>230</blue>
 </structuredEntry>
 </colors>
+<entry name="/views/MAX_ENTRIES" type="integer">100</entry>
 </resources>
 </agent>

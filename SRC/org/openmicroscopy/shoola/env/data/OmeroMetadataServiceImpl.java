@@ -124,6 +124,7 @@ class OmeroMetadataServiceImpl
 			if (description != null) {
 				id = tag.getId();
 				if (id >= 0) {
+					/*
 					List links = gateway.findAnnotationLinks(Annotation.class, 
 							                      id, null);
 					if (links != null) {
@@ -144,6 +145,8 @@ class OmeroMetadataServiceImpl
 							gateway.deleteObject((IObject) i.next());
 						}
 					}
+					*/
+					gateway.removeTagDescription(id, getUserDetails().getId());
 				}	
 				ioType = gateway.convertPojos(TagAnnotationData.class);
 				ho = gateway.findIObject(ioType, id);
@@ -412,7 +415,7 @@ class OmeroMetadataServiceImpl
 		}
 		return results;
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#annotate(DataObject, AnnotationData)
@@ -424,7 +427,7 @@ class OmeroMetadataServiceImpl
 			throw new IllegalArgumentException("DataObject cannot be null");
 		return annotate(toAnnotate.getClass(), toAnnotate.getId(), annotation);
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#annotate(Class, long, AnnotationData)
@@ -434,6 +437,7 @@ class OmeroMetadataServiceImpl
 	{
 		if (annotation == null)
 			throw new IllegalArgumentException("DataObject cannot be null");
+		long userID = getUserDetails().getId();
 		Class ioType = gateway.convertPojos(type);
 		IObject ho = gateway.findIObject(ioType, id);
 		ILink link = null;
@@ -498,9 +502,7 @@ class OmeroMetadataServiceImpl
 				TextualAnnotationData description = tag.getTagDescription();
 				if (description != null) {
 					id = tag.getId();
-					if (id >= 0)
-						clearAnnotationAnnotationLink(id, 
-										tag.getTagDescriptions());
+					if (id >= 0) gateway.removeTagDescription(id, userID);
 					 	
 					link = ModelMapper.createAnnotation(
 							ModelMapper.getAnnotationObject(object), 
@@ -527,8 +529,6 @@ class OmeroMetadataServiceImpl
 	{
 		if (annotation == null)
 			throw new IllegalArgumentException("Annotation cannot be null");
-		
-		
 		return null;
 	}
 
@@ -766,13 +766,11 @@ class OmeroMetadataServiceImpl
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		DataObject object;
-		System.err.println("save");
 		while (j.hasNext()) {
 			object = j.next();
 			if (object instanceof AnnotationData) {
 				updateAnnotationData(object);
 			} else service.updateDataObject(object);
-			
 			if (toAdd != null) {
 				i = toAdd.iterator();
 				while (i.hasNext())

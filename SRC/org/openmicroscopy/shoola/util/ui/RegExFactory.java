@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +50,20 @@ import java.util.regex.Pattern;
 public class RegExFactory
 {
     
+	/** The collection of escaping characters we allow in the search. */
+	private static final List<Character>	SUPPORTED_SPECIAL_CHAR;
+	
+	static {
+		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
+		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('['));
+		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('?'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('+'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('*'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('.'));
+	}
+	
     /**
      * Attempts to find the next subsequence of the input sequence that matches
      * the pattern.
@@ -92,4 +109,42 @@ public class RegExFactory
         return Pattern.compile(regEx);
     }
 
+    public static String[] formatSearchText(List<String> terms)
+    {
+    	if (terms == null) return new String[0];
+    	String[] formattedTerms = new String[terms.size()];
+    	String value;
+    	Iterator<String> i = terms.iterator();
+    	int j = 0;
+    	int n;
+    	char[] arr;
+    	String v;
+    	while (i.hasNext()) {
+			value = i.next();
+			n = value.length();
+			arr = new char[n];
+			v = "";
+			value.getChars(0, n, arr, 0);  
+			for (int k = 0; k < arr.length; k++) {
+				if (SUPPORTED_SPECIAL_CHAR.contains(arr[k])) 
+					v += "\\"+arr[k];
+				else v += arr[k];
+			}
+			formattedTerms[j] = v;
+			j++;
+		}
+    	return formattedTerms;
+    }
+    
+    public static String formatSearchTextAsString(List<String> terms)
+    {
+    	if (terms == null) return "";
+    	String[] formattedTerms = formatSearchText(terms);
+    	String text = "";
+    	for (int i = 0; i < formattedTerms.length; i++) 
+			text += formattedTerms[i];
+		
+    	return text;
+    }
+    
 }

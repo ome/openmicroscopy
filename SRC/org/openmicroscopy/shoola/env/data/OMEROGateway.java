@@ -3308,7 +3308,7 @@ class OMEROGateway
 				+ "left outer join ann.annotationLinks link "
                 + "left outer join fetch ann.details.creationEvent "
                 + "left outer join fetch ann.details.owner ";
-			sql += " where link.parent.id member of "+type;
+			sql += " where link.parent member of "+type;
 			sql += " and link.child member of "+type;
 			sql += " and link.details.owner.id = :uid";
 			List l = service.findAllByQuery(sql, param);
@@ -3320,10 +3320,12 @@ class OMEROGateway
 				while (i.hasNext()) {
 					param = new Parameters();
 					tag = (TagAnnotationData) PojoMapper.asDataObject(i.next());
+					
 					param.addLong("id", tag.getId());
 					sql =  "select link from AnnotationAnnotationLink as link "
-						+ "left outer join link.child ann";
-					sql += " where link.parent.id = :id";
+						+ "left outer join link.child ann ";
+					sql += " where ann member of "+type;
+					sql += " and link.parent.id = :id";
 					Set children = new HashSet();
 					List r = service.findAllByQuery(sql, param);
 					Iterator j = r.iterator();
@@ -3339,10 +3341,56 @@ class OMEROGateway
 			
 			return results;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;
+	}
+	
+	/**
+	 * Removes the description linked to the tags.
+	 * 
+	 * @param tagID  The id of tag to handle.
+	 * @param userID The id of the user who annotated the tag.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	void removeTagDescription(long tagID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			String type = "ome.model.annotations.TextAnnotation";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("uid", userID);
+			param.addLong("id", tagID);
+
+			String sql =  "select link from AnnotationAnnotationLink as link ";
+			sql += "where link.parent.id = :id";
+			sql += " and link.child member of "+type;
+			sql += " and link.details.owner.id = :uid";
+			
+			List l = service.findAllByQuery(sql, param);
+			//remove all the links if any
+			if (l != null) {
+				Iterator i = l.iterator();
+				ILink link;
+				IObject child;
+				while (i.hasNext()) {
+					link = (ILink) i.next();
+					child = link.getChild();
+					if (!((child instanceof TagAnnotation) || 
+						(child instanceof UrlAnnotation)))  {
+						deleteObject(link);
+						deleteObject(child);
+					}
+				}
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot remove the tag description.");
+		}
 	}
 	
 	/** Checks if the session is still alive. */

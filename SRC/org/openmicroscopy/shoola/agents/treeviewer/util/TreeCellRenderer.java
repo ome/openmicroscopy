@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.util.Set;
+
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -104,9 +106,13 @@ public class TreeCellRenderer
             icon = icons.getIcon(IconManager.CATEGORY_GROUP);
         else if (usrObject instanceof CategoryData)
             icon = icons.getIcon(IconManager.CATEGORY);
-        else if (usrObject instanceof TagAnnotationData)
-        	icon = icons.getIcon(IconManager.TAG);
-        else if (node instanceof TreeImageTimeSet)
+        else if (usrObject instanceof TagAnnotationData) {
+        	TagAnnotationData tag = (TagAnnotationData) usrObject;
+        	Set tags = tag.getTags();
+        	if (tags != null && tags.size() > 0)
+        		icon = icons.getIcon(IconManager.TAG_SET);
+        	else icon = icons.getIcon(IconManager.TAG);
+        } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (usrObject instanceof String)
         	icon = icons.getIcon(IconManager.ROOT);

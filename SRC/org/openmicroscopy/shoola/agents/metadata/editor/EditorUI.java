@@ -131,8 +131,11 @@ public class EditorUI
 	/** The component hosting the {@link #infoUI}. */
 	private TreeComponent 				infoTree;
 
-	/** The component hosting the {@link #commentsTree}. */
+	/** The component hosting the {@link #textualAnnotationsUI}. */
 	private TreeComponent 				commentsTree;
+	
+	/** The component hosting the {@link #tagUI}. */
+	private TreeComponent 				tagsTree;
 	
 	/** The tool bar with various controls. */
 	private ToolBar						toolBarTop;
@@ -210,6 +213,9 @@ public class EditorUI
 		commentsTree.insertNode(textualAnnotationsUI, 
 								textualAnnotationsUI.getCollapseComponent(),
 								false);
+		tagsTree = new TreeComponent();
+		tagsTree.insertNode(tagsUI, tagsUI.getCollapseComponent(), false);
+		
 		viewByTree = new TreeComponent();
 		viewByTree.setVisible(false);
 		viewByTree.insertNode(viewedByUI, viewedByUI.getCollapseComponent(),
@@ -275,17 +281,18 @@ public class EditorUI
 		trees.add(left);
 		
 		double h = TableLayout.PREFERRED;
-		boolean expanded = false;
 		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				0, h, TableLayout.PREFERRED, TableLayout.PREFERRED} }; //rows
+				0, h, TableLayout.PREFERRED, TableLayout.PREFERRED,
+				TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		
 		leftPane.add(viewTreePanel, "0, 1");
 		leftPane.add(infoTree, "0, 2");
 		leftPane.add(propertiesTree, "0, 3");
 		leftPane.add(commentsTree, "0, 4");
-		leftPane.add(left, "0, 5");
+		leftPane.add(tagsTree, "0, 5");
+		leftPane.add(left, "0, 6");
 		
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
@@ -303,8 +310,8 @@ public class EditorUI
 			case Editor.VERTICAL_LAYOUT:
 				//left.insertNode(textualAnnotationsUI, 
 					//	textualAnnotationsUI.getCollapseComponent(), expanded);
-				left.insertNode(tagsUI, tagsUI.getCollapseComponent(), 
-								expanded);
+				//left.insertNode(tagsUI, tagsUI.getCollapseComponent(), 
+					//			expanded);
 
 				tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 				tree.insertNode(attachmentsUI, 
@@ -321,9 +328,9 @@ public class EditorUI
 				left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 				left.insertNode(attachmentsUI, 
 							attachmentsUI.getCollapseComponent(), false);
-				tree.insertNode(textualAnnotationsUI, 
-						textualAnnotationsUI.getCollapseComponent());
-				tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
+				//tree.insertNode(textualAnnotationsUI, 
+					//	textualAnnotationsUI.getCollapseComponent());
+				//tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
 				content.setLayout(new TableLayout(CONTENT_GRID));
 				content.add(toolBarTop, "0, 0, 2, 0");
 				content.add(leftPane, "0, 1");
@@ -385,6 +392,7 @@ public class EditorUI
         	if (added) addTopLeftComponent(topLeftPane);
         	Object refObject = model.getRefObject();
         	commentsTree.setTreeEnabled(true);
+        	tagsTree.setTreeEnabled(true);
         	if (refObject instanceof ImageData) {
         		boolean count =  model.getViewedByCount() > 0;
         		viewByTree.setTreeEnabled(count);
@@ -401,6 +409,10 @@ public class EditorUI
         		commentsTree.collapseNodes();
         		propertiesUI.setObjectDescription();
         		commentsTree.setTreeEnabled(false);
+        		if (model.hasTagsAsChildren()) {
+        			tagsTree.collapseNodes();
+        			tagsTree.setTreeEnabled(false);
+        		}
         	}
         	toolBarTop.setDecorator();
     	}

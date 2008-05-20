@@ -70,7 +70,12 @@ import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 
 /** 
- * 
+ * The Model component in the <code>EditorViewer</code> MVC triad.
+ * This class knows how to store and manipulate the results. 
+ * It provides a suitable data loader.
+ * The {@link EditorComponent} intercepts the results of data loadings, 
+ * feeds them back to this class and fires state transitions as appropriate.
+ *
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -169,7 +174,7 @@ class EditorModel
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
 	 */
-	EditorModel(Object refObject, MetadataViewer parent, 
+	EditorModel(Object refObject, MetadataViewer parent,
 				boolean thumbnailRequired) 
 	{
 		if (refObject == null)
@@ -967,6 +972,22 @@ class EditorModel
 		EditorLoader loader = new PasswordEditor(component, old, confirm);
 		loader.load();
 		loaders.add(loader);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the object of reference is tag of another
+	 * tag, <code>false</code> if it is tag linked to images, without any links
+	 * or if it is not a tag.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasTagsAsChildren()
+	{
+		if (!(refObject instanceof TagAnnotationData)) return false;
+		TagAnnotationData tag = (TagAnnotationData) refObject;
+		Set tags = tag.getTags();
+		if (tags != null && tags.size() > 0) return true;
+		return false;
 	}
 	
 }

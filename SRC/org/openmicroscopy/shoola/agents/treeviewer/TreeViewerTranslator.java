@@ -52,7 +52,6 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PermissionData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 

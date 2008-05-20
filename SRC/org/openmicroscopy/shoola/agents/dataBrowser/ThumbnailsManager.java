@@ -84,12 +84,14 @@ public class ThumbnailsManager
      * 
      * @param imageNodes All the {@link ImageNode}s in a given visualization
      *                   tree.  Mustn't be <code>null</code>.
+     * @param totalIDs	 The total number of timages to load.
      */
-    public ThumbnailsManager(Collection<ImageNode> imageNodes)
+    public ThumbnailsManager(Collection<ImageNode> imageNodes, int totalIDs)
     {
         if (imageNodes == null) 
             throw new NullPointerException("No image nodes.");
-        totalIDs = 0;
+        //totalIDs = 0;
+        this.totalIDs = totalIDs;
         processedIDs = new HashSet<Long>();
         thumbProviders = new HashMap<Long, Set>();
         Iterator i = imageNodes.iterator();
@@ -103,7 +105,7 @@ public class ThumbnailsManager
             id = new Long(is.getId());
             providers = thumbProviders.get(id);
             if (providers == null) {
-                totalIDs++;
+                //totalIDs++;
                 providers = new HashSet<Thumbnail>();
                 thumbProviders.put(id, providers);
             }

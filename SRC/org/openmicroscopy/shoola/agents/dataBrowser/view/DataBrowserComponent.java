@@ -116,7 +116,9 @@ class DataBrowserComponent
 	public void activate()
 	{
 		//Determine the view depending on the 
-		if (model.getNumberOfImages() < MAX_ENTRIES)
+		Integer max = (Integer) DataBrowserAgent.getRegistry().lookup(
+				          "/views/MAX_ENTRIES");
+		if (model.getNumberOfImages() < max.intValue())
 			model.loadData(false); 
 		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		if (model.getBrowser() != null) {
@@ -163,11 +165,11 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#setThumbnail(long, BufferedImage)
+	 * @see DataBrowser#setThumbnail(long, BufferedImage, int)
 	 */
-	public void setThumbnail(long imageID, BufferedImage thumb)
+	public void setThumbnail(long imageID, BufferedImage thumb, int maxEntries)
 	{
-		model.setThumbnail(imageID, thumb);
+		model.setThumbnail(imageID, thumb, maxEntries);
 	}
 
 	/**
@@ -274,28 +276,23 @@ class DataBrowserComponent
 			return;
 		}
 		
-		String text = "";
-		Iterator<String> i = terms.iterator();
-		while (i.hasNext()) 
-			text += i.next().trim();
-		
 		Browser browser = model.getBrowser();
 		Pattern pattern;
 		try {
-			pattern = RegExFactory.createPattern(text);
+			pattern = RegExFactory.createPattern(
+					RegExFactory.formatSearchTextAsString(terms));
 		} catch (PatternSyntaxException pse) {
             UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Find", "The phrase cannot contain +, ? or *");
+            un.notifyInfo("Find", "Some characters are not recognised.");
             return;
         }
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		RegexFinder finder = new RegexFinder(pattern);
-		//browser.visitOriginal(finder);
 		browser.accept(finder);
 		List<ImageDisplay> nodes = finder.getFoundNodes();
 		browser.setFilterNodes(nodes);
-		model.layoutBrowser();
-		browser.getUI().repaint();
+		view.layoutUI();
+		view.setNumberOfImages(nodes.size());
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 

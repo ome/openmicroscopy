@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
-import java.util.Set;
+import java.util.Collection;
 
 //Third-party libraries
 
@@ -55,17 +55,20 @@ public class ThumbnailLoader
 	extends DataBrowserLoader
 {
 
+	/** The number of thumbnails to load. */
+	private int                     max;
+	
 	/** 
 	 * The <code>ImageData</code> objects for the images whose thumbnails 
 	 * have to be fetched.
 	 */
-    private Set<ImageData>	images;
+    private Collection<ImageData>	images;
     
     /** Flag indicating to retrieve thumbnail. */
-    private boolean			thumbnail;
+    private boolean					thumbnail;
     
     /** Handle to the async call so that we can cancel it. */
-    private CallHandle 	 	handle;
+    private CallHandle 	 			handle;
     
     /**
      * Creates a new instance.
@@ -76,7 +79,7 @@ public class ThumbnailLoader
      *               	thumbnails have to be fetched. 
      * 					Mustn't be <code>null</code>.
      */
-    public ThumbnailLoader(DataBrowser viewer, Set<ImageData> images)
+    public ThumbnailLoader(DataBrowser viewer, Collection<ImageData> images)
     {
         this(viewer, images, true);
     }
@@ -92,14 +95,15 @@ public class ThumbnailLoader
      * @param thumbnail	Pass <code>true</code> to retrieve image at a thumbnail
      * 					size, <code>false</code> otherwise.
      */
-    public ThumbnailLoader(DataBrowser viewer, Set<ImageData> images, boolean
-    						thumbnail)
+    public ThumbnailLoader(DataBrowser viewer, Collection<ImageData> images, 
+    		              boolean thumbnail)
     {
         super(viewer);
         if (images == null)
             throw new IllegalArgumentException("Collection shouldn't be null.");
         this.images = images;
         this.thumbnail = thumbnail;
+        max = images.size();
     }
     
     /**
@@ -141,7 +145,7 @@ public class ThumbnailLoader
            
             ThumbnailData td = (ThumbnailData) fe.getPartialResult();
             if (td != null)  //Last fe has null object.
-                viewer.setThumbnail(td.getImageID(), td.getThumbnail());
+                viewer.setThumbnail(td.getImageID(), td.getThumbnail(), max);
         } else {
         	if (status == null) 
         		status = (percDone == 100) ? "Done" :  //Else

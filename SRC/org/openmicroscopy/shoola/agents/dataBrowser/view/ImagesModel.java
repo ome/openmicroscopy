@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -92,7 +93,7 @@ class ImagesModel
 		if (nodes == null || nodes.size() == 0) return null;
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
-		Set<ImageData> imgs = new HashSet<ImageData>();
+		List<ImageData> imgs = new ArrayList<ImageData>();
 		while (i.hasNext()) {
 			node = i.next();
 			if (node.getThumbnail().getFullScaleThumb() == null) {
@@ -100,7 +101,7 @@ class ImagesModel
 				imagesLoaded++;
 			}
 		}
-		return new ThumbnailLoader(component, imgs);
+		return new ThumbnailLoader(component, sorter.sort(imgs));
 	}
 	
 	/**

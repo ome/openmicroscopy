@@ -100,7 +100,7 @@ abstract class DataBrowserModel
     private ThumbnailsManager   fullSizeThumbsManager;
     
     /** Used to sort the nodes by date or alphabetically. */
-    private ViewerSorter        sorter;
+    protected ViewerSorter      sorter;
     
     private DataBrowserLoader	loader;
     
@@ -248,14 +248,17 @@ abstract class DataBrowserModel
      * When every image object has a thumbnail, this method sets the state
      * to {@link HiViewer#READY}.
      * 
-     * @param imageID The id of the hierarchy object to which the thumbnail 
-     *                belongs.
-     * @param thumb The thumbnail pixels.
+     * @param imageID    The id of the hierarchy object to which the thumbnail 
+     *                   belongs.
+     * @param thumb      The thumbnail pixels.
+     * @param maxEntries The number of thumbnails to load.
      */
-    void setThumbnail(long imageID, BufferedImage thumb)
+    void setThumbnail(long imageID, BufferedImage thumb, int maxEntries)
     {
         if (thumbsManager == null) 
-            thumbsManager = new ThumbnailsManager(browser.getImageNodes());
+            thumbsManager = new ThumbnailsManager(
+            		          browser.getVisibleImageNodes(), maxEntries);
+       
         thumbsManager.setThumbnail(imageID, thumb);
         if (thumbsManager.isDone()) {
             state = DataBrowser.READY;
@@ -388,7 +391,8 @@ abstract class DataBrowserModel
 			}
 		}
 		if (nodes.size() > 0) {
-			fullSizeThumbsManager = new ThumbnailsManager(toKeep);
+			fullSizeThumbsManager = new ThumbnailsManager(toKeep, 
+					                                    toKeep.size());
 			ThumbnailLoader loader = new ThumbnailLoader(component, nodes, 
 														false);
 			loader.load();

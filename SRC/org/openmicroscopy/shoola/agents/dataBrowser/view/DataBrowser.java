@@ -211,11 +211,12 @@ public interface DataBrowser
     /**
      * Callback used by a data loader to set thumbnails as they are retrieved.
      * 
-     * @param imageID The id of the image to which the thumbnail belongs.
-     * @param thumb The thumbnail pixels.
+     * @param imageID    The id of the image to which the thumbnail belongs.
+     * @param thumb      The thumbnail pixels.
+     * @param maxEntries The number of thumbnails to load.
      * @see org.openmicroscopy.shoola.agents.hiviewer.DataLoader
      */
-    public void setThumbnail(long imageID, BufferedImage thumb);
+    public void setThumbnail(long imageID, BufferedImage thumb, int maxEntries);
     
     /**
      * Callback used by data loaders to provide the viewer with feedback about
