@@ -6,8 +6,10 @@
     <property name="make.DESTDIR"     value="${up-two}/target/"/>
     <property name="make.LDFLAGS"     value="-fPIC"/>
     <property name="make.CXXFLAGS"    value="-fPIC -O0 -g -D_REENTRANT -Wall"/>
-    <property name="make.CXX"         value="ccache g++"/>
     <property name="make.J"           value="1"/>
+    <!-- Checking for ccache before making it the default. -->
+    <available property="make.CXX" filepath="${make.PATH}" file="cache" value="ccache g++"/>
+    <property name="make.CXX"         value="g++"/>
 
     <condition property="make.MAC_UNIVERSAL" value="-arch i386 -arch ppc" else="">
         <and><os family="mac"/><os family="unix"/></and>
