@@ -7,7 +7,10 @@
 
 package ome.services.blitz.fire;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
@@ -65,6 +68,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected final Executor executor;
 
+    protected final Set<String> sessionsForReaping = new HashSet<String>();
+
     public SessionManagerI(SecuritySystem secSys,
             SessionManager sessionManager, Executor executor) {
         this.securitySystem = secSys;
@@ -81,6 +86,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     public Glacier2.SessionPrx create(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
+
+        reapSessions(current);
 
         Roles roles = securitySystem.getSecurityRoles();
 
@@ -157,8 +164,40 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 sf.unregisterServant(Ice.Util.stringToIdentity(key), curr);
             }
         } else if (event instanceof DestroySessionMessage) {
+            // Cannot destroy here without an ObjectAdapter instance.
+            // Instead, registering for later reaping.
             DestroySessionMessage msg = (DestroySessionMessage) event;
-            log.error("CANNOT REMOVE SESSION WITHOUT ADAPTER");
+            synchronized (sessionsForReaping) {
+                sessionsForReaping.add(msg.getSessionId());
+            }
+        }
+    }
+
+    /**
+     * Called periodically by SessionManagerI in order to clean up sessions
+     * which were marked for reaping by {@link DestroySessionMessage}.
+     * 
+     * Unfortunately, that message does not have an {@link Ice.Current} instance
+     * and so reaping must happen asynchronously.
+     */
+    private void reapSessions(Ice.Current current) {
+        synchronized (sessionsForReaping) {
+            List<String> ids = new ArrayList<String>(sessionsForReaping);
+            for (String id : ids) {
+                try {
+                    Ice.Identity iid = ServiceFactoryI.sessionId(id);
+                    Ice.Object obj = current.adapter.find(iid);
+                    if (obj == null) {
+                        log.debug(id + " already removed.");
+                    } else {
+                        ServiceFactoryI sf = (ServiceFactoryI) obj;
+                        sf.close(current);
+                    }
+                    sessionsForReaping.remove(id);
+                } catch (Exception e) {
+                    log.error("Error reaping session " + id, e);
+                }
+            }
         }
     }
 
