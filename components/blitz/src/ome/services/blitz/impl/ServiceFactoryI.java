@@ -431,8 +431,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     if (processor != null) {
                         long timeout = System.currentTimeMillis() + 60 * 60 * 1000L;
                         InteractiveProcessorI ip = new InteractiveProcessorI(
-                                this.principal, this.sessionManager, processor,
-                                unloadedJob, timeout);
+                                this.principal, this.sessionManager,
+                                this.executor, processor, unloadedJob, timeout);
                         Ice.Identity id = new Ice.Identity();
                         id.category = current.id.name;
                         id.name = Ice.Util.generateUUID();

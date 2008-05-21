@@ -79,6 +79,8 @@ module omero {
             ParamMap inputs;
             ParamMap outputs;
 
+	    string stdoutFormat;
+	    string stderrFormat;
         };
 
         /*
@@ -214,6 +216,10 @@ module omero {
              * an ApiUsageException if called before the process has returned.
              * Use either process.poll() or process.wait() or a ProcessCallback
              * to wait for completion before calling.
+	     *
+	     * If the user has not overridden the output values "stdout" and
+	     * "stderr" these will be filled with the OriginalFile instanes
+	     * uploaded after completion with those names.
              */
             ["ami"] omero::RMap getResults(Process* proc) throws ServerError;
 

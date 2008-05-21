@@ -68,7 +68,7 @@ class Map(Type):
         Type.__init__(self, name, optional, out)
         self.type = omero.RMap(contents)
 
-def client(name, description = None, *args):
+def client(name, description = None, *args, **kwargs):
     """
     Entry point for all script engine scripts.
 
@@ -83,27 +83,38 @@ def client(name, description = None, *args):
 
     Possible types are all subclasses of omero.scripts.Type
 
-    """
-    c = omero.client()
-    if len(c.getProperty("omero.scripts.parse")) > 0: # Add to omero/Constants.ice
-        params = omero.grid.JobParams()
-        params.name = name
-        params.description = description
-        params.inputs = {}
-        params.outputs = {}
-        for p in args:
-            param = omero.grid.Param()
-            param.name = p.name
-            param.optional = p.optional
-            param.prototype = p.type
-            if p._in:
-                params.inputs[p.name] = param
-            if p._out:
-                params.outputs[p.name] = param
-        print params
+    To change the omero.model.Format of the stdout and stderr produced by
+    this script, use the constructor arguments:
 
+    client = omero.scripts.client(..., stdoutFormat = "text/plain", stderrFormat = "text/plain")
+
+    """
+    # Checking kwargs
+    if not kwargs.has_key("stdoutFormat"):
+        kwargs["stdoutFormat"]="text/plain"
+    if not kwargs.has_key("stderrFormat"):
+        kwargs["stderrFormat"]="text/plain"
+
+    c = omero.client()
+    c.params = omero.grid.JobParams()
+    c.params.name = name
+    c.params.description = description
+    c.params.inputs = {}
+    c.params.outputs = {}
+    c.params.stdoutFormat = kwargs["stdoutFormat"]
+    c.params.stderrFormat = kwargs["stderrFormat"]
+    for p in args:
+        param = omero.grid.Param()
+        param.name = p.name
+        param.optional = p.optional
+        param.prototype = p.type
+        if p._in:
+            c.params.inputs[p.name] = param
+        if p._out:
+            c.params.outputs[p.name] = param
+    if len(c.getProperty("omero.scripts.parse")) > 0: # Add to omero/Constants.ice
         c.createSession()
-        c.setOutput("omero.scripts.parse", omero.RInternal(params))
+        c.setOutput("omero.scripts.parse", omero.RInternal(c.params))
         pysys.exit(0)
     else:
         return c

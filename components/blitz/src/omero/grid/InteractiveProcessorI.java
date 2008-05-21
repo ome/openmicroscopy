@@ -12,20 +12,27 @@ import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import ome.model.core.OriginalFile;
 import ome.model.meta.Session;
+import ome.parameters.Parameters;
 import ome.services.procs.Processor;
 import ome.services.sessions.SessionManager;
+import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.ServiceFactory;
 import omero.ApiUsageException;
 import omero.RMap;
+import omero.RObject;
 import omero.RType;
 import omero.ServerError;
 import omero.model.Job;
+import omero.model.OriginalFileI;
 import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.transaction.TransactionStatus;
 
 import Ice.Current;
 
@@ -48,6 +55,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
     private final SessionManager mgr;
 
     private final ProcessorPrx prx;
+
+    private final Executor ex;
 
     private final Job job;
 
@@ -75,9 +84,10 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
      *            {@link omero.grid.Processor} to reload the {@link Job}
      * @param timeout
      */
-    public InteractiveProcessorI(Principal p, SessionManager mgr,
+    public InteractiveProcessorI(Principal p, SessionManager mgr, Executor ex,
             ProcessorPrx prx, Job job, long timeout) {
         this.principal = p;
+        this.ex = ex;
         this.mgr = mgr;
         this.prx = prx;
         this.job = job;
@@ -174,12 +184,7 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
         rwl.writeLock().lock();
         try {
-            if (currentProcess == null) {
-                throw new ApiUsageException(null, null, "No current process.");
-            } else if (currentProcess.poll() == null) {
-                throw new ApiUsageException(null, null,
-                        "Process still running.");
-            }
+            finishedOrThrow();
 
             // Gather output
             omero.RMap output = new omero.RMap(
@@ -190,23 +195,14 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
                 RType rt = mapper.toRType(env.get(key));
                 output.val.put(key, rt);
             }
+            optionallyLoadFile(output.val, "stdout");
+            optionallyLoadFile(output.val, "stderr");
             currentProcess = null;
             obtainResults = false;
             return output;
         } finally {
             rwl.writeLock().unlock();
         }
-    }
-
-    private Session newSession(Current __current) {
-        EventContext ec = mgr.getEventContext(principal);
-        Session newSession = mgr.create(new Principal(ec.getCurrentUserName(),
-                ec.getCurrentGroupName(), "Processing"));
-        newSession.setTimeToIdle(0L);
-        newSession.setTimeToLive(timeout);
-        newSession = mgr.update(newSession);
-
-        return newSession;
     }
 
     public long expires(Current __current) {
@@ -233,4 +229,48 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
         }
     }
 
+    // Helpers
+    // =========================================================================
+
+    private void finishedOrThrow() throws ApiUsageException {
+        if (currentProcess == null) {
+            throw new ApiUsageException(null, null, "No current process.");
+        } else if (currentProcess.poll() == null) {
+            throw new ApiUsageException(null, null, "Process still running.");
+        }
+    }
+
+    private final static String stdfile_query = "select file from Job job "
+            + "join job.originalFileLinks links " + "join links.child file "
+            + "where file.name = :name and job.id = :id";
+
+    private void optionallyLoadFile(final Map<String, RType> val,
+            final String name) {
+        this.ex.execute(this.principal, new Executor.Work() {
+            public Object doWork(TransactionStatus status,
+                    org.hibernate.Session session, ServiceFactory sf) {
+
+                OriginalFile file = sf.getQueryService().findByQuery(
+                        stdfile_query,
+                        new Parameters().addId(job.id.val).addString("name",
+                                name));
+                if (file != null) {
+                    val.put(name, new RObject(new OriginalFileI(file.getId(),
+                            false)));
+                }
+                return null;
+            }
+        });
+    }
+
+    private Session newSession(Current __current) {
+        EventContext ec = mgr.getEventContext(principal);
+        Session newSession = mgr.create(new Principal(ec.getCurrentUserName(),
+                ec.getCurrentGroupName(), "Processing"));
+        newSession.setTimeToIdle(0L);
+        newSession.setTimeToLive(timeout);
+        newSession = mgr.update(newSession);
+
+        return newSession;
+    }
 }

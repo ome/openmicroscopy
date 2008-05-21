@@ -146,10 +146,13 @@ class client(object):
             ofile.sha1 = omero.RString(self.sha1(file.name))
 
             if not ofile.name:
-               ofile.name = omero.RString(file.name)
+                if name:
+                    ofile.name = omero.RString(name)
+                else:
+                    ofile.name = omero.RString(file.name)
 
             if not ofile.path:
-               ofile.path = omero.RString(os.path.abspath(file.name))
+                ofile.path = omero.RString(os.path.abspath(file.name))
 
             if not ofile.format:
                 if not type:

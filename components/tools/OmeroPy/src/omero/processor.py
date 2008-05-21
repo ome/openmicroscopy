@@ -98,13 +98,20 @@ class ProcessI(omero.grid.Process):
     cd TMP_DIR
     ICE_CONFIG=./config interpreter ./script >out 2>err &
 
+    The properties argument is used to generate the ./config file.
+    
+    The params argument may be null in which case this process
+    is being used solely to calculate the parameters for the script
+    ("omero.scripts.parse=true")
+
     """
 
-    def __init__(self, interpreter, properties, log):
+    def __init__(self, interpreter, properties, params, log):
         self.active = False
         self.dead = False
         self.interpreter = interpreter
         self.properties = properties
+        self.params = params
         self.log = log
         # Non arguments
         self.callbacks = []
@@ -182,16 +189,24 @@ class ProcessI(omero.grid.Process):
 
     def upload_output(self):
         """
-        If non-null, uploads the stdout and stderr files
-        related to this process.
+        If this is not a params calculation (i.e. parms != null) and the
+        stdout or stderr are non-null, they they will be uploaded and
+        attached to the job.
         """
-        client = omero.client(["--Ice.Config=%s" % self.config_name])
-        client.createSession()
-        if os.path.getsize(self.stdout_name):
-            outfile = OriginalFileI()
-            client.upload(self.stdout_name, type="text/plain")
-        if os.path.getsize(self.stderr_name):
-            client.upload(self.stderr_name, type="text/plain")
+        if self.params:
+            client = omero.client(["--Ice.Config=%s" % self.config_name])
+            client.createSession()
+            self._upload(client, self.stdout_name, "stdout", self.params.stdoutFormat)
+            self._upload(client, self.stderr_name, "stderr", self.params.stderrFormat)
+
+    def _upload(self, client, filename, name, format):
+        if os.path.getsize(filename):
+            ofile = client.upload(filename, name=name, type=format)
+            jobid = long(client.getProperty("omero.job"))
+            link = omero.model.JobOriginalFileLinkI()
+            link.parent = omero.model.ScriptJobI(omero.RLong(jobid), False)
+            link.child = ofile
+            client.getSession().getUpdateService().saveObject(link)
 
     def cleanup_tmpdir(self):
         """
@@ -289,7 +304,7 @@ class ProcessorI(omero.grid.Processor):
     def parseJob(self, session, job, current = None):
         properties = {}
         properties["omero.scripts.parse"] = "true"
-        process = self.process(session, job, current, properties)
+        process = self.process(session, job, current, None, properties)
         process.wait()
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         client.joinSession(session)
@@ -301,9 +316,10 @@ class ProcessorI(omero.grid.Processor):
     def processJob(self, session, job, current = None):
         """
         """
-        return self.process(session, job, current)
+        params = self.parseJob(session, job, current)
+        return self.process(session, job, current, params)
 
-    def process(self, session, job, current, properties = {}):
+    def process(self, session, job, current, params, properties = {}):
         client = omero.client(["--Ice.Config=%s" % (self.cfg)])
         sf = client.createSession(session, session)
         ec = sf.getAdminService().getEventContext()
@@ -334,7 +350,7 @@ class ProcessorI(omero.grid.Processor):
         properties["omero.pass"] = session
         properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-        process = ProcessI("python", properties, self.log)
+        process = ProcessI("python", properties, params, self.log)
         self.resources.add(process,"__del__")
         client.download(file, process.script_name)
         process.activate()
