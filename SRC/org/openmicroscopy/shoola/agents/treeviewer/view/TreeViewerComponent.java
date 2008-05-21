@@ -78,6 +78,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
 * Implements the {@link TreeViewer} interface to provide the functionality
@@ -1470,18 +1471,27 @@ class TreeViewerComponent
 	{
 		if (roots == null) return;
 		Iterator i = roots.iterator();
-		ProjectData node;
 		//Map<ProjectData, Set<DatasetData>>
-		DataBrowser dataBrowser;
+		DataBrowser db = null;
 		if (roots.size() != 1) return;
+		DataObject node;
+		TagAnnotationData tag;
 		while (i.hasNext()) {
-			node = (ProjectData) i.next();
-			dataBrowser = DataBrowserFactory.getDataBrowser(
-									node, node.getDatasets());
-			dataBrowser.addPropertyChangeListener(controller);
-			dataBrowser.activate();
-			view.removeAllFromWorkingPane();
-			view.addComponent(dataBrowser.getUI());
+			node = (DataObject) i.next();
+			if (node instanceof ProjectData) {
+				db = DataBrowserFactory.getDataBrowser((ProjectData) node, 
+						((ProjectData) node).getDatasets());
+			} else if (node instanceof TagAnnotationData) {
+				tag = (TagAnnotationData) node;
+				db = DataBrowserFactory.getDataBrowser(tag, 
+						tag.getTags());
+			}
+			if (db != null) {
+				db.addPropertyChangeListener(controller);
+				db.activate();
+				view.removeAllFromWorkingPane();
+				view.addComponent(db.getUI());
+			}
 		}
 	}
 

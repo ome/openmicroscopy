@@ -61,16 +61,16 @@ public abstract class DataBrowserLoader
 {
 
     /** The browser this data loader is for. */
-    protected final Browser         viewer;
+    protected final Browser                viewer;
     
     /** Convenience reference for subclasses. */
-    protected final Registry        registry;
+    protected final Registry               registry;
     
     /** Convenience reference for subclasses. */
-    protected final DataManagerView dmView;
+    protected final DataManagerView        dmView;
 
     /** Convenience reference for subclasses. */
-    protected final DataHandlerView dhView;
+    protected final DataHandlerView        dhView;
     
     /** Convenience reference for subclasses. */
     protected final HierarchyBrowsingView 	hiBrwView;

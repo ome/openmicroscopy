@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,7 +46,6 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
-import pojos.TagAnnotationData;
 
 /** 
  * Command to refresh a data trees.
@@ -93,6 +91,13 @@ public class DMRefreshLoader
                 List containers;
                 results = new HashMap<Long, Object>(nodes.size());
                 Object result;
+                Set set, children, newChildren, cIds, r;
+                Set<Long> ids;
+                Iterator i, j, c, k;
+                Long id;
+                Class klass;
+                Map topNodes;
+                DataObject child, parent;
                 while (users.hasNext()) {
                 	userID = (Long) users.next();
                 	containers = nodes.get(userID);
@@ -100,23 +105,19 @@ public class DMRefreshLoader
                 		result = os.loadContainerHierarchy(rootNodeType, null, 
                         		false, userID);
                 	} else {
-                		Set set = os.loadContainerHierarchy(rootNodeType, null, 
+                		set = os.loadContainerHierarchy(rootNodeType, null, 
                                 false, userID);
-                        Set<Long> ids;
-                        Iterator i = containers.iterator();
+                        i = containers.iterator();
                         ids = new HashSet<Long>(containers.size());
                         while (i.hasNext()) {
                             ids.add(new Long(((DataObject) i.next()).getId()));
                         }
-                        Iterator j = set.iterator(), c;
-                        Set children = null;
-                        Long id;
-                        Class klass = null;
-                        Set newChildren;
-                        Map topNodes = new HashMap(set.size());
-                        DataObject child, parent;
-                        Set cIds, r;
-                        Iterator k;
+                        j = set.iterator();
+                        children = null;
+                       
+                        klass = null;
+                        topNodes = new HashMap(set.size());
+                        
                         while (j.hasNext()) {
                             newChildren = new HashSet();
                             parent = (DataObject) j.next();

@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
+import org.openmicroscopy.shoola.agents.treeviewer.TagSetsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -626,6 +627,17 @@ class BrowserModel
 		currentLoader.load();
 	}
 
+	/**
+	 * Browses the node hosting the tag linked to tags to browse.
+	 * 
+	 * @param node The node to browse
+	 */
+	void browseTagset(TreeImageDisplay node)
+	{
+		currentLoader = new TagSetsLoader(component, node);
+		currentLoader.load();
+	}
+	
 	/**
 	 * Removes the passed node.
 	 * 

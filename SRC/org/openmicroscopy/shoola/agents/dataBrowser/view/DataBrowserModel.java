@@ -90,6 +90,9 @@ abstract class DataBrowserModel
 	/** Identifies the <code>SearchModel</code>. */
 	static final int	SEARCH = 3;
 	
+	/** Identifies the <code>DatasetsModel</code>. */
+	static final int	TAGSETS = 4;
+	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
     private int					state;
     

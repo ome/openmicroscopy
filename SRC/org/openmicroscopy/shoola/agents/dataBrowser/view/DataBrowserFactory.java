@@ -39,6 +39,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Factory to create {@link DataBrowser} components.
@@ -123,6 +124,19 @@ public class DataBrowserFactory
 	}
 	
 	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of images.
+	 * 
+	 * @param parent	The parent's node.
+	 * @param nodes		The collection to set.
+	 * @return See above.
+	 */
+	public static final DataBrowser getDataBrowser(TagAnnotationData parent, 
+												Set<TagAnnotationData> nodes)
+	{
+		return singleton.createTagSetsDataBrowser(parent, nodes);
+	}
+	
+	/**
 	 * Creates a new {@link DataBrowser} for the passed node.
 	 * 
 	 * @param parent	The node.
@@ -178,6 +192,24 @@ public class DataBrowserFactory
 											Set<DatasetData> datasets)
 	{
 		DataBrowserModel model = new DatasetsModel(parent, datasets);
+		DataBrowserComponent comp = new DataBrowserComponent(model);
+		model.initialize(comp);
+		comp.initialize();
+		browsers.put(parent.toString(), comp);
+		return comp;
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of tags.
+	 * 
+	 * @param parent The parent's node.
+	 * @param tags	 The collection to set.
+	 * @return See above.
+	 */
+	private DataBrowser createTagSetsDataBrowser(DataObject parent, 
+											Set<TagAnnotationData> tags)
+	{
+		DataBrowserModel model = new TagSetsModel(parent, tags);
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();

@@ -24,9 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,13 +36,8 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ProjectData;
-import pojos.TagAnnotationData;
+
 
 /** 
  * 
@@ -90,7 +83,7 @@ public class TagsLoader
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
-            	Iterator i = nodes.keySet().iterator();
+            	Iterator users = nodes.keySet().iterator();
             	Long userID;
             	List containers;
             	Map<Long, Object> r = new HashMap<Long, Object>(nodes.size());
@@ -103,13 +96,14 @@ public class TagsLoader
                 Class klass = null;
                 Set newChildren;
                 List loaded = new ArrayList();
-            	while (i.hasNext()) {
-            		userID = (Long) i.next();
+            	while (users.hasNext()) {
+            		userID = (Long) users.next();
             		containers = nodes.get(userID);
             		if (containers == null || containers.size() == 0) {
             			value = os.loadTagSetsContainer(-1L, false, userID);
             		} else {
             			value = os.loadTagSetsContainer(-1L, false, userID);
+            			
             			/*
             			l = new ArrayList();
             			j = containers.iterator();
@@ -262,12 +256,8 @@ public class TagsLoader
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param id		The id of the parent the tags are related to, or 
-	 * 					<code>-1</code>.
-	 * @param index 	One of the constants defined by this class.
-	 * @param images	Pass <code>true</code> to load the images related 
-	 * 					to the tags, <code>false</code> otherwise.
-	 * @param userID	The id of the user who owns the tags or tag sets.
+	 * @param index One of the constants defined by this class.
+	 * @param nodes	The nodes to refresh.
 	 */
 	public TagsLoader(int index, Map<Long, List> nodes)
 	{

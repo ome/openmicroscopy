@@ -44,6 +44,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * This class contains a collection of utility static methods that transform
@@ -299,6 +300,51 @@ public class DataBrowserTranslator
         return results;
     }
  
+    /**
+     * Transforms a Datasets/Images hierarchy into a visualisation
+     * tree. 
+     * 
+     * @param tag     The {@link TagAnnotationData}s to transform.
+     *                Mustn't be <code>null</code>.
+     * @param userID  The id of the current user.
+     * @param groupID The id of the group the current user selects when 
+     *                retrieving the data.                
+     * @return The corresponding {@link ImageDisplay}s.
+     */
+    private static ImageDisplay transformTag(TagAnnotationData tag, long userID,
+                                        long groupID)
+    {
+        if (tag == null) 
+            throw new IllegalArgumentException("No tag.");
+        if (!isReadable(tag, userID, groupID)) return null;
+        ImageSet data = null;
+        Set tags = tag.getTags();
+        Set images = tag.getImages();
+        String note = "";
+        Iterator i;
+        if (tags != null && tags.size() > 0) {
+        	note += LEFT+tags.size()+RIGHT;
+        	data = new ImageSet(tag.getTagValue(), note, tag);
+        	i = tags.iterator();
+        	TagAnnotationData child;
+        	while (i.hasNext()) {
+        		child = (TagAnnotationData) i.next();
+				data.addChildDisplay(transformTag(child, userID, groupID));
+			}
+        } if (images != null && images.size() > 0) {
+        	note += LEFT+images.size()+RIGHT;
+        	data = new ImageSet(tag.getTagValue(), note, tag);
+        	ImageData child;
+        	i = images.iterator();
+        	while (i.hasNext()) {
+        		child = (ImageData) i.next();
+        		linkImageTo(child, data);
+			}
+        } else data = new ImageSet(tag.getTagValue(), "", tag);
+        formatToolTipFor(data);
+        return data;
+    }
+    
     /** 
      * Transforms the specified {@link DataObject} into its corresponding
      * visualisation element.
@@ -345,6 +391,7 @@ public class DataBrowserTranslator
         }  
         return results;
     }
+    
     
     /** 
      * Transforms the specified {@link DataObject} into its corresponding
@@ -503,6 +550,7 @@ public class DataBrowserTranslator
         Iterator i = dataObjects.iterator();
         DataObject ho;
         ImageSet unclassified = null;
+        ImageDisplay child;
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (ho instanceof ProjectData)
@@ -527,6 +575,10 @@ public class DataBrowserTranslator
                     }
                     linkImageTo((ImageData) ho, unclassified);
                 }
+            } else if (ho instanceof TagAnnotationData) {
+            	child = transformTag((TagAnnotationData) ho, userID, 
+			            groupID);
+            	results.add(child);
             }
         }
         if (unclassified != null) results.add(unclassified);

@@ -3198,11 +3198,9 @@ class OMEROGateway
 	
 	//TMP solution. Need to move the call to server and optimize them
 	/**
-	 * Searches for the categories whose name contains the passed term.
-	 * Returns a collection of objects.
+	 * Loads the tags linked to images, returns the images linked to the tag
+	 * if the passed value is <code>true</code>.
 	 * 
-	 * @param annotationType 	The class identifying the annotation to 
-	 * 							search for.
 	 * @param tagID 			The class identifying the object to search for.
 	 * @param images			Pass <code>true</code> to load the images,
 	 * 							<code>false</code> otherwise.
@@ -3259,6 +3257,91 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Loads the tags linked to images, returns the images linked to the tag
+	 * if the passed value is <code>true</code>.
+	 * 
+	 * @param tagID 			The class identifying the object to search for.
+	 * @param images			Pass <code>true</code> to load the images,
+	 * 							<code>false</code> otherwise.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	Collection loadTagSetsAndImages(long tagID, boolean images)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			String type = "ome.model.annotations.TagAnnotation";
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addLong("tagID", tagID);
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append("select ann from Annotation as ann ");
+			sb.append("left outer join fetch ann.details.creationEvent ");
+			sb.append("left outer join fetch ann.details.owner ");
+
+			sb.append("where ann.id = :tagID");
+			//Tag to retrieve
+			IObject object = service.findByQuery(sb.toString(), param);
+			TagAnnotationData tag = 
+				(TagAnnotationData) PojoMapper.asDataObject(object);
+			sb = new StringBuilder();
+			sb.append("select link from AnnotationAnnotationLink as link ");
+			sb.append("left outer join link.child ann ");
+			sb.append(" where ann member of "+type);
+			sb.append(" and link.parent.id = :id");
+			param = new Parameters();
+			param.addLong("id", tag.getId());
+			List r = service.findAllByQuery(sb.toString(), param);
+			if (r != null) {
+				Iterator j = r.iterator();
+				ILink link;
+				Set<TagAnnotationData> 
+				    children = new HashSet<TagAnnotationData>();
+				TagAnnotationData child;
+				while (j.hasNext()) {
+					link = (ILink) j.next();
+					child = (TagAnnotationData) 
+							PojoMapper.asDataObject(link.getChild());
+					children.add(child);
+					if (images) { //load images 
+						sb = new StringBuilder();
+						sb.append("select img from Image as img ");
+						sb.append("left outer join fetch "
+			                    + "img.annotationLinksCountPerOwner " +
+			                    		"img_a_c ");
+						sb.append("left outer join fetch img.annotationLinks " +
+								"ail ");
+						sb.append("left outer join fetch img.pixels as pix ");
+			            sb.append("left outer join fetch pix.pixelsType as pt ");
+			            sb.append("left outer join fetch pix.pixelsDimensions " +
+			            		"as pd ");
+			            sb.append("where ail.child.id = :id");
+			            param = new Parameters();
+						param.addLong("id", child.getId());
+			            Set imgs = PojoMapper.asDataObjects(
+			            		service.findAllByQuery(sb.toString(), param));
+			            child.setImages(imgs);
+					}
+					
+				}
+				tag.setTags(children);
+			}
+			Set result = new HashSet();
+			result.add(tag);
+			return result;
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot retrieve the tags");
+		}
+		return new HashSet();
+	}
+	
+	/**
 	 * Returns the number of images related to a given tag.
 	 * 
 	 * @param rootNodeIDs
@@ -3295,6 +3378,13 @@ class OMEROGateway
 		return new HashMap();
 	}
 	
+	/**
+	 * 
+	 * @param userID
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	Set loagTagSets(long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{

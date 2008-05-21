@@ -43,7 +43,6 @@ import org.apache.commons.collections.ListUtils;
 import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.core.OriginalFile;
@@ -1186,6 +1185,9 @@ class OmeroMetadataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		//Collection of tags linked to tags.
+		if (id >= 0) {
+			return gateway.loadTagSetsAndImages(id, images);
+		}
 		Collection c = gateway.loagTagSets(userID);
 		List<Long> ids = new ArrayList<Long>();
 		Iterator i = c.iterator();
@@ -1205,6 +1207,7 @@ class OmeroMetadataServiceImpl
 				}
 			}
 		}
+		//load the tags not linked to a tag
 		Collection allTags = loadAnnotations(TagAnnotationData.class, null, -1, 
 				                             userID);
 		i = allTags.iterator();

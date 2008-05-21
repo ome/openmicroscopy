@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DatasetsModel 
+ * org.openmicroscopy.shoola.agents.dataBrowser.view.TagSetsModel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 
+
+
 //Java imports
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -39,12 +41,13 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.TagAnnotationData;
 
 /** 
- * A concrete Model for a collection of D/D hierarchy consisting of a single 
- * tree rooted by given Datasets.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,36 +59,36 @@ import pojos.ImageData;
  * </small>
  * @since OME3.0
  */
-class DatasetsModel 
+class TagSetsModel 	
 	extends DataBrowserModel
 {
 
 	/** The collection of objects this model is for. */
-	private Set<DatasetData> datasets;
+	private Set<TagAnnotationData> tagSets;
 
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent	The parent of the datasets.
-	 * @param datasets 	The collection to datasets the model is for.
+	 * @param tagSets 	The collection to datasets the model is for.
 	 */
-	DatasetsModel(Object parent, Set<DatasetData> datasets)
+	TagSetsModel(Object parent, Set<TagAnnotationData> tagSets)
 	{
 		super();
-		if (datasets  == null) 
+		if (tagSets  == null) 
 			throw new IllegalArgumentException("No images.");
-		this.datasets = datasets;
+		this.tagSets = tagSets;
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, 
+		Set visTrees = DataBrowserTranslator.transformHierarchy(tagSets, 
 							userID, 0);
         browser = BrowserFactory.createBrowser(visTrees);
         layoutBrowser();
-        Iterator<DatasetData> i = datasets.iterator();
-		DatasetData data;
+        Iterator<TagAnnotationData> i = tagSets.iterator();
+        TagAnnotationData tag;
 		while (i.hasNext()) {
-			data = i.next();
-			numberOfImages += data.getImages().size();
+			tag = i.next();
+			numberOfImages += tag.getImages().size();
 		}
 	}
 	
@@ -128,6 +131,6 @@ class DatasetsModel
 	 * Returns the type of this model.
 	 * @see DataBrowserModel#getType()
 	 */
-	protected int getType() { return DataBrowserModel.DATASETS; }
+	protected int getType() { return DataBrowserModel.TAGSETS; }
 	
 }

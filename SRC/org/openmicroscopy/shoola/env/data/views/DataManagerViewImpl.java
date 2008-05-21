@@ -345,7 +345,7 @@ class DataManagerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new TagsLoader(TagsLoader.LEVEL_TAG, id, images, 
-				userID);
+				                          userID);
 		return cmd.exec(observer);
 	}
 	
@@ -357,7 +357,7 @@ class DataManagerViewImpl
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new TagsLoader(TagsLoader.LEVEL_TAG_SET, id, images, 
-				userID);
+				                        userID);
 		return cmd.exec(observer);
 	}
   

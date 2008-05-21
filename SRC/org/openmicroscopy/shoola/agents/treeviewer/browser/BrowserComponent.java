@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +55,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -1207,11 +1207,15 @@ class BrowserComponent
 		if (node instanceof TreeImageTimeSet) {
 			
 		}
-		if (node.getUserObject() instanceof ProjectData) {
+		Object uo = node.getUserObject();
+		if (uo instanceof ProjectData) 
 			model.browseProject(node);
-		} 
-		//TODO: browse tag and time node
-		
+		else if (uo instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) uo;
+			Set tags = tag.getTags();
+			if (tags != null && tags.size() > 0) 
+				model.browseTagset(node);
+		}
 	}
 
 	/**

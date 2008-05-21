@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader 
+ * org.openmicroscopy.shoola.agents.treeviewer.TagSetsLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,10 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-
-
 //Java imports
-import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
@@ -34,11 +31,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ProjectData;
 
 /** 
- * Loads the datasets/images contained in the project hosted by the passed 
- * node. This class calls the <code>loadHierarchy</code> method in the
+ * Loads the tags/images linked to the tag hosted by the passed 
+ * node. This class calls the <code>loadTagSets</code> method in the
  * <code>HierarchyBrowsingView</code>. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -51,7 +47,7 @@ import pojos.ProjectData;
  * </small>
  * @since OME3.0
  */
-public class ProjectsLoader 
+public class TagSetsLoader 
 	extends DataBrowserLoader
 {
 
@@ -59,7 +55,7 @@ public class ProjectsLoader
     private CallHandle  		handle;
     
     /** Reference to the node hosting the project to browse. */
-    private TreeImageDisplay 		node;
+    private TreeImageDisplay 	node;
     
     /**
      * Creates a new instance.
@@ -69,7 +65,7 @@ public class ProjectsLoader
      * @param node   The node hosting the project to browse.
      *               Mustn't be <code>null</code>.
      */
-    public ProjectsLoader(Browser viewer, TreeImageDisplay node)
+    public TagSetsLoader(Browser viewer, TreeImageDisplay node)
 	{
 		super(viewer);
 		if (node == null)
@@ -84,10 +80,7 @@ public class ProjectsLoader
     public void load()
     {
     	long userID = TreeViewerAgent.getUserDetails().getId();
-    	long id = node.getUserObjectId();
-    	Set<Long> ids = new HashSet<Long>();
-    	ids.add(id);
-    	handle = hiBrwView.loadHierarchy(ProjectData.class, ids, userID, this);
+    	handle = dmView.loadTagSets(node.getUserObjectId(), true, userID, this);
     }
 
     /**
@@ -103,7 +96,6 @@ public class ProjectsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-       // viewer.setLeaves((Set) result, timeNode, expNode); 
         viewer.setHierarchyRoots((Set) result, node, false);
     }
     
