@@ -156,6 +156,27 @@ public class SAXValidator {
 		return errorMessages;
 	}
 	
+	/**
+	 * A handy method to get an attribute from the root element of a given XML file. 
+	 * eg XMLSchema.SCHEMA_LOCATION (xsi:schemaLocation) attribute.
+	 * Will return null if there is a problem parsing the XML document or if the attribute
+	 * does not exist in the root element. 
+	 * 
+	 * @param xmlFile
+	 * @return	The String value of the attribute, or null if no matching attribute.
+	 */
+	public static String getRootElementAttribute(File xmlFile, String attribute) {
+		
+		try {
+			Document document = XMLMethods.readXMLtoDOM(xmlFile);
+			Element rootElement = document.getDocumentElement();
+			return rootElement.getAttribute(attribute);
+			
+		} catch (SAXException e) {
+			return null;
+		}
+	}
+	
 	static public void validate(String filePath) throws SAXException {
 		
 		errorMessages.clear();

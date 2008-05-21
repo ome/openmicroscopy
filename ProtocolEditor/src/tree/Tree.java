@@ -854,7 +854,7 @@ public class Tree
 			HashMap<String, String> allAttributes = rootField.getAllAttributes();
 			// also get attributes required for Protocol Editor xsd schema (unless custom)
 			if (!customElement) {
-				LinkedHashMap<String, String> schemaAttributes = XMLSchema.getRootAttributes();
+				Map<String, String> schemaAttributes = XMLSchema.getRootAttributes();
 				allAttributes.putAll(schemaAttributes);
 			}
 			

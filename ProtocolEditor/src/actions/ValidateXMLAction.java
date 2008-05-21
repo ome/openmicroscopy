@@ -35,6 +35,7 @@ import ui.IModel;
 import ui.XMLView;
 import util.ImageFactory;
 import validation.SAXValidator;
+import validation.XMLSchema;
 import xmlMVC.XMLModel;
 
 public class ValidateXMLAction 
@@ -54,16 +55,20 @@ public class ValidateXMLAction
 		File xmlFile = new File(XMLModel.OMERO_EDITOR_FILE  + "/tempFile");
 		model.exportTreeToXmlFile(xmlFile);
 		List<String> errorMsgs = SAXValidator.validateXML(xmlFile);
+	
+		String schemaLocation = SAXValidator.getRootElementAttribute(xmlFile, XMLSchema.SCHEMA_LOCATION);
 		
-		//xmlFile.delete();
+		xmlFile.delete();
 		
 		if (errorMsgs.isEmpty()) {
-			JOptionPane.showMessageDialog(frame, "The current file is valid", 
+			JOptionPane.showMessageDialog(frame, "The current file is valid against the schema at \n" +
+					schemaLocation, 
 					"File Valid", JOptionPane.INFORMATION_MESSAGE);
 		}
 		
 		else {
-			String displayMessage = "The current file is not valid. Validation errors:\n \n";
+			String displayMessage = "The current file is not valid, using the schema at\n" +
+					schemaLocation + "\nValidation errors:\n \n";
 			for (String message: errorMsgs) {
 				displayMessage += message + "\n";
 			}
