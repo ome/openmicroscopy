@@ -10,12 +10,14 @@
 
 import unittest
 import omero
+import tempfile
 
 class ITest(unittest.TestCase):
 
     def setUp(self):
         self.client = omero.client()
         self.client.createSession()
+        self.tmpfiles = []
         rootpass = self.client.getProperty("omero.rootpass")
         if rootpass:
             self.root = omero.client()
@@ -23,7 +25,17 @@ class ITest(unittest.TestCase):
         else:
             self.root = None
 
+    def tmpfile(self):
+        tmpfile = tempfile.NamedTemporaryFile(mode='w+t')
+        self.tmpfiles.append(tmpfile)
+        return tmpfile
+
     def tearDown(self):
         self.client.closeSession()
         if self.root:
             self.root.closeSession()
+        for tmpfile in self.tmpfiles:
+            try:
+                tmpfile.close()
+            except:
+                print "Error closing:"+tmpfile

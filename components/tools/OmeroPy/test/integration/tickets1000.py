@@ -42,11 +42,22 @@ class TestTicket1000(lib.ITest):
 
     def test883WithClose(self):
         s = self.client.sf.createSearchService()
-        s.onlyType("Image")
+        s.onlyType("Dataset")
         s.byFullText("root")
         if s.hasNext():
             s.results()
         s.close()
+
+    def test883Upload(self):
+        
+        search = self.client.getSession().createSearchService()
+        search.onlyType("OriginalFile")
+        search.byFullText("stderr")
+        ofile = search.next()
+        
+        tmpfile = self.tmpfile()
+        self.client.download(ofile, tmpfile.name)
+        search.close()
 
 if __name__ == '__main__':
     unittest.main()

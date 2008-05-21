@@ -690,7 +690,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // onApplicationEvent().
         // Otherwise, it is being called directly by SF.close().
         Ice.Object obj = current.adapter.remove(id);
-        activeServants.remove(id);
+        Object removed = activeServants.remove(Ice.Util.identityToString(id));
+        if (removed == null) {
+            log.error("Adapter and active servants out of sync.");
+        }
         if (log.isInfoEnabled()) {
             log.info("Unregistered servant:" + servantString(id, obj));
         }
