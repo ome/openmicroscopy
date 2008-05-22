@@ -95,6 +95,24 @@ public class TreeComponent
 				setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		}
 	}
+
+	/**
+	 * Collapses or expands the nodes depending on the passed value.
+	 * 
+	 * @param expanded Pass <code>true</code> to expand all the nodes,
+	 *                 <code>false</code> to collapse.
+	 */
+	private void expandNodes(boolean expanded)
+	{
+		Iterator<TreeComponentNode> i = nodes.iterator();
+		TreeComponentNode node;
+		while (i.hasNext()) {
+			node = i.next();
+			node.setExpanded(expanded);
+			node.setIcons(collapseIcon, elapseIcon);
+			node.updateDisplay();
+		}
+	}
 	
 	/** Creates a new instance. */
 	public TreeComponent()
@@ -152,19 +170,12 @@ public class TreeComponent
 		add(node);
 		nodes.add(node);
 	}
-
+	
 	/** Collapses all the nodes. */
-	public void collapseNodes()
-	{
-		Iterator<TreeComponentNode> i = nodes.iterator();
-		TreeComponentNode node;
-		while (i.hasNext()) {
-			node = i.next();
-			node.setExpanded(false);
-			node.setIcons(collapseIcon, elapseIcon);
-			node.updateDisplay();
-		}
-	}
+	public void collapseNodes() { expandNodes(false); }
+	
+	/** Expands all the nodes. */
+	public void expandNodes() { expandNodes(true); }
 	
 	/**
 	 * Sets the enables flag on all nodes of the tree.

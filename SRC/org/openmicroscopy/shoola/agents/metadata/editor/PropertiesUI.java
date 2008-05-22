@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -542,6 +543,12 @@ class PropertiesUI
 		
 	}
 
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle() {}
+	
 	/**
 	 * Fires property indicating that some text has been entered.
 	 * @see DocumentListener#insertUpdate(DocumentEvent)

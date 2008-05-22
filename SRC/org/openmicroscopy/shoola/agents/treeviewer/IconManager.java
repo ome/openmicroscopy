@@ -275,11 +275,17 @@ public class IconManager
     /** The <code>Tag</code> icon. */
     public static int           TAG_SET = 73;
     
+    /** The <code>Add metadata</code> icon. */
+    public static int           ADD_METADATA = 74;
+    
+    /** The <code>Add metadata 48</code> icon. */
+    public static int           ADD_METADATA_48 = 75;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 73;
+    private static int          MAX_ID = 75;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -360,7 +366,9 @@ public class IconManager
         relPaths[TAGS_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[TAG] = "nuvola_knotes16.png";
         relPaths[SET_RND_SETTINGS] = "nuvola_redo16.png";
-        relPaths[TAG_SET] = "nuvola_2knotes16.png";
+        relPaths[TAG_SET] = "nuvola_knotesOrange16.png";
+        relPaths[ADD_METADATA] = "nuvola_knotesOrange16.png";
+        relPaths[ADD_METADATA_48] = "nuvola_kdmconfig48.png";
     }
     
     /** The sole instance. */

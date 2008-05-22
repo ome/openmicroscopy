@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.DatasetData;
+import pojos.ImageData;
 
 /** 
 * Brings the window to annotate the images contained in 
@@ -55,72 +56,78 @@ import pojos.DatasetData;
 * </small>
 * @since OME3.0
 */
-public class AnnotateChildrenAction 
+public class AddMetadataAction 
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-  private static final String NAME = "Annotate Images";
-  
-  /** The description of the action. */
-  private static final String DESCRIPTION= "Annotate the images.";
-  
-  /**
-   * Callback to notify of a change in the currently selected display
-   * in the currently selected 
-   * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
-   * 
-   * @param selectedDisplay The newly selected display node.
-   */
-  protected void onDisplayChange(TreeImageDisplay selectedDisplay)
-  {
-      if (selectedDisplay == null) {
-          setEnabled(false);
-          
-          return;
-      }
-      Browser browser = model.getSelectedBrowser();
-      if (browser != null) {
-          if (browser.getSelectedDisplays().length > 1) {
-          	setEnabled(false);
-              return;
-          }
-          if (selectedDisplay instanceof TreeImageTimeSet) {
-          	  TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
-              setEnabled(timeNode.getNumberItems() > 0);
-              return;
-          }
-          Object ho = selectedDisplay.getUserObject();
-          setEnabled(((ho instanceof DatasetData) || 
-          		(ho instanceof CategoryData)));
-          return;
-      }
-      setEnabled(false);
-  }
-  
+	private static final String NAME = "Annotate Images";
+
+	/** The description of the action. */
+	private static final String DESCRIPTION= "Annotate the images.";
+
 	/**
-   * Creates a new instance.
-   * 
-   * @param model Reference to the Model. Mustn't be <code>null</code>.
-   */
-  public AnnotateChildrenAction(TreeViewer model)
-  {
-      super(model);
-      putValue(Action.NAME, NAME);
-      putValue(Action.SHORT_DESCRIPTION, 
-              UIUtilities.formatToolTipText(DESCRIPTION));
-      IconManager im = IconManager.getInstance();
-      putValue(Action.SMALL_ICON, im.getIcon(IconManager.ANNOTATION));
-  } 
-  
-  /** 
-   * Creates a  {@link AnnotateChildrenCmd} command to execute the action. 
-   * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-   */
-  public void actionPerformed(ActionEvent e)
-  {
-  	AnnotateChildrenCmd cmd = new AnnotateChildrenCmd(model);
-  	cmd.execute();
-  }
+	 * Callback to notify of a change in the currently selected display
+	 * in the currently selected 
+	 * {@link org.openmicroscopy.shoola.agents.treeviewer.browser.Browser}.
+	 * 
+	 * @param selectedDisplay The newly selected display node.
+	 */
+	protected void onDisplayChange(TreeImageDisplay selectedDisplay)
+	{
+		if (selectedDisplay == null) {
+			setEnabled(false);
+
+			return;
+		}
+		Browser browser = model.getSelectedBrowser();
+		if (browser != null) {
+			Object ho = selectedDisplay.getUserObject();
+			if (ho instanceof ImageData) {
+				setEnabled(browser.getSelectedDisplays().length > 1);
+				return;
+			}
+			
+			if (browser.getSelectedDisplays().length > 1) {
+				setEnabled(false);
+				return;
+			}
+			if (selectedDisplay instanceof TreeImageTimeSet) {
+				TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
+				setEnabled(timeNode.getNumberItems() > 0);
+				return;
+			}
+			setEnabled(((ho instanceof DatasetData) || 
+					(ho instanceof CategoryData)));
+			return;
+		}
+		setEnabled(false);
+	}
+
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param model Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	public AddMetadataAction(TreeViewer model)
+	{
+		super(model);
+		putValue(Action.NAME, NAME);
+		putValue(Action.SHORT_DESCRIPTION, 
+				UIUtilities.formatToolTipText(DESCRIPTION));
+		IconManager im = IconManager.getInstance();
+		putValue(Action.SMALL_ICON, im.getIcon(IconManager.ADD_METADATA));
+	} 
+
+	/** 
+	 * Creates a  {@link AnnotateChildrenCmd} command to execute the action. 
+	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		//AnnotateChildrenCmd cmd = new AnnotateChildrenCmd(model);
+		//cmd.execute();
+		model.addMetadata();
+	}
   
 }

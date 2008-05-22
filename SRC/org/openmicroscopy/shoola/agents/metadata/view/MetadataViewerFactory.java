@@ -25,12 +25,11 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
-import java.util.Collection;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.DataObject;
 
 /** 
  * Factory to create {@link MetadataViewer} component.
@@ -55,19 +54,35 @@ public class MetadataViewerFactory
 	/**
 	 * Returns the {@link MetadataViewer}.
 	 * 
+	 * @param data	The object viewed as the root of the browser.
+	 * @param type  The type of data object to handle, if type is either
+	 *              <code>DatasetData</code> or <code>TagAnnotationData</code>,
+	 *              this implies that the viewer is for a bacth annotation.
+	 * @return See above.
+	 */
+	public static MetadataViewer getViewer(List<Object> data, Class type)
+	{
+		if (data == null || data.size() == 0)
+			throw new IllegalArgumentException("No data to edit");
+		MetadataViewerModel model = new MetadataViewerModel(data);
+		model.setDataType(type);
+		return singleton.createViewer(model, false, 
+				                     MetadataViewer.VERTICAL_LAYOUT);
+	}
+	
+	/**
+	 * Returns the {@link MetadataViewer}.
+	 * 
 	 * @param refObject			The object viewed as the root of the browser.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
-	 * @param singleViewMode	Pass <code>true</code> if the 
-	 * 							{@link MetadataViewer} is in a single
-	 * 							view context, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(Object refObject, boolean
-									thumbnailRequired, boolean singleViewMode)
+									thumbnailRequired)
 	{
 		return  MetadataViewerFactory.getViewer(refObject, thumbnailRequired, 
-									singleViewMode, MetadataViewer.GRID_LAYOUT);
+									MetadataViewer.GRID_LAYOUT);
 	}
 	
 	/**
@@ -78,17 +93,12 @@ public class MetadataViewerFactory
 	 * 							thumbnail, <code>false</code> otherwise.
 	 * @param layout			One of the layout constants defined by the 
 	 * 							{@link MetadataViewer} I/F.
-	 * @param singleViewMode	Pass <code>true</code> if the 
-	 * 							{@link MetadataViewer} is in a single
-	 * 							view context, <code>false</code> otherwise.
 	 * @return See above.
 	 */
 	public static MetadataViewer getViewer(Object refObject, boolean
-									thumbnailRequired, boolean singleViewMode,
-										int layout)
+									thumbnailRequired, int layout)
 	{
 		MetadataViewerModel model = new MetadataViewerModel(refObject);
-		model.setSingleViewMode(singleViewMode);
 		return singleton.createViewer(model, thumbnailRequired, layout);
 	}
 	
@@ -102,7 +112,7 @@ public class MetadataViewerFactory
 	 */
 	public static MetadataViewer getViewer(Object refObject, int layout)
 	{
-		return MetadataViewerFactory.getViewer(refObject, true, false, layout);
+		return MetadataViewerFactory.getViewer(refObject, true, layout);
 	}
 	
 	/**
@@ -113,7 +123,7 @@ public class MetadataViewerFactory
 	 */
 	public static MetadataViewer getViewer(Object refObject)
 	{
-		return  MetadataViewerFactory.getViewer(refObject, true, false,
+		return  MetadataViewerFactory.getViewer(refObject, true, 
 										MetadataViewer.GRID_LAYOUT);
 	}
 	

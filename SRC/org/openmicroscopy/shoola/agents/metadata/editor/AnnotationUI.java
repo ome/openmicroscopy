@@ -134,4 +134,7 @@ abstract class AnnotationUI
 	/** Clears the data to save. */
 	protected abstract void clearData();
 	
+	/** Sets the title of the component. */
+	protected abstract void setComponentTitle();
+
 }

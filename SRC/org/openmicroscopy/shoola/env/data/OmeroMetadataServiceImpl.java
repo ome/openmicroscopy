@@ -49,6 +49,7 @@ import ome.model.core.OriginalFile;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -850,6 +851,43 @@ class OmeroMetadataServiceImpl
 		}
 		if (result == null) return data;
 		return result;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#saveBatchData(TimeRefObject, List, List, long)
+	 */
+	public Object saveBatchData(TimeRefObject data, List<AnnotationData> toAdd,
+			                  List<AnnotationData> toRemove, long userID) 
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (data == null)
+			throw new IllegalArgumentException("No data to save");
+		OmeroDataService service = context.getDataService();
+		Set images = service.getImagesPeriod(data.getStartTime(), 
+				                             data.getEndTime(), userID);
+		List r = new ArrayList();
+		if (images == null) return r;
+		Iterator i = images.iterator();
+		DataObject child;
+		Class type = ImageData.class;
+		Iterator j;
+		while (i.hasNext()) {
+			child = (DataObject) i.next();
+			r.add(child);
+			if (toAdd != null) {
+				j = toAdd.iterator();
+				while (j.hasNext()) 
+					annotate(child, (AnnotationData) j.next());
+			}
+			if (toRemove != null) {
+				j = toRemove.iterator();
+				while (j.hasNext())
+					removeAnnotation((AnnotationData) j.next(), 
+										child);
+			}
+		}
+		return r;
 	}
 	
 	/**

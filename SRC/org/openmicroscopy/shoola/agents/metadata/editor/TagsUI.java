@@ -165,8 +165,7 @@ class TagsUI
     
 	/** The border displaying the title. */
 	private TitledLineBorder		border;
-	
-	
+
     /** Loads the tags and adds code completion. */
     private void handleTagInsert()
     {
@@ -488,18 +487,21 @@ class TagsUI
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
-		existingTags.add(UIUtilities.setTextFont("Tagged with: "), c);
-		c.gridx++;
-		c.weightx = 0.5;
+		if (!model.isMultiSelection()) {
+			existingTags.add(UIUtilities.setTextFont("Tagged with: "), c);
+			c.gridx++;
+			c.weightx = 0.5;
 
-		//Layout the tags
-		existingTags.add(layoutTags(tags), c);
+			//Layout the tags
+			existingTags.add(layoutTags(tags), c);
+			
+			c.gridy++;
+			c.gridx = 0;
+			existingTags.add(Box.createVerticalStrut(5));
+			c.gridy++;
+			c.weightx = 0;
+		}
 		
-		c.gridy++;
-		c.gridx = 0;
-		existingTags.add(Box.createVerticalStrut(5));
-		c.gridy++;
-		c.weightx = 0;
 		existingTags.add(UIUtilities.setTextFont("Tags to Add: "), c);
 		c.gridx++;
 		c.weightx = 0.5;
@@ -664,15 +666,6 @@ class TagsUI
 		selectedTags.clear();
 	}
 	
-	/** Sets the title of the components. */
-	private void setNodesTitle()
-	{
-		int n = model.getTagsCount();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
-		((TitledBorder) getBorder()).setTitle(title);
-	}
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -686,8 +679,9 @@ class TagsUI
 		border = new TitledLineBorder(title, getBackground());
 		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
-		add(layoutNewTags());
-		add(UIUtilities.buildComponentPanel(addButton));
+		buildUI();
+		//add(layoutNewTags());
+		//add(UIUtilities.buildComponentPanel(addButton));
 	}
 	
 	/**
@@ -816,9 +810,7 @@ class TagsUI
 	protected void buildUI()
 	{
 		removeAll();
-		setNodesTitle();
-		
-		
+		setComponentTitle();
 		//setLayout(new BorderLayout());
 		add(createExistingTagsPane());
 		add(Box.createVerticalStrut(5));
@@ -933,9 +925,22 @@ class TagsUI
 		historyDialog = null;
 		nameArea.setText("");
 		descriptionArea.setText("");
-		int n = model.getTagsCount();
-		title = TITLE+LEFT+n+RIGHT;
+		setComponentTitle();
+	}
+	
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle()
+	{
+		title = TITLE;
+		if (!model.isMultiSelection()) {
+			int n = model.getTagsCount();
+			title = TITLE+LEFT+n+RIGHT;
+		}
 		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**

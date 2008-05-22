@@ -30,7 +30,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +54,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.AnnotateChildrenAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.AddMetadataAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowseImageCategoriesAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ClassifierAction;
@@ -91,6 +90,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
@@ -295,7 +295,7 @@ class TreeViewerControl
 		actionsMap.put(CUT_OBJECT, new CutAction(model));
 		actionsMap.put(ACTIVATION, new ActivationAction(model));
 		actionsMap.put(SWITCH_USER, new SwitchUserAction(model));
-		actionsMap.put(ANNOTATE_CHILDREN, new AnnotateChildrenAction(model));
+		actionsMap.put(ANNOTATE_CHILDREN, new AddMetadataAction(model));
 		actionsMap.put(CLASSIFY_CHILDREN, new ClassifyChildrenAction(model));
 		actionsMap.put(ROLL_OVER, new RollOverAction(model));
 		actionsMap.put(REMOVE_FROM_DISPLAY, new RemoveExperimenterNode(model));
@@ -658,6 +658,12 @@ class TreeViewerControl
 		//	view.setVisibleNodes(nodes);
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
+		} else if (GenericDialog.SAVE_GENERIC_PROPERTY.equals(name)) {
+			Object parent = pce.getNewValue();
+			if (parent instanceof MetadataViewer) {
+				MetadataViewer mv = (MetadataViewer) parent;
+				mv.saveData();
+			}
 		}
 	}
 

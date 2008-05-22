@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -335,7 +334,7 @@ class TextualAnnotationsUI
 	/** Lays out the node. */
 	private void layoutPreviousNodes()
 	{
-		setNodesTitle();
+		setComponentTitle();
 		switch (layoutIndex) {
 			case DATE_VIEW:
 				datePane.getViewport().add(layoutDatePane());
@@ -344,17 +343,6 @@ class TextualAnnotationsUI
 				userPane.getViewport().add(layoutUserPane());
 		}
 		previousPane.repaint();
-	}
-	
-	/** Sets the title of the components. */
-	private void setNodesTitle()
-	{
-		int n = 0;
-		if (model.getRefObject() instanceof TagAnnotationData) n = 0;
-		else n = model.getTextualAnnotationCount()-toRemove.size();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
-		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**
@@ -411,10 +399,11 @@ class TextualAnnotationsUI
 	{
 		removeAll();
 		setAreaText("");
-		setNodesTitle();
+		setComponentTitle();
 		add(buildAreaPane());
 		//Fill area
 		//Retrieve the latest annotation for the currently logged in user.
+		if (model.isMultiSelection()) return;
 		Map<Long, List> annotations = model.getTextualAnnotationByOwner();
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		List l = annotations.get(userID);
@@ -423,6 +412,7 @@ class TextualAnnotationsUI
 			setAreaText(data.getText());
 			originalText = area.getText();
 		}
+		
 		if (!hasPreviousTextualAnnotations()) return;
 		add(previousTree);
 		layoutPreviousNodes();
@@ -449,7 +439,7 @@ class TextualAnnotationsUI
 	 */
 	protected List<AnnotationData> getAnnotationToRemove()
 	{
-		List<AnnotationData> l = getAnnotationToSave();
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
 		Iterator<AnnotationData> i = toRemove.iterator();
 		while (i.hasNext())
 			l.add(i.next());
@@ -501,7 +491,7 @@ class TextualAnnotationsUI
 		setAreaText("");
 		originalText = null;
 		initializePreviousComponent();
-		setNodesTitle();
+		setComponentTitle();
 	}
 	
 	/**
@@ -513,6 +503,23 @@ class TextualAnnotationsUI
 		toRemove.clear();
 		setAreaText("");
 		originalText = null;
+	}
+	
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle()
+	{
+		title = TITLE;
+		if (!model.isMultiSelection()) {
+			int n = 0;
+			if (model.getRefObject() instanceof TagAnnotationData) n = 0;
+			else n = model.getTextualAnnotationCount()-toRemove.size();
+			title = TITLE+LEFT+n+RIGHT;
+		}
+		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**

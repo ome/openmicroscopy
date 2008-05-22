@@ -189,6 +189,12 @@ class RateUI
 	protected void clearDisplay() { clearData(); }
 	
 	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle() {}
+	
+	/**
 	 * Sets the currently selected rating value.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */

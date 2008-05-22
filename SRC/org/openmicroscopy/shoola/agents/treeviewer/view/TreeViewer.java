@@ -733,5 +733,12 @@ public interface TreeViewer
 	 * 					or an integer with the maximum number of results
 	 */
 	public void setSearchResult(Object result);
+
+	/** 
+	 * Brings up the dialog used to add metadata to a collection of 
+	 * images selected either by the user or as linked to a dataset
+	 * or tag.
+	 */
+	public void addMetadata();
 	
 }

@@ -27,11 +27,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 //Third-party libraries
 
@@ -72,7 +68,7 @@ class MetadataViewerComponent
 	extends AbstractComponent
 	implements MetadataViewer
 {
-
+	
 	/** The Model sub-component. */
 	private MetadataViewerModel 	model;
 	
@@ -268,27 +264,33 @@ class MetadataViewerComponent
 	public void saveData(List<AnnotationData> toAdd, 
 				List<AnnotationData> toRemove, DataObject data)
 	{
+		if (model.isMultiSelection()) {
+			model.fireBatchSaving(toAdd, toRemove);
+			return;
+		}
 		if (data == null) return;
 		Object refObject = model.getRefObject();
-		Collection<DataObject> siblings = model.getSiblings();
 		List<DataObject> toSave = new ArrayList<DataObject>();
 		MessageBox dialog;
 		if (refObject instanceof ProjectData) {
-			if (siblings != null && siblings.size() > 1)
-				toSave.addAll(siblings);
+			//if (siblings != null && siblings.size() > 1)
+			//	toSave.addAll(siblings);
 			toSave.add(data);
 			model.fireSaving(toAdd, toRemove, toSave);
 		} else if (refObject instanceof DatasetData) {
 			//Only properties to save
-			if ((toAdd.size() == 0 && toRemove.size() == 0) 
-				|| model.isSingleViewMode()) {
+			toSave.add(data);
+			model.fireSaving(toAdd, toRemove, toSave);
+			/*
+			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
 				toSave.add(data);
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
 			}
-			
+			*/
+			/*
 			dialog = new MessageBox(view, "Save Annotations", 
-									"Do you want to annotate: ");
+									"Do you want to attach metadata to: ");
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();
@@ -297,19 +299,19 @@ class MetadataViewerComponent
 			single.setSelected(true);
 			p.add(single);
 			String s = "The selected dataset";
-			if (siblings != null && siblings.size() > 1) s += "s";
+			//if (siblings != null && siblings.size() > 1) s += "s";
 			single.setText(s);
 			JRadioButton batchAnnotation = new JRadioButton();
 			group.add(batchAnnotation);
 			p.add(batchAnnotation);
-			s = "Images contained in the selected dataset";
-			if (siblings != null && siblings.size() > 1) s += "s";
+			s = "The images contained in the selected dataset";
+			//if (siblings != null && siblings.size() > 1) s += "s";
 			batchAnnotation.setText(s);
 			dialog.addBodyComponent(p);
 			int option = dialog.centerMsgBox();
 			if (option == MessageBox.YES_OPTION) {
-				if (siblings != null && siblings.size() > 1)
-					toSave.addAll(siblings);
+				//if (siblings != null && siblings.size() > 1)
+				//	toSave.addAll(siblings);
 				toSave.add(data);
 				if (single.isSelected()) 
 					model.fireSaving(toAdd, toRemove, toSave);
@@ -318,10 +320,15 @@ class MetadataViewerComponent
 			} else if (option == MessageBox.NO_OPTION) {
 				clearDataToSave();
 			}
+			*/
 		} else if (refObject instanceof ImageData) {
 			//Only properties to save
-			if ((toAdd.size() == 0 && toRemove.size() == 0) 
-				|| model.isSingleViewMode()) {
+			toSave.add(data);
+			model.fireSaving(toAdd, toRemove, toSave);
+			
+			
+			/*
+			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
 				toSave.add(data);
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
@@ -369,18 +376,16 @@ class MetadataViewerComponent
 			} else if (option == MessageBox.NO_OPTION) {
 				clearDataToSave();
 			}
+			*/
 		} else if (refObject instanceof TagAnnotationData) {
 			//Only properties to save
-			if ((toAdd.size() == 0 && toRemove.size() == 0) 
-				|| model.isSingleViewMode()) {
-				toSave.add(data);
-				model.fireSaving(toAdd, toRemove, toSave);
-				return;
-			}
 			
+			toSave.add(data);
+			model.fireSaving(toAdd, toRemove, toSave);
+
 			//Only properties to save
-			if ((toAdd.size() == 0 && toRemove.size() == 0) 
-				|| model.isSingleViewMode()) {
+			/*
+			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
 				toSave.add(data);
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
@@ -421,6 +426,7 @@ class MetadataViewerComponent
 			} else if (option == MessageBox.NO_OPTION) {
 				clearDataToSave();
 			}
+			*/
 		}
 	}
 	
@@ -493,25 +499,6 @@ class MetadataViewerComponent
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
 		} else
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setSiblings(Collection)
-	 */
-	public void setSiblings(Collection<DataObject> siblings)
-	{
-		//model.setSiblings(siblings);
-		//model.getEditor().showEditorUI(siblings.size() <= 1);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setVisibleImages(Collection)
-	 */
-	public void setVisibleImages(Collection nodes)
-	{
-		model.setVisibleImages(nodes);
 	}
 
 	/** 

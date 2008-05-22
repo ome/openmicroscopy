@@ -46,7 +46,7 @@ import pojos.ImageData;
 import pojos.PixelsData;
 
 /** 
- * 
+ * Component displaying the image's information.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -217,6 +217,12 @@ public class ImageInfoUI
 	{
 		channelsArea.setText("");
 	}
+	
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle() {}
 	
 	/**
 	 * Clears the UI.

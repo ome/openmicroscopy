@@ -28,7 +28,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -775,15 +774,6 @@ class AttachmentsUI
 		repaint();
 	}
 	
-	/** Sets the title of the components. */
-	private void setNodesTitle()
-	{
-		int n = model.getAttachmentsCount()-removedFiles.size();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
-		((TitledBorder) getBorder()).setTitle(title);
-	}
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -951,8 +941,10 @@ class AttachmentsUI
 	protected void buildUI()
 	{
 		clearDisplay();
-		int n = model.getAttachmentsCount()-removedFiles.size();
-		if (n > 0) add(layoutAttachments());
+		if (!model.isMultiSelection()) {
+			int n = model.getAttachmentsCount()-removedFiles.size();
+			if (n > 0) add(layoutAttachments());
+		}
 		add(layoutContent());
 		setSelected();
 	}
@@ -1023,7 +1015,22 @@ class AttachmentsUI
 	protected void clearDisplay() 
 	{
 		removeAll();
-		setNodesTitle();
+		setComponentTitle();
+	}
+	
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle()
+	{
+		title = TITLE;
+		if (!model.isMultiSelection()) {
+			int n = model.getAttachmentsCount()-removedFiles.size();
+			title += LEFT+n+RIGHT;
+		}
+		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**

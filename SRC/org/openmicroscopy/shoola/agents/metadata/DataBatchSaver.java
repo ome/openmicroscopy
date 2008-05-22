@@ -31,6 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -62,8 +63,11 @@ public class DataBatchSaver
 	/** The annotation to remove from the data object. */
 	private List<AnnotationData> 	toRemove;
 	
+	/** The object hosting the time period. */
+	private TimeRefObject			timeRefObject;
+	
 	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle              handle;
     
 	/**
 	 * Creates a new instance.
@@ -86,6 +90,26 @@ public class DataBatchSaver
 		this.toRemove = toRemove;
 	}
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer		The viewer this data loader is for.
+     *                 		Mustn't be <code>null</code>.
+     * @param timeRefObject The object hosting the time period.
+	 * 						Mustn't be <code>null</code>.
+	 * @param toAdd			The collection of annotations to add.
+	 * @param toRemove		The collection of annotations to remove.
+	 */
+	public DataBatchSaver(MetadataViewer viewer, TimeRefObject timeRefObject,
+				List<AnnotationData> toAdd, List<AnnotationData> toRemove)
+	{
+		super(viewer, null);
+		if (timeRefObject == null)
+			throw new IllegalArgumentException("No object specified.");
+		this.timeRefObject = timeRefObject;
+		this.toAdd = toAdd;
+		this.toRemove = toRemove;
+	}
 	/** 
 	 * Loads the data.
 	 * @see MetadataLoader#cancel()
@@ -93,7 +117,11 @@ public class DataBatchSaver
 	public void load()
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		handle = mhView.saveBatchData(data, toAdd, toRemove, userID, this);
+		if (timeRefObject != null)
+			handle = mhView.saveBatchData(timeRefObject, toAdd, toRemove, 
+					                      userID, this);
+		else
+			handle = mhView.saveBatchData(data, toAdd, toRemove, userID, this);
 	}
 	
 	/** 

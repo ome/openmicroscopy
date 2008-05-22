@@ -31,6 +31,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import pojos.AnnotationData;
@@ -108,6 +109,30 @@ public class StructuredAnnotationSaver
     }
     
     /**
+     * Creates a {@link BatchCall} to retrieve the users who viewed 
+     * the specified set of pixels and also retrieve the rating associated
+     * to that set.
+     * 
+     * @param data		The data objects to handle.
+     * @param toAdd		The annotations to add.
+     * @param toRemove	The annotations to remove.
+     * @param userID	The id of the user.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall loadBatchCall(final TimeRefObject data, final
+    		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
+    		final long userID)
+    {
+        return new BatchCall("Saving") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+            	result = os.saveBatchData(data, toAdd, toRemove, userID);
+            }
+        };
+    }
+    
+    /**
      * Adds the {@link #loadCall} to the computation tree.
      * @see BatchCallTree#buildTree()
      */
@@ -139,6 +164,23 @@ public class StructuredAnnotationSaver
     		loadCall = loadBatchCall(data, toAdd, toRemove, userID);
     	else 
     		loadCall = loadCall(data, toAdd, toRemove, userID);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param timeRefObject	The object hosting the time interval.
+     * @param toAdd			The annotations to add.
+     * @param toRemove		The annotations to remove.
+     * @param userID		The id of the user.
+     */
+    public StructuredAnnotationSaver(TimeRefObject timeRefObject, 
+    		List<AnnotationData> toAdd, List<AnnotationData> toRemove, long
+    		userID)
+    {
+    	if (timeRefObject == null)
+    		throw new IllegalArgumentException("No time period sepecified.");
+    	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, userID);
     }
     
 }

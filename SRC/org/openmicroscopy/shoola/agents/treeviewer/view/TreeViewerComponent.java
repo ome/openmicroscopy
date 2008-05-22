@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
@@ -59,6 +60,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.util.DataHandler;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.classifier.view.Classifier;
@@ -1426,30 +1428,36 @@ class TreeViewerComponent
 				return;
 			}
 		}
+		MetadataViewer mv = model.getMetadataViewer();
 		if (hasDataToSave()) {
 			MessageBox dialog = new MessageBox(view, "Save data", 
 					"Do you want to save the modified \n" +
 					"data before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) {
-				model.getMetadataViewer().saveData();
-			} else {
-				model.getMetadataViewer().clearDataToSave();
-			}
+			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) 
+				mv.saveData();
+			else mv.clearDataToSave();
 		}
 		
 		boolean multi = (Boolean) multiSelection;
 		Browser browser = model.getSelectedBrowser();
 		browser.onSelectedNode(parent, selected, multi);
+		if (!multi) {
+			mv.setRootObject(selected);
+			if (selected != null && selected instanceof DataObject)
+				mv.showUI(true);
+			else mv.showUI(false);
+		} else {
+			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+			if (nodes != null && nodes.length == 1) {
+				mv.setRootObject(nodes[0].getUserObject());
+				mv.showUI(true);
+			} else mv.setRootObject(null);
+		}
 		
-		MetadataViewer mv = model.getMetadataViewer();
-		//mv.setRootObject(selected);
+		/*
+		mv.setRootObject(selected);
 
 		//Check siblings first.
-		if (!multi) mv.setRootObject(selected);
-		mv.showUI(!multi);
-		//if (l != null && l.size() == 1) mv.showUI(true);
-		//else mv.showUI(false);
-		/*
 		if (l != null) {
 			List<DataObject> siblings = new ArrayList<DataObject>();
 			Iterator i = l.iterator();
@@ -1527,10 +1535,26 @@ class TreeViewerComponent
 		}
 
 		Browser browser = model.getSelectedBrowser();
-		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
 		MetadataViewer mv = model.getMetadataViewer();
 		//Check siblings first.
 
+		boolean multi = (Boolean) multiSelection;
+
+		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
+		if (!multi) {
+			mv.setRootObject(selected);
+			mv.showUI(true);
+		} else {
+			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+			
+			if (nodes != null && nodes.length == 1) {
+				mv.setRootObject(nodes[0].getUserObject());
+				mv.showUI(true);
+			} else mv.setRootObject(null);
+		}
+
+		/*
+		mv.setRootObject(selected);
 		l = browser.getSelectedDataObjects();
 		if (l != null && l.size() > 0) {
 			int size = l.size()-1;
@@ -1550,6 +1574,7 @@ class TreeViewerComponent
 			mv.setRootObject(null);
 			mv.setSiblings(null);
 		}
+		*/
 	}
 
 	/**
@@ -1651,6 +1676,65 @@ class TreeViewerComponent
 			view.removeAllFromWorkingPane();
 			view.addComponent(db.getUI());
 		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#addMetadata()
+	 */
+	public void addMetadata()
+	{
+		//Need to make difference between batch and selection.
+		Browser browser = model.getSelectedBrowser();
+    	if (browser == null) return;
+    	TreeImageDisplay[] nodes = browser.getSelectedDisplays();
+    	if (nodes == null || nodes.length == 0) return;
+    	List<Object> data = new ArrayList<Object>();
+    	Object uo;
+    	TreeImageDisplay n;
+    	Class type = null;
+    	String text = "Add metadata to ";
+    	if (nodes.length == 1) {
+    		n = nodes[0];
+    		uo = n.getUserObject();
+    		if (uo instanceof TagAnnotationData) {
+    			data.add(uo);
+    			type = TagAnnotationData.class;
+    			text += "images linked to the selected tag.";
+    		} else if (uo instanceof DatasetData) {
+    			data.add( uo);
+    			type = DatasetData.class;
+    			text += "images linked to the selected dataset.";
+    		} else if (n instanceof TreeImageTimeSet) {
+    			TreeImageTimeSet time = (TreeImageTimeSet) n;
+        		ExperimenterData exp = model.getUserDetails();
+        		TimeRefObject ref = new TimeRefObject(exp.getId(), 
+        				time.getStartTime(), time.getEndTime());
+        		data.add(ref);
+    			type = TimeRefObject.class;
+    			text += "images imported during the selected period.";
+    		}
+    	} else {
+    		for (int i = 0; i < nodes.length; i++) {
+    			n = nodes[i];
+        		uo = n.getUserObject();
+        		if (uo instanceof ImageData)
+        			data.add(uo);
+			}
+    		text += "the selected images.";
+    	}
+    	if (data.size() > 0) {
+    		IconManager icons = IconManager.getInstance();
+    		MetadataViewer viewer = MetadataViewerFactory.getViewer(data, type);
+    		GenericDialog dialog = new GenericDialog(view, "Add Metadata...");
+    		dialog.initialize("Add Metadata...", text, 
+    				icons.getIcon(IconManager.ADD_METADATA_48), 
+    				viewer.getEditorUI());
+    		dialog.setParent(viewer);
+    		viewer.showUI(true);
+    		dialog.addPropertyChangeListener(controller);
+    		UIUtilities.centerAndShow(dialog);
+    	}
 	}
 	
 }

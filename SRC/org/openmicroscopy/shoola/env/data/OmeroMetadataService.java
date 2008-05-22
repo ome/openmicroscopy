@@ -34,6 +34,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
@@ -375,6 +376,25 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object saveBatchData(Collection<DataObject> data, 
+							List<AnnotationData> toAdd, 
+							List<AnnotationData> toRemove, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Saves the objects contained in the specified objects, 
+	 * adds (resp. removes) annotations to(resp. from) the object if any.
+	 * 
+	 * @param data		The data object to handle.
+	 * @param toAdd		Collection of annotations to add.
+	 * @param toRemove	Collection of annotations to remove.
+	 * @param userID	The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Object saveBatchData(TimeRefObject data, 
 							List<AnnotationData> toAdd, 
 							List<AnnotationData> toRemove, long userID)
 		throws DSOutOfServiceException, DSAccessException;

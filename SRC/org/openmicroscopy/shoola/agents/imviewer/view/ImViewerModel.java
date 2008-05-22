@@ -242,7 +242,7 @@ class ImViewerModel
 		textVisible = true;
 		movieIndex = -1;
 		loaders = new HashMap<Integer, DataLoader>();
-		metadataViewer = MetadataViewerFactory.getViewer(image, false, true);
+		metadataViewer = MetadataViewerFactory.getViewer(image, false);
 		metadataLoaded = false;
 		currentPixelsID = image.getDefaultPixels().getId();
 	}

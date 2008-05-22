@@ -136,6 +136,9 @@ class EditorModel
 	/** Flag indicating to load the thumbnail. */
 	private boolean					thumbnailRequired;
 	
+	/** Flag indicating if the editor is for a multi selection. */
+	private boolean					multiSelection;
+	
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -168,10 +171,12 @@ class EditorModel
 	 * 
 	 * @param refObject			The object this editor is for.
 	 * @param parent			The parent of this browser.
+	 * @param multiSelection    Pass <code>true</code> for multiselection, 
+	 *                          s<code>false</code> otherwise.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
 	 */
-	EditorModel(Object refObject, MetadataViewer parent,
+	EditorModel(Object refObject, MetadataViewer parent, boolean multiSelection,
 				boolean thumbnailRequired) 
 	{
 		if (refObject == null)
@@ -181,7 +186,16 @@ class EditorModel
 		this.thumbnailRequired = thumbnailRequired;
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
+		this.multiSelection = multiSelection;
 	}
+	
+	/**
+	 * Returns <code>true</code> if multi selection is on, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMultiSelection() { return multiSelection; }
 	
 	/**
 	 * Returns the observable.
@@ -897,7 +911,9 @@ class EditorModel
 	void fireAnnotationSaving(List<AnnotationData> toAdd,
 			List<AnnotationData> toRemove)
 	{
-		parent.saveData(toAdd, toRemove, (DataObject) refObject);
+		if (refObject instanceof DataObject)
+			parent.saveData(toAdd, toRemove, (DataObject) refObject);
+		else parent.saveData(toAdd, toRemove, null);
 	}
 	
 	/**

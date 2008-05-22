@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -190,7 +189,8 @@ class LinksUI
 	private JPanel layoutURL()
 	{
 		JPanel p = new JPanel();
-		Collection urls = model.getUrls();
+		Collection urls = null;
+		if (!model.isMultiSelection()) urls = model.getUrls();
 		Iterator i;
 		URLAnnotationData url;
 		int index = 0;
@@ -282,6 +282,42 @@ class LinksUI
 		return area;
 	}
 	
+	/**
+	 * Creates a URL annotation.
+	 * 
+	 * @param value The passed value.
+	 * @return See above.
+	 */
+	private URLAnnotationData createAnnotation(String value)
+	{
+		if (value == null) return null;
+		LogMessage msg;
+		String[] URLS = new String[1];
+		URLS[0] = "http";
+		try {
+			return new URLAnnotationData(value);
+		} catch (Exception e) {
+			if (!value.contains(URLAnnotationData.HTTP) && 
+					!value.contains(URLAnnotationData.HTTPS)) {
+				value = URLAnnotationData.HTTP+"://"+value;
+				try {
+					return new URLAnnotationData(value);
+				} catch (Exception ex) {
+					msg = new LogMessage();
+					msg.print("URL Creation");
+					msg.print(ex);
+					DataBrowserAgent.getRegistry().getLogger().error(this, msg);
+					return null;
+				}
+			}
+			msg = new LogMessage();
+			msg.print("URL Creation");
+			msg.print(e);
+			DataBrowserAgent.getRegistry().getLogger().error(this, msg);
+		}
+		return null;
+	}
+	
 	/** Adds a new url area only if the previously added one has been used. */
 	private void addURLArea()
 	{
@@ -366,15 +402,6 @@ class LinksUI
 		return false;
 	}
 	
-	/** Sets the title of the components. */
-	private void setNodesTitle()
-	{
-		int n = model.getUrlsCount()-toRemove.size();
-		title = TITLE+LEFT+n+RIGHT;
-		border.setTitle(title);
-		((TitledBorder) getBorder()).setTitle(title);
-	}
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -446,7 +473,7 @@ class LinksUI
 	protected void buildUI()
 	{
 		removeAll();
-		setNodesTitle();
+		setComponentTitle();
 		getCollapseComponent().setBorder(border);
 		add(layoutURL());
 		add(Box.createVerticalStrut(5));
@@ -473,41 +500,7 @@ class LinksUI
 		return l;
 	}
 
-	/**
-	 * Creates a URL annotation.
-	 * 
-	 * @param value The passed value.
-	 * @return See above.
-	 */
-	private URLAnnotationData createAnnotation(String value)
-	{
-		if (value == null) return null;
-		LogMessage msg;
-		String[] URLS = new String[1];
-		URLS[0] = "http";
-		try {
-			return new URLAnnotationData(value);
-		} catch (Exception e) {
-			if (!value.contains(URLAnnotationData.HTTP) && 
-					!value.contains(URLAnnotationData.HTTPS)) {
-				value = URLAnnotationData.HTTP+"://"+value;
-				try {
-					return new URLAnnotationData(value);
-				} catch (Exception ex) {
-					msg = new LogMessage();
-					msg.print("URL Creation");
-					msg.print(ex);
-					DataBrowserAgent.getRegistry().getLogger().error(this, msg);
-					return null;
-				}
-			}
-			msg = new LogMessage();
-			msg.print("URL Creation");
-			msg.print(e);
-			DataBrowserAgent.getRegistry().getLogger().error(this, msg);
-		}
-		return null;
-	}
+	
 	
 	/**
 	 * Returns the collection of urls to add.
@@ -586,7 +579,22 @@ class LinksUI
 		clearData();
 		removeAll();
 		addedContent.removeAll();
-		setNodesTitle();
+		setComponentTitle();
+	}
+	
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle()
+	{
+		title = TITLE;
+		if (!model.isMultiSelection()) {
+			int n = model.getUrlsCount()-toRemove.size();
+			title = TITLE+LEFT+n+RIGHT;
+		}
+		border.setTitle(title);
+		((TitledBorder) getBorder()).setTitle(title);
 	}
 	
 	/**

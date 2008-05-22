@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
-import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
 
@@ -222,20 +221,6 @@ public interface MetadataViewer
 	 * @param dataObject The updated object.
 	 */
 	public void onDataSave(List<DataObject> dataObject);
-
-	/**
-	 * Sets the collection of objects related to node of reference.
-	 * 
-	 * @param siblings The collection of siblings.
-	 */
-	public void setSiblings(Collection<DataObject> siblings);
-
-	/**
-	 * Sets the collection of visible images.
-	 * 
-	 * @param nodes The collection to set.
-	 */
-	public void setVisibleImages(Collection nodes);
 	
 	/**
 	 * Shows the components or hides them depending on the passed value.

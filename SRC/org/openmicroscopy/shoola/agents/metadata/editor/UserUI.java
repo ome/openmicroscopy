@@ -197,6 +197,12 @@ class UserUI
 	protected boolean hasDataToSave() { return profile.hasDataToSave(); }
 
 	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle() {}
+	
+	/**
 	 * 
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */

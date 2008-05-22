@@ -257,8 +257,8 @@ class PopupMenu
 				//add(classifyElement);
 				//add(declassifyElement);
 				//add(classifyChildrenElement);
-				//add(new JSeparator(JSeparator.HORIZONTAL));
-				//add(annotateChildrenElement);
+				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(annotateChildrenElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(copyRndElement);
 				add(pasteRndElement);

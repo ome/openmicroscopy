@@ -32,6 +32,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
@@ -234,7 +235,7 @@ public interface MetadataHandlerView
 									AgentEventListener observer);
 
 	/**
-	 * Saves the object, adds (resp. removes) annotations to(resp. from)
+	 * Saves the object, adds (resp. removes) annotations to (resp. from)
 	 * the object if any.
 	 * 
 	 * @param data		The data objects to handle.
@@ -250,7 +251,7 @@ public interface MetadataHandlerView
 	
 	/**
 	 * Saves the objects contained in the passed <code>DataObject</code>s, 
-	 * adds (resp. removes) annotations to(resp. from)
+	 * adds (resp. removes) annotations to (resp. from)
 	 * the object if any.
 	 * 
 	 * @param data		The data objects to handle.
@@ -261,6 +262,22 @@ public interface MetadataHandlerView
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveBatchData(Collection<DataObject> data, 
+					List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+						long userID, AgentEventListener observer);
+	
+	/**
+	 * Saves the objects contained in the passed <code>DataObject</code>s, 
+	 * adds (resp. removes) annotations to (resp. from)
+	 * the object if any.
+	 * 
+	 * @param timeRefObject The object hosting the time period.
+	 * @param toAdd			Collection of annotations to add.
+	 * @param toRemove		Collection of annotations to remove.
+	 * @param userID		The id of the user.
+	 * @param observer		Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle saveBatchData(TimeRefObject timeRefObject, 
 					List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
 						long userID, AgentEventListener observer);
 	

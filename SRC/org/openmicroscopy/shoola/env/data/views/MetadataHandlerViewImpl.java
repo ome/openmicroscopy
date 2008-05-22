@@ -31,6 +31,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
@@ -232,6 +233,20 @@ class MetadataHandlerViewImpl
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
 									toAdd, toRemove, userID, true);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#saveBatchData(TimeRefObject, List, List, long, 
+	 * 									AgentEventListener)
+	 */
+	public CallHandle saveBatchData(TimeRefObject refObject, 
+			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
+			long userID, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new StructuredAnnotationSaver(refObject, 
+									toAdd, toRemove, userID);
 		return cmd.exec(observer);
 	}
 	

@@ -125,9 +125,6 @@ public class EditorUI
 	/** The component displayed in the top left-hand side. */
 	private JComponent					topLeftPane;
 	
-	/** The left-hand side panel. */
-	//private JPanel 						leftPane;
-	
 	/** The component hosting the {@link #viewedByUI}. */
 	private TreeComponent 				viewByTree;
 	
@@ -139,6 +136,9 @@ public class EditorUI
 	
 	/** The component hosting the {@link #tagUI}. */
 	private TreeComponent 				tagsTree;
+	
+	/** The component hosting . */
+	private TreeComponent 				tree;
 	
 	/** The tool bar with various controls. */
 	private ToolBar						toolBarTop;
@@ -203,6 +203,7 @@ public class EditorUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		tree = new TreeComponent();
 		emptyPane = new JPanel();
 		emptyPane.setBackground(UIUtilities.BACKGROUND);
 		mainPane = new JScrollPane();
@@ -290,17 +291,19 @@ public class EditorUI
 							propertiesUI.getCollapseComponent());
 		TreeComponent left = new TreeComponent();
 		trees.add(left);
-		
+	
 		double h = TableLayout.PREFERRED;
 		double[][] leftSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 				0, h, TableLayout.PREFERRED, TableLayout.PREFERRED,
 				TableLayout.PREFERRED} }; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
+		if (!model.isMultiSelection()) {
+			leftPane.add(viewTreePanel, "0, 1");
+			leftPane.add(infoTree, "0, 2");
+			leftPane.add(propertiesTree, "0, 3");
+		}
 		
-		leftPane.add(viewTreePanel, "0, 1");
-		leftPane.add(infoTree, "0, 2");
-		leftPane.add(propertiesTree, "0, 3");
 		leftPane.add(commentsTree, "0, 4");
 		leftPane.add(tagsTree, "0, 5");
 		leftPane.add(left, "0, 6");
@@ -311,7 +314,7 @@ public class EditorUI
 		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
 		
-		TreeComponent tree = new TreeComponent();
+		
 		trees.add(tree);
 		
 		rightPane.add(tree, "0, 0");
@@ -319,31 +322,33 @@ public class EditorUI
 		
 		switch (layout) {
 			case Editor.VERTICAL_LAYOUT:
-				//left.insertNode(textualAnnotationsUI, 
-					//	textualAnnotationsUI.getCollapseComponent(), expanded);
-				//left.insertNode(tagsUI, tagsUI.getCollapseComponent(), 
-					//			expanded);
-
 				tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 				tree.insertNode(attachmentsUI, 
 							attachmentsUI.getCollapseComponent(), false);
-
 				content.setLayout(new TableLayout(CONTENT_VERTICAL));
-				content.add(toolBarTop, "0, 0");
-				content.add(leftPane, "0, 1");
-				content.add(rightPane, "0, 2");
-				content.add(toolBarBottom, "0, 3");
+				if (model.isMultiSelection()) {
+					tree.expandNodes();
+					commentsTree.expandNodes();
+					tagsTree.expandNodes();
+					content.add(leftPane, "0, 0");
+					content.add(rightPane, "0, 1");
+				} else {
+					content.add(toolBarTop, "0, 0");
+					content.add(leftPane, "0, 1");
+					content.add(rightPane, "0, 2");
+					content.add(toolBarBottom, "0, 3");
+				}
 				break;
 			case Editor.GRID_LAYOUT:
 			default:
 				left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
 				left.insertNode(attachmentsUI, 
 							attachmentsUI.getCollapseComponent(), false);
-				//tree.insertNode(textualAnnotationsUI, 
-					//	textualAnnotationsUI.getCollapseComponent());
-				//tree.insertNode(tagsUI, tagsUI.getCollapseComponent());
 				content.setLayout(new TableLayout(CONTENT_GRID));
-				content.add(toolBarTop, "0, 0, 2, 0");
+				if (!model.isMultiSelection()) {
+					content.add(toolBarTop, "0, 0, 2, 0");
+				}
+				
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "2, 1");
 				content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
@@ -466,7 +471,7 @@ public class EditorUI
 			model.fireDataObjectSaving(exp);
 			return;
 		}
-		propertiesUI.updateDataObject();
+		if (!model.isMultiSelection()) propertiesUI.updateDataObject();
 		List<AnnotationData> toAdd = new ArrayList<AnnotationData>();
 		List<AnnotationData> toRemove = new ArrayList<AnnotationData>();
 		List<AnnotationData> l = attachmentsUI.getAnnotationToSave();
@@ -525,9 +530,15 @@ public class EditorUI
 			    	repaint();
 					return;
 				}
-				content.add(toolBarTop, "0, 0, 2, 0");
-				content.add(leftPane, "0, 1");
-				content.add(rightPane, "2, 1");
+				if (model.isMultiSelection()) {
+					content.add(leftPane, "0, 1");
+					content.add(rightPane, "2, 1");
+				} else {
+					content.add(toolBarTop, "0, 0, 2, 0");
+					content.add(leftPane, "0, 1");
+					content.add(rightPane, "2, 1");
+				}
+				
 				break;
 			case Editor.VERTICAL_LAYOUT:
 				content.setLayout(new TableLayout(CONTENT_VERTICAL));
@@ -540,10 +551,19 @@ public class EditorUI
 			    	repaint();
 					return;
 				}
-				content.add(toolBarTop, "0, 0");
-				content.add(leftPane, "0, 1");
-				content.add(rightPane, "0, 2");
-				content.add(toolBarBottom, "0, 3");
+				if (model.isMultiSelection()) {
+					tree.expandNodes();
+					commentsTree.expandNodes();
+					tagsTree.expandNodes();
+					content.add(leftPane, "0, 1");
+					content.add(rightPane, "0, 2");
+				} else {
+					content.add(leftPane, "0, 1");
+					content.add(rightPane, "0, 2");
+					content.add(toolBarTop, "0, 0");
+					content.add(toolBarBottom, "0, 3");
+				}
+				
 				break;
 		}
 		
@@ -669,10 +689,13 @@ public class EditorUI
 		if (!(ref instanceof DataObject)) return false;
 		if (ref instanceof ExperimenterData)
 			return userUI.hasDataToSave();
-		if (!propertiesUI.isNameValid()) {
-			setDataToSave(false);
-			return false;
+		if (model.isMultiSelection()) {
+			if (!propertiesUI.isNameValid()) {
+				setDataToSave(false);
+				return false;
+			}
 		}
+		
 		//setDataToSave(true);
 		Iterator<AnnotationUI> i = components.iterator();
 		boolean b = false;

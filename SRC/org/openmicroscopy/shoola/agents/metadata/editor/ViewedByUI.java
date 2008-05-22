@@ -44,6 +44,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 
 //Third-party libraries
@@ -397,6 +398,12 @@ class ViewedByUI
 	 * @see AnnotationUI#clearData()
 	 */
 	protected void clearData() {}
+	
+	/**
+	 * Sets the title of the component.
+	 * @see AnnotationUI#setComponentTitle()
+	 */
+	protected void setComponentTitle() {}
 	
 	/**
 	 * Modifies the layout of the thumbnails.

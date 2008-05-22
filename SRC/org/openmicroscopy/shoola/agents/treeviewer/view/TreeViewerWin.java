@@ -35,7 +35,6 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,6 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -623,16 +621,6 @@ class TreeViewerWin
 			item.setText(a.getActionName());
 			item.setToolTipText(a.getActionDescription());
 		}
-    }
-	
-    /**
-     * Sets the collection of visible images.
-     * 
-     * @param nodes The value to set.
-     */
-    void setVisibleNodes(Collection nodes)
-    {
-    	model.getMetadataViewer().setVisibleImages(nodes);
     }
     
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */

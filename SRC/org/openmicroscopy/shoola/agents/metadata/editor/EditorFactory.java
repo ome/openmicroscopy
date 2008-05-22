@@ -53,15 +53,19 @@ public class EditorFactory
      * @param refObject   		The object of reference.
      * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
+	 * @param multiSelection	Pass <code>true</code> to indicate that the
+	 *                          editor is for a multi selection, 
+	 *                          <code>false</code> otherwise.
 	 * @param layout			One of the layout constants defined by the 
 	 * 							{@link Editor} I/F.
      * @return See above.
      */
     public static Editor createEditor(MetadataViewer parent, 
     									Object refObject, boolean
-    									thumbnailRequired, int layout)
+    									thumbnailRequired, 
+    									boolean multiSelection, int layout)
     {
-    	EditorModel model = new EditorModel(refObject, parent, 
+    	EditorModel model = new EditorModel(refObject, parent, multiSelection,
     										thumbnailRequired);
     	EditorComponent component = new EditorComponent(model);
     	model.initialize(component);

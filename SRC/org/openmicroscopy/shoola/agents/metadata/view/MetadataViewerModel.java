@@ -45,14 +45,15 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * The Model component in the <code>MetadataViewer</code> MVC triad.
@@ -84,9 +85,6 @@ class MetadataViewerModel
 	/** The ref object for the viewer i.e. the root. */
 	private Object									refObject;
 	
-	/** The collection of objects related to the object of reference. */
-	private Collection<DataObject>					siblings;
-	
 	/** The object hosting the various annotations linked to an object. */
 	private StructuredDataResults					data;
 	
@@ -99,14 +97,8 @@ class MetadataViewerModel
 	/** The active data loaders. */
 	private Map<TreeBrowserDisplay, MetadataLoader>	loaders;
 	
-	/** 
-	 * Flag indicating if the {@link MetadataViewer} is in a single view
-	 * context.
-	 */
-	private boolean									singleViewMode;
-	
-	/** The collection of visible images. */
-	private Collection<DataObject>					visibleImages;
+	/** Only used when it is a bacth call. */
+	private Class									dataType;
 	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
@@ -119,6 +111,7 @@ class MetadataViewerModel
 		this.refObject = refObject;
 		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
 		data = null;
+		dataType = null;
 	}
 	
 	/**
@@ -135,40 +128,18 @@ class MetadataViewerModel
 					layout)
 	{ 
 		this.component = component;
+		boolean b = isMultiSelection();
 		browser = BrowserFactory.createBrowser(component, refObject);
-		editor = EditorFactory.createEditor(component, refObject, 
-										thumbnailRequired, layout);
+		editor = EditorFactory.createEditor(component, refObject,
+										thumbnailRequired, b, layout);
 	}
 	
 	/**
-	 * Returns <code>true</code> if the {@link MetadataViewer} is in a single
-	 * view context, <code>false</code> otherwise.
+	 * Sets the data type, this value is only used for batch annotation.
 	 * 
-	 * @return See above.
+	 * @param dataType The value to set.
 	 */
-	boolean isSingleViewMode() { return singleViewMode; }
-	
-	/**
-	 * Sets to <code>true</code> if the {@link MetadataViewer} is in a single
-	 * view context, <code>false</code> otherwise.
-	 * 
-	 * @param singleViewMode The value to set.
-	 */
-	void setSingleViewMode(boolean singleViewMode)
-	{ 
-		this.singleViewMode = singleViewMode;
-	}
-	
-	/**
-	 * Returns the collection of objects related to the object of reference.
-	 * 
-	 * @return See above.
-	 */
-	Collection<DataObject> getSiblings()
-	{ 
-		if (siblings == null) siblings = new ArrayList<DataObject>();
-		return siblings; 
-	}
+	void setDataType(Class dataType) { this.dataType = dataType; }
 	
 	/**
 	 * Returns the current state.
@@ -193,6 +164,21 @@ class MetadataViewerModel
 		loaders.clear();
 	}
 	
+	/**
+	 * Returns <code>true</code> if the editor is for a multi selection of 
+	 * <code>DataObject</code>, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isMultiSelection()
+	{
+		if (TagAnnotationData.class.equals(dataType)) return true;
+		if (DatasetData.class.equals(dataType)) return true;
+		if (TimeRefObject.class.equals(dataType)) return true;
+		if (refObject instanceof Collection) 
+			return ((Collection) refObject).size() > 1;
+		return false;
+	}
 	/**
 	 * Sets the object of reference.
 	 * 
@@ -376,51 +362,43 @@ class MetadataViewerModel
 	}
 
 	/**
-	 * Sets the collection of objects related to the reference objects.
-	 * 
-	 * @param siblings The collection to set.
-	 */
-	void setSiblings(Collection<DataObject> siblings)
-	{
-		this.siblings = siblings;
-	}
-
-	/**
-	 * Sets the collection of visible nodes.
-	 * 
-	 * @param visibleImages The collection to set.
-	 */
-	void setVisibleImages(Collection visibleImages)
-	{
-		this.visibleImages = visibleImages;
-	}
-	
-	/**
-	 * Returns the collection of objects related to the object of reference.
-	 * 
-	 * @return See above.
-	 */
-	Collection getVisibleImages()
-	{ 
-		if (visibleImages == null) visibleImages = new ArrayList();
-		return visibleImages; 
-	}
-	
-	/**
 	 * Fires an asynchronous call to save the objects contained
 	 * in the passed <code>DataObject</code> to save, add (resp. remove)
 	 * annotations to (resp. from) the object.
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
-	 * @param toSave		The object to update.
 	 */
 	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
-						toRemove, List<DataObject> toSave)
+						toRemove)
 	{
-		DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
-				toRemove);
-		loader.load();
+		List<DataObject> toSave = new ArrayList<DataObject>();
+		Collection ref = (Collection) refObject;
+		Iterator i;
+		if (TagAnnotationData.class.equals(dataType) ||
+			DatasetData.class.equals(dataType)) {
+			i = ref.iterator();
+			while (i.hasNext()) 
+				toSave.add((DataObject) i.next());
+			
+			DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
+					                                   toRemove);
+			loader.load();
+		} else if (TimeRefObject.class.equals(dataType)) {
+			TimeRefObject refObject = null;
+			i = ref.iterator();
+			while (i.hasNext()) 
+				refObject = (TimeRefObject) i.next();
+			DataBatchSaver loader = new DataBatchSaver(component, refObject, 
+					                                  toAdd, toRemove);
+            loader.load();
+		} else {
+			i = ref.iterator();
+			while (i.hasNext()) 
+				toSave.add((DataObject) i.next());
+			fireSaving(toAdd, toRemove, toSave);
+		}
+		
 	}
 	
 }
