@@ -1,26 +1,2 @@
 <map xmlns='http://www.w3.org/1999/xhtml' name='element_Experiment_httpwww.openmicroscopy.orgSchemasOME200802'>
- <area
-  shape='rect'
-  alt='element_Description'
-  coords='284,0,417,42'
-  href='ome.xsd.html#element_Description'/>
-
- <area
-  shape='rect'
-  alt='element_ExperimenterRef'
-  coords='284,52,445,78'
-  href='ome.xsd.html#element_ExperimenterRef'/>
-
- <area
-  shape='rect'
-  alt='element_MicrobeamManipulationRef'
-  coords='284,88,508,130'
-  href='ome.xsd.html#element_MicrobeamManipulationRef'/>
-
- <area
-  shape='rect'
-  alt='type_ExperimentID'
-  coords='198,788,292,814'
-  href='ome.xsd.html#type_ExperimentID'/>
-
 </map>
