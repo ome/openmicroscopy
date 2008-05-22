@@ -622,7 +622,7 @@ class DataBrowserComponent
 	 */
 	public void setVisibleNodes(Collection nodes)
 	{
-		firePropertyChange(VISIBLE_NODES_PROPERTY, null, nodes);
+		//firePropertyChange(VISIBLE_NODES_PROPERTY, null, nodes);
 	}
 
 	/**

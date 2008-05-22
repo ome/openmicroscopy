@@ -73,9 +73,9 @@ import javax.swing.text.StyledDocument;
 
 
 //Third-party libraries
+import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXDatePicker;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 /** 
@@ -320,8 +320,8 @@ public class UIUtilities
      * @param child     The child to display.
      * @param max		The maximum size of the window.
      */
-    public static void setLocationRelativeToAndSizeToWindow(Rectangle parentBounds, 
-                                                Component child, Dimension max)
+    public static void setLocationRelativeToAndSizeToWindow(
+    		Rectangle parentBounds, Component child, Dimension max)
     {
 
         int x = (int) (parentBounds.getX()+ parentBounds.getWidth());
@@ -330,22 +330,19 @@ public class UIUtilities
         int childHeight = child.getHeight();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         if (x+childWidth > screenSize.getWidth()) {
-            if (childWidth < parentBounds.getX()) x = (int)(parentBounds.getX())-childWidth;
+            if (childWidth < parentBounds.getX()) 
+            	x = (int) (parentBounds.getX())-childWidth;
             else x = (int) (screenSize.getWidth()-childWidth);
         } 
         child.setLocation(x, y);
         int newHeight = (int)screenSize.getHeight()-y-10;
         int newWidth = (int)screenSize.getWidth()-x-10;
         
-        if(newWidth>childWidth)
-        	childWidth = newWidth;
-        if(newHeight>childHeight)
-        	childHeight = newHeight;
+        if (newWidth > childWidth) childWidth = newWidth;
+        if (newHeight > childHeight) childHeight = newHeight;
         
-        if(childWidth>max.getWidth())
-        	childWidth = (int)max.getWidth();
-        if(childHeight>max.getHeight())
-        	childHeight = (int)max.getHeight();
+        if (childWidth>max.getWidth()) childWidth = (int) max.getWidth();
+        if (childHeight>max.getHeight()) childHeight = (int) max.getHeight();
         
         child.setSize(childWidth, childHeight);
         child.setVisible(true);
@@ -373,6 +370,7 @@ public class UIUtilities
         child.setLocation(x, y);
         child.setVisible(true);
     }
+    
     /**
      * Sets the location of the passed component relative to the specified 
      * bounds.

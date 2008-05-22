@@ -25,12 +25,15 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -122,6 +125,23 @@ class TreeComponentNode
 		setLayout(layout);
 	}
 	
+	/** 
+	 * Sets the color of the border of the passed component.
+	 * 
+	 * @param comp    The component to handle.
+	 * @param enabled Pass <code>true</code> to allow operation, 
+	 * 				  <code>false</code> otherwise.
+	 */
+	private void setComponentColor(JComponent comp, boolean enabled)
+	{
+		Border b = comp.getBorder();
+		if (b instanceof TitledBorder) {
+			TitledBorder tb = (TitledBorder) b;
+			if (enabled) tb.setTitleColor(Color.BLACK);
+			else tb.setTitleColor(Color.GRAY);
+		}
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -194,6 +214,8 @@ class TreeComponentNode
 		iconLabel.setEnabled(enabled);
 		iconLabel.removeMouseListener(adapter);
 		if (enabled) iconLabel.addMouseListener(adapter);
+		setComponentColor(collapse, enabled);
+		setComponentColor(elapse, enabled);
 	}
 	
 }

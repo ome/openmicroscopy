@@ -44,6 +44,7 @@ import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -98,7 +99,7 @@ class TreeViewerWin
     
     /** The component hosting the working pane. */
     private JScrollPane 		workingPane;
-
+    
     /** The component hosting the working pane. */
     private JSplitPane 			rightPane;
     

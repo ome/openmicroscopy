@@ -284,5 +284,15 @@ class EditorComponent
 		model.setExistingURLs(urls);
 		view.setExistingURLs();
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#showEditorUI(boolean)
+	 */
+	public void showEditorUI(boolean show)
+	{
+		view.showEditorUI(show);
+		
+	}
 	
 }

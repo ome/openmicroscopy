@@ -653,9 +653,9 @@ class TreeViewerControl
 		} else if (DataBrowser.REMOVE_ITEMS_PROPERTY.equals(name)) {
 			DeleteCmd cmd = new DeleteCmd(model);
 	        cmd.execute();
-		} else if (DataBrowser.VISIBLE_NODES_PROPERTY.equals(name)) {
-			Collection nodes = (Collection) pce.getNewValue();
-			view.setVisibleNodes(nodes);
+		//} else if (DataBrowser.VISIBLE_NODES_PROPERTY.equals(name)) {
+		//	Collection nodes = (Collection) pce.getNewValue();
+		//	view.setVisibleNodes(nodes);
 		} else if (Finder.RESULTS_FOUND_PROPERTY.equals(name)) {
 			model.setSearchResult(pce.getNewValue());
 		}

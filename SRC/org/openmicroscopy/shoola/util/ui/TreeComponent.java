@@ -29,7 +29,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -86,13 +85,13 @@ public class TreeComponent
 		
 		switch (orientation) {
 			case VERTICAL:
-				collapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_DISABLED);
-				elapseIcon = icons.getIcon(IconManager.DOWN_ARROW_DISABLED);
+				collapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_BLACK);
+				elapseIcon = icons.getIcon(IconManager.DOWN_ARROW_BLACK);
 				setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 				break;
 			case HORIZONTAL:
-				elapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_DISABLED);
-				collapseIcon = icons.getIcon(IconManager.DOWN_ARROW_DISABLED);
+				collapseIcon = icons.getIcon(IconManager.RIGHT_ARROW_BLACK);
+				elapseIcon = icons.getIcon(IconManager.DOWN_ARROW_BLACK);
 				setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		}
 	}
@@ -152,32 +151,6 @@ public class TreeComponent
 										this);
 		add(node);
 		nodes.add(node);
-	}
-	
-	/**
-	 * Sets the collapse icon.
-	 * 
-	 * @param icon	The icon to set.
-	 */
-	public void setCollapseIcon(Icon icon) { collapseIcon = icon; }
-	
-	/**
-	 * Sets the elapse icon.
-	 * 
-	 * @param icon	The icon to set.
-	 */
-	public void setElapseIcon(Icon icon) { elapseIcon = icon; }
-	
-	/**
-	 * Sets the icons.
-	 * 
-	 * @param collapseIcon The collapse icon.
-	 * @param elapseIcon	The elapse icon.
-	 */
-	public void setIcons(Icon collapseIcon, Icon elapseIcon)
-	{
-		this.collapseIcon = collapseIcon;
-		this.elapseIcon = elapseIcon;
 	}
 
 	/** Collapses all the nodes. */

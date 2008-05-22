@@ -328,6 +328,7 @@ class TreeViewerComponent
 			model.setSelectedBrowser(browser);
 			if (browser != null) browser.activate();
 			removeEditor();
+			model.getMetadataViewer().showUI(false);
 			firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
 		}
 		view.updateMenuItems();
@@ -542,22 +543,16 @@ class TreeViewerComponent
 				throw new IllegalStateException("This method cannot be " +
 				"invoked in the DISCARDED, SAVE state.");
 		}
-		
-		//int editor = model.getEditorType();
-		//removeEditor();
-		/*
-		if (editor != TreeViewer.CREATE_EDITOR) {
-			//PropertiesCmd cmd = new PropertiesCmd(this);
-			//cmd.execute();
-		}
-		*/
+	
 		Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
+        MetadataViewer metadata = model.getMetadataViewer();
+        boolean single = browser.getSelectedDisplays().length == 1;
+        metadata.showUI(single);
         if (display != null && !(display instanceof TreeImageTimeSet)) {
-        	  MetadataViewer metadata = model.getMetadataViewer();
         	  Object object = display.getUserObject();
-              metadata.setRootObject(object);
+        	  if (single) metadata.setRootObject(object);
               showDataBrowser(object, display);
         }
 	}
@@ -1442,13 +1437,19 @@ class TreeViewerComponent
 			}
 		}
 		
+		boolean multi = (Boolean) multiSelection;
 		Browser browser = model.getSelectedBrowser();
-		browser.onSelectedNode(parent, selected, (Boolean) multiSelection);
-		MetadataViewer mv = model.getMetadataViewer();
-		//Check siblings first.
+		browser.onSelectedNode(parent, selected, multi);
 		
-		mv.setRootObject(selected);
-		l = browser.getSelectedDataObjects();
+		MetadataViewer mv = model.getMetadataViewer();
+		//mv.setRootObject(selected);
+
+		//Check siblings first.
+		if (!multi) mv.setRootObject(selected);
+		mv.showUI(!multi);
+		//if (l != null && l.size() == 1) mv.showUI(true);
+		//else mv.showUI(false);
+		/*
 		if (l != null) {
 			List<DataObject> siblings = new ArrayList<DataObject>();
 			Iterator i = l.iterator();
@@ -1461,6 +1462,7 @@ class TreeViewerComponent
 			if (siblings.size() > 1)
 				mv.setSiblings(siblings);
 		}
+	    */
 	}
 
 	/**

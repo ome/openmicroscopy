@@ -237,4 +237,12 @@ public interface MetadataViewer
 	 */
 	public void setVisibleImages(Collection nodes);
 	
+	/**
+	 * Shows the components or hides them depending on the passed value.
+	 * 
+	 * @param show Pass <code>true</code> to show the editor, <code>false</code>
+	 * 			   otherwise.
+	 */
+	public void showUI(boolean show);
+	
 }

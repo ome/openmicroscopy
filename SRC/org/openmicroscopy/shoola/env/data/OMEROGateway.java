@@ -1389,6 +1389,12 @@ class OMEROGateway
 		try {
 			ThumbnailStore service = getThumbService();
 			needDefault(pixelsID, null);
+			/*
+			Set<Long> pix = new HashSet<Long>();
+			pix.add(pixelsID);
+			Map m = service.getThumbnailByLongestSideSet(sizeX, pix);
+			return (byte[]) m.get(pixelsID);
+			*/
 			return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
 			//return service.getThumbnailDirect(new Integer(sizeX), 
 			//		new Integer(sizeY));
@@ -3405,27 +3411,30 @@ class OMEROGateway
 			Set results = new HashSet();
 			if (l != null) {
 				Iterator<IObject> i = l.iterator();
-				Annotation object;
 				TagAnnotationData tag;
+				List<Long> ids = new ArrayList<Long>();
 				while (i.hasNext()) {
 					param = new Parameters();
 					tag = (TagAnnotationData) PojoMapper.asDataObject(i.next());
-					
-					param.addLong("id", tag.getId());
-					sql =  "select link from AnnotationAnnotationLink as link "
-						+ "left outer join link.child ann ";
-					sql += " where ann member of "+type;
-					sql += " and link.parent.id = :id";
-					Set children = new HashSet();
-					List r = service.findAllByQuery(sql, param);
-					Iterator j = r.iterator();
-					ILink link;
-					while (j.hasNext()) {
-						link = (ILink) j.next();
-						children.add(PojoMapper.asDataObject(link.getChild()));
+					if (!ids.contains(tag.getId())) {
+						param.addLong("id", tag.getId());
+						sql =  "select link from AnnotationAnnotationLink " +
+								"as link left outer join link.child ann ";
+						sql += " where ann member of "+type;
+						sql += " and link.parent.id = :id";
+						Set children = new HashSet();
+						List r = service.findAllByQuery(sql, param);
+						Iterator j = r.iterator();
+						ILink link;
+						while (j.hasNext()) {
+							link = (ILink) j.next();
+							children.add(
+									PojoMapper.asDataObject(link.getChild()));
+						}
+						tag.setTags(children);
+				 		results.add(tag);
+				 		ids.add(tag.getId());
 					}
-					tag.setTags(children);
-					results.add(tag);
 				}
 			}
 			

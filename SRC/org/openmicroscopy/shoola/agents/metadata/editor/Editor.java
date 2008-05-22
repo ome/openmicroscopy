@@ -173,4 +173,12 @@ public interface Editor
 	 */
 	public void setExistingURLs(Collection urls);
 	
+	/**
+	 * Shows the editor or hides it depending on the passed value.
+	 * 
+	 * @param show Pass <code>true</code> to show the editor, <code>false</code>
+	 * 			   otherwise.
+	 */
+	public void showEditorUI(boolean show);
+	
 }

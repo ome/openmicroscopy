@@ -340,11 +340,17 @@ public class IconManager
     /** The <code>Browser</code> icon. */
     public static final int	BROWSER = 95;
     
+    /** ID of the <code>LeftArrowDisabled</code> icon for the slider. */
+    public static final int DOWN_ARROW_BLACK = 96;
+
+    /** ID of the <code>RightArrowDisabled</code> icon for the slider. */
+    public static final int RIGHT_ARROW_BLACK = 97;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 95;
+    private static int      MAX_ID = 97;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -368,6 +374,8 @@ public class IconManager
         							"nuvola_player_play10_left_disabled.png"; 
         relPaths[RIGHT_ARROW_DISABLED] = 
         						"nuvola_player_play10_right_disabled.png";
+        relPaths[RIGHT_ARROW_BLACK] = "nuvola_player_play10_right_black.png";
+        relPaths[DOWN_ARROW_BLACK] = "nuvola_player_play10_down_black.png";
         relPaths[QUESTION_ICON] = "nuvola_filetypes48.png";
     	relPaths[ANNOTATION_48] = "nuvola_kwrite48.png";
     	relPaths[INFO] = "nuvola_messagebox_info16.png";

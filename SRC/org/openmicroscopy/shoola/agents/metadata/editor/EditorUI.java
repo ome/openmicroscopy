@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
@@ -44,6 +45,8 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -161,6 +164,12 @@ public class EditorUI
 	/** The component hosting all the components. */
 	private JPanel 						content;
 	
+	/** The final component. */
+	private JScrollPane					mainPane;
+	
+	/** The empty pane. */
+	private JPanel					    emptyPane;
+	
 	/** The component layed out on the right-end side.*/
 	private JPanel 						rightPane;
 	
@@ -194,7 +203,9 @@ public class EditorUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
-		
+		emptyPane = new JPanel();
+		emptyPane.setBackground(UIUtilities.BACKGROUND);
+		mainPane = new JScrollPane();
 		trees = new ArrayList<TreeComponent>();
 		infoUI = new ImageInfoUI(model);
 		userUI = new UserUI(model, controller);
@@ -338,7 +349,9 @@ public class EditorUI
 				content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		}
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(new JScrollPane(content), BorderLayout.CENTER);
+		mainPane.getViewport().add(content);
+		//add(mainPane, BorderLayout.CENTER);
+		add(emptyPane, BorderLayout.CENTER);
 	}
 	
 	/** Creates a new instance. */
@@ -419,7 +432,28 @@ public class EditorUI
     	revalidate();
     	repaint();
     }
-
+    
+    /**
+     * Shows or hides the editor depending on the passed value.
+     * 
+     * @param show Pass <code>true</code> to show the UI components, 
+     *             <code>false</code> to hide them.
+     */
+    void showEditorUI(boolean show)
+    {
+    	Component comp = getComponent(0);
+    	if (show) {
+    		if (comp instanceof JScrollPane) return;
+    		removeAll();
+    		add(mainPane, BorderLayout.CENTER);
+    	} else {
+    		if (comp instanceof JPanel) return;
+    		removeAll();
+    		add(emptyPane, BorderLayout.CENTER);
+    	}
+    	repaint();
+    }
+    
     /** Save data. */
 	void saveData()
 	{

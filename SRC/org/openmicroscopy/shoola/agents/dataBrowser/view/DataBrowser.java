@@ -134,7 +134,7 @@ public interface DataBrowser
 	public static final String		REMOVE_ITEMS_PROPERTY = "removeItems";
 	
 	/** Bound property indicating the visible nodes. */
-	public static final String  	VISIBLE_NODES_PROPERTY = "visibleNodes";
+	//public static final String  	VISIBLE_NODES_PROPERTY = "visibleNodes";
 	
 	/** Loads the thumbnails when we have <code>100</code> or less values. */
 	public static final int			MAX_ENTRIES = 100;

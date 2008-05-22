@@ -121,9 +121,6 @@ class EditorModel
     /** Collection of existing tags if any. */
     private Collection				existingTags;
     
-    /** Collection of existing tags if any. */
-    private Collection				existingTagSets;
-    
     /** Collection of existing attachments if any. */
     private Collection				existingAttachments;
     

@@ -235,6 +235,7 @@ class MetadataViewerComponent
 	public void setRootObject(Object root)
 	{
 		if (root == null) root = "";
+		if (root instanceof String) showUI(false);
 		model.setRootObject(root);
 		view.setRootObject();
 	}
@@ -500,7 +501,8 @@ class MetadataViewerComponent
 	 */
 	public void setSiblings(Collection<DataObject> siblings)
 	{
-		model.setSiblings(siblings);
+		//model.setSiblings(siblings);
+		//model.getEditor().showEditorUI(siblings.size() <= 1);
 	}
 
 	/** 
@@ -510,6 +512,15 @@ class MetadataViewerComponent
 	public void setVisibleImages(Collection nodes)
 	{
 		model.setVisibleImages(nodes);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#showUI(boolean)
+	 */
+	public void showUI(boolean show)
+	{
+		model.getEditor().showEditorUI(show);
 	}
 	
 }
