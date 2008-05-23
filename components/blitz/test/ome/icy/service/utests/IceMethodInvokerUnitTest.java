@@ -57,6 +57,7 @@ import omero.model.ImageI;
 import omero.model.TagAnnotationI;
 import omero.romio.XY;
 import omero.sys.Filter;
+import omero.util.IceMap;
 import omero.util.IceMapper;
 
 import org.jmock.Mock;
@@ -708,6 +709,32 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     }
 
+    // ThumbnailStore
+
+    @Test
+    public void testGetThumbnailSet() throws Exception {
+
+        ThumbnailStore ts;
+
+        assertNotNull(IceMap.OMEtoOMERO.get(Family.Details.class));
+
+        byte[] b = new byte[] { 1, 2, 3 };
+        Set<byte[]> set = new HashSet<byte[]>();
+        set.add(b);
+        assertTrue("Arrays don't work this way", set.contains(b));
+
+        Map<Long, byte[]> map = new HashMap<Long, byte[]>();
+        map.put(1L, new byte[] { 1, 2, 3 });
+
+        init(ThumbnailStore.class, "getThumbnailSet");
+        method().will(returnValue(map));
+
+        Object rv = invoke(32, 32, Collections.singleton(1L));
+        ServantHelper.throwIfNecessary(rv);
+        assertNotNull(((Map<Long, byte[]>) rv).get(1L));
+
+    }
+
     // Config
 
     @Test
@@ -885,7 +912,12 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         init(Search.class, "onlyIds");
         method();
-        rv = invoke(Arrays.asList(1L));
+        rv = invoke((Object) new Long[] { 1L, 2L });
+        ServantHelper.throwIfNecessary(rv);
+
+        init(Search.class, "onlyIds");
+        method();
+        rv = invoke((Object) new Long[] { 1L });
         ServantHelper.throwIfNecessary(rv);
 
         init(Search.class, "byAnnotatedWith");
@@ -942,6 +974,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         Throwable t = invoker.handleException(new NullPointerException());
         assertTrue(t instanceof omero.ApiUsageException);
+    }
+
+    public void testByteArraysAsMaValues() {
+
     }
 
     // ~ Helpers

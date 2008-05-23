@@ -8,10 +8,10 @@
 package ome.util;
 
 // Java imports
+import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -19,14 +19,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party libraries
+import ome.conditions.InternalException;
+import ome.model.IObject;
+import ome.model.ModelBased;
+import ome.model.meta.Event;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Application-internal dependencies
-import ome.model.ModelBased;
-import ome.model.IObject;
-import ome.model.meta.Event;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -40,7 +39,7 @@ public abstract class ModelMapper extends ContextFilter {
 
     /**
      * TODO identity versus null mappings
-     *
+     * 
      * @return a map from {@link IObject} classes {@link ModelBased} classes.
      */
     protected abstract Map c2c();
@@ -92,7 +91,7 @@ public abstract class ModelMapper extends ContextFilter {
 
     /**
      * known immutables are return unchanged.
-     *
+     * 
      * @param current
      * @return a possibly uninitialized object which will be finalized as the
      *         object graph is walked.
@@ -108,22 +107,39 @@ public abstract class ModelMapper extends ContextFilter {
 
         Object target = model2target.get(current);
         if (null == target) {
-            Class targetType = findClass(current.getClass());
+            Class currentType = current.getClass();
+            Class targetType = null;
 
-            if (null != targetType) {
+            if (currentType.isArray()) {
+
+                Class componentType = null;
+                try {
+                    int length = Array.getLength(current);
+                    componentType = currentType.getComponentType();
+                    target = Array.newInstance(componentType, length);
+                } catch (Exception e) {
+                    log.error("Error creating new array of type "
+                            + componentType, e);
+                    throwOnNewInstanceException(current, componentType, e);
+                }
+
+            } else {
+                targetType = findClass(currentType);
+
+                if (null == targetType) {
+                    throw new InternalException("Cannot handle type:" + current);
+                }
+
                 try {
                     target = targetType.newInstance();
                 } catch (Exception e) {
-                    throw new RuntimeException("Internal error: "
-                            + "could not instantiate object of type "
-                            + targetType + " while trying to map " + current, e);
+                    log.error("Error creating new instance of target type"
+                            + current, e);
+                    throwOnNewInstanceException(current, targetType, e);
                 }
-                model2target.put(current, target);
 
-            } else {
-                // will have to return null
             }
-
+            model2target.put(current, target);
         }
         return target;
     }
@@ -230,6 +246,16 @@ public abstract class ModelMapper extends ContextFilter {
             return 0.0F;
         }
         return f.floatValue();
+    }
+
+    // Helpers
+    // =========================================================================
+
+    private void throwOnNewInstanceException(Object current, Class targetType,
+            Exception e) {
+        throw new InternalException("Could not instantiate object of type "
+                + targetType + " while trying to map " + current + "\n"
+                + e.getMessage());
     }
 
 }
