@@ -597,6 +597,7 @@ public class XMLView
 	
 		    // set up frame
 			XMLFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+			XMLFrame.setName("editorMainWindow");
 			XMLFrame.setJMenuBar(menuBar);
 			XMLFrame.getContentPane().add(mainContentPane, BorderLayout.CENTER);
 

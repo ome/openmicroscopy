@@ -34,6 +34,15 @@ import omeroCal.model.CalendarEvent;
 import omeroCal.model.CalendarObject;
 import omeroCal.model.ICalendarModel;
 
+/**
+ * This class defines the layout and Frame that represents the main 
+ * calendar UI. 
+ * It currently includes a MonthView, displaying all the days in the month,
+ * and an info panel that shows details of the highlighted event. 
+ * 
+ * @author will
+ *
+ */
 public class CalendarDisplay
 	extends JPanel 
 	implements Observer,
@@ -78,6 +87,7 @@ public class CalendarDisplay
 		
 		
 		JFrame frame = new JFrame("OMERO Calendar");
+		frame.setName("OMEROcalendar");
 		frame.getContentPane().add(this);
 		
 		if (mainApplicationWindow) {

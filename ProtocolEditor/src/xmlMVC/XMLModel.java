@@ -27,7 +27,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.io.*;
 
 import javax.swing.JOptionPane;
@@ -42,6 +44,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import ome.system.UpgradeCheck;
 import omeroCal.model.AlarmChecker;
 import omeroCal.model.DBConnectionSingleton;
 
@@ -188,13 +191,15 @@ public class XMLModel
 	// alternative constructor, instantiates empty Tree, then creates new View. 
 	public XMLModel(boolean showView) {
 		
+		StartupShutdown.runStartUp();
+		
 		/**
 		 * This instantiates the DB required for calendar and alarm functions. 
 		 * Throws an exception if another instance of this application is 
 		 * running (will be trying to use the same DB). 
 		 * 
-		 * When this application quits, DBConnectionSingleton.shutDownConnection()
-		 * should be called. This will be done under the quit dialog in ui.XMLView. 
+		 * When this JVM quits, DBConnectionSingleton.shutDownConnection()
+		 * is called from within that class. 
 		 */
 		 omeroEditorCalendar = new CalendarMain(this);
 		
