@@ -200,13 +200,14 @@ class ProcessI(omero.grid.Process):
             self._upload(client, self.stderr_name, "stderr", self.params.stderrFormat)
 
     def _upload(self, client, filename, name, format):
-        if os.path.getsize(filename):
-            ofile = client.upload(filename, name=name, type=format)
-            jobid = long(client.getProperty("omero.job"))
-            link = omero.model.JobOriginalFileLinkI()
-            link.parent = omero.model.ScriptJobI(omero.RLong(jobid), False)
-            link.child = ofile
-            client.getSession().getUpdateService().saveObject(link)
+        if format:
+            if os.path.getsize(filename):
+                ofile = client.upload(filename, name=name, type=format)
+                jobid = long(client.getProperty("omero.job"))
+                link = omero.model.JobOriginalFileLinkI()
+                link.parent = omero.model.ScriptJobI(omero.RLong(jobid), False)
+                link.child = ofile
+                client.getSession().getUpdateService().saveObject(link)
 
     def cleanup_tmpdir(self):
         """

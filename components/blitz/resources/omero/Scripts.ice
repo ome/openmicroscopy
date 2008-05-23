@@ -217,9 +217,10 @@ module omero {
              * Use either process.poll() or process.wait() or a ProcessCallback
              * to wait for completion before calling.
 	     *
-	     * If the user has not overridden the output values "stdout" and
-	     * "stderr" these will be filled with the OriginalFile instanes
-	     * uploaded after completion with those names.
+	     * If the user has not overridden or disabled the output values
+             * "stdout" and "stderr", these will be filled with the OriginalFile
+             * instances uploaded after completion under the key values of the
+             * same name.
              */
             ["ami"] omero::RMap getResults(Process* proc) throws ServerError;
 

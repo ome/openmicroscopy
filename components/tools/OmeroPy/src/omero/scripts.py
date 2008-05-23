@@ -74,7 +74,8 @@ def client(name, description = None, *args, **kwargs):
 
     Typical usage consists of:
 
-      client = omero.scripts.client("name","description", omero.scripts.Long("name"),...)
+        client = omero.scripts.client("name","description", \
+            omero.scripts.Long("name"),...)
 
     where the returned client is created via the empty constructor to omero.client
     using only --Ice.Config or ICE_CONFIG, and the function arguments are taken
@@ -86,7 +87,16 @@ def client(name, description = None, *args, **kwargs):
     To change the omero.model.Format of the stdout and stderr produced by
     this script, use the constructor arguments:
 
-    client = omero.scripts.client(..., stdoutFormat = "text/plain", stderrFormat = "text/plain")
+        client = omero.scripts.client(..., \
+            stdoutFormat = "text/plain",
+            stderrFormat = "text/plain")
+
+    If you would like to prevent stdout and/or stderr from being
+    uploaded, set the corresponding value to None. If you would like
+    to overwrite the value with another file, use
+    client.setOutput(). Though it is possible to attach any RType to
+    "stdout" or "stderr", there is an assumption that the value will
+    be an omero.RObject(OriginalFileI())
 
     """
     # Checking kwargs
