@@ -117,6 +117,11 @@ public abstract class ModelMapper extends ContextFilter {
                     int length = Array.getLength(current);
                     componentType = currentType.getComponentType();
                     target = Array.newInstance(componentType, length);
+                    for (int i = 0; i < length; i++) {
+                        Object currentValue = Array.get(current, i);
+                        Object targetValue = this.filter("ARRAY", currentValue);
+                        Array.set(target, i, targetValue);
+                    }
                 } catch (Exception e) {
                     log.error("Error creating new array of type "
                             + componentType, e);

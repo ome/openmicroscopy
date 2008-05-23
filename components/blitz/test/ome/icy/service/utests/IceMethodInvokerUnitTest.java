@@ -731,7 +731,9 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         Object rv = invoke(32, 32, Collections.singleton(1L));
         ServantHelper.throwIfNecessary(rv);
-        assertNotNull(((Map<Long, byte[]>) rv).get(1L));
+        byte[] results = ((Map<Long, byte[]>) rv).get(1L);
+        assertNotNull(results);
+        assertTrue(Arrays.equals(b, results));
 
     }
 

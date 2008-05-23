@@ -69,5 +69,33 @@ class TestTicket1000(lib.ITest):
         prms.map["id"] = omero.RLong(53)
         self.client.sf.getQueryService().findAllByQuery(TestTicket1000.success, prms);
         self.client.sf.getQueryService().findAllByQuery(TestTicket1000.failing, prms);
+
+    def test989(self):
+
+        try:
+           d = self.client.sf.getQueryService().findAllByQuery("select d from Dataset d where name = 'ticket989'",None)[0] 
+        except:
+            self.fail("No dataset named ticket989 found")
+
+        pixelsIds = list()
+        pojos = self.client.sf.getPojosService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map[omero.constants.POJOEXPERIMENTER] = omero.RLong(0)
+
+        for e in pojos.getImages("Dataset",[d.id.val],  p.map):
+            for px in e.pixels:
+                pixelsIds.append(px.id.val)
+
+        self.assert_(len(pixelsIds)>0)
+
+        tb = self.client.sf.createThumbnailStore()
+        th = tb.getThumbnailSet(omero.RInt(120), omero.RInt(120), pixelsIds)
+        print th.items()
+        for key in th:
+            tb.setPixelsId(key)
+            print th[key]
+            print tb.getThumbnailDirect(omero.RInt(120),omero.RInt(120))
+
 if __name__ == '__main__':
     unittest.main()
