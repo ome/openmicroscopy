@@ -82,6 +82,7 @@ import ui.fieldEditors.FieldEditor;
 import util.ExceptionHandler;
 import util.ImageFactory;
 import util.PreferencesManager;
+import xmlMVC.StartupShutdown;
 import xmlMVC.XMLModel;
 
 
@@ -623,13 +624,28 @@ public class XMLView
 	
 	// an intro splash-screen to get users started
 	public void showStartUpDialog() {
+		
+		/*
+		 * First, run statup check
+		 */
+		boolean isUpgradeNeeded = StartupShutdown.upgradeCheck();
+		
+		String message = "Welcome to the Protocol Editor.\n"
+		    + "Please choose an option to get you started.";
+		if (isUpgradeNeeded) {
+			message = message + "\n \n" + "WARNING: You may not be using the " +
+				"latest version of this software.\n" +
+				"Please see " +
+				"http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads" +
+				"\n";
+		}
+		
 		//		Custom button text
 				Icon bigProtocolIcon = ImageFactory.getInstance().getIcon(ImageFactory.BIG_PROTOCOL_ICON);
 				Object[] options = {"Start blank protocol",
 				                    "Open existing file",
 				                    "Cancel"};
-				int n = JOptionPane.showOptionDialog(mainContentPane, "<html>Welcome to the Protocol Editor. <br>"
-				    + "Please choose an option to get you started.</html>", "Welcome",
+				int n = JOptionPane.showOptionDialog(mainContentPane, message, "Welcome",
 				    JOptionPane.YES_NO_CANCEL_OPTION,
 				    JOptionPane.QUESTION_MESSAGE,
 				    bigProtocolIcon,

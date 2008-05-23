@@ -27,6 +27,11 @@ package xmlMVC;
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
 import java.io.IOException;
+import java.util.ResourceBundle;
+
+import javax.swing.JOptionPane;
+
+import ome.system.UpgradeCheck;
 
 //Third-party libraries
 
@@ -62,6 +67,12 @@ public class StartupShutdown {
 		
 		initWindowSaver();
 		
+		/*
+		 * Don't call this here because this can take a few seconds 
+		 * and users won't see anything on-screen while they wait.
+		 * To this in XMLView after UI is built.
+		 */
+		//upgradeCheck();
 		
 		Runtime.getRuntime().addShutdownHook(new ShutdownThread());
 	}
@@ -81,6 +92,29 @@ public class StartupShutdown {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * This method calls the server at 
+	 * http://upgrade.openmicroscopy.org.uk 
+	 * to check that the user is using the latest version of the software.
+	 * @ see
+	 * http://trac.openmicroscopy.org.uk/omero/wiki/UpgradeCheck 
+	 */
+	public static boolean upgradeCheck() {
+		
+		ResourceBundle bundle = ResourceBundle.getBundle("omero");
+	    String version = bundle.getString("omero.version");
+	    System.out.println(version);
+	    String url = bundle.getString("omero.upgrades.url");
+	    ome.system.UpgradeCheck check = new UpgradeCheck(
+	      url, version, "editor"); // Or "importer", etc.
+	    check.run();
+	    
+	    return check.isUpgradeNeeded();
+	    
+	    // optionally
+	    //check.isExceptionThrown();
 	}
 	
 	
