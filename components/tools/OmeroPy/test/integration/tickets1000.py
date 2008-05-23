@@ -59,5 +59,15 @@ class TestTicket1000(lib.ITest):
         self.client.download(ofile, tmpfile.name)
         search.close()
 
+
+    success = "select i from Image i join i.annotationLinks links join links.child ann where size(i.datasetLinks) > 0 and ann.id = :id"
+    failing = "select i from Image i join i.annotationLinks links join links.child ann where ann.id = :id and size(i.datasetLinks) > 0"
+
+    def test985(self):
+        prms = omero.sys.Parameters()
+        prms.map = {} # ParamMap
+        prms.map["id"] = omero.RLong(53)
+        self.client.sf.getQueryService().findAllByQuery(TestTicket1000.success, prms);
+        self.client.sf.getQueryService().findAllByQuery(TestTicket1000.failing, prms);
 if __name__ == '__main__':
     unittest.main()
