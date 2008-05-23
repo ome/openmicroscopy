@@ -156,6 +156,26 @@ class BrowserModel
 		}
 	}
 	
+    /**
+     * Sets the title and the color of the selected node.
+     * 
+     * @param newNode The selected node.
+     * @param nodes   The previously selected nodes.
+     */
+    void onNodeSelected(ImageDisplay newNode, Set nodes)
+    {
+        if (newNode == null) return;
+        rootDisplay.setTitle(currentPathString(newNode));
+        //paint the nodes
+        List<ImageDisplay> selected = new ArrayList<ImageDisplay>();
+        selected.add(newNode);
+
+        if (nodes != null && !isMultiSelection()) 
+        	setNodesColor(selected, nodes);
+        else 
+        	setNodesColor(selected, null); 
+    }
+    
 	/**
 	 * Sets the specified <code>node</code> to be the currently selected
 	 * node in the visualization tree.
@@ -188,6 +208,7 @@ class BrowserModel
 	    
 	    if (fireProperty)
 	    	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
+	    else onNodeSelected(node, oldValue);
 	}
 	
 	/**

@@ -192,18 +192,8 @@ public class BrowserControl
             ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
             view.setTitle(model.currentPathString(newNode));
         } else if (Browser.SELECTED_DISPLAY_PROPERTY.equals(name)) {
-            ImageDisplay newNode = (ImageDisplay) evt.getNewValue();
-            if (newNode == null) return;
-            view.setTitle(model.currentPathString(newNode));
-            //paint the nodes
-            List<ImageDisplay> selected = new ArrayList<ImageDisplay>();
-            selected.add(newNode);
-           
-            Set nodes = (Set) evt.getOldValue();
-            if (nodes != null && !model.isMultiSelection())
-            	model.setNodesColor(selected, nodes);
-            else 
-            	model.setNodesColor(selected, null); 
+        	model.onNodeSelected((ImageDisplay) evt.getNewValue(), 
+        			      (Set) evt.getOldValue());
         } else if (ImageNode.PIN_THUMBNAIL_PROPERTY.equals(name)) {
         	ImageNode node = (ImageNode) evt.getNewValue();
         	model.setThumbSelected(true, node);
