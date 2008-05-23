@@ -457,8 +457,8 @@ public interface Search extends ome.api.StatefulServiceInterface,
 
     /**
      * Delegates to {@link IQuery#findAllByQuery(String, Parameters)} method to
-     * take advantage of the {@link #intersection()}, {@link #union()}, and
-     * {@link #complement()} methods, or queue-semantics.
+     * take advantage of the {@link #and()}, {@link #or()}, and
+     * {@link #not()} methods, or queue-semantics.
      * 
      * @param query
      *            Not null.
@@ -505,12 +505,12 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * 
      * will return both Images and Datasets together.
      * 
-     * Calling this method overrides a previous setting of
-     * {@link #intersection()} or {@link #complement()}. If there is no active
-     * queries (i.e. {@link #activeQueries()} > 0), then an
-     * {@link ApiUsageException} will be thrown.
+     * Calling this method overrides a previous setting of {@link #and()} or
+     * {@link #not()}. If there is no active queries (i.e.
+     * {@link #activeQueries()} > 0), then an {@link ApiUsageException} will be
+     * thrown.
      */
-    void union();
+    void or();
 
     /**
      * Applies the next by* method to the previous by* method, so that a call
@@ -529,13 +529,13 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * will return only the Images with TagAnnotations.
      * 
      * <p>
-     * Calling this method overrides a previous setting of {@link #union()} or
-     * {@link #complement()}. If there is no active queries (i.e.
+     * Calling this method overrides a previous setting of {@link #or()} or
+     * {@link #not()}. If there is no active queries (i.e.
      * {@link #activeQueries()} > 0), then an {@link ApiUsageException} will be
      * thrown.
      * </p>
      */
-    void intersection();
+    void and();
 
     /**
      * Applies the next by* method to the previous by* method, so that a call
@@ -553,13 +553,13 @@ public interface Search extends ome.api.StatefulServiceInterface,
      * 
      * will return all the Images <em>not</em> annotated with TagAnnotation.
      * <p>
-     * Calling this method overrides a previous setting of {@link #union()} or
-     * {@link #intersection()}. If there is no active queries (i.e.
+     * Calling this method overrides a previous setting of {@link #or()} or
+     * {@link #and()}. If there is no active queries (i.e.
      * {@link #activeQueries()} > 0), then an {@link ApiUsageException} will be
      * thrown.
      * </p>
      */
-    void complement();
+    void not();
 
     /**
      * Returns entities with the given UUID strings

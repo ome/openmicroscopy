@@ -536,34 +536,34 @@ public class SearchTest extends AbstractTest {
 
         // A + B
         search.byFullText(uuid1);
-        search.union();
+        search.or();
         search.byFullText(uuid2);
         assertResults(search, 2);
 
         // A & B
         search.byFullText(uuid1);
-        search.intersection();
+        search.and();
         search.byFullText(uuid2);
         assertResults(search, 0);
 
         // A - B
         search.byFullText(uuid1);
-        search.complement();
+        search.not();
         search.byFullText(uuid2);
         assertResults(search, 1);
 
         // A + B - B = A
         search.byFullText(uuid1);
-        search.union();
+        search.or();
         search.byFullText(uuid2);
-        search.complement();
+        search.not();
         search.byFullText(uuid2);
         assertResults(search, 1);
 
         // With HQL
         search.onlyType(Event.class);
         search.byFullText("root");
-        search.intersection();
+        search.and();
         search.byHqlQuery("select e from Event e where e.id = 0", null);
         assertResults(search, 1);
 
@@ -1866,7 +1866,7 @@ public class SearchTest extends AbstractTest {
     }
 
     /**
-     * Attempts to solve #975 by using the {@link Search#union()} method.
+     * Attempts to solve #975 by using the {@link Search#or()} method.
      */
     @Test(groups = "ticket:975")
     public void testImagesAndTagsReturnedIntersection() {
@@ -1893,7 +1893,7 @@ public class SearchTest extends AbstractTest {
 
         // checking via intersection
         search.bySomeMustNone(q, null, null);
-        search.intersection();
+        search.and();
         search.byAnnotatedWith(new TagAnnotation());
 
         assertContainsObject(search, i);
@@ -1901,7 +1901,7 @@ public class SearchTest extends AbstractTest {
     }
 
     /**
-     * Attempts to solve #975 by using the {@link Search#union()} method.
+     * Attempts to solve #975 by using the {@link Search#or()} method.
      */
     @Test(groups = "ticket:975")
     public void testImagesAndTagsReturnedMultipleIntersection() {
@@ -1930,7 +1930,7 @@ public class SearchTest extends AbstractTest {
 
         // checking via intersection
         search.bySomeMustNone(q, null, null);
-        search.intersection();
+        search.and();
         search.byAnnotatedWith(new TagAnnotation(), new FileAnnotation());
 
         assertContainsObject(search, i);
@@ -1968,7 +1968,7 @@ public class SearchTest extends AbstractTest {
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
         search.bySomeMustNone(new String[] { "an*" }, null, null);
-        search.intersection();
+        search.and();
         search.byAnnotatedWith(new TagAnnotation());
 
         for (IObject test : search.results()) {

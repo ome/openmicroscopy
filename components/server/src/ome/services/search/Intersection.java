@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
- * @see ome.api.Search#intersection()
+ * @see ome.api.Search#and()
  */
 public class Intersection extends SearchAction {
 

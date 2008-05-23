@@ -218,19 +218,19 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @Transactional
     @RolesAllowed("user")
-    public void union() {
+    public void or() {
         actions.union();
     }
 
     @Transactional
     @RolesAllowed("user")
-    public void intersection() {
+    public void and() {
         actions.intersection();
     }
 
     @Transactional
     @RolesAllowed("user")
-    public void complement() {
+    public void not() {
         actions.complement();
     }
 

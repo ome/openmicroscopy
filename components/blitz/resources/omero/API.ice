@@ -477,9 +477,9 @@ module omero {
         void byAnnotatedWith(AnnotationList examples) throws ServerError;
         void clearQueries() throws ServerError;
 
-        void union() throws ServerError;
-        void intersection() throws ServerError;
-        void complement() throws ServerError;
+        void and() throws ServerError;
+        void or() throws ServerError;
+        void not() throws ServerError;
 
 
         // Retrieval  ~~~~~~~~~~~~~~~~~~~~~~~~~
