@@ -602,7 +602,6 @@ class TreeViewerControl
 					model.onDataObjectSave((List) object, 
 							TreeViewer.UPDATE_OBJECT);
 			}
-				
 		} else if (DataBrowser.SELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {
 			model.setSelectedNode(pce.getNewValue());
 		} else if (DataBrowser.UNSELECTED_NODE_DISPLAY_PROPERTY.equals(name)) {

@@ -144,7 +144,10 @@ public class DataBrowserFactory
 	 */
 	public static final DataBrowser getDataBrowser(Object parent)
 	{
-		return singleton.browsers.get(parent.toString());
+		String key = parent.toString();
+		if (parent instanceof DataObject) 
+			key += ((DataObject) parent).getId();
+		return singleton.browsers.get(key);
 	}
 
 	/** Map used to keep track of the browsers. */
@@ -177,7 +180,10 @@ public class DataBrowserFactory
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
-		browsers.put(parent.toString(), comp);
+		String key = parent.toString();
+		if (parent instanceof DataObject) 
+			key += ((DataObject) parent).getId();
+		browsers.put(key, comp);
 		return comp;
 	}
 
@@ -195,7 +201,8 @@ public class DataBrowserFactory
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
-		browsers.put(parent.toString(), comp);
+		String key = parent.toString()+parent.getId();
+		browsers.put(key, comp);
 		return comp;
 	}
 	
@@ -213,7 +220,8 @@ public class DataBrowserFactory
 		DataBrowserComponent comp = new DataBrowserComponent(model);
 		model.initialize(comp);
 		comp.initialize();
-		browsers.put(parent.toString(), comp);
+		String key = parent.toString()+parent.getId();
+		browsers.put(key, comp);
 		return comp;
 	}
 	

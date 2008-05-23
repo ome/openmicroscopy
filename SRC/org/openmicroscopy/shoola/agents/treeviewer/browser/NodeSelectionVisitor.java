@@ -98,7 +98,12 @@ class NodeSelectionVisitor
 				TreeImageDisplay pN = node.getParentDisplay();
 				Object po = pN.getUserObject();
 				if (po.getClass().equals(parent.getClass()))
-						selectedNode = node;
+					if (po instanceof DataObject 
+						&& parent instanceof DataObject) {
+						if (((DataObject) po).getId() == 
+							((DataObject) parent).getId())
+							selectedNode = node;
+					}
 			}
 		}
 	}

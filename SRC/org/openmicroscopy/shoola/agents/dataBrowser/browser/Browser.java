@@ -385,4 +385,11 @@ public interface Browser
 	 */
 	public void viewDisplay(ImageDisplay node);
 	
+	/** 
+	 * Sets the passed title in the header of the browser.
+	 * 
+	 * @param title The value to set.
+	 */
+	public void setComponentTitle(String title);
+	
 }

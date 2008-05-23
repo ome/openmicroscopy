@@ -153,15 +153,16 @@ class TreeViewerComponent
 		DataBrowser db;
 		TreeImageDisplay parent = display.getParentDisplay();
 		if (object instanceof ImageData) {
-      	  
       	  if (parent != null) {
       		  db = DataBrowserFactory.getDataBrowser(
       				  				parent.getUserObject());
       		  if (db != null) {
+      			  db.setComponentTitle("");
               	  view.removeAllFromWorkingPane();
               	  view.addComponent(db.getUI());
               	  List<DataObject> nodes = new ArrayList<DataObject>();
               	  nodes.add((DataObject) object);
+              	  //Cause of the problem.
               	  db.setSelectedNodes(nodes);
       		  } else showDataBrowser(object, parent.getParentDisplay());
       	  } else {
@@ -170,6 +171,7 @@ class TreeViewerComponent
         } else {
         	db = DataBrowserFactory.getDataBrowser(object);
         	if (db != null) {
+        		db.setComponentTitle("");
         		view.removeAllFromWorkingPane();
         		view.addComponent(db.getUI());
         		List<DataObject> nodes = new ArrayList<DataObject>();

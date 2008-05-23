@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -880,6 +879,7 @@ class OMEROGateway
 		connected = false;
 		try {
 			if (thumbnailService != null) thumbnailService.close();
+			if (fileStore != null) fileStore.close();
 			entry.closeSession();
 		} catch (Exception e) {
 			//session already dead.

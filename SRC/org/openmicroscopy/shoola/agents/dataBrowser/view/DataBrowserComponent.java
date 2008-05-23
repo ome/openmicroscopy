@@ -657,7 +657,16 @@ class DataBrowserComponent
 		model.layoutBrowser();
 		browser.getUI().repaint();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setComponentTitle(String)
+	 */
+	public void setComponentTitle(String title)
+	{
+		Browser browser = model.getBrowser();
+		if (browser != null) browser.setComponentTitle(title);
 	}
 	
 }

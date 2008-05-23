@@ -231,7 +231,10 @@ public class BrowserControl
 
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
     	boolean b = me.isShiftDown();
-
+    	if (me.isPopupTrigger()) {
+    		popupTrigger = true;
+    		return;
+    	}
     	if (b) { //multi selection
     		Collection nodes = model.getSelectedDisplays();
     		Iterator i = nodes.iterator();
@@ -245,7 +248,7 @@ public class BrowserControl
 				}
 			}
     		if (remove) model.removeSelectedDisplay(d);
-    		else model.setSelectedDisplay(d, true);
+    		else model.setSelectedDisplay(d, true, true);
     	} else {
     		if (!(d.equals(previousDisplay)) && isSelectionValid(d)) 
     			model.setSelectedDisplay(d);

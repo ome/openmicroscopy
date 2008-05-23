@@ -167,8 +167,11 @@ class BrowserModel
 	 * @param multiSelection	Pass <code>false</code> to indicate that only 
 	 * 							one node is selected, <code>true</code> 
 	 * 							otherwise.
+	 * @param fireProperty		Pass <code>true</code> to fire a property, 
+	 * 							<code>false</code> otherwise.
 	 */
-	void setSelectedDisplay(ImageDisplay node, boolean multiSelection)
+	void setSelectedDisplay(ImageDisplay node, boolean multiSelection, boolean
+							fireProperty)
 	{
 		//if (node == null) return;
 	    thumbSelected = false;
@@ -180,11 +183,11 @@ class BrowserModel
 	    while (i.hasNext())
 	        oldValue.add((ImageDisplay) i.next());
 	    
-	    if (!multiSelection)
-	        selectedDisplays.removeAll(selectedDisplays);
+	    if (!multiSelection) selectedDisplays.removeAll(selectedDisplays);
 	    if (node != null) selectedDisplays.add(node);
 	    
-	    firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
+	    if (fireProperty)
+	    	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
 	}
 	
 	/**
@@ -274,7 +277,7 @@ class BrowserModel
 	 */
 	public void setSelectedDisplay(ImageDisplay node)
 	{
-	    setSelectedDisplay(node, false);
+	    setSelectedDisplay(node, false, true);
 	}
 	
 	/**
@@ -284,7 +287,7 @@ class BrowserModel
 	public void setSelectedDisplays(ImageDisplay[] nodes)
 	{
 		for (int i = 0; i < nodes.length; i++) 
-			setSelectedDisplay(nodes[i], true);
+			setSelectedDisplay(nodes[i], true, true);
 	}
 	
 	/**
@@ -507,7 +510,7 @@ class BrowserModel
 		ImageDisplay node = null;
 		while (i.hasNext()) {
 			node = i.next();
-			setSelectedDisplay(node, b);
+			setSelectedDisplay(node, b, false);
 		}
 	}
 	
@@ -587,7 +590,7 @@ class BrowserModel
 		boolean multiSelection = nodes.size() > 1;
 		
 		while (i.hasNext()) 
-			setSelectedDisplay(i.next(), multiSelection);
+			setSelectedDisplay(i.next(), multiSelection, true);
 	}
 	
 	/**
@@ -616,6 +619,15 @@ class BrowserModel
 	    	bus.post(new ViewImage((ImageData) node.getHierarchyObject(), 
 	    				null));
 		}
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setComponentTitle(String)
+	 */
+	public void setComponentTitle(String title)
+	{
+		rootDisplay.setTitle(title);
 	}
 	
 }
