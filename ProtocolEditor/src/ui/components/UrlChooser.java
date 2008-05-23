@@ -85,7 +85,7 @@ public class UrlChooser extends JPanel {
 	 * The URL of the web-page that contains links to downloadable files. 
 	 * Clicking on the links in this page will place the link URL in the urlField. 
 	 */
-	public static final String DEMO_FILES_URL = "http://users.openmicroscopy.org.uk/~will/protocolFiles/demoFiles.html";
+	public static final String DEMO_FILES_URL = "http://cvs.openmicroscopy.org.uk/snapshots/omero/editor/demoFiles/demoFiles.html";
 	
 	/**
 	 * Creates an instance. 

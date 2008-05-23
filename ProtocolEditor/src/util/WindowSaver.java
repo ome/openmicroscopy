@@ -147,6 +147,13 @@ public class WindowSaver implements AWTEventListener {
         }
         String name = frame.getName();
         
+        /*
+         * Ignore frames that have not had a name set (ie default "frame..")
+         */
+        if (name.startsWith("frame")) {
+        	return;
+        }
+        
         int defaultX = frame.getX();
         int defaultY = frame.getY();
         int defaultW = frame.getWidth();
@@ -203,8 +210,12 @@ public class WindowSaver implements AWTEventListener {
             String name = (String)it.next();
             JFrame frame = (JFrame)getInstance().framemap.get(name);
             
-            p(name+".x" + ""+frame.getX());
-            p(name+".y" + ""+frame.getY());
+            /*
+             * Ignore frames that have not had a name set (ie default "frame..")
+             */
+            if (name.startsWith("frame")) {
+            	continue;
+            }
             
             settings.setProperty(name+".x",""+frame.getX());
             settings.setProperty(name+".y",""+frame.getY());
