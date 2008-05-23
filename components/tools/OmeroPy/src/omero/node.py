@@ -4,6 +4,8 @@
 
  OMERO Grid node controller
 
+ This is a python wrapper around icegridnode.
+
  Copyright 2008 Glencoe Software, Inc.  All Rights Reserved.
  Use is subject to license terms supplied in LICENSE.txt
 

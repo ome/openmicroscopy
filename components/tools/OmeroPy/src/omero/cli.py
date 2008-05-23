@@ -20,7 +20,7 @@ See LICENSE for details.
 
 """
 
-import cmd, string, re, os, types, shlex, exceptions
+import cmd, string, re, os, types, shlex, exceptions, traceback
 from omero_ext import pysys
 
 VERSION=1.0
@@ -73,7 +73,12 @@ class CLI(cmd.Cmd):
         Copied from cmd.py
         """
         line = self.precmd(line)
-        stop = self.onecmd(line)
+        stop = True
+        try:
+            stop = self.onecmd(line)
+        except AttributeError, ae:
+            print "Possible error in plugin:"
+            print ae
         stop = self.postcmd(stop, line)
 
     def invokeloop(self):
@@ -232,6 +237,17 @@ class CLI(cmd.Cmd):
 
         print "load file as if it were sent on standard in. File tab-complete %s" % status
 
+    # Delegation
+    def do_start(self, arg):
+        """
+        Alias for "node start"
+        """
+        arg = self.shlex(arg)
+        if not arg:
+            arg = "start"
+        else:
+            arg = ["start"] + arg
+        self.do_node(arg)
     #
     # Blitz methods
     #

@@ -40,5 +40,9 @@ lib = os.path.join(top, "lib")
 sys.path.append(lib)
 os.chdir(top)
 
-import omero.cli
-omero.cli.argv()
+try:
+    import omero.cli
+    omero.cli.argv()
+except KeyboardInterrupt, ki:
+    print "Cancelled"
+    sys.exit(1)
