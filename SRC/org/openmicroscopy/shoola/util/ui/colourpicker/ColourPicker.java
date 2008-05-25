@@ -89,7 +89,7 @@ public class ColourPicker
     {
     	IconManager icons = IconManager.getInstance();
 		NotificationDialog dialog = new NotificationDialog(
-                			null, "Invalid color component value", 
+                			"Invalid color component value", 
                 			"The value must be in the interval [0, 255].", 
                 			icons.getIcon(IconManager.INFO_32));
 		dialog.pack();

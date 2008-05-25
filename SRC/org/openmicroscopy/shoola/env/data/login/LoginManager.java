@@ -93,10 +93,10 @@ public class LoginManager
      * Implemented as specified by the {@link LoginService} interface.
      * @see LoginService#login(UserCredentials)
      */
-    public synchronized boolean login(UserCredentials uc) 
+    public synchronized int login(UserCredentials uc) 
     { 
     	if (service.getState() == IDLE) return service.login(uc); 
-    	return false;
+    	return NOT_CONNECTED;
     }
 
     /**

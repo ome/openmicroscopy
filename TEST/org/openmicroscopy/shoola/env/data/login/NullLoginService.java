@@ -63,7 +63,7 @@ public class NullLoginService
     /**
      * @see LoginService#login(UserCredentials)
      */
-    public boolean login(UserCredentials uc) { return false; }
+    public int login(UserCredentials uc) { return 0; }
 
     /**
      * @see LoginService#eventFired(AgentEvent)

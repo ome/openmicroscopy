@@ -213,6 +213,14 @@ public class NotificationDialog
 		getContentPane().add(contentPanel);
 	}
 	
+	private void initiliaze(String message, Icon messageIcon)
+	{
+		createComponents();
+		attachListeners();
+		setAlwaysOnTop(true);
+		setModal(true);
+		buildGUI(message, messageIcon);
+	}
 	/**
 	 * Creates a new dialog.
 	 * You have to call {@link #setVisible(boolean)} to actually display it
@@ -230,11 +238,40 @@ public class NotificationDialog
 		//setResizable(false);  
 		//Believe it or not the icon from owner won't be displayed if the
 		//dialog is not resizable. 
-		createComponents();
-		attachListeners();
-		setAlwaysOnTop(true);
-		setModal(true);
-		buildGUI(message, messageIcon);
+		initiliaze(message, messageIcon);
+	}
+	
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen.
+	 * 
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
+	 * @param messageIcon	An optional icon to display by the message.
+	 */
+	public NotificationDialog(JDialog owner, String title, String message, 
+															Icon messageIcon) 
+	{
+		super(owner, title);
+		initiliaze(message, messageIcon);
+	}
+	
+	/**
+	 * Creates a new dialog.
+	 * You have to call {@link #setVisible(boolean)} to actually display it
+     * on screen.
+	 * 
+	 * @param owner			The parent window.
+	 * @param title			The title to display on the title bar.
+	 * @param message		The notification message.
+	 * @param messageIcon	An optional icon to display by the message.
+	 */
+	public NotificationDialog(String title, String message, Icon messageIcon) 
+	{
+		setTitle(title);
+		initiliaze(message, messageIcon);
 	}
 
 }

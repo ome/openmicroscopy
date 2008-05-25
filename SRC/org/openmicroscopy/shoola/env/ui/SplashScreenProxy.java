@@ -116,7 +116,7 @@ class SplashScreenProxy
 	 * Creates the proxy, the servant and configures the servant with a
 	 * Future for later collection of user credentials. 
      * 
-     * @param c			Reference to the singleton {@link Container}.
+     * @param c Reference to the singleton {@link Container}.
 	 */
 	SplashScreenProxy(Container c)
 	{
@@ -136,7 +136,7 @@ class SplashScreenProxy
 		 * here. However, no big harm can be made.
 		 */
 		
-		//Construct request of mehtod execution.
+		//Construct request of method execution.
  		Runnable doOpen = new Runnable() {
 			public void run() { servant.open(); }
 		};
@@ -155,7 +155,7 @@ class SplashScreenProxy
 	{	
 		if (!isValid) return;  //Somebody's already called close().
 		
-		//Construct request of mehtod execution.
+		//Construct request of method execution.
 		Runnable doClose = new Runnable() {
 			public void run() { servant.close(); }
 		};
@@ -174,7 +174,7 @@ class SplashScreenProxy
 	{
 		if (!isValid) return;  //Somebody's already called close().
 		
-		//Construct request of mehtod execution.
+		//Construct request of method execution.
 		Runnable doSetTotalTasks = new Runnable() {
 			public void run() { servant.setTotalTasks(value); }
 		};
@@ -191,7 +191,7 @@ class SplashScreenProxy
 	{
 		if (!isValid) return;  //Somebody's already called close().
 		
-		//Construct request of mehtod execution.
+		//Construct request of method execution.
 		Runnable doUpdateProgress = new Runnable() {
 			public void run() { servant.updateProgress(task); }
 		};
@@ -232,7 +232,7 @@ class SplashScreenProxy
 		if (!isValid) return;  //Somebody's already called close().
 		
 
-		//Construct request of mehtod execution.
+		//Construct request of method execution.
 		Runnable doUpdate = new Runnable() {
 			public void run() { servant.nofityLoginFailure(); }
 		};
@@ -240,5 +240,23 @@ class SplashScreenProxy
 		//Schedule execution within Swing dispatching thread.
 		SwingUtilities.invokeLater(doUpdate);
 	}
-   
+	
+	/**
+	 * Implemented as specified by {@link SplashScreen}.
+	 * @see SplashScreen#notifyLoginTimeout()
+	 */
+	public void notifyLoginTimeout()
+	{
+		if (!isValid) return;  //Somebody's already called close().
+		
+
+		//Construct request of method execution.
+		Runnable doUpdate = new Runnable() {
+			public void run() { servant.notifyLoginTimeout(); }
+		};
+
+		//Schedule execution within Swing dispatching thread.
+		SwingUtilities.invokeLater(doUpdate);
+	}
+	
 }

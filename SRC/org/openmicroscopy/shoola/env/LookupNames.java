@@ -134,6 +134,12 @@ public class LookupNames
     public static final String LOGIN_RETRY_INTV = 
                                          "/services/LOGIN/omeds/retry-interval";
     
+    /** 
+     * Field to access the maximum value allowed to establish 
+     * a valid link to an <i>OMERO</i> server.
+     */
+    public static final String LOGIN_TIME_OUT = "/services/LOGIN/omeds/timeout";
+    
     /** Field to access the url of the server where to post comments. */
     public static final String DEBUG_URL_COMMENT = 
     							"/services/DEBUGGER/hostnameComment";

@@ -24,7 +24,6 @@
 package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Rectangle;
@@ -41,6 +40,8 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.util.ui.NotificationDialog;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
@@ -113,17 +114,18 @@ class SplashScreenManager
 	private void login(LoginCredentials lc)
 	{
 		try {
-			view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			//view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			UserCredentials uc = new UserCredentials(lc.getUserName(), 
 					lc.getPassword(), lc.getHostName(), lc.getSpeedLevel());
 			userCredentials.set(uc);
+			//view.setControlsEnabled(true);
 		} catch (Exception e) {
 			UserNotifier un = UIFactory.makeUserNotifier(container);
             un.notifyError("Login Incomplete", e.getMessage());
             view.setControlsEnabled(true);
             updateView();
  		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	
 	/**
@@ -185,11 +187,28 @@ class SplashScreenManager
 	/** Updates the {@link ScreenLogin}. */
     void nofityLoginFailure()
     { 
-    	UserNotifier un = UIFactory.makeUserNotifier(container);
-    	un.notifyError("Login Failure", 
-                "Failed to log onto OMERO.\n" +
+    	//Need to do it that way to keep focus on login dialog
+    	NotificationDialog dialog = new NotificationDialog(
+                view, "Login Failure", "Failed to log onto OMERO.\n" +
                 "Please check your user name\n"+
-                "and/or password or try again later.");
+                "and/or password or try again later.", 
+                IconManager.getDefaultErrorIcon());
+		dialog.pack();  
+		UIUtilities.centerAndShow(dialog);
+    	updateView();
+	}
+    
+	/** Updates the {@link ScreenLogin}. */
+    void notifyLoginTimeout()
+    { 
+    	//Need to do it that way to keep focus on login dialog
+    	NotificationDialog dialog = new NotificationDialog(
+                view, "Login Failure", "Failed to log onto OMERO.\n" +
+                "The server entered is not responding.\n"+
+                "Please check the server address or try again later.", 
+                IconManager.getDefaultErrorIcon());
+		dialog.pack();  
+		UIUtilities.centerAndShow(dialog);
     	updateView();
 	}
     
@@ -270,7 +289,7 @@ class SplashScreenManager
         view.setControlsEnabled(true);
        
         if (!init) {
-            view.setCursor(Cursor.getDefaultCursor());
+            //view.setCursor(Cursor.getDefaultCursor());
             view.cleanField(ScreenLogin.PASSWORD_FIELD);
             updateView();
         }
@@ -340,5 +359,5 @@ class SplashScreenManager
 	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
 	 */
 	public void windowGainedFocus(WindowEvent e) {}
-
+	
 }

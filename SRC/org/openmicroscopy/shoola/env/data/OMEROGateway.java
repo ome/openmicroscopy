@@ -840,7 +840,6 @@ class OMEROGateway
 			login = new Login(userName, password);
 			entry = new ServiceFactory(server, login); 
 			connected = true;
-			
 			return getUserDetails(userName);
 		} catch (Throwable e) {
 			connected = false;

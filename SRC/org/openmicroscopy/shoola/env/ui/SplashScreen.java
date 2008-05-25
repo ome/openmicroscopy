@@ -105,5 +105,8 @@ public interface SplashScreen
 	
 	/** Updates the view when failed to log in. */
 	public void notifyLoginFailure();
-    
+
+	/** Updates the view when failed to log in. */
+	public void notifyLoginTimeout();
+	
 }

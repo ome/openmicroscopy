@@ -143,12 +143,38 @@ public final class SplashScreenInit
         UserNotifier un = UIFactory.makeUserNotifier(container);
         while (0 < max--) {
             uc = splashScreen.getUserCredentials((max == index-1));
+            switch (loginSvc.login(uc)) {
+				case LoginService.CONNECTED:
+					//needed b/c need to retrieve user's details later.
+	                reg.bind(LookupNames.USER_CREDENTIALS, uc);
+	                max = 0;
+	                break;
+	
+				case LoginService.TIMEOUT:
+					splashScreen.notifyLoginTimeout();
+					break;
+				case LoginService.NOT_CONNECTED:
+					if (max != 0) {
+		        		splashScreen.notifyLoginFailure();
+		        	} else if (max == 0) {
+		        		//Exit if we couldn't manage to log in.
+		        		 un.notifyError("Login Failure", 
+		        				 "A valid connection to the OMERO \n"+
+		                         "server could not be established. \n" +
+		                         "The application will exit.");
+		                 container.exit();
+		         	}
+					
+			}
+            /*
             if ((loginSvc.login(uc))) {
                 //needed b/c need to retrieve user's details later.
                 reg.bind(LookupNames.USER_CREDENTIALS, uc);
                 break;
             }
+           
             if (max != 0) {
+            	
         		splashScreen.notifyLoginFailure();
         	} else if (max == 0) {
         		//Exit if we couldn't manage to log in.
@@ -158,6 +184,7 @@ public final class SplashScreenInit
                          "The application will exit.");
                  container.exit();
          	}
+         	 */
         }
         //Now get rid of the Splash Screen.
         splashScreen.close();

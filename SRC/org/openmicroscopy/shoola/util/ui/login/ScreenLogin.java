@@ -183,6 +183,7 @@ public class ScreenLogin
 		setControlsEnabled(false);
 		LoginCredentials lc = new LoginCredentials(usr, psw, s, speedIndex);
 		setUserName(usr);
+		setControlsEnabled(false);
 		firePropertyChange(LOGIN_PROPERTY, null, lc);
 	}
 
@@ -652,6 +653,14 @@ public class ScreenLogin
 		login.setEnabled(b);
 		login.requestFocus();
 		configButton.setEnabled(b);
+		if (b) {
+			setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			setButtonDefault(login);
+			setButtonDefault(cancel);
+		} else {
+			setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			login.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		}
 	}
 
 	/** Sets the text of all textFields to <code>null</code>. */
@@ -697,6 +706,7 @@ public class ScreenLogin
 	 */
 	public void requestFocusOnField()
 	{
+		setControlsEnabled(true);
 		String txt = user.getText();
 		if (txt == null || txt.trim().length() == 0) user.requestFocus();
 		else pass.requestFocus();

@@ -195,6 +195,12 @@ public interface LoginService
      */
     public static final int     ATTEMPTING_LOGIN = 1;
     
+    public static final int		CONNECTED = 1;
+    
+    public static final int		NOT_CONNECTED = 0;
+    
+    public static final int		TIMEOUT = 2;
+    
     
     /**
      * Reuturns the current state of the Login Service.
@@ -231,7 +237,7 @@ public interface LoginService
      * @return <code>true</code> upon success, <code>false</code> in the case
      *         of failure.
      */
-    public boolean login(UserCredentials uc);
+    public int login(UserCredentials uc);
     
     /**
      * Implemented to receive notification of a <code>ServiceActivationRequest

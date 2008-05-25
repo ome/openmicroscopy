@@ -29,6 +29,10 @@ package org.openmicroscopy.shoola.env.data.login;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.awt.Toolkit;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -69,6 +73,15 @@ public class LoginServiceImpl
     /** Reference to the runtime environment. */
     private Container       container;
     
+    /** 
+     * The timer used to establish a valid link to an <code>OMERO</code>
+     * server.
+     */
+    private Timer 			timer;
+    
+    /** Flag indicating if the attempt to connect has started. */
+    private boolean 		connAttempt = true;
+    
     /** Allows to easily access the service's configuration. */
     protected LoginConfig   config;
     
@@ -90,11 +103,12 @@ public class LoginServiceImpl
      * 
      * @return <code>true</code> on success, <code>false</code> on failure.
      */
-    private boolean attempt()
+    private int attempt()
     {
         UserCredentials uc = config.getCredentials();
+        
         try {
-            if (uc == null) 
+        	if (uc == null) 
                 throw new DSOutOfServiceException(
                                 "No user's credentials have been entered yet.");
             //NOTE: This will never happen if the Splash Screen always blocks
@@ -103,17 +117,48 @@ public class LoginServiceImpl
             
             DataServicesFactory factory = DataServicesFactory.getInstance(
                                                                     container);
-            if (factory.isConnected()) return true;
+            if (factory.isConnected()) return CONNECTED;
+            //factory.connect(uc);
+            if (timer == null) timer = new Timer();
+            timer.schedule(new LoginTask(), config.getTimeout());
             factory.connect(uc);
-
+            if (factory.isConnected() && connAttempt) {
+				//Log success.
+                LogMessage msg = new LogMessage();
+                msg.println("Logged onto OMERO at: "+uc.getHostName());
+                msg.println(uc);
+                Logger logger = container.getRegistry().getLogger();
+                logger.info(this, msg);
+                timer.cancel();
+                return CONNECTED;
+            }
+			if (!connAttempt) {
+				timer.cancel();
+	            //Log success.
+	            LogMessage msg = new LogMessage();
+	            msg.println("Cannot connect OMERO at: "+uc.getHostName());
+	            msg.println(uc);
+	            Logger logger = container.getRegistry().getLogger();
+	            logger.info(this, msg);
+				return TIMEOUT;
+			}
+			timer.cancel();
+			LogMessage msg = new LogMessage();
+            msg.println("Cannot connect OMERO at: "+uc.getHostName());
+            msg.println(uc);
+            Logger logger = container.getRegistry().getLogger();
+            logger.info(this, msg);
+            
+            return NOT_CONNECTED;
             //Log success.
+            /*
             LogMessage msg = new LogMessage();
             msg.println("Logged onto OMERO at: "+uc.getHostName());
             msg.println(uc);
             Logger logger = container.getRegistry().getLogger();
             logger.info(this, msg);
-            
-            return true;
+            return CONNECTED;
+            */
         } catch (DSOutOfServiceException dsose) {  //Log failure.
             LogMessage msg = new LogMessage();
             msg.println("Failed to log onto OMERO.");
@@ -123,7 +168,7 @@ public class LoginServiceImpl
             Logger logger = container.getRegistry().getLogger();
             logger.error(this, msg);
         }
-        return false;
+        return NOT_CONNECTED;
     }
     
     /**
@@ -156,6 +201,7 @@ public class LoginServiceImpl
         EventBus bus = c.getRegistry().getEventBus();
         bus.register(this, ServiceActivationRequest.class);
         state = IDLE;
+        connAttempt = true;
     }
     
     /**
@@ -173,7 +219,7 @@ public class LoginServiceImpl
         state = ATTEMPTING_LOGIN;
         int max = config.getMaxRetry();
          while (0 < max--) {
-            if (attempt()) {
+            if (attempt() == CONNECTED) {
                 state = IDLE;
                 return;
             }
@@ -186,19 +232,19 @@ public class LoginServiceImpl
      * Implemented as specified by the {@link LoginService} interface.
      * @see LoginService#login(UserCredentials)
      */
-    public boolean login(UserCredentials uc)
+    public int login(UserCredentials uc)
     {
-    	if (uc == null) return false;
+    	if (uc == null) return NOT_CONNECTED;
     	String name = uc.getUserName();
     	if (name == null || name.trim().length() == 0)
-    		return false;
+    		return NOT_CONNECTED;
     	String password = uc.getPassword();
     	if (password == null || password.trim().length() == 0)
-    		return false;
+    		return NOT_CONNECTED;
     	
         state = ATTEMPTING_LOGIN;
         config.setCredentials(uc);
-        boolean succeeded = attempt(); 
+        int succeeded = attempt(); 
         state = IDLE;
         return succeeded;
     }
@@ -222,6 +268,22 @@ public class LoginServiceImpl
                                                                 sar, connected); 
         EventBus bus = container.getRegistry().getEventBus();
         bus.post(resp);
+    }
+
+    /** Helper inner class. */
+	class LoginTask 
+		extends TimerTask {
+    	
+		/** 
+		 * Sets the {@link #connAttempt} flag.
+		 * @see TimerTask#run()
+		 */
+    	public void run() {
+    		Toolkit.getDefaultToolkit().beep();
+    		connAttempt = false;
+			timer.cancel();
+    		
+    	}
     }
 
 }

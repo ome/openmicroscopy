@@ -62,6 +62,13 @@ public class LoginConfig
      */
     public static final int     DEFAULT_RETRY_INTERVAL = 500;
     
+    /**
+     * The default amount of time, in milliseconds, that the 
+     * {@link LoginService} should wait between each attempt to restore an
+     * invalid link to <i>OMERO</i>. 
+     */
+    public static final int     DEFAULT_TIME_OUT = 120000;
+    
     /** 
      * The current user's credentials for logging onto <i>OMERO</i>.
      * This field is <code>null</code> until the user enters their credentials.
@@ -87,7 +94,15 @@ public class LoginConfig
      * the configuration file.
      */
     private int             retryInterval;
-    
+     
+    /**
+     * The amount of time, in milliseconds, that the {@link LoginService}
+     * shouldtry to establish a valid link to an <i>OMERO</i> server.
+     * This field is read from the Container's configuration file or set to
+     * {@link #DEFAULT_TIME_OUT} if none or an invalid one is found in
+     * the configuration file.
+     */
+    private int             timeout;
     
     /**
      * Initializes this object's fields with the values found in the registry.
@@ -100,6 +115,8 @@ public class LoginConfig
         maxRetry = (x == null ? -1 : x.intValue());
         x = (Integer) reg.lookup(LookupNames.LOGIN_RETRY_INTV);
         retryInterval = (x == null ? -1 : x.intValue());
+        x = (Integer) reg.lookup(LookupNames.LOGIN_TIME_OUT);
+        timeout = (x == null ? -1 : x.intValue());
     }
     
     /**
@@ -123,6 +140,7 @@ public class LoginConfig
         readConfig(reg);
         if (maxRetry <= 0) maxRetry = DEFAULT_MAX_RETRY;
         if (retryInterval <= 0) retryInterval = DEFAULT_RETRY_INTERVAL;
+        if (timeout <= 0) timeout = DEFAULT_TIME_OUT;
     }
     
     /**
@@ -151,5 +169,13 @@ public class LoginConfig
      * @return See above.
      */
     public int getRetryInterval() { return retryInterval; }
+    
+    /**
+     * Returns the amount of time, in milliseconds, the {@link LoginService}
+     * should try to establish a valid link to an <i>OMERO</i> server.
+     * 
+     * @return See above.
+     */
+    public int getTimeout() { return timeout; }
     
 }
