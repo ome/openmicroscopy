@@ -31,6 +31,7 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="mailSender" ref="mailSender"/>
     <property name="templateMessage" ref="templateMessage"/>
+    <property name="ldapService" ref="internal:ome.api.LocalLdap"/>
   </bean> 
  
   <bean name="managed:ome.api.IAdmin" parent="managedService">

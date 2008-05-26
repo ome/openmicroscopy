@@ -23,13 +23,13 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
-
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IAdmin;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
+import ome.api.local.LocalLdap;
 import ome.api.local.LocalUpdate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.AuthenticationException;
@@ -159,6 +159,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected transient SimpleMailMessage templateMessage;
 
+    protected transient LocalLdap ldap;
+
     /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
         getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
@@ -182,6 +184,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     public void setTemplateMessage(SimpleMailMessage templateMessage) {
         this.templateMessage = templateMessage;
+    }
+
+    public void setLdapService(LocalLdap ldapService) {
+        getBeanHelper().throwIfAlreadySet(ldap, ldapService);
+        this.ldap = ldapService;
+        if(!this.ldap.getSetting()) {
+            this.ldap = null;
+        }
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -984,17 +994,40 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
      * Jumps through some hurdles (see
      * {@link PasswordUtil#userId(SimpleJdbcTemplate, String)} to not have to
      * use Hibernate in order to prevent unauthorized access to Hibernate.
+     * 
+     * If ldap plugin turned, creates Ldap accounts and authentication by LDAP
+     * available.
      */
     public boolean checkPassword(String name, String password) {
         Long id = PasswordUtil.userId(jdbc, name);
         if (null == id) {
+            if (ldap != null) {
+                // Try to create account from LDAP if set
+                boolean login = ldap.createUserFromLdap(name, password);
+                if (login) {
+                    return true; // User exists on LDAP
+                }
+            }
             return false; // Unknown user. TODO Guest?
         }
         String hash = PasswordUtil.getUserPasswordHash(jdbc, id);
         if (hash == null) {
             return false; // Password is turned off.
         } else if (hash.trim().length() == 0) {
-            return true; // Password is blank. Open for all.
+            // Check type of authentication if hash is empty
+            // Try to get DN
+            String dn = LdapUtil.lookupLdapAuthExperimenter(jdbc, id);
+            if (dn == null) {
+                return true; // Password is blank. Open for all.
+            } else {
+                if (ldap != null) {
+                    // if LDAP Plugin is on try to verify password
+                    if (ldap.validatePassword(dn, password)) {
+                        return true;
+                    }
+                }
+            }
+            return false; // Wrong password from LDAP
         }
 
         String digest = PasswordUtil.preparePassword(password);
