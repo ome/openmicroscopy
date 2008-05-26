@@ -33,6 +33,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -196,7 +197,7 @@ class TreeViewerComponent
         					else if (object instanceof TagAnnotationData) {
         						TagAnnotationData tag = 
         							(TagAnnotationData) object;
-        						if (tag.getImages() != null) 
+        						if (tag.getTags() == null) 
         							setLeaves((TreeImageSet) display, s);
         						
         					} else view.removeAllFromWorkingPane();
@@ -1511,30 +1512,79 @@ class TreeViewerComponent
 		DataBrowser db = null;
 		if (roots.size() != 1) return;
 		DataObject node;
-		TagAnnotationData tag;
+		TagAnnotationData tag, tagImage;
 		ProjectData project;
-		/*
+		Iterator j;
+		TreeImageDisplay child, value;
+		long id; 
+		Set set, images;
+		DatasetData d;
+		long userID = model.getExperimenter().getId();
+		long groupID = model.getUserGroupID();
+		Iterator k;
+		
+		Map<Long, TreeImageDisplay> m = new HashMap<Long, TreeImageDisplay>();
 		if (parent instanceof TreeImageDisplay) {
 			TreeImageDisplay display = (TreeImageDisplay) parent;
 			List l = display.getChildrenDisplay();
 			if (l != null) {
-				Iterator j = l.iterator();
+				j = l.iterator();
 				while (j.hasNext()) {
-					((TreeImageDisplay) j.next()).setChildrenLoaded(true);
+					child = (TreeImageDisplay) j.next();
+					id = child.getUserObjectId();
+					System.err.println(child);
+					if (id >= 0)
+						m.put(id, child);
 				}
 			}
 		}
-		*/
+		
 		while (i.hasNext()) {
 			node = (DataObject) i.next();
 			if (node instanceof ProjectData) {
 				project = (ProjectData) node;
-				db = DataBrowserFactory.getDataBrowser(project, 
-						                    project.getDatasets());
+				set = project.getDatasets();
+				j = set.iterator();
+				while (j.hasNext()) {
+					d = (DatasetData) j.next();
+					value = m.get(d.getId());
+					if (value != null) {
+						images = d.getImages();
+						if (images != null) {
+							k = images.iterator();
+							while (k.hasNext()) {
+								value.addChildDisplay(
+								 TreeViewerTranslator.transformDataObject(
+										 (ImageData) k.next(), userID, groupID)
+										);
+							}
+						}
+						value.setChildrenLoaded(true);
+					}
+				}
+				db = DataBrowserFactory.getDataBrowser(project, set);
 			} else if (node instanceof TagAnnotationData) {
 				tag = (TagAnnotationData) node;
-				db = DataBrowserFactory.getDataBrowser(tag, 
-						tag.getTags());
+				set = tag.getTags();
+				j = set.iterator();
+				while (j.hasNext()) {
+					tagImage = (TagAnnotationData) j.next();
+					value = m.get(tagImage.getId());
+					if (value != null) {
+						images = tagImage.getImages();
+						if (images != null) {
+							k = images.iterator();
+							while (k.hasNext()) {
+								value.addChildDisplay(
+								 TreeViewerTranslator.transformDataObject(
+										 (ImageData) k.next(), userID, groupID)
+										);
+							}
+						}
+						value.setChildrenLoaded(true);
+					}
+				}
+				db = DataBrowserFactory.getDataBrowser(tag, set);
 			}
 			if (db != null) {
 				db.addPropertyChangeListener(controller);

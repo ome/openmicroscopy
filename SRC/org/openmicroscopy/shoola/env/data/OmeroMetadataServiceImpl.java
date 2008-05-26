@@ -353,7 +353,6 @@ class OmeroMetadataServiceImpl
 				else if (data instanceof TextualAnnotationData)
 					texts.add(data);
 				else if ((data instanceof TagAnnotationData)) {
-					System.err.println(data.getContentAsString());
 					if (!(object instanceof TagAnnotationData)) {
 						tag = loadTagDescription((TagAnnotationData) data, 
 				                userID);
@@ -1257,8 +1256,6 @@ class OmeroMetadataServiceImpl
 		return c;
 	}
 
-	
-	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#loadTagsContainer(Long, boolean, long)

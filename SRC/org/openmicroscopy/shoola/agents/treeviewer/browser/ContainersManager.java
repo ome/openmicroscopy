@@ -61,10 +61,10 @@ public class ContainersManager
 {
     
     /** How many different Images' containers we have. */
-    private int     totalIDs;
+    private int		totalIDs;
 
     /** Ids of the containers whose number of items has already been set. */
-    private Set     processedIDs;
+    private Set		processedIDs;
     
     /** Keeps track the components. */
     private Map		providers;
@@ -72,6 +72,11 @@ public class ContainersManager
     /** The tree hosting the display. */
     private JTree	tree;
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param indexes The collection of indexes to handle.
+     */
     public ContainersManager(Set indexes) 
     {
     	if (indexes == null)

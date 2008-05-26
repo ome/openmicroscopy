@@ -329,10 +329,7 @@ class BrowserComponent
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
         view.setLeavesViews(visLeaves, parent);
-        if (!view.isPartialName()) {
-    		accept(new PartialNameVisitor(view.isPartialName()), 
-    				TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-        }
+        
         model.setState(READY);
         model.getParentModel().setLeaves(parent, leaves);
         model.getParentModel().setStatus(false, "", true);

@@ -3333,7 +3333,6 @@ class OMEROGateway
 			            		service.findAllByQuery(sb.toString(), param));
 			            child.setImages(imgs);
 					}
-					
 				}
 				tag.setTags(children);
 			}
@@ -3341,7 +3340,6 @@ class OMEROGateway
 			result.add(tag);
 			return result;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot retrieve the tags");
 		}
 		return new HashSet();

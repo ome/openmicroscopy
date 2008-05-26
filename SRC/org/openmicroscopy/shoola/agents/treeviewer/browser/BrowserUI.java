@@ -645,6 +645,25 @@ class BrowserUI
     }
     
     /**
+     * Returns <code>true</code> if the first child of the passed node
+     * is one of the added element.
+     * 
+     * @param parent The node to handle.
+     * @return See above.
+     */
+    boolean isFirstChildMessage(TreeImageDisplay parent)
+    {
+    	int n = parent.getChildCount();
+    	if (n == 0) return true;
+    	DefaultMutableTreeNode node = 
+			 (DefaultMutableTreeNode) parent.getChildAt(0);
+    	Object uo = node.getUserObject();
+    	if (LOADING_MSG.equals(uo) || EMPTY_MSG.equals(uo))
+    		return true;
+    	return false;
+    }
+    
+    /**
      * Returns the tree hosting the display.
      * 
      * @return See above.
@@ -1099,7 +1118,7 @@ class BrowserUI
      * @param nodes     The collection of nodes to add.
      * @param parent    The parent of the nodes.
      */
-    void setLeavesViews(Set nodes, TreeImageSet parent)
+    void setLeavesViews(Collection nodes, TreeImageSet parent)
     {
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         parent.removeAllChildren();
@@ -1111,6 +1130,10 @@ class BrowserUI
             buildTreeNode(parent, sorter.sort(nodes), dtm);
         } else buildEmptyNode(parent);
         dtm.reload(parent);
+        if (!isPartialName()) {
+    		model.component.accept(new PartialNameVisitor(isPartialName()), 
+    				TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+        }
     }
     
 	/**

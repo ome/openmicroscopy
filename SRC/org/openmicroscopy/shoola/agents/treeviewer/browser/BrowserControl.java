@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JTree;
@@ -181,7 +182,17 @@ class BrowserControl
         	model.countExperimenterImages(display);
         	return;
         }
-        if (display.isChildrenLoaded()) return;
+        if (display.isChildrenLoaded()) {
+        	List l = display.getChildrenDisplay();
+			if (display.getChildCount() != l.size()) {
+        		view.setLeavesViews(l, (TreeImageSet) display);
+        	} else {
+        		if (view.isFirstChildMessage(display)) {
+        			view.setLeavesViews(l, (TreeImageSet) display);
+        		}
+        	}
+        	return;
+        }
         view.loadAction(display);
         if (display instanceof TreeImageTimeSet) {
         	TreeImageTimeSet node = (TreeImageTimeSet) display;
