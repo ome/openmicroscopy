@@ -155,9 +155,9 @@ class BrowserComponent
     private boolean hasDataToSave(TreeImageDisplay node)
     {
         if (model.getParentModel().hasDataToSave()) {
-        	toSelectAfterSave = node;
+        	//toSelectAfterSave = node;
         	model.getParentModel().showPreSavingDialog();
-        	return true;
+        	return false;
         }
         return false;
     }
@@ -353,7 +353,8 @@ class BrowserComponent
                         "This method cannot be invoked in the LOADING_DATA, "+
                         " LOADING_LEAVES or DISCARDED state.");
         }
-        if (hasDataToSave(display)) return;
+        hasDataToSave(display);
+        //if (hasDataToSave(display)) return;
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
         //if (oldDisplay != null && oldDisplay.equals(display)) return; 
         if (display != null) {
