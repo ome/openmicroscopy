@@ -1195,7 +1195,7 @@ class BrowserComponent
 	public void setHierarchyRoots(Set roots, TreeImageDisplay node, 
 								boolean refresh)
 	{
-		model.getParentModel().setHierarchyRoots(node.getUserObject(), roots);
+		model.getParentModel().browseHierarchyRoots(node, roots);
 	}
 
 	/**

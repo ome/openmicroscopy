@@ -203,11 +203,13 @@ public class EditorUI
 	/** Initializes the UI components. */
 	private void initComponents()
 	{
+		trees = new ArrayList<TreeComponent>();
 		tree = new TreeComponent();
+		trees.add(tree);
 		emptyPane = new JPanel();
 		emptyPane.setBackground(UIUtilities.BACKGROUND);
 		mainPane = new JScrollPane();
-		trees = new ArrayList<TreeComponent>();
+		
 		infoUI = new ImageInfoUI(model);
 		userUI = new UserUI(model, controller);
 		leftPane = new JPanel();
@@ -222,10 +224,12 @@ public class EditorUI
 		viewedByUI = new ViewedByUI(model);
 		topLeftPane = null;
 		commentsTree = new TreeComponent();
+		trees.add(commentsTree);
 		commentsTree.insertNode(textualAnnotationsUI, 
 								textualAnnotationsUI.getCollapseComponent(),
 								false);
 		tagsTree = new TreeComponent();
+		trees.add(tagsTree);
 		tagsTree.insertNode(tagsUI, tagsUI.getCollapseComponent(), false);
 		
 		viewByTree = new TreeComponent();
@@ -276,6 +280,10 @@ public class EditorUI
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
+		tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
+		tree.insertNode(attachmentsUI, attachmentsUI.getCollapseComponent(), 
+				        false);
+		
 		viewTreePanel = new JPanel();
 		viewTreePanel.setLayout(new BoxLayout(viewTreePanel, BoxLayout.X_AXIS));
 		double[][] tl = {{TableLayout.FILL}, //columns
@@ -283,48 +291,45 @@ public class EditorUI
 		viewTreePanel.setLayout(new TableLayout(tl));
 		
 		viewTreePanel.add(rateUI, "0, 0");
-		
 		viewTreePanel.add(viewByTree, "0, 1");
-		TreeComponent propertiesTree = new TreeComponent(); 
-		trees.add(propertiesTree);
-		propertiesTree.insertNode(propertiesUI, 
-							propertiesUI.getCollapseComponent());
-		TreeComponent left = new TreeComponent();
-		trees.add(left);
+		
+		TreeComponent propTree = new TreeComponent(); 
+		trees.add(propTree);
+		propTree.insertNode(propertiesUI, propertiesUI.getCollapseComponent());
+		//TreeComponent left = new TreeComponent();
+		//trees.add(left);
 	
 		double h = TableLayout.PREFERRED;
 		double[][] leftSize = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				0, h, TableLayout.PREFERRED, TableLayout.PREFERRED,
-				TableLayout.PREFERRED} }; //rows
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 0, h}}; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		if (!model.isMultiSelection()) {
 			leftPane.add(viewTreePanel, "0, 1");
 			leftPane.add(infoTree, "0, 2");
-			leftPane.add(propertiesTree, "0, 3");
+			leftPane.add(propTree, "0, 3");
 		}
 		
+		/*
 		leftPane.add(commentsTree, "0, 4");
 		leftPane.add(tagsTree, "0, 5");
 		leftPane.add(left, "0, 6");
-		
+		*/
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				 TableLayout.PREFERRED, TableLayout.PREFERRED,
+			     TableLayout.PREFERRED}}; //rows
 		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
+		rightPane.add(commentsTree, "0, 0");
+		rightPane.add(tagsTree, "0, 1");
+		//rightPane.add(left, "0, 2");
+		rightPane.add(tree, "0, 2");
 		
-		
-		trees.add(tree);
-		
-		rightPane.add(tree, "0, 0");
 		content = new JPanel();
 		
 		switch (layout) {
 			case Editor.VERTICAL_LAYOUT:
-				tree.insertNode(linksUI, linksUI.getCollapseComponent(), false);
-				tree.insertNode(attachmentsUI, 
-							attachmentsUI.getCollapseComponent(), false);
 				content.setLayout(new TableLayout(CONTENT_VERTICAL));
 				if (model.isMultiSelection()) {
 					tree.expandNodes();
@@ -341,9 +346,6 @@ public class EditorUI
 				break;
 			case Editor.GRID_LAYOUT:
 			default:
-				left.insertNode(linksUI, linksUI.getCollapseComponent(), false);
-				left.insertNode(attachmentsUI, 
-							attachmentsUI.getCollapseComponent(), false);
 				content.setLayout(new TableLayout(CONTENT_GRID));
 				if (!model.isMultiSelection()) {
 					content.add(toolBarTop, "0, 0, 2, 0");
@@ -534,6 +536,7 @@ public class EditorUI
 					content.add(leftPane, "0, 1");
 					content.add(rightPane, "2, 1");
 				} else {
+					System.err.println("layout: "+layout);
 					content.add(toolBarTop, "0, 0, 2, 0");
 					content.add(leftPane, "0, 1");
 					content.add(rightPane, "2, 1");

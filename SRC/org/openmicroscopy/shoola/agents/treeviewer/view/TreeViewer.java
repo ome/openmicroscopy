@@ -683,11 +683,12 @@ public interface TreeViewer
 	public void setSelectedNode(Object node);
 	
 	/**
+	 * Browses the passed hierarchy.
 	 * 
-	 * @param parent
-	 * @param nodes
+	 * @param parent The parent of the node.
+	 * @param nodes  The value to set.
 	 */
-    public void setHierarchyRoots(Object parent, Set nodes);
+    public void browseHierarchyRoots(Object parent, Set nodes);
     
     /** 
      * Adds a dataset without project.

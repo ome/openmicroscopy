@@ -1501,9 +1501,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setHierarchyRoots(Object, Set)
+	 * @see TreeViewer#browseHierarchyRoots(Object, Set)
 	 */
-	public void setHierarchyRoots(Object parent, Set roots)
+	public void browseHierarchyRoots(Object parent, Set roots)
 	{
 		if (roots == null) return;
 		Iterator i = roots.iterator();
@@ -1512,11 +1512,25 @@ class TreeViewerComponent
 		if (roots.size() != 1) return;
 		DataObject node;
 		TagAnnotationData tag;
+		ProjectData project;
+		/*
+		if (parent instanceof TreeImageDisplay) {
+			TreeImageDisplay display = (TreeImageDisplay) parent;
+			List l = display.getChildrenDisplay();
+			if (l != null) {
+				Iterator j = l.iterator();
+				while (j.hasNext()) {
+					((TreeImageDisplay) j.next()).setChildrenLoaded(true);
+				}
+			}
+		}
+		*/
 		while (i.hasNext()) {
 			node = (DataObject) i.next();
 			if (node instanceof ProjectData) {
-				db = DataBrowserFactory.getDataBrowser((ProjectData) node, 
-						((ProjectData) node).getDatasets());
+				project = (ProjectData) node;
+				db = DataBrowserFactory.getDataBrowser(project, 
+						                    project.getDatasets());
 			} else if (node instanceof TagAnnotationData) {
 				tag = (TagAnnotationData) node;
 				db = DataBrowserFactory.getDataBrowser(tag, 

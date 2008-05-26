@@ -179,6 +179,7 @@ class MetadataViewerModel
 			return ((Collection) refObject).size() > 1;
 		return false;
 	}
+	
 	/**
 	 * Sets the object of reference.
 	 * 

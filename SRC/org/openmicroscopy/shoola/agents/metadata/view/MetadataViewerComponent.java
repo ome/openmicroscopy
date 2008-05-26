@@ -98,6 +98,9 @@ class MetadataViewerComponent
 	{
 		controller.initialize(this, view);
 		view.initialize(controller, model);
+		if (!(model.getRefObject() instanceof String))
+			showUI(true);
+		//setRootObject(model.getRefObject());
 	}
 
 	/** 

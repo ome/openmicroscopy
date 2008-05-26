@@ -778,10 +778,6 @@ class ImViewerUI
 		container.add(toolBar, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(statusBar, BorderLayout.SOUTH);
-		
-		
-		
-		
 		tabs.addChangeListener(controller);
 		//attach listener to the frame border
 		boundsAdapter = new HierarchyBoundsAdapter() {

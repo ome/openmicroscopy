@@ -292,7 +292,6 @@ class EditorComponent
 	public void showEditorUI(boolean show)
 	{
 		view.showEditorUI(show);
-		
 	}
 	
 }
