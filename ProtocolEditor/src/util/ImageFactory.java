@@ -61,8 +61,8 @@ public class ImageFactory {
 	public static final String IMPORT_ICON = ACTION_ICONS_FILE + "importXml.png";
 	public static final String IMPORT_TEXT_ICON = ACTION_ICONS_FILE + "eclipse_copy_import.png";
 	public static final String IMPORT_TABLE_ICON = ACTION_ICONS_FILE + "import_table.png";
-	public static final String BIG_PROTOCOL_ICON = ACTION_ICONS_FILE + "edu_science.png";
-	public static final String PROTOCOL_ICON = ICONS_FILE + "edu_science.png";
+	public static final String BIG_PROTOCOL_ICON = ACTION_ICONS_FILE + "omeroEditor128.png";
+	public static final String PROTOCOL_ICON = ICONS_FILE + "omeroEditor16.png";
 	public static final String COLLAPSED_ICON = ACTION_ICONS_FILE + "1rightarrow.png";
 	public static final String NOT_COLLAPSED_ICON = ACTION_ICONS_FILE + "1downarrow.png";
 	public static final String SPACER_ICON = ACTION_ICONS_FILE + "spacer16x16.png";
