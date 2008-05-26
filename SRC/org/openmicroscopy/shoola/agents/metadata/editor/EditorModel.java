@@ -502,6 +502,23 @@ class EditorModel
 		return ratings.size();
 	}
 	
+	int getUserRating()
+	{
+		if (data == null) return 0;
+		Collection ratings = data.getRatings();
+		if (ratings == null || ratings.size() == 0) return 0;
+		Iterator i = ratings.iterator();
+		RatingAnnotationData rate;
+		int value = 0;
+		long id = MetadataViewerAgent.getUserDetails().getId();
+		while (i.hasNext()) {
+			rate = (RatingAnnotationData) i.next();
+			if (rate.getOwner().getId() == id)
+				return rate.getRating();
+		}
+		return 0;
+	}
+	
 	/** 
 	 * Returns the average rating value.
 	 * 

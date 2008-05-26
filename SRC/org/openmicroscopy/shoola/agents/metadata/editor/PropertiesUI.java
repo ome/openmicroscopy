@@ -41,7 +41,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -500,7 +499,7 @@ class PropertiesUI
 		String name = originalName;//model.getRefObjectName().trim();
 		String value = nameArea.getText();
 		value = value.trim();
-		
+		if (name == null) return false;
 		if (!name.equals(value) && !originalDisplayedName.equals(value))
 			return true;
 		

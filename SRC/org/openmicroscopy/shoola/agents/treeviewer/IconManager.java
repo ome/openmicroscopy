@@ -366,7 +366,7 @@ public class IconManager
         relPaths[TAGS_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[TAG] = "nuvola_knotes16.png";
         relPaths[SET_RND_SETTINGS] = "nuvola_redo16.png";
-        relPaths[TAG_SET] = "nuvola_knotesOrange16.png";
+        relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[ADD_METADATA] = "nuvola_knotesOrange16.png";
         relPaths[ADD_METADATA_48] = "nuvola_kdmconfig48.png";
     }

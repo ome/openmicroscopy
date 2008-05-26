@@ -97,7 +97,7 @@ class RateUI
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(label);
 		add(rating);
-		add(ratingsLabel);
+		//add(ratingsLabel);
 	}
 	
 	/**
@@ -120,15 +120,16 @@ class RateUI
 	protected void buildUI()
 	{
 		//set values.
-		int n = model.getRatingCount();
-		String s = "";
-		selectedValue = 0;
-		if (n > 0) selectedValue = model.getRatingAverage();
+		//int n = model.getRatingCount();
+		selectedValue = model.getUserRating();
+		//if (n > 0) selectedValue = model.getRatingAverage();
 		initialValue = selectedValue;
 		rating.setValue(selectedValue);
+		/*
 		s += n+NAME;
 		if (n > 1) s += "s";
 		ratingsLabel.setText("("+s+")");
+		*/
 		revalidate();
 		repaint();
 	}
