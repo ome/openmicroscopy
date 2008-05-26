@@ -8,8 +8,7 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
-import unittest
-import library as lib
+import test.integration.library as lib
 import omero
 import omero_RTypes_ice
 from omero_model_PixelsI import PixelsI
