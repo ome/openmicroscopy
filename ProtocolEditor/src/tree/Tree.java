@@ -1268,6 +1268,41 @@ public class Tree
 	}
 	
 	/**
+	 * This checks for the MAX locking level of any highlighted fields and 
+	 * their children. 
+	 * Used (for example) by "Load Defaults" and "Clear Fields" actions, which
+	 * apply to all children of highlighted fields, and should be disabled
+	 * if any highlighted fields (or their children) are fully locked. 
+	 * 
+	 * @return  the max "lockLevel" if any highlighted fields or children 
+ 	 * 			are locked, or null if none are locked.
+	 */
+	public String getMaxHighlightedChildLockingLevel() {
+		
+		String maxLockLevel = null;
+		
+		for (DataFieldNode node: getHighlightedFields()) {
+			
+			Iterator<DataFieldNode> iterator = node.iterator();
+			
+			while (iterator.hasNext()) {
+				DataFieldNode childNode = iterator.next();
+				DataField field = childNode.getDataField();
+				String lockLevel = field.getAttribute(DataFieldConstants.LOCK_LEVEL);
+				if(lockLevel == null)
+					continue;
+				if (lockLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES))
+					return lockLevel;
+				else {
+					maxLockLevel = lockLevel;
+				}
+			}
+		}
+		
+		return maxLockLevel;
+	}
+	
+	/**
 	 * This checks whether the highlighted fields are locked (ie have the attribute LOCK_LEVEL)
 	 * and returns the "max" level of locking for all the highlighted fields.
 	 * ie LOCKED_ALL_ATTRIBUTES is a 'higher' level than LOCKED_TEMPLATE. Returns null if no
@@ -1364,20 +1399,27 @@ public class Tree
 	 */
 	public boolean isAnyHighlightedDefaultFieldFilled() {
 		
-		for (DataFieldNode node : highlightedFields) {
-			DataField field = node.getDataField();
-			/*
-			 * If this field has a default value...
-			 */
-			if (field.getAttribute(DataFieldConstants.DEFAULT) != null) {
+		for (DataFieldNode node: getHighlightedFields()) {
+			
+			Iterator<DataFieldNode> iterator = node.iterator();
+			
+			while (iterator.hasNext()) {
+				DataFieldNode childNode = iterator.next();
+				DataField field = childNode.getDataField();
+			
 				/*
-				 * And the destination to copy this value isn't empty...
-				 * return true.
+				 * If this field has a default value...
 				 */
-				String valueAttribute = EditCopyDefaultValues.getValueAttributeForLoadingDefault(field);
-				String currentValue = field.getAttribute(valueAttribute);
-				if ((currentValue != null) && (currentValue.length() > 0))
-					return true;
+				if (field.getAttribute(DataFieldConstants.DEFAULT) != null) {
+					/*
+					 * And the destination to copy this value isn't empty...
+					 * return true.
+					 */
+					String valueAttribute = EditCopyDefaultValues.getValueAttributeForLoadingDefault(field);
+					String currentValue = field.getAttribute(valueAttribute);
+					if ((currentValue != null) && (currentValue.length() > 0))
+						return true;
+				}
 			}
 		}
 		return false;

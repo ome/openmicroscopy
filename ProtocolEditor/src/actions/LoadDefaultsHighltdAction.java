@@ -28,6 +28,7 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.event.ChangeEvent;
 
+import tree.DataFieldConstants;
 import tree.Tree.Actions;
 import ui.IModel;
 
@@ -73,8 +74,18 @@ public class LoadDefaultsHighltdAction extends ProtocolEditorAction {
 		
 		/*
 		 * This action should only be enabled if a file is open and the
-		 * currently highlighted fields have editable values (not locked).
+		 * currently highlighted fields and their children have 
+		 * editable values (not locked).
+		 * Because this action applies to the highlighted fields
+		 * AND their children. 
 		 */
-		setEnabled(fieldValuesEditable());
+		
+		// this is the max locked level of highlighted fields AND children
+		String childLockedLevel = model.getMaxHighlightedChildLockingLevel();
+		
+		boolean childValuesLocked = 
+			DataFieldConstants.LOCKED_ALL_ATTRIBUTES.equals(childLockedLevel);
+				
+		setEnabled(!childValuesLocked);
 	}
 }

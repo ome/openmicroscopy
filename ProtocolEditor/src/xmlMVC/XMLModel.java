@@ -609,6 +609,22 @@ public class XMLModel
 	}
 	
 	/**
+	 * This checks for the MAX locking level of any highlighted fields and 
+	 * their children. 
+	 * Used (for example) by "Load Defaults" and "Clear Fields" actions, which
+	 * apply to all children of highlighted fields, and should be disabled
+	 * if any highlighted fields (or their children) are fully locked. 
+	 * 
+	 * @return  the max "lockLevel" if any highlighted fields or children 
+ 	 * 			are locked, or null if none are locked.
+	 */
+	public String getMaxHighlightedChildLockingLevel() {
+		if (getCurrentTree() == null) 
+			return null;
+		return getCurrentTree().getMaxHighlightedChildLockingLevel();
+	}
+	
+	/**
 	 * This checks whether ANY fields in this tree are locked (ie have the attribute LOCK_LEVEL)
 	 * and returns the "max" level of locking for the tree.
 	 * ie LOCKED_ALL_ATTRIBUTES is a 'higher' level than LOCKED_TEMPLATE. Returns null if no
