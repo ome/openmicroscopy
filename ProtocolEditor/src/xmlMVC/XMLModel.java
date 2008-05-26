@@ -236,6 +236,7 @@ public class XMLModel
 		// need to check if the file is already open 
 		for (Tree tree: openFiles) {
 			if (tree.getFile().getAbsolutePath().equals(xmlFile.getAbsolutePath())) {
+				// if so, simply make this the current file, and refresh UI
 				currentTree = tree;
 				xmlUpdated();
 				return;
@@ -270,7 +271,8 @@ public class XMLModel
 			JOptionPane.showMessageDialog(null, "Warning. This file was edited by a more recent version \n" +
 					"of the Editor software than this version. \n" +
 					"You are advised to use the most recent version of OMERO.editor, \n" +
-					"so that this file is displayed correctly.");
+					"so that this file is displayed correctly. \n" +
+					"see http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads");
 		}
 		
 		openFiles.add(currentTree);
