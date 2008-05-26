@@ -1,0 +1,106 @@
+/**
+ * jquery-plugin-thumbslider - style definitions
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+
+.thumbslider {
+  position: relative;
+  height: 126px;
+  border: 4px solid;
+  background-color: #BBBBBB;
+}
+
+.thumbslider .ts-wrap {
+  background-color: #EEEEEE;
+  margin: 0px 4px;
+  top: 5px;
+  overflow: hidden;
+  position: relative;
+  height: 94px;
+}
+
+.thumbslider .ts-strip {
+  position: absolute;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.thumbslider .ts-thumb {
+  cursor: pointer;
+  margin: 14px;
+  height: 64px;
+}
+
+.thumbslider .ts-thumb.ts-focus {
+  cursor: default;
+}
+
+.thumbslider .ts-thumb:hover {
+  margin: 3px;
+  height: 80px;
+  padding: 3px;
+}
+
+.thumbslider .ts-focus:hover {
+  margin: 0px;
+}
+
+.thumbslider .ts-focus {
+  margin: 0px;
+  height: 80px;
+  padding: 3px;
+  border: solid 3px red;
+}
+
+.thumbslider .ts-slider {
+  position: relative;
+  height: 16px;
+  background-color: #EEEEEE;
+  cursor: pointer;
+  margin: 6px 30px;
+  top: 4px;
+}
+
+.thumbslider .ts-handle {
+  background-color: #184A89;
+  height: 100%;
+  position: relative;
+  cursor: -moz-grab;
+  cursor: url('/media/img/blitzcon/openhand.cur'), pointer, auto;
+  opacity: 0.8;
+}
+
+.thumbslider .ts-left {
+  cursor: pointer;
+  position: absolute;
+  left: -27px;
+  background: transparent url("/media/img/blitzcon/figure_box_btn_left.gif") center no-repeat;
+  width: 24px;
+  height: 16px;
+}
+
+.thumbslider .ts-right {
+  cursor: pointer;
+  position: absolute;
+  right: -27px;
+  background: transparent url("/media/img/blitzcon/figure_box_btn_right.gif") center no-repeat;
+  width: 24px;
+  height: 16;
+}
+
+.thumbslider .ts-slider-focus {
+  background-color: transparent;
+  /* border: 3px solid red; */
+  display: none;
+  position: absolute;
+  height: 28px;
+  top: -6px;
+  background: transparent url("/media/img/blitzcon/slider_focus.gif") center no-repeat;
+}

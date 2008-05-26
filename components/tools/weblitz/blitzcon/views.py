@@ -152,6 +152,20 @@ def index (request, client_base, dsid=None, prid=None):
     return HttpResponse(rsp)
 
 @timeit
+def test (request, client_base):
+    """ This view is used for testing new features """
+    blitzcon = getBlitzConnection(request, client_base)
+    if blitzcon is None or not blitzcon.isConnected():
+        return HttpResponseRedirect('/')
+
+    d = {'blitzcon': blitzcon,
+         }
+    t = loader.select_template(('%s/test.html' % blitzcon.template_base, 'blitzcon/test.html'))
+    c = Context(d)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@timeit
 def page (request, client_base, page):
     """ View for mostly static pages, that need template parsing (for inheritance basicaly) nonetheless.
         Put your templates in templates/pages/{{page}}.html """
@@ -303,7 +317,7 @@ def _get_img_details_from_req (request, as_string=False):
 
 @timeit
 def image_viewer (request, client_base, iid, dsid=None):
-    """ This view is responsible for showing pixel data as images """
+    """ This view is responsible for showing the omero_image template """
     rid = _get_img_details_from_req(request)
     rk = "&".join(["%s=%s" % (x[0], x[1]) for x in rid.items()])
     ckey = ":imgviewer:%s+%s#%s:%s?%s" % (str(request.session.session_key), client_base, str(iid), str(dsid), rk)
@@ -418,11 +432,29 @@ def imageData_json (request, client_base, iid):
             return HttpResponseRedirect('/')
         rv = {
             'id': iid,
-            'width': image.getWidth(),
-            'height': image.getHeight(),
-            'z_count': image.z_count(),
-            't_count': image.t_count(),
-            'c_count': image.c_count(),
+            'size': {'width': image.getWidth(),
+                     'height': image.getHeight(),
+                     'z': image.z_count(),
+                     't': image.t_count(),
+                     'c': image.c_count(),},
+            'pixel_size': {'x': image.getPixelSizeX(),
+                           'y': image.getPixelSizeY(),
+                           'z': image.getPixelSizeZ(),},
+            'rdefs': {'model': image.isGreyscaleRenderingModel() and 'greyscale' or 'color',
+                      },
+            'channels': map(lambda x: {'emissionWave': x.getEmissionWave(),
+                                       'color': x.getColor().getHtml(),
+                                       'window': {'min': x.getWindowMin(),
+                                                  'max': x.getWindowMax(),
+                                                  'start': x.getWindowStart(),
+                                                  'end': x.getWindowEnd(),},
+                                       'active': x.isActive()}, image.getChannels()),
+            'meta': {'name': image.name or '',
+                     'description': image.description or '',
+                     'author': image.getAuthor(),
+                     'publication': image.getPublication(),
+                     'publication_id': image.getPublicationId(),
+                     'timestamp': image.getDate(),},
             }
         json_data = simplejson.dumps(rv)
         cache.set(ckey, json_data, BASE_CACHE_TIME)
@@ -436,7 +468,6 @@ def listImages_json (request, client_base, did):
     """ lists all Images in a Dataset, as json """
     r = request.REQUEST
     ckey = ":listis:%s#%s" % (client_base, str(did))
-
     json_data = cache.get(ckey)
     if json_data is None:
         blitzcon = getBlitzConnection(request, client_base)
@@ -447,7 +478,12 @@ def listImages_json (request, client_base, did):
             return HttpResponseRedirect('/')
         rv = []
         for im in dataset.listChildren():
-            rv.append( {'id': im.id, 'shortname': im.shortname(), 'author': im.getAuthor(), 'date': im.getDate()} )
+            rv.append( {'id': im.id,
+                        'shortname': im.shortname(),
+                        'author': im.getAuthor(),
+                        'date': im.getDate(),
+                        'description': im.description or '',
+                        'thumb_url': 'http://'+request.get_host()+'/'+client_base+'/render_thumbnail/'+str(im.id),}, )
         json_data = simplejson.dumps(rv)
         cache.set(ckey, json_data, BASE_CACHE_TIME)
         logger.debug("cache miss %s" % ckey)
@@ -467,11 +503,31 @@ def listDatasets_json (request, client_base, pid):
         if blitzcon is None or not blitzcon.isConnected():
             return HttpResponseRedirect('/')
         project = blitzcon.getProject(pid)
-        if project is None:
-            return HttpResponseRedirect('/')
         rv = []
+        if project is None:
+            return HttpResponse('[]', mimetype='application/javascript')
         for ds in project.listChildren():
             rv.append( {'id': ds.id, 'name': ds.name, 'description': ds.description or ''} )
+        json_data = simplejson.dumps(rv)
+        cache.set(ckey, json_data, BASE_CACHE_TIME)
+        logger.debug("cache miss %s" % ckey)
+    else:
+        logger.debug("cache hit %s" % ckey)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+@timeit
+def datasetDetail_json (request, client_base, did):
+    """ grab details from one specific project """
+    r = request.REQUEST
+    ckey = ":dsdetail:%s" % (client_base)
+
+    json_data = cache.get(ckey)
+    if json_data is None:
+        blitzcon = getBlitzConnection(request, client_base)
+        if blitzcon is None or not blitzcon.isConnected():
+            return HttpResponseRedirect('/')
+        ds = blitzcon.getDataset(did)
+        rv = {'id': ds.id, 'name': ds.name, 'description': ds.description or ''}
         json_data = simplejson.dumps(rv)
         cache.set(ckey, json_data, BASE_CACHE_TIME)
         logger.debug("cache miss %s" % ckey)
@@ -500,3 +556,57 @@ def listProjects_json (request, client_base):
         logger.debug("cache hit %s" % ckey)
     return HttpResponse(json_data, mimetype='application/javascript')
 
+@timeit
+def projectDetail_json (request, client_base, pid):
+    """ grab details from one specific project """
+    r = request.REQUEST
+    ckey = ":prdetail:%s" % (client_base)
+
+    json_data = cache.get(ckey)
+    if json_data is None:
+        blitzcon = getBlitzConnection(request, client_base)
+        if blitzcon is None or not blitzcon.isConnected():
+            return HttpResponseRedirect('/')
+        pr = blitzcon.getProject(pid)
+        rv = {'id': pr.id, 'name': pr.name, 'description': pr.description or ''}
+        json_data = simplejson.dumps(rv)
+        cache.set(ckey, json_data, BASE_CACHE_TIME)
+        logger.debug("cache miss %s" % ckey)
+    else:
+        logger.debug("cache hit %s" % ckey)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+@timeit
+def search_json (request, client_base):
+    """ """
+    logger.debug("search request: %s" % (str(request.REQUEST.items())))
+    blitzcon = getBlitzConnection(request, client_base)
+    if blitzcon is None or not blitzcon.isConnected():
+        return HttpResponseRedirect('/')
+    r = request.REQUEST
+    search = r.get('text', '')
+    author = r.get('author', '')
+    if author:
+        search += ' author:'+author
+    rv = []
+    logger.debug("simpleSearch(%s)" % (search))
+    # search returns blitz_connector wrapper objects
+    for wrapper in blitzcon.simpleSearch(search):
+        rv.append({'type': wrapper.OMERO_CLASS,
+                   'id':wrapper.id,
+                   'description': wrapper.description,
+                   'parents': map(lambda x: x.id, wrapper.listParents()),})
+    json_data = simplejson.dumps(rv)
+    return HttpResponse(json_data, mimetype='application/javascript')
+
+@timeit
+def listAuthors_lflist (request, client_base):
+    """ Returns a linefeed separated list of Authors (Experimenters) for usage in selectors.
+    if the request property 'q' is passed, it will be used as a start string filter for author name."""
+    blitzcon = getBlitzConnection(request, client_base)
+    if blitzcon is None or not blitzcon.isConnected():
+        return HttpResponseRedirect('/')
+    r = request.REQUEST
+    logger.debug("listAuthors(%s)" % (r.get('q', '')))
+    rv = '\n'.join(map(lambda x: x.omeName, blitzcon.listExperimenters(r.get('q', ''))))
+    return HttpResponse(rv, mimetype='text/plain')

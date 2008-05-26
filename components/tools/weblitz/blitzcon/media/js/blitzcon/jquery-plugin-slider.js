@@ -110,22 +110,34 @@ $.fn.slider = function(cfg) {
       /**
        * Set the slider position: moves the handle and signals a 'change'.
        * The value 'pos' is expected within the allowed range set for the slider.
+       * @param {Integer} pos The slider position to set.
+       * @param {Tristate} trigger If null will trigger 'change' if changed. True forces the 'change' event, false inhibits it.
        */
-      this.setSliderPos = function (pos, forcetrigger) {
+      this.setSliderPos = function (pos, trigger) {
         var pos = Math.min(Math.max(pos, this.sliderCfg.min), this.sliderCfg.max) - this.sliderCfg.min;
-        if (pos != this.pos || forcetrigger) {
+        if (pos != this.pos || trigger) {
           this.pos = pos;
           if (self.sliderCfg.direction < 0) {
             handle.css(this.sliderCfg.anchor, (100.0-handle_rel-(this.pos*100.0/this.sliderCfg.range))+'%');
           } else {
             handle.css(this.sliderCfg.anchor, (this.pos*100.0/this.sliderCfg.range)+'%');
           }
-          slider_container.trigger('change', [this.sliderCfg.min + this.pos]);
+	  if (trigger != false) {
+	    slider_container.trigger('change', [this.sliderCfg.min + this.pos]);
+	  }
         }
         //handle.attr('title', this.pos + self.sliderCfg.min);
       };
 
-      this.setSliderRange = function (min, max, current) {
+      /**
+       * Set the slider range and position.
+       * The value 'current' is expected between the supplied 'min' and 'max'.
+       * @param {Integer} min The minimal slider position to set.
+       * @param {Integer} pos The maximum slider position to set.
+       * @param {Integer} pos The slider position to set.
+       * @param {Tristate} trigger If null will trigger 'change' if changed. True forces the 'change' event, false inhibits it.
+       */
+      this.setSliderRange = function (min, max, current, trigger) {
 	this.sliderCfg.max = max;
 	this.sliderCfg.min = min;
 	this.sliderCfg.range = max - min + 1;
@@ -137,7 +149,7 @@ $.fn.slider = function(cfg) {
 	  handle.removeClass('disabled');
 	}
 	if (current != null) {
-          this.setSliderPos(current);
+          this.setSliderPos(current, trigger);
 	}
       };
 

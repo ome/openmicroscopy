@@ -23,11 +23,17 @@ urlpatterns = patterns('',
     (r'^(?P<client_base>[^/]+)/page/(?P<page>[^/]+)/$', 'blitzcon.views.page'),
     # JSON methods
     (r'^(?P<client_base>[^/]+)/proj/list/$', 'blitzcon.views.listProjects_json'),
+    (r'^(?P<client_base>[^/]+)/proj/(?P<pid>[^/]+)/detail/$', 'blitzcon.views.projectDetail_json'),
     (r'^(?P<client_base>[^/]+)/proj/(?P<pid>[^/]+)/children/$', 'blitzcon.views.listDatasets_json'),
+    (r'^(?P<client_base>[^/]+)/dataset/(?P<did>[^/]+)/detail/$', 'blitzcon.views.datasetDetail_json'),
     (r'^(?P<client_base>[^/]+)/dataset/(?P<did>[^/]+)/children/$', 'blitzcon.views.listImages_json'),
     (r'^(?P<client_base>[^/]+)/imgData/(?P<iid>[^/]+)/$', 'blitzcon.views.imageData_json'),
+    (r'^(?P<client_base>[^/]+)/search/$', 'blitzcon.views.search_json'),
+    # Line feed lists
+    (r'^(?P<client_base>[^/]+)/listAuthors/$', 'blitzcon.views.listAuthors_lflist'),
     #
     (r'^(?P<client_base>[^/]+)/disconnect/$', 'blitzcon.views.disconnect'),
+    (r'^(?P<client_base>[^/]+)/test/$', 'blitzcon.views.test'),
     (r'^(?P<client_base>[^/]+)/(?:(?P<dsid>[^/]+)/)?(?:(?P<prid>[^/]+)/)?$', 'blitzcon.views.index'),
 )
 

@@ -11,7 +11,7 @@
  */
 
 .weblitz-viewport-vp {
-  position: absolute;
+  position: relative;
   display: block;
   border: 1px solid;
   margin: 0px;
@@ -53,12 +53,12 @@
 }
 
 .vslider { 
-  position: relative;
+  position: absolute;
   width: 10px;
   height: 100%;
   display: block;
   top: 0px;
-  left: 0px;
+  left: 1px;
 }
 
 .hslider { 
@@ -78,6 +78,7 @@
 .slider-handle { 
   background: #184A89;
   font-size: 0.1em;
+  left: 0%; 
 }
 
 /*

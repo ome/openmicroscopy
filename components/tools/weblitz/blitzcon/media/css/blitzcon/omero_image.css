@@ -15,13 +15,7 @@ html {
 }
 
 body {
-  font-family: verdana;
-  font-size: 0.9em;
   overflow: hidden;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-  height: 100%;
 }
 
 #body { 
@@ -94,7 +88,7 @@ hr {
   overflow: hidden;
   height: 55px;
   _height: 60px;
-  font-size: 0.9em;
+  font-size: 0.8em;
 }
 
 .box.popover { 
@@ -176,9 +170,15 @@ hr {
   display: block;
   margin: 0px;
   margin-top: 0.5em;
-  font-size: 0.9em;
+  font-size: 1.0em;
   font-weight: bold;
   text-decoration: underline;
+}
+
+.h2-lookalike {
+  display: block;
+  margin: 0px;
+  margin-top: 0.5em;
 }
 
 .box input {
@@ -207,6 +207,7 @@ hr {
 
 .tooltipbox {
   display: none;
+  font-size: 0.9em;
   position: absolute;
   background-color: #c4cfd5;
   z-index: 10;
@@ -245,6 +246,7 @@ hr {
   width: 22px;
   padding: 0;
   margin-bottom: 4px;
+  margin-left: 0px;
 }
 
 #wblitz-workarea button#full-screen {
@@ -253,6 +255,7 @@ hr {
   width: 22px;
   padding: 0;
   margin-bottom: 4px;
+  margin-left: 0px;
 }
 
 
@@ -286,17 +289,33 @@ button.pressed {
 }
 
 .postit { 
-  background-color: C4CFD5;
+  background-color: #C4CFD5;
+  font-size: 0.9em;
 }
 
 .postit h1 {
   background-color: #184A89;
   color: #FFF;
+/*  font-size: 0.9em; */
 }
 
 .postit table { 
-  font-size: 0.9em;
+  font-size: 1.0em;
 
+}
+
+.postit .even-row {
+  background-color: #D1D3D5;   
+}
+
+.postit button {
+  padding: 0px;
+  margin: 0px;
+  margin-top: 0.5em;
+}
+
+.postit .buttonbar {
+  text-align: center;
 }
 
 #metadata-postit { 
@@ -305,6 +324,10 @@ button.pressed {
 
 #sizes-postit { 
   _width: 170px;
+}
+
+#legend-postit {
+  opacity: 0.8;
 }
 
 .chan-window-slider { 
@@ -320,4 +343,21 @@ INPUT.changed {
 
 #cbpicker-box { 
   _width: 197px;
+}
+
+
+/* Viewport thingies */
+#weblitz-viewport { 
+  position: absolute;
+  clear: both;
+  display: block;
+  top: 65px;
+  left: 0px;
+  height: 300;
+  width: 400;
+}
+
+/* Specific postit stuff */
+#metadata-postit {
+  /* max-width: 600px; */
 }

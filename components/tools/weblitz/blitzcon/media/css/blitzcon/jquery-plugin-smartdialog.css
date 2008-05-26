@@ -1,0 +1,62 @@
+/**
+ * jquery-plugin-smartdialog - style definitions
+ * 
+ * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * 
+ * This software is distributed under the terms described by the LICENCE file
+ * you can find at the root of the distribution bundle, which states you are
+ * free to use it only for non commercial purposes.
+ * If the file is missing please request a copy by contacting
+ * jason@glencoesoftware.com.
+ */
+
+.sdialog { 
+  position: absolute;
+  display: none;
+  top: 0px;
+  background-color: #FF0;
+  z-index: 10;
+  border: 1px solid;
+  overflow: hidden;
+  _width: 25%;
+}
+
+
+.sdialog h1 { 
+  margin: 0px;
+  padding: 0px 2em;
+  background-color: #EE0;
+  height: 1.5em;
+  font-size: 1.0em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.sdialog h2 { 
+  font-size: 1.0em;
+  font-style: italic;
+  text-align: center;
+  text-decoration: underline;
+}
+
+.sdialog td { 
+  font-family: Courier New, monospace;
+}
+
+.sdialog ul { 
+  font-family: Courier New, monospace;
+  list-style-type: none;
+  margin-left: 0px;
+  padding: 0px 0.5em;
+}
+
+.sdialog-content {
+  overflow: auto;
+}
+
+/*
+.sdialog-resize-bar {
+  height: 8px;
+  background-color: #EDEDED;
+}
+*/

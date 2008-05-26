@@ -14,13 +14,8 @@
  */
 
 function include_js_dom(url) {
-    var doc = document.getElementsByTagName('head').item(0);
-    var tag = document.createElement('script');
-    tag.setAttribute('language', 'javascript');
-    tag.setAttribute('type', 'text/javascript');
-    tag.setAttribute('src', url);
-    doc.appendChild(tag);
-    return false;
+  jQuery.getScript(url);
+  return false;
 }
 
 function include_css_dom(url) {
@@ -34,11 +29,20 @@ function include_css_dom(url) {
     return false;
 }
 
-var includes = [["window['jQuery']", '/media/js/blitzcon/jquery-1.2.1.js', null],
-            ["jQuery.fn.offsetLite", '/media/js/blitzcon/jquery.dimensions.js', null],
-            ["jQuery.fn.viewportImage", '/media/js/blitzcon/jquery-plugin-viewportImage.js', null],
-            ["jQuery.fn.slider", '/media/js/blitzcon/jquery-plugin-slider.js', '/media/css/blitzcon/jquery-plugin-slider.css'],
-            ["jQuery.fn.WeblitzViewport", '/media/js/blitzcon/weblitz-viewport.js', '/media/css/blitzcon/weblitz-viewport.css']
+var includes = [//["window['jQuery']", '/media/js/blitzcon/jquery-1.2.1.js', null],
+            ["jQuery.fn.offsetLite",
+             '/media/js/blitzcon/jquery.dimensions.js', null]
+            ,["jQuery.fn.viewportImage",
+              '/media/js/blitzcon/jquery-plugin-viewportImage.js', null]
+            ,["jQuery.fn.slider",
+              '/media/js/blitzcon/jquery-plugin-slider.js', '/media/css/blitzcon/jquery-plugin-slider.css']
+            ,["jQuery.fn.WeblitzViewport",
+              '/media/js/blitzcon/weblitz-viewport.js', '/media/css/blitzcon/weblitz-viewport.css']
+            ,["jQuery.fn.ThumbSlider",
+              '/media/js/blitzcon/jquery-plugin-thumbslider.js', '/media/css/blitzcon/jquery-plugin-thumbslider.css']
+            //,["jQuery.fn.autocomplete", '/media/js/blitzcon/jquery.autocomplete.js', '/media/css/blitzcon/jquery.autocomplete.css']
+            //,["jQuery.fn.aaa", '/media/js/blitzcon/jquery.date_input.js', '/media/css/blitzcon/date_input.css']
+
            ];
 
 

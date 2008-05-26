@@ -18,8 +18,16 @@
 Weblitz - Glencoe template
 {% endblock %}
 
+{% block extra_js %}
+<script type="text/javascript" src="/media/js/blitzcon/cornerz.js"></script>
+
+<script type="text/javascript" src="/media/js/blitzcon/jquery-plugin-smartdialog.js"></script>
+<script type="text/javascript" src="/media/js/blitzcon/jquery.dropshadow.js"></script>
+{% endblock %}
+
 {% block extra_css %}
-  <link rel="stylesheet" type="text/css" href="/media/css/blitzcon/snippet_header_logo.css" media="all">
+<link rel="stylesheet" type="text/css" href="/media/css/blitzcon/jquery.autocomplete.css" media="all">
+<link rel="stylesheet" type="text/css" href="/media/css/blitzcon/jquery-plugin-smartdialog.css" media="all">
 {% endblock %}
 
 {% block content %}
@@ -29,47 +37,95 @@ Weblitz - Glencoe template
      */
      var global = {cache: {}};
 
+
+    /**
+     * mouse over and out events with timers associated with showing and hiding the legend dialog
+     */
+     var imghover = function (imgid, did) {
+       return function () {
+          if ($(this).is('.ts-focus')) {
+            return;
+          }
+          if (imgid != null) {
+            $('#details-name').html(global.cache['i'+did+':'+imgid].shortname);
+            $('#details-legend').html(global.cache['i'+did+':'+imgid].shortdescription);
+            $('#details-popup').css({width: '300px', height: '130px'});
+            $('#details-popup').get(0).placeAround(this);
+          }
+          $('#details-popup').get(0).delayedShow(1000, function (elm) {
+            $(elm).removeShadow().slideDown(function() {$(elm).dropShadow();});
+           }) || $('#details-popup').redrawShadow();
+       };
+     };
+     var imghout = function (imgid) {
+       return function () {
+          if ($(this).is('.ts-focus')) {
+            return;
+          }
+          $('#details-popup').get(0).delayedHide(1000, function (elm) {
+            $(elm).slideUp(function() {$(elm).removeShadow();}).removeShadow();
+           });
+       };
+     };
+
     /**
      * Open a Dataset, showing a thumbnail for each image inside it.
      */
     function launchDataset (e, pid, did) {
       /* The context part is interface dependent, whereas the figure box thing is generic and should be put in a lib */
+      close_viewer();
+
       var elm = $('#context');
       elm.html('<h1>'+global.cache['p'+pid].name+'</h1>'+
-               '<div class="pdescription">'+global.cache['p'+pid].description.replace('\n', '<br />')+'</div>'+
+               '<div class="pdescription">'+global.cache['p'+pid].description.replace(/\n/g, '<br />')+'</div>'+
                '<h2>'+global.cache['d'+did].name+'</h2>'+
-               '<div class="ddescription">'+global.cache['d'+did].description.replace('\n', '<br />')+'</div>');
+               '<div class="ddescription">'+global.cache['d'+did].description.replace(/\n/g, '<br />')+'</div>');
 
+      $('h1').cornerz({corners: 'tl tr'});
+//        .append('<img style="position: absolute; top: 0px; left: 0%;" src="/media/img/blitzcon/rc_tl.gif" />')
+//        .append('<img style="position: absolute; top: 0px; right: 0px;" src="/media/img/blitzcon/rc_tr.gif" />');
+//
       var elm = $('.figure-box');
-      elm.hide('fast');
-      elm.html('<table class="table-vp" id="tvp'+did+'"><tr>');
-      var tr = $('tr',elm);
-      var it = $('<table class="image-thumbs">').appendTo($('<td>').appendTo(tr));
-      var iv = $('<div class="image-viewport" id="vp'+did+'">').appendTo($('<td>').appendTo(tr));
-      var tb = $('<div class="toolbox">').appendTo(iv);
-      tb.append('<a href="#" onclick="popup('+did+",'_blank'"+'); close_viewer(this,'+did+'); return false;">\
-                 Open Full Viewer</a>');
-      tb.append('|');
-      tb.append('<a href="#" onclick="close_viewer(this,'+did+'); return false;">\
-                 <img src="/media/img/blitzcon/close.gif" alt="close" /></a>');
-      iv.append('<div class="image-viewer" id="iv'+did+'">');
+      elm.show();
+      var new_slider = !elm.is('.thumbslider');
+      var tslider = $.ThumbSlider(elm);
+      tslider.clear();
+      tslider.addThumb('<img src="/media/img/blitzcon/ajax-loader.gif" alt="loading..."\
+                        class="ajax-wait" />');
 
-      //it.append('<img src="/media/img/blitzcon/ajax-loader.gif" alt="loading..." />');
-      $('#selection').addClass('filled');
-      elm.show('slow');
+      /* Place for thumb strip here */
       $.getJSON('/{{ blitzcon.client_base }}/dataset/'+did+'/children/', function(data) {
+        var imgclick = function (imgid) {
+          return function () {
+             if ($(this).is('.ts-focus')) {
+               return;
+             }
+             launch_viewer(this, did, imgid);
+          };
+        };
         for (i in data) {
-          it.append('<tr class="image-thumb'+(i%2==0?' odd':'')+'"><td>'+
-                        '<img src="/{{ blitzcon.client_base }}/render_thumbnail/'+data[i].id+'/"'+
-                        ' onclick="launch_viewer(this, '+did+','+data[i].id+')\" /></td><td>'+
-                        '<div class="thumb-detail" onclick="popup('+did+",'_blank'"+','+data[i].id+');'+
-                                                          ' close_viewer(this,'+did+'); return false;">'+
-                        '<p>'+data[i].shortname+'</p><p>'+data[i].author+'</p><p>'+data[i].date+'</p>'+
-                        '</div></td></tr>');
+          global.cache['i'+did+':'+data[i].id] = data[i];
+          global.cache['i'+did+':'+data[i].id]['full_description'] = data[i].description.replace(/\n/g, '<br>')
+          var p = data[i].description.indexOf('\n');
+          var short_description = data[i].description.substring(0,p<0||p>=160?160:p);
+          if (short_description.length < data[i].description.length) {
+            short_description += '...';
+          }
+          global.cache['i'+did+':'+data[i].id]['shortdescription'] = short_description;
+          var img = $('<img src="'+data[i].thumb_url+'" style="display: none">');
+          img.click(imgclick(data[i].id));
+          img.mouseover(imghover(data[i].id,did));
+          img.mouseout(imghout(data[i].id));
+          tslider.addThumb(img);
         }
+        elm.bind('thumbsLoaded', function() {
+          elm.unbind('thumbsLoaded');
+          $('.ajax-wait', elm).remove();
+        });
       });
     }
 
+        
     /**
      * Grabs the list of Datasets and fills up the project menu page.
      */
@@ -126,45 +182,95 @@ Weblitz - Glencoe template
      * Some design specific calculations are needed to fit everything correctly.
      */
     function _refresh_cb (ev, wb) {
-      wb.top.css('height', wb.self.height()-wb.bottom.height()-5);
+      var calc_height = wb.self.height()-wb.bottom.height()-5;
+      if (calc_height > 0) {
+        wb.top.css('height', calc_height);
+      }
       wb.self.parent().parent().css('width', wb.top.width() + wb.zslider.width());
-      var sli = jQuery('.slider-line', wb.tslider);
-      var btn = jQuery('.slider-btn-up', wb.tslider);
-      sli.css('width', wb.tslider.width() - (btn.width()*2) - parseInt(wb.bottom.css('left')));
-      sli = jQuery('.slider-line', wb.zslider);
-      btn = jQuery('.slider-btn-up', wb.zslider);
-      sli.css('height', wb.zslider.height() - (btn.height()*2));
-      var ith = wb.self.parent().parent().find('.image-thumbs');
+      //var sli = jQuery('.slider-line', wb.tslider);
+      //var btn = jQuery('.slider-btn-up', wb.tslider);
+      //sli.css('width', wb.tslider.width() - (btn.width()*2) - parseInt(wb.bottom.css('left')));
+      //sli = jQuery('.slider-line', wb.zslider);
+      //btn = jQuery('.slider-btn-up', wb.zslider);
+      //sli.css('height', wb.zslider.height() - (btn.height()*2));
+      //var ith = wb.self.parent().parent().find('.image-thumbs');
     }
 
     /**
      * Open or reuse a minimal viewer (one per Dataset). Also selects the appropriate thumbnail.
      */
     function launch_viewer (e, did, iid) {
-      var base = $('#tvp'+did);
-      base.find('.thumb-detail').hide('fast');
-      base.find('.image-thumbs').width('1%');
+      /* Close the tooltip */
+      $('#details-popup').get(0).delayedHide(1, function (elm) {
+        $(elm).removeShadow().slideUp('fast');
+      });
+      // 'e' will be something inside the thumb slider, so check if we have a viewport below it.
+      var fb = $(e).parents('div.figure-box');
+      if (fb.parent().find('#iv'+did).length == 0) {
+        var vw = $('<div class="image-viewport-wrapper">').insertBefore(fb);
+        var iv = $('<div class="image-viewport" id="vp'+did+'">').appendTo(vw);
+        var tb = $('<div class="toolbox">').appendTo(iv);
+        iv.append('<div class="image-viewer" id="iv'+did+'">');
+        iv.append('<div class="viewport-thumb-name">aaa</div>');
+
+        tb.append('<a href="#" onclick="popup('+did+",'_blank'"+'); close_viewer(this,'+did+'); return false;">\
+                    Open Full Viewer</a>');
+        tb.append('|');
+        tb.append('<a href="#" onclick="close_viewer(this,'+did+'); return false;">\
+                   <img src="/media/img/blitzcon/close.gif" alt="close" /></a>');
+        //vw.cornerz({radius: 25});
+      }  
+                    
       var elm = $('#iv'+did);
-      var vp = $.WeblitzViewport(elm, '/{{ blitzcon.client_base }}', _refresh_cb);
+      elm.siblings('.viewport-thumb-name').html(global.cache['i'+did+':'+iid].shortname);
+      var vp = $.WeblitzViewport(elm, '/{{ blitzcon.client_base }}');//, _refresh_cb);
+      //vp.bind('imageLoad', _refresh_cb);
       vp.setQuality(0.5);
       elm.parent().show('slow', function () {
         vp.load(iid);
+        $('#image-legend .legend-text').html(global.cache['i'+did+':'+iid].full_description)//base.find('#image-description'+iid).html())
+                    .css('max-height', elm.height());
+        window.scrollTo(0,elm.parent().offset().top - 20);
+        $('#project-list').css({maxHeight: elm.offset().top - $('#project-list').offset().top-30});
+        $('#image-legend').css({top: elm.offset().top, position: 'absolute'}).show('slow');
       });
-      base.find('.image-thumb img').removeClass('selected');
-      base.find('.image-thumb').addClass('collapsed');
-      $(e).addClass('selected');
+      $.ThumbSlider($('.figure-box')).setFocus($(e));
     }
 
     /**
      * Close the minimal viewer for a specific Dataset, and deselect the thumbnail.
      */
     function close_viewer (e, did) {
-      $('#tvp'+did).find('.thumb-detail').show('fast');
-      var elm = $('#iv'+did);
-      elm.parent().hide('slow', function () {elm.html(''); });
-      elm.get(0).WeblitzViewport = null;
-      $('#tvp'+did).find('.image-thumb img').removeClass('selected');
-      $('#tvp'+did).find('.image-thumb').removeClass('collapsed');
+      $('#project-list').css({maxHeight: ''});
+      $('#image-legend').hide('slow');
+      if (did) {
+        var elm = $('#iv'+did);
+        if (elm.length) {
+          elm.parent().hide('slow', function () {
+            elm.parents('.image-viewport-wrapper').remove();//html('');
+          });
+          elm.get(0).WeblitzViewport = null;
+        }
+        var fb = ('.figure-box', elm.parent().parent());
+        if (fb.length != 0) {
+          $.ThumbSlider($('.figure-box')).rmFocus($(e));
+        }
+      } else {
+        $('.image-viewport').each(function () {
+          var elm = $(this);
+          elm.parent().hide('slow', function () {
+            elm.parents('.image-viewport-wrapper').remove();//html('');
+          });
+          elm.get(0).WeblitzViewport = null;
+          var fb = ('.figure-box', elm.parent().parent());
+          if (fb.length != 0) {
+            $.ThumbSlider($('.figure-box')).rmFocus($(e));
+          }
+        });
+      }
+      //if (e) {
+      //  $(e).parents('.image-viewport').siblings('.figure-box').find('img.selected').removeClass('selected');
+      //}
     }
 
     /**
@@ -179,32 +285,51 @@ Weblitz - Glencoe template
                   "toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=800,height=800");
     }
 
-    window.onload = function () {
-    //$(document).ready(function () {
+    $(document).ready(function () {
+      $('.cornered').cornerz();
+//      $('.cornered')
+//        .append('<img style="position: absolute; top: 0px; left: 0px;" src="/media/img/blitzcon/rc_tl.gif" />')
+//        .append('<img style="position: absolute; top: 0px; right: 0px" src="/media/img/blitzcon/rc_tr.gif" />')
+//        .append('<img style="position: absolute; bottom: 0px; left: 0px" src="/media/img/blitzcon/rc_bl.gif" />')
+//        .append('<img style="position: absolute; bottom: 0px; right: 0px" src="/media/img/blitzcon/rc_br.gif" />');
+      $('#image-legend').hide();
+      $('.figure-box').hide();
       loadProjects($('#project-list'));
-    };
+      $('.sdialog').sdialog();
+
+      $('#details-popup').mouseover(imghover());
+      $('#details-popup').mouseout(imghout());
+    });
 
   </script>
 
   <table>
     <tr>
       <td class="menu">
-        <div class="menu">
-          <h1>Projects</h1>
-          <div id="project-list"></div>
+        <div id="project-list-menu" class="menu cornered">
+          <h1>Papers</h1>
+          <div id="project-list" class="menu-content"></div>
+        </div>
+        <div class="menu cornered" id="image-legend">
+          <h1>Legend</h1>
+          <div class="legend-text menu-content"></div>
         </div>
       </td>
       <td class="body">
         <div id="selection">
           <div id="context">
-            Please select a Dataset from a Project using the menu on the left.
+            Please select a Figure from a Paper using the menu on the left.
           </div>
-          <div class="figure-box" style="display: none;">
-
+          <div class="figure-box">
           </div>
         </div>
       </td>
     </tr>
   </table>
 
+  <div id="details-popup" class="sdialog">
+    <h1 id="details-name">Image Name</h1>
+    <div id="details-legend">Details Legend</div>
+  </div>
+  
 {% endblock %}

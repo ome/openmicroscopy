@@ -2022,7 +2022,7 @@ function bindReady(){
 		// Continually check to see if the document.readyState is valid
 		jQuery.safariTimer = setInterval(function(){
 			// loaded and complete are both valid states
-			if ( document.readyState == "!loaded" || 
+			if ( document.readyState == "loaded" || 
 				document.readyState == "complete" ) {
 	
 				// If either one are found, remove the timer

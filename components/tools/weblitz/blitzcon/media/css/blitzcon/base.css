@@ -10,30 +10,60 @@
  * jason@glencoesoftware.com.
  */
 
-* {
-  font-family: verdana;
-}
-
-#header {
-}
-
 #header div.toolbar { 
   text-align: right;
   font-size: 0.8em;
 }
 
-
-#body { 
-  margin-top: 2em;
-}
-
-table:first { 
+body { 
+  font-family: verdana;
+  margin: 0;
+  padding: 0;
   width: 100%;
+  height: 100%;
 }
+
+div.center {
+  text-align: center;
+}
+
+.content { 
+  margin: 1em;
+}
+
+
+h1 { 
+  text-align: center;
+  background: #C4CfD5;
+  color: #174988;
+  font-size: 1.5em;
+}
+
+h2 { 
+  font-size: 1.2em;
+  font-weight: bold;
+  padding: 0px 1em;
+  text-decoration: underline;
+  color: #174988;
+}
+
+dt { 
+  font-weight: bold;
+}
+
+li { 
+  list-style-type: none;
+}
+
+.screenshot { 
+  text-align: center;
+  font-size: 0.8em;
+}
+
 
 td.menu { 
   vertical-align: top;
-
+  background-color: #FFF;
 }
 
 td.body { 
@@ -42,31 +72,26 @@ td.body {
 
 div.menu {
   width: 300px;
-  border: 3px solid #BBB;
   font-size: 0.9em;
   white-space: nowrap;
+  margin-bottom: 2px;
+  background-color: #EEE;
+  padding-bottom: 1px;
+  position: relative;
+}
+
+div.menu .compound * { 
+  vertical-align: middle;
+}
+
+.menu input { 
+  margin: 5px;
 }
 
 .body { 
   width: 100%;
 }
 
-/*
-.body { 
-  position: absolute;
-  display: block;
-  left: 330px;
-}
-
-.menu {
-  position: absolute;
-  left: 1em;
-  border: 3px solid #BBB;
-  display: block;
-  font-size: 0.9em;
-  width: 300px;
-}
-*/
 .menu h1 { 
   font-size: 0.8em;
   font-weight: bold;
@@ -75,6 +100,11 @@ div.menu {
   margin: 0px;
   color: white;
   text-transform: uppercase;
+}
+
+.menu h1 a { 
+  font-size: 0.8em;
+  text-transform: lowercase;
 }
 
 .menu ul { 
@@ -102,29 +132,24 @@ div.menu {
   list-style-image: none;
 }
 
-a:link { 
+a { 
   color: #184A89;
   text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9em;
 }
-a:visited { 
-  color: #184A89;
-  text-decoration: none;
-}
+
 a:hover { 
   color: #BBB;
   background-color: #184A89;
 }
-a:active { 
-  color: #184A89;
-  text-decoration: none;
-}
-
-.figure-box { 
-  display: block;
-}
 
 #selection.filled { 
   border: 2px solid #184A89;
+}
+
+#selection {
+    
 }
 
 #context h1 { 
@@ -133,6 +158,7 @@ a:active {
   background-color: #184A89;
   border-bottom: 2px solid #184A89;
   text-align: center;
+  position: relative;
 }
 
 #context h2 { 
@@ -161,13 +187,21 @@ a:active {
 }
 
 
+.image-viewport-wrapper {
+  text-align: center;
+  background: #F7FAFF;
+  border-style: dashed;
+  border-width: 1px 0;
+  margin-bottom: 1em;
+}
+
 .image-viewport {
   display: none;
-  /* border: 1px solid; */
+  width: 405px;
+  margin: 15px auto;
 }
 
 .image-viewer {
-  clear: both;
   width: 400px;
   height: 300px;
 }
@@ -176,24 +210,31 @@ a:active {
 }
 
 .image-thumbs { 
-  /* border: 1px solid; */
   margin: 0.5em;
   padding: 0px;
 }
 
-.image-thumb {
-  margin: 4px;
-  cursor: pointer;
-  display: block;
-  white-space: no-wrap;
+.fd-toggle {
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  height: 16px;
+  width: 16px;
+  background: url('/media/img/blitzcon/blue_arrow_down.gif') no-repeat center;
 }
 
-.image-thumb img { 
-  margin: 4px;
+.expanded .fd-toggle {
+  background: url('/media/img/blitzcon/blue_arrow_up.gif') no-repeat center;
+}
+
+.image-thumb {
+  margin: 2px;
+  cursor: pointer;
 }
 
 tr.image-thumb { 
   background: #EFEFEF;
+  position: relative;
 }
 
 tr.image-thumb.odd { 
@@ -206,23 +247,40 @@ tr.image-thumb.collapsed {
 
 tr.image-thumb td { 
   vertical-align: middle;
-  white-space: nowrap;
+}
+
+tr.image-thumb td.image-thumb { 
+  vertical-align: top;
 }
 
 tr.image-thumb td p { 
   margin: 0px;
 }
 
-.image-thumb img.selected {
+.image-thumb.selected {
   margin: 2px;
   border: 2px solid;
   border-color: red;
   cursor: default;
 }
 
+.full-description {
+  display: none;
+}
+
+.expanded .full-description {
+  display: block;
+}
+
+.expanded .trimmed-description {
+  display: none;
+}
+
 .toolbox { 
   font-size: 0.8em;
-  float: right;
+/*  float: left; */
+/*  margin-left: 1em; */
+  text-align: right;
 }
 
 .toolbox * {
@@ -239,4 +297,40 @@ tr.image-thumb td p {
   position: relative;
   top: 2px;
   right: 2px;
+}
+
+.viewport-thumb-name { 
+  font-size: 0.8em;
+  text-align: center;
+}
+
+#image-legend {
+  white-space: normal;
+  background-color: #BBB;
+}
+
+#image-legend h1 {
+  background-color: #6589FC;
+}
+
+.menu-content {
+  overflow: auto;
+  padding: 0.5em;
+}
+
+#details-popup {
+  display: none;
+  position: absolute;
+  border: none;
+  background-color: #EEEEEE;
+}
+
+#details-popup h1 {
+  background-color: #0000FF;
+  color: white;
+  border-bottom: 1px solid black;
+}
+
+.vslider {
+  _left: -4px;
 }

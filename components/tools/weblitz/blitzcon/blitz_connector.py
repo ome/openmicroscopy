@@ -17,7 +17,7 @@ import logging
 sys.path.append('blitzcon/icepy')
 sys.path.append('blitzcon/lib')
 
-from types import ListType, TupleType
+from types import ListType, TupleType, UnicodeType
 
 import omero
 import Ice
@@ -178,20 +178,48 @@ class BlitzConnector (threading.Thread):
     def createThumbnailStore (self):
         return self._proxies['thumbs']#.getObj()
 
+    def createSearchService (self):
+        """
+        Creates a new search service.
+        This service is special in that it does not get cached inside BlitzConnector so every call to this function
+        returns a new object, avoiding unexpected inherited states.
+        """
+        return ProxyObjectWrapper(self, 'createSearchService')
+
+    def getUpdateService (self):
+        """
+        """
+        return ProxyObjectWrapper(self, 'getUpdateService')
+
     #############################
     # Top level object fetchers #
 
-    def listProjects (self):
+    def listProjects (self, only_owned=True):
         q = self.getQueryService()
         cache = {}
-        for e in q.findAllByQuery("from Project as p where p.details.owner.id=%i" % self._userid, None):
-            yield ProjectWrapper(self, e, cache)
+        if only_owned:
+            for e in q.findAllByQuery("from Project as p where p.details.owner.id=%i" % self._userid, None):
+                yield ProjectWrapper(self, e, cache)
+        else:
+            for e in q.findAll('Project', None):
+                yield ProjectWrapper(self, e, cache)
 
     def listCategoryGroups (self):
         q = self.getQueryService()
         cache = {}
         for e in q.findAll("CategoryGroup", None):
             yield CategoryGroupWrapper(self, e, cache)
+
+    def listExperimenters (self, start=''):
+        """ Return a generator for all Experimenters whose omeName starts with 'start'.
+        The generated values follow the alphabetic order on omeName."""
+        if isinstance(start, UnicodeType):
+            start = start.encode('utf8')
+        q = self.getQueryService()
+        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like '%s%%'" % start.lower(), None)
+        rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
+        for e in rv:
+            yield ExperimenterWrapper(self, e)
 
     ###########################
     # Specific Object Getters #
@@ -216,6 +244,41 @@ class BlitzConnector (threading.Thread):
         if img is not None:
             img = ImageWrapper(self, img)
         return img
+
+    ###################
+    # Searching stuff #
+
+    def simpleSearch (self, text):
+        """
+        Fulltext search on Projects, Datasets and Images.
+        TODO: search other object types?
+        TODO: batch support.
+        """
+        if not text:
+            return []
+        if isinstance(text, UnicodeType):
+            text = text.encode('utf8')
+
+        tokens = text.split(' ')
+        text = []
+        author = None
+        for token in tokens:
+            if token.find(':') > 0:
+                pass
+            else:
+                text.append(token)
+        text = text.join(' ')
+
+        search = self.createSearchService()
+        rv = []
+        for t in (ProjectWrapper, DatasetWrapper, ImageWrapper):
+            search.onlyType(t.OMERO_CLASS)
+            search.byFullText(text)
+            #search.bySomeMustNone(some, must, none)
+            
+            if search.hasNext():
+                rv.extend(map(lambda x: t(self, x), search.results()))
+        return rv
 
 def safeCallWrap (self, attr, f):
     def wrapped (*args, **kwargs):
@@ -322,8 +385,10 @@ class ProxyObjectWrapper (object):
         return rv
 
 class BlitzObjectWrapper (object):
+    OMERO_CLASS = None
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
+    PARENT_WRAPPER_CLASS = None
     
     def __init__ (self, conn, obj, cache={}, **kwargs):
         self._conn = conn
@@ -340,7 +405,7 @@ class BlitzObjectWrapper (object):
 
     def listChildren (self):
         if self.CHILD_WRAPPER_CLASS is None:
-            raise NotImplemented
+            raise NotImplementedError
         param = omero.sys.Parameters() # TODO: What can I use this for?
         childnodes = [ x.child for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.parent.id=%i" % (self.LINK_CLASS, self._oid), param)]
         for child in childnodes:
@@ -350,7 +415,7 @@ class BlitzObjectWrapper (object):
         """ This version caches all child nodes for all parents, so next parent does not need to search again.
         Good for full depth traversal, but a waste of time otherwise """
         if self.CHILD_WRAPPER_CLASS is None:
-            raise NotImplemented
+            raise NotImplementedError
         if not self._cache.has_key(self.LINK_CLASS):
             pdl = {}
             for link in self._conn.getQueryService().findAll(self.LINK_CLASS, None):
@@ -362,6 +427,22 @@ class BlitzObjectWrapper (object):
             self._cache[self.LINK_CLASS] = pdl
         for child in self._cache[self.LINK_CLASS].get(self._oid, ()):
             yield self.CHILD_WRAPPER_CLASS(self._conn, child, self._cache)
+
+
+    def listParents (self):
+        if self.PARENT_WRAPPER_CLASS is None:
+            raise StopIteration
+        if type(self.PARENT_WRAPPER_CLASS) is type(''):
+            # resolve class
+            g = globals()
+            if not g.has_key(self.PARENT_WRAPPER_CLASS):
+                raise NotImplementedError
+            self.__class__.PARENT_WRAPPER_CLASS = g[self.PARENT_WRAPPER_CLASS]
+        pwc = self.PARENT_WRAPPER_CLASS
+        param = omero.sys.Parameters() # TODO: What can I use this for?
+        parentnodes = [ x.parent for x in self._conn.getQueryService().findAllByQuery("from %s as c where c.child.id=%i" % (pwc.LINK_CLASS, self._oid), param)]
+        for parent in parentnodes:
+            yield pwc(self._conn, parent, self._cache)
 
     def listAnnotations (self):
         if not hasattr(self._obj, 'isAnnotationsLoaded'):
@@ -393,6 +474,14 @@ class BlitzObjectWrapper (object):
 
 class AnnotationWrapper (BlitzObjectWrapper):
     pass
+
+class ExperimenterWrapper (BlitzObjectWrapper):
+    def getDetails (self):
+        if not self._obj.details.owner:
+            details = omero.model.Details()
+            details.owner = self._obj
+            self._obj.details = details
+        return self._obj.details
 
 class ColorWrapper (BlitzObjectWrapper):
     RED = 'Red'
@@ -490,6 +579,7 @@ def assert_pixels (func):
     return wrapped
 
 class ImageWrapper (BlitzObjectWrapper):
+    OMERO_CLASS = 'Image'
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
 
@@ -701,18 +791,23 @@ class ImageWrapper (BlitzObjectWrapper):
             
 
 class DatasetWrapper (BlitzObjectWrapper):
+    OMERO_CLASS = 'Dataset'
     LINK_CLASS = "DatasetImageLink"
     CHILD_WRAPPER_CLASS = ImageWrapper
+    PARENT_WRAPPER_CLASS = 'ProjectWrapper'
 
 class ProjectWrapper (BlitzObjectWrapper):
+    OMERO_CLASS = 'Project'
     LINK_CLASS = "ProjectDatasetLink"
     CHILD_WRAPPER_CLASS = DatasetWrapper
+    PARENT_WRAPPER_CLASS = None
 
 class CategoryWrapper (BlitzObjectWrapper):
     LINK_CLASS = "CategoryImageLink"
     CHILD_WRAPPER_CLASS = ImageWrapper
+    PARENT_WRAPPER_CLASS= 'CategoryGroupWrapper'
 
 class CategoryGroupWrapper (BlitzObjectWrapper):
     LINK_CLASS = "CategoryGroupCategoryLink"
     CHILD_WRAPPER_CLASS = CategoryWrapper
-
+    PARENT_WRAPPER_CLASS = None

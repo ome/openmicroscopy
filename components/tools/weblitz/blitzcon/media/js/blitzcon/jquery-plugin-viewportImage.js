@@ -29,11 +29,11 @@ $.fn.viewportImage = function() {
 
     var self = this;
 
-	var insideId = this.id + '-vpi';
-	var panleftId = this.id + '-panl';
-	var panrightId = this.id + '-panr';
-	var pantopId = this.id + '-pant';
-	var panbottomId = this.id + '-panb';
+    var insideId = this.id + '-vpi';
+    var panleftId = this.id + '-panl';
+    var panrightId = this.id + '-panr';
+    var pantopId = this.id + '-pant';
+    var panbottomId = this.id + '-panb';
 
     jQuery(this).wrap('<div id="'+insideId+'" style="display: inline; position: absolute;"></div>');
     var dragdiv = jQuery('#'+insideId);
@@ -43,8 +43,8 @@ $.fn.viewportImage = function() {
 
     /* Panning sides */
     var side_styles = 'background-color: #ABC; filter:alpha(opacity=50); opacity: 0.5; z-index: 5; position: absolute; display: block;';
-    var side_styles_h = side_styles+'height: 100%; width: 3em;';
-    var side_styles_v = side_styles+'height: 3em; width: 100%;';
+    var side_styles_h = side_styles+'height: 100%;';
+    var side_styles_v = side_styles+'width: 100%; left: 0%;';
     wrapdiv.prepend('<div id="'+panleftId+'" style="'+ side_styles_h +'left: 0%;"><img src="/media/img/blitzcon/arrow_left.gif">');
     wrapdiv.prepend('<div id="'+panrightId+'" style="'+ side_styles_h +'right: 0px; _right: 0%;"><img src="/media/img/blitzcon/arrow_right.gif">');
     wrapdiv.prepend('<div id="'+pantopId+'" style="'+ side_styles_v +'top: 0%;"><img src="/media/img/blitzcon/arrow_up.gif">');
@@ -53,27 +53,29 @@ $.fn.viewportImage = function() {
     var panright = jQuery('#'+panrightId);
     var pantop = jQuery('#'+pantopId);
     var panbottom = jQuery('#'+panbottomId);
-    
+
     function panside_extend (e, min, max, mintm, maxtm, s) {
       var opt = {};
-      opt[s] = max;
+      var opt2 = {};
+      opt[s] = opt2[s] = max;
       e.queue("fx", []);
       e.children().queue("fx", []);
       e.unbind("mouseover", e.do_extend)
       .mouseout(e.do_collapse)
       .animate(opt);
-      opt['marginTop'] = maxtm;
-      e.children("img").animate(opt);
+      opt2[s == 'width' && 'top' || 'left'] = e._img_pos_extended;
+      e.children("img").animate(opt2);
     }
 
     function panside_collapse (e, min, max, mintm, maxtm, s) {
       var opt = {};
-      opt[s] = min;
+      var opt2 = {};
+      opt[s] = opt2[s] = min;
       e.unbind("mouseout", e.do_collapse)
       .mouseover(e.do_extend)
       .animate(opt);
-      opt['marginTop'] = mintm;
-      e.children("img").animate(opt);
+      opt2[s == 'width' && 'top' || 'left'] = e._img_pos_collapsed;
+      e.children("img").animate(opt2);
     }
 
     function panside_prepare (e,x,y) {
@@ -81,7 +83,8 @@ $.fn.viewportImage = function() {
       var iw = img.width();
       var ih = img.height();
       var max, min, maxtm, mintm, side;
-
+      wrapwidth = wrapdiv.width();
+      wrapheight = wrapdiv.height();
       img.unbind('load');
 
       if (iw == 0 || iw == 0) {
@@ -94,24 +97,27 @@ $.fn.viewportImage = function() {
       if (x == 0) {
         side = 'height';
         max = ih;
-        img.css('top', '50%');
+        //img.css('top', '50%');
         e.center = function () {
-          var t = parseInt((wrapwidth / 2) - (iw / 2));
-          e.css({paddingLeft: t+'px', paddingRight:t+'px'});
+          e._img_pos_extended = parseInt((wrapwidth / 2) - (iw / 2));
+          e._img_pos_collapsed = parseInt((wrapwidth / 2) - (iw / 6));
+          img.css('left', e._img_pos_collapsed);
         }
       } else {
         side = 'width';
         max = iw;
-        //img.css('left', '50%');
+        img.css('left', '0%');
         e.center = function () {
-          var t = parseInt((wrapheight / 2) - (ih / 2));
-          e.css({paddingTop: t+'px', paddingBottom:t+'px'});
+          e._img_pos_extended = parseInt((wrapheight / 2) - (ih / 2));
+          e._img_pos_collapsed = parseInt((wrapheight / 2) - (ih / 6));
+          img.css('top', e._img_pos_collapsed);
         }
       }
-      img.css({display: 'block', position: 'relative'});
-      min = max / 3;
-      maxtm = -(ih / 2);
-      mintm = maxtm / 5;
+      e.center();
+      img.css({display: 'block', position: 'absolute'});
+      min = parseInt(max / 3);
+      maxtm = -parseInt(ih / 2);
+      mintm = parseInt(maxtm / 5);
       e.do_extend = function () {panside_extend(e,min,max,mintm,maxtm,side);};
       e.do_collapse = function () {panside_collapse(e,min,max,mintm,maxtm,side);};
       e.do_collapse();
@@ -123,7 +129,7 @@ $.fn.viewportImage = function() {
 
       e.display = function (show) {
         if (show && this.css('display') == 'none') {
-          panside_collapse(this, min, max, mintm + 'px', maxtm+ 'px', side);
+          panside_collapse(this, min, max, mintm, maxtm, side);
           this.show();
         }
         if (!show && this.css('display') != 'none') {
@@ -226,9 +232,21 @@ $.fn.viewportImage = function() {
     var cur_zoom = 100;
     var orig_width;
     var orig_height;
+    var changing = null;
 
     this.getOrigWidth = function () { return orig_width; };
     this.getOrigHeight = function () { return orig_height; };
+
+    this.getXOffset = function () {
+      offset = parseInt(dragdiv.css('left'));
+      return offset < 0 ? (-offset) : 0;
+    };
+    this.setXOffset = function (xoffset) {dragdiv.css('left', -xoffset); this.doMove(0,0);};
+    this.getYOffset = function () {
+      offset = parseInt(dragdiv.css('top'));
+      return offset < 0 ? (-offset) : 0;
+    };
+    this.setYOffset = function (yoffset) {dragdiv.css('top', -yoffset); this.doMove(0,0);};
 
     this.setZoom = function (val, width, height) {
       if (width != null && height != null) {
@@ -241,7 +259,12 @@ $.fn.viewportImage = function() {
       imagewidth = width;
       imageheight = height;
       this.doMove(0, 0);
-      image.trigger("zoom", [cur_zoom]);
+      if (!changing) {
+	changing = setTimeout(function () {;
+          image.trigger("zoom", [cur_zoom]);
+          changing = null;
+			      }, 20);
+      }
       image.attr({width: width, height: height});
     }
 
@@ -249,11 +272,11 @@ $.fn.viewportImage = function() {
       if (width != null && height != null) {
         orig_width = width;
         orig_height = height;
-	cur_zoom = 100;
+        cur_zoom = 100;
       }
       var ztf = Math.min(wrapwidth * 100.0 / orig_width, wrapheight * 100.0 / orig_height);
       if (only_shrink && ztf >= 100.0) {
-	ztf = 100.0;
+        ztf = 100.0;
       }
       this.setZoom(parseInt(ztf));
     }
@@ -269,32 +292,32 @@ $.fn.viewportImage = function() {
      * Handle Zoom by mousewheel (IE)
      */
 
-		jQuery(this).bind("mousewheel", function(e){
-			// Respond to mouse wheel in IE. (It returns up/dn motion in multiples of 120)
-			if (e.wheelDelta >= 120)
-				this.doZoom(1);
-			else if (e.wheelDelta <= -120)
+    jQuery(this).bind("mousewheel", function(e){
+      // Respond to mouse wheel in IE. (It returns up/dn motion in multiples of 120)
+      if (e.wheelDelta >= 120)
+        this.doZoom(1);
+      else if (e.wheelDelta <= -120)
         this.doZoom(-1);
-			
-			e.preventDefault();
-		})
-	
-	
+      
+      e.preventDefault();
+    })
+  
+  
     /**
      * Handle Zoom by mousewheel (FF)
      */
 
-		if (this.addEventListener) {
-			// Respond to mouse wheel in Firefox
-			this.addEventListener('DOMMouseScroll', function(e) {
-				if (e.detail > 0)
+    if (this.addEventListener) {
+      // Respond to mouse wheel in Firefox
+      this.addEventListener('DOMMouseScroll', function(e) {
+        if (e.detail > 0)
           this.doZoom(-1);
-				else if (e.detail < 0)
+        else if (e.detail < 0)
           this.doZoom(1);
-				
-				e.preventDefault();
-			}, false);
-		}
+        
+        e.preventDefault();
+      }, false);
+    }
 
     /**
      * Handle panning by mouse drag
