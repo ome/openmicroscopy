@@ -113,6 +113,10 @@ public class XMLModel
 	 * The version number will contain both the milestone eg "3.0" and the version, eg "3.1.2"
 	 * separated by a dash. So, 3.0-Beta-3.0 will be "3.0-3.0"
 	 * 
+	 * NB. There is also a reference to the current version in the 
+	 * jar "client-3.0-Beta3.jar" etc. This is used at startup, right before the
+	 * "splash-screen" is displayed, to check that this is the "current" version.
+	 * 
 	 */
 	public static final String EDITOR_VERSION_NUMBER = "3.0-3.0";
 	
@@ -123,7 +127,7 @@ public class XMLModel
 	 * For the Milestone releases, the editor release Id will be the same as 
 	 * the EDITOR_VERSION_NUMBER.
 	 */
-	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "rc1.1";
+	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "rc2";
 	
 	/**
 	 * DOM Document used to pass XML files between methods such as readXMLtoDOM() and openXMLFile()
