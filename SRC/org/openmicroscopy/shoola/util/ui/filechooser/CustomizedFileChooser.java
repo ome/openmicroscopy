@@ -95,7 +95,7 @@ class CustomizedFileChooser
 	private void buildGUI()
 	{
 		setAcceptAllFileFilterUsed(false);
-		//setDialogType(SAVE_DIALOG);
+		
 		setControlButtonsAreShown(nameArea == null);
 		
 		JLabel label;
@@ -109,6 +109,7 @@ class CustomizedFileChooser
 		if (f != null) setCurrentDirectory(f);
 		switch (model.getDialogType()) {
 			case FileChooser.SAVE:
+				setDialogType(SAVE_DIALOG);
 				setFileSelectionMode(FILES_ONLY);
 				break;
 			case FileChooser.LOAD:
