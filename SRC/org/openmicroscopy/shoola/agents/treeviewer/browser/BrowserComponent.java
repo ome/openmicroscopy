@@ -1075,6 +1075,7 @@ class BrowserComponent
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
+		firePropertyChange(DATA_REFRESHED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		fireStateChange(); 
 	}
 
@@ -1194,7 +1195,6 @@ class BrowserComponent
 								boolean refresh)
 	{
 		model.getParentModel().setHierarchyRoots(node.getUserObject(), roots);
-		
 	}
 
 	/**

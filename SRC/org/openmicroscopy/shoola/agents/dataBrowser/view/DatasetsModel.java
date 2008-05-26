@@ -83,9 +83,23 @@ class DatasetsModel
         layoutBrowser();
         Iterator<DatasetData> i = datasets.iterator();
 		DatasetData data;
+		List<Long> ids = new ArrayList<Long>();
+		Set images;
+		Iterator j;
+		ImageData img;
 		while (i.hasNext()) {
 			data = i.next();
-			numberOfImages += data.getImages().size();
+			images = data.getImages();
+			if (images != null) {
+				j = images.iterator();
+				while (j.hasNext()) {
+					img = (ImageData) j.next();
+					if (!ids.contains(img.getId())) {
+						ids.add(img.getId());
+						numberOfImages++;
+					}
+				}
+			}
 		}
 	}
 	
@@ -114,11 +128,17 @@ class DatasetsModel
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
 		List<ImageData> imgs = new ArrayList<ImageData>();
+		ImageData img;
+		List<Long> ids = new ArrayList<Long>();
 		while (i.hasNext()) {
 			node = i.next();
 			if (node.getThumbnail().getFullScaleThumb() == null) {
-				imgs.add((ImageData) node.getHierarchyObject());
-				imagesLoaded++;
+				img = (ImageData) node.getHierarchyObject();
+				if (!ids.contains(img.getId())) {
+					imgs.add(img);
+					ids.add(img.getId());
+					imagesLoaded++;
+				}
 			}
 		}
 		return new ThumbnailLoader(component, sorter.sort(imgs));

@@ -99,13 +99,14 @@ public class ThumbnailsManager
         ImageData is;
         Long id;
         Set<Thumbnail> providers;
+        int t = 0;
         while (i.hasNext()) {
             node = (ImageNode) i.next();
             is = (ImageData) node.getHierarchyObject();
             id = new Long(is.getId());
             providers = thumbProviders.get(id);
             if (providers == null) {
-                //totalIDs++;
+                t++;
                 providers = new HashSet<Thumbnail>();
                 thumbProviders.put(id, providers);
             }

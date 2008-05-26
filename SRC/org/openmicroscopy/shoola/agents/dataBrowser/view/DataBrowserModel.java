@@ -268,7 +268,7 @@ abstract class DataBrowserModel
             thumbsManager = null;
         }
     }
-    
+
     /**
      * Returns <code>true</code> if the loading is done, 
      * <code>false</code> otherwise.

@@ -740,5 +740,8 @@ public interface TreeViewer
 	 * or tag.
 	 */
 	public void addMetadata();
+
+	/** Refreshes the selected tree. */
+	public void refreshTree();
 	
 }

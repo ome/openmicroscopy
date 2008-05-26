@@ -663,6 +663,8 @@ class TreeViewerControl
 				MetadataViewer mv = (MetadataViewer) parent;
 				mv.saveData();
 			}
+		} else if (Browser.DATA_REFRESHED_PROPERTY.equals(name)) {
+			model.onSelectedDisplay();
 		}
 	}
 

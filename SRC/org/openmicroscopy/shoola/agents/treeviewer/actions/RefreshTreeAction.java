@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
-
-
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
@@ -100,10 +98,6 @@ public class RefreshTreeAction
      * Refreshes the current tree.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-        Browser b = model.getSelectedBrowser();
-        if (b != null) b.refreshTree();
-    }
+    public void actionPerformed(ActionEvent e) { model.refreshTree(); }
     
 }

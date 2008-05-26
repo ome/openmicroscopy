@@ -284,7 +284,6 @@ class ToolBar
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.ANNOTATION));
     		annotation.add(label);
-    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	n = model.getTagsCount();
     	if (n > 0) {
@@ -292,7 +291,6 @@ class ToolBar
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.TAG));
     		annotation.add(label);
-    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	n = model.getUrlsCount();
     	if (n > 0) {
@@ -300,7 +298,6 @@ class ToolBar
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.URL));
     		annotation.add(label);
-    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	n = model.getAttachmentsCount();
     	if (n > 0) {
@@ -308,14 +305,11 @@ class ToolBar
     										+n+AnnotationUI.RIGHT);
     		label.setIcon(icons.getIcon(IconManager.DOC));
     		annotation.add(label);
-    		annotation.add(Box.createHorizontalStrut(5));
     	}
     	decorator.add(Box.createHorizontalStrut(10));
-    	//decorator.add(new JSeparator(JSeparator.VERTICAL));
     	decorator.add(annotation);
     	decorator.revalidate();
     	decorator.repaint();
-    	//add(decorator);
     }
     
     /**

@@ -162,9 +162,10 @@ class TreeViewerComponent
               	  view.addComponent(db.getUI());
               	  List<DataObject> nodes = new ArrayList<DataObject>();
               	  nodes.add((DataObject) object);
-              	  //Cause of the problem.
               	  db.setSelectedNodes(nodes);
-      		  } else showDataBrowser(object, parent.getParentDisplay());
+      		  } else {
+      			  showDataBrowser(object, parent.getParentDisplay());
+      		  }
       	  } else {
       		view.removeAllFromWorkingPane();
       	  }
@@ -178,8 +179,31 @@ class TreeViewerComponent
         		nodes.add((DataObject) object);
         		db.setSelectedNodes(nodes);
         	} else {
-        		if (parent == null) view.removeAllFromWorkingPane();
-        		else showDataBrowser(object, parent);
+        		//depending on object
+        		if (display != null) {
+        			if (display.isChildrenLoaded()) {
+        				List l = display.getChildrenDisplay();
+        				if (l != null) {
+        					Set s = new HashSet();
+        					Iterator i = l.iterator();
+        					TreeImageDisplay child;
+        					while (i.hasNext()) {
+        						child = (TreeImageDisplay) i.next();
+        						s.add(child.getUserObject());
+        					}
+        					if (object instanceof DatasetData)
+        						setLeaves((TreeImageSet) display, s);
+        					else if (object instanceof TagAnnotationData) {
+        						TagAnnotationData tag = 
+        							(TagAnnotationData) object;
+        						if (tag.getImages() != null) 
+        							setLeaves((TreeImageSet) display, s);
+        						
+        					} else view.removeAllFromWorkingPane();
+        				}
+        			}// else showDataBrowser(object, parent);
+        		} else view.removeAllFromWorkingPane();
+
         	}
         }
 	}
@@ -1737,6 +1761,22 @@ class TreeViewerComponent
     		dialog.addPropertyChangeListener(controller);
     		UIUtilities.centerAndShow(dialog);
     	}
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#refreshTree()
+	 */
+	public void refreshTree()
+	{
+		int state = model.getState();
+		if (state == DISCARDED)
+			throw new IllegalStateException("This method cannot be invoked " +
+					"in the DISCARDED state");
+		Browser b = model.getSelectedBrowser();
+        if (b != null) b.refreshTree();
+        DataBrowserFactory.discardAll();
+        view.removeAllFromWorkingPane();
 	}
 	
 }

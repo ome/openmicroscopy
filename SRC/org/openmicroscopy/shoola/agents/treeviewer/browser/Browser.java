@@ -129,10 +129,11 @@ public interface Browser
     /** Indicates to sort the nodes by name. */
     public static final int         SORT_NODES_BY_NAME = 301;
     
-    /** 
-     * Bound property name indicating the data retrieval is finished. 
-     */
+    /** Bound property name indicating the data retrieval is finished. */
     public static final String  	ON_END_LOADING_PROPERTY = "onEndLoading";
+    
+    /** Bound property indicating that the data have been refreshed. */
+    public static final String		DATA_REFRESHED_PROPERTY = "dataRefreshed";
     
     /** 
      * Bound property name indicating a new node is selected. 

@@ -70,7 +70,7 @@ public class DataBrowserFactory
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
-		
+		singleton.browsers.clear();
 	}
 	
 	/**
