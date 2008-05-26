@@ -128,7 +128,7 @@ fieldname = strcat('FileCnt', num2str(SetBeingAnalyzed));
 currentFileDetails = handles.Pipeline.(fieldname);
 [pixelsId, z, t] = parseFileDetails(currentFileDetails);
     
-blitzGateway = createGateway(iceConfigPath,UserName, Password);
+blitzGateway = createServiceFactoryOMERO(iceConfigPath,UserName, Password);
 if SetBeingAnalyzed == 1 
     %%% CREATE COPY OF THE CURRENT PIXELS.
     
@@ -145,9 +145,9 @@ if SetBeingAnalyzed == 1
     handles.Pipeline.('uploadPixelsID') = newPixelsId.longValue();
     pixels = blitzGateway.getPixels(newPixelsId.longValue());
     if(str2num(BitDepth)==8)
-        pixelsType = blitzGateway.getPixelsType('uint8');
+        pixelsType = getPixelsTypeOMERO(blitzGateway, 'uint8');
     else
-        pixelsType = blitzGateway.getPixelsType('uint16');
+        pixelsType = getPixelsTypeOMERO(blitzGateway, 'uint16');
     end;
     pixels.pixelsType = pixelsType;
     blitzGateway.updatePixels(pixels);
@@ -197,7 +197,7 @@ for i = 1:numImages(ImageName)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     drawnow
     uploadPixelsID = handles.Pipeline.('uploadPixelsID');
-    blitzGateway.uploadPlane(uploadPixelsID, i-1, str2num(t), str2num(z), Image);
+    blitzGateway.uploadPlane(uploadPixelsID, str2num(z), i-1, str2num(t),  Image);
     pixels = getPixelsOMERO(blitzGateway, uploadPixelsID);
     c = pixels.channels.get(i-1);
     stats = c.statsInfo;

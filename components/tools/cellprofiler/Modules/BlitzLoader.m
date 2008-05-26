@@ -106,7 +106,7 @@ drawnow
 %%% through this module.
 if SetBeingAnalyzed == 1
     iceConfigPath = strcat(Pathname,'/ice.config');
-    blitzGateway = createGateway(iceConfigPath,UserName, Password);
+    blitzGateway = createServiceFactoryOMERO(iceConfigPath,UserName, Password);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Check that the Project, Dataset and images exist in Dataset. %
     %%% TODO:                                                        %
@@ -115,7 +115,7 @@ if SetBeingAnalyzed == 1
     % Get all filenames in the specified directory wich contains the specified extension (e.g., .avi or .stk).
     % Note that there is no check that the extensions actually is the last part of the filename.
     dataset = [str2num(DatasetID)];
-    list = getImagesFromDataset(blitzGateway, dataset);
+    list = getImagesFromDatasetOMERO(blitzGateway, dataset);
 
     fileIds=[];
     cnt = 0;
@@ -166,7 +166,7 @@ iceConfigPath = strcat(Pathname,'/ice.config');
 handles.Pipeline.('iceConfigPath') = iceConfigPath;
 handles.Pipeline.('UserName') = UserName;
 handles.Pipeline.('Password') = Password;
-blitzGateway = createGateway(iceConfigPath,UserName, Password);
+blitzGateway = createServiceFactoryOMERO(iceConfigPath,UserName, Password);
 
 for n = 1:handles.Pipeline.imagesPerSet
         %%% This try/catch will catch any problems in the load images module.
