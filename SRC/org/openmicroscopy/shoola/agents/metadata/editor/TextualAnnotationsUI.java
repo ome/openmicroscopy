@@ -148,7 +148,7 @@ class TextualAnnotationsUI
 	{
 		Map<Long, List> m = model.getTextualAnnotationByOwner();
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		if (m.size() > 1 && !m.containsKey(userID)) return true;
+		if (m.size() >= 1 && !m.containsKey(userID)) return true;
 		List l = m.get(userID);
 		if (l == null) return false;
 		int n = l.size();

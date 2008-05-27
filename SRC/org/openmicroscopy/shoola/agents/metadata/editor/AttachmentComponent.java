@@ -76,6 +76,12 @@ class AttachmentComponent
 	/** Component displaying the name of the file. */
 	private JPanel				namePane;
 	
+	/** 
+	 * Flag set to <code>true</code> if the currently logged in user
+	 * owned the annotation. 
+	 */
+	private boolean				editable;
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -97,13 +103,13 @@ class AttachmentComponent
 				FileAnnotationData.HTML.equals(format) ||
 				FileAnnotationData.HTM.equals(format))
 			icon = icons.getIcon(IconManager.XML_DOC);
-		String toolTip = AttachmentsUI.formatTootTip(file);
+		
 		JLabel iconLabel = new JLabel(icon);
-		iconLabel.setToolTipText(toolTip);
 		
 		String name = file.getFileName();
 		JLabel nameLabel = new JLabel(file.getFileName());
 		FontMetrics fm = nameLabel.getFontMetrics(nameLabel.getFont());
+		
 		int width = fm.stringWidth(name);
 		int iconWith = icon.getIconWidth()+20;
 		if (width > iconWith) {
@@ -117,14 +123,24 @@ class AttachmentComponent
 			nameLabel.setText(buf.toString());
 		}
 			
-		nameLabel.addMouseListener(this);
-		iconLabel.addMouseListener(this);
-		addMouseListener(this);
+		if (editable) {
+			nameLabel.addMouseListener(this);
+			iconLabel.addMouseListener(this);
+			addMouseListener(this);
+		}
+
 		iconPane = new JPanel();
 		iconPane.add(iconLabel);
 		namePane = new JPanel();
 		namePane.add(nameLabel);
 		setSelectedBackground(false);
+		String toolTip = view.formatTootTip(file);
+		iconLabel.setToolTipText(toolTip);
+		nameLabel.setToolTipText(toolTip);
+		setToolTipText(toolTip);
+		setEnabled(editable);
+		if (!editable) nameLabel.setForeground(Color.LIGHT_GRAY);
+		iconLabel.setEnabled(editable);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -146,16 +162,21 @@ class AttachmentComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param view	Reference to the view. Mustn't be <code>null</code>.
-	 * @param file	The annotation hosted by this component. 
-	 * 				Mustn't be <code>null</code>.
+	 * @param view	    Reference to the view. Mustn't be <code>null</code>.
+	 * @param file	    The annotation hosted by this component. 
+	 * 				    Mustn't be <code>null</code>.
+	 * @param editable  Pass <code>true</code> if the annotation is owned 
+	 * 					by the currently logged in user, <code>false</code>
+	 * 					otherwise.
 	 */
-	AttachmentComponent(AttachmentsUI view, FileAnnotationData file)
+	AttachmentComponent(AttachmentsUI view, FileAnnotationData file, 
+						boolean editable)
 	{
 		if (view == null)
 			throw new IllegalArgumentException("No view.");
 		if (file == null)
 			throw new IllegalArgumentException("No annotation.");
+		this.editable = editable;
 		this.view = view;
 		this.file = file;
 		initComponents();
@@ -170,14 +191,15 @@ class AttachmentComponent
 	 */
 	void setSelectedBackground(boolean selected)
 	{
-		if (selected) {
+		if (selected && editable) {
 			iconPane.setBackground(Color.LIGHT_GRAY);
 			namePane.setBackground(Color.LIGHT_GRAY);
 		} else {
 			setBackground(UIUtilities.BACKGROUND);
 			iconPane.setBackground(UIUtilities.BACKGROUND);
 			namePane.setBackground(UIUtilities.BACKGROUND);
-		}
+		} 
+		
 		repaint();
 	}
 	

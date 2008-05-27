@@ -459,8 +459,8 @@ class LinksUI
 		SelectionWizard wizard = new SelectionWizard(
 										reg.getTaskBar().getFrame(), r);
 		IconManager icons = IconManager.getInstance();
-		wizard.setTitle("Upload URls Selection", "Select Urls already " +
-				"updloaded to the server", 
+		wizard.setTitle("Upload URls Selection", "Select Urls you have " +
+				"already entered.", 
 				icons.getIcon(IconManager.URL_48));
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);

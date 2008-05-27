@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,6 +83,26 @@ public class MetadataViewerAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Returns the experimenter corresponding to the passed experimenter
+	 * ID.
+	 * 
+	 * @param expID The experimenter's id.
+	 * @return See above.
+	 */
+	public static ExperimenterData getExperimenter(long expID)
+	{
+		List l = (List) registry.lookup(LookupNames.USERS_DETAILS);
+		if (l == null) return null;
+		Iterator i = l.iterator();
+		ExperimenterData exp;
+		while (i.hasNext()) {
+			exp = (ExperimenterData) i.next();
+			if (exp.getId() == expID) return exp;
+		}
+		return null;
 	}
 	
     /**

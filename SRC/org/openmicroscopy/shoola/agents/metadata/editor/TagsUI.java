@@ -78,6 +78,7 @@ import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.HistoryDialog;
+import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
@@ -469,13 +470,17 @@ class TagsUI
 		Collection l = model.getTags();
 		Iterator i;
 		AnnotationData data;
-		List<TagComponent> tags = new ArrayList<TagComponent>();
+		List<TagComponent> myTags = new ArrayList<TagComponent>();
+		List<TagComponent> otherTags = new ArrayList<TagComponent>();
 		if (l != null) {
 			i = l.iterator();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
-				if (!isRemoved(data)) 
-					tags.add(new TagComponent(this, data));
+				if (!isRemoved(data) && model.isCurrentUserOwner(data)) 
+					myTags.add(new TagComponent(this, data, true));
+				if (!model.isCurrentUserOwner(data)) {
+					otherTags.add(new TagComponent(this, data, false));
+				}
 			}
 		}
 		
@@ -488,19 +493,18 @@ class TagsUI
 		c.gridx = 0;
 		c.gridy = 0;
 		if (!model.isMultiSelection()) {
-			existingTags.add(UIUtilities.setTextFont("Tagged with: "), c);
+			existingTags.add(UIUtilities.setTextFont("Tagged by me with: "), c);
 			c.gridx++;
 			c.weightx = 0.5;
-
 			//Layout the tags
-			existingTags.add(layoutTags(tags), c);
+			existingTags.add(layoutTags(myTags), c);
 			
 			c.gridy++;
 			c.gridx = 0;
 			existingTags.add(Box.createVerticalStrut(5));
 			c.gridy++;
 			c.weightx = 0;
-		}
+			
 		
 		existingTags.add(UIUtilities.setTextFont("Tags to Add: "), c);
 		c.gridx++;
@@ -508,20 +512,68 @@ class TagsUI
 		
 		if (addedTags.size() > 0) {
 			i = addedTags.iterator();
-			tags.clear();
+			myTags.clear();
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
-				tags.add(new TagComponent(this, data));
+				if (model.isCurrentUserOwner(data))
+					myTags.add(new TagComponent(this, data, true));
 			}
-			existingTags.add(layoutTags(tags), c);
+			existingTags.add(layoutTags(myTags), c);
 		}
+		
+		if (otherTags.size() > 0) {
+			c.gridy++;
+			c.gridx = 0;
+			existingTags.add(Box.createVerticalStrut(5));
+			c.gridy++;
+			TreeComponent tree = new TreeComponent();
+			JPanel p = UIUtilities.buildCollapsePanel("Tagged by others with");
+			JPanel content = new JPanel();
+			content.add(layoutTags(otherTags));
+			content.setBorder(p.getBorder());
+			tree.insertNode(content, p, false);
+			c.gridwidth = 2;
+			
+			existingTags.add(tree, c);
+			c.gridy++;
+			c.gridx = 0;
+			existingTags.add(Box.createVerticalStrut(5));
+			c.gridy++;
+			c.weightx = 0;
+			c.gridwidth = 0; 
+			/*
+			existingTags.add(
+					UIUtilities.setTextFont("Tagged by others with: "), c);
+			c.gridx++;
+			c.weightx = 0.5;
+			existingTags.add(layoutTags(otherTags), c);
+
+			c.gridy++;
+			c.gridx = 0;
+			existingTags.add(Box.createVerticalStrut(5));
+			c.gridy++;
+			c.weightx = 0;
+			*/
+			c.gridwidth = 0; 
+		}
+	}
+		
+		
+		
+		
 		c.gridy++;
 		c.gridx = 0;
 		existingTags.add(Box.createVerticalStrut(5));
-		c.gridx++;
+		//c.gridx++;
 		c.gridy++;
+		c.gridwidth = 2;
 		existingTags.add(UIUtilities.setTextFont(DESCRIPTION_EXISTING_TAGS, 
 												Font.ITALIC, 10), c);
+		
+		
+		
+		
+		
 		existingTags.revalidate();
 		existingTags.repaint();
 		return existingTags;
@@ -632,7 +684,7 @@ class TagsUI
 		SelectionWizard wizard = new SelectionWizard(
 										reg.getTaskBar().getFrame(), r);
 		IconManager icons = IconManager.getInstance();
-		wizard.setTitle("Tags Selection" , "Select existing tags", 
+		wizard.setTitle("Tags Selection" , "Select your  existing tags", 
 				icons.getIcon(IconManager.TAGS_48));
 		wizard.addPropertyChangeListener(this);
 		UIUtilities.centerAndShow(wizard);

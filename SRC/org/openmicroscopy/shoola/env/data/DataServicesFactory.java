@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -247,9 +248,28 @@ public class DataServicesFactory
                                                     	uc.getSpeedLevel()));
         registry.bind(LookupNames.CURRENT_USER_DETAILS, exp);
         Map<GroupData, Set> groups;
+        List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
         	 groups = omeroGateway.getAvailableGroups();
         	 registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
+        	 
+        	 List<Long> ids = new ArrayList<Long>();
+        	 Iterator i = groups.keySet().iterator();
+        	 Set set;
+        	 Iterator j;
+        	 ExperimenterData e;
+        	 while (i.hasNext()) {
+				set = groups.get(i.next());
+				j = set.iterator();
+				while (j.hasNext()) {
+					e = (ExperimenterData) j.next();
+					if (!ids.contains(e.getId())) {
+						ids.add(e.getId());
+						exps.add(e);
+					}
+				}
+			}
+        	registry.bind(LookupNames.USERS_DETAILS, exps);	 
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
 		}
@@ -264,6 +284,7 @@ public class DataServicesFactory
 			        LookupNames.CURRENT_USER_DETAILS, exp);
 			agentInfo.getRegistry().bind(LookupNames.USER_GROUP_DETAILS, 
 									groups);
+			agentInfo.getRegistry().bind(LookupNames.USERS_DETAILS, exps);
 		}
 	}
 	

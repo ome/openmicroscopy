@@ -61,6 +61,7 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
@@ -337,19 +338,12 @@ class EditorModel
 	boolean isCurrentUserOwner(Object object)
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
-		if (object instanceof ExperimenterData) {
+		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == userID);
-		}
-		return true;
-		/*
 		if (object == null) return false;
-		if (object instanceof DataObject) {
-			
-			
-			return userID == object.getOwner().getId();
-		}
+		if (object instanceof DataObject) 
+			return userID == ((DataObject) object).getOwner().getId();
 		return false;
-		*/
 	}
 	
 	/**
@@ -673,7 +667,7 @@ class EditorModel
 	ExperimenterData getRefObjectOwner()
 	{
 		if (refObject instanceof DataObject)
-			return ((DataObject) refObject).getOwner();
+			return getOwner((DataObject) refObject);
 		return null;
 	}
 	
@@ -1018,6 +1012,19 @@ class EditorModel
 		Set tags = tag.getTags();
 		if (tags != null && tags.size() > 0) return true;
 		return false;
+	}
+	
+	/**
+	 * Returns the owner of the passed annotation.
+	 * 
+	 * @param data The annotation to handle.
+	 * @return  See above.
+	 */
+	ExperimenterData getOwner(DataObject data)
+	{
+		if (data == null) return null;
+		long id = data.getOwner().getId();
+		return MetadataViewerAgent.getExperimenter(id);
 	}
 	
 }

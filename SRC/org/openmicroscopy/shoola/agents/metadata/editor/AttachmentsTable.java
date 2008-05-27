@@ -74,6 +74,9 @@ class AttachmentsTable
 	/** Identified the column displaying the type of file. */
 	private static final int  		KIND_COL = 3;
 	
+	/** Identified the column displaying the owner of file. */
+	private static final int  		OWNER_COL = 4;
+	
 	/** The texf of the {@link #NAME_COL}. */
 	static final String				NAME =  "Name";
 	
@@ -85,6 +88,9 @@ class AttachmentsTable
 	
 	/** The texf of the {@link #KIND_COL}. */
 	static final String				KIND =  "Kind";
+	
+	/** The texf of the {@link #DATE_COL}. */
+	static final String				OWNER =  "Owner";
 	
 	static {
 		COLUMNS = new String[4];
@@ -184,6 +190,7 @@ class AttachmentsTable
 		}
 		if (row != -1) getSelectionModel().setSelectionInterval(row, row);
 		getSelectionModel().addListSelectionListener(listener);
+		
 	}
 	
 	/**

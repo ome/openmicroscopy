@@ -58,10 +58,11 @@ public class LookupNames
      */
     public static final String CURRENT_USER_DETAILS = "/current_user/details";
     
-    /**
-     * Field to access the users' groups credentials.
-     */
+    /** Field to access the users' groups. */
     public static final String USER_GROUP_DETAILS = "/userGroup/details";
+    
+    /** Field to access the users contained in the group. */
+    public static final String USERS_DETAILS = "/users/details";
     
     /** Field to access the <code>agents</code> package. */
 	public static final String AGENTS = "/agents";

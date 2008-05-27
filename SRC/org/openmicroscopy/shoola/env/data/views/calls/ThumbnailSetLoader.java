@@ -116,7 +116,6 @@ public class ThumbnailSetLoader
     private void loadThumbails(List ids) 
     {
     	try {
-    		System.err.println(ids);
         	Map m = service.getThumbnailSet(ids, maxLength);
         	List result = new ArrayList();
         	Iterator i = m.keySet().iterator();

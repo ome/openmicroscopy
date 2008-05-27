@@ -214,6 +214,9 @@ public class UIUtilities
     /** The tooltip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
 	
+	/** The maximum width of the text when wrapping up text. */
+	private static final int		WRAP_UP_MAX_WIDTH = 50;
+	
 	/**
 	 * Centers the specified component on the screen.
 	 * The location of the specified component is set so that it will appear
@@ -1057,6 +1060,53 @@ public class UIUtilities
 		picker.setToolTipText(DATE_TOOLTIP);
 		picker.setFormats(dateFormats);
 		return picker;
+	}
+	
+	/**
+	 * Wraps up the passed text at at word boundaries (whitespace) if they are 
+	 * too long to fit within the allocated width i.e. 
+	 * {@link #WRAP_UP_MAX_WIDTH}.
+	 * Returns a collection of blocks of text.
+	 * 
+	 * @param text The text to handle.
+	 * @return See above.
+	 */
+	public static List<String> wrapStyleWord(String text)
+	{
+		return wrapStyleWord(text, WRAP_UP_MAX_WIDTH);
+	}
+	
+	/**
+	 * Wraps up the passed text at at word boundaries (whitespace) if they are 
+	 * too long to fit within the allocated width.
+	 * Returns a collection of blocks of text.
+	 * 
+	 * @param text 		The text to handle.
+	 * @param maxWidth 	The allocated width.
+	 * @return See above.
+	 */
+	public static List<String> wrapStyleWord(String text, int maxWidth)
+	{
+		List<String> l = new ArrayList<String>();
+		if (text == null) return l;
+		text = text.trim();
+		if (maxWidth <= 0) maxWidth = WRAP_UP_MAX_WIDTH;
+		String sep = " ";
+		String[] values = text.split(sep);
+		String v = "";
+		String value, tmp;
+		for (int i = 0; i < values.length; i++) {
+			value = values[i];
+			tmp = v+sep+value;
+			if (tmp.length() < maxWidth) {
+				v += sep+value;
+			} else {
+				l.add(v);
+				v = value;
+			}
+		}
+		if (!v.equals("")) l.add(v);
+		return l;
 	}
 	
 }

@@ -74,6 +74,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -89,6 +90,7 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import ome.model.annotations.FileAnnotation;
 import pojos.AnnotationData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 
 /** 
@@ -454,8 +456,6 @@ class AttachmentsUI
 			        comparators.put(BY_KIND, c);
 				}
 		}
-        
-		
         Collections.sort(annotations, c);
 	}
 	
@@ -500,10 +500,18 @@ class AttachmentsUI
 	 * @param f The value to format.
 	 * @return See above.
 	 */
-	static String formatTootTip(FileAnnotationData f)
+	String formatTootTip(FileAnnotationData f)
 	{
 		StringBuffer buf = new StringBuffer();
 		buf.append("<html><body>");
+		ExperimenterData exp = model.getOwner(f);
+		if (exp != null) {
+			buf.append("<b>");
+			buf.append(AttachmentsTable.OWNER+": ");
+			buf.append("</b>");
+			buf.append(EditorUtil.formatExperimenter(exp));
+			buf.append("<br>");
+		}
 		buf.append("<b>");
 		buf.append(AttachmentsTable.DATE+": ");
 		buf.append("</b>");
@@ -542,7 +550,8 @@ class AttachmentsUI
 		while (i.hasNext()) {
 			++c.gridx;
 			f = (FileAnnotationData) i.next();
-			comp = new AttachmentComponent(this, f);
+			comp = new AttachmentComponent(this, f, 
+					model.isCurrentUserOwner(f));
 			toDownload.add(comp);
 			content.add(comp, c);
 			++c.gridx;
@@ -789,7 +798,7 @@ class AttachmentsUI
 		getCollapseComponent().setBorder(border);
 		add(layoutContent());
 	}
-
+	
 	/**
 	 * Sets the selected annotation and brings up the {@link #managementMenu}.
 	 * 
@@ -801,7 +810,7 @@ class AttachmentsUI
 	void manageAnnotation(FileAnnotationData data, JComponent invoker, 
 						int x, int y)
 	{
-		if (data == null) return;
+		if (data == null || !model.isCurrentUserOwner(data)) return;
 		Iterator<AttachmentComponent> i = toDownload.iterator();
 		FileAnnotationData f;
 		AttachmentComponent l;

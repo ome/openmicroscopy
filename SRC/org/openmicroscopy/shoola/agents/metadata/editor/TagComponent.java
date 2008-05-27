@@ -32,6 +32,7 @@ import java.util.List;
 import javax.swing.JLabel;
 
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
@@ -68,6 +69,12 @@ class TagComponent
 	private Font			defaultFont;
 	
 	/** 
+	 * Flag indicating if the component is editable, only
+	 * components owned by the currently logged in user are editable.
+	 */
+	private boolean			editable;
+	
+	/** 
 	 * Formats the tool tip.
 	 * 
 	 * @return See above;
@@ -79,19 +86,23 @@ class TagComponent
 		if (descriptions == null || descriptions.size() == 0)
 			return null;
 		StringBuffer buf = new StringBuffer();
-		//buf.
 		buf.append("<html><body>");
-		
 		Iterator i = descriptions.iterator();
 		TextualAnnotationData desc;
+		List l;
+		Iterator j;
 		while (i.hasNext()) {
 			desc = (TextualAnnotationData) i.next();
 			if (desc != null) {
 				buf.append("<b> Described by: ");
 				buf.append(EditorUtil.formatExperimenter(desc.getOwner()));
 				buf.append("</b><br>");
-				buf.append(desc.getText());
-				buf.append("<br>");
+				l = UIUtilities.wrapStyleWord(desc.getText());
+				j = l.iterator();
+				while (j.hasNext()) {
+					buf.append((String) j.next());
+					buf.append("<br>");
+				}
 			}
 		}
 		buf.append("</body></html>");
@@ -112,13 +123,17 @@ class TagComponent
 	 * 
 	 * @param uiDelegate	The ui delegate.
 	 * @param data			The annotation to handle.
+	 * @param editable      Pass <code>true</code> to allow the user to 
+	 * 						manipulate the component, <code>false</code>
+	 * 						otherwise.
 	 */
-	TagComponent(TagsUI uiDelegate, AnnotationData data)
+	TagComponent(TagsUI uiDelegate, AnnotationData data, boolean editable)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No tag specified.");
 		if (uiDelegate == null)
 			throw new IllegalArgumentException("No view.");
+		this.editable = editable;
 		this.data = data;
 		this.uiDelegate = uiDelegate;
 		defaultFont = getFont();
@@ -169,9 +184,10 @@ class TagComponent
 		if (e.getClickCount() == 2) {
 			uiDelegate.editAnnotation(e.getPoint(), this);
 		} else
-			uiDelegate.setSelectedTag(e.isShiftDown(), this);
+			if (editable)
+				uiDelegate.setSelectedTag(e.isShiftDown(), this);
 		
-		if (e.isPopupTrigger())
+		if (e.isPopupTrigger() && editable)
 			uiDelegate.showMenu(e.getPoint(), e.getComponent());
 	}
 
