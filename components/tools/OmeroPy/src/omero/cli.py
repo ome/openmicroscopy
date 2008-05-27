@@ -65,6 +65,16 @@ LINEWSP = re.compile("^\s*\w+\s+")
 
 #####################################################
 #
+# Exceptions
+#
+class NonZeroReturnCode(Exc):
+    def __init__(self, rv, *args):
+        self.rv = rv
+        Exc.__init__(self, *args)
+
+
+#####################################################
+#
 class Arguments:
     """
     Wrapper for arguments in all controls. All non-"_" control methods are
@@ -284,21 +294,22 @@ class BaseControl:
         """
         try:
             nodepath = self._properties()[property]
+
+            if RELFILE.match(nodepath):
+                nodedata = OMERODIR / path(nodepath)
+            else:
+                nodedata = path(nodepath)
+
+            created = False
+            if not nodedata.exists():
+                self.ctx.out("Creating "+nodedata)
+                nodedata.makedirs()
+                created = True
+            return (nodedata, created)
+
         except KeyError, ke:
             self.ctx.err(property + " is not configured")
-            self.ctx.die(4, ke)
-
-        if RELFILE.match(nodepath):
-            nodedata = OMERODIR / path(nodepath)
-        else:
-            nodedata = path(nodepath)
-
-        created = False
-        if not nodedata.exists():
-            self.ctx.out("Creating "+nodedata)
-            nodedata.makedirs()
-            created = True
-        return (nodedata, created)
+            self.ctx.die(4, str(ke))
 
     def _nodedata(self):
         """
@@ -324,9 +335,14 @@ class BaseControl:
         if created:
             self.ctx.out("""
   Warning:
-  IceGrid.Registry.Data directory not present (%s).
-  You need to run "admin deploy" after this command
-  or no servers will be started.
+  %s,
+  the IceGrid.Registry.Data directory is not present.
+  This is the first time you've started OmeroGrid.
+
+  No servers have been deployed yet. To do so, you
+  will need to run "admin deploy" after the following
+  initialization. See the files under etc/grid/ for
+  example application descriptors.
 
   This warning will not be shown again.
             """ % data)
@@ -382,8 +398,7 @@ class BaseControl:
                 try:
                     self._props.load(str(cfg))
                 except Exc, exc:
-                    self.ctx.err("Could not find file: "+cfg)
-                    self.ctx.die(3, exc)
+                    self.ctx.die(3, "Could not find file: "+cfg + "\nDid you specify the proper node?")
         return self._props.getPropertiesForPrefix(prefix)
 
     ###############################################
@@ -542,7 +557,9 @@ class CLI(cmd.Cmd, Context):
             self.err(str(ae))
             if DEBUG:
                 traceback.print_exc()
-            return False # Continue
+        except NonZeroReturnCode, nzrc:
+            self.rv = nzrc.rv
+        return False # Continue
 
     def postcmd(self, stop, line):
         return self.interrupt_loop
@@ -599,9 +616,11 @@ class CLI(cmd.Cmd, Context):
         self.out(args)
         self.interrupt_loop = True
 
-    def die(self, rc, args):
-        self.err(args)
+    def die(self, rc, text):
+        self.err(text)
+        self.rv = rc
         self.interrupt_loop = True
+        raise NonZeroReturnCode(rc, "die called")
 
     def pub(self, args):
         """
@@ -624,9 +643,9 @@ class CLI(cmd.Cmd, Context):
         """
         Calls the string in a subprocess and dies if the return value is not 0
         """
-        rv = subprocess.call(args)
+        rv = subprocess.call(args, env = os.environ)
         if strict and not rv == 0:
-            self.die(rv, "Error during:\"%s\"" % str(args) )
+            raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
     def conn(self, properties={}, profile=None):
@@ -686,6 +705,8 @@ class CLI(cmd.Cmd, Context):
                 try:
                     self._setup()
                     return self.control.__call__(*args)
+                except NonZeroReturnCode, nzrc:
+                    raise
                 except Exc, exc:
                     if DEBUG:
                         traceback.print_exc()
@@ -741,20 +762,28 @@ def argv(args=pysys.argv):
     Finally, the cli enters a command loop reading from standard in.
     """
 
-    # Modifying the args list if the name of the file
-    # has arguments encoded in it
-    if args[0].find("-") >= 0:
-        parts = args[0].split("-")
-        for arg in args[1:]:
-            parts.append(arg)
-        args = parts
+    # Modiying the run-time environment
+    old_ice_config = os.getenv("ICE_CONFIG")
+    os.unsetenv("ICE_CONFIG")
+    try:
 
-    cli = CLI()
-    cli.loadplugins()
+        # Modifying the args list if the name of the file
+        # has arguments encoded in it
+        if args[0].find("-") >= 0:
+            parts = args[0].split("-")
+            for arg in args[1:]:
+                parts.append(arg)
+            args = parts
 
-    if len(args) > 1:
-        cli.invoke(args[1:])
-        return cli.rv
-    else:
-        cli.invokeloop()
-        return cli.rv
+        cli = CLI()
+        cli.loadplugins()
+
+        if len(args) > 1:
+            cli.invoke(args[1:])
+            return cli.rv
+        else:
+            cli.invokeloop()
+            return cli.rv
+    finally:
+        if old_ice_config:
+            os.putenv("ICE_CONFIG", old_ice_config)

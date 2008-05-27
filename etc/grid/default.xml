@@ -20,25 +20,7 @@
       <object identity="Processor" type="::omero::grid::Processor"/>
     </replica-group>
 
-    <distrib/>
-
      <!-- Templates from Ice-3.2.1/config/templates.xml -->
-    <server-template id="IcePatch2Template">
-       <parameter name="instance-name" default="${application}.IcePatch2"/>
-       <parameter name="endpoints" default="default"/>
-       <parameter name="directory"/>
-       <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="always">
-         <adapter name="IcePatch2" endpoints="${endpoints}">
-           <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
-         </adapter>
-         <properties>
-            <property name="IcePatch2.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
-            <property name="IcePatch2.Admin.RegisterProcess" value="1"/>
-            <property name="IcePatch2.InstanceName" value="${instance-name}"/>
-            <property name="IcePatch2.Directory" value="${directory}"/>
-         </properties>
-       </server>
-    </server-template>
      <server-template id="Glacier2Template">
        <parameter name="instance-name" default="${application}.Glacier2"/>
        <parameter name="client-endpoints"/>
@@ -88,7 +70,6 @@
         <option>lib/omero/processor.py</option>
         <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="ProcessorAdapter" replica-group="ProcessorAdapters" register-process="true" endpoints="tcp"/>
-        <distrib/>
         <properties>
           <property name="Ice.ThreadPool.Client.Size" value="2"/>
           <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
@@ -105,7 +86,6 @@
       <server id="${id}" exe="${exe}" activation="${act}">
         <option>${id}</option>
         <adapter name="${id}Adapter" register-process="true" endpoints="tcp"/>
-        <distrib/>
       </server>
     </server-template>
 
@@ -116,9 +96,6 @@
         server-endpoints="tcp -h 127.0.0.1"/>
       <server-instance template="BlitzTemplate" index="0"/>
       <server-instance template="ProcessorTemplate" index="0"/>
-      <target name="patch">
-        <server-instance template="IcePatch2Template" directory="data"/>
-      </target>
       <target name="postgres">
         <server-instance template="ShellTemplate" id="postgres"/>
       </target>

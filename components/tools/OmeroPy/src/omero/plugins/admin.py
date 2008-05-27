@@ -17,6 +17,7 @@ from path import path
 
 from omero.cli import Arguments
 from omero.cli import BaseControl
+from omero.cli import NonZeroReturnCode
 from omero_ext import pysys
 
 class AdminControl(BaseControl):
@@ -27,12 +28,16 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
 
                                           : No argument opens a command shell
 
-           adduser login first last       : Add user 
-           check                          : Run various checks on the installation. Done automatically for some commands.
            deploy filename [ targets ]    : Deploy the given deployment descriptor. See etc/grid/*.xml
+                                          : If the first argument is not a file path, etc/grid/default.xml
+                                          : will be deployed by default.
+
            start                          : Start server daemon and return immediately.
+
            stop                           : Send server stop command and return immediately.
+
            status                         : Status of server
+
            ice [arg1 arg2 ...]            : Drop user into icegridadmin console or execute arguments
 
         """)
@@ -84,7 +89,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         then registers the action: "node HOST start"
         """
         props = self._properties()
-        # Do the check
+        # Do a check to see if we've started before.
         self._regdata()
         self.check([])
         self.ctx.pub(["node", self._node(), "start"])
@@ -106,18 +111,21 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         command = self._cmd()
         first,other = args.firstOther()
 
-        if first == None or len(first) == 0:
-            self.ctx.err("No file given")
-        else:
+        descrpt = None
+        targets = " ".join(other)
+
+        if first != None and len(first) > 0:
             # Relative to cwd
             descrpt = path(first)
-            targets = " ".join(other)
 
-            if not descrpt.exists():
-                self.ctx.err("%s does not exist" % str(path))
-            else:
-                command = command + ["-e","application add %s %s" % (descrpt, targets) ]
-                self.ctx.popen(command)
+        if descrpt == None or not descrpt.exists():
+            # If descript is not a file, then it must be a target
+            targets = " ".join([str(descrpt), targets])
+            descrpt = self.dir / "etc" / "grid" / "default.xml"
+            self.ctx.err("No descriptor given. Using etc/grid/default.xml")
+
+            command = command + ["-e","application add %s %s" % (descrpt, targets) ]
+            self.ctx.popen(command)
 
     def status(self, args):
         args = Arguments(args)
@@ -141,9 +149,11 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
 
     def stop(self, args):
         command = self._cmd("-e","node shutdown master")
-        self.ctx.popen(command)
-        # Was:
-        # self.ctx.pub(["node", self._node(), "stop"])
+        try:
+            self.ctx.popen(command)
+        except NonZeroReturnCode, nzrc:
+            self.ctx.rv = nzrv.rv
+            self.ctx.out("Was the server already stopped?")
 
     def check(self, args):
         # print "Check db. Have a way to load the db control"

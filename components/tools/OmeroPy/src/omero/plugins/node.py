@@ -19,6 +19,39 @@ from path import path
 
 RE=re.compile("^\s*(\S*)\s*(start|stop|restart|status)\s*(\S*)\s*$")
 
+#From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/157035
+def tail_lines(filename,linesback=10,returnlist=0):
+    """Does what "tail -10 filename" would have done
+       Parameters:
+            filename   file to read
+            linesback  Number of lines to read from end of file
+            returnlist Return a list containing the lines instead of a string
+
+    """
+    avgcharsperline=75
+
+    file = open(filename,'r')
+    while 1:
+        try: file.seek(-1 * avgcharsperline * linesback,2)
+        except IOError: file.seek(0)
+        if file.tell() == 0: atstart=1
+        else: atstart=0
+
+        lines=file.read().split("\n")
+        if (len(lines) > (linesback+1)) or atstart: break
+        #The lines are bigger than we thought
+        avgcharsperline=avgcharsperline * 1.3 #Inc avg for retry
+    file.close()
+
+    if len(lines) > linesback: start=len(lines)-linesback -1
+    else: start=0
+    if returnlist: return lines[start:len(lines)-1]
+
+    out=""
+    for l in lines[start:len(lines)-1]: out=out + l + "\n"
+    return out
+
+
 class NodeControl(BaseControl):
 
     def help(self, args = None):
@@ -73,12 +106,11 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
                 for act in acts:
                     c = getattr(self, act)
                     c(name, sync)
+        finally:
+            pass
 
-        except Exc, ex:
-            import traceback
-            traceback.print_exc()
-            self.ctx.dbg(str(ex))
-            self.ctx.die(100, "Bad argument: "+ str(first) + ", " + ", ".join(other))
+            #self.ctx.dbg(str(ex))
+            #self.ctx.die(100, "Bad argument: "+ str(first) + ", " + ", ".join(other))
 
     ##############################################
     #
@@ -102,7 +134,13 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         props = self._properties()
         command = ["icegridnode", self._icecfg()]
         command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
-        self.ctx.popen(command)
+        try:
+            self.ctx.popen(command)
+        except NonZeroReturnCode, nzrc:
+            self.ctx.rv = nzrc.rv
+            myoutput = path(props["Ice.StdErr"])
+            print "from %s:" % str(myoutput)
+            print tail_lines(str(myoutput),2)
 
     def status(self, name = None):
 
