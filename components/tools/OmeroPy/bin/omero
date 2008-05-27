@@ -9,10 +9,6 @@ Copyright (c) 2007, Glencoe Software, Inc.
 See LICENSE for details.
 
 """
-
-usage = """ usage: omero [-h|--help|--version] """
-version = " omero 1.0. Copyright 2007, Glencoe Software, Inc."
-
 import sys, os
 
 def readlink(file=sys.argv[0]):
@@ -38,11 +34,11 @@ else:
 top = os.path.normpath(top)
 lib = os.path.join(top, "lib")
 sys.path.append(lib)
-os.chdir(top)
 
 try:
     import omero.cli
-    omero.cli.argv()
+    rv = omero.cli.argv()
+    sys.exit(rv)
 except KeyboardInterrupt, ki:
     print "Cancelled"
     sys.exit(1)

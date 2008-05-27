@@ -22,6 +22,14 @@ from omero.cli import Arguments, BaseControl, VERSION
 
 class HelpControl(BaseControl):
 
+    def _complete(self, text, line, begidx, endidx):
+        """
+        This is something of a hack. This should either be a part
+        of the context interface, or we should put it somewhere
+        in a utility. FIXME.
+        """
+        return self.ctx.completenames(text, line, begidx, endidx)
+
     def help(self, args = None):
         self.out("Print help")
 

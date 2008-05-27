@@ -32,7 +32,6 @@ import Ice
 #
 
 VERSION=1.0
-COMMENT = re.compile("^\s*#")
 DEBUG = False
 if os.environ.has_key("DEBUG"):
     print "Running omero with debugging on"
@@ -44,6 +43,10 @@ TEXT="""
 
 OMEROCLI = path(__file__).expand().dirname()
 OMERODIR = OMEROCLI.dirname().dirname()
+
+COMMENT = re.compile("^\s*#")
+RELFILE = re.compile("^\w")
+LINEWSP = re.compile("^\s*\w+\s+")
 
 #
 # Possibilities:
@@ -59,6 +62,9 @@ OMERODIR = OMEROCLI.dirname().dirname()
 #  - In almost all cases, mark a flag in the CLI "lastError" and continue,
 #    allowing users to do something of the form: on_success or on_fail
 
+
+#####################################################
+#
 class Arguments:
     """
     Wrapper for arguments in all controls. All non-"_" control methods are
@@ -134,6 +140,8 @@ class Arguments:
     def join(self, text):
         return text.join(self.args)
 
+#####################################################
+#
 class Context:
     """Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.
@@ -213,6 +221,8 @@ class Context:
 
 
 
+#####################################################
+#
 class BaseControl:
     """Controls get registered with a CLI instance on loadplugins().
 
@@ -267,7 +277,30 @@ class BaseControl:
         else:
             return self._host()
 
-    def _data(self):
+    def _icedata(self, property):
+        """
+        General data for getting an creating a path from
+        an Ice property.
+        """
+        try:
+            nodepath = self._properties()[property]
+        except KeyError, ke:
+            self.ctx.err(property + " is not configured")
+            self.ctx.die(4, ke)
+
+        if RELFILE.match(nodepath):
+            nodedata = OMERODIR / path(nodepath)
+        else:
+            nodedata = path(nodepath)
+
+        created = False
+        if not nodedata.exists():
+            self.ctx.out("Creating "+nodedata)
+            nodedata.makedirs()
+            created = True
+        return (nodedata, created)
+
+    def _nodedata(self):
         """
         Returns the data directory path for this node. This is determined
         from the "IceGrid.Node.Data" property in the _properties()
@@ -275,23 +308,35 @@ class BaseControl:
 
         The directory will be created if it does not exist.
         """
-        try:
-            nodedata = path(self._properties()["IceGrid.Node.Data"])
-        except KeyError, ke:
-            self.ctx.err("IceGrid.Node.Data is not configured")
-            self.ctx.die(4, ke)
+        data, created = self._icedata("IceGrid.Node.Data")
+        return data
 
-        if not nodedata.exists():
-            self.ctx.out("Creating "+nodedata)
-            nodedata.makedirs()
-        return nodedata
+    def _regdata(self):
+        """
+        Returns the data directory for the IceGrid registry.
+        This is determined from the "IceGrid.Registry.Data" property
+        in the _properties() map.
+
+        The directory will be created if it does not exist, and
+        a warning issued.
+        """
+        data, created = self._icedata("IceGrid.Registry.Data")
+        if created:
+            self.ctx.out("""
+  Warning:
+  IceGrid.Registry.Data directory not present (%s).
+  You need to run "admin deploy" after this command
+  or no servers will be started.
+
+  This warning will not be shown again.
+            """ % data)
 
     def _pid(self):
         """
-        Returns a path of the form "_data() / _node() + ".pid",
+        Returns a path of the form "_nodedata() / _node() + ".pid",
         i.e. a file named NODENAME.pid in the node's data directory.
         """
-        pidfile = self._data() / (self._node() + ".pid")
+        pidfile = self._nodedata() / (self._node() + ".pid")
         return pidfile
 
     def _cfglist(self):
@@ -314,6 +359,15 @@ class BaseControl:
         """
         icecfg = "--Ice.Config=%s" % ",".join(self._cfglist())
         return icecfg
+
+    def _intcfg(self):
+        """
+        Returns an Ice.Config string with only the internal configuration
+        file for connecting to the IceGrid Locator.
+        """
+        intcfg = self.dir / "etc" / "internal.cfg"
+        intcfg.abspath()
+        return "--Ice.Config=%s" % intcfg
 
     def _properties(self, prefix=""):
         """
@@ -441,6 +495,7 @@ class CLI(cmd.Cmd, Context):
         self.prompt = 'omero> '
         self.interrupt_loop = False
         self._client = None
+        self.rv = 0 # Return value to be returned
 
     def invoke(self, line):
         """
@@ -478,6 +533,9 @@ class CLI(cmd.Cmd, Context):
 
     def onecmd(self, line):
         try:
+            # Starting a new command. Reset the return value to 0
+            # If err or die are called, set rv non-0 value
+            self.rv = 0
             return cmd.Cmd.onecmd(self, line)
         except AttributeError, ae:
             self.err("Possible error in plugin:")
@@ -515,11 +573,11 @@ class CLI(cmd.Cmd, Context):
         if arg.startswith("EOF"):
             self.exit("")
         else:
-            self.err("Unkown command: " + arg)
+            self.err("Unknown command: " + arg)
 
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
-        return [ str(n + " ") for n in names if n.startswith(text) ]
+        return [ str(n + " ") for n in names if n.startswith(line) ]
 
     # Delegation
     def do_start(self, args):
@@ -543,7 +601,7 @@ class CLI(cmd.Cmd, Context):
 
     def die(self, rc, args):
         self.err(args)
-        pysys.exit(rc)
+        self.interrupt_loop = True
 
     def pub(self, args):
         """
@@ -591,12 +649,20 @@ class CLI(cmd.Cmd, Context):
         data.properties = Ice.createProperties()
         for line in output.splitlines():
            parts = line.split("=",1)
-           data.properties.setProperty(parts[0],parts[1])
+           if len(parts) == 2:
+               data.properties.setProperty(parts[0],parts[1])
+           else:
+               if DEBUG:
+                   self.err("Bad property:"+str(parts))
 
         import omero
-        self._client = omero.client(pysys.argv, id = data)
-        self._client.createSession()
-        return self._client
+        try:
+            self._client = omero.client(pysys.argv, id = data)
+            self._client.createSession()
+            return self._client
+        except Exc, exc:
+            self._client = None
+            raise exc
 
     ##
     ## Plugin registry
@@ -688,5 +754,7 @@ def argv(args=pysys.argv):
 
     if len(args) > 1:
         cli.invoke(args[1:])
+        return cli.rv
     else:
         cli.invokeloop()
+        return cli.rv

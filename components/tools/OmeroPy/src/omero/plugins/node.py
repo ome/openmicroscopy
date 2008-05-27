@@ -82,7 +82,9 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
 
     ##############################################
     #
-    # Commands
+    # Commands : Since node plugin implements its own
+    # __call__() method, the pattern for the following
+    # commands is somewhat different.
     #
 
     def start(self, name = None, sync = False):
@@ -91,11 +93,8 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
             name = self._node()
 
         props = self._properties()
-        nodedata = path(props["IceGrid.Node.Data"])
+        nodedata = self._nodedata()
         logdata = path(props["Ice.StdOut"]).dirname()
-        if not nodedata.exists():
-            self.ctx.out("Initializing %s" % nodedata)
-            nodedata.makedirs()
         if not logdata.exists():
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
@@ -104,6 +103,13 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         command = ["icegridnode", self._icecfg()]
         command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
         self.ctx.popen(command)
+
+    def status(self, name = None):
+
+        if name == None:
+            name = self._node()
+
+        self.ctx.pub(["admin","status",name])
 
     def stop(self, name = None, sync = False):
         if name == None:

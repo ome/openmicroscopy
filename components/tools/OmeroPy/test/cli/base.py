@@ -23,6 +23,5 @@ class TestBase(unittest.TestCase):
         c = BaseControl()
         c._oneArg("a")
         c("a")
-
 if __name__ == '__main__':
     unittest.main()

@@ -24,13 +24,17 @@ class AdminControl(BaseControl):
     def help(self, args = None):
         self.ctx.out( """
 Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
-                       --    No argument opens a command shell
-           adduser     --
-           check       --
-           deploy      --    filename [ target1 [target2 [..] ] ]
-           start       --
-           stop        --
-           status      --
+
+                                          : No argument opens a command shell
+
+           adduser login first last       : Add user 
+           check                          : Run various checks on the installation. Done automatically for some commands.
+           deploy filename [ targets ]    : Deploy the given deployment descriptor. See etc/grid/*.xml
+           start                          : Start server daemon and return immediately.
+           stop                           : Send server stop command and return immediately.
+           status                         : Status of server
+           ice [arg1 arg2 ...]            : Drop user into icegridadmin console or execute arguments
+
         """)
 
     def _complete(self, text, line, begidx, endidx):
@@ -47,6 +51,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
             else:
                 results = [ str(i.basename()) for i in self.dir.glob(f+"*")  ]
                 if len(results) == 1:
+                    # Relative to cwd
                     maybe_dir = path(results[0])
                     if maybe_dir.exists() and maybe_dir.isdir():
                         return [ results[0] + os.sep ]
@@ -64,6 +69,10 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         else:
             return "master"
 
+    def _cmd(self, *args):
+        command = ["icegridadmin", self._intcfg() ]
+        command.extend(args)
+        return command
     ##############################################
     #
     # Commands
@@ -75,41 +84,63 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         then registers the action: "node HOST start"
         """
         props = self._properties()
-        regdata = path(props["IceGrid.Registry.Data"])
-        if not regdata.exists():
-            self.ctx.out("""
-  Warning:
-  IceGrid.Registry.Data directory not present (%s).
-  You need to run "admin deploy" after this command
-  or no servers will be started.
-
-  This warning will not be shown again.
-            """ % regdata)
-            regdata.makedirs()
-
+        # Do the check
+        self._regdata()
         self.check([])
         self.ctx.pub(["node", self._node(), "start"])
 
+    def startandwait(self, args):
+
+        self.start(args)
+        self.ctx.out("Waiting on servers to start (Ctrl-C to cancel)")
+        self.ctx.rv = 1
+        while self.ctx.rv != 0:
+            try:
+                self.status([])
+            except KeyboardInterrupt, ki:
+                self.ctx.out("Cancelled")
+                break
+
     def deploy(self, args):
         args = Arguments(args)
-        command = ["icegridadmin", self._icecfg()]
+        command = self._cmd()
         first,other = args.firstOther()
 
         if first == None or len(first) == 0:
             self.ctx.err("No file given")
         else:
+            # Relative to cwd
             descrpt = path(first)
             targets = " ".join(other)
 
             if not descrpt.exists():
-                self.ctx.err("%s does not exist" % path)
+                self.ctx.err("%s does not exist" % str(path))
             else:
                 command = command + ["-e","application add %s %s" % (descrpt, targets) ]
                 self.ctx.popen(command)
 
+    def status(self, args):
+        args = Arguments(args)
+        first,other = args.firstOther()
+        if first == None:
+            first = "master"
+
+        command = self._cmd("-e","node ping %s" % first)
+        self.ctx.rv = self.ctx.popen(command, False)
+
+        if self.ctx.rv == 0 and first == "master":
+            # If we're checking master, then we also need to be sure that it's all the way up
+            self.ctx.rv = 1
+            try:
+                client = self.ctx.conn()
+                self.ctx.rv = 0
+            except Exc, exc:
+                self.ctx.dbg(str(exc))
+                self.ctx.err("Server not reachable")
+        return self.ctx.rv
+
     def stop(self, args):
-        command = ["icegridadmin", self._icecfg()]
-        command = command + ["-e","node shutdown master"]
+        command = self._cmd("-e","node shutdown master")
         self.ctx.popen(command)
         # Was:
         # self.ctx.pub(["node", self._node(), "stop"])
@@ -118,9 +149,9 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         # print "Check db. Have a way to load the db control"
         pass
 
-    def grid(self, args):
+    def ice(self, args):
         args = Arguments(args)
-        command = ["icegridadmin","--Ice.Config=etc/internal.cfg" ]
+        command = self._cmd()
         if len(args) > 0:
             command.extend(["-e",args.join(" ")])
             return self.ctx.popen(command)
