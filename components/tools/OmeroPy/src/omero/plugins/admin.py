@@ -58,7 +58,10 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         self.event.pub(["node", self._node(), "start"])
 
     def stop(self):
-        self.event.pub(["node", self._node(), "stop"])
+        command = ["icegridadmin", self._icecfg()]
+        command = command + ["-e","node shutdown master"]
+        self.event.popen(command)
+        #self.event.pub(["node", self._node(), "stop"])
 
     def check(self):
         print "Check db. Have a way to load the db control"

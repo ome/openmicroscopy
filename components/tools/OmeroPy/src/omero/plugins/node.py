@@ -13,8 +13,10 @@
 
 from omero.cli import BaseControl
 from omero_ext.strings import shlex
-import os, sys, subprocess, signal
+import re, os, sys, subprocess, signal
 from exceptions import Exception as Exc
+
+RE=re.compile("^\s*(\S*)\s*(start|stop|restart|status)\s*(\S*)\s*$")
 
 class NodeControl(BaseControl):
 
@@ -28,6 +30,27 @@ class NodeControl(BaseControl):
         Node name defaults to "default" configuration if not defined.
         Configurations are defined in the etc/ directory of the install.
         """
+
+    def _likes(self, args):
+        return RE.match(" ".join(args)) and True or False
+
+    def __call__(self, *args):
+        if len(args) == 0 or len(args[0]) == 0:
+            return self(["help"])
+
+        string = " ".join(args[0])
+        self.event.dbg(string)
+
+        try:
+            omero_node, command, wait = RE.match(string).groups()
+            if omero_node != None:
+                os.environ["OMERO_NODE"] = omero_node
+            cmd = getattr(self, command)
+            cmd()
+        except Exc, ex:
+            self.event.dbg(str(ex))
+            self.event.die("Bad argument string:"+string)
+
 
     def start(self):
         props = self._properties()

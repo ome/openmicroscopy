@@ -45,6 +45,7 @@ OMEROCLI = path(__file__).expand().dirname()
 # Possibilities:
 #  - Always return and print any output
 #  - Have a callback on the fired event
+#  - noneOneSome(lambda, lamda, lamda) method for args with shlex built in
 
 
 class Event:
@@ -53,7 +54,7 @@ class Event:
     The Event class is designed to increase pluggability. Rather than
     making calls directly on other plugins directly, the pub() method
     routes messages to other commands. Similarly, out() and err() should
-    be used for printing statements to the user, and die() should be 
+    be used for printing statements to the user, and die() should be
     used for exiting fatally.
 
     The CLI registry which registers the plugins installs itself as the
@@ -64,10 +65,14 @@ class Event:
         print args
 
     def out(self, text):
-        print >>pysys.stdout, text % {"program_name":pysys.argv[0]}
+        print >>pysys.stdout, (text % {"program_name": pysys.argv[0]})
 
     def err(self, text):
-        print >>pysys.stderr, text
+        print >>pysys.stderr, (text % {"program_name": pysys.argv[0]})
+
+    def dbg(self, text):
+        if DEBUG:
+            self.err(text)
 
     def die(self, args):
         raise exceptions.Exception(args)
@@ -112,7 +117,7 @@ class BaseControl:
         return nodedata
 
     def _pid(self):
-        pidfile = self._data() / (self._name() + ".pid")
+        pidfile = self._data() / (self._node() + ".pid")
         return pidfile
 
     def _cfglist(self):
@@ -153,14 +158,22 @@ class BaseControl:
         return False
 
     def __call__(self, *args):
+
+        # For empty varargs
         if len(args) == 0:
             return self._noargs()
 
         elif len(args) == 1:
+            # For empty first parameter
             args = shlex(args[0])
+            if len(args) == 0:
+                return self._noargs()
             if not self._likes(args):
-                self.event.err("%s cannot handle arguments: %s" % (self, args))
-                self.event.abort()
+                if DEBUG:
+                    raise Exc("Bad argument:"+str(args))
+                self.event.err("Bad arguments:"+",".join(args))
+                self.help()
+                self.event.die("Exiting.")
             else:
                 m = getattr(self, args[0])
                 if len(args) > 1:
@@ -199,6 +212,7 @@ class CLI(cmd.Cmd, Event):
         self.prompt = 'omero> '
         self.interrupt_loop = False
         self._client = None
+        self._controls = {}
 
     def invoke(self, line):
         """
@@ -359,28 +373,40 @@ class CLI(cmd.Cmd, Event):
         print "load file as if it were sent on standard in. File tab-complete %s" % status
 
     # Delegation
-    def do_start(self, arg):
+    def do_start(self, args):
         """
         Alias for "node start"
         """
-        arg = self.shlex(arg)
-        if not arg:
-            arg = "start"
+        args = shlex(args)
+        if not args:
+            args = ["start"]
         else:
-            arg = ["start"] + arg
-        self.do_node(arg)
+            args = ["start"] + args
+        self.pub(args)
 
     ##
     ## Event interface
     ##
     def pub(self, args):
-        Event.pub(self, args)
+        args = shlex(args)
+        if len(args) == 0:
+           self.event.die("Don't know what to do")
+        elif len(args) > 0:
+            cmd = args[0]
+            control = self._controls[cmd]
+            if len(args) == 1:
+                control()
+            else:
+                control(args[1:])
 
     def out(self, text):
         Event.pub(self, text)
 
     def err(self, text):
         Event.err(self, text)
+
+    def dbg(self, text):
+        Event.dbg(self, text)
 
     def die(self, args):
         Event.err(self, args)
@@ -426,6 +452,7 @@ class CLI(cmd.Cmd, Event):
         control.event = self
         setattr(self, "do_" + control._name(), control.__call__)
         setattr(self, "help_" + control._name(), control.help)
+        self._controls[control._name()] = control
 
     def loadplugins(self):
         """ Finds all plugins and gives them a chance to register
