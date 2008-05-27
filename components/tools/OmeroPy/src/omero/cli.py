@@ -46,6 +46,10 @@ OMERODIR = OMEROCLI.dirname().dirname()
 # Possibilities:
 #  - Always return and print any output
 #  - Have a callback on the fired event
+#  - switch register() to take a class.
+#  - add an argument class which is always used at the top of a control
+#    def somemethod(self, args): # args always assumed to be a shlex'd arg, but checked
+#        arg = Argument(args)
 
 def noneOneSome(none, one, some, args):
     """
@@ -60,6 +64,21 @@ def noneOneSome(none, one, some, args):
     if args == None or len(args) == 0: return none()
     elif len(args) == 1: return one(args[0])
     else: return some(args[0], args[1:])
+
+def safePrint(text, stream):
+    """
+    Prints text to a given string, caputring any exceptions.
+    """
+    if not isinstance(text,str):
+        if DEBUG:
+            print >>pysys.stderr, "Received text argument of type "+str(type(text))
+        text = str(text)
+    try:
+        print >>stream, (text % {"program_name": pysys.argv[0]})
+    except:
+        print >>pysys.stderr, "Error printing text"
+        if DEBUG: traceback.print_exc()
+        print >>pysys.stdout, text
 
 
 class Context:
@@ -93,18 +112,10 @@ class Context:
         print args
 
     def out(self, text):
-        try:
-            print >>pysys.stdout, (text % {"program_name": pysys.argv[0]})
-        except:
-            print >>pysys.stderr, "Error printing text"
-            print >>pysys.stdout, text
+        safePrint(text, pysys.stdout)
 
     def err(self, text):
-        try:
-            print >>pysys.stderr, (text % {"program_name": pysys.argv[0]})
-        except:
-            print >>pysys.stderr, "Error printing text"
-            print >>pysys.stderr, text
+        safePrint(text, pysys.stderr)
 
     def dbg(self, text):
         if DEBUG:
@@ -162,13 +173,19 @@ class BaseControl:
                 self.hostname = self.hostname.split(".")[0]
         return self.hostname
 
-    def _node(self):
+    def _node(self, omero_node = None):
         """
         Return the name of this node, using either the environment
         vairable OMERO_NODE or _host(). Some subclasses may
         override this functionality, most notably "admin" commands
         which assume a node name of "master".
+
+        If the optional argument is not None, then the OMERO_NODE
+        environment variable will be set.
         """
+        if omero_node != None:
+                os.environ["OMERO_NODE"] = omero_node
+
         if os.environ.has_key("OMERO_NODE"):
             return os.environ["OMERO_NODE"]
         else:
@@ -208,7 +225,7 @@ class BaseControl:
         followed by a file named NODENAME.cfg under the etc/
         directory.
         """
-        cfgs = self.omeroDir / "etc"
+        cfgs = self.dir / "etc"
         internal = cfgs / "internal.cfg"
         owncfg = cfgs / self._node() + ".cfg"
         return (internal,owncfg)
@@ -280,9 +297,9 @@ class BaseControl:
         if len(args) == 0:
             return self._noargs()
         elif len(args) == 1:
-            none = lambda : self._noargs
-            one  = lambda x : self._onearg
-            some = lambda x,args : self._someargs
+            none = lambda : self._noargs()
+            one  = lambda x : self._onearg(x)
+            some = lambda x,args : self._someargs(x,args)
             args = shlex(args[0])
             noneOneSome(none, one, some, args)
         else:
@@ -514,11 +531,14 @@ For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/Ome
         """
         Publishes the command as given via noneOneSome logic
         """
-        args = shlex(args)
-        none = lambda: self.ctx.die(2, "Don't know what to do")
-        one  = lambda c: self._controls[c]()
-        some = lambda c, args: self._controls[c](args)
-        noneOneSome(none, one, some, args)
+        try:
+            args = shlex(args)
+            none = lambda: self.ctx.die(2, "Don't know what to do")
+            one  = lambda c: self._controls[c]()
+            some = lambda c, args: self._controls[c](args)
+            noneOneSome(none, one, some, args)
+        except KeyError, ke:
+            self.die(11, "Missing required plugin: "+ str(ke))
 
     def popen(self, string):
         """
@@ -566,9 +586,8 @@ For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/Ome
         passed to the register method which will be added to the CLI.
         """
         control.ctx = self
-        setattr(self, "do_" + control._name(), control.__call__)
-        setattr(self, "help_" + control._name(), control.help)
         self._controls[control._name()] = control
+        setattr(self, "do_" + control._name(), control.__call__)
 
     def loadplugins(self):
         """ Finds all plugins and gives them a chance to register

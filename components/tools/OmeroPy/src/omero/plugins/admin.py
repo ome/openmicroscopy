@@ -25,15 +25,19 @@ class AdminControl(BaseControl):
         self.ctx.out( """
 Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
                        --    No argument opens a command shell
-           check       --
            adduser     --
+           check       --
+           deploy      --    filename [ target1 [target2 [..] ] ]
            start       --
            stop        --
            status      --
         """)
 
-    def _node(self):
+    def _node(self, omero_node = None):
         """ Overrides the regular node() logic to return the value of OMERO_MASTER or "master" """
+        if omero_node != None:
+            os.environ["OMERO_MASTER"] = omero_node
+
         if os.environ.has_key("OMERO_MASTER"):
             return os.environ["OMERO_MASTER"]
         else:
@@ -50,16 +54,31 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         then registers the action: "node HOST start"
         """
         props = self._properties()
-        nodedata = path(props["IceGrid.Node.Data"])
         regdata = path(props["IceGrid.Registry.Data"])
-        logdata = path(props["Ice.StdOut"]).dirname()
-        if not nodedata.exists() or not regdata.exists() or not logdata.exists():
-            if not nodedata.exists(): self.ctx.err("Missing %s" % nodedata)
-            if not regdata.exists(): self.ctx.err("Missing %s" % regdata)
-            if not logdata.exists(): self.ctx.err("Missing %s" % logdata)
-            self.ctx.out("""Master directories not all present. You may need to run "admin deploy" """)
+        if not regdata.exists():
+            self.ctx.out("""
+  Warning:
+  IceGrid.Registry.Data directory not present (%s).
+  You need to run "admin deploy" after this command
+  or no servers will be started.
+
+  This warning will not be shown again.
+            """ % regdata)
+            regdata.makedirs()
+
         self.check()
         self.ctx.pub(["node", self._node(), "start"])
+
+    def deploy(self, args):
+        command = ["icegridadmin", self._icecfg()]
+        descrpt = path(args[0])
+        if not descrpt.exists():
+            self.die(20,"%s does not exist" % path)
+        targets = ""
+        if len(args) > 1: # Should be in Argument class
+            targets = " ".join(args[1:])
+        command = command + ["-e","application add %s %s" % (str(descrpt), targets) ]
+        self.ctx.popen(command)
 
     def stop(self):
         command = ["icegridadmin", self._icecfg()]
