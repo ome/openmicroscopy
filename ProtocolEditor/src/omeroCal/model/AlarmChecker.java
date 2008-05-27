@@ -380,7 +380,7 @@ public class AlarmChecker {
         	Calendar now = new GregorianCalendar();
         	String UTCmillis = Long.toString(now.getTimeInMillis());
         	
-        	System.out.println("Saving shutdown time...");
+        	System.out.println("AlarmChecker Saving shutdown time...");
         	PreferencesManager.setPreference(PreferencesManager.SHUTDOWN_TIME_UTC, UTCmillis);
         }
     }

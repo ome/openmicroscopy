@@ -137,14 +137,7 @@ public class WindowSaver implements AWTEventListener {
      * @throws IOException
      */
     public static void loadSettings(JFrame frame) throws IOException {
-        Properties settings = new Properties();
-        // if this file does not already exist, create an empty one
-        try {
-            settings.load(new FileInputStream("configuration.props"));
-        } catch (FileNotFoundException fnfe) {
-            settings.store (new FileOutputStream ("configuration.props"),
-                            "Window settings");
-        }
+    	
         String name = frame.getName();
         
         /*
@@ -159,10 +152,10 @@ public class WindowSaver implements AWTEventListener {
         int defaultW = frame.getWidth();
         int defaultH = frame.getHeight();
         
-        int x = getInt(settings,name+".x",defaultX); 
-        int y = getInt(settings,name+".y",defaultY);
-        int w = getInt(settings,name+".w",defaultW);
-        int h = getInt(settings,name+".h",defaultH);
+        int x = getInt(name+".x",defaultX); 
+        int y = getInt(name+".y",defaultY);
+        int w = getInt(name+".w",defaultW);
+        int h = getInt(name+".h",defaultH);
         
         frame.setLocation(x,y);
         frame.setSize(new Dimension(w,h));
@@ -180,8 +173,9 @@ public class WindowSaver implements AWTEventListener {
      * 
      * @return		The integer value of the property
      */
-    public static int getInt(Properties props, String name, int value) {
-        String v = props.getProperty(name);
+    public static int getInt(String name, int value) {
+        String v = PreferencesManager.getPreference(name);
+        System.out.println("getInt: " + name + " = " + v);
         if(v == null) {
             return value;
         }
@@ -198,13 +192,8 @@ public class WindowSaver implements AWTEventListener {
      * 
      * @throws IOException
      */
-    public static void saveSettings() throws IOException {
-        Properties settings = new Properties();
-        try {
-            settings.load(new FileInputStream("configuration.props"));
-        } catch (FileNotFoundException fnfe) {
-            // quietly ignore and overwrite anyways
-        }
+    public static void saveSettings() {
+        
         Iterator it = getInstance().framemap.keySet().iterator();
         while(it.hasNext()) {
             String name = (String)it.next();
@@ -217,12 +206,11 @@ public class WindowSaver implements AWTEventListener {
             	continue;
             }
             
-            settings.setProperty(name+".x",""+frame.getX());
-            settings.setProperty(name+".y",""+frame.getY());
-            settings.setProperty(name+".w",""+frame.getWidth());
-            settings.setProperty(name+".h",""+frame.getHeight());
+            PreferencesManager.setPreference(name+".x",""+frame.getX());
+            PreferencesManager.setPreference(name+".y",""+frame.getY());
+            PreferencesManager.setPreference(name+".w",""+frame.getWidth());
+            PreferencesManager.setPreference(name+".h",""+frame.getHeight());
         }
-        settings.store(new FileOutputStream("configuration.props"),null);
     }
     
     public static void p(String str) {

@@ -83,15 +83,33 @@ public class StartupShutdown {
 	 * when the application shutsDown.
 	 * It should be used to call any other static methods that need to be run
 	 * when the application quits.  
+	 * WARNING: This method doesn't seem to work for actions that save 
+	 * data using PreferencesManager.setPreference();
+	 * Although the setPreference() method is called, the data doesn't persist
+	 * until the next time the application is run. 
+	 * Use 
+	 * prepareForSystemExit() instead. 
+	 * 
+	 * @see 	prepareForSystemExit()
 	 */
 	public static void runShutDown() {
 		
-		 try {
-			WindowSaver.saveSettings();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//WindowSaver.saveSettings();
+		
+	}
+	
+	
+	/**
+	 * This is called by the "Really Quit" dialog if the user confirms,
+	 * right before System.exit(0) is called. 
+	 * This dialog etc is currently in TaskBarManager.java
+	 * 
+	 * This method can be used to save settings etc,
+	 * using PreferencesManager.setPreference();
+	 */
+	public static void prepareForSystemExit() {
+		
+		WindowSaver.saveSettings();
 	}
 	
 	/**

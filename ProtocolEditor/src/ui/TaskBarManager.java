@@ -56,6 +56,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import util.MacOSMenuHandler;
+import util.WindowSaver;
+import xmlMVC.StartupShutdown;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -239,6 +241,9 @@ class TaskBarManager
 		
 		int n = JOptionPane.showConfirmDialog(null, "Really Quit?");
 		if (n == JOptionPane.YES_OPTION) {
+			
+			// save settings etc..
+			StartupShutdown.prepareForSystemExit();
 			
 			System.exit(0);
 
