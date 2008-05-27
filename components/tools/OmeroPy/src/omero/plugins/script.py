@@ -18,22 +18,31 @@
 """
 
 import subprocess, os, sys
+from omero.cli import BaseControl
 
-def do_script(self, arg):
-    """
-    syntax: script file [configuration parameters]
+class ScriptControl(BaseControl):
 
-    """
-    if hasattr(self, "secure"):
-        self.throw("Secure cli cannot execture python scripts")
-    args = self.shlex(arg)
-    if len(args) < 1:
-        self.throw("No file given")
-    env = os.environ
-    env["PYTHONPATH"] = self.pythonpath()
-    p = subprocess.Popen(args,env=os.environ)
-    p.wait()
-    if p.poll() != 0:
-        self.throw("Execution failed.")
+    def _name(self):
+        return "script"
 
-CLI.do_script = do_script
+    def do_script(self, arg):
+        """
+        syntax: script file [configuration parameters]
+        """
+        if hasattr(self, "secure"):
+            self.throw("Secure cli cannot execture python scripts")
+        args = self.shlex(arg)
+        if len(args) < 1:
+            self.throw("No file given")
+        env = os.environ
+        env["PYTHONPATH"] = self.pythonpath()
+        p = subprocess.Popen(args,env=os.environ)
+        p.wait()
+        if p.poll() != 0:
+            self.throw("Execution failed.")
+
+c = ScriptControl(None, None)
+try:
+    register(c)
+except NameError:
+    c._main()

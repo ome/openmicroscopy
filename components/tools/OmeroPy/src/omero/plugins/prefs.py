@@ -12,13 +12,23 @@
 
 """
 
+from omero.cli import BaseControl
+from omero_ext.strings import shlex
+import omero.java
 
-def do_prefs(self, arg):
-    import omero.java, shlex
-    print omero.java.run(["prefs"]+shlex.split(arg))
+class PrefsControl(BaseControl):
 
-CLI.do_prefs = do_prefs
 
-def help_prefs(self):
-    print "syntax: prefs",
-    print "-- access to java properties"
+    def help(self):
+        return """syntax: prefs
+   -- access to java properties
+       """
+
+    def _run(self, args):
+        print omero.java.run(["prefs"]+shlex(args))
+
+c = PrefsControl(None, None)
+try:
+    register(c)
+except NameError:
+    c._main()

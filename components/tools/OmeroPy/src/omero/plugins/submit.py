@@ -10,7 +10,7 @@
 
 """
 
-
+from omero.cli import CLI, BaseControl
 import cmd, sys, exceptions
 import sys
 
@@ -41,22 +41,31 @@ class SubmitCLI(CLI):
         raise Cancel()
 
     def execute(self):
-        print "Uploading" 
+        print "Uploading"
         print submit.queue
 
-def do_submit(self, arg):
-    submit = SubmitCLI()
-    if arg and len(arg) > 0:
-        submit.invoke(arg)
-        submit.execute()
-    else:
-        try:
-            submit.invokeloop()
-        except Save, s:
-            submit.execute()
-        except Cancel, c:
-            l = len(submit.queue)
-            if l > 0:
-                print l," items queued. Really cancel? [Yn]"
+class SubmitControl(BaseControl):
 
-CLI.do_submit = do_submit
+    def _name(self):
+        return "submit"
+
+    def do_submit(self, arg):
+        submit = SubmitCLI()
+        if arg and len(arg) > 0:
+            submit.invoke(arg)
+            submit.execute()
+        else:
+            try:
+                submit.invokeloop()
+            except Save, s:
+                submit.execute()
+            except Cancel, c:
+                l = len(submit.queue)
+                if l > 0:
+                    print l," items queued. Really cancel? [Yn]"
+
+c = SubmitControl(None, None)
+try:
+    register(c)
+except NameError:
+    c._main()

@@ -11,6 +11,7 @@ hierarchy. When those arise, pysys can be used as a replacement.
 
 import sys
 argv = sys.argv
+stdout = sys.stdout
 stderr = sys.stderr
 exit = sys.exit
 path = sys.path

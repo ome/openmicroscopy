@@ -10,19 +10,30 @@
 
 """
 
-import shlex
+from omero.cli import BaseControl
 
-def do_upload(self, arg):
-    """
+class UploadControl(BaseControl):
+
+    def _name(self):
+        return "upload"
+
+    def help(self):
+        return \
+            """
     Syntax: upload <filename>
     Upload the given file name
     """
 
-    files = shlex.split(arg)
-    print arg + " = " + str(files)
-    client = self.client()
-    for f in files:
-        obj = client.upload(f)
-        print "Uploaded %s as " % f + str(obj.id.val)
+    def _run(self, *args):
+        files = shlex.split(arg)
+        print arg + " = " + str(files)
+        client = self.client()
+        for f in files:
+            obj = client.upload(f)
+            print "Uploaded %s as " % f + str(obj.id.val)
 
-CLI.do_upload = do_upload
+c = UploadControl(None, None)
+try:
+    register(c)
+except NameError:
+    c._main()

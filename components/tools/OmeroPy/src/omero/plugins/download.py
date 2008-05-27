@@ -10,20 +10,32 @@
 
 """
 
+from omero.cli import BaseControl
 
-def do_download(self, arg):
-    """
-    Syntax: download <id> <filename>
-    Download the given file id to the given file name
-    """
+class DownloadControl(BaseControl):
 
-    id = 1
-    file = "foo"
+    def _name(self):
+        return "download"
 
-    client = self.client()
-    session = client.getSession()
-    filePrx = session.createRawFileStore()
-    filePrx.setFileId(id)
-    fileSize = filePrx.getSize()
+    def help(self):
+        return \
+        """
+        Syntax: download <id> <filename>
+        Download the given file id to the given file name
+        """
 
-CLI.do_download = do_download
+    def _run(self, *args):
+        id = 1
+        file = "foo"
+
+        client = self.event.conn()
+        session = client.getSession()
+        filePrx = session.createRawFileStore()
+        filePrx.setFileId(id)
+        fileSize = filePrx.getSize()
+
+c = DownloadControl(None, None)
+try:
+    register(c)
+except NameError:
+    c._main()
