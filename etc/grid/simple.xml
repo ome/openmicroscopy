@@ -6,7 +6,7 @@
     Use is subject to license terms supplied in LICENSE.txt
 -->
 
-  <application name="OMERO">
+  <application name="OMERO" import-default-templates="true">
 
     <description>
     Basic OMERO.grid configuration which permits no processing capabilities
