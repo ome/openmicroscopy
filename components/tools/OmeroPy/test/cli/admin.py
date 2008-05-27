@@ -11,11 +11,11 @@
 import unittest, os, subprocess, StringIO
 from path import path
 from omero.plugins.admin import AdminControl
-from omero.cli import Event
+from omero.cli import Context
 
 omeroDir = path(os.getcwd()) / "build"
 
-class E1(Event):
+class E1(Context):
     def pub(self, args):
         if not hasattr(self,"called"):
             self.called = 1

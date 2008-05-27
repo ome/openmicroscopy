@@ -46,8 +46,6 @@ class SubmitCLI(CLI):
 
 class SubmitControl(BaseControl):
 
-    def _name(self): return "submit"
-
     def help(self):
         self.ctx.out("""
 Syntax: %(program_name)s submit single command with args
@@ -58,7 +56,8 @@ Syntax: %(program_name)s submit single command with args
         the file is trasferred to the server, and executed.
         """)
 
-    def __call__(self, *arg):
+    def __call__(self, *args):
+        args = Arguments(*args)
         submit = SubmitCLI()
         if arg and len(arg) > 0:
             submit.invoke(arg)
@@ -73,8 +72,7 @@ Syntax: %(program_name)s submit single command with args
                 if l > 0:
                     print l," items queued. Really cancel? [Yn]"
 
-c = SubmitControl()
 try:
-    register(c)
+    register("submit", SubmitControl)
 except NameError:
-    c._main()
+    SubmitControl._main()

@@ -10,16 +10,19 @@
 
 import unittest, os, subprocess, StringIO
 from path import path
-from omero.cli import Event, BaseControl
+from omero.cli import Context, BaseControl
 
 omeroDir = path(os.getcwd()) / "build"
 
 class TestBase(unittest.TestCase):
     def testNoArgs(self):
-        e1 = E1()
         c = BaseControl()
         c._noargs()
         c()
+    def testArgs(self):
+        c = BaseControl()
+        c._oneArg("a")
+        c("a")
 
 if __name__ == '__main__':
     unittest.main()

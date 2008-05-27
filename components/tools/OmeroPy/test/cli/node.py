@@ -11,7 +11,7 @@
 import unittest, os, subprocess, StringIO
 from path import path
 from omero.plugins.node import NodeControl
-from omero.cli import Event
+from omero.cli import Context
 
 omeroDir = path(os.getcwd()) / "build"
 etcDir = omeroDir / "etc"
@@ -23,7 +23,7 @@ hostCfg = file(path(etcDir / NodeControl(None,None)._node()) + ".cfg","w")
 hostCfg.write("IceGrid.Node.Data=var/TEST_DIRECTORY")
 hostCfg.close()
 
-class E1(Event):
+class E1(Context):
     def popen(self, *args, **kwards):
         if not hasattr(self,"called"):
             self.called = 1

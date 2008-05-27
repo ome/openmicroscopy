@@ -14,14 +14,13 @@ from omero.cli import BaseControl
 
 class DownloadControl(BaseControl):
 
-    def _name(self): return "download"
-
     def help(self):
         self.ctx.out(
         """
 Syntax: %(program_name)s download <id> <filename>
         Download the given file id to the given file name
         """ )
+
     def __call__(self, *args):
         id = 1
         file = "foo"
@@ -32,8 +31,7 @@ Syntax: %(program_name)s download <id> <filename>
         filePrx.setFileId(id)
         fileSize = filePrx.getSize()
 
-c = DownloadControl()
 try:
-    register(c)
+    register("download", DownloadControl)
 except NameError:
-    c._main()
+    DownloadControl()._main()

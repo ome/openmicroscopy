@@ -14,8 +14,6 @@ from omero.cli import BaseControl
 
 class UploadControl(BaseControl):
 
-    def _name(self): return "upload"
-
     def help(self):
         return \
             """
@@ -24,15 +22,13 @@ Syntax: %(program_name)s upload <filename>
     """
 
     def __call__(self, *args):
-        files = shlex.split(arg)
-        print arg + " = " + str(files)
+        args = Arguments(*args)
         client = self.client()
-        for f in files:
+        for f in args:
             obj = client.upload(f)
             print "Uploaded %s as " % f + str(obj.id.val)
 
-c = UploadControl()
 try:
-    register(c)
+    register("upload", UploadControl)
 except NameError:
-    c._main()
+    UploadControl._main()

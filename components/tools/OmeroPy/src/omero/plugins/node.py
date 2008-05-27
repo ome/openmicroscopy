@@ -21,8 +21,6 @@ RE=re.compile("^\s*(\S*)\s*(start|stop|restart|status)\s*(\S*)\s*$")
 
 class NodeControl(BaseControl):
 
-    def _name(self): return "node"
-
     def help(self):
         self.ctx.out( """
 Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | restart ]
@@ -43,7 +41,9 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
     def _onearg(self, cmd):
         self._someargs(cmd,[])
 
-    def _someargs(self, cmd, args):
+    def _someargs(self, args):
+        args = Arguments(args)
+        first, other = args.firstOther()
         try:
             node = self._node()
             sync = False
@@ -53,19 +53,19 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
                 # No master specified
                 sync = True
                 node = self._node()
-                acts.extend(args)
+                acts.extend(other)
             elif cmd == "start" or cmd == "stop" or cmd =="stop" or cmd == "kill" or cmd == "restart":
                 # Neither master nor sync specified. Defaults in effect
                 acts.append(cmd)
-                acts.extend(args)
+                acts.extend(other)
             else:
                 # Otherwise, command is name of master
                 node = cmd
                 # Check for sync
-                if len(args) > 0 and args[0] == "sync":
+                if len(other) > 0 and other[0] == "sync":
                     sync = True
-                    args.pop(0)
-                acts.extend(args)
+                    other.pop(0)
+                acts.extend(other)
 
             self._node(node)
             if len(acts) == 0:
@@ -77,7 +77,7 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
 
         except Exc, ex:
             self.ctx.dbg(str(ex))
-            self.ctx.die(100, "Bad argument: "+ cmd + ", " + ", ".join(args))
+            self.ctx.die(100, "Bad argument: "+ cmd + ", " + ", ".join(other))
 
     ##############################################
     #
@@ -114,8 +114,7 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         pid = open(self._pid(),"r").readline()
         os.kill(int(pid), signal.SIGKILL)
 
-c = NodeControl()
 try:
-    register(c)
+    register("node", NodeControl)
 except NameError:
-    c._main()
+    NodeControl()._main()

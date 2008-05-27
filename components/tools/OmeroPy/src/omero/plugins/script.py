@@ -23,8 +23,6 @@ from omero_ext.strings import shlex
 
 class ScriptControl(BaseControl):
 
-    def _name(self): return "script"
-
     def help(self):
         self.ctx.out("""
 Syntax: %(program_name)s script file [configuration parameters]
@@ -32,12 +30,15 @@ Syntax: %(program_name)s script file [configuration parameters]
         for later deployment on the grid.
         """)
 
-    def __call__(self, arg):
+    def __call__(self, *args):
+        args = Arguments(*args)
+
         if hasattr(self, "secure"):
             self.ctx.err("Secure cli cannot execture python scripts")
-        args = shlex(arg)
+
         if len(args) < 1:
             self.ctx.err("No file given")
+
         env = os.environ
         env["PYTHONPATH"] = self.ctx.pythonpath()
         p = subprocess.Popen(args,env=os.environ)
@@ -45,8 +46,7 @@ Syntax: %(program_name)s script file [configuration parameters]
         if p.poll() != 0:
             self.ctx.die(p.poll(), "Execution failed.")
 
-c = ScriptControl()
 try:
-    register(c)
+    register("script", ScriptControl)
 except NameError:
-    c._main()
+    ScriptControl()._main()

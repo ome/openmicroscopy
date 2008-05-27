@@ -14,12 +14,12 @@
 
 import os
 from path import path
+
+from omero.cli import Arguments
 from omero.cli import BaseControl
 from omero_ext import pysys
 
 class AdminControl(BaseControl):
-
-    def _name(self): return "admin"
 
     def help(self):
         self.ctx.out( """
@@ -48,7 +48,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
     # Commands
     #
 
-    def start(self):
+    def start(self, args):
         """
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
@@ -70,17 +70,19 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         self.ctx.pub(["node", self._node(), "start"])
 
     def deploy(self, args):
+        args = Arguments(args)
         command = ["icegridadmin", self._icecfg()]
-        descrpt = path(args[0])
+        first,other = args.firstOther()
+        descrpt = path(first)
+        targets = " ".join(other)
+
         if not descrpt.exists():
             self.die(20,"%s does not exist" % path)
-        targets = ""
-        if len(args) > 1: # Should be in Argument class
-            targets = " ".join(args[1:])
-        command = command + ["-e","application add %s %s" % (str(descrpt), targets) ]
+
+        command = command + ["-e","application add %s %s" % (descrpt, targets) ]
         self.ctx.popen(command)
 
-    def stop(self):
+    def stop(self, args):
         command = ["icegridadmin", self._icecfg()]
         command = command + ["-e","node shutdown master"]
         self.ctx.popen(command)
@@ -90,8 +92,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
     def check(self):
         print "Check db. Have a way to load the db control"
 
-c = AdminControl()
 try:
-    register(c)
+    register("admin", AdminControl)
 except NameError:
-    c._main()
+    AdminControl()._main()

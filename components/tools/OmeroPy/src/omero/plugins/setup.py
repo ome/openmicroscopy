@@ -36,8 +36,6 @@ class Question:
 
 class SetupControl(BaseControl):
 
-    def _name(self): return "setup"
-
     def help(self):
         self.ctx.out(
         """
@@ -45,7 +43,7 @@ Syntax: %(program_name)s setup [simple|intermediate|advanced] [+|-psql] [+|-djan
         """)
 
     def __call__(self, *args):
-        args = shlex.split(arg)
+        args = Arguments(*args)
 
         p = optparse.OptionParser()
         g = optparse.OptionGroup(p, "Skill level","Number of questions asked by setup")
@@ -76,8 +74,7 @@ Syntax: %(program_name)s setup [simple|intermediate|advanced] [+|-psql] [+|-djan
         print getpass.getuser()
         """
 
-c = SetupControl()
 try:
-    register(c)
+    register("setup", SetupControl)
 except NameError:
-    c._main()
+    SetupControl()._main()

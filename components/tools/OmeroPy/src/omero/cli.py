@@ -20,13 +20,16 @@ See LICENSE for details.
 
 """
 
-import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback
+import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback, glob
 from omero_ext import pysys
-from omero_ext.strings import shlex
+import shlex as pyshlex
 from exceptions import Exception as Exc
 from path import path
 import Ice
 
+#
+# Static setup
+#
 
 VERSION=1.0
 COMMENT = re.compile("^\s*#")
@@ -47,39 +50,96 @@ OMERODIR = OMEROCLI.dirname().dirname()
 #  - Always return and print any output
 #  - Have a callback on the fired event
 #  - switch register() to take a class.
+#  - how should state machine work?
+#   -- is the last control stored somwhere? in a stack history[3]
+#   -- or do they all share a central memory? self.ctx["MY_VARIABLE"]
 #  - add an argument class which is always used at the top of a control
 #    def somemethod(self, args): # args always assumed to be a shlex'd arg, but checked
 #        arg = Argument(args)
 
-def noneOneSome(none, one, some, args):
+class Arguments:
     """
-    Dispatches to the appropriate method (none, one, or some)
-    based on the contents of "args" according to the following:
+    Wrapper for arguments in all controls. All non-"_" control methods are
+    assumed to take some representation of the command line. This can either
+    be:
 
-      args == None    ==> none()
-      len(args) == 0  ==> none()
-      len(args) == 1  ==> one(args[0])
-      otherwise       ==> some(args[0], args[1:])
-    """
-    if args == None or len(args) == 0: return none()
-    elif len(args) == 1: return one(args[0])
-    else: return some(args[0], args[1:])
+        - the line as a string
+        - the shlex'd line as a string list
 
-def safePrint(text, stream):
-    """
-    Prints text to a given string, caputring any exceptions.
-    """
-    if not isinstance(text,str):
-        if DEBUG:
-            print >>pysys.stderr, "Received text argument of type "+str(type(text))
-        text = str(text)
-    try:
-        print >>stream, (text % {"program_name": pysys.argv[0]})
-    except:
-        print >>pysys.stderr, "Error printing text"
-        if DEBUG: traceback.print_exc()
-        print >>pysys.stdout, text
+    To simplify usage, this class can be used at the beginning of every
+    method so:
 
+        def method(self, args):
+            args = Arguments(args)
+
+    and it will handle the above cases as well as wrapping other Argument
+    instances. If the method takes varargs and it is desired to test for
+    single argument of the above type, then use:
+
+        args = Arguments(*args)
+
+    """
+
+    def __init__(self, args = []):
+        if args == None:
+            self.args = []
+        elif isinstance(args, Arguments):
+            self.args = args.args
+        elif isinstance(args, str):
+            self.args = self.shlex(args)
+        elif isinstance(args, list):
+            for l in args:
+                assert isinstance(l, str)
+            self.args = args
+        else:
+            raise exceptions.Exception("Unknown argument: %s" % args)
+
+    def firstOther(self):
+        if len(self.args) == 0:
+            return (None,[])
+        elif len(self.args) == 1:
+            return (self.args[0], [])
+        else:
+            return (self.args[0], self.args[1:])
+
+    def popFirst(self):
+        return self.args.pop(0)
+
+    def shlex(self, input):
+        """
+        Used to split a string argument via shlex.split(). If the
+        argument is not a string, then it is returned unchnaged.
+        This is useful since the arg argument to all plugins can
+        be either a list or a string.
+        """
+        if None == input:
+            return []
+        elif isinstance(input, str):
+            return pyshlex.split(input)
+        else:
+            return input
+
+    def noneOrSome(self, none, some):
+        """
+        Dispatches to the appropriate method (none or some)
+        based on the contents of "args" according to the following:
+
+        args == None    ==> none()
+        len(args) == 0  ==> none()
+        len(args) == 1  ==> some(args[0], [])
+        otherwise       ==> some(args[0], args[1:])
+        """
+        if self.args == None or len(self.args) == 0: return none()
+        else: return some(self.args)
+
+    #######################################
+    #
+    # Usability methods
+    #
+    def __iter__(self):
+        return iter(self.args)
+    def __len__(self):
+        return len(self.args)
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -92,6 +152,20 @@ class Context:
     used for exiting fatally.
 
     """
+
+    def __init__(self, controls = {}):
+        self.controls = controls
+
+    def safePrint(self, text, stream):
+        """
+        Prints text to a given string, caputring any exceptions.
+        """
+        try:
+            print >>stream, (text % {"program_name": pysys.argv[0]})
+        except:
+            print >>pysys.stderr, "Error printing text"
+            if DEBUG: traceback.print_exc()
+            print >>pysys.stdout, text
 
     def pythonpath(self):
         """
@@ -109,15 +183,24 @@ class Context:
         return pythonpath
 
     def pub(self, args):
-        print args
+        self.safePrint(str(args), pysys.stdout)
 
     def out(self, text):
-        safePrint(text, pysys.stdout)
+        """
+        Expects as single string as argument"
+        """
+        self.safePrint(arg, pysys.stdout)
 
     def err(self, text):
-        safePrint(text, pysys.stderr)
+        """
+        Expects a single string as argument.
+        """
+        self.safePrint(text, pysys.stderr)
 
     def dbg(self, text):
+        """
+        Passes text to err() if DEBUG is set
+        """
         if DEBUG:
             self.err(text)
 
@@ -128,28 +211,27 @@ class Context:
         self.out(args)
         raise exceptions.Exception("Normal exit")
 
-    def popen(self, string):
-        print string
+    def popen(self, args):
+        self.out(args)
 
     def conn(self):
         raise NotImplementedException()
 
 
+
 class BaseControl:
     """Controls get registered with a CLI instance on loadplugins().
 
-    To create a new control, subclass BaseControl, implement minimally
-    _name(), and end your module with:
+    To create a new control, subclass BaseControl and end your module with:
 
-    c = MyControl()
     try:
-        registry(c)
+        registry("name", MyControl)
     except:
-        c._main()
+        MyControl()._main()
 
     This module should be put in the omero.plugins package.
 
-    All methods which do NOT begin with "_" are assume to be accessible
+    All methods which do NOT begin with "_" are assumed to be accessible
     to CLI users.
     """
 
@@ -260,7 +342,7 @@ class BaseControl:
     #
     # Methods likely to be implement by subclasses
     #
-    def help(self):
+    def help(self, args):
         return """ Help not implemented """
 
     def _likes(self, args):
@@ -275,7 +357,7 @@ class BaseControl:
         matching the first argument, such that the default
         __call__() implementation could dispatch to it.
         """
-        args = shlex(args)
+        args = Arguments(args)
         # Here we accept all commands of length zero since
         # there's a default implementation for that.
         if len(args) == 0 or hasattr(self,args[0]):
@@ -289,21 +371,13 @@ class BaseControl:
         no elements or exactly one list of strings ==> (["str"],)
 
         If no args are present, _noargs is called. If more than one
-        vararg is present, an exception is raised. Otherwise, _noneSomeOne()
+        vararg is present, an exception is raised. Otherwise, noneOrSome()
         is called with the shlexed array.
         """
-
-        # For empty varargs
-        if len(args) == 0:
-            return self._noargs()
-        elif len(args) == 1:
-            none = lambda : self._noargs()
-            one  = lambda x : self._onearg(x)
-            some = lambda x,args : self._someargs(x,args)
-            args = shlex(args[0])
-            noneOneSome(none, one, some, args)
-        else:
-            self.ctx.die(6, "Don't know how to handle more than noargs or shlex args by default")
+        args = Arguments(*args)
+        none = lambda : self._noargs()
+        some = lambda args : self._someargs(args)
+        args.noneOrSome(none, some)
 
     def _noargs(self):
         """
@@ -313,25 +387,13 @@ class BaseControl:
         """
         self.help()
 
-    def _onearg(self, arg):
+    def _someargs(self, args):
        """
-       Method called with __call__() gets an string list of length one.
+       Method called with __call__() gets a string list. The first
+       value is passed as command and [1:] of the list are passed as args,
+       if available. Otherwise the empty list is passed.
        """
-       if not self._likes([arg]):
-           if DEBUG:
-                raise Exc("Bad argument: " + arg)
-           self.ctx.err("Bad argument: " + arg)
-           self.help()
-           self.ctx.die(7, "Exiting.")
-       else:
-           m = getattr(self, arg)
-           return m()
-
-    def _someargs(self, command, args):
-       """
-       Method called with __call__() gets an string list of length > 1. The first
-       value is passed as command and [1:] of the list are passed as args.
-       """
+       args = Arguments(args)
        if not self._likes(args):
            if DEBUG:
                 raise Exc("Bad arguments: " + str(args))
@@ -339,14 +401,9 @@ class BaseControl:
            self.help()
            self.ctx.die(8, "Exiting.")
        else:
-           m = getattr(self, args[0])
-           return m(args[1:])
-
-    def _name(self):
-        """
-        Required of all subclasses so that the CLI registry knows how to display the control"
-        """
-        raise NotImplementedException()
+           first, other = args.firstOther()
+           m = getattr(self, first)
+           return m(other)
 
     def _main(self):
         """
@@ -373,17 +430,16 @@ class CLI(cmd.Cmd, Context):
         maintains a single active client.
         """
         cmd.Cmd.__init__(self)
+        Context.__init__(self)
         self.prompt = 'omero> '
         self.interrupt_loop = False
         self._client = None
-        self._controls = {}
 
     def invoke(self, line):
         """
         Copied from cmd.py
         """
         line = self.precmd(line)
-        stop = True
         stop = self.onecmd(line)
         stop = self.postcmd(stop, line)
 
@@ -409,7 +465,9 @@ class CLI(cmd.Cmd, Context):
             return cmd.Cmd.onecmd(self, line)
         except AttributeError, ae:
             self.err("Possible error in plugin:")
-            self.err(ae)
+            self.err(str(ae))
+            if DEBUG:
+                traceback.print_exc()
         return False # Continue
 
     def postcmd(self, stop, line):
@@ -443,6 +501,9 @@ class CLI(cmd.Cmd, Context):
         else:
             self.err("Unkown command: " + arg)
 
+    def completenames(self, *args):
+        return self.controls.keys()
+
     def completedefault(self, text, line, begidx, endidx):
         try:
             import readline
@@ -452,56 +513,12 @@ class CLI(cmd.Cmd, Context):
 
         # readline.parse_and_bind("tab: complete")
         readline.set_completer_delims(' \t\n`~!@#$%^&*()-=+[{]}\\|;:\'",<>;?')
-        import glob
-        return glob.glob('%s*' % text)
 
-    def do_help(self, args):
-        args = shlex(args)
-        if not args or len(args) == 0:
-            print """OmeroCli client, version %(version)s
+        completions = []
+        completions.extend(self.controls.key())
+        completions.extend(glob.glob('%s*' % text))
+        return completions
 
-Usage: %(program_name)s <command> [options] args
-See 'help <command>' for more information on syntax
-Type 'quit' to exit
-
-Available commands:
-""" % {"program_name":pysys.argv[0],"version":VERSION}
-
-            controls = list(self._controls)
-            controls.sort()
-            for name in controls:
-                print """ %s""" % name
-            print """
-For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli"""
-        elif not self._controls.has_key(args[0]):
-            self.err("Unknown command:" + args[0])
-        else:
-            self._controls[args[0]].help()
-
-    do_h = do_help
-
-    def do_quit(self, arg):
-        self.exit("")
-    do_q = do_quit
-
-    def do_version(self, arg):
-        "print current version"
-        print VERSION
-    do_v = do_version
-
-    def do_load(self, arg):
-        file = open(arg,'r')
-        for line in file:
-           self.invoke(line)
-
-    def help_load(self):
-        status = "enabled"
-        try:
-            import readline
-        except:
-            status = "disabled"
-
-        print "load file as if it were sent on standard in. File tab-complete %s" % status
 
     # Delegation
     def do_start(self, args):
@@ -529,14 +546,14 @@ For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/Ome
 
     def pub(self, args):
         """
-        Publishes the command as given via noneOneSome logic
+        Publishes the command as given via noneOrSome logic
         """
         try:
-            args = shlex(args)
+            args = Arguments(args)
+            first, other = args.firstOther()
             none = lambda: self.ctx.die(2, "Don't know what to do")
-            one  = lambda c: self._controls[c]()
-            some = lambda c, args: self._controls[c](args)
-            noneOneSome(none, one, some, args)
+            some = lambda argsewtwert: self.controls[first]()(args)
+            args.noneOrSome(none, some)
         except KeyError, ke:
             self.die(11, "Missing required plugin: "+ str(ke))
 
@@ -580,14 +597,21 @@ For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/Ome
     ## Plugin registry
     ##
 
-    def register(self, control):
+    def register(self, name, Control):
         """ This method is added to the globals when execfile() is
         called on each plugin. An instance of the control should be
         passed to the register method which will be added to the CLI.
         """
-        control.ctx = self
-        self._controls[control._name()] = control
-        setattr(self, "do_" + control._name(), control.__call__)
+
+        class Wrapper:
+            def __init__(self, ctx, control):
+                self.ctx = ctx
+                self.Control = Control
+            def __call__(self, *args):
+                self.Control(self.ctx)(*args)
+
+        self.controls[name] = Control
+        setattr(self, "do_" + name, Wrapper(self, Control))
 
     def loadplugins(self):
         """ Finds all plugins and gives them a chance to register
@@ -636,4 +660,3 @@ def argv(args=pysys.argv):
         cli.invoke(args[1:])
     else:
         cli.invokeloop()
-

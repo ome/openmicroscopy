@@ -18,19 +18,17 @@ import omero.java
 
 class PrefsControl(BaseControl):
 
-    def _name(self): return "prefs"
-
     def help(self):
         self.ctx.out( """
 Syntax: %(program_name)s prefs
        Access to java properties
        """ )
 
-    def __call__(self, args):
-        self.ctx.out(omero.java.run(["prefs"]+shlex(args)))
+    def __call__(self, *args):
+        args = Arguments(*args)
+        self.ctx.out(omero.java.run(["prefs"]+shlex(args.args)))
 
-c = PrefsControl()
 try:
-    register(c)
+    register("config", PrefsControl)
 except NameError:
-    c._main()
+    PrefsControl()._main()
