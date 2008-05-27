@@ -17,6 +17,7 @@ class TopLevel(unittest.TestCase):
 def additional_tests():
     load = unittest.defaultTestLoader.loadTestsFromName
     suite = unittest.TestSuite()
+    suite.addTest(load("test.cli.suite"))
     suite.addTest(load("test.t_model"))
     suite.addTest(load("test.t_permissions"))
     suite.addTest(load("test.scripts.harness"))

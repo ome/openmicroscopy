@@ -46,10 +46,19 @@ class SubmitCLI(CLI):
 
 class SubmitControl(BaseControl):
 
-    def _name(self):
-        return "submit"
+    def _name(self): return "submit"
 
-    def do_submit(self, arg):
+    def help(self):
+        self.ctx.out("""
+Syntax: %(program_name)s submit single command with args
+                         submit
+
+        When run without arguments, submit shell is opened
+        which takes commands without executing them. On save,
+        the file is trasferred to the server, and executed.
+        """)
+
+    def __call__(self, *arg):
         submit = SubmitCLI()
         if arg and len(arg) > 0:
             submit.invoke(arg)

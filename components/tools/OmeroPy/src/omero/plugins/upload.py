@@ -14,17 +14,16 @@ from omero.cli import BaseControl
 
 class UploadControl(BaseControl):
 
-    def _name(self):
-        return "upload"
+    def _name(self): return "upload"
 
     def help(self):
         return \
             """
-    Syntax: upload <filename>
-    Upload the given file name
+Syntax: %(program_name)s upload <filename>
+        Upload the given file name
     """
 
-    def _run(self, *args):
+    def __call__(self, *args):
         files = shlex.split(arg)
         print arg + " = " + str(files)
         client = self.client()

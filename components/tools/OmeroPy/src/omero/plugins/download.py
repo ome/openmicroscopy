@@ -14,17 +14,15 @@ from omero.cli import BaseControl
 
 class DownloadControl(BaseControl):
 
-    def _name(self):
-        return "download"
+    def _name(self): return "download"
 
     def help(self):
-        return \
+        self.ctx.out(
         """
-        Syntax: download <id> <filename>
+Syntax: %(program_name)s download <id> <filename>
         Download the given file id to the given file name
-        """
-
-    def _run(self, *args):
+        """ )
+    def __call__(self, *args):
         id = 1
         file = "foo"
 

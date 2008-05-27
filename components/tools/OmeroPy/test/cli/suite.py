@@ -19,4 +19,5 @@ def additional_tests():
     suite = unittest.TestSuite()
     suite.addTest(load("test.cli.admin"))
     suite.addTest(load("test.cli.node"))
+    suite.addTest(load("test.cli.base"))
     return suite

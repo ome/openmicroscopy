@@ -5,7 +5,7 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 
-   The pref plugin makes use of prefs.class from 
+   The pref plugin makes use of prefs.class from the common component.
 
    Copyright 2007 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -18,14 +18,16 @@ import omero.java
 
 class PrefsControl(BaseControl):
 
+    def _name(self): return "prefs"
 
     def help(self):
-        return """syntax: prefs
-   -- access to java properties
-       """
+        self.ctx.out( """
+Syntax: %(program_name)s prefs
+       Access to java properties
+       """ )
 
-    def _run(self, args):
-        print omero.java.run(["prefs"]+shlex(args))
+    def __call__(self, args):
+        self.ctx.out(omero.java.run(["prefs"]+shlex(args)))
 
 c = PrefsControl()
 try:

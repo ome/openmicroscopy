@@ -20,27 +20,29 @@ RE=re.compile("^\s*(\S*)\s*(start|stop|restart|status)\s*(\S*)\s*$")
 
 class NodeControl(BaseControl):
 
-    def _name(self):
-        return "node"
+    def _name(self): return "node"
 
     def help(self):
-        return\
-        """
-        Syntax: node [start|status|stop|kill] [nodename]
-        Node name defaults to "default" configuration if not defined.
-        Configurations are defined in the etc/ directory of the install.
-        """
+        self.ctx.out( """
+Syntax: %(program_name)s node  [node-name ] [ start | stop | status | restart ] [--wait]
+           start       -- Start the node via icegridnode. With --wait doesn't return until reachable.
+           stop        -- Stop the node via icegridadmin. With --wait doesn't return until stopped.
+           status      -- Prints a status message. Return code is non-zero if there is a problem.
+           restart     -- Calls "start --wait" then "stop" ("stop --wait" if --wait is specified"
+
+        node-name cannot be "start", "stop", "restart", "status", or "--wait".
+        """ )
 
     def _likes(self, args):
         return RE.match(" ".join(args)) and True or False
 
-    def __call__(self, *args):
-        if len(args) == 0 or len(args[0]) == 0:
-            return self(["help"])
+    def _noargs(self):
+        self.help()
 
-        string = " ".join(args[0])
-        self.ctx.dbg(string)
+    def _onearg(self, cmd):
+        self._someargs(cmd,[])
 
+    def _someargs(self, cmd, args):
         try:
             omero_node, command, wait = RE.match(string).groups()
             if omero_node != None:
@@ -49,8 +51,12 @@ class NodeControl(BaseControl):
             cmd()
         except Exc, ex:
             self.ctx.dbg(str(ex))
-            self.ctx.die("Bad argument string:"+string)
+            self.ctx.die(100, "Bad argument string:"+string)
 
+    ##############################################
+    #
+    # Commands
+    #
 
     def start(self):
         props = self._properties()

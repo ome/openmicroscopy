@@ -19,8 +19,7 @@ from omero_ext import pysys
 
 class AdminControl(BaseControl):
 
-    def _name(self):
-        return "admin"
+    def _name(self): return "admin"
 
     def help(self):
         self.ctx.out( """
@@ -40,8 +39,13 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         else:
             return "master"
 
+    ##############################################
+    #
+    # Commands
+    #
+
     def start(self):
-        """ 
+        """
         First checks for a valid installation, then checks the grid,
         then registers the action: "node HOST start"
         """

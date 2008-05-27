@@ -46,7 +46,20 @@ OMERODIR = OMEROCLI.dirname().dirname()
 # Possibilities:
 #  - Always return and print any output
 #  - Have a callback on the fired event
-#  - noneOneSome(lambda, lamda, lamda) method for args with shlex built in
+
+def noneOneSome(none, one, some, args):
+    """
+    Dispatches to the appropriate method (none, one, or some)
+    based on the contents of "args" according to the following:
+
+      args == None    ==> none()
+      len(args) == 0  ==> none()
+      len(args) == 1  ==> one(args[0])
+      otherwise       ==> some(args[0], args[1:])
+    """
+    if args == None or len(args) == 0: return none()
+    elif len(args) == 1: return one(args[0])
+    else: return some(args[0], args[1:])
 
 
 class Context:
@@ -61,21 +74,48 @@ class Context:
 
     """
 
+    def pythonpath(self):
+        """
+        Converts the current sys.path to a PYTHONPATH string
+        to be used by plugins which must start a new process.
+
+        Note: this was initially created for running during
+        testing when PYTHONPATH is not properly set.
+        """
+        path = list(pysys.path)
+        for i in range(0,len(path)-1):
+            if path[i] == '':
+                path[i] = os.getcwd()
+        pythonpath = ":".join(path)
+        return pythonpath
+
     def pub(self, args):
         print args
 
     def out(self, text):
-        print >>pysys.stdout, (text % {"program_name": pysys.argv[0]})
+        try:
+            print >>pysys.stdout, (text % {"program_name": pysys.argv[0]})
+        except:
+            print >>pysys.stderr, "Error printing text"
+            print >>pysys.stdout, text
 
     def err(self, text):
-        print >>pysys.stderr, (text % {"program_name": pysys.argv[0]})
+        try:
+            print >>pysys.stderr, (text % {"program_name": pysys.argv[0]})
+        except:
+            print >>pysys.stderr, "Error printing text"
+            print >>pysys.stderr, text
 
     def dbg(self, text):
         if DEBUG:
             self.err(text)
 
-    def die(self, args):
-        raise exceptions.Exception(args)
+    def die(self, rc, args):
+        raise exceptions.Exception((rc,args))
+
+    def exit(self, args):
+        self.out(args)
+        raise exceptions.Exception("Normal exit")
 
     def popen(self, string):
         print string
@@ -83,15 +123,39 @@ class Context:
     def conn(self):
         raise NotImplementedException()
 
+
 class BaseControl:
-    """Controls get registered with a CLI instance on loadplugins()
+    """Controls get registered with a CLI instance on loadplugins().
+
+    To create a new control, subclass BaseControl, implement minimally
+    _name(), and end your module with:
+
+    c = MyControl()
+    try:
+        registry(c)
+    except:
+        c._main()
+
+    This module should be put in the omero.plugins package.
+
+    All methods which do NOT begin with "_" are assume to be accessible
+    to CLI users.
     """
 
+    ###############################################
+    #
+    # Mostly reusable code
+    #
     def __init__(self, ctx = Context(), dir = OMERODIR):
         self.dir = path(dir) # Guaranteed to be a path
         self.ctx = ctx
 
     def _host(self):
+        """
+        Return hostname of current machine. Termed to be the
+        value return from socket.gethostname() up to the first
+        decimal.
+        """
         if not hasattr(self, "hostname") or not self.hostname:
             self.hostname = socket.gethostname()
             if self.hostname.find(".") > 0:
@@ -99,17 +163,30 @@ class BaseControl:
         return self.hostname
 
     def _node(self):
+        """
+        Return the name of this node, using either the environment
+        vairable OMERO_NODE or _host(). Some subclasses may
+        override this functionality, most notably "admin" commands
+        which assume a node name of "master".
+        """
         if os.environ.has_key("OMERO_NODE"):
             return os.environ["OMERO_NODE"]
         else:
             return self._host()
 
     def _data(self):
+        """
+        Returns the data directory path for this node. This is determined
+        from the "IceGrid.Node.Data" property in the _properties()
+        map.
+
+        The directory will be created if it does not exist.
+        """
         try:
             nodedata = path(self._properties()["IceGrid.Node.Data"])
         except KeyError, ke:
             self.ctx.err("IceGrid.Node.Data is not configured")
-            self.ctx.die(ke)
+            self.ctx.die(4, ke)
 
         if not nodedata.exists():
             self.ctx.out("Creating "+nodedata)
@@ -117,39 +194,70 @@ class BaseControl:
         return nodedata
 
     def _pid(self):
+        """
+        Returns a path of the form "_data() / _node() + ".pid",
+        i.e. a file named NODENAME.pid in the node's data directory.
+        """
         pidfile = self._data() / (self._node() + ".pid")
         return pidfile
 
     def _cfglist(self):
+        """
+        Returns a list of configuration files for this node. This
+        defaults to the internal configuration for all nodes,
+        followed by a file named NODENAME.cfg under the etc/
+        directory.
+        """
         cfgs = self.omeroDir / "etc"
         internal = cfgs / "internal.cfg"
         owncfg = cfgs / self._node() + ".cfg"
         return (internal,owncfg)
 
     def _icecfg(self):
-         icecfg = "--Ice.Config=%s" % ",".join(self._cfglist())
-         return icecfg
+        """
+        Uses _cfglist() to return a string argument of the form
+        "--Ice.Config=..." suitable for passing to omero.client
+        as an argument.
+        """
+        icecfg = "--Ice.Config=%s" % ",".join(self._cfglist())
+        return icecfg
 
-    def _properties(self):
+    def _properties(self, prefix=""):
+        """
+        Loads all files returned by _cfglist() into a new
+        Ice.Properties instance and return the map from
+        getPropertiesForPrefix(prefix) where the default is
+        to return all properties.
+        """
         if not hasattr(self, "_props") or self._props == None:
-            properties = Ice.createProperties()
+            self._props = Ice.createProperties()
             for cfg in self._cfglist():
                 try:
-                    properties.load(str(cfg))
+                    self._props.load(str(cfg))
                 except Exc, exc:
                     self.ctx.err("Could not find file: "+cfg)
-                    self.ctx.die(exc)
-            self._props = properties.getPropertiesForPrefix("")
-        return self._props
+                    self.ctx.die(3, exc)
+        return self._props.getPropertiesForPrefix(prefix)
 
+    ###############################################
     #
-    # Methods to be implement by subclasses
+    # Methods likely to be implement by subclasses
     #
-
     def help(self):
         return """ Help not implemented """
 
     def _likes(self, args):
+        """
+        Checks whether or not it is likely for the given args
+        to be run successfully by the given command. This is
+        useful for plugins which have significant start up
+        times.
+
+        Simply return True is a possible solution. The default
+        implementation checks that the subclass has a method
+        matching the first argument, such that the default
+        __call__() implementation could dispatch to it.
+        """
         args = shlex(args)
         # Here we accept all commands of length zero since
         # there's a default implementation for that.
@@ -158,43 +266,82 @@ class BaseControl:
         return False
 
     def __call__(self, *args):
+        """
+        Main dispatch method for a control instance. The default
+        implementation assumes that the *args consists of either
+        no elements or exactly one list of strings ==> (["str"],)
+
+        If no args are present, _noargs is called. If more than one
+        vararg is present, an exception is raised. Otherwise, _noneSomeOne()
+        is called with the shlexed array.
+        """
 
         # For empty varargs
         if len(args) == 0:
             return self._noargs()
-
         elif len(args) == 1:
-            # For empty first parameter
+            none = lambda : self._noargs
+            one  = lambda x : self._onearg
+            some = lambda x,args : self._someargs
             args = shlex(args[0])
-            if len(args) == 0:
-                return self._noargs()
-            if not self._likes(args):
-                if DEBUG:
-                    raise Exc("Bad argument:"+str(args))
-                self.ctx.err("Bad arguments:"+",".join(args))
-                self.help()
-                self.ctx.die("Exiting.")
-            else:
-                m = getattr(self, args[0])
-                if len(args) > 1:
-                    return m(args[1:])
-                else:
-                    return m()
+            noneOneSome(none, one, some, args)
         else:
-            self.ctx.die("Don't know how to handle more than noargs or shlex args by default")
+            self.ctx.die(6, "Don't know how to handle more than noargs or shlex args by default")
 
     def _noargs(self):
+        """
+        Method called when __call__() is called without any arguments. Some implementations
+        may want to drop the user into a shell or read from standard in. By default, help()
+        is printed.
+        """
         self.help()
 
+    def _onearg(self, arg):
+       """
+       Method called with __call__() gets an string list of length one.
+       """
+       if not self._likes([arg]):
+           if DEBUG:
+                raise Exc("Bad argument: " + arg)
+           self.ctx.err("Bad argument: " + arg)
+           self.help()
+           self.ctx.die(7, "Exiting.")
+       else:
+           m = getattr(self, arg)
+           return m()
+
+    def _someargs(self, command, args):
+       """
+       Method called with __call__() gets an string list of length > 1. The first
+       value is passed as command and [1:] of the list are passed as args.
+       """
+       if not self._likes(args):
+           if DEBUG:
+                raise Exc("Bad arguments: " + str(args))
+           self.ctx.err("Bad arguments: " + ",".join(args))
+           self.help()
+           self.ctx.die(8, "Exiting.")
+       else:
+           m = getattr(self, args[0])
+           return m(args[1:])
+
     def _name(self):
+        """
+        Required of all subclasses so that the CLI registry knows how to display the control"
+        """
         raise NotImplementedException()
 
     def _main(self):
+        """
+        Simple _main() logic which is reusable by subclasses to do something when the control
+        is executed directly. It is unlikely that such an excution will function properly,
+        but it may be useful for testing purposes.
+        """
         if __name__ == "__main__":
             if not self._likes(pysys.argv[1:]):
-                print self.help()
+                self.help()
             else:
-                self._run(pysys.argv[1:])
+                self.__call__(pysys.argv[1:])
 
 class CLI(cmd.Cmd, Context):
     """
@@ -220,11 +367,7 @@ class CLI(cmd.Cmd, Context):
         """
         line = self.precmd(line)
         stop = True
-        try:
-            stop = self.onecmd(line)
-        except AttributeError, ae:
-            print "Possible error in plugin:"
-            print ae
+        stop = self.onecmd(line)
         stop = self.postcmd(stop, line)
 
     def invokeloop(self):
@@ -233,9 +376,9 @@ class CLI(cmd.Cmd, Context):
             if not self.stdin.isatty():
                 self.selfintro = ""
                 self.prompt = ""
-            self.cmdloop()
+            self.cmdloop(self.selfintro)
         except KeyboardInterrupt, ki:
-            print
+            self.out("")
         self.interrupt_loop = True
 
     def precmd(self, input):
@@ -243,6 +386,14 @@ class CLI(cmd.Cmd, Context):
             if COMMENT.match(input):
                 return ""
         return input
+
+    def onecmd(self, line):
+        try:
+            return cmd.Cmd.onecmd(self, line)
+        except AttributeError, ae:
+            self.err("Possible error in plugin:")
+            self.err(ae)
+        return False # Continue
 
     def postcmd(self, stop, line):
         return self.interrupt_loop
@@ -269,32 +420,11 @@ class CLI(cmd.Cmd, Context):
         else:
             return cmd.Cmd.parseline(self,line)
 
-    def throw(self, string):
-        """
-        Simple method for throwing a Cli-specific exception
-        """
-        raise Exc(string)
-
-    def pythonpath(self):
-        """
-        Converts the current sys.path to a PYTHONPATH string
-        to be used by plugins which must start a new process.
-
-        Note: this was initially created for running during
-        testing when PYTHONPATH is not properly set.
-        """
-        path = list(pysys.path)
-        for i in range(0,len(path)-1):
-            if path[i] == '':
-                path[i] = os.getcwd()
-        pythonpath = ":".join(path)
-        return pythonpath
-
     def default(self,arg):
         if arg.startswith("EOF"):
-            pysys.exit(0)
+            self.exit("")
         else:
-            print "Unkown command: " + arg
+            self.err("Unkown command: " + arg)
 
     def completedefault(self, text, line, begidx, endidx):
         try:
@@ -308,55 +438,39 @@ class CLI(cmd.Cmd, Context):
         import glob
         return glob.glob('%s*' % text)
 
-    def do_help(self, arg):
-        if not arg or len(arg) == 0:
+    def do_help(self, args):
+        args = shlex(args)
+        if not args or len(args) == 0:
+            print """OmeroCli client, version %(version)s
+
+Usage: %(program_name)s <command> [options] args
+See 'help <command>' for more information on syntax
+Type 'quit' to exit
+
+Available commands:
+""" % {"program_name":pysys.argv[0],"version":VERSION}
+
+            controls = list(self._controls)
+            controls.sort()
+            for name in controls:
+                print """ %s""" % name
             print """
-
-        Use "help <topic>" for more information
-        -------------------------------------------------
-        longhelp  -  long output of help topics
-        v[ersion] -  print version number
-        q[uit]    -
-
-        """
+For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/OmeroCli"""
+        elif not self._controls.has_key(args[0]):
+            self.err("Unknown command:" + args[0])
         else:
-            cmd.Cmd.do_help(self, arg)
+            self._controls[args[0]].help()
+
     do_h = do_help
-    do_usage = do_help
-
-    def do_longhelp(self, arg):
-        cmd.Cmd.do_help(self, arg)
-
-    #
-    # User Methods
-    #
-
-    # Topics
-
-    def help_basics(self):
-        print "Simple commands include: version, help, quit, reload"
-
-    def help_login(self):
-        print """
-        The OMERO cli uses the prefs Java class to configure the current profile.
-        """
 
     def do_quit(self, arg):
-        pysys.exit(1)
+        self.exit("")
     do_q = do_quit
-
-    def help_quit(self):
-        print "syntax: quit",
-        print "-- terminates the application"
-    help_q = help_quit
 
     def do_version(self, arg):
         "print current version"
         print VERSION
     do_v = do_version
-
-    def help_server(self):
-        print "omero-<name>"
 
     def do_load(self, arg):
         file = open(arg,'r')
@@ -384,40 +498,43 @@ class CLI(cmd.Cmd, Context):
             args = ["start"] + args
         self.pub(args)
 
+    ##########################################
     ##
     ## Context interface
     ##
+    def exit(self, args):
+        self.out(args)
+        pysys.exit(0)
+
+    def die(self, rc, args):
+        self.err(args)
+        pysys.exit(rc)
+
     def pub(self, args):
+        """
+        Publishes the command as given via noneOneSome logic
+        """
         args = shlex(args)
-        if len(args) == 0:
-           self.ctx.die("Don't know what to do")
-        elif len(args) > 0:
-            cmd = args[0]
-            control = self._controls[cmd]
-            if len(args) == 1:
-                control()
-            else:
-                control(args[1:])
-
-    def out(self, text):
-        Context.pub(self, text)
-
-    def err(self, text):
-        Context.err(self, text)
-
-    def dbg(self, text):
-        Context.dbg(self, text)
-
-    def die(self, args):
-        Context.err(self, args)
+        none = lambda: self.ctx.die(2, "Don't know what to do")
+        one  = lambda c: self._controls[c]()
+        some = lambda c, args: self._controls[c](args)
+        noneOneSome(none, one, some, args)
 
     def popen(self, string):
+        """
+        Calls the string in a subprocess and dies if the return value is not 0
+        """
         rv = subprocess.call(string)
         if not rv == 0:
-            self.die("Error during:\"%s\"" % string )
+            self.die(rv, "Error during:\"%s\"" % string )
         return rv
 
     def conn(self, properties={}, profile=None):
+        """
+        Either creates or returns the exiting omero.client instance.
+
+        Usess "omero prefs" to property configure the client.
+        """
 
         if self._client:
             return self._client

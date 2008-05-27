@@ -5,7 +5,7 @@
    Plugin read by omero.cli.Cli during initialization. The method(s)
    defined here will be added to the Cli class for later use.
 
-   The setup plugin is used during install and upgrade to 
+   The setup plugin is used during install and upgrade to
    properly configure a system.
 
    Copyright 2008 Glencoe Software, Inc. All rights reserved.
@@ -36,15 +36,17 @@ class Question:
 
 class SetupControl(BaseControl):
 
-    def _name(self):
-        return "setup"
+    def _name(self): return "setup"
 
-    def do_setup(self, arg):
+    def help(self):
+        self.ctx.out(
         """
-        syntax: setup [simple|intermediate|advanced] [+|-psql] [+|-django] [+|-jboss] [dirs]
-        """
+Syntax: %(program_name)s setup [simple|intermediate|advanced] [+|-psql] [+|-django] [+|-jboss] [dirs]
+        """)
+
+    def __call__(self, *args):
         args = shlex.split(arg)
-        
+
         p = optparse.OptionParser()
         g = optparse.OptionGroup(p, "Skill level","Number of questions asked by setup")
         p.add_option("-s", "--simple", dest="simple",

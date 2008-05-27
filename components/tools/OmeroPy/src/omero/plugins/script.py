@@ -19,27 +19,31 @@
 
 import subprocess, os, sys
 from omero.cli import BaseControl
+from omero_ext.strings import shlex
 
 class ScriptControl(BaseControl):
 
-    def _name(self):
-        return "script"
+    def _name(self): return "script"
 
-    def do_script(self, arg):
-        """
-        syntax: script file [configuration parameters]
-        """
+    def help(self):
+        self.ctx.out("""
+Syntax: %(program_name)s script file [configuration parameters]
+        Executes a file as a script. Can be used to test scripts
+        for later deployment on the grid.
+        """)
+
+    def __call__(self, arg):
         if hasattr(self, "secure"):
-            self.throw("Secure cli cannot execture python scripts")
-        args = self.shlex(arg)
+            self.ctx.err("Secure cli cannot execture python scripts")
+        args = shlex(arg)
         if len(args) < 1:
-            self.throw("No file given")
+            self.ctx.err("No file given")
         env = os.environ
-        env["PYTHONPATH"] = self.pythonpath()
+        env["PYTHONPATH"] = self.ctx.pythonpath()
         p = subprocess.Popen(args,env=os.environ)
         p.wait()
         if p.poll() != 0:
-            self.throw("Execution failed.")
+            self.ctx.die(p.poll(), "Execution failed.")
 
 c = ScriptControl()
 try:
