@@ -21,7 +21,7 @@ RE=re.compile("^\s*(\S*)\s*(start|stop|restart|status)\s*(\S*)\s*$")
 
 class NodeControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         self.ctx.out( """
 Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | restart ]
            start       -- Start the node via icegridnode. With sync doesn't return until reachable.
@@ -33,7 +33,9 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         """ )
 
     def _likes(self, args):
-        return RE.match(" ".join(args)) and True or False
+        args = Arguments(args)
+        first, other = args.firstOther()
+        return hasattr(self,first) or RE.match(args.join(" ")) and True or False
 
     def _noargs(self):
         self.help()

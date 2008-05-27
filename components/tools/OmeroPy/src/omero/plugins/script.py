@@ -23,7 +23,7 @@ from omero_ext.strings import shlex
 
 class ScriptControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         self.ctx.out("""
 Syntax: %(program_name)s script file [configuration parameters]
         Executes a file as a script. Can be used to test scripts

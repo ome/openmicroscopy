@@ -14,7 +14,7 @@ from omero.cli import BaseControl
 
 class UploadControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         return \
             """
 Syntax: %(program_name)s upload <filename>

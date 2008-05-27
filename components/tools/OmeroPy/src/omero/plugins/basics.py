@@ -22,7 +22,7 @@ from omero.cli import BaseControl, VERSION
 
 class HelpControl(BaseControl):
 
-    def help(self, args):
+    def help(self, args = None):
         self.out("Print help")
 
     def __call__(self, *args):
@@ -50,7 +50,9 @@ For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/Ome
 
         else:
             try:
+                # Throws ValueError if not present
                 controls.index(first)
+
                 event = [first, "help"]
                 event.extend(other)
                 self.ctx.pub(event)
@@ -59,7 +61,7 @@ For additional information, see http://trac.openmicroscopy.org.uk/omero/wiki/Ome
 
 class QuitControl(BaseControl):
 
-    def help(self, args):
+    def help(self, args = None):
         self.ctx.out("Quit application")
 
     def __call__(self, *args):
@@ -67,7 +69,7 @@ class QuitControl(BaseControl):
 
 class VersionControl(BaseControl):
 
-    def help(self, args):
+    def help(self, args = None):
         self.ctx.out("Version number")
 
     def __call__(self, *args):
@@ -75,7 +77,7 @@ class VersionControl(BaseControl):
 
 class LoadControl(BaseControl):
 
-    def help(self):
+    def help(self = None):
         status = "enabled"
         try:
             import readline

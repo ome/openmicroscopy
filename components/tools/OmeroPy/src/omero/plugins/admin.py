@@ -21,7 +21,7 @@ from omero_ext import pysys
 
 class AdminControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         self.ctx.out( """
 Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
                        --    No argument opens a command shell

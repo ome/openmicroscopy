@@ -36,7 +36,7 @@ class Question:
 
 class SetupControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         self.ctx.out(
         """
 Syntax: %(program_name)s setup [simple|intermediate|advanced] [+|-psql] [+|-django] [+|-jboss] [dirs]

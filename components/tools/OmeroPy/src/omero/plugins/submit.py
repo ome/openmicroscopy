@@ -46,7 +46,7 @@ class SubmitCLI(CLI):
 
 class SubmitControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         self.ctx.out("""
 Syntax: %(program_name)s submit single command with args
                          submit

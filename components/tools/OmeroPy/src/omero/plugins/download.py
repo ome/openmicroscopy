@@ -14,7 +14,7 @@ from omero.cli import BaseControl
 
 class DownloadControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         self.ctx.out(
         """
 Syntax: %(program_name)s download <id> <filename>

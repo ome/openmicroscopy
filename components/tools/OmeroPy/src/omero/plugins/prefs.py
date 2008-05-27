@@ -18,7 +18,7 @@ import omero.java
 
 class PrefsControl(BaseControl):
 
-    def help(self):
+    def help(self, args = None):
         self.ctx.out( """
 Syntax: %(program_name)s prefs
        Access to java properties

@@ -56,6 +56,8 @@ OMERODIR = OMEROCLI.dirname().dirname()
 #  - add an argument class which is always used at the top of a control
 #    def somemethod(self, args): # args always assumed to be a shlex'd arg, but checked
 #        arg = Argument(args)
+#  - In almost all cases, mark a flag in the CLI "lastError" and continue,
+#    allowing users to do something of the form: on_success or on_fail
 
 class Arguments:
     """
@@ -119,19 +121,6 @@ class Arguments:
         else:
             return input
 
-    def noneOrSome(self, none, some):
-        """
-        Dispatches to the appropriate method (none or some)
-        based on the contents of "args" according to the following:
-
-        args == None    ==> none()
-        len(args) == 0  ==> none()
-        len(args) == 1  ==> some(args[0], [])
-        otherwise       ==> some(args[0], args[1:])
-        """
-        if self.args == None or len(self.args) == 0: return none()
-        else: return some(self.args)
-
     #######################################
     #
     # Usability methods
@@ -140,6 +129,8 @@ class Arguments:
         return iter(self.args)
     def __len__(self):
         return len(self.args)
+    def __str__(self):
+        return ", ".join(self.args)
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -189,7 +180,7 @@ class Context:
         """
         Expects as single string as argument"
         """
-        self.safePrint(arg, pysys.stdout)
+        self.safePrint(text, pysys.stdout)
 
     def err(self, text):
         """
@@ -340,10 +331,25 @@ class BaseControl:
 
     ###############################################
     #
-    # Methods likely to be implement by subclasses
+    # Methods likely to be implemented by subclasses
     #
-    def help(self, args):
+    def help(self, args = []):
         return """ Help not implemented """
+
+    def _complete(self, text, line, begidx, endidx):
+        try:
+            import readline
+            # import rlcompleter
+        except ImportError, ie:
+            self.ctx.err("No readline")
+            return []
+
+        # readline.parse_and_bind("tab: complete")
+        # readline.set_completer_delims(' \t\n`~!@#$%^&*()-=+[{]}\\|;:\'",<>;?')
+
+        completions = [method for method in dir(self) if callable(getattr(self, method)) ]
+        completions = [method for method in completions if method.startswith(text) and not method.startswith("_") ]
+        return completions
 
     def _likes(self, args):
         """
@@ -355,12 +361,13 @@ class BaseControl:
         Simply return True is a possible solution. The default
         implementation checks that the subclass has a method
         matching the first argument, such that the default
-        __call__() implementation could dispatch to it.
+        __call__() implementation could dispatch to it. Or if
+        no arguments are given, True is returned since self._noargs()
+        can be called.
         """
         args = Arguments(args)
-        # Here we accept all commands of length zero since
-        # there's a default implementation for that.
-        if len(args) == 0 or hasattr(self,args[0]):
+        first, other = args.firstOther()
+        if first == None or hasattr(self, first):
             return True
         return False
 
@@ -370,14 +377,28 @@ class BaseControl:
         implementation assumes that the *args consists of either
         no elements or exactly one list of strings ==> (["str"],)
 
-        If no args are present, _noargs is called. If more than one
-        vararg is present, an exception is raised. Otherwise, noneOrSome()
-        is called with the shlexed array.
+        If no args are present, _noargs is called. Subclasses may want
+        to read from stdin or drop into a shell from _noargs().
+
+        Otherwise, the rest of the arguments are passed to the method
+        named by the first argument, if _likes() returns True.
         """
         args = Arguments(*args)
-        none = lambda : self._noargs()
-        some = lambda args : self._someargs(args)
-        args.noneOrSome(none, some)
+        first,other = args.firstOther()
+        if first == None:
+            self._noargs()
+        else:
+            if not self._likes(args):
+                if DEBUG:
+                    # Throwing an exception
+                    # so we can see how we got here.
+                    raise Exc("Bad arguments: " + str(args))
+                self.ctx.err("Bad arguments: " + ",".join(args))
+                self.help()
+                self.ctx.die(8, "Exiting.")
+            else:
+                m = getattr(self, first)
+                return m(other)
 
     def _noargs(self):
         """
@@ -386,24 +407,6 @@ class BaseControl:
         is printed.
         """
         self.help()
-
-    def _someargs(self, args):
-       """
-       Method called with __call__() gets a string list. The first
-       value is passed as command and [1:] of the list are passed as args,
-       if available. Otherwise the empty list is passed.
-       """
-       args = Arguments(args)
-       if not self._likes(args):
-           if DEBUG:
-                raise Exc("Bad arguments: " + str(args))
-           self.ctx.err("Bad arguments: " + ",".join(args))
-           self.help()
-           self.ctx.die(8, "Exiting.")
-       else:
-           first, other = args.firstOther()
-           m = getattr(self, first)
-           return m(other)
 
     def _main(self):
         """
@@ -501,24 +504,9 @@ class CLI(cmd.Cmd, Context):
         else:
             self.err("Unkown command: " + arg)
 
-    def completenames(self, *args):
-        return self.controls.keys()
-
-    def completedefault(self, text, line, begidx, endidx):
-        try:
-            import readline
-            # import rlcompleter
-        except ImportError, ie:
-            return []
-
-        # readline.parse_and_bind("tab: complete")
-        readline.set_completer_delims(' \t\n`~!@#$%^&*()-=+[{]}\\|;:\'",<>;?')
-
-        completions = []
-        completions.extend(self.controls.key())
-        completions.extend(glob.glob('%s*' % text))
-        return completions
-
+    def completenames(self, text, line, begidx, endidx):
+        names = self.controls.keys()
+        return [n for n in names if n.startswith(text) ]
 
     # Delegation
     def do_start(self, args):
@@ -546,14 +534,18 @@ class CLI(cmd.Cmd, Context):
 
     def pub(self, args):
         """
-        Publishes the command as given via noneOrSome logic
+        Publishes the command, using the first argument as routing
+        information, i.e. the name of the plugin to be instantiated,
+        and the rest as the arguments to its __call__() method.
         """
         try:
             args = Arguments(args)
             first, other = args.firstOther()
-            none = lambda: self.ctx.die(2, "Don't know what to do")
-            some = lambda argsewtwert: self.controls[first]()(args)
-            args.noneOrSome(none, some)
+            if first == None:
+                self.ctx.die(2, "No plugin given. Giving up")
+            else:
+                control = self.controls[first]()
+                control(other)
         except KeyError, ke:
             self.die(11, "Missing required plugin: "+ str(ke))
 
@@ -607,11 +599,21 @@ class CLI(cmd.Cmd, Context):
             def __init__(self, ctx, control):
                 self.ctx = ctx
                 self.Control = Control
-            def __call__(self, *args):
-                self.Control(self.ctx)(*args)
+                self.control = None
+            def _setup(self):
+                if self.control == None:
+                    self.control = self.Control(self.ctx)
+            def do_method(self, *args):
+                self._setup()
+                return self.control.__call__(*args)
+            def complete_method(self, *args):
+                self._setup()
+                return self.control._complete(*args)
 
         self.controls[name] = Control
-        setattr(self, "do_" + name, Wrapper(self, Control))
+        wrapper = Wrapper(self, Control)
+        setattr(self, "do_" + name, wrapper.do_method)
+        setattr(self, "complete_" + name, wrapper.complete_method)
 
     def loadplugins(self):
         """ Finds all plugins and gives them a chance to register
