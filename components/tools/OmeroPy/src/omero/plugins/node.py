@@ -40,55 +40,55 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
     def _noargs(self):
         self.help()
 
-    def _onearg(self, cmd):
-        self._someargs(cmd,[])
-
-    def _someargs(self, args):
-        args = Arguments(args)
+    def __call__(self, *args):
+        args = Arguments(*args)
         first, other = args.firstOther()
         try:
-            node = self._node()
+            name = self._node()
             sync = False
             acts = []
 
-            if cmd == "sync":
+            if first == "sync":
                 # No master specified
                 sync = True
-                node = self._node()
+                name = self._node()
                 acts.extend(other)
-            elif cmd == "start" or cmd == "stop" or cmd =="stop" or cmd == "kill" or cmd == "restart":
+            elif first == "start" or first == "stop" or first =="stop" or first == "kill" or first == "restart":
                 # Neither master nor sync specified. Defaults in effect
-                acts.append(cmd)
+                acts.append(first)
                 acts.extend(other)
             else:
                 # Otherwise, command is name of master
-                node = cmd
+                name = first
                 # Check for sync
                 if len(other) > 0 and other[0] == "sync":
                     sync = True
                     other.pop(0)
                 acts.extend(other)
 
-            self._node(node)
+            self._node(name)
             if len(acts) == 0:
                 self.help()
             else:
                 for act in acts:
                     c = getattr(self, act)
-                    c(node, sync)
+                    c(name, sync)
 
         except Exc, ex:
+            import traceback
+            traceback.print_exc()
             self.ctx.dbg(str(ex))
-            self.ctx.die(100, "Bad argument: "+ cmd + ", " + ", ".join(other))
+            self.ctx.die(100, "Bad argument: "+ str(first) + ", " + ", ".join(other))
 
     ##############################################
     #
     # Commands
     #
 
-    def start(self, node = None, sync = False):
-        if node == None:
-            node = self._node()
+    def start(self, name = None, sync = False):
+
+        if name == None:
+            name = self._node()
 
         props = self._properties()
         nodedata = path(props["IceGrid.Node.Data"])
@@ -99,20 +99,21 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
         if not logdata.exists():
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
+
         props = self._properties()
         command = ["icegridnode", self._icecfg()]
-        command = command + ["--daemon", "--pidfile", self._pid(),"--nochdir"]
+        command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
         self.ctx.popen(command)
 
-    def stop(self, node = None, sync = False):
-        if node == None:
-            node = self._node()
+    def stop(self, name = None, sync = False):
+        if name == None:
+            name = self._node()
         pid = open(self._pid(),"r").readline()
         os.kill(int(pid), signal.SIGQUIT)
 
-    def kill(self, node = None, sync = False):
-        if node == None:
-            node = self._node()
+    def kill(self, name = None, sync = False):
+        if name == None:
+            name = self._node()
         pid = open(self._pid(),"r").readline()
         os.kill(int(pid), signal.SIGKILL)
 

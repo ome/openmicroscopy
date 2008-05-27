@@ -33,6 +33,27 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
            status      --
         """)
 
+    def _complete(self, text, line, begidx, endidx):
+        s = " deploy "
+        l = len(s)
+        i = line.find(s)
+        if i >= 0:
+            f = line[i+l:]
+            p = path(f)
+            if p.exists() and p.isdir():
+                if not f.endswith(os.sep):
+                    return [p.basename()+os.sep]
+                return [ str(i)[len(f):] for i in p.listdir() ]
+            else:
+                results = [ str(i.basename()) for i in self.dir.glob(f+"*")  ]
+                if len(results) == 1:
+                    maybe_dir = path(results[0])
+                    if maybe_dir.exists() and maybe_dir.isdir():
+                        return [ results[0] + os.sep ]
+                return results
+        else:
+            return BaseControl._complete(self, text, line, begidx, endidx)
+
     def _node(self, omero_node = None):
         """ Overrides the regular node() logic to return the value of OMERO_MASTER or "master" """
         if omero_node != None:
@@ -66,21 +87,25 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
             """ % regdata)
             regdata.makedirs()
 
-        self.check()
+        self.check([])
         self.ctx.pub(["node", self._node(), "start"])
 
     def deploy(self, args):
         args = Arguments(args)
         command = ["icegridadmin", self._icecfg()]
         first,other = args.firstOther()
-        descrpt = path(first)
-        targets = " ".join(other)
 
-        if not descrpt.exists():
-            self.die(20,"%s does not exist" % path)
+        if first == None or len(first) == 0:
+            self.ctx.err("No file given")
+        else:
+            descrpt = path(first)
+            targets = " ".join(other)
 
-        command = command + ["-e","application add %s %s" % (descrpt, targets) ]
-        self.ctx.popen(command)
+            if not descrpt.exists():
+                self.ctx.err("%s does not exist" % path)
+            else:
+                command = command + ["-e","application add %s %s" % (descrpt, targets) ]
+                self.ctx.popen(command)
 
     def stop(self, args):
         command = ["icegridadmin", self._icecfg()]
@@ -89,8 +114,18 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         # Was:
         # self.ctx.pub(["node", self._node(), "stop"])
 
-    def check(self):
-        print "Check db. Have a way to load the db control"
+    def check(self, args):
+        # print "Check db. Have a way to load the db control"
+        pass
+
+    def grid(self, args):
+        args = Arguments(args)
+        command = ["icegridadmin","--Ice.Config=etc/internal.cfg" ]
+        if len(args) > 0:
+            command.extend(["-e",args.join(" ")])
+            return self.ctx.popen(command)
+        else:
+            rv = self.ctx.popen(command, False)
 
 try:
     register("admin", AdminControl)

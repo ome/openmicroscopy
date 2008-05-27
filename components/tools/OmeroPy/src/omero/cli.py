@@ -131,6 +131,8 @@ class Arguments:
         return len(self.args)
     def __str__(self):
         return ", ".join(self.args)
+    def join(self, text):
+        return text.join(self.args)
 
 class Context:
     """Simple context used for default logic. The CLI registry which registers
@@ -155,8 +157,9 @@ class Context:
             print >>stream, (text % {"program_name": pysys.argv[0]})
         except:
             print >>pysys.stderr, "Error printing text"
-            if DEBUG: traceback.print_exc()
             print >>pysys.stdout, text
+            if DEBUG:
+                traceback.print_exc()
 
     def pythonpath(self):
         """
@@ -200,10 +203,10 @@ class Context:
 
     def exit(self, args):
         self.out(args)
-        raise exceptions.Exception("Normal exit")
+        self.interrupt_loop = True
 
     def popen(self, args):
-        self.out(args)
+        self.out(str(args))
 
     def conn(self):
         raise NotImplementedException()
@@ -348,7 +351,7 @@ class BaseControl:
         # readline.set_completer_delims(' \t\n`~!@#$%^&*()-=+[{]}\\|;:\'",<>;?')
 
         completions = [method for method in dir(self) if callable(getattr(self, method)) ]
-        completions = [method for method in completions if method.startswith(text) and not method.startswith("_") ]
+        completions = [ str(method + " ") for method in completions if method.startswith(text) and not method.startswith("_") ]
         return completions
 
     def _likes(self, args):
@@ -420,6 +423,7 @@ class BaseControl:
             else:
                 self.__call__(pysys.argv[1:])
 
+
 class CLI(cmd.Cmd, Context):
     """
     Command line interface class. Supports various styles of executing the
@@ -447,15 +451,24 @@ class CLI(cmd.Cmd, Context):
         stop = self.postcmd(stop, line)
 
     def invokeloop(self):
-        try:
-            self.selfintro = TEXT
-            if not self.stdin.isatty():
+        self.selfintro = TEXT
+        if not self.stdin.isatty():
+            self.selfintro = ""
+            self.prompt = ""
+        while not self.interrupt_loop:
+            try:
+                self.cmdloop(self.selfintro)
+            except KeyboardInterrupt, ki:
+                # We've done the intro once now. Don't repeat yourself.
                 self.selfintro = ""
-                self.prompt = ""
-            self.cmdloop(self.selfintro)
-        except KeyboardInterrupt, ki:
-            self.out("")
-        self.interrupt_loop = True
+                try:
+                    import readline
+                    if len(readline.get_line_buffer()) > 0:
+                        self.out("")
+                    else:
+                        self.out("Use quit to exit")
+                except ImportError:
+                    self.out("Use quit to exit")
 
     def precmd(self, input):
         if not isinstance(input,list):
@@ -471,7 +484,7 @@ class CLI(cmd.Cmd, Context):
             self.err(str(ae))
             if DEBUG:
                 traceback.print_exc()
-        return False # Continue
+            return False # Continue
 
     def postcmd(self, stop, line):
         return self.interrupt_loop
@@ -506,7 +519,7 @@ class CLI(cmd.Cmd, Context):
 
     def completenames(self, text, line, begidx, endidx):
         names = self.controls.keys()
-        return [n for n in names if n.startswith(text) ]
+        return [ str(n + " ") for n in names if n.startswith(text) ]
 
     # Delegation
     def do_start(self, args):
@@ -526,7 +539,7 @@ class CLI(cmd.Cmd, Context):
     ##
     def exit(self, args):
         self.out(args)
-        pysys.exit(0)
+        self.interrupt_loop = True
 
     def die(self, rc, args):
         self.err(args)
@@ -544,18 +557,18 @@ class CLI(cmd.Cmd, Context):
             if first == None:
                 self.ctx.die(2, "No plugin given. Giving up")
             else:
-                control = self.controls[first]()
+                control = self.controls[first]
                 control(other)
         except KeyError, ke:
             self.die(11, "Missing required plugin: "+ str(ke))
 
-    def popen(self, string):
+    def popen(self, args, strict = True):
         """
         Calls the string in a subprocess and dies if the return value is not 0
         """
-        rv = subprocess.call(string)
-        if not rv == 0:
-            self.die(rv, "Error during:\"%s\"" % string )
+        rv = subprocess.call(args)
+        if strict and not rv == 0:
+            self.die(rv, "Error during:\"%s\"" % str(args) )
         return rv
 
     def conn(self, properties={}, profile=None):
@@ -602,16 +615,31 @@ class CLI(cmd.Cmd, Context):
                 self.control = None
             def _setup(self):
                 if self.control == None:
-                    self.control = self.Control(self.ctx)
+                    self.control = self.Control(ctx = self.ctx)
             def do_method(self, *args):
-                self._setup()
-                return self.control.__call__(*args)
+                try:
+                    self._setup()
+                    return self.control.__call__(*args)
+                except Exc, exc:
+                    if DEBUG:
+                        traceback.print_exc()
+                    self.ctx.err("Error:"+str(exc))
             def complete_method(self, *args):
-                self._setup()
-                return self.control._complete(*args)
+                try:
+                    self._setup()
+                    return self.control._complete(*args)
+                except Exc, exc:
+                    self.ctx.err("Completion error:"+str(exc))
+            def __call__(self, *args):
+                """
+                If the wrapper gets treated like the control
+                instance, and __call__()'d, then pass the *args
+                to do_method()
+                """
+                return self.do_method(*args)
 
-        self.controls[name] = Control
         wrapper = Wrapper(self, Control)
+        self.controls[name] = wrapper
         setattr(self, "do_" + name, wrapper.do_method)
         setattr(self, "complete_" + name, wrapper.complete_method)
 

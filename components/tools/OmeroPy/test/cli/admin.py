@@ -25,12 +25,12 @@ class E1(Context):
 class TestAdmin(unittest.TestCase):
     def testMain(self):
         e1 = E1()
-        c = AdminControl(omeroDir, e1)
+        c = AdminControl(e1, omeroDir)
         c._noargs()
         c()
     def testStart(self):
         e1 = E1()
-        c = AdminControl(omeroDir, e1)
+        c = AdminControl(e1, omeroDir)
         self.assert_(c._likes(None))
         self.assert_(c._likes("start"))
         c("start")
@@ -39,13 +39,23 @@ class TestAdmin(unittest.TestCase):
         self.assert_(e1.called == 2)
     def testCheck(self):
         e1 = E1()
-        c = AdminControl(omeroDir, e1)
-        c.check()
+        c = AdminControl(e1, omeroDir)
+        c.check([])
         c("check")
     def testStop(self):
         e1 = E1()
-        c = AdminControl(omeroDir, e1)
+        c = AdminControl(e1, omeroDir)
         c("stop")
-        c.stop()
+        c.stop([])
+    def testComplete(self):
+        c = AdminControl()
+        t = ""
+        l = "admin deploy "
+        b = len(l)
+        l = c._complete(t,l+"lib",b,b+3)
+        self.assert_( "omero" in l, str(l) )
+        l = c._complete(t,l+"lib/",b,b+4)
+        self.assert_( "omero" in l, str(l) )
+
 if __name__ == '__main__':
     unittest.main()

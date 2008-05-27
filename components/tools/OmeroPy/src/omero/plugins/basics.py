@@ -18,7 +18,7 @@
 """
 
 import subprocess, optparse, os, sys
-from omero.cli import BaseControl, VERSION
+from omero.cli import Arguments, BaseControl, VERSION
 
 class HelpControl(BaseControl):
 
@@ -92,7 +92,7 @@ Syntax: %%(program_name)s file1 file2 file3
         """ % status )
 
     def __call__(self, *args):
-        args = Argument(*args)
+        args = Arguments(*args)
         for arg in args:
             file = open(arg,'r')
             self.ctx.dbg("Loading file %s" % arg)
