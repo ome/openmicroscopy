@@ -36,7 +36,6 @@ import java.util.Set;
 import ome.model.IObject;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
-import ome.model.containers.Dataset;
 import ome.model.core.Image;
 import ome.util.CBlock;
 

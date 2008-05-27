@@ -22,6 +22,11 @@ import ome.model.IAnnotated;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.FileAnnotation;
+import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.TagAnnotation;
+import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.UrlAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.Dataset;
@@ -119,8 +124,20 @@ public abstract class DataObject {
             converted = new ProjectData((Project) obj);
         } else if (obj instanceof Dataset) {
             converted = new DatasetData((Dataset) obj);
-        } else if (obj instanceof Annotation) {
-            converted = null;//new AnnotationData((Annotation) obj);
+        } else if (obj instanceof UrlAnnotation) {
+            converted = new URLAnnotationData((UrlAnnotation) obj);
+        } else if (obj instanceof TagAnnotation) {
+        	converted = new TagAnnotationData((TagAnnotation) obj);
+        } else if (obj instanceof TextAnnotation) {
+        	converted = new TextualAnnotationData((TextAnnotation) obj);	
+        } else if (obj instanceof LongAnnotation) {
+        	LongAnnotation ann = (LongAnnotation) obj;
+        	if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs()))
+        		converted = new RatingAnnotationData(ann);
+        	//TODO create a generic long annotation data
+        } else if (obj instanceof FileAnnotation) {
+        	converted = new FileAnnotationData((FileAnnotation) obj);		
+        	
         } else if (obj instanceof Image) {
             converted = new ImageData((Image) obj);
         } else if (obj instanceof CategoryGroup) {

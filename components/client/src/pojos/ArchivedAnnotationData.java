@@ -31,7 +31,7 @@ package pojos;
 import ome.model.annotations.BooleanAnnotation;
 
 /** 
- * 
+ * Boolean annotation used to see if an image has been archived or not.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -80,7 +80,7 @@ public class ArchivedAnnotationData
 	 * 						to this <code>DataObject</code>. 
      *            			Mustn't be <code>null</code>.
 	 */
-	public  ArchivedAnnotationData(BooleanAnnotation annotation)
+	public ArchivedAnnotationData(BooleanAnnotation annotation)
 	{
 		super(annotation);
 	}

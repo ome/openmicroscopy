@@ -47,6 +47,13 @@ public class RatingAnnotationData
 	extends AnnotationData
 {
 
+	/** 
+	 * The name space used to identify the archived annotation
+	 * linked to a set of pixels.
+	 */
+	public static final String INSIGHT_RATING_NS = 
+					"openmicroscopy.org/omero/insight/rating";
+	
 	/** Indicates the object is not rated. */
 	public static final int LEVEL_ZERO = 0;
 	
@@ -102,6 +109,7 @@ public class RatingAnnotationData
 	{
 		super(LongAnnotation.class);
 		setRating(value);
+		setNameSpace(INSIGHT_RATING_NS);
 	}
 	
 	/**
@@ -116,6 +124,7 @@ public class RatingAnnotationData
 		super(annotation);
 		//check if it is correct.
 		checkValue(getRating());
+		setNameSpace(INSIGHT_RATING_NS);
 	}
 	
 	/**
