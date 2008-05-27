@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 //Java imports
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
@@ -143,9 +145,20 @@ public class ThumbnailLoader
                                            ""; //Description wasn't available.   
             viewer.setStatus(status, percDone);
            
+            /**
             ThumbnailData td = (ThumbnailData) fe.getPartialResult();
             if (td != null)  //Last fe has null object.
                 viewer.setThumbnail(td.getImageID(), td.getThumbnail(), max);
+                */
+            List l = (List) fe.getPartialResult();
+            if (l != null) {
+            	Iterator i = l.iterator();
+            	ThumbnailData td;
+            	while (i.hasNext()) {
+            		td = (ThumbnailData) i.next();
+            		viewer.setThumbnail(td.getImageID(), td.getThumbnail(), max);
+				}
+            }
         } else {
         	if (status == null) 
         		status = (percDone == 100) ? "Done" :  //Else

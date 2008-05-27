@@ -186,6 +186,7 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		try {
+			if (pixID < 0) return null;
 			return createImage(gateway.getThumbnail(pixID, sizeX, sizeY, 
 								userID));
 		} catch (Exception e) {
@@ -197,6 +198,45 @@ class OmeroImageServiceImpl
 		}
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#getThumbnailSet(List, int)
+	 */
+	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, int max)
+		throws RenderingServiceException
+	{
+		try {
+			Map<Long, BufferedImage> r = new HashMap<Long, BufferedImage>();
+			if (pixelsID == null || pixelsID.size() == 0)
+				return r;
+			Map m = gateway.getThumbnailSet(pixelsID, max);
+			if (m == null || m.size() == 0) return r;
+			Iterator i = m.keySet().iterator();
+			long id;
+			byte[] values;
+			while (i.hasNext()) {
+				id = (Long) i.next();
+				values = (byte[]) m.get(id);
+				if (values == null)
+					r.put(id, null);
+				else {
+					try {
+						r.put(id, createImage(values));
+					} catch (Exception e) {
+						r.put(id, null);
+					}
+				}
+			}
+			return r;
+		} catch (Exception e) {
+			if (e instanceof DSOutOfServiceException) {
+				context.getLogger().error(this, e.getMessage());
+				return getThumbnailSet(pixelsID, max);
+			}
+			throw new RenderingServiceException("Get Thumbnail set", e);
+		}
+	}
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#reloadRenderingService(long)

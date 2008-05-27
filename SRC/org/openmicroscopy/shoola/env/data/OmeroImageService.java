@@ -24,10 +24,9 @@
 package org.openmicroscopy.shoola.env.data;
 
 
-
-
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -105,6 +104,19 @@ public interface OmeroImageService
 										userID)
 		throws RenderingServiceException;
 
+	/**
+	 * Retrieves the thumbnails corresponding to the passed collection of
+	 * pixels set.
+	 * 
+	 * @param pixelsID	The collection of pixels set.
+	 * @param maxLength The maximum length of a thumbnail.
+	 * @return See above.
+	 * @throws RenderingServiceException
+	 */
+	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, 
+			                                        int maxLength)
+		throws RenderingServiceException;
+	
 	/**
 	 * Reloads the rendering engine for the passed set of pixels.
 	 * 

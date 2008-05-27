@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -88,8 +89,9 @@ class HierarchyBrowsingViewImpl
     								int maxWidth, int maxHeight, long userID,
                                      AgentEventListener observer)
     {
-        BatchCallTree cmd = new ThumbnailLoader(images, maxWidth, 
-        							maxHeight, userID);
+        //BatchCallTree cmd = new ThumbnailLoader(images, maxWidth, 
+        //							maxHeight, userID);
+    	BatchCallTree cmd = new ThumbnailSetLoader(images, maxHeight);
         return cmd.exec(observer);
     }
 

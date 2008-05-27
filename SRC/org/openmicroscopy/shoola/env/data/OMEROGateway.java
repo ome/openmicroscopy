@@ -1389,13 +1389,12 @@ class OMEROGateway
 		try {
 			ThumbnailStore service = getThumbService();
 			needDefault(pixelsID, null);
-			/*
+
 			Set<Long> pix = new HashSet<Long>();
 			pix.add(pixelsID);
 			Map m = service.getThumbnailByLongestSideSet(sizeX, pix);
 			return (byte[]) m.get(pixelsID);
-			*/
-			return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
+			//return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
 			//return service.getThumbnailDirect(new Integer(sizeX), 
 			//		new Integer(sizeY));
 		} catch (Throwable t) {
@@ -1441,6 +1440,41 @@ class OMEROGateway
 		}
 	}
 
+	/**
+	 * Retrieves the thumbnail for the passed collection of pixels set.
+	 * 
+	 * @param pixelsID	The collection of pixels set.
+	 * @param maxLength	The maximum length of the thumbnail width or heigth
+	 * 					depending on the pixel size.
+	 * @return See above.
+	 * @throws RenderingServiceException If an error occured while trying to 
+	 *              retrieve data from the service. 
+	 * @throws DSOutOfServiceException If the connection is broken.
+	 */
+	synchronized Map getThumbnailSet(List<Long> pixelsID, int maxLength)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		isSessionAlive();
+		try {
+			ThumbnailStore service = getThumbService();
+			//needDefault(pixelsID.get(0), null);
+			Set<Long> ids = new HashSet<Long>();
+			Iterator<Long> i = pixelsID.iterator();
+			while (i.hasNext()) 
+				ids.add(i.next());
+			return service.getThumbnailByLongestSideSet(maxLength, ids);
+		} catch (Throwable t) {
+			if (thumbnailService != null) thumbnailService.close();
+			thumbnailService = null;
+			if (t instanceof EJBException || 
+					t.getCause() instanceof IllegalStateException) {
+				throw new DSOutOfServiceException(
+						"Thumbnail service null for pixelsID: "+pixelsID, t);
+			}
+			throw new RenderingServiceException("Cannot get thumbnail", t);
+		}
+	}
+	
 	/**
 	 * Creates a new rendering service for the specified pixels set.
 	 * 

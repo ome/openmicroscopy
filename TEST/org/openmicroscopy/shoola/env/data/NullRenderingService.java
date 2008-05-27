@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -185,6 +186,17 @@ public class NullRenderingService
 	public Map setOriginalRenderingSettings(Class rootNodeType, 
 											Set<Long> nodeIDs) 
 		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#getThumbnailSet(List, int)
+     */
+	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, 
+			                                        int maxLength) 
+	    throws RenderingServiceException
 	{
 		return null;
 	}

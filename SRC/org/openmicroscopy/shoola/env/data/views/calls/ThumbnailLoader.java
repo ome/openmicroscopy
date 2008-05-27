@@ -166,6 +166,7 @@ public class ThumbnailLoader
             }
         };
     } 
+    
     /**
      * Adds a {@link BatchCall} to the tree for each thumbnail to retrieve.
      * The batch call simply invokes {@link #loadThumbail(int)}.
