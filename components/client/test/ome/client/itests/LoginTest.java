@@ -6,12 +6,11 @@
  */
 package ome.client.itests;
 
-import org.testng.annotations.*;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.UUID;
 
 import junit.framework.TestCase;
-
 import ome.api.IQuery;
 import ome.model.core.Image;
 import ome.model.internal.Permissions;
@@ -21,8 +20,14 @@ import ome.model.meta.Experimenter;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 
+import org.testng.annotations.ExpectedExceptions;
+import org.testng.annotations.Test;
+
 @Test(groups = { "client", "integration" })
 public class LoginTest extends TestCase {
+
+    static ResourceBundle locals = ResourceBundle.getBundle("local");
+    static String rootpass = locals.getString("omero.rootpass");
 
     @Test
     public void test_withPropertiesNull() throws Exception {
@@ -45,7 +50,7 @@ public class LoginTest extends TestCase {
     public void test_withProps() throws Exception {
         Properties p = new Properties();
         p.setProperty("omero.user", "root");
-        p.setProperty("omero.pass", "ome");
+        p.setProperty("omero.pass", rootpass);
         ServiceFactory factory = new ServiceFactory(p);
         IQuery iQuery = factory.getQueryService();
         iQuery.get(Experimenter.class, 0L);
@@ -53,7 +58,7 @@ public class LoginTest extends TestCase {
 
     @Test
     public void test_withLogin() throws Exception {
-        Login login = new Login("root", "ome");
+        Login login = new Login("root", rootpass);
         ServiceFactory factory = new ServiceFactory(login);
         IQuery iQuery = factory.getQueryService();
         iQuery.get(Experimenter.class, 0L);
@@ -61,7 +66,7 @@ public class LoginTest extends TestCase {
 
     @Test(groups = { "ticket:182" })
     public void testLoginWithUmask() throws Exception {
-        Login login = new Login("root", "ome");
+        Login login = new Login("root", rootpass);
         ServiceFactory factory = new ServiceFactory(login);
         factory.setUmask(Permissions.READ_ONLY);
         Image i = new Image();

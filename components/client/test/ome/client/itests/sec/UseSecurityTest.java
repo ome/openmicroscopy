@@ -453,9 +453,11 @@ public class UseSecurityTest extends AbstractPermissionsTest {
 
     // ~ Special: "tag" (e.g. Image/Pixels)
     // =========================================================================
+    // Note: in 3.0-Beta3 the special tag was removed. This test is now
+    // disabled.
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void test_U_Image_U_Pixels() throws Exception {
         ownsfA = ownsfB = u;
         ownerA = ownerB = user;

@@ -9,6 +9,7 @@ package ome.client.itests.sec;
 import junit.framework.TestCase;
 import ome.api.IConfig;
 import ome.api.ISession;
+import ome.conditions.RemovedSessionException;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.system.Login;
@@ -88,20 +89,14 @@ public class SessionTest extends TestCase {
         sessionedSf.getConfigService().getServerTime();
     }
 
-    @Test
-    public void testOthersCantKillASession() {
+    @Test(expectedExceptions = RemovedSessionException.class)
+    public void testOthersCanKillASession() {
         ServiceFactory sf1 = new ServiceFactory(rootLogin), sf2 = new ServiceFactory(
                 rootLogin);
 
         Session session = sf1.getSession();
         sf2.getSessionService().closeSession(session);
         sf1.getConfigService().getServerTime();
-        fail("good or bad if this is reached?");
-    }
-
-    @Test
-    public void testCanEveryoneUseTheSameISession() {
-        fail("even guests?");
     }
 
 }
