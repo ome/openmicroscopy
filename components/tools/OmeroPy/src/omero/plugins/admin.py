@@ -17,13 +17,13 @@ from path import path
 from omero.cli import BaseControl
 from omero_ext import pysys
 
-class Control(BaseControl):
+class AdminControl(BaseControl):
 
     def _name(self):
         return "admin"
 
     def help(self):
-        self.event.out( """
+        self.ctx.out( """
 Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
                        --    No argument opens a command shell
            check       --
@@ -50,23 +50,24 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         regdata = path(props["IceGrid.Registry.Data"])
         logdata = path(props["Ice.StdOut"]).dirname()
         if not nodedata.exists() or not regdata.exists() or not logdata.exists():
-            if not nodedata.exists(): self.event.err("Missing %s" % nodedata)
-            if not regdata.exists(): self.event.err("Missing %s" % regdata)
-            if not logdata.exists(): self.event.err("Missing %s" % logdata)
-            self.event.out("""Master directories not all present. You may need to run "admin deploy" """)
+            if not nodedata.exists(): self.ctx.err("Missing %s" % nodedata)
+            if not regdata.exists(): self.ctx.err("Missing %s" % regdata)
+            if not logdata.exists(): self.ctx.err("Missing %s" % logdata)
+            self.ctx.out("""Master directories not all present. You may need to run "admin deploy" """)
         self.check()
-        self.event.pub(["node", self._node(), "start"])
+        self.ctx.pub(["node", self._node(), "start"])
 
     def stop(self):
         command = ["icegridadmin", self._icecfg()]
         command = command + ["-e","node shutdown master"]
-        self.event.popen(command)
-        #self.event.pub(["node", self._node(), "stop"])
+        self.ctx.popen(command)
+        # Was:
+        # self.ctx.pub(["node", self._node(), "stop"])
 
     def check(self):
         print "Check db. Have a way to load the db control"
 
-c = Control(path(os.getcwd()), None)
+c = AdminControl()
 try:
     register(c)
 except NameError:

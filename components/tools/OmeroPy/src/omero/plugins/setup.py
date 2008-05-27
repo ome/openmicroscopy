@@ -70,11 +70,11 @@ class SetupControl(BaseControl):
         import getpass
         password = getpass.getpass()
         print password
-        
+
         print getpass.getuser()
         """
 
-c = SetupControl(None, None)
+c = SetupControl()
 try:
     register(c)
 except NameError:

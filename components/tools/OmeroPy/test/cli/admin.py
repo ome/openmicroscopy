@@ -10,10 +10,10 @@
 
 import unittest, os, subprocess, StringIO
 from path import path
-from omero.plugins.admin import Control
+from omero.plugins.admin import AdminControl
 from omero.cli import Event
 
-omeroDir = path(os.getcwd()) / "build" 
+omeroDir = path(os.getcwd()) / "build"
 
 class E1(Event):
     def pub(self, args):
@@ -25,12 +25,12 @@ class E1(Event):
 class TestAdmin(unittest.TestCase):
     def testMain(self):
         e1 = E1()
-        c = Control(omeroDir, e1)
+        c = AdminControl(omeroDir, e1)
         c._noargs()
         c()
     def testStart(self):
         e1 = E1()
-        c = Control(omeroDir, e1)
+        c = AdminControl(omeroDir, e1)
         self.assert_(c._likes(None))
         self.assert_(c._likes("start"))
         c("start")
@@ -39,12 +39,12 @@ class TestAdmin(unittest.TestCase):
         self.assert_(e1.called == 2)
     def testCheck(self):
         e1 = E1()
-        c = Control(omeroDir, e1)
+        c = AdminControl(omeroDir, e1)
         c.check()
         c("check")
     def testStop(self):
         e1 = E1()
-        c = Control(omeroDir, e1)
+        c = AdminControl(omeroDir, e1)
         c("stop")
         c.stop()
 if __name__ == '__main__':

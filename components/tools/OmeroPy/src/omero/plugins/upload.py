@@ -32,7 +32,7 @@ class UploadControl(BaseControl):
             obj = client.upload(f)
             print "Uploaded %s as " % f + str(obj.id.val)
 
-c = UploadControl(None, None)
+c = UploadControl()
 try:
     register(c)
 except NameError:

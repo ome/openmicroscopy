@@ -39,7 +39,7 @@ class NodeControl(BaseControl):
             return self(["help"])
 
         string = " ".join(args[0])
-        self.event.dbg(string)
+        self.ctx.dbg(string)
 
         try:
             omero_node, command, wait = RE.match(string).groups()
@@ -48,15 +48,15 @@ class NodeControl(BaseControl):
             cmd = getattr(self, command)
             cmd()
         except Exc, ex:
-            self.event.dbg(str(ex))
-            self.event.die("Bad argument string:"+string)
+            self.ctx.dbg(str(ex))
+            self.ctx.die("Bad argument string:"+string)
 
 
     def start(self):
         props = self._properties()
         command = ["icegridnode", self._icecfg()]
         command = command + ["--daemon", "--pidfile", self._pid(),"--nochdir"]
-        self.event.popen(command)
+        self.ctx.popen(command)
 
     def stop(self):
         pid = open(self._pid(),"r").readline()
@@ -66,7 +66,7 @@ class NodeControl(BaseControl):
         pid = open(self._pid(),"r").readline()
         os.kill(int(pid), signal.SIGKILL)
 
-c = NodeControl(None, None)
+c = NodeControl()
 try:
     register(c)
 except NameError:

@@ -27,7 +27,7 @@ class PrefsControl(BaseControl):
     def _run(self, args):
         print omero.java.run(["prefs"]+shlex(args))
 
-c = PrefsControl(None, None)
+c = PrefsControl()
 try:
     register(c)
 except NameError:

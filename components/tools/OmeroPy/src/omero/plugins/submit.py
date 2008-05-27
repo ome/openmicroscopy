@@ -64,7 +64,7 @@ class SubmitControl(BaseControl):
                 if l > 0:
                     print l," items queued. Really cancel? [Yn]"
 
-c = SubmitControl(None, None)
+c = SubmitControl()
 try:
     register(c)
 except NameError:

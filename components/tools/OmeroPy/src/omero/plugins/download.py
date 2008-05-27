@@ -28,13 +28,13 @@ class DownloadControl(BaseControl):
         id = 1
         file = "foo"
 
-        client = self.event.conn()
+        client = self.ctx.conn()
         session = client.getSession()
         filePrx = session.createRawFileStore()
         filePrx.setFileId(id)
         fileSize = filePrx.getSize()
 
-c = DownloadControl(None, None)
+c = DownloadControl()
 try:
     register(c)
 except NameError:

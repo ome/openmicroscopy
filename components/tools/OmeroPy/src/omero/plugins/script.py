@@ -41,7 +41,7 @@ class ScriptControl(BaseControl):
         if p.poll() != 0:
             self.throw("Execution failed.")
 
-c = ScriptControl(None, None)
+c = ScriptControl()
 try:
     register(c)
 except NameError:

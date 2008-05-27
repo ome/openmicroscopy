@@ -40,6 +40,7 @@ TEXT="""
 """ % str(VERSION)
 
 OMEROCLI = path(__file__).expand().dirname()
+OMERODIR = OMEROCLI.dirname().dirname()
 
 #
 # Possibilities:
@@ -48,17 +49,16 @@ OMEROCLI = path(__file__).expand().dirname()
 #  - noneOneSome(lambda, lamda, lamda) method for args with shlex built in
 
 
-class Event:
-    """Simple event stub used for testing plugins.
+class Context:
+    """Simple context used for default logic. The CLI registry which registers
+    the plugins installs itself as a fully functional Context.
 
-    The Event class is designed to increase pluggability. Rather than
+    The Context class is designed to increase pluggability. Rather than
     making calls directly on other plugins directly, the pub() method
     routes messages to other commands. Similarly, out() and err() should
     be used for printing statements to the user, and die() should be
     used for exiting fatally.
 
-    The CLI registry which registers the plugins installs itself as the
-    Event.
     """
 
     def pub(self, args):
@@ -87,9 +87,9 @@ class BaseControl:
     """Controls get registered with a CLI instance on loadplugins()
     """
 
-    def __init__(self, omeroDir, event):
-        self.omeroDir = path(omeroDir) # Guaranteed to be a path
-        self.event = event
+    def __init__(self, ctx = Context(), dir = OMERODIR):
+        self.dir = path(dir) # Guaranteed to be a path
+        self.ctx = ctx
 
     def _host(self):
         if not hasattr(self, "hostname") or not self.hostname:
@@ -108,11 +108,11 @@ class BaseControl:
         try:
             nodedata = path(self._properties()["IceGrid.Node.Data"])
         except KeyError, ke:
-            self.event.err("IceGrid.Node.Data is not configured")
-            self.event.die(ke)
+            self.ctx.err("IceGrid.Node.Data is not configured")
+            self.ctx.die(ke)
 
         if not nodedata.exists():
-            self.event.out("Creating "+nodedata)
+            self.ctx.out("Creating "+nodedata)
             nodedata.makedirs()
         return nodedata
 
@@ -137,8 +137,8 @@ class BaseControl:
                 try:
                     properties.load(str(cfg))
                 except Exc, exc:
-                    self.event.err("Could not find file: "+cfg)
-                    self.event.die(exc)
+                    self.ctx.err("Could not find file: "+cfg)
+                    self.ctx.die(exc)
             self._props = properties.getPropertiesForPrefix("")
         return self._props
 
@@ -171,9 +171,9 @@ class BaseControl:
             if not self._likes(args):
                 if DEBUG:
                     raise Exc("Bad argument:"+str(args))
-                self.event.err("Bad arguments:"+",".join(args))
+                self.ctx.err("Bad arguments:"+",".join(args))
                 self.help()
-                self.event.die("Exiting.")
+                self.ctx.die("Exiting.")
             else:
                 m = getattr(self, args[0])
                 if len(args) > 1:
@@ -181,7 +181,7 @@ class BaseControl:
                 else:
                     return m()
         else:
-            self.event.die("Don't know how to handle more than noargs or shlex args by default")
+            self.ctx.die("Don't know how to handle more than noargs or shlex args by default")
 
     def _noargs(self):
         self.help()
@@ -196,7 +196,7 @@ class BaseControl:
             else:
                 self._run(pysys.argv[1:])
 
-class CLI(cmd.Cmd, Event):
+class CLI(cmd.Cmd, Context):
     """
     Command line interface class. Supports various styles of executing the
     registered plugins. Each plugin is given the chance to update this class
@@ -385,12 +385,12 @@ class CLI(cmd.Cmd, Event):
         self.pub(args)
 
     ##
-    ## Event interface
+    ## Context interface
     ##
     def pub(self, args):
         args = shlex(args)
         if len(args) == 0:
-           self.event.die("Don't know what to do")
+           self.ctx.die("Don't know what to do")
         elif len(args) > 0:
             cmd = args[0]
             control = self._controls[cmd]
@@ -400,16 +400,16 @@ class CLI(cmd.Cmd, Event):
                 control(args[1:])
 
     def out(self, text):
-        Event.pub(self, text)
+        Context.pub(self, text)
 
     def err(self, text):
-        Event.err(self, text)
+        Context.err(self, text)
 
     def dbg(self, text):
-        Event.dbg(self, text)
+        Context.dbg(self, text)
 
     def die(self, args):
-        Event.err(self, args)
+        Context.err(self, args)
 
     def popen(self, string):
         rv = subprocess.call(string)
@@ -448,8 +448,7 @@ class CLI(cmd.Cmd, Event):
         called on each plugin. An instance of the control should be
         passed to the register method which will be added to the CLI.
         """
-        control.omeroDir = OMEROCLI.dirname().dirname()
-        control.event = self
+        control.ctx = self
         setattr(self, "do_" + control._name(), control.__call__)
         setattr(self, "help_" + control._name(), control.help)
         self._controls[control._name()] = control
