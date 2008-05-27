@@ -9,11 +9,18 @@ import db
 def filter(ip, value):
 	return ip[0].startswith(value)
 
-accessdb = db.accessdb()
-try:
-	c = accessdb.conn.cursor()
-	c.execute('SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime from hit group by ip order by count(ip) desc')
-	print "Count:","="*34
+def lastNDays(title, query):
+	print "\n"
+	c.execute(query)
+	print title,"="*34
+
+	for ip in c:
+		print "%10s  Count: %5s" % (ip[0], ip[1])
+
+def allIps(title, query):
+	print "\n"
+	c.execute(query)
+	print title,"="*34
 
 	jdk_map = {}
 	os_map = {}
@@ -45,6 +52,24 @@ try:
 	print "\nJava version"
 	for jdk_key in jdk_map.iterkeys():
 		print "%24s = %9s ( %5.2f%% )" % (jdk_key, jdk_map[jdk_key], 100.0*jdk_map[jdk_key]/total)
+
+
+accessdb = db.accessdb()
+try:	
+	c = accessdb.conn.cursor()
+
+	ndays = "select date(time), count(date(time)) from hit where agent like '%s' group by date(time) order by date(time) desc limit 30"
+	lastNDays("Last 30 days:          ", ndays % "%")
+	lastNDays("Last 30 days (server): ", ndays % "OMERO.server")
+	lastNDays("Last 30 days (insight):", ndays % "OMERO.insight")
+	lastNDays("Last 30 days (editor): ", ndays % "OMERO.editor")
+
+	allip = "SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime from hit where agent like '%s' group by ip order by count(ip) desc"
+	allIps("All IPs:          ", allip % "%")
+	allIps("All IPs (server): ", allip % "OMERO.server")
+	allIps("All IPs (insight):", allip % "OMERO.insight")
+	allIps("All Ips (editor): ", allip % "OMERO.editor")
+
 finally:
 	accessdb.close()
 

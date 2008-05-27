@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env LD_LIBRARY_PATH=$HOME/.hudson/root/lib PYTHONPATH=$HOME/.hudson/root/lib64/python2.4/site-packages python
 #
 # OMERO Registry
 # Copyright 2007 Glencoe Software, Inc.  All Rights Reserved.
@@ -118,7 +118,7 @@ class ReportResource(Resource):
         self.db.hit(args["ip"], args["version"], args["poll"],\
                 args["java.vm.vendor"],args["java.runtime.version"],\
                 args["os.name"],args["os.arch"],args["os.version"],\
-                str(headers), "")
+                str(headers), "", userAgent)
 
         # And, return either an upgrade comment or blank
         if args['version'] != config['version']:

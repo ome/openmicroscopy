@@ -15,7 +15,7 @@ class accessdb:
     def close(self):
         self.conn.close()
 
-    def hit(self, ip, version, poll, vmvendor, vmruntime, osname, osarch, osversion, headers, other):
+    def hit(self, ip, version, poll, vmvendor, vmruntime, osname, osarch, osversion, headers, other, agent):
         c = self.conn.cursor()
         c.execute('SELECT id from ip where id = ?',(ip,))
         if None == c.fetchone():
@@ -23,8 +23,8 @@ class accessdb:
             self.insertIp(ip)
 
         c = self.conn.cursor()
-        c.execute('INSERT INTO hit VALUES (?,datetime(\'now\'),?,?,?,?,?,?,?,?,?)',\
-            (ip, version, poll, vmvendor, vmruntime, osname, osarch, osversion, headers, other))
+        c.execute('INSERT INTO hit VALUES (?,datetime(\'now\'),?,?,?,?,?,?,?,?,?,?)',\
+            (ip, version, poll, vmvendor, vmruntime, osname, osarch, osversion, headers, other, agent))
         self.conn.commit()
 
     def insertIp(self, ipaddr):
@@ -72,8 +72,8 @@ if __name__ == "__main__":
         else:
             dbname = sys.argv[1]
             db = accessdb(dbname)
-            db.hit('127.0.0.1','TRUNK','unknown','apple','1.5','mac','i386','10.4','headers','other')
-            db.hit('134.36.65.49','TRUNK','unknown','gentoo','2007...','mac','i386','10.4','headers','other')
+            db.hit('127.0.0.1','TRUNK','unknown','apple','1.5','mac','i386','10.4','headers','other','OMERO.test')
+            db.hit('134.36.65.49','TRUNK','unknown','gentoo','2007...','mac','i386','10.4','headers','other','OMERO.test')
             for hit in db:
                 print hit
 
