@@ -175,7 +175,6 @@ public class WindowSaver implements AWTEventListener {
      */
     public static int getInt(String name, int value) {
         String v = PreferencesManager.getPreference(name);
-        System.out.println("getInt: " + name + " = " + v);
         if(v == null) {
             return value;
         }
