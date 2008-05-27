@@ -151,7 +151,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
 	 */
-	Set<Long> resetDefaultsInSet(Class<IObject> type, 
+	<T extends IObject> Set<Long> resetDefaultsInSet(Class<T> type, 
 			@NotNull @Validate(Long.class) Set<Long> nodeIds);
 	
 	/**
@@ -266,7 +266,7 @@ public interface IRenderingSettings extends ServiceInterface {
 	 * rendering settings reset. 
 	 * @throws ValidationException if the image qualified by 
 	 */
-	Set<Long> setOriginalSettingsInSet(Class<IObject> type, 
+	<T extends IObject> Set<Long> setOriginalSettingsInSet(Class<T> type, 
 							@NotNull @Validate(Long.class) Set<Long> nodeIds);
 	
 	/**

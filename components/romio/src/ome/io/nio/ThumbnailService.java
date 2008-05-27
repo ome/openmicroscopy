@@ -115,6 +115,7 @@ public class ThumbnailService extends AbstractFileSystemService {
 	 * 
 	 * @param thumbnailIds -
 	 *            Long file keys to be deleted
+	 * @throws ResourceError If deletion fails.
 	 */
 	public void removeThumbnails(List<Long> thumbnailIds) {
 		File file;

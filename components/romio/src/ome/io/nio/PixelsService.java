@@ -16,7 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
+import ome.conditions.ResourceError;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
@@ -182,6 +182,7 @@ public class PixelsService extends AbstractFileSystemService {
 	 * 
 	 * @param pixelsIds -
 	 *            Long file keys to be deleted
+	 * @throws ResourceError If deletion fails.
 	 */
 	public void removePixels(List<Long> pixelIds) {
 		File file;
@@ -195,7 +196,7 @@ public class PixelsService extends AbstractFileSystemService {
 			if (file.exists()) {
 				success = file.delete();
 				if (!success) {
-					throw new InternalException("Pixels " + file.getName()
+					throw new ResourceError("Pixels " + file.getName()
 							+ " deletion failed");
 				} else {
 					if (log.isInfoEnabled()) {

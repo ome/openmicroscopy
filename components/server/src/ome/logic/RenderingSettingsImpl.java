@@ -121,17 +121,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * 
      * @param image The image to handle.
      */
-    private void setOriginalSettings(Image image)
-    {
-    	if (image == null) return;
-    	setOriginalSettings(image.getPrimaryPixels());
-    }
-    
-    /**
-     * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
-     * 
-     * @param image The image to handle.
-     */
     private void resetDefaults(Image image)
     {
     	if (image == null) return;
@@ -192,19 +181,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * Resets a pixel's rendering settings back to those that are specified by
      * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
      * 
-     * @param pixels The pixels object whose rendering settings are to be set.
-     */
-    private void setOriginalSettings(Pixels pixels)
-    {
-    	if (pixels == null) return;
-        RenderingDef settings = getRenderingSettings(pixels.getId());
-        resetDefaults(settings, pixels, true, false);
-	}
-    
-    /**
-     * Resets a pixel's rendering settings back to those that are specified by
-     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
-     * 
      * @param pixels The pixels object whose rendering settings are to be reset.
      */
     private void resetDefaults(Pixels pixels)
@@ -228,7 +204,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			+ " left outer join fetch cil.parent c where c.id = :id";
 		List<Image> images = 
 			iQuery.findAllByQuery(sql, new Parameters().addId(category.getId()));
-		return resetDefaults(new HashSet<Image>(images));
+        Set<Long> imageIds = new HashSet<Long>();
+        for (Image i : images)
+        {
+            imageIds.add(i.getId());
+        }
+        return resetDefaultsInSet(Image.class, imageIds);
 	}
 
 	/**
@@ -245,10 +226,39 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			+ " left outer join fetch dil.parent d where d.id = :id";
 		List<Image> images = 
 			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
-		return resetDefaults(new HashSet<Image>(images));
+		Set<Long> imageIds = new HashSet<Long>();
+		for (Image i : images)
+		{
+		    imageIds.add(i.getId());
+		}
+		return resetDefaultsInSet(Image.class, imageIds);
 	}
 
 	/**
+     * Resets a pixel's rendering settings back to those that are specified by
+     * the rendering engine intelligent <i>pretty good image (PG)</i> logic.
+     * 
+     * @param pixels The pixels object whose rendering settings are to be set.
+     */
+    private void setOriginalSettings(Pixels pixels)
+    {
+    	if (pixels == null) return;
+        RenderingDef settings = getRenderingSettings(pixels.getId());
+        resetDefaults(settings, pixels, true, false);
+    }
+
+    /**
+     * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
+     * 
+     * @param image The image to handle.
+     */
+    private void setOriginalSettings(Image image)
+    {
+    	if (image == null) return;
+    	setOriginalSettings(image.getPrimaryPixels());
+    }
+
+    /**
 	 * Sets the original settings for the images linked to the specified 
 	 * dataset.
 	 * 
@@ -263,49 +273,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
 			+ " left outer join fetch dil.parent d where d.id = :id";
 		List<Image> images = 
 			iQuery.findAllByQuery(sql, new Parameters().addId(dataset.getId()));
-		return setOriginalSettings(new HashSet<Image>(images));
-	}
-	
-	/**
-     * Resets a rendering settings back to one or many <code>Images</code>
-     * that are specified by the rendering engine intelligent <i>pretty good
-     * image (PG)</i> logic.
-     * 
-     * @param images A {@link java.util.Set} of images to reset the rendering
-     * settings.
-     * @return A {@link java.util.Set} of image IDs that have had their
-     * rendering settings reset.
-     */
-	private Set<Long> setOriginalSettings(Set<Image> images) {
-		if (images == null || images.isEmpty())
-			throw new ValidationException("Target does not contain any " +
-					"Images.");
-		Set<Long> imageIds = new HashSet<Long>();
-		for (Image image : images) 
-			setOriginalSettingsInImage(image.getId());
-		
-		return imageIds;
-	}
-	
-	/**
-     * Resets a rendering settings back to one or many <code>Images</code>
-     * that are specified by the rendering engine intelligent <i>pretty good
-     * image (PG)</i> logic.
-     * 
-     * @param images A {@link java.util.Set} of images to reset the rendering
-     * settings.
-     * @return A {@link java.util.Set} of image IDs that have had their
-     * rendering settings reset.
-     */
-	private Set<Long> resetDefaults(Set<Image> images) {
-		if (images == null || images.isEmpty())
-			throw new ValidationException("Target does not contain any " +
-					"Images.");
-		Set<Long> imageIds = new HashSet<Long>();
-		for (Image image : images) {
-			resetDefaultsInImage(image.getId());
-		}
-		return imageIds;
+        Set<Long> imageIds = new HashSet<Long>();
+        for (Image image : images)
+        {
+            imageIds.add(image.getId());
+        }
+		return setOriginalSettingsInSet(Image.class, imageIds);
 	}
 	
     /**
@@ -869,7 +842,7 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#resetDefaultsInSet(Class, Set)
      */
     @RolesAllowed("user")
-    public Set<Long> resetDefaultsInSet(Class<IObject> klass, Set<Long> nodeIds)
+    public <T extends IObject> Set<Long> resetDefaultsInSet(Class<T> klass, Set<Long> nodeIds)
     {
         if (!Dataset.class.equals(klass) && !Category.class.equals(klass)
             && !Image.class.equals(klass))
@@ -879,24 +852,35 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                             + "{Dataset, Category, Image}, not " + klass);
         }
 
-        List<IObject> objects = loadObjects(klass, nodeIds);
+        List<IObject> objects = new ArrayList<IObject>();
+        for (Long nodeId : nodeIds)
+        {
+            objects.add(iQuery.get(klass, nodeId));
+        }
         Set<Long> imageIds = new HashSet<Long>();
         for (IObject object : objects)
         {
-        	if (object instanceof Dataset)
-        	{
-        		imageIds.addAll(resetDefaults((Dataset) object));
-        	}
-        	if (object instanceof Category)
-        	{
-        		imageIds.addAll(resetDefaults((Category) object));
-        	}
-        	if (object instanceof Image)
-        	{
-        		Image image = (Image) object;
-        		resetDefaults(image);
-        		imageIds.add(image.getId());
-        	}
+            try
+            {
+                if (object instanceof Dataset)
+                {
+                    imageIds.addAll(resetDefaults((Dataset) object));
+                }
+                if (object instanceof Category)
+                {
+                    imageIds.addAll(resetDefaults((Category) object));
+                }
+                if (object instanceof Image)
+                {
+                    Image image = (Image) object;
+                    resetDefaults(image);
+                    imageIds.add(image.getId());
+                }
+            }
+            catch (Throwable t)
+            {
+                log.error("Error while resetting defaults.", t);
+            }
         }
         return imageIds;
     }
@@ -924,18 +908,23 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @see IRenderingSettings#setOriginalSettingsInSet(Class, Set)
      */
     @RolesAllowed("user")
-    public Set<Long> setOriginalSettingsInSet(Class<IObject> klass, 
-    											Set<Long> nodeIds)
+    public <T extends IObject> Set<Long> setOriginalSettingsInSet(
+            Class<T> klass, Set<Long> nodeIds)
     {
     	if (!Dataset.class.equals(klass) && !Image.class.equals(klass))
     		throw new IllegalArgumentException(
     				"Class parameter for resetDefaultsInSet() must be in "
     				+ "{Dataset, Image}, not " + klass);
 
-    	List<IObject> objects = loadObjects(klass, nodeIds);
+    	List<IObject> objects = new ArrayList<IObject>();
+        for (Long nodeId : nodeIds)
+        {
+            objects.add(iQuery.get(klass, nodeId));
+        }
     	Set<Long> imageIds = new HashSet<Long>();
     	Image image;
     	for (IObject object : objects) {
+    	    try {
     		if (object instanceof Dataset) {
     			imageIds.addAll(setOriginalSettings((Dataset) object));
     		} else if (object instanceof Image) {
@@ -943,6 +932,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     			setOriginalSettings(image);
     			imageIds.add(image.getId());
     		}
+    	    } catch (Throwable t) {
+    	        log.error("Error while resetting original settings.", t);
+    	    }
     	}
     	return imageIds;
     }

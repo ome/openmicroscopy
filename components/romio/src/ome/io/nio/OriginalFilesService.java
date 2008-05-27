@@ -13,7 +13,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.conditions.InternalException;
+import ome.conditions.ResourceError;
 import ome.model.core.OriginalFile;
 
 /**
@@ -56,6 +56,7 @@ public class OriginalFilesService extends AbstractFileSystemService {
      * Long file ids
      * 
      * @param fileIds - Long file keys to be deleted
+     * @throws ResourceError If deletion fails.
      */
     public void removeFiles(List<Long> fileIds){
 
@@ -70,7 +71,7 @@ public class OriginalFilesService extends AbstractFileSystemService {
 			if (file.exists()) {
 				success = file.delete();
 				if (!success) {
-					throw new InternalException("File " + file.getName()
+					throw new ResourceError("File " + file.getName()
 							+ " deletion failed");
 				} else {
 					if (log.isInfoEnabled()) {

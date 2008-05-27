@@ -15,6 +15,7 @@ import ome.annotations.RevisionNumber;
 import ome.api.IRepositoryInfo;
 import ome.api.ServiceInterface;
 import ome.conditions.InternalException;
+import ome.conditions.ResourceError;
 import ome.io.nio.OriginalFilesService;
 import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
@@ -112,7 +113,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 * @see ome.api.IRepositoryInfo#getFreeSpaceInKilobytes()
 	 */
 	@RolesAllowed("user")
-	public long getFreeSpaceInKilobytes() throws InternalException {
+	public long getFreeSpaceInKilobytes() {
 
 		FileSystem f;
 		long result = 0L;
@@ -123,8 +124,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 			if (log.isInfoEnabled()) {
 				log.info("Total kilobytes free: " + f.free(datadir));
 			}
-		} catch (RuntimeException rtex) {
-			throw new InternalException(rtex.getMessage());
+		} catch (Throwable t) {
+		    log.error("Error retrieving usage in KB.", t);
+			throw new ResourceError(t.getMessage());
 		}
 
 		return result;
@@ -136,7 +138,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 * @see ome.api.IRepositoryInfo#getUsedSpaceInKilobytes()
 	 */
 	@RolesAllowed("user")
-	public long getUsedSpaceInKilobytes() throws InternalException {
+	public long getUsedSpaceInKilobytes() {
 
 		FileSystem f;
 		long result = 0L;
@@ -147,8 +149,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 			if (log.isInfoEnabled()) {
 				log.info("Total kilobytes used: " + f.used());
 			}
-		} catch (RuntimeException rtex) {
-			throw new InternalException(rtex.getMessage());
+		} catch (Throwable t) {
+		    log.error("Error retrieving usage in KB.", t);
+			throw new ResourceError(t.getMessage());
 		}
 
 		return result;
@@ -160,7 +163,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 * @see ome.api.IRepositoryInfo#getUsageFraction()
 	 */
 	@RolesAllowed("user")
-	public double getUsageFraction() throws InternalException {
+	public double getUsageFraction() {
 		double result = 0.0;
 
 		try {
@@ -169,8 +172,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 				Double free = new Double(getFreeSpaceInKilobytes());
 				result = used / free;
 			}
-		} catch (InternalException iex) {
-			throw new InternalException("Error in getUsageFraction");
+		} catch (Throwable t) {
+		    log.error("Could not obtain usage fraction.", t);
+			throw new ResourceError(t.getMessage());
 		}
 
 		return result;
@@ -202,12 +206,16 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	@RolesAllowed("user")
 	public void sanityCheckRepository() throws InternalException {
 		try {
-			if (getUsageFraction() > 0.95) {
-				throw new InternalException(
-						"server repository disk space usage at 95% level");
+		    double usage = getUsageFraction() * 100;
+			if (usage > 95.0) {
+				throw new ResourceError(
+						"Server repository disk space usage " + (int) usage + 
+						" exceeds 95%.");
 			}
-		} catch (InternalException iex) {
-			throw new InternalException("Error in sanityCheckRepository()");
+		} catch (Throwable t) {
+		    log.error("Critical failure sanity checking repository.", t);
+			throw new InternalException(
+			        "Error in sanityCheckRepository(): " + t.getMessage());
 		}
 	}
 
@@ -217,29 +225,22 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
 	 * @see ome.api.IRepository#removeUnusedFiles()
 	 */
 	@RolesAllowed("user")
-	public void removeUnusedFiles() throws InternalException {
+	public void removeUnusedFiles() {
+	    RepositoryTask task = new RepositoryTask();
 
-		try {
+	    // get ids for any objects marked as deleted
+	    List<Long> files = task.getFileIds();
+	    List<Long> pixels = task.getPixelIds();
+	    List<Long> thumbs = task.getThumbnailIds();
 
-			RepositoryTask task = new RepositoryTask();
+	    // cleanup any files
+	    fileService.removeFiles(files);
 
-			// get ids for any objects marked as deleted
-			List<Long> files = task.getFileIds();
-			List<Long> pixels = task.getPixelIds();
-			List<Long> thumbs = task.getThumbnailIds();
+	    // cleanup any pixels
+	    pixelsService.removePixels(pixels);
 
-			// cleanup any files
-			fileService.removeFiles(files);
-
-			// cleanup any pixels
-			pixelsService.removePixels(pixels);
-
-			// cleanup any thumbnails
-			thumbnailService.removeThumbnails(thumbs);
-
-		} catch (RuntimeException rtex) {
-			throw new InternalException(rtex.getMessage());
-		}
+	    // cleanup any thumbnails
+	    thumbnailService.removeThumbnails(thumbs);
 	}
 
 }
