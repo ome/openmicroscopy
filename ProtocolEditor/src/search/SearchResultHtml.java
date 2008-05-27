@@ -39,6 +39,14 @@ import util.XMLMethods;
 
 public class SearchResultHtml {
 	
+	/**
+	 * Each search result also contains some examples of where the search
+	 * term(s) are found within the document. For long documents, where 
+	 * the search word occurs frequently, need to limit the number of 
+	 * times this is shown
+	 */
+	public final static int MAX_ROWS_OF_CONTEXT = 5;
+	
 	String path;
 	String name;
 	String date;
@@ -88,8 +96,13 @@ public class SearchResultHtml {
 				// key is elementPath/attributeName, value is attribute value.
 	        	ArrayList<HashMap<String, String>> elements = new XMLMethods().getAllXmlFileAttributes(file);
 	        	
-	        	for (HashMap<String, String> element: elements) {
-	    
+	        	int rowsOfContentCount = 0;
+	        	
+	        	for (int i=0; i<elements.size() && 
+	        		rowsOfContentCount<MAX_ROWS_OF_CONTEXT; i++) {
+	        		
+	        		HashMap<String, String> element = elements.get(i);
+	        		
 	        		Iterator attributeIterator = element.keySet().iterator();
 	        		while (attributeIterator.hasNext()) {
 	        			
@@ -99,15 +112,18 @@ public class SearchResultHtml {
 	        			
 	        			// look for each search term within the document. 
 	        			// if it's there, present it in context
-	        			for (int i=0; i<searchTerms.length; i++) {
+	        			for (int st=0; st<searchTerms.length; st++) {
 	            		
+	        				String searchTermLowerCase = searchTerms[st].toLowerCase();
+	        				String valueLowerCase = value.toLowerCase();
 	        				
-	        				if (value.contains(searchTerms[i])) {
+	        				// test for matching using lower case
+	        				if (valueLowerCase.contains(searchTermLowerCase)) {
 	        					String labelText = value;
 	        					
 	//        					 take some context - either side of the searchTerm
-	        					int startIndex = labelText.indexOf(searchTerms[i]);
-	        					int endIndex = startIndex + searchTerms[i].length();
+	        					int startIndex = labelText.indexOf(searchTerms[st]);
+	        					int endIndex = startIndex + searchTerms[st].length();
 	        					startIndex = startIndex - 12;
 	        					endIndex = endIndex + 12;
 	        					
@@ -128,7 +144,7 @@ public class SearchResultHtml {
 	        					
 	        					labelText = labelText.substring(startIndex, endIndex);
 	        					
-	        					labelText = labelText.replace(searchTerms[i], "<b>" + searchTerms[i] + "</b>");
+	        					labelText = labelText.replace(searchTerms[st], "<b>" + searchTerms[st] + "</b>");
 	        					
 	        					// remove the attribute name from the elementPath
 	        					int lastSlashIndex = attributePathAndName.lastIndexOf("/");
@@ -136,6 +152,7 @@ public class SearchResultHtml {
 	        						attributePathAndName = attributePathAndName.substring(0, lastSlashIndex);
 	        					
 	        					resultHtml = resultHtml + attributePathAndName + ": " + labelText + "<br>";
+	        					rowsOfContentCount++;
 	        				}
 	        			}
 	            	}

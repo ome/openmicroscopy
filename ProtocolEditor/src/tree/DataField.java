@@ -444,7 +444,11 @@ public class DataField
 		while (keyIterator.hasNext()) {
 			String name = (String)keyIterator.next();
 			String value = allAttributesMap.get(name);
-			if ((value != null) && (value.contains(searchWord))) return true;
+			if (value != null) {
+				value = value.toLowerCase();
+				searchWord = searchWord.toLowerCase();
+				if (value.contains(searchWord)) return true;
+			}
 		}
 		return false;
 	}
