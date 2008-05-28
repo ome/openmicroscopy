@@ -49,7 +49,7 @@ public class FormFieldDropDown extends FormField {
 		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		
 		comboBox = new CustomComboBox();
-		comboBox.setMaximumWidth(250);
+		comboBox.setMaxPreferredWidth(250);
 		
 		comboBox.addActionListener(valueSelectionListener);
 		// comboBox.addFocusListener(new FocusLostUpdatDataFieldListener());

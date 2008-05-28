@@ -106,10 +106,12 @@ public class OntologyTermSelector extends JPanel {
 		// make an editable comboBox (auto-complete) for ontology Terms
 		ontologyTermSelector = new CustomComboBox();
 		ontologyTermSelector.setEditable(true);
-		ontologyTermSelector.getEditor().getEditorComponent().addFocusListener(componentFocusListener);
-		ontologyTermSelector.setMaximumWidth(500);
+		ontologyTermSelector.getEditor().getEditorComponent().
+				addFocusListener(componentFocusListener);
+		ontologyTermSelector.setMaxPreferredWidth(400);
 		ontologyTermListener = new OntologyTermKeyListener();
-		ontologyTermSelector.getEditor().getEditorComponent().addKeyListener(ontologyTermListener);
+		ontologyTermSelector.getEditor().getEditorComponent().
+				addKeyListener(ontologyTermListener);
 		termSelectionListener = new TermSelectionListener();
 		ontologyTermSelector.addActionListener(termSelectionListener);
 		JPanel ontologyTermSelectorPanel = new JPanel(new BorderLayout());
@@ -138,6 +140,7 @@ public class OntologyTermSelector extends JPanel {
 		} else {
 			setCurrentOntology(Ontologies.getOntologyIdFromTermId(termIdName));
 			ontologyTermSelector.setSelectedItem(termIdName);
+			ontologyTermSelector.validate();
 		}
 		
 		ontologyTermSelector.addActionListener(termSelectionListener);
