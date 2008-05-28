@@ -182,10 +182,11 @@ class BrowserControl
         	model.countExperimenterImages(display);
         	return;
         }
+        
         if (display.isChildrenLoaded()) {
         	List l = display.getChildrenDisplay();
 			if (display.getChildCount() != l.size()) {
-        		view.setLeavesViews(l, (TreeImageSet) display);
+        		//view.setLeavesViews(l, (TreeImageSet) display);
         	} else {
         		if (view.isFirstChildMessage(display)) {
         			view.setLeavesViews(l, (TreeImageSet) display);

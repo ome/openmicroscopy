@@ -141,8 +141,7 @@ public class AdvancedFinder
 	 * @param toExclude		The users to exclude.
 	 */
 	private void fillUsersList(List<Integer> usersContext, 
-							List<ExperimenterData> toKeep, 
-								List<ExperimenterData> toExclude)
+			List<ExperimenterData> toKeep, List<ExperimenterData> toExclude)
 	{
 		if (usersContext == null) {
 			toKeep.clear();

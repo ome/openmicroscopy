@@ -44,7 +44,7 @@ import pojos.DataObject;
 import pojos.TagAnnotationData;
 
 /** 
- * 
+ * Filtering the data displaying the browser.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

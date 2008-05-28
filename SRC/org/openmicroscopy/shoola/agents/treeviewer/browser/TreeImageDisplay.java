@@ -149,9 +149,6 @@ public abstract class TreeImageDisplay
     /** The number of items. */
     protected int						numberItems;
 
-    /** The number of tag attached to the object. */
-    protected int						tagNumber;
-
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
@@ -187,7 +184,6 @@ public abstract class TreeImageDisplay
         setUserObject(hierarchyObject);
         childrenDisplay = new ArrayList<TreeImageDisplay>();
         numberItems = -1;
-        tagNumber = 0;
         partialName = true;
         fontStyle = FONT_PLAIN;
     }
@@ -498,24 +494,12 @@ public abstract class TreeImageDisplay
         if (uo instanceof DataObject) return ((DataObject) uo).getId();
         return -1;
     }
-    
-    /**
-     * Sets the number of tags attached to the object.
-     * 
-     * @param tagNumber The value to set.
-     */
-    public void setTagNumber(int tagNumber) { this.tagNumber = tagNumber; }
-    
+
     /** 
      * Overridden to return the name of the hierarchy object. 
      * @see Object#toString()
      */
-    public String toString()
-    { 
-        //if (getUserObject() instanceof ImageData) 
-          //  return getPartialName(getNodeName());
-        return getNodeName(); 
-    }
+    public String toString() { return getNodeName(); }
     
     /**
      * Overridden to make sure that the userObject is not <code>null</code>.

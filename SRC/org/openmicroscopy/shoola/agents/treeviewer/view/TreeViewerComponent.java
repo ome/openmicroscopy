@@ -181,30 +181,39 @@ class TreeViewerComponent
         		db.setSelectedNodes(nodes);
         	} else {
         		//depending on object
+        		view.removeAllFromWorkingPane();
         		if (display != null) {
         			if (display.isChildrenLoaded()) {
         				List l = display.getChildrenDisplay();
         				if (l != null) {
         					Set s = new HashSet();
         					Iterator i = l.iterator();
-        					TreeImageDisplay child;
-        					while (i.hasNext()) {
-        						child = (TreeImageDisplay) i.next();
-        						s.add(child.getUserObject());
-        					}
-        					if (object instanceof DatasetData)
+        					
+        					if (object instanceof DatasetData) {
+        						TreeImageDisplay child;
+        						//copy the node.
+            					while (i.hasNext()) {
+            						child = (TreeImageDisplay) i.next();
+            						s.add(child.getUserObject());
+            					}
         						setLeaves((TreeImageSet) display, s);
+        					}
         					else if (object instanceof TagAnnotationData) {
         						TagAnnotationData tag = 
         							(TagAnnotationData) object;
-        						if (tag.getTags() == null) 
-        							setLeaves((TreeImageSet) display, s);
-        						
-        					} else view.removeAllFromWorkingPane();
+        						if (tag.getTags() == null) {
+        							TreeImageDisplay child;
+                					while (i.hasNext()) {
+                						child = (TreeImageDisplay) i.next();
+                						s.add(child.getUserObject());
+                						setLeaves((TreeImageSet) display, s);
+                					}
+        						}
+        					} 
+        					//else view.removeAllFromWorkingPane();
         				}
         			}// else showDataBrowser(object, parent);
-        		} else view.removeAllFromWorkingPane();
-
+        		}// else view.removeAllFromWorkingPane();
         	}
         }
 	}
@@ -1532,9 +1541,7 @@ class TreeViewerComponent
 				while (j.hasNext()) {
 					child = (TreeImageDisplay) j.next();
 					id = child.getUserObjectId();
-					System.err.println(child);
-					if (id >= 0)
-						m.put(id, child);
+					if (id >= 0) m.put(id, child);
 				}
 			}
 		}
@@ -1551,6 +1558,7 @@ class TreeViewerComponent
 					if (value != null) {
 						images = d.getImages();
 						if (images != null) {
+							value.removeAllChildrenDisplay();
 							k = images.iterator();
 							while (k.hasNext()) {
 								value.addChildDisplay(
@@ -1573,6 +1581,7 @@ class TreeViewerComponent
 					if (value != null) {
 						images = tagImage.getImages();
 						if (images != null) {
+							value.removeAllChildrenDisplay();
 							k = images.iterator();
 							while (k.hasNext()) {
 								value.addChildDisplay(

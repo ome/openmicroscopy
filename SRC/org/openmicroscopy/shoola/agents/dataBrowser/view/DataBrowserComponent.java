@@ -653,9 +653,10 @@ class DataBrowserComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		AnnotatedNodesVisitor visitor = new AnnotatedNodesVisitor(annotated);
 		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
-		browser.setFilterNodes(visitor.getFoundNodes());
-		model.layoutBrowser();
-		browser.getUI().repaint();
+		List<ImageDisplay> nodes = visitor.getFoundNodes();
+		browser.setFilterNodes(nodes);
+		view.layoutUI();
+		view.setNumberOfImages(nodes.size());
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
