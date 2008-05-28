@@ -6,9 +6,9 @@
 """
 
 import sys
+from time import localtime, strftime
 
 import Ice
-
 import monitors
 
 
@@ -20,7 +20,17 @@ class MonitorClientImpl(monitors.MonitorClient):
         contains the single callback below.
         
     """
+
+    def __init__(self):
+        """
+            Intialise the instance variables.
         
+        """
+        #: Reference back to FSServer.
+        self.serverProxy = None
+        #: Id
+        self.id = ''
+
     def fsEventHappened(self, id, eventList, current=None):
         """
             This is an example callback.
@@ -45,8 +55,33 @@ class MonitorClientImpl(monitors.MonitorClient):
             :return: No explicit return value.
             
         """
+                
         if self.id == id:
-            print "Event: New files %s\n" % (str(eventList))
+            for fileId in eventList:
+                print "Event: New file %s" % (fileId)
+                print "\t%s" % (self.serverProxy.getBaseName(self.id, fileId))
+                print "\towner: %s" % (self.serverProxy.getOwner(self.id, fileId))
+                print "\t size: %i" % (self.serverProxy.getSize(self.id, fileId))
+                print "\t%s" % (strftime("atime: %d%m%y %H:%M:%S",localtime(self.serverProxy.getATime(self.id, fileId))))
+                print "\t%s" % (strftime("ctime: %d%m%y %H:%M:%S",localtime(self.serverProxy.getCTime(self.id, fileId))))
+                print "\t%s" % (strftime("mtime: %d%m%y %H:%M:%S",localtime(self.serverProxy.getMTime(self.id, fileId))))
+                
+    def setServerProxy(self, serverProxy):
+        """
+            Setter for serverProxy
+            
+            :Parameters:
+                serverProxy : monitors.MonitorServerPrx
+                    proxy to remote server object
+                    
+            :return: No explicit return value.
+            
+        """
+        #: A string uniquely identifying the OMERO.fs Monitor
+        self.serverProxy = serverProxy
+    
+        
+            
 
     def setId(self, id):
         """
@@ -54,13 +89,13 @@ class MonitorClientImpl(monitors.MonitorClient):
             
             :Parameters:
                 id : string
-                    A string uniquely identifying the OMERO.fs Watch created
+                    A string uniquely identifying the OMERO.fs Monitor created
                     by the OMERO.fs Server.
                     
             :return: No explicit return value.
             
         """
-        #: A string uniquely identifying the OMERO.fs Watch
+        #: A string uniquely identifying the OMERO.fs Monitor
         self.id = id
         
 
@@ -155,7 +190,9 @@ class Client(Ice.Application):
         mClientProxy = monitors.MonitorClientPrx.uncheckedCast(adapter.createProxy(self.communicator().stringToIdentity("monitorClient")))
         
         self.id = self.mServer.createMonitor(self.pathToWatch, self.whitelist, self.blacklist , mClientProxy);
+
         mClient.setId(self.id)
+        mClient.setServerProxy(self.mServer)
         self.mServer.startMonitor(self.id);
       
         self.communicator().waitForShutdown()    
@@ -166,7 +203,7 @@ class Client(Ice.Application):
 #: Example path.
 pathToWatch = '/Users/cblackburn/Work/OMERO-FS/FS-research/watchDir/'
 #: Example whitelist of extensions.
-whitelist = ['.txt','.jpg', '.']
+whitelist = ['.jpg', '.dv']
 #: Example blacklist of subsdirectories.
 blacklist = ['subdir1']     
 #: Client object reference
