@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.PasswordEditor 
+ * org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,20 +22,19 @@
  */
 package org.openmicroscopy.shoola.agents.metadata;
 
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ExperimenterData;
 
 /** 
- * Modifies the password of the currently logged in user.
- * This class calls one of the <code>changePassword</code> methods in the
+ * Updates the experimenter.
+ * This class calls the <code>updateExperimenter</code> method in the
  * <code>DataManagerView</code>.
- * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,62 +46,55 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
  * </small>
  * @since OME3.0
  */
-public class PasswordEditor 
-	extends EditorLoader
+public class ExperimenterEditor 
+	extends MetadataLoader
 {
 
-    /** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
-    
-    /** The password used to log in. */
-    private String		oldPassword;
-    
-    /** The new password. */
-    private String		newPassword;
+	/** The experimenter to update. */
+	private ExperimenterData	exp;
+	
+	/** Handle to the async call so that we can cancel it. */
+    private CallHandle			handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer		The viewer this data loader is for.
-     *                  	Mustn't be <code>null</code>.
-     * @param oldPassword	The logged in password. 
-     * 						Mustn't be <code>null</code>.
-     * @param newPassword	The new password. Mustn't be <code>null</code>.
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     * @param exp	 The experimenter to update. Mustn't be <code>null</code>.
      */
-	public PasswordEditor(Editor viewer, String oldPassword, 
-					String newPassword)
-	{
-		super(viewer);
-		if (oldPassword == null)
-			throw new IllegalArgumentException("Password not valid.");
-		if (newPassword == null)
-			throw new IllegalArgumentException("Password not valid.");
-		this.oldPassword = oldPassword;
-		this.newPassword = newPassword;
-	}
-
-	/**
-     *  Modifies the password.
-     * @see EditorLoader#load()
-     */
+    public ExperimenterEditor(MetadataViewer viewer, ExperimenterData exp)
+    {
+    	super(viewer, null);
+    	if (exp == null)
+    		throw new IllegalArgumentException("No experimenter to edit.");
+    	this.exp = exp;
+    }
+    
+    /** 
+	 * Loads the data.
+	 * @see MetadataLoader#cancel()
+	 */
 	public void load()
 	{
-		handle = dmView.changePassword(oldPassword, newPassword, this);
+		handle = dmView.updateExperimenter(exp, this);
 	}
 	
-	/**
-	 * Cancels the ongoing data retrieval.
-	 * @see EditorLoader#cancel()
+	/** 
+	 * Cancels the data loading. 
+	 * @see MetadataLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
-	
-	 /** 
-     * Feeds the result back to the viewer. 
-     * @see EditorLoader#handleResult(Object)
+
+	/**
+     * Feeds the result back to the viewer.
+     * @see MetadataLoader#handleResult(Object)
      */
-    public void handleResult(Object result)
+    public void handleResult(Object result) 
     {
-        viewer.passwordChanged((Boolean) result);
+    	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	//viewer.onDataSave((List) data);
+    	viewer.onExperimenterUpdated((ExperimenterData) result);
     }
     
 }

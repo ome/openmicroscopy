@@ -100,6 +100,12 @@ class MetadataViewerModel
 	/** Only used when it is a bacth call. */
 	private Class									dataType;
 	
+	/** 
+	 * Flag indicating the selection mode, <code>true</code>
+	 * if single selection, <code>false</code> otherwise.
+	 */
+	private boolean									singleMode;
+	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
@@ -112,6 +118,7 @@ class MetadataViewerModel
 		loaders = new HashMap<TreeBrowserDisplay, MetadataLoader>();
 		data = null;
 		dataType = null;
+		singleMode = true;
 	}
 	
 	/**
@@ -128,10 +135,9 @@ class MetadataViewerModel
 					layout)
 	{ 
 		this.component = component;
-		boolean b = isMultiSelection();
 		browser = BrowserFactory.createBrowser(component, refObject);
 		editor = EditorFactory.createEditor(component, refObject,
-										thumbnailRequired, b, layout);
+										thumbnailRequired, layout);
 	}
 	
 	/**
@@ -162,22 +168,6 @@ class MetadataViewerModel
 			if (loader != null) loader.cancel();
 		}
 		loaders.clear();
-	}
-	
-	/**
-	 * Returns <code>true</code> if the editor is for a multi selection of 
-	 * <code>DataObject</code>, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isMultiSelection()
-	{
-		if (TagAnnotationData.class.equals(dataType)) return true;
-		if (DatasetData.class.equals(dataType)) return true;
-		if (TimeRefObject.class.equals(dataType)) return true;
-		if (refObject instanceof Collection) 
-			return ((Collection) refObject).size() > 1;
-		return false;
 	}
 	
 	/**
@@ -369,21 +359,31 @@ class MetadataViewerModel
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
+	 * @param toSave    Collection of data objectst to handle.
 	 */
 	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
-						toRemove)
+						toRemove, Collection<DataObject> toSave)
+	{
+		DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
+				toRemove);
+		loader.load();
+
+	}
+	
+	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
+							toRemove)
 	{
 		List<DataObject> toSave = new ArrayList<DataObject>();
 		Collection ref = (Collection) refObject;
 		Iterator i;
 		if (TagAnnotationData.class.equals(dataType) ||
-			DatasetData.class.equals(dataType)) {
+				DatasetData.class.equals(dataType)) {
 			i = ref.iterator();
 			while (i.hasNext()) 
 				toSave.add((DataObject) i.next());
-			
+
 			DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
-					                                   toRemove);
+					toRemove);
 			loader.load();
 		} else if (TimeRefObject.class.equals(dataType)) {
 			TimeRefObject refObject = null;
@@ -391,15 +391,34 @@ class MetadataViewerModel
 			while (i.hasNext()) 
 				refObject = (TimeRefObject) i.next();
 			DataBatchSaver loader = new DataBatchSaver(component, refObject, 
-					                                  toAdd, toRemove);
-            loader.load();
+					toAdd, toRemove);
+			loader.load();
 		} else {
 			i = ref.iterator();
 			while (i.hasNext()) 
 				toSave.add((DataObject) i.next());
 			fireSaving(toAdd, toRemove, toSave);
 		}
-		
+
 	}
+	
+	/** 
+	 * Sets to <code>true</code> if the model is in single mode,
+	 * to <code>false</code> otherwise.
+	 * 
+	 * @param singleMode The value to set.
+	 */
+	void setSelectionMode(boolean singleMode)
+	{
+		this.singleMode = singleMode;
+	}
+	
+	/** 
+	 * Returns <code>true</code> if the model is in single mode,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isSingleMode() { return singleMode; }
 	
 }

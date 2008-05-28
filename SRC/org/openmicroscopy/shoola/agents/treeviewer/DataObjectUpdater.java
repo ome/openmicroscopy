@@ -23,17 +23,17 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer;
 
-import java.util.Map;
-
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 
 //Java imports
+import java.util.Map;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 
 /** 
  * 

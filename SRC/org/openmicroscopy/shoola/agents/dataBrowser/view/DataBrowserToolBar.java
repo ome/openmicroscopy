@@ -287,7 +287,8 @@ class DataBrowserToolBar
 		search = new QuickFiltering();
 		search.addPropertyChangeListener(controller);
 		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));
-		filterButton.setToolTipText("Filter images.");
+		filterButton.setToolTipText("Filter images displayed in " +
+				"the Workspace.");
 		filterButton.addMouseListener(new MouseAdapter() {
 		
 			/**
@@ -508,7 +509,7 @@ class DataBrowserToolBar
 	 */
 	void setNumberOfImages(int value, int total)
 	{
-		String s = "Showing "+value+" of "+total+" image";
+		String s = "Workspace: "+value+" of "+total+" image";
 		if (total > 1) s += "s";
 		filteringLabel.setText(s);
 		filteringLabel.repaint();

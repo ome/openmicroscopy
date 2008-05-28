@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -62,6 +61,7 @@ import pojos.DataObject;
 public class LayoutUtils 
 {
 
+	/** The default number of items per row. */
 	private static final int	DEFAULT_PER_ROW = 10;
 	
 	/**

@@ -61,7 +61,6 @@ import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
@@ -137,9 +136,6 @@ class EditorModel
 	/** Flag indicating to load the thumbnail. */
 	private boolean					thumbnailRequired;
 	
-	/** Flag indicating if the editor is for a multi selection. */
-	private boolean					multiSelection;
-	
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -172,12 +168,10 @@ class EditorModel
 	 * 
 	 * @param refObject			The object this editor is for.
 	 * @param parent			The parent of this browser.
-	 * @param multiSelection    Pass <code>true</code> for multiselection, 
-	 *                          s<code>false</code> otherwise.
 	 * @param thumbnailRequired Pass <code>true</code> to indicate to load the
 	 * 							thumbnail, <code>false</code> otherwise.
 	 */
-	EditorModel(Object refObject, MetadataViewer parent, boolean multiSelection,
+	EditorModel(Object refObject, MetadataViewer parent,
 				boolean thumbnailRequired) 
 	{
 		if (refObject == null)
@@ -187,7 +181,6 @@ class EditorModel
 		this.thumbnailRequired = thumbnailRequired;
 		loaders = new ArrayList<EditorLoader>();
 		sorter = new ViewerSorter();
-		this.multiSelection = multiSelection;
 	}
 	
 	/**
@@ -196,7 +189,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isMultiSelection() { return multiSelection; }
+	boolean isMultiSelection() { return !parent.isSingleMode(); }
 	
 	/**
 	 * Returns the observable.
@@ -478,7 +471,8 @@ class EditorModel
 		List<ViewedByDef> results = new ArrayList<ViewedByDef>();
 		while (i.hasNext()) {
 			def = (ViewedByDef) i.next();
-			if (def.getExperimenter().getId() != userID)
+			//TMP
+			//if (def.getExperimenter().getId() != userID)
 				results.add(def);
 		}
 		return results; 
@@ -496,6 +490,11 @@ class EditorModel
 		return ratings.size();
 	}
 	
+	/**
+	 * Returns the rating done by the current user.
+	 * 
+	 * @return See above
+	 */
 	int getUserRating()
 	{
 		if (data == null) return 0;
@@ -503,7 +502,6 @@ class EditorModel
 		if (ratings == null || ratings.size() == 0) return 0;
 		Iterator i = ratings.iterator();
 		RatingAnnotationData rate;
-		int value = 0;
 		long id = MetadataViewerAgent.getUserDetails().getId();
 		while (i.hasNext()) {
 			rate = (RatingAnnotationData) i.next();
@@ -924,7 +922,7 @@ class EditorModel
 	{
 		if (refObject instanceof DataObject)
 			parent.saveData(toAdd, toRemove, (DataObject) refObject);
-		else parent.saveData(toAdd, toRemove, null);
+		//else parent.saveData(toAdd, toRemove, null);
 	}
 	
 	/**

@@ -232,10 +232,13 @@ class ToolBar
     	removeAll();
     	decorator.removeAll();
     	decorator.add(buildGeneralBar());
-    	if (model.getRefObject() instanceof ImageData) {
-    		decorator.add(Box.createHorizontalStrut(2));
-    		decorator.add(new JSeparator(JSeparator.VERTICAL));
-    		decorator.add(buildImageToolBar());
+    	
+    	if ((model.getRefObject() instanceof ImageData)) {
+    		if (!model.isMultiSelection()) {
+    			decorator.add(Box.createHorizontalStrut(2));
+        		decorator.add(new JSeparator(JSeparator.VERTICAL));
+        		decorator.add(buildImageToolBar());
+    		}
     	}
     	
     	switch (index) {
@@ -271,6 +274,7 @@ class ToolBar
      */
     void setDecorator()
     {
+    	if (model.isMultiSelection()) return;
     	IconManager icons = IconManager.getInstance();
     	if (annotation == null) {
     		annotation = new JPanel();

@@ -43,7 +43,12 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ImageData;
 
 /** 
- * 
+ * Implements the {@link Editor} interface to provide the functionality
+ * required of the hierarchy viewer component.
+ * This class is the component hub and embeds the component's MVC triad.
+ * It manages the component's state machine and fires state change 
+ * notifications as appropriate, but delegates actual functionality to the
+ * MVC sub-components.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -287,11 +292,11 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#showEditorUI(boolean)
+	 * @see Editor#setSelectionMode(boolean)
 	 */
-	public void showEditorUI(boolean show)
+	public void setSelectionMode(boolean single)
 	{
-		view.showEditorUI(show);
+		view.setSelectionMode(single);
 	}
 	
 }

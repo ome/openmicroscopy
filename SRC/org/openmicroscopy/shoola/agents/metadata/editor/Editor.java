@@ -174,11 +174,11 @@ public interface Editor
 	public void setExistingURLs(Collection urls);
 	
 	/**
-	 * Shows the editor or hides it depending on the passed value.
+	 * Sets either to single selection or to multi selection.
 	 * 
-	 * @param show Pass <code>true</code> to show the editor, <code>false</code>
-	 * 			   otherwise.
+	 * @param single	Pass <code>true</code> when single selection, 
+	 * 					<code>false</code> otherwise.
 	 */
-	public void showEditorUI(boolean show);
+	public void setSelectionMode(boolean single);
 	
 }

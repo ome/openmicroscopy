@@ -27,7 +27,12 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 
 //Third-party libraries
 
@@ -42,6 +47,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
@@ -99,7 +105,7 @@ class MetadataViewerComponent
 		controller.initialize(this, view);
 		view.initialize(controller, model);
 		if (!(model.getRefObject() instanceof String))
-			showUI(true);
+			setSelectionMode(true);
 		//setRootObject(model.getRefObject());
 	}
 
@@ -234,7 +240,8 @@ class MetadataViewerComponent
 	public void setRootObject(Object root)
 	{
 		if (root == null) root = "";
-		if (root instanceof String) showUI(false);
+		//if (root instanceof String) setSelectionMode(false);
+		//if (root instanceof Time)
 		model.setRootObject(root);
 		view.setRootObject();
 	}
@@ -267,23 +274,60 @@ class MetadataViewerComponent
 	public void saveData(List<AnnotationData> toAdd, 
 				List<AnnotationData> toRemove, DataObject data)
 	{
-		if (model.isMultiSelection()) {
-			model.fireBatchSaving(toAdd, toRemove);
-			return;
-		}
+		//if (model.isMultiSelection()) {
+		//	model.fireBatchSaving(toAdd, toRemove);
+		//	return;
+		//}
 		if (data == null) return;
 		Object refObject = model.getRefObject();
 		List<DataObject> toSave = new ArrayList<DataObject>();
+		if (refObject instanceof ExperimenterData) {
+			toSave.add(data);
+			model.fireSaving(toAdd, toRemove, toSave);
+		}
 		MessageBox dialog;
 		if (refObject instanceof ProjectData) {
 			//if (siblings != null && siblings.size() > 1)
 			//	toSave.addAll(siblings);
 			toSave.add(data);
+			if (!model.isSingleMode()) {
+				//add siblings.
+			} 
+			
 			model.fireSaving(toAdd, toRemove, toSave);
 		} else if (refObject instanceof DatasetData) {
-			//Only properties to save
-			toSave.add(data);
-			model.fireSaving(toAdd, toRemove, toSave);
+
+			if (!model.isSingleMode()) {
+				toSave.add(data);
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
+			} 
+			dialog = new MessageBox(view, "Save Annotations", 
+						         "Do you want to attach the annotations to: ");
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton single = new JRadioButton();
+			single.setText("The selected dataset");
+			single.setSelected(true);
+			group.add(single);
+			p.add(single);
+			JRadioButton batchAnnotation = new JRadioButton();
+			group.add(batchAnnotation);
+			p.add(batchAnnotation);
+			batchAnnotation.setText("The images contained in the " +
+					                "selected dataset");
+			dialog.addBodyComponent(p);
+			int option = dialog.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
+				toSave.add(data);
+				if (single.isSelected()) 
+					model.fireSaving(toAdd, toRemove, toSave);
+				else
+					model.fireBatchSaving(toAdd, toRemove, toSave);
+			} else if (option == MessageBox.NO_OPTION) {
+				//clearDataToSave();
+			}
 			/*
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
 				toSave.add(data);
@@ -292,8 +336,7 @@ class MetadataViewerComponent
 			}
 			*/
 			/*
-			dialog = new MessageBox(view, "Save Annotations", 
-									"Do you want to attach metadata to: ");
+			
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();
@@ -327,6 +370,9 @@ class MetadataViewerComponent
 		} else if (refObject instanceof ImageData) {
 			//Only properties to save
 			toSave.add(data);
+			if (model.isSingleMode()) {
+				
+			}
 			model.fireSaving(toAdd, toRemove, toSave);
 			
 			
@@ -506,11 +552,42 @@ class MetadataViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#showUI(boolean)
+	 * @see MetadataViewer#setSelectionMode(boolean)
 	 */
-	public void showUI(boolean show)
+	public void setSelectionMode(boolean single)
 	{
-		model.getEditor().showEditorUI(show);
+		model.setSelectionMode(single);
+		model.getEditor().setSelectionMode(single);
+		//model.getEditor().showEditorUI(show);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#isSingleMode()
+	 */
+	public boolean isSingleMode()
+	{
+		return model.isSingleMode();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#setRelatedNodes(Collection)
+	 */
+	public void setRelatedNodes(Collection nodes)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#onExperimenterUpdated(ExperimenterData)
+	 */
+	public void onExperimenterUpdated(ExperimenterData data)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

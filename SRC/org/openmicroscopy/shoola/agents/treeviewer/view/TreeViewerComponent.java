@@ -366,7 +366,7 @@ class TreeViewerComponent
 			model.setSelectedBrowser(browser);
 			if (browser != null) browser.activate();
 			removeEditor();
-			model.getMetadataViewer().showUI(false);
+			model.getMetadataViewer().setSelectionMode(false);
 			firePropertyChange(SELECTED_BROWSER_PROPERTY, oldBrowser, browser);
 		}
 		view.updateMenuItems();
@@ -587,10 +587,11 @@ class TreeViewerComponent
         TreeImageDisplay display = browser.getLastSelectedDisplay();
         MetadataViewer metadata = model.getMetadataViewer();
         boolean single = browser.getSelectedDisplays().length == 1;
-        metadata.showUI(single);
+        metadata.setSelectionMode(single);
         if (display != null && !(display instanceof TreeImageTimeSet)) {
         	  Object object = display.getUserObject();
-        	  if (single) metadata.setRootObject(object);
+        	  //if (single)
+        	  metadata.setRootObject(object);
               showDataBrowser(object, display);
         }
 	}
@@ -1480,13 +1481,13 @@ class TreeViewerComponent
 		if (!multi) {
 			mv.setRootObject(selected);
 			if (selected != null && selected instanceof DataObject)
-				mv.showUI(true);
-			else mv.showUI(false);
+				mv.setSelectionMode(true);
+			else mv.setSelectionMode(false);
 		} else {
 			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
 			if (nodes != null && nodes.length == 1) {
 				mv.setRootObject(nodes[0].getUserObject());
-				mv.showUI(true);
+				mv.setSelectionMode(true);
 			} else mv.setRootObject(null);
 		}
 		
@@ -1642,13 +1643,13 @@ class TreeViewerComponent
 		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
 		if (!multi) {
 			mv.setRootObject(selected);
-			mv.showUI(true);
+			mv.setSelectionMode(true);
 		} else {
 			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
 			
 			if (nodes != null && nodes.length == 1) {
 				mv.setRootObject(nodes[0].getUserObject());
-				mv.showUI(true);
+				mv.setSelectionMode(true);
 			} else mv.setRootObject(null);
 		}
 
@@ -1830,7 +1831,7 @@ class TreeViewerComponent
     				icons.getIcon(IconManager.ADD_METADATA_48), 
     				viewer.getEditorUI());
     		dialog.setParent(viewer);
-    		viewer.showUI(true);
+    		viewer.setSelectionMode(true);
     		dialog.addPropertyChangeListener(controller);
     		UIUtilities.centerAndShow(dialog);
     	}

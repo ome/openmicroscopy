@@ -46,7 +46,6 @@ import layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -136,6 +135,9 @@ public class EditorUI
 	
 	/** The component hosting the {@link #tagUI}. */
 	private TreeComponent 				tagsTree;
+	
+	/** The component hosting the {@link #propertiesUI}. */
+	private TreeComponent 				propertiesTree;
 	
 	/** The component hosting . */
 	private TreeComponent 				tree;
@@ -263,6 +265,11 @@ public class EditorUI
 			
 			});
 		trees.add(infoTree);
+		propertiesTree = new TreeComponent();
+		trees.add(propertiesTree);
+		propertiesTree.insertNode(propertiesUI, 
+				propertiesUI.getCollapseComponent());
+		
 		components = new ArrayList<AnnotationUI>();
 		components.add(propertiesUI);
 		components.add(attachmentsUI);
@@ -290,30 +297,19 @@ public class EditorUI
 				{TableLayout.PREFERRED, 0} }; //rows
 		viewTreePanel.setLayout(new TableLayout(tl));
 		
-		viewTreePanel.add(rateUI, "0, 0");
-		viewTreePanel.add(viewByTree, "0, 1");
-		
-		TreeComponent propTree = new TreeComponent(); 
-		trees.add(propTree);
-		propTree.insertNode(propertiesUI, propertiesUI.getCollapseComponent());
-		//TreeComponent left = new TreeComponent();
-		//trees.add(left);
+		//viewTreePanel.add(rateUI, "0, 0");
+		//viewTreePanel.add(viewByTree, "0, 1");
 	
-		double h = TableLayout.PREFERRED;
+		//double h = TableLayout.PREFERRED;
 		double[][] leftSize = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 0, h}}; //rows
+				{TableLayout.PREFERRED, 0, 0, TableLayout.PREFERRED}}; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
-		if (!model.isMultiSelection()) {
-			leftPane.add(viewTreePanel, "0, 1");
-			leftPane.add(infoTree, "0, 2");
-			leftPane.add(propTree, "0, 3");
-		}
-		
-		/*
-		leftPane.add(commentsTree, "0, 4");
-		leftPane.add(tagsTree, "0, 5");
-		leftPane.add(left, "0, 6");
-		*/
+		//if (!model.isMultiSelection()) {
+		leftPane.add(rateUI, "0, 0");
+		leftPane.add(viewByTree, "0, 1");
+		leftPane.add(infoTree, "0, 2");
+		leftPane.add(propertiesTree, "0, 3");
+		//}
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
@@ -323,7 +319,6 @@ public class EditorUI
 		rightPane.setLayout(new TableLayout(rigthSize));
 		rightPane.add(commentsTree, "0, 0");
 		rightPane.add(tagsTree, "0, 1");
-		//rightPane.add(left, "0, 2");
 		rightPane.add(tree, "0, 2");
 		
 		content = new JPanel();
@@ -331,26 +326,16 @@ public class EditorUI
 		switch (layout) {
 			case Editor.VERTICAL_LAYOUT:
 				content.setLayout(new TableLayout(CONTENT_VERTICAL));
-				if (model.isMultiSelection()) {
-					tree.expandNodes();
-					commentsTree.expandNodes();
-					tagsTree.expandNodes();
-					content.add(leftPane, "0, 0");
-					content.add(rightPane, "0, 1");
-				} else {
-					content.add(toolBarTop, "0, 0");
-					content.add(leftPane, "0, 1");
-					content.add(rightPane, "0, 2");
-					content.add(toolBarBottom, "0, 3");
-				}
+				content.add(toolBarTop, "0, 0");
+				content.add(leftPane, "0, 1");
+				content.add(rightPane, "0, 2");
+				content.add(toolBarBottom, "0, 3");
+				
 				break;
 			case Editor.GRID_LAYOUT:
 			default:
 				content.setLayout(new TableLayout(CONTENT_GRID));
-				if (!model.isMultiSelection()) {
-					content.add(toolBarTop, "0, 0, 2, 0");
-				}
-				
+				content.add(toolBarTop, "0, 0, 2, 0");
 				content.add(leftPane, "0, 1");
 				content.add(rightPane, "2, 1");
 				content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
@@ -411,8 +396,8 @@ public class EditorUI
         	setDataToSave(false);
         	if (added) addTopLeftComponent(topLeftPane);
         	Object refObject = model.getRefObject();
-        	commentsTree.setTreeEnabled(true);
-        	tagsTree.setTreeEnabled(true);
+        	//commentsTree.setTreeEnabled(true);
+        	//tagsTree.setTreeEnabled(true);
         	if (refObject instanceof ImageData) {
         		boolean count =  model.getViewedByCount() > 0;
         		viewByTree.setTreeEnabled(count);
@@ -440,16 +425,27 @@ public class EditorUI
     	repaint();
     }
     
-    /**
-     * Shows or hides the editor depending on the passed value.
-     * 
-     * @param show Pass <code>true</code> to show the UI components, 
-     *             <code>false</code> to hide them.
-     */
-    void showEditorUI(boolean show)
+	/**
+	 * Sets either to single selection or to multi selection.
+	 * 
+	 * @param single	Pass <code>true</code> when single selection, 
+	 * 					<code>false</code> otherwise.
+	 */
+    void setSelectionMode(boolean single)
     {
     	Component comp = getComponent(0);
-    	if (show) {
+    	if (!(model.getRefObject() instanceof DataObject)) {
+    		if (comp instanceof JPanel) return;
+    		removeAll();
+    		add(emptyPane, BorderLayout.CENTER);
+    	} else {
+    		if (comp instanceof JScrollPane) return;
+    		removeAll();
+    		add(mainPane, BorderLayout.CENTER);
+    	}
+    	layoutUI();
+    	/*
+    	if (single) {
     		if (comp instanceof JScrollPane) return;
     		removeAll();
     		add(mainPane, BorderLayout.CENTER);
@@ -457,7 +453,8 @@ public class EditorUI
     		if (comp instanceof JPanel) return;
     		removeAll();
     		add(emptyPane, BorderLayout.CENTER);
-    	}
+    	}*/
+    	//modify layout
     	repaint();
     }
     
@@ -532,16 +529,9 @@ public class EditorUI
 			    	repaint();
 					return;
 				}
-				if (model.isMultiSelection()) {
-					content.add(leftPane, "0, 1");
-					content.add(rightPane, "2, 1");
-				} else {
-					System.err.println("layout: "+layout);
-					content.add(toolBarTop, "0, 0, 2, 0");
-					content.add(leftPane, "0, 1");
-					content.add(rightPane, "2, 1");
-				}
-				
+				content.add(toolBarTop, "0, 0, 2, 0");
+				content.add(leftPane, "0, 1");
+				content.add(rightPane, "2, 1");
 				break;
 			case Editor.VERTICAL_LAYOUT:
 				content.setLayout(new TableLayout(CONTENT_VERTICAL));
@@ -554,42 +544,44 @@ public class EditorUI
 			    	repaint();
 					return;
 				}
-				if (model.isMultiSelection()) {
-					tree.expandNodes();
-					commentsTree.expandNodes();
-					tagsTree.expandNodes();
-					content.add(leftPane, "0, 1");
-					content.add(rightPane, "0, 2");
-				} else {
-					content.add(leftPane, "0, 1");
-					content.add(rightPane, "0, 2");
-					content.add(toolBarTop, "0, 0");
-					content.add(toolBarBottom, "0, 3");
-				}
 				
+				content.add(toolBarTop, "0, 0");
+				content.add(leftPane, "0, 1");
+				content.add(rightPane, "0, 2");
+				content.add(toolBarBottom, "0, 3");
 				break;
 		}
 		
-		if (object instanceof ImageData) {
-			((TableLayout) viewTreePanel.getLayout()).setRow(1, 
-													TableLayout.FILL);
-			((TableLayout) leftPane.getLayout()).setRow(2, 
-					TableLayout.PREFERRED);
-    		viewByTree.setVisible(true);
-    		infoTree.setVisible(true);
-    	} else {
-    		((TableLayout) viewTreePanel.getLayout()).setRow(1, 0);
-    		((TableLayout) leftPane.getLayout()).setRow(2, 0);
-    		viewByTree.collapseNodes();
-    		viewByTree.setVisible(false);
-    		viewedByUI.setExpanded(false);
-    		infoTree.setVisible(false);
-    		infoTree.collapseNodes();
-    		infoUI.setExpanded(false);
-    	}
-		if (topLeftPane != null) leftPane.remove(topLeftPane);
 		TableLayout layout = (TableLayout) leftPane.getLayout();
-		layout.setRow(0, 0);
+
+		if (model.isMultiSelection()) {
+			layout.setRow(1, 0);
+			layout.setRow(2, 0);
+			layout.setRow(3, 0);
+			propertiesTree.collapseNodes();
+		} else {
+			layout.setRow(3, TableLayout.PREFERRED);
+			if (object instanceof ImageData) {
+				layout.setRow(1, TableLayout.FILL);
+				layout.setRow(2, TableLayout.PREFERRED);
+	    		viewByTree.setVisible(true);
+	    		infoTree.setVisible(true);
+	    	} else {
+	    		layout.setRow(1, 0);
+				layout.setRow(2, 0);
+	    		viewByTree.collapseNodes();
+	    		viewByTree.setVisible(false);
+	    		viewedByUI.setExpanded(false);
+	    		infoTree.setVisible(false);
+	    		infoTree.collapseNodes();
+	    		infoUI.setExpanded(false);
+	    	}
+		}
+		
+		
+		if (topLeftPane != null) leftPane.remove(topLeftPane);
+		toolBarBottom.buildGUI();
+		toolBarTop.buildGUI();
 		leftPane.revalidate();
 		rateUI.clearDisplay();
 		viewedByUI.clearDisplay();
@@ -724,6 +716,7 @@ public class EditorUI
 			ui.clearData();
 			ui.clearDisplay();
 		}
+		setCursor(Cursor.getDefaultCursor());
 	}
 
 	/**

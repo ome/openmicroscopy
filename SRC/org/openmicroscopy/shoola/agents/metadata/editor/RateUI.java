@@ -121,15 +121,11 @@ class RateUI
 	{
 		//set values.
 		//int n = model.getRatingCount();
-		selectedValue = model.getUserRating();
-		//if (n > 0) selectedValue = model.getRatingAverage();
+		selectedValue = 0;
+		if (!model.isMultiSelection())
+		    selectedValue = model.getUserRating();
 		initialValue = selectedValue;
 		rating.setValue(selectedValue);
-		/*
-		s += n+NAME;
-		if (n > 1) s += "s";
-		ratingsLabel.setText("("+s+")");
-		*/
 		revalidate();
 		repaint();
 	}
@@ -153,8 +149,9 @@ class RateUI
 	protected List<AnnotationData> getAnnotationToSave()
 	{
 		List<AnnotationData> l = new ArrayList<AnnotationData>();
-		int value = model.getRatingAverage();
-		if (selectedValue != value)
+		//int value = model.getRatingAverage();
+		//if (selectedValue != value)
+		if (selectedValue != initialValue)
 			l.add(new RatingAnnotationData(selectedValue));
 		return l;
 	}
@@ -174,7 +171,9 @@ class RateUI
 	 */
 	protected void clearData()
 	{
-		selectedValue = 0;//model.getRatingAverage();
+		selectedValue = 0;
+		if (!model.isMultiSelection())
+		    selectedValue = model.getUserRating();
 		initialValue = 0;
 		rating.removePropertyChangeListener(RatingComponent.RATE_PROPERTY, 
 											this);

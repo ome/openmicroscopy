@@ -25,11 +25,15 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -44,11 +48,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
-import javax.swing.border.TitledBorder;
 
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -169,7 +171,7 @@ class ViewedByUI
 		content.add(rate);
 		
 		p.add(content);
-		return p;
+		return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
 	
 	/** 
@@ -182,14 +184,14 @@ class ViewedByUI
 	private JPanel buildGridItem(BufferedImage img, long id)
 	{
 		JPanel p = new JPanel();
-		int width = img.getWidth();
-		int height = img.getHeight();
-		double[][] tl = {{width}, //columns
-				{height, TableLayout.PREFERRED} }; //rows
-		p.setLayout(new TableLayout(tl));
+
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+	    c.gridy = 0;
 		ViewedByDef def = model.getViewedDef(id);
-		p.add(new ThumbnailCanvas(model, img, def), "0, 0");
-		
+		p.add(new ThumbnailCanvas(model, img, def), c);
+		c.gridy++;
 		String name = model.formatOwner(def.getExperimenter());
 		Collection ratings = def.getRatings();
 		int value = 0;
@@ -202,12 +204,23 @@ class ViewedByUI
 								RatingComponent.MEDIUM_SIZE, false);
 		
 		JPanel content = new JPanel();
-		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		content.add(new JLabel(name));
-		content.add(rate);
-		
-		p.add(content, "0, 1");
-		return p;
+		content.setLayout(new GridBagLayout());
+		GridBagConstraints cg = new GridBagConstraints();
+		cg.gridx = 0;
+	    cg.gridy = 0;
+		int width = img.getWidth();
+		int w = content.getFontMetrics(content.getFont()).charWidth('m');
+		if (name.length()*w > width) {
+			String[] values = name.split(" ");
+			for (int i = 0; i < values.length; i++) {
+				cg.gridy++;
+				content.add(new JLabel(values[i]), cg);
+			}
+		} else content.add(new JLabel(name), cg);
+		cg.gridy++;
+		content.add(rate, cg);
+		p.add(content, c);
+		return UIUtilities.buildComponentPanel(p);
 	}
 	
 	/** 
@@ -237,27 +250,38 @@ class ViewedByUI
 	 */
 	private JPanel layoutGrid()
 	{
-		//if (gridPane != null) return UIUtilities.buildComponentPanel(gridPane);
 		gridPane = new JPanel();
+		gridPane.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
 		Map<Long, BufferedImage> thumbnails = model.getThumbnails();
-		Iterator i = thumbnails.keySet().iterator();
+		List<JPanel> thumbs = new ArrayList<JPanel>(thumbnails.size());
+		Iterator thumb = thumbnails.keySet().iterator();
 		Long id;
-		double[] columns = {TableLayout.PREFERRED, TableLayout.PREFERRED, 
-							TableLayout.PREFERRED}; //rows
-		TableLayout layout = new TableLayout();
-		layout.setColumn(columns);
-		gridPane.setLayout(layout);
-		for (int j = 0; j < 2*thumbnails.size()-1; j++) {
-			if (j%3 == 0) layout.insertRow(j, TableLayout.PREFERRED);
-			else layout.insertRow(j, 5);
+		while (thumb.hasNext()) {
+			id = (Long) thumb.next();
+			thumbs.add(buildGridItem(thumbnails.get(id), id));
 		}
-		int index = 0;
-		while (i.hasNext()) {
-			id = (Long) i.next();
-			gridPane.add(buildGridItem(thumbnails.get(id), id), 
-									"0, "+index+", f, c");
-			index++;
-		}
+		//int n = thumbs.size();
+	    //n = (int) Math.floor(Math.sqrt(n))+1;
+		int n = (thumbs.size()/3)+1;
+	    thumb = thumbs.iterator();
+	    c.gridx = 0;
+	    c.gridy = 0;
+	    c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+	    JPanel comp;
+	    for (int i = 0; i < 3; ++i) {
+	    	c.gridx = 0;
+            for (int j = 0; j < n; ++j) {
+                if (!thumb.hasNext()) //Done, less than n^2 children.
+                    break;  //Go to finally
+                comp = (JPanel) thumb.next();
+                c.gridx += j;
+                c.gridy += i;
+                gridPane.add(comp, c);
+            }
+        }    
+		
 		return UIUtilities.buildComponentPanel(gridPane);
 	}
 	

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JComponent;
 
@@ -34,6 +35,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -223,11 +225,30 @@ public interface MetadataViewer
 	public void onDataSave(List<DataObject> dataObject);
 	
 	/**
-	 * Shows the components or hides them depending on the passed value.
+	 * Sets to <code>true</code> if single selection, 
+	 * to <code>false</code> if multi selection.
 	 * 
-	 * @param show Pass <code>true</code> to show the editor, <code>false</code>
-	 * 			   otherwise.
+	 * @param single Pass <code>true</code> when single selection, 
+	 * 				 <code>false</code> otherwise.
 	 */
-	public void showUI(boolean show);
+	public void setSelectionMode(boolean single);
+	
+	/** 
+	 * Returns <code>true</code> if the model is in single mode,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isSingleMode();
+	
+	/**
+	 * Sets the nodes related to the root nodes when multi selection is
+	 * on.
+	 * 
+	 * @param nodes The nodes to set.
+	 */
+	public void setRelatedNodes(Collection nodes);
+
+	public void onExperimenterUpdated(ExperimenterData data);
 	
 }

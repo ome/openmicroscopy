@@ -62,11 +62,10 @@ public class EditorFactory
      */
     public static Editor createEditor(MetadataViewer parent, 
     									Object refObject, boolean
-    									thumbnailRequired, 
-    									boolean multiSelection, int layout)
+    									thumbnailRequired, int layout)
     {
-    	EditorModel model = new EditorModel(refObject, parent, multiSelection,
-    										thumbnailRequired);
+    	EditorModel model = new EditorModel(refObject, parent, 
+    			                          thumbnailRequired);
     	EditorComponent component = new EditorComponent(model);
     	model.initialize(component);
     	component.initialize(layout);

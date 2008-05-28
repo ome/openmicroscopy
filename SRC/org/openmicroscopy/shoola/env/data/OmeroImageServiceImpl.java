@@ -223,6 +223,7 @@ class OmeroImageServiceImpl
 					try {
 						r.put(id, createImage(values));
 					} catch (Exception e) {
+						e.printStackTrace();
 						r.put(id, null);
 					}
 				}

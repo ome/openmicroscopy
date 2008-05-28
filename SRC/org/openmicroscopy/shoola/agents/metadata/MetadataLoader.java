@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 
@@ -73,6 +74,9 @@ public abstract class MetadataLoader
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView	mhView;
     
+    /** Convenience reference for subclasses. */
+    protected final DataManagerView     dmView;
+    
     /**
      * Checks if the specified type is supported.
      * 
@@ -98,6 +102,8 @@ public abstract class MetadataLoader
          registry = MetadataViewerAgent.getRegistry();
          mhView = (MetadataHandlerView) 
          	registry.getDataServicesView(MetadataHandlerView.class);
+         dmView = (DataManagerView) 
+			registry.getDataServicesView(DataManagerView.class);
     }
     
     /**

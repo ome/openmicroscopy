@@ -521,10 +521,12 @@ class PropertiesUI
 	{
 		nameArea.getDocument().removeDocumentListener(this);
 		descriptionArea.getDocument().removeDocumentListener(this);
-		nameArea.setText("");
-		descriptionArea.setText("");
+		nameArea.setText(model.getRefObjectName());
+		descriptionArea.setText(model.getRefObjectDescription());
 		nameArea.getDocument().addDocumentListener(this);
 		descriptionArea.getDocument().addDocumentListener(this);
+		originalName = nameArea.getText();
+		originalDescription = descriptionArea.getText();
 		/*
 		nameArea.setText(originalName);
 		String name = originalDescription;//model.getRefObjectDescription();
