@@ -25,12 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Frame;
-import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -40,11 +36,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -52,7 +45,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.DrawingEvent;
 import org.jhotdraw.draw.DrawingListener;
 import org.jhotdraw.draw.Figure;
@@ -60,8 +52,6 @@ import org.jhotdraw.draw.FigureEvent;
 import org.jhotdraw.draw.FigureListener;
 import org.jhotdraw.draw.FigureSelectionEvent;
 import org.jhotdraw.draw.FigureSelectionListener;
-import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
@@ -71,7 +61,6 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.SaveResultsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
@@ -269,7 +258,7 @@ class MeasurementViewerControl
 				ROI roi = shape.getROI();
 				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-				while(shapeIterator.hasNext())
+				while (shapeIterator.hasNext())
 					shapeList.add(shapeMap.get(shapeIterator.next()));
 				if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 			}
@@ -342,11 +331,10 @@ class MeasurementViewerControl
 			ROI roi = shape.getROI();
 			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-			while(shapeIterator.hasNext())
+			while (shapeIterator.hasNext())
 				shapeList.add(shapeMap.get(shapeIterator.next()));
 			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 		}
-		
 	}
 	
 	/**
@@ -369,21 +357,17 @@ class MeasurementViewerControl
 	{
 		Collection figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
-		if (view.inDataView() && figures.size() == 1) 
-		{
+		if (view.inDataView() && figures.size() == 1) {
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
-			if(figure==null)
-				return;
+			if (figure == null) return;
 			ROIShape shape = figure.getROIShape();
-			if(shape ==null)
-				return;
+			if (shape == null) return;
 			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 			ROI roi = shape.getROI();
-			if(roi==null)
-				return;
+			if (roi == null) return;
 			TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 			Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-			while(shapeIterator.hasNext())
+			while (shapeIterator.hasNext())
 				shapeList.add(shapeMap.get(shapeIterator.next()));
 			if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 		}
@@ -415,29 +399,46 @@ class MeasurementViewerControl
 	public void figureChanged(FigureEvent e)
 	{
 		Figure f = e.getFigure();
-		if (f instanceof ROIFigure) 
-		{
+		if (f instanceof ROIFigure) {
 			ROIFigure roiFigure = (ROIFigure) f;
 			roiFigure.calculateMeasurements();
 			view.refreshResultsTable();
 			model.setDataChanged();
-			if (view.inDataView())
-			{
+			if (view.inDataView()) {
 				
 				ROIShape shape = roiFigure.getROIShape();
 				ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 				ROI roi = shape.getROI();
 				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-				while(shapeIterator.hasNext())
+				while (shapeIterator.hasNext())
 					shapeList.add(shapeMap.get(shapeIterator.next()));
 				
 				if (shapeList.size() != 0)
-				{
 					model.analyseShapeList(shapeList);
-				}
-				
 			}
+		}
+	}
+	
+	/** 
+	 * Calculates the statistics for the selected shape.
+	 * @see KeyListener#keyTyped(KeyEvent)
+	 */
+	public void keyTyped(KeyEvent e)
+	{
+		char ANALYSECHAR='a';
+		if (e.getKeyChar() == ANALYSECHAR) {
+			Collection<Figure> selectedFigures = 
+				view.getDrawingView().getSelectedFigures(); 
+			if (selectedFigures.size() != 1) return;
+			
+			Iterator<Figure> iterator = selectedFigures.iterator();
+			ROIFigure fig = (ROIFigure) iterator.next();
+			if (fig instanceof MeasureTextFigure) return;
+			
+			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			shapeList.add(fig.getROIShape());
+			view.calculateStats(fig.getROIShape().getID(), shapeList);
 		}
 	}
 	
@@ -458,10 +459,7 @@ class MeasurementViewerControl
 	 * Required by the I/F but no-op implementation in our case.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
-	public void windowLostFocus(WindowEvent e)
-	{
-		
-	}
+	public void windowLostFocus(WindowEvent e) {}
 	
 	/**
 	 * Required by the {@link DrawingListener} I/F but no-op implementation
@@ -498,53 +496,25 @@ class MeasurementViewerControl
 	 */
 	public void figureRequestRemove(FigureEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+	/**
+	 * Required by the {@link FigureListener} I/F but no-op implementation
+	 * in our case.
+	 * @see FigureListener#figureHandlesChanged(FigureEvent)
 	 */
-	public void keyPressed(KeyEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void figureHandlesChanged(FigureEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+	/**
+	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * in our case.
+	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
-	public void keyReleased(KeyEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void keyPressed(KeyEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+	/**
+	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * in our case.
+	 * @see KeyListener#keyReleased(KeyEvent)
 	 */
-	public void keyTyped(KeyEvent e)
-	{
-		char ANALYSECHAR='a';
-		if(e.getKeyChar() == ANALYSECHAR)
-		{
-			Collection<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
-			if(selectedFigures.size()!=1)
-				return;
-			
-			Iterator<Figure> iterator =  selectedFigures.iterator();
-			ROIFigure fig = (ROIFigure)iterator.next();
-			if(fig instanceof MeasureTextFigure)
-				return;
-			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-			shapeList.add(fig.getROIShape());
-			view.calculateStats(fig.getROIShape().getID(), shapeList);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see org.jhotdraw.draw.FigureListener#figureHandlesChanged(org.jhotdraw.draw.FigureEvent)
-	 */
-	public void figureHandlesChanged(FigureEvent arg0)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
+	public void keyReleased(KeyEvent e) {}
+	
 }

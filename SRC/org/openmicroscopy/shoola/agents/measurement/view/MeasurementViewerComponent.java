@@ -190,6 +190,7 @@ class MeasurementViewerComponent
 					FreeCacheEvent.RAW_DATA));
 			model.discard();
 			*/
+			model.discard();
 			fireStateChange();
 		}
 	}
