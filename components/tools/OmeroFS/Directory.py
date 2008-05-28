@@ -184,7 +184,7 @@ class Directory(object):
         """
         file = None
         path = pathModule.path(pathString)
-        nodes = self.parent.relpathto(path).splitall()[1:]
+        nodes = self.path.relpathto(path).splitall()[1:]
         file = self.root.getFile(nodes)
 
         return file
