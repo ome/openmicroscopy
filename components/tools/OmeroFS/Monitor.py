@@ -33,7 +33,7 @@ class MonitorServerImpl(monitors.MonitorServer):
         """
         #: Numerical component of a Monitor Id
         self.monitorId = 0
-        #: Ditionary of Monitors by Id
+        #: Dictionary of Monitors by Id
         self.monitors = {}
         #: Dictionary of Directories by Id
         self.directory = {}
@@ -52,7 +52,7 @@ class MonitorServerImpl(monitors.MonitorServer):
                       
                 current 
                     An ICE context, this parameter is required to be present
-                    in an ICE callback.
+                    in an ICE interface method.
                            
             :return: Success status.
             :rtype: boolean
@@ -71,7 +71,7 @@ class MonitorServerImpl(monitors.MonitorServer):
                       
                 current 
                     An ICE context, this parameter is required to be present
-                    in an ICE callback.
+                    in an ICE interface method.
                            
             :return: Success status.
             :rtype: boolean
@@ -90,16 +90,220 @@ class MonitorServerImpl(monitors.MonitorServer):
                       
                 current 
                     An ICE context, this parameter is required to be present
-                    in an ICE callback.
+                    in an ICE interface method.
                            
             :return: Success status.
             :rtype: boolean
                 
         """
         del self.monitors[id]
+        del self.proxies[id]
+        del self.directory[id]
         return True
+        
+    def getDirectory(self, id, plusPath, filter, current=None):
+        """
+            Get a list of subdirectories and files in a directory.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                pathPlus : string
+                    A path to be added to the base directory path.
 
+                filter : string
+                    A pattern to filter the listing (cf. ls).
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: a list of files.
+            :rtype: list<string>
+         
+        """
+        
+        if filter == "": filter = "*"
+        fullPath = self.directory[id].getPath() / plusPath
+        dirList = fullPath.dirs(filter)
+        fileList = fullPath.files(filter)
+        
+        fullList = []
+        for d in dirList:
+            fullList.append(d.name + '/')
+        for f in fileList:
+            fullList.append(f.name)
+        
+        return fullList
 
+    def getBaseName(self, id, fileId, current=None):
+        """
+            Return an at most size block of bytes from offset.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: Data.
+            :rtype: list<byte>
+         
+        """
+        
+        return pathModule.path(fileId).name
+        
+    def getSize(self, id, fileId, current=None):
+        """
+            Return the size of the file.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: size of file in bytes
+            :rtype: long integer
+         
+        """
+        
+        return pathModule.path(fileId).size
+        
+    def getOwner(self, id, fileId, current=None):
+        """
+            Return the owner of the file.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: owner
+            :rtype: string
+         
+        """
+        
+        return pathModule.path(fileId).owner
+        
+    def getCTime(self, id, fileId, current=None):
+        """
+            Return the ctime of the file.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: ctime
+            :rtype: float
+         
+        """
+        
+        return pathModule.path(fileId).ctime
+        
+    def getMTime(self, id, fileId, current=None):
+        """
+            Return the mtime of the file.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: mtime
+            :rtype: float
+         
+        """
+        
+        return pathModule.path(fileId).mtime
+        
+    def getATime(self, id, fileId, current=None):
+        """
+            Return the atime of the file.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: atime
+            :rtype: float
+         
+        """
+        
+        return pathModule.path(fileId).atime
+        
+        
+    def readBlock(self, id, fileId, offset, size, current=None):
+        """
+            Return an at most size block of bytes from offset.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                
+                offset : long integer
+                    The byte position in the file to read from.
+                    
+                size : integer
+                    The number of bytes to read.
+                    
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: Data.
+            :rtype: list<byte>
+         
+        """
+
+        file = open(fileId, 'rb')
+        file.seek(offset)
+        bytes = file.read(size)
+        file.close()
+        
+        return bytes
+    
+    
     def getNextMonitorId(self):
         """
             Return next monitor ID and increment.
@@ -136,7 +340,7 @@ class MonitorServerImpl(monitors.MonitorServer):
                       
                 current 
                     An ICE context, this parameter is required to be present
-                    in an ICE callback.
+                    in an ICE interface method.
                            
             :return: Monitor Id.
             :rtype: string
@@ -242,8 +446,12 @@ class MonitorServerImpl(monitors.MonitorServer):
             
             # If there any new files then tell the client.
             if len(new) > 0:
-                proxy.fsEventHappened(monitorId, new)
-
+                try:
+                    proxy.fsEventHappened(monitorId, new)
+                except Exception, e:
+                    self.stopMonitor(monitorId)
+                    self.destroyMonitor(monitorId)
+                    print 'Proxy id=' + monitorId+ ' lost.\n Reason: ' + str(e)
 
 
 
