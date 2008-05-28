@@ -758,7 +758,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         	log.info("Settings time: " + settingsTime);
             if (metadata == null
             	|| (thumbTime != null && settingsTime.after(thumbTime))
-            	|| (!thumbnailExistsOnDisk(metadata)))
+            	|| (!ioService.getThumbnailExists(metadata)))
             {
             	log.info("Cache miss, thumbnail missing or out of date.");
             	metadata = _createThumbnail(sizeX, sizeY);
@@ -916,23 +916,6 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	// left around in the Hibernate session cache.
     	iQuery.clear();
     	return _getThumbnailByLongestSideDirect(size, theZ, theT);
-    }
-    
-    /**
-     * Returns whether or not a thumbnail object's data exists on disk.
-     * @param thumbnail The thumbnail object to check for existence.
-     * @return See above.
-     */
-    private boolean thumbnailExistsOnDisk(Thumbnail thumbnail) {
-        try {
-            ioService.getThumbnailOutputStream(thumbnail);
-        } catch (FileNotFoundException f) {
-            return false;
-        } catch (Throwable t) {
-            log.error("Could not check if the thumbnail exists.", t);
-            throw new ResourceError(t.getMessage());
-        }
-        return true;
     }
     
     /*

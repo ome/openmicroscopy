@@ -109,6 +109,18 @@ public class ThumbnailService extends AbstractFileSystemService {
 		return new FileOutputStream(path);
 	}
 
+    /**
+     * Returns whether or not a thumbnail exists on disk.
+     * 
+     * @param thumbnail The thumbnail metadata.
+     * @return See above.
+     */
+    public boolean getThumbnailExists(Thumbnail thumbnail)
+            throws IOException {
+        String path = getThumbnailPath(thumbnail.getId());
+        return new File(path).exists();
+    }
+
 	/**
 	 * Removes files from data repository based on a parameterized List of Long
 	 * thumbnail ids
