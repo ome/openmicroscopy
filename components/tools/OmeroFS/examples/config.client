@@ -1,0 +1,8 @@
+omerofs.MonitorServer=fsEventHappened:tcp -p 10001
+omerofs.MonitorClient.Endpoints=tcp
+
+#
+# Warn about connection exceptions
+#
+Ice.Warn.Connections=1
+
