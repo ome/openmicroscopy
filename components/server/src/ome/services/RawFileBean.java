@@ -225,18 +225,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     @RolesAllowed("user")
     public boolean exists() {
         errorIfNotLoaded();
-    	File f = new File(file.getPath());
-    	if (f.exists())
-    	{
-    		if (f.canRead() && f.canWrite())
-    			return true;
-    		else
-    			throw new ResourceError("Cannot read or write to file.");
-    	}
-    	else
-    	{
-    		return false;
-    	}
+        return ioService.exists(file);
     }
 
     @RolesAllowed("user")

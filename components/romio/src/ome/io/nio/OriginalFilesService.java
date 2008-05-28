@@ -81,4 +81,15 @@ public class OriginalFilesService extends AbstractFileSystemService {
 			}
 		}
     }
+    
+    /**
+     * Returns whether or not an OriginalFile exists on disk.
+     * 
+     * @param file The original file metadata.
+     * @return See above.
+     */
+    public boolean exists(OriginalFile file) {
+        String path = getFilesPath(file.getId());
+        return new File(path).exists();
+    }
 }
