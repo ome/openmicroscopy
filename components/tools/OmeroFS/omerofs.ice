@@ -7,49 +7,57 @@
 #ifndef OMERO_FS
 #define OMERO_FS
 
+#include <Ice/BuiltinSequences.ice>
+
 module monitors {
     
     /*
-     * Forward declarations.
+     *   Forward declarations.
      */
     interface MonitorClient;
-    
+     
     /*
-     * A Whitelist is a sequence of file extensions that should be monitored.
-     * Each extension should be of the form, ".ext"
-     */
-    sequence<string> Whitelist;
-    
-    /*
-     * A Blacklist is a sequence of file paths that should be excluded from
-     * the monitoring. Each path should be relative to the path being 
-     * monitored.
-     */
-    sequence<string> Blacklist;
-    
-    /*
-     * The path should be a fully qualified path.
+     *   The path should be a fully qualified path.
      */
     interface MonitorServer {
     
-        string createMonitor(string pathString, Whitelist wl, 
-                        Blacklist bl, MonitorClient* proxy);
+        // a (will be unique) string id is returned
+        string createMonitor(string pathString, Ice::StringSeq wl, 
+                        Ice::StringSeq bl, MonitorClient* proxy);
+        
+        /*
+         *   id is used to control monitors 
+         */
         bool startMonitor(string id);
         bool stopMonitor(string id);
         bool destroyMonitor(string id);
+
+        // id and relative path are used for directory level operations.
+        Ice::StringSeq getDirectory(string id, string path, string filter);
+        
+        /*
+         *   id and fileId are used for file level operations.
+         */
+        string getBaseName(string id, string fileId);
+        long getSize(string id, string fileId);
+        string getOwner(string id, string fileId);
+        float getCTime(string id, string fileId);
+        float getMTime(string id, string fileId);
+        float getATime(string id, string fileId);
+        
+        // readBlock should open, read size bytes from offset and then close the file.
+        Ice::ByteSeq readBlock(string id, string fileId, long offset, int size);
         
     }; // end interface MonitorServer
   
     /*
-     * Initially let the event be a simple path string.
-     * A more complex structure may need to de defined
-     * if information other than the file name is needed.
+     *    Initially let the event be a simple path string.
+     *    A more complex structure may need to de defined
+     *    if information other than the file name is needed.
      */
-    sequence<string> EventList;
-
     interface  MonitorClient {
     
-        void fsEventHappened(string id, EventList el);
+        void fsEventHappened(string id, Ice::StringSeq el);
     
     }; // end interface MonitorClient
     
