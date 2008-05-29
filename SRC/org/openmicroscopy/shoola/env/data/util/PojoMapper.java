@@ -23,9 +23,6 @@
 
 package org.openmicroscopy.shoola.env.data.util;
 
-
-
-
 //Java imports
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +58,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
@@ -83,7 +81,6 @@ import pojos.URLAnnotationData;
 public class PojoMapper
 {
 
-	
     /**
      * Helper method to convert the specified object into its corresponding
      * {@link DataObject} or collection of {@link DataObject}s.
@@ -131,8 +128,8 @@ public class PojoMapper
         else if (object instanceof LongAnnotation) {
         	LongAnnotation ann = (LongAnnotation) object;
         	if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs()))
-         		return new RatingAnnotationData((LongAnnotation) object);	
-        	return null;
+         		return new RatingAnnotationData(ann);	
+        	return new LongAnnotationData(ann);
         } else if (object instanceof FileAnnotation) 
         	return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof BooleanAnnotation) {
@@ -141,11 +138,8 @@ public class PojoMapper
         		return new ArchivedAnnotationData(ann);
         } else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
-        else if (object instanceof Experimenter) {
-        	ExperimenterData exp = new ExperimenterData((Experimenter) object); 
-        	//System.err.println(exp.getGroups());
-        	return exp;
-        }
+        else if (object instanceof Experimenter) 
+        	return new ExperimenterData((Experimenter) object); 
         else if (object instanceof ExperimenterGroup) 
             return new GroupData((ExperimenterGroup) object); 
         throw new IllegalArgumentException("Unknown IObject type: "+

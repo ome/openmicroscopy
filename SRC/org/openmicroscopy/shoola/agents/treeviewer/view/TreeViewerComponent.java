@@ -586,14 +586,38 @@ class TreeViewerComponent
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
         MetadataViewer metadata = model.getMetadataViewer();
-        boolean single = browser.getSelectedDisplays().length == 1;
+        TreeImageDisplay[] selection = browser.getSelectedDisplays();
+        boolean single = selection.length == 1;
+       
+        //Need to review. that
+        if (display instanceof TreeImageTimeSet) {
+        	 single = false;
+        	 TreeImageTimeSet time = (TreeImageTimeSet) display;
+        	 if (!time.containsImages()) {
+        		 metadata.setRootObject(null);
+        		 return;
+        	 }
+        } 
         metadata.setSelectionMode(single);
-        if (display != null && !(display instanceof TreeImageTimeSet)) {
+        //TODO: handle TreeImageSet
+        if (display != null) { // && !(display instanceof TreeImageTimeSet)) {
         	  Object object = display.getUserObject();
-        	  //if (single)
         	  metadata.setRootObject(object);
+        	  if (!single) {
+        		  List l = new ArrayList();
+        		  Object child;
+        		  for (int i = 0; i < selection.length; i++) {
+        			  child = selection[i].getUserObject();
+        			  if (!child.equals(object)) {
+        				  l.add(child);
+        			  }
+        		  }
+        		  if (l.size() > 0)
+        		  	metadata.setRelatedNodes(l);
+        	  }
+        	  
               showDataBrowser(object, display);
-        }
+        } else metadata.setRootObject(null);
 	}
 
 	/**

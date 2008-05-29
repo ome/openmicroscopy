@@ -471,8 +471,7 @@ class EditorModel
 		List<ViewedByDef> results = new ArrayList<ViewedByDef>();
 		while (i.hasNext()) {
 			def = (ViewedByDef) i.next();
-			//TMP
-			//if (def.getExperimenter().getId() != userID)
+			if (def.getExperimenter().getId() != userID)
 				results.add(def);
 		}
 		return results; 

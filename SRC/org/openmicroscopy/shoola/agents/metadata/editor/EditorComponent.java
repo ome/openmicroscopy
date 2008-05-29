@@ -127,10 +127,15 @@ class EditorComponent
 	{
 		if (refObject == null)
 			throw new IllegalArgumentException("Root object not valid.");
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		model.setRootObject(refObject);
-		view.setRootObject();
-		model.loadUserThumbnail();
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		if ((refObject instanceof String) && (refObject.equals(""))) {
+			view.showEditor(false);
+		} else {
+			view.showEditor(true);
+			view.setRootObject();
+			model.loadUserThumbnail();
+		}
 	}
 
 	/** 

@@ -107,6 +107,8 @@ class MetadataViewerModel
 	 */
 	private boolean									singleMode;
 	
+	private Collection								relatedNodes;
+	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
 	 * 
@@ -433,4 +435,21 @@ class MetadataViewerModel
 	 */
 	boolean isSingleMode() { return singleMode; }
 	
+	/**
+	 * Sets the nodes related to the object of reference.
+	 * 
+	 * @param relateNodes The value to set.
+	 */
+	void setRelatedNodes(Collection relateNodes)
+	{ 
+		this.relatedNodes = relateNodes;
+	}
+	
+	/**
+	 * Returns the nodes related to the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	Collection getRelatedNodes() { return relatedNodes; }
+
 }

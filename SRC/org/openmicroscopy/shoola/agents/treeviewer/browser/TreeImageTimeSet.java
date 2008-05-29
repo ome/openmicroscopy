@@ -32,6 +32,8 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
@@ -175,20 +177,23 @@ public class TreeImageTimeSet
 	private static final long		DAY = UIUtilities.DAY;
 	
 	/** The node's index. One of the constants defined by this class. */
-	private int 		type;
+	private int 			type;
 	
 	/** 
 	 * Time corresponding to 01/01 of the current year if the index is 
 	 * {@link #YEAR} or 7 days before the actual day if the index is 
 	 * {@link #WEEK}.
 	 */
-	private Timestamp 	endTime;
+	private Timestamp 		endTime;
 	
 	/** Value only set if the index is {@link #YEAR_BEFORE}. */
-	private Timestamp	startTime;
+	private Timestamp		startTime;
 	
 	/** The index. */
-	private int			index;
+	private int				index;
+	
+	/** The ref object hosting the time interval. */
+	private TimeRefObject	ref;
 	
 	/** 
 	 * Returns the month corresponding to the passed index.
@@ -441,4 +446,17 @@ public class TreeImageTimeSet
 	 */
 	public Timestamp getStartTime() { return startTime; }
 	
+	/**
+	 * Returns the time object corresponding to the node.
+	 * 
+	 * @return See above.
+	 */
+	public Object getTimeObject()
+	{
+		if (ref == null) {
+			long id = TreeViewerAgent.getUserDetails().getId();
+			ref = new TimeRefObject(id, startTime, endTime);
+		}
+		return ref;
+	}
 }

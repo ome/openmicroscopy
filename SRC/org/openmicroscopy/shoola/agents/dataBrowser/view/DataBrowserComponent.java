@@ -334,6 +334,7 @@ class DataBrowserComponent
 		view.setNumberOfImages(nodes.size());
 		model.setState(READY);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		fireStateChange();
 	}
 
 	/**

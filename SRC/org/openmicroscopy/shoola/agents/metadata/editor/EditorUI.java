@@ -396,8 +396,8 @@ public class EditorUI
         	setDataToSave(false);
         	if (added) addTopLeftComponent(topLeftPane);
         	Object refObject = model.getRefObject();
-        	//commentsTree.setTreeEnabled(true);
-        	//tagsTree.setTreeEnabled(true);
+        	commentsTree.setTreeEnabled(true);
+        	tagsTree.setTreeEnabled(true);
         	if (refObject instanceof ImageData) {
         		boolean count =  model.getViewedByCount() > 0;
         		viewByTree.setTreeEnabled(count);
@@ -425,6 +425,21 @@ public class EditorUI
     	repaint();
     }
     
+    void showEditor(boolean show)
+    {
+    	Component comp = getComponent(0);
+    	if (show) {
+    		if (comp instanceof JScrollPane) return;
+    		removeAll();
+    		add(mainPane, BorderLayout.CENTER);
+    	} else {
+    		if (comp instanceof JPanel) return;
+    		removeAll();
+    		add(emptyPane, BorderLayout.CENTER);
+    	}
+    	repaint();
+    }
+    
 	/**
 	 * Sets either to single selection or to multi selection.
 	 * 
@@ -434,37 +449,20 @@ public class EditorUI
     void setSelectionMode(boolean single)
     {
     	Component comp = getComponent(0);
-    	//Object ref = model.getRefObject();
-    	/*
-    	if (!(ref instanceof DataObject)) {
-    		if (comp instanceof JPanel) return;
-    		removeAll();
-    		add(emptyPane, BorderLayout.CENTER);
+    	Object refObject = model.getRefObject();
+    	if (refObject instanceof DataObject) {
+    		if (comp instanceof JPanel) {
+        		removeAll();
+        		add(emptyPane, BorderLayout.CENTER);
+        	}
     	} else {
-    		if (comp instanceof JScrollPane) return;
-    		removeAll();
-    		add(mainPane, BorderLayout.CENTER);
-    	}*/
-    	if (single) {
-    		if (comp instanceof JScrollPane) return;
-    		removeAll();
-    		add(mainPane, BorderLayout.CENTER);
-    	} else {
-    		if (comp instanceof JPanel) return;
-    		removeAll();
-    		add(emptyPane, BorderLayout.CENTER);
+    		if (comp instanceof JScrollPane) {
+        		removeAll();
+        		add(mainPane, BorderLayout.CENTER);
+        	}
     	}
+    	
     	layoutUI();
-    	/*
-    	if (single) {
-    		if (comp instanceof JScrollPane) return;
-    		removeAll();
-    		add(mainPane, BorderLayout.CENTER);
-    	} else {
-    		if (comp instanceof JPanel) return;
-    		removeAll();
-    		add(emptyPane, BorderLayout.CENTER);
-    	}*/
     	//modify layout
     	repaint();
     }
@@ -522,7 +520,6 @@ public class EditorUI
     /** Updates display when the new root node is set. */
 	void setRootObject()
 	{
-		setCursor(Cursor.getDefaultCursor());
 		clearData();
 		toolBarTop.setDecorator();
 		Object object = model.getRefObject();

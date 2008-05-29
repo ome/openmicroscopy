@@ -148,9 +148,7 @@ class DataBrowserStatusBar
     void setProgress(boolean hide, int perc)
     {
         progressBar.setVisible(!hide);
-        if (perc < 0) {
-        	progressBar.setVisible(false);
-        	progressBar.setIndeterminate(true);
+        if (perc < 0) { progressBar.setIndeterminate(true);
         } else {
             progressBar.setStringPainted(true);
             progressBar.setIndeterminate(false);

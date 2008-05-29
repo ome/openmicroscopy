@@ -728,6 +728,7 @@ class OmeroMetadataServiceImpl
 			                         long objectID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		System.err.println("type "+annotationType);
 		Collection c = gateway.fetchAnnotation(objectID, userID);
 		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
 		if (c == null || c.size() == 0) return annotations;
@@ -737,6 +738,7 @@ class OmeroMetadataServiceImpl
 		FileAnnotation fa;
 		while (i.hasNext()) {
 			data = (AnnotationData) i.next();
+			System.err.println("type "+annotationType);
 			if (annotationType.equals(data.getClass())) {
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
