@@ -27,6 +27,7 @@
           <property name="Ice.ThreadPool.Client.SizeMax" value="50"/>
           <property name="Ice.ThreadPool.Server.Size" value="10"/>
           <property name="Ice.ThreadPool.Server.SizeMax" value="100"/>
+          <property name="Ice.MessageSizeMax" value="4096"/>
         </properties>
       </server>
     </server-template>
@@ -43,6 +44,7 @@
           <property name="Ice.ThreadPool.Client.SizeMax" value="10"/>
           <property name="Ice.ThreadPool.Server.Size" value="2"/>
           <property name="Ice.ThreadPool.Server.SizeMax" value="10"/>
+          <property name="Ice.MessageSizeMax" value="4096"/>
         </properties>
       </server>
     </server-template>
@@ -90,6 +92,7 @@
            <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
            <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
            <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
+           <property name="Ice.MessageSizeMax" value="4096"/>
          </properties>
        </server>
      </server-template>
