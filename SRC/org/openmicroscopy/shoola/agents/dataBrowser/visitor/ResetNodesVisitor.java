@@ -112,19 +112,21 @@ public class ResetNodesVisitor
 				desktop.removeAll();
 				Iterator<ImageDisplay> i = nodes.iterator();
 				ImageDisplay parent;
+				DataObject ho;
 		        while (i.hasNext()) {
 		        	child = i.next();
 		        	parent = child.getParentDisplay();
 		        	if (parent == null || node == parent) {
-		        		visibleImages.add(
-		        					(DataObject) child.getHierarchyObject());
-		        		desktop.add(child);
+		        		ho = (DataObject) child.getHierarchyObject();
+		        		if (!visibleImages.contains(ho)) {
+		        			visibleImages.add(ho);
+		        			desktop.add(child);
+		        		}
 		        	}
 		        }
-			} else {
+			} else { //count visible nodes
 				Component[] comps = desktop.getComponents();
 				Component comp;
-				
 				for (int i = 0; i < comps.length; i++) {
 					comp = comps[i];
 					if (comp instanceof ImageDisplay) {

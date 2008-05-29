@@ -119,13 +119,16 @@ public class RegexFinder
         String name = getName(userObject);
         if (name != null) {
         	name = name.trim();
-        	if (RegExFactory.find(pattern, name)) foundNodes.add(node);
+        	if (RegExFactory.find(pattern, name) && !foundNodes.contains(node))
+        		foundNodes.add(node);
         }
         	
         String description = getDescription(userObject);
         if (description != null) {
         	description = description.trim();
-            if (RegExFactory.find(pattern, description)) foundNodes.add(node);
+        	if (RegExFactory.find(pattern, description) 
+        			&& !foundNodes.contains(node))
+        		foundNodes.add(node);
         } 
     }
     
