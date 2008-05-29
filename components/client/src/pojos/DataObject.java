@@ -134,7 +134,7 @@ public abstract class DataObject {
         	LongAnnotation ann = (LongAnnotation) obj;
         	if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs()))
         		converted = new RatingAnnotationData(ann);
-        	//TODO create a generic long annotation data
+        	converted = new LongAnnotationData(ann);
         } else if (obj instanceof FileAnnotation) {
         	converted = new FileAnnotationData((FileAnnotation) obj);		
         	
