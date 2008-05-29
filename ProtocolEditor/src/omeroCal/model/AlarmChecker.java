@@ -257,7 +257,7 @@ public class AlarmChecker {
 			timeString = "Today";
 		}
 		else {
-			SimpleDateFormat day = new SimpleDateFormat("EEEE");
+			SimpleDateFormat day = new SimpleDateFormat("EEEE, MMM d");
 			timeString = day.format(eventTime.getTime());
 		}
 		

@@ -39,7 +39,18 @@ import omeroCal.util.ImageFactory;
 import omeroCal.view.IEventListener;
 import ui.IModel;
 
-
+/**
+ * This EventListener is added to the omeroCal.model.AlarmChecker, and is 
+ * activated when the alarm is fired. 
+ * The AlarmChecker's own alarm is disabled (so it doesn't display it's 
+ * own pop-up alarm). This class replaces that functionality, in order to 
+ * include a reference to the CalendarFile (OMERO.editor file) that the 
+ * event belongs to, and to include an "Open File" button. This allows the
+ * user to open the source file in OMERO.editor.
+ * 
+ * @author will
+ *
+ */
 public class AlarmActivatedListener 
 	implements IEventListener {
 	
@@ -54,11 +65,16 @@ public class AlarmActivatedListener
 		this.editorModel = editorModel;
 	}
 	
+	/**
+	 * A property change for a CalendarEvent. 
+	 * If the property equals AlarmChecker.ALARM_ACTIVATED, then display 
+	 * a pop-up alarm, with an option to open the source file.
+	 */
 	public void calendarEventChanged(CalendarEvent event, String propertyChanged, Object newProperty) {
 		
 		System.out.println("OpenFileListener  alarm_activated event...");
 		
-		if (propertyChanged.equals(AlarmChecker.ALARM_ACTIVATED)) {
+		if (AlarmChecker.ALARM_ACTIVATED.equals(propertyChanged)) {
 			
 			/*
 			 * Show alarm, and option to open the file....
@@ -75,7 +91,8 @@ public class AlarmActivatedListener
 				timeString = "Today";
 			}
 			else {
-				SimpleDateFormat day = new SimpleDateFormat("EEEE");
+				// If not today, show Day, Month, year eg Thursday, Apr 20
+				SimpleDateFormat day = new SimpleDateFormat("EEEE, MMM d");
 				timeString = day.format(eventTime.getTime());
 			}
 			
@@ -94,7 +111,7 @@ public class AlarmActivatedListener
 			
 			
 			String message = "<html><b>" + timeString + "</b><br>" +
-			eventName + "</b><br>" +
+			eventName + "</b><br>&nbsp<br>" +
 			"from the file: " + fileName + "</b><br>" +
 			filePath + "</html>";
 			
