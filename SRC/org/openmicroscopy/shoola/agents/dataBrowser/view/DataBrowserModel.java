@@ -35,6 +35,8 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.AnnotatedFilter;
+import org.openmicroscopy.shoola.agents.dataBrowser.CommentsFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataFilter;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataObjectCreator;
@@ -350,7 +352,7 @@ abstract class DataBrowserModel
 	void fireFilteringByComments(List<String> comments, Set<DataObject> nodes)
 	{
 		state = DataBrowser.FILTERING;
-		TagsFilter loader = new TagsFilter(component, comments, nodes);
+		CommentsFilter loader = new CommentsFilter(component, comments, nodes);
 		loader.load();
 	}
 
@@ -364,6 +366,25 @@ abstract class DataBrowserModel
 	{
 		state = DataBrowser.FILTERING;
 		DataFilter loader = new DataFilter(component, context, nodes);
+		loader.load();
+	}
+	
+	/**
+	 * Filters the passed <code>DataObject</code>s depending on the 
+	 * type of annotations.
+	 * 
+	 * @param annotationType The type of annotation to filter by.
+	 * @param annotated      Pass <code>true</code> to determine the annotated 
+	 *                       nodes, <code>false</code> to determine the 
+	 *                       not annotated nodes.
+	 * @param nodes	The collection of <code>DataObject</code>s to filter.
+	 */
+	void fireFilteringByAnnotated(Class annotationType, boolean annotated, 
+			                   Set<DataObject> nodes)
+	{
+		state = DataBrowser.FILTERING;
+		AnnotatedFilter loader = new AnnotatedFilter(component, annotationType,
+				                                   annotated, nodes);
 		loader.load();
 	}
 	
@@ -425,7 +446,10 @@ abstract class DataBrowserModel
 	 * 
 	 * @param tags The value to set.
 	 */
-	void setTags(Collection tags) { existingTags = tags; }
+	void setTags(Collection tags)
+	{ 
+		existingTags = tags; 
+	}
 	
 	/**
 	 * Returns the collection of existing tags.

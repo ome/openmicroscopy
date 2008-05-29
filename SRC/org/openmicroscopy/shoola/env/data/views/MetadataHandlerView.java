@@ -319,6 +319,22 @@ public interface MetadataHandlerView
 			AgentEventListener observer);
 
 	/**
+	 * Filters by annotated nodes.
+	 * 
+	 * @param nodeType			The type of node.
+	 * @param nodeIds			The collection of nodes to filter.
+	 * @param annotationType 	The type of annotation to filter by.
+	 * @param annotated			Pass <code>true</code> to retrieve the 
+	 *                          annotated nodes, <code>false</code> otherwise.
+	 * @param userID			The ID of the user.
+	 * @param observer			Callback handler.
+     * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle filterByAnnotated(Class nodeType, Set<Long> nodeIds, 
+			Class annotationType, boolean annotated, long userID,
+			AgentEventListener observer);
+	
+	/**
 	 * Filters the data.
 	 * 
 	 * @param nodeType	The type of node.

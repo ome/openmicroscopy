@@ -148,15 +148,9 @@ class DataBrowserControl
 			case QuickSearch.FULL_TEXT:
 				model.filterByFullText(values);
 				break;
-			case QuickSearch.UNTAGGED:
-				model.filterByTags(null);
-				break;
 			case QuickSearch.TAGS:
 				if (values != null && values.size() > 0)
 					model.filterByTags(values);
-				break;
-			case QuickSearch.UNCOMMENTED:
-				model.filterByComments(null);
 				break;
 			case QuickSearch.COMMENTS:
 				if (values != null && values.size() > 0)
@@ -183,12 +177,17 @@ class DataBrowserControl
 			case QuickSearch.SHOW_ALL:
 				model.showAll();
 				break;
-			case QuickSearch.ANNOTATED:
-				model.filterByAnnotated(true);
+			case QuickSearch.TAGGED:
+				model.filterByTagged(true);
 				break;
-			case QuickSearch.UNANNOTATED:
-				model.filterByAnnotated(false);
+			case QuickSearch.UNTAGGED:
+				model.filterByTagged(false);
 				break;
+			case QuickSearch.COMMENTED:
+				model.filterByCommented(true);
+				break;
+			case QuickSearch.UNCOMMENTED:
+				model.filterByCommented(false);
 		}
 	}
 	
@@ -266,9 +265,6 @@ class DataBrowserControl
         } else if (Browser.POPUP_POINT_PROPERTY.equals(name)) {
 			Point p = (Point) evt.getNewValue();
             if (p != null) view.showPopup(p);
-		} else if (Browser.VISIBLE_NODES_PROPERTY.equals(name)) {	
-			Collection nodes = (Collection) evt.getNewValue();
-			model.setVisibleNodes(nodes);
 		}
 	}
 	

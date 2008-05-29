@@ -108,11 +108,11 @@ public class QuickSearch
 	/** Indicates to search for the uncommented nodes.  */
 	public static final int 	UNCOMMENTED = 11;
 	
-	/** Indicates to search for the unannotated nodes.  */
-	public static final int 	UNANNOTATED = 12;
+	/** Indicates to search for the tagged nodes.  */
+	public static final int 	TAGGED = 12;
 	
-	/** Indicates to search for the unannotated nodes.  */
-	public static final int 	ANNOTATED = 13;
+	/** Indicates to search for the commented nodes.  */
+	public static final int 	COMMENTED = 13;
 	
 	/** Bound property indicating to search for given terms. */
 	public static final String	QUICK_SEARCH_PROPERTY = "quickSearch";
@@ -353,8 +353,8 @@ public class QuickSearch
 			case UNRATED:
 			case UNTAGGED:
 			case UNCOMMENTED:
-			case UNANNOTATED:
-			case ANNOTATED:
+			case TAGGED:
+			case COMMENTED:
 				text = selectedNode.getDescription();
 				break;
 			case TAGS:
@@ -464,14 +464,15 @@ public class QuickSearch
     	nodes.add(node);
     	node = new SearchObject(COMMENTS, null, "Comments filter");
     	nodes.add(node);
-    	node = new SearchObject(ANNOTATED, null, "Annotated");
+    	node = new SearchObject(TAGGED, null, "Tagged");
     	nodes.add(node);
     	node = new SearchObject(UNTAGGED, null, "Not tagged");
     	nodes.add(node);
+    	node = new SearchObject(COMMENTED, null, "Commented");
+    	nodes.add(node);
     	node = new SearchObject(UNCOMMENTED, null, "Not commented");
     	nodes.add(node);
-    	node = new SearchObject(UNANNOTATED, null, "Not annotated");
-    	nodes.add(node);
+    	
     	List<SearchObject> ratedNodes = new ArrayList<SearchObject>();
     	node = new SearchObject(RATED_ONE_OR_BETTER, null, "* or better");
     	ratedNodes.add(node);

@@ -3190,15 +3190,14 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			Search service = getSearchService();
-			service.onlyAnnotatedBetween(start, end);
-			service.onlyType(convertPojos(annotationType));
-			if (terms != null)
-				service.bySomeMustNone(terms.toArray(new String[] {}), null, 
-									null);
-			if (exp != null) { 
+			if (start != null || end != null)
+				service.onlyAnnotatedBetween(start, end);
+			if (exp != null) 
 				service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
-			}
 			
+			service.onlyType(convertPojos(annotationType));
+			service.bySomeMustNone(terms.toArray(new String[] {}), null, null);
+
 			if (!service.hasNext()) return new ArrayList();
 			return service.results();
 		} catch (Exception e) {

@@ -67,6 +67,32 @@ public class DataFilter
      * @param annotationType 	The type of the object.
      * @param nodeType			The type of object to filter.
      * @param ids				The collection of id of the object.
+     * @param annotated				The collection of terms.
+     * @param userID			The id of the user who tagged the object or 
+     * 							<code>-1</code> if the user is not specified.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall filterBy(final Class annotationType, final Class nodeType, 
+    						final Set<Long> ids, final boolean annotated, 
+    						final long userID)
+    {
+        return new BatchCall("Filtering annotated data") {
+            public void doCall() throws Exception
+            {
+            	OmeroMetadataService os = context.getMetadataService();
+                result = os.filterByAnnotated(nodeType, ids, annotationType, 
+                					annotated, userID);
+            }
+        };
+    }
+    
+    /**
+     * Creates a {@link BatchCall} to load the ratings related to the object
+     * identified by the class and the id.
+     * 
+     * @param annotationType 	The type of the object.
+     * @param nodeType			The type of object to filter.
+     * @param ids				The collection of id of the object.
      * @param terms				The collection of terms.
      * @param userID			The id of the user who tagged the object or 
      * 							<code>-1</code> if the user is not specified.
@@ -76,7 +102,7 @@ public class DataFilter
     						final Set<Long> ids, final List<String> terms, 
     						final long userID)
     {
-        return new BatchCall("Loading Ratings") {
+        return new BatchCall("Filtering annotated data") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
@@ -100,7 +126,7 @@ public class DataFilter
     private BatchCall filterBy(final Class nodeType, final Set<Long> ids, 
     						final FilterContext filter, final long userID)
     {
-        return new BatchCall("Loading Ratings") {
+        return new BatchCall("Filtering annotated data") {
             public void doCall() throws Exception
             {
             	OmeroMetadataService os = context.getMetadataService();
@@ -120,6 +146,26 @@ public class DataFilter
      * @see BatchCallTree#getResult()
      */
     protected Object getResult() { return result; }
+    
+    /**
+     * Creates a new instance. Builds the call corresponding to the passed
+     * index, throws an {@link IllegalArgumentException} if the index is not
+     * supported.
+     * 
+     * @param annotationType	The type of annotations to fetch.
+     * @param nodeType			The type of objects to filter.	
+     * @param nodeIds			The collection of object ids.
+     * @param annotated			Pass <code>true</code> to retrieve the 
+	 *                          annotated nodes, <code>false</code> otherwise.
+     * @param userID			The id of the user or <code>-1</code> if the id 
+     * 							is not specified.
+     */
+    public DataFilter(Class annotationType, Class nodeType, Set<Long> nodeIds,
+    				boolean annotated, long userID)
+    {
+    	loadCall = filterBy(annotationType, nodeType, nodeIds, annotated, 
+    			          userID);
+    }
     
     /**
      * Creates a new instance. Builds the call corresponding to the passed

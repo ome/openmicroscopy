@@ -132,13 +132,7 @@ public interface DataBrowser
 	
 	/** Bound property indicating to remove the items. */
 	public static final String		REMOVE_ITEMS_PROPERTY = "removeItems";
-	
-	/** Bound property indicating the visible nodes. */
-	//public static final String  	VISIBLE_NODES_PROPERTY = "visibleNodes";
-	
-	/** Loads the thumbnails when we have <code>100</code> or less values. */
-	public static final int			MAX_ENTRIES = 100;
-	
+
 	/** Indicates to lay out the nodes as thumbnails. */
 	public static final int			THUMBNAIL_VIEW = 0;
 	
@@ -421,25 +415,26 @@ public interface DataBrowser
 	/** Reloads the thumbnails. */
 	public void reloadThumbnails();
 
-	/**
-	 * Fires a property changes indicating the filtered nodes.
-	 * 
-	 * @param nodes The collection of filtered nodes.
-	 */
-	public void setVisibleNodes(Collection nodes);
-
 	/** Sets the original rendering settings. */
 	public void setOriginalSettings();
 
 	/**
-	 * Shows the annotated nodes if the passed value is <code>true</code>,
-	 * shows the nodes not yet annotated if the passed value is 
-	 * <code>false</code>.
+	 * Shows the tagged nodes if the passed value is <code>true</code>,
+	 * shows the untagged nodes if the passed value is <code>false</code>.
 	 * 
-	 * @param annotated Pass <code>true</code> to show the annotated nodes,
-	 * 					<code>false</code> to show the nodes not yet annotated.
+	 * @param tagged Pass <code>true</code> to show the tagged nodes,
+	 * 				 <code>false</code> to show the untagged nodes.
 	 */
-	public void filterByAnnotated(boolean annotated);
+	public void filterByTagged(boolean tagged);
+	
+	/**
+	 * Shows the commented nodes if the passed value is <code>true</code>,
+	 * shows the uncommented nodes if the passed value is <code>false</code>.
+	 * 
+	 * @param commented Pass <code>true</code> to show the commented nodes,
+	 * 				 <code>false</code> to show the uncommented nodes.
+	 */
+	public void filterByCommented(boolean commented);
 
 	/** 
 	 * Sets the passed title in the header of the browser.

@@ -74,6 +74,9 @@ public class TagsLoader
 	 */
 	public void cancel() { handle.cancel(); }
 
+	/** Overridden so the status is not displayed. */
+	public void onEnd() {}
+	
 	/** 
 	 * Loads the tags for the specified nodes.
 	 * @see DataBrowserLoader#load()

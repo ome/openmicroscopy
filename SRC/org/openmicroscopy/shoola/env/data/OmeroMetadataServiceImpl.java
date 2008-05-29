@@ -975,14 +975,13 @@ class OmeroMetadataServiceImpl
 		AnnotationData data;
 		Iterator i, j;
 		if (terms != null && terms.size() > 0) {
-			List annotations = gateway.filterBy(annotationType, terms, null, 
-												null, exp);
+			List annotations = gateway.filterBy(annotationType, terms,
+					                           null, null, exp);
 			List<Long> annotationsIds = new ArrayList<Long>();
 			
 			i = annotations.iterator();
 			while (i.hasNext())
 				annotationsIds.add(((Annotation) i.next()).getId());
-			
 			i = map.keySet().iterator();
 			while (i.hasNext()) {
 				id = (Long) i.next();
@@ -990,30 +989,112 @@ class OmeroMetadataServiceImpl
 				j = l.iterator();
 				while (j.hasNext()) {
 					data = (AnnotationData) j.next();
-					if (data.getClass().equals(annotationType) && 
-					annotationsIds.contains(data.getId()))
-						results.add(id);
+					if (annotationType.equals(TagAnnotationData.class)) {
+						if (data instanceof TagAnnotationData) {
+							if (annotationsIds.contains(data.getId())) {
+								if (!results.contains(id))
+									results.add(id);
+							}
+						}
+					} else if (annotationType.equals(
+							 TextualAnnotationData.class)) {
+						if (!(data instanceof TagAnnotationData)) {
+							if (annotationsIds.contains(data.getId())) {
+								if (!results.contains(id))
+									results.add(id);
+							}
+						}
+					}
 				}
 			}
-		} else { 
-			// retrieve the objects not annotated by the specifed type.
-			i = map.keySet().iterator();
+		} else
+			return filterByAnnotated(nodeType, nodeIds, annotationType, true, 
+					    userID);
+		return results;
+	}
+
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroMetadataService#filterByAnnotated(Class, Set, Class, boolean, 
+	 * 												long)
+	 */
+	public Collection filterByAnnotated(Class nodeType, Set<Long> nodeIds, 
+		Class annotationType, boolean annotated, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<Long> results = new ArrayList<Long>();
+		
+		PojoOptions po = new PojoOptions();
+		po.noLeaves();
+		Set<Long> ids = null;
+		if (userID != -1) {
+			ids = new HashSet<Long>(1);
+			ids.add(userID);
+		}
+		
+		Map map = gateway.findAnnotations(nodeType, nodeIds, ids, 
+										new PojoOptions().map());
+		if (map == null || map.size() == 0) return results;
+		long id;
+		Collection l;
+		AnnotationData data;
+		Iterator i, j;
+		i = map.keySet().iterator();
+		if (annotated) {
+			while (i.hasNext()) {
+				id = (Long) i.next();
+				l = (Collection) map.get(id);
+				j = l.iterator();
+				while (j.hasNext()) {
+					data = (AnnotationData) j.next();
+					if (annotationType.equals(TagAnnotationData.class)) {
+						if (data instanceof TagAnnotationData) {
+							if (!results.contains(id)) {
+								results.add(id);
+							}
+						}
+					} else if (annotationType.equals(
+							TextualAnnotationData.class)) {
+						if (!(data instanceof TagAnnotationData)) {
+							if (!results.contains(id)) {
+								results.add(id);
+							}
+						}
+					}
+				}
+			}
+		} else {
+			List<Long> toExclude = new ArrayList<Long>();
 			results.addAll(nodeIds);
 			while (i.hasNext()) {
 				id = (Long) i.next();
 				l = (Collection) map.get(id);
 				j = l.iterator();
+				
 				while (j.hasNext()) {
 					data = (AnnotationData) j.next();
-					if (data.getClass().equals(annotationType))
-						results.remove(id);
+					if (annotationType.equals(TagAnnotationData.class)) {
+						if (data instanceof TagAnnotationData) {
+							if (!toExclude.contains(id)) {
+								toExclude.add(id);
+							}
+						}
+					} else if (annotationType.equals(
+							TextualAnnotationData.class)) {
+						if (!(data instanceof TagAnnotationData)) {
+							if (!toExclude.contains(id)) {
+								toExclude.add(id);
+							}
+						}
+					}
 				}
 			}
+			results.removeAll(toExclude);
 		}
 		
 		return results;
 	}
-
+	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#filterByAnnotation(Class, Set, FilterContext, 
@@ -1068,8 +1149,8 @@ class OmeroMetadataServiceImpl
 				while (i.hasNext()) {
 					type = (Class) i.next();
 					found = new ArrayList<Long>();
-					annotations = gateway.filterBy(type, types.get(type), 
-												start, end, exp);
+					annotations = gateway.filterBy(type, 
+							                 types.get(type), start, end, exp);
 					i = annotations.iterator();
 					while (i.hasNext())
 						annotationsIds.add(((Annotation) i.next()).getId());

@@ -493,7 +493,7 @@ class TagsUI
 		c.gridx = 0;
 		c.gridy = 0;
 		if (!model.isMultiSelection()) {
-			existingTags.add(UIUtilities.setTextFont("Tagged by me with: "), c);
+			existingTags.add(UIUtilities.setTextFont("Tagged with: "), c);
 			c.gridx++;
 			c.weightx = 0.5;
 			//Layout the tags

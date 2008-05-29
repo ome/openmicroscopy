@@ -54,6 +54,8 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * Implements the {@link DataBrowser} interface to provide the functionality
@@ -126,7 +128,6 @@ class DataBrowserComponent
 	    	ResetNodesVisitor visitor = new ResetNodesVisitor(null, false);
 	    	browser.accept(visitor, ImageDisplayVisitor.IMAGE_SET_ONLY);
 	    	browser.addPropertyChangeListener(controller);
-	    	setVisibleNodes(visitor.getVisibleImages());
 		}
 		fireStateChange();
 	}
@@ -619,15 +620,6 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#setVisibleNodes(Collection)
-	 */
-	public void setVisibleNodes(Collection nodes)
-	{
-		//firePropertyChange(VISIBLE_NODES_PROPERTY, null, nodes);
-	}
-
-	/**
-	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setOriginalSettings()
 	 */
 	public void setOriginalSettings()
@@ -641,9 +633,36 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#filterByAnnotated(boolean)
+	 * @see DataBrowser#filterByTagged(boolean)
 	 */
-	public void filterByAnnotated(boolean annotated)
+	public void filterByTagged(boolean tagged)
+	{
+		if (model.getState() == FILTERING) {
+			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Filtering", "Currenlty filering data. Please wait.");
+			return;
+		}
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		Browser browser = model.getBrowser();
+		model.fireFilteringByAnnotated(TagAnnotationData.class, tagged, 
+				                browser.getOriginal());
+		fireStateChange();
+		/*
+		AnnotatedNodesVisitor visitor = new AnnotatedNodesVisitor(annotated);
+		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
+		List<ImageDisplay> nodes = visitor.getFoundNodes();
+		browser.setFilterNodes(nodes);
+		view.layoutUI();
+		view.setNumberOfImages(nodes.size());
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		*/
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#filterByCommented(boolean)
+	 */
+	public void filterByCommented(boolean commented)
 	{
 		if (model.getState() == FILTERING) {
 			UserNotifier un = DataBrowserAgent.getRegistry().getUserNotifier();
@@ -652,6 +671,10 @@ class DataBrowserComponent
 		}
 		Browser browser = model.getBrowser();
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		model.fireFilteringByAnnotated(TextualAnnotationData.class, commented, 
+                browser.getOriginal());
+		fireStateChange();
+		/*
 		AnnotatedNodesVisitor visitor = new AnnotatedNodesVisitor(annotated);
 		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
 		List<ImageDisplay> nodes = visitor.getFoundNodes();
@@ -659,8 +682,10 @@ class DataBrowserComponent
 		view.layoutUI();
 		view.setNumberOfImages(nodes.size());
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		*/
+		
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
 	 * @see DataBrowser#setComponentTitle(String)

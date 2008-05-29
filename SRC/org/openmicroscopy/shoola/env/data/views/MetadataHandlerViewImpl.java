@@ -303,6 +303,20 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#filterByAnnotated(Class, Set, Class, boolean, 
+	 * 									long, AgentEventListener)
+	 */
+	public CallHandle filterByAnnotated(Class nodeType, Set<Long> nodeIds, 
+			Class annotationType, boolean annotated, long userID, 
+			AgentEventListener observer) 
+	{
+		BatchCallTree cmd = new DataFilter(annotationType, nodeType, nodeIds,
+				                        annotated, userID);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the view interface.
 	 * @see MetadataHandlerView#filterData(Class, Set, FilterContext, long, 
 	 * 										AgentEventListener)
 	 */

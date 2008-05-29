@@ -263,7 +263,7 @@ public class FilteringDialog
 	private void initComponents()
 	{
 		ratingBox = new JCheckBox("Rating:");
-		ratingBox.setSelected(true);
+		//ratingBox.setSelected(true);
 		calendarBox = new JCheckBox("Calendar:");
 		commentsBox = new JCheckBox("Comments");
 		tagsBox = new JCheckBox("Tags");
@@ -348,7 +348,7 @@ public class FilteringDialog
 			}
 		}
 		if (commentsBox.isSelected()) {
-			List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
+			List<String> l = SearchUtil.splitTerms(commentsArea.getText(), 
 					SearchUtil.COMMA_SEPARATOR);
 			if (l != null && l.size() > 0) {
 				context.addAnnotationType(TextualAnnotationData.class, l);
@@ -445,15 +445,15 @@ public class FilteringDialog
 				TableLayout.PREFERRED, 5}};
 		p.setLayout(new TableLayout(size));
 		int i = 0;
-		p.add(buildRatingPane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		i++;
 		p.add(buildTagsPane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		i++;
 		p.add(buildCommentsPane(), "0, "+i);
+		i++;
+		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
+		i++;
+		p.add(buildRatingPane(), "0, "+i);
 		i++;
 		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
 		i++;

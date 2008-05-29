@@ -449,6 +449,25 @@ public interface OmeroMetadataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
+	 * Returns a sub-collection of the passed collection of nodes
+	 * annotated by the passed type of annotation.
+	 * 
+	 * @param nodeType
+	 * @param nodeIds
+	 * @param annotationType
+	 * @param annotated
+	 * @param userID
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                   in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Collection filterByAnnotated(Class nodeType, Set<Long> nodeIds, 
+		Class annotationType, boolean annotated, long userID) 
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * 
 	 * @param nodeType
 	 * @param ids
