@@ -138,9 +138,12 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
             self.ctx.popen(command)
         except NonZeroReturnCode, nzrc:
             self.ctx.rv = nzrc.rv
-            myoutput = path(props["Ice.StdErr"])
-            print "from %s:" % str(myoutput)
-            print tail_lines(str(myoutput),2)
+            myoutput = self.dir / path(props["Ice.StdErr"])
+	    if not myoutput.exists():
+		pass
+	    else:
+                print "from %s:" % str(myoutput)
+                print tail_lines(str(myoutput),2)
 
     def status(self, name = None):
 

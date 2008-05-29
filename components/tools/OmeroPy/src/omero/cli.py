@@ -642,7 +642,7 @@ class CLI(cmd.Cmd, Context):
         """
         Calls the string in a subprocess and dies if the return value is not 0
         """
-        rv = subprocess.call(args, env = os.environ)
+        rv = subprocess.call(args, env = os.environ, cwd = OMERODIR)
         if strict and not rv == 0:
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
