@@ -49,7 +49,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/antlr.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/asm-attrs.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/backport-util-concurrent.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/bio-formats.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/checkstyle.jar"/>

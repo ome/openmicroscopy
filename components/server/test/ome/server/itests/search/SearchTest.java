@@ -12,6 +12,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -45,8 +46,6 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.Test;
-
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
