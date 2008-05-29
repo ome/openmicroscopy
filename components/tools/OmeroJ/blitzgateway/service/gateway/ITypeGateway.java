@@ -50,13 +50,25 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  */
 public interface ITypeGateway
 {	
+	/**
+	 * Get a list of the enumerations for type klass.
+	 * @param klass see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	public List<IObject> allEnumerations(String klass) 
 	throws DSOutOfServiceException, DSAccessException;
 	
 	/*
 	 * 
-	 *
-	 	IObject createEnumeration(IObject newEnum) throws  DSOutOfServiceException, DSAccessException;
+	 * ITypeService java to ICE Mappings from the API.ice slice definition.
+	 * Below are all the calls in the IType service. 
+	 * As the are created in the ITypeGateway they will be marked as 
+	 * done.
+	 * 
+	 * 
+	 * 	 	IObject createEnumeration(IObject newEnum) throws  DSOutOfServiceException, DSAccessException;
      	IObject getEnumeration(string type, string value) throws  DSOutOfServiceException, DSAccessException;
 DONE	List<IObject> allEnumerations(string type) throws  DSOutOfServiceException, DSAccessException;
      	IObject updateEnumeration(IObject oldEnum) throws  DSOutOfServiceException, DSAccessException;

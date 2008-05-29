@@ -22,25 +22,20 @@
  */
 package blitzgateway.service.gateway;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
-import omero.RType;
-import omero.api.IPojosPrx;
-import omero.model.IObject;
-import omero.model.ImageI;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-
-import blitzgateway.util.ServiceUtilities;
 
 //Java imports
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RType;
+
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 
@@ -78,9 +73,7 @@ public interface IPojoGateway
 	/**
 	 * Retrieves the images contained in containers specified by the 
 	 * node type.
-	 * Wraps the call to the {@link IPojos#getImages(Class, Set, Map)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 * 
+	 * @param <T> type to cast IObject. 
 	 * @param rootType  The type of container. Can be either Project, Dataset,
 	 *                  CategoryGroup, Category.
 	 * @param rootIds   Set of containers' IDS.
@@ -89,7 +82,6 @@ public interface IPojoGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
-	 * @see IPojos#getImages(Class, Set, Map)
 	 */
 	public <T extends omero.model.IObject>List<T> getImages(String rootType, 
 		List<Long> rootIds, Map<String, RType>  options) throws 

@@ -28,6 +28,7 @@ package blitzgateway.service.gateway;
 //Third-party libraries
 
 //Application-internal dependencies
+
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
@@ -66,10 +67,7 @@ public class GatewayFactory
 	
 	/** The ITypeGateway for this session. */
 	private ITypeGateway			iTypeGateway;
-	
-	/** The RawFileStoreGateway for this session. */
-	private RawFileStoreGateway 	rawFileStoreGateway;
-	
+		
 	/** The RawPixelsStoreGateway for this session. */
 	private RawPixelsStoreGateway 	rawPixelsStoreGateway;
 		
@@ -89,8 +87,6 @@ public class GatewayFactory
 		iQueryGateway = new IQueryGatewayImpl(blitzGateway);
 		iUpdateGateway = new IUpdateGatewayImpl(blitzGateway);
 		iTypeGateway = new ITypeGatewayImpl(blitzGateway);
-		rawFileStoreGateway = new RawFileStoreGatewayImpl(blitzGateway);
-		rawPixelsStoreGateway = new RawPixelsStoreGatewayImpl(blitzGateway);
 	}
 
 	/**
@@ -129,7 +125,46 @@ public class GatewayFactory
 	{
 		return blitzGateway.getUserName();
 	}
+
+	/**
+	 * Get the RenderingEngineGateway instance for this session.
+	 * @param pixelsId create the gateway for pixels.
+	 * @return see above.
+	 * @throws DSAccessException 
+	 * @throws DSOutOfServiceException 
+	 */
+	public synchronized RenderingEngineGateway getRenderingEngineGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	{
+		RenderingEngineGateway renderingEngine = new RenderingEngineGatewayImpl(pixelsId, blitzGateway);
+		return renderingEngine;
+	}
 	
+	/**
+	 * Get the RenderingEngineGateway instance for this session.
+	 * @param fileId create the gateway for pixels.
+	 * @return see above.
+	 * @throws DSAccessException 
+	 * @throws DSOutOfServiceException 
+	 */
+	public synchronized RawFileStoreGateway getRawFileStoreGateway(Long fileId) throws DSOutOfServiceException, DSAccessException
+	{
+		RawFileStoreGateway rawFileStoreGateway = new RawFileStoreGatewayImpl(fileId, blitzGateway);
+		return rawFileStoreGateway;
+	}
+
+	/**
+	 * Get the RenderingEngineGateway instance for this session.
+	 * @param fileId create the gateway for pixels.
+	 * @return see above.
+	 * @throws DSAccessException 
+	 * @throws DSOutOfServiceException 
+	 */
+	public synchronized RawPixelsStoreGateway getRawPixelsStoreGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	{
+		RawPixelsStoreGateway rawPixelsStoreGateway = new RawPixelsStoreGatewayImpl(pixelsId, blitzGateway);
+		return rawPixelsStoreGateway;
+	}
+
 	/**
 	 * Get the IPixelsGateway instance for this session.
 	 * @return see above.
@@ -184,23 +219,6 @@ public class GatewayFactory
 		return iTypeGateway;
 	}
 
-	/**
-	 * Get the RawFileStoreGateway instance for this session.
-	 * @return see above.
-	 */
-	public RawFileStoreGateway getRawFileStoreGateway()
-	{
-		return rawFileStoreGateway;
-	}
-
-	/**
-	 * Get the RawPixelsStoreGateway instance for this session.
-	 * @return see above.
-	 */
-	public RawPixelsStoreGateway getRawPixelsStoreGateway()
-	{
-		return rawPixelsStoreGateway;
-	}
 }
 
 

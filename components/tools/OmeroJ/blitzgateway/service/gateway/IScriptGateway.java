@@ -120,19 +120,20 @@ public interface IScriptGateway
 	
 	/*
 	 * 
+	 * IScriptService java to ICE Mappings from the API.ice slice definition.
+	 * Below are all the calls in the IScript service. 
+	 * As the are created in the IScriptGateway they will be marked as 
+	 * done.
 	 * 
-	 * 
-	 * 
-	 *
 	 *
 	
-	Map<Long, String> getScripts() throws  DSOutOfServiceException, DSAccessException;
-	long getScriptID(string name) throws   DSOutOfServiceException, DSAccessException;
-	long uploadScript(string script) throws  DSOutOfServiceException, DSAccessException;
-	string getScript(long id) throws  DSOutOfServiceException, DSAccessException;
-	Map<RType, RType> getParams(long id) throws  DSOutOfServiceException, DSAccessException;
-	Map<RType, RType> runScript(long id, Map<RType, RType> map) throws  DSOutOfServiceException, DSAccessException;
-	void deleteScript(long id) throws  DSOutOfServiceException, DSAccessException;
+DONE	Map<Long, String> getScripts() throws  DSOutOfServiceException, DSAccessException;
+DONE	long getScriptID(string name) throws   DSOutOfServiceException, DSAccessException;
+DONE	long uploadScript(string script) throws  DSOutOfServiceException, DSAccessException;
+DONE	string getScript(long id) throws  DSOutOfServiceException, DSAccessException;
+DONE	Map<RType, RType> getParams(long id) throws  DSOutOfServiceException, DSAccessException;
+DONE	Map<RType, RType> runScript(long id, Map<RType, RType> map) throws  DSOutOfServiceException, DSAccessException;
+DONE	void deleteScript(long id) throws  DSOutOfServiceException, DSAccessException;
      };
     */
 }

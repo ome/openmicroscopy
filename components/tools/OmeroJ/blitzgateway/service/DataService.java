@@ -62,11 +62,10 @@ interface DataService
 	 * 
 	 * @param nodeType	The type of container. Can either be Project, 
 	 * 					Dataset, CategoryGroup, Category or Image.
-	 * @param nodeIDs   Set of node ids..
-	 * @param userID	The Id of the root.
+	 * @param nodeIds   Set of node ids..
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public List<Image> getImages(OMEROClass nodeType, List<Long> nodeIds)
@@ -76,6 +75,8 @@ interface DataService
 	 * Get the pixels associated with the image.
 	 * @param imageId
 	 * @return the list of pixels.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
 	 */
 	public List<Pixels> getPixelsFromImage(long imageId) 
 		throws DSOutOfServiceException, DSAccessException;
@@ -92,7 +93,8 @@ interface DataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Get the projects in the datasets.
+	 * Get the projects in the users.
+	 * @param ids The ids of the users.
 	 * @param getLeaves see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException

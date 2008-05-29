@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import blitzgateway.service.gateway.IQueryGateway;
 import blitzgateway.service.gateway.IScriptGateway;
 import blitzgateway.service.gateway.RawFileStoreGateway;
+import blitzgateway.service.stateful.RawFileStoreService;
 import blitzgateway.util.ServiceUtilities;
 
 /** 
@@ -63,14 +64,14 @@ class FileServiceImpl
 {	
 	
 	IScriptGateway			scriptService;
-	RawFileStoreGateway 	rawFileStore;
+	RawFileStoreService 	rawFileStore;
 	IQueryGateway			iQuery;
 	
 	/**
 	 * Create the FileService passing the gateway.
 	 * @param gateway
 	 */
-	FileServiceImpl(RawFileStoreGateway fileStore, IScriptGateway script, IQueryGateway query)
+	FileServiceImpl(RawFileStoreService fileStore, IScriptGateway script, IQueryGateway query)
 	{
 		rawFileStore = fileStore;
 		scriptService = script;
@@ -83,8 +84,7 @@ class FileServiceImpl
 	public boolean fileExists(long id) throws DSAccessException,
 			DSOutOfServiceException
 	{
-		rawFileStore.setFileId(id);	
-		return rawFileStore.exists();
+		return rawFileStore.exists(id);
 	}
 
 	public OriginalFile getOriginalFile(long id) throws DSAccessException, 
@@ -155,9 +155,8 @@ class FileServiceImpl
 	public byte[] getRawFile(long id) throws DSAccessException,
 			DSOutOfServiceException
 	{
-		rawFileStore.setFileId(id);
 		OriginalFile file = getOriginalFile(id);
-		return rawFileStore.read(0, (int)file.size.val);
+		return rawFileStore.read(id, 0, (int)file.size.val);
 	}
 
 	/* (non-Javadoc)
@@ -166,8 +165,7 @@ class FileServiceImpl
 	public boolean fileExists(Long id) throws DSAccessException,
 			DSOutOfServiceException
 	{
-		rawFileStore.setFileId(id);
-		return rawFileStore.exists();
+		return rawFileStore.exists(id);
 	}
 
 	/* (non-Javadoc)

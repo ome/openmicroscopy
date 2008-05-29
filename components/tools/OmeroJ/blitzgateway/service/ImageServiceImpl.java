@@ -24,6 +24,10 @@ package blitzgateway.service;
 
 
 //Java imports
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -41,7 +45,8 @@ import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
 import blitzgateway.service.gateway.IPixelsGateway;
 import blitzgateway.service.gateway.IQueryGateway;
 import blitzgateway.service.gateway.IUpdateGateway;
-import blitzgateway.service.gateway.RawPixelsStoreGateway;
+import blitzgateway.service.stateful.RawPixelsStoreService;
+import blitzgateway.service.stateful.RenderingService;
 import blitzgateway.util.PixelTypes;
 
 /** 
@@ -62,21 +67,25 @@ class ImageServiceImpl
 {	
 	
 	IQueryGateway 			iQuery;
-	RawPixelsStoreGateway	pixelsStore;
+	RawPixelsStoreService	pixelsStore;
 	IPixelsGateway			iPixels;
 	IUpdateGateway			iUpdate;
+	RenderingService 		renderingService;
 	
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gateway
 	 */
-	ImageServiceImpl(RawPixelsStoreGateway 	pixelsStore, IPixelsGateway iPixels, 
+	ImageServiceImpl(RawPixelsStoreService 	pixelsStore,
+					RenderingService renderingService,
+					IPixelsGateway iPixels, 
 					IQueryGateway iQuery, IUpdateGateway iUpdate) 
 	{
 		this.iUpdate = iUpdate;
 		this.iQuery = iQuery;
 		this.iPixels = iPixels;
 		this.pixelsStore = pixelsStore;
+		this.renderingService = renderingService;
 	}
 
 	/* (non-Javadoc)
@@ -85,7 +94,6 @@ class ImageServiceImpl
 	public double[][] getPlane(long pixelsId, int z, int c, int t) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		pixelsStore.setPixelsId(pixelsId);
 		Pixels pixels = getPixels(pixelsId);
 		return convertRawPlane(pixels, z, c, t);
 	}
@@ -98,8 +106,7 @@ class ImageServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		byte[] plane;
-		pixelsStore.setPixelsId(pixelsId);
-		plane = pixelsStore.getPlane(z, c, t);
+		plane = pixelsStore.getPlane(pixelsId, z, c, t);
 		return plane;
 	}
 	
@@ -179,8 +186,7 @@ class ImageServiceImpl
 	{
 		Pixels pixels = getPixels(pixelsId);
 		byte[] convertedData = convertClientToServer(pixels, data);
-		pixelsStore.setPixelsId(pixelsId);
-		pixelsStore.setPlane(convertedData, z,c,t);
+		pixelsStore.setPlane(pixelsId, convertedData, z,c,t);
 	}
 
 	/**
@@ -343,6 +349,123 @@ class ImageServiceImpl
 	{
 	
 		return (Pixels)iUpdate.saveAndReturnObject(object);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getChannelWindowEnd(java.lang.Long, int)
+	 */
+	public double getChannelWindowEnd(Long pixelsId, int w)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return renderingService.getChannelWindowEnd(pixelsId, w);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getChannelWindowStart(java.lang.Long, int)
+	 */
+	public double getChannelWindowStart(Long pixelsId, int w)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return renderingService.getChannelWindowStart(pixelsId, w);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getDefaultT(java.lang.Long)
+	 */
+	public int getDefaultT(Long pixelsId) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return renderingService.getDefaultT(pixelsId);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getDefaultZ(java.lang.Long)
+	 */
+	public int getDefaultZ(Long pixelsId) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return renderingService.getDefaultZ(pixelsId);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getPixels(java.lang.Long)
+	 */
+	public Pixels getPixels(Long pixelsId) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return renderingService.getPixels(pixelsId);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getRenderedImage(long, int, int)
+	 */
+	public BufferedImage getRenderedImage(long pixelsId, int z, int t)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return renderingService.getRenderedImage(pixelsId, z, t);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getRenderedImageMatrix(long, int, int)
+	 */
+	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return renderingService.getRenderedImageMatrix(pixelsId, z, t);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#isActive(java.lang.Long, int)
+	 */
+	public boolean isActive(Long pixelsId, int w)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return renderingService.isActive(pixelsId, w);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#renderAsPackedInt(java.lang.Long, int, int)
+	 */
+	public int[] renderAsPackedInt(Long pixelsId, int z, int t)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return renderingService.renderAsPackedInt(pixelsId, z, t);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#setActive(java.lang.Long, int, boolean)
+	 */
+	public void setActive(Long pixelsId, int w, boolean active)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		renderingService.setActive(pixelsId, w, active);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#setChannelWindow(java.lang.Long, int, double, double)
+	 */
+	public void setChannelWindow(Long pixelsId, int w, double start, double end)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		renderingService.setChannelWindow(pixelsId, w, start, end);		
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#setDefaultT(java.lang.Long, int)
+	 */
+	public void setDefaultT(Long pixelsId, int t)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		renderingService.setDefaultT(pixelsId, t);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#setDefaultZ(java.lang.Long, int)
+	 */
+	public void setDefaultZ(Long pixelsId, int z)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		renderingService.setDefaultZ(pixelsId, z);
 	}
 
 }

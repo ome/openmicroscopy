@@ -28,6 +28,8 @@ package blitzgateway.service.gateway;
 
 //Application-internal dependencies
 import omero.api.RawFileStorePrx;
+import omero.api.RenderingEnginePrx;
+
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
@@ -52,9 +54,40 @@ class RawFileStoreGatewayImpl
 	
 	private BlitzGateway blitzGateway;
 	
-	RawFileStoreGatewayImpl(BlitzGateway gateway)
+	private long 		 fileId;
+	
+	private RawFileStorePrx service;
+	
+	RawFileStoreGatewayImpl(long fileId, BlitzGateway gateway) throws DSOutOfServiceException, DSAccessException
 	{
+		this.fileId = fileId;
 		blitzGateway = gateway;
+		service = createRawFileService(fileId);
+	}
+	
+	/**
+	 * Creates a new rawFile service for the specified fileId
+	 * 
+	 * @param fileId  The pixels set ID.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private RawFileStorePrx createRawFileService(long fileId)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try 
+		{
+			RawFileStorePrx service = blitzGateway.getRawFileService();
+			service.setFileId(fileId);
+			return service;
+		} 
+		catch (Throwable t) 
+		{
+			ServiceUtilities.handleException(t, "Cannot start the RawFileStore for fileId : "+ fileId);
+		}
+		return null;
 	}
 	
 	/* (non-Javadoc)
@@ -62,10 +95,9 @@ class RawFileStoreGatewayImpl
 	 */
 	public boolean exists() throws DSOutOfServiceException, DSAccessException
 	{
-		RawFileStorePrx rawFileStore = blitzGateway.getRawFileService();
 		try
 		{
-			return rawFileStore.exists();
+			return service.exists();
 		}
 		catch(Exception e)
 		{
@@ -80,10 +112,9 @@ class RawFileStoreGatewayImpl
 	public byte[] read(long position, int length)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		RawFileStorePrx rawFileStore = blitzGateway.getRawFileService();
 		try
 		{
-			return rawFileStore.read(position, length);
+			return service.read(position, length);
 		}
 		catch(Exception e)
 		{
@@ -99,10 +130,9 @@ class RawFileStoreGatewayImpl
 	public void setFileId(long fileId) throws DSOutOfServiceException,
 			DSAccessException
 	{
-		RawFileStorePrx rawFileStore = blitzGateway.getRawFileService();
 		try
 		{
-			rawFileStore.setFileId(fileId);
+			service.setFileId(fileId);
 		}
 		catch(Exception e)
 		{
@@ -117,10 +147,9 @@ class RawFileStoreGatewayImpl
 	public void write(byte[] buf, long position, int length)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		RawFileStorePrx rawFileStore = blitzGateway.getRawFileService();
 		try
 		{
-			rawFileStore.write(buf, position, length);
+			service.write(buf, position, length);
 		}
 		catch(Exception e)
 		{

@@ -1,5 +1,5 @@
 /*
- * blitzgateway.service.gateway.RawFileStore 
+ * blitzgateway.service.RawFileStoreService 
  *
   *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
@@ -20,16 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package blitzgateway.service.gateway;
+package blitzgateway.service.stateful;
 
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 
@@ -44,67 +44,42 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  * </small>
  * @since OME3.0
  */
-public interface RawFileStoreGateway
+public interface RawFileStoreService
 {	
 	/**
-	 * Set the FileId of the rawFile store.
-	 * @param fileId
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	void setFileId(long fileId) 
-							throws DSOutOfServiceException, DSAccessException;
-	
-	/**
-	 * Read from the file in the rawFileStore. 
+	 * Read from the file in the rawFileStore.
+	 * @param fileId id of the file to work on, 
 	 * @param position starting position to read from.
 	 * @param length 
 	 * @return see above.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	byte[] read(long position, int length) 
+	byte[] read(long fileId, long position, int length) 
 							throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Write the contents of the buffer to the the file starting from position
 	 * and for length bytes.
+	 * @param fileId id of the file to work on, 
 	 * @param buf see above.
 	 * @param position see above.
 	 * @param length see above.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void write(byte[] buf, long position, int length) 
+	void write(long fileId, byte[] buf, long position, int length) 
 							throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * Does the file exist in the RawFileStore.
+	 * @param fileId id of the file to work on, 
 	 * @return see above.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	boolean exists() 
+	boolean exists(long fileId) 
 							throws DSOutOfServiceException, DSAccessException;
-
-	
-	/* 
-	 * RawFileStore java to ICE Mappings from the API.ice slice definition.
-	 * Below are all the calls in the RawFileStore service. 
-	 * As the are created in the RawFileStoreGateway they will be marked as done.
-	 *
-	 *
-	 *
-	 *
-DONE	void setFileId(long fileId) 
-							throws DSOutOfServiceException, DSAccessException;
-DONE	Byte[] read(long position, int length) 
-							throws DSOutOfServiceException, DSAccessException;
-DONE	void write(Byte[] buf, long position, int length) 
-							throws DSOutOfServiceException, DSAccessException;
-DONE	boolean exists() 
-							throws DSOutOfServiceException, DSAccessException;
- 	*/
 }
 
 

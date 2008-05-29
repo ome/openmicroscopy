@@ -29,6 +29,7 @@ package blitzgateway.service.gateway;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -54,28 +55,43 @@ class RawPixelsStoreGatewayImpl
 	
 	private BlitzGateway blitzGateway;
 	
-	RawPixelsStoreGatewayImpl(BlitzGateway gateway)
+	private long		pixelsId;
+	
+	private RawPixelsStorePrx service;
+	
+	RawPixelsStoreGatewayImpl(long pixelsId, BlitzGateway gateway) throws DSOutOfServiceException, DSAccessException
 	{
 		blitzGateway = gateway;
+		this.pixelsId = pixelsId;
+		service = createRawPixelsService(pixelsId);
 	}
 
-	
-	/* (non-Javadoc)
-	 * @see blitzgateway.service.gateway.RawPixelsStoreGateway#setPixelsId()
+
+	/**
+	 * Creates a new rawPixels service for the specified pixelsId
+	 * 
+	 * @param pixelsId  The pixels set ID.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	public void setPixelsId(long id) 
-			throws DSOutOfServiceException, DSAccessException
+	private RawPixelsStorePrx createRawPixelsService(long pixelsId)
+		throws DSOutOfServiceException, DSAccessException
 	{
-		try
+		try 
 		{
-			blitzGateway.getPixelsStore().setPixelsId(id);
-		}
-		catch (Exception e)
+			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
+			service.setPixelsId(pixelsId);
+			return service;
+		} 
+		catch (Throwable t) 
 		{
-			ServiceUtilities.handleException(e, "Cannot setPixelsId in PixelsStore to : " + id);
+			ServiceUtilities.handleException(t, "Cannot start the RawPixelsStore for fileId : "+ pixelsId);
 		}
-		
+		return null;
 	}
+	
 
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.gateway.RawPixelsStoreGateway#getPlane()
@@ -85,7 +101,7 @@ class RawPixelsStoreGatewayImpl
 	{
 		try
 		{
-			return blitzGateway.getPixelsStore().getPlane(z, c, t);
+			return service.getPlane(z, c, t);
 		}
 		catch (Exception e)
 		{
@@ -102,7 +118,6 @@ class RawPixelsStoreGatewayImpl
 	{	
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.getByteWidth(); 
 		}
 		catch (Exception e)
@@ -120,7 +135,6 @@ class RawPixelsStoreGatewayImpl
 	{	
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.getPlaneSize(); 
 		}
 		catch (Exception e)
@@ -138,7 +152,6 @@ class RawPixelsStoreGatewayImpl
 	{	
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.getRowSize(); 
 		}
 		catch (Exception e)
@@ -156,7 +169,6 @@ class RawPixelsStoreGatewayImpl
 	{	
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.getStackSize(); 
 		}
 		catch (Exception e)
@@ -175,7 +187,6 @@ class RawPixelsStoreGatewayImpl
 	{	
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.getTimepointSize(); 
 		}
 		catch (Exception e)
@@ -192,7 +203,6 @@ class RawPixelsStoreGatewayImpl
 	{	
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.getTotalSize(); 
 		}
 		catch (Exception e)
@@ -210,7 +220,6 @@ class RawPixelsStoreGatewayImpl
 	{
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.isFloat(); 
 		}
 		catch (Exception e)
@@ -227,7 +236,6 @@ class RawPixelsStoreGatewayImpl
 	{
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			return service.isSigned(); 
 		}
 		catch (Exception e)
@@ -245,7 +253,6 @@ class RawPixelsStoreGatewayImpl
 	{
 		try
 		{
-			RawPixelsStorePrx service = blitzGateway.getPixelsStore();
 			service.setPlane(buf, z, c, t); 
 		}
 		catch (Exception e)

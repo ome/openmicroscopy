@@ -24,6 +24,10 @@ package blitzgateway.service.gateway;
 
 
 //Java imports
+import java.util.HashMap;
+import java.util.Map;
+
+import ome.model.core.Pixels;
 import omero.ServerError;
 import omero.client;
 import omero.api.IAdmin;
@@ -119,6 +123,7 @@ class BlitzGateway
 	
 	/** The user name. */
 	private String userName;
+	
 	
 	/** Session closed variable, determining if session closed. */
 	private boolean sessionClosed = true;
@@ -223,6 +228,22 @@ class BlitzGateway
 		catch (ServerError e)
 		{
 			ServiceUtilities.handleException(e, statelessServiceAccessException+currentService);
+		}
+		return null;
+	}
+	
+	public RenderingEnginePrx getRenderingEngineService()
+	throws DSOutOfServiceException, DSAccessException 
+	{
+		String currentService = "RenderingEngine";
+		try
+		{
+			RenderingEnginePrx renderingEngine = getSession().createRenderingEngine();
+			return renderingEngine;
+		}
+		catch (ServerError e)
+		{
+			ServiceUtilities.handleException(e, statefulServiceAccessException+currentService);
 		}
 		return null;
 	}

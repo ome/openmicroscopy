@@ -81,6 +81,15 @@ public interface IPixelsGateway
 	  */
 	 RObject getEnumeration(String enumClass, String value) 
 	 						throws  DSOutOfServiceException, DSAccessException;
+	 
+	 /**
+	  * Get all the nums for tyoe enumClass.
+	  * @param <T> see above.
+	  * @param enumClass see above.
+	  * @return see above.
+	  * @throws DSOutOfServiceException
+	  * @throws DSAccessException
+	  */
 	 <T extends omero.model.IObject>List<T> getAllEnumerations(String enumClass) 
 	 						throws  DSOutOfServiceException, DSAccessException;
 	/**

@@ -23,6 +23,7 @@
 package blitzgateway.service;
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,12 @@ import java.util.Map;
 //Application-internal dependencies
 
 import blitzgateway.service.gateway.GatewayFactory;
+import blitzgateway.service.stateful.RawFileStoreService;
+import blitzgateway.service.stateful.RawFileStoreServiceImpl;
+import blitzgateway.service.stateful.RawPixelsStoreService;
+import blitzgateway.service.stateful.RawPixelsStoreServiceImpl;
+import blitzgateway.service.stateful.RenderingService;
+import blitzgateway.service.stateful.RenderingServiceImpl;
 import omero.RType;
 import omero.model.Dataset;
 import omero.model.Image;
@@ -71,6 +78,14 @@ public class ServiceFactory
 	/** The FileService object. */
 	private FileService		fileService;
 	
+	/** The rendering service object. */
+	private RenderingService renderingService;
+	
+	/** The rawFile service object. */
+	private RawFileStoreService rawFileStoreService;
+	
+	/** The raw pixels service object. */
+	private RawPixelsStoreService rawPixelsStoreService;
 	
 	/**
 	 * Create the service factory which creates the gateway and services
@@ -104,6 +119,9 @@ public class ServiceFactory
 		dataService = null;
 		imageService = null;
 		fileService = null;
+		renderingService = null;
+		rawFileStoreService = null;
+		rawPixelsStoreService = null;
 	}
 	
 	/**
@@ -117,15 +135,20 @@ public class ServiceFactory
 				throws DSOutOfServiceException, DSAccessException
 	{
 		gatewayFactory.createSession(username, password);
+		renderingService = new RenderingServiceImpl(gatewayFactory);
+		rawFileStoreService = new RawFileStoreServiceImpl(gatewayFactory);
+		rawPixelsStoreService = new RawPixelsStoreServiceImpl(gatewayFactory);
 		dataService = new DataServiceImpl(gatewayFactory.getIPojoGateway(), 
 										  gatewayFactory.getIQueryGateway(), 
 										  gatewayFactory.getITypeGateway());
+		
 		imageService = new ImageServiceImpl(
-									gatewayFactory.getRawPixelsStoreGateway(), 
+									rawPixelsStoreService,
+									renderingService,
 									gatewayFactory.getIPixelsGateway(), 
 									gatewayFactory.getIQueryGateway(), 
 									gatewayFactory.getIUpdateGateway());
-		fileService = new FileServiceImpl(gatewayFactory.getRawFileStoreGateway(), 
+		fileService = new FileServiceImpl(rawFileStoreService, 
 										gatewayFactory.getIScriptGateway(), 
 										gatewayFactory.getIQueryGateway());
 	}
@@ -146,7 +169,7 @@ public class ServiceFactory
 
 	/**
 	 * Get the datasets in the OMERO.Blitz server in the projects ids.
-	 * @param ids ids of the datasets to get the projects from.
+	 * @param ids ids of the projets to get the datasets from.
 	 * @param withLeaves get the images too.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
@@ -245,17 +268,17 @@ public class ServiceFactory
 	
 	/**
 	 * Get the pixels information for an image.
-	 * @param imageID image id relating to the pixels.
+	 * @param pixelsId image id relating to the pixels.
 	 * @return see above.
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Pixels getPixels(long imageID) 
+	public Pixels getPixels(long pixelsId) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return imageService.getPixels(imageID);
+		return imageService.getPixels(pixelsId);
 	}
 	
 	/**
@@ -432,7 +455,164 @@ public class ServiceFactory
 										DSAccessException
 	{
 		fileService.deleteScript(id);
+	}	
+	
+	/**
+	 * Render image as Buffered image. 
+	 * @param pixelsId pixels id of the plane to render
+	 * @param z z section to render
+	 * @param t timepoint to render
+	 * @return packed int
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public BufferedImage getRenderedImage(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getRenderedImage(pixelsId, z, t);
 	}
+
+	/**
+	 * Render image as 3d matrix. 
+	 * @param pixelsId pixels id of the plane to render
+	 * @param z z section to render
+	 * @param t timepoint to render
+	 * @return packed int
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getRenderedImageMatrix(pixelsId, z, t);
+	}
+	
+	/**
+	 * Render as a packedInt 
+	 * @param pixelsId pixels id of the plane to render
+	 * @param z z section to render
+	 * @param t timepoint to render
+	 * @return packed int
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public int[] renderAsPackedInt(Long pixelsId, int z, int t) throws DSOutOfServiceException, DSAccessException
+	{
+		return imageService.renderAsPackedInt(pixelsId, z, t);
+	}
+	
+	/**
+	 * Set the active channels in the pixels.
+	 * @param pixelsId the pixels id.
+	 * @param w the channel
+	 * @param active set active?
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void setActive(Long pixelsId, int w, boolean active) throws  DSOutOfServiceException, DSAccessException
+	{
+		imageService.setActive(pixelsId, w, active);
+	}
+
+	/**
+	 * Is the channel active.
+	 * @param pixelsId the pixels id.
+	 * @param w channel
+	 * @return true if the channel active.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	boolean isActive(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.isActive(pixelsId, w);
+	}
+
+	/**
+	 * Get the default Z section of the image
+	 * @param pixelsId the pixelsId of the image.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	int getDefaultZ(Long pixelsId) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getDefaultT(pixelsId);
+	}
+	
+	/**
+	 * Get the default T point of the image
+	 * @param pixelsId the pixelsId of the image.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public int getDefaultT(Long pixelsId) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getDefaultT(pixelsId);
+	}
+	
+	/**
+	 * Set the default Z section of the image.
+	 * @param pixelsId the pixelsId of the image.
+	 * @param z see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void setDefaultZ(Long pixelsId, int z) throws  DSOutOfServiceException, DSAccessException
+	{
+		imageService.setDefaultZ(pixelsId, z);
+	}
+	
+	/**
+	 * Set the default timepoint of the image.
+	 * @param pixelsId the pixelsId of the image.
+	 * @param t see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void setDefaultT(Long pixelsId, int t) throws  DSOutOfServiceException, DSAccessException
+	{
+		imageService.setDefaultT(pixelsId, t);
+	}
+		
+	/**
+	 * Set the channel min, max.
+	 * @param pixelsId the pixelsId of the image.
+	 * @param w channel.
+	 * @param start min.
+	 * @param end max.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void setChannelWindow(Long pixelsId, int w, double start, double end) throws  DSOutOfServiceException, DSAccessException
+	{
+		imageService.setChannelWindow(pixelsId, w, start, end);
+	}
+	
+	/**
+	 * Get the channel min.
+	 * @param pixelsId the pixelsId of the image.
+	 * @param w channel.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public double getChannelWindowStart(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getChannelWindowStart(pixelsId, w);
+	}
+	
+	/**
+	 * Get the channel max.
+	 * @param pixelsId the pixelsId of the image.
+	 * @param w channel.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public double getChannelWindowEnd(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getChannelWindowEnd(pixelsId, w);
+	}
+
 }
 
 
