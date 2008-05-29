@@ -289,14 +289,13 @@ class BaseControl:
 
     def _icedata(self, property):
         """
-        General data for getting an creating a path from
-        an Ice property.
+        General data method for creating a path from an Ice property.
         """
         try:
             nodepath = self._properties()[property]
 
             if RELFILE.match(nodepath):
-                nodedata = OMERODIR / path(nodepath)
+                nodedata = self.dir / path(nodepath)
             else:
                 nodedata = path(nodepath)
 

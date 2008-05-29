@@ -126,7 +126,7 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
 
         props = self._properties()
         nodedata = self._nodedata()
-        logdata = path(props["Ice.StdOut"]).dirname()
+        logdata = self.dir / path(props["Ice.StdOut"]).dirname()
         if not logdata.exists():
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
