@@ -92,15 +92,6 @@ class BlitzGateway
 	/** The proxy to the session object. */
 	ServiceFactoryPrx session;
 	
-	/**
-	 * The Thumbnail service.
-	 */
-	ThumbnailStorePrx thumbnailStore;
-	
-	/**
-	 * The pixels store.
-	 */
-	RawPixelsStorePrx pixelsStore;
 	
 	
 	/** Maximum size of pixels read at once. */
@@ -388,31 +379,20 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public ThumbnailStorePrx getThumbService()
+	public ThumbnailStorePrx getThumbnailService()
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "ThumbnailStore";
-		if (thumbRetrieval == MAX_RETRIEVAL) 
+		try
 		{
-			thumbRetrieval = 0;
-			//to be on the save side
-			if (thumbnailStore != null) thumbnailStore.close();
-			thumbnailStore = null;
+			ThumbnailStorePrx thumbnailStore = getSession().createThumbnailStore();
+			return thumbnailStore;
 		}
-		if (thumbnailStore == null) 
+		catch (ServerError e)
 		{
-			try
-			{
-				thumbnailStore = getSession().createThumbnailStore();
-			}
-			catch (ServerError e)
-			{
-				ServiceUtilities.handleException(e, statefulServiceAccessException + currentService);
-			}
+			ServiceUtilities.handleException(e, statefulServiceAccessException + currentService);
 		}
-			
-		thumbRetrieval++;
-		return thumbnailStore; 
+		return null;
 	}
 
 	/**
@@ -475,8 +455,7 @@ class BlitzGateway
 		String currentService = "PixelsStore";
 		try
 		{
-			if(pixelsStore==null)
-				pixelsStore =  getSession().createRawPixelsStore();
+			RawPixelsStorePrx pixelsStore =  getSession().createRawPixelsStore();
 			return pixelsStore;
 		}
 		catch (ServerError e)
@@ -521,35 +500,7 @@ class BlitzGateway
 		String n = group.name.val;
 		return ("system".equals(n) || "user".equals(n) || "default".equals(n));
 	}
-
-	/**
-	 * Reconnects to server. This method should be invoked when the password
-	 * is reset.
-	 * 
-	 * @param userName	The name of the user who modifies his/her password.
-	 * @param password 	The new password.
-	 */
-	private void resetFactory(String userName, String password)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		try
-		{
-			session = blitzClient.createSession(userName, password);
-			if (thumbnailStore != null) thumbnailStore.close();
-			thumbnailStore = null;
-			thumbRetrieval = 0;
-		}
-		catch (CannotCreateSessionException e)
-		{
-			ServiceUtilities.handleException(e, "Cannot create session");
-		}
-		catch (PermissionDeniedException e)
-		{
-			ServiceUtilities.handleException(e, "Permission Denied");
-		}
-		
-	}
-		
+			
 	/** 
 	 * Get the username.
 	 * @return see above.
@@ -558,26 +509,7 @@ class BlitzGateway
 	{
 		return userName;
 	}
-		
-	/**
-	 * Determines the table name corresponding to the specified class.
-	 * 
-	 * @param klass The class to analyze.
-	 * @return See above.
-	 */
-	private String getTableForLink(OMEROClass klass)
-	{
-		String table = null;
-		if (klass.equals(OMEROClass.Category)) table = "CategoryImageLink";
-		else if (klass.equals(OMEROClass.Dataset)) table = "DatasetImageLink";
-		else if (klass.equals(OMEROClass.Project)) table = "ProjectDatasetLink";
-		else if (klass.equals(OMEROClass.CategoryGroup)) 
-			table = "CategoryGroupCategoryLink";
-		return table;
-	}
-
-		
-	
 }
+
 
 

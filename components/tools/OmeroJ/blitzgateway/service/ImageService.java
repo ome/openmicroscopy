@@ -25,6 +25,7 @@ package blitzgateway.service;
 //Java imports
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -295,7 +296,58 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	double getChannelWindowEnd(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException;
-
+	
+	/**
+	 * Set the rendering def from the default to another.
+	 * @param pixelsId for pixelsId 
+	 * @param renderingDefId see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	void setRenderingDefId(long pixelsId, long renderingDefId) throws  DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get the thumbnail of the image.
+	 * @param pixelsId for pixelsId 
+	 * @param sizeX size of thumbnail.
+	 * @param sizeY size of thumbnail.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY) throws  DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get a set of thumbnails.
+	 * @param sizeX size of thumbnail.
+	 * @param sizeY size of thumbnail.
+	 * @param pixelsIds list of ids.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get a set of thumbnails, maintaining aspect ratio.
+	 * @param size size of thumbnail.
+	 * @param pixelsIds list of ids.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	Map<Long, byte[]>getThumbnailByLongestSideSet(omero.RInt size, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get the thumbnail of the image, maintain aspect ratio.
+	 * @param pixelsId for pixelsId 
+	 * @param size size of thumbnail.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	byte[] getThumbnailByLongestSide(long pixelsId, omero.RInt size) throws  DSOutOfServiceException, DSAccessException;
+	
 }
 
 

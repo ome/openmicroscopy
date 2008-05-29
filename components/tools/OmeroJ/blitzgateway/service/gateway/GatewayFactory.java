@@ -164,6 +164,19 @@ public class GatewayFactory
 		RawPixelsStoreGateway rawPixelsStoreGateway = new RawPixelsStoreGatewayImpl(pixelsId, blitzGateway);
 		return rawPixelsStoreGateway;
 	}
+	
+	/**
+	 * Get the ThumbnailGateway instance for this session.
+	 * @param pixelsId create the gateway for pixels.
+	 * @return see above.
+	 * @throws DSAccessException 
+	 * @throws DSOutOfServiceException 
+	 */
+	public synchronized ThumbnailGateway getThumbnailGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	{
+		ThumbnailGateway thumbnailGateway = new ThumbnailGatewayImpl(pixelsId, blitzGateway);
+		return thumbnailGateway;
+	}
 
 	/**
 	 * Get the IPixelsGateway instance for this session.

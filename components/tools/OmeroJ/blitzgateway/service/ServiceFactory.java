@@ -38,6 +38,8 @@ import blitzgateway.service.stateful.RawPixelsStoreService;
 import blitzgateway.service.stateful.RawPixelsStoreServiceImpl;
 import blitzgateway.service.stateful.RenderingService;
 import blitzgateway.service.stateful.RenderingServiceImpl;
+import blitzgateway.service.stateful.ThumbnailService;
+import blitzgateway.service.stateful.ThumbnailServiceImpl;
 import omero.RType;
 import omero.model.Dataset;
 import omero.model.Image;
@@ -87,6 +89,9 @@ public class ServiceFactory
 	/** The raw pixels service object. */
 	private RawPixelsStoreService rawPixelsStoreService;
 	
+	/** The thumbnail service. */
+	private ThumbnailService 	thumbnailService;
+	
 	/**
 	 * Create the service factory which creates the gateway and services
 	 * and links the different services together.  
@@ -122,6 +127,7 @@ public class ServiceFactory
 		renderingService = null;
 		rawFileStoreService = null;
 		rawPixelsStoreService = null;
+		thumbnailService = null;
 	}
 	
 	/**
@@ -136,6 +142,7 @@ public class ServiceFactory
 	{
 		gatewayFactory.createSession(username, password);
 		renderingService = new RenderingServiceImpl(gatewayFactory);
+		thumbnailService = new ThumbnailServiceImpl(gatewayFactory);
 		rawFileStoreService = new RawFileStoreServiceImpl(gatewayFactory);
 		rawPixelsStoreService = new RawPixelsStoreServiceImpl(gatewayFactory);
 		dataService = new DataServiceImpl(gatewayFactory.getIPojoGateway(), 
@@ -145,6 +152,7 @@ public class ServiceFactory
 		imageService = new ImageServiceImpl(
 									rawPixelsStoreService,
 									renderingService,
+									thumbnailService,
 									gatewayFactory.getIPixelsGateway(), 
 									gatewayFactory.getIQueryGateway(), 
 									gatewayFactory.getIUpdateGateway());
@@ -612,6 +620,73 @@ public class ServiceFactory
 	{
 		return imageService.getChannelWindowEnd(pixelsId, w);
 	}
+	
+	/**
+	 * Set the rendering def from the default to another.
+	 * @param pixelsId for pixelsId 
+	 * @param renderingDefId see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	void setRenderingDefId(long pixelsId, long renderingDefId) throws  DSOutOfServiceException, DSAccessException
+	{
+		imageService.setRenderingDefId(pixelsId, renderingDefId);
+	}
+	
+	/**
+	 * Get the thumbnail of the image.
+	 * @param pixelsId for pixelsId 
+	 * @param sizeX size of thumbnail.
+	 * @param sizeY size of thumbnail.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getThumbnail(pixelsId, sizeX, sizeY);
+	}
+	
+	/**
+	 * Get a set of thumbnails.
+	 * @param sizeX size of thumbnail.
+	 * @param sizeY size of thumbnail.
+	 * @param pixelsIds list of ids.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getThumbnailSet(sizeX, sizeY, pixelsIds);
+	}
+	
+	/**
+	 * Get a set of thumbnails, maintaining aspect ratio.
+	 * @param size size of thumbnail.
+	 * @param pixelsIds list of ids.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	Map<Long, byte[]>getThumbnailByLongestSideSet(omero.RInt size, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getThumbnailByLongestSideSet(size, pixelsIds);
+	}
+	
+	/**
+	 * Get the thumbnail of the image, maintain aspect ratio.
+	 * @param pixelsId for pixelsId 
+	 * @param size size of thumbnail.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	byte[] getThumbnailByLongestSide(long pixelsId, omero.RInt size) throws  DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getThumbnailByLongestSide(pixelsId, size);
+	}
+	
 
 }
 

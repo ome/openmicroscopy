@@ -30,10 +30,12 @@ import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RInt;
 import omero.model.Image;
 import omero.model.Pixels;
 
@@ -47,6 +49,7 @@ import blitzgateway.service.gateway.IQueryGateway;
 import blitzgateway.service.gateway.IUpdateGateway;
 import blitzgateway.service.stateful.RawPixelsStoreService;
 import blitzgateway.service.stateful.RenderingService;
+import blitzgateway.service.stateful.ThumbnailService;
 import blitzgateway.util.PixelTypes;
 
 /** 
@@ -71,6 +74,7 @@ class ImageServiceImpl
 	IPixelsGateway			iPixels;
 	IUpdateGateway			iUpdate;
 	RenderingService 		renderingService;
+	ThumbnailService 	thumbnailService;
 	
 	/**
 	 * Create the ImageService passing the gateway.
@@ -78,6 +82,7 @@ class ImageServiceImpl
 	 */
 	ImageServiceImpl(RawPixelsStoreService 	pixelsStore,
 					RenderingService renderingService,
+					ThumbnailService thumbnailService,
 					IPixelsGateway iPixels, 
 					IQueryGateway iQuery, IUpdateGateway iUpdate) 
 	{
@@ -86,6 +91,7 @@ class ImageServiceImpl
 		this.iPixels = iPixels;
 		this.pixelsStore = pixelsStore;
 		this.renderingService = renderingService;
+		this.thumbnailService = thumbnailService;
 	}
 
 	/* (non-Javadoc)
@@ -466,6 +472,53 @@ class ImageServiceImpl
 			throws DSOutOfServiceException, DSAccessException
 	{
 		renderingService.setDefaultZ(pixelsId, z);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getThumbnail(long, omero.RInt, omero.RInt)
+	 */
+	public byte[] getThumbnail(long pixelsId, RInt sizeX, RInt sizeY)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return thumbnailService.getThumbnail(pixelsId, sizeX, sizeY);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getThumbnailByLongestSide(long, omero.RInt)
+	 */
+	public byte[] getThumbnailByLongestSide(long pixelsId, RInt size)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return thumbnailService.getThumbnailByLongestSide(pixelsId, size);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getThumbnailByLongestSideSet(omero.RInt, java.util.List)
+	 */
+	public Map<Long, byte[]> getThumbnailByLongestSideSet(RInt size,
+			List<Long> pixelsIds) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return thumbnailService.getThumbnailByLongestSideSet(size, pixelsIds);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#getThumbnailSet(omero.RInt, omero.RInt, java.util.List)
+	 */
+	public Map<Long, byte[]> getThumbnailSet(RInt sizeX, RInt sizeY,
+			List<Long> pixelsIds) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return thumbnailService.getThumbnailSet(sizeX, sizeY, pixelsIds);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#setRenderingDefId(long, long)
+	 */
+	public void setRenderingDefId(long pixelsId, long renderingDefId)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		thumbnailService.setRenderingDefId(pixelsId, renderingDefId);
 	}
 
 }
