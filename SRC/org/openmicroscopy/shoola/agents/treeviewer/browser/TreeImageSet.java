@@ -199,11 +199,5 @@ public class TreeImageSet
         }
         return copy;
     }
-
-    /**
-     * Always returns <code>false</code> b/c the object cannot be tagged it.
-     * @see TreeImageDisplay#hasTags()
-     */
-	public boolean hasTags() { return false; }
     
 }

@@ -573,5 +573,13 @@ public interface Browser
 	 * @param data The newly created dataset.
 	 */
 	public void onOrphanDataObjectCreated(DataObject data);
+
+	/**
+	 * 
+	 * @param set
+	 * @param node
+	 * @param b
+	 */
+	public void setTimeIntervalImages(Set set, TreeImageTimeSet node);
 	
 }

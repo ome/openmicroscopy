@@ -39,6 +39,7 @@ import javax.swing.JLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.editor.EditorUI;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.CategoryData;
@@ -299,8 +300,12 @@ public abstract class ImageDisplay
     		ExperimenterData owner = ((DataObject) hierarchyObject).getOwner();
     		if (owner != null) {
     			ExperimenterData exp = DataBrowserAgent.getUserDetails();
-    			if (exp.getId() != owner.getId()) 
-    				nodes.add(new JLabel(icons.getIcon(IconManager.OWNER_8)));
+    			if (exp.getId() != owner.getId()) {
+    				JLabel l = new JLabel(icons.getIcon(IconManager.OWNER_8));
+    				l.setToolTipText("Owner: "+EditorUtil.formatExperimenter(
+    						DataBrowserAgent.getExperimenter(owner.getId())));
+    				nodes.add(l);
+    			}
     		}
     	}
     	if (EditorUtil.isAnnotated(hierarchyObject)) 

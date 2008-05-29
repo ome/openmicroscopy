@@ -25,14 +25,13 @@ package org.openmicroscopy.shoola.env.data.login;
 
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.awt.Toolkit;
 import java.util.Timer;
 import java.util.TimerTask;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -119,8 +118,10 @@ public class LoginServiceImpl
                                                                     container);
             if (factory.isConnected()) return CONNECTED;
             //factory.connect(uc);
-            if (timer == null) timer = new Timer();
-            timer.schedule(new LoginTask(), config.getTimeout());
+            if (timer == null) {
+            	timer = new Timer();
+            	timer.schedule(new LoginTask(), config.getTimeout());
+            }
             factory.connect(uc);
             if (factory.isConnected() && connAttempt) {
 				//Log success.

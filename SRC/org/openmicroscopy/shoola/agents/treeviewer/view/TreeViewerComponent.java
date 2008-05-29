@@ -1876,5 +1876,26 @@ class TreeViewerComponent
         DataBrowserFactory.discardAll();
         view.removeAllFromWorkingPane();
 	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#browseTimeInterval(TreeImageTimeSet, Set)
+	 */
+	public void browseTimeInterval(TreeImageTimeSet parent, Set leaves)
+	{
+		if (leaves == null) return;
+		
+		//TODO create db browser for children of parent if any
+		Object parentObject = parent.getUserObject();
+		TreeImageDisplay display = parent.getParentDisplay();
+		Object grandParentObject = null;
+		if (display != null) grandParentObject =  display.getUserObject();
+		DataBrowser dataBrowser = DataBrowserFactory.getDataBrowser(
+					grandParentObject, parentObject, leaves);
+		dataBrowser.addPropertyChangeListener(controller);
+		dataBrowser.activate();
+		view.removeAllFromWorkingPane();
+		view.addComponent(dataBrowser.getUI());
+	}
 	
 }

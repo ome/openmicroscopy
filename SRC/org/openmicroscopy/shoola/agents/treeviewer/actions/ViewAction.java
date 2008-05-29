@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.List;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -101,7 +103,14 @@ public class ViewAction
             	setEnabled(false);
             } else {
             	TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
-            	setEnabled(timeNode.getNumberItems() > 0);
+            	int number = timeNode.getNumberItems();
+            	if (number == 0) setEnabled(false);
+            	else {
+            		List l = timeNode.getChildrenDisplay();
+            		if (l != null && l.size() > 0) 
+            			setEnabled((l.get(0) instanceof TreeImageTimeSet));
+            		else setEnabled(false);
+            	}
             }
             return;
         }

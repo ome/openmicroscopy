@@ -86,8 +86,7 @@ public class MetadataViewerAgent
 	}
 	
 	/**
-	 * Returns the experimenter corresponding to the passed experimenter
-	 * ID.
+	 * Returns the experimenter corresponding to the passed id.
 	 * 
 	 * @param expID The experimenter's id.
 	 * @return See above.

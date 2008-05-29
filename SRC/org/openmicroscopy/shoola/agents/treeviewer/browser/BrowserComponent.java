@@ -1202,9 +1202,6 @@ class BrowserComponent
 	public void browse(TreeImageDisplay node)
 	{
 		if (node == null) return;
-		if (node instanceof TreeImageTimeSet) {
-			
-		}
 		Object uo = node.getUserObject();
 		if (uo instanceof ProjectData) 
 			model.browseProject(node);
@@ -1213,6 +1210,8 @@ class BrowserComponent
 			Set tags = tag.getTags();
 			if (tags != null && tags.size() > 0) 
 				model.browseTagset(node);
+		} else if (node instanceof TreeImageTimeSet) {
+			model.browseTimeInterval((TreeImageTimeSet) node);
 		}
 	}
 
@@ -1255,6 +1254,16 @@ class BrowserComponent
 			} else 
 				view.setFoundNode(null);
 		}
+		
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#setTimeIntervalImages(Set, TreeImageTimeSet)
+	 */
+	public void setTimeIntervalImages(Set set, TreeImageTimeSet node)
+	{
+		model.getParentModel().browseTimeInterval(node, set);
 		
 	}
     

@@ -38,6 +38,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -744,5 +745,12 @@ public interface TreeViewer
 
 	/** Refreshes the selected tree. */
 	public void refreshTree();
+
+	/**
+	 * 
+	 * @param node
+	 * @param set
+	 */
+	public void browseTimeInterval(TreeImageTimeSet node, Set set);
 	
 }

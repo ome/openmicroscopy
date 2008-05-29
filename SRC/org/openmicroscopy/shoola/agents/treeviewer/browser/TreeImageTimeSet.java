@@ -451,7 +451,7 @@ public class TreeImageTimeSet
 	 * 
 	 * @return See above.
 	 */
-	public Object getTimeObject()
+	public TimeRefObject getTimeObject()
 	{
 		if (ref == null) {
 			long id = TreeViewerAgent.getUserDetails().getId();
