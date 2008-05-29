@@ -116,7 +116,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
 
         if first != None and len(first) > 0:
             # Relative to cwd
-            descrpt = path(first)
+            descrpt = path(first).abspath()
 
         if descrpt == None or not descrpt.exists():
             # If descript is not a file, then it must be a target
