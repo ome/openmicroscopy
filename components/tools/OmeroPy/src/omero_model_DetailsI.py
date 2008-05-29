@@ -10,7 +10,7 @@
 import Ice
 import omero_model_Details_ice
 import omero_model_PermissionsI
-_omero = Ice.openModule("omero") 
+_omero = Ice.openModule("omero")
 _omero_model = Ice.openModule("omero.model")
 __name__ = "omero.model"
 class DetailsI(_omero_model.Details):
@@ -21,9 +21,9 @@ class DetailsI(_omero_model.Details):
           def next(self):
               return DetailsI()
 
-      @classmethod
       def generator(cls):
           return cls.DetailsI_generator()
+      generator = classmethod(generator)
 
       def __init__(self):
           super(DetailsI, self).__init__()

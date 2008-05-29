@@ -115,9 +115,9 @@ GENERATOR:
 [$pyc]           def next(self):
 [$pyc]               return ${Pojo}I()
 [$pyc]
-[$pyc]       @classmethod
 [$pyc]       def generator(cls):
 [$pyc]           return cls.${Pojo}I_generator()
+[$pyc]       generator = classmethod(generator)
 [$pyc]
 
 INTERNAL METHODS:

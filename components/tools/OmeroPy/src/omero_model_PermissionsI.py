@@ -29,9 +29,9 @@ class PermissionsI(_omero_model.Permissions):
           def next(self):
               return PermissionsI()
 
-      @classmethod
       def generator(cls):
           return cls.PermissionsI_generator()
+      generator = classmethod(generator)
 
       def __init__(self, l = -1):
             super(PermissionsI, self).__init__()
