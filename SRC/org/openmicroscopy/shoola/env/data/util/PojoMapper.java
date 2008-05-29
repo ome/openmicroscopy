@@ -128,9 +128,12 @@ public class PojoMapper
         	return new TagAnnotationData((TagAnnotation) object);
         else if (object instanceof TextAnnotation) 
         	return new TextualAnnotationData((TextAnnotation) object);
-        else if (object instanceof LongAnnotation) 
-        	return new RatingAnnotationData((LongAnnotation) object);	
-        else if (object instanceof FileAnnotation) 
+        else if (object instanceof LongAnnotation) {
+        	LongAnnotation ann = (LongAnnotation) object;
+        	if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs()))
+         		return new RatingAnnotationData((LongAnnotation) object);	
+        	return null;
+        } else if (object instanceof FileAnnotation) 
         	return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof BooleanAnnotation) {
         	BooleanAnnotation ann = (BooleanAnnotation) object;

@@ -36,6 +36,7 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.DataBatchSaver;
 import org.openmicroscopy.shoola.agents.metadata.DataSaver;
+import org.openmicroscopy.shoola.agents.metadata.ExperimenterEditor;
 import org.openmicroscopy.shoola.agents.metadata.MetadataLoader;
 import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.StructuredDataLoader;
@@ -327,6 +328,17 @@ class MetadataViewerModel
 					Collection<DataObject> data)
 	{
 		DataSaver loader = new DataSaver(component, data, toAdd, toRemove);
+		loader.load();
+	}
+	
+	/**
+	 * Fires an asynchronous call to update the passed experimenter.
+	 * 
+	 * @param data The object to update.
+	 */
+	void fireExperimenterSaving(ExperimenterData data)
+	{
+		ExperimenterEditor loader = new ExperimenterEditor(component, data);
 		loader.load();
 	}
 	

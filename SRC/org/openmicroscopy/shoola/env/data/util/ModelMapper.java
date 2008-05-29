@@ -434,6 +434,7 @@ public class ModelMapper
     										data.getContentAsString());
     	} else if (data instanceof RatingAnnotationData) {
     		annotation = new LongAnnotation();
+    		annotation.setNs(RatingAnnotationData.INSIGHT_RATING_NS);
     		((LongAnnotation) annotation).setLongValue(
     										(Long) data.getContent());
     	} else if (data instanceof URLAnnotationData) {

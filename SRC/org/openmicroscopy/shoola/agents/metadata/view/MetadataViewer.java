@@ -63,6 +63,16 @@ public interface MetadataViewer
 	/** Bound property indicating that the data have been saved. */
 	public static final String	ON_DATA_SAVE_PROPERTY = "onDataSave";
 	
+	/** Bound property indicating to save the data. */
+	public static final String	SAVE_DATA_PROPERTY = "saveData";
+	
+	/** Bound property indicating to clear the data to save. */
+	public static final String	CLEAR_SAVE_DATA_PROPERTY = "clearSaveData";
+	
+	/** Bound property indicating that the experimenter has been updated. */
+	public static final String	EXPERIMENTER_UPDATED_PROPERTY = 
+		                                                "experimenterUpdated";
+	
 	/** Inidicates to layout all the components vertically. */
 	public static final int		VERTICAL_LAYOUT = 0;
 	
@@ -74,13 +84,7 @@ public interface MetadataViewer
 	 * top left corner.
 	 */
 	public static final int 	TOP_LEFT = 0;
-	
-	/** Bound property indicating to save the data. */
-	public static final String	SAVE_DATA_PROPERTY = "saveData";
-	
-	/** Bound property indicating to clear the data to save. */
-	public static final String	CLEAR_SAVE_DATA_PROPERTY = "clearSaveData";
-	
+
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 

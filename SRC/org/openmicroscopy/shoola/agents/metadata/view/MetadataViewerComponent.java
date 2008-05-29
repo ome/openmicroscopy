@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -274,16 +275,12 @@ class MetadataViewerComponent
 	public void saveData(List<AnnotationData> toAdd, 
 				List<AnnotationData> toRemove, DataObject data)
 	{
-		//if (model.isMultiSelection()) {
-		//	model.fireBatchSaving(toAdd, toRemove);
-		//	return;
-		//}
 		if (data == null) return;
 		Object refObject = model.getRefObject();
 		List<DataObject> toSave = new ArrayList<DataObject>();
 		if (refObject instanceof ExperimenterData) {
-			toSave.add(data);
-			model.fireSaving(toAdd, toRemove, toSave);
+			model.fireExperimenterSaving((ExperimenterData) data);
+			return;
 		}
 		MessageBox dialog;
 		if (refObject instanceof ProjectData) {
@@ -586,8 +583,8 @@ class MetadataViewerComponent
 	 */
 	public void onExperimenterUpdated(ExperimenterData data)
 	{
-		// TODO Auto-generated method stub
-		
+		firePropertyChange(EXPERIMENTER_UPDATED_PROPERTY, null, data);
+		setRootObject(data);
 	}
 	
 }

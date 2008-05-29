@@ -434,7 +434,9 @@ public class EditorUI
     void setSelectionMode(boolean single)
     {
     	Component comp = getComponent(0);
-    	if (!(model.getRefObject() instanceof DataObject)) {
+    	//Object ref = model.getRefObject();
+    	/*
+    	if (!(ref instanceof DataObject)) {
     		if (comp instanceof JPanel) return;
     		removeAll();
     		add(emptyPane, BorderLayout.CENTER);
@@ -442,6 +444,15 @@ public class EditorUI
     		if (comp instanceof JScrollPane) return;
     		removeAll();
     		add(mainPane, BorderLayout.CENTER);
+    	}*/
+    	if (single) {
+    		if (comp instanceof JScrollPane) return;
+    		removeAll();
+    		add(mainPane, BorderLayout.CENTER);
+    	} else {
+    		if (comp instanceof JPanel) return;
+    		removeAll();
+    		add(emptyPane, BorderLayout.CENTER);
     	}
     	layoutUI();
     	/*
@@ -511,6 +522,7 @@ public class EditorUI
     /** Updates display when the new root node is set. */
 	void setRootObject()
 	{
+		setCursor(Cursor.getDefaultCursor());
 		clearData();
 		toolBarTop.setDecorator();
 		Object object = model.getRefObject();

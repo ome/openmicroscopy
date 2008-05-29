@@ -166,8 +166,10 @@ public class DataServicesFactory
 	{
 		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
 							"Time out", "Your session has expired.\n" +
-    						"You can either reconnect or exit the " +
-    						"application.");
+    						"The changes you might have made have not been" +
+    						"saved. \n" +
+    						"To do so, you will need to reactivate" +
+    						"the session.");
         msg.setYesText("Reconnect");
         msg.setNoText("Exit");
         if (msg.centerMsgBox() == MessageBox.NO_OPTION) {

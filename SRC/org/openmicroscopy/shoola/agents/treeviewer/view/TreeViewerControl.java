@@ -665,6 +665,14 @@ class TreeViewerControl
 			}
 		} else if (Browser.DATA_REFRESHED_PROPERTY.equals(name)) {
 			model.onSelectedDisplay();
+		} else if (MetadataViewer.EXPERIMENTER_UPDATED_PROPERTY.equals(name)) {
+			Map browsers = model.getBrowsers();
+			Iterator i = browsers.keySet().iterator();
+			Browser browser;
+			while (i.hasNext()) {
+				browser = (Browser) browsers.get(i.next());
+				browser.refreshExperimenter();
+			}
 		}
 	}
 
