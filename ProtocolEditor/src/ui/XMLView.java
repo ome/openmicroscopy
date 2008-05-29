@@ -563,6 +563,8 @@ public class XMLView
 			JMenu helpMenu = new JMenu("Help");
 			helpMenu.setBorder(menuItemBorder);
 			
+			helpMenu.add(new JMenuItem(controller.getAction(Controller.HELP_USER_GUIDE)));
+			
 			JMenuItem sendCommentMenuItem = new JMenuItem("Send Comment", sendCommentIcon);
 			sendCommentMenuItem.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {

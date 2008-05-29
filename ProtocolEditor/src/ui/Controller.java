@@ -46,6 +46,7 @@ import actions.DuplicateFieldsAction;
 import actions.ExportAllTextAction;
 import actions.ExportCalendarAction;
 import actions.ExportHighltdTextAction;
+import actions.HelpOnlineUserGuideAction;
 import actions.ImportFieldsAction;
 import actions.ImportTableAction;
 import actions.ImportTextAction;
@@ -196,6 +197,10 @@ public class Controller
     /** Identifies the <code>ValidateXMLAction</code>. */
     static final Integer     VALIDATE_XML = new Integer(37);
     
+    /** Identifies the <code>HelpOnlineUserGuide</code>. */
+    static final Integer     HELP_USER_GUIDE = new Integer(38);
+    
+    
     
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
@@ -255,6 +260,7 @@ public class Controller
         actionsMap.put(REQUIRED_FIELD, new RequiredFieldAction(model));
         actionsMap.put(EXPORT_CALENDAR, new ExportCalendarAction(model));
         actionsMap.put(VALIDATE_XML, new ValidateXMLAction(model));
+        actionsMap.put(HELP_USER_GUIDE, new HelpOnlineUserGuideAction(model));
     }
     
     /**
