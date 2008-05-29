@@ -6,6 +6,8 @@
  */
 package ome.server.itests;
 
+import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -14,10 +16,16 @@ import ome.api.IAnalysis;
 import ome.api.IConfig;
 import ome.api.IPixels;
 import ome.api.IPojos;
+import ome.api.ISession;
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalLdap;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.formats.OMEROMetadataStore;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
+import ome.model.containers.Dataset;
+import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
@@ -34,6 +42,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -73,9 +82,11 @@ public class AbstractManagedContextTest extends
 
     protected IPixels iPixels;
 
+    protected ISession iSession;
+
     protected OMEData data;
 
-    protected SimpleJdbcTemplate jdbcTemplate;
+    protected SimpleJdbcTemplate jdbcTemplate, unsafeJdbcTemplate;
 
     protected LdapTemplate ldapTemplate;
 
@@ -102,11 +113,14 @@ public class AbstractManagedContextTest extends
         iConfig = factory.getConfigService();
         iPojos = factory.getPojosService();
         iPixels = factory.getPixelsService();
+        iSession = factory.getSessionService();
 
         DataSource dataSource = (DataSource) applicationContext
                 .getBean("dataSource");
         jdbcTemplate = (SimpleJdbcTemplate) applicationContext
                 .getBean("simpleJdbcTemplate");
+        unsafeJdbcTemplate = (SimpleJdbcTemplate) applicationContext
+                .getBean("unsafeJdbcTemplate");
 
         ldapTemplate = (LdapTemplate) applicationContext
                 .getBean("ldapTemplate");
@@ -170,6 +184,39 @@ public class AbstractManagedContextTest extends
 
     protected String uuid() {
         return UUID.randomUUID().toString();
+    }
+
+    protected Pixels makePixels() {
+        try {
+            final File file = ResourceUtils
+                    .getFile("classpath:tinyTest.d3d.dv");
+
+            Dataset d = new Dataset("rendering-session-test");
+            d = iUpdate.saveAndReturnObject(d);
+
+            final OMEROMetadataStore store = new OMEROMetadataStore(
+                    this.factory);
+            final ImportLibrary library = new ImportLibrary(store,
+                    new OMEROWrapper());
+
+            library.setDataset(d);
+
+            String fileName = file.getAbsolutePath();
+            library.open(fileName);
+            library.calculateImageCount(fileName, 0);
+
+            final List<Pixels> pixels = library.importMetadata(fileName);
+            library.importData(pixels.get(0).getId(), fileName, 0,
+                    new ImportLibrary.Step() {
+
+                        @Override
+                        public void step(int series, int step) {
+                        }
+                    });
+            return pixels.get(0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

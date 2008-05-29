@@ -130,6 +130,7 @@ public class SearchBeanTest extends MockObjectTestCase {
     @Test
     public void testClearingQueries() {
         bean = new SearchBean(executor);
+        bean.onlyType(Image.class);
         bean.byFullText("a");
         assertTrue(bean.activeQueries() == 1);
         bean.clearQueries();

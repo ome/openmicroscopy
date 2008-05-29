@@ -133,6 +133,7 @@ public class JobHandleTest extends TestCase {
     @Test
     public void testProcessManagerIsNotified() throws Exception {
         testJobIsSavedToDatabase();
+        Thread.sleep(1000L);
         assertTrue(mgr.called);
     }
 

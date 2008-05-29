@@ -37,13 +37,14 @@ public class FileParserTest extends AbstractTest {
         String path = getFileService().getFilesPath(upload.getId());
         File file = new File(path);
         FileParser fp = new FileParser();
+        fp.setApplicationContext(this.applicationContext);
         StringWriter sw = new StringWriter();
         for (Reader test : fp.parse(file)) {
             while (test.ready()) {
                 sw.write(test.read());
             }
         }
-        assertEquals(sw.toString(), str);
+        assertEquals(str, sw.toString());
     }
 
     @Test()
@@ -54,6 +55,8 @@ public class FileParserTest extends AbstractTest {
 
         Map<String, FileParser> parsers = new HashMap<String, FileParser>();
         parsers.put("text/plain", new FileParser());
+        parsers.get("text/plain")
+                .setApplicationContext(this.applicationContext);
 
         // Upload
         FileUploader upload = new FileUploader(this.factory, str, "uuid",

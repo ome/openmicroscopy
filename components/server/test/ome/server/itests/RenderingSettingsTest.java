@@ -9,10 +9,6 @@ import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
-import ome.model.display.ChannelBinding;
-import ome.model.display.CodomainMapContext;
-import ome.model.display.RenderingDef;
-import ome.testing.ObjectFactory;
 
 import org.testng.annotations.Test;
 
@@ -34,23 +30,6 @@ public class RenderingSettingsTest extends AbstractManagedContextTest {
         p1 = makePixels();
         p2 = makePixels();
 
-    }
-
-    private Pixels makePixels() {
-        Pixels p = ObjectFactory.createPixelGraph(null);
-
-        RenderingDef rdef = ObjectFactory.createRenderingDef();
-        CodomainMapContext enhancement = ObjectFactory
-                .createPlaneSlicingContext();
-        ChannelBinding binding = ObjectFactory.createChannelBinding();
-
-        rdef.addChannelBinding(binding);
-        rdef.addCodomainMapContext(enhancement);
-
-        p.addRenderingDef(rdef);
-
-        Image i = factory.getUpdateService().saveAndReturnObject(p.getImage());
-        return i.getPrimaryPixels();
     }
 
     @Test

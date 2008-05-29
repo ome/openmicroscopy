@@ -128,7 +128,6 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         MEMBER_OF_GROUPS = Arrays.asList(0L, 1L);
         USER_ROLES = Arrays.asList("user", "default");
         // Setup session
-        mockMgr.expects(once()).method("assertSession");
         Session s = new Session();
         Details d = Details.create();
         d.setOwner(new Experimenter(0L, false));

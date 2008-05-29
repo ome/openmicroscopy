@@ -147,7 +147,7 @@ public class QueryTest extends AbstractManagedContextTest {
      * {@link ome.api.IQuery#findAllByExample(ome.model.IObject, ome.parameters.Filter)}
      * states that findByExample doesn't work on ids. If this changes, update.
      */
-    @Test
+    @Test(groups = "ticket:711")
     public void test_examplById() throws Exception {
         Experimenter ex = new Experimenter(new Long(0), false);
         try {

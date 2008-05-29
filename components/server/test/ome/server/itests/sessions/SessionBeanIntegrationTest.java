@@ -7,7 +7,8 @@
 package ome.server.itests.sessions;
 
 import junit.framework.TestCase;
-
+import ome.api.Search;
+import ome.server.itests.ManagedContextFixture;
 import ome.system.OmeroContext;
 
 import org.testng.annotations.Test;
@@ -20,9 +21,16 @@ public class SessionBeanIntegrationTest extends TestCase {
 
     @Test
     public void testFindAllSessionsReturnsOnlyOwn() throws Exception {
-    	OmeroContext.getManagedServerContext();
-    	fail("NYI");
+        OmeroContext.getManagedServerContext();
+        fail("NYI");
     }
-    
+
+    @Test(groups = "ticket:883")
+    public void testExceptionThrownOnClose() throws Exception {
+
+        ManagedContextFixture fixture = new ManagedContextFixture();
+        Search search = fixture.sf.createSearchService();
+        search.close();
+    }
 
 }
