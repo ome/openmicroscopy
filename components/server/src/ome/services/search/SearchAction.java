@@ -14,6 +14,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IGlobal;
 import ome.model.IMutable;
+import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -41,6 +42,13 @@ public abstract class SearchAction implements Serializable,
 
     protected final SearchValues values = new SearchValues();
 
+    /**
+     * List of {@link IObject} instances which have currently been found. This
+     * {@link SearchAction} may want to take these values into account if
+     * present.
+     */
+    protected List<IObject> chainedList;
+
     public SearchAction(SearchValues values) {
         if (values == null) {
             throw new IllegalArgumentException(
@@ -53,6 +61,18 @@ public abstract class SearchAction implements Serializable,
         SearchValues copy = new SearchValues();
         copy.copy(this.values);
         return copy;
+    }
+
+    /**
+     * Set the current list of found ids from previous searches, which should be
+     * chained in this search. See the documentation on each by* method in
+     * {@link ome.api.Search} to know how chained ids will be used, if at all.
+     * 
+     * @param idList
+     *            Can be null to disabled chaining.
+     */
+    public void chainedSearch(List<IObject> chainedList) {
+        this.chainedList = chainedList;
     }
 
     protected void ids(Criteria criteria) {

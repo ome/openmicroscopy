@@ -31,7 +31,6 @@ import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -46,6 +45,8 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.Test;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
@@ -561,11 +562,113 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 1);
 
         // With HQL
-        search.onlyType(Event.class);
-        search.byFullText("root");
+        search.onlyType(Image.class);
+        search.byFullText(uuid1);
         search.and();
-        search.byHqlQuery("select e from Event e where e.id = 0", null);
+        search.byHqlQuery("select i from Image i where i.id = " + i1.getId(),
+                null);
         assertResults(search, 1);
+
+    }
+
+    @Test
+    public void testCombinationsWithChainedList() {
+
+        String uuid1 = uuid();
+        String uuid2 = uuid();
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
+        TagAnnotation t2 = new TagAnnotation();
+        i2.linkAnnotation(t2);
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // No IDLIST-based join
+        // here we are purposefully loading image2 in the first call (since
+        // it has an annotation) and image1 in the second call (which calls
+        // join).
+        search.byFullText(uuid2);
+        List<IObject> output = assertResults(search, 1);
+        Image i = (Image) output.get(0);
+        assertTrue(i.sizeOfAnnotationLinks() < 0);
+
+        search.byFullText(uuid2);
+        search.and();
+        search
+                .byHqlQuery(
+                        "select i from Image i join fetch i.annotationLinks where i.id in (:IDLIST)",
+                        null);
+        output = assertResults(search, 1);
+        i = (Image) output.get(0);
+        assertTrue(i.sizeOfAnnotationLinks() > 0);
+
+    }
+
+    @Test
+    public void testCombinationsWithEmptyChainedList() {
+
+        String uuid1 = uuid();
+        String uuid2 = uuid();
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
+        TagAnnotation t2 = new TagAnnotation();
+        i2.linkAnnotation(t2);
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        search.byFullText(uuid1);
+        search.and();
+        search.byFullText(uuid2);
+        search.or();
+        search
+                .byHqlQuery(
+                        "select i from Image i join fetch i.annotationLinks where i.id in (:IDLIST)",
+                        null);
+        List<IObject> output = assertResults(search, 0);
+    }
+
+    @Test
+    public void testCombinationsWithEmptyButOverwrittenChainedList() {
+
+        String uuid1 = uuid();
+        String uuid2 = uuid();
+        Image i1 = new Image(uuid1);
+        Image i2 = new Image(uuid2);
+        TagAnnotation t2 = new TagAnnotation();
+        i2.linkAnnotation(t2);
+        i1 = iUpdate.saveAndReturnObject(i1);
+        i2 = iUpdate.saveAndReturnObject(i2);
+        iUpdate.indexObject(i1);
+        iUpdate.indexObject(i2);
+        loginRoot();
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        search.byFullText(uuid1);
+        search.and();
+        search.byFullText(uuid2);
+        search.or();
+        search
+                .byHqlQuery(
+                        "select i from Image i join fetch i.annotationLinks where i.id in (:IDLIST)",
+                        new Parameters().addList("IDLIST", Arrays
+                                .asList(new Long[] { i1.getId(), i2.getId() })));
+        List<IObject> output = assertResults(search, 1);
+        Image i = (Image) output.get(0);
+        assertTrue(i.sizeOfAnnotationLinks() > 0);
 
     }
 
@@ -2018,11 +2121,17 @@ public class SearchTest extends AbstractTest {
     // Helpers
     // =========================================================================
 
-    void assertResults(Search search, int k) {
+    List<IObject> assertResults(Search search, int k) {
         if (k == 0) {
             assertFalse(search.hasNext());
+            return null;
         } else {
-            assertEquals(k, search.results().size());
+            List<IObject> output = new ArrayList<IObject>();
+            while (search.hasNext()) {
+                output.addAll(search.results());
+            }
+            assertEquals(k, output.size());
+            return output;
         }
     }
 

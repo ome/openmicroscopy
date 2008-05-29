@@ -51,6 +51,7 @@ public class Complement extends SearchAction {
         List<IObject> rvB;
 
         rvA = (List<IObject>) a.doWork(status, session, sf);
+        b.chainedSearch(rvA);
         rvB = (List<IObject>) b.doWork(status, session, sf);
         rvA.removeAll(rvB);
 
