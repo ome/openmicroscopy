@@ -64,17 +64,21 @@ public class SearchComponent
 	implements ActionListener
 {
 
+	/** Identifies the text for searching for name. */
 	public static final String		NAME_TEXT = "Name/Description";
 	
+	/** Identifies the text for searching for tags. */
 	public static final String		NAME_TAGS = "Tags";
 	
+	/** Identifies the text for searching for comments. */
 	public static final String		NAME_COMMENTS = "Comments";
 	
+	/** Identifies the text for searching for urls. */
 	public static final String		NAME_URL = "URLs";
 	
+	/** Identifies the text for searching for attachments. */
 	public static final String		NAME_ATTACHMENT = "Attachments"; 
 	
-
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";
 	

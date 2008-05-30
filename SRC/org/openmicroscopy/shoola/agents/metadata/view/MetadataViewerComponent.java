@@ -242,7 +242,7 @@ class MetadataViewerComponent
 	public void setRootObject(Object root)
 	{
 		if (root == null) root = "";
-		//if (root instanceof String) setSelectionMode(false);
+		//if (root instanceof String) model.getEditor().s;
 		//if (root instanceof Time)
 		model.setRootObject(root);
 		view.setRootObject();

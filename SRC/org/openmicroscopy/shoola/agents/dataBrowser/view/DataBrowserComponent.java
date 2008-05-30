@@ -44,7 +44,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageFinder;
-import org.openmicroscopy.shoola.agents.dataBrowser.visitor.AnnotatedNodesVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.RegexFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
@@ -182,9 +181,23 @@ class DataBrowserComponent
 		if (node == null) return;
 		Object object = node.getHierarchyObject();
 		List<Object> objects = new ArrayList<Object>();
-		objects.add(model.getBrowser().isMultiSelection());
-		objects.add(object);
+		//objects.add(model.getBrowser().isMultiSelection());
 		
+		List<Object> others = new ArrayList<Object>(); 
+		
+		Collection selected = model.getBrowser().getSelectedDisplays();
+		Iterator i = selected.iterator();
+		ImageDisplay n;
+		while (i.hasNext()) {
+			n = (ImageDisplay) i.next();
+			if (n != node) others.add(n.getHierarchyObject());
+		}
+		
+		objects.add(others);
+		//Root node
+		if (node.equals(model.getBrowser().getUI())) {
+			objects.add(model.parent);
+		} else objects.add(object);
 		if (object instanceof DataObject) {
 			ImageDisplay p = node.getParentDisplay();
 			Object parent = p.getHierarchyObject();

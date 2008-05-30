@@ -156,7 +156,6 @@ class TreeViewerComponent
 		if (display != null) parent = display.getParentDisplay();
 		if (object instanceof ImageData) {
       	  if (parent != null) {
-      		  System.err.println(parent.getUserObject());
       		  db = DataBrowserFactory.getDataBrowser(
       				  				parent.getUserObject());
       		  if (db != null) {
@@ -176,14 +175,15 @@ class TreeViewerComponent
       	  }
 		} else {
         	db = DataBrowserFactory.getDataBrowser(object);
-        	System.err.println(object+" db "+db);
         	if (db != null) {
         		db.setComponentTitle("");
         		view.removeAllFromWorkingPane();
         		view.addComponent(db.getUI());
-        		List<DataObject> nodes = new ArrayList<DataObject>();
-        		nodes.add((DataObject) object);
-        		db.setSelectedNodes(nodes);
+        		if (object instanceof DataObject) {
+        			List<DataObject> nodes = new ArrayList<DataObject>();
+            		nodes.add((DataObject) object);
+            		db.setSelectedNodes(nodes);
+        		}
         	} else {
         		//depending on object
         		view.removeAllFromWorkingPane();
@@ -622,6 +622,53 @@ class TreeViewerComponent
         	  }
               showDataBrowser(object, display);
         } else metadata.setRootObject(null);
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setSelectedNode(Object)
+	 */
+	public void setSelectedNode(Object object)
+	{
+		if (object == null) return;
+		if (!(object instanceof List)) return;
+		//Need to notify the browser without having 
+		List l = (List) object;
+		int n = l.size();
+		if (n > 3) return;
+		Object selected = l.get(1);
+		Object parent = null;
+		if (n == 3) parent = l.get(2);
+		if (selected instanceof ImageData) {
+			ImageData img = (ImageData) selected;
+			try {
+				img.getDefaultPixels();
+			} catch (Exception e) {
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Image Not valid", 
+						"The selected image is not valid");
+				return;
+			}
+		}
+		MetadataViewer mv = model.getMetadataViewer();
+		if (hasDataToSave()) {
+			MessageBox dialog = new MessageBox(view, "Save data", 
+					"Do you want to save the modified \n" +
+					"data before selecting a new item?");
+			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) mv.saveData();
+			else mv.clearDataToSave();
+		}
+		
+		Collection siblings = (Collection) l.get(0);;
+		
+		Browser browser = model.getSelectedBrowser();
+		int size = siblings.size();
+		browser.onSelectedNode(parent, selected, size > 0);
+		
+		mv.setSelectionMode(size == 0);
+		mv.setRootObject(selected);
+		if (size > 0) mv.setRelatedNodes(siblings);
 	}
 
 	/**
@@ -1464,80 +1511,7 @@ class TreeViewerComponent
 		view.removeAllFromWorkingPane();
 		view.addComponent(dataBrowser.getUI());
 	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setSelectedNode(Object)
-	 */
-	public void setSelectedNode(Object object)
-	{
-		if (object == null) return;
-		if (!(object instanceof List)) return;
-		//Need to notify the browser without having 
-		List l = (List) object;
-		int n = l.size();
-		if (n > 3) return;
-		Object multiSelection = l.get(0);
-		Object selected = l.get(1);
-		Object parent = null;
-		if (n == 3) parent = l.get(2);
-		if (selected instanceof ImageData) {
-			ImageData img = (ImageData) selected;
-			try {
-				img.getDefaultPixels();
-			} catch (Exception e) {
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				un.notifyInfo("Image Not valid", 
-						"The selected image is not valid");
-				return;
-			}
-		}
-		MetadataViewer mv = model.getMetadataViewer();
-		if (hasDataToSave()) {
-			MessageBox dialog = new MessageBox(view, "Save data", 
-					"Do you want to save the modified \n" +
-					"data before selecting a new item?");
-			if (dialog.centerMsgBox() == MessageBox.YES_OPTION) 
-				mv.saveData();
-			else mv.clearDataToSave();
-		}
-		
-		boolean multi = (Boolean) multiSelection;
-		Browser browser = model.getSelectedBrowser();
-		browser.onSelectedNode(parent, selected, multi);
-		if (!multi) {
-			mv.setRootObject(selected);
-			if (selected != null && selected instanceof DataObject)
-				mv.setSelectionMode(true);
-			else mv.setSelectionMode(false);
-		} else {
-			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-			if (nodes != null && nodes.length == 1) {
-				mv.setRootObject(nodes[0].getUserObject());
-				mv.setSelectionMode(true);
-			} else mv.setRootObject(null);
-		}
-		
-		/*
-		mv.setRootObject(selected);
-
-		//Check siblings first.
-		if (l != null) {
-			List<DataObject> siblings = new ArrayList<DataObject>();
-			Iterator i = l.iterator();
-			Object o;
-			while (i.hasNext()) {
-				o = i.next();
-				if (o instanceof DataObject)
-					siblings.add((DataObject) o);
-			}
-			if (siblings.size() > 1)
-				mv.setSiblings(siblings);
-		}
-	    */
-	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#browseHierarchyRoots(Object, Set)

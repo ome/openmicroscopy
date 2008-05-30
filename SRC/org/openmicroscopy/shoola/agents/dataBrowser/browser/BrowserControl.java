@@ -218,7 +218,7 @@ public class BrowserControl
     	d.moveToFront();
 
     	ImageDisplay previousDisplay = model.getLastSelectedDisplay();
-    	boolean b = me.isShiftDown();
+    	boolean b = (me.isControlDown() || me.isMetaDown());//me.isShiftDown();
     	if (me.isPopupTrigger()) {
     		popupTrigger = true;
     		return;

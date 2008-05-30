@@ -74,6 +74,7 @@ public class EditorUI
 {
  
 	private static final double MAX_HEIGHT = 100;
+	
 	/** 
 	 * Size of the table layout used to lay out vertically components contained
 	 * in the {@link #content} component.

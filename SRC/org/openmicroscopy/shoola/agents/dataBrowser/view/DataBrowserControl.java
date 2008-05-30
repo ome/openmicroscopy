@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
