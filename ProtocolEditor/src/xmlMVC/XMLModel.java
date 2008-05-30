@@ -160,28 +160,6 @@ public class XMLModel
 	 */
 	private int newFileNamingIndex = 1;
 	
-	/**
-	 * 
-	 * @param args
-	 */
-	
-	public static void main(String args[]) {
-		
-		try {
-			
-			new XMLModel(true);
-
-			
-		// catch any uncaught exceptions	
-		} catch (Throwable se) {
-			
-			se.printStackTrace();
-			// give users chance to submit bug.
-			ExceptionHandler.showErrorDialog("Unknown Error", 
-					"Abnormal termination due to an uncaught exception.", se);
-		} 
-	}
-	
 	
 	// default constructor, instantiates empty Tree. View must be created elsewhere.  
 	public XMLModel() {
