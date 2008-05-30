@@ -127,7 +127,7 @@ public class XMLModel
 	 * For the Milestone releases, the editor release Id will be the same as 
 	 * the EDITOR_VERSION_NUMBER.
 	 */
-	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "rc2.2";
+	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "rc3";
 	
 	/**
 	 * DOM Document used to pass XML files between methods such as readXMLtoDOM() and openXMLFile()
