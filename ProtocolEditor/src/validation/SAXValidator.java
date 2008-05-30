@@ -93,6 +93,12 @@ public class SAXValidator {
 		try {
 			Document document = XMLMethods.readXMLtoDOM(xmlFile);
 			
+			/*
+			 * eg if file not found, above method will return null. 
+			 */
+			if (document == null) 
+				return false;
+			
 			Element rootElement = document.getDocumentElement();
 			String rootName = rootElement.getNodeName();
 			

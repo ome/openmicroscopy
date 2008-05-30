@@ -222,7 +222,8 @@ public class XMLMethods {
 	 * @return	A DOM Document
 	 * @throws SAXException
 	 */
-	public static Document readXMLtoDOM(File xmlFile) throws SAXException{
+	public static Document readXMLtoDOM(File xmlFile) 
+		throws SAXException {
 		DocumentBuilderFactory factory =
             DocumentBuilderFactory.newInstance();
         //factory.setValidating(true);   
@@ -273,7 +274,7 @@ public class XMLMethods {
             // I/O error
         	 ExceptionHandler.showErrorDialog("I/O error",
   					"File could not be read", ioe);
-         }
+         } 
          return document;
 	}
 

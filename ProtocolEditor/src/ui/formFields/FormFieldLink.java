@@ -87,6 +87,9 @@ public class FormFieldLink extends FormField {
 
 	Icon editorRelativeLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.LINK_SCIENCE_RELATIVE_ICON);
 	
+	Icon brokenLinkIcon = ImageFactory.getInstance().getIcon(ImageFactory.FILE_CLOSE_ICON);
+	
+	
 	/**
 	 * A custom dialog that contains the fileChooser for getting a link from users. 
 	 * Also contains a checkBox for "Relative Link";
@@ -110,6 +113,8 @@ public class FormFieldLink extends FormField {
 	public static final int LOCAL_EDITOR_LINK = 3;
 	
 	public static final int RELATIVE_EDITOR_LINK = 4;
+	
+	public static final int BROKEN_LINK = 5;
 	
 	/**
 	 * The button that users click to choose a link. 
@@ -373,11 +378,20 @@ public class FormFieldLink extends FormField {
 		 */
 		URLlink = dataField.getAttribute(DataFieldConstants.ABSOLUTE_FILE_LINK);
 		if (URLlink != null) {
-			if ((isEditorFileExtension(URLlink))
-				&& (SAXValidator.isFileEditorFile(new File(URLlink))))
-					linkType = LOCAL_EDITOR_LINK;
-			else
-				linkType = LOCAL_LINK;
+			
+			File linkedFile = new File(URLlink);
+			if (! linkedFile.exists()) {
+				linkType = BROKEN_LINK;
+			} else {
+				
+				if ((isEditorFileExtension(URLlink))
+						&& (SAXValidator.isFileEditorFile(new File(URLlink))))
+							linkType = LOCAL_EDITOR_LINK;
+				else
+					linkType = LOCAL_LINK;
+				
+			}
+
 		}
 		
 		// if null, check the Relative file path attribute..
@@ -385,14 +399,21 @@ public class FormFieldLink extends FormField {
 			URLlink = dataField.getAttribute(DataFieldConstants.RELATIVE_FILE_LINK);
 			// .. and if not null, convert it to absolute path.
 			if (URLlink != null) {
-				File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-				URLlink = FilePathMethods.getAbsolutePathFromRelativePath(editorFile, URLlink);
 				
-				if ((isEditorFileExtension(URLlink)) 
-					&& (SAXValidator.isFileEditorFile(new File(URLlink))))
-					linkType = RELATIVE_EDITOR_LINK;
-				else
-					linkType = RELATIVE_LINK;
+				File linkedFile = new File(URLlink);
+				if (! linkedFile.exists()) {
+					linkType = BROKEN_LINK;
+				} else {
+				
+					File editorFile = ((DataField)dataField).getNode().getTree().getFile();
+					URLlink = FilePathMethods.getAbsolutePathFromRelativePath(editorFile, URLlink);
+					
+					if ((isEditorFileExtension(URLlink)) 
+						&& (SAXValidator.isFileEditorFile(linkedFile)))
+						linkType = RELATIVE_EDITOR_LINK;
+					else
+						linkType = RELATIVE_LINK;
+				}
 			}
 		}
 
@@ -439,6 +460,8 @@ public class FormFieldLink extends FormField {
 		int len = URLlink.length();
 		linkButton.setText(len < 30 ? URLlink : "..." + URLlink.substring(len-29, len));
 		linkButton.setToolTipText("Open the link to: " + URLlink);
+		linkButton.setEnabled(true);
+		
 		switch (linkType) {
 			case LOCAL_LINK: 
 				linkButton.setIcon(linkLocalIcon);
@@ -455,8 +478,13 @@ public class FormFieldLink extends FormField {
 			case URL_LINK:
 				linkButton.setIcon(wwwIcon);
 				break;
+			case BROKEN_LINK:
+				linkButton.setIcon(brokenLinkIcon);
+				linkButton.setEnabled(false);
+				linkButton.setToolTipText("FILE NOT FOUND: " + URLlink);
+				break;
 		}
-		linkButton.setEnabled(true);
+
 	}
 	
 	/**
