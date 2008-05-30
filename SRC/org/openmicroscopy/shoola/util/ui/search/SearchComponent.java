@@ -34,9 +34,11 @@ import java.util.List;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -61,6 +63,17 @@ public class SearchComponent
 	extends JPanel
 	implements ActionListener
 {
+
+	public static final String		NAME_TEXT = "Name/Description";
+	
+	public static final String		NAME_TAGS = "Tags";
+	
+	public static final String		NAME_COMMENTS = "Comments";
+	
+	public static final String		NAME_URL = "URLs";
+	
+	public static final String		NAME_ATTACHMENT = "Attachments"; 
+	
 
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";
@@ -130,6 +143,8 @@ public class SearchComponent
 	
 	/** The default search context. */
 	private SearchContext 			searchContext;
+	
+	private JComponent				resultPane;
 	
 	/** Sets the window properties. */
 	private void setProperties()
@@ -210,12 +225,16 @@ public class SearchComponent
 	{
 		double[][] size = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+					TableLayout.PREFERRED, TableLayout.PREFERRED, 
 					TableLayout.PREFERRED}}; //rows
 		setLayout(new TableLayout(size));
 		add(uiDelegate, "0, 0");
 		if (showControl) 
 			add(buildToolBar(), "0, 1");
 		add(buildStatusBar(), "0, 2");
+		resultPane = new JPanel();
+		add(new JSeparator(), "0, 3");
+		add(resultPane, "0, 3");
 	}
 	
 	/** Closes and disposes of the window. */
@@ -229,17 +248,17 @@ public class SearchComponent
 	{
 		nodes = new ArrayList<SearchObject>();
     	SearchObject node = new SearchObject(SearchContext.NAME_DESCRIPTION, 
-				null, "Name/Description");
+				null, NAME_TEXT);
     	nodes.add(node);
     	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
-					"Comments");
+					NAME_COMMENTS);
     	nodes.add(node);
-    	node = new SearchObject(SearchContext.TAGS, null, "Tags");
+    	node = new SearchObject(SearchContext.TAGS, null, NAME_TAGS);
     	nodes.add(node);
-    	node = new SearchObject(SearchContext.URL_ANNOTATION, null, "URLs");
+    	node = new SearchObject(SearchContext.URL_ANNOTATION, null, NAME_URL);
     	nodes.add(node);
     	node = new SearchObject(SearchContext.FILE_ANNOTATION, null, 
-					"Attachments");
+					NAME_ATTACHMENT);
     	nodes.add(node);
     	
     	types = new ArrayList<SearchObject>();
@@ -382,6 +401,19 @@ public class SearchComponent
 			case ANNOTATOR:
 				uiDelegate.setAnnotatorString(name);
 		}
+	}
+	
+	/**
+	 * Adds the component displaying the result.
+	 * 
+	 * @param result The value to set.
+	 */
+	public void displayResult(JComponent result)
+	{
+		remove(resultPane);
+		resultPane = result;
+		add(resultPane, "0, 4");
+		repaint();
 	}
 	
 	/**

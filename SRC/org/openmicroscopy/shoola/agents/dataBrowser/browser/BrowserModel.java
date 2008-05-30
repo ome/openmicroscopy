@@ -169,11 +169,9 @@ class BrowserModel
         //paint the nodes
         List<ImageDisplay> selected = new ArrayList<ImageDisplay>();
         selected.add(newNode);
-
-        if (nodes != null && !isMultiSelection()) 
-        	setNodesColor(selected, nodes);
-        else 
-        	setNodesColor(selected, null); 
+		if (isMultiSelection() || nodes == null)
+			setNodesColor(selected, null); 
+		else setNodesColor(selected, nodes);
     }
     
 	/**
@@ -205,7 +203,6 @@ class BrowserModel
 	    
 	    if (!multiSelection) selectedDisplays.removeAll(selectedDisplays);
 	    if (node != null) selectedDisplays.add(node);
-	    
 	    if (fireProperty)
 	    	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldValue, node);
 	    else onNodeSelected(node, oldValue);
@@ -525,6 +522,7 @@ class BrowserModel
 		NodesFinder finder = new NodesFinder(nodes);
 		rootDisplay.accept(finder);
 		List<ImageDisplay> found = finder.getFoundNodes();
+		//to reset color if parent is selected.
 		setNodesColor(found, getSelectedDisplays());
 		boolean b = found.size() > 1;
 		Iterator<ImageDisplay> i = found.iterator();

@@ -156,14 +156,17 @@ class TreeViewerComponent
 		if (display != null) parent = display.getParentDisplay();
 		if (object instanceof ImageData) {
       	  if (parent != null) {
+      		  System.err.println(parent.getUserObject());
       		  db = DataBrowserFactory.getDataBrowser(
       				  				parent.getUserObject());
       		  if (db != null) {
       			  db.setComponentTitle("");
               	  view.removeAllFromWorkingPane();
               	  view.addComponent(db.getUI());
-              	  List<DataObject> nodes = new ArrayList<DataObject>();
-              	  nodes.add((DataObject) object);
+              	  List<DataObject> nodes = 
+              		  model.getSelectedBrowser().getSelectedDataObjects();
+              	  //List<DataObject> nodes = new ArrayList<DataObject>();
+              	  //nodes.add((DataObject) object);
               	  db.setSelectedNodes(nodes);
       		  } else {
       			  showDataBrowser(object, parent.getParentDisplay());
@@ -171,8 +174,9 @@ class TreeViewerComponent
       	  } else {
       		view.removeAllFromWorkingPane();
       	  }
-        } else {
+		} else {
         	db = DataBrowserFactory.getDataBrowser(object);
+        	System.err.println(object+" db "+db);
         	if (db != null) {
         		db.setComponentTitle("");
         		view.removeAllFromWorkingPane();
@@ -616,7 +620,6 @@ class TreeViewerComponent
         		  if (l.size() > 0)
         		  	metadata.setRelatedNodes(l);
         	  }
-        	  
               showDataBrowser(object, display);
         } else metadata.setRootObject(null);
 	}

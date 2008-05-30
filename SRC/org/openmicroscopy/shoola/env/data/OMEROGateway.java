@@ -3044,7 +3044,6 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object performSearch(SearchDataContext context)
-		throws DSOutOfServiceException, DSAccessException
 	{
 		List<Class> types = context.getTypes();
 		List<Class> scopes = context.getScope();
@@ -3115,14 +3114,15 @@ class OMEROGateway
 		Map<Class, Set> results = new HashMap<Class, Set>();
 		if (scopes.contains(String.class)) {
 			i = types.iterator();
+			rType = new HashSet();
+			results.put(String.class, rType);
 			while (i.hasNext()) {
 				type = (Class) i.next();
 				k = convertPojos(type);
-				rType = new HashSet();
 				service.onlyType(k);
 				service.bySomeMustNone(some, must, none);
 				handleSearchResult(k, rType, service);
-				results.put(type, rType);
+				
 				service.clearQueries();
 			}
 			scopes.remove(String.class);

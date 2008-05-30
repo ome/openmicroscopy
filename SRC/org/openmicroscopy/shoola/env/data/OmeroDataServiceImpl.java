@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +40,6 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
-import ome.model.annotations.Annotation;
 import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -1088,39 +1088,59 @@ class OmeroDataServiceImpl
 		Class key;
 		Set value;
 		Iterator k;
-		Set results = new HashSet();
 		Set<Long> imageIDs = new HashSet<Long>();
 		Set images;
 		DataObject img;
+		List owners = context.getOwners();
+		List<Long> ownerIDs = new ArrayList<Long>(owners.size());
+		k = owners.iterator();
+		while (k.hasNext()) {
+			ownerIDs.add(((DataObject) k.next()).getId());
+		}
+		Map<Class, Object> results = new HashMap<Class, Object>();
+		Set<DataObject> nodes;
 		while (i.hasNext()) {
 			key = (Class) i.next();
 			value = (Set) m.get(key);
-			if (key.equals(ImageData.class)) {
-				images = gateway.getContainerImages(key, value, 
-						new PojoOptions().map());
-				k = images.iterator();
-				while (k.hasNext()) {
-					img = (DataObject) k.next();
-					if (!imageIDs.contains(img.getId())) {
-						imageIDs.add(img.getId());
-						results.add(img);
+			nodes = new HashSet<DataObject>(); 
+			results.put(key, nodes);
+			if (value.size() > 0) {
+				if (key.equals(String.class)) {
+					images = gateway.getContainerImages(ImageData.class, value, 
+							new PojoOptions().map());
+					k = images.iterator();
+					while (k.hasNext()) {
+						img = (DataObject) k.next();
+						if (!imageIDs.contains(img.getId())) {
+							if (ownerIDs.contains(img.getOwner().getId())) {
+								imageIDs.add(img.getId());
+								nodes.add(img);
+							}
+						}
 					}
-				}
-			} else if (key.equals(TagAnnotationData.class) ||
-					key.equals(TextualAnnotationData.class) ||
-					key.equals(URLAnnotationData.class) ||
-					key.equals(FileAnnotationData.class)) {
-				//Retrieve all the images linked to the annotation
-				images = gateway.getAnnotatedObjects(ImageData.class, value);
-				k = images.iterator();
-				while (k.hasNext()) {
-					img = (DataObject) k.next();
-					if (!imageIDs.contains(img.getId())) {
-						imageIDs.add(img.getId());
-						results.add(img);
+				} else if (key.equals(TagAnnotationData.class) ||
+						key.equals(TextualAnnotationData.class) ||
+						key.equals(URLAnnotationData.class) ||
+						key.equals(FileAnnotationData.class)) {
+					//Retrieve all the images linked to the annotation
+					if (value.size() > 0) {
+						
+					}
+					images = gateway.getAnnotatedObjects(ImageData.class, value);
+					k = images.iterator();
+					while (k.hasNext()) {
+						img = (DataObject) k.next();
+						if (!imageIDs.contains(img.getId())) {
+							if (ownerIDs.contains(img.getOwner().getId())) {
+								imageIDs.add(img.getId());
+								nodes.add(img);
+							}
+						}
 					}
 				}
 			}
+			
+			
 		}
 		return results; 
 	}

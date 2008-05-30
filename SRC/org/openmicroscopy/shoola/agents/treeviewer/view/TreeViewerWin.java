@@ -509,6 +509,8 @@ class TreeViewerWin
     	splitPane.setDividerLocation(splitPane.getDividerLocation());
     	if (finderScrollPane == null) {
     		AdvancedFinder finder = model.getAdvancedFinder();
+    		
+    		
     		finder.addPropertyChangeListener(controller);
     		finderScrollPane = new JScrollPane(finder);
     	}

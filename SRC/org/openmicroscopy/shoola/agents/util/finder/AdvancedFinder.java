@@ -25,14 +25,23 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 
 //Third-party libraries
 
@@ -47,12 +56,16 @@ import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
 import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
+import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.URLAnnotationData;
 
 /** 
  * The class actually managing the search.
@@ -97,6 +110,10 @@ public class AdvancedFinder
 				return TextualAnnotationData.class;
 			case SearchContext.TAGS:
 				return TagAnnotationData.class;
+			case SearchContext.URL_ANNOTATION:
+				return URLAnnotationData.class;
+			case SearchContext.FILE_ANNOTATION:
+				return FileAnnotationData.class;
 			case SearchContext.DATASETS:
 				return DatasetData.class;
 			case SearchContext.PROJECTS:
@@ -109,6 +126,19 @@ public class AdvancedFinder
 				return null;
 		}
 	}
+	
+	private String getScope(Class value)
+	{
+		if (value == null) return null;
+		if (value.equals(String.class)) return NAME_TEXT;
+		if (value.equals(TextualAnnotationData.class)) return NAME_COMMENTS;
+		if (value.equals(TagAnnotationData.class)) return NAME_TAGS;
+		if (value.equals(URLAnnotationData.class)) return NAME_URL;
+		if (value.equals(FileAnnotationData.class)) return NAME_ATTACHMENT;
+		return null;
+	}
+	
+	
 	
 	/**
 	 * Creates and returns the list of users corresponding to the collection
@@ -342,7 +372,41 @@ public class AdvancedFinder
 	public void setResult(Object result)
 	{
 		setSearchEnabled(false);
-		firePropertyChange(RESULTS_FOUND_PROPERTY, null, result);
+		Map map = (Map) result;
+		//Format UI component
+		Set nodes = new HashSet();
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		if (map != null) {
+			Iterator i = map.keySet().iterator();
+			Set<Long> ids = new HashSet<Long>();
+			Collection value;
+			Class key;
+			String term;
+			Iterator j;
+			DataObject data;
+			JLabel l;
+			while (i.hasNext()) {
+				key = (Class) i.next();
+				term = getScope(key);
+				if (term != null) {
+					value = (Collection) map.get(key);
+					j = value.iterator();
+					while (j.hasNext()) {
+						data = (DataObject) j.next();
+						if (!ids.contains(data.getId())) {
+							nodes.add(data);
+							ids.add(data.getId());
+						}
+					}
+					l = UIUtilities.setTextFont(term+": "+value.size());
+					p.add(l);
+				}
+			}
+			displayResult(UIUtilities.buildComponentPanel(p));
+		}
+		
+		firePropertyChange(RESULTS_FOUND_PROPERTY, null, nodes);
 	}
 	
 	/**
