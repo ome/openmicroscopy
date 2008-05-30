@@ -111,6 +111,12 @@ class ImViewerModel
 
 	/** The maximum height of the thumbnail. */
 	private static final int    THUMB_MAX_HEIGHT = 48;
+	
+	/** The maximum width of the image. */
+	private static final int    IMAGE_MAX_WIDTH = 512;
+
+	/** The maximum height of the image. */
+	private static final int    IMAGE_MAX_HEIGHT = 512;
 
 	/** Index of the <code>RenderingSettings</code> loader. */
 	private static final int	SETTINGS = 0;
@@ -208,6 +214,12 @@ class ImViewerModel
 	/** The rendering settings set by another user. */
 	private RndProxyDef					alternativeSettings;
 	
+	/** 
+	 * Flag to compute the magnification factor when the image
+	 * is set for the first time.
+	 */
+	private boolean						initMagnificationFactor;
+	
 	/** Computes the values of the {@link #sizeX} and {@link #sizeY} fields. */
 	private void computeSizes()
 	{
@@ -224,6 +236,26 @@ class ImViewerModel
 		}
 	}
 
+	/** 
+	 * Computes the magnification factor.
+	 * 
+	 * @return See above
+	 */
+	private double initZoomFactor()
+	{
+		if (initMagnificationFactor) return -1;
+		int maxX = getMaxX();
+		int maxY = getMaxY();
+		initMagnificationFactor = true;
+		if (maxX > IMAGE_MAX_WIDTH || maxY >IMAGE_MAX_HEIGHT) {
+			double ratioX = (double) IMAGE_MAX_WIDTH/maxX;
+			double ratioY = (double) IMAGE_MAX_HEIGHT/maxY;
+			if (ratioX < ratioY) return ratioX;
+			return ratioY;
+		}
+		return -1;
+	}
+	
 	/**
 	 * Creates a new object and sets its state to {@link ImViewer#NEW}.
 	 * 
@@ -236,6 +268,7 @@ class ImViewerModel
 		this.image = image;
 		requesterBounds = bounds;
 		state = ImViewer.NEW;
+		initMagnificationFactor = false;
 		sizeX = sizeY = -1;
 		zoomFitToWindow = false; 
 		tabbedIndex = ImViewer.VIEW_INDEX;
@@ -516,6 +549,9 @@ class ImViewerModel
 			renderer = RendererFactory.createRenderer(component, rndControl,
 					ImViewerFactory.getPreferences());
 			state = ImViewer.RENDERING_CONTROL_LOADED;
+			double f = initZoomFactor();
+			if (f > 0)
+				browser.initializeMagnificationFactor(f);
 			try {
 				if (alternativeSettings != null)
 					currentRndControl.resetSettings(alternativeSettings);
@@ -564,19 +600,24 @@ class ImViewerModel
 	boolean getZoomFitToWindow() { return zoomFitToWindow; }
 
 	/**
-	 * Sets the retrieved image.
+	 * Sets the retrieved image, returns the a magnification or <code>-1</code>
+	 * if no magnification factor computed. 
 	 * 
 	 * @param image The image to set.
+	 * @return See above.
 	 */
-	void setImage(BufferedImage image)
+	double setImage(BufferedImage image)
 	{
 		state = ImViewer.READY; 
 		browser.setRenderedImage(image);
 		//update image icon
 		computeSizes();
 		imageIcon = Factory.magnifyImage(factor, image);
+		return initZoomFactor();
 	}
 
+	boolean isInitMagnificationFactor() { return initMagnificationFactor; }
+	
 	/**
 	 * Sets the color model.
 	 * 

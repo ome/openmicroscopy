@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.metadata.PasswordEditor;
 import org.openmicroscopy.shoola.agents.metadata.TagsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.metadata.URLsLoader;
+import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -136,6 +137,9 @@ class EditorModel
 	/** Flag indicating to load the thumbnail. */
 	private boolean					thumbnailRequired;
 	
+	/** Reference to the browser. */
+	private Browser					browser;
+	
     /** 
      * Sorts the passed collection of annotations by date starting with the
      * most recent.
@@ -197,6 +201,20 @@ class EditorModel
 	 * @return See above.
 	 */
 	ObservableComponent getObservable() { return parent; }
+	
+	/**
+	 * Sets the browser.
+	 * 
+	 * @param browser The value to set.
+	 */
+	void setBrowser(Browser browser) { this.browser = browser; }
+	
+	/**
+	 * Returns the browser.
+	 * 
+	 * @return See above.
+	 */
+	Browser getBrowser() { return browser; }
 	
 	/**
 	 * Called by the <code>Editor</code> after creation to allow this

@@ -57,6 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
@@ -685,6 +686,23 @@ class ImViewerComponent
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
 		model.setImage(image);
+		/*
+		boolean init = model.isInitMagnificationFactor();
+		double factor = model.setImage(image);
+		Browser browser = model.getBrowser();
+		if (factor > 0) {
+			double f = Math.round(factor*100)/100.0;
+	    	if (f < ZoomAction.MIN_ZOOM_FACTOR)
+	    		f = ZoomAction.MIN_ZOOM_FACTOR;
+	    	if (f > ZoomAction.MAX_ZOOM_FACTOR)
+	    		f = ZoomAction.MAX_ZOOM_FACTOR;
+	    	setZoomFactor(f, ZoomAction.getIndex(f));
+	    	browser.setComponentsSize((int) (model.getMaxX()*f), 
+	    			(int) (model.getMaxY()*f));
+		}
+		if (!init) browser.setComponentsSize(model.getMaxX(), model.getMaxY());
+		
+		*/
 		view.setStatus(getStatusText());
 		if (model.isPlayingChannelMovie())
 			model.setState(ImViewer.CHANNEL_MOVIE);

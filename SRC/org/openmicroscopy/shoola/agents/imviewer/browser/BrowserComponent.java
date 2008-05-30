@@ -471,4 +471,9 @@ class BrowserComponent
      */
 	public double getGridRatio() { return model.getGridRatio(); }
 
+	public void initializeMagnificationFactor(double f) {
+		model.setZoomFactor(f);
+		
+	}
+
 }

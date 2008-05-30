@@ -118,6 +118,7 @@ public class ResetNodesVisitor
 		        	parent = child.getParentDisplay();
 		        	if (parent == null || node == parent) {
 		        		ho = (DataObject) child.getHierarchyObject();
+		        		//To be on the save side, shouldn't happen
 		        		if (!visibleImages.contains(ho)) {
 		        			visibleImages.add(ho);
 		        			desktop.add(child);

@@ -150,7 +150,7 @@ class OmeroMetadataServiceImpl
 				}	
 				ioType = gateway.convertPojos(TagAnnotationData.class);
 				ho = gateway.findIObject(ioType, id);
-				link = ModelMapper.createAnnotation(ho, description);
+				link = ModelMapper.createAnnotationAndLink(ho, description);
 				if (link != null) 
 					gateway.createObject(link, (new PojoOptions()).map());
 			}
@@ -455,10 +455,9 @@ class OmeroMetadataServiceImpl
 					if (link == null) 
 						link = ModelMapper.linkAnnotation(tag.asIObject(), ho);
 				}
-				
 			} else {
 				if (tag.getId() < 0) 
-					link = ModelMapper.createAnnotation(ho, annotation);
+					link = ModelMapper.createAnnotationAndLink(ho, annotation);
 				else {
 					link = (ILink) gateway.findAnnotationLink(ho.getClass(), 
 														ho.getId(), tag.getId());
@@ -473,9 +472,7 @@ class OmeroMetadataServiceImpl
 			//only one annotation of type rating.
 			//Remove the previous ones.
 			clearAnnotation(type, id, RatingAnnotationData.class);
-			int rate = ((RatingAnnotationData) annotation).getRating();
-			if (rate != RatingAnnotationData.LEVEL_ZERO)
-				link = ModelMapper.createAnnotation(ho, annotation);
+			link = ModelMapper.createAnnotationAndLink(ho, annotation);
 		} else if (annotation instanceof FileAnnotationData) {
 			FileAnnotationData ann = (FileAnnotationData) annotation;
 			if (ann.getId() < 0) {
@@ -489,7 +486,7 @@ class OmeroMetadataServiceImpl
 			}
 			
 		} else
-			link = ModelMapper.createAnnotation(ho, annotation);
+			link = ModelMapper.createAnnotationAndLink(ho, annotation);
 		if (link != null) {
 			Map map = (new PojoOptions()).map();
 			IObject object;
@@ -503,7 +500,7 @@ class OmeroMetadataServiceImpl
 					id = tag.getId();
 					if (id >= 0) gateway.removeTagDescription(id, userID);
 					 	
-					link = ModelMapper.createAnnotation(
+					link = ModelMapper.createAnnotationAndLink(
 							ModelMapper.getAnnotationObject(object), 
 													description);
 				
@@ -752,6 +749,54 @@ class OmeroMetadataServiceImpl
 		return annotations;
 	}
 	
+	private List<AnnotationData> prepareAnnotationToAdd(
+			                        List<AnnotationData> toAdd)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
+		Iterator i;
+		if (toAdd == null || toAdd.size() == 0) return annotations;
+		i = toAdd.iterator();
+		AnnotationData ann;
+		Annotation iobject;
+		FileAnnotationData fileAnn;
+		FileAnnotation fa;
+		OriginalFile of;
+		List<Annotation> toCreate = new ArrayList<Annotation>();
+		while (i.hasNext()) {
+			ann = (AnnotationData) i.next();
+			if (ann.getId() < 0) {
+				if (ann instanceof FileAnnotationData) {
+					fileAnn = (FileAnnotationData) ann;
+					of = gateway.uploadFile(fileAnn.getAttachedFile(), 
+										fileAnn.getServerFileFormat());
+					fa = new FileAnnotation();
+					fa.setFile(of);
+					iobject = fa;
+				} else {
+					iobject = ModelMapper.createAnnotation(ann);
+				}
+				if (iobject != null)
+					toCreate.add(iobject);
+			} else 
+				annotations.add(ann);
+		}
+		
+		if (toCreate.size() > 0) {
+			i = toCreate.iterator();
+			IObject[] array = new IObject[toCreate.size()];
+			int index = 0;
+			while (i.hasNext()) {
+				array[index] = (IObject) i.next();
+				index++;
+			}
+			IObject[] r = gateway.createObjects(array, 
+					               (new PojoOptions()).map());
+			annotations.addAll(PojoMapper.asDataObjects(r));
+		}
+		return annotations;
+	}
+	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroMetadataService#saveData(Collection, List, List, long)
@@ -767,13 +812,15 @@ class OmeroMetadataServiceImpl
 		Iterator i;
 		Iterator<DataObject> j = data.iterator();
 		DataObject object;
+		//First create the new annotations 
+		List<AnnotationData> annotations = prepareAnnotationToAdd(toAdd);
 		while (j.hasNext()) {
 			object = j.next();
 			if (object instanceof AnnotationData) {
 				updateAnnotationData(object);
 			} else service.updateDataObject(object);
-			if (toAdd != null) {
-				i = toAdd.iterator();
+			if (annotations.size() > 0) {
+				i = annotations.iterator();
 				while (i.hasNext())
 					annotate(object, (AnnotationData) i.next());
 			}
@@ -809,9 +856,12 @@ class OmeroMetadataServiceImpl
 		Map m = po.map();
 		Iterator k;
 		List result = null;
+		//First create the new annotations 
+		List<AnnotationData> annotations = prepareAnnotationToAdd(toAdd);
 		while (j.hasNext()) {
 			object = j.next();
 			if (result == null) result = new ArrayList();
+			//Need code for tag 
 			if (object instanceof DatasetData) {
 				//retrieve all images in the dataset.
 				//Tmp solution, this code should be pushed server side.
@@ -823,8 +873,8 @@ class OmeroMetadataServiceImpl
 					while (k.hasNext()) {
 						child = (DataObject) k.next();
 						result.add(child);
-						if (toAdd != null) {
-							i = toAdd.iterator();
+						if (annotations != null) {
+							i = annotations.iterator();
 							while (i.hasNext())
 								annotate(child, (AnnotationData) i.next());
 						}
@@ -838,8 +888,8 @@ class OmeroMetadataServiceImpl
 				}
 			} else if (object instanceof ImageData) {
 				service.updateDataObject(object);
-				if (toAdd != null) {
-					i = toAdd.iterator();
+				if (annotations != null) {
+					i = annotations.iterator();
 					while (i.hasNext())
 						annotate(object, (AnnotationData) i.next());
 				}
@@ -871,13 +921,14 @@ class OmeroMetadataServiceImpl
 		if (images == null) return r;
 		Iterator i = images.iterator();
 		DataObject child;
-		Class type = ImageData.class;
 		Iterator j;
+		//First create the new annotations 
+		List<AnnotationData> annotations = prepareAnnotationToAdd(toAdd);
 		while (i.hasNext()) {
 			child = (DataObject) i.next();
 			r.add(child);
-			if (toAdd != null) {
-				j = toAdd.iterator();
+			if (annotations != null) {
+				j = annotations.iterator();
 				while (j.hasNext()) 
 					annotate(child, (AnnotationData) j.next());
 			}

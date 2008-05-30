@@ -424,8 +424,25 @@ public class ModelMapper
      * @param data              The annotation to create.
      * @return See above.
      */
-    public static ILink createAnnotation(IObject annotatedObject,
+    public static ILink createAnnotationAndLink(IObject annotatedObject,
                                     AnnotationData data)
+    {
+    	Annotation annotation = createAnnotation(data);
+    	if (annotation == null) return null;
+    	return linkAnnotation(annotatedObject, annotation);
+    }
+    
+    /**
+     * Creates a new annotation <code>IObject</code>.
+     * 
+     * @param annotatedObject   The <code>DataObject</code> to annotate.
+     *                          Can either be a <code>DatasetData</code>
+     *                          or a <code>ImageData</code>. Mustn't be
+     *                          <code>null</code>.
+     * @param data              The annotation to create.
+     * @return See above.
+     */
+    public static Annotation createAnnotation(AnnotationData data)
     {
     	Annotation annotation = null;
     	if (data instanceof TextualAnnotationData) {
@@ -433,6 +450,8 @@ public class ModelMapper
     		((TextAnnotation) annotation).setTextValue(
     										data.getContentAsString());
     	} else if (data instanceof RatingAnnotationData) {
+    		int rate = ((RatingAnnotationData) data).getRating();
+			if (rate == RatingAnnotationData.LEVEL_ZERO) return null;
     		annotation = new LongAnnotation();
     		annotation.setNs(RatingAnnotationData.INSIGHT_RATING_NS);
     		((LongAnnotation) annotation).setLongValue(
@@ -451,8 +470,7 @@ public class ModelMapper
     		((TagAnnotation) annotation).setTextValue(
 										data.getContentAsString());
     	}
-    	if (annotation == null) return null;
-    	return linkAnnotation(annotatedObject, annotation);
+    	return annotation;
     }
     
     /**

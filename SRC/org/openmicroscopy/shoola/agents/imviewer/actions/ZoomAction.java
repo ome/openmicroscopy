@@ -196,7 +196,7 @@ public class ZoomAction
      * @param f The factor used to retrieve the index.
      * @return See above.
      */
-    static int getIndex(double f)
+    public static int getIndex(double f)
     {
     	for (int i = 0; i < factors.length; i++)
 			if (factors[i] == f) return i;

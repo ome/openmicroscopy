@@ -672,7 +672,7 @@ class OMEROGateway
 	 */
 	private String[] prepareTextSearch(String[] terms, Search service) 
 	{
-		if (terms == null) return null;
+		if (terms == null || terms.length == 0) return null;
 		String value;
 		int n;
 		char[] arr;
@@ -3005,6 +3005,34 @@ class OMEROGateway
 		return null;
 	}
 	
+	private Object handleSearchResult(Class type, Collection r, Search service)
+	{
+		//First get object of a given type.
+		boolean hasNext = false;
+		try {
+			hasNext = service.hasNext();
+		} catch (Exception e) {
+			int size = service.getBatchSize();
+			service.close();
+			return new Integer(size);
+		}
+		if (!hasNext) return null;
+		List l = service.results();
+		Iterator k = l.iterator();
+		IObject object;
+		long id;
+		while (k.hasNext()) {
+			object = (IObject) k.next();
+			if (type.equals(object.getClass())) {
+				id = object.getId();
+				if (!r.contains(id)) {
+					r.add(id); //Retrieve the object of a given type.
+				}
+			}
+		}
+		return null;
+	}
+	
 	/**
 	 * Searches for data.
 	 * 
@@ -3018,6 +3046,10 @@ class OMEROGateway
 	Object performSearch(SearchDataContext context)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		List<Class> types = context.getTypes();
+		List<Class> scopes = context.getScope();
+		if (types == null || types.size() == 0) return new HashMap();
+		if (scopes == null || scopes.size() == 0) return new HashMap();
 		isSessionAlive();
 		Search service = getSearchService();
 		service.clearQueries();
@@ -3040,13 +3072,12 @@ class OMEROGateway
 					break;
 						
 			}
-		
 		}
 		List<ExperimenterData> users = context.getOwners();
 		Iterator i;
 		ExperimenterData exp;
 		
-		//Limit to owner if any.
+		//owner
 		if (users != null && users.size() > 0) {
 			i = users.iterator();
 			while (i.hasNext()) {
@@ -3054,15 +3085,7 @@ class OMEROGateway
 				service.onlyOwnedBy(exp.asExperimenter().getDetails());
 			}
 		}
-		
-		users = context.getAnnotators();
-		if (users != null && users.size() > 0) {
-			i = users.iterator();
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
-			}
-		}
+		//not owner
 		users = context.getExcludedOwners();
 		if (users != null && users.size() > 0) {
 			i = users.iterator();
@@ -3072,99 +3095,75 @@ class OMEROGateway
 			}
 		}
 		
+		String[] some = prepareTextSearch(context.getSome(), service);
+		String[] must = prepareTextSearch(context.getMust(), service);
+		String[] none = prepareTextSearch(context.getNone(), service);
+		
+		
+		List<Class> supportedTypes = new ArrayList<Class>();
+		i = types.iterator();
+		int index = 0;
+		Class k;
+		while (i.hasNext()) {
+			k = (Class) i.next();
+			supportedTypes.add(convertPojos(k));
+			index++;
+		}
+
+		Class type;
+		Set rType;
+		Map<Class, Set> results = new HashMap<Class, Set>();
+		if (scopes.contains(String.class)) {
+			i = types.iterator();
+			while (i.hasNext()) {
+				type = (Class) i.next();
+				k = convertPojos(type);
+				rType = new HashSet();
+				service.onlyType(k);
+				service.bySomeMustNone(some, must, none);
+				handleSearchResult(k, rType, service);
+				results.put(type, rType);
+				service.clearQueries();
+			}
+			scopes.remove(String.class);
+		}
+		
+		if (scopes.size() == 0) {
+			service.close();
+			return results;
+		}
+		
+		//annotations types now.
+		users = context.getAnnotators();
+		if (users != null && users.size() > 0) {
+			i = users.iterator();
+			while (i.hasNext()) {
+				exp = (ExperimenterData) i.next();
+				//service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
+			}
+		}
 		users = context.getExcludedAnnotators();
 		if (users != null && users.size() > 0) {
 			i = users.iterator();
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				service.notAnnotatedBy(exp.asExperimenter().getDetails());
+				//service.notAnnotatedBy(exp.asExperimenter().getDetails());
 			}
 		}
-		
-		List<Class> types = context.getTypes();
-		List<Class> scopes = context.getScope();
-		List<Class> supportedTypes = new ArrayList<Class>();
-		Class[] dataTypes = null;
-		if (types != null) {
-			i = types.iterator();
-			dataTypes = new Class[types.size()];
-			int index = 0;
-			Class k;
-			while (i.hasNext()) {
-				k = (Class) i.next();
-				dataTypes[index] = convertPojos(k);
-				supportedTypes.add(k);
-				index++;
-			}
-		}
-		String[] some = prepareTextSearch(context.getSome(), service);
-		String[] must = prepareTextSearch(context.getMust(), service);
-		String[] none = prepareTextSearch(context.getNone(), service);
-		if (scopes != null) {
-			if (scopes.contains(String.class) && dataTypes != null) {
-				for (int j = 0; j < dataTypes.length; j++) {
-					service.onlyType(dataTypes[j]);
-					service.bySomeMustNone(some, must, none);
-				}
-				scopes.remove(String.class);
-			}
-			i = scopes.iterator();
-			if (scopes.size() > 0) {
-				Class[] klass = new Class[scopes.size()]; 
-				int index = 0;
-				while (i.hasNext()) {
-					klass[index] = convertPojos((Class) i.next());
-					index++;
-				}
-				service.onlyAnnotatedWith(klass);
-				for (int j = 0; j < dataTypes.length; j++) {
-					service.onlyType(dataTypes[j]);
-					service.bySomeMustNone(some, must, none);
-				}
-			}
-			
+		i = scopes.iterator();
+		while (i.hasNext()) {
+			type = (Class) i.next();
+			k = convertPojos(type);
+			rType = new HashSet();
+			service.onlyType(k);
+			service.bySomeMustNone(some, must, none);
+			handleSearchResult(k, rType, service);
+			results.put(type, rType);
+			service.clearQueries();
 		}
 
-		boolean hasNext = false;
-		try {
-			hasNext = service.hasNext();
-		} catch (Exception e) {
-			int size = service.getBatchSize();
-			service.close();
-			return new Integer(size);
-		}
-		
-		//Need to check the number of hits
-		if (hasNext) {
-			List l = service.results();
-			Set<Long> ids = new HashSet<Long>();
-			Iterator k = l.iterator();
-			IObject object;
-			Set<IObject> others = new HashSet<IObject>();
-			long id;
-			while (k.hasNext()) {
-				object = (IObject) k.next();
-				if (object instanceof Image) {
-					id = object.getId();
-					if (!ids.contains(id)) ids.add(id);
-				} else {
-					if (supportedTypes.contains(object.getClass()))
-						others.add(object);
-				}
-				
-			}
-			Set r = new HashSet();
-			if (ids.size() > 0) 
-				r.addAll(getContainerImages(ImageData.class, ids, 
-						new PojoOptions().map()));
-			if (others.size() > 0)
-				r.addAll(PojoMapper.asDataObjects(others));
-
-			service.close();
-			return r;
-		}
 		service.close();
-		return new HashSet();
+		return results;
 	}
 	
 	/**
@@ -3293,6 +3292,36 @@ class OMEROGateway
 		}
 		return null;
 		//return service.results();
+	}
+	
+	Set getAnnotatedObjects(Class type, Set<Long> annotationIds)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addSet("ids", annotationIds);
+			StringBuilder sb = new StringBuilder();
+			sb = new StringBuilder();
+			if (type.equals(ImageData.class)) {
+				sb.append("select img from Image as img ");
+				sb.append("left outer join fetch "
+	                    + "img.annotationLinksCountPerOwner img_a_c ");
+				sb.append("left outer join fetch img.annotationLinks ail ");
+				sb.append("left outer join fetch img.pixels as pix ");
+	            sb.append("left outer join fetch pix.pixelsType as pt ");
+	            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+	            sb.append("where ail.child.id in (:ids)");
+	            return PojoMapper.asDataObjects(
+	         			service.findAllByQuery(sb.toString(), param));
+			}
+			return new HashSet();
+			
+		} catch (Exception e) {
+			handleException(e, "Cannot retrieve the annotated objects");
+		}
+		return null;
 	}
 	
 	/**

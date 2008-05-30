@@ -61,7 +61,7 @@ public interface Browser
 	
 	/** Identifies the <code>Projects</code> node menu item. */
 	public static final String		PROJECTS = "Projects";
-	
+
 	/** 
 	 * Returns the view.
 	 * 

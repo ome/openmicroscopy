@@ -107,6 +107,7 @@ class MetadataViewerModel
 	 */
 	private boolean									singleMode;
 	
+	/** Collection of nodes related to the node of reference. */
 	private Collection								relatedNodes;
 	
 	/**
@@ -140,7 +141,7 @@ class MetadataViewerModel
 		this.component = component;
 		browser = BrowserFactory.createBrowser(component, refObject);
 		editor = EditorFactory.createEditor(component, refObject,
-										thumbnailRequired, layout);
+										thumbnailRequired, layout, browser);
 	}
 	
 	/**

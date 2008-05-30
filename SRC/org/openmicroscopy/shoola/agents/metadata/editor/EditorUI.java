@@ -44,12 +44,16 @@ import javax.swing.JScrollPane;
 import layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.TreeComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -69,6 +73,7 @@ public class EditorUI
 	extends JPanel
 {
  
+	private static final double MAX_HEIGHT = 100;
 	/** 
 	 * Size of the table layout used to lay out vertically components contained
 	 * in the {@link #content} component.
@@ -77,7 +82,7 @@ public class EditorUI
 													{TableLayout.PREFERRED, 
 													TableLayout.PREFERRED, 
 													TableLayout.PREFERRED,
-													TableLayout.PREFERRED}};
+													MAX_HEIGHT}};
 	
 	/** 
 	 * Size of the table layout used to lay out as a grid components contained
@@ -138,6 +143,9 @@ public class EditorUI
 	
 	/** The component hosting the {@link #propertiesUI}. */
 	private TreeComponent 				propertiesTree;
+	
+	/** The component hosting the {@link #browser}. */
+	private TreeComponent 				browserTree;
 	
 	/** The component hosting . */
 	private TreeComponent 				tree;
@@ -208,6 +216,10 @@ public class EditorUI
 		trees = new ArrayList<TreeComponent>();
 		tree = new TreeComponent();
 		trees.add(tree);
+		if (model.getBrowser() != null) {
+			browserTree = new TreeComponent();
+			trees.add(browserTree);
+		}
 		emptyPane = new JPanel();
 		emptyPane.setBackground(UIUtilities.BACKGROUND);
 		mainPane = new JScrollPane();
@@ -302,25 +314,34 @@ public class EditorUI
 	
 		//double h = TableLayout.PREFERRED;
 		double[][] leftSize = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, 0, 0, TableLayout.PREFERRED}}; //rows
+				{0, TableLayout.PREFERRED, 0, 0, TableLayout.PREFERRED}}; //rows
 		leftPane.setLayout(new TableLayout(leftSize));
 		//if (!model.isMultiSelection()) {
-		leftPane.add(rateUI, "0, 0");
-		leftPane.add(viewByTree, "0, 1");
-		leftPane.add(infoTree, "0, 2");
-		leftPane.add(propertiesTree, "0, 3");
+		leftPane.add(rateUI, "0, 1");
+		leftPane.add(viewByTree, "0, 2");
+		leftPane.add(infoTree, "0, 3");
+		leftPane.add(propertiesTree, "0, 4");
 		//}
 		
 		double[][] rigthSize = {{TableLayout.FILL}, //columns
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-				 TableLayout.PREFERRED, TableLayout.PREFERRED,
-			     TableLayout.PREFERRED}}; //rows
+				 TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
 		rightPane = new JPanel();
 		rightPane.setLayout(new TableLayout(rigthSize));
 		rightPane.add(commentsTree, "0, 0");
 		rightPane.add(tagsTree, "0, 1");
 		rightPane.add(tree, "0, 2");
-		
+		Browser browser = model.getBrowser();
+		if (browser != null) {
+			JComponent comp = browser.getUI();
+			JPanel collapseComponent = new JPanel();
+			
+			collapseComponent.setBorder(new TitledLineBorder("Contained in", 
+							collapseComponent.getBackground()));
+			comp.setBorder(collapseComponent.getBorder());
+			browserTree.insertNode(comp, collapseComponent, false);
+			rightPane.add(browserTree, "0, 3");
+		}
 		content = new JPanel();
 		
 		switch (layout) {
@@ -425,6 +446,12 @@ public class EditorUI
     	repaint();
     }
     
+    /**
+     * Shows or hides the editor.
+     * 
+     * @param show Pass <code>true</code> to show it, <code>false</code> to hide
+     * 			   it.
+     */
     void showEditor(boolean show)
     {
     	Component comp = getComponent(0);
@@ -561,23 +588,34 @@ public class EditorUI
 				break;
 		}
 		
-		TableLayout layout = (TableLayout) leftPane.getLayout();
-
+		TableLayout leftLayout = (TableLayout) leftPane.getLayout();
+		TableLayout rightLayout = (TableLayout) rightPane.getLayout();
+		if (browserTree != null) {
+			Object refObject = model.getRefObject();
+			if (refObject instanceof DataObject) {
+				browserTree.setVisible(!(refObject instanceof ProjectData));
+			} else browserTree.setVisible(false);
+		}
 		if (model.isMultiSelection()) {
-			layout.setRow(1, 0);
-			layout.setRow(2, 0);
-			layout.setRow(3, 0);
+			leftLayout.setRow(2, 0);
+			leftLayout.setRow(3, 0);
+			leftLayout.setRow(4, 0);
 			propertiesTree.collapseNodes();
+			if (browserTree != null) {
+				rightLayout.setRow(3, 0);
+				browserTree.collapseNodes();
+			}
 		} else {
-			layout.setRow(3, TableLayout.PREFERRED);
+			rightLayout.setRow(3, TableLayout.PREFERRED);
+			leftLayout.setRow(3, MAX_HEIGHT);
 			if (object instanceof ImageData) {
-				layout.setRow(1, TableLayout.FILL);
-				layout.setRow(2, TableLayout.PREFERRED);
+				leftLayout.setRow(2, TableLayout.FILL);
+				leftLayout.setRow(3, TableLayout.PREFERRED);
 	    		viewByTree.setVisible(true);
 	    		infoTree.setVisible(true);
 	    	} else {
-	    		layout.setRow(1, 0);
-				layout.setRow(2, 0);
+	    		leftLayout.setRow(2, 0);
+				leftLayout.setRow(3, 0);
 	    		viewByTree.collapseNodes();
 	    		viewByTree.setVisible(false);
 	    		viewedByUI.setExpanded(false);

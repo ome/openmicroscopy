@@ -39,6 +39,7 @@ import java.util.Set;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
 import ome.model.containers.Category;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -61,10 +62,13 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
+import pojos.URLAnnotationData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.
@@ -356,7 +360,7 @@ class OmeroDataServiceImpl
 		IObject ho = gateway.findIObject(annotatedObject.asIObject());
 		if (ho == null) return null;
 		IObject object = gateway.createObject(
-				ModelMapper.createAnnotation(ho, data), 
+				ModelMapper.createAnnotationAndLink(ho, data), 
 				(new PojoOptions()).map());
 		return PojoMapper.asDataObject(ModelMapper.getAnnotatedObject(object));
 	}
@@ -709,7 +713,7 @@ class OmeroDataServiceImpl
 			annotatedObject = (DataObject) i.next();
 			ho = gateway.findIObject(annotatedObject.asIObject());
 			if (ho != null) {
-				toCreate[index] = ModelMapper.createAnnotation(ho, d);
+				toCreate[index] = ModelMapper.createAnnotationAndLink(ho, d);
 				
 				objects[index] = gateway.createObject(toCreate[index], 
 						(new PojoOptions()).map());
@@ -1075,7 +1079,50 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
-		return gateway.performSearch(context); 
+		Object result = gateway.performSearch(context); 
+		if (result instanceof Integer) return result;
+		//Should returns a search context for the moment.
+		//collection of images only.
+		Map m = (Map) result;
+		Iterator i = m.keySet().iterator();
+		Class key;
+		Set value;
+		Iterator k;
+		Set results = new HashSet();
+		Set<Long> imageIDs = new HashSet<Long>();
+		Set images;
+		DataObject img;
+		while (i.hasNext()) {
+			key = (Class) i.next();
+			value = (Set) m.get(key);
+			if (key.equals(ImageData.class)) {
+				images = gateway.getContainerImages(key, value, 
+						new PojoOptions().map());
+				k = images.iterator();
+				while (k.hasNext()) {
+					img = (DataObject) k.next();
+					if (!imageIDs.contains(img.getId())) {
+						imageIDs.add(img.getId());
+						results.add(img);
+					}
+				}
+			} else if (key.equals(TagAnnotationData.class) ||
+					key.equals(TextualAnnotationData.class) ||
+					key.equals(URLAnnotationData.class) ||
+					key.equals(FileAnnotationData.class)) {
+				//Retrieve all the images linked to the annotation
+				images = gateway.getAnnotatedObjects(ImageData.class, value);
+				k = images.iterator();
+				while (k.hasNext()) {
+					img = (DataObject) k.next();
+					if (!imageIDs.contains(img.getId())) {
+						imageIDs.add(img.getId());
+						results.add(img);
+					}
+				}
+			}
+		}
+		return results; 
 	}
 
 	/**

@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Application-internal dependencies
 import pojos.AnnotationData;
+import pojos.ExperimenterData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -83,10 +84,23 @@ class TagComponent
 	{
 		TagAnnotationData tag = (TagAnnotationData) data;
 		List descriptions = tag.getTagDescriptions();
-		if (descriptions == null || descriptions.size() == 0)
-			return null;
 		StringBuffer buf = new StringBuffer();
+		if (descriptions == null || descriptions.size() == 0) {
+			if (!editable) {
+				buf.append("<html><body>");
+				buf.append("<b>Owner: ");
+				buf.append(EditorUtil.formatExperimenter(tag.getOwner()));
+				buf.append("</b><br>");
+				buf.append("</body></html>");
+			}
+			return buf.toString();
+		}
 		buf.append("<html><body>");
+		if (!editable) {
+			buf.append("<b>Owner: ");
+			buf.append(EditorUtil.formatExperimenter(tag.getOwner()));
+			buf.append("</b><br>");
+		}
 		Iterator i = descriptions.iterator();
 		TextualAnnotationData desc;
 		List l;
@@ -94,7 +108,8 @@ class TagComponent
 		while (i.hasNext()) {
 			desc = (TextualAnnotationData) i.next();
 			if (desc != null) {
-				buf.append("<b> Described by: ");
+				
+				buf.append("<b>Described by: ");
 				buf.append(EditorUtil.formatExperimenter(desc.getOwner()));
 				buf.append("</b><br>");
 				l = UIUtilities.wrapStyleWord(desc.getText());

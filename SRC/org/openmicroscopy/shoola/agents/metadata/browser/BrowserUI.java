@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -274,8 +273,8 @@ class BrowserUI
         p.setBorder(null);
         //p.add(menuBar);
         //p.setPreferredSize(menuBar.getPreferredSize());
-        p.add(new JLabel("Contained in"));
-        add(p, BorderLayout.NORTH);
+        //p.add(new JLabel("Contained in"));
+        //add(p, BorderLayout.NORTH);
         add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
     

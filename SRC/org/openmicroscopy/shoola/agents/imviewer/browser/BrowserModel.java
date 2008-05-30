@@ -98,10 +98,10 @@ class BrowserModel
      */
     private BufferedImage   	displayedImage;
     
-    /** A smaller version (50%) of the original image. */
+    /** A smaller version (default 50%) of the original image. */
     private BufferedImage		annotateImage;
     
-    /** A smaller version (50%) of the original image. */
+    /** A smaller version (default 50%) of the original image. */
     private BufferedImage		combinedImage;
 
     /** The zoom factor. */
@@ -138,7 +138,7 @@ class BrowserModel
     private List<SplitImage>	splitImages;
     
     /** The magnification factor used to render the annotate image. */
-    private double 				ratio;
+   private double 				ratio;
     
     /** The magnification factor used to render the grid image. */
     private double				gridRatio;
@@ -439,7 +439,7 @@ class BrowserModel
      * @param component The embedding component.
      */
     void initialize(Browser component) { this.component = component; }
-
+    
     /**
      * Sets the rendered image.
      * 
@@ -451,11 +451,14 @@ class BrowserModel
         //Create the annotate image.
         if (renderedImage != null) {
         	if (init) {
-        		if (image.getWidth() < ImViewer.MINIMUM_SIZE) {
+        		int imageWidth = image.getWidth();
+        		if (imageWidth < ImViewer.MINIMUM_SIZE) {
         			ratio = 1;
         			gridRatio = 1;
         			unitBar = false;
         		}
+        		if (imageWidth*ratio > ImViewer.MAXIMUM_SIZE)
+        			ratio = (double) ImViewer.MAXIMUM_SIZE/imageWidth;
         		init = false;
         	}
         	annotateImage = Factory.magnifyImage(ratio, renderedImage);

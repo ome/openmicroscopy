@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ViewerAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomCmd;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelColorMenuItem;
@@ -724,7 +725,16 @@ class ImViewerUI
 	private void buildGUI()
 	{
 		Browser browser = model.getBrowser();
-		browser.setComponentsSize(model.getMaxX(), model.getMaxY());
+		int sizeX = model.getMaxX();
+		int sizeY = model.getMaxY();
+		double f = model.getZoomFactor();
+		if (f > 0) {
+			sizeX = (int) (sizeX*f);
+			sizeY = (int) (sizeY*f);
+			setZoomFactor(f, ZoomCmd.getZoomIndex(f));
+			
+		}
+		browser.setComponentsSize(sizeX, sizeY);
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 									JTabbedPane.WRAP_TAB_LAYOUT);
 		//new JTabbedPane;
@@ -1847,7 +1857,7 @@ class ImViewerUI
 	 * 			otherwise.
 	 */
 	void enablePasteButton(boolean b) { toolBar.enablePasteButton(b); }
-
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

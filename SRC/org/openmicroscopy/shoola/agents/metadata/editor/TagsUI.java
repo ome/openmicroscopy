@@ -25,12 +25,10 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Point;
@@ -41,7 +39,6 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -297,6 +294,7 @@ class TagsUI
 	 */
 	private void handleMousePressed(Point p)
 	{
+		/*
 		String name = nameArea.getText();
 		if (name == null || name.length() == 0) return;
 		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
@@ -307,7 +305,7 @@ class TagsUI
 		int vl;
 		Iterator j;
 		TagAnnotationData item;
-		/*
+		
 		Collection tags = model.getTags();
 		for (int i = 0; i < names.length; i++) {
 			v = names[i];
@@ -466,7 +464,7 @@ class TagsUI
 	{
 		if (existingTags == null) existingTags = new JPanel();
 		else existingTags.removeAll();
-		
+
 		Collection l = model.getTags();
 		Iterator i;
 		AnnotationData data;
@@ -483,8 +481,8 @@ class TagsUI
 				}
 			}
 		}
-		
-		
+
+
 		//Lay out tags
 		existingTags.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -493,23 +491,24 @@ class TagsUI
 		c.gridx = 0;
 		c.gridy = 0;
 		if (!model.isMultiSelection()) {
-			existingTags.add(UIUtilities.setTextFont("Tagged with: "), c);
+			existingTags.add(UIUtilities.setTextFont("Tagged by me: "), c);
 			c.gridx++;
 			c.weightx = 0.5;
 			//Layout the tags
 			existingTags.add(layoutTags(myTags), c);
-			
+
 			c.gridy++;
 			c.gridx = 0;
 			existingTags.add(Box.createVerticalStrut(5));
 			c.gridy++;
 			c.weightx = 0;
-			
-		
+
+		}
+
 		existingTags.add(UIUtilities.setTextFont("Tags to Add: "), c);
 		c.gridx++;
 		c.weightx = 0.5;
-		
+
 		if (addedTags.size() > 0) {
 			i = addedTags.iterator();
 			myTags.clear();
@@ -520,47 +519,31 @@ class TagsUI
 			}
 			existingTags.add(layoutTags(myTags), c);
 		}
-		
-		if (otherTags.size() > 0) {
-			c.gridy++;
-			c.gridx = 0;
-			existingTags.add(Box.createVerticalStrut(5));
-			c.gridy++;
-			TreeComponent tree = new TreeComponent();
-			JPanel p = UIUtilities.buildCollapsePanel("Tagged by others with");
-			JPanel content = new JPanel();
-			content.add(layoutTags(otherTags));
-			content.setBorder(p.getBorder());
-			tree.insertNode(content, p, false);
-			c.gridwidth = 2;
-			
-			existingTags.add(tree, c);
-			c.gridy++;
-			c.gridx = 0;
-			existingTags.add(Box.createVerticalStrut(5));
-			c.gridy++;
-			c.weightx = 0;
-			c.gridwidth = 0; 
-			/*
-			existingTags.add(
-					UIUtilities.setTextFont("Tagged by others with: "), c);
-			c.gridx++;
-			c.weightx = 0.5;
-			existingTags.add(layoutTags(otherTags), c);
+		if (!model.isMultiSelection()) {
+			if (otherTags.size() > 0) {
+				c.gridy++;
+				c.gridx = 0;
+				existingTags.add(Box.createVerticalStrut(5));
+				c.gridy++;
+				TreeComponent tree = new TreeComponent();
+				JPanel p = UIUtilities.buildCollapsePanel("Tagged by others:");
+				JPanel content = new JPanel();
+				content.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				content.add(layoutTags(otherTags));
+				content.setBorder(p.getBorder());
+				tree.insertNode(content, p, false);
+				c.gridwidth = 2;
 
-			c.gridy++;
-			c.gridx = 0;
-			existingTags.add(Box.createVerticalStrut(5));
-			c.gridy++;
-			c.weightx = 0;
-			*/
-			c.gridwidth = 0; 
+				existingTags.add(tree, c);
+				c.gridy++;
+				c.gridx = 0;
+				existingTags.add(Box.createVerticalStrut(5));
+				c.gridy++;
+				c.weightx = 0;
+				c.gridwidth = 0; 
+				c.gridwidth = 0; 
+			}
 		}
-	}
-		
-		
-		
-		
 		c.gridy++;
 		c.gridx = 0;
 		existingTags.add(Box.createVerticalStrut(5));
@@ -568,12 +551,8 @@ class TagsUI
 		c.gridy++;
 		c.gridwidth = 2;
 		existingTags.add(UIUtilities.setTextFont(DESCRIPTION_EXISTING_TAGS, 
-												Font.ITALIC, 10), c);
-		
-		
-		
-		
-		
+				Font.ITALIC, 10), c);
+
 		existingTags.revalidate();
 		existingTags.repaint();
 		return existingTags;
@@ -601,7 +580,7 @@ class TagsUI
 		pane.add(Box.createHorizontalStrut(2), c);
 		int n = tags.size();
 		JPanel row = new JPanel();
-		row.setBackground(UIUtilities.BACKGROUND);
+		//row.setBackground(UIUtilities.BACKGROUND);
 		row.setLayout(new GridBagLayout());
 		GridBagConstraints cRow = new GridBagConstraints();
 		cRow.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -621,7 +600,7 @@ class TagsUI
 				c.gridy++;
 				row = new JPanel();
 				row.setLayout(new GridBagLayout());
-				row.setBackground(UIUtilities.BACKGROUND);
+				//row.setBackground(UIUtilities.BACKGROUND);
 				cRow.gridx = 0;
 			}
 			index++;
@@ -632,9 +611,9 @@ class TagsUI
 		JPanel content = new JPanel();
 		content.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		content.add(pane);
-		pane.setBackground(UIUtilities.BACKGROUND);
-		content.setBackground(UIUtilities.BACKGROUND);
-		content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+		//pane.setBackground(UIUtilities.BACKGROUND);
+		//content.setBackground(UIUtilities.BACKGROUND);
+		//content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		return content;
 	}
 	

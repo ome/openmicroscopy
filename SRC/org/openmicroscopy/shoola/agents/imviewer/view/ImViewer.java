@@ -72,6 +72,9 @@ public interface ImViewer
 	/** The minimum size of an original image. */
 	public static final int		MINIMUM_SIZE = 96;
 	
+	/** The maxinimum size of an original image. */
+	public static final int		MAXIMUM_SIZE = 256;
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 

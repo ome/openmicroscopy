@@ -330,5 +330,7 @@ public interface Browser
 	 * @return See above.
 	 */
 	public double getGridRatio();
+
+	public void initializeMagnificationFactor(double f);
 	
 }

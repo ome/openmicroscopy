@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 
 /** 
@@ -46,7 +47,7 @@ public class EditorFactory
 {
 
 	/**
-     * Creates a new {@link Browser}.
+     * Creates a new {@link Editor}.
      * 
      * @param parent			Reference to the parent. 
      * 							Must't be <code>null</code>.
@@ -58,14 +59,17 @@ public class EditorFactory
 	 *                          <code>false</code> otherwise.
 	 * @param layout			One of the layout constants defined by the 
 	 * 							{@link Editor} I/F.
+	 * @param browser			The browser to 
      * @return See above.
      */
     public static Editor createEditor(MetadataViewer parent, 
     									Object refObject, boolean
-    									thumbnailRequired, int layout)
+    									thumbnailRequired, int layout, Browser
+    									browser)
     {
     	EditorModel model = new EditorModel(refObject, parent, 
     			                          thumbnailRequired);
+    	model.setBrowser(browser);
     	EditorComponent component = new EditorComponent(model);
     	model.initialize(component);
     	component.initialize(layout);

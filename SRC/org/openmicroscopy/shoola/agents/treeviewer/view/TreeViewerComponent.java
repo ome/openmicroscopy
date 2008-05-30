@@ -152,7 +152,8 @@ class TreeViewerComponent
 	private void showDataBrowser(Object object, TreeImageDisplay display)
 	{
 		DataBrowser db;
-		TreeImageDisplay parent = display.getParentDisplay();
+		TreeImageDisplay parent = null;
+		if (display != null) parent = display.getParentDisplay();
 		if (object instanceof ImageData) {
       	  if (parent != null) {
       		  db = DataBrowserFactory.getDataBrowser(

@@ -79,6 +79,24 @@ public class ZoomCmd
 				throw new IllegalArgumentException("Index not valid.");
 		}
     }
+   
+    /**
+     * Determines and returns the index corresponding to the magnification 
+     * factor.
+     * 
+     * @param factor The value to handle.
+     * @return See above.
+     */
+    public static int getZoomIndex(double factor)
+    {
+		double f = Math.round(factor*100)/100.0;
+    	
+    	if (f < ZoomAction.MIN_ZOOM_FACTOR)
+    		f = ZoomAction.MIN_ZOOM_FACTOR;
+    	if (f > ZoomAction.MAX_ZOOM_FACTOR)
+    		f = ZoomAction.MAX_ZOOM_FACTOR;
+    	return ZoomAction.getIndex(f);
+    }
     
     /**
      * Creates a new instance.
@@ -119,7 +137,7 @@ public class ZoomCmd
     	if (f > ZoomAction.MAX_ZOOM_FACTOR)
     		f = ZoomAction.MAX_ZOOM_FACTOR;
     	
-    	model.setZoomFactor(f, ZoomAction.getIndex(f));
+    	model.setZoomFactor(f, getZoomIndex(zoomFactor));
     }
     
 }
