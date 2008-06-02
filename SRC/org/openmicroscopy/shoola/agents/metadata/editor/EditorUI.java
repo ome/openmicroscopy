@@ -73,6 +73,10 @@ public class EditorUI
 	extends JPanel
 {
  
+	/** 
+	 * The maximum height of the panel hosting the ui component displaying the
+	 * hierarchy.
+	 */
 	private static final double MAX_HEIGHT = 100;
 	
 	/** 

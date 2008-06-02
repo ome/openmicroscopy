@@ -1079,6 +1079,8 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No search context defined.");
 		if (!context.isValid())
 			throw new IllegalArgumentException("Search context not valid.");
+		
+		
 		Object result = gateway.performSearch(context); 
 		if (result instanceof Integer) return result;
 		//Should returns a search context for the moment.
@@ -1124,19 +1126,20 @@ class OmeroDataServiceImpl
 						key.equals(FileAnnotationData.class)) {
 					//Retrieve all the images linked to the annotation
 					if (value.size() > 0) {
-						
-					}
-					images = gateway.getAnnotatedObjects(ImageData.class, value);
-					k = images.iterator();
-					while (k.hasNext()) {
-						img = (DataObject) k.next();
-						if (!imageIDs.contains(img.getId())) {
-							if (ownerIDs.contains(img.getOwner().getId())) {
-								imageIDs.add(img.getId());
-								nodes.add(img);
+						images = gateway.getAnnotatedObjects(ImageData.class, 
+								    value);
+						k = images.iterator();
+						while (k.hasNext()) {
+							img = (DataObject) k.next();
+							if (!imageIDs.contains(img.getId())) {
+								if (ownerIDs.contains(img.getOwner().getId())) {
+									imageIDs.add(img.getId());
+									nodes.add(img);
+								}
 							}
 						}
 					}
+					
 				}
 			}
 			

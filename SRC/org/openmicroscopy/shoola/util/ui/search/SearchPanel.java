@@ -746,7 +746,13 @@ class SearchPanel
         c.gridy = 1;
         p.add(box, c);
         p.add(field, c);
-		p.add(button, c);
+        JToolBar bar = new JToolBar();
+        bar.setFloatable(false);
+        bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
+        bar.add(button);
+		p.add(bar, c);
 		return p;
 	}
 	
@@ -785,12 +791,7 @@ class SearchPanel
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridy = 0;
 		c.gridx = 0;
-		//c.gridy++;
-		//c.fill = GridBagConstraints.HORIZONTAL;
-		//c.gridwidth = 2;
-		//c.ipady = 5;
-		//content.add(new JSeparator(), c);
-		//c.ipady = 0;
+		/* commented out 02/06
 		c.gridwidth = 2;
 		c.gridy++;
 		content.add(UIUtilities.setTextFont("Annotated by "), c);
@@ -801,7 +802,7 @@ class SearchPanel
 		c.gridy++;
 		content.add(buildUserSelection(othersAsAnnotator, usersAsAnnotator, 
 				annotatorButton), c);
-
+         */
 		usersPanel.add(UIUtilities.buildComponentPanel(content));
 		return usersPanel;
 	}

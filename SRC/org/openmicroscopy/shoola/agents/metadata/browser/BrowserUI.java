@@ -146,11 +146,12 @@ class BrowserUI
      */
     private void handleMouseClick(MouseEvent evt)
     {
+    	/*
     	Point loc = evt.getPoint();
-    	//if (treeDisplay.getRowForLocation(loc.x, loc.y) == -1 
     	if (evt.isPopupTrigger()) 
     		createManagementMenu().show((Component) evt.getSource(), loc.x, 
     								loc.y);
+    								*/
     }
     
     /** Helper method to create the menu bar. */

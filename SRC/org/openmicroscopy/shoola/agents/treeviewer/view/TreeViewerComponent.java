@@ -715,6 +715,8 @@ class TreeViewerComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getSelectedBrowser();
 		browser.refreshEdition(data, parent, operation);
+		DataBrowserFactory.discardAll();
+	    view.removeAllFromWorkingPane();
 		//Browser browser = model.getSelectedBrowser();
 		//browser.refreshEdition(data, operation);
 		//browser.refreshLoggedExperimenterData();
@@ -808,6 +810,8 @@ class TreeViewerComponent
 			browser = (Browser) browsers.get(i.next());
 			browser.refreshTree();
 		}
+		DataBrowserFactory.discardAll();
+	    view.removeAllFromWorkingPane();
 		//model.setEditor(null);
 		onSelectedDisplay();
 		setStatus(false, "", true);
@@ -1757,20 +1761,23 @@ class TreeViewerComponent
 	public void setSearchResult(Object result)
 	{
 		if (result instanceof Integer) {
+			/*
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
         	un.notifyInfo("Search", "Too many results found (Max: "
         			+((Integer) result).intValue()+
         			").\n Please refine your search");
+        			*/
+			view.removeAllFromWorkingPane();
 			return;
-			
 		}
 		Collection<DataObject> results = (Collection<DataObject>) result;
 		if (results == null || results.size() == 0) {
-			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-        	un.notifyInfo("Search", "No results found.");
+			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+        	//un.notifyInfo("Search", "No results found.");
+        	view.removeAllFromWorkingPane();
 			return;
 		}
-		
+		//Need to recycle the search browser.
 		DataBrowser db = DataBrowserFactory.getSearchBrowser(results);
 		if (db != null && view.getDisplayMode() == SEARCH_MODE) {
 			db.addPropertyChangeListener(controller);

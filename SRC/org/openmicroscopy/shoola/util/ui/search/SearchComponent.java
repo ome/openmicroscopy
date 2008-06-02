@@ -148,6 +148,7 @@ public class SearchComponent
 	/** The default search context. */
 	private SearchContext 			searchContext;
 	
+	/** The UI component hosting the result if any. */
 	private JComponent				resultPane;
 	
 	/** Sets the window properties. */

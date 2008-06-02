@@ -83,6 +83,7 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Format;
+import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.Parameters;
@@ -145,9 +146,11 @@ class OMEROGateway
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('+'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character('['));
 		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
-		
+		SUPPORTED_SPECIAL_CHAR.add(new Character(')'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('('));
 		WILD_CARDS = new ArrayList<String>();
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");
@@ -692,8 +695,47 @@ class OMEROGateway
 					v += "\\"+arr[i];
 				else v += arr[i];
 			}
-			formattedTerms[j] = v;
+			if (value.contains(" ")) 
+				formattedTerms[j] = "\""+v+"\"";//v;
+			else formattedTerms[j] = v;
 		}
+		return formattedTerms;
+	}
+	
+	/**
+	 * Formats the terms to search for.
+	 * 
+	 * @param terms		The terms to search for.
+	 * @param service	The search service.
+	 * @return See above.
+	 */
+	private String[] prepareTextSearch(Collection<String> terms, Search service) 
+	{
+		if (terms == null || terms.size() == 0) return null;
+		String value;
+		int n;
+		char[] arr;
+		String v;
+		String[] formattedTerms = new String[terms.size()];
+		Iterator<String> j = terms.iterator();
+		int k = 0;
+		while (j.hasNext()) {
+			value = j.next();
+			if (startWithWildCard(value)) 
+				service.setAllowLeadingWildcard(true);
+			//format string
+			n = value.length();
+			arr = new char[n];
+			v = "";
+			value.getChars(0, n, arr, 0);  
+			for (int i = 0; i < arr.length; i++) {
+				if (SUPPORTED_SPECIAL_CHAR.contains(arr[i])) 
+					v += "\\"+arr[i];
+				else v += arr[i];
+			}
+			formattedTerms[k] = v;
+		}
+
 		return formattedTerms;
 	}
 	
@@ -3012,11 +3054,12 @@ class OMEROGateway
 		try {
 			hasNext = service.hasNext();
 		} catch (Exception e) {
+			e.printStackTrace();
 			int size = service.getBatchSize();
 			service.close();
 			return new Integer(size);
 		}
-		if (!hasNext) return null;
+		if (!hasNext) return r;
 		List l = service.results();
 		Iterator k = l.iterator();
 		IObject object;
@@ -3030,7 +3073,7 @@ class OMEROGateway
 				}
 			}
 		}
-		return null;
+		return r;
 	}
 	
 	/**
@@ -3051,7 +3094,8 @@ class OMEROGateway
 		if (scopes == null || scopes.size() == 0) return new HashMap();
 		isSessionAlive();
 		Search service = getSearchService();
-		service.clearQueries();
+		//service.clearQueries();
+		//service.resetDefaults();
 		service.setAllowLeadingWildcard(false);
 		service.setCaseSentivice(context.isCaseSensitive());
 		
@@ -3075,13 +3119,15 @@ class OMEROGateway
 		List<ExperimenterData> users = context.getOwners();
 		Iterator i;
 		ExperimenterData exp;
-		
+		Details d;
 		//owner
 		if (users != null && users.size() > 0) {
 			i = users.iterator();
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				service.onlyOwnedBy(exp.asExperimenter().getDetails());
+				d = Details.create();
+		        d.setOwner(exp.asExperimenter());
+				//service.onlyAnnotatedBy(d);
 			}
 		}
 		//not owner
@@ -3090,15 +3136,18 @@ class OMEROGateway
 			i = users.iterator();
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
-				service.notOwnedBy(exp.asExperimenter().getDetails());
+				
+				exp = (ExperimenterData) i.next();
+				d = Details.create();
+		        d.setOwner(exp.asExperimenter());
+				//service.onlyAnnotatedBy(d);
 			}
 		}
 		
 		String[] some = prepareTextSearch(context.getSome(), service);
 		String[] must = prepareTextSearch(context.getMust(), service);
 		String[] none = prepareTextSearch(context.getNone(), service);
-		
-		
+			
 		List<Class> supportedTypes = new ArrayList<Class>();
 		i = types.iterator();
 		int index = 0;
@@ -3112,6 +3161,7 @@ class OMEROGateway
 		Class type;
 		Set rType;
 		Map<Class, Set> results = new HashMap<Class, Set>();
+		Object size;
 		if (scopes.contains(String.class)) {
 			i = types.iterator();
 			rType = new HashSet();
@@ -3121,8 +3171,8 @@ class OMEROGateway
 				k = convertPojos(type);
 				service.onlyType(k);
 				service.bySomeMustNone(some, must, none);
-				handleSearchResult(k, rType, service);
-				
+				size = handleSearchResult(k, rType, service);
+				if (size instanceof Integer) return size;
 				service.clearQueries();
 			}
 			scopes.remove(String.class);
@@ -3191,11 +3241,14 @@ class OMEROGateway
 			Search service = getSearchService();
 			if (start != null || end != null)
 				service.onlyAnnotatedBetween(start, end);
-			if (exp != null) 
-				service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
-			
+			if (exp != null) {
+				Details d = Details.create();
+		        d.setOwner(exp.asExperimenter());
+				service.onlyAnnotatedBy(d);
+			}
+			String[] t = prepareTextSearch(terms, service);
 			service.onlyType(convertPojos(annotationType));
-			service.bySomeMustNone(terms.toArray(new String[] {}), null, null);
+			service.bySomeMustNone(t, null, null);
 
 			if (!service.hasNext()) return new ArrayList();
 			return service.results();

@@ -102,7 +102,7 @@ class SearchModel
 				imagesLoaded++;
 			}
 		}
-		return new ThumbnailLoader(component, imgs);
+		return new ThumbnailLoader(component, sorter.sort(imgs));
 	}
 
 	/**

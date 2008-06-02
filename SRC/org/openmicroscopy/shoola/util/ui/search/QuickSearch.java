@@ -303,7 +303,14 @@ public class QuickSearch
 		}
 			
 		searchPanel.add(searchArea, "2, 0, f, c");
-		
+		if (clearButton != null) {
+			JToolBar bar = new JToolBar();
+	        bar.setFloatable(false);
+	        bar.setRollover(true);
+	        bar.setBorder(null);
+	        bar.add(clearButton);
+			//searchPanel.add(bar, "3, 0, f, c");
+		}
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setOpaque(true);
 		if (label != null && label.trim().length() > 0) 

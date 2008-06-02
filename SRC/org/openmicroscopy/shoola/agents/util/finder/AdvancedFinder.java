@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
@@ -37,15 +36,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -55,8 +53,6 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
-import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -127,6 +123,12 @@ public class AdvancedFinder
 		}
 	}
 	
+	/**
+	 * Returns the description associated to the passed value.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above
+	 */
 	private String getScope(Class value)
 	{
 		if (value == null) return null;
@@ -137,8 +139,6 @@ public class AdvancedFinder
 		if (value.equals(FileAnnotationData.class)) return NAME_ATTACHMENT;
 		return null;
 	}
-	
-	
 	
 	/**
 	 * Creates and returns the list of users corresponding to the collection
@@ -372,11 +372,24 @@ public class AdvancedFinder
 	public void setResult(Object result)
 	{
 		setSearchEnabled(false);
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		if (result instanceof Integer) {
+			
+			JLabel l = UIUtilities.setTextFont("Too many images matching your" +
+					" criteria.");
+			p.add(l);
+			l = UIUtilities.setTextFont("The maximum number is set to " +
+					""+((Integer) result).intValue());
+			p.add(l);
+			displayResult(UIUtilities.buildComponentPanel(p));
+			
+			firePropertyChange(RESULTS_FOUND_PROPERTY, null, result);
+			return;
+		}
 		Map map = (Map) result;
 		//Format UI component
 		Set nodes = new HashSet();
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		if (map != null) {
 			Iterator i = map.keySet().iterator();
 			Set<Long> ids = new HashSet<Long>();
@@ -430,12 +443,14 @@ public class AdvancedFinder
 			Iterator i = m.keySet().iterator();
 			ExperimenterData exp;
 			String value;
+			String uiValue = "";
 			while (i.hasNext()) {
 				exp = (ExperimenterData) m.get(i.next());
-				value = exp.getFirstName()+SearchUtil.SPACE_SEPARATOR+
-						exp.getLastName();
+				value = EditorUtil.formatExperimenter(exp); 
 				users.put(value, exp);
+				uiValue += value;
 			}
+			setUserString(uiValue);
 		}
 	}
 
