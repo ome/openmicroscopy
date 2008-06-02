@@ -194,6 +194,16 @@ public class FullTextBridge extends BridgeHelper {
                 } else if (annotation instanceof FileAnnotation) {
                     FileAnnotation fileAnnotation = (FileAnnotation) annotation;
                     OriginalFile file = fileAnnotation.getFile();
+                    // None of these values can be null
+                    add(document, "filename", file.getName(), store, index,
+                            boost);
+                    add(document, "filepath", file.getPath(), store, index,
+                            boost);
+                    add(document, "filesha1", file.getSha1(), store, index,
+                            boost);
+                    add(document, "fileformat", file.getFormat().getValue(),
+                            store, index, boost);
+                    // Never returns null.
                     for (Reader parsed : parse(file)) {
                         add(document, "annotation", parsed, boost);
                     }

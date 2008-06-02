@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
@@ -116,7 +118,7 @@ public class FullTextTest extends AbstractTest {
     }
 
     // These two types of bad event logs should not throw exceptions. They can
-    // occur especially during databse upgrades. In that case, the entry should
+    // occur especially during database upgrades. In that case, the entry should
     // be skipped.
     public void testBadEventLog() throws Exception {
         ftb = new FullTextBridge();
@@ -292,28 +294,7 @@ public class FullTextTest extends AbstractTest {
         final String str = UUID.randomUUID().toString();
 
         // Parser setup
-        FileParser parser = new FileParser() {
-            @Override
-            public Iterable<Reader> doParse(File file) {
-                return wrap(new Iterator<Reader>() {
-                    StringReader next = new StringReader(str);
-
-                    public boolean hasNext() {
-                        return next != null;
-                    }
-
-                    public Reader next() {
-                        StringReader rv = next;
-                        next = null;
-                        return rv;
-                    }
-
-                    public void remove() {
-                        next = null;
-                    }
-                });
-            }
-        };
+        FileParser parser = new StringBasedFileParser(str);
         Map<String, FileParser> parsers = new HashMap<String, FileParser>();
         parsers.put("text/plain", parser);
 
@@ -331,4 +312,76 @@ public class FullTextTest extends AbstractTest {
 
     }
 
+    public void testNamePathEtcFromFileAreParsed() throws Exception {
+
+        // Test data
+        final String str = UUID.randomUUID().toString();
+
+        // Parser setup
+        FileParser parser = new StringBasedFileParser(str);
+        Map<String, FileParser> parsers = new HashMap<String, FileParser>();
+        parsers.put("text/plain", parser);
+
+        // Upload
+        FileUploader upload = new FileUploader(this.factory, str, str, str);
+        try {
+            upload.run();
+        } catch (Exception e) {
+            // This seems to be throwing an exception
+            // when run in the server
+        }
+
+        Image i = new Image(str);
+        FileAnnotation fa = new FileAnnotation();
+        fa.setFile(new OriginalFile(upload.getId(), false));
+        i.linkAnnotation(fa);
+        i = iUpdate.saveAndReturnObject(i);
+        iUpdate.indexObject(i);
+
+        List<? extends IObject> list;
+        list = iQuery.findAllByFullText(Image.class, str, null);
+        assertTrue("combined_fields", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "name:" + str, null);
+        assertTrue("name", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "filename:" + str, null);
+        assertTrue("filename", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "filepath:" + str, null);
+        assertTrue("filepath", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "annotation:" + str, null);
+        assertTrue("annotation", list.size() == 1);
+
+    }
+
+    // Helpers
+    // ==========================================================
+
+    class StringBasedFileParser extends FileParser {
+
+        final String str;
+
+        public StringBasedFileParser(String str) {
+            this.str = str;
+        }
+
+        @Override
+        public Iterable<Reader> doParse(File file) {
+            return wrap(new Iterator<Reader>() {
+                StringReader next = new StringReader(str);
+
+                public boolean hasNext() {
+                    return next != null;
+                }
+
+                public Reader next() {
+                    StringReader rv = next;
+                    next = null;
+                    return rv;
+                }
+
+                public void remove() {
+                    next = null;
+                }
+            });
+        }
+    }
 }
