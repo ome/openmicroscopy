@@ -2117,6 +2117,67 @@ public class SearchTest extends AbstractTest {
         fail("Surprising to reach here");
     }
 
+    @Test(groups = "ticket:995")
+    public void testOnlyOwnedByReturnsWrongContent() {
+
+        // Create user which will own the image.
+        String uuid = uuid();
+        Experimenter owner = loginNewUser();
+        Details d_owner = Details.create();
+        d_owner.setOwner(owner);
+
+        // Add an image as the owner
+        Image i = new Image();
+        i.setName("Some text " + uuid + " blah blah");
+        i = this.iUpdate.saveAndReturnObject(i);
+
+        loginRoot();
+        this.iUpdate.indexObject(i);
+
+        // Now login as another user who doesn't own that image
+        Experimenter searcher = loginNewUser();
+        Details d_searcher = Details.create();
+        d_searcher.setOwner(searcher);
+
+        Search search = this.factory.createSearchService();
+        search.setAllowLeadingWildcard(true);
+        search.onlyType(Image.class);
+
+        // We shouldn't find any results
+        assertTicket955(search, uuid, d_searcher, 0);
+        // Now let's change to the owner and see the results
+        assertTicket955(search, uuid, d_owner, 1);
+
+        // Now let's add annotations and similar and see the results
+        loginUser(owner.getOmeName());
+        ImageAnnotationLink link = new ImageAnnotationLink();
+        link.setParent(new Image(i.getId(), false));
+        link.setChild(new TagAnnotation());
+        this.iUpdate.saveObject(link);
+        loginRoot();
+        this.iUpdate.indexObject(i);
+
+        loginUser(searcher.getOmeName());
+        // We stil shouldn't find any results
+        assertTicket955(search, uuid, d_searcher, 0);
+        // Now let's change to the owner and see the results
+        assertTicket955(search, uuid, d_owner, 1);
+
+        // Even searching as the owner should produce the same results
+        loginUser(owner.getOmeName());
+        assertTicket955(search, uuid, d_searcher, 0);
+        assertTicket955(search, uuid, d_owner, 1);
+
+    }
+
+    private void assertTicket955(Search search, String uuid, Details d, int n) {
+        search.onlyOwnedBy(d);
+        search.bySomeMustNone(new String[] { "*" + uuid + "*" }, null, null);
+        assertResults(search, n);
+        search.bySomeMustNone(new String[] { "*blah blah*" }, null, null);
+        assertResults(search, n);
+    }
+
     // Helpers
     // =========================================================================
 
