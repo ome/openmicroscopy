@@ -47,30 +47,49 @@ import org.springframework.aop.framework.Advised;
 import org.springframework.transaction.TransactionStatus;
 import org.testng.annotations.Test;
 
+/**
+ * The following test provides examples of using the {@link Search} interface,
+ * tests its completeness, has regression tests for various tickets, as well as
+ * implementation specific tests which by and large can be ignored.
+ * 
+ * The tests generally demonstrate "best practices" for using the {@link Search}
+ * API, <em>except</em> for the many calls to
+ * {@link IUpdate#indexObject(IObject)}. These are necessary for real-time
+ * testing, but this solution would swamp the server if each client tried to
+ * specify when indexing should take place.
+ * 
+ * Instead, the server decides when objects are indexed, and there may be a
+ * short delay.
+ * 
+ * @see <a
+ *      href="http://lucene.apache.org/java/docs/queryparsersyntax.html">Query
+ *      Parser Syntax</a>
+ */
 @Test(groups = { "query", "fulltext", "search" })
 public class SearchTest extends AbstractTest {
 
-    @Test
-    public void testSerialization() throws Exception {
+    // User Examples
+    // =========================================================================
+    // This section tests provides various small example tests, and doesn't
+    // try to comprehensively test the API
+
+    public void testComplicatedLuceneQueries() {
+        Image i = new Image("Image with A - 1 reagent");
+        i = this.iUpdate.saveAndReturnObject(i);
+        this.iUpdate.indexObject(i);
+
         Search search = this.factory.createSearchService();
-        search.onlyType(Experimenter.class);
-        search.byFullText("root");
-        search.hasNext();
-        Search internal = search;
-        while (internal instanceof Advised) {
-            internal = (Search) ((Advised) search).getTargetSource()
-                    .getTarget();
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(internal);
+        search.onlyType(Image.class);
 
-        byte[] array = baos.toByteArray();
+        search.byFullText("\"A \\- 1\"");
+        assertContainsObject(search, i);
 
-        ByteArrayInputStream bais = new ByteArrayInputStream(array);
-        ObjectInputStream ois = new ObjectInputStream(bais);
-        internal = (Search) ois.readObject();
-        assertAtLeastResults(search, 1);
+        search.byFullText("A \\- 1");
+        assertContainsObject(search, i);
+
+        // The following won't work since "-" is a Lucene special character.
+        // search.byFullText("A - 1");
+
     }
 
     // by<Query>
@@ -2176,6 +2195,32 @@ public class SearchTest extends AbstractTest {
         assertResults(search, n);
         search.bySomeMustNone(new String[] { "*blah blah*" }, null, null);
         assertResults(search, n);
+    }
+
+    // Implementation specifics
+    // =========================================================================
+
+    @Test
+    public void testSerialization() throws Exception {
+        Search search = this.factory.createSearchService();
+        search.onlyType(Experimenter.class);
+        search.byFullText("root");
+        search.hasNext();
+        Search internal = search;
+        while (internal instanceof Advised) {
+            internal = (Search) ((Advised) search).getTargetSource()
+                    .getTarget();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(internal);
+
+        byte[] array = baos.toByteArray();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(array);
+        ObjectInputStream ois = new ObjectInputStream(bais);
+        internal = (Search) ois.readObject();
+        assertAtLeastResults(search, 1);
     }
 
     // Helpers
