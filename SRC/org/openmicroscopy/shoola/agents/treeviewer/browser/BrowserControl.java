@@ -185,13 +185,14 @@ class BrowserControl
         
         if (display.isChildrenLoaded()) {
         	List l = display.getChildrenDisplay();
-			if (display.getChildCount() != l.size()) {
+			//if (display.getChildCount() != l.size()) {
+	
         		//view.setLeavesViews(l, (TreeImageSet) display);
-        	} else {
+        	//} else {
         		if (view.isFirstChildMessage(display)) {
         			view.setLeavesViews(l, (TreeImageSet) display);
         		}
-        	}
+        	//}
         	return;
         }
         view.loadAction(display);

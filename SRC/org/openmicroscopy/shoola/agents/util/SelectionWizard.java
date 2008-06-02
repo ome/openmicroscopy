@@ -34,6 +34,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -99,7 +100,7 @@ public class SelectionWizard
 	/** Action command ID to reset the current field selection. */
 	private static final int RESET = 6;
 	
-	/** The original tags before the user selects items. */
+	/** The original items before the user selects items. */
 	private List<Object>		originalItems;
 	
 	/** Collection of available items. */
@@ -171,11 +172,13 @@ public class SelectionWizard
 		removeAllButton.addActionListener(this);
 		acceptButton.setActionCommand(""+ACCEPT);
 		acceptButton.addActionListener(this);
+		acceptButton.setEnabled(false);
+		resetButton.setEnabled(false);
 		cancelButton.setActionCommand(""+CANCEL);
 		cancelButton.addActionListener(this);
 		resetButton.setActionCommand(""+RESET);
 		resetButton.addActionListener(this);
-		getRootPane().setDefaultButton(acceptButton);
+		getRootPane().setDefaultButton(cancelButton);
 	}
 	
 	/** Resets the current selection to the original selection. */
@@ -216,6 +219,7 @@ public class SelectionWizard
 		sortLists();
 		populateSelectedItems();
 		populateAvailableItems();
+		setButtonsEnabled();
 	}
 	
 	/** Sorts the lists. */
@@ -235,6 +239,7 @@ public class SelectionWizard
 		sortLists();
 		populateAvailableItems();
 		populateSelectedItems();
+		setButtonsEnabled();
 	}
 	
 	/** Removes an item from the selection. */
@@ -256,6 +261,7 @@ public class SelectionWizard
 		sortLists();	
 		populateAvailableItems();
 		populateSelectedItems();
+		setButtonsEnabled();
 	}
 	
 	/** Removes all items from the list. */
@@ -266,6 +272,29 @@ public class SelectionWizard
 		selectedItems.clear();
 		populateAvailableItems();
 		populateSelectedItems();
+		setButtonsEnabled();
+	}
+	
+	/**
+	 * Sets the enabled flag of the {@link #acceptButton} and
+	 * {@link #resetButton}
+	 *
+	 */
+	private void setButtonsEnabled()
+	{
+		
+		if (originalItems.size() != availableItems.size()) {
+			acceptButton.setEnabled(true);
+			resetButton.setEnabled(true);
+		} else {
+			acceptButton.setEnabled(false);
+			int n = 0;
+			Iterator i = availableItems.iterator();
+			while (i.hasNext()) {
+				if (originalItems.contains(i.next())) n++;
+			}
+			resetButton.setEnabled(n != originalItems.size());
+		}
 	}
 	
 	/** Closes and disposes. */
@@ -286,8 +315,10 @@ public class SelectionWizard
 	private void reset()
 	{
 		resetSelection();
+		selectedItems.clear();
 		populateAvailableItems();
 		populateSelectedItems();
+		setButtonsEnabled();
 	}
 	
 	/**

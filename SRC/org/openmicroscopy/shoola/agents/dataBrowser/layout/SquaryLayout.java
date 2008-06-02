@@ -121,6 +121,7 @@ class SquaryLayout
         	d = child.getPreferredSize();
             child.setBounds(x, y, d.width, d.height);
             child.setCollapsed(false);
+            /*
             if (x+d.width <= browserWidth) {
                 x += d.width;
                 maxY = Math.max(maxY, d.height); 
@@ -130,6 +131,11 @@ class SquaryLayout
                 else y += maxY;
                 maxY = 0;
             } 
+            */
+            x = 0;
+            if (maxY == 0) y += d.height; 
+            else y += maxY;
+            maxY = 0;
         }
        
         Rectangle bounds = node.getContentsBounds();
@@ -178,7 +184,7 @@ class SquaryLayout
 			if (oho instanceof DataObject) {
 				if (((DataObject) oho).getId() == id && 
 						klass.equals(oho.getClass()))
-						return child.getChildrenDisplay();
+					return child.getChildrenDisplay();
 			}
 		}
     	return new HashSet(0);
@@ -215,7 +221,7 @@ class SquaryLayout
 			if (oho instanceof DataObject) {
 				if (((DataObject) oho).getId() == id && 
 						klass.equals(oho.getClass()))
-						return child;
+					return child;
 			}
 		}
     	return null;

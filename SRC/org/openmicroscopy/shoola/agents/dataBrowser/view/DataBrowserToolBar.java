@@ -206,7 +206,7 @@ class DataBrowserToolBar
 	 * 
 	 * @return See above.
 	 */
-	private JPopupMenu createSlideVieweMenu()
+	private JPopupMenu createSlideViewMenu()
 	{
 		if (slideViewMenu != null) return slideViewMenu;
 		slideViewMenu = new JPopupMenu();
@@ -330,7 +330,7 @@ class DataBrowserToolBar
 			 * @see MouseAdapter#mouseReleased(MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
-				createSlideVieweMenu().show(slideShowView, e.getX(), e.getY());
+				createSlideViewMenu().show(slideShowView, e.getX(), e.getY());
 			}
 		
 		});

@@ -1430,13 +1430,14 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			ThumbnailStore service = getThumbService();
+			
 			needDefault(pixelsID, null);
-
-			Set<Long> pix = new HashSet<Long>();
-			pix.add(pixelsID);
-			Map m = service.getThumbnailByLongestSideSet(sizeX, pix);
-			return (byte[]) m.get(pixelsID);
-			//return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
+			//getRendering Def for a given pixels set.
+			if (userID >= 0) {
+				RenderingDef def = getRenderingDef(pixelsID, userID);
+				if (def != null) service.setRenderingDefId(def.getId());
+			}
+			return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
 			//return service.getThumbnailDirect(new Integer(sizeX), 
 			//		new Integer(sizeY));
 		} catch (Throwable t) {

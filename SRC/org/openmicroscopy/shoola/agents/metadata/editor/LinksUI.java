@@ -52,6 +52,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -219,6 +220,7 @@ class LinksUI
 		IconManager icons = IconManager.getInstance();
 		Icon icon = icons.getIcon(IconManager.REMOVE);
 		JButton button;
+		JToolBar bar;
 		labels = new HashMap<JLabel, URLAnnotationData>();
 		p.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -257,11 +259,17 @@ class LinksUI
 			if (model.isCurrentUserOwner(url)) {
 				c.gridx = 3;
 				button = new JButton(icon);
-				button.setBorder(null);
+				UIUtilities.unifiedButtonLookAndFeel(button);
+				//button.setBorder(null);
 				button.setToolTipText("Remove the link.");
 				button.setActionCommand(""+index);
 				button.addActionListener(this);
-				p.add(button, c);
+				bar = new JToolBar();
+				bar.setFloatable(false);
+				bar.setRollover(true);
+				bar.setBorder(null);
+				bar.add(button);
+				p.add(bar, c);
 			}
 			++c.gridy;
 		}

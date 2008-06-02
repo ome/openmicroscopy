@@ -64,6 +64,9 @@ public class QuickFiltering
 	/** Bound property indicating to load the tags. */
 	public static final String TAG_LOADING_PROPERTY = "tagLoading";
 	
+	/** Bound property indicating to filter the data. */
+	public static final String	FILTER_DATA_PROPERTY = "filterData";
+	
 	/** The collection of tags if any. */
 	private Collection 		tags;
 	
@@ -176,6 +179,18 @@ public class QuickFiltering
 		} else if (VK_DOWN_SEARCH_PROPERTY.equals(name)) {
 			if (tagsDialog != null && tagsDialog.isVisible())
 				tagsDialog.setSelectedIndex(true);
+		} else if (QUICK_SEARCH_PROPERTY.equals(name)) {
+			if (tagsDialog != null && tagsDialog.isVisible()) {
+				Object item = tagsDialog.getSelectedTextValue();
+				if (!(item instanceof TagItem)) return;
+				DataObject ho = ((TagItem) item).getDataObject();
+				if (ho instanceof TagAnnotationData) {
+					String v = ((TagAnnotationData) ho).getTagValue();
+					setSearchValue(v);
+				}
+			} else
+				firePropertyChange(FILTER_DATA_PROPERTY, null, 
+						          getSelectedNode());
 		}
 	}
 	
