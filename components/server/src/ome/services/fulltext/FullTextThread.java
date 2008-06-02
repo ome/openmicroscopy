@@ -7,6 +7,10 @@
 
 package ome.services.fulltext;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import ome.services.sessions.SessionManager;
 import ome.services.util.ExecutionThread;
 import ome.services.util.Executor;
@@ -41,7 +45,8 @@ public class FullTextThread extends ExecutionThread {
     final protected FullTextIndexer indexer;
     final protected FullTextBridge bridge;
 
-    private volatile Boolean active = Boolean.TRUE;
+    private boolean isactive = true;
+    private final Lock activeLock = new ReentrantLock(true);
 
     /**
      * Uses default {@link Principal} for indexing
@@ -102,11 +107,14 @@ public class FullTextThread extends ExecutionThread {
     @Override
     public void doRun() {
 
-        synchronized (active) {
-            if (!active.booleanValue()) {
+        activeLock.lock();
+        try {
+            if (!isactive) {
                 log.info("Inactive; skipping");
                 return;
             }
+        } finally {
+            activeLock.unlock();
         }
 
         if (waitForLock) {
@@ -137,9 +145,31 @@ public class FullTextThread extends ExecutionThread {
      */
     public void stop() {
         log.info("Shutting down Full-Text Indexer");
-        synchronized (active) {
-            DetailsFieldBridge.lock();
-            active = Boolean.FALSE;
+        boolean acquiredLock = false;
+        try {
+            acquiredLock = activeLock.tryLock(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.warn("active lock acquisition interrupted.");
+        }
+
+        if (!acquiredLock) {
+            log.error("Could not acquire active lock "
+                    + "for indexer within 60 seconds. Overriding.");
+        }
+
+        acquiredLock = DetailsFieldBridge.tryLock();
+        if (!acquiredLock) {
+            log.error("Cound not acquire bridge lock. "
+                    + "Waiting 60 seconds and aborting.");
+            try {
+                Thread.sleep(60 * 1000L);
+            } catch (InterruptedException e) {
+                log.warn("bridge lock acquisition interrupted.");
+            }
+        }
+
+        isactive = false;
+        if (acquiredLock) {
             DetailsFieldBridge.unlock();
         }
     }
