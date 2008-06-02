@@ -3,6 +3,8 @@ Validator
 This is a TurboGears (http://www.turbogears.org) project. It can be
 started by running the start-validator.py script.
 
+The normal command to start it is:
+python start-validator.py
 
 This project was generated from a standard TurboGears template.
 
