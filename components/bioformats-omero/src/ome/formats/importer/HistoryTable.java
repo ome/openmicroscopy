@@ -117,7 +117,7 @@ public class HistoryTable
     JList lastWeekList = new JList(outlookBar.lastWeek);
     JList thisMonthList = new JList(outlookBar.thisMonth);
     private boolean unknownProjectDatasetFlag;
-    
+
     HistoryTable()
     {   
         try {
@@ -190,7 +190,7 @@ public class HistoryTable
         bottomSidePanel.add(outlookBar, "f,f");       
         
         clearBtn = gui.addIconButton(mainPanel, "Wipe History", clearIcon, 
-                32, 110, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
+                130, 32, (int)'S', "Click here to clear your history log.", "0,5,c,c", debug);   
         
         clearBtn.setActionCommand(Actions.CLEARHISTORY);
         clearBtn.addActionListener(this);
@@ -235,7 +235,12 @@ public class HistoryTable
        // *****Bottom right most row containing the history table*****
         TableColumnModel cModel =  eTable.getColumnModel();
         
-        TableColumn hiddenColumn = cModel.getColumn(4);
+        // *** remove last 3 rows from display ***
+        TableColumn hiddenColumn = cModel.getColumn(6);
+        cModel.removeColumn(hiddenColumn);
+        hiddenColumn = cModel.getColumn(5);
+        cModel.removeColumn(hiddenColumn);
+        hiddenColumn = cModel.getColumn(4);
         cModel.removeColumn(hiddenColumn);
         
         MyTableHeaderRenderer myHeader = new MyTableHeaderRenderer();
@@ -281,7 +286,7 @@ public class HistoryTable
     }
     
     
-    public static synchronized HistoryTable getHistoryTable()
+    public static HistoryTable getHistoryTable()
     {
         if (ref == null) 
         try
@@ -317,22 +322,6 @@ public class HistoryTable
         }
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
-        Object src = e.getSource();
-        if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
-                || src == invalidCheckBox || src == pendingCheckBox)
-            //System.err.println(fromDate.getDate());
-            getFileQuery(-1, experimenterID, searchField.getText(), 
-                    fromDate.getDate(), toDate.getDate());
-        if (src == clearBtn)
-            ClearHistory();
-        if (src == reimportBtn)
-        {
-            notifyObservers("REIMPORT", null);
-        }
-    }
-
     private void ClearHistory()
     {
         String message = "This will delete your import history. \n" +
@@ -350,140 +339,6 @@ public class HistoryTable
         }
     }
     
-    class HistoryTableModel 
-    extends DefaultTableModel 
-    implements TableModelListener {
-    
-    private static final long serialVersionUID = 1L;
-    private String[] columnNames = {"File Name", "Project/Dataset", "Import Date/Time", "Status", "FilePath"};
-
-    public void tableChanged(TableModelEvent arg0) { }
-    
-    public int getColumnCount() { return columnNames.length; }
-
-    public String getColumnName(int col) { return columnNames[col]; }
-    
-    public boolean isCellEditable(int row, int col) { return false; }
-    
-    public boolean rowSelectionAllowed() { return true; }
-}
-
-    public class MyTableHeaderRenderer 
-    extends DefaultTableCellRenderer 
-{
-    // This method is called each time a column header
-    // using this renderer needs to be rendered.
-
-    private static final long serialVersionUID = 1L;
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-
-       // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-        setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
-        setForeground(UIManager.getColor("TableHeader.foreground"));
-        setBackground(UIManager.getColor("TableHeader.background"));
-        setFont(UIManager.getFont("TableHeader.font"));
-
-        // Configure the component with the specified value
-        setFont(getFont().deriveFont(Font.BOLD));
-        setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
-        setText(value.toString());
-        setOpaque(true);
-            
-        // Set tool tip if desired
-        setToolTipText((String)value);
-        
-        setEnabled(table == null || table.isEnabled());
-                    
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-        // Since the renderer is a component, return itself
-        return this;
-    }
-    
-    // The following methods override the defaults for performance reasons
-    public void validate() {}
-    public void revalidate() {}
-    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
-    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
-}
- 
-    class LeftDotRenderer 
-    extends DefaultTableCellRenderer
-{
-    private static final long serialVersionUID = 1L;
-    public Component getTableCellRendererComponent(
-        JTable table, Object value, boolean isSelected,
-        boolean hasFocus, int row, int column)
-    {
-        super.getTableCellRendererComponent(
-                table, value, isSelected, hasFocus, row, column);
-
-        int availableWidth = table.getColumnModel().getColumn(column).getWidth();
-        availableWidth -= table.getIntercellSpacing().getWidth();
-        Insets borderInsets = getBorder().getBorderInsets((Component)this);
-        availableWidth -= (borderInsets.left + borderInsets.right);
-        String cellText = getText();
-        FontMetrics fm = getFontMetrics( getFont() );
-        // Set tool tip if desired
-
-        if (fm.stringWidth(cellText) > availableWidth)
-        {
-            String dots = "...";
-            int textWidth = fm.stringWidth( dots );
-            int nChars = cellText.length() - 1;
-            for (; nChars > 0; nChars--)
-            {
-                textWidth += fm.charWidth(cellText.charAt(nChars));
-
-                if (textWidth > availableWidth)
-                {
-                    break;
-                }
-            }
-
-            setText( dots + cellText.substring(nChars + 1) );
-        }
-
-        setFont(UIManager.getFont("TableCell.font"));
-        /*if (table.getValueAt(row, 2).equals("done"))
-        { this.setEnabled(false);} 
-        else
-        { this.setEnabled(true); }
-        */
-        return this;
-    }
-}
-    
-    public class TextCellCenter
-    extends DefaultTableCellRenderer 
-{
-    // This method is called each time a column header
-    // using this renderer needs to be rendered.
-
-    private static final long serialVersionUID = 1L;
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-
-        super.getTableCellRendererComponent(
-                table, value, isSelected, hasFocus, row, column);
-
-        setFont(UIManager.getFont("TableCell.font"));
-        setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
-        // Set tool tip if desired
-        //setToolTipText((String)value);
-        
-        /*if (table.getValueAt(row, 2).equals("done") || 
-                table.getValueAt(row, 2).equals("failed"))
-        { this.setEnabled(false); } 
-        else
-        { this.setEnabled(true); }
-        */
-        // Since the renderer is a component, return itself
-        return this;
-    }
-}
-
     /**
      * @param args
      * @return 
@@ -553,7 +408,7 @@ public class HistoryTable
                 {
                     oldDatasetID = datasetID;
                     try {
-                        datasetName = store.getDatasetName(rs.getLong("datasetID"));
+                        datasetName = store.getDataset(rs.getLong("datasetID")).getName();
                     } catch (Exception e)
                     {
                         datasetName = "unknown";
@@ -565,7 +420,7 @@ public class HistoryTable
                 {
                     oldProjectID = projectID;
                     try {
-                        projectName = store.getProjectName(rs.getLong("projectID"));
+                        projectName = store.getProject(rs.getLong("projectID")).getName();
                     } catch (Exception e)
                     {
                         projectName = "unknown";
@@ -590,6 +445,8 @@ public class HistoryTable
                 row.add(dayString + " " + hourString);
                 row.add(rs.getObject("status"));
                 row.add(rs.getObject("filepath"));
+                row.add(rs.getLong("datasetID"));
+                row.add(rs.getLong("projectID"));
                 table.addRow(row);
                 table.fireTableDataChanged();
                 unknownProjectDatasetFlag = false;
@@ -608,6 +465,12 @@ public class HistoryTable
             ex4.printStackTrace();
         } // results are null
     }
+    
+    public ResultSet getCurrentResultSet()
+    {
+        return null;
+    }
+    
     
     private void displayAccessError()
     {
@@ -649,6 +512,29 @@ public class HistoryTable
         outlookBar.updatePanelList(thisMonthList, outlookBar.thisMonth, thisMonth);
     }
 
+    private void getQuickHistory(Integer importKey)
+    {
+       getFileQuery(importKey, experimenterID, null, null, null);
+       //System.err.println("key: "  + importKey + " exID: " + experimenterID);
+    }
+
+    public void actionPerformed(ActionEvent e)
+    {
+        Object src = e.getSource();
+        if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
+                || src == invalidCheckBox || src == pendingCheckBox)
+            //System.err.println(fromDate.getDate());
+            getFileQuery(-1, experimenterID, searchField.getText(), 
+                    fromDate.getDate(), toDate.getDate());
+        if (src == clearBtn)
+            ClearHistory();
+        if (src == reimportBtn)
+        {
+            notifyObservers("REIMPORT", null);
+        }
+    }
+
+
     public void propertyChange(PropertyChangeEvent e)
     {
         //System.err.println(e.getPropertyName());
@@ -664,10 +550,6 @@ public class HistoryTable
             
     }
 
-    private void getQuickHistory(Integer importKey)
-    {
-       getFileQuery(importKey, experimenterID, null, null, null);
-    }
 
     public void update(IObservable importLibrary, Object message, Object[] args)
     {
@@ -697,6 +579,140 @@ public class HistoryTable
         for (IObserver observer:observers)
         {
             observer.update(this, message, args);
+        }
+    }
+
+    class HistoryTableModel 
+        extends DefaultTableModel 
+        implements TableModelListener {
+        
+        private static final long serialVersionUID = 1L;
+        private String[] columnNames = {"File Name", "Project/Dataset", "Import Date/Time", "Status", "FilePath", "DatasetID", "ProjectID"};
+    
+        public void tableChanged(TableModelEvent arg0) { }
+        
+        public int getColumnCount() { return columnNames.length; }
+    
+        public String getColumnName(int col) { return columnNames[col]; }
+        
+        public boolean isCellEditable(int row, int col) { return false; }
+        
+        public boolean rowSelectionAllowed() { return true; }
+    }
+
+    public class MyTableHeaderRenderer 
+        extends DefaultTableCellRenderer 
+    {
+        // This method is called each time a column header
+        // using this renderer needs to be rendered.
+    
+        private static final long serialVersionUID = 1L;
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+    
+           // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+            setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
+            setForeground(UIManager.getColor("TableHeader.foreground"));
+            setBackground(UIManager.getColor("TableHeader.background"));
+            setFont(UIManager.getFont("TableHeader.font"));
+    
+            // Configure the component with the specified value
+            setFont(getFont().deriveFont(Font.BOLD));
+            setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+            setText(value.toString());
+            setOpaque(true);
+                
+            // Set tool tip if desired
+            setToolTipText((String)value);
+            
+            setEnabled(table == null || table.isEnabled());
+                        
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+    
+            // Since the renderer is a component, return itself
+            return this;
+        }
+        
+        // The following methods override the defaults for performance reasons
+        public void validate() {}
+        public void revalidate() {}
+        protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+        public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
+    }
+
+    class LeftDotRenderer 
+        extends DefaultTableCellRenderer
+    {
+        private static final long serialVersionUID = 1L;
+        public Component getTableCellRendererComponent(
+            JTable table, Object value, boolean isSelected,
+            boolean hasFocus, int row, int column)
+        {
+            super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+    
+            int availableWidth = table.getColumnModel().getColumn(column).getWidth();
+            availableWidth -= table.getIntercellSpacing().getWidth();
+            Insets borderInsets = getBorder().getBorderInsets((Component)this);
+            availableWidth -= (borderInsets.left + borderInsets.right);
+            String cellText = getText();
+            FontMetrics fm = getFontMetrics( getFont() );
+            // Set tool tip if desired
+    
+            if (fm.stringWidth(cellText) > availableWidth)
+            {
+                String dots = "...";
+                int textWidth = fm.stringWidth( dots );
+                int nChars = cellText.length() - 1;
+                for (; nChars > 0; nChars--)
+                {
+                    textWidth += fm.charWidth(cellText.charAt(nChars));
+    
+                    if (textWidth > availableWidth)
+                    {
+                        break;
+                    }
+                }
+    
+                setText( dots + cellText.substring(nChars + 1) );
+            }
+    
+            setFont(UIManager.getFont("TableCell.font"));
+            /*if (table.getValueAt(row, 2).equals("done"))
+            { this.setEnabled(false);} 
+            else
+            { this.setEnabled(true); }
+            */
+            return this;
+        }
+    }
+
+    public class TextCellCenter
+        extends DefaultTableCellRenderer 
+    {
+        // This method is called each time a column header
+        // using this renderer needs to be rendered.
+    
+        private static final long serialVersionUID = 1L;
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+    
+            super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+    
+            setFont(UIManager.getFont("TableCell.font"));
+            setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+            // Set tool tip if desired
+            //setToolTipText((String)value);
+            
+            /*if (table.getValueAt(row, 2).equals("done") || 
+                    table.getValueAt(row, 2).equals("failed"))
+            { this.setEnabled(false); } 
+            else
+            { this.setEnabled(true); }
+            */
+            // Since the renderer is a component, return itself
+            return this;
         }
     }   
     

@@ -49,6 +49,8 @@ import javax.swing.JOptionPane;
  */
 public class HistoryDB implements IObservable
 {
+    private static int DB_VERSION = 300;
+    
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     public SimpleDateFormat day = new SimpleDateFormat("MMM d, ''yy");
@@ -76,7 +78,7 @@ public class HistoryDB implements IObservable
         
         // Connect to the database
         conn = DriverManager.getConnection(
-                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history",  // filenames
+                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history" + Main.versionNumber,  // filenames
                 "sa",                   // username
                 "");                    // password
         try 
@@ -103,6 +105,12 @@ public class HistoryDB implements IObservable
                     "filepath VARCHAR(256)" +
                     " )" );
            
+            update ( "CREATE TABLE db_version (" +
+                     "version INT" +
+                     " )" );
+
+            update ( "INSERT INTO db_version (version) VALUES(" + "'" + DB_VERSION + "'" + ")" );
+            
         } catch (SQLException ex2) { 
             //ex2.printStackTrace(); 
         } //ignore SQL error if table already exists
@@ -131,6 +139,11 @@ public class HistoryDB implements IObservable
     }
     
     private static HistoryDB ref;
+    
+    private void checkFor300Update()
+    {
+        
+    }
     
     public void shutdown() throws SQLException {
 

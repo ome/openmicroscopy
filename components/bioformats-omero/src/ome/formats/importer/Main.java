@@ -32,6 +32,7 @@ import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ResourceBundle;
 
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -50,9 +51,11 @@ import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
+import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
@@ -66,6 +69,8 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     private static final long   serialVersionUID = 1228000122345370913L;
 
     public static String        versionText = "Beta 3.0 Test";
+    
+    public static String        versionNumber = "300";
     
     /** The data of the last release date. */
     public static String        releaseDate      
@@ -145,6 +150,8 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     ScreenLogin view;
     
     GuiCommonElements   gui;
+
+    ScreenLogo viewTop;
     
     /**
      * Main entry class for the application
@@ -290,37 +297,79 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         appendToOutputLn("> Build date: " + getPrintableKeyword(revisionDate));
         appendToOutputLn("> Release date: " + releaseDate);
         
+        //System.err.println(isUpgradeRequired());
+        
         loginHandler = LoginHandler.getLoginHandler(this, false, false);
         HistoryHandler historyHandler = HistoryHandler.getHistoryHandler();
         historyPanel.add(historyHandler, BorderLayout.CENTER);
+        
+        macMenuFix();
+        
         //displayLoginDialog(this, true);
     }
 
-    public boolean displayLoginDialog(Object viewer, boolean modal)
-    {       
+    /* Fixes menu issues with the about this app quit functions on mac */
+    private void macMenuFix()
+    {
+        try {
+
+            MacOSMenuHandler handler = new MacOSMenuHandler(this);
+
+            handler.initialize();
+
+            addPropertyChangeListener(this);
+
+        } catch (Throwable e) {}
+    }
+    
+    boolean isUpgradeRequired()
+    {
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        String version = bundle.getString("omero.version");
+        String url = bundle.getString("omero.upgrades.url");
+        UpgradeCheck check = new UpgradeCheck(url, version, "importer"); 
+        check.run();
+        return check.isUpgradeNeeded();
+    }
+    
+    public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
+    {   
         Image img = Toolkit.getDefaultToolkit().createImage(ICON);
         view = new ScreenLogin(TITLE, gui.getImageIcon("gfx/login_background.png"), img,
                 versionText);
         view.showConnectionSpeed(false);
-        ScreenLogo viewTop = new ScreenLogo(TITLE, gui.getImageIcon(splash), img);
+        viewTop = new ScreenLogo(TITLE, gui.getImageIcon(splash), img);
         viewTop.setStatusVisible(false);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension d = viewTop.getExtendedSize();
         Dimension dlogin = view.getPreferredSize();
-        int totalHeight = d.height+dlogin.height;
-        viewTop.setBounds((screenSize.width-d.width)/2, 
-                     (screenSize.height-totalHeight)/2, d.width, 
-                     viewTop.getSize().height);
-        Rectangle r = viewTop.getBounds();
-        view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
+        Rectangle r;
+        int totalHeight;
+        if (displayTop)
+        {
+            totalHeight = d.height+dlogin.height;
+            viewTop.setBounds((screenSize.width-d.width)/2, 
+                    (screenSize.height-totalHeight)/2, 
+                    d.width, viewTop.getSize().height);
+            r = viewTop.getBounds();
+            
+            viewTop.addPropertyChangeListener((PropertyChangeListener) viewer);
+            viewTop.addWindowStateListener((WindowStateListener) viewer);
+            viewTop.addWindowFocusListener((WindowFocusListener) viewer); 
+            view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
+       } else {
+            totalHeight = dlogin.height;
+            view.setBounds((screenSize.width-d.width)/2,
+                    (screenSize.height-totalHeight)/2, 
+                    dlogin.width, dlogin.height);
+            view.setQuitButtonText("Canel");
+        }
         view.addPropertyChangeListener((PropertyChangeListener) viewer);
-        viewTop.addPropertyChangeListener((PropertyChangeListener) viewer);
         view.addWindowStateListener((WindowStateListener) viewer);
-        viewTop.addWindowStateListener((WindowStateListener) viewer);
         view.addWindowFocusListener((WindowFocusListener) viewer);
-        viewTop.addWindowFocusListener((WindowFocusListener) viewer); 
         
-        viewTop.setVisible(true);
+        
+        viewTop.setVisible(displayTop);
         view.setVisible(true);
         
         return true;
@@ -415,6 +464,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             } else 
             {                
                 loginHandler = LoginHandler.getLoginHandler(this, true, true);
+                loginHandler.displayLogin(false);
                 db = HistoryDB.getHistoryDB();
             }
         } else if ("quit".equals(cmd)) {
@@ -568,7 +618,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             } catch (Exception e) 
            { System.err.println(laf + " not supported."); }
         }
-
+        
         new Main();
     }
 
@@ -614,7 +664,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         if (ScreenLogin.LOGIN_PROPERTY.equals(name)) {
             LoginCredentials lc = (LoginCredentials) evt.getNewValue();
             if (lc != null) login(lc);
-        } else if (ScreenLogin.QUIT_PROPERTY.equals(name)) {
+        } else if (ScreenLogin.QUIT_PROPERTY.equals(name) || name.equals("quitpplication")) {
             if (quitConfirmed(this) == true)
             {
                 System.exit(0);
@@ -622,7 +672,14 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         } else if (ScreenLogin.TO_FRONT_PROPERTY.equals(name) || 
                 ScreenLogo.MOVE_FRONT_PROPERTY.equals(name)) {
             //updateView();
+        } else if (name.equals("aboutApplication"))
+        {
+            // HACK - JOptionPane prevents shutdown on dispose
+            setDefaultCloseOperation(EXIT_ON_CLOSE);
+            About.show(this.getContentPane(), useSplashScreenAbout);
         }
+        
+        
     }
 
     public void login(LoginCredentials lc)

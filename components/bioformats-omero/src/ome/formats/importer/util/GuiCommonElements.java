@@ -558,10 +558,10 @@ public class GuiCommonElements
                 System.err.println("Couldn't find icon: " + image);
             }
         }
-        button.setMaximumSize(new Dimension(height, width));
-        button.setPreferredSize(new Dimension(height, width));
-        button.setMinimumSize(new Dimension(height, width));
-        button.setSize(new Dimension(height, width));
+        button.setMaximumSize(new Dimension(width, height));
+        button.setPreferredSize(new Dimension(width, height));
+        button.setMinimumSize(new Dimension(width, height));
+        button.setSize(new Dimension(width, height));
         if (mnemonic != null) button.setMnemonic(mnemonic);
         button.setOpaque(lafOpaque);
         container.add(button, placement);

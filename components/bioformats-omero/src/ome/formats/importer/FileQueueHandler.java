@@ -32,6 +32,7 @@ import javax.swing.UIManager;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -411,11 +412,97 @@ public class FileQueueHandler
     {
         if (message == "REIMPORT")
         {
+            store = viewer.loginHandler.getMetadataStore();  
+            
+            String datasetName = "", projectName = "", fileName = "";
+            Long datasetID = 0L, projectID = 0L;
+            File file = null;
+            Integer finalCount = 0;
+            
             int count = historyTable.table.getRowCount();
-            for (int r = count - 1; r >= 0; r--)
+            //System.err.println(count);
+            for (int r = 0; r < count; r++)
             {
-                historyTable.table.removeRow(r);
+                Vector row = new Vector();
+                
+                datasetID = (Long) historyTable.table.getValueAt(r, 5);
+                projectID = (Long) historyTable.table.getValueAt(r, 6);
+                
+                fileName = (String) historyTable.table.getValueAt(r, 0);
+                file = new File((String) historyTable.table.getValueAt(r, 4));
+                
+                try {
+                    datasetName = store.getDataset(datasetID).getName();
+                } catch (Exception e)
+                {
+                    //System.err.println("failed getDatasetName:" + datasetID);
+                    //e.printStackTrace();
+                    continue;
+                } 
+
+                
+                try {
+                    projectName = store.getProject(projectID).getName();
+                } catch (Exception e)
+                {
+                    //System.err.println("failed getProjectName:" + projectID);
+                    //e.printStackTrace();
+                    continue;
+                }
+                
+                finalCount = finalCount + 1;
+                Dataset d = store.getDataset(datasetID);
+                
+                row.add(fileName);
+                row.add(projectName + "/" + datasetName);
+                row.add("added");
+                row.add(d);
+                row.add(file);
+                row.add(false);
+                row.add(projectID);
+                qTable.table.addRow(row);
             }
+            
+            if (finalCount == 0)
+            {
+                JOptionPane.showMessageDialog(viewer, 
+                        "None of the images in this history\n" +
+                        "list can be reimported.");                
+            } else if (finalCount == 1)
+            {
+                JOptionPane.showMessageDialog(viewer, 
+                        "One of the images in this history list has been\n" +
+                        "re-added to the import queue for reimport.");                 
+            } else if (finalCount > 1)
+            {
+                JOptionPane.showMessageDialog(viewer, 
+                        finalCount + " images in this history list have been re-added\n" +
+                        "to the import queue for reimport.");                 
+            }
+
+            
+            if (qTable.table.getRowCount() >  0)
+                qTable.importBtn.setEnabled(true);
         }
     }
 }
+
+
+/*
+
+Vector row = new Vector();
+
+String imageName = getImageName(file, useFullPath, numOfDirectories);
+       
+row.add(imageName);
+row.add(project + "/" + dName);
+row.add("added");
+row.add(dataset);
+row.add(file);
+row.add(archiveImage);
+row.add(projectID);
+qTable.table.addRow(row);
+if (qTable.table.getRowCount() == 1)
+    qTable.importBtn.setEnabled(true);
+
+*/
