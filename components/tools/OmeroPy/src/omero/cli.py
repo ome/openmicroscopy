@@ -600,11 +600,11 @@ class CLI(cmd.Cmd, Context):
         """
         Alias for "node start"
         """
-        args = shlex(args)
+        args = pyshlex.split(args)
         if not args:
-            args = ["start"]
+            args = ["node","start"]
         else:
-            args = ["start"] + args
+            args = ["node","start"] + args
         self.pub(args)
 
     ##########################################

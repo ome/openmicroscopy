@@ -152,7 +152,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
         try:
             self.ctx.popen(command)
         except NonZeroReturnCode, nzrc:
-            self.ctx.rv = nzrv.rv
+            self.ctx.rv = nzrc.rv
             self.ctx.out("Was the server already stopped?")
 
     def check(self, args):
