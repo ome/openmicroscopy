@@ -715,8 +715,12 @@ class TreeViewerComponent
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getSelectedBrowser();
 		browser.refreshEdition(data, parent, operation);
-		DataBrowserFactory.discardAll();
-	    view.removeAllFromWorkingPane();
+		
+		if (operation == REMOVE_OBJECT || operation == CREATE_OBJECT) {
+			DataBrowserFactory.discardAll();
+			view.removeAllFromWorkingPane();
+		}
+	    
 		//Browser browser = model.getSelectedBrowser();
 		//browser.refreshEdition(data, operation);
 		//browser.refreshLoggedExperimenterData();

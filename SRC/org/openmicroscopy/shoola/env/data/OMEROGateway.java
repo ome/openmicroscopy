@@ -288,8 +288,6 @@ class OMEROGateway
 			table = "ImageAnnotationLink";
 		else if (klass.equals(PixelsData.class)) 
 			table = "PixelAnnotationLink";
-		else if (klass.equals(AnnotationData.class))
-			table = "AnnotationAnnotationLink";
 		return table;
 	}
 	
@@ -3078,6 +3076,22 @@ class OMEROGateway
 	}
 	
 	/**
+	 * Formats the elements of the passed array.
+	 * @param terms
+	 * @param field
+	 * @return
+	 */
+	private String[] formatText(String[] terms, String field)
+	{
+		if (terms == null || terms.length == 0) return null;
+		String[] formatted = new String[terms.length];
+		for (int i = 0; i < terms.length; i++) {
+			formatted[i] = field+":"+terms[i];
+		}
+		return formatted;
+	}
+	
+	/**
 	 * Searches for data.
 	 * 
 	 * @param context The context of search.
@@ -3201,18 +3215,39 @@ class OMEROGateway
 				//service.notAnnotatedBy(exp.asExperimenter().getDetails());
 			}
 		}
+		
+		
 		i = scopes.iterator();
 		while (i.hasNext()) {
 			type = (Class) i.next();
 			k = convertPojos(type);
 			rType = new HashSet();
-			service.onlyType(k);
-			service.bySomeMustNone(some, must, none);
-			handleSearchResult(k, rType, service);
+			
+			if (k.equals(FileAnnotation.class)) {
+				service.onlyType(OriginalFile.class);
+				service.bySomeMustNone(some, must, none);
+				handleSearchResult(OriginalFile.class, rType, service);
+				service.clearQueries();
+				some = formatText(some, "file");
+				must = formatText(must, "file");
+				none = formatText(none, "file");
+				service.bySomeMustNone(some, must, none);
+				handleSearchResult(OriginalFile.class, rType, service);
+			} else {
+				service.onlyType(k);
+				service.bySomeMustNone(some, must, none);
+				handleSearchResult(k, rType, service);
+			}
+			//some = formatText(some, field);
+			//must = formatText(must, field);
+			//none = formatText(none, field);
+			//service.onlyType(Image.class);
+			//service.onlyType(Image.class);
+			//service.bySomeMustNone(some, must, none);
+			//handleSearchResult(k, rType, service);
 			results.put(type, rType);
 			service.clearQueries();
 		}
-
 		service.close();
 		return results;
 	}
@@ -3615,6 +3650,26 @@ class OMEROGateway
 		} catch (Exception e) {
 			dsFactory.sessionExpiredExit();
 		}
+	}
+	
+	//tmp
+	List getFileAnnotations(Set<Long> originalFiles) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IQuery service = getQueryService();
+			Parameters param = new Parameters();
+			param.addSet("ids", originalFiles);
+			String sql =  "select link from Annotation as link ";
+			sql += "where link.file.id in (:ids)";
+			return service.findAllByQuery(sql, param);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot remove the tag description.");
+		}
+		return new ArrayList();
 	}
 	
 }
