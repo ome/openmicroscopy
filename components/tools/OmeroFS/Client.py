@@ -57,14 +57,11 @@ class MonitorClientImpl(monitors.MonitorClient):
         """
                 
         if self.id == id:
-            for fileId in eventList:
-                print "Event: New file %s" % (fileId)
-                print "\t%s" % (self.serverProxy.getBaseName(self.id, fileId))
-                print "\towner: %s" % (self.serverProxy.getOwner(self.id, fileId))
-                print "\t size: %i" % (self.serverProxy.getSize(self.id, fileId))
-                print "\t%s" % (strftime("atime: %d%m%y %H:%M:%S",localtime(self.serverProxy.getATime(self.id, fileId))))
-                print "\t%s" % (strftime("ctime: %d%m%y %H:%M:%S",localtime(self.serverProxy.getCTime(self.id, fileId))))
-                print "\t%s" % (strftime("mtime: %d%m%y %H:%M:%S",localtime(self.serverProxy.getMTime(self.id, fileId))))
+            for fileInfo in eventList:
+                print "Event: New file %s" % (fileInfo.fileId)
+                print "\t%s" % (fileInfo.baseName)
+                print "\t size: %i" % (fileInfo.size)
+                print "\t%s" % (strftime("mtime: %d%m%y %H:%M:%S",localtime(fileInfo.mTime)))
                 
     def setServerProxy(self, serverProxy):
         """

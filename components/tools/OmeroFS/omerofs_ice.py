@@ -24,6 +24,54 @@ if not _M_monitors.__dict__.has_key('MonitorClient'):
     _M_monitors._t_MonitorClient = IcePy.declareClass('::monitors::MonitorClient')
     _M_monitors._t_MonitorClientPrx = IcePy.declareProxy('::monitors::MonitorClient')
 
+if not _M_monitors.__dict__.has_key('FileStats'):
+    _M_monitors.FileStats = Ice.createTempClass()
+    class FileStats(object):
+        def __init__(self, owner='', size=0, mTime=0.0, cTime=0.0, aTime=0.0):
+            self.owner = owner
+            self.size = size
+            self.mTime = mTime
+            self.cTime = cTime
+            self.aTime = aTime
+
+        def __hash__(self):
+            _h = 0
+            _h = 5 * _h + __builtin__.hash(self.owner)
+            _h = 5 * _h + __builtin__.hash(self.size)
+            _h = 5 * _h + __builtin__.hash(self.mTime)
+            _h = 5 * _h + __builtin__.hash(self.cTime)
+            _h = 5 * _h + __builtin__.hash(self.aTime)
+            return _h % 0x7fffffff
+
+        def __eq__(self, other):
+            if not self.owner == other.owner:
+                return False
+            if not self.size == other.size:
+                return False
+            if not self.mTime == other.mTime:
+                return False
+            if not self.cTime == other.cTime:
+                return False
+            if not self.aTime == other.aTime:
+                return False
+            return True
+
+        def __str__(self):
+            return IcePy.stringify(self, _M_monitors._t_FileStats)
+
+        __repr__ = __str__
+
+    _M_monitors._t_FileStats = IcePy.defineStruct('::monitors::FileStats', FileStats, (), (
+        ('owner', (), IcePy._t_string),
+        ('size', (), IcePy._t_long),
+        ('mTime', (), IcePy._t_float),
+        ('cTime', (), IcePy._t_float),
+        ('aTime', (), IcePy._t_float)
+    ))
+
+    _M_monitors.FileStats = FileStats
+    del FileStats
+
 if not _M_monitors.__dict__.has_key('MonitorServer'):
     _M_monitors.MonitorServer = Ice.createTempClass()
     class MonitorServer(Ice.Object):
@@ -46,6 +94,7 @@ if not _M_monitors.__dict__.has_key('MonitorServer'):
         # def destroyMonitor(self, id, current=None):
         # def getDirectory(self, id, path, filter, current=None):
         # def getBaseName(self, id, fileId, current=None):
+        # def getStats(self, id, fileId, current=None):
         # def getSize(self, id, fileId, current=None):
         # def getOwner(self, id, fileId, current=None):
         # def getCTime(self, id, fileId, current=None):
@@ -78,6 +127,9 @@ if not _M_monitors.__dict__.has_key('MonitorServer'):
 
         def getBaseName(self, id, fileId, _ctx=None):
             return _M_monitors.MonitorServer._op_getBaseName.invoke(self, (id, fileId), _ctx)
+
+        def getStats(self, id, fileId, _ctx=None):
+            return _M_monitors.MonitorServer._op_getStats.invoke(self, (id, fileId), _ctx)
 
         def getSize(self, id, fileId, _ctx=None):
             return _M_monitors.MonitorServer._op_getSize.invoke(self, (id, fileId), _ctx)
@@ -116,6 +168,7 @@ if not _M_monitors.__dict__.has_key('MonitorServer'):
     MonitorServer._op_destroyMonitor = IcePy.Operation('destroyMonitor', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string),), (), IcePy._t_bool, ())
     MonitorServer._op_getDirectory = IcePy.Operation('getDirectory', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), IcePy._t_string), ((), IcePy._t_string)), (), _M_Ice._t_StringSeq, ())
     MonitorServer._op_getBaseName = IcePy.Operation('getBaseName', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), IcePy._t_string)), (), IcePy._t_string, ())
+    MonitorServer._op_getStats = IcePy.Operation('getStats', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), IcePy._t_string)), (), _M_monitors._t_FileStats, ())
     MonitorServer._op_getSize = IcePy.Operation('getSize', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), IcePy._t_string)), (), IcePy._t_long, ())
     MonitorServer._op_getOwner = IcePy.Operation('getOwner', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), IcePy._t_string)), (), IcePy._t_string, ())
     MonitorServer._op_getCTime = IcePy.Operation('getCTime', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), IcePy._t_string)), (), IcePy._t_float, ())
@@ -128,6 +181,52 @@ if not _M_monitors.__dict__.has_key('MonitorServer'):
 
     _M_monitors.MonitorServerPrx = MonitorServerPrx
     del MonitorServerPrx
+
+if not _M_monitors.__dict__.has_key('FileInfo'):
+    _M_monitors.FileInfo = Ice.createTempClass()
+    class FileInfo(object):
+        def __init__(self, fileId='', baseName='', size=0, mTime=0.0):
+            self.fileId = fileId
+            self.baseName = baseName
+            self.size = size
+            self.mTime = mTime
+
+        def __hash__(self):
+            _h = 0
+            _h = 5 * _h + __builtin__.hash(self.fileId)
+            _h = 5 * _h + __builtin__.hash(self.baseName)
+            _h = 5 * _h + __builtin__.hash(self.size)
+            _h = 5 * _h + __builtin__.hash(self.mTime)
+            return _h % 0x7fffffff
+
+        def __eq__(self, other):
+            if not self.fileId == other.fileId:
+                return False
+            if not self.baseName == other.baseName:
+                return False
+            if not self.size == other.size:
+                return False
+            if not self.mTime == other.mTime:
+                return False
+            return True
+
+        def __str__(self):
+            return IcePy.stringify(self, _M_monitors._t_FileInfo)
+
+        __repr__ = __str__
+
+    _M_monitors._t_FileInfo = IcePy.defineStruct('::monitors::FileInfo', FileInfo, (), (
+        ('fileId', (), IcePy._t_string),
+        ('baseName', (), IcePy._t_string),
+        ('size', (), IcePy._t_long),
+        ('mTime', (), IcePy._t_float)
+    ))
+
+    _M_monitors.FileInfo = FileInfo
+    del FileInfo
+
+if not _M_monitors.__dict__.has_key('_t_EventList'):
+    _M_monitors._t_EventList = IcePy.defineSequence('::monitors::EventList', (), _M_monitors._t_FileInfo)
 
 if not _M_monitors.__dict__.has_key('MonitorClient'):
     _M_monitors.MonitorClient = Ice.createTempClass()
@@ -171,7 +270,7 @@ if not _M_monitors.__dict__.has_key('MonitorClient'):
     _M_monitors._t_MonitorClient = IcePy.defineClass('::monitors::MonitorClient', MonitorClient, (), True, None, (), ())
     MonitorClient.ice_type = _M_monitors._t_MonitorClient
 
-    MonitorClient._op_fsEventHappened = IcePy.Operation('fsEventHappened', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), _M_Ice._t_StringSeq)), (), None, ())
+    MonitorClient._op_fsEventHappened = IcePy.Operation('fsEventHappened', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, (), (((), IcePy._t_string), ((), _M_monitors._t_EventList)), (), None, ())
 
     _M_monitors.MonitorClient = MonitorClient
     del MonitorClient

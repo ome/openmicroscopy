@@ -59,17 +59,16 @@ class MonitorClientImpl(monitors.MonitorClient):
         size = 1024*1024/2 # Needs to be less that 1MB to avoid Ice MemoryLimitException
         
         if self.id == id:
-            for fileId in eventList:
-                print "Event: New file %s" % (fileId)
-                fileName = self.serverProxy.getBaseName(self.id, fileId)
-                file = open('test.'+fileName,'wb')
+            for fileInfo in eventList:
+                print "Event: New file %s" % (fileInfo.fileId)
+                file = open('test.'+fileInfo.baseName,'wb')
                 offset = 0
-                data = self.serverProxy.readBlock(self.id, fileId, offset, size)
+                data = self.serverProxy.readBlock(self.id, fileInfo.fileId, offset, size)
                 while len(data) != 0:
                     file.write(data)
                     file.flush()
                     offset += len(data)
-                    data = self.serverProxy.readBlock(self.id, fileId, offset, size)
+                    data = self.serverProxy.readBlock(self.id, fileInfo.fileId, offset, size)
                 file.close()
                 
     def setServerProxy(self, serverProxy):

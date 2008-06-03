@@ -15,6 +15,14 @@ module monitors {
      *   Forward declarations.
      */
     interface MonitorClient;
+
+    struct FileStats {
+        string owner;
+        long size;
+        float mTime;
+        float cTime;
+        float aTime;
+    };
      
     /*
      *   The path should be a fully qualified path.
@@ -39,17 +47,29 @@ module monitors {
          *   id and fileId are used for file level operations.
          */
         string getBaseName(string id, string fileId);
+        FileStats getStats(string id, string fileId);       
         long getSize(string id, string fileId);
         string getOwner(string id, string fileId);
         float getCTime(string id, string fileId);
         float getMTime(string id, string fileId);
         float getATime(string id, string fileId);
         
+        
         // readBlock should open, read size bytes from offset and then close the file.
         Ice::ByteSeq readBlock(string id, string fileId, long offset, int size);
         
     }; // end interface MonitorServer
   
+    
+    struct FileInfo {
+        string fileId;
+        string baseName;
+        long size;
+        float mTime;
+    };
+    
+    sequence<FileInfo> EventList;
+    
     /*
      *    Initially let the event be a simple path string.
      *    A more complex structure may need to de defined
@@ -57,7 +77,7 @@ module monitors {
      */
     interface  MonitorClient {
     
-        void fsEventHappened(string id, Ice::StringSeq el);
+        void fsEventHappened(string id, EventList el);
     
     }; // end interface MonitorClient
     

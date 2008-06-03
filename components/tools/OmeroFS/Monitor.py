@@ -139,6 +139,28 @@ class MonitorServerImpl(monitors.MonitorServer):
 
     def getBaseName(self, id, fileId, current=None):
         """
+            Return the base names of the file, ie no path.
+            
+            :Parameters:
+                id : string
+                    A string uniquely identifying a Monitor.
+                      
+                fileId : string
+                    A string uniquely identifying a file on this Monitor.
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: base name
+            :rtype: string
+         
+        """
+        
+        return pathModule.path(fileId).name
+        
+    def getStats(self, id, fileId, current=None):
+        """
             Return an at most size block of bytes from offset.
             
             :Parameters:
@@ -152,12 +174,19 @@ class MonitorServerImpl(monitors.MonitorServer):
                     An ICE context, this parameter is required to be present
                     in an ICE interface method.
                            
-            :return: Data.
-            :rtype: list<byte>
+            :return: stats
+            :rtype: monitors.FileStats
          
         """
+        stats = monitors.FileStats()
         
-        return pathModule.path(fileId).name
+        stats.owner = pathModule.path(fileId).owner
+        stats.size = pathModule.path(fileId).size
+        stats.mTime = pathModule.path(fileId).mtime
+        stats.cTime = pathModule.path(fileId).ctime
+        stats.aTime = pathModule.path(fileId).atime
+
+        return stats
         
     def getSize(self, id, fileId, current=None):
         """
@@ -446,8 +475,16 @@ class MonitorServerImpl(monitors.MonitorServer):
             
             # If there any new files then tell the client.
             if len(new) > 0:
+                eventList = []
+                for file in new:
+                    info = monitors.FileInfo()
+                    info.fileId = file
+                    info.baseName = pathModule.path(file).name
+                    info.size = pathModule.path(file).size
+                    info.mTime = pathModule.path(file).mtime
+                    eventList.append(info)
                 try:
-                    proxy.fsEventHappened(monitorId, new)
+                    proxy.fsEventHappened(monitorId, eventList)
                 except Exception, e:
                     self.stopMonitor(monitorId)
                     self.destroyMonitor(monitorId)
