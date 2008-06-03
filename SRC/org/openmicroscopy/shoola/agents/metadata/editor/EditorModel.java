@@ -349,11 +349,14 @@ class EditorModel
 	boolean isCurrentUserOwner(Object object)
 	{
 		long userID = MetadataViewerAgent.getUserDetails().getId();
+		if (object == null) return false;
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == userID);
-		if (object == null) return false;
-		if (object instanceof DataObject) 
-			return userID == ((DataObject) object).getOwner().getId();
+		if (object instanceof DataObject)  {
+			ExperimenterData exp = ((DataObject) object).getOwner();
+			if (exp == null) return false;
+			return userID == exp.getId();
+		}
 		return false;
 	}
 	

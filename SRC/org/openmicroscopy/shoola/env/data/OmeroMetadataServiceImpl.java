@@ -439,30 +439,36 @@ class OmeroMetadataServiceImpl
 		long userID = getUserDetails().getId();
 		Class ioType = gateway.convertPojos(type);
 		IObject ho = gateway.findIObject(ioType, id);
+		ModelMapper.unloadCollections(ho);
 		ILink link = null;
 		boolean exist = false;
+		IObject annObject;
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
 			//tag a tag
 			if (TagAnnotationData.class.equals(type)) {
-				if (tag.getId() < 0) {
+				if (tag.getId() <= 0) {
 					TagAnnotation ann = new TagAnnotation();
 		    		ann.setTextValue(tag.getContentAsString());
 		    		link = ModelMapper.linkAnnotation(ann, ho);
 				} else {
+					annObject = tag.asIObject();
+					ModelMapper.unloadCollections(annObject);
 					link = (ILink) gateway.findAnnotationLink(
 							AnnotationData.class, tag.getId(), ho.getId());
 					if (link == null) 
-						link = ModelMapper.linkAnnotation(tag.asIObject(), ho);
+						link = ModelMapper.linkAnnotation(annObject, ho);
 				}
 			} else {
-				if (tag.getId() < 0) 
+				if (tag.getId() <= 0) 
 					link = ModelMapper.createAnnotationAndLink(ho, annotation);
 				else {
+					annObject = tag.asIObject();
+					ModelMapper.unloadCollections(annObject);
 					link = (ILink) gateway.findAnnotationLink(ho.getClass(), 
 														ho.getId(), tag.getId());
 					if (link == null)
-						link = ModelMapper.linkAnnotation(ho, tag.asIObject());
+						link = ModelMapper.linkAnnotation(ho, annObject);
 					else exist = true;
 				}
 			}
@@ -482,7 +488,9 @@ class OmeroMetadataServiceImpl
 				fa.setFile(of);
 				link = ModelMapper.linkAnnotation(ho, fa);
 			} else {
-				link = ModelMapper.linkAnnotation(ho, ann.asIObject());
+				annObject = ann.asIObject();
+				ModelMapper.unloadCollections(annObject);
+				link = ModelMapper.linkAnnotation(ho, annObject);
 			}
 			
 		} else
@@ -492,7 +500,9 @@ class OmeroMetadataServiceImpl
 			IObject object;
 			if (exist) object = link;
 			else object = gateway.createObject(link, map);
+			/*
 			if (annotation instanceof TagAnnotationData) {
+
 				//Add description to the object.
 				TagAnnotationData tag = (TagAnnotationData) annotation;
 				TextualAnnotationData description = tag.getTagDescription();
@@ -507,6 +517,7 @@ class OmeroMetadataServiceImpl
 					if (link != null) gateway.createObject(link, map);
 				}
 			}
+			*/
 
 			return PojoMapper.asDataObject(
 								ModelMapper.getAnnotatedObject(object));
@@ -725,7 +736,6 @@ class OmeroMetadataServiceImpl
 			                         long objectID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		System.err.println("type "+annotationType);
 		Collection c = gateway.fetchAnnotation(objectID, userID);
 		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
 		if (c == null || c.size() == 0) return annotations;
@@ -758,11 +768,18 @@ class OmeroMetadataServiceImpl
 		if (toAdd == null || toAdd.size() == 0) return annotations;
 		i = toAdd.iterator();
 		AnnotationData ann;
-		Annotation iobject;
+		Annotation iobject = null;
 		FileAnnotationData fileAnn;
 		FileAnnotation fa;
 		OriginalFile of;
 		List<Annotation> toCreate = new ArrayList<Annotation>();
+		List<IObject> links = new ArrayList<IObject>();
+		TextualAnnotationData desc;
+		TagAnnotationData tag;
+		long id;
+		long userID = getUserDetails().getId();
+		IObject link = null;
+		Map map = (new PojoOptions()).map();
 		while (i.hasNext()) {
 			ann = (AnnotationData) i.next();
 			if (ann.getId() < 0) {
@@ -774,12 +791,33 @@ class OmeroMetadataServiceImpl
 					fa.setFile(of);
 					iobject = fa;
 				} else {
-					iobject = ModelMapper.createAnnotation(ann);
-				}
+					if (ann instanceof TagAnnotationData) {
+						IObject r = gateway.createObject(
+								ModelMapper.createAnnotation(ann), map);
+						tag = (TagAnnotationData) ann;
+						desc = tag.getTagDescription();
+						if (desc != null) {
+							link = ModelMapper.createAnnotationAndLink(r, desc);
+							if (link != null) 
+								gateway.createObject(link, map);
+						}
+						annotations.add(
+								(AnnotationData) PojoMapper.asDataObject(r));
+					} else 
+						iobject = ModelMapper.createAnnotation(ann);
+				} 
 				if (iobject != null)
 					toCreate.add(iobject);
-			} else 
+				
+			} else {
+				if (ann instanceof TagAnnotationData) {
+					//update description
+					tag = (TagAnnotationData) ann;
+					updateAnnotationData(tag);
+				}
 				annotations.add(ann);
+			}
+				
 		}
 		
 		if (toCreate.size() > 0) {
@@ -793,6 +831,16 @@ class OmeroMetadataServiceImpl
 			IObject[] r = gateway.createObjects(array, 
 					               (new PojoOptions()).map());
 			annotations.addAll(PojoMapper.asDataObjects(r));
+		}
+		if (links.size() > 0) {
+			i = links.iterator();
+			IObject[] array = new IObject[links.size()];
+			int index = 0;
+			while (i.hasNext()) {
+				array[index] = (IObject) i.next();
+				index++;
+			}
+			gateway.createObjects(array, (new PojoOptions()).map());
 		}
 		return annotations;
 	}

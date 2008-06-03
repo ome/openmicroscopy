@@ -880,6 +880,7 @@ class TagsUI
 		String description = descriptionArea.getText();
 		if (description != null)
 			description = description.trim();
+		
 		List<AnnotationData> newTags = new ArrayList<AnnotationData>();
 		for (int i = 0; i < names.length; i++) {
 			value = names[i];
@@ -887,8 +888,9 @@ class TagsUI
 				value = value.trim();
 				if (value != null && value.length() > 0) {
 					data = new TagAnnotationData(value);
-					if (description.length() > 0)
+					if (description.length() > 0) {
 						data.setTagDescription(description);
+					}
 					newTags.add(data);
 				}
 			}
@@ -910,9 +912,9 @@ class TagsUI
 		String[] names = name.split(SearchUtil.COMMA_SEPARATOR);
 		String value;
 		TagAnnotationData data;
-		String description = descriptionArea.getText();
-		if (description != null)
-			description = description.trim();
+		//String description = descriptionArea.getText();
+		//if (description != null)
+		//	description = description.trim();
 		List<AnnotationData> newTags = new ArrayList<AnnotationData>();
 		for (int i = 0; i < names.length; i++) {
 			value = names[i];
@@ -920,8 +922,9 @@ class TagsUI
 				value = value.trim();
 				if (value != null && value.length() > 0) {
 					data = new TagAnnotationData(value);
-					if (description.length() > 0)
-						data.setTagDescription(description);
+					
+					//if (description.length() > 0)
+					//	data.setTagDescription(description);
 					newTags.add(data);
 				}
 			}

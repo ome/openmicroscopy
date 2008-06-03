@@ -3046,6 +3046,14 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+	 * Handles the result of the search.
+	 * 
+	 * @param type
+	 * @param r
+	 * @param service
+	 * @return See above.
+	 */
 	private Object handleSearchResult(Class type, Collection r, Search service)
 	{
 		//First get object of a given type.
@@ -3053,7 +3061,6 @@ class OMEROGateway
 		try {
 			hasNext = service.hasNext();
 		} catch (Exception e) {
-			e.printStackTrace();
 			int size = service.getBatchSize();
 			service.close();
 			return new Integer(size);
@@ -3076,7 +3083,8 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Formats the elements of the passed array.
+	 * Formats the elements of the passed array, the field to use.
+	 * 
 	 * @param terms
 	 * @param field
 	 * @return
