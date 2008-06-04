@@ -168,6 +168,12 @@ public class FullTextBridge extends BridgeHelper {
             IAnnotated annotated = (IAnnotated) object;
             List<Annotation> list = annotated.linkedAnnotationList();
             for (Annotation annotation : list) {
+                String at = annotationTypeString(annotation);
+                add(document, "annotation.type", at, store, index, boost);
+                if (annotation.getNs() != null) {
+                    add(document, "annotation.ns", annotation.getNs(), store,
+                            index, boost);
+                }
                 if (annotation instanceof TextAnnotation) {
                     TextAnnotation text = (TextAnnotation) annotation;
                     String textValue = text.getTextValue();
@@ -326,6 +332,24 @@ public class FullTextBridge extends BridgeHelper {
         add(document, "file.format", file.getFormat().getValue(), store, index,
                 boost);
         addContents(document, "file.contents", file, files, parsers, boost);
+    }
+
+    /**
+     * Return the short type name of an {@link Annotation}. If the instance is
+     * an {@link ome.model.annotations.TextAnnotation} the returned value will
+     * be "TextAnnotation".
+     * 
+     * @param annotation
+     * @return
+     */
+    private String annotationTypeString(Annotation annotation) {
+        Class ac = Utils.trueClass(annotation.getClass());
+        int dot = ac.getName().lastIndexOf('.');
+        if (dot < 0) {
+            dot = -1;
+        }
+        String at = ac.getName().substring(dot + 1, ac.getName().length());
+        return at;
     }
 
 }

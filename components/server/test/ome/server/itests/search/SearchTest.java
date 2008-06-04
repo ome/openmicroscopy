@@ -147,6 +147,14 @@ public class SearchTest extends AbstractTest {
                 null);
         assertTrue(list.toString(), list.size() == 1);
 
+        list = this.iQuery.findAllByFullText(Image.class,
+                "annotation.ns:theNamespace*", null);
+        assertTrue(list.toString(), list.size() >= 1);
+
+        list = this.iQuery.findAllByFullText(Image.class,
+                "annotation.type:TagAnnotation", null);
+        assertTrue(list.toString(), list.size() >= 1);
+
     }
 
     // by<Query>
