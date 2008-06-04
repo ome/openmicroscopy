@@ -57,7 +57,6 @@ import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
-import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
@@ -467,15 +466,14 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#activate(RndProxyDef)
+	 * @see ImViewer#activate(RndProxyDef, long)
 	 */
-	public void activate(RndProxyDef settings)
+	public void activate(RndProxyDef settings, long userID)
 	{
 		int state = model.getState();
 		switch (state) {
 			case NEW:
-				//model.fireCategoriesLoading();
-				model.setAlternativeSettings(settings);
+				model.setAlternativeSettings(settings, userID);
 				model.fireRenderingControlLoading(model.getPixelsID());
 				fireStateChange();
 				break;

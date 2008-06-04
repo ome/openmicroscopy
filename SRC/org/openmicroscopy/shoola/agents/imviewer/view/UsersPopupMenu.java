@@ -75,6 +75,8 @@ class UsersPopupMenu
 	{
 		Map m = model.getRenderingSettings();
 		if (m == null) return; //should not happen
+		long userID = model.getAlternativeSettingsOwnerId();
+		
 		ViewerSorter sorter = new ViewerSorter();
 		List list = sorter.sort(m.keySet());
 		Iterator i = list.iterator();
@@ -83,6 +85,7 @@ class UsersPopupMenu
 		IconManager icons = IconManager.getInstance();
 		Icon icon = icons.getIcon(IconManager.USER);
 		long id = model.getUserDetails().getId();
+		if (userID != -1) id = userID;
 		ButtonGroup group = new ButtonGroup();
 		long ownerID = model.getOwnerID();
 		while (i.hasNext()) {

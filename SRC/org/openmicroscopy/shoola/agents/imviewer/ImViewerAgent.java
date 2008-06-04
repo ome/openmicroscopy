@@ -93,7 +93,8 @@ public class ImViewerAgent
         if (evt == null) return;
         ImViewer view = ImViewerFactory.getImageViewer(evt.getImage(),
                                         evt.getRequesterBounds());
-        if (view != null) view.activate(evt.getSettings());
+        if (view != null) 
+        	view.activate(evt.getSettings(), evt.getSelectedUserID());
     }
     
     /**

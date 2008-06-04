@@ -193,9 +193,10 @@ public interface ImViewer
 	 * window to front.
 	 * 
 	 * @param settings The settings set by another user.
+	 * @param userID   The id of the user who set the settings.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(RndProxyDef settings);
+	public void activate(RndProxyDef settings, long userID);
 
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.

@@ -1427,14 +1427,14 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			ThumbnailStore service = getThumbService();
-			
 			needDefault(pixelsID, null);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
 				RenderingDef def = getRenderingDef(pixelsID, userID);
 				if (def != null) service.setRenderingDefId(def.getId());
 			}
-			return service.getThumbnail(new Integer(sizeX), new Integer(sizeY));
+			return service.getThumbnailDirect(new Integer(sizeX), 
+					                         new Integer(sizeY));
 			//return service.getThumbnailDirect(new Integer(sizeX), 
 			//		new Integer(sizeY));
 		} catch (Throwable t) {

@@ -214,6 +214,8 @@ class ImViewerModel
 	/** The rendering settings set by another user. */
 	private RndProxyDef					alternativeSettings;
 	
+	private long						selectedUserID;
+	
 	/** 
 	 * Flag to compute the magnification factor when the image
 	 * is set for the first time.
@@ -278,6 +280,7 @@ class ImViewerModel
 		metadataViewer = MetadataViewerFactory.getViewer(image, false);
 		metadataLoaded = false;
 		currentPixelsID = image.getDefaultPixels().getId();
+		selectedUserID = -1;
 	}
 
 	/**
@@ -308,12 +311,21 @@ class ImViewerModel
 	 * Sets the settings set by another user.
 	 * 
 	 * @param alternativeSettings The value to set.
+	 * @param userID              The id of the user who set the settings.
 	 */
-	void setAlternativeSettings(RndProxyDef alternativeSettings)
+	void setAlternativeSettings(RndProxyDef alternativeSettings, long userID)
 	{
 		this.alternativeSettings = alternativeSettings;
+		selectedUserID = userID;
 	}
 	
+	/**
+	 * Returns the id of the owner of the alternatives settings.
+	 * 
+	 * @return See above.
+	 */
+	long getAlternativeSettingsOwnerId() { return selectedUserID; }
+
 	/**
 	 * Compares another model to this one to tell if they would result in
 	 * having the same display.
