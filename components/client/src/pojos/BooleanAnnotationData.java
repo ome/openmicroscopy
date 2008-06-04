@@ -1,5 +1,5 @@
 /*
- * pojos.ArchivedAnnotationData 
+ * pojos.BooleanAnnotationData 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -31,7 +31,7 @@ package pojos;
 import ome.model.annotations.BooleanAnnotation;
 
 /** 
- * Boolean annotation used to see if an image has been archived or not.
+ * Boolean annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -43,24 +43,15 @@ import ome.model.annotations.BooleanAnnotation;
  * </small>
  * @since OME3.0
  */
-public class ArchivedAnnotationData
+public class BooleanAnnotationData 	
 	extends AnnotationData
 {
-
-	/** 
-	 * The name space used to identify the archived annotation
-	 * linked to a set of pixels.
-	 */
-	public static final String IMPORTER_ARCHIVED_NS = 
-					"openmicroscopy.org/omero/importer/archived";
-	
 	
 	/** Creates a new instance. */
-	public ArchivedAnnotationData()
+	public BooleanAnnotationData()
 	{
 		super(BooleanAnnotation.class);
 		setContent(null);
-		setNameSpace(IMPORTER_ARCHIVED_NS);
 	}
 	
 	/**
@@ -68,11 +59,10 @@ public class ArchivedAnnotationData
 	 * 
 	 * @param value The value to set.
 	 */
-	public ArchivedAnnotationData(boolean value)
+	public BooleanAnnotationData(boolean value)
 	{
 		super(BooleanAnnotation.class);
 		setContent(value);
-		setNameSpace(IMPORTER_ARCHIVED_NS);
 	}
 
 	/**
@@ -82,10 +72,9 @@ public class ArchivedAnnotationData
 	 * 						to this <code>DataObject</code>. 
      *            			Mustn't be <code>null</code>.
 	 */
-	public ArchivedAnnotationData(BooleanAnnotation annotation)
+	public BooleanAnnotationData(BooleanAnnotation annotation)
 	{
 		super(annotation);
-		setNameSpace(IMPORTER_ARCHIVED_NS);
 	}
 	
 	/**
