@@ -28,11 +28,11 @@ import ome.conditions.InternalException;
  * @since 3.0-M3
  */
 @RevisionDate("$Date: 1970-01-01 00:00:01 +0100 (Thu, 01 Jan 1970) $")
-@RevisionNumber("$Revision: 1 $")
+@RevisionNumber("$Revision: 2500 $")
 public abstract class Version {
 
-	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("omero");
-	
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("omero");
+
     /**
      * Current OMERO version. This is the value under which you can retrieve the
      * code from subversion as well as what will appear in the server console
