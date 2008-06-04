@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -81,11 +82,15 @@ class ImagesModel
 	
 	/**
 	 * Creates a concrete loader.
-	 * @see DataBrowserModel#createDataLoader(boolean refresh)
+	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh)
+	protected DataBrowserLoader createDataLoader(boolean refresh, 
+			Collection ids)
 	{
 		if (refresh) imagesLoaded = 0;
+		if (imagesLoaded != 0 && ids != null)
+			imagesLoaded = imagesLoaded-ids.size();
+		
 		//only load thumbnails not loaded.
 		if (imagesLoaded == numberOfImages) return null;
 		List<ImageNode> nodes = browser.getVisibleImageNodes();
@@ -93,13 +98,28 @@ class ImagesModel
 		Iterator<ImageNode> i = nodes.iterator();
 		ImageNode node;
 		List<ImageData> imgs = new ArrayList<ImageData>();
-		while (i.hasNext()) {
-			node = i.next();
-			if (node.getThumbnail().getFullScaleThumb() == null) {
-				imgs.add((ImageData) node.getHierarchyObject());
-				imagesLoaded++;
+		if (ids != null) {
+			ImageData img;
+			while (i.hasNext()) {
+				node = i.next();
+				img = (ImageData) node.getHierarchyObject();
+				if (ids.contains(img.getId())) {
+					if (node.getThumbnail().getFullScaleThumb() == null) {
+						imgs.add((ImageData) node.getHierarchyObject());
+						imagesLoaded++;
+					}
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					imgs.add((ImageData) node.getHierarchyObject());
+					imagesLoaded++;
+				}
 			}
 		}
+		
 		return new ThumbnailLoader(component, sorter.sort(imgs));
 	}
 	

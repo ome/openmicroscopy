@@ -23,22 +23,22 @@
 package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JLabel;
 
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
-import pojos.ExperimenterData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -152,6 +152,9 @@ class TagComponent
 		this.data = data;
 		this.uiDelegate = uiDelegate;
 		defaultFont = getFont();
+		//IconManager icons = IconManager.getInstance();
+		//setIcon(icons.getIcon(IconManager.TAG_12));
+		setForeground(Color.BLUE);
 		addMouseListener(this);
 		buildGUI();
 	}

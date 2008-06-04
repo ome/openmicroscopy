@@ -24,13 +24,20 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -52,7 +59,9 @@ class ProjectsModel
 
 	private Set<ProjectData> projects;
 
-	protected DataBrowserLoader createDataLoader(boolean refresh) {
+	protected DataBrowserLoader createDataLoader(boolean refresh, 
+			Collection ids)
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -712,7 +712,7 @@ class TreeViewerModel
 	 */
 	void firePasteRenderingSettings(Set<Long> ids, Class klass)
 	{
-		//TODO: add state change.
+		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
 								refPixelsID);
 		currentLoader.load();
@@ -725,7 +725,7 @@ class TreeViewerModel
 	 */
 	void firePasteRenderingSettings(TimeRefObject ref)
 	{
-		//TODO: add state change.
+		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, ref, refPixelsID);
 		currentLoader.load();
 	}
@@ -738,7 +738,7 @@ class TreeViewerModel
 	 */
 	void fireResetRenderingSettings(Set<Long> ids, Class klass)
 	{
-		//TODO: add state change.
+		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
 											RndSettingsSaver.RESET);
 		currentLoader.load();
@@ -751,7 +751,7 @@ class TreeViewerModel
 	 */
 	void fireResetRenderingSettings(TimeRefObject ref)
 	{
-		//TODO: add state change.
+		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, ref, 
 										RndSettingsSaver.RESET);
 		currentLoader.load();
@@ -765,7 +765,7 @@ class TreeViewerModel
 	 */
 	void fireSetOriginalRenderingSettings(Set<Long> ids, Class klass)
 	{
-		//TODO: add state change.
+		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
 										RndSettingsSaver.SET);
 		currentLoader.load();
@@ -778,7 +778,7 @@ class TreeViewerModel
 	 */
 	void fireSetOriginalRenderingSettings(TimeRefObject ref)
 	{
-		//TODO: add state change.
+		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, ref, 
 											RndSettingsSaver.SET);
 		currentLoader.load();

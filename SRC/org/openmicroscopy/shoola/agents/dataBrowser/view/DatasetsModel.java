@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -105,22 +106,14 @@ class DatasetsModel
 	
 	/**
 	 * Creates a concrete loader.
-	 * @see DataBrowserModel#createDataLoader(boolean)
+	 * @see DataBrowserModel#createDataLoader(boolean, Collection)
 	 */
-	protected DataBrowserLoader createDataLoader(boolean refresh)
+	protected DataBrowserLoader createDataLoader(boolean refresh, 
+			Collection ids)
 	{
-		/*
-		if (refresh) {
-			Iterator<DatasetData> i = datasets.iterator();
-			Set<ImageData> images = new HashSet<ImageData>();
-			DatasetData data;
-			while (i.hasNext()) {
-				data = i.next();
-				images.addAll(data.getImages());
-			}
-			return new ThumbnailLoader(component, images);
-		}
-		*/
+		if (refresh) imagesLoaded = 0;
+		if (imagesLoaded != 0 && ids != null)
+			imagesLoaded = imagesLoaded-ids.size();
 		if (imagesLoaded == numberOfImages) return null;
 		//only load thumbnails not loaded.
 		List<ImageNode> nodes = browser.getVisibleImageNodes();
@@ -129,21 +122,38 @@ class DatasetsModel
 		ImageNode node;
 		List<ImageData> imgs = new ArrayList<ImageData>();
 		ImageData img;
-		List<Long> ids = new ArrayList<Long>();
-		while (i.hasNext()) {
-			node = i.next();
-			if (node.getThumbnail().getFullScaleThumb() == null) {
-				img = (ImageData) node.getHierarchyObject();
-				if (!ids.contains(img.getId())) {
-					imgs.add(img);
-					ids.add(img.getId());
-					imagesLoaded++;
+		List<Long> loaded = new ArrayList<Long>();
+		if (ids != null) {
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					img = (ImageData) node.getHierarchyObject();
+					if (ids.contains(img.getId())) {
+						if (!loaded.contains(img.getId())) {
+							imgs.add(img);
+							loaded.add(img.getId());
+							imagesLoaded++;
+						}
+					}
+				}
+			}
+		} else {
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getThumbnail().getFullScaleThumb() == null) {
+					img = (ImageData) node.getHierarchyObject();
+					if (!loaded.contains(img.getId())) {
+						imgs.add(img);
+						loaded.add(img.getId());
+						imagesLoaded++;
+					}
 				}
 			}
 		}
+		
 		return new ThumbnailLoader(component, sorter.sort(imgs));
 	}
-
+	
 	/**
 	 * Returns the type of this model.
 	 * @see DataBrowserModel#getType()

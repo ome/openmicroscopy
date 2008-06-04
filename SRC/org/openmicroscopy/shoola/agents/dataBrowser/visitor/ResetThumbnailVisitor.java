@@ -28,10 +28,14 @@ package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Collection;
+
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+
+import pojos.ImageData;
 
 /** 
  * Sets the thumnail to <code>null</code> for each visited {@link ImageNode}s.
@@ -50,6 +54,20 @@ public class ResetThumbnailVisitor
 	implements ImageDisplayVisitor
 {
 	
+	/** The collection of images. */
+	private Collection ids;
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param ids The collection of images to reload the thumbnail
+	 *            or <code>null</code>.
+	 */
+	public ResetThumbnailVisitor(Collection ids)
+	{
+		this.ids = ids;
+	}
+	
 	/** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageNode)
@@ -57,7 +75,12 @@ public class ResetThumbnailVisitor
 	public void visit(ImageNode node)
 	{
 		Thumbnail th = node.getThumbnail();
-		th.setFullScaleThumb(null);
+		if (ids == null || ids.size() == 0)
+			th.setFullScaleThumb(null);
+		else {
+			ImageData d = (ImageData) node.getHierarchyObject();
+			if (ids.contains(d.getId())) th.setFullScaleThumb(null);
+		}
 	}
 
     /** 

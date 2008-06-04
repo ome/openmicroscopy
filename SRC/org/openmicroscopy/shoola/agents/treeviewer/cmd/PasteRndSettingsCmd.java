@@ -157,7 +157,6 @@ public class PasteRndSettingsCmd
 			case SET:
 				if (ref != null) model.setOriginalRndSettings(ref);
 				else model.setOriginalRndSettings(ids, klass);
-				
 		}
     }
     

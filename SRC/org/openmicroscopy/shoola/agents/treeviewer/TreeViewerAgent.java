@@ -160,7 +160,7 @@ public class TreeViewerAgent
 		if (e instanceof CopyRndSettings)
 			handleCopyRndSettings((CopyRndSettings) e);
 		else if (e instanceof SaveEventRequest) 
-		handleSaveEventRequest((SaveEventRequest) e);
+			handleSaveEventRequest((SaveEventRequest) e);
 	}
 
 }

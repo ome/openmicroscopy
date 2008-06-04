@@ -412,8 +412,13 @@ public interface DataBrowser
 	 */
 	public boolean isReadable(DataObject hierarchyObject);
 
-	/** Reloads the thumbnails. */
-	public void reloadThumbnails();
+	/**
+	 * Reloads the thumbnails. 
+	 * 
+	 * @param ids Collection of images to reload the thumbnails or 
+	 *            <code>null</code> if all the thumbnails have to be reloaded.
+	 */
+	public void reloadThumbnails(Collection ids);
 
 	/** Sets the original rendering settings. */
 	public void setOriginalSettings();

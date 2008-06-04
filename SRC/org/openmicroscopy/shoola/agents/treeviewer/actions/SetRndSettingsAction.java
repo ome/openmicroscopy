@@ -59,7 +59,7 @@ import pojos.ImageData;
  * @since OME3.0
  */
 public class SetRndSettingsAction 
-extends TreeViewerAction
+	extends TreeViewerAction
 {
 
 	/** The name of the action. */

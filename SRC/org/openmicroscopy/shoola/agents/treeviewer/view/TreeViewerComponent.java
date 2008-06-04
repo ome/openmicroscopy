@@ -1353,16 +1353,16 @@ class TreeViewerComponent
 	 */
 	public void pasteRndSettings(Set<Long> ids, Class klass)
 	{
-		//TODO Check state.
+		int state = model.getState();
 		if (!hasRndSettings()) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "No rendering settings to" +
-			"paste. Please first copy settings.");
+			"paste. \n Please first copy settings.");
 			return;
 		}
 		if (ids == null || ids.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Paste settings", "Please select the nodes" +
+			un.notifyInfo("Paste settings", "Please select the nodes \n" +
 			"you wish to apply the settings to.");
 			return;
 		}
@@ -1405,9 +1405,11 @@ class TreeViewerComponent
 		bus.post(new RndSettingsCopied((Collection) map.get(Boolean.TRUE)));
 		
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+		model.setState(READY);
+		fireStateChange();
 		if (failure.size() == 0) {
 			un.notifyInfo("Paste settings", "Rendering settings have been " +
-			"applied to all selected images.");
+			"applied \n to all selected images.");
 		} else {
 			String s = "";
 			Iterator i = failure.iterator();

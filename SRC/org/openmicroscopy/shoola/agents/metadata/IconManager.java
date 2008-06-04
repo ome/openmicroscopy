@@ -187,11 +187,14 @@ public class IconManager
     /** The <code>Doc</code> icon. */
     public static int           DOC = 44;
     
+    /** The <code>Doc</code> icon. */
+    public static int           TAG_12 = 45;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 44;
+	private static int          MAX_ID = 45;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -242,6 +245,7 @@ public class IconManager
 		relPaths[URL_48] = "nuvola_browser48.png";
 		relPaths[METADATA_48] = "nuvola_browser48.png";
 		relPaths[DOC] = "nuvola_kword16.png";
+		relPaths[TAG_12] = "nuvola_message12.png";
 	}
    
 	/** The sole instance. */

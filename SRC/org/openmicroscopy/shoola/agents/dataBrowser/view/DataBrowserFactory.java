@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 //Java imports
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
@@ -150,6 +151,22 @@ public class DataBrowserFactory
 		return singleton.browsers.get(key);
 	}
 
+	/** 
+	 * Refrehes the thumbnails corresponding to the passed image ids.
+	 * 
+	 * @param ids The collection of images to handle.
+	 */
+	public static final void refreshThumbnails(Collection ids)
+	{
+		if (ids != null && ids.size() > 0) {
+			if (singleton.searchBrowser != null)
+				singleton.searchBrowser.reloadThumbnails(ids);
+			Iterator i = singleton.browsers.keySet().iterator();
+			while (i.hasNext())
+				singleton.browsers.get(i.next()).reloadThumbnails(ids);
+		}
+	}
+	
 	/** Map used to keep track of the browsers. */
 	private Map<String, DataBrowser> 	browsers;
 	

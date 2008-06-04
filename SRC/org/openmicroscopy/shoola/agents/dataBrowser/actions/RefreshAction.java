@@ -73,6 +73,6 @@ public class RefreshAction
      * Reloads the thumbnails.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.reloadThumbnails(); }
+    public void actionPerformed(ActionEvent e) { model.reloadThumbnails(null); }
     
 }

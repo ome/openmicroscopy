@@ -67,7 +67,7 @@ public class LoadingWindow
     public static final String		CLOSED_PROPERTY = "closed";
     
     /** The message displayed. */
-    public static final String 	LOADING_TXT = "Loaded: ";
+    public static final String 		LOADING_TXT = "Loaded: ";
     
     /** The title of the window. */
     private static final String 	TITLE = "Loading window";
@@ -86,6 +86,7 @@ public class LoadingWindow
     {
         progressBar = new JProgressBar();
         status = new JLabel("Loading...");
+        progressBar.setIndeterminate(true);
     }
     
     /** Builds and lays out the GUI. */

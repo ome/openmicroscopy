@@ -120,7 +120,7 @@ class DataBrowserComponent
 		Integer max = (Integer) DataBrowserAgent.getRegistry().lookup(
 				          "/views/MAX_ENTRIES");
 		if (model.getNumberOfImages() < max.intValue())
-			model.loadData(false); 
+			model.loadData(false, null); 
 		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		if (model.getBrowser() != null) {
 			Browser browser = model.getBrowser();
@@ -617,9 +617,9 @@ class DataBrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link DataBrowser} interface.
-	 * @see DataBrowser#reloadThumbnails()
+	 * @see DataBrowser#reloadThumbnails(Collection)
 	 */
-	public void reloadThumbnails()
+	public void reloadThumbnails(Collection ids)
 	{
 		switch (model.getState()) {
 			case DISCARDED:
@@ -628,7 +628,7 @@ class DataBrowserComponent
 			case NEW:
 				return;
 		}
-		model.loadData(true);
+		model.loadData(true, ids);
 		fireStateChange();
 	}
 

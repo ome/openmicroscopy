@@ -95,6 +95,9 @@ import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.LoadingWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -256,6 +259,9 @@ class TreeViewerControl
 	/** The tabbed pane listener. */
 	private ChangeListener  				tabsListener;
 
+	/** The loading window. */
+	private LoadingWindow   				loadingWindow;
+	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
@@ -443,6 +449,8 @@ class TreeViewerControl
 		model.addChangeListener(this);
 		attachListeners();
 		TreeViewerFactory.attachWindowMenuToTaskBar();
+		loadingWindow = new LoadingWindow(view);
+		loadingWindow.setStatus("Saving changes");
 	}
 
 	/**
@@ -699,10 +707,14 @@ class TreeViewerControl
 				break;
 			case TreeViewer.READY:
 			case TreeViewer.LOADING_SELECTION:
+				loadingWindow.setVisible(false);
 				view.setStatus(null, true);
 				view.setStatusIcon(false);
 				view.onStateChanged(true);
 				break;  
+			case TreeViewer.SETTINGS_RND:
+				UIUtilities.centerAndShow(loadingWindow);
+				break;
 		}
 	}
 

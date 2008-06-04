@@ -50,6 +50,7 @@ import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import pojos.ArchivedAnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
@@ -136,6 +137,7 @@ public class PojoMapper
         	BooleanAnnotation ann = (BooleanAnnotation) object;
         	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ann.getNs()))
         		return new ArchivedAnnotationData(ann);
+        	return new BooleanAnnotationData(ann);
         } else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
         else if (object instanceof Experimenter) 

@@ -117,6 +117,12 @@ public interface TreeViewer
 	/** Flag to denote the <i>Ready</i> state. */
 	public static final int         READY = 7;
 
+	/** Flag to denote the <i>Settings rendering</i> state. */
+	public static final int         SETTINGS_RND = 8;
+	
+	/** Flag to denote the <i>Settings rendering</i> state. */
+	public static final int         RND_SET = 9;
+	
 	/** Identifies the <code>Create</code> type for the editor. */
 	public static final int         CREATE_EDITOR = 100;
 

@@ -216,6 +216,7 @@ class TextualAnnotationsUI
 		clearButton.setToolTipText("Remove all your "+TITLE+".");
 		clearButton.addActionListener(this);
 		clearButton.setActionCommand(""+CLEAR);
+		clearButton.setEnabled(false);
 		toRemove = new HashSet<AnnotationData>();
 		userPane = new JScrollPane();
 		datePane = new JScrollPane();
@@ -423,6 +424,8 @@ class TextualAnnotationsUI
 			case USER_VIEW:
 				previousPane.add(userPane, Component.LEFT_ALIGNMENT);
 		}
+		if (l != null && l.size() > 1) clearButton.setEnabled(true);
+		else clearButton.setEnabled(false);
 		previousPane.add(UIUtilities.buildComponentPanelRight(clearButton), 
 				Component.RIGHT_ALIGNMENT);
 	}
