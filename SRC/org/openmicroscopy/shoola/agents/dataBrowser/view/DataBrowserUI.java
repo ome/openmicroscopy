@@ -283,7 +283,7 @@ class DataBrowserUI
 				
 				ImageTableView existed = model.getTableView();
 				ImageTableView v = model.createImageTableView();
-				if (existed == null) {
+				//if (existed == null) {
 					Collection nodes = model.getBrowser().getSelectedDisplays();
 					if (nodes != null) {
 						Iterator i = nodes.iterator();
@@ -298,8 +298,8 @@ class DataBrowserUI
 						}
 						v.setSelectedNodes(objects);
 					}
-				}
-				v.addPropertyChangeListener(controller);
+				//}
+				if (existed == null) v.addPropertyChangeListener(controller);
 				add(v, BorderLayout.CENTER);
 				break;
 		}
