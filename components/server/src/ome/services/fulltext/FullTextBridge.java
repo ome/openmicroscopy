@@ -7,7 +7,6 @@
 
 package ome.services.fulltext;
 
-import java.io.File;
 import java.io.Reader;
 import java.util.List;
 import java.util.Map;
@@ -145,9 +144,7 @@ public class FullTextBridge extends BridgeHelper {
 
         if (object instanceof OriginalFile) {
             OriginalFile file = (OriginalFile) object;
-            for (Reader parsed : parse(file)) {
-                add(document, "file", parsed, boost);
-            }
+            addContents(document, "file.contents", file, files, parsers, boost);
         }
 
     }
@@ -193,22 +190,14 @@ public class FullTextBridge extends BridgeHelper {
                     }
                 } else if (annotation instanceof FileAnnotation) {
                     FileAnnotation fileAnnotation = (FileAnnotation) annotation;
-                    OriginalFile file = fileAnnotation.getFile();
-                    // None of these values can be null
-                    add(document, "filename", file.getName(), store, index,
-                            boost);
-                    add(document, "filepath", file.getPath(), store, index,
-                            boost);
-                    add(document, "filesha1", file.getSha1(), store, index,
-                            boost);
-                    add(document, "fileformat", file.getFormat().getValue(),
-                            store, index, boost);
-                    // Never returns null.
-                    for (Reader parsed : parse(file)) {
-                        add(document, "annotation", parsed, boost);
-                    }
+                    handleFileAnnotation(document, store, index, boost,
+                            fileAnnotation);
                 }
             }
+        } else if (object instanceof FileAnnotation) {
+            FileAnnotation fileAnnotation = (FileAnnotation) object;
+            handleFileAnnotation(document, store, index, boost, fileAnnotation);
+
         }
     }
 
@@ -318,31 +307,25 @@ public class FullTextBridge extends BridgeHelper {
     }
 
     /**
-     * Attempts to parse the given {@link OriginalFile}. If any of the
-     * necessary components is null, then it will return an empty, but not null
-     * {@link Iterable}. Also looks for the catch all parser under "*"
+     * Creates {@link Field} instances for {@link FileAnnotation} objects.
      * 
-     * @param file
-     *            Can be null.
-     * @return will not be null.
+     * @param document
+     * @param store
+     * @param index
+     * @param boost
+     * @param fileAnnotation
      */
-    protected Iterable<Reader> parse(OriginalFile file) {
-        if (files != null && parsers != null) {
-            if (file != null && file.getFormat() != null) {
-                String path = files.getFilesPath(file.getId());
-                String format = file.getFormat().getValue();
-                FileParser parser = parsers.get(format);
-                if (parser != null) {
-                    return parser.parse(new File(path));
-                } else {
-                    parser = parsers.get("*");
-                    if (parser != null) {
-                        return parser.parse(new File(path));
-                    }
-                }
-            }
-        }
-        return FileParser.EMPTY;
+    private void handleFileAnnotation(final Document document,
+            final Field.Store store, final Field.Index index,
+            final Float boost, FileAnnotation fileAnnotation) {
+        OriginalFile file = fileAnnotation.getFile();
+        // None of these values can be null
+        add(document, "file.name", file.getName(), store, index, boost);
+        add(document, "file.path", file.getPath(), store, index, boost);
+        add(document, "file.sha1", file.getSha1(), store, index, boost);
+        add(document, "file.format", file.getFormat().getValue(), store, index,
+                boost);
+        addContents(document, "file.contents", file, files, parsers, boost);
     }
 
 }

@@ -353,11 +353,19 @@ public class SearchTest extends AbstractTest {
 
     @Test
     public void testSomeMustNone() {
-        final String[] contained = new String[] { "abc", "def", "ghi", "123" };
-        final String[] missing = new String[] { "jkl", "mno", "pqr", "456" };
+        String abc = uuid();
+        String def = uuid();
+        String ghi = uuid();
+        String _123 = uuid();
+        String jkl = uuid();
+        String mno = uuid();
+        String pqr = uuid();
+        String _456 = uuid();
+        final String[] contained = new String[] { abc, def, ghi, _123 };
+        final String[] missing = new String[] { jkl, mno, pqr, _456 };
 
         Image i = new Image();
-        i.setName("abc def ghi");
+        i.setName(abc + " " + def + " " + ghi);
         i = iUpdate.saveAndReturnObject(i);
         iUpdate.indexObject(i);
         loginRoot();
@@ -366,7 +374,7 @@ public class SearchTest extends AbstractTest {
         search.onlyType(Image.class);
 
         // Make sure we can find it simply
-        search.bySomeMustNone(sa("abc"), sa(), sa());
+        search.bySomeMustNone(sa(abc), sa(), sa());
         assertTrue(search.results().size() >= 1);
 
         //
@@ -374,23 +382,23 @@ public class SearchTest extends AbstractTest {
         //
 
         // This should return nothing since none is contained
-        search.bySomeMustNone(sa("abc"), sa(), sa("def"));
+        search.bySomeMustNone(sa(abc), sa(), sa(def));
         assertResults(search, 0);
 
         // but if the none is not contained should be ok.
-        search.bySomeMustNone(sa("abc"), sa("abc"), sa("jkl"));
+        search.bySomeMustNone(sa(abc), sa(abc), sa(jkl));
         assertAtLeastResults(search, 1);
 
         // Simple must query
-        search.bySomeMustNone(sa(), sa("abc"), sa());
+        search.bySomeMustNone(sa(), sa(abc), sa());
         assertAtLeastResults(search, 1);
 
         // same, but with a matching none
-        search.bySomeMustNone(sa(), sa("abc"), sa("def"));
+        search.bySomeMustNone(sa(), sa(abc), sa(def));
         assertResults(search, 0);
 
         // same again, but with non-matching none
-        search.bySomeMustNone(sa(), sa("abc"), sa("jkl"));
+        search.bySomeMustNone(sa(), sa(abc), sa(jkl));
         assertAtLeastResults(search, 1);
 
         //
@@ -398,15 +406,15 @@ public class SearchTest extends AbstractTest {
         //
 
         // Present must
-        search.bySomeMustNone(sa("abc"), sa("def"), sa());
+        search.bySomeMustNone(sa(abc), sa(def), sa());
         assertAtLeastResults(search, 1);
 
         // Missing must
-        search.bySomeMustNone(sa("abc"), sa("jkl"), sa());
+        search.bySomeMustNone(sa(abc), sa(jkl), sa());
         assertResults(search, 0);
 
         // Present must, missing some
-        search.bySomeMustNone(sa("jkl"), sa("def"), sa());
+        search.bySomeMustNone(sa(jkl), sa(def), sa());
         assertAtLeastResults(search, 1);
 
         //
@@ -414,37 +422,38 @@ public class SearchTest extends AbstractTest {
         //
 
         // some with wildcard
-        search.bySomeMustNone(sa("ab*"), sa(), sa());
+        String part = abc.substring(0, abc.indexOf("-")) + "*";
+        search.bySomeMustNone(sa(part), sa(), sa());
         assertAtLeastResults(search, 1);
 
         // must with wildcard
-        search.bySomeMustNone(sa(), sa("ab*"), sa());
+        search.bySomeMustNone(sa(), sa(part), sa());
         assertAtLeastResults(search, 1);
 
         // none with wildcard
-        search.bySomeMustNone(sa(), sa(), sa("ab*"));
+        search.bySomeMustNone(sa(), sa(), sa(part));
         assertResults(search, 0);
 
         //
         // Multiterms
         //
 
-        search.bySomeMustNone(sa("abc", "def"), null, null);
+        search.bySomeMustNone(sa(abc, def), null, null);
         assertAtLeastResults(search, 1);
 
-        search.bySomeMustNone(null, sa("abc", "def"), null);
+        search.bySomeMustNone(null, sa(abc, def), null);
         assertAtLeastResults(search, 1);
 
-        search.bySomeMustNone(null, null, sa("abc", "def"));
+        search.bySomeMustNone(null, null, sa(abc, def));
         assertResults(search, 0);
 
-        search.bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), null);
+        search.bySomeMustNone(sa(ghi, _123), sa(abc, def), null);
         assertAtLeastResults(search, 1);
 
-        search.bySomeMustNone(sa("ghi", "123"), sa("abc", "def"), sa("456"));
+        search.bySomeMustNone(sa(ghi, _123), sa(abc, def), sa(_456));
         assertAtLeastResults(search, 1);
 
-        search.bySomeMustNone(sa("ghi", "123"), sa("abc", "456"), sa("456"));
+        search.bySomeMustNone(sa(ghi, _123), sa(abc, _456), sa(_456));
         assertResults(search, 0);
 
         //

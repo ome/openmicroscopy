@@ -242,7 +242,10 @@ public class FullTextTest extends AbstractTest {
      * This test shows first that ProjectsWithImageNameBridge works, but also
      * that when an object is reparsed, that its Document in the index is
      * completely replaced.
+     * 
+     * Currently disabled since this Bridge is deactivate by default.
      */
+    @Test(enabled = false)
     public void testProjectsWithImagesCustomBridge() throws Exception {
 
         final String before = UUID.randomUUID().toString();
@@ -343,12 +346,52 @@ public class FullTextTest extends AbstractTest {
         assertTrue("combined_fields", list.size() == 1);
         list = iQuery.findAllByFullText(Image.class, "name:" + str, null);
         assertTrue("name", list.size() == 1);
-        list = iQuery.findAllByFullText(Image.class, "filename:" + str, null);
-        assertTrue("filename", list.size() == 1);
-        list = iQuery.findAllByFullText(Image.class, "filepath:" + str, null);
-        assertTrue("filepath", list.size() == 1);
-        list = iQuery.findAllByFullText(Image.class, "annotation:" + str, null);
-        assertTrue("annotation", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "file.name:" + str, null);
+        assertTrue("file.name", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "file.path:" + str, null);
+        assertTrue("file.path", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "file.contents:" + str,
+                null);
+        assertTrue("file.contents", list.size() == 1);
+
+    }
+
+    public void testLinksFile() throws Exception {
+
+        final String uuid = UUID.randomUUID().toString();
+        final String name = UUID.randomUUID().toString();
+        // Parser setup
+        FileParser parser = new FileParser();
+        Map<String, FileParser> parsers = new HashMap<String, FileParser>();
+        parsers.put("text/plain", parser);
+
+        // Upload
+        FileUploader upload = new FileUploader(this.factory, "<html>\n"
+                + "<a href=\"secret.html\">Ooh hoo</a></html>", uuid,
+                "/path/uuid");
+        try {
+            upload.run();
+        } catch (Exception e) {
+            // This seems to be throwing an exception
+            // when run in the server
+        }
+
+        Image i = new Image(name + "_links.txt");
+        FileAnnotation fa = new FileAnnotation();
+        fa.setFile(new OriginalFile(upload.getId(), false));
+        i.linkAnnotation(fa);
+        i = iUpdate.saveAndReturnObject(i);
+        iUpdate.indexObject(i);
+
+        List<? extends IObject> list;
+        list = iQuery.findAllByFullText(Image.class, name + "_links.txt", null);
+        assertTrue("name_links", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, name + "*", null);
+        assertTrue("name*", list.size() == 1);
+        list = iQuery.findAllByFullText(Image.class, "secret.html", null);
+        assertTrue("secret.html", list.size() >= 1);
+        list = iQuery.findAllByFullText(Image.class, "secret*", null);
+        assertTrue("secret.*", list.size() >= 1);
 
     }
 

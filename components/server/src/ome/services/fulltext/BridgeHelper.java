@@ -7,12 +7,16 @@
 
 package ome.services.fulltext;
 
+import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Map;
 
 import ome.conditions.ApiUsageException;
+import ome.io.nio.OriginalFilesService;
 import ome.model.IObject;
+import ome.model.core.OriginalFile;
 import ome.services.messages.RegisterServiceCleanupMessage;
 import ome.services.messages.ReindexMessage;
 
@@ -78,7 +82,10 @@ public abstract class BridgeHelper implements FieldBridge,
      * method (possibly modified) as well as the parsed {@link String} value
      * which should be added to the index, and adds two fields. One with the
      * given field name and another to the {@link #COMBINED} field which is the
-     * default search provided to users.
+     * default search provided to users. In addition to storing the value as is,
+     * another {@link Field} will be added for both the named and
+     * {@link #COMBINED} cases using a {@link StringReader} to allow Lucene to
+     * tokenize the {@link String}.
      * 
      * @param d
      *            Document as passed to the set method. Do not modify.
@@ -133,68 +140,63 @@ public abstract class BridgeHelper implements FieldBridge,
     }
 
     /**
-     * Second helper method used when parsing files. The {@link Reader} will be
-     * read until it signals an end, however it is not the responsibility of
-     * this instance to close the Reader since this happens asynchronously. If
-     * you would like to have this {@link Reader} closed, raise an
-     * {@link RegisterServiceCleanupMessage} as in {@link FileParser}:
+     * Second helper method used when parsing files. The {@link OriginalFile}
+     * will be passed to {@link #parse(OriginalFile, OriginalFilesService, Map)}
+     * to generate {@link Reader} instances, which will be read until they
+     * signal an end, however it is not the responsibility of this instance to
+     * close the Readers since this happens asynchronously.
      * 
-     * <code>
-     * FileReader reader = new FileReader(file);
-     *  BufferedReader buffered = new BufferedReader(reader);
-     *  context.publishEvent(new RegisterServiceCleanupMessage(this, buffered) {
-     *      public void close() {
-     *          try {
-     *              Reader r = (Reader) resource;
-     *              r.close();
-     *          } catch (Exception e) {
-     *              log.debug("Error closing " + resource, e);
-     *          }
-     *      }
-     *  });
-     *  </code>
+     * The contents of the file will be parsed both to {@link #COMBINED} and
+     * "file.contents".
      * 
      * @param d
      *            {@link Document} as passed to set. Do not modify.
-     * @param field
-     *            Field name which probably <em/>should</em> be modified. If
-     *            this value is null, then the "value" will only be added to the
-     *            {@link #COMBINED} field.
-     * @param reader
-     *            Non-null {@link Reader} to be read. If it is necessary to
-     *            specifiy that the {@link Reader} is null, then use a null
-     *            token like "null".
+     * @params name String to be used as the name of the field. If null, then
+     *         the contens will only be added to the {@link #COMBINED}
+     *         {@link Field}.
+     * @param file
+     *            Non-null, possibly unloaded {@link OriginalFile} which is used
+     *            to look up the file on disk.
+     * @param files
+     *            {@link OriginalFileServer} which knows how to find where this
+     *            {@link OriginalFile} is stored on disk.
+     * @param parsers
+     *            {@link Map} of {@link FileParser} instances to be used based
+     *            on the {@link Format} of the {@link OriginalFile}
      * @param boost
      *            Positive float which increases or decreases search importance
      *            for a field. Default is 1.0.
      */
-    protected void add(Document d, String field, Reader reader, Float boost) {
+    protected void addContents(final Document d, final String name,
+            final OriginalFile file, final OriginalFilesService files,
+            final Map<String, FileParser> parsers, final Float boost) {
 
-        Field f;
-
-        if (reader == null) {
+        if (file == null) {
             throw new RuntimeException(
-                    "Reader cannot be null. Either do not attempt to add anything for this field, or use a null token like \"null\" instead.");
+                    "File cannot be null. Either do not attempt to add "
+                            + "anything for this field, or use a null token like "
+                            + "\"null\" instead.");
         }
 
-        // If the field == null, then we ignore it, to allow easy addition
-        // of Fields as COMBINED
-        if (field != null) {
-            f = new Field(field, reader);
+        Field f;
+        if (name != null) {
+            for (Reader parsed : parse(file, files, parsers)) {
+                f = new Field(name, parsed);
+                if (boost != null) {
+                    f.setBoost(boost);
+                }
+                d.add(f);
+            }
+        }
+
+        for (Reader parsed : parse(file, files, parsers)) {
+            f = new Field(COMBINED, parsed);
             if (boost != null) {
                 f.setBoost(boost);
             }
             d.add(f);
         }
 
-        // However, we're not copying Reader information to the combined field
-        // here, because can only read from a reader once.
-
-        // Never storing in combined fields, since it's duplicated
-        /*
-         * f = new Field(COMBINED, reader); if (boost != null) {
-         * f.setBoost(boost); } d.add(f);
-         */
     }
 
     /**
@@ -223,4 +225,33 @@ public abstract class BridgeHelper implements FieldBridge,
         publisher.publishEvent(rm);
     }
 
+    /**
+     * Attempts to parse the given {@link OriginalFile}. If any of the
+     * necessary components is null, then it will return an empty, but not null
+     * {@link Iterable}. Also looks for the catch all parser under "*"
+     * 
+     * @param file
+     *            Can be null.
+     * @return will not be null.
+     */
+    protected Iterable<Reader> parse(final OriginalFile file,
+            final OriginalFilesService files,
+            final Map<String, FileParser> parsers) {
+        if (files != null && parsers != null) {
+            if (file != null && file.getFormat() != null) {
+                String path = files.getFilesPath(file.getId());
+                String format = file.getFormat().getValue();
+                FileParser parser = parsers.get(format);
+                if (parser != null) {
+                    return parser.parse(new File(path));
+                } else {
+                    parser = parsers.get("*");
+                    if (parser != null) {
+                        return parser.parse(new File(path));
+                    }
+                }
+            }
+        }
+        return FileParser.EMPTY;
+    }
 }
