@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.util.ui.search;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -66,6 +67,9 @@ class SearchContextMenu
     /** The type of node to create. */
     private Class 		type;
     
+    /** Collections of UI nodes hosting the <code>SearchObject</code>s. */
+    private List		items;
+    
     /**
      * Builds and lays out the UI.
      * 
@@ -95,6 +99,7 @@ class SearchContextMenu
 					uiNode.setSelected(true);
 				uiNode.addActionListener(this);
 				add(uiNode);
+				items.add(uiNode);
 				if (singleSelection) group.add(uiNode);
 			}
 			if (ratedNodes.size() > 0)
@@ -107,6 +112,7 @@ class SearchContextMenu
 					uiNode.setSelected(true);
 				uiNode.addActionListener(this);
 				add(uiNode);
+				items.add(uiNode);
 				if (singleSelection) group.add(uiNode);
 			}
 		} else {
@@ -116,6 +122,7 @@ class SearchContextMenu
 				node = (SearchObject) i.next();
 				uiNode = new NodeMenuItem(node);
 				uiNode.addActionListener(this);
+				items.add(uiNode);
 				add(uiNode);
 			}
 			if (ratedNodes.size() > 0)
@@ -126,10 +133,11 @@ class SearchContextMenu
 				uiNode = new NodeMenuItem(node);
 				uiNode.addActionListener(this);
 				add(uiNode);
+				items.add(uiNode);
 			}
 		}
 		int n = nodes.size()+ratedNodes.size();
-		int  height =  getFontMetrics(getFont()).getHeight()*n+10;
+		int  height = getFontMetrics(getFont()).getHeight()*n+10;
         setPopupSize(new Dimension(width, height));
     }
     
@@ -188,9 +196,41 @@ class SearchContextMenu
     {
     	this.type = type;
     	this.width = width;
+    	items = new ArrayList();
     	buildGUI(nodes, ratedNodes, selectedNode, singleSelection);
     }
     
+    /**
+     * Selects the UI node corresponding to the passed 
+     * <code>SearchObject</code>.
+     * 
+     * @param node The <code>SearchObject</code> to handle.
+     */
+    void setSelectedNode(SearchObject node)
+    {
+    	Iterator i = items.iterator();
+    	Object uiNode;
+    	NodeMenuItem nmItem;
+    	NodeCheckMenuItem ncmItem;
+    	while (i.hasNext()) {
+    		uiNode = i.next();
+			if (uiNode instanceof NodeMenuItem) {
+				nmItem = (NodeMenuItem) uiNode;
+				if (nmItem.getSearchObject().getIndex() == node.getIndex()) {
+					nmItem.removeActionListener(this);
+					nmItem.setSelected(true);
+					nmItem.addActionListener(this);
+				}
+			} else if (uiNode instanceof NodeCheckMenuItem) {
+				ncmItem = (NodeCheckMenuItem) uiNode;
+				if (ncmItem.getSearchObject().getIndex() == node.getIndex()) {
+					ncmItem.removeActionListener(this);
+					ncmItem.setSelected(true);
+					ncmItem.addActionListener(this);
+				}
+			}
+		}
+    }
 	/**
 	 * Fires a property change when a new menu item is selected.
 	 * @see ActionListener#actionPerformed(ActionEvent)

@@ -87,7 +87,7 @@ class SearchPanel
 	private static final String		ADVANCED_SEARCH_TITLE = "Advanced Search";
 	
 	/** The title of the search UI component. */
-	private static final String		SEARCH_TITLE = "Search For";
+	private static final String		SEARCH_TITLE = "Search For Images";
 	
 	/** The title of the user UI component. */
 	private static final String		USER_TITLE = "Users";

@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 
 import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -77,7 +78,7 @@ public class EditorUI
 	 * The maximum height of the panel hosting the ui component displaying the
 	 * hierarchy.
 	 */
-	private static final double MAX_HEIGHT = 100;
+	private static final double MAX_HEIGHT = 150;
 	
 	/** 
 	 * Size of the table layout used to lay out vertically components contained
@@ -444,6 +445,10 @@ public class EditorUI
         			tagsTree.collapseNodes();
         			tagsTree.setTreeEnabled(false);
         		}
+        	} else if ((refObject instanceof ProjectData) || 
+        			(refObject instanceof DatasetData)) {
+        		tagsTree.collapseNodes();
+    			tagsTree.setTreeEnabled(false);
         	}
         	toolBarTop.setDecorator();
     	}
@@ -611,8 +616,9 @@ public class EditorUI
 				browserTree.collapseNodes();
 			}
 		} else {
-			rightLayout.setRow(3, TableLayout.PREFERRED);
-			leftLayout.setRow(3, MAX_HEIGHT);
+			//rightLayout.setRow(3, TableLayout.PREFERRED);
+			leftLayout.setRow(4, TableLayout.PREFERRED);
+			rightLayout.setRow(3, MAX_HEIGHT);
 			if (object instanceof ImageData) {
 				leftLayout.setRow(2, TableLayout.FILL);
 				leftLayout.setRow(3, TableLayout.PREFERRED);

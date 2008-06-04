@@ -45,6 +45,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
@@ -417,5 +418,23 @@ class DataBrowserUI
         statusBar.setStatus(status);
         statusBar.setProgress(hideProgressBar, progressPerc);
     }
+
+    /**
+     * Sets the filering context.
+     * 
+     * @param context The context to handle.
+     */
+	void filterByContext(FilterContext context)
+	{
+		if (context == null) return;
+		toolBar.filterByContext(context);
+	}
     
+	/**
+	 * Sets the text of the filtered label.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setFilterLabel(String value) { toolBar.setFilterLabel(value); }
+	
 }

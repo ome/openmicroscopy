@@ -368,6 +368,7 @@ class DataBrowserComponent
 			return;
 		}
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		view.filterByContext(context);
 		Browser browser = model.getBrowser();
 		model.fireFilteringByContext(context, browser.getOriginal());
 		fireStateChange();

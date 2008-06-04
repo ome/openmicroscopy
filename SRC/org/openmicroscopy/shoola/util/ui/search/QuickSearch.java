@@ -34,6 +34,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -159,6 +160,11 @@ public class QuickSearch
 	/** Label if any. */
 	private String				label;
 
+	/** The node to show all the objects. */
+	private SearchObject		showAll;
+	
+	private JToolBar 			cleanBar;
+	
 	/** 
 	 * Flag indicating that only one context can be selected at a time
 	 * if set to <code>true</code>, more than one context if set 
@@ -167,7 +173,7 @@ public class QuickSearch
 	private boolean				singleSelection;
 	
 	/** Shows the menu. */
-	private void showMenu()
+	private void initMenu()
 	{
 		Rectangle r = searchPanel.getBounds();
         if (menu == null) {
@@ -180,12 +186,12 @@ public class QuickSearch
         	menu.addPropertyChangeListener(
         			SearchContextMenu.SEARCH_CONTEXT_PROPERTY, this);
         }
-        menu.show(searchPanel, 0, r.height);
 	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		showAll = new SearchObject(SHOW_ALL, null, "Show All");
 		IconManager icons = IconManager.getInstance();
 		clearButton = new JButton(icons.getIcon(IconManager.CLEAR_DISABLED));
 		//clearButton.setEnabled(false);
@@ -262,7 +268,12 @@ public class QuickSearch
 			 * Displays a menu with the available context.
 			 * @see MouseAdapter#mousePressed(MouseEvent)
 			 */
-			public void mousePressed(MouseEvent e) { showMenu(); }
+			public void mousePressed(MouseEvent e)
+			{ 
+				initMenu(); 
+				Rectangle r = searchPanel.getBounds();
+		        menu.show(searchPanel, 0, r.height);
+			}
 		
 		});
 		selectedNode = nodes.get(0);
@@ -283,7 +294,8 @@ public class QuickSearch
 	{
 		double w = 0;
 		if (menuButton != null) w = TableLayout.PREFERRED;
-		double[][] pl = {{TableLayout.PREFERRED, w, TableLayout.FILL, 0}, 
+		double[][] pl = {{TableLayout.PREFERRED, w, TableLayout.FILL, 
+			TableLayout.PREFERRED}, 
 				{TableLayout.PREFERRED} }; //rows
 		layoutManager = new TableLayout(pl);
 		
@@ -304,12 +316,13 @@ public class QuickSearch
 			
 		searchPanel.add(searchArea, "2, 0, f, c");
 		if (clearButton != null) {
-			JToolBar bar = new JToolBar();
-	        bar.setFloatable(false);
-	        bar.setRollover(true);
-	        bar.setBorder(null);
-	        bar.add(clearButton);
-			//searchPanel.add(bar, "3, 0, f, c");
+			cleanBar = new JToolBar();
+			cleanBar.setFloatable(false);
+			cleanBar.setRollover(true);
+			cleanBar.setBorder(null);
+			cleanBar.add(clearButton);
+			cleanBar.setVisible(false);
+			searchPanel.add(cleanBar, "3, 0, f, c");
 		}
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setOpaque(true);
@@ -323,8 +336,8 @@ public class QuickSearch
 	{
 		List<String> l = SearchUtil.splitTerms(searchArea.getText(), 
 											SearchUtil.COMMA_SEPARATOR);
-		
-		if (selectedNode == null) selectedNode = new SearchObject();
+		if (selectedNode == null) return;
+		//if (selectedNode == null) selectedNode = showAll;
 		selectedNode.setResult(l);
 		firePropertyChange(QUICK_SEARCH_PROPERTY, null, selectedNode);
 	}
@@ -335,10 +348,11 @@ public class QuickSearch
 		searchArea.getDocument().removeDocumentListener(this);
 		searchArea.setText("");
 		searchArea.getDocument().addDocumentListener(this);
-		layoutManager.setColumn(3, 0);
-		//searchPanel.remove(clearButton);
+		//layoutManager.setColumn(3, 0);
 		searchPanel.validate();
 		searchPanel.repaint();
+		cleanBar.setVisible(false);
+		firePropertyChange(QUICK_SEARCH_PROPERTY, null, showAll);
 	}
 	
 	/** 
@@ -356,13 +370,15 @@ public class QuickSearch
 			case RATED_THREE_OR_BETTER:
 			case RATED_FOUR_OR_BETTER:
 			case RATED_FIVE:
-			case SHOW_ALL:
+				text = selectedNode.getDescription();
+				break;
 			case UNRATED:
 			case UNTAGGED:
 			case UNCOMMENTED:
 			case TAGGED:
 			case COMMENTED:
-				text = selectedNode.getDescription();
+			case SHOW_ALL:
+				text = "";
 				break;
 			case TAGS:
 			case COMMENTS:
@@ -465,19 +481,21 @@ public class QuickSearch
 	{
 		List<SearchObject> nodes = new ArrayList<SearchObject>();
     	SearchObject node = new SearchObject(FULL_TEXT, null, 
-    								"Name/Description filter");
+    								SearchComponent.NAME_TEXT);
     	nodes.add(node);
-    	node = new SearchObject(TAGS, null, "Tags filter");
+    	node = new SearchObject(TAGS, null, SearchComponent.NAME_TAGS);
     	nodes.add(node);
-    	node = new SearchObject(COMMENTS, null, "Comments filter");
+    	node = new SearchObject(COMMENTS, null, SearchComponent.NAME_COMMENTS);
     	nodes.add(node);
-    	node = new SearchObject(TAGGED, null, "Tagged");
+    	node = new SearchObject(TAGGED, null, SearchComponent.TAGGED_TEXT);
     	nodes.add(node);
-    	node = new SearchObject(UNTAGGED, null, "Not tagged");
+    	node = new SearchObject(UNTAGGED, null, SearchComponent.UNTAGGED_TEXT);
     	nodes.add(node);
-    	node = new SearchObject(COMMENTED, null, "Commented");
+    	node = new SearchObject(COMMENTED, null, 
+    			SearchComponent.COMMENTED_TEXT);
     	nodes.add(node);
-    	node = new SearchObject(UNCOMMENTED, null, "Not commented");
+    	node = new SearchObject(UNCOMMENTED, null, 
+    			SearchComponent.UNCOMMENTED_TEXT);
     	nodes.add(node);
     	
     	List<SearchObject> ratedNodes = new ArrayList<SearchObject>();
@@ -491,8 +509,8 @@ public class QuickSearch
     	ratedNodes.add(node);
     	node = new SearchObject(RATED_FIVE, null, "*****");
     	ratedNodes.add(node);
-    	node = new SearchObject(SHOW_ALL, null, "Show All");
-    	ratedNodes.add(node);
+    	//node = new SearchObject(SHOW_ALL, null, "Show All");
+    	//ratedNodes.add(node);
     	node = new SearchObject(UNRATED, null, "Unrated");
     	ratedNodes.add(node);
     	initSearchComponents(nodes, ratedNodes);
@@ -540,6 +558,69 @@ public class QuickSearch
     	searchArea.getDocument().addDocumentListener(this);
 	}
 	
+	/**
+	 * Sets the value of the {@link #searchArea}.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setSearchValue(List<String> text)
+	{
+		if (text == null || text.size() == 0) return;
+    	List<String> l = SearchUtil.splitTerms(getSearchValue(), 
+				SearchUtil.COMMA_SEPARATOR);
+    	Iterator<String> i = text.iterator();
+    	String term = "";
+    	int index = 0;
+    	int n = text.size()-1;
+    	while (i.hasNext()) {
+    		term += i.next();
+			if (index < n)
+				term += SearchUtil.COMMA_SEPARATOR;
+			index++;
+		}
+    	
+    	String result = SearchUtil.formatString(term, l);
+    	searchArea.getDocument().removeDocumentListener(this);
+    	searchArea.setText(result);
+    	searchArea.getDocument().addDocumentListener(this);
+	}
+	
+	/**
+	 * Determines the context corresponding to the passed index.
+	 * 
+	 * @param index The value to handle.
+	 */
+	public void setSearchContext(int index)
+	{
+		Iterator<SearchObject> i = nodes.iterator();
+		SearchObject node;
+		SearchObject selectedNode = null;
+		while (i.hasNext()) {
+			node = i.next();
+			if (node.getIndex() == index) {
+				selectedNode = node;
+				break;
+			}
+		}
+		if (selectedNode == null) {
+			i = ratedNodes.iterator();
+			while (i.hasNext()) {
+				node = i.next();
+				if (node.getIndex() == index) {
+					selectedNode = node;
+					break;
+				}
+			}
+		}
+		if (selectedNode != null) {
+			initMenu();
+			menu.setSelectedNode(selectedNode);
+			this.selectedNode = selectedNode;
+			setSearchContext(null);
+		}
+	}
+	
+	
 	/** 
 	 * Class extended this class should override that method for 
 	 * code completion.
@@ -553,8 +634,8 @@ public class QuickSearch
 	public void insertUpdate(DocumentEvent e)
 	{
 		handleTextInsert();
-		layoutManager.setColumn(3, TableLayout.PREFERRED);
-		//searchPanel.add(clearButton, "3, 0, f, c");
+		//layoutManager.setColumn(3, TableLayout.PREFERRED);
+		cleanBar.setVisible(true);
 		searchPanel.validate();
 		searchPanel.repaint();
 	}

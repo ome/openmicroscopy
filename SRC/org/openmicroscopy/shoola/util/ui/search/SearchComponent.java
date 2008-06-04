@@ -64,6 +64,21 @@ public class SearchComponent
 	implements ActionListener
 {
 
+	/** Identifies the text to filter by untagged data. */
+	public static final String		UNTAGGED_TEXT = "Untagged";
+	
+	/** Identifies the text to filter by tagged data. */
+	public static final String		TAGGED_TEXT = "Tagged";
+	
+	/** Identifies the text to filter by commented data. */
+	public static final String		COMMENTED_TEXT = "Commented";
+	
+	/** Identifies the text to filter by uncommented data. */
+	public static final String		UNCOMMENTED_TEXT = "Uncommented";
+	
+	/** Identifies the text to filter by unrated data. */
+	public static final String		UNRATED = "Unrated";
+	
 	/** Identifies the text for searching for name. */
 	public static final String		NAME_TEXT = "Name/Description";
 	
@@ -74,10 +89,13 @@ public class SearchComponent
 	public static final String		NAME_COMMENTS = "Comments";
 	
 	/** Identifies the text for searching for urls. */
-	public static final String		NAME_URL = "URLs";
+	public static final String		NAME_URL = "URL";
 	
 	/** Identifies the text for searching for attachments. */
 	public static final String		NAME_ATTACHMENT = "Attachments"; 
+	
+	/** Identifies the text for searching for attachments. */
+	public static final String		NAME_RATE = "Rate"; 
 	
 	/** Bound property indicating to search. */
 	public static final String 		SEARCH_PROPERTY = "search";

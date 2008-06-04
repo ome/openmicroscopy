@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.util.ObjectEditor;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
+import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 
@@ -137,55 +138,85 @@ class DataBrowserControl
     					ManageRndSettingsAction.SET_ORIGINAL));
     }
     
-	/** Filters the nodes. */
-	private void filterNodes()
+	/** 
+	 * Filters the nodes. 
+	 * 
+	 * @param filter The selected filter.
+	 */
+	private void filterNodes(SearchObject filter)
 	{
-		SearchObject filter = view.getSelectedFilter();
 		if (filter == null) return;
 		List<String> values = filter.getResult();
 		switch (filter.getIndex()) {
 			case QuickSearch.FULL_TEXT:
-				model.filterByFullText(values);
+				view.setFilterLabel(SearchComponent.NAME_TEXT);
+				if (values != null && values.size() > 0)
+					model.filterByFullText(values);
+				else {
+					view.setFilterLabel("");
+					model.showAll();
+				}
 				break;
 			case QuickSearch.TAGS:
+				view.setFilterLabel(SearchComponent.NAME_TAGS);
 				if (values != null && values.size() > 0)
 					model.filterByTags(values);
+				else {
+					view.setFilterLabel("");
+					model.showAll();
+				}
 				break;
 			case QuickSearch.COMMENTS:
+				view.setFilterLabel(SearchComponent.NAME_COMMENTS);
 				if (values != null && values.size() > 0)
 					model.filterByComments(values);
+				else {
+					view.setFilterLabel("");
+					model.showAll();
+				}
 				break;
 			case QuickSearch.RATED_ONE_OR_BETTER:
+				view.setFilterLabel(SearchComponent.NAME_RATE);
 				model.filterByRate(DataBrowser.RATE_ONE);
 				break;
 			case QuickSearch.RATED_TWO_OR_BETTER:
+				view.setFilterLabel(SearchComponent.NAME_RATE);
 				model.filterByRate(DataBrowser.RATE_TWO);
 				break;
 			case QuickSearch.RATED_THREE_OR_BETTER:
+				view.setFilterLabel(SearchComponent.NAME_RATE);
 				model.filterByRate(DataBrowser.RATE_THREE);
 				break;
 			case QuickSearch.RATED_FOUR_OR_BETTER:
+				view.setFilterLabel(SearchComponent.NAME_RATE);
 				model.filterByRate(DataBrowser.RATE_FOUR);
 				break;
 			case QuickSearch.RATED_FIVE:
+				view.setFilterLabel(SearchComponent.NAME_RATE);
 				model.filterByRate(DataBrowser.RATE_FIVE);
 				break;
 			case QuickSearch.UNRATED:
+				view.setFilterLabel(SearchComponent.UNRATED);
 				model.filterByRate(DataBrowser.UNRATED);
 				break;	
 			case QuickSearch.SHOW_ALL:
+				view.setFilterLabel("");
 				model.showAll();
 				break;
 			case QuickSearch.TAGGED:
+				view.setFilterLabel(SearchComponent.TAGGED_TEXT);
 				model.filterByTagged(true);
 				break;
 			case QuickSearch.UNTAGGED:
+				view.setFilterLabel(SearchComponent.UNTAGGED_TEXT);
 				model.filterByTagged(false);
 				break;
 			case QuickSearch.COMMENTED:
+				view.setFilterLabel(SearchComponent.COMMENTED_TEXT);
 				model.filterByCommented(true);
 				break;
 			case QuickSearch.UNCOMMENTED:
+				view.setFilterLabel(SearchComponent.UNCOMMENTED_TEXT);
 				model.filterByCommented(false);
 		}
 	}
@@ -236,7 +267,7 @@ class DataBrowserControl
             if (node == null) return;
 			model.setUnselectedDisplay(node);
 		} else if (QuickFiltering.FILTER_DATA_PROPERTY.equals(name)) {
-			filterNodes();
+			filterNodes((SearchObject) evt.getNewValue());
 		} else if (FilteringDialog.FILTER_PROPERTY.equals(name)) {
 			model.filterByContext((FilterContext) evt.getNewValue());
 		} else if (FilteringDialog.LOAD_TAG_PROPERTY.equals(name) ||

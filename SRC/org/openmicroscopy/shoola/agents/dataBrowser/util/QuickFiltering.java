@@ -189,8 +189,8 @@ public class QuickFiltering
 					setSearchValue(v);
 				}
 			} else
-				firePropertyChange(FILTER_DATA_PROPERTY, null, 
-						          getSelectedNode());
+				firePropertyChange(FILTER_DATA_PROPERTY, evt.getOldValue(), 
+						          evt.getNewValue());
 		}
 	}
 	

@@ -88,13 +88,6 @@ public class SearchObject
 	void setResult(List<String> result) { this.result = result; }
 	
 	/**
-	 * Returns the description.
-	 * 
-	 * @return See above.
-	 */
-	String getDescription() { return description; }
-	
-	/**
 	 * Returns the icon.
 	 * 
 	 * @return See above.
@@ -114,5 +107,12 @@ public class SearchObject
 	 * @return See above.
 	 */
 	public List<String> getResult() { return result; }
+	
+	/**
+	 * Returns the description.
+	 * 
+	 * @return See above.
+	 */
+	public String getDescription() { return description; }
 	
 }

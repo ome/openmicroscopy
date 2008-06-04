@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.util;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * Helper class storing the filtering parameters.
@@ -50,6 +53,21 @@ import java.util.Map;
 public class FilterContext
 {
 
+	/** Indicates that the rating context only is selected. */
+	public static final int RATE = 0;
+	
+	/** Indicates that the tag context only is selected. */
+	public static final int TAG = 1;
+	
+	/** Indicates that the comment context only is selected. */
+	public static final int COMMENT = 2;
+	
+	/** Indicates that several context are selected. */
+	public static final int MULTI = 3;
+	
+	/** Indicates that no contexts selected. */
+	public static final int NONE = 4;
+	
 	/** Indicate to retrieve objects rated higher than the passed level. */
 	public static final int HIGHER = 0;
 	
@@ -83,6 +101,9 @@ public class FilterContext
 	/** The type of result either: {@link #UNION} or {@link #INTERSECTION}. */
 	private int							resultType;
 	
+	/** The type of filter. */
+	private List<Integer>				type;
+	
 	/** Creates a new instance. */
 	public FilterContext()
 	{
@@ -90,7 +111,29 @@ public class FilterContext
 		rate = -1;
 		index = -1;
 		resultType = INTERSECTION;
+		type = new ArrayList<Integer>();
 	}
+	
+	/**
+	 * Returns one of the following contants: {@link #RATE}, {@link #TAG} or
+	 * {@link #COMMENT} or <code>-1</code> when more than one type is selected.
+	 * 
+	 * @return See above.
+	 */
+	public int getContext()
+	{
+		int size = type.size();
+		if (size == 0) return NONE;
+		if (size > 1) return MULTI;
+		return type.get(0);
+	}
+	
+	/**
+	 * Returns the type of filter used if any.
+	 * 
+	 * @return See above.
+	 */
+	public List<Integer> getContextList() { return type; }
 	
 	/**
 	 * Sets the result type.
@@ -104,7 +147,6 @@ public class FilterContext
 			case INTERSECTION:
 				resultType = type;
 				break;
-	
 			default:
 				resultType = INTERSECTION;
 		}
@@ -135,6 +177,7 @@ public class FilterContext
 				this.index = HIGHER;
 		}
 		this.rate = rate;
+		type.add(RATE);
 	}
 	
 	/**
@@ -194,6 +237,18 @@ public class FilterContext
 	}
 	
 	/**
+	 * Returns the collection of terms corresponding to the passed type
+	 * of annotation.
+	 * 
+	 * @param klass The type of annotation.
+	 * @return See above.
+	 */
+	public List<String> getAnnotation(Class klass)
+	{
+		return annotationType.get(klass);
+	}
+	
+	/**
 	 * Adds the specified type to the collection of types.
 	 * 
 	 * @param klass The type to add.
@@ -201,8 +256,13 @@ public class FilterContext
 	 */
 	public void addAnnotationType(Class klass, List<String> terms)
 	{
-		if (klass != null && terms != null && terms.size() > 0) 
+		if (klass != null && terms != null && terms.size() > 0) {
+			if (klass.equals(TagAnnotationData.class))
+				type.add(TAG);
+			else if (klass.equals(TextualAnnotationData.class))
+				type.add(COMMENT);
 			annotationType.put(klass, terms);
+		}
 	}
 	
 }

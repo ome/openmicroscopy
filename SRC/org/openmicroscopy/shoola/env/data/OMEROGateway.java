@@ -95,7 +95,6 @@ import ome.system.ServiceFactory;
 import ome.system.UpgradeCheck;
 import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
-import pojos.AnnotationData;
 import pojos.ArchivedAnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -3194,6 +3193,16 @@ class OMEROGateway
 				k = convertPojos(type);
 				service.onlyType(k);
 				service.bySomeMustNone(some, must, none);
+				/*
+				service.bySomeMustNone(formatText(some, "name"), 
+						formatText(must, "name"), formatText(none, "name"));
+				size = handleSearchResult(k, rType, service);
+				if (size instanceof Integer) return size;
+				service.clearQueries();
+				service.bySomeMustNone(formatText(some, "description"), 
+						formatText(must, "description"), 
+						formatText(none, "description"));
+						*/
 				size = handleSearchResult(k, rType, service);
 				if (size instanceof Integer) return size;
 				service.clearQueries();
@@ -3376,6 +3385,11 @@ class OMEROGateway
 	            sb.append("where ail.child.id = :tagID");
 	            Set imgs = PojoMapper.asDataObjects(
 	            			service.findAllByQuery(sb.toString(), param));
+	            //Retrieve the projects.
+	            
+	            
+	            
+	            
 	            tag.setImages(imgs);
 			}
 			//sb.append("where ann.id = :tagID");

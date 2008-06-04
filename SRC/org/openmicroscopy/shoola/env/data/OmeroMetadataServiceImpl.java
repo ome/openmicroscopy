@@ -745,7 +745,6 @@ class OmeroMetadataServiceImpl
 		FileAnnotation fa;
 		while (i.hasNext()) {
 			data = (AnnotationData) i.next();
-			System.err.println("type "+annotationType);
 			if (annotationType.equals(data.getClass())) {
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
@@ -1462,13 +1461,14 @@ class OmeroMetadataServiceImpl
 //		All the tags.
 		Iterator i;
 		Long id;
-		List links;
+		List links = new ArrayList();
 		ILink link;
 		TagAnnotationData tag;
 		List<Long> ids = new ArrayList<Long>();
 		Map<Long, TagAnnotationData> 
 		     map = new HashMap<Long, TagAnnotationData>(); 
 		i = c.iterator();
+		List<Long> added = new ArrayList<Long>();
 		while (i.hasNext()) {
 			tag = (TagAnnotationData) i.next();
 			ids.add(tag.getId());
@@ -1476,8 +1476,9 @@ class OmeroMetadataServiceImpl
 		}
 		switch (tagLevel) {
 			case OmeroMetadataService.LEVEL_TAG:
-				links = gateway.findAnnotationLinks(ImageData.class, -1, ids);
-				if (links != null) {
+				links.addAll(gateway.findAnnotationLinks(ImageData.class, -1, 
+						ids));
+				if (links != null && links.size() > 0) {
 					i = links.iterator();
 					while (i.hasNext()) {
 						link = (ILink) i.next();
@@ -1486,7 +1487,11 @@ class OmeroMetadataServiceImpl
 						if (tag != null) {
 							map.remove(id);
 							ids.remove(id);
-							annotations.add(tag);
+							if (!added.contains(id)) {
+								annotations.add(tag);
+								added.add(id);
+							}
+							
 						}
 					}
 				}

@@ -32,6 +32,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.List;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -56,11 +58,16 @@ import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.ObjectEditor;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
+import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+
+import pojos.TagAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * The tool bar of {@link DataBrowser}. 
@@ -82,6 +89,9 @@ class DataBrowserToolBar
 
 	/** The text of the menu. */
 	private static final String	ITEMS_PER_ROW_TEXT = "Images per row";
+	
+	/** The text of the menu. */
+	private static final String	FILTER_BY = "Filter by: ";
 	
 	/** ID to bring up the add thumbnail view to the node.. */
 	private static final int	ROLL_OVER = 10;
@@ -151,6 +161,9 @@ class DataBrowserToolBar
 	
 	/** TextField hosting the number of items per row. */
 	private JTextField			itemsPerRow;
+	
+	/** Indicates how many images are shown. */
+	private JLabel				status;
 	
 	/** Indicates how many images are shown. */
 	private JLabel				filteringLabel;
@@ -283,6 +296,8 @@ class DataBrowserToolBar
 	{
 		filteringLabel = new JLabel();
 		filteringLabel.setFont(filteringLabel.getFont().deriveFont(Font.BOLD));
+		status = new JLabel();
+		status.setFont(status.getFont().deriveFont(Font.BOLD));
 		IconManager icons = IconManager.getInstance();
 		search = new QuickFiltering();
 		search.addPropertyChangeListener(controller);
@@ -394,8 +409,6 @@ class DataBrowserToolBar
 		bar.add(slideShowView);
 		bar.add(managementButton);
 		bar.add(refreshButton);
-		//bar.add(Box.createHorizontalStrut(2));
-		//bar.add(new JSeparator(JSeparator.VERTICAL));
 		return bar;
 	}
 	
@@ -414,10 +427,16 @@ class DataBrowserToolBar
 		p.add(search);
 		p.add(buildViewsBar());
 		content.add(p);
+		JPanel text = new JPanel();
+		
+		text.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		JPanel labelPane = new JPanel();
-		labelPane.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		labelPane.setLayout(new BoxLayout(labelPane, BoxLayout.X_AXIS));
+		labelPane.add(status);
+		labelPane.add(Box.createHorizontalStrut(10));
 		labelPane.add(filteringLabel);
-		content.add(labelPane);
+		text.add(labelPane);
+		content.add(text);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(content);
 	}
@@ -511,8 +530,94 @@ class DataBrowserToolBar
 	{
 		String s = "Workspace: "+value+" of "+total+" image";
 		if (total > 1) s += "s";
-		filteringLabel.setText(s);
-		filteringLabel.repaint();
+		status.setText(s);
+		status.repaint();
+	}
+	
+	/**
+	 * Sets the text of the filtered label.
+	 * 
+	 * @param value The value to set.
+	 */
+	void setFilterLabel(String value)
+	{
+		if (value != null && value.length() > 0)
+			filteringLabel.setText(FILTER_BY+value);
+		else filteringLabel.setText("");
+	}
+	
+	/**
+	 * Sets the filering context.
+	 * 
+	 * @param context The context to handle.
+	 */
+	void filterByContext(FilterContext context)
+	{
+		if (context == null) return;
+		List<String> terms;
+		switch (context.getContext()) {
+			case FilterContext.MULTI:
+				List<Integer> c = context.getContextList();
+				String text = "";
+				if (c.contains(FilterContext.RATE)) 
+					text += SearchComponent.NAME_RATE;
+				if (c.contains(FilterContext.TAG)) {
+					if (text.length() != 0) text += ", ";
+					text += SearchComponent.NAME_TAGS;
+				}
+				if (c.contains(FilterContext.COMMENT)) {
+					if (text.length() != 0) text += ", ";
+					text += SearchComponent.NAME_COMMENTS;
+				}
+				setFilterLabel(text);
+				break;
+			case FilterContext.NONE:
+				search.setSearchContext(QuickSearch.SHOW_ALL);
+				setFilterLabel("");
+				break;
+			case FilterContext.RATE:
+				setFilterLabel(SearchComponent.NAME_RATE);
+				if (context.getIndex() != FilterContext.LOWER) {
+					
+					switch (context.getRate()) {
+						case 0:
+							setFilterLabel(SearchComponent.UNRATED);
+							search.setSearchContext(QuickSearch.UNRATED);
+							break;
+						case 1:
+							search.setSearchContext(
+									QuickSearch.RATED_ONE_OR_BETTER);
+							break;
+						case 2:
+							search.setSearchContext(
+									QuickSearch.RATED_TWO_OR_BETTER);
+							break;
+						case 3:
+							search.setSearchContext(
+									QuickSearch.RATED_THREE_OR_BETTER);
+							break;
+						case 4:
+							search.setSearchContext(
+									QuickSearch.RATED_FOUR_OR_BETTER);
+							break;
+						case 5:
+							search.setSearchContext(QuickSearch.RATED_FIVE);
+							break;
+					}
+				}
+			    break;
+			case FilterContext.TAG:
+				setFilterLabel(SearchComponent.NAME_TAGS);
+				search.setSearchContext(QuickSearch.TAGS);
+				terms = context.getAnnotation(TagAnnotationData.class);
+				if (terms != null) search.setSearchValue(terms);
+			    break;
+			case FilterContext.COMMENT:
+				setFilterLabel(SearchComponent.NAME_COMMENTS);
+				search.setSearchContext(QuickSearch.COMMENTS);
+				terms = context.getAnnotation(TextualAnnotationData.class);
+				if (terms != null) search.setSearchValue(terms);
+		}
 	}
 	
 	/** 
