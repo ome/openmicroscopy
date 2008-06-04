@@ -22,6 +22,7 @@ import ome.model.IAnnotated;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
@@ -134,10 +135,14 @@ public abstract class DataObject {
         	LongAnnotation ann = (LongAnnotation) obj;
         	if (RatingAnnotationData.INSIGHT_RATING_NS.equals(ann.getNs()))
         		converted = new RatingAnnotationData(ann);
-        	converted = new LongAnnotationData(ann);
+        	else converted = new LongAnnotationData(ann);
+        } else if (obj instanceof BooleanAnnotation) {
+        	BooleanAnnotation ann = (BooleanAnnotation) obj;
+        	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ann.getNs()))
+        		converted = new ArchivedAnnotationData(ann);
+        	else converted = new BooleanAnnotationData(ann);
         } else if (obj instanceof FileAnnotation) {
-        	converted = new FileAnnotationData((FileAnnotation) obj);		
-        	
+        	converted = new FileAnnotationData((FileAnnotation) obj);			
         } else if (obj instanceof Image) {
             converted = new ImageData((Image) obj);
         } else if (obj instanceof CategoryGroup) {
