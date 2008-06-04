@@ -337,6 +337,42 @@ public class UpdateTest extends AbstractUpdateTest {
 
     }
 
+    @Test
+    public void testRootCanDeleteObjectFromOtherGroup() {
+
+        // This creates a user in a new group
+        Experimenter e = loginNewUser();
+        Image i = new Image("rootCanDeleteObjectFromOtherGroup");
+        i = this.iUpdate.saveAndReturnObject(i);
+
+        loginRoot();
+        this.iUpdate.deleteObject(i);
+    }
+
+    @Test(groups = "ticket:1001")
+    public void testOptimisticLockingOnLinks() {
+
+        Experimenter e2 = loginNewUser();
+        Experimenter e1 = loginNewUser();
+
+        Project p1 = new Project("p1");
+        Dataset d1 = new Dataset("d1");
+        p1.linkDataset(d1);
+        p1 = iUpdate.saveAndReturnObject(p1);
+
+        ProjectDatasetLink link = new ProjectDatasetLink();
+        link.setParent(new Project(p1.getId(), false));
+        link
+                .setChild(new Dataset(p1.linkedDatasetList().get(0).getId(),
+                        false));
+        iUpdate.saveObject(link);
+
+        loginUser(e2.getOmeName());
+        p1.linkDataset(new Dataset("d2"));
+        iUpdate.saveObject(p1);
+
+    }
+
     protected void assertLink(ProjectDatasetLink link) {
         ProjectDatasetLink test = iUpdate.saveAndReturnObject(link);
         ProjectDatasetLink copy = iQuery.get(test.getClass(), test.getId());
