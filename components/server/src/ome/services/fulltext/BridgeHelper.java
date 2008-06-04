@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.List;
 
 import ome.conditions.ApiUsageException;
@@ -115,6 +116,9 @@ public abstract class BridgeHelper implements FieldBridge,
                 named_field.setBoost(boost);
             }
             d.add(named_field);
+            final Field named_parsed_field = new Field(field, new StringReader(
+                    value));
+            d.add(named_parsed_field);
         }
 
         // Never storing in combined fields, since it's duplicated
@@ -123,6 +127,9 @@ public abstract class BridgeHelper implements FieldBridge,
             combined_field.setBoost(boost);
         }
         d.add(combined_field);
+        final Field combined_parsed_field = new Field(COMBINED,
+                new StringReader(value));
+        d.add(combined_parsed_field);
     }
 
     /**

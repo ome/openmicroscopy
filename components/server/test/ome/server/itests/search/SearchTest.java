@@ -87,8 +87,65 @@ public class SearchTest extends AbstractTest {
         search.byFullText("A \\- 1");
         assertContainsObject(search, i);
 
+        search.bySomeMustNone(new String[] { "name:\"A \\- 1\"" }, null, null);
+        assertContainsObject(search, i);
+
+        search.bySomeMustNone(new String[] { "name:reagent" }, null, null);
+        assertContainsObject(search, i);
+
+        // The following doesn't work for some reason.
+        // search.bySomeMustNone(new String[] { "name:A" }, null, null);
+
+        // And this causes a parse exception
+        // search.bySomeMustNone(new String[] { "name:*A*" }, null, null);
+
         // The following won't work since "-" is a Lucene special character.
         // search.byFullText("A - 1");
+
+    }
+
+    public void testFullTextUsingIQuery() {
+
+        String uuid = uuid();
+        String part = uuid.substring(0, uuid.indexOf("-"));
+        Image i = new Image("myIQueryImageTest");
+        TagAnnotation tag = new TagAnnotation();
+        tag.setNs("theNamespaceInMyIQueryTest");
+        tag.setTextValue("some test and an " + uuid + " to search");
+        i.linkAnnotation(tag);
+        i = this.iUpdate.saveAndReturnObject(i);
+        this.iUpdate.indexObject(i);
+
+        List<? extends IObject> list;
+
+        list = this.iQuery.findAllByFullText(Image.class, "myIQueryImageTest",
+                null);
+        assertTrue(list.toString(), list.size() >= 1);
+
+        list = this.iQuery.findAllByFullText(Image.class,
+                "name:myIQueryImageTest", null);
+        assertTrue(list.toString(), list.size() >= 1);
+
+        list = this.iQuery.findAllByFullText(Image.class, "name:myIQuery*",
+                null);
+        assertTrue(list.toString(), list.size() >= 1);
+
+        list = this.iQuery.findAllByFullText(Image.class, part + "*", null);
+        assertTrue(list.toString(), list.size() == 1);
+
+        list = this.iQuery.findAllByFullText(Image.class, uuid, null);
+        assertTrue(list.toString(), list.size() == 1);
+
+        list = this.iQuery.findAllByFullText(Image.class, "some*" + uuid + "*",
+                null);
+        assertTrue(list.toString(), list.size() == 1);
+
+        list = this.iQuery.findAllByFullText(Image.class, "tag:" + uuid, null);
+        assertTrue(list.toString(), list.size() == 1);
+
+        list = this.iQuery.findAllByFullText(Image.class, "annotation:" + uuid,
+                null);
+        assertTrue(list.toString(), list.size() == 1);
 
     }
 
