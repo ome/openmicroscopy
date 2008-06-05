@@ -113,7 +113,7 @@ public class FileParserTest extends AbstractTest {
         Search search = this.factory.createSearchService();
         search.onlyType(Image.class);
         search.onlyIds(i.getId());
-        search.byFullText("annotation:ABC123");
+        search.byFullText("file.contents:ABC123");
         assertTrue(search.hasNext());
     }
 
