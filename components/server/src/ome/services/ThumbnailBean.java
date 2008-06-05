@@ -420,7 +420,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *         not exist.
      */
     private Thumbnail getThumbnailMetadata(int sizeX, int sizeY) {
-        Long userId = getSecuritySystem().getEventContext().getCurrentUserId();
+        Long userId = settings.getDetails().getOwner().getId();
         Parameters param = new Parameters();
         param.addId(pixels.getId());
         param.addInteger("x", sizeX);
@@ -442,7 +442,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
      *         not exist.
      */
     private List<Thumbnail> getThumbnailMetadata() {
-        Long userId = getSecuritySystem().getEventContext().getCurrentUserId();
+        Long userId = settings.getDetails().getOwner().getId();
         List<Thumbnail> thumbs = iQuery.findAllByQuery(
                 "select t from Thumbnail as t where t.pixels.id = :id and " +
                 "t.details.owner.id = :ownerid", new Parameters().
