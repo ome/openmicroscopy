@@ -299,7 +299,7 @@ public abstract class TreeImageDisplay
     public void removeAllChildrenDisplay()
     {
         Iterator i = childrenDisplay.iterator();
-        Set toRemove = new HashSet(childrenDisplay.size());
+        Set<Object> toRemove = new HashSet<Object>(childrenDisplay.size());
         while (i.hasNext())
             toRemove.add(i.next());
         i = toRemove.iterator();

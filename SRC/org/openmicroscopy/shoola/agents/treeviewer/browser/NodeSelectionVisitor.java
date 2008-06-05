@@ -31,7 +31,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 import pojos.DataObject;
 
 /** 
- * 
+ * Finds the {@link TreeImageDisplay} hosting the selected 
+ * <code>DataObject</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,6 +58,38 @@ class NodeSelectionVisitor
 	private TreeImageDisplay	selectedNode;
 	
 	/**
+	 * Finds the node hosting the selected <code>DataObject</code>.
+	 * 
+	 * @param node The node to check.
+	 */
+	private void findNode(TreeImageDisplay node)
+	{
+		if (node == null) return;
+		if (parent == null) {
+			Object uo = node.getUserObject();
+			if (selected.getClass().equals(uo.getClass()) &&
+				selected.getId() == node.getUserObjectId()) {
+				selectedNode = node;
+			}
+		} else {
+			Object uo = node.getUserObject();
+			
+			if (selected.getClass().equals(uo.getClass()) &&
+				selected.getId() == node.getUserObjectId()) {
+				TreeImageDisplay pN = node.getParentDisplay();
+				Object po = pN.getUserObject();
+				if (po.getClass().equals(parent.getClass()))
+					if (po instanceof DataObject 
+						&& parent instanceof DataObject) {
+						if (((DataObject) po).getId() == 
+							((DataObject) parent).getId())
+							selectedNode = node;
+					}
+			}
+		}
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param parent	The parent of the selected node.
@@ -80,57 +113,15 @@ class NodeSelectionVisitor
 	/**
 	 * Retrieves the {@link TreeImageDisplay} corresponding to the 
 	 * the selected node.
-	 * 
 	 * @see TreeImageDisplayVisitor#visit(TreeImageSet)
 	 */
-	public void visit(TreeImageSet node)
-	{
-		if (parent == null) {
-			Object uo = node.getUserObject();
-			if (selected.getClass().equals(uo.getClass()) &&
-				selected.getId() == node.getUserObjectId()) {
-				selectedNode = node;
-			}
-		} else {
-			Object uo = node.getUserObject();
-			if (selected.getClass().equals(uo.getClass()) &&
-				selected.getId() == node.getUserObjectId()) {
-				TreeImageDisplay pN = node.getParentDisplay();
-				Object po = pN.getUserObject();
-				if (po.getClass().equals(parent.getClass()))
-					if (po instanceof DataObject 
-						&& parent instanceof DataObject) {
-						if (((DataObject) po).getId() == 
-							((DataObject) parent).getId())
-							selectedNode = node;
-					}
-			}
-		}
-	}
+	public void visit(TreeImageSet node) { findNode(node); }
 	
 	/** 
-	 * Required by the {@link TreeImageDisplayVisitor} I/F but no-op
-	 * implementation in our case.
+	 * Retrieves the {@link TreeImageDisplay} corresponding to the 
+	 * the selected node.
 	 * @see TreeImageDisplayVisitor#visit(TreeImageNode)
 	 */
-	public void visit(TreeImageNode node)
-	{
-		if (parent == null) {
-			Object uo = node.getUserObject();
-			if (selected.getClass().equals(uo.getClass()) &&
-				selected.getId() == node.getUserObjectId()) {
-				selectedNode = node;
-			}
-		} else {
-			Object uo = node.getUserObject();
-			if (selected.getClass().equals(uo.getClass()) &&
-				selected.getId() == node.getUserObjectId()) {
-				TreeImageDisplay pN = node.getParentDisplay();
-				Object po = pN.getUserObject();
-				if (po.getClass().equals(parent.getClass()))
-						selectedNode = node;
-			}
-		}
-	}
+	public void visit(TreeImageNode node) { findNode(node); }
 	
 }

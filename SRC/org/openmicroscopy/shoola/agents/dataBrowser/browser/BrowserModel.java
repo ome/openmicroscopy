@@ -272,7 +272,7 @@ class BrowserModel
         i = toDeselect.iterator();
         while (i.hasNext()) {
         	node = (ImageDisplay) i.next();
-            if (node != null)
+            if (node != null && !toSelect.contains(node))
             	node.setHighlight(colors.getDeselectedHighLight(node));
         }
     }

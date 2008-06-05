@@ -632,7 +632,6 @@ class TreeViewerComponent
 	{
 		if (object == null) return;
 		if (!(object instanceof List)) return;
-		//Need to notify the browser without having 
 		List l = (List) object;
 		int n = l.size();
 		if (n > 3) return;
