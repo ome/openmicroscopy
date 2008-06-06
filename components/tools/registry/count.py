@@ -63,12 +63,14 @@ try:
 	lastNDays("Last 30 days (server): ", ndays % "OMERO.server")
 	lastNDays("Last 30 days (insight):", ndays % "OMERO.insight")
 	lastNDays("Last 30 days (editor): ", ndays % "OMERO.editor")
+	lastNDays("Last 30 days (importer): ", ndays % "OMERO.importer")
 
 	allip = "SELECT ip, count(ip), osname, osarch, osversion, vmvendor, vmruntime from hit where agent like '%s' group by ip order by count(ip) desc"
 	allIps("All IPs:          ", allip % "%")
 	allIps("All IPs (server): ", allip % "OMERO.server")
 	allIps("All IPs (insight):", allip % "OMERO.insight")
 	allIps("All Ips (editor): ", allip % "OMERO.editor")
+	allIps("All Ips (importer): ", allip % "OMERO.importer")
 
 finally:
 	accessdb.close()
