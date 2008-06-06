@@ -105,18 +105,13 @@ public interface IPixels extends ServiceInterface {
      * Copies the metadata, and <b>only</b> the metadata linked to a Pixels
      * object into a new Pixels object of equal or differing size across one
      * or many of its three physical dimensions or temporal dimension.
-     * Modification of the number of channels is <b>not</b> allowed through
-     * this method due to the sheer number of changes that would have to take
-     * place. Callers who wish to modify the number of channels are encouraged
-     * to build up a new Pixels set and associated metadata objects and save
-     * them through {@link IUpdate}. Furthermore, it is beyond the scope
-     * of this method to handle updates or changes to the raw pixel data
-     * available through {@link RawPixelsStore} or to add and link
-     * {@link StatsInfo}, {@link PlaneInfo} and/or other Pixels set specific
-     * metadata. It is also assumed that the caller wishes the physical 
+     * It is beyond the scope of this method to handle updates or changes to 
+     * the raw pixel data available through {@link RawPixelsStore} or to add 
+     * and link {@link PlaneInfo} and/or other Pixels set specific metadata. 
+     * It is also assumed that the caller wishes the physical 
      * {@link PixelsDimensions} and {@link PixelsType} to remain the same;
      * changing these is outside the scope of this method. <b>NOTE:</b> As 
-     * {@link  Channel} objects are only able to apply to a single set of
+     * {@link Channel} objects are only able to apply to a single set of
      * Pixels any annotations or linkage to these objects will be lost.
      * 
      * @param pixelsId The source Pixels set id.
@@ -132,17 +127,69 @@ public interface IPixels extends ServiceInterface {
      * set.
      * @param methodology An optional string signifying the methodology that
      * will be used to produce this new Pixels set.
+     * @param copyStats Whether or not to copy the {@link StatsInfo} for each
+     * channel.
      * @return Id of the new Pixels object on success or <code>null</code> on
      * failure.
-     * @throws ValidationException If the X, Y, Z, T or channelList dimensions are out
-     * of bounds or the Pixels object corresponding to <code>pixelsId</code> is 
-     * unlocatable. 
+     * @throws ValidationException If the X, Y, Z, T or channelList dimensions 
+     * are out of bounds or the Pixels object corresponding to 
+     * <code>pixelsId</code> is unlocatable. 
      */
     public Long copyAndResizePixels(long pixelsId, Integer sizeX, Integer sizeY,
                                     Integer sizeZ, Integer sizeT, 
                                     @Validate(Integer.class)
                                     List<Integer> channelList,
-                                    String methodology);
+                                    String methodology, boolean copyStats);
+    
+    /**
+     * Copies the metadata, and <b>only</b> the metadata linked to a Image
+     * object into a new Image object of equal or differing size across one
+     * or many of its three physical dimensions or temporal dimension.
+     * It is beyond the scope of this method to handle updates or changes to 
+     * the raw pixel data available through {@link RawPixelsStore} or to add 
+     * and link {@link PlaneInfo} and/or other Pixels set specific metadata. 
+     * It is also assumed that the caller wishes the physical
+     * {@link PixelsDimensions} and {@link PixelsType} to remain the same;
+     * changing these is outside the scope of this method. <b>NOTE:</b> As 
+     * {@link Channel} objects are only able to apply to a single set of
+     * Pixels any annotations or linkage to these objects will be lost.
+     * 
+     * @param imageId The source Image id.
+     * @param sizeX The new size across the X-axis. <code>null</code> if the
+     * copy should maintain the same size.
+     * @param sizeY The new size across the Y-axis. <code>null</code> if the
+     * copy should maintain the same size.
+     * @param sizeZ The new size across the Z-axis. <code>null</code> if the
+     * copy should maintain the same size.
+     * @param sizeT The new number of timepoints. <code>null</code> if the
+     * copy should maintain the same number.
+     * @param channelList The channels that should be copied into the new Pixels
+     * set.
+     * @param name The name of the new Image.
+     * @param copyStats Whether or not to copy the {@link StatsInfo} for each
+     * channel.
+     * @return Id of the new Pixels object on success or <code>null</code> on
+     * failure.
+     * @throws ValidationException If the X, Y, Z, T or channelList dimensions 
+     * are out of bounds or the Pixels object corresponding to 
+     * <code>pixelsId</code> is unlocatable. 
+     */
+    public Long copyAndResizeImage(long imageId, Integer sizeX, Integer sizeY,
+                                   Integer sizeZ, Integer sizeT, 
+                                   @Validate(Integer.class)
+                                   List<Integer> channelList,
+                                   String name, boolean copyStats);
+    
+    /**
+     * Sets the channel global (all 2D optical sections corresponding to a 
+     * particular channel) minimum and maximum for a Pixels set.
+     * @param pixelsId The source Pixels set id.
+     * @param channelIndex The channel index within the Pixels set.
+     * @param min The channel global minimum.
+     * @param max The channel global maximum.
+     */
+    public void setChannelGlobalMinMax(long pixelsId, int channelIndex,
+                                       double min, double max);
 
     /**
      * Saves the specified rendering settings.

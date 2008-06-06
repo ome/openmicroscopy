@@ -8,6 +8,7 @@
 package ome.logic;
 
 // Java imports
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
@@ -33,6 +34,7 @@ import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
+import ome.model.core.PlaneInfo;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
@@ -64,6 +66,12 @@ import ome.services.util.OmeroAroundInvoke;
 @LocalBinding(jndiBinding = "omero/local/ome.api.IPixels")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class PixelsImpl extends AbstractLevel2Service implements IPixels {
+	
+	/** The pixels set we're currently copying from. */
+	private Pixels from;
+	
+	/** The pixels set we're currently copying to. */
+	private Pixels to;
 
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IPixels.class;
@@ -125,19 +133,20 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
                 new Parameters().addId(renderingDefId));
     }
     
-    @RolesAllowed("user")
-    @Transactional(readOnly = false)
-    public Long copyAndResizePixels(long pixelsId, Integer sizeX, Integer sizeY,
-            Integer sizeZ, Integer sizeT, List<Integer> channelList, String methodology)
+    /** Actually performs the work declared in {@link copyAndResizePixels()}. */
+    private void _copyAndResizePixels(long pixelsId, Integer sizeX, 
+    		Integer sizeY, Integer sizeZ, Integer sizeT, 
+    		List<Integer> channelList, String methodology, boolean copyStats)
     {
-        Pixels from = retrievePixDescription(pixelsId);
-        Pixels to = new Pixels();
+        from = retrievePixDescription(pixelsId);
+        to = new Pixels();
         
-        //      Ensure we have no values out of bounds
+        // Ensure we have no values out of bounds
         outOfBoundsCheck(sizeX, "sizeX");
         outOfBoundsCheck(sizeY, "sizeY");
         outOfBoundsCheck(sizeZ, "sizeZ");
         outOfBoundsCheck(sizeT, "sizeT");
+        
         // Check that the channels in the list are valid indexes. 
         if(channelList!=null)
         	channelOutOfBounds(channelList, "channel", from);
@@ -155,22 +164,77 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         to.setSizeC(channelList!= null ? channelList.size() : from.getSizeC());
         to.setSha1("Pending...");
         
+        // Copy channel data, if the channel list is null copy all channels.
+        // or copy the channels in the channelList if it's not null.
+        if(channelList != null)
+        {
+        	for (Integer channel : channelList)
+        	{
+        		copyChannel(channel, from, to, copyStats);
+        	}
+        }
+        else
+        {
+        	for (int channel = 0 ; channel < from.sizeOfChannels(); channel++)
+        	{
+        		copyChannel(channel, from, to, copyStats);
+        	}
+        }
+    }
+    
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public Long copyAndResizePixels(long pixelsId, Integer sizeX, Integer sizeY,
+            Integer sizeZ, Integer sizeT, List<Integer> channelList,
+            String methodology, boolean copyStats)
+    {
+    	_copyAndResizePixels(pixelsId, sizeX, sizeY, sizeZ, sizeT,
+    			             channelList, methodology, copyStats);
+    	
         // Deal with Image linkage
         Image image = from.getImage();
         image.addPixels(to);
-        
-        // Copy channel data, if the channel list is null copy all channels.
-        // or copy the channels in the channelList if it's not null.
-        if(channelList!=null)
-        	for(Integer channel : channelList)
-        		copyChannel(channel, from, to);
-        else
-        	for(int channel = 0 ; channel < from.sizeOfChannels(); channel++)
-        		copyChannel(channel, from, to);
      
         // Save and return our newly created Pixels Id
         image = iUpdate.saveAndReturnObject(image);
         return image.getPixels(image.sizeOfPixels() - 1).getId();
+    }
+    
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public Long copyAndResizeImage(long imageId, Integer sizeX, Integer sizeY,
+    		Integer sizeZ, Integer sizeT, List<Integer> channelList,
+    		String name, boolean copyStats)
+    {
+    	Image iFrom = iQuery.get(Image.class, imageId);
+    	Image iTo = new Image();
+    	
+    	// Copy each Pixels set that the source image has
+    	Iterator<Pixels> i = iFrom.iteratePixels();
+    	while (i.hasNext())
+    	{
+    		Pixels p = i.next();
+        	_copyAndResizePixels(p.getId(), sizeX, sizeY, sizeZ, sizeT,
+		                         channelList, null, copyStats);
+        	iTo.addPixels(to);
+    	}
+    	
+    	// Set the image name
+    	iTo.setName(name);
+    	
+        // Save and return our newly created Image Id
+        iTo = iUpdate.saveAndReturnObject(iTo);
+        return iTo.getId();
+    }
+    
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void setChannelGlobalMinMax(long pixelsId, int channelIndex,
+                                       double min, double max)
+    {
+    	
+    	// TODO Auto-generated method stub
+    	
     }
     
     @RolesAllowed("user")
@@ -235,15 +299,21 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
      * @param channel the channel index.
      * @param from the pixel to copy from.
      * @param to the pixels to copy to.
+     * @param copyStats Whether or not to copy the {@link StatsInfo} for each
+     * channel.
      */
-    private void copyChannel(int channel, Pixels from, Pixels to)
+    private void copyChannel(int channel, Pixels from, Pixels to,
+                             boolean copyStats)
     {
        	Channel cFrom = from.getChannel(channel);
         Channel cTo = new Channel();
         cTo.setColorComponent(cFrom.getColorComponent());
         cTo.setLogicalChannel(cFrom.getLogicalChannel());
-        cTo.setStatsInfo(new StatsInfo(cFrom.getStatsInfo().getGlobalMin(),
-        						cFrom.getStatsInfo().getGlobalMax()));
+        if (copyStats)
+        {
+        	cTo.setStatsInfo(new StatsInfo(cFrom.getStatsInfo().getGlobalMin(),
+        					cFrom.getStatsInfo().getGlobalMax()));
+        }
         to.addChannel(cTo);
     }
 

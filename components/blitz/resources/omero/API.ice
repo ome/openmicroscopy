@@ -201,7 +201,17 @@ module omero {
 	                                 omero::RInt sizeZ,
 	                                 omero::RInt sizeT,
 									 omero::sys::IntList channelList,
-	                                 string methodology) throws ServerError;
+	                                 string methodology,
+									 bool copyStats) throws ServerError;
+	omero::RLong copyAndResizeImage(long imageId,
+	                                omero::RInt sizeX,
+	                                omero::RInt sizeY,
+	                                omero::RInt sizeZ,
+	                                omero::RInt sizeT,
+								    omero::sys::IntList channelList,
+	                                string methodology,
+									bool copyStats) throws ServerError;
+	void setChannelGlobalMinMax(long pixelsId, int channelIndex, double min, double max);
       };
 
     dictionary<long, IObjectList> AnnotationMap;
