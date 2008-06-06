@@ -112,6 +112,21 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
             #self.ctx.dbg(str(ex))
             #self.ctx.die(100, "Bad argument: "+ str(first) + ", " + ", ".join(other))
 
+    def _handleNZRC(self, nzrc):
+        """
+        Set the return value from nzrc on the context, and print
+        out the last two lines of any error messages if present.
+        """
+        props = self._properties()
+        self.ctx.rv = nzrc.rv
+        myoutput = self.dir / path(props["Ice.StdErr"])
+        if not myoutput.exists():
+	        pass
+	else:
+                print "from %s:" % str(myoutput)
+                print tail_lines(str(myoutput),2)
+
+
     ##############################################
     #
     # Commands : Since node plugin implements its own
@@ -131,19 +146,17 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
             self.ctx.out("Initializing %s" % logdata)
             logdata.makedirs()
 
-        props = self._properties()
-        command = ["icegridnode", self._icecfg()]
-        command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
         try:
-            self.ctx.popen(command)
+            command = ["icegridnode", self._icecfg()]
+            if self._isWindows():
+                command = command + ["--install","OMERO."+self._node()]
+                self.ctx.popen(command)
+                self.ctx.popen(["icegridnode","--start","OMERO."+self._node()])
+            else:
+                command = command + ["--daemon", "--pidfile", str(self._pid()),"--nochdir"]
+                self.ctx.popen(command)
         except NonZeroReturnCode, nzrc:
-            self.ctx.rv = nzrc.rv
-            myoutput = self.dir / path(props["Ice.StdErr"])
-	    if not myoutput.exists():
-		pass
-	    else:
-                print "from %s:" % str(myoutput)
-                print tail_lines(str(myoutput),2)
+                self._handleNZRC(nzrc)
 
     def status(self, name = None):
 
@@ -155,8 +168,17 @@ Syntax: %(program_name)s node [node-name ] [sync] [ start | stop | status | rest
     def stop(self, name = None, sync = False):
         if name == None:
             name = self._node()
-        pid = open(self._pid(),"r").readline()
-        os.kill(int(pid), signal.SIGQUIT)
+        if self._isWindows():
+                try:
+                        command = ["icegridnode", "--stop", "OMERO."+self._node()]
+                        self.ctx.popen(command)
+                        command = ["icegridnode", "--uninstall", "OMERO."+self._node()]
+                        self.ctx.popen(command)
+                except NonZeroReturnCode, nzrc:
+                        self._handleNZRC(nzrc)
+        else:
+                pid = open(self._pid(),"r").readline()
+                os.kill(int(pid), signal.SIGQUIT)
 
     def kill(self, name = None, sync = False):
         if name == None:

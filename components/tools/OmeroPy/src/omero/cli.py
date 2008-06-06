@@ -20,7 +20,7 @@ See LICENSE for details.
 
 """
 
-import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback, glob
+import cmd, string, re, os, sys, subprocess, socket, exceptions, traceback, glob, platform
 from omero_ext import pysys
 import shlex as pyshlex
 from exceptions import Exception as Exc
@@ -257,6 +257,13 @@ class BaseControl:
         self.dir = path(dir) # Guaranteed to be a path
         self.ctx = ctx
 
+    def _isWindows(self):
+        p_s = platform.system()
+        if p_s == 'Windows':
+                return True
+        else:
+                return False
+
     def _host(self):
         """
         Return hostname of current machine. Termed to be the
@@ -359,12 +366,18 @@ class BaseControl:
         Returns a list of configuration files for this node. This
         defaults to the internal configuration for all nodes,
         followed by a file named NODENAME.cfg under the etc/
-        directory.
+        directory, following by PLATFORM.cfg if it exists.
         """
         cfgs = self.dir / "etc"
         internal = cfgs / "internal.cfg"
         owncfg = cfgs / self._node() + ".cfg"
-        return (internal,owncfg)
+        results = [internal,owncfg]
+        # Look for <platform>.cfg
+        p_s = platform.system()
+        p_c = cfgs / p_s + ".cfg"
+        if p_c.exists():
+            results.append(p_c)
+        return results
 
     def _icecfg(self):
         """

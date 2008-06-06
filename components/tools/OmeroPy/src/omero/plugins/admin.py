@@ -124,7 +124,7 @@ Syntax: %(program_name)s admin  [ check | adduser | start | stop | status ]
             descrpt = self.dir / "etc" / "grid" / "default.xml"
             self.ctx.err("No descriptor given. Using etc/grid/default.xml")
 
-        command = command + ["-e","application add %s %s" % (descrpt, targets) ]
+        command = command + ["-e","application add '%s' %s" % (descrpt, targets) ]
         self.ctx.popen(command)
 
     def status(self, args):
