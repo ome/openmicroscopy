@@ -181,6 +181,35 @@ public interface IPixels extends ServiceInterface {
                                    String name, boolean copyStats);
     
     /**
+     * Creates the metadata, and <b>only</b> the metadata linked to an Image
+     * object. It is beyond the scope of this method to handle updates or 
+     * changes to the raw pixel data available through {@link RawPixelsStore} 
+     * or to add and link {@link PlaneInfo} or {@link StatsInfo} objects
+     * and/or other Pixels set specific metadata. It is also up to the caller
+     * to update {@link PixelsDimensions}.
+     * 
+     * @param sizeX The new size across the X-axis.
+     * @param sizeY The new size across the Y-axis.
+     * @param sizeZ The new size across the Z-axis.
+     * @param sizeT The new number of timepoints.
+     * @param channelList The channels (emission wavelength in nanometers) that 
+     * should be added to the new Pixels set.
+     * @param pixelsType The pixel type of the Pixels set.
+     * @param name The name of the new Image.
+     * @param description The description of the new Image.
+     * @param copyStats Whether or not to copy the {@link StatsInfo} for each
+     * channel.
+     * @return Id of the new Image object on success or <code>null</code> on
+     * failure.
+     * @throws ValidationException If the channel list is <code>null</code> or 
+     * of size == 0.
+     */
+    public Long createImage(int sizeX, int sizeY,int sizeZ, int sizeT,
+    		                @Validate(Integer.class) List<Integer> channelList,
+    		                PixelsType pixelType, String name,
+    		                String description);
+    
+    /**
      * Sets the channel global (all 2D optical sections corresponding to a 
      * particular channel) minimum and maximum for a Pixels set.
      * @param pixelsId The source Pixels set id.

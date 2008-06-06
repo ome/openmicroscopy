@@ -8,6 +8,7 @@
 package ome.logic;
 
 // Java imports
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +34,9 @@ import ome.io.nio.PixelsService;
 import ome.model.IObject;
 import ome.model.core.Channel;
 import ome.model.core.Image;
+import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
 import ome.model.display.RenderingDef;
 import ome.model.enums.PixelsType;
@@ -229,6 +232,46 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     
     @RolesAllowed("user")
     @Transactional(readOnly = false)
+    public Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
+    		List<Integer> channelList, PixelsType pixelsType, String name,
+    		String description)
+    {
+    	Image image = new Image();
+    	Pixels pixels = new Pixels();
+    	image.addPixels(pixels);
+        
+        // Check that the channels in the list are valid. 
+        if (channelList == null || channelList.size() == 0)
+        {
+        	throw new ValidationException("Channel list must be filled.");
+        }
+        
+        // Create basic metadata
+        // FIXME: Hack, when the model changes we'll want to remove this, it's
+        // unreasonable.
+        PixelsDimensions dims = new PixelsDimensions();
+        dims.setSizeX(1F);
+        dims.setSizeY(1F);
+        dims.setSizeZ(1F);
+        pixels.setPixelsType(pixelsType);
+        pixels.setSizeX(sizeX);
+        pixels.setSizeY(sizeY);
+        pixels.setSizeZ(sizeZ);
+        pixels.setSizeC(channelList.size());
+        pixels.setSizeT(sizeT);
+        pixels.setSha1("Pending...");
+        
+        // Create channel data.
+        List<Channel> channels = createChannels(channelList);
+        pixels.addChannelSet(channels);
+        
+        // Save and return our newly created Image Id
+        image = iUpdate.saveAndReturnObject(image);
+        return image.getId();
+    }
+    
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void setChannelGlobalMinMax(long pixelsId, int channelIndex,
                                        double min, double max)
     {
@@ -317,4 +360,22 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         to.addChannel(cTo);
     }
 
+    /**
+     * Creates new channels to be added to a Pixels set.
+     * @param channelList The list of channel emission wavelengths in 
+     * nanometers.
+     * @return See above.
+     */
+    private List<Channel> createChannels(List<Integer> channelList)
+    {
+    	List<Channel> channels = new ArrayList<Channel>();
+    	for (Integer wavelength : channelList)
+    	{
+    		Channel channel = new Channel();
+    		LogicalChannel lc = new LogicalChannel();
+    		channel.setLogicalChannel(lc);
+    		lc.setEmissionWave(wavelength);
+    	}
+    	return channels;
+    }
 }
