@@ -214,13 +214,6 @@ public class FileChooser
         this(owner, dialogType, title, message, null);
     }
     
-    /**
-     * Returns the type.
-     * 
-     * @return See above.
-     */
-    int getDialogType() { return dialogType; }
-    
     /** 
      * Returns the message to the dialog.
      * 
@@ -316,6 +309,13 @@ public class FileChooser
                 					im.getIcon(IconManager.QUESTION));
         UIUtilities.centerAndShow(d);
     }
+    
+    /**
+     * Returns the type.
+     * 
+     * @return See above.
+     */
+    public int getDialogType() { return dialogType; }
     
     /**
      * Sets the name of the file to save.

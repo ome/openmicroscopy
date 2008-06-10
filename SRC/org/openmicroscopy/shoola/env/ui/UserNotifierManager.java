@@ -71,7 +71,7 @@ class UserNotifierManager
 	/** The default message if an error occured while transfering data. */
 	private static final String	MESSAGE_START = "Sorry, but due to an error " +
 								"we were not able to automatically \n" +
-								"send your . ";
+								"send your ";
 	
 	/** The default message if an error occured while transfering data. */
 	private static final String	MESSAGE_END = "\n\n"+

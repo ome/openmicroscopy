@@ -350,6 +350,7 @@ class CustomizedFileChooser
 				if (f != null) {
 					setSelectedFile(null);
 					//model.setFolderPath(f.getAbsolutePath()+File.separatorChar+name);
+					//TODO: FIX ME
 					model.setFolderPath(f.getAbsolutePath());
 				}
 			//}

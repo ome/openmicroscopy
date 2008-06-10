@@ -64,6 +64,7 @@ import ome.api.RawPixelsStore;
 import ome.api.Search;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.conditions.ValidationException;
 import ome.model.ILink;
 import ome.model.IObject;
@@ -3060,7 +3061,11 @@ class OMEROGateway
 		try {
 			hasNext = service.hasNext();
 		} catch (Exception e) {
-			int size = service.getBatchSize();
+			e.printStackTrace();
+			int size = 0;
+			if (e instanceof InternalException)
+				size = -1;
+			else service.getBatchSize();
 			service.close();
 			return new Integer(size);
 		}
@@ -3086,7 +3091,7 @@ class OMEROGateway
 	 * 
 	 * @param terms
 	 * @param field
-	 * @return
+	 * @return See above.
 	 */
 	private String[] formatText(String[] terms, String field)
 	{
@@ -3192,8 +3197,8 @@ class OMEROGateway
 				type = (Class) i.next();
 				k = convertPojos(type);
 				service.onlyType(k);
-				service.bySomeMustNone(some, must, none);
-				/*
+				//service.bySomeMustNone(some, must, none);
+				
 				service.bySomeMustNone(formatText(some, "name"), 
 						formatText(must, "name"), formatText(none, "name"));
 				size = handleSearchResult(k, rType, service);
@@ -3202,7 +3207,7 @@ class OMEROGateway
 				service.bySomeMustNone(formatText(some, "description"), 
 						formatText(must, "description"), 
 						formatText(none, "description"));
-						*/
+						
 				size = handleSearchResult(k, rType, service);
 				if (size instanceof Integer) return size;
 				service.clearQueries();
@@ -3249,11 +3254,11 @@ class OMEROGateway
 				must = formatText(must, "file");
 				none = formatText(none, "file");
 				service.bySomeMustNone(some, must, none);
-				handleSearchResult(OriginalFile.class, rType, service);
+				size = handleSearchResult(OriginalFile.class, rType, service);
 			} else {
 				service.onlyType(k);
 				service.bySomeMustNone(some, must, none);
-				handleSearchResult(k, rType, service);
+				size = handleSearchResult(k, rType, service);
 			}
 			//some = formatText(some, field);
 			//must = formatText(must, field);
@@ -3262,6 +3267,7 @@ class OMEROGateway
 			//service.onlyType(Image.class);
 			//service.bySomeMustNone(some, must, none);
 			//handleSearchResult(k, rType, service);
+			if (size instanceof Integer) return size;
 			results.put(type, rType);
 			service.clearQueries();
 		}
@@ -3285,7 +3291,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List filterBy(Class annotationType, List<String> terms,
+	Set filterBy(Class annotationType, List<String> terms,
 				Timestamp start, Timestamp end, ExperimenterData exp)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -3300,15 +3306,21 @@ class OMEROGateway
 				service.onlyAnnotatedBy(d);
 			}
 			String[] t = prepareTextSearch(terms, service);
-			service.onlyType(convertPojos(annotationType));
+			
+			
+			Class k = convertPojos(annotationType);
+			service.onlyType(k);
+			Set rType = new HashSet();
 			service.bySomeMustNone(t, null, null);
+			Object size = handleSearchResult(k, rType, service);
+			if (size instanceof Integer) new HashSet();
 
-			if (!service.hasNext()) return new ArrayList();
-			return service.results();
+			if (!service.hasNext()) return new HashSet();
+			return rType;
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
 		}
-		return new ArrayList();
+		return new HashSet();
 	}
 	
 	/**

@@ -34,7 +34,7 @@ import org.openmicroscopy.shoola.env.data.views.CallHandle;
 
 
 /** 
- * 
+ * Hosts information about the file to load i.e. absolute path, size, etc.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,17 +65,17 @@ class FileLoader
     /**
      * Creates a new instance.
      * 
-     * @param viewer
-     * @param reg
-     * @param absolutePath
-     * @param fileID
-     * @param size
+     * @param viewer Reference to the parent.
+     * @param reg    Reference to the registry.
+     * @param path	 The absolute path to the file.
+     * @param fileID The file ID.
+     * @param size   The size of the file.
      */
-	FileLoader(UserNotifier viewer, Registry reg, String absolutePath,
-					long fileID, long size)
+	FileLoader(UserNotifier viewer, Registry reg, String path, long fileID, 
+			long size)
 	{
 		super(viewer, reg);
-		file = new File(absolutePath);
+		file = new File(path);
 		this.fileID = fileID;
 		this.size = size;
 	}

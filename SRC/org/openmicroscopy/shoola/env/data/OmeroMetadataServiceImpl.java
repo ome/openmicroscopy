@@ -1073,7 +1073,7 @@ class OmeroMetadataServiceImpl
 		AnnotationData data;
 		Iterator i, j;
 		if (terms != null && terms.size() > 0) {
-			List annotations = gateway.filterBy(annotationType, terms,
+			Set annotations = gateway.filterBy(annotationType, terms,
 					                           null, null, exp);
 			List<Long> annotationsIds = new ArrayList<Long>();
 			
@@ -1231,7 +1231,7 @@ class OmeroMetadataServiceImpl
 		Iterator i, j;
 		Long id;
 		Collection l;
-		List annotations;
+		Set annotations;
 		int resultType = filter.getResultType();
 		Map<Class, List<String>> types = filter.getAnnotationType();
 		

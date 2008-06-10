@@ -375,13 +375,19 @@ public class AdvancedFinder
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		if (result instanceof Integer) {
-			
-			JLabel l = UIUtilities.setTextFont("Too many images matching your" +
-					" criteria.");
-			p.add(l);
-			l = UIUtilities.setTextFont("The maximum number is set to " +
-					""+((Integer) result).intValue());
-			p.add(l);
+			int value = ((Integer) result).intValue();
+			JLabel l;
+			if (value < 0) {
+				l = UIUtilities.setTextFont("Unable to handle the search.");
+				p.add(l);
+			} else {
+				l = UIUtilities.setTextFont("Too many images matching your" +
+				                            " criteria.");
+				p.add(l);
+				l = UIUtilities.setTextFont("The maximum number is set to " +
+						""+value);
+				p.add(l);
+			}
 			displayResult(UIUtilities.buildComponentPanel(p));
 			
 			firePropertyChange(RESULTS_FOUND_PROPERTY, null, result);

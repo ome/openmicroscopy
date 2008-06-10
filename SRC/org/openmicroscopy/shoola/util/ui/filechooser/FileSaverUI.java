@@ -463,8 +463,6 @@ class FileSaverUI
 		chooser.createFolder(name);
 	}
 
-	
-	
 }
 
 
