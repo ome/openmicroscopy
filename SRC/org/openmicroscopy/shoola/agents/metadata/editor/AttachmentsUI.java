@@ -225,6 +225,12 @@ class AttachmentsUI
 	/** The border displaying the title. */
 	private TitledLineBorder 					border;
 	
+	/** The file chooser used to upload or download an attachment. */
+	private FileChooser 						chooser;
+	
+	/** The selected annotation data. */ 
+	private FileAnnotationData 					selectedData;
+	
 	/**
 	 * Creates the order by menu.
 	 * 
@@ -464,14 +470,13 @@ class AttachmentsUI
 	{
 		JFrame owner = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		FileChooser chooser = new FileChooser(owner, FileChooser.SAVE, 
-								"Browse File", "Attach a file to the " +
-										"selected element", filters);
+		chooser = new FileChooser(owner, FileChooser.SAVE, "Browse File", 
+				"Attach a file to the selected element", filters);
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
 	}
-	
+
 	/**
 	 * Brings up the widget asking the user what to do with the file.
 	 * 
@@ -482,16 +487,31 @@ class AttachmentsUI
 		FileAnnotationData data = source.getFile();
 		if (data == null) return;
 		Registry reg = MetadataViewerAgent.getRegistry();
+		chooser = new FileChooser(reg.getTaskBar().getFrame(), 
+				FileChooser.FOLDER_CHOOSER, "Directory selection",
+		"Select the folder where to save the files.");
+
+		chooser.addPropertyChangeListener(
+				FileChooser.APPROVE_SELECTION_PROPERTY, this);
+		UIUtilities.centerAndShow(chooser);
+		/*
+		FileAnnotationData data = source.getFile();
+		if (data == null) return;
+		Registry reg = MetadataViewerAgent.getRegistry();
 		
-		FileChooser chooser = new FileChooser(reg.getTaskBar().getFrame(), 
+		chooser = new FileChooser(reg.getTaskBar().getFrame(), 
 					FileChooser.FOLDER_CHOOSER, "Directory selection",
 					"Select the folder where to save the files.");
+		
+		chooser.addPropertyChangeListener(
+				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		if (chooser.showDialog() == JFileChooser.APPROVE_OPTION) {
 			File dir = chooser.getSelectedFile();
 			UserNotifier un = reg.getUserNotifier();
 			un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile(),
 								dir);
 		}
+		*/
 	}
 	
 	/**
@@ -1101,25 +1121,44 @@ class AttachmentsUI
 	{
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File f = (File) evt.getNewValue();
-			Iterator i = addedFiles.iterator();
-			boolean exist = false;
-			File file;
-			while (i.hasNext()) {
-				file = (File) i.next();
-				if (file.getAbsolutePath().equals(f.getAbsolutePath())) {
-					exist = true;
+			if (chooser == null) return;
+			switch (chooser.getDialogType()) {
+				case FileChooser.SAVE:
+					File f = (File) evt.getNewValue();
+					Iterator i = addedFiles.iterator();
+					boolean exist = false;
+					File file;
+					while (i.hasNext()) {
+						file = (File) i.next();
+						if (file.getAbsolutePath().equals(
+								f.getAbsolutePath())) {
+							exist = true;
+							break;
+						}
+					}
+					if (exist) return;
+					addedFiles.add(f);
+					firePropertyChange(EditorControl.SAVE_PROPERTY, 
+							Boolean.FALSE, Boolean.TRUE);
+					layoutAddedFiles();
+					revalidate();
+					repaint();
+					chooser = null;
 					break;
-				}
+	
+				case FileChooser.FOLDER_CHOOSER:
+					if (selectedData == null) return;
+					Registry reg = MetadataViewerAgent.getRegistry();
+					
+					File dir = chooser.getSelectedFile();
+					UserNotifier un = reg.getUserNotifier();
+					un.notifyDownload(((FileAnnotation) 
+							selectedData.asAnnotation()).getFile(),
+										dir);
+					chooser = null;
+					selectedData = null;
 			}
-			if (exist) return;
-			addedFiles.add(f);
-			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-								Boolean.TRUE);
-			layoutAddedFiles();
-			//buildUI();
-			revalidate();
-			repaint();
+			
 		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 			Collection l = (Collection) evt.getNewValue();
 			if (l == null || l.size() == 0) return;

@@ -177,6 +177,37 @@ class BrowserComponent
 		model.fireContainerCountLoading(items);
 	}
 	
+	/**
+	 * Sets the selected node.
+	 * 
+	 * @param display The selected value.
+	 * @param single  Pass <code>true</code> if the method is invoked for
+	 *                single selection, <code>false</code> for multi-selection.
+	 */
+	private void setSelectedDisplay(TreeImageDisplay display, boolean single)
+    {
+    	switch (model.getState()) {
+	    	//case LOADING_DATA:
+	    	//case LOADING_LEAVES:
+	    	case DISCARDED:
+	    		throw new IllegalStateException(
+	    				"This method cannot be invoked in the LOADING_DATA, "+
+	    		" LOADING_LEAVES or DISCARDED state.");
+    	}
+    	hasDataToSave(display);
+    	//if (hasDataToSave(display)) return;
+    	TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
+    	//if (oldDisplay != null && oldDisplay.equals(display)) return; 
+    	if (display != null) {
+    		Object ho = display.getUserObject();
+    		if (ho instanceof ExperimenterData)
+    			display = null;
+    	}
+    	model.setSelectedDisplay(display, single);
+    	if (display == null) view.setNullSelectedNode();
+
+    	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
+    }
     /**
      * Creates a new instance.
      * The {@link #initialize() initialize} method should be called straight 
@@ -342,28 +373,9 @@ class BrowserComponent
      */
     public void setSelectedDisplay(TreeImageDisplay display)
     {
-        switch (model.getState()) {
-            //case LOADING_DATA:
-            //case LOADING_LEAVES:
-            case DISCARDED:
-                throw new IllegalStateException(
-                        "This method cannot be invoked in the LOADING_DATA, "+
-                        " LOADING_LEAVES or DISCARDED state.");
-        }
-        hasDataToSave(display);
-        //if (hasDataToSave(display)) return;
-        TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
-        //if (oldDisplay != null && oldDisplay.equals(display)) return; 
-        if (display != null) {
-        	Object ho = display.getUserObject();
-        	if (ho instanceof ExperimenterData)
-        		display = null;
-        }
-        model.setSelectedDisplay(display);
-        if (display == null) view.setNullSelectedNode();
-        firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
+        setSelectedDisplay(display, true);
     }
-
+    
     /**
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#showPopupMenu(int)
@@ -768,13 +780,22 @@ class BrowserComponent
     public void setSelectedDisplays(TreeImageDisplay[] nodes)
     {
         if (nodes.length == 0) return;
+        boolean b = nodes.length == 1;
+        for (int i = 0; i < nodes.length; i++) {
+        	setSelectedDisplay(nodes[i], b);
+		}
+        /*
         TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
         TreeImageDisplay display = nodes[nodes.length-1];
-        if (!hasDataToSave(display)) {
-        	 if (oldDisplay != null && oldDisplay.equals(display)) return;
+        System.err.println("display :"+display.getUserObject());
+        if (oldDisplay != null && oldDisplay.equals(nodes[nodes.length-1])) return;
+        if (oldDisplay != null && oldDisplay.equals(nodes[0])) return;
+        //if (!hasDataToSave(display)) {
+        	// if (oldDisplay != null && oldDisplay.equals(display)) return;
              model.setSelectedDisplays(nodes);
-             firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
-        }
+             firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, nodes);
+       // }
+        */
     }
 
     /**
@@ -1229,7 +1250,7 @@ class BrowserComponent
 			TreeImageDisplay foundNode = visitor.getSelectedNode();
 			if (foundNode != null) {		
 				if (multiSelection) model.addFoundNode(foundNode);
-				else model.setSelectedDisplay(foundNode);
+				else model.setSelectedDisplay(foundNode, true);
 				view.setFoundNode(model.getSelectedDisplays());
 			} else 
 				view.setFoundNode(null);

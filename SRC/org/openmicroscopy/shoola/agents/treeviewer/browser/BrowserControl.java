@@ -49,6 +49,7 @@ import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -270,13 +271,17 @@ class BrowserControl
                 }
             }
         }
-        
-        
+
         if (l.size() != n) {
+        	String text = "";
+        	if (ImageData.class.equals(nodeClass)) text = "images";
+        	else if (ProjectData.class.equals(nodeClass)) text = "projects";
+        	else if (DatasetData.class.equals(nodeClass)) text = "datasets";
+        	else if (TagAnnotationData.class.equals(nodeClass)) text = "tags";
+        	
             UserNotifier un = 
                 TreeViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Node selection", "You can only select " +
-                    "node of the same type e.g. images.");
+            un.notifyInfo("Tree selection", "You can only select "+text);
             view.removeTreePaths(pathsToRemove);
             view.setFoundNode(model.getSelectedDisplays());
             //model.setSelectedDisplay(null);

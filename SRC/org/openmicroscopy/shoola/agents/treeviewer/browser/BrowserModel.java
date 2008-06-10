@@ -222,32 +222,22 @@ class BrowserModel
     }
     
     /**
-     * Sets the selected nodes.
+     * Sets the selected node.
      * 
-     * @param nodes The nodes to set.
+     * @param display The selected value.
+	 * @param single  Pass <code>true</code> if the method is invoked for
+	 *                single selection, <code>false</code> for multi-selection.
      */
-    void setSelectedDisplays(TreeImageDisplay[] nodes) 
+    void setSelectedDisplay(TreeImageDisplay display, boolean single)
     {
-        selectedNodes.removeAll(selectedNodes);
-        TreeImageDisplay node;
-        for (int i = 0; i < nodes.length; i++) {
-            node = nodes[i];
-            if (node != null)
-                selectedNodes.add(node);
-        }    
-    }
-    
-    /**
-     * Sets the currently selected node.
-     * 
-     * @param selectedDisplay The selected node.
-     */
-    void setSelectedDisplay(TreeImageDisplay selectedDisplay)
-    {
-        selectedNodes.removeAll(selectedNodes);
-        if (selectedDisplay == null) return;
-        //if (selectedDisplay.getUserObject() instanceof String) return;
-        selectedNodes.add(selectedDisplay);
+    	if (single) {
+    		selectedNodes.removeAll(selectedNodes);
+            if (display == null) return;
+            selectedNodes.add(display);
+    	} else {
+    		if (!selectedNodes.contains(display) && display != null)
+    			selectedNodes.add(display);
+    	}
     }
     
     /**

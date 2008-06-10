@@ -316,6 +316,7 @@ class TreeViewerComponent
 	{
 		switch (model.getState()) {
 			case NEW:
+				//System.err.println(model.getState());
 				model.getSelectedBrowser().activate(); 
 				view.setOnScreen();
 				//view.toFront();
