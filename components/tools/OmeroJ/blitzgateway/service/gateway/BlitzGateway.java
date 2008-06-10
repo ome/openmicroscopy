@@ -24,10 +24,11 @@ package blitzgateway.service.gateway;
 
 
 //Java imports
-import java.util.HashMap;
-import java.util.Map;
 
-import ome.model.core.Pixels;
+//Third-party libraries
+
+//Application-internal dependencies
+import blitzgateway.util.ServiceUtilities;
 import omero.ServerError;
 import omero.client;
 import omero.api.IAdmin;
@@ -60,11 +61,6 @@ import omero.model.ExperimenterGroup;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
-import Glacier2.CannotCreateSessionException;
-import Glacier2.PermissionDeniedException;
-import blitzgateway.util.OMEROClass;
-import blitzgateway.util.ServiceUtilities;
-
 /** 
  * 
  *
@@ -91,27 +87,7 @@ class BlitzGateway
 	
 	/** The proxy to the session object. */
 	ServiceFactoryPrx session;
-	
-	
-	
-	/** Maximum size of pixels read at once. */
-	private static final int		INC = 256000;
-	
-	/** 
-	 * The maximum number of thumbnails retrieved before restarting the
-	 * thumbnails service.
-	 */
-	private static final int		MAX_RETRIEVAL = 100;
-	
-	/**
-	 * The number of thumbnails already retrieved. Resets to <code>0</code>
-	 * when the value equals {@link #MAX_RETRIEVAL}.
-	 */
-	private int						thumbRetrieval;
 
-	/** The compression level. */
-	private float					compression;
-	
 	/** The user name. */
 	private String userName;
 	
@@ -163,7 +139,7 @@ class BlitzGateway
 	}
 	
 	/** Close the connection to the blitz server. */
-	public void close()
+	public synchronized void close()
 	{
 		blitzClient.closeSession();
 		blitzClient.close();
@@ -186,7 +162,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public IRenderingSettingsPrx getRenderingSettingsService()
+	public synchronized IRenderingSettingsPrx getRenderingSettingsService()
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "IRenderSettings";
@@ -208,7 +184,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public IPixelsPrx getPixelsService()
+	public synchronized IPixelsPrx getPixelsService()
 	throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "IPixels";
@@ -223,7 +199,13 @@ class BlitzGateway
 		return null;
 	}
 	
-	public RenderingEnginePrx getRenderingEngineService()
+	/**
+	 * Returns a reference to the rendering engine {@link RenderingEngine}.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public synchronized RenderingEnginePrx getRenderingEngineService()
 	throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "RenderingEngine";
@@ -240,13 +222,13 @@ class BlitzGateway
 	}
 	
 	/**
-	 * Returns the {@link IScriptService} service.
+	 * Returns the {@link IScript} service.
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public IScriptPrx getScriptService()
+	public synchronized IScriptPrx getScriptService()
 	throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "IScript";
@@ -269,7 +251,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public IRepositoryInfoPrx getRepositoryService() 
+	public synchronized IRepositoryInfoPrx getRepositoryService() 
 			throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "IRepositoryInfoService";
@@ -291,7 +273,7 @@ class BlitzGateway
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public IPojosPrx getPojosService() 
+	public synchronized IPojosPrx getPojosService() 
 			throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "IPojosService";
@@ -313,7 +295,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public IQueryPrx getQueryService() 
+	public synchronized IQueryPrx getQueryService() 
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "IQueryService";
@@ -335,7 +317,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public IUpdatePrx getUpdateService() 
+	public synchronized IUpdatePrx getUpdateService() 
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "IUpdateService";
@@ -357,7 +339,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public IAdminPrx getAdminService() 
+	public synchronized IAdminPrx getAdminService() 
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "IAdminService";
@@ -379,7 +361,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public ThumbnailStorePrx getThumbnailService()
+	public synchronized ThumbnailStorePrx getThumbnailService()
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "ThumbnailStore";
@@ -402,7 +384,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public RawFileStorePrx getRawFileService()
+	public synchronized RawFileStorePrx getRawFileService()
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "RawFileStore";
@@ -424,7 +406,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public RenderingEnginePrx getRenderingService()
+	public synchronized RenderingEnginePrx getRenderingService()
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "RenderingEngine";
@@ -432,7 +414,6 @@ class BlitzGateway
 		try
 		{
 			engine = getSession().createRenderingEngine();
-			engine.setCompressionLevel(compression);
 			return engine;
 		}
 		catch (ServerError e)
@@ -449,7 +430,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public RawPixelsStorePrx getPixelsStore()
+	public synchronized RawPixelsStorePrx getPixelsStore()
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "PixelsStore";
@@ -472,7 +453,7 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public ITypesPrx getTypesService() 
+	public synchronized ITypesPrx getTypesService() 
 	throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "ITypeService";

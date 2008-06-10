@@ -70,6 +70,7 @@ public class ThumbnailServiceImpl
 	/** batch service for batch thumbnail calls. */
 	private ThumbnailGateway batchService;
 	
+	private String batchServiceLock;
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gatewayFactory To generate new instances of the 
@@ -82,9 +83,20 @@ public class ThumbnailServiceImpl
 	{
 		this.gatewayFactory = gatewayFactory;
 		gatewayMap = new HashMap<Long, ThumbnailGateway>();
-		batchService = gatewayFactory.getThumbnailGateway(-1L);
+		batchService = null;
+		batchServiceLock = new String("batchServiceLock");
 	}
 
+	private synchronized ThumbnailGateway getBatchService(Long id) throws DSOutOfServiceException, DSAccessException
+	{
+		synchronized(batchServiceLock)
+		{
+			if(batchService==null)
+				batchService = gatewayFactory.getThumbnailGateway(id);
+			return batchService;
+		}
+	}
+	
 	/**
 	 * Get the gateway for pixels from the map, if it does not exist create it
 	 * and add it to the map.
@@ -177,9 +189,10 @@ public class ThumbnailServiceImpl
 			List<Long> pixelsIds) throws DSOutOfServiceException,
 			DSAccessException
 	{
-		synchronized(batchService)
+		synchronized(batchServiceLock)
 		{
-			return batchService.getThumbnailByLongestSideSet(size, pixelsIds);
+			ThumbnailGateway service = getBatchService(pixelsIds.get(0));
+			return service.getThumbnailByLongestSideSet(size, pixelsIds);
 		}
 	}
 
@@ -190,9 +203,10 @@ public class ThumbnailServiceImpl
 			List<Long> pixelsIds) throws DSOutOfServiceException,
 			DSAccessException
 	{
-		synchronized(batchService)
+		synchronized(batchServiceLock)
 		{
-			return batchService.getThumbnailSet(sizeX, sizeY, pixelsIds);
+			ThumbnailGateway service = getBatchService(pixelsIds.get(0));
+			return service.getThumbnailSet(sizeX, sizeY, pixelsIds);
 		}
 	}
 

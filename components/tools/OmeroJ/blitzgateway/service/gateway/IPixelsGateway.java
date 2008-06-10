@@ -113,7 +113,52 @@ public interface IPixelsGateway
 									 List<Integer> channelList,
 	                                 String methodology) 
 	 						throws  DSOutOfServiceException, DSAccessException;
-	/*
+	
+	 /**
+		 * Copy the Image and its pixels from the copied image to a new image 
+		 * and return to the .
+		 * @param imageId pixels id to copy.
+		 * @param sizeX width of plane.
+		 * @param sizeY height of plane.
+		 * @param sizeZ num Z sections
+		 * @param sizeT num timepoints
+		 * @param channelList list of channels to copy.
+		 * @param methodology what created the pixels.
+		 * @return new id.
+		 * @throws DSOutOfServiceException
+		 * @throws DSAccessException
+		 */
+		 long copyAndResizeImage(long imageId,
+		                                 int sizeX,
+		                                 int sizeY,
+		                                 int sizeZ,
+		                                 int sizeT,
+										 List<Integer> channelList,
+		                                 String methodology) 
+		 						throws  DSOutOfServiceException, DSAccessException;
+		
+		 /**
+		  * Create a new image of specified X,Y, Z, T and channels plus pixelsType
+		  * with name and description 
+		  * 
+		  * @param sizeX
+		  * @param sizeY
+		  * @param sizeZ
+		  * @param sizeT
+		  * @param channelList
+		  * @param pixelsType
+		  * @param name
+		  * @param description
+		  * @return new image id.
+		  * @throws DSOutOfServiceException
+		  * @throws DSAccessException
+		  */
+		 Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
+                 List<Integer> channelList, 
+                 omero.model.PixelsType pixelsType,
+                 String name, String description) 	throws  DSOutOfServiceException, DSAccessException;
+
+	 /*
 	 * UpdateService java to ICE Mappings from the API.ice slice definition.
 	 * Below are all the calls in the IUpdate service. 
 	 * As the are created in the IUpdateServiceGateway they will be marked
@@ -135,7 +180,14 @@ DONE RLong copyAndResizePixels(long pixelsId,
 	                                 RInt sizeZ,
 	                                 RInt sizeT,
 									 List<RInt> channelList,
-	                                 String methodology) throws  DSOutOfServiceException, DSAccessException;
+	                                 String methodology, boolean copyStatsinfo) throws  DSOutOfServiceException, DSAccessException;
+DONE RLong copyAndResizeImage(long imageId,
+	                                 RInt sizeX,
+	                                 RInt sizeY,
+	                                 RInt sizeZ,
+	                                 RInt sizeT,
+									 List<RInt> channelList,
+	                                 String methodology, boolean copyStatsinfo) throws  DSOutOfServiceException, DSAccessException;
 	 */
 }
 

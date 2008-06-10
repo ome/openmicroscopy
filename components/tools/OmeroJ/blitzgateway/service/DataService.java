@@ -25,6 +25,7 @@ package blitzgateway.service;
 
 //Java imports
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -82,7 +83,7 @@ interface DataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Get the Datasets from the user account with id's
+	 * Get the Datasets from the projects with id's
 	 * @param ids see above.
 	 * @param getLeaves should image data be populated.
 	 * @return see above.
@@ -141,8 +142,106 @@ interface DataService
 	 */
 	public Object findByQuery(String myQuery)
 	throws DSOutOfServiceException, DSAccessException;
-	
 
+	/**
+	 * Attach an image to a dataset.
+	 * @param dataset 
+	 * @param image 
+	 * @throws DSOutOfServiceException 
+	 * @throws DSAccessException 
+	 * 
+	 */
+	public void attachImageToDataset(Dataset dataset, Image image)  
+	throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get the images, with pixels from a project. 
+	 * @param project see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Image> getImagesFromProject(Project project) 
+	throws DSOutOfServiceException, DSAccessException;
+
+
+	/**
+	 * Get the images with pixels from a dataset with id. 
+	 * @param dataset see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Image> getImagesFromDataset(Dataset dataset)
+	throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get the datasets from a project.
+	 * @param project see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Dataset> getDatasetsFromProject(Project project)
+	throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get the Pixels list from the dataset.
+	 * @param dataset see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Pixels> getPixelsFromDataset(Dataset dataset)
+	throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get the Pixels list from the project.
+	 * @param project see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Pixels> getPixelsFromProject(Project project)
+	throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Get the pixels from the images in the list.
+	 * @param images see above.
+	 * @return map of the pixels-->imageId.
+	 */
+	public Map<Long, Pixels> getPixelsImageMap(List<Image> images);
+
+	/**
+	 * Get the pixels from the images in the list.
+	 * @param images see above.
+	 * @return list of the pixels.
+	 */
+	public List<Pixels> getPixelsFromImageList(List<Image> images);
+	
+	/**
+	 * Get the images from the dataset with name, this can use wild cards.
+	 * @param datasetId see above.
+	 * @param imageName see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Image> getImageFromDatasetByName(Long datasetId, String imageName)
+	throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Get the list of images with name containing imageName.
+	 * @param imageName see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Image> getImageByName(String imageName)
+	throws DSOutOfServiceException, DSAccessException;
+
+	
+	
 }
 
 

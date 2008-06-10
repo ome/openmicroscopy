@@ -95,7 +95,7 @@ public class ThumbnailGatewayImpl
 		} 
 		catch (Throwable t) 
 		{
-			ServiceUtilities.handleException(t, "Cannot start the Rendering Engine for pixels : "+ pixelsId);
+			ServiceUtilities.handleException(t, "Cannot start the ThumbnailService for pixels : "+ pixelsId);
 		}
 		return null;
 	}

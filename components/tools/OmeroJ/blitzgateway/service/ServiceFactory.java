@@ -147,7 +147,9 @@ public class ServiceFactory
 		rawPixelsStoreService = new RawPixelsStoreServiceImpl(gatewayFactory);
 		dataService = new DataServiceImpl(gatewayFactory.getIPojoGateway(), 
 										  gatewayFactory.getIQueryGateway(), 
-										  gatewayFactory.getITypeGateway());
+										  gatewayFactory.getITypeGateway(),
+										  gatewayFactory.getIUpdateGateway()
+										  );
 		
 		imageService = new ImageServiceImpl(
 									rawPixelsStoreService,
@@ -318,7 +320,27 @@ public class ServiceFactory
 	{
 		return imageService.copyPixels(pixelsID, x, y, t, z, channelList, methodology);
 	}
-
+	
+	/**
+	 * Copy the image and pixels set from image to a new set.
+	 * @param imageId image id to copy.
+	 * @param x width of plane.
+	 * @param y height of plane.
+	 * @param t num timepoints
+	 * @param z num zsections.
+	 * @param channelList the list of channels to copy.
+	 * @param methodology what created the pixels.
+	 * @return new id.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Long copyImage(long imageId, int x, int y,
+		int t, int z, List<Integer> channelList, String methodology) throws 
+		DSOutOfServiceException, DSAccessException
+	{
+		return imageService.copyImage(imageId, x, y, t, z, channelList, methodology);
+	}
+	
 	/**
 	 * Upload the plane to the server, on pixels id with channel and the 
 	 * time, + z section. the data is the client 2d data values. This will
@@ -687,7 +709,148 @@ public class ServiceFactory
 		return imageService.getThumbnailByLongestSide(pixelsId, size);
 	}
 	
+	/**
+	 * Attach an image to a dataset.
+	 * @param dataset 
+	 * @param image 
+	 * @throws DSOutOfServiceException 
+	 * @throws DSAccessException 
+	 * 
+	 */
+	public void attachImageToDataset(Dataset dataset, Image image) throws  DSOutOfServiceException, DSAccessException
+	{
+		dataService.attachImageToDataset(dataset, image);
+	}
 
+	/**
+	 * Copy the image and pixels from image.
+	 * @param imageId image id to copy.
+	 * @param x width of plane.
+	 * @param y height of plane.
+	 * @param t num timepoints
+	 * @param z num zsections.
+	 * @param channelList the list of channels to copy.
+	 * @param methodology what created the pixels.
+	 * @return new id.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
+			List<Integer> channelList, PixelsType pixelsType, String name,
+			String description) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return imageService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, name, description);
+	}
+	
+	public List<Image> getImagesFromDataset(Dataset dataset)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return dataService.getImagesFromDataset(dataset);
+	}
+	
+	/**
+	 * Get the plane from the image with imageId.
+	 * @param imageId see above.
+	 * @param z zSection of the plane.
+	 * @param c channel of the plane.
+	 * @param t timepoint of the plane.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public double[][] getPlaneFromImage(long imageId, int z, int c, int t) throws  DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+	
+	/**
+	 * Get the datasets from a project.
+	 * @param project see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Dataset> getDatasetsFromProject(Project project)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return dataService.getDatasetsFromProject(project);
+	}
+	
+	/**
+	 * Get the Pixels list from the dataset.
+	 * @param dataset see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Pixels> getPixelsFromDataset(Dataset dataset)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return dataService.getPixelsFromDataset(dataset);
+	}
+	
+	/**
+	 * Get the Pixels list from the project.
+	 * @param project see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Pixels> getPixelsFromProject(Project project)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return dataService.getPixelsFromProject(project);
+	}
+	
+	/**
+	 * Get the pixels from the images in the list.
+	 * @param images see above.
+	 * @return map of the pixels-->imageId.
+	 */
+	public Map<Long, Pixels> getPixelsImageMap(List<Image> images)
+	{
+		return dataService.getPixelsImageMap(images);
+	}
+
+
+	/**
+	 * Get the pixels from the images in the list.
+	 * @param images see above.
+	 * @return list of the pixels.
+	 */
+	public List<Pixels> getPixelsFromImageList(List<Image> images)
+	{
+		return getPixelsFromImageList(images);
+	}
+	
+	/**
+	 * Get the images from the dataset with name, this can use wild cards.
+	 * @param datasetId see above.
+	 * @param imageName see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Image> getImageFromDatasetByName(Long datasetId, String imageName)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return dataService.getImageFromDatasetByName(datasetId, imageName);
+	}
+
+	/**
+	 * Get the list of images with name containing imageName.
+	 * @param imageName see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public List<Image> getImageByName(String imageName)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		return dataService.getImageByName(imageName);
+	}
+	
 }
 
 

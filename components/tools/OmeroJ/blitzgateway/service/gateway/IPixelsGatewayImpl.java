@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RLong;
 import omero.RObject;
 import omero.api.IPixelsPrx;
 import omero.model.IObject;
@@ -77,7 +78,7 @@ class IPixelsGatewayImpl
 			IPixelsPrx service = blitzGateway.getPixelsService(); 
 			omero.RLong val = service.copyAndResizePixels(pixelsId, 
 				new omero.RInt(x), new omero.RInt(y), new omero.RInt(z), new omero.RInt(t),
-				channelList, methodology);
+				channelList, methodology, true);
 			return val.val;
 		}
 		catch (Exception e)
@@ -87,6 +88,29 @@ class IPixelsGatewayImpl
 		return -1;
 	}
 	
+	/* (non-Javadoc)
+	 * @see IPixelsGateway#copyAndResizePixels(long, int, int, int, int, List, 
+	 * String)
+	 */
+	public long copyAndResizeImage(long imageId, int x, int y, int t, int z, 
+			List<Integer> channelList, String methodology) 
+			throws DSOutOfServiceException, DSAccessException
+	{		
+		try
+		{
+			IPixelsPrx service = blitzGateway.getPixelsService(); 
+			omero.RLong val = service.copyAndResizeImage(imageId, 
+				new omero.RInt(x), new omero.RInt(y), new omero.RInt(z), new omero.RInt(t),
+				channelList, methodology, true);
+			return val.val;
+		}
+		catch (Exception e)
+		{
+			ServiceUtilities.handleException(e, "Cannot copy pixels.");
+		}
+		return -1;
+	}
+
 	/* (non-Javadoc)
 	 * @see IPixelsGateway#getAllEnumerations(java.lang.String)
 	 */
@@ -154,6 +178,27 @@ class IPixelsGatewayImpl
 		catch (Exception e)
 		{
 			ServiceUtilities.handleException(e, "Cannot copy pixels.");
+		}
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.IPixelsGateway#createImage(int, int, int, int, java.util.List, omero.model.PixelsType, java.lang.String, java.lang.String)
+	 */
+	public Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
+			List<Integer> channelList, PixelsType pixelsType, String name,
+			String description) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		try
+		{
+			IPixelsPrx service = blitzGateway.getPixelsService(); 
+			RLong val =  service.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, name, description);
+			return val.val;
+		}
+		catch (Exception e)
+		{
+			ServiceUtilities.handleException(e, "Cannot create new Image.");
 		}
 		return null;
 	}

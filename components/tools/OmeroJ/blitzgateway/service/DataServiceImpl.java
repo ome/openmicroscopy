@@ -23,8 +23,12 @@
 package blitzgateway.service;
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 //Third-party libraries
 
@@ -32,11 +36,16 @@ import java.util.List;
 import omero.RBool;
 import omero.RType;
 import omero.model.Dataset;
+import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectI;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -44,6 +53,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import blitzgateway.service.gateway.IPojoGateway;
 import blitzgateway.service.gateway.IQueryGateway;
 import blitzgateway.service.gateway.ITypeGateway;
+import blitzgateway.service.gateway.IUpdateGateway;
 import blitzgateway.util.OMEROClass;
 import blitzgateway.util.ServiceUtilities;
 
@@ -72,15 +82,19 @@ class DataServiceImpl
 	/** The ITypegateway. */
 	ITypeGateway 	iTypeGateway;
 	
+	/** The IUpdate. */
+	IUpdateGateway iUpdateGateway;
+	
 	/**
 	 * Constructor for the DataService Implementation.
 	 * @param gateway blitz gateway object.
 	 */
-	DataServiceImpl(IPojoGateway pojo, IQueryGateway query, ITypeGateway type)
+	DataServiceImpl(IPojoGateway pojo, IQueryGateway query, ITypeGateway type, IUpdateGateway update)
 	{
 		pojoGateway = pojo;
 		iQueryGateway = query;
 		iTypeGateway = type;
+		iUpdateGateway = update;
 	}
 	
 	/**
@@ -91,12 +105,9 @@ class DataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
-		//map.put(omero.constants.POJOLEAVES.value, new RBool(false));
 		return ServiceUtilities.collectionCast(Image.class,
 			pojoGateway.getImages(convertPojos(nodeType), nodeIds, map));
 	}
-	
-	
 	
 	/**
 	 * implementation of the dataservice getDatasets method 
@@ -106,7 +117,8 @@ class DataServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
-		map.put(omero.constants.POJOLEAVES.value, new RBool(getLeaves));
+		if(getLeaves)
+			map.put(omero.constants.POJOLEAVES.value, new RBool(true));
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			pojoGateway.loadContainerHierarchy(
 				convertPojos(OMEROClass.Dataset), ids,	map));
@@ -120,7 +132,8 @@ class DataServiceImpl
 	throws DSOutOfServiceException, DSAccessException
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
-		map.put(omero.constants.POJOLEAVES.value, new RBool(getLeaves));
+		if(getLeaves)
+			map.put(omero.constants.POJOLEAVES.value, new RBool(true));
 		return ServiceUtilities.collectionCast(Project.class, 
 			pojoGateway.loadContainerHierarchy(
 				convertPojos(OMEROClass.Project), ids, map));
@@ -188,6 +201,137 @@ class DataServiceImpl
 	{
 		return iQueryGateway.findByQuery(myQuery);
 	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#attachImageToDataset(omero.model.Dataset, omero.model.Image)
+	 */
+	public void attachImageToDataset(Dataset dataset, Image image)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		DatasetImageLink link = new DatasetImageLinkI();
+		link.parent = dataset;
+		link.child = image;
+		dataset.addDatasetImageLink(link, true);
+		iUpdateGateway.saveObject(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getImageFromDatasetByName(java.lang.Long, java.lang.String)
+	 */
+	public List<Image> getImageFromDatasetByName(Long datasetId,
+			String imageName) throws DSOutOfServiceException, DSAccessException
+	{
+		String datasetQuery = "select i from Image i left outer join fetch i.datasetLinks" +  
+		                " dil left outer join fetch dil.parent d where d.id=" + datasetId +
+		                " and  i.name like '%"+ imageName+ "%' order by i.name";	
+		List<Image> imageList = (List<Image>) findAllByQuery(datasetQuery);
+		return imageList;
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getImagesFromDataset(long)
+	 */
+	public List<Image> getImagesFromDataset(Dataset dataset)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		List<Image> images = new ArrayList<Image>();
+		Iterator<DatasetImageLink> iterator = ((DatasetI)dataset).iterateImageLinks(); 
+		while(iterator.hasNext())
+		    images.add(iterator.next().child);
+		return images;
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getDatasetsFromProject(long)
+	 */
+	public List<Dataset> getDatasetsFromProject(Project project)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		List<Dataset> datasets = new ArrayList<Dataset>();
+		Iterator<ProjectDatasetLink> iterator = ((ProjectI)project).iterateDatasetLinks();
+		while(iterator.hasNext())
+			datasets.add(iterator.next().child);
+		return datasets;
+	}
+
+	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getImagesFromProject(long)
+	 */
+	public List<Image> getImagesFromProject(Project project)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		List<Image> images = new ArrayList<Image>();
+		List<Dataset> datasets = getDatasetsFromProject(project);
+		for(Dataset dataset : datasets)
+		{
+			List<Image> datasetImages = getImagesFromDataset(dataset);
+			for(Image image : datasetImages)
+				images.add(image);
+		}
+		return images;
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getPixelsFromImageList(java.util.List)
+	 */
+	public List<Pixels> getPixelsFromImageList(List<Image> images)
+	{
+		List<Pixels> pixelsList = new ArrayList<Pixels>();
+		for(Image image : images)
+			for(Pixels pixels : image.pixels)
+				pixelsList.add(pixels);
+		return pixelsList;
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getPixelsImageMap(java.util.List)
+	 */
+	public Map<Long, Pixels> getPixelsImageMap(List<Image> images)
+	{
+		Map<Long, Pixels> pixelsList = new TreeMap<Long, Pixels>();
+		for(Image image : images)
+			for(Pixels pixels : image.pixels)
+				pixelsList.put(image.id.val, pixels);
+		return pixelsList;
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getPixelsFromDataset(omero.model.Dataset)
+	 */
+	public List<Pixels> getPixelsFromDataset(Dataset dataset)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		List<Image> images = getImagesFromDataset(dataset);
+		return getPixelsFromImageList(images);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getPixelsFromProject(omero.model.Project)
+	 */
+	public List<Pixels> getPixelsFromProject(Project project)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		List<Image> images = getImagesFromProject(project);
+		return getPixelsFromImageList(images);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getImageByName(java.lang.String)
+	 */
+	public List<Image> getImageByName(String imageName)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		String datasetQuery = "select i from Image i left outer join fetch i.datasetLinks" +  
+        " dil left outer join fetch dil.parent d where i.name like '%"+ 
+        imageName+ "%' order by i.name";	
+		List<Image> imageList = (List<Image>) findAllByQuery(datasetQuery);
+		return imageList;
+	}
+	
+	
+	
+
 }
 
 

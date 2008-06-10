@@ -38,6 +38,7 @@ import java.util.Map;
 import omero.RInt;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.PixelsType;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -74,7 +75,7 @@ class ImageServiceImpl
 	IPixelsGateway			iPixels;
 	IUpdateGateway			iUpdate;
 	RenderingService 		renderingService;
-	ThumbnailService 	thumbnailService;
+	ThumbnailService 		thumbnailService;
 	
 	/**
 	 * Create the ImageService passing the gateway.
@@ -142,15 +143,7 @@ class ImageServiceImpl
 	public Pixels getPixels(long pixelsId) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		String queryStr = new String("select p from Pixels as p left outer " +
-			"join fetch p.pixelsType as pt "+
-			"left outer join fetch p.channels as c "+
-			"left outer join fetch p.pixelsDimensions " + 
-			"left outer join fetch c.statsInfo " + 
-			"left outer join fetch c.colorComponent " + 
-			"where p.id = " + pixelsId);
-		return (Pixels)iQuery.findByQuery(queryStr);
-		
+		return iPixels.retrievePixDescription(pixelsId);
 	}
 
 	/* (non-Javadoc)
@@ -159,7 +152,7 @@ class ImageServiceImpl
 	public Image getImage(long imageID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		String queryStr = new String("select i from Image as i where i.id = " 
+		String queryStr = new String("from Image as i left outer join fetch i.pixels as p where i.id= " 
 			+ imageID);
 		return (Image)iQuery.findByQuery(queryStr);
 	}
@@ -172,6 +165,17 @@ class ImageServiceImpl
 	{
 		Long newID = iPixels.copyAndResizePixels
 						(pixelsID, x, y, t, z, channelList, methodology);
+		return newID;
+	}
+	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#copyImage(long, int, int, int, int, java.lang.String)
+	 */
+	public Long copyImage(long imageId, int x, int y, int t, int z, List<Integer> channelList,
+			String methodology) throws DSOutOfServiceException, DSAccessException
+	{
+		Long newID = iPixels.copyAndResizeImage
+						(imageId, x, y, t, z, channelList, methodology);
 		return newID;
 	}
 	
@@ -520,6 +524,18 @@ class ImageServiceImpl
 	{
 		thumbnailService.setRenderingDefId(pixelsId, renderingDefId);
 	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#createImage(int, int, int, int, java.util.List, omero.model.PixelsType, java.lang.String, java.lang.String)
+	 */
+	public Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
+			List<Integer> channelList, PixelsType pixelsType, String name,
+			String description) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		return iPixels.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, name, description);
+	}
+
 
 }
 

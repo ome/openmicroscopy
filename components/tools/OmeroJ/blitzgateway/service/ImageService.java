@@ -120,6 +120,44 @@ public interface ImageService
 	throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Copy the image and pixels from image.
+	 * @param imageId image id to copy.
+	 * @param x width of plane.
+	 * @param y height of plane.
+	 * @param t num timepoints
+	 * @param z num zsections.
+	 * @param channelList the list of channels to copy.
+	 * @param methodology what created the pixels.
+	 * @return new id.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Long copyImage(long imageId, int x, int y, int t, int z, 
+			List<Integer> channelList, String methodology) 
+	throws DSOutOfServiceException, DSAccessException;
+	
+	 /**
+	  * Create a new image of specified X,Y, Z, T and channels plus pixelsType
+	  * with name and description 
+	  * 
+	  * @param sizeX
+	  * @param sizeY
+	  * @param sizeZ
+	  * @param sizeT
+	  * @param channelList
+	  * @param pixelsType
+	  * @param name
+	  * @param description
+	  * @return new image id.
+	  * @throws DSOutOfServiceException
+	  * @throws DSAccessException
+	  */
+	 Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
+            List<Integer> channelList, 
+            omero.model.PixelsType pixelsType,
+            String name, String description) 	throws  DSOutOfServiceException, DSAccessException;
+
+	/**
 	 * Test method to make sure the client converts it's data to the server data
 	 * correctly. 
 	 * @param pixelsId pixels id to upload to .  
@@ -348,6 +386,7 @@ public interface ImageService
 	 */
 	byte[] getThumbnailByLongestSide(long pixelsId, omero.RInt size) throws  DSOutOfServiceException, DSAccessException;
 	
+
 }
 
 
