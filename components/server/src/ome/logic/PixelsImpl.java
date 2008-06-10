@@ -39,6 +39,7 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.core.PlaneInfo;
 import ome.model.display.RenderingDef;
+import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
@@ -238,6 +239,8 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     {
     	Image image = new Image();
     	Pixels pixels = new Pixels();
+	image.setName(name);
+	image.setDescription(description);
     	image.addPixels(pixels);
         
         // Check that the channels in the list are valid. 
@@ -260,7 +263,8 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         pixels.setSizeC(channelList.size());
         pixels.setSizeT(sizeT);
         pixels.setSha1("Pending...");
-        
+        pixels.setDimensionOrder(getEnumeration(DimensionOrder.class, "XYZCT")); 
+	pixels.setPixelsDimensions(dims);
         // Create channel data.
         List<Channel> channels = createChannels(channelList);
         pixels.addChannelSet(channels);
