@@ -30,6 +30,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
+import tree.IAttributeSaver;
 
 public class EditCopyDefaultValues extends AbstractUndoableEdit {
 	
@@ -87,7 +88,7 @@ public class EditCopyDefaultValues extends AbstractUndoableEdit {
 	 * @param field
 	 * @return
 	 */
-	public static String getValueAttributeForLoadingDefault(DataField field) {
+	public static String getValueAttributeForLoadingDefault(IAttributeSaver field) {
 		String[] valueAttbs = field.getValueAttributes();
 		if (valueAttbs.length == 0) 
 			return null;

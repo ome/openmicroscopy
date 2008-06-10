@@ -120,6 +120,7 @@ public class ImageFactory {
 	public static final String WRENCH_ICON = ACTION_ICONS_FILE + "configure.png";
 	public static final String RED_ASTERISK_ICON = ACTION_ICONS_FILE + "red_asterisk.png";
 	public static final String RED_ASTERISK_WARNING_ICON = ACTION_ICONS_FILE + "red_asterisk_warning.png";
+	public static final String DEFAULT_ICON = ACTION_ICONS_FILE + "default-d14.png";
 	
 	public static final String BORDER_TOP_LEFT = ACTION_ICONS_FILE + "BorderImages/topLeft.gif";
 	public static final String BORDER_TOP = ACTION_ICONS_FILE + "BorderImages/top.gif";

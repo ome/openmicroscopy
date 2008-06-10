@@ -18,4 +18,14 @@ public interface IAttributeSaver {
 	public boolean isAttributeTrue(String attributeName);
 	
 	public Map getAllAttributes();
+	
+	/**
+	 * This is used for checking whether a field has been filled, 
+	 * and also to get the attribute for loading a default value
+	 * (default should be loaded into first attribute in list). 
+	 * 
+	 * @return	A list of attribute names that are used to hold the 'value'
+	 * 				of this field. 
+	 */
+	public String[] getValueAttributes();
 }

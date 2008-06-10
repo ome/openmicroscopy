@@ -301,4 +301,41 @@ public class FormFieldTime extends FormField {
 		if (highlight && !hasFocus)
 			((DefaultEditor)hoursSpinner.getEditor()).getTextField().requestFocusInWindow();
 	}
+	
+	
+	/**
+	 * Checks to see whether a default value exists for this field.
+	 * If so, the default button becomes visible, with tool-tip
+	 * displaying the default value;
+	 */
+	public void refreshDefaultValue() {
+		
+		super.refreshDefaultValue();
+		
+		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
+		
+		if (defaultValue != null) {
+			int seconds = TimeEditor.getSecondsFromTimeValue(defaultValue);
+			int hours = (seconds)/3600;
+			int mins = (seconds = seconds - hours*3600)/60;
+			int secs = (seconds - mins*60);
+			
+			defaultButton.setToolTipText("Default: " + 
+					hours + ":" +
+					formatTimeUnit(mins) + ":" + 
+					formatTimeUnit(secs));
+		}
+	
+		else 
+			defaultButton.setToolTipText(null);
+	}
+	
+	public String formatTimeUnit(int timeUnit) {
+		
+		String time = timeUnit + "";
+		if (time.length() < 2) {
+			time = "0" + time;
+		}
+		return time;
+	}
 }

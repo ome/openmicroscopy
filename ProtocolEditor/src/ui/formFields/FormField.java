@@ -56,6 +56,7 @@ import tree.DataFieldObserver;
 import tree.IAttributeSaver;
 import tree.IDataFieldObservable;
 import tree.IDataFieldSelectable;
+import tree.edit.EditCopyDefaultValues;
 import ui.FormDisplay;
 import ui.IModel;
 import ui.XMLView;
@@ -101,6 +102,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	JLabel descriptionLabel;
 	Icon infoIcon;
 	Icon wwwIcon;
+	JButton defaultButton;		// visible if a default value set for this field
 	JButton urlButton;	// used (if url) to open browser 
 	Cursor handCursor;
 	
@@ -145,7 +147,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		//System.out.println("FormField Constructor: name is " + dataField.getAttribute(DataFieldConstants.ELEMENT_NAME));
 		
 		// build the formField panel
-		Border eb = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+		Border eb = BorderFactory.createEmptyBorder(2, 1, 2, 1);
 		
 		imageBorder = ImageBorder.getImageBorder();
 		imageBorderHighlight = ImageBorder.getImageBorderHighLight();
@@ -228,6 +230,26 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		urlButton.setBorder(eb);
 		urlButton.setVisible(false);	// only made visible if url exists.
 		
+		
+		/*
+		 * Default icon/button. Shows if a default is set. 
+		 * Tool-tip shows what the default is. 
+		 * Clicking the button loads defaults for this field,
+		 * Disabled if field is fully locked.
+		 */
+		Icon defaultIcon = ImageFactory.getInstance().getIcon
+			(ImageFactory.DEFAULT_ICON);
+		defaultButton = new JButton(defaultIcon);
+		defaultButton.setFocusable(false);
+		defaultButton.setBackground(null);
+		defaultButton.setBorder(eb);
+		defaultButton.setVisible(false);	// only visible if default set. 
+		defaultButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				loadDefaultValue();
+			}
+		});
+		
 		/*
 		 * Required field button. Doesn't do anything, just indicates that the field is required.
 		 */
@@ -260,6 +282,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		
 		horizontalBox.add(descriptionButton);
 		horizontalBox.add(urlButton);
+		horizontalBox.add(defaultButton);
 		horizontalBox.add(requiredFieldButton);
 		horizontalBox.add(collapseAllChildrenButton);
 		horizontalBox.add(Box.createHorizontalStrut(10));
@@ -285,6 +308,8 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		
 		refreshBackgroundColour();
 		
+		refreshDefaultValue();
+		
 		//this.add(horizontalFrameBox, BorderLayout.NORTH);
 		//this.add(descriptionLabel, BorderLayout.WEST);
 		
@@ -301,6 +326,8 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		refreshBackgroundColour();
 		
 		refreshLockedStatus();	// also does required-Field status. 
+		
+		refreshDefaultValue();
 	}
 	
 	/**
@@ -316,15 +343,42 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		 */
 		if (lockedLevel == null) {
 			enableEditing(true);
+			defaultButton.setEnabled(true);
 		} else {
-			enableEditing(!(lockedLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES)));
+			boolean fullyLocked = 
+				lockedLevel.equals(DataFieldConstants.LOCKED_ALL_ATTRIBUTES);
+			
+			defaultButton.setEnabled(!fullyLocked);
+			enableEditing(!fullyLocked);
 		}
 		
 		/*
 		 * Show the required field icon if requiredField attribute = true. 
 		 */
-		requiredFieldButton.setVisible(dataField.isAttributeTrue(DataFieldConstants.REQUIRED_FIELD));
-		requiredFieldButton.setIcon(isFieldFilled() ? requiredIcon : requiredWarningIcon);
+		requiredFieldButton.setVisible(
+				dataField.isAttributeTrue(DataFieldConstants.REQUIRED_FIELD));
+		requiredFieldButton.setIcon(isFieldFilled() ? requiredIcon : 
+				requiredWarningIcon);
+		requiredFieldButton.setToolTipText(isFieldFilled() ? 
+				"Required Field" : "Required Field Not Filled");
+	}
+	
+	/**
+	 * Checks to see whether a default value exists for this field.
+	 * If so, the default button becomes visible, with tool-tip
+	 * displaying the default value;
+	 */
+	public void refreshDefaultValue() {
+		
+		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
+		
+		defaultButton.setVisible(defaultValue != null);
+		
+		if (defaultValue != null)
+			defaultButton.setToolTipText("Default: " + defaultValue);
+	
+		else 
+			defaultButton.setToolTipText(null);
 	}
 	
 	/**
@@ -453,6 +507,19 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 			contentsPanel.setBackground((paintedColour == null) ? DEFAULT_BACKGROUND : paintedColour);
 			contentsPanel.setBorder(imageBorder);
 		}
+	}
+	
+	/**
+	 * This method takes the value in the DataFieldConstants.DEFAULT attribute,
+	 * and copies it into the attribute specified by 
+	 * EditCopyDefaultValues.getValueAttributeForLoadingDefault(dataField)
+	 */
+	public void loadDefaultValue() {
+		String valueAttribute = EditCopyDefaultValues.
+				getValueAttributeForLoadingDefault(dataField);
+		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
+		
+		dataField.setAttribute(valueAttribute, defaultValue, true);
 	}
 	
 	public class FormPanelMouseListener implements MouseListener {
