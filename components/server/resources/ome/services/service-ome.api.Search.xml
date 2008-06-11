@@ -76,6 +76,7 @@
     <property name="update" value="update configuration set value = ? where name = ?"/>
     <property name="delete" value="delete from configuration where name = ?"/>
     <property name="types" ref="internal:ome.api.ITypes"/>
+    <property name="batchSize" value="${omero.search.batch}"/>
   </bean>
 
   <bean id="fullTextThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">

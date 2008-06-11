@@ -30,9 +30,22 @@ import ome.parameters.Parameters;
 public abstract class EventLogLoader implements Iterator<EventLog>,
         Iterable<EventLog> {
 
-    private final static int DEFAULT_BATCH_SIZE = 100;
+    /**
+     * Currently 100.
+     */
+    public final static int DEFAULT_BATCH_SIZE = 100;
 
-    private final int batchSize = DEFAULT_BATCH_SIZE;
+    protected int batchSize = DEFAULT_BATCH_SIZE;
+
+    /**
+     * Set the number of {@link EventLog} instances will be loaded in a single
+     * run. If not set, {@link #DEFAULT_BATCH_SIZE} will be used.
+     * 
+     * @param batchSize
+     */
+    public void setBatchSize(int batchSize) {
+        this.batchSize = batchSize;
+    }
 
     /**
      * The number of objects which have been returned via {@link #next()}. If
