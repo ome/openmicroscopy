@@ -3207,10 +3207,8 @@ class OMEROGateway
 					results.put(key, size);
 				}
 				service.clearQueries();
-				some = formatText(some, "file");
-				must = formatText(must, "file");
-				none = formatText(none, "file");
-				service.bySomeMustNone(some, must, none);
+				service.bySomeMustNone(formatText(some, "file"), 
+						formatText(must, "file"), formatText(none, "file"));
 				size = handleSearchResult(OriginalFile.class, rType, service);
 			} else if (!k.equals(String.class)) {
 				service.onlyType(k);
