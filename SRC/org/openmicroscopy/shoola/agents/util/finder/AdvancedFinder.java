@@ -87,7 +87,7 @@ public class AdvancedFinder
 	private int								state;
 	
 	/** Collection of selected users. */
-	private Map<String, ExperimenterData>	users;
+	private Map<Long, ExperimenterData>		users;
     
 	/**
 	 * Determines the scope of the search.
@@ -169,16 +169,16 @@ public class AdvancedFinder
 	 * @param names Collection of names to handle.
 	 * @return See above.
 	 */
-	private List<ExperimenterData> fillUsersList(List<String> names)
+	private List<ExperimenterData> fillUsersList(List<Long> names)
 	{
 		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
 		if (names == null) return l;
 		Iterator i = names.iterator();
-		String name;
+		Long id;
 		ExperimenterData user;
 		while (i.hasNext()) {
-			name = (String) i.next();
-			user = users.get(name);
+			id = (Long) i.next();
+			user = users.get(id);
 			if (user != null && !l.contains(user))
 				l.add(user);
 		}
@@ -264,12 +264,9 @@ public class AdvancedFinder
 		}
 		
 		List<ExperimenterData> owners = fillUsersList(ctx.getSelectedOwners());
-		List<ExperimenterData> annotators = fillUsersList(
-										ctx.getSelectedAnnotators());
-		List<ExperimenterData> excludedOwners = fillUsersList(
-													ctx.getExcludedOwners());
-		List<ExperimenterData> excludedAnnotators = fillUsersList(
-											ctx.getExcludedAnnotators());
+		List<ExperimenterData> annotators = null;//fillUsersList(ctx.getSelectedAnnotators());
+		List<ExperimenterData> excludedOwners = null;//fillUsersList(ctx.getExcludedOwners());
+		List<ExperimenterData> excludedAnnotators = null;//fillUsersList(ctx.getExcludedAnnotators());
 		
 		fillUsersList(ctx.getOwnerSearchContext(), owners, excludedOwners);
 		fillUsersList(ctx.getAnnotatorSearchContext(), annotators, 
@@ -334,7 +331,7 @@ public class AdvancedFinder
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
 		addPropertyChangeListener(OWNER_PROPERTY, this);
-		users = new HashMap<String, ExperimenterData>();
+		users = new HashMap<Long, ExperimenterData>();
 	}
 
 	/**
@@ -473,15 +470,13 @@ public class AdvancedFinder
 			if (m == null) return;
 			Iterator i = m.keySet().iterator();
 			ExperimenterData exp;
-			String value;
-			String uiValue = "";
 			while (i.hasNext()) {
 				exp = (ExperimenterData) m.get(i.next());
-				value = EditorUtil.formatExperimenter(exp); 
-				users.put(value, exp);
-				uiValue += value;
+				users.put(exp.getId(), exp);
+				setUserString(exp.getId(), EditorUtil.formatExperimenter(exp));
+				//uiValue += value;
 			}
-			setUserString(uiValue);
+			//setUserString(uiValue);
 		}
 	}
 

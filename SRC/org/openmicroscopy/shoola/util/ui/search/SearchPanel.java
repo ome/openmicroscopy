@@ -28,6 +28,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
@@ -40,15 +42,18 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -80,7 +85,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 class SearchPanel
 	extends JPanel
-	implements PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** The title of the Advanced search UI component. */
@@ -202,9 +207,6 @@ class SearchPanel
 	/** Possible dates. */
 	private JComboBox				dates;
 	
-	/** Possible results. */
-	//private JComboBox				results;
-	
 	/** The terms to search for. */
 	private JTextField				fullTextArea;
 	
@@ -268,9 +270,17 @@ class SearchPanel
 	/** Flag indicating that the search is in the advanced mode. */
 	private boolean					advancedSearch;
 	
+	/** Keep tracks of the users selected. */
+	private Map<Long, String>		otherOwners;
+			
+	/** The panel hosting the selected users. */
+	private JPanel					otherOwnersPanel;
+	
 	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
+		otherOwners = new LinkedHashMap<Long, String>();
+		otherOwnersPanel = new JPanel();
 		advancedSearch = false;
 		searchTree = new TreeComponent();
 		searchTree.addPropertyChangeListener(this);
@@ -311,7 +321,7 @@ class SearchPanel
 		dates.setActionCommand(""+SearchComponent.DATE);
 		ownerButton = new JButton(icons.getIcon(IconManager.OWNER));
 		ownerButton.setToolTipText("Select the owner of the objects.");
-		UIUtilities.unifiedButtonLookAndFeel(ownerButton);
+		//UIUtilities.unifiedButtonLookAndFeel(ownerButton);
 		ownerButton.addActionListener(model);
 		ownerButton.setActionCommand(""+SearchComponent.OWNER);
 		ownerButton.setEnabled(false);
@@ -353,7 +363,6 @@ class SearchPanel
 		areas.put(allTermsArea, new JLabel(ALL_WORDS));
 		areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
 		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
-		//results = new JComboBox(numberOfResults);
 		helpButton = new JButton(icons.getIcon(IconManager.HELP));
 		helpButton.setToolTipText("Advanced search Tips.");
 		UIUtilities.unifiedButtonLookAndFeel(helpButton);
@@ -414,6 +423,47 @@ class SearchPanel
 		
 		//initialize
 		setDateIndex();
+	}
+	
+	/** Lays out the selected users. */
+	private void layoutOtherOwners()
+	{
+		otherOwnersPanel.removeAll();
+		Iterator<Long> i = otherOwners.keySet().iterator();
+		long id;
+		otherOwnersPanel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridy = 0;
+		JButton button;
+		JToolBar bar;
+		JLabel label;
+		IconManager icons = IconManager.getInstance();
+		Icon icon = icons.getIcon(IconManager.CLOSE);
+		while (i.hasNext()) {
+			c.gridx = 0;
+			c.weightx = 0;
+			id = i.next();
+			label = new JLabel(otherOwners.get(id));
+			otherOwnersPanel.add(label, c);
+			c.gridx = 1;
+			button = new JButton(icon);
+			UIUtilities.unifiedButtonLookAndFeel(button);
+			//button.setBorder(null);
+			button.setToolTipText("Remove the user.");
+			button.setActionCommand(""+id);
+			button.addActionListener(this);
+			bar = new JToolBar();
+			bar.setFloatable(false);
+			bar.setRollover(true);
+			bar.setBorder(null);
+			bar.add(button);
+			otherOwnersPanel.add(bar, c);
+			++c.gridy;
+		}
+		otherOwnersPanel.validate();
+		otherOwnersPanel.repaint();
 	}
 	
 	/**
@@ -550,25 +600,6 @@ class SearchPanel
 	}
 	
 	/** 
-	 * Builds the panel hosting the user selection.
-	 * 
-	 * @param user The user checkbox to lay out.
-	 * @param others The others checkbox to lay out.
-	 * @return See above.
-	 */
-	public JPanel buildUserSelection(JCheckBox user, JCheckBox others)
-	{
-		JPanel p = new JPanel();
-		p.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        p.add(user, c);
-		p.add(others, c);
-		return UIUtilities.buildComponentPanel(p);
-	}
-	
-	/** 
 	 * Builds and lays out the component displaying the various options.
 	 * 
 	 * @return See above.
@@ -687,14 +718,11 @@ class SearchPanel
 
 		JPanel p = new JPanel();
 		UIUtilities.setBoldTitledBorder(ADVANCED_SEARCH_TITLE, p);
-		//p.setBorder(new TitledBorder(ADVANCED_SEARCH_TITLE));
 		p.setLayout(new GridBagLayout());
-        //p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         GridBagConstraints c = new GridBagConstraints();
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(3, 3, 3, 3);
-       
         Iterator i = areas.keySet().iterator();
         JLabel label;
         JTextField area;
@@ -707,7 +735,6 @@ class SearchPanel
             c.weightx = 0.0;  
             p.add(label, c);
             label.setLabelFor(area);
-            //c.gridx = 1;
             ++c.gridy;
             c.gridwidth = GridBagConstraints.REMAINDER;     //end row
             c.fill = GridBagConstraints.HORIZONTAL;
@@ -723,7 +750,6 @@ class SearchPanel
         searchTree.insertNode(p, UIUtilities.buildCollapsePanel(
         					ADVANCED_SEARCH_TITLE), false);
         searchFor.add(UIUtilities.buildComponentPanel(basicPanel));
-        //searchFor.add(searchTree);
 		return searchFor;
 	}
 	
@@ -735,27 +761,36 @@ class SearchPanel
 	 * @param button	The button to lay out.
 	 * @return See above.
 	 */
-	private JPanel buildUserSelection(JCheckBox box, JTextField field, 
+	private JPanel buildOtherUserSelection(JCheckBox box, JComponent field, 
 										JButton button)
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new GridBagLayout());
+		//p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridy = 1;
+        c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 0;
         p.add(box, c);
-        p.add(field, c);
+        c.gridx++;
+		p.add(Box.createHorizontalStrut(5), c);
         JToolBar bar = new JToolBar();
         bar.setFloatable(false);
         bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
         bar.add(button);
+        c.gridx++;
 		p.add(bar, c);
+		c.gridx++;
+		p.add(Box.createHorizontalStrut(5), c);
+		c.gridx++;
+		c.gridheight = 2;
+		p.add(field, c);
 		return p;
 	}
-	
+
 	/**
 	 * Builds the UI component hosting the users to search for.
 	 * 
@@ -779,11 +814,11 @@ class SearchPanel
         content.add(currentUserAsOwner, c);
 		c.gridy++;
 		c.ipady = 10;
-		content.add(buildUserSelection(othersAsOwner, usersAsOwner, 
-										ownerButton), c);
+		content.add(buildOtherUserSelection(othersAsOwner, otherOwnersPanel, 
+				ownerButton), c);
 		
 		usersPanel.add(UIUtilities.buildComponentPanel(content));
-		usersPanel.add(new JSeparator());
+		//usersPanel.add(new JSeparator());
 		content = new JPanel();
 		content.setLayout(new GridBagLayout());
 		c = new GridBagConstraints();
@@ -837,12 +872,13 @@ class SearchPanel
 		return p;//panel;
 	}
 
+	TreeComponent tree = new TreeComponent();
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		//JPanel content = new JPanel();
 		//content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		TreeComponent tree = new TreeComponent();
+		
 		tree.insertNode(buildSearchFor(), 
 							UIUtilities.buildCollapsePanel(SEARCH_TITLE));
 		buildType();
@@ -1078,7 +1114,14 @@ class SearchPanel
 	 * 
 	 * @return See above.
 	 */
-	List<String> getOwners() { return getUsers(usersAsOwner); }
+	List<Long> getOwners()
+	{ 
+		List<Long> users = new ArrayList<Long>();
+		Iterator<Long> i = otherOwners.keySet().iterator();
+		while (i.hasNext())
+			users.add(i.next());
+		return users; 
+	}
 	
 	/**
 	 * Returns the collection of the users who annotated the objects.
@@ -1102,11 +1145,19 @@ class SearchPanel
 	/**
 	 * Sets the name of the selected user.
 	 * 
-	 * @param name The string to set.
+	 * @param userID The id of the selected user.
+	 * @param name   The string to set.
 	 */
-	void setOwnerString(String name)
+	void setOwnerString(long userID, String name)
 	{
-		setUserString(name, usersAsOwner);
+		if (otherOwners.containsKey(userID)) return;
+		otherOwners.put(userID, name);
+		layoutOtherOwners();
+		
+		tree.validate();
+		tree.repaint();
+		validate();
+		repaint();
 	}
 	
 	/**
@@ -1172,6 +1223,20 @@ class SearchPanel
 			//if (evt.getNewValue() != null) 
 				//toDate.setDate(new Date());
 		}
+	}
+
+	/**
+	 * Removes the user from the display.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e)
+	{
+		String s = e.getActionCommand();
+		int index = Integer.parseInt(s);
+		otherOwners.remove(new Long(index));
+		layoutOtherOwners();
+		validate();
+		repaint();
 	}
 	
 }

@@ -416,20 +416,23 @@ public class SearchComponent
 	/**
 	 * Sets the name of the selected user.
 	 * 
-	 * @param name The string to set.
+	 * @param userID The id of the owner.
+	 * @param name   The string to set.
 	 */
-	public void setUserString(String name)
+	public void setUserString(long userID, String name)
 	{
 		if (name == null) return;
 		name = name.trim();
 		if (name.length() == 0) return;
 		switch (userIndex) {
 			case OWNER:
-				uiDelegate.setOwnerString(name);
+				uiDelegate.setOwnerString(userID, name);
 				break;
 			case ANNOTATOR:
 				uiDelegate.setAnnotatorString(name);
 		}
+		validate();
+		repaint();
 	}
 	
 	/**

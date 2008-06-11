@@ -189,7 +189,7 @@ public class SearchContext
 	private List<Integer>	type;
 	
 	/** Collection of selected users. */
-	private List<String>	selectedOwners;
+	private List<Long>		selectedOwners;
 	
 	/** Collection of users to exclude. */
 	private List<String>	excludedOwners;
@@ -305,7 +305,7 @@ public class SearchContext
 	 * 
 	 * @param users The value to set.
 	 */
-	void setOwners(List<String> users) { this.selectedOwners = users; }
+	void setOwners(List<Long> users) { this.selectedOwners = users; }
 	
 	/**
 	 * Sets the collection of selected users if any.
@@ -471,7 +471,7 @@ public class SearchContext
 	 * 
 	 * @return See above.
 	 */
-	public List<String> getSelectedOwners() { return selectedOwners; }
+	public List<Long> getSelectedOwners() { return selectedOwners; }
 	
 	/** 
 	 * Returns the collection of selected users.

@@ -731,7 +731,7 @@ class ImViewerUI
 		if (f > 0) {
 			sizeX = (int) (sizeX*f);
 			sizeY = (int) (sizeY*f);
-			setZoomFactor(f, ZoomCmd.getZoomIndex(f));
+			setZoomFactor(Math.round(f*100)/100.0, ZoomCmd.getZoomIndex(f));
 			
 		}
 		browser.setComponentsSize(sizeX, sizeY);
