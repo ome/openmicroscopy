@@ -106,6 +106,12 @@ public class FileChooser
     /** Collection of supported filters. */
     private List<FileFilter>	filters;
     
+    /** 
+     * Path to the folder. 
+     * Only used when the type is {@link #FOLDER_CHOOSER}. 
+     */
+    private String 				folderPath;
+    
     /** Sets the properties of the dialog. */
     private void setProperties()
     {
@@ -196,6 +202,7 @@ public class FileChooser
         this.message = message;
         this.filters = filters;
         setProperties();
+        folderPath = null;
        	uiDelegate = new FileSaverUI(this);
         pack();
     }
@@ -263,12 +270,20 @@ public class FileChooser
     /** Saves the file. */
     void acceptSelection()
     {
-    	firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.FALSE, 
-							getSelectedFile());
-        if (uiDelegate.isSetDefaultFolder())
+    	option = JFileChooser.APPROVE_OPTION;
+    	if (getChooserType() == FOLDER_CHOOSER) {
+    		firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.FALSE, 
+					getFolderPath());
+    	} else {
+    		firePropertyChange(APPROVE_SELECTION_PROPERTY, Boolean.FALSE, 
+					getSelectedFile());
+    	}
+    	
+        if (uiDelegate.isSetDefaultFolder() 
+        	&& getChooserType() != FileChooser.FOLDER_CHOOSER)
         	UIUtilities.setDefaultFolder(
         			uiDelegate.getCurrentDirectory().toString());
-    	option = JFileChooser.APPROVE_OPTION;
+    	
     	setVisible(false);
     	dispose();
     }
@@ -282,8 +297,6 @@ public class FileChooser
 	{
 		if (path == null) return;
 		char separator = File.separatorChar;
-    	//String n = path+File.separatorChar;
-    	//If folder does not exist, create it.
     	File[] l = uiDelegate.getCurrentDirectory().listFiles();
        
         boolean exist = false;
@@ -293,10 +306,11 @@ public class FileChooser
                 break;
             }
         }
-    	if (!exist) new File(path).mkdir();
+    	//if (!exist) new File(path).mkdir();
+    	folderPath = path;
 		firePropertyChange(LOCATION_PROPERTY, null, path+separator);
-		if (uiDelegate.isSetDefaultFolder()) 
-			UIUtilities.setDefaultFolder(path);
+		//if (uiDelegate.isSetDefaultFolder()) 
+		//	UIUtilities.setDefaultFolder(path);
 		setVisible(false);
     	dispose();	
 	}
@@ -310,12 +324,18 @@ public class FileChooser
         UIUtilities.centerAndShow(d);
     }
     
+    public File getFolderPath()
+    {
+    	if (folderPath != null) return new File(folderPath);
+    	return null;
+    }
+    
     /**
      * Returns the type.
      * 
      * @return See above.
      */
-    public int getDialogType() { return dialogType; }
+    public int getChooserType() { return dialogType; }
     
     /**
      * Sets the name of the file to save.

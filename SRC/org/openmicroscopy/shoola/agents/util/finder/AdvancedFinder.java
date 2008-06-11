@@ -56,12 +56,8 @@ import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.ProjectData;
-import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.URLAnnotationData;
 
 /** 
  * The class actually managing the search.
@@ -99,25 +95,42 @@ public class AdvancedFinder
 	 * @param value The value to convert.
 	 * @return See above.
 	 */
-	private Class convertScope(int value)
+	private Integer convertScope(int value)
 	{
 		switch (value) {
 			case SearchContext.TEXT_ANNOTATION:
-				return TextualAnnotationData.class;
+				return SearchDataContext.TEXT_ANNOTATION;
 			case SearchContext.TAGS:
-				return TagAnnotationData.class;
+				return SearchDataContext.TAGS;
 			case SearchContext.URL_ANNOTATION:
-				return URLAnnotationData.class;
+				return SearchDataContext.URL_ANNOTATION;
 			case SearchContext.FILE_ANNOTATION:
-				return FileAnnotationData.class;
+				return SearchDataContext.FILE_ANNOTATION;
+			case SearchContext.NAME:
+				return SearchDataContext.NAME;
+			case SearchContext.DESCRIPTION:
+				return SearchDataContext.DESCRIPTION;
+			default:
+				return null;
+		}
+	}
+	
+	/**
+	 * Determines the type of the search.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	private Class convertType(int value)
+	{
+		switch (value) {
 			case SearchContext.DATASETS:
 				return DatasetData.class;
 			case SearchContext.PROJECTS:
 				return ProjectData.class;
 			case SearchContext.IMAGES:
 				return ImageData.class;
-			case SearchContext.NAME_DESCRIPTION:
-				return String.class;
+			
 			default:
 				return null;
 		}
@@ -129,15 +142,24 @@ public class AdvancedFinder
 	 * @param value The value to handle.
 	 * @return See above
 	 */
-	private String getScope(Class value)
+	private String getScope(int value)
 	{
-		if (value == null) return null;
-		if (value.equals(String.class)) return NAME_TEXT;
-		if (value.equals(TextualAnnotationData.class)) return NAME_COMMENTS;
-		if (value.equals(TagAnnotationData.class)) return NAME_TAGS;
-		if (value.equals(URLAnnotationData.class)) return NAME_URL;
-		if (value.equals(FileAnnotationData.class)) return NAME_ATTACHMENT;
-		return null;
+		switch (value) {
+			case SearchDataContext.NAME:
+				return NAME_TEXT;
+			case SearchDataContext.DESCRIPTION:
+				return NAME_DESCRIPTION;
+			case SearchDataContext.TEXT_ANNOTATION:
+				return NAME_COMMENTS;
+			case SearchDataContext.TAGS:
+				return NAME_TAGS;
+			case SearchDataContext.URL_ANNOTATION:
+				return NAME_URL;
+			case SearchDataContext.FILE_ANNOTATION:
+				return NAME_ATTACHMENT;
+			default:
+				return null;
+		}
 	}
 	
 	/**
@@ -226,18 +248,18 @@ public class AdvancedFinder
 			un.notifyInfo(TITLE, "The selected time interval is not valid.");
 			return;
 		}
-		List<Class> scope = new ArrayList<Class>(context.size());
+		List<Integer> scope = new ArrayList<Integer>(context.size());
 		Iterator i = context.iterator();
-		Class k;
+		Integer v;
 		while (i.hasNext()) {
-			k = convertScope((Integer) i.next());
-			if (k != null) scope.add(k);
+			v = convertScope((Integer) i.next());
+			if (v != null) scope.add(v);
 		}
 		List<Class> types = new ArrayList<Class>();
 		i = ctx.getType().iterator();
-		
+		Class k;
 		while (i.hasNext()) {
-			k = convertScope((Integer) i.next());
+			k = convertType((Integer) i.next());
 			if (k != null) types.add(k);
 		}
 		
@@ -308,7 +330,6 @@ public class AdvancedFinder
 	/** Creates a new instance. */
 	AdvancedFinder()
 	{
-		//super(FinderFactory.getRefFrame());
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
@@ -374,51 +395,55 @@ public class AdvancedFinder
 		setSearchEnabled(false);
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		Map map = (Map) result;
+		
+		/*
 		if (result instanceof Integer) {
-			int value = ((Integer) result).intValue();
 			JLabel l;
-			if (value < 0) {
-				l = UIUtilities.setTextFont("Unable to handle the search.");
-				p.add(l);
-			} else {
-				l = UIUtilities.setTextFont("Too many images matching your" +
-				                            " criteria.");
-				p.add(l);
-				l = UIUtilities.setTextFont("The maximum number is set to " +
-						""+value);
-				p.add(l);
-			}
+			l = UIUtilities.setTextFont("Too many images matching your" +
+            " criteria.");
+			p.add(l);
+			l = UIUtilities.setTextFont("Please refine your search.");
+			p.add(l);
 			displayResult(UIUtilities.buildComponentPanel(p));
 			
 			firePropertyChange(RESULTS_FOUND_PROPERTY, null, result);
 			return;
 		}
-		Map map = (Map) result;
+		*/
 		//Format UI component
 		Set nodes = new HashSet();
 		if (map != null) {
 			Iterator i = map.keySet().iterator();
 			Set<Long> ids = new HashSet<Long>();
-			Collection value;
-			Class key;
+			Collection r;
+			Integer key;
 			String term;
 			Iterator j;
 			DataObject data;
 			JLabel l;
+			Object value;
 			while (i.hasNext()) {
-				key = (Class) i.next();
+				key = (Integer) i.next();
 				term = getScope(key);
 				if (term != null) {
-					value = (Collection) map.get(key);
-					j = value.iterator();
-					while (j.hasNext()) {
-						data = (DataObject) j.next();
-						if (!ids.contains(data.getId())) {
-							nodes.add(data);
-							ids.add(data.getId());
+					
+					value = map.get(key);
+					if (value instanceof Integer) {
+						l = UIUtilities.setTextFont(term+": Too many results.");
+					} else {
+						r = (Collection) value;
+						j = r.iterator();
+						while (j.hasNext()) {
+							data = (DataObject) j.next();
+							if (!ids.contains(data.getId())) {
+								nodes.add(data);
+								ids.add(data.getId());
+							}
 						}
+						l = UIUtilities.setTextFont(term+": "+r.size());
 					}
-					l = UIUtilities.setTextFont(term+": "+value.size());
+					
 					p.add(l);
 				}
 			}

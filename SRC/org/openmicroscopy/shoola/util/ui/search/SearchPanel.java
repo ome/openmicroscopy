@@ -723,7 +723,7 @@ class SearchPanel
         searchTree.insertNode(p, UIUtilities.buildCollapsePanel(
         					ADVANCED_SEARCH_TITLE), false);
         searchFor.add(UIUtilities.buildComponentPanel(basicPanel));
-        searchFor.add(searchTree);
+        //searchFor.add(searchTree);
 		return searchFor;
 	}
 	

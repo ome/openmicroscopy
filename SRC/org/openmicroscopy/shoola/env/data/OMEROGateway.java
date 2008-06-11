@@ -1498,7 +1498,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			ThumbnailStore service = getThumbService();
-			//needDefault(pixelsID.get(0), null);
 			Set<Long> ids = new HashSet<Long>();
 			Iterator<Long> i = pixelsID.iterator();
 			while (i.hasNext()) 
@@ -3066,7 +3065,7 @@ class OMEROGateway
 			if (e instanceof InternalException)
 				size = -1;
 			else service.getBatchSize();
-			service.close();
+			//service.close();
 			return new Integer(size);
 		}
 		if (!hasNext) return r;
@@ -3116,7 +3115,7 @@ class OMEROGateway
 	Object performSearch(SearchDataContext context)
 	{
 		List<Class> types = context.getTypes();
-		List<Class> scopes = context.getScope();
+		List<Integer> scopes = context.getScope();
 		if (types == null || types.size() == 0) return new HashMap();
 		if (scopes == null || scopes.size() == 0) return new HashMap();
 		isSessionAlive();
@@ -3148,12 +3147,14 @@ class OMEROGateway
 		ExperimenterData exp;
 		Details d;
 		//owner
+		List<Details> owners = new ArrayList<Details>();
 		if (users != null && users.size() > 0) {
 			i = users.iterator();
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
 				d = Details.create();
 		        d.setOwner(exp.asExperimenter());
+		        owners.add(d);
 				//service.onlyAnnotatedBy(d);
 			}
 		}
@@ -3185,94 +3186,95 @@ class OMEROGateway
 			index++;
 		}
 
-		Class type;
 		Set rType;
-		Map<Class, Set> results = new HashMap<Class, Set>();
+		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		Object size;
-		if (scopes.contains(String.class)) {
-			i = types.iterator();
-			rType = new HashSet();
-			results.put(String.class, rType);
-			while (i.hasNext()) {
-				type = (Class) i.next();
-				k = convertPojos(type);
-				service.onlyType(k);
-				//service.bySomeMustNone(some, must, none);
-				
-				service.bySomeMustNone(formatText(some, "name"), 
-						formatText(must, "name"), formatText(none, "name"));
-				size = handleSearchResult(k, rType, service);
-				if (size instanceof Integer) return size;
-				service.clearQueries();
-				service.bySomeMustNone(formatText(some, "description"), 
-						formatText(must, "description"), 
-						formatText(none, "description"));
-						
-				size = handleSearchResult(k, rType, service);
-				if (size instanceof Integer) return size;
-				service.clearQueries();
-			}
-			scopes.remove(String.class);
-		}
-		
-		if (scopes.size() == 0) {
-			service.close();
-			return results;
-		}
-		
-		//annotations types now.
-		users = context.getAnnotators();
-		if (users != null && users.size() > 0) {
-			i = users.iterator();
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				//service.onlyAnnotatedBy(exp.asExperimenter().getDetails());
-			}
-		}
-		users = context.getExcludedAnnotators();
-		if (users != null && users.size() > 0) {
-			i = users.iterator();
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				//service.notAnnotatedBy(exp.asExperimenter().getDetails());
-			}
-		}
-		
+		Integer key;
 		
 		i = scopes.iterator();
+		Iterator<Details> owner;
 		while (i.hasNext()) {
-			type = (Class) i.next();
-			k = convertPojos(type);
 			rType = new HashSet();
-			
+			key = (Integer) i.next();
+			k = convertSearchScope(key);
+			results.put(key, rType);
+			size = null;
 			if (k.equals(FileAnnotation.class)) {
 				service.onlyType(OriginalFile.class);
 				service.bySomeMustNone(some, must, none);
-				handleSearchResult(OriginalFile.class, rType, service);
+				size = handleSearchResult(OriginalFile.class, rType, service);
+				if (size instanceof Integer) {
+					results.put(key, size);
+				}
 				service.clearQueries();
 				some = formatText(some, "file");
 				must = formatText(must, "file");
 				none = formatText(none, "file");
 				service.bySomeMustNone(some, must, none);
 				size = handleSearchResult(OriginalFile.class, rType, service);
-			} else {
+			} else if (!k.equals(String.class)) {
 				service.onlyType(k);
 				service.bySomeMustNone(some, must, none);
 				size = handleSearchResult(k, rType, service);
 			}
-			//some = formatText(some, field);
-			//must = formatText(must, field);
-			//none = formatText(none, field);
-			//service.onlyType(Image.class);
-			//service.onlyType(Image.class);
-			//service.bySomeMustNone(some, must, none);
-			//handleSearchResult(k, rType, service);
-			if (size instanceof Integer) return size;
-			results.put(type, rType);
+			if (size instanceof Integer) {
+				results.put(key, size);
+			}
 			service.clearQueries();
 		}
+		
+		//Just to make sure that the owner is only taken into account for images
+		i = scopes.iterator();
+		while (i.hasNext()) {
+			rType = new HashSet();
+			key = (Integer) i.next();
+			k = convertSearchScope(key);
+			results.put(key, rType);
+			owner = owners.iterator();
+			while (owner.hasNext()) {
+				d = owner.next();
+				size = -1;
+				if (k.equals(String.class)) {
+					service.onlyOwnedBy(d);
+					service.onlyType(Image.class);
+					if (key == SearchDataContext.NAME)
+						service.bySomeMustNone(formatText(some, "name"), 
+								formatText(must, "name"), 
+								formatText(none, "name"));
+					else 
+						service.bySomeMustNone(formatText(some, "description"), 
+							formatText(must, "description"), 
+							formatText(none, "description"));
+					size = handleSearchResult(Image.class, rType, service);
+				}
+				if (size instanceof Integer) {
+					results.put(key, size);
+				}
+				service.clearQueries();
+			}
+			
+		}
+		
 		service.close();
 		return results;
+	}
+	
+	private Class convertSearchScope(int value)
+	{
+		switch (value) {
+			case SearchDataContext.NAME:
+			case SearchDataContext.DESCRIPTION:
+				return String.class;
+			case SearchDataContext.TAGS:
+				return TagAnnotation.class;
+			case SearchDataContext.TEXT_ANNOTATION:
+				return TextAnnotation.class;
+			case SearchDataContext.URL_ANNOTATION:
+				return UrlAnnotation.class;
+			case SearchDataContext.FILE_ANNOTATION:
+				return FileAnnotation.class;
+		}
+		return null;
 	}
 	
 	/**

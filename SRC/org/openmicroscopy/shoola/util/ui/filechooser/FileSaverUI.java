@@ -145,7 +145,7 @@ class FileSaverUI
 		newFolderButton.addActionListener(this);
 		newFolderButton.setActionCommand(""+NEW_FOLDER);
 		approveButton = new JButton();
-		switch (model.getDialogType()) {
+		switch (model.getChooserType()) {
 			case FileChooser.SAVE:
 				approveButton.setText("Save as");
 				approveButton.setToolTipText(
@@ -205,7 +205,6 @@ class FileSaverUI
 				buttonPanel.add(approveButton);
 				buttonPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 				buttonPanel.add(button);
-				break;
 		}
 	}
 	
@@ -252,20 +251,24 @@ class FileSaverUI
 		controlsPanel.setLayout(new BorderLayout(0, 0));
 		if (!chooser.areControlButtonsShown())
 			controlsPanel.add(buildToolbar(), BorderLayout.CENTER);
-		controlsPanel.add(buildSelectionPane(), BorderLayout.SOUTH);
+		if (model.getChooserType() != FileChooser.FOLDER_CHOOSER)
+			controlsPanel.add(buildSelectionPane(), BorderLayout.SOUTH);
 		JPanel p = new JPanel();
 		p.setLayout(new BorderLayout(0, 0));
 		p.add(chooser, BorderLayout.CENTER);
 		p.add(controlsPanel, BorderLayout.SOUTH);
 		IconManager im = IconManager.getInstance();
 		Icon icon;
-		switch(model.getDialogType()) {
+		switch(model.getChooserType()) {
 			case FileChooser.SAVE:
 				icon = im.getIcon(IconManager.SAVE_48);
+				break;
 			case FileChooser.LOAD:
 				icon = im.getIcon(IconManager.LOAD_48);
+				break;
 			case FileChooser.FOLDER_CHOOSER:
 				icon = im.getIcon(IconManager.DOWNLOAD_48);
+				break;
 			default:
 				icon = im.getIcon(IconManager.SAVE_48);
 		}

@@ -1766,16 +1766,6 @@ class TreeViewerComponent
 	 */
 	public void setSearchResult(Object result)
 	{
-		if (result instanceof Integer) {
-			/*
-			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
-        	un.notifyInfo("Search", "Too many results found (Max: "
-        			+((Integer) result).intValue()+
-        			").\n Please refine your search");
-        			*/
-			view.removeAllFromWorkingPane();
-			return;
-		}
 		Collection<DataObject> results = (Collection<DataObject>) result;
 		if (results == null || results.size() == 0) {
 			//UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();

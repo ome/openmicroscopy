@@ -34,6 +34,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JToolBar;
 
 //Third-party libraries
 import layout.TableLayout;
@@ -98,6 +99,8 @@ class FileLoadingComponent
 	/** Component notifying of progress. */
 	private JPanel		barPane;
 	
+	private JToolBar 	toolBar;
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -122,6 +125,9 @@ class FileLoadingComponent
 		double[][] size = {{TableLayout.FILL}, 
 						{TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		barPane.setLayout(new TableLayout(size));
+		toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		toolBar.setBorder(null);
 	}
 	
 	/**
@@ -137,21 +143,25 @@ class FileLoadingComponent
 		removeAll();
 		barPane.removeAll();
 		add(new JLabel(icons.getIcon(IconManager.DOCUMENT_32)), "0, 0");
+		toolBar.removeAll();
 		if (init) {
 			barPane.add(new JLabel(fileName), "0, 0, c, c");
 			JProgressBar bar = new JProgressBar();
 			bar.setIndeterminate(true);
-			bar.setPreferredSize(new Dimension(20, 30));
+			//bar.setPreferredSize(new Dimension(20, 60));
+			//JPanel p = UIUtilities.buildComponentPanelCenter(bar);
+			//p.setOpaque(false);
 			barPane.add(bar, "0, 1");
-			add(cancelButton, "2, 0");
+			toolBar.add(cancelButton);
+			add(toolBar, "2, 0");
 		} else {
 			barPane.add(new JLabel(fileName), "0, 0, c, c");
 			barPane.add(UIUtilities.setTextFont(message, Font.ITALIC, 10), 
 												"0, 1, c, c");
-			add(removeButton, "2, 0");
+			toolBar.add(removeButton);
+			add(toolBar, "2, 0");
 		}
 		add(barPane, "1, 0");
-		
 	}
 	
 	/**
@@ -227,6 +237,7 @@ class FileLoadingComponent
 		if (barPane != null) barPane.setBackground(color);
 		if (cancelButton != null) cancelButton.setBackground(color);
 		if (removeButton != null) removeButton.setBackground(color);
+		if (toolBar != null) toolBar.setBackground(color);
 	}
 	
 }

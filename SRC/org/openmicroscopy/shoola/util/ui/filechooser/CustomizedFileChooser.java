@@ -86,7 +86,7 @@ class CustomizedFileChooser
 		if (nameArea != null) {
 			nameArea.setVisible(true);
 			nameArea.getDocument().addDocumentListener(this);
-			if (model.getDialogType() == FileChooser.LOAD)
+			if (model.getChooserType() == FileChooser.LOAD)
 				nameArea.addKeyListener(this);
 		}
 	}
@@ -95,7 +95,6 @@ class CustomizedFileChooser
 	private void buildGUI()
 	{
 		setAcceptAllFileFilterUsed(false);
-		
 		setControlButtonsAreShown(nameArea == null);
 		
 		JLabel label;
@@ -107,7 +106,7 @@ class CustomizedFileChooser
 		}
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) setCurrentDirectory(f);
-		switch (model.getDialogType()) {
+		switch (model.getChooserType()) {
 			case FileChooser.SAVE:
 				setDialogType(SAVE_DIALOG);
 				setFileSelectionMode(FILES_ONLY);
@@ -120,7 +119,8 @@ class CustomizedFileChooser
 				break;
 			case FileChooser.FOLDER_CHOOSER:
 				
-				/*List boxes = UIUtilities.findComponents(this, JComboBox.class);
+				/*
+				List boxes = UIUtilities.findComponents(this, JComboBox.class);
 				if (boxes != null) {
 					JComboBox box = (JComboBox) boxes.get(boxes.size()-1);
 					if (box.getParent() != null) 
@@ -131,6 +131,8 @@ class CustomizedFileChooser
 				if (label != null)
 					label.setText(FOLDER_LABEL);
 				setFileSelectionMode(DIRECTORIES_ONLY);
+				setCurrentDirectory(getFileSystemView().getHomeDirectory());
+				/*
 				String s = UIUtilities.getDefaultFolderAsString();
 		        if (s == null) return;
 		        if (s == null || s.equals("") || !(new File(s).exists()))
@@ -142,6 +144,7 @@ class CustomizedFileChooser
 		        		if (n.length > 0) nameArea.setText(n[n.length-1]);
 		        	}
 		        }
+		        */
 		       	return;
 		}
 	}
@@ -283,6 +286,19 @@ class CustomizedFileChooser
 		return f;
 	}
 	
+	/** 
+	 * Enables the <code>ApproveButton</code> if there is text
+	 * entered in the {@link #nameArea}.
+	 */
+	void requestFocusOnName()
+	{
+		if (nameArea != null) {
+			String text = nameArea.getText();
+			text = text.trim();
+			view.setControlsEnabled(text.length() > 0);
+		}
+	}
+	
 	/**
 	 * Enables or not the <code>Save</code> and <code>Preview</code> options
 	 * depending on the text entered in the {@link #nameArea}.
@@ -317,9 +333,7 @@ class CustomizedFileChooser
 				setFileFilter(filter);
 			} else
 				filter.setFilter(filterString, true);
-		}
-		catch(Exception exception)
-		{
+		} catch(Exception exception) {
 			// Eat the exception as this is just the user part way through the
 			// RegEx expression and it being malformed.
 		}
@@ -342,16 +356,15 @@ class CustomizedFileChooser
 	 */
 	public void approveSelection()
 	{
-		if (model.getDialogType() == FileChooser.FOLDER_CHOOSER) {
+		if (model.getChooserType() == FileChooser.FOLDER_CHOOSER) {
 			//if (nameArea != null) {
 				//String name = nameArea.getText();
 				File f = getSelectedFile();
 				//if (name != null) name = name.trim();
 				if (f != null) {
 					setSelectedFile(null);
-					//model.setFolderPath(f.getAbsolutePath()+File.separatorChar+name);
-					//TODO: FIX ME
-					model.setFolderPath(f.getAbsolutePath());
+					model.setFolderPath(f.getPath());
+					model.acceptSelection();
 				}
 			//}
 			//File file = getSelectedFile();
@@ -361,14 +374,8 @@ class CustomizedFileChooser
 			//Boolean exist = setSelection();
 			//No file selected, or file can be written - let OK action continue	
 			if (setSelection() != null) {
-				
 				model.acceptSelection();
-				//super.approveSelection();
-			} else {
-				//super.approveSelection();
 			}
-			//model.acceptSelection();
-			//super.approveSelection();
 		}
 		super.approveSelection();
 		//previewSelection();
@@ -383,6 +390,9 @@ class CustomizedFileChooser
 	 */
 	public File getSelectedFile()
 	{
+		if (model == null) return super.getSelectedFile(); 
+		if (model.getChooserType() == FileChooser.FOLDER_CHOOSER)
+			return super.getSelectedFile();
 		if (nameArea == null) return super.getSelectedFile();
 		return new File(getCurrentDirectory().toString(), nameArea.getText());
 	}
@@ -407,19 +417,5 @@ class CustomizedFileChooser
 	 * @see KeyListener#keyTyped(KeyEvent)
 	 */
 	public void keyTyped(KeyEvent e) {}
-
-	/** 
-	 * Enables the <code>ApproveButton</code> if there is text
-	 * entered in the {@link #nameArea}.
-	 */
-	void requestFocusOnName()
-	{
-		if (nameArea != null) {
-			String text = nameArea.getText();
-			text = text.trim();
-			view.setControlsEnabled(text.length() > 0);
-		}
-		
-	}
 	
 }

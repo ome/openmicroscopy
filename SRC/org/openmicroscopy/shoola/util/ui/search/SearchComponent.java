@@ -80,7 +80,10 @@ public class SearchComponent
 	public static final String		UNRATED = "Unrated";
 	
 	/** Identifies the text for searching for name. */
-	public static final String		NAME_TEXT = "Name/Description";
+	public static final String		NAME_TEXT = "Name";
+	
+	/** Identifies the text for searching for name. */
+	public static final String		NAME_DESCRIPTION = "Description";
 	
 	/** Identifies the text for searching for tags. */
 	public static final String		NAME_TAGS = "Tags";
@@ -270,8 +273,11 @@ public class SearchComponent
 	private void setDefaultContext()
 	{
 		nodes = new ArrayList<SearchObject>();
-    	SearchObject node = new SearchObject(SearchContext.NAME_DESCRIPTION, 
+    	SearchObject node = new SearchObject(SearchContext.NAME, 
 				null, NAME_TEXT);
+    	nodes.add(node);
+    	node = new SearchObject(SearchContext.DESCRIPTION, 
+				null, NAME_DESCRIPTION);
     	nodes.add(node);
     	node = new SearchObject(SearchContext.TEXT_ANNOTATION, null, 
 					NAME_COMMENTS);

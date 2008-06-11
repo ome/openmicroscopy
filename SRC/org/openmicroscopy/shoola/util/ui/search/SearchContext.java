@@ -77,14 +77,17 @@ public class SearchContext
 	/** Identifying the <code>Tag set</code> context. */
 	public static final int			TAG_SETS = 5;
 	
-	/** Identifying the <code>Name/Description</code> context. */
-	public static final int			NAME_DESCRIPTION = 6;
+	/** Identifying the <code>Name</code> context. */
+	public static final int			NAME = 6;
 	
 	/** Identifying the <code>File annotation</code> context. */
 	public static final int			FILE_ANNOTATION = 7;
 	
 	/** Identifying the <code>URL annotation</code> context. */
 	public static final int			URL_ANNOTATION = 8;
+	
+	/** Identifying the <code>Description</code> context. */
+	public static final int			DESCRIPTION = 9;
 	
 	/** Indicates not to take into account the time criteria. */
 	static final int				ANY_DATE = 0;

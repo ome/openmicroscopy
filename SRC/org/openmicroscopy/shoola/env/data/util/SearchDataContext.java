@@ -50,6 +50,24 @@ import pojos.ExperimenterData;
 public class SearchDataContext
 {
 
+	/** Identifying the <code>Annotation</code> context. */
+	public static final int			TEXT_ANNOTATION = 0;
+	
+	/** Identifying the <code>Tag</code> context. */
+	public static final int			TAGS = 1;
+	
+	/** Identifying the <code>Name</code> context. */
+	public static final int			NAME = 2;
+	
+	/** Identifying the <code>File annotation</code> context. */
+	public static final int			FILE_ANNOTATION = 3;
+	
+	/** Identifying the <code>URL annotation</code> context. */
+	public static final int			URL_ANNOTATION = 4;
+	
+	/** Identifying the <code>Description</code> context. */
+	public static final int			DESCRIPTION = 5;
+	
 	/** Indicates to set the creation time interval. */
 	public static final int			CREATION_TIME = 0;
 	
@@ -91,7 +109,7 @@ public class SearchDataContext
 	private Timestamp 				end;
 	
 	/** The scope of the search. Mustn't not be <code>null</code>. */
-	private List<Class>				scope;
+	private List<Integer>			scope;
 	
 	/** The types to search on. */
 	private List<Class>				types;
@@ -141,7 +159,7 @@ public class SearchDataContext
 	 * @param none	None of these terms may be present in the document. 
 	 * 				May be <code>null</code>.
 	 */
-	public SearchDataContext(List<Class> scope, List<Class> types, 
+	public SearchDataContext(List<Integer> scope, List<Class> types, 
 							String[] some, String[] must, String[] none)
 	{
 		if (some == null && must == null && none == null)
@@ -224,7 +242,7 @@ public class SearchDataContext
 	 * 
 	 * @return See above.
 	 */
-	public List<Class> getScope() { return scope; }
+	public List<Integer> getScope() { return scope; }
 	
 	/** 
 	 * Returns the types to search on.

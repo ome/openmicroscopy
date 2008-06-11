@@ -77,6 +77,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
@@ -224,12 +225,6 @@ class AttachmentsUI
 	
 	/** The border displaying the title. */
 	private TitledLineBorder 					border;
-	
-	/** The file chooser used to upload or download an attachment. */
-	private FileChooser 						chooser;
-	
-	/** The selected annotation data. */ 
-	private FileAnnotationData 					selectedData;
 	
 	/**
 	 * Creates the order by menu.
@@ -470,8 +465,9 @@ class AttachmentsUI
 	{
 		JFrame owner = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
-		chooser = new FileChooser(owner, FileChooser.SAVE, "Browse File", 
-				"Attach a file to the selected element", filters);
+		FileChooser chooser = new FileChooser(owner, FileChooser.SAVE, 
+				"Browse File", "Attach a file to the selected element", 
+				filters);
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);
 		UIUtilities.centerAndShow(chooser);
@@ -487,13 +483,23 @@ class AttachmentsUI
 		FileAnnotationData data = source.getFile();
 		if (data == null) return;
 		Registry reg = MetadataViewerAgent.getRegistry();
-		chooser = new FileChooser(reg.getTaskBar().getFrame(), 
+		FileChooser chooser = new FileChooser(reg.getTaskBar().getFrame(), 
 				FileChooser.FOLDER_CHOOSER, "Directory selection",
 		"Select the folder where to save the files.");
 
-		chooser.addPropertyChangeListener(
-				FileChooser.APPROVE_SELECTION_PROPERTY, this);
-		UIUtilities.centerAndShow(chooser);
+		//chooser.addPropertyChangeListener(
+		//		FileChooser.APPROVE_SELECTION_PROPERTY, this);
+		Logger logger = reg.getLogger();
+		logger.info(this, "visible");
+		if (chooser.showDialog() == JFileChooser.APPROVE_OPTION) {
+			
+			File dir = chooser.getFolderPath();
+			logger.info(this, dir.getPath());
+			UserNotifier un = reg.getUserNotifier();
+			un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile(),
+								dir);
+		}
+
 		/*
 		FileAnnotationData data = source.getFile();
 		if (data == null) return;
@@ -1121,43 +1127,25 @@ class AttachmentsUI
 	{
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			if (chooser == null) return;
-			switch (chooser.getDialogType()) {
-				case FileChooser.SAVE:
-					File f = (File) evt.getNewValue();
-					Iterator i = addedFiles.iterator();
-					boolean exist = false;
-					File file;
-					while (i.hasNext()) {
-						file = (File) i.next();
-						if (file.getAbsolutePath().equals(
-								f.getAbsolutePath())) {
-							exist = true;
-							break;
-						}
-					}
-					if (exist) return;
-					addedFiles.add(f);
-					firePropertyChange(EditorControl.SAVE_PROPERTY, 
-							Boolean.FALSE, Boolean.TRUE);
-					layoutAddedFiles();
-					revalidate();
-					repaint();
-					chooser = null;
+			File f = (File) evt.getNewValue();
+			Iterator i = addedFiles.iterator();
+			boolean exist = false;
+			File file;
+			while (i.hasNext()) {
+				file = (File) i.next();
+				if (file.getAbsolutePath().equals(
+						f.getAbsolutePath())) {
+					exist = true;
 					break;
-	
-				case FileChooser.FOLDER_CHOOSER:
-					if (selectedData == null) return;
-					Registry reg = MetadataViewerAgent.getRegistry();
-					
-					File dir = chooser.getSelectedFile();
-					UserNotifier un = reg.getUserNotifier();
-					un.notifyDownload(((FileAnnotation) 
-							selectedData.asAnnotation()).getFile(),
-										dir);
-					chooser = null;
-					selectedData = null;
+				}
 			}
+			if (exist) return;
+			addedFiles.add(f);
+			firePropertyChange(EditorControl.SAVE_PROPERTY, 
+					Boolean.FALSE, Boolean.TRUE);
+			layoutAddedFiles();
+			revalidate();
+			repaint();
 			
 		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
 			Collection l = (Collection) evt.getNewValue();

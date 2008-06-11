@@ -1082,12 +1082,11 @@ class OmeroDataServiceImpl
 		
 		
 		Object result = gateway.performSearch(context); 
-		if (result instanceof Integer) return result;
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
 		Iterator i = m.keySet().iterator();
-		Class key;
+		Integer key;
 		Set value;
 		Iterator k;
 		Set<Long> imageIDs = new HashSet<Long>();
@@ -1099,72 +1098,87 @@ class OmeroDataServiceImpl
 		while (k.hasNext()) {
 			ownerIDs.add(((DataObject) k.next()).getId());
 		}
-		Map<Class, Object> results = new HashMap<Class, Object>();
+		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		Set<DataObject> nodes;
+		Map pojoMap = new PojoOptions().map();
+		Object v;
+		
 		while (i.hasNext()) {
-			key = (Class) i.next();
-			value = (Set) m.get(key);
-			nodes = new HashSet<DataObject>(); 
-			results.put(key, nodes);
-			if (value.size() > 0) {
-				if (key.equals(String.class)) {
-					images = gateway.getContainerImages(ImageData.class, value, 
-							new PojoOptions().map());
-					k = images.iterator();
-					while (k.hasNext()) {
-						img = (DataObject) k.next();
-						if (!imageIDs.contains(img.getId())) {
-							if (ownerIDs.contains(img.getOwner().getId())) {
-								imageIDs.add(img.getId());
-								nodes.add(img);
-							}
-						}
-					}
-				} else if (key.equals(TagAnnotationData.class) ||
-						key.equals(TextualAnnotationData.class) ||
-						key.equals(URLAnnotationData.class)) {
-					//Retrieve all the images linked to the annotation
-					if (value.size() > 0) {
-						images = gateway.getAnnotatedObjects(ImageData.class, 
-								    value);
-						k = images.iterator();
-						while (k.hasNext()) {
-							img = (DataObject) k.next();
-							if (!imageIDs.contains(img.getId())) {
-								if (ownerIDs.contains(img.getOwner().getId())) {
-									imageIDs.add(img.getId());
-									nodes.add(img);
-								}
-							}
-						}
-					}
-				} else if (key.equals(FileAnnotationData.class)) {
-					if (value.size() > 0) {
-						List l = gateway.getFileAnnotations(value);
-						Set ids = new HashSet();
-						Iterator fa = l.iterator();
-						while (fa.hasNext()) {
-							IObject object = (IObject) fa.next();
-							ids.add(object.getId());
-						}
-						if (ids.size() > 0) {
-							images = gateway.getAnnotatedObjects(ImageData.class, 
-								    ids);
+			key = (Integer) i.next();
+			v =  m.get(key);
+			if (v instanceof Integer) {
+				results.put(key, v);
+			} else {
+				value = (Set) v;
+				nodes = new HashSet<DataObject>(); 
+				results.put(key, nodes);
+				if (value.size() > 0) {
+					switch (key) {
+						case SearchDataContext.NAME:
+						case SearchDataContext.DESCRIPTION:
+							images = gateway.getContainerImages(ImageData.class, 
+									value, pojoMap);
 							k = images.iterator();
 							while (k.hasNext()) {
 								img = (DataObject) k.next();
 								if (!imageIDs.contains(img.getId())) {
-									if (ownerIDs.contains(img.getOwner().getId())) {
+									if (ownerIDs.contains(
+											img.getOwner().getId())) {
 										imageIDs.add(img.getId());
 										nodes.add(img);
 									}
 								}
 							}
-						}
+							break;
+						case SearchDataContext.TAGS:
+						case SearchDataContext.TEXT_ANNOTATION:
+						case SearchDataContext.URL_ANNOTATION:
+							//Retrieve all the images linked to the annotation
+							if (value.size() > 0) {
+								images = gateway.getAnnotatedObjects(
+										ImageData.class, 
+										    value);
+								k = images.iterator();
+								while (k.hasNext()) {
+									img = (DataObject) k.next();
+									if (!imageIDs.contains(img.getId())) {
+										if (ownerIDs.contains(
+												img.getOwner().getId())) {
+											imageIDs.add(img.getId());
+											nodes.add(img);
+										}
+									}
+								}
+							}
+							break;
+						case SearchDataContext.FILE_ANNOTATION:
+							if (value.size() > 0) {
+								List l = gateway.getFileAnnotations(value);
+								Set ids = new HashSet();
+								Iterator fa = l.iterator();
+								while (fa.hasNext()) {
+									IObject object = (IObject) fa.next();
+									ids.add(object.getId());
+								}
+								if (ids.size() > 0) {
+									images = gateway.getAnnotatedObjects(
+											ImageData.class, ids);
+									k = images.iterator();
+									while (k.hasNext()) {
+										img = (DataObject) k.next();
+										if (!imageIDs.contains(img.getId())) {
+											if (ownerIDs.contains(
+													img.getOwner().getId())) {
+												imageIDs.add(img.getId());
+												nodes.add(img);
+											}
+										}
+									}
+								}
+							}
 					}
 				}
 			}
-			
 			
 		}
 		return results; 

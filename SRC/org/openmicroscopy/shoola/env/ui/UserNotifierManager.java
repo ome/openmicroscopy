@@ -42,6 +42,7 @@ import ome.model.core.OriginalFile;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
@@ -240,6 +241,8 @@ class UserNotifierManager
 	 */
 	void saveFileToDisk(OriginalFile file, File directory)
 	{
+		Logger log = container.getRegistry().getLogger();
+		 log.debug(this, "origianl: "+file);
 		if (file == null) return;
 		if (download == null) {
 			Registry reg = container.getRegistry();
@@ -254,10 +257,17 @@ class UserNotifierManager
 			directory = chooser.getCurrentDirectory();
 		}
 		
+		
         File[] files = directory.listFiles();
         String dirPath = directory+File.separator;
+        log.debug(this, "dirPath: "+dirPath);
         String name = getFileName(files, file, file.getName(), dirPath, 1);
+        
+        log.debug(this, "name: "+name);
+        
         String path = dirPath+name;
+        
+        log.debug(this, "name and path: "+path);
 		FileLoader loader = new FileLoader(component, 
 									container.getRegistry(), 
 										path, file.getId(), file.getSize());

@@ -352,6 +352,18 @@ public class QuickSearch
 		searchPanel.validate();
 		searchPanel.repaint();
 		cleanBar.setVisible(false);
+		switch (selectedNode.getIndex()) {
+			case RATED_ONE_OR_BETTER:
+			case RATED_TWO_OR_BETTER:
+			case RATED_THREE_OR_BETTER:
+			case RATED_FOUR_OR_BETTER:
+			case UNRATED:
+			case UNTAGGED:
+			case UNCOMMENTED:
+			case TAGGED:
+			case COMMENTED:
+				setSearchContext(SHOW_ALL);
+		}
 		firePropertyChange(QUICK_SEARCH_PROPERTY, null, showAll);
 	}
 	
@@ -371,6 +383,7 @@ public class QuickSearch
 			case RATED_FOUR_OR_BETTER:
 			case RATED_FIVE:
 				text = selectedNode.getDescription();
+				cleanBar.setVisible(false);
 				break;
 			case UNRATED:
 			case UNTAGGED:
@@ -379,6 +392,7 @@ public class QuickSearch
 			case COMMENTED:
 			case SHOW_ALL:
 				text = "";
+				cleanBar.setVisible(false);
 				break;
 			case TAGS:
 			case COMMENTS:
@@ -480,7 +494,9 @@ public class QuickSearch
 	public void setDefaultSearchContext()
 	{
 		List<SearchObject> nodes = new ArrayList<SearchObject>();
-    	SearchObject node = new SearchObject(FULL_TEXT, null, 
+		SearchObject node = new SearchObject(SHOW_ALL, null, "Show All");
+    	nodes.add(node);
+    	node = new SearchObject(FULL_TEXT, null, 
     								SearchComponent.NAME_TEXT);
     	nodes.add(node);
     	node = new SearchObject(TAGS, null, SearchComponent.NAME_TAGS);
@@ -509,10 +525,10 @@ public class QuickSearch
     	ratedNodes.add(node);
     	node = new SearchObject(RATED_FIVE, null, "*****");
     	ratedNodes.add(node);
-    	//node = new SearchObject(SHOW_ALL, null, "Show All");
-    	//ratedNodes.add(node);
+    	
     	node = new SearchObject(UNRATED, null, "Unrated");
     	ratedNodes.add(node);
+    	
     	initSearchComponents(nodes, ratedNodes);
     	removeAll();
     	buildGUI(label);
