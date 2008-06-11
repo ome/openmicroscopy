@@ -119,7 +119,7 @@
 
 	<target name="dist" depends="multiproject,_dist">
 		<iterate target="dist"/>
-                <!--mkdir dir="${dist.dir}/bin"/-->
+                <mkdir dir="${dist.dir}/bin"/>
                 <chmod perm="ug+x">
                         <fileset dir="${dist.dir}/bin" includes="**/*"/>
                         <fileset dir="${dist.dir}/lib" includes="**/*.py"/>
