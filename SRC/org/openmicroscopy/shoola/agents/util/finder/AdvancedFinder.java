@@ -216,7 +216,7 @@ public class AdvancedFinder
 					toKeep.add(getUserDetails());
 				} else {
 					if (toKeep.size() == 0)
-						toExclude.add(getUserDetails());
+					toExclude.add(getUserDetails());
 				}
 		}
 	}
@@ -264,9 +264,9 @@ public class AdvancedFinder
 		}
 		
 		List<ExperimenterData> owners = fillUsersList(ctx.getSelectedOwners());
-		List<ExperimenterData> annotators = null;//fillUsersList(ctx.getSelectedAnnotators());
-		List<ExperimenterData> excludedOwners = null;//fillUsersList(ctx.getExcludedOwners());
-		List<ExperimenterData> excludedAnnotators = null;//fillUsersList(ctx.getExcludedAnnotators());
+		List<ExperimenterData> annotators = fillUsersList(null);//fillUsersList(ctx.getSelectedAnnotators());
+		List<ExperimenterData> excludedOwners = fillUsersList(null);//fillUsersList(ctx.getExcludedOwners());
+		List<ExperimenterData> excludedAnnotators = fillUsersList(null);
 		
 		fillUsersList(ctx.getOwnerSearchContext(), owners, excludedOwners);
 		fillUsersList(ctx.getAnnotatorSearchContext(), annotators, 
