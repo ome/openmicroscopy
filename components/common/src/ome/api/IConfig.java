@@ -10,9 +10,6 @@ package ome.api;
 // Java imports
 import java.util.Date;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -52,7 +49,7 @@ public interface IConfig extends ServiceInterface {
      * security policy file which disallows "new Date()"). Therefore we don't
      * add a throws clause here. Anything that is thrown will be wrapped in an
      * InternalException see
-     * http://cvs.openmicroscopy.org.uk/tiki/tiki-index.php?page=Omero+Exception+Handling
+     * http://trac.openmicroscopy.org.uk/omero/wiki/ExceptionHandling
      */
     /**
      * checks the current server for it's time. This value may be variant
@@ -123,15 +120,15 @@ public interface IConfig extends ServiceInterface {
     void setConfigValue(@NotNull
     String key, @NotNull
     String value) throws ApiUsageException, SecurityViolation;
-    
+
     /**
      * Provides the hard-coded server version string from
-     * {@link ome.system.Version}. OMERO-internal values 
-     * will be in the form MAJOR.MINOR[.PATCH][-SUFFIX] where
-     * a typical value might be "3.0-RC1" or "3.1.1-Beta2".
-     *
-     * Customized values should begin with a alphabetic 
-     * sequence followed by a hyphen: ACME-0.0.1
+     * {@link ome.system.Version}. OMERO-internal values will be in the form
+     * MAJOR.MINOR[.PATCH][-SUFFIX] where a typical value might be "3.0-RC1" or
+     * "3.1.1-Beta2".
+     * 
+     * Customized values should begin with a alphabetic sequence followed by a
+     * hyphen: ACME-0.0.1
      */
     String getVersion();
 }
