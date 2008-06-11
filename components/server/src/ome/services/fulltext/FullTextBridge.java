@@ -325,13 +325,15 @@ public class FullTextBridge extends BridgeHelper {
             final Field.Store store, final Field.Index index,
             final Float boost, FileAnnotation fileAnnotation) {
         OriginalFile file = fileAnnotation.getFile();
-        // None of these values can be null
-        add(document, "file.name", file.getName(), store, index, boost);
-        add(document, "file.path", file.getPath(), store, index, boost);
-        add(document, "file.sha1", file.getSha1(), store, index, boost);
-        add(document, "file.format", file.getFormat().getValue(), store, index,
-                boost);
-        addContents(document, "file.contents", file, files, parsers, boost);
+        if (file != null) {
+            // None of these values can be null
+            add(document, "file.name", file.getName(), store, index, boost);
+            add(document, "file.path", file.getPath(), store, index, boost);
+            add(document, "file.sha1", file.getSha1(), store, index, boost);
+            add(document, "file.format", file.getFormat().getValue(), store, index,
+                    boost);
+            addContents(document, "file.contents", file, files, parsers, boost);
+        }
     }
 
     /**
