@@ -215,7 +215,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     	
     	// Set the image name
     	iTo.setName(name);
-   		iTo.setObjectiveSettings(iFrom.getObjectiveSettings());
+    	iTo.setObjectiveSettings(iFrom.getObjectiveSettings());
        	iTo.setCondition(iFrom.getCondition());
        	iTo.setContext(iFrom.getContext());
        	iTo.setPosition(iFrom.getPosition());
