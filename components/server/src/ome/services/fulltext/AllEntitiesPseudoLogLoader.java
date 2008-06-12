@@ -17,10 +17,8 @@ import ome.parameters.Filter;
 import ome.parameters.Parameters;
 
 /**
- * Driver for various full text actions. Commands include:
- * <ul>
- * <li>full - Index full database</li
- * </ul>
+ * {@link EventLogLoader} which iterates through each object model type (in no
+ * particular order) and returns each object from lowest to highest id.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
@@ -47,7 +45,8 @@ public class AllEntitiesPseudoLogLoader<T extends IObject> extends
         }
 
         final String query = String.format(
-                "select obj from %s obj where obj.id > %d", current, last);
+                "select obj from %s obj where obj.id > %d order by id asc",
+                current, last);
         final IObject obj = queryService.findByQuery(query, new Parameters(
                 new Filter().page(0, 1)));
 
