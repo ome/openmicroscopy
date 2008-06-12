@@ -1093,10 +1093,11 @@ class OmeroDataServiceImpl
 		Set images;
 		DataObject img;
 		List owners = context.getOwners();
-		List<Long> ownerIDs = new ArrayList<Long>(owners.size());
+		Set<Long> ownerIDs = new HashSet<Long>(owners.size());
 		k = owners.iterator();
 		while (k.hasNext()) {
-			ownerIDs.add(((DataObject) k.next()).getId());
+			long userID = ((DataObject) k.next()).getId();
+			ownerIDs.add(userID);
 		}
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		Set<DataObject> nodes;
@@ -1116,17 +1117,18 @@ class OmeroDataServiceImpl
 					switch (key) {
 						case SearchDataContext.NAME:
 						case SearchDataContext.DESCRIPTION:
+						//case SearchDataContext.TAGS:
 							images = gateway.getContainerImages(ImageData.class, 
 									value, pojoMap);
 							k = images.iterator();
 							while (k.hasNext()) {
 								img = (DataObject) k.next();
 								if (!imageIDs.contains(img.getId())) {
-									if (ownerIDs.contains(
-											img.getOwner().getId())) {
+									//if (ownerIDs.contains(
+									//		img.getOwner().getId())) {
 										imageIDs.add(img.getId());
 										nodes.add(img);
-									}
+									//}
 								}
 							}
 							break;
@@ -1136,21 +1138,18 @@ class OmeroDataServiceImpl
 							//Retrieve all the images linked to the annotation
 							if (value.size() > 0) {
 								images = gateway.getAnnotatedObjects(
-										ImageData.class, 
-										    value);
+										ImageData.class, value, ownerIDs);
 								k = images.iterator();
 								while (k.hasNext()) {
 									img = (DataObject) k.next();
 									if (!imageIDs.contains(img.getId())) {
-										if (ownerIDs.contains(
-												img.getOwner().getId())) {
-											imageIDs.add(img.getId());
-											nodes.add(img);
-										}
+										imageIDs.add(img.getId());
+										nodes.add(img);
 									}
 								}
 							}
 							break;
+
 						case SearchDataContext.FILE_ANNOTATION:
 							if (value.size() > 0) {
 								List l = gateway.getFileAnnotations(value);
@@ -1162,7 +1161,7 @@ class OmeroDataServiceImpl
 								}
 								if (ids.size() > 0) {
 									images = gateway.getAnnotatedObjects(
-											ImageData.class, ids);
+											ImageData.class, ids, ownerIDs);
 									k = images.iterator();
 									while (k.hasNext()) {
 										img = (DataObject) k.next();

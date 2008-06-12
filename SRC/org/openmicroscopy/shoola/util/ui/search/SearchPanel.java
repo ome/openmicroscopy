@@ -472,7 +472,7 @@ class SearchPanel
 	 * @param name	The value to set.
 	 * @param field	The UI component to handle.
 	 */
-	private void setUserString (String name, JTextField field)
+	private void setUserString(String name, JTextField field)
 	{
 		/*
 		String text = field.getText();

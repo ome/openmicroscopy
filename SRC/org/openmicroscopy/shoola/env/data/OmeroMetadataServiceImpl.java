@@ -1075,11 +1075,6 @@ class OmeroMetadataServiceImpl
 		if (terms != null && terms.size() > 0) {
 			Set annotations = gateway.filterBy(annotationType, terms,
 					                           null, null, exp);
-			List<Long> annotationsIds = new ArrayList<Long>();
-			
-			i = annotations.iterator();
-			while (i.hasNext())
-				annotationsIds.add(((Annotation) i.next()).getId());
 			i = map.keySet().iterator();
 			while (i.hasNext()) {
 				id = (Long) i.next();
@@ -1089,7 +1084,7 @@ class OmeroMetadataServiceImpl
 					data = (AnnotationData) j.next();
 					if (annotationType.equals(TagAnnotationData.class)) {
 						if (data instanceof TagAnnotationData) {
-							if (annotationsIds.contains(data.getId())) {
+							if (annotations.contains(data.getId())) {
 								if (!results.contains(id))
 									results.add(id);
 							}
@@ -1097,7 +1092,7 @@ class OmeroMetadataServiceImpl
 					} else if (annotationType.equals(
 							 TextualAnnotationData.class)) {
 						if (!(data instanceof TagAnnotationData)) {
-							if (annotationsIds.contains(data.getId())) {
+							if (annotations.contains(data.getId())) {
 								if (!results.contains(id))
 									results.add(id);
 							}
@@ -1251,7 +1246,7 @@ class OmeroMetadataServiceImpl
 							                 types.get(type), start, end, exp);
 					i = annotations.iterator();
 					while (i.hasNext())
-						annotationsIds.add(((Annotation) i.next()).getId());
+						annotationsIds.add((Long) i.next());
 					
 					i = map.keySet().iterator();
 					
@@ -1275,7 +1270,7 @@ class OmeroMetadataServiceImpl
 												start, end, exp);
 					i = annotations.iterator();
 					while (i.hasNext())
-						annotationsIds.add(((Annotation) i.next()).getId());
+						annotationsIds.add((Long) i.next());
 				}
 
 				i = map.keySet().iterator();

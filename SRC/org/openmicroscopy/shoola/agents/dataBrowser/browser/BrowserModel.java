@@ -564,7 +564,7 @@ class BrowserModel
 		while (i.hasNext()) {
 			ho = i.next().getHierarchyObject();
 			if (ho instanceof DataObject)
-			nodes.add((DataObject) ho);
+				nodes.add((DataObject) ho);
 		}
 		return nodes;
 	}

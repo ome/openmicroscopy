@@ -1434,7 +1434,7 @@ class OMEROGateway
 				RenderingDef def = getRenderingDef(pixelsID, userID);
 				if (def != null) service.setRenderingDefId(def.getId());
 			}
-			return service.getThumbnailDirect(new Integer(sizeX), 
+			return service.getThumbnail(new Integer(sizeX), 
 					                         new Integer(sizeY));
 			//return service.getThumbnailDirect(new Integer(sizeX), 
 			//		new Integer(sizeY));
@@ -3060,7 +3060,6 @@ class OMEROGateway
 		try {
 			hasNext = service.hasNext();
 		} catch (Exception e) {
-			e.printStackTrace();
 			int size = 0;
 			if (e instanceof InternalException)
 				size = -1;
@@ -3077,9 +3076,8 @@ class OMEROGateway
 			object = (IObject) k.next();
 			if (type.equals(object.getClass())) {
 				id = object.getId();
-				if (!r.contains(id)) {
+				if (!r.contains(id)) 
 					r.add(id); //Retrieve the object of a given type.
-				}
 			}
 		}
 		return r;
@@ -3148,29 +3146,17 @@ class OMEROGateway
 		Details d;
 		//owner
 		List<Details> owners = new ArrayList<Details>();
-		if (users != null && users.size() > 0) {
+		//if (users != null && users.size() > 0) {
 			i = users.iterator();
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
 				d = Details.create();
+				
 		        d.setOwner(exp.asExperimenter());
 		        owners.add(d);
-				//service.onlyAnnotatedBy(d);
 			}
-		}
-		//not owner
-		users = context.getExcludedOwners();
-		if (users != null && users.size() > 0) {
-			i = users.iterator();
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				
-				exp = (ExperimenterData) i.next();
-				d = Details.create();
-		        d.setOwner(exp.asExperimenter());
-				//service.onlyAnnotatedBy(d);
-			}
-		}
+		//}
+		
 		
 		String[] some = prepareTextSearch(context.getSome(), service);
 		String[] must = prepareTextSearch(context.getMust(), service);
@@ -3190,49 +3176,54 @@ class OMEROGateway
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		Object size;
 		Integer key;
-		
 		i = scopes.iterator();
-		Iterator<Details> owner;
 		while (i.hasNext()) {
-			rType = new HashSet();
+			key = (Integer) i.next();
+			results.put(key, new HashSet());
+		}
+		Iterator<Details> owner;
+		i = scopes.iterator();
+		while (i.hasNext()) {
+			
 			key = (Integer) i.next();
 			k = convertSearchScope(key);
-			results.put(key, rType);
+			rType = (HashSet) results.get(key);
 			size = null;
 			if (k.equals(FileAnnotation.class)) {
 				service.onlyType(OriginalFile.class);
 				service.bySomeMustNone(some, must, none);
 				size = handleSearchResult(OriginalFile.class, rType, service);
+				if (!(size instanceof Integer)) {
+					service.clearQueries();
+					service.bySomeMustNone(formatText(some, "file"), 
+							formatText(must, "file"), formatText(none, "file"));
+					size = handleSearchResult(OriginalFile.class, rType, 
+												service);
+				} else results.put(key, size);
+				
+			} else if (!(k.equals(String.class))) {
+				service.onlyType(k);
+				service.bySomeMustNone(some, must, none); //formatText(some, field)
+				size = handleSearchResult(k, rType, service);
 				if (size instanceof Integer) {
 					results.put(key, size);
 				}
-				service.clearQueries();
-				service.bySomeMustNone(formatText(some, "file"), 
-						formatText(must, "file"), formatText(none, "file"));
-				size = handleSearchResult(OriginalFile.class, rType, service);
-			} else if (!k.equals(String.class)) {
-				service.onlyType(k);
-				service.bySomeMustNone(some, must, none);
-				size = handleSearchResult(k, rType, service);
 			}
-			if (size instanceof Integer) {
-				results.put(key, size);
-			}
+			
 			service.clearQueries();
 		}
-		
-		//Just to make sure that the owner is only taken into account for images
 		i = scopes.iterator();
 		while (i.hasNext()) {
-			rType = new HashSet();
+			
 			key = (Integer) i.next();
 			k = convertSearchScope(key);
-			results.put(key, rType);
-			owner = owners.iterator();
-			while (owner.hasNext()) {
-				d = owner.next();
-				size = -1;
-				if (k.equals(String.class)) {
+			rType = (HashSet) results.get(key);
+			size = null;
+			if (k.equals(String.class)) {
+				owner = owners.iterator();
+				while (owner.hasNext()) {
+					d = owner.next();
+					size = null;
 					service.onlyOwnedBy(d);
 					service.onlyType(Image.class);
 					if (key == SearchDataContext.NAME)
@@ -3243,14 +3234,15 @@ class OMEROGateway
 						service.bySomeMustNone(formatText(some, "description"), 
 							formatText(must, "description"), 
 							formatText(none, "description"));
+							
 					size = handleSearchResult(Image.class, rType, service);
+					service.clearQueries();
 				}
-				if (size instanceof Integer) {
-					results.put(key, size);
-				}
-				service.clearQueries();
 			}
-			
+			if (size instanceof Integer) {
+				results.put(key, size);
+			}
+			service.clearQueries();
 		}
 		
 		service.close();
@@ -3303,7 +3295,7 @@ class OMEROGateway
 			if (exp != null) {
 				Details d = Details.create();
 		        d.setOwner(exp.asExperimenter());
-				service.onlyAnnotatedBy(d);
+				//service.onlyAnnotatedBy(d);
 			}
 			String[] t = prepareTextSearch(terms, service);
 			
@@ -3314,8 +3306,6 @@ class OMEROGateway
 			service.bySomeMustNone(t, null, null);
 			Object size = handleSearchResult(k, rType, service);
 			if (size instanceof Integer) new HashSet();
-
-			if (!service.hasNext()) return new HashSet();
 			return rType;
 		} catch (Exception e) {
 			handleException(e, "Filtering by annotation not valid");
@@ -3417,7 +3407,17 @@ class OMEROGateway
 		//return service.results();
 	}
 	
-	Set getAnnotatedObjects(Class type, Set<Long> annotationIds)
+	/**
+	 * 
+	 * @param type
+	 * @param annotationIds
+	 * @param ownerIds
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	Set getAnnotatedObjects(Class type, Set<Long> annotationIds, 
+			Set<Long> ownerIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -3436,6 +3436,10 @@ class OMEROGateway
 	            sb.append("left outer join fetch pix.pixelsType as pt ");
 	            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
 	            sb.append("where ail.child.id in (:ids)");
+	            if (ownerIds != null && ownerIds.size() > 0) {
+	            	sb.append(" and img.details.owner.id in (:ownerIds)");
+	            	param.addSet("ownerIds", ownerIds);
+	            }
 	            return PojoMapper.asDataObjects(
 	         			service.findAllByQuery(sb.toString(), param));
 			}
