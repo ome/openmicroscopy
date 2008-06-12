@@ -300,8 +300,10 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		// refresh the current state
 		// can't call dataFieldUpdated() because subclasses override it, and try to 
 		// update components that have not been instantiated until after their constructors. 
-		setNameText(addHtmlTagsForNameLabel(dataField.getAttribute(DataFieldConstants.ELEMENT_NAME)));
-		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION));
+		setNameText(addHtmlTagsForNameLabel(
+				dataField.getAttribute(DataFieldConstants.ELEMENT_NAME)));
+		setDescriptionText(
+				dataField.getAttribute(DataFieldConstants.DESCRIPTION));
 		setURL(dataField.getAttribute(DataFieldConstants.URL));
 		
 		refreshChildDisplayOrientation();
@@ -371,10 +373,12 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	public void refreshDefaultValue() {
 		
 		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
+		boolean defaultExists = ((defaultValue != null) && 
+					(defaultValue.length()>0));
 		
-		defaultButton.setVisible(defaultValue != null);
+		defaultButton.setVisible(defaultExists);
 		
-		if (defaultValue != null)
+		if (defaultExists)
 			defaultButton.setToolTipText("Default: " + defaultValue);
 	
 		else 
