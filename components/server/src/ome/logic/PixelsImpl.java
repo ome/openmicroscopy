@@ -213,6 +213,14 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     	Image iFrom = iQuery.get(Image.class, imageId);
     	Image iTo = new Image();
     	
+    	// Set the image name
+    	iTo.setName(name);
+   		iTo.setObjectiveSettings(iFrom.getObjectiveSettings());
+       	iTo.setCondition(iFrom.getCondition());
+       	iTo.setContext(iFrom.getContext());
+       	iTo.setPosition(iFrom.getPosition());
+       	iTo.setSetup(iFrom.getSetup());
+    	
     	// Copy each Pixels set that the source image has
     	Iterator<Pixels> i = iFrom.iteratePixels();
     	while (i.hasNext())
@@ -221,11 +229,8 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         	_copyAndResizePixels(p.getId(), sizeX, sizeY, sizeZ, sizeT,
 		                         channelList, null, copyStats);
         	iTo.addPixels(to);
-    	}
-    	
-    	// Set the image name
-    	iTo.setName(name);
-    	
+    	}  	
+   	
         // Save and return our newly created Image Id
         iTo = iUpdate.saveAndReturnObject(iTo);
         return iTo.getId();
