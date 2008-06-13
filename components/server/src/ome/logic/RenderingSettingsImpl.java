@@ -744,8 +744,15 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
             cTo.setBlue(cFrom.getBlue());
             cTo.setGreen(cFrom.getGreen());
             cTo.setRed(cFrom.getRed());
-
         }
+        
+        // Increment the version of the rendering settings so that we 
+        // can have some notification that either the RenderingDef 
+        // object itself or one of its children in the object graph has 
+        // been updated. FIXME: This should be implemented using 
+        // IUpdate.touch() or similar once that functionality exists.
+        rdTo.setVersion(rdTo.getVersion() + 1);
+        
         pixelsMetadata.saveRndSettings(rdTo);
         return true;
     }
