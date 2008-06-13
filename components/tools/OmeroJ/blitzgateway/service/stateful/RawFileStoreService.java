@@ -47,6 +47,13 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 public interface RawFileStoreService
 {	
 	/**
+	 * Keep service alive.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Read from the file in the rawFileStore.
 	 * @param fileId id of the file to work on, 
 	 * @param position starting position to read from.

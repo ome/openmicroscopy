@@ -54,6 +54,13 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 interface FileService
 {	
 	/**
+	 * Keep service alive.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Does the file with id exist in the OMERO original file store.
 	 * @param id id of the file.
 	 * @return see above.

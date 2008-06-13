@@ -47,6 +47,13 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 public interface RawPixelsStoreService
 {	
 	/**
+	 * Keep service alive.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+
+	/**
 	 * Get the plane size of the current image.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.

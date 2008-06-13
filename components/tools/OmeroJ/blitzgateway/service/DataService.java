@@ -31,6 +31,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import omero.model.Dataset;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
@@ -57,6 +58,13 @@ import blitzgateway.util.OMEROClass;
  */
 interface DataService
 {		
+	/**
+	 * Keep service alive.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+
 	/**
 	 * Retrieves the images contained in containers specified by the 
 	 * node type.
@@ -240,8 +248,60 @@ interface DataService
 	public List<Image> getImageByName(String imageName)
 	throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Save the object to the db . 
+	 * @param obj see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	void saveObject(IObject obj) 
+							throws  DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Save and return the Object.
+	 * @param obj see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	IObject saveAndReturnObject(IObject obj) 
+							throws  DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Save the array.
+	 * @param graph see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	void saveArray(List<IObject> graph) 
+							throws  DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Save and return the array.
+	 * @param <T> The Type to return.
+	 * @param graph the object
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	 <T extends omero.model.IObject>List<T> 
+	 			saveAndReturnArray(List<IObject> graph)
+	 						throws  DSOutOfServiceException, DSAccessException;
+	 
+	 /**
+	  * Delete the object.
+	  * @param row the object.(commonly a row in db)
+	  * @throws DSOutOfServiceException
+	  * @throws DSAccessException
+	  */
+	void deleteObject(IObject row) 
+							throws  DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Get the username for the current session. 
+	 * @return see above.
+	 */
+	String getUserName();
 }
 
 

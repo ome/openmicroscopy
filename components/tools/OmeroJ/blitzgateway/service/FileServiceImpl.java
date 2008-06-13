@@ -231,6 +231,14 @@ class FileServiceImpl
 		return scriptService.uploadScript(script);
 	}
 
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.FileService#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		rawFileStore.keepAlive();
+	}
+
 	
 }
 

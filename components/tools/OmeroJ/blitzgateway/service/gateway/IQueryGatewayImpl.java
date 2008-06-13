@@ -55,8 +55,13 @@ class IQueryGatewayImpl
 	implements IQueryGateway
 {	
 
+	/** The BlitzGateway. */
 	private BlitzGateway blitzGateway;
 	
+	/**
+	 * The constructor for the IQuery Gateway.
+	 * @param gateway the blitzGateway.
+	 */
 	IQueryGatewayImpl(BlitzGateway gateway)
 	{
 		blitzGateway = gateway;

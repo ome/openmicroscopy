@@ -28,6 +28,9 @@ package blitzgateway.service.gateway;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.HashMap;
+import java.util.Iterator;
+
 import blitzgateway.util.ServiceUtilities;
 import omero.ServerError;
 import omero.client;
@@ -54,9 +57,9 @@ import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEngine;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStore;
 import omero.api.ThumbnailStorePrx;
-import omero.model.ExperimenterGroup;
 
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -83,17 +86,32 @@ class BlitzGateway
 	private static final String statefulServiceAccessException = "Unable to create ";
 	
 	/** The Blitz client object, this is the entry point to the OMERO.Blitz Server. */
-	client blitzClient;
+	private client blitzClient;
 	
 	/** The proxy to the session object. */
-	ServiceFactoryPrx session;
+	private volatile ServiceFactoryPrx session;
 
 	/** The user name. */
 	private String userName;
 	
-	
 	/** Session closed variable, determining if session closed. */
-	private boolean sessionClosed = true;
+	private volatile boolean sessionClosed = true;
+	
+	private HashMap<String, ServiceInterfacePrx> serviceMap;
+	
+	private static final String IRenderingSettings = "IRenderingSettings";
+	private static final String IPixels = "IPixels";
+	private static final String RenderingEngine = "RenderingEngine";
+	private static final String IScript = "IScript";
+	private static final String IRepositoryInfoService = "IRepositoryInfoService";
+	private static final String IPojosService = "IPojosService";
+	private static final String IQueryService = "IQueryService";
+	private static final String IAdminService = "IAdminService";
+	private static final String ThumbnailStore = "ThumbnailStore";
+	private static final String PixelsStore = "PixelsStore";
+	private static final String RawFileStore = "RawFileStore";
+	private static final String IUpdateService = "IUpdateService";
+	private static final String ITypeService = "ITypeService";
 	
 	/**
 	 * Instantiate the BlitzGateway object.
@@ -105,16 +123,19 @@ class BlitzGateway
 	{
 		blitzClient = new omero.client(iceConfig);
 		sessionClosed = true;
+		serviceMap = new HashMap<String, ServiceInterfacePrx>();
 	}
-
-	/**
-	 * Return the Session, this will allow us to protect the access to 
-	 * server for multithreaded calls.
-	 * @return see above.
-	 */
-	private ServiceFactoryPrx getSession()
+	
+	public void keepAlive()
 	{
-		return session;
+		Iterator<ServiceInterfacePrx> iterator = serviceMap.values().iterator();
+		while(iterator.hasNext())
+			session.keepAlive(iterator.next());
+	}
+	
+	public void keepAlive(ServiceInterfacePrx prx)
+	{
+		session.keepAlive(prx);
 	}
 	
 	/**
@@ -124,26 +145,33 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void createSession(String user, String password) throws DSOutOfServiceException, DSAccessException
+	public void createSession(String user, String password) 
+		throws DSOutOfServiceException, DSAccessException
 	{
-		try
+		synchronized(serviceMap)
 		{
-			session = blitzClient.createSession(user, password);
-			userName = user;
-			sessionClosed = false;
-		}
-		catch(Exception e)
-		{
-			ServiceUtilities.handleException(e, "Cannot create session");
+			try
+			{
+				session = blitzClient.createSession(user, password);
+				userName = user;
+				sessionClosed = false;
+			}
+			catch(Exception e)
+			{
+				ServiceUtilities.handleException(e, "Cannot create session");
+			}
 		}
 	}
 	
 	/** Close the connection to the blitz server. */
-	public synchronized void close()
+	public void close()
 	{
-		blitzClient.closeSession();
-		blitzClient.close();
-		sessionClosed = true;
+		synchronized(serviceMap)
+		{
+			blitzClient.closeSession();
+			blitzClient.close();
+			sessionClosed = true;
+		}
 	}
 	
 	/**
@@ -162,13 +190,24 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized IRenderingSettingsPrx getRenderingSettingsService()
+	public IRenderingSettingsPrx getRenderingSettingsService()
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		String currentService = "IRenderSettings";
+		String currentService = IRenderingSettings;
 		try
 		{
-			return getSession().getRenderingSettingsService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (IRenderingSettingsPrx)serviceMap.get(currentService);
+				else
+				{
+					IRenderingSettingsPrx service = 
+									session.getRenderingSettingsService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -184,13 +223,24 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized IPixelsPrx getPixelsService()
+	public IPixelsPrx getPixelsService()
 	throws DSOutOfServiceException, DSAccessException 
 	{
-		String currentService = "IPixels";
+		String currentService = IPixels;
 		try
 		{
-			return getSession().getPixelsService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (IPixelsPrx)serviceMap.get(currentService);
+				else
+				{
+					IPixelsPrx service = 
+						session.getPixelsService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -205,14 +255,17 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public synchronized RenderingEnginePrx getRenderingEngineService()
+	public RenderingEnginePrx getRenderingEngineService()
 	throws DSOutOfServiceException, DSAccessException 
 	{
 		String currentService = "RenderingEngine";
 		try
 		{
-			RenderingEnginePrx renderingEngine = getSession().createRenderingEngine();
-			return renderingEngine;
+			synchronized(serviceMap)
+			{
+				RenderingEnginePrx renderingEngine = session.createRenderingEngine();
+				return renderingEngine;
+			}
 		}
 		catch (ServerError e)
 		{
@@ -228,13 +281,24 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized IScriptPrx getScriptService()
+	public IScriptPrx getScriptService()
 	throws DSOutOfServiceException, DSAccessException 
 	{
-		String currentService = "IScript";
+		String currentService = IScript;
 		try
 		{
-			return getSession().getScriptService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (IScriptPrx)serviceMap.get(currentService);
+				else
+				{
+					IScriptPrx service = 
+							session.getScriptService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -251,13 +315,24 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized IRepositoryInfoPrx getRepositoryService() 
+	public IRepositoryInfoPrx getRepositoryService() 
 			throws DSOutOfServiceException, DSAccessException 
 	{
-		String currentService = "IRepositoryInfoService";
+		String currentService = IRepositoryInfoService;
 		try
 		{
-			return getSession().getRepositoryInfoService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+				return (IRepositoryInfoPrx)serviceMap.get(currentService);
+				else
+				{
+					IRepositoryInfoPrx service = 
+						session.getRepositoryInfoService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -273,13 +348,24 @@ class BlitzGateway
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public synchronized IPojosPrx getPojosService() 
+	public IPojosPrx getPojosService() 
 			throws DSOutOfServiceException, DSAccessException 
 	{ 
-		String currentService = "IPojosService";
+		String currentService = IPojosService;
 		try
 		{
-			return getSession().getPojosService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (IPojosPrx)serviceMap.get(currentService);
+				else
+				{
+					IPojosPrx service = 
+						session.getPojosService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -295,13 +381,24 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized IQueryPrx getQueryService() 
+	public IQueryPrx getQueryService() 
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
-		String currentService = "IQueryService";
+		String currentService = IQueryService;
 		try
 		{
-			return getSession().getQueryService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (IQueryPrx)serviceMap.get(currentService);
+				else
+				{
+					IQueryPrx service = 
+						session.getQueryService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -317,13 +414,24 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized IUpdatePrx getUpdateService() 
+	public IUpdatePrx getUpdateService() 
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
-		String currentService = "IUpdateService";
+		String currentService = IUpdateService;
 		try
 		{
-			return getSession().getUpdateService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (IUpdatePrx)serviceMap.get(currentService);
+				else
+				{
+					IUpdatePrx service = 
+						session.getUpdateService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -339,13 +447,24 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized IAdminPrx getAdminService() 
+	public IAdminPrx getAdminService() 
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
-		String currentService = "IAdminService";
+		String currentService = IAdminService;
 		try
 		{
-			return getSession().getAdminService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (IAdminPrx)serviceMap.get(currentService);
+				else
+				{
+					IAdminPrx service = 
+						session.getAdminService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
@@ -361,14 +480,17 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized ThumbnailStorePrx getThumbnailService()
+	public ThumbnailStorePrx getThumbnailService()
 		throws DSOutOfServiceException, DSAccessException 
 	{ 
 		String currentService = "ThumbnailStore";
 		try
 		{
-			ThumbnailStorePrx thumbnailStore = getSession().createThumbnailStore();
-			return thumbnailStore;
+			synchronized(serviceMap)
+			{
+				ThumbnailStorePrx thumbnailStore = session.createThumbnailStore();
+				return thumbnailStore;
+			}
 		}
 		catch (ServerError e)
 		{
@@ -384,37 +506,16 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized RawFileStorePrx getRawFileService()
+	public RawFileStorePrx getRawFileService()
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		String currentService = "RawFileStore";
+		String currentService = RawFileStore;
 		try
 		{
-			return getSession().createRawFileStore();
-		}
-		catch (ServerError e)
-		{
-			ServiceUtilities.handleException(e, statefulServiceAccessException + currentService);
-		}
-		return null;
-	}
-
-	/**
-	 * Returns the {@link RenderingEngine Rendering service}.
-	 * 
-	 * @return See above.
-	 * @throws DSOutOfServiceException 
-	 * @throws DSAccessException 
-	 */
-	public synchronized RenderingEnginePrx getRenderingService()
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		String currentService = "RenderingEngine";
-		RenderingEnginePrx engine;
-		try
-		{
-			engine = getSession().createRenderingEngine();
-			return engine;
+			synchronized(serviceMap)
+			{
+				return session.createRawFileStore();
+			}
 		}
 		catch (ServerError e)
 		{
@@ -430,14 +531,17 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized RawPixelsStorePrx getPixelsStore()
+	public RawPixelsStorePrx getPixelsStore()
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		String currentService = "PixelsStore";
+		String currentService = PixelsStore;
 		try
 		{
-			RawPixelsStorePrx pixelsStore =  getSession().createRawPixelsStore();
-			return pixelsStore;
+			synchronized(serviceMap)
+			{
+				RawPixelsStorePrx pixelsStore =  session.createRawPixelsStore();
+				return pixelsStore;
+			}
 		}
 		catch (ServerError e)
 		{
@@ -453,33 +557,30 @@ class BlitzGateway
 	 * @throws DSOutOfServiceException 
 	 * @throws DSAccessException 
 	 */
-	public synchronized ITypesPrx getTypesService() 
+	public ITypesPrx getTypesService() 
 	throws DSOutOfServiceException, DSAccessException 
 	{ 
-		String currentService = "ITypeService";
+		String currentService = ITypeService;
 		try
 		{
-			return getSession().getTypesService();
+			synchronized(serviceMap)
+			{
+				if(serviceMap.containsKey(currentService))
+					return (ITypesPrx)serviceMap.get(currentService);
+				else
+				{
+					ITypesPrx service = 
+						session.getTypesService();
+					serviceMap.put(currentService, service);
+					return service;
+				}
+			}
 		}
 		catch (ServerError e)
 		{
 			ServiceUtilities.handleException(e, statelessServiceAccessException + currentService);
 		}
 		return null;
-	}
-	
-		
-	/**
-	 * Returns <code>true</code> if the passed group is an experimenter group
-	 * internal to OMERO, <code>false</code> otherwise.
-	 * 
-	 * @param group The experimenter group to handle.
-	 * @return See above.
-	 */
-	private boolean isSystemGroup(ExperimenterGroup group)
-	{
-		String n = group.name.val;
-		return ("system".equals(n) || "user".equals(n) || "default".equals(n));
 	}
 			
 	/** 

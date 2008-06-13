@@ -51,12 +51,18 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  */
 public interface ImageService
 {	
-	
 	/**
-	 * Get the raw plane from the server with id imageID, and channels, c, timepoint
+	 * Keep service alive.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+
+	/**
+	 * Get the raw plane from the server with id pixelsId, and channels, c, timepoint
 	 * t, and z-section z. This is the plane as bytes, not converted to doubles.
 	 * 
-	 * @param imageID see above.
+	 * @param pixelsId see above.
 	 * @param c see above.
 	 * @param t see above.
 	 * @param z see above.
@@ -64,14 +70,14 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public byte[] getRawPlane(long imageID, int z, int c, int t) 
+	public byte[] getRawPlane(long pixelsId, int z, int c, int t) 
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Get the plane from the server with id imageID, and channels, c, timepoint
+	 * Get the plane from the server with id pixelsId, and channels, c, timepoint
 	 * t, and z-section z. This is the plane converted to doubles.
 	 * 
-	 * @param imageID see above.
+	 * @param pixelsId see above.
 	 * @param z see above.
 	 * @param c see above.
 	 * @param t see above.
@@ -79,7 +85,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public double[][] getPlane(long imageID, int z, int c, int t) 
+	public double[][] getPlane(long pixelsId, int z, int c, int t) 
 	throws DSOutOfServiceException, DSAccessException;
 	
 	/**

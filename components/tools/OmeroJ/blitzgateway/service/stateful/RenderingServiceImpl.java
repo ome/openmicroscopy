@@ -28,12 +28,14 @@ package blitzgateway.service.stateful;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import blitzgateway.service.gateway.GatewayFactory;
+import blitzgateway.service.gateway.RawFileStoreGateway;
 import blitzgateway.service.gateway.RenderingEngineGateway;
 
 import omero.model.Pixels;
@@ -89,7 +91,7 @@ public class RenderingServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	private synchronized RenderingEngineGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	private RenderingEngineGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -111,7 +113,7 @@ public class RenderingServiceImpl
 	 * @param pixelsId see above.
 	 * @return see above.
 	 */
-	public synchronized boolean containsGateway(long pixelsId)
+	public boolean containsGateway(long pixelsId)
 	{
 		synchronized(gatewayMap)
 		{
@@ -126,7 +128,7 @@ public class RenderingServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public synchronized boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -329,6 +331,20 @@ public class RenderingServiceImpl
 			}
 		return data;
 	}
+	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		Iterator<RenderingEngineGateway> gatewayIterator = gatewayMap.values().iterator();
+		while(gatewayIterator.hasNext())
+		{
+			RenderingEngineGateway gateway = gatewayIterator.next();
+			gateway.keepAlive();
+		}
+	}
+
 }
 
 

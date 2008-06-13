@@ -63,6 +63,13 @@ public class RenderingEngineGatewayImpl
 	/** The RenderingEngine Proxy from Ice. */
 	private RenderingEnginePrx 	service;
 	
+	/**
+	 * Create the RenderingEngine for the pixelsId and get the service from the gateway.
+	 * @param pixelsId see above.
+	 * @param gateway see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	RenderingEngineGatewayImpl(Long pixelsId, BlitzGateway gateway) 
 						throws DSOutOfServiceException, DSAccessException
 	{
@@ -329,7 +336,13 @@ public class RenderingEngineGatewayImpl
 			ServiceUtilities.handleException(e,"Unable to call setCompressionLevel on Pixels : " + pixelsId);
 		}
 	}
-	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		blitzGateway.keepAlive(service);
+	}
 		
 }
 

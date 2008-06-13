@@ -48,7 +48,8 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  * @since OME3.0
  */
 public interface ThumbnailGateway
-{	
+{		
+	void keepAlive() throws  DSOutOfServiceException, DSAccessException;
 	/**
 	 * Set the rendering def from the default to antoher.
 	 * @param renderingDefId see above.

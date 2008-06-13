@@ -47,7 +47,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  */
 public class GatewayFactory
 {	 
-	/** The blitzgateway for this session. */
+	/** The Blitzgateway for this session. */
 	private BlitzGateway 			blitzGateway;
 	
 	/** The IPixelsGateway for this session. */
@@ -71,6 +71,8 @@ public class GatewayFactory
 	/** The RawPixelsStoreGateway for this session. */
 	private RawPixelsStoreGateway 	rawPixelsStoreGateway;
 		
+	private String statefulServiceLock;
+	
 	/**
 	 * Create the blitzGateway object and instantiate the service gateways.
 	 * @param iceConfig ice config.
@@ -80,13 +82,8 @@ public class GatewayFactory
 	public GatewayFactory(String iceConfig) 
 			throws DSOutOfServiceException, DSAccessException 
 	{
+		statefulServiceLock = new String("RenderingEngine/Thumbnail ServiceLock");
 		blitzGateway = new BlitzGateway(iceConfig);
-		iPixelsGateway = new IPixelsGatewayImpl(blitzGateway);
-		iPojoGateway = new IPojoGatewayImpl(blitzGateway);
-		iScriptGateway = new IScriptGatewayImpl(blitzGateway);
-		iQueryGateway = new IQueryGatewayImpl(blitzGateway);
-		iUpdateGateway = new IUpdateGatewayImpl(blitzGateway);
-		iTypeGateway = new ITypeGatewayImpl(blitzGateway);
 	}
 
 	/**
@@ -100,6 +97,12 @@ public class GatewayFactory
 						throws DSOutOfServiceException, DSAccessException
 	{
 		blitzGateway.createSession(user, password);
+		iPixelsGateway = new IPixelsGatewayImpl(blitzGateway);
+		iPojoGateway = new IPojoGatewayImpl(blitzGateway);
+		iScriptGateway = new IScriptGatewayImpl(blitzGateway);
+		iQueryGateway = new IQueryGatewayImpl(blitzGateway);
+		iUpdateGateway = new IUpdateGatewayImpl(blitzGateway);
+		iTypeGateway = new ITypeGatewayImpl(blitzGateway);
 	}
 	
 	/** Close the connection to the blitz server. */
@@ -133,10 +136,13 @@ public class GatewayFactory
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public synchronized RenderingEngineGateway getRenderingEngineGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public RenderingEngineGateway getRenderingEngineGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
-		RenderingEngineGateway renderingEngine = new RenderingEngineGatewayImpl(pixelsId, blitzGateway);
-		return renderingEngine;
+		//synchronized(statefulServiceLock)
+		{
+			RenderingEngineGateway renderingEngine = new RenderingEngineGatewayImpl(pixelsId, blitzGateway);
+			return renderingEngine;
+		}
 	}
 	
 	/**
@@ -146,7 +152,7 @@ public class GatewayFactory
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public synchronized RawFileStoreGateway getRawFileStoreGateway(Long fileId) throws DSOutOfServiceException, DSAccessException
+	public RawFileStoreGateway getRawFileStoreGateway(Long fileId) throws DSOutOfServiceException, DSAccessException
 	{
 		RawFileStoreGateway rawFileStoreGateway = new RawFileStoreGatewayImpl(fileId, blitzGateway);
 		return rawFileStoreGateway;
@@ -159,7 +165,7 @@ public class GatewayFactory
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public synchronized RawPixelsStoreGateway getRawPixelsStoreGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public RawPixelsStoreGateway getRawPixelsStoreGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
 		RawPixelsStoreGateway rawPixelsStoreGateway = new RawPixelsStoreGatewayImpl(pixelsId, blitzGateway);
 		return rawPixelsStoreGateway;
@@ -172,10 +178,13 @@ public class GatewayFactory
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public synchronized ThumbnailGateway getThumbnailGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public ThumbnailGateway getThumbnailGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
-		ThumbnailGateway thumbnailGateway = new ThumbnailGatewayImpl(pixelsId, blitzGateway);
-		return thumbnailGateway;
+		//synchronized(statefulServiceLock)
+		{
+			ThumbnailGateway thumbnailGateway = new ThumbnailGatewayImpl(pixelsId, blitzGateway);
+			return thumbnailGateway;
+		}
 	}
 
 	/**
@@ -230,6 +239,11 @@ public class GatewayFactory
 	public ITypeGateway getITypeGateway()
 	{
 		return iTypeGateway;
+	}
+	
+	public void keepAlive()
+	{
+		blitzGateway.keepAlive();
 	}
 
 }

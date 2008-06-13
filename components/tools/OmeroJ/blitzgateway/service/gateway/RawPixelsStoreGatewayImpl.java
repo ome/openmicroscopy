@@ -29,7 +29,6 @@ package blitzgateway.service.gateway;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -53,12 +52,22 @@ class RawPixelsStoreGatewayImpl
 	implements RawPixelsStoreGateway
 {	
 	
+	/** The blitzgateway. */
 	private BlitzGateway blitzGateway;
 	
+	/** The PixelsId this PixelsStore accesses. */
 	private long		pixelsId;
 	
+	/** The PixelsStore of the service.*/
 	private RawPixelsStorePrx service;
 	
+	/**
+	 * Create the pixelsStore for the pixelsId and get the service from the gateway.
+	 * @param pixelsId see above.
+	 * @param gateway see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	RawPixelsStoreGatewayImpl(long pixelsId, BlitzGateway gateway) throws DSOutOfServiceException, DSAccessException
 	{
 		blitzGateway = gateway;
@@ -259,6 +268,15 @@ class RawPixelsStoreGatewayImpl
 		{
 			ServiceUtilities.handleException(e, "RawPixelsStore.setPlane");
 		}
+	}
+
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		blitzGateway.keepAlive(service);
 	}
 	
 }

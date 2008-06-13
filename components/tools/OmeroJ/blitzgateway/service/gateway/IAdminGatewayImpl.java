@@ -55,8 +55,13 @@ import blitzgateway.util.ServiceUtilities;
 public class IAdminGatewayImpl 
 	implements IAdminGateway
 {	
+	/** The blitzgateway. */
 	private BlitzGateway blitzGateway;
 	
+	/**
+	 * Admin Gateway. 
+	 * @param gateway
+	 */
 	IAdminGatewayImpl(BlitzGateway gateway)
 	{
 		blitzGateway = gateway;

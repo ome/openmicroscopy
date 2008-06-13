@@ -87,7 +87,10 @@ class DataServiceImpl
 	
 	/**
 	 * Constructor for the DataService Implementation.
-	 * @param gateway blitz gateway object.
+	 * @param pojo IPojo gateway object.
+	 * @param gateway IQueryGateway gateway object.
+	 * @param gateway ITypeGateway gateway object.
+	 * @param gateway IPojo gateway object.
 	 */
 	DataServiceImpl(IPojoGateway pojo, IQueryGateway query, ITypeGateway type, IUpdateGateway update)
 	{
@@ -328,10 +331,69 @@ class DataServiceImpl
 		List<Image> imageList = (List<Image>) findAllByQuery(datasetQuery);
 		return imageList;
 	}
-	
-	
-	
 
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#deleteObject(omero.model.IObject)
+	 */
+	public void deleteObject(IObject row) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		iUpdateGateway.deleteObject(row);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#saveAndReturnArray(java.util.List)
+	 */
+	public <T extends IObject> List<T> saveAndReturnArray(List<IObject> graph)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return iUpdateGateway.saveAndReturnArray(graph);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#saveAndReturnObject(omero.model.IObject)
+	 */
+	public IObject saveAndReturnObject(IObject obj)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		return iUpdateGateway.saveAndReturnObject(obj);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#saveArray(java.util.List)
+	 */
+	public void saveArray(List<IObject> graph) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		iUpdateGateway.saveArray(graph);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#saveObject(omero.model.IObject)
+	 */
+	public void saveObject(IObject obj) throws DSOutOfServiceException,
+			DSAccessException
+	{
+		iUpdateGateway.saveObject(obj);
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#getUserName()
+	 */
+	public String getUserName()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.DataService#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		
+	}
+	
 }
 
 

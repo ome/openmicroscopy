@@ -26,6 +26,7 @@ package blitzgateway.service.stateful;
 
 //Java imports
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,8 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 import blitzgateway.service.gateway.GatewayFactory;
+import blitzgateway.service.gateway.RawFileStoreGateway;
+import blitzgateway.service.gateway.RenderingEngineGateway;
 import blitzgateway.service.gateway.ThumbnailGateway;
 
 /** 
@@ -70,7 +73,9 @@ public class ThumbnailServiceImpl
 	/** batch service for batch thumbnail calls. */
 	private ThumbnailGateway batchService;
 	
+	/** The lock for the batch Service. */
 	private String batchServiceLock;
+	
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gatewayFactory To generate new instances of the 
@@ -87,7 +92,15 @@ public class ThumbnailServiceImpl
 		batchServiceLock = new String("batchServiceLock");
 	}
 
-	private synchronized ThumbnailGateway getBatchService(Long id) throws DSOutOfServiceException, DSAccessException
+	/**
+	 * Get the batch service for the ThumbnailService. This is the service which
+	 * will retrieve batches of thumbnails.
+	 * @param id see above.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	private ThumbnailGateway getBatchService(Long id) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(batchServiceLock)
 		{
@@ -105,7 +118,7 @@ public class ThumbnailServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	private synchronized ThumbnailGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	private ThumbnailGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -127,7 +140,7 @@ public class ThumbnailServiceImpl
 	 * @param pixelsId see above.
 	 * @return see above.
 	 */
-	public synchronized boolean containsGateway(long pixelsId)
+	public boolean containsGateway(long pixelsId)
 	{
 		synchronized(gatewayMap)
 		{
@@ -142,7 +155,7 @@ public class ThumbnailServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public synchronized boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -220,6 +233,19 @@ public class ThumbnailServiceImpl
 		synchronized(gateway)
 		{
 			gateway.setRenderingDefId(renderingDefId);
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		Iterator<ThumbnailGateway> gatewayIterator = gatewayMap.values().iterator();
+		while(gatewayIterator.hasNext())
+		{
+			ThumbnailGateway gateway = gatewayIterator.next();
+			gateway.keepAlive();
 		}
 	}
 

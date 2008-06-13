@@ -50,6 +50,13 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 public interface ThumbnailService
 {	
 	/**
+	 * Keep service alive.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+
+	/**
 	 * Set the rendering def from the default to another.
 	 * @param pixelsId for pixelsId 
 	 * @param renderingDefId see above.

@@ -67,6 +67,14 @@ public class ThumbnailGatewayImpl
 	/** The ThumbNail Proxy from Ice. */
 	private ThumbnailStorePrx 	service;
 	
+
+	/**
+	 * Create the ThumbnailService for the pixelsId and get the service from the gateway.
+	 * @param pixelsId see above.
+	 * @param gateway see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	ThumbnailGatewayImpl(Long pixelsId, BlitzGateway gateway) 
 						throws DSOutOfServiceException, DSAccessException
 	{
@@ -177,7 +185,14 @@ public class ThumbnailGatewayImpl
 		{
 			ServiceUtilities.handleException(e, "setRenderingDefId for pixelsId : " + pixelsId);
 		}
-	}	
+	}
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		blitzGateway.keepAlive(service);
+	}
 
 }
 

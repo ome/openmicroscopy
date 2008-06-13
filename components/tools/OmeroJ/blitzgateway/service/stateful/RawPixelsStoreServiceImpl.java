@@ -26,6 +26,7 @@ package blitzgateway.service.stateful;
 
 //Java imports
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 //Third-party libraries
@@ -35,6 +36,7 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 import blitzgateway.service.gateway.GatewayFactory;
+import blitzgateway.service.gateway.RawFileStoreGateway;
 import blitzgateway.service.gateway.RawPixelsStoreGateway;
 
 /** 
@@ -83,7 +85,7 @@ public class RawPixelsStoreServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	private synchronized RawPixelsStoreGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	private RawPixelsStoreGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -105,7 +107,7 @@ public class RawPixelsStoreServiceImpl
 	 * @param pixelsId see above.
 	 * @return see above.
 	 */
-	public synchronized boolean containsGateway(long pixelsId)
+	public boolean containsGateway(long pixelsId)
 	{
 		synchronized(gatewayMap)
 		{
@@ -120,7 +122,7 @@ public class RawPixelsStoreServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public synchronized boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -261,6 +263,19 @@ public class RawPixelsStoreServiceImpl
 		synchronized(gateway)
 		{
 			gateway.setPlane(buf, z, c, t);		
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		Iterator<RawPixelsStoreGateway> gatewayIterator = gatewayMap.values().iterator();
+		while(gatewayIterator.hasNext())
+		{
+			RawPixelsStoreGateway gateway = gatewayIterator.next();
+			gateway.keepAlive();
 		}
 	}
 

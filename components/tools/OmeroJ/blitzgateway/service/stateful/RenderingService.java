@@ -50,7 +50,13 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  */
 public interface RenderingService
 {	
-	
+	/**
+	 * Keep service alive.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+
 	/**
 	 * Render image as Buffered image. 
 	 * @param pixelsId pixels id of the plane to render

@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import omero.RLong;
 import omero.RObject;
+import omero.api.IAdminPrx;
 import omero.api.IPixelsPrx;
 import omero.model.IObject;
 import omero.model.Pixels;
@@ -202,6 +203,9 @@ class IPixelsGatewayImpl
 		}
 		return null;
 	}
+
+	
+	
 }
 
 

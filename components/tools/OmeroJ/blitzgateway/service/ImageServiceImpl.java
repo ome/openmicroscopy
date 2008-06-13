@@ -536,6 +536,15 @@ class ImageServiceImpl
 		return iPixels.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, name, description);
 	}
 
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		renderingService.keepAlive();
+		thumbnailService.keepAlive();
+	}
+
 
 }
 

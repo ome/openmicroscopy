@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  */
 public interface RawFileStoreGateway
 {	
+	void keepAlive() throws DSOutOfServiceException, DSAccessException;
 	/**
 	 * Set the FileId of the rawFile store.
 	 * @param fileId

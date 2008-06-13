@@ -55,8 +55,13 @@ class IUpdateGatewayImpl
 	implements IUpdateGateway
 {
 
+	/** The BlitzGateway. */
 	private BlitzGateway blitzGateway;
 	
+	/**
+	 * The constructor for the IUpdate Gateway.
+	 * @param gateway the blitzGateway.
+	 */
 	IUpdateGatewayImpl(BlitzGateway gateway)
 	{
 		blitzGateway = gateway;
@@ -148,6 +153,7 @@ class IUpdateGatewayImpl
 			ServiceUtilities.handleException(e, "Cannot save Object.");
 		}
 	}
+
 
 
 }

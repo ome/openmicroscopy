@@ -22,21 +22,23 @@
  */
 package blitzgateway.service.stateful;
 
+
+
+//Java imports
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 import blitzgateway.service.gateway.GatewayFactory;
 import blitzgateway.service.gateway.RawFileStoreGateway;
+import blitzgateway.service.gateway.RawPixelsStoreGateway;
 import blitzgateway.service.gateway.RenderingEngineGateway;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -84,7 +86,7 @@ public class RawFileStoreServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	private synchronized RawFileStoreGateway getGateway(Long fileId) throws DSOutOfServiceException, DSAccessException
+	private RawFileStoreGateway getGateway(Long fileId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -106,7 +108,7 @@ public class RawFileStoreServiceImpl
 	 * @param fileId see above.
 	 * @return see above.
 	 */
-	public synchronized boolean containsGateway(long fileId)
+	public boolean containsGateway(long fileId)
 	{
 		synchronized(gatewayMap)
 		{
@@ -121,7 +123,7 @@ public class RawFileStoreServiceImpl
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public synchronized boolean closeGateway(long fileId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long fileId) throws DSOutOfServiceException, DSAccessException
 	{
 		synchronized(gatewayMap)
 		{
@@ -171,6 +173,19 @@ public class RawFileStoreServiceImpl
 		synchronized(gateway)
 		{
 			gateway.write(buf, position, length);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
+	 */
+	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	{
+		Iterator<RawFileStoreGateway> gatewayIterator = gatewayMap.values().iterator();
+		while(gatewayIterator.hasNext())
+		{
+			RawFileStoreGateway gateway = gatewayIterator.next();
+			gateway.keepAlive();
 		}
 	}
 

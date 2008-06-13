@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  */
 public interface RenderingEngineGateway
 {	
+	void keepAlive() throws  DSOutOfServiceException, DSAccessException;
 	/**
 	 * Render as a packedInt 
 	 * @param z z section to render
@@ -169,6 +170,7 @@ public interface RenderingEngineGateway
 	 * @throws DSAccessException
 	 */
 	float getCompressionLevel() throws  DSOutOfServiceException, DSAccessException;
+
 
 	/* 
 	 * RenderingEngine java to ICE Mappings from the API.ice slice definition.

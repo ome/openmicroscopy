@@ -57,9 +57,13 @@ import blitzgateway.util.ServiceUtilities;
 class IPojoGatewayImpl
 	implements IPojoGateway
 {
-
+	/** The BlitzGateway. */
 	private BlitzGateway blitzGateway;
 	
+	/**
+	 * The constructor for the IPojos Gateway.
+	 * @param gateway the blitzGateway.
+	 */
 	IPojoGatewayImpl(BlitzGateway gateway)
 	{
 		blitzGateway = gateway;
@@ -104,6 +108,7 @@ class IPojoGatewayImpl
 		}
 		return new ArrayList<T>();
 	}
+
 	
 }
 

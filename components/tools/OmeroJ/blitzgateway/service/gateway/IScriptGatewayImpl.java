@@ -53,8 +53,13 @@ import blitzgateway.util.ServiceUtilities;
 public class IScriptGatewayImpl
 	implements IScriptGateway
 {
+	/**The BlitzGateway. */
 	private BlitzGateway blitzGateway;
 	
+	/**
+	 * The constructor for the IScript Gateway.
+	 * @param gateway the blitzGateway.
+	 */
 	IScriptGatewayImpl(BlitzGateway gateway)
 	{
 		blitzGateway = gateway;
@@ -123,7 +128,7 @@ public class IScriptGatewayImpl
 		IScriptPrx scriptService = blitzGateway.getScriptService();
 		try
 		{
-			scriptService.getScriptID(name);
+			return scriptService.getScriptID(name);
 		}
 		catch(Exception e)
 		{
@@ -185,7 +190,7 @@ public class IScriptGatewayImpl
 			ServiceUtilities.handleException(e, "cannot get upload script.");
 		}
 		return -1;
-	}	
+	}
 
 }
 

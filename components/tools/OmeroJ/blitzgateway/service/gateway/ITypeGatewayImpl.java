@@ -53,9 +53,13 @@ import blitzgateway.util.ServiceUtilities;
 public class ITypeGatewayImpl
 	implements ITypeGateway
 {	
-	
+	/** The Blitzgateway. */
 	private BlitzGateway blitzGateway;
 	
+	/**
+	 * The constructor for the IType Gateway.
+	 * @param gateway the blitzGateway.
+	 */
 	ITypeGatewayImpl(BlitzGateway gateway)
 	{
 		blitzGateway = gateway;
@@ -75,6 +79,7 @@ public class ITypeGatewayImpl
 		}
 		return null;
 	}
+
 }
 
 
