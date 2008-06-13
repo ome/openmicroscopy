@@ -545,6 +545,19 @@ class ImageServiceImpl
 		thumbnailService.keepAlive();
 	}
 
+	/* (non-Javadoc)
+	 * @see omeroj.service.ImageService#getStack(long, int)
+	 */
+	public double[][][] getPlaneStack(long pixelsId, int c, int t)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		Pixels pixels = getPixels(pixelsId);
+		double[][][] stack = new double[pixels.sizeZ.val][pixels.sizeX.val][pixels.sizeY.val];
+		for(int z = 0 ; z < pixels.sizeZ.val ; z++)
+			stack[z] = getPlane(pixelsId, z, c, t);
+		return stack;
+	}
+
 
 }
 

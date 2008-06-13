@@ -135,7 +135,6 @@ public interface RawPixelsStoreGateway
 	 */
 	boolean isFloat() throws  DSOutOfServiceException, DSAccessException;
 
-	
 	/*
 	 * 
 	 * RawPixelsStore java to ICE Mappings from the API.ice slice definition.

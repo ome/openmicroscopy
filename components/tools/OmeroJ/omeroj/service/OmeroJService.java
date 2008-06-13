@@ -566,6 +566,21 @@ public class OmeroJService
 	}	
 	
 	/**
+	 * Get the zSection stack from the pixels at timepoint t
+	 * @param pixelId The pixelsId from the imageStack.
+	 * @param c The channel.
+	 * @param t The time-point.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public double[][][] getPlaneStack(long pixelId, int c, int t) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return imageService.getPlaneStack(pixelId, c, t);
+	}
+	
+	/**
 	 * Render the pixels for the zSection z and timePoint t. 
 	 * @param pixelsId pixels id of the plane to render
 	 * @param z z section to render

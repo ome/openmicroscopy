@@ -74,6 +74,18 @@ public interface ImageService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Get the zSection stack from the pixels at timepoint t
+	 * @param pixelsId The pixelsId from the imageStack.
+	 * @param c The channel.
+	 * @param t The time-point.
+	 * @return see above.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public double[][][] getPlaneStack(long pixelsId, int c, int t)
+			throws DSOutOfServiceException, DSAccessException;
+	
+	/**
 	 * Get the plane from the server with id pixelsId, and channels, c, timepoint
 	 * t, and z-section z. This is the plane converted to doubles.
 	 * 
