@@ -44,6 +44,7 @@ import ome.testing.FileUploader;
 import org.hibernate.Session;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.util.ResourceUtils;
 import org.testng.annotations.Test;
 
 public class FullTextTest extends AbstractTest {
@@ -393,6 +394,13 @@ public class FullTextTest extends AbstractTest {
         list = iQuery.findAllByFullText(Image.class, "secret*", null);
         assertTrue("secret.*", list.size() >= 1);
 
+    }
+
+    public void testPossiblyCorruptPdf() throws Exception {
+        File article = ResourceUtils.getFile("classpath:gantt_article.pdf");
+        FileUploader uploader = new FileUploader(factory, article);
+        uploader.run();
+        iUpdate.indexObject(new OriginalFile(uploader.getId(), false));
     }
 
     // Helpers

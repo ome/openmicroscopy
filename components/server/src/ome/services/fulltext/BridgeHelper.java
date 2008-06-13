@@ -57,7 +57,7 @@ public abstract class BridgeHelper implements FieldBridge,
 
     private final Log log = LogFactory.getLog(getClass());
 
-    private ApplicationEventPublisher publisher;
+    protected ApplicationEventPublisher publisher;
 
     public final Log logger() {
         return log;
@@ -207,6 +207,9 @@ public abstract class BridgeHelper implements FieldBridge,
         if (publisher == null) {
             throw new ApiUsageException(
                     "Bridge is not configured for sending messages.");
+        }
+        if (object == null || object.getId() == null) {
+            throw new ApiUsageException("Object cannot be null");
         }
         final ReindexMessage<T> rm = new ReindexMessage<T>(this, object);
         publisher.publishEvent(rm);

@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -60,7 +61,8 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * making use of the {@link #query()} method. Used to implement the default
      * {@link #rollback(EventLog)} mechanism.
      */
-    protected final List<EventLog> backlog = new ArrayList<EventLog>();
+    protected final List<EventLog> backlog = Collections
+            .synchronizedList(new ArrayList<EventLog>());
 
     private EventLog log;
 
@@ -109,8 +111,10 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
             count = -1;
         }
 
-        if (backlog.size() > 0) {
-            return backlog.remove(0);
+        synchronized (backlog) {
+            if (backlog.size() > 0) {
+                return backlog.remove(0);
+            }
         }
 
         // already loaded by call to hasNext() above

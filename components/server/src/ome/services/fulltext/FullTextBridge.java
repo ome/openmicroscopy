@@ -13,6 +13,7 @@ import java.util.Map;
 
 import ome.io.nio.OriginalFilesService;
 import ome.model.IAnnotated;
+import ome.model.ILink;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
@@ -165,6 +166,12 @@ public class FullTextBridge extends BridgeHelper {
             final Document document, final Field.Store store,
             final Field.Index index, final Float boost) {
 
+        if (object instanceof ILink) {
+            ILink link = (ILink) object;
+            if (link.getChild() instanceof Annotation) {
+                reindex(link.getParent());
+            }
+        }
         if (object instanceof IAnnotated) {
             IAnnotated annotated = (IAnnotated) object;
             List<Annotation> list = annotated.linkedAnnotationList();
@@ -306,6 +313,10 @@ public class FullTextBridge extends BridgeHelper {
                 FieldBridge bridge = null;
                 try {
                     bridge = bridgeClass.newInstance();
+                    if (bridge instanceof BridgeHelper) {
+                        BridgeHelper helper = (BridgeHelper) bridge;
+                        helper.setApplicationEventPublisher(publisher);
+                    }
                     bridge.set(name, object, document, store, index, boost);
                 } catch (Exception e) {
                     final String msg = String

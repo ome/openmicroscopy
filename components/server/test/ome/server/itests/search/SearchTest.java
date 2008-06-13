@@ -138,8 +138,8 @@ public class SearchTest extends AbstractTest {
         list = this.iQuery.findAllByFullText(Image.class, uuid, null);
         assertTrue(list.toString(), list.size() == 1);
 
-        list = this.iQuery.findAllByFullText(Image.class, "some*" + uuid + "*",
-                null);
+        list = this.iQuery.findAllByFullText(Image.class, "\"some*" + uuid
+                + "*\"", null);
         assertTrue(list.toString(), list.size() == 1);
 
         list = this.iQuery.findAllByFullText(Image.class, "tag:" + uuid, null);
@@ -2325,6 +2325,36 @@ public class SearchTest extends AbstractTest {
 
         search.onlyType(FileAnnotation.class);
         search.byFullText("file.name:" + uuid);
+        assertResults(search, 1);
+
+    }
+
+    @Test
+    public void testAttachingAnnotationAfterTheFact() throws Exception {
+
+        String name = uuid();
+        String tag = uuid();
+        Image i = new Image(name);
+        i = iUpdate.saveAndReturnObject(i);
+        iUpdate.indexObject(i);
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.byFullText(name);
+        assertResults(search, 1);
+
+        TagAnnotation ta = new TagAnnotation();
+        ta.setTextValue(tag);
+        ImageAnnotationLink link = new ImageAnnotationLink(new Image(i.getId(),
+                false), ta);
+        link = iUpdate.saveAndReturnObject(link);
+        iUpdate.indexObject(link);
+        // This indexing should cause another object be added to
+        // PersistentEventLogLoader
+        // For that to work we need to run FullTextThread once.
+        ((Runnable) this.applicationContext.getBean("fullTextThread")).run();
+
+        search.byFullText(tag);
         assertResults(search, 1);
 
     }
