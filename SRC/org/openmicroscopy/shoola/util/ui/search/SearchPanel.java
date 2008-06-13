@@ -868,17 +868,18 @@ class SearchPanel
         c.gridy++;
 		p.add(buildTimeRange(), c);
 		
-		UIUtilities.setBoldTitledBorder(DATE_TITLE, p);
-		return p;//panel;
+		JPanel panel = UIUtilities.buildComponentPanel(p);
+		UIUtilities.setBoldTitledBorder(DATE_TITLE, panel);
+		return panel;
 	}
 
-	TreeComponent tree = new TreeComponent();
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		//JPanel content = new JPanel();
 		//content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-		
+		TreeComponent tree = new TreeComponent();
 		tree.insertNode(buildSearchFor(), 
 							UIUtilities.buildCollapsePanel(SEARCH_TITLE));
 		buildType();
@@ -1153,9 +1154,6 @@ class SearchPanel
 		if (otherOwners.containsKey(userID)) return;
 		otherOwners.put(userID, name);
 		layoutOtherOwners();
-		
-		tree.validate();
-		tree.repaint();
 		validate();
 		repaint();
 	}

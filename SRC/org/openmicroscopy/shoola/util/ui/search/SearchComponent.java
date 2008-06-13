@@ -355,7 +355,6 @@ public class SearchComponent
 		String[] some = uiDelegate.getSome();
 		String[] must = uiDelegate.getMust();
 		String[] none = uiDelegate.getNone();
-	
 		List<Integer> scope = uiDelegate.getScope();
 		SearchContext ctx = new SearchContext(some, must, none, scope);
 		int index = uiDelegate.getSelectedDate();

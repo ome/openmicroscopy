@@ -393,21 +393,7 @@ public class AdvancedFinder
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		Map map = (Map) result;
-		
-		/*
-		if (result instanceof Integer) {
-			JLabel l;
-			l = UIUtilities.setTextFont("Too many images matching your" +
-            " criteria.");
-			p.add(l);
-			l = UIUtilities.setTextFont("Please refine your search.");
-			p.add(l);
-			displayResult(UIUtilities.buildComponentPanel(p));
-			
-			firePropertyChange(RESULTS_FOUND_PROPERTY, null, result);
-			return;
-		}
-		*/
+
 		//Format UI component
 		Set nodes = new HashSet();
 		if (map != null) {
@@ -420,6 +406,7 @@ public class AdvancedFinder
 			DataObject data;
 			JLabel l;
 			Object value;
+			int v;
 			while (i.hasNext()) {
 				key = (Integer) i.next();
 				term = getScope(key);
@@ -427,7 +414,13 @@ public class AdvancedFinder
 					
 					value = map.get(key);
 					if (value instanceof Integer) {
-						l = UIUtilities.setTextFont(term+": Too many results.");
+						v = (Integer) value;
+						if (v < 0)
+							l = UIUtilities.setTextFont(term+": Not supported."
+									+" Refine criteria");
+						else 
+							l = UIUtilities.setTextFont(term+": " +
+									"Too many results.");
 					} else {
 						r = (Collection) value;
 						j = r.iterator();

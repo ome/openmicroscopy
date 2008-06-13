@@ -101,7 +101,9 @@ public class SearchUtil
 		List<String> l = new ArrayList<String>();
 		if (text == null) return l;
 		text = text.trim();
-		String[] r = text.split(QUOTE_SEPARATOR);
+		String pattern = SPACE_SEPARATOR;
+		if (text.contains(QUOTE_SEPARATOR)) pattern = QUOTE_SEPARATOR;
+		String[] r = text.split(pattern);
 		String value; 
 		for (int i = 0; i < r.length; i++) {
 			value = r[i];

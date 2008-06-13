@@ -187,14 +187,17 @@ public class IconManager
     /** The <code>Doc</code> icon. */
     public static int           DOC = 44;
     
-    /** The <code>Doc</code> icon. */
+    /** The <code>Tag 12</code> icon. */
     public static int           TAG_12 = 45;
+    
+    /** The <code>XML Document</code> icon. */
+    public static int           HTML_DOC = 46;
     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 45;
+	private static int          MAX_ID = 46;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -232,11 +235,12 @@ public class IconManager
         relPaths[INFO] = "nuvola_messagebox_info16.png";
         relPaths[INFO_48] = "nuvola_messagebox_info48.png";
         relPaths[PDF_DOC] = "nuvola_acroread22.png";
-        relPaths[TEXT_DOC] = "nuvola_acroread22.png";
+        relPaths[TEXT_DOC] = "nuvola_txt22.png";
         relPaths[WORD_DOC] = "alienOSX_Microsoft_Word22.png";
         relPaths[PPT_DOC] = "alienOSX_Microsoft_PowerPoint22.png";
         relPaths[EXCEL_DOC] = "alienOSX_Microsoft_Excel22.png";
-        relPaths[XML_DOC] = "nuvola_acroread22.png";
+        relPaths[XML_DOC] = "txt_xml22.png";
+        relPaths[HTML_DOC] = "txt_html22.png";
         relPaths[SAVE] = "nuvola_filesave16.png";
         relPaths[COLUMNS_VIEW] = "nuvola_view_left_right16.png";
         relPaths[UPLOAD] = "nuvola_download_manager_green_flipped16.png";

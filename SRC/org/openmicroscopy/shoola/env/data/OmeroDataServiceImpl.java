@@ -1117,7 +1117,10 @@ class OmeroDataServiceImpl
 					switch (key) {
 						case SearchDataContext.NAME:
 						case SearchDataContext.DESCRIPTION:
-						//case SearchDataContext.TAGS:
+						case SearchDataContext.TAGS:
+						case SearchDataContext.TEXT_ANNOTATION:
+						case SearchDataContext.FILE_ANNOTATION:
+						case SearchDataContext.URL_ANNOTATION:
 							images = gateway.getContainerImages(ImageData.class, 
 									value, pojoMap);
 							k = images.iterator();
@@ -1132,8 +1135,9 @@ class OmeroDataServiceImpl
 								}
 							}
 							break;
-						case SearchDataContext.TAGS:
-						case SearchDataContext.TEXT_ANNOTATION:
+						//case SearchDataContext.TAGS:
+						//case SearchDataContext.TEXT_ANNOTATION:
+							/*
 						case SearchDataContext.URL_ANNOTATION:
 							//Retrieve all the images linked to the annotation
 							if (value.size() > 0) {
@@ -1149,7 +1153,8 @@ class OmeroDataServiceImpl
 								}
 							}
 							break;
-
+							*/
+/*
 						case SearchDataContext.FILE_ANNOTATION:
 							if (value.size() > 0) {
 								List l = gateway.getFileAnnotations(value);
@@ -1175,6 +1180,7 @@ class OmeroDataServiceImpl
 									}
 								}
 							}
+							*/
 					}
 				}
 			}

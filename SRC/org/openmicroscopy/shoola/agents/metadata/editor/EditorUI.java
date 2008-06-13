@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -75,12 +76,6 @@ public class EditorUI
 {
  
 	/** 
-	 * The maximum height of the panel hosting the ui component displaying the
-	 * hierarchy.
-	 */
-	private static final double MAX_HEIGHT = 150;
-	
-	/** 
 	 * Size of the table layout used to lay out vertically components contained
 	 * in the {@link #content} component.
 	 */
@@ -88,7 +83,7 @@ public class EditorUI
 													{TableLayout.PREFERRED, 
 													TableLayout.PREFERRED, 
 													TableLayout.PREFERRED,
-													MAX_HEIGHT}};
+													TableLayout.PREFERRED}};
 	
 	/** 
 	 * Size of the table layout used to lay out as a grid components contained
@@ -98,6 +93,13 @@ public class EditorUI
 														5, TableLayout.FILL}, 
 														{TableLayout.PREFERRED, 
 														TableLayout.PREFERRED}};
+	
+	/** 
+	 * The preferred size of the browser component when we embed it in 
+	 * the editor.
+	 */
+	private static final Dimension 		MAX_SIZE = new Dimension(100, 150);
+	
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -340,6 +342,7 @@ public class EditorUI
 		Browser browser = model.getBrowser();
 		if (browser != null) {
 			JComponent comp = browser.getUI();
+			comp.setPreferredSize(MAX_SIZE);
 			JPanel collapseComponent = new JPanel();
 			
 			collapseComponent.setBorder(new TitledLineBorder("Contained in", 
@@ -618,7 +621,7 @@ public class EditorUI
 		} else {
 			//rightLayout.setRow(3, TableLayout.PREFERRED);
 			leftLayout.setRow(4, TableLayout.PREFERRED);
-			rightLayout.setRow(3, MAX_HEIGHT);
+			rightLayout.setRow(3, TableLayout.PREFERRED);
 			if (object instanceof ImageData) {
 				leftLayout.setRow(2, TableLayout.FILL);
 				leftLayout.setRow(3, TableLayout.PREFERRED);
@@ -635,7 +638,6 @@ public class EditorUI
 	    		infoUI.setExpanded(false);
 	    	}
 		}
-		
 		
 		if (topLeftPane != null) leftPane.remove(topLeftPane);
 		toolBarBottom.buildGUI();

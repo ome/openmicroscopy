@@ -3016,6 +3016,16 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+	 * Retrieves the annotations.
+	 * 
+	 * @param ids
+	 * @param userID
+	 * @param asChild
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
 	Set fetchAnnotations(List<Long> ids, long userID, boolean asChild)
 	    throws DSOutOfServiceException, DSAccessException
 	{
@@ -3101,6 +3111,27 @@ class OMEROGateway
 	}
 	
 	/**
+	 * 
+	 * @param terms
+	 * @param firstField
+	 * @param sep
+	 * @param secondField
+	 * @return
+	 */
+	private String[] formatText(String[] terms, String firstField, String sep,
+			String secondField)
+	{
+		if (terms == null || terms.length == 0) return null;
+		String[] formatted = new String[terms.length];
+		for (int i = 0; i < terms.length; i++) {
+			formatted[i] = firstField+":"+terms[i]+" "+sep+" ";
+			formatted[i] += secondField+":"+terms[i];
+			System.err.println(formatted[i]);
+		}
+		return formatted;
+	}
+	
+	/**
 	 * Searches for data.
 	 * 
 	 * @param context The context of search.
@@ -3151,7 +3182,6 @@ class OMEROGateway
 			while (i.hasNext()) {
 				exp = (ExperimenterData) i.next();
 				d = Details.create();
-				
 		        d.setOwner(exp.asExperimenter());
 		        owners.add(d);
 			}
@@ -3177,94 +3207,72 @@ class OMEROGateway
 		Object size;
 		Integer key;
 		i = scopes.iterator();
-		while (i.hasNext()) {
-			key = (Integer) i.next();
-			results.put(key, new HashSet());
-		}
+		while (i.hasNext()) 
+			results.put((Integer) i.next(), new HashSet());
+		
 		Iterator<Details> owner;
 		i = scopes.iterator();
+		String[] fSome = null, fMust = null, fNone = null;
+		String[] fSomeSec = null, fMustSec = null, fNoneSec = null;
+		service.onlyType(Image.class);
 		while (i.hasNext()) {
-			
 			key = (Integer) i.next();
-			k = convertSearchScope(key);
 			rType = (HashSet) results.get(key);
 			size = null;
-			if (k.equals(FileAnnotation.class)) {
-				service.onlyType(OriginalFile.class);
-				service.bySomeMustNone(some, must, none);
-				size = handleSearchResult(OriginalFile.class, rType, service);
-				if (!(size instanceof Integer)) {
-					service.clearQueries();
-					service.bySomeMustNone(formatText(some, "file"), 
-							formatText(must, "file"), formatText(none, "file"));
-					size = handleSearchResult(OriginalFile.class, rType, 
-												service);
-				} else results.put(key, size);
-				
-			} else if (!(k.equals(String.class))) {
-				service.onlyType(k);
-				service.bySomeMustNone(some, must, none); //formatText(some, field)
-				size = handleSearchResult(k, rType, service);
-				if (size instanceof Integer) {
-					results.put(key, size);
-				}
+			if (key == SearchDataContext.TAGS) {
+				fSome = formatText(some, "tag");
+				fMust = formatText(must, "tag");
+				fNone = formatText(none, "tag");
+			} else if (key == SearchDataContext.NAME) {
+				fSome = formatText(some, "name");
+				fMust = formatText(must, "name");
+				fNone = formatText(none, "name");
+			} else if (key == SearchDataContext.DESCRIPTION) {
+				fSome = formatText(some, "description");
+				fMust = formatText(must, "description");
+				fNone = formatText(none, "description");
+			} else if (key == SearchDataContext.FILE_ANNOTATION) {
+				fSome = formatText(some, "file.name");
+				fMust = formatText(must, "file.name");
+				fNone = formatText(none, "file.name");
+				fSomeSec = formatText(some, "file.contents");
+				fMustSec = formatText(must, "file.contents");
+				fNoneSec = formatText(none, "file.contents");
+			} else if (key == SearchDataContext.TEXT_ANNOTATION) {
+				fSome = formatText(some, "annotation", "NOT", "tag");
+				fMust = formatText(must, "annotation", "NOT", "tag");
+				fNone = formatText(none, "annotation", "NOT", "tag");
+			} else if (key == SearchDataContext.URL_ANNOTATION) {
+				fSome = formatText(some, "url");
+				fMust = formatText(must, "url");
+				fNone = formatText(none, "url");
 			}
-			
-			service.clearQueries();
-		}
-		i = scopes.iterator();
-		while (i.hasNext()) {
-			
-			key = (Integer) i.next();
-			k = convertSearchScope(key);
-			rType = (HashSet) results.get(key);
-			size = null;
-			if (k.equals(String.class)) {
-				owner = owners.iterator();
+			owner = owners.iterator();
+			if (fSome != null) {
 				while (owner.hasNext()) {
 					d = owner.next();
-					size = null;
 					service.onlyOwnedBy(d);
-					service.onlyType(Image.class);
-					if (key == SearchDataContext.NAME)
-						service.bySomeMustNone(formatText(some, "name"), 
-								formatText(must, "name"), 
-								formatText(none, "name"));
-					else 
-						service.bySomeMustNone(formatText(some, "description"), 
-							formatText(must, "description"), 
-							formatText(none, "description"));
-							
-					size = handleSearchResult(Image.class, rType, service);
-					service.clearQueries();
+					if (size == null) {
+						service.bySomeMustNone(fSome, fMust, fNone);
+						size = handleSearchResult(Image.class, rType, service);
+						if (size instanceof Integer) 
+							results.put(key, size);
+						service.clearQueries();
+						if (!(size instanceof Integer) && fSomeSec != null) {
+							service.bySomeMustNone(fSomeSec, fMustSec, 
+									fNoneSec);
+							size = handleSearchResult(Image.class, rType, 
+									service);
+							if (size instanceof Integer) 
+								results.put(key, size);
+							service.clearQueries();
+						}
+					}
 				}
 			}
-			if (size instanceof Integer) {
-				results.put(key, size);
-			}
-			service.clearQueries();
 		}
-		
 		service.close();
 		return results;
-	}
-	
-	private Class convertSearchScope(int value)
-	{
-		switch (value) {
-			case SearchDataContext.NAME:
-			case SearchDataContext.DESCRIPTION:
-				return String.class;
-			case SearchDataContext.TAGS:
-				return TagAnnotation.class;
-			case SearchDataContext.TEXT_ANNOTATION:
-				return TextAnnotation.class;
-			case SearchDataContext.URL_ANNOTATION:
-				return UrlAnnotation.class;
-			case SearchDataContext.FILE_ANNOTATION:
-				return FileAnnotation.class;
-		}
-		return null;
 	}
 	
 	/**

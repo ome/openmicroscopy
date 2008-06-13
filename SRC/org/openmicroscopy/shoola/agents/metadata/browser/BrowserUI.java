@@ -25,9 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -269,14 +266,7 @@ class BrowserUI
     private void buildGUI()
     {
     	setLayout(new BorderLayout(0, 0));
-        JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        p.setBorder(null);
-        //p.add(menuBar);
-        //p.setPreferredSize(menuBar.getPreferredSize());
-        //p.add(new JLabel("Contained in"));
-        //add(p, BorderLayout.NORTH);
-        add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
+    	add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
     }
     
     /** Creates a new instance. */
@@ -408,11 +398,7 @@ class BrowserUI
 			case VIEW:
 				controller.browser(model.getSelectedNodes());
 				break;
-	
-			default:
-				break;
 		}
-		
 	}
     
 }
