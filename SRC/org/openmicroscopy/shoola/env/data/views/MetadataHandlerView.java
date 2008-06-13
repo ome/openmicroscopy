@@ -207,18 +207,6 @@ public interface MetadataHandlerView
 										AgentEventListener observer);
 	
 	/**
-	 * Annotates the object identified by the passed type and id.
-	 * 
-	 * @param type			The type of object to annotate.
-	 * @param id			The id of the object.
-	 * @param annotation	The annotation to create.
-	 * @param observer  	Callback handler.
-     * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle annotate(Class type, long id, AnnotationData annotation,
-							AgentEventListener observer);
-	
-	/**
 	 * Loads the existing annotations defined by the annotation type
 	 * linked to a given type of object.
 	 * Loads all the annotations if the object's type is <code>null</code>.

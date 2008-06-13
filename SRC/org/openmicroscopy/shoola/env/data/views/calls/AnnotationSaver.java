@@ -309,27 +309,6 @@ public class AnnotationSaver
 				throw new IllegalArgumentException("Index not supported.");
 		}
 	}
-
-	/**
-	 * Creates a new instance.
-	 * If bad arguments are passed, we throw a runtime
-	 * exception so to fail early and in the caller's thread.
-	 * 
-	 * @param type 		The type of object to annotate.
-	 * @param id		The id of the objec to annotate.
-	 * @param data      The Annotation object. Mustn't be <code>null</code>.
-	 * @param algorithm	One of the constants defined by this class.
-	 */
-	public AnnotationSaver(Class type, long id, AnnotationData data, 
-			int algorithm)
-	{
-		if (data == null) throw new IllegalArgumentException("No annotation.");
-		switch (algorithm) {
-			case CREATE:
-				saveCall = createAnnotation(type, id, data);
-				break;
-		}
-	}
 	
 	/**
 	 * Creates a new instance.

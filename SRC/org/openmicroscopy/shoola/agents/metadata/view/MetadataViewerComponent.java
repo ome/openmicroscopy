@@ -322,7 +322,7 @@ class MetadataViewerComponent
 			dialog.addBodyComponent(p);
 			int option = dialog.centerMsgBox();
 			if (option == MessageBox.YES_OPTION) {
-				toSave.add(data);
+				//toSave.add(data);
 				if (single.isSelected()) 
 					model.fireSaving(toAdd, toRemove, toSave);
 				else

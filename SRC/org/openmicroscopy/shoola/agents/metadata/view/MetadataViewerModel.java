@@ -385,38 +385,6 @@ class MetadataViewerModel
 
 	}
 	
-	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
-							toRemove)
-	{
-		List<DataObject> toSave = new ArrayList<DataObject>();
-		Collection ref = (Collection) refObject;
-		Iterator i;
-		if (TagAnnotationData.class.equals(dataType) ||
-				DatasetData.class.equals(dataType)) {
-			i = ref.iterator();
-			while (i.hasNext()) 
-				toSave.add((DataObject) i.next());
-
-			DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
-					toRemove);
-			loader.load();
-		} else if (TimeRefObject.class.equals(dataType)) {
-			TimeRefObject refObject = null;
-			i = ref.iterator();
-			while (i.hasNext()) 
-				refObject = (TimeRefObject) i.next();
-			DataBatchSaver loader = new DataBatchSaver(component, refObject, 
-					toAdd, toRemove);
-			loader.load();
-		} else {
-			i = ref.iterator();
-			while (i.hasNext()) 
-				toSave.add((DataObject) i.next());
-			fireSaving(toAdd, toRemove, toSave);
-		}
-
-	}
-	
 	/** 
 	 * Sets to <code>true</code> if the model is in single mode,
 	 * to <code>false</code> otherwise.
