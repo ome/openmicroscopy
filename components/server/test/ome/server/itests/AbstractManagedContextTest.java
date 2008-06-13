@@ -183,7 +183,7 @@ public class AbstractManagedContextTest extends
     }
 
     protected String uuid() {
-        return UUID.randomUUID().toString();
+        return UUID.randomUUID().toString().replaceAll("-", "DASH");
     }
 
     protected Pixels makePixels() {

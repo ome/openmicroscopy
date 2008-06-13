@@ -23,6 +23,8 @@
         id="internal:ome.api.Search"
      class="ome.services.SearchBean">
      <property name="executor" ref="executor"/>
+     <property name="analyzer" value="${omero.search.analyzer}"/>
+     <property name="maxClauseCount" value="${omero.search.maxclause}"/>
   </bean>
 
   <bean id="managed:ome.api.Search" parent="selfManagingService" singleton="false">

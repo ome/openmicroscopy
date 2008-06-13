@@ -9,6 +9,8 @@ package ome.services.search;
 
 import ome.conditions.ApiUsageException;
 
+import org.apache.lucene.analysis.Analyzer;
+
 /**
  * {@link FullText} subclass which
  * {@link #parse(String[], String[], String[]) parses} 3 arrays of strings into
@@ -28,8 +30,8 @@ public class SomeMustNone extends FullText {
     private final String[] none;
 
     public SomeMustNone(SearchValues values, String[] some, String[] must,
-            String[] none) {
-        super(values, parse(some, must, none));
+            String[] none, Class<? extends Analyzer> analyzer) {
+        super(values, parse(some, must, none), analyzer);
         this.some = some;
         this.must = must;
         this.none = none;

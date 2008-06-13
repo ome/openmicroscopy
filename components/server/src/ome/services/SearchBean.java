@@ -51,6 +51,7 @@ import ome.system.SelfConfigurableService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.Analyzer;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,8 +85,13 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     private/* final */transient Executor executor;
 
-    public SearchBean(Executor executor) {
+    private/* final */transient Class<? extends Analyzer> analyzer;
+
+    private/* final */transient Integer maxClauseCount;
+
+    public SearchBean(Executor executor, Class<? extends Analyzer> analyzer) {
         this.executor = executor;
+        this.analyzer = analyzer;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -103,11 +109,23 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     /**
      * Injector used by Spring, currently, since
      * {@link SelfConfigurableService#selfConfigure()} requires it.
-     * 
-     * @param executor
      */
     public void setExecutor(Executor executor) {
         this.executor = executor;
+    }
+
+    /**
+     * Injector used by Spring.
+     */
+    public void setAnalyzer(Class<? extends Analyzer> analyzer) {
+        this.analyzer = analyzer;
+    }
+
+    /**
+     * Injector used by Spring.
+     */
+    public void setMaxClauseCount(Integer maxClauseCount) {
+        this.maxClauseCount = maxClauseCount;
     }
 
     // Lifecycle methods
@@ -162,7 +180,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void byFullText(String query) {
         SearchAction byFullText;
         synchronized (values) {
-            byFullText = new FullText(values, query);
+            byFullText = new FullText(values, query, analyzer);
         }
         actions.add(byFullText);
 
@@ -183,7 +201,8 @@ public class SearchBean extends AbstractStatefulBean implements Search {
     public void bySomeMustNone(String[] some, String[] must, String[] none) {
         SearchAction bySomeMustNone;
         synchronized (values) {
-            bySomeMustNone = new SomeMustNone(values, some, must, none);
+            bySomeMustNone = new SomeMustNone(values, some, must, none,
+                    analyzer);
         }
         actions.add(bySomeMustNone);
     }

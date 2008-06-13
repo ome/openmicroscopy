@@ -28,6 +28,7 @@ import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.UrlAnnotation;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
@@ -38,6 +39,7 @@ import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.testing.FileUploader;
 import ome.testing.ObjectFactory;
 
 import org.hibernate.Criteria;
@@ -107,7 +109,7 @@ public class SearchTest extends AbstractTest {
     public void testFullTextUsingIQuery() {
 
         String uuid = uuid();
-        String part = uuid.substring(0, uuid.indexOf("-"));
+        String part = uuid.substring(0, uuid.indexOf("DASH"));
         Image i = new Image("myIQueryImageTest");
         TagAnnotation tag = new TagAnnotation();
         tag.setNs("theNamespaceInMyIQueryTest");
@@ -430,7 +432,7 @@ public class SearchTest extends AbstractTest {
         //
 
         // some with wildcard
-        String part = abc.substring(0, abc.indexOf("-")) + "*";
+        String part = abc.substring(0, abc.indexOf("DASH")) + "*";
         search.bySomeMustNone(sa(part), sa(), sa());
         assertAtLeastResults(search, 1);
 
@@ -2269,6 +2271,62 @@ public class SearchTest extends AbstractTest {
         assertResults(search, n);
         search.bySomeMustNone(new String[] { "*blah blah*" }, null, null);
         assertResults(search, n);
+    }
+
+    @Test
+    public void testAddingUrlAnnotation() throws Exception {
+
+        String uuid = uuid();
+        String urlString = "http://" + uuid + ".com";
+        Image i = new Image("name");
+        UrlAnnotation url = new UrlAnnotation();
+        url.setTextValue(urlString);
+        i.linkAnnotation(url);
+
+        loginRoot();
+        i = this.iUpdate.saveAndReturnObject(i);
+        url = (UrlAnnotation) i.linkedAnnotationList().get(0);
+        this.iUpdate.indexObject(i);
+        this.iUpdate.indexObject(url);
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.byFullText("url:" + uuid);
+        assertResults(search, 1);
+
+        search.onlyType(Image.class);
+        search.byFullText("url:http\\://" + uuid + ".com");
+        assertResults(search, 1);
+
+    }
+
+    @Test
+    public void testFileAnnotationIsFindableByFileName() throws Exception {
+
+        String uuid = uuid();
+        Image i = new Image("name");
+        FileAnnotation fa = new FileAnnotation();
+        FileUploader uploader = new FileUploader(this.factory, "my-text", uuid,
+                "/dev/null");
+        uploader.run();
+        fa.setFile(new OriginalFile(uploader.getId(), false));
+        i.linkAnnotation(fa);
+
+        loginRoot();
+        i = this.iUpdate.saveAndReturnObject(i);
+        fa = (FileAnnotation) i.linkedAnnotationList().get(0);
+        this.iUpdate.indexObject(i);
+        this.iUpdate.indexObject(fa);
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+        search.byFullText("file.name:" + uuid);
+        assertResults(search, 1);
+
+        search.onlyType(FileAnnotation.class);
+        search.byFullText("file.name:" + uuid);
+        assertResults(search, 1);
+
     }
 
     // Implementation specifics

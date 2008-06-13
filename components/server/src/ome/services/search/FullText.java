@@ -15,9 +15,14 @@ import ome.model.IAnnotated;
 import ome.services.SearchBean;
 import ome.system.ServiceFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.hibernate.Criteria;
@@ -28,6 +33,9 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.util.Assert;
+
+import sun.util.logging.resources.logging;
 
 /**
  * Search based on Lucene's {@link Query} class. Takes a Google-like search
@@ -38,14 +46,21 @@ import org.springframework.transaction.TransactionStatus;
  */
 public class FullText extends SearchAction {
 
+    private static final Log log = LogFactory.getLog(FullText.class);
+
     private static final long serialVersionUID = 1L;
 
     private final String queryStr;
 
     private final org.apache.lucene.search.Query q;
 
-    public FullText(SearchValues values, String query) {
+    private final Class<? extends Analyzer> analyzer;
+
+    public FullText(SearchValues values, String query,
+            Class<? extends Analyzer> analyzer) {
         super(values);
+        Assert.notNull(analyzer, "Analyzer required");
+        this.analyzer = analyzer;
 
         if (values.onlyTypes == null || values.onlyTypes.size() != 1) {
             throw new ApiUsageException(
@@ -72,12 +87,21 @@ public class FullText extends SearchAction {
         this.queryStr = query;
         try {
             final QueryParser parser = new QueryParser("combined_fields",
-                    new StandardAnalyzer());
+                    analyzer.newInstance());
             parser.setAllowLeadingWildcard(values.leadingWildcard);
             q = parser.parse(queryStr);
         } catch (ParseException pe) {
-            ApiUsageException aue = new ApiUsageException(queryStr
-                    + " caused a parse exception.");
+            final String msg = queryStr + " caused a parse exception.";
+            log.error(msg, pe);
+            ApiUsageException aue = new ApiUsageException(msg);
+            throw aue;
+        } catch (InstantiationException e) {
+            ApiUsageException aue = new ApiUsageException(analyzer.getName()
+                    + " cannot be instantiated.");
+            throw aue;
+        } catch (IllegalAccessException e) {
+            ApiUsageException aue = new ApiUsageException(analyzer.getName()
+                    + " cannot be instantiated.");
             throw aue;
         }
     }

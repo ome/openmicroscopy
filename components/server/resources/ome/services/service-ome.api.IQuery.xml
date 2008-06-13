@@ -19,8 +19,10 @@
 
 <beans>	
 
-  <bean parent="level1" id="internal:ome.api.IQuery" class="ome.logic.QueryImpl"/>
   <alias name="internal:ome.api.IQuery" alias="internal:ome.api.LocalQuery"/> 
+  <bean parent="level1" id="internal:ome.api.IQuery" class="ome.logic.QueryImpl">
+    <property name="analyzer" value="${omero.search.analyzer}"/>
+  </bean>
  
   <bean id="managed:ome.api.IQuery" parent="managedService">
     <property name="proxyInterfaces">

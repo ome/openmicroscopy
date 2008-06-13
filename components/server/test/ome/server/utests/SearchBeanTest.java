@@ -20,6 +20,7 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.Session;
 import org.jmock.MockObjectTestCase;
 import org.springframework.transaction.TransactionStatus;
@@ -27,6 +28,7 @@ import org.testng.annotations.Test;
 
 public class SearchBeanTest extends MockObjectTestCase {
 
+    protected Class<? extends Analyzer> analyzer;
     protected Executor executor = new Executor.Impl(null, null, null, null) {
         @Override
         public Object execute(Principal p, Work work) {
@@ -38,7 +40,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testDefaults() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         assertDefaults();
     }
 
@@ -53,7 +55,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testBasicUsage() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         bean.onlyType(Image.class);
         bean.onlyAnnotatedWith(TagAnnotation.class);
         bean.byFullText("Here's my query");
@@ -61,7 +63,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testHasNextWithResults() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         assertFalse(bean.hasNext());
         List<IObject> list = new ArrayList<IObject>();
         list.add(new Image());
@@ -71,7 +73,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testHasNextWithAction() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         assertFalse(bean.hasNext());
         addActionWithResultOfSize_n(1);
         assertTrue(bean.hasNext());
@@ -79,7 +81,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testActiveQueries() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         addActionWithResultOfSize_n(1);
         assertTrue(bean.activeQueries() == 1);
         assertNotNull(bean.next());
@@ -89,7 +91,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testBatchSizeRollOver() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         addActionWithResultOfSize_n(4);
         bean.setBatchSize(3);
         assertEquals(3, bean.getBatchSize());
@@ -99,7 +101,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testMergedBatches() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         addActionWithResultOfSize_n(3);
         addActionWithResultOfSize_n(1);
         bean.setBatchSize(5);
@@ -108,7 +110,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testUnloaded() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         addActionWithResultOfSize_n(1);
         bean.setReturnUnloaded(true);
         IObject i = bean.next();
@@ -117,7 +119,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testResetDefaults() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         bean.setBatchSize(4);
         bean.setCaseSentivice(false);
         bean.setMergedBatches(true);
@@ -129,7 +131,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testClearingQueries() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         bean.onlyType(Image.class);
         bean.byFullText("a");
         assertTrue(bean.activeQueries() == 1);
@@ -151,7 +153,7 @@ public class SearchBeanTest extends MockObjectTestCase {
 
     @Test
     public void testCanSearchForObjectsWhichArentAnnotated() {
-        bean = new SearchBean(executor);
+        bean = new SearchBean(executor, analyzer);
         bean.onlyAnnotatedWith(null);
     }
 

@@ -33,6 +33,7 @@ import ome.services.search.FullText;
 import ome.services.search.SearchValues;
 import ome.services.util.OmeroAroundInvoke;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
@@ -70,6 +71,12 @@ import org.springframework.transaction.annotation.Transactional;
 @LocalBinding(jndiBinding = "omero/local/ome.api.local.LocalQuery")
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
+
+    protected Class<? extends Analyzer> analyzer;
+
+    public void setAnalyzer(Class<? extends Analyzer> analyzer) {
+        this.analyzer = analyzer;
+    }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IQuery.class;
@@ -383,6 +390,11 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
     @SuppressWarnings("unchecked")
     public <T extends IObject> List<T> findAllByFullText(final Class<T> type,
             final String query, final Parameters params) {
+        if (analyzer == null) {
+            throw new ApiUsageException(
+                    "IQuery not configured for full text search.\n"
+                            + "Please use ome.api.Search instead.");
+        }
         return (List<T>) getHibernateTemplate().execute(
                 new HibernateCallback() {
 
@@ -391,7 +403,8 @@ public class QueryImpl extends AbstractLevel1Service implements LocalQuery {
                         SearchValues values = new SearchValues();
                         values.onlyTypes = Arrays.asList((Class) type);
                         values.copy(params);
-                        FullText fullText = new FullText(values, query);
+                        FullText fullText = new FullText(values, query,
+                                analyzer);
                         return fullText.doWork(null, session, null);
                     }
                 }, true);

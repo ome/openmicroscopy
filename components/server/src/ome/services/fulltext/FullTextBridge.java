@@ -18,6 +18,7 @@ import ome.model.annotations.Annotation;
 import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.UrlAnnotation;
 import ome.model.core.OriginalFile;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
@@ -179,7 +180,9 @@ public class FullTextBridge extends BridgeHelper {
                     String textValue = text.getTextValue();
                     textValue = textValue == null ? "" : textValue;
                     add(document, "annotation", textValue, store, index, boost);
-                    if (annotation instanceof TagAnnotation) {
+                    if (annotation instanceof UrlAnnotation) {
+                        add(document, "url", textValue, store, index, boost);
+                    } else if (annotation instanceof TagAnnotation) {
                         add(document, "tag", textValue, store, index, boost);
                         List<Annotation> list2 = annotation
                                 .linkedAnnotationList();
@@ -200,7 +203,11 @@ public class FullTextBridge extends BridgeHelper {
                             fileAnnotation);
                 }
             }
-        } else if (object instanceof FileAnnotation) {
+        }
+
+        // Have to be careful here, since Annotations are also IAnnotated.
+        // Don't use if/else
+        if (object instanceof FileAnnotation) {
             FileAnnotation fileAnnotation = (FileAnnotation) object;
             handleFileAnnotation(document, store, index, boost, fileAnnotation);
 
@@ -330,8 +337,8 @@ public class FullTextBridge extends BridgeHelper {
             add(document, "file.name", file.getName(), store, index, boost);
             add(document, "file.path", file.getPath(), store, index, boost);
             add(document, "file.sha1", file.getSha1(), store, index, boost);
-            add(document, "file.format", file.getFormat().getValue(), store, index,
-                    boost);
+            add(document, "file.format", file.getFormat().getValue(), store,
+                    index, boost);
             addContents(document, "file.contents", file, files, parsers, boost);
         }
     }
