@@ -27,16 +27,22 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 //Java imports
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.AddAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.BrowseAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.MetadataViewerAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAllAction;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.ui.LoadingWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The MetadataViewer's Controller.
@@ -52,6 +58,7 @@ import org.openmicroscopy.shoola.agents.metadata.actions.RemoveAllAction;
  * @since OME3.0
  */
 class MetadataViewerControl
+	implements ChangeListener
 {
 
 	/** Identifies the <code>Refresh</code> action. */
@@ -80,6 +87,10 @@ class MetadataViewerControl
 	
 	/** Maps actions ids onto actual <code>Action</code> object. */
 	private Map<Integer, MetadataViewerAction>	actionsMap;
+	
+	/** The loading window. */
+	private LoadingWindow   					loadingWindow;
+	
 	
 	/** Helper method to create all the UI actions. */
 	private void createActions()
@@ -116,6 +127,11 @@ class MetadataViewerControl
 		this.view = view;
 		actionsMap = new HashMap<Integer, MetadataViewerAction>();
 		createActions();
+		Registry reg = MetadataViewerAgent.getRegistry();
+		loadingWindow = new LoadingWindow(reg.getTaskBar().getFrame());
+		loadingWindow.setTitle("Saving Data");
+		loadingWindow.setStatus("Batch annotations");
+		model.addChangeListener(this);
 	}
 	
 	/**
@@ -125,5 +141,21 @@ class MetadataViewerControl
 	 * @return The specified action.
 	 */
 	MetadataViewerAction getAction(Integer id) { return actionsMap.get(id); }
+
+	/**
+	 * Reacts to state changes in the {@link MetadataViewer}.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent ce)
+	{
+		switch (model.getState()) {
+			case MetadataViewer.READY:
+				loadingWindow.setVisible(false);
+				break;
+			case MetadataViewer.BATCH_SAVING:
+				UIUtilities.centerAndShow(loadingWindow);
+				break;
+		}
+	}
 
 }

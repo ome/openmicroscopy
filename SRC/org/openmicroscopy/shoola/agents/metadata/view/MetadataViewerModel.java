@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,7 +45,6 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.editor.EditorFactory;
-import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -54,7 +52,6 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
-import pojos.TagAnnotationData;
 
 /** 
  * The Model component in the <code>MetadataViewer</code> MVC triad.
@@ -382,7 +379,7 @@ class MetadataViewerModel
 		DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
 				toRemove);
 		loader.load();
-
+		state = MetadataViewer.BATCH_SAVING;
 	}
 	
 	/** 
@@ -421,4 +418,11 @@ class MetadataViewerModel
 	 */
 	Collection getRelatedNodes() { return relatedNodes; }
 
+	/**
+	 * Sets the state.
+	 * 
+	 * @param state The value to set.
+	 */
+	void setState(int state) { this.state = state; }
+	
 }

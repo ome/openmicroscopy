@@ -97,6 +97,9 @@ public interface MetadataViewer
 	/** Flag to denote the <i>Discarded</i> state. */
 	public static final int     DISCARDED = 4;
 	
+	/** Flag to denote the <i>Batch Saving</i> state. */
+	public static final int 	BATCH_SAVING = 5;
+	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 
 	 * and puts the window on screen.
@@ -253,6 +256,11 @@ public interface MetadataViewer
 	 */
 	public void setRelatedNodes(Collection nodes);
 
+	/**
+	 * Updates the view when the experimented details have been modified.
+	 * 
+	 * @param data The data to update.
+	 */
 	public void onExperimenterUpdated(ExperimenterData data);
 	
 }

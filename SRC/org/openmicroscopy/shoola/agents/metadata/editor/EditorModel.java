@@ -353,9 +353,13 @@ class EditorModel
 		if (object instanceof ExperimenterData) 
 			return (((ExperimenterData) object).getId() == userID);
 		if (object instanceof DataObject)  {
-			ExperimenterData exp = ((DataObject) object).getOwner();
-			if (exp == null) return false;
-			return userID == exp.getId();
+			try {
+				ExperimenterData exp = ((DataObject) object).getOwner();
+				if (exp == null) return false;
+				return userID == exp.getId();
+			} catch (Exception e) {
+				return false;
+			}
 		}
 		return false;
 	}

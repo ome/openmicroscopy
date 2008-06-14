@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -367,13 +368,14 @@ class MetadataViewerComponent
 			dialog.addBodyComponent(p);
 			int option = dialog.centerMsgBox();
 			if (option == MessageBox.YES_OPTION) {
-				toSave.add(data);
+				//toSave.add(data);
 				if (single.isSelected()) 
 					model.fireSaving(toAdd, toRemove, toSave);
 				else
 					model.fireBatchSaving(toAdd, toRemove, toSave);
 			}
 		}
+		fireStateChange();
 	}
 	
 	/** 
@@ -445,6 +447,9 @@ class MetadataViewerComponent
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, dataObject);
 		} else
 			firePropertyChange(ON_DATA_SAVE_PROPERTY, null, data);
+		model.setState(READY);
+		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		fireStateChange();
 	}
 
 	/** 

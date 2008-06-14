@@ -545,17 +545,25 @@ class OmeroMetadataServiceImpl
 			} 
 		}
 		List l = null;
+		Class klass = gateway.convertPojos(type);
 		if (ids.size() != 0)
-			l = gateway.findAnnotationLinks(gateway.convertPojos(type), id, 
-											ids);
+			l = gateway.findAnnotationLinks(klass, id, ids);
 		if (l != null) {
 			i = l.iterator();
 			while (i.hasNext()) {
 				gateway.deleteObject((IObject) i.next());
 			}
+			
+			//Need to check if the object is not linked to other object.
+			
 			i = toRemove.iterator();
+			IObject obj;
 			while (i.hasNext()) {
-				gateway.deleteObject((IObject) i.next());
+				obj = (IObject) i.next();
+				ids = new ArrayList<Long>(); 
+				ids.add(obj.getId());
+				l = gateway.findAnnotationLinks(klass, -1, ids);
+				if (l == null || l.size() == 0) gateway.deleteObject(obj);
 			}
 		}
 	}
