@@ -68,7 +68,7 @@ public class Main {
         loader.setQueryService(rawQuery);
         loader.setClasses(factory.getAllClassMetadata().keySet());
         final FullTextThread ftt = createFullTextThread(loader);
-        while (loader.more()) {
+        while (loader.more() > 0) {
             ftt.run();
         }
     }
@@ -79,7 +79,7 @@ public class Main {
         loader.setQueryService(rawQuery);
         final FullTextThread ftt = createFullTextThread(loader);
 
-        while (loader.more()) {
+        while (loader.more() > 0) {
             ftt.run();
         }
     }
