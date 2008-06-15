@@ -91,7 +91,11 @@
 
 	<target name="zip">
 		<zip destfile="${product.name}-${omero.version}.zip">
-			<zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"/>
+			<zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
+                            excludes="bin/omero"/>
+			<zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
+                            includes="bin/omero"
+                            filemode="755"/>
 		</zip>
 	</target>
 
@@ -120,8 +124,8 @@
 	<target name="dist" depends="multiproject,_dist">
 		<iterate target="dist"/>
                 <mkdir dir="${dist.dir}/bin"/>
-                <chmod perm="ug+x">
-                        <fileset dir="${dist.dir}/bin" includes="**/*"/>
+                <chmod perm="a+x">
+                        <fileset dir="${dist.dir}/bin" includes="omero"/>
                         <fileset dir="${dist.dir}/lib" includes="**/*.py"/>
                 </chmod>
 	</target>
