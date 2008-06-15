@@ -97,21 +97,7 @@ public class PersistentEventLogLoader extends EventLogLoader implements
     @Override
     protected EventLog query() {
 
-        long current_id;
-        try {
-            current_id = getCurrentId();
-        } catch (EmptyResultDataAccessException erdae) {
-            // This event log loader has never been run. Initialize
-            current_id = -1;
-            setCurrentId(-1);
-            initialize();
-        } catch (DataAccessException dae) {
-            // Most likely there's no configuration table.
-            throw new InternalException(
-                    "The configuration table seems to be missing \n"
-                            + "from your database. Please check your server installation instructions \n"
-                            + "for possible reasons.");
-        }
+        long current_id = getCurrentId();
 
         synchronized (backlog) {
             if (backlog.size() > 0) {
@@ -139,8 +125,28 @@ public class PersistentEventLogLoader extends EventLogLoader implements
         }
     }
 
+    /**
+     * Get current {@link EventLog} id. If the lookup throws an exception,
+     * either the configuration has been deleted or renamed, in which we need to
+     * reinitialize, or the table is missing and something is wrong.
+     */
     public long getCurrentId() {
-        return template.queryForLong(query, key);
+        long current_id;
+        try {
+            current_id = template.queryForLong(query, key);
+        } catch (EmptyResultDataAccessException erdae) {
+            // This event log loader has never been run. Initialize
+            current_id = -1;
+            setCurrentId(-1);
+            initialize();
+        } catch (DataAccessException dae) {
+            // Most likely there's no configuration table.
+            throw new InternalException(
+                    "The configuration table seems to be missing \n"
+                            + "from your database. Please check your server installation instructions \n"
+                            + "for possible reasons.");
+        }
+        return current_id;
     }
 
     public void setCurrentId(long id) {
@@ -152,6 +158,12 @@ public class PersistentEventLogLoader extends EventLogLoader implements
 
     public void deleteCurrentId() {
         template.update(delete, key);
+    }
+
+    @Override
+    public long more() {
+        long diff = lastEventLog().getEntityId() - getCurrentId();
+        return diff < 0 ? 0 : diff;
     }
 
     @SuppressWarnings("unchecked")

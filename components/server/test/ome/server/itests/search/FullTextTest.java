@@ -149,6 +149,11 @@ public class FullTextTest extends AbstractTest {
                 }
                 return l;
             }
+
+            @Override
+            public long more() {
+                return 0;
+            }
         });
         ftt = new FullTextThread(getManager(), getExecutor(), fti, ftb, true);
         ftt.run();

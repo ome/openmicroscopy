@@ -85,19 +85,39 @@ public class FullTextIndexer implements Work {
 
     final protected EventLogLoader loader;
 
+    protected int reps = 5;
+
+    /**
+     * Spring injector. Sets the number of indexing runs will be made if there
+     * is a substantal backlog.
+     */
+    public void setRepetitions(int reps) {
+        this.reps = reps;
+        ;
+    }
+
     public FullTextIndexer(EventLogLoader ll) {
         this.loader = ll;
     }
 
+    /**
+     * Runes {@link #doIndexing(FullTextSession)} within a Lucene transaction.
+     * {@link #doIndexing(FullTextSession)} will also be called
+     */
     public Object doWork(TransactionStatus status, Session session,
             ServiceFactory sf) {
-        FullTextSession fullTextSession = Search.createFullTextSession(session);
-        fullTextSession.setFlushMode(FlushMode.MANUAL);
-        fullTextSession.setCacheMode(CacheMode.IGNORE);
-        Transaction transaction = fullTextSession.beginTransaction();
-        doIndexing(fullTextSession);
-        transaction.commit();
-        session.clear();
+        int count = 1;
+        do {
+            FullTextSession fullTextSession = Search
+                    .createFullTextSession(session);
+            fullTextSession.setFlushMode(FlushMode.MANUAL);
+            fullTextSession.setCacheMode(CacheMode.IGNORE);
+            Transaction transaction = fullTextSession.beginTransaction();
+            doIndexing(fullTextSession);
+            transaction.commit();
+            session.clear();
+            count++;
+        } while (doMore(count));
         return null;
     }
 
@@ -138,6 +158,26 @@ public class FullTextIndexer implements Work {
 
         }
 
+    }
+
+    /**
+     * Default implementation suggests doing more if fewer than {@link #reps}
+     * runs have been made and if there are still more than
+     * {@link EventLogLoader#batchSize} x 100 backlog entries.
+     * 
+     * This is based on the assumption that indexing runs roughly 120 times an
+     * hour, so if there are more than an hours worth of batches, do extra work
+     * to catch up.
+     */
+    public boolean doMore(int count) {
+        if (count < this.reps && loader.more() > loader.batchSize * 100) {
+            log.info(String
+                    .format("Suggesting round %s of "
+                            + "indexing to reduce backlog of %s:", count,
+                            loader.more()));
+            return true;
+        }
+        return false;
     }
 
     protected Class asClassOrNull(String str) {

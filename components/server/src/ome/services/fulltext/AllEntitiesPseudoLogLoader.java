@@ -38,7 +38,7 @@ public class AllEntitiesPseudoLogLoader<T extends IObject> extends
     @Override
     protected EventLog query() {
         if (current == null) {
-            if (!more()) {
+            if (more() == 0) {
                 return null;
             }
             current = classes.remove(0);
@@ -62,9 +62,13 @@ public class AllEntitiesPseudoLogLoader<T extends IObject> extends
         }
     }
 
+    /**
+     * Returns the number of classes which are still unprocessed as a proxy for
+     * how much is left to process.
+     */
     @Override
-    public boolean more() {
-        return classes.size() > 0;
+    public long more() {
+        return classes.size();
     }
 
     protected EventLog wrap(String cls, IObject obj) {

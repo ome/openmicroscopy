@@ -11,10 +11,7 @@ import ome.model.IObject;
 import ome.model.meta.EventLog;
 
 /**
- * Driver for various full text actions. Commands include:
- * <ul>
- * <li>full - Index full database</li
- * </ul>
+ * 
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
@@ -48,7 +45,8 @@ public class AllEventsLogLoader extends EventLogLoader {
     }
 
     @Override
-    public boolean more() {
-        return more;
+    public long more() {
+        long diff = max - previous;
+        return diff < 0 ? 0 : diff;
     }
 }

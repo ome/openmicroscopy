@@ -53,7 +53,7 @@ public class EventLogLoadersTest extends MockObjectTestCase {
             // ok
         }
 
-        assertTrue(ell.more()); // always true
+        assertTrue(ell.more() > 0); // always true
     }
 
     public void testAllEntitiesLoader() throws Exception {
@@ -61,7 +61,7 @@ public class EventLogLoadersTest extends MockObjectTestCase {
         ell.setQueryService(svc);
         ((AllEntitiesPseudoLogLoader) ell).setClasses(Collections
                 .singleton("cls1"));
-        assertTrue(ell.more());
+        assertTrue(ell.more() > 0);
 
         returnNotNull();
         assertTrue(ell.hasNext());
@@ -70,7 +70,7 @@ public class EventLogLoadersTest extends MockObjectTestCase {
         assertNotNull(ell.next().getEntityId());
 
         assertFalse(ell.hasNext());
-        assertFalse(ell.more());
+        assertFalse(ell.more() > 0);
     }
 
     @Test(groups = "broken")
@@ -90,7 +90,7 @@ public class EventLogLoadersTest extends MockObjectTestCase {
         q.expects(once()).method("findByQuery").after("last").will(
                 returnValue(first)).id("first");
         assertTrue(ell.hasNext());
-        assertTrue(ell.more()); // More as long as last was positive
+        assertTrue(ell.more() > 0); // More as long as last was positive
 
         q.expects(once()).method("findByQuery").after("first").will(
                 returnValue(last)).id("lastagain");
@@ -103,7 +103,7 @@ public class EventLogLoadersTest extends MockObjectTestCase {
         assertEquals(el, ell.next());
 
         assertFalse(ell.hasNext());
-        assertFalse(ell.more());
+        assertFalse(ell.more() > 0);
     }
 
     @Test
@@ -136,6 +136,11 @@ public class EventLogLoadersTest extends MockObjectTestCase {
             @Override
             protected EventLog query() {
                 return el;
+            }
+
+            @Override
+            public long more() {
+                return 0;
             }
         };
 
@@ -177,6 +182,11 @@ public class EventLogLoadersTest extends MockObjectTestCase {
         @Override
         protected EventLog query() {
             return logs.size() < 1 ? null : logs.remove(0);
+        }
+
+        @Override
+        public long more() {
+            return 0;
         }
     }
 }

@@ -69,6 +69,11 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
                     return this.lastEventLog();
                 }
             }
+
+            @Override
+            public long more() {
+                return 0;
+            }
         };
         ell.setQueryService(this.rawQuery());
         return ell;

@@ -139,15 +139,12 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     }
 
     /**
-     * Always returns true. The default implementation is to tell the
-     * {@link FullTextIndexer} to always retry in a while loop. Other
-     * implementations may want to break the execution.
-     * 
-     * @return true
+     * Should return an estimate of how many more {@link EventLog} instances are
+     * available for processing. Some implementations may attempt to take extra
+     * measures if the number is too large. Use 1 for a constant rather than
+     * {@link Long#MAX_VALUE}. Use 0 to stop execution.
      */
-    public boolean more() {
-        return true;
-    }
+    public abstract long more();
 
     /**
      * Returns the {@link EventLog} with the next id after the given argument or

@@ -339,8 +339,8 @@ class CreationLogLoader extends EventLogLoader {
     }
 
     @Override
-    public boolean more() {
-        return false;
+    public long more() {
+        return 0;
     }
 
 }

@@ -44,6 +44,7 @@
 
   <bean id="fullTextIndexer" class="ome.services.fulltext.FullTextIndexer">
     <constructor-arg ref="eventLogLoader"/>
+    <property name="repetitions" value="${omero.search.repetitions}"/>
   </bean>
 
   <bean id="fullTextBridge" class="ome.services.fulltext.FullTextBridge">
