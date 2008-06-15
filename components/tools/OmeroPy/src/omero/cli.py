@@ -781,8 +781,10 @@ def argv(args=pysys.argv):
 
         # Modifying the args list if the name of the file
         # has arguments encoded in it
-        if args[0].find("-") >= 0:
-            parts = args[0].split("-")
+        executable = path(args[0])
+        executable = str(executable.basename())
+        if executable.find("-") >= 0:
+            parts = executable.split("-")
             for arg in args[1:]:
                 parts.append(arg)
             args = parts
