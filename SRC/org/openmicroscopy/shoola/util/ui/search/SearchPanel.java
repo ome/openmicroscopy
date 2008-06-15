@@ -113,7 +113,7 @@ class SearchPanel
 	/** Search Tip. */
 	private static final String		SEARCH_TIP = "<html><i>Tip: " +
 			"Use these options to look for an <br> exact phrase or to exclude" +
-			"certain words.</i></html>";
+			" certain words.</i></html>";
 	
 	/** Users Tip. */
 	//private static final String		USERS_TIP = "Tip: Add a minus in front " +
@@ -130,7 +130,8 @@ class SearchPanel
 	
 	/** Description of the {@link #allTermsArea}. */
 	private static final String		ALL_WORDS = 
-										"<html><b>All</b> the words</html>";
+										"<html><b>Must contain</b> " +
+										"the words</html>";
 	
 	/** Description of the {@link #exactPhraseArea}. */
 	private static final String		EXACT_WORDS = 
@@ -361,7 +362,7 @@ class SearchPanel
 		areas = new LinkedHashMap<JTextField, JLabel>();
 		areas.put(atLeastTermsArea, new JLabel(AT_LEAST_WORDS));
 		areas.put(allTermsArea, new JLabel(ALL_WORDS));
-		areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
+		//areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
 		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
 		helpButton = new JButton(icons.getIcon(IconManager.HELP));
 		helpButton.setToolTipText("Advanced search Tips.");
@@ -750,6 +751,7 @@ class SearchPanel
         searchTree.insertNode(p, UIUtilities.buildCollapsePanel(
         					ADVANCED_SEARCH_TITLE), false);
         searchFor.add(UIUtilities.buildComponentPanel(basicPanel));
+        searchFor.add(searchTree);
 		return searchFor;
 	}
 	
@@ -1043,22 +1045,24 @@ class SearchPanel
 		text = atLeastTermsArea.getText();
 		List<String> l = SearchUtil.splitTerms(text);
 
+		/*
 		text = exactPhraseArea.getText();
 		if (text != null)
 			l.addAll(SearchUtil.splitTerms(text.trim()));
+			*/
 		if (l.size() > 0)
 			return (String[]) l.toArray(new String[] {});
 		return null;
 	}
 	
 	/**
-	 * Returns the terms that may be in the document.
+	 * Returns the terms that must be in the document.
 	 * 
 	 * @return See above.
 	 */
 	String[] getMust()
 	{
-		String text = atLeastTermsArea.getText();
+		String text = allTermsArea.getText();
 		List l = SearchUtil.splitTerms(text);
 		if (l.size() > 0) 
 			return (String[]) l.toArray(new String[] {});
@@ -1067,7 +1071,7 @@ class SearchPanel
 	}
 	
 	/**
-	 * Returns the terms that may be in the document.
+	 * Returns the terms that cannot be in the document.
 	 * 
 	 * @return See above.
 	 */

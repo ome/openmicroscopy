@@ -694,8 +694,8 @@ class OMEROGateway
 				else v += arr[i];
 			}
 			if (value.contains(" ")) 
-				formattedTerms[j] = "\""+v+"\"";//v;
-			else formattedTerms[j] = v;
+				formattedTerms[j] = "\""+v.toLowerCase()+"\"";
+			else formattedTerms[j] = v.toLowerCase();
 		}
 		return formattedTerms;
 	}
@@ -731,7 +731,7 @@ class OMEROGateway
 					v += "\\"+arr[i];
 				else v += arr[i];
 			}
-			formattedTerms[k] = v;
+			formattedTerms[k] = v.toLowerCase() ;
 		}
 
 		return formattedTerms;
