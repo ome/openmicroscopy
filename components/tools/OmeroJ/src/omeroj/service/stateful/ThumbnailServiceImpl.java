@@ -247,6 +247,7 @@ public class ThumbnailServiceImpl
 			ThumbnailGateway gateway = gatewayIterator.next();
 			gateway.keepAlive();
 		}
+		batchService.keepAlive();
 	}
 
 }
