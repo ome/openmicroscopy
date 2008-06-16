@@ -3072,10 +3072,8 @@ class OMEROGateway
 			hasNext = service.hasNext();
 		} catch (Exception e) {
 			int size = 0;
-			if (e instanceof InternalException)
-				size = -1;
+			if (e instanceof InternalException) size = -1;
 			else service.getBatchSize();
-			//service.close();
 			return new Integer(size);
 		}
 		if (!hasNext) return r;

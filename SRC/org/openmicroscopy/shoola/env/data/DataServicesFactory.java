@@ -166,7 +166,7 @@ public class DataServicesFactory
 	{
 		MessageBox msg = new MessageBox(registry.getTaskBar().getFrame(), 
 							"Time out", "Your session has expired.\n" +
-    						"The changes you might have made have not been" +
+    						"The changes you might have made have not been " +
     						"saved. \n" +
     						"To do so, you will need to reactivate" +
     						"the session.");

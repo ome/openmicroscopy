@@ -202,7 +202,7 @@ public class AdvancedFinder
 		}
 		switch (usersContext.size()) {
 			case 2:
-				if (toKeep.size() > 0)
+				if (toKeep.size() >= 0)
 					toKeep.add(getUserDetails());
 				else {
 					toKeep.clear();
@@ -411,7 +411,6 @@ public class AdvancedFinder
 				key = (Integer) i.next();
 				term = getScope(key);
 				if (term != null) {
-					
 					value = map.get(key);
 					if (value instanceof Integer) {
 						v = (Integer) value;

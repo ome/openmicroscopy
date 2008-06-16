@@ -799,6 +799,17 @@ class EditorModel
 		int level = TagsLoader.LEVEL_TAG;
 		if (getRefObject() instanceof TagAnnotationData)
 			level = TagsLoader.LEVEL_TAG_SET;
+		EditorLoader l;
+		boolean exist = false;
+		Iterator i = loaders.iterator();
+		while (i.hasNext()) {
+			l = (EditorLoader) i.next();
+			if (l instanceof TagsLoader) {
+				exist = true;
+				break;
+			}
+		}
+		if (exist) return;
 		TagsLoader loader = new TagsLoader(component, level);
 		loader.load();
 		loaders.add(loader);
@@ -821,6 +832,17 @@ class EditorModel
 	 */
 	void loadExistingUrls()
 	{
+		EditorLoader l;
+		boolean exist = false;
+		Iterator i = loaders.iterator();
+		while (i.hasNext()) {
+			l = (EditorLoader) i.next();
+			if (l instanceof URLsLoader) {
+				exist = true;
+				break;
+			}
+		}
+		if (exist) return;
 		URLsLoader loader = new URLsLoader(component);
 		loader.load();
 		loaders.add(loader);
@@ -876,6 +898,17 @@ class EditorModel
 	void setExistingTags(Collection tags)
 	{
 		if (tags != null) existingTags = sorter.sort(tags);
+		Iterator i = loaders.iterator();
+		EditorLoader loader;
+		EditorLoader toRemove = null;
+		while (i.hasNext()) {
+			loader = (EditorLoader) i.next();
+			if (loader instanceof TagsLoader) {
+				toRemove = loader;
+				break;
+			}
+		}
+		if (toRemove != null) loaders.remove(toRemove);
 	}
 	
 	/**
@@ -905,6 +938,17 @@ class EditorModel
 	{
 		if (urls != null)
 			existingURLs = sorter.sort(urls);
+		Iterator i = loaders.iterator();
+		EditorLoader loader;
+		EditorLoader toRemove = null;
+		while (i.hasNext()) {
+			loader = (EditorLoader) i.next();
+			if (loader instanceof URLsLoader) {
+				toRemove = loader;
+				break;
+			}
+		}
+		if (toRemove != null) loaders.remove(toRemove);
 	}
 	
 	/**
