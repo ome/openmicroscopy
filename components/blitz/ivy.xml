@@ -6,6 +6,8 @@
   <configurations>
     <conf name="core"/>
     <conf name="build" extends="core"/>
+    <conf name="server" extends="core"/>
+    <conf name="client" extends="core"/>
     <conf name="test"  extends="core"/>
   </configurations>
   <publications>
@@ -17,8 +19,8 @@
     <dependency name="importer" rev="${omero.version}" changing="true" />
     <dependency name="romio" rev="${omero.version}" changing="true" />
     <dependency name="rendering" rev="${omero.version}" changing="true" />
-    <dependency name="server" rev="${omero.version}" changing="true" />
-    <dependency name="client" rev="${omero.version}" changing="true" conf="test->test"/>
+    <dependency name="server" rev="${omero.version}" changing="true" conf="server->core"/>
+    <dependency name="client" rev="${omero.version}" changing="true" conf="client,test->test"/>
     <!-- Public -->
     <dependency org="omero" name="ice" rev="${versions.ice}" conf="build->default"/>
   </dependencies>
