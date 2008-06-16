@@ -114,7 +114,14 @@ public class ThumbnailGatewayImpl
 	public byte[] getThumbnail(RInt sizeX, RInt sizeY)
 			throws DSOutOfServiceException, DSAccessException
 	{
-		// TODO Auto-generated method stub
+		try
+		{
+			return service.getThumbnail(sizeX, sizeY);
+		}
+		catch(Exception e)
+		{
+			ServiceUtilities.handleException(e, "getThumbnail for pixelsId : " + pixelsId);
+		}
 		return null;
 	}
 
