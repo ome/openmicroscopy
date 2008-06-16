@@ -1861,8 +1861,9 @@ public class SearchTest extends AbstractTest {
         fail("NYI");
     }
 
-    // bugs
+    // bugs and particular issues
     // =========================================================================
+    // The general reader may want to stop reading at this point.
 
     @Test
     public void testTextAnnotationDoesntTryToLoadUpdateEvent() {
@@ -2355,6 +2356,47 @@ public class SearchTest extends AbstractTest {
         ((Runnable) this.applicationContext.getBean("fullTextThread")).run();
 
         search.byFullText(tag);
+        assertResults(search, 1);
+
+    }
+
+    @Test
+    public void testNewTokenizerTokenizesQueryAsExpected() throws Exception {
+
+        // Setup
+        String uuid = uuid().replaceAll("DASH", "-");
+        String[] parts = uuid.split("-");
+        String rejoined = parts[1] + "-" + parts[3] + "-" + parts[2];
+
+        Image image1 = new Image(uuid);
+        Image image2 = new Image(rejoined);
+        image1 = iUpdate.saveAndReturnObject(image1);
+        image2 = iUpdate.saveAndReturnObject(image2);
+        iUpdate.indexObject(image1);
+        iUpdate.indexObject(image2);
+
+        Search search = factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // Searching by one part should return both
+        search.byFullText(parts[1]);
+        assertResults(search, 2);
+
+        // Searching by parts separated with a space should also return both
+        // They are implicitly joined with "OR"
+        search.byFullText(parts[1] + " " + parts[3]);
+        assertResults(search, 2);
+
+        // If the terms are joined by a hyphen, it will get stripped, but the
+        // term remains one. Equivalent to "PART1 PART2"
+        search.byFullText(parts[1] + "-" + parts[3]);
+        assertResults(search, 1);
+
+        search.byFullText("\"" + parts[1] + " " + parts[3] + "\"");
+        assertResults(search, 1);
+
+        // Search by uuid and should only find one.
+        search.byFullText(uuid);
         assertResults(search, 1);
 
     }

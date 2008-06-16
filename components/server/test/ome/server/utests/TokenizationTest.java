@@ -9,12 +9,26 @@ package ome.server.utests;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ome.services.fulltext.FullTextAnalyzer;
 
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.Searcher;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.RAMDirectory;
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.Test;
 
@@ -48,8 +62,58 @@ public class TokenizationTest extends MockObjectTestCase {
                 "d3d", "dv");
     }
 
+    @Test
+    public void testTokenizationWithQuery() throws Exception {
+        Searcher searcher = null;
+        try {
+            Directory directory = new RAMDirectory();
+            Analyzer analyzer = new FullTextAnalyzer();
+            IndexWriter writer = new IndexWriter(directory, analyzer);
+
+            String[] docs = { "GFP-CSFV-abc", "GFP-H2B-123", "GFP_H2B-456" };
+            addDocuments(writer, docs);
+
+            searcher = new IndexSearcher(directory);
+
+            Map<String, Integer> queryToResults = new HashMap();
+            queryToResults.put("GFP", 3);
+            queryToResults.put("GFP*", 3);
+            queryToResults.put("GFP-H2B", 2);
+            queryToResults.put("\"GFP H2B\"", 2);
+            queryToResults.put("\"H2B GFP\"", 0);
+
+            QueryParser parser = new QueryParser("contents", analyzer);
+            for (String queryStr : queryToResults.keySet()) {
+                Query query = parser.parse(queryStr);
+                System.out.println("Query: " + query.toString("contents"));
+                ScoreDoc[] hits = searcher.search(query, null, docs.length).scoreDocs;
+                assertEquals(queryStr, queryToResults.get(queryStr).intValue(),
+                        hits.length);
+                System.out.println(hits.length + " total results");
+
+            }
+        } finally {
+            if (searcher != null) {
+                searcher.close();
+            }
+        }
+    }
+
+    // Helpers
+    // =============================================================
+
+    private void addDocuments(IndexWriter writer, String[] docs)
+            throws CorruptIndexException, IOException {
+        for (int j = 0; j < docs.length; j++) {
+            Document d = new Document();
+            d.add(new Field("contents", docs[j], Field.Store.YES,
+                    Field.Index.TOKENIZED));
+            writer.addDocument(d);
+        }
+        writer.close();
+    }
+
     private List<Token> tokenize(String a) {
-        System.out.println("Print tokening: " + a);
         // StandardAnalyzer sa = new StandardAnalyzer();
         FullTextAnalyzer sa = new FullTextAnalyzer();
         TokenStream ts = sa.tokenStream("field", new StringReader(a));
