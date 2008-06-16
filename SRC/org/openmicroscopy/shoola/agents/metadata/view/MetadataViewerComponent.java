@@ -162,7 +162,7 @@ class MetadataViewerComponent
 			throw new IllegalArgumentException("No node specified.");
 		Object userObject = node.getUserObject();
 		if (userObject instanceof DataObject) {
-			//if (!model.isSameObject((DataObject) userObject))
+			if (model.isSingleMode())
 				model.fireStructuredDataLoading(node);
 		} 
 	}

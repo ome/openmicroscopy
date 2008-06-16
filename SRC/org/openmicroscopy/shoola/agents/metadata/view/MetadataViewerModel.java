@@ -270,6 +270,7 @@ class MetadataViewerModel
 			return;
 		}
 		cancel(refNode);
+		System.err.println(refNode);
 		StructuredDataLoader loader = new StructuredDataLoader(component, 
 								refNode, (DataObject) uo);
 		loaders.put(refNode, loader);
