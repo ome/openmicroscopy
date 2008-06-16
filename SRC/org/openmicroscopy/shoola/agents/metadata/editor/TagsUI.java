@@ -797,11 +797,14 @@ class TagsUI
 		while (i.hasNext()) {
 			comp = i.next();
 			tag = comp.getAnnotation();
-			if (addedTags.contains(tag))addedTags.remove(tag);
+			if (addedTags.contains(tag))
+				addedTags.remove(tag);
 			else removedTags.add(tag);
 		}
 		clearSelectedTags();
 		createExistingTagsPane();
+		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
 	}
 	
 	/** Edits the selected tags. */

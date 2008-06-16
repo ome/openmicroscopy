@@ -609,38 +609,15 @@ class OmeroMetadataServiceImpl
 				                         object.getId(), ho.getId());
 		if (ho != null && link != null) {
 			gateway.deleteObject(link);
-			gateway.deleteObject(ho);
+			//Check that the annotation is not shared.
+			List<Long> ids = new ArrayList<Long>();
+			ids.add(ho.getId());
+			
+			List l = gateway.findAnnotationLinks(object.getClass(), -1, ids);
+			if (l == null || l.size() == 0)
+				gateway.deleteObject(ho);
 		}
 		return PojoMapper.asDataObject(gateway.findIObject(object.asIObject()));
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#removeAnnotation(AnnotationData, Set)
-	 */
-	public List<DataObject> removeAnnotation(AnnotationData annotation, 
-											Set<DataObject> objects) 
-			throws DSOutOfServiceException, DSAccessException
-	{
-		if (annotation == null)
-			throw new IllegalArgumentException("No annotation to remove.");
-		if (objects == null || objects.size() == 0)
-			throw new IllegalArgumentException("No object to handle.");
-		IObject ho = gateway.findIObject(annotation.asIObject());
-		List<IObject> links = new ArrayList<IObject>();
-		Iterator i = objects.iterator();
-		DataObject object;
-		while (i.hasNext()) {
-			object = (DataObject) i.next();
-			links.add(gateway.findAnnotationLink(object.getClass(), 
-					                   object.getId(), ho.getId()));
-		}
-		i = links.iterator();
-		while (i.hasNext()) {
-			gateway.deleteObject((IObject) i.next());
-		}
-		gateway.deleteObject(ho);
-		return null;
 	}
 
 	/**

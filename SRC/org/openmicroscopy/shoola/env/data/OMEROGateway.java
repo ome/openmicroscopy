@@ -1543,7 +1543,8 @@ class OMEROGateway
 	/**
 	 * Finds the link if any between the specified parent and child.
 	 * 
-	 * @param parent    The parent.
+	 * @param type    
+	 * @param parentID
 	 * @param childID   The id of the child, or <code>-1</code> if no 
 	 * 					child specified.
 	 * @return See above.
