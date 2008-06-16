@@ -711,8 +711,6 @@ class TagsUI
 		UIUtilities.setBoldTitledBorder(title, this);
 		getCollapseComponent().setBorder(border);
 		buildUI();
-		//add(layoutNewTags());
-		//add(UIUtilities.buildComponentPanel(addButton));
 	}
 	
 	/**
@@ -845,7 +843,6 @@ class TagsUI
 	{
 		removeAll();
 		setComponentTitle();
-		//setLayout(new BorderLayout());
 		add(createExistingTagsPane());
 		add(Box.createVerticalStrut(5));
 		add(new JSeparator());

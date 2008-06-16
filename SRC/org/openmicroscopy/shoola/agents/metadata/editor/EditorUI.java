@@ -456,7 +456,7 @@ public class EditorUI
         	toolBarTop.setDecorator();
     	}
     	revalidate();
-    	repaint();
+    	//repaint();
     }
     
     /**
@@ -502,7 +502,7 @@ public class EditorUI
         	}
     	}
     	
-    	layoutUI();
+    	//layoutUI();
     	//modify layout
     	repaint();
     }
@@ -645,14 +645,22 @@ public class EditorUI
 		leftPane.revalidate();
 		rateUI.clearDisplay();
 		viewedByUI.clearDisplay();
-    	linksUI.clearDisplay();
-    	rateUI.clearDisplay();
-    	textualAnnotationsUI.clearDisplay();
-    	tagsUI.clearDisplay();
-    	attachmentsUI.clearDisplay();
-    	propertiesUI.clearDisplay();
-    	propertiesUI.buildUI();
-    	infoUI.clearDisplay();
+		textualAnnotationsUI.clearDisplay();
+		attachmentsUI.clearDisplay();
+		tagsUI.clearDisplay();
+		propertiesUI.clearDisplay();
+		infoUI.clearDisplay();
+		
+    	
+    	linksUI.buildUI();
+    	textualAnnotationsUI.buildUI();
+    	tagsUI.buildUI();
+    	rateUI.buildUI();
+    	attachmentsUI.buildUI();
+    	
+    	if (!model.isMultiSelection())
+    		propertiesUI.buildUI();
+    	
 		revalidate();
     	repaint();
 	}
