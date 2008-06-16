@@ -164,6 +164,7 @@ public class XMLModel
 	// default constructor, instantiates empty Tree. View must be created elsewhere.  
 	public XMLModel() {
 		
+		init();
 		
 		currentTree = null;
 
@@ -172,6 +173,24 @@ public class XMLModel
 	
 	// alternative constructor, instantiates empty Tree, then creates new View. 
 	public XMLModel(boolean showView) {
+		
+		init();
+		
+		currentTree = null;
+
+		if (showView) {
+			XMLView view = new XMLView(this);
+			view.buildFrame();
+		}
+			
+	}	
+	
+	/**
+	 * This method performs initiation tasks such as:
+	 * sets up the calendar (instantiates alarm checker & DB etc),
+	 * creates the user/omero/editor directory if it doesn't exist. 
+	 */
+	private void init() {
 		
 		StartupShutdown.runStartUp();
 		
@@ -195,14 +214,8 @@ public class XMLModel
 			omeroEditorDir.mkdir();					// Make the /User/omero/Editor directory
 		}
 		
-		currentTree = null;
-
-		if (showView) {
-			XMLView view = new XMLView(this);
-			view.buildFrame();
-		}
-			
-	}	
+	}
+	
 	
 	/**
 	 * This method takes an XML file, converts it to a DOM document and passes this to 
