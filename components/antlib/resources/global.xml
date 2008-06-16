@@ -75,6 +75,9 @@
 		<condition property="test.skip">
 			<equals arg1="${multi.test.skip}" arg2="true"/>
 		</condition>
+		<condition property="emma.enabled">
+			<equals arg1="${multi.emma.enabled}" arg2="true"/>
+		</condition>
 		<condition property="generate.skip">
 			<equals arg1="${multi.generate.skip}" arg2="true"/>
 		</condition>
