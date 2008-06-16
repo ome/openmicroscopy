@@ -3251,21 +3251,19 @@ class OMEROGateway
 				while (owner.hasNext()) {
 					d = owner.next();
 					service.onlyOwnedBy(d);
-					if (size == null) {
-						service.bySomeMustNone(fSome, fMust, fNone);
-						size = handleSearchResult(Image.class, rType, service);
+					service.bySomeMustNone(fSome, fMust, fNone);
+					size = handleSearchResult(Image.class, rType, service);
+					if (size instanceof Integer) 
+						results.put(key, size);
+					service.clearQueries();
+					if (!(size instanceof Integer) && fSomeSec != null) {
+						service.bySomeMustNone(fSomeSec, fMustSec, 
+								fNoneSec);
+						size = handleSearchResult(Image.class, rType, 
+								service);
 						if (size instanceof Integer) 
 							results.put(key, size);
 						service.clearQueries();
-						if (!(size instanceof Integer) && fSomeSec != null) {
-							service.bySomeMustNone(fSomeSec, fMustSec, 
-									fNoneSec);
-							size = handleSearchResult(Image.class, rType, 
-									service);
-							if (size instanceof Integer) 
-								results.put(key, size);
-							service.clearQueries();
-						}
 					}
 				}
 			}

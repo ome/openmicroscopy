@@ -821,6 +821,17 @@ class EditorModel
 	 */
 	void loadExistingAttachments()
 	{
+		EditorLoader l;
+		boolean exist = false;
+		Iterator i = loaders.iterator();
+		while (i.hasNext()) {
+			l = (EditorLoader) i.next();
+			if (l instanceof AttachmentsLoader) {
+				exist = true;
+				break;
+			}
+		}
+		if (exist) return;
 		AttachmentsLoader loader = new AttachmentsLoader(component);
 		loader.load();
 		loaders.add(loader);
@@ -927,6 +938,17 @@ class EditorModel
 	{
 		if (attachments != null)
 			existingAttachments = sorter.sort(attachments);
+		Iterator i = loaders.iterator();
+		EditorLoader loader;
+		EditorLoader toRemove = null;
+		while (i.hasNext()) {
+			loader = (EditorLoader) i.next();
+			if (loader instanceof AttachmentsLoader) {
+				toRemove = loader;
+				break;
+			}
+		}
+		if (toRemove != null) loaders.remove(toRemove);
 	}
 	
 	/**
