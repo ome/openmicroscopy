@@ -74,6 +74,9 @@
 		<fileset dir="components/tools/licenses" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
+		<fileset dir="components/tools/OmeroJ" defaultexcludes="yes">
+			<patternset refid="all.java.files"/>
+		</fileset>
 
 		<doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
 		<bottom><![CDATA[
@@ -82,21 +85,23 @@
 
 		<tag name="DEV.TODO" scope="all" description="To do:"/>
 
-		<group title="A. Core System" 
+		<group title="A. Core System"
 			packages="ome.api:ome.conditions*:ome.parameters*:ome.system*"/>
 		<group title="B. Model"
 			packages="ome.model*"/>
-		<group title="C. Client Packages" 
+		<group title="C. Client Packages"
 			packages="ome.client*:ome.adapters*:pojos*"/>
-		<group title="D. Server Packages" 
+		<group title="D. Server Packages"
 			packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
-		<group title="E. Blitz Server" 
+		<group title="E. Blitz Server"
 			packages="ome.services.blitz*"/>
-		<group title="F. Rendering Engine"
+		<group title="E. Blitz Client"
+			packages="omero*:omeroj*"/>
+		<group title="G. Rendering Engine"
 			packages="omeis*"/>
-		<group title="G. Utilities"
+		<group title="H. Utilities"
 			packages="ome.util*:ome.testing*"/>
-		<group title="H. Deprecated"
+		<group title="I. Deprecated"
 			packages="ome.dynamic*:ome.rules*"/>
 
  		<link href="http://java.sun.com/j2se/1.5/docs/api/"/>

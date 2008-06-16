@@ -17,8 +17,8 @@
 -->
     <description>
     OmeroJ interface to OmeroBlitz, provides user-friendly gateway.
-    </description>    
-    
+    </description>
+
     <property name="uses.ice" value="true"/>
     <dirname property="up-two" file="${basedir}"/>
     <dirname property="up-one" file="${up-two}"/>
@@ -28,6 +28,9 @@
     <import file="${import.dir}/lifecycle.xml"/>
 
     <import file="../common.xml"/>
+    <target name="slice">
+        <echo>no-op</echo>
+    </target>
 
     <target name="compile" depends="generate">
         <myjavac>

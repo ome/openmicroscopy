@@ -35,7 +35,7 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
-import blitzgateway.service.ImageService;
+import omeroj.service.ImageService;
 
 
 /** 

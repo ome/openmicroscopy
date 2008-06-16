@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="components/dsl/test"/>
+	<classpathentry kind="src" path="components/tools/OmeroJ/src"/>
 	<classpathentry kind="src" path="components/dsl/resources"/>
 	<classpathentry kind="src" path="components/dsl/src"/>
 	<classpathentry kind="src" path="components/model/target/generated/src"/>

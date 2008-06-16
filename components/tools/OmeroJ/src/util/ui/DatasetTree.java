@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 //Application-internal dependencies
 
-import blitzgateway.service.ServiceFactory;
+import omeroj.service.OmeroJService;
 
 /** 
  * 
@@ -56,7 +56,7 @@ import blitzgateway.service.ServiceFactory;
 public class DatasetTree
 {
 	/** Link to the data service which is part of the ServiceFactory. */
-	ServiceFactory	service;
+	OmeroJService	service;
 	
 	DatasetModel model;
 	DatasetView view;
@@ -67,7 +67,7 @@ public class DatasetTree
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public DatasetTree(ServiceFactory service) 
+	public DatasetTree(OmeroJService service) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		this.service = service;

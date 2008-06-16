@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 import omero.model.Dataset;
 import omero.model.Project;
-import blitzgateway.service.ServiceFactory;
+import omeroj.service.OmeroJService;
 
 //Java imports
 
@@ -56,10 +56,10 @@ import blitzgateway.service.ServiceFactory;
  */
 public class DatasetModel
 {	
-	ServiceFactory service;
+	OmeroJService service;
 	UserNode 	userNode;
 	
-	public DatasetModel(ServiceFactory service) 
+	public DatasetModel(OmeroJService service) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		this.service = service;
@@ -75,7 +75,7 @@ public class DatasetModel
 	private void populateDataModel() 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		userNode = new UserNode(service.getUserName());
+		userNode = new UserNode(service.getUsername());
 		List<Project> projects = service.getProjects(null, false);
 		for(Project p : projects)
 		{

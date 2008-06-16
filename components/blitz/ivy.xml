@@ -19,10 +19,10 @@
     <dependency name="importer" rev="${omero.version}" changing="true" />
     <dependency name="romio" rev="${omero.version}" changing="true" />
     <dependency name="rendering" rev="${omero.version}" changing="true" />
-    <dependency name="server" rev="${omero.version}" changing="true" conf="server->core"/>
-    <dependency name="client" rev="${omero.version}" changing="true" conf="client,test->test"/>
+    <dependency name="server" rev="${omero.version}" changing="true"/>
+    <dependency name="client" rev="${omero.version}" changing="true" conf="client,test->core"/>
     <!-- Public -->
-    <dependency org="omero" name="ice" rev="${versions.ice}" conf="build->default"/>
+    <dependency org="omero" name="ice" rev="${versions.ice}" conf="core->default"/>
   </dependencies>
 </ivy-module>
 
