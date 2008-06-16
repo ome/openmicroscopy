@@ -265,12 +265,9 @@ class MetadataViewerModel
 		if (!(uo instanceof DataObject)) return;
 		
 		if (uo instanceof ExperimenterData) {
-			
-			
 			return;
 		}
 		cancel(refNode);
-		System.err.println(refNode);
 		StructuredDataLoader loader = new StructuredDataLoader(component, 
 								refNode, (DataObject) uo);
 		loaders.put(refNode, loader);
