@@ -31,8 +31,10 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 
 /** 
@@ -121,6 +123,27 @@ public class RenderingControlLoader
      * @see DataLoader#cancel()
      */
     public void cancel() { handle.cancel(); }
+    
+    /**
+     * Notifies the user that an error has occurred and discards the 
+     * {@link #viewer}.
+     * @see DSCallAdapter#handleException(Throwable)
+     */
+    public void handleException(Throwable exc) 
+    {
+        String s = "Data Retrieval Failure: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        registry.getUserNotifier().notifyInfo("Loading Rendering data", 
+        		"The image could not be opened. \n" +
+        		"The image is not a valid image.");
+        viewer.discard();
+        //TODO: Change this.  What to do in the case of failure is up to
+        //the viewer.  So we need to refactor this b/c the decision is
+        //made in the wrong place!
+    }
     
     /** 
      * Feeds the result back to the viewer. 

@@ -198,14 +198,17 @@ class BrowserComponent
     	//if (hasDataToSave(display)) return;
     	TreeImageDisplay oldDisplay = model.getLastSelectedDisplay();
     	//if (oldDisplay != null && oldDisplay.equals(display)) return; 
+    	TreeImageDisplay exp = null;
     	if (display != null) {
     		Object ho = display.getUserObject();
-    		if (ho instanceof ExperimenterData)
+    		if (ho instanceof ExperimenterData) {
+    			exp = display;
     			display = null;
+    		}
     	}
-    	model.setSelectedDisplay(display, single);
+    	if (exp != null) model.setSelectedDisplay(exp, single);
+    	else model.setSelectedDisplay(display, single);
     	if (display == null) view.setNullSelectedNode();
-
     	firePropertyChange(SELECTED_DISPLAY_PROPERTY, oldDisplay, display);
     }
     /**
