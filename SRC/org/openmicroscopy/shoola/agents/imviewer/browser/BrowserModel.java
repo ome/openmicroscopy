@@ -326,13 +326,10 @@ class BrowserModel
     		}
         	if (originalGridImages.size() == 0) {
         		i = images.iterator();
-	        	while (i.hasNext()) {
-	        		originalGridImages.add(
-	        					(BufferedImage) i.next());
-	    		}
+	        	while (i.hasNext()) 
+	        		originalGridImages.add((BufferedImage) i.next());
         	}
-        	combinedImage = Factory.magnifyImage(gridRatio, 
-					renderedImage);
+        	combinedImage = Factory.magnifyImage(gridRatio, renderedImage);
     	}
     }
 
@@ -345,7 +342,6 @@ class BrowserModel
     	
     	if (parent.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
     		createGridImagesForGreyScale();
-	    	
     		return;
     	}
     	List l = parent.getActiveChannels();
@@ -367,8 +363,7 @@ class BrowserModel
 					}
 					int w = combinedImage.getWidth();
 		        	int h = combinedImage.getHeight();
-		        	DataBuffer buf = 
-		        		combinedImage.getRaster().getDataBuffer();
+		        	DataBuffer buf = combinedImage.getRaster().getDataBuffer();
 		    		for (int i = 0; i < maxC; i++) {
 						if (parent.isChannelActive(i)) {
 							if (parent.isChannelRed(i)) { 

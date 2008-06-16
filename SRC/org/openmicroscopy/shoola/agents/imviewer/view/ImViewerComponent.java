@@ -74,6 +74,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.rnd.events.FreeCacheEvent;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -1172,12 +1173,12 @@ class ImViewerComponent
 	public List getImageComponents(String colorModel)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW or" +
+				"LOADING_RENDERING_CONTROL state.");
 		}
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
 		List l = model.getActiveChannels();
@@ -1188,11 +1189,14 @@ class ImViewerComponent
 		List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
 		try {
 			model.setColorModel(colorModel);
+			BufferedImage img;
 			while (i.hasNext()) {
 				index = ((Integer) i.next()).intValue();
 				for (int j = 0; j < model.getMaxC(); j++)
 					model.setChannelActive(j, j == index); 
-				images.add(model.getSplitComponentImage());
+				img = Factory.magnifyImage(model.getSplitComponentImage(), 
+						model.getZoomFactor(), 0);
+				images.add(img);
 			}
 			model.setColorModel(oldColorModel);
 			i = l.iterator();
@@ -1383,12 +1387,12 @@ class ImViewerComponent
 	public BufferedImage getDisplayedImage()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW " +
+						"or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getDisplayedImage();
 	}

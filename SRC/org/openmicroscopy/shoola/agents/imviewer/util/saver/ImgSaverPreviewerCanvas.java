@@ -127,7 +127,7 @@ class ImgSaverPreviewerCanvas
         g2D.drawImage(img, null, w, ImgSaverPreviewer.SPACE);
         int width = img.getWidth();
         if (unitBar && value != null && size < width && 
-        	model.getType() == ImgSaverUI.IMAGE)
+        	model.getType() != ImgSaverUI.GRID_IMAGE)
             ImagePaintingFactory.paintScaleBar(g2D, w+width-size-10, 
                 ImgSaverPreviewer.SPACE+img.getHeight()-10, size, value,
                 model.getUnitBarColor());

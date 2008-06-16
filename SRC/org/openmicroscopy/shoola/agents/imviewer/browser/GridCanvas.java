@@ -198,7 +198,7 @@ class GridCanvas
 	BufferedImage getGridImage()
 	{
 		BufferedImage gridImage;
-		BufferedImage original = model.getAnnotateImage();
+		BufferedImage original = model.getCombinedImage();//model.getAnnotateImage();
     	int w = original.getWidth();
     	int h = original.getHeight();
     	Dimension d = getSize();
@@ -208,19 +208,6 @@ class GridCanvas
 		ImagePaintingFactory.setGraphicRenderingSettings(g2D);
 		paintImage(g2D, w, h, model.isUnitBar());
 		return gridImage;
-    	/*
-		if (model.getRGBSplit()) 
-	    	gridImage = new BufferedImage(2*w+BrowserModel.GAP, 
-	    					2*h+BrowserModel.GAP, BufferedImage.TYPE_INT_RGB);
-	    		
-		else {
-			
-		
-		}
-		
-		
-		*/
-    	
 	}
 
 	/**
