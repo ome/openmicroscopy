@@ -51,16 +51,16 @@
 
 	<target name="compile" depends="prepare,deps-retrieve">
 		<mkdir dir="${basedir}/WEB-INF/classes" />
-		<javac srcdir="${src.dir}" destdir="${build.dir}" debug="on" deprecation="on">
+		<myjavac classpathref="project.class.path" destdir="${build.dir}">
 			<include name="**/*.java" />
-			<classpath refid="project.class.path" />
-		</javac>
+			<src path="${src.dir}"/>
+		</myjavac>
 		<copy todir="${build.dir}/ome/admin/bundle">
 			<fileset dir="${src.dir}/ome/admin/bundle" includes="**/*.properties" />
 		</copy>
 		<copy todir="${build.dir}">
 			<fileset dir="${src.dir}" includes="**/*.properties" />
-		</copy>	
+		</copy>
 	    <copy todir="${build.dir}">
 			<fileset dir="${target.dir}/generated/resources" includes="omero.properties" />
 		</copy>	

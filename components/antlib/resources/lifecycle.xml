@@ -144,17 +144,20 @@
 	will need to be compiled together because of inter-
 	dependencies -->
 	<macrodef name="myjavac">
+	        <attribute name="destdir" default="${classes.dir}"/>
+	        <attribute name="classpathref" default="omero.classpath"/>
 	        <element name="srcelements" implicit="yes"/>
 		<sequential>
-		<javac 
+		<javac
 			fork="yes"
-			destdir="${classes.dir}"
-			classpathref="omero.classpath" 
+			destdir="@{destdir}"
+			classpathref="@{classpathref}"
 			sourcepath=""
 			source="${javac.source}"
 			target="${javac.target}"
 			debug="${javac.debug}"
 			debuglevel="${javac.debuglevel}"
+                        deprecation="on"
 			memoryMaximumSize="${javac.maxmem}"
 		>
 		        <srcelements/>
