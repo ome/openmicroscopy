@@ -58,7 +58,6 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
-import org.openmicroscopy.shoola.agents.imviewer.actions.ArchivedAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ChannelMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorPickerAction;
@@ -224,9 +223,6 @@ class ImViewerControl
 	/** Identifies the <code>color Picker</code> action. */
 	static final Integer     COLOR_PICKER = new Integer(36);
 
-	/** Identifies the <code>download archived files</code> action. */
-	static final Integer     DOWNLOAD = new Integer(37);
-
 	/** Identifies the <code>text visible</code> action in the menu. */
 	static final Integer     TEXT_VISIBLE = new Integer(38);
 
@@ -371,7 +367,6 @@ class ImViewerControl
 		actionsMap.put(UNIT_BAR_CUSTOM, new UnitBarSizeAction(model, 
 				UnitBarSizeAction.CUSTOMIZED));
 		actionsMap.put(COLOR_PICKER, new ColorPickerAction(model));
-		actionsMap.put(DOWNLOAD, new ArchivedAction(model));
 		actionsMap.put(TEXT_VISIBLE, new TextVisibleAction(model));
 		actionsMap.put(MEASUREMENT_TOOL, new ROIToolAction(model));
 		actionsMap.put(IMAGE_DETAILS, new InfoAction(model));

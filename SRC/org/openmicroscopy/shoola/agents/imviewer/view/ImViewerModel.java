@@ -214,6 +214,7 @@ class ImViewerModel
 	/** The rendering settings set by another user. */
 	private RndProxyDef					alternativeSettings;
 	
+	/** The id of the selected user. */
 	private long						selectedUserID;
 	
 	/** 
@@ -486,7 +487,6 @@ class ImViewerModel
 	/** Fires an asynchronous retrieval of the rendering control. */
 	void fireRenderingControlReloading()
 	{
-		
 		DataLoader loader = new RenderingControlLoader(component, 
 									image.getDefaultPixels().getId(), 
 										RenderingControlLoader.RELOAD);
@@ -628,6 +628,10 @@ class ImViewerModel
 		return initZoomFactor();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	boolean isInitMagnificationFactor() { return initMagnificationFactor; }
 	
 	/**

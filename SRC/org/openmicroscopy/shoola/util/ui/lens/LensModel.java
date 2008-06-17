@@ -66,15 +66,16 @@ class LensModel
 											new Color(196, 196, 196, 255);
 
 	/** Minimum zoom allowed. */
-	final static int		MINIMUM_ZOOM	= 1;
+	final static int		MINIMUM_ZOOM = 1;
 
 	/** Maximum zoom allowed. */
-	final static int		MAXIMUM_ZOOM	= 10;
+	final static int		MAXIMUM_ZOOM = 10;
 	
-	/** The default size of the pre-allocated buffer used to store the 
+	/** 
+	 * The default size of the pre-allocated buffer used to store the 
 	 * zoomed image. 
 	 */
-	final static int		DEFAULT_SIZE	= 562500;
+	final static int		DEFAULT_SIZE = 562500;
 		
 	/** x co-ordinate of the lens. */
 	private int		      x;
@@ -125,6 +126,16 @@ class LensModel
 										ColorModel colorModel, int w, int h)
 	{
 		double f = zoomFactor*zoomFactor;
+		//reset dataBuffer 
+		switch (dataBufferType) {
+			case DataBuffer.TYPE_INT:
+				if (zoomedDataBuffer instanceof DataBufferByte)
+					zoomedDataBuffer = null;
+				break;
+			case DataBuffer.TYPE_BYTE:
+				if (zoomedDataBuffer instanceof DataBufferInt)
+					zoomedDataBuffer = null;
+		}
 		if (zoomedDataBufferSize < height*width*f) {
 			switch (dataBufferType) {
 				case DataBuffer.TYPE_INT:
@@ -134,15 +145,20 @@ class LensModel
 					zoomedDataBuffer = new DataBufferByte((int)(150*150*f), 1);
 					break;
 			}
+		} else {
+			if (zoomedDataBuffer != null && 
+				zoomedDataBuffer.getSize() !=  DEFAULT_SIZE)
+				zoomedDataBuffer = null;
 		}
+		
 		if (zoomedDataBuffer == null) {
     		switch (dataBufferType) {
-			case DataBuffer.TYPE_INT:
-				zoomedDataBuffer =  new DataBufferInt(DEFAULT_SIZE, 1);
-				break;
-			case DataBuffer.TYPE_BYTE:
-				zoomedDataBuffer =  new DataBufferByte(DEFAULT_SIZE, 1);
-				break;
+				case DataBuffer.TYPE_INT:
+					zoomedDataBuffer =  new DataBufferInt(DEFAULT_SIZE, 1);
+					break;
+				case DataBuffer.TYPE_BYTE:
+					zoomedDataBuffer =  new DataBufferByte(DEFAULT_SIZE, 1);
+					break;
     		}
     	}
 		SampleModel sm = colorModel.createCompatibleSampleModel(w, h);
@@ -270,6 +286,7 @@ class LensModel
 	BufferedImage createZoomedImage(BufferedImage image)
 	{
 		if (image == null) return null;
+		/*
 		ColorModel cm = image.getColorModel();
 		Raster r = image.getData().createChild(getX(), 
 				            getY(), getWidth(), getHeight(), 0, 0, null);
@@ -280,7 +297,8 @@ class LensModel
     	
     	// Create the required compatible (thumbnail) buffered image to  
     	// avoid potential errors from Java's ImagingLib.
-    	DataBufferInt buf = new DataBufferInt(DEFAULT_SIZE, 1);
+    	
+    	DataBufferInt buf = new DataBufferInt(DEFAULT_SIZE, 1)
     	if (zoomedDataBufferSize < height*zoomFactor*width*zoomFactor)
     		buf = new DataBufferInt((int)(150*150*zoomFactor*zoomFactor), 1);
 		SampleModel sm = cm.createCompatibleSampleModel(thumbWidth, thumbHeight);
@@ -294,6 +312,29 @@ class LensModel
         graphics2D.drawImage(img, 0, 0, thumbWidth, thumbHeight, null);
 		
         return thumbImage;
+        */
+		ColorModel cm = image.getColorModel();
+		Raster r = image.getData().createChild(getX(), 
+				            getY(), getWidth(), getHeight(), 0, 0, null);
+		BufferedImage img = new BufferedImage(cm, (WritableRaster) r, false,
+																	null);
+		int thumbHeight = (int) (img.getHeight()*zoomFactor);
+    	int thumbWidth  = (int) (img.getWidth()*zoomFactor);
+    	
+    	// Create the required compatible (thumbnail) buffered image to  
+    	// avoid potential errors from Java's ImagingLib.
+    	int type = image.getData().getDataBuffer().getDataType();
+    	
+    	WritableRaster wr = getZoomedRaster(type, cm, thumbWidth, thumbHeight);
+    	BufferedImage thumbImage = new BufferedImage(img.getColorModel(), 
+				wr, false, null);
+
+		//Do the actual scaling and return the result
+    	Graphics2D graphics2D = thumbImage.createGraphics();
+
+    	graphics2D.drawImage(img, 0, 0, thumbWidth, thumbHeight, null);
+
+		return thumbImage;
 	}
 	
 	/**

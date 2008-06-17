@@ -590,10 +590,6 @@ class ImViewerUI
 		item = new JMenuItem(action);
 		item.setText(action.getName());
 		menu.add(item);
-		action = controller.getAction(ImViewerControl.DOWNLOAD);
-		item = new JMenuItem(action);
-		item.setText(action.getName());
-		
 		action = controller.getAction(ImViewerControl.PREFERENCES);
 		item = new JMenuItem(action);
 		item.setText(action.getName());

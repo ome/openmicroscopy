@@ -1189,13 +1189,15 @@ class ImViewerComponent
 		List<BufferedImage> images = new ArrayList<BufferedImage>(l.size());
 		try {
 			model.setColorModel(colorModel);
-			BufferedImage img;
+			BufferedImage img = null, splitImage;
 			while (i.hasNext()) {
 				index = ((Integer) i.next()).intValue();
 				for (int j = 0; j < model.getMaxC(); j++)
 					model.setChannelActive(j, j == index); 
-				img = Factory.magnifyImage(model.getSplitComponentImage(), 
-						model.getZoomFactor(), 0);
+				splitImage = model.getSplitComponentImage();
+				if (splitImage != null)
+					img = Factory.magnifyImage(splitImage, 
+							model.getZoomFactor(), 0);
 				images.add(img);
 			}
 			model.setColorModel(oldColorModel);
@@ -1337,8 +1339,6 @@ class ImViewerComponent
 		} catch (Exception e) {
 			reload(e);
 		}
-		//view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		
 		return image;
 	}
 	
@@ -1349,12 +1349,12 @@ class ImViewerComponent
 	public BufferedImage getImageForGrid(int index)
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, " +
-			"NEW or LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, " +
+				"NEW or LOADING_RENDERING_CONTROL state.");
 		}
 		if (!model.isChannelActive(index)) return null;
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) return null;
@@ -1438,12 +1438,12 @@ class ImViewerComponent
 	public float getPixelsSizeZ()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW " +
+						"or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getPixelsSizeZ();
 	}
@@ -1479,12 +1479,12 @@ class ImViewerComponent
 	public List getActiveChannels()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW " +
+						"or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getActiveChannels();
 	}
@@ -1739,33 +1739,7 @@ class ImViewerComponent
 			logger.debug(this, "Reload rendering Engine.");
 			model.fireRenderingControlReloading();
 			fireStateChange();
-			/*
-			MessageBox msg = new MessageBox(view, "Rendering timeout", 
-					"The rendering engine has timed out. " +
-			"Do you want to restart it?");
-			if (msg.centerMsgBox() == MessageBox.YES_OPTION) {
-				logger.debug(this, "Reload rendering Engine.");
-				model.fireRenderingControlReloading();
-				fireStateChange();
-			} else {
-				logger.debug(this, e.getMessage());
-				discard();
-			}
-			*/
 		}
-	}
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#download()
-	 */
-	public void download()
-	{
-		/*
-		Downloader dl = DownloaderFactory.getDownloader(
-				ImViewerAgent.getRegistry(), model.getPixelsID());
-		dl.activate();
-		*/
 	}
 
 	/** 

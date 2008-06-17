@@ -539,9 +539,6 @@ public interface ImViewer
 	 */
 	public void reload(Exception e);
 
-	/** Downloads the archived files. */
-	public void download();
-
 	/**
 	 * Returns the number of pixels along the X-axis.
 	 * 
