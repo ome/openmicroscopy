@@ -37,6 +37,7 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
     public void testInitialUseWithNoDbEntry() throws Exception {
         ome.model.meta.Session s = sm.create(new Principal("root", "system",
                 "FullText"));
+        final boolean[] result = new boolean[1];
         ex.execute(new Principal(s.getUuid(), "system", "FullText"),
                 new Executor.Work() {
                     public Object doWork(TransactionStatus status,
@@ -50,7 +51,21 @@ public class PersistentEventLogLoaderTest extends AbstractManagedContextTest {
                                 break;
                             }
                         }
-                        assertTrue(ll.getCurrentId() > 0);
+                        result[0] = ll.getCurrentId() > 0;
+                        return null;
+                    }
+                });
+        assertTrue(result[0]);
+    }
+
+    public void testTestExcludes() throws Exception {
+        ome.model.meta.Session s = sm.create(new Principal("root", "system",
+                "FullText"));
+        ex.execute(new Principal(s.getUuid(), "system", "FullText"),
+                new Executor.Work() {
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+                        ll.nextEventLog(0);
                         return null;
                     }
                 });

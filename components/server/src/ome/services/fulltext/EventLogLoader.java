@@ -8,6 +8,7 @@
 package ome.services.fulltext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +18,7 @@ import ome.api.IQuery;
 import ome.model.meta.EventLog;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.tools.hibernate.QueryBuilder;
 
 /**
  * Data access object for the {@link FullTextIndexer} which provides an
@@ -66,8 +68,23 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
     private EventLog log;
 
+    /**
+     * Array of class types which will get excluded from indexing.
+     */
+    protected List<String> excludes = Collections.emptyList();
+
+    /**
+     * Spring injector
+     */
+    public void setExcludes(String[] excludes) {
+        this.excludes = Collections.unmodifiableList(Arrays.asList(excludes));
+    }
+
     protected IQuery queryService;
 
+    /**
+     * Spring injector
+     */
     public void setQueryService(IQuery queryService) {
         this.queryService = queryService;
     }
@@ -149,12 +166,26 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     /**
      * Returns the {@link EventLog} with the next id after the given argument or
      * null if none exists. This method will only return "true" {@link EventLog}
-     * instances, with a valid id.
+     * instances, with a valid id. The {@link #excludes} list is used to filter
+     * out unwanted {@link EventLog} isntances.
      */
     public final EventLog nextEventLog(long id) {
-        return queryService.findByQuery("select el from EventLog el "
-                + "where el.id > :id order by id", new Parameters(new Filter()
-                .page(0, 1)).addId(id));
+        List<String> copy = excludes; // Instead of synchronizing
+        QueryBuilder qb = new QueryBuilder();
+        qb.select("el");
+        qb.from("EventLog", "el");
+        qb.where();
+        qb.and("el.id > " + id);
+        if (copy != null) {
+            for (String exclude : copy) {
+                qb.and("el.entityType != '" + exclude + "'");
+            }
+        }
+        qb.order("id", true);
+        String query = qb.queryString();
+
+        return queryService.findByQuery(query, new Parameters(new Filter()
+                .page(0, 1)));
     }
 
     public final EventLog lastEventLog() {

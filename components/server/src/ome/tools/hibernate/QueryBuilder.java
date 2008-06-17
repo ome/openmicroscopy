@@ -256,6 +256,14 @@ public class QueryBuilder {
 
     }
 
+    /**
+     * Returns the current query as a String. As opposed to {@link #toString()},
+     * this method should return parseable HQL.
+     */
+    public String queryString() {
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder toString = new StringBuilder();

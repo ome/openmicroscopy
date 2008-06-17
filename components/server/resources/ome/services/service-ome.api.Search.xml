@@ -80,6 +80,7 @@
     <property name="delete" value="delete from configuration where name = ?"/>
     <property name="types" ref="internal:ome.api.ITypes"/>
     <property name="batchSize" value="${omero.search.batch}"/>
+    <property name="excludes" value="${omero.search.excludes}"/>
   </bean>
 
   <bean id="fullTextThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
