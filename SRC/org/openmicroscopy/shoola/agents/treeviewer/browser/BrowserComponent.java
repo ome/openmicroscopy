@@ -1010,6 +1010,7 @@ class BrowserComponent
 	        	//ignore
 	        	return;
     	}
+
 	    TreeImageDisplay root = view.getTreeRoot();
 	    TreeImageSet expNode;
 	    RefreshExperimenterDef def;

@@ -196,6 +196,9 @@ class BrowserControl
         	//}
         	return;
         }
+        if (ho instanceof ProjectData) {
+        	if (display.numberItems == 0) return;
+        }
         view.loadAction(display);
         if (display instanceof TreeImageTimeSet) {
         	TreeImageTimeSet node = (TreeImageTimeSet) display;

@@ -827,7 +827,8 @@ class BrowserUI
                 j = list.iterator();
                 while (j.hasNext()) {
                 	n = (TreeImageDisplay) j.next();
-                	buildEmptyNode(n);
+                	if (!n.isChildrenLoaded())
+                		buildEmptyNode(n);
                 	dtm.insertNodeInto(n, parent, parent.getChildCount());
                 }
                 dtm.reload(parent);
