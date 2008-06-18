@@ -318,6 +318,7 @@ public class ScreenLogin
 		connectionSpeedText.setForeground(TEXT_COLOR);
 		
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
+		//serverText.setFont(serverText.getFont().deriveFont(Font.BOLD));
 	}
 
 	/**
@@ -330,7 +331,8 @@ public class ScreenLogin
 	 */
 	private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
 	{
-		double[][] size = new double[][]{{TableLayout.PREFERRED, 170}, {30}};
+		double[][] size = new double[][]{{TableLayout.PREFERRED, 170}, 
+						{TableLayout.PREFERRED}};
 
 		JPanel panel = new JPanel();
 		panel.setOpaque(false);
@@ -402,7 +404,7 @@ public class ScreenLogin
 	{
 		double mainTable[][] =
 		{{TableLayout.FILL, 100, 5, 100}, // columns
-				{TableLayout.FILL, 30}}; // rows
+				{TableLayout.FILL, TableLayout.PREFERRED}}; // rows
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(new TableLayout(mainTable));       
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));

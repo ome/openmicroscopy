@@ -428,6 +428,7 @@ public class EditorUI
         	Object refObject = model.getRefObject();
         	commentsTree.setTreeEnabled(true);
         	tagsTree.setTreeEnabled(true);
+        	browserTree.setTreeEnabled(true);
         	if (refObject instanceof ImageData) {
         		boolean count =  model.getViewedByCount() > 0;
         		viewByTree.setTreeEnabled(count);
@@ -444,6 +445,8 @@ public class EditorUI
         		commentsTree.collapseNodes();
         		propertiesUI.setObjectDescription();
         		commentsTree.setTreeEnabled(false);
+        		browserTree.collapseNodes();
+        		browserTree.setTreeEnabled(false);
         		if (model.hasTagsAsChildren()) {
         			tagsTree.collapseNodes();
         			tagsTree.setTreeEnabled(false);
@@ -456,7 +459,6 @@ public class EditorUI
         	toolBarTop.setDecorator();
     	}
     	revalidate();
-    	//repaint();
     }
     
     /**
@@ -619,7 +621,6 @@ public class EditorUI
 				browserTree.collapseNodes();
 			}
 		} else {
-			//rightLayout.setRow(3, TableLayout.PREFERRED);
 			leftLayout.setRow(4, TableLayout.PREFERRED);
 			rightLayout.setRow(3, TableLayout.PREFERRED);
 			if (object instanceof ImageData) {
@@ -637,6 +638,8 @@ public class EditorUI
 	    		infoTree.collapseNodes();
 	    		infoUI.setExpanded(false);
 	    	}
+			if (object instanceof TagAnnotationData) 
+				rightLayout.setRow(3, 0);
 		}
 		
 		if (topLeftPane != null) leftPane.remove(topLeftPane);

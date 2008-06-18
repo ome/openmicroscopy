@@ -570,11 +570,11 @@ class OMEROGateway
 	private void resetFactory(String userName, String password)
 	{
 		//First close the previous session
-		entry.closeSession();
+		logout();
 		login = new Login(userName, password);
 		entry = new ServiceFactory(server, new Login(userName, password));
-		if (thumbnailService != null) thumbnailService.close();
-		thumbnailService = null;
+		//if (thumbnailService != null) thumbnailService.close();
+		//thumbnailService = null;
 		thumbRetrieval = 0;
 	}
 
@@ -919,6 +919,8 @@ class OMEROGateway
 		try {
 			if (thumbnailService != null) thumbnailService.close();
 			if (fileStore != null) fileStore.close();
+			thumbnailService = null;
+			fileStore = null;
 			entry.closeSession();
 		} catch (Exception e) {
 			//session already dead.

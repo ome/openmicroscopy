@@ -1053,7 +1053,7 @@ class ImViewerUI
 	{
 		if (statusBar == null) return;
 		if (factor != -1)
-			statusBar.setRigthStatus("x"+factor);
+			statusBar.setRigthStatus("x"+Math.round(factor*100)/100.0);
 		else statusBar.setRigthStatus(ZoomAction.ZOOM_FIT_NAME);
 	}
 	

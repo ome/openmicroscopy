@@ -136,6 +136,7 @@ class SplashScreenManager
 	 */
 	private void setWindowState(JFrame f, int state)
 	{
+		if (f == null) return;
 		f.removeWindowStateListener(this);
 		f.setState(state);
 		f.addWindowStateListener(this);
@@ -144,9 +145,25 @@ class SplashScreenManager
 	/** Sets the views on top. */
     private void updateView()
     {
-    	view.setAlwaysOnTop(true);
+    	if (view != null) view.setAlwaysOnTop(true);
     	viewTop.setAlwaysOnTop(true); 
-    	view.requestFocusOnField();
+    	if (view != null) view.requestFocusOnField();
+    }
+    
+    private void initializedView()
+    {
+    	if (view != null) return;	
+    	Image img = IconManager.getOMEImageIcon();
+    	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
+				VERSION);
+		view.showConnectionSpeed(true);
+		Dimension d = viewTop.getExtendedSize();
+		Dimension dlogin = view.getPreferredSize();
+		Rectangle r = viewTop.getBounds();
+		view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
+		view.addPropertyChangeListener(this);
+		view.addWindowStateListener(this);
+		view.addWindowFocusListener(this);
     }
     
 	/**
@@ -161,9 +178,8 @@ class SplashScreenManager
 		container = c;
 		this.component = component;
 		Image img = IconManager.getOMEImageIcon();
-		view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
-								VERSION);
-		view.showConnectionSpeed(true);
+    	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
+				VERSION);
 		viewTop = new ScreenLogo(TITLE, IconManager.getSplashScreen(), img);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = viewTop.getExtendedSize();
@@ -172,13 +188,11 @@ class SplashScreenManager
 		viewTop.setBounds((screenSize.width-d.width)/2, 
 	    		 	(screenSize.height-totalHeight)/2, d.width, 
 	    		 	viewTop.getSize().height);
-	    Rectangle r = viewTop.getBounds();
-		view.setBounds(r.x, r.y+d.height, dlogin.width, dlogin.height);
-		view.addPropertyChangeListener(this);
+		view = null;
 		viewTop.addPropertyChangeListener(this);
-		view.addWindowStateListener(this);
+		
 		viewTop.addWindowStateListener(this);
-		view.addWindowFocusListener(this);
+		
 		viewTop.addWindowFocusListener(this);
 		isOpen = false;
 		doneTasks = 0;
@@ -219,7 +233,7 @@ class SplashScreenManager
 	void open()
 	{
 		//close() has already been called.
-		if (view == null || viewTop == null) return;  
+		if (viewTop == null) return;  
 		//view.setVisible(true);
 		viewTop.setVisible(true);
 		isOpen = true;	
@@ -272,6 +286,8 @@ class SplashScreenManager
 		viewTop.setStatus(task, n);
 		if (doneTasks == totalTasks) {
 			viewTop.setStatusVisible(false);
+			initializedView();
+
 			view.setVisible(true);
 		}
 	}
@@ -286,11 +302,11 @@ class SplashScreenManager
     void collectUserCredentials(SplashScreenFuture future, boolean init)
     {
         userCredentials = future;
-        view.setControlsEnabled(true);
+        if (view != null) view.setControlsEnabled(true);
        
         if (!init) {
             //view.setCursor(Cursor.getDefaultCursor());
-            view.cleanField(ScreenLogin.PASSWORD_FIELD);
+        	if (view != null) view.cleanField(ScreenLogin.PASSWORD_FIELD);
             updateView();
         }
     }
@@ -304,7 +320,7 @@ class SplashScreenManager
     void collectUserCredentialsInit(SplashScreenFuture future)
     {
         userCredentials = future;
-        view.setControlsEnabled(true);
+        if (view != null) view.setControlsEnabled(true);
     }
 
 	/**
@@ -338,7 +354,7 @@ class SplashScreenManager
 		int state = e.getNewState();
 		if (src instanceof ScreenLogo) setWindowState(view, state);
 		else if (src instanceof ScreenLogin) setWindowState(viewTop, state);
-		view.setAlwaysOnTop(state == JFrame.NORMAL);
+		if (view != null) view.setAlwaysOnTop(state == JFrame.NORMAL);
 		viewTop.setAlwaysOnTop(state == JFrame.NORMAL);
 	}
 
