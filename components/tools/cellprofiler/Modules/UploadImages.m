@@ -17,8 +17,14 @@ function handles = UploadImages(handles)
 % Copyright 2003,2004,2005.
 %
 % Website: http://www.cellprofiler.org
-%
 % $Revision: 4905 $
+% UploadImages 
+% Author:
+%   Donald MacDonald (Donald@lifesci.dundee.ac.uk)
+% OpenMicroscopy Environment (OME)
+% www.openmicroscopy.org.uk
+% University of Dundee
+
 
 %%%%%%%%%%%%%%%%%
 %%% VARIABLES %%%
@@ -131,23 +137,23 @@ currentFileDetails = handles.Pipeline.(fieldname);
 omeroService = createOmerojService(iceConfigPath,UserName, Password);
 if SetBeingAnalyzed == 1 
     %%% CREATE COPY OF THE CURRENT PIXELS.
-    
+    channelList = java.util.ArrayList;
     for i = 1:numImages(ImageName)
         fieldname = strcat('Filename',FileName{i});
         fileName = handles.Pipeline.(fieldname);
         [path, fname, ext, v] = fileparts(char(fileName));
           
         [filename, z, t, channel] = parseFileName(char(fname));
-        ChannelList(i) = str2num(channel);
+        channelList.add(java.lang.Integer(str2num(channel)));
     end
     
-    newPixelsId =  copyPixels(omeroService, pixelsId, ChannelList, Methodology);      
-    handles.Pipeline.('uploadPixelsID') = newPixelsId.longValue();
-    pixels = getPixels(omeroService, newPixelsId.longValue());
+    newPixelsId =  copyPixels(omeroService, pixelsId, channelList, Methodology);      
+    handles.Pipeline.('uploadPixelsID') = newPixelsId;
+    pixels = getPixels(omeroService, newPixelsId);
     if(str2num(BitDepth)==8)
-        pixelsType = getPixelsType(omeroService, 'uint8');
+        pixelsType = getPixelType(omeroService, 'uint8');
     else
-        pixelsType = getPixelsType(omeroService, 'uint16');
+        pixelsType = getPixelType(omeroService, 'uint16');
     end;
     pixels.pixelsType = pixelsType;
     updatePixels(omeroService,pixels);
@@ -197,7 +203,8 @@ for i = 1:numImages(ImageName)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     drawnow
     uploadPixelsID = handles.Pipeline.('uploadPixelsID');
-    uploadPlane(omeroService, uploadPixelsID, str2num(z), i-1, str2num(t),  Image);
+    uploadPlane(omeroService, int64(uploadPixelsID), int32(str2num(z)), ...
+    int32(i-1), int32(str2num(t)),  double(squeeze(Image(:,:,1))));
     pixels = getPixels(omeroService, uploadPixelsID);
     c = pixels.channels.get(i-1);
     stats = c.statsInfo;

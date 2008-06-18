@@ -114,7 +114,8 @@ if SetBeingAnalyzed == 1
 
     % Get all filenames in the specified directory wich contains the specified extension (e.g., .avi or .stk).
     % Note that there is no check that the extensions actually is the last part of the filename.
-    dataset = [str2num(DatasetID)];
+    datasetAsNum = [str2num(DatasetID)];
+    dataset = getDataset(omeroService, datasetAsNum, 1);
     list = getImagesFromDataset(omeroService, dataset);
 
     fileIds=[];
@@ -174,8 +175,9 @@ for n = 1:handles.Pipeline.imagesPerSet
             fieldname = strcat('FileCnt', num2str(SetBeingAnalyzed));
             currentFileDetails = handles.Pipeline.(fieldname);
             [pixelsId, z, t] = parseFileDetails(currentFileDetails);
-            
+            'a'
             [LoadedImage, handles] = CPOMEROimread(omeroService, currentFileDetails, TextToFind{n}, handles);
+            'b'
             if (max(LoadedImage(:)) <= .0625) && (handles.Current.SetBeingAnalyzed == 1)
                 A = strmatch('RescaleIntensity', handles.Settings.ModuleNames);
                 if length(A) < length(ImageName)
@@ -185,7 +187,9 @@ for n = 1:handles.Pipeline.imagesPerSet
 
             fieldname = strcat('Filename', ImageName{n});
             handles.Pipeline.(ImageName{n}) = LoadedImage;
+            'c'
             pixels = getPixels(omeroService, pixelsId);
+            'd'
             imageId = pixels.image.id.val;
             [path, fname, ext, v] = fileparts(getFileName(omeroService, imageId));
             
