@@ -128,7 +128,7 @@ fieldname = strcat('FileCnt', num2str(SetBeingAnalyzed));
 currentFileDetails = handles.Pipeline.(fieldname);
 [pixelsId, z, t] = parseFileDetails(currentFileDetails);
     
-blitzGateway = createServiceFactoryOMERO(iceConfigPath,UserName, Password);
+omeroService = createOmerojService(iceConfigPath,UserName, Password);
 if SetBeingAnalyzed == 1 
     %%% CREATE COPY OF THE CURRENT PIXELS.
     
@@ -141,16 +141,16 @@ if SetBeingAnalyzed == 1
         ChannelList(i) = str2num(channel);
     end
     
-    newPixelsId =  copyPixelsOMERO(blitzGateway, pixelsId, ChannelList, Methodology);      
+    newPixelsId =  copyPixels(omeroService, pixelsId, ChannelList, Methodology);      
     handles.Pipeline.('uploadPixelsID') = newPixelsId.longValue();
-    pixels = blitzGateway.getPixels(newPixelsId.longValue());
+    pixels = getPixels(omeroService, newPixelsId.longValue());
     if(str2num(BitDepth)==8)
-        pixelsType = getPixelsTypeOMERO(blitzGateway, 'uint8');
+        pixelsType = getPixelsType(omeroService, 'uint8');
     else
-        pixelsType = getPixelsTypeOMERO(blitzGateway, 'uint16');
+        pixelsType = getPixelsType(omeroService, 'uint16');
     end;
     pixels.pixelsType = pixelsType;
-    blitzGateway.updatePixels(pixels);
+    updatePixels(omeroService,pixels);
 
 end
     
@@ -197,13 +197,13 @@ for i = 1:numImages(ImageName)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     drawnow
     uploadPixelsID = handles.Pipeline.('uploadPixelsID');
-    blitzGateway.uploadPlane(uploadPixelsID, str2num(z), i-1, str2num(t),  Image);
-    pixels = getPixelsOMERO(blitzGateway, uploadPixelsID);
+    uploadPlane(omeroService, uploadPixelsID, str2num(z), i-1, str2num(t),  Image);
+    pixels = getPixels(omeroService, uploadPixelsID);
     c = pixels.channels.get(i-1);
     stats = c.statsInfo;
     stats.globalMin = omero.RDouble(minValue);
     stats.globalMax = omero.RDouble(maxValue);
-    blitzGateway.updatePixels(pixels);
+    updatePixels(omeroService, pixels);
 end
 warning on MATLAB:intConvertNonIntVal;
 warning on MATLAB:intConvertOverflow;
