@@ -298,12 +298,12 @@ public class MeasureEllipseFigure
 			ellipseArea=addUnits(ellipseArea);
 			double sz=((Double) this.getAttribute(MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial", Font.PLAIN, (int) sz));
-			bounds= g.getFontMetrics().getStringBounds(ellipseArea, g);
+			Rectangle2D stringBoundsbounds= g.getFontMetrics().getStringBounds(ellipseArea, g);
 			bounds=
-					new Rectangle2D.Double(this.getBounds().getCenterX()
-							-bounds.getWidth()/2, this.getBounds().getCenterY()
-							+bounds.getHeight()/2, bounds.getWidth(), bounds
-						.getHeight());
+					new Rectangle2D.Double(getCentreX()
+							-stringBoundsbounds.getWidth()/2, this.getCentreY()
+							+stringBoundsbounds.getHeight()/2, stringBoundsbounds.getWidth(), 
+							stringBoundsbounds.getHeight());
 			g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 			g.drawString(ellipseArea, (int) bounds.getX(), (int) bounds.getY());
 		}
