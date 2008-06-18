@@ -137,6 +137,20 @@ public interface ImageService
 			List<Integer> channelList, String methodology) 
 	throws DSOutOfServiceException, DSAccessException;
 	
+	
+	/**
+	 * Copy the pixels set from pixels to a new set.
+	 * @param pixelsID pixels id to copy.
+	 * @param channelList the list of channels to copy.
+	 * @param methodology what created the pixels.
+	 * @return new id.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Long copyPixels(long pixelsID,
+			List<Integer> channelList, String methodology) 
+	throws DSOutOfServiceException, DSAccessException;
+	
 	/**
 	 * Copy the image and pixels from image.
 	 * @param imageId image id to copy.

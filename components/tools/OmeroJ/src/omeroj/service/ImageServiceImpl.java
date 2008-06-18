@@ -169,6 +169,20 @@ class ImageServiceImpl
 	}
 	
 	/* (non-Javadoc)
+	 * @see blitzgateway.service.ImageService#copyPixels(long, java.lang.String)
+	 */
+	public Long copyPixels(long pixelsID, List<Integer> channelList,
+			String methodology) throws DSOutOfServiceException, DSAccessException
+	{
+		Pixels pixels = getPixels(pixelsID);
+		Long newID = iPixels.copyAndResizePixels
+						(pixelsID, pixels.sizeX.val, pixels.sizeY.val, 
+						 pixels.sizeT.val,pixels.sizeZ.val, 
+						 channelList, methodology);
+		return newID;
+	}
+	
+	/* (non-Javadoc)
 	 * @see blitzgateway.service.ImageService#copyImage(long, int, int, int, int, java.lang.String)
 	 */
 	public Long copyImage(long imageId, int x, int y, int t, int z, List<Integer> channelList,

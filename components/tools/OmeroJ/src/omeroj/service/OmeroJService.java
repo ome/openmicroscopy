@@ -24,6 +24,7 @@ package omeroj.service;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -394,6 +395,26 @@ public class OmeroJService
 		DSOutOfServiceException, DSAccessException
 	{
 		return imageService.copyPixels(pixelsID, x, y, t, z, channelList, methodology);
+	}
+	
+	
+	/**
+	 * Copy the pixels to a new pixels, this is only the data object 
+	 * and does not create a pixels object in the RawPixelsStore,
+	 * To load data into the plane the {@link #uploadPlane(long, double[][])} 
+	 * to add data to the pixels. 
+	 * @param pixelsID pixels id to copy.
+	 * @param channelList the list of channels to copy, this is the channel index.
+	 * @param methodology user supplied text, describing the methods that 
+	 * created the pixels.
+	 * @return new id.
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public long copyPixels(long pixelsID, List<Integer> channelList, String methodology) throws 
+		DSOutOfServiceException, DSAccessException
+	{
+		return imageService.copyPixels(pixelsID, channelList, methodology);
 	}
 	
 	/**
@@ -1075,7 +1096,16 @@ public class OmeroJService
 		return gatewayFactory.getUsername();
 	}
 	
-
+	public Dataset getDataset(long datasetId, boolean leaves) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		List<Long> datasetIdList = new ArrayList();
+		datasetIdList.add(datasetId);
+		List<Dataset> datasets = getDatasets(datasetIdList, leaves);
+		if(datasets.size()==1)
+			return datasets.get(0);
+		return null;
+	}
 }
 
 
