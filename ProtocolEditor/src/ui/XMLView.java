@@ -632,7 +632,7 @@ public class XMLView
 		 */
 		boolean isUpgradeNeeded = StartupShutdown.upgradeCheck();
 		
-		String message = "Welcome to the Protocol Editor.\n"
+		String message = "Welcome to the OMERO.editor.\n"
 		    + "Please choose an option to get you started.";
 		if (isUpgradeNeeded) {
 			message = message + "\n \n" + "WARNING: You may not be using the " +
