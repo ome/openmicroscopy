@@ -35,34 +35,38 @@ module monitors {
         
         /*
          *   id is used to control monitors 
+         *   id is a uuid1 at present.
          */
         bool startMonitor(string id);
         bool stopMonitor(string id);
         bool destroyMonitor(string id);
 
-        // id and relative path are used for directory level operations.
-        Ice::StringSeq getDirectory(string id, string path, string filter);
+        // directory level operations.
+        Ice::StringSeq getMonitorDirectory(string id, string relPath, string filter);
+        Ice::StringSeq getDirectory(string absPath, string filter);
         
         /*
-         *   id and fileId are used for file level operations.
+         *   fileId is used for file level operations.
+         *   fileId is omero-fs://url/path/to/file.ext
          */
-        string getBaseName(string id, string fileId);
-        FileStats getStats(string id, string fileId);       
-        long getSize(string id, string fileId);
-        string getOwner(string id, string fileId);
-        float getCTime(string id, string fileId);
-        float getMTime(string id, string fileId);
-        float getATime(string id, string fileId);
+        string getBaseName(string fileId);
+        FileStats getStats(string fileId);       
+
+        long getSize(string fileId);
+        string getOwner(string fileId);
+        float getCTime(string fileId);
+        float getMTime(string fileId);
+        float getATime(string fileId);
         
         
         // readBlock should open, read size bytes from offset and then close the file.
-        Ice::ByteSeq readBlock(string id, string fileId, long offset, int size);
+        Ice::ByteSeq readBlock(string fileId, long offset, int size);
         
     }; // end interface MonitorServer
   
     
     struct FileInfo {
-        string fileId;
+        string fileId; //see above.
         string baseName;
         long size;
         float mTime;
@@ -74,6 +78,8 @@ module monitors {
      *    Initially let the event be a simple path string.
      *    A more complex structure may need to de defined
      *    if information other than the file name is needed.
+     *
+     *    See above for id
      */
     interface  MonitorClient {
     
