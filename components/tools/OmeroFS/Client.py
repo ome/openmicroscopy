@@ -176,8 +176,8 @@ class Client(Ice.Application):
         """      
         Ice.Application.callbackOnInterrupt()
 
-        base = self.communicator().propertyToProxy('omerofs.MonitorServer')
-        self.mServer = monitors.MonitorServerPrx.uncheckedCast(base.ice_twoway())
+        base = self.communicator().propertyToProxy('omerofs.MonitorServerX')
+        self.mServer = monitors.MonitorServerPrx.checkedCast(base.ice_twoway())
 
         mClient = MonitorClientImpl()
         adapter = self.communicator().createObjectAdapter("omerofs.MonitorClient")
@@ -198,11 +198,11 @@ class Client(Ice.Application):
 
 
 #: Example path.
-pathToWatch = '/Users/cblackburn/Work/OMERO-FS/FS-research/watchDir/'
+pathToWatch = '/Users/cblackburn/tmp/'
 #: Example whitelist of extensions.
 whitelist = ['.jpg', '.dv']
 #: Example blacklist of subsdirectories.
-blacklist = ['subdir1']     
+blacklist = []     
 #: Client object reference
 app = Client(pathToWatch, whitelist, blacklist)
 

@@ -8,6 +8,11 @@ from Foundation import NSAutoreleasePool, NSMutableArray, NSString
 import FSEvents
 import threading
 import sys, traceback
+import uuid
+import socket
+
+# logging
+from logger import log
 
 # Third party path package. It provides much of the 
 # functionality of os.path but without the complexity.
@@ -31,6 +36,8 @@ class MonitorServerImpl(monitors.MonitorServer):
             Intialise the instance variables.
         
         """
+        #self.fsPrefix = 'omero-fs://' + socket.gethostbyname(socket.gethostname())
+        #self.prefixLne = len(self.fsPrefix) ## Save calculating it each time?
         #: Numerical component of a Monitor Id
         self.monitorId = 0
         #: Dictionary of Monitors by Id
@@ -41,6 +48,7 @@ class MonitorServerImpl(monitors.MonitorServer):
         self.streamRefs = {}
         #: Dictionary of MonitorClientI proxies by Id
         self.proxies = {}
+
         
     def startMonitor(self, id, current=None):
         """
@@ -58,7 +66,12 @@ class MonitorServerImpl(monitors.MonitorServer):
             :rtype: boolean
                 
         """
-        self.monitors[id].start()
+        try:
+            self.monitors[id].start()
+            log.info('Monitor id = ' + id + ' started')
+        except:
+            return False ## eventually raise an exception
+            
         return True
 
     def stopMonitor(self, id, current=None):
@@ -77,7 +90,12 @@ class MonitorServerImpl(monitors.MonitorServer):
             :rtype: boolean
                 
         """
-        self.monitors[id].stop()
+        try:
+            self.monitors[id].stop()
+            log.info('Monitor id = ' + id + ' stopped')
+        except:
+            return False ## eventually raise an exception
+
         return True
 
     def destroyMonitor(self, id, current=None):
@@ -96,12 +114,17 @@ class MonitorServerImpl(monitors.MonitorServer):
             :rtype: boolean
                 
         """
-        del self.monitors[id]
-        del self.proxies[id]
-        del self.directory[id]
+        try:
+            del self.monitors[id]
+            del self.proxies[id]
+            del self.directory[id]
+            log.info('Monitor id = ' + id + ' destroyed')
+        except:
+            return False ## eventually raise an exception
+        
         return True
         
-    def getDirectory(self, id, plusPath, filter, current=None):
+    def getMonitorDirectory(self, id, relPath, filter, current=None):
         """
             Get a list of subdirectories and files in a directory.
             
@@ -109,8 +132,8 @@ class MonitorServerImpl(monitors.MonitorServer):
                 id : string
                     A string uniquely identifying a Monitor.
                       
-                pathPlus : string
-                    A path to be added to the base directory path.
+                relPlus : string
+                    A relative path to be added to the base directory path.
 
                 filter : string
                     A pattern to filter the listing (cf. ls).
@@ -125,7 +148,7 @@ class MonitorServerImpl(monitors.MonitorServer):
         """
         
         if filter == "": filter = "*"
-        fullPath = self.directory[id].getPath() / plusPath
+        fullPath = self.directory[id].getPath() / relPath
         dirList = fullPath.dirs(filter)
         fileList = fullPath.files(filter)
         
@@ -137,14 +160,45 @@ class MonitorServerImpl(monitors.MonitorServer):
         
         return fullList
 
-    def getBaseName(self, id, fileId, current=None):
+    def getDirectory(self, absPath, filter, current=None):
+        """
+            Get a list of subdirectories and files in a directory.
+            
+            :Parameters:
+                     
+                absPath : string
+                    An absolute path.
+
+                filter : string
+                    A pattern to filter the listing (cf. ls).
+                      
+                current 
+                    An ICE context, this parameter is required to be present
+                    in an ICE interface method.
+                           
+            :return: a list of files.
+            :rtype: list<string>
+         
+        """
+        
+        if filter == "": filter = "*"
+        fullPath = pathModule.path(absPath)
+        dirList = fullPath.dirs(filter)
+        fileList = fullPath.files(filter)
+        
+        fullList = []
+        for d in dirList:
+            fullList.append(d.name + '/')
+        for f in fileList:
+            fullList.append(f.name)
+        
+        return fullList
+
+    def getBaseName(self, fileId, current=None):
         """
             Return the base names of the file, ie no path.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
                 fileId : string
                     A string uniquely identifying a file on this Monitor.
                       
@@ -157,16 +211,16 @@ class MonitorServerImpl(monitors.MonitorServer):
          
         """
         
-        return pathModule.path(fileId).name
+        name = pathModule.path(fileId).name
+
+        return name
         
-    def getStats(self, id, fileId, current=None):
+        
+    def getStats(self, fileId, current=None):
         """
             Return an at most size block of bytes from offset.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
                 fileId : string
                     A string uniquely identifying a file on this Monitor.
                       
@@ -179,7 +233,7 @@ class MonitorServerImpl(monitors.MonitorServer):
          
         """
         stats = monitors.FileStats()
-        
+            
         stats.owner = pathModule.path(fileId).owner
         stats.size = pathModule.path(fileId).size
         stats.mTime = pathModule.path(fileId).mtime
@@ -188,14 +242,11 @@ class MonitorServerImpl(monitors.MonitorServer):
 
         return stats
         
-    def getSize(self, id, fileId, current=None):
+    def getSize(self, fileId, current=None):
         """
             Return the size of the file.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
                 fileId : string
                     A string uniquely identifying a file on this Monitor.
                       
@@ -210,14 +261,11 @@ class MonitorServerImpl(monitors.MonitorServer):
         
         return pathModule.path(fileId).size
         
-    def getOwner(self, id, fileId, current=None):
+    def getOwner(self, fileId, current=None):
         """
             Return the owner of the file.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
                 fileId : string
                     A string uniquely identifying a file on this Monitor.
                       
@@ -232,14 +280,11 @@ class MonitorServerImpl(monitors.MonitorServer):
         
         return pathModule.path(fileId).owner
         
-    def getCTime(self, id, fileId, current=None):
+    def getCTime(self, fileId, current=None):
         """
             Return the ctime of the file.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
                 fileId : string
                     A string uniquely identifying a file on this Monitor.
                       
@@ -254,14 +299,11 @@ class MonitorServerImpl(monitors.MonitorServer):
         
         return pathModule.path(fileId).ctime
         
-    def getMTime(self, id, fileId, current=None):
+    def getMTime(self, fileId, current=None):
         """
             Return the mtime of the file.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
                 fileId : string
                     A string uniquely identifying a file on this Monitor.
                       
@@ -276,14 +318,11 @@ class MonitorServerImpl(monitors.MonitorServer):
         
         return pathModule.path(fileId).mtime
         
-    def getATime(self, id, fileId, current=None):
+    def getATime(self, fileId, current=None):
         """
             Return the atime of the file.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
                 fileId : string
                     A string uniquely identifying a file on this Monitor.
                       
@@ -299,17 +338,11 @@ class MonitorServerImpl(monitors.MonitorServer):
         return pathModule.path(fileId).atime
         
         
-    def readBlock(self, id, fileId, offset, size, current=None):
+    def readBlock(self, fileId, offset, size, current=None):
         """
             Return an at most size block of bytes from offset.
             
             :Parameters:
-                id : string
-                    A string uniquely identifying a Monitor.
-                      
-                fileId : string
-                    A string uniquely identifying a file on this Monitor.
-                
                 offset : long integer
                     The byte position in the file to read from.
                     
@@ -333,22 +366,19 @@ class MonitorServerImpl(monitors.MonitorServer):
         return bytes
     
     
-    def getNextMonitorId(self):
+    def _getNextMonitorId(self):
         """
             Return next monitor ID and increment.
             
             The monitorID is a unique key to identify a monitor on the
-            file system. In the present implementation this is simply 
-            a string created from an integer. However, in a system with
-            multiple file system servers the key might need to have 
-            some additional hash key added in.
+            file system. In the present implementation this is a string 
+            generated by uuid.uuid1()
             
             :return: Next monitor Id
             :rtype: string
             
         """
-        self.monitorId += 1    
-        return str(self.monitorId)
+        return str(uuid.uuid1())
         
 
     def createMonitor(self, pathString=None, 
@@ -395,7 +425,7 @@ class MonitorServerImpl(monitors.MonitorServer):
         ms = NSString.stringWithString_(pathString)
         ma.insertObject_atIndex_(ms, 0)
 
-        monitorId = self.getNextMonitorId()
+        monitorId = self._getNextMonitorId()
         self.proxies[monitorId] = proxy    
         self.monitors[monitorId] = Monitor(ma, self.callback, monitorId)
         self.directory[monitorId] = Directory.Directory(pathString=pathString, 
@@ -405,6 +435,8 @@ class MonitorServerImpl(monitors.MonitorServer):
         # Release the pool now that the NSMutableArray has been used.
         #
         del pool     
+                    
+        log.info('Monitor id = ' + monitorId + ' created')
 
         return monitorId
         
@@ -485,10 +517,12 @@ class MonitorServerImpl(monitors.MonitorServer):
                     eventList.append(info)
                 try:
                     proxy.fsEventHappened(monitorId, eventList)
+                    log.debug('Event notification on monitor id=' + monitorId + ' => ' + str(eventList))
                 except Exception, e:
+                    log.info('Proxy attached to monitor id=' + monitorId + ' lost. Reason: ' + str(e))
                     self.stopMonitor(monitorId)
                     self.destroyMonitor(monitorId)
-                    print 'Proxy id=' + monitorId+ ' lost.\n Reason: ' + str(e)
+
 
 
 

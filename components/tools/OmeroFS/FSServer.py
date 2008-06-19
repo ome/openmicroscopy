@@ -12,6 +12,9 @@ import sys
 import Ice
 import Monitor 
 
+import logging
+from logger import log
+
 class Server(Ice.Application):
     """
         A fairly vanilla ICE server application.
@@ -37,9 +40,10 @@ class Server(Ice.Application):
             
             :return: No explicit return value.
             
-        """       
-        print 'Shutting down FS server. Signal ', str(sig), ' received.'
+        """   
         self.communicator().shutdown()
+        log.info('Terminating OMERO.fs server. Signal ' + str(sig) + ' received.')
+        logging.shutdown()
         
     def run(self, args):
         """
@@ -58,15 +62,10 @@ class Server(Ice.Application):
         # Create a MonitorServer, its adapter and activate it.
         mServer = Monitor.MonitorServerImpl()
         adapter = self.communicator().createObjectAdapter("omerofs.MonitorServer")
-        adapter.add(mServer, self.communicator().stringToIdentity("fsEventHappened"))
+        adapter.add(mServer, self.communicator().stringToIdentity("macFSServer"))
         adapter.activate()
         
         # Wait for an interrupt.
         self.communicator().waitForShutdown()
         
         return 0
-
-
-app = Server()
-sys.exit(app.main(sys.argv, "config.server"))
-
