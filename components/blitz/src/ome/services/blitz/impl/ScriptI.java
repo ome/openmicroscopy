@@ -106,8 +106,7 @@ public class ScriptI extends _IScriptDisp {
     }
 
     /**
-     * Upload script to the server. The script must also have a list of it's
-     * parameters and return types as JavaDoc in the header of the script.
+     * Upload script to the server. 
      * 
      * @param script
      * @param __current ice context. 
