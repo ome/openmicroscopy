@@ -227,7 +227,7 @@ BEGIN;
 
 -- OMERO3__7 --> OMERO3A__1
 
-CREATE OR REPLACE FUNCTION OMERO3A__1__upgrade() RETURNS varchar(255) AS $$
+CREATE OR REPLACE FUNCTION OMERO3A__1__upgrade() RETURNS varchar(255) AS '
 DECLARE
     mviews RECORD;
     indexed RECORD;
@@ -654,17 +654,17 @@ BEGIN
   FOR mviews IN SELECT id, owner_id, group_id, creation_id, update_id, permissions, external_id, version, image, content
   FROM imageannotation LOOP
 
-    SELECT INTO ann nextval('seq_annotation');
+    SELECT INTO ann nextval(''seq_annotation'');
     INSERT INTO annotation
         (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
         VALUES
-        ('/basic/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
-         mviews.permissions, mviews.external_id, mviews.content, '');
+        (''/basic/text/,'' ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+         mviews.permissions, mviews.external_id, mviews.content, '''');
 
     INSERT INTO imageannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
         VALUES
-        (nextval('seq_imageannotationlink'),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.image, mviews.group_id);
+        (nextval(''seq_imageannotationlink''),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.image, mviews.group_id);
 
   END LOOP;
   DELETE FROM imageannotation;
@@ -675,16 +675,16 @@ BEGIN
   FOR mviews IN SELECT id, owner_id, group_id, creation_id, update_id, permissions, external_id, version, dataset, content
   FROM datasetannotation LOOP
 
-    SELECT INTO ann nextval('seq_annotation');
+    SELECT INTO ann nextval(''seq_annotation'');
     INSERT INTO annotation
       (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
       VALUES
-      ('/basic/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
-      mviews.permissions, mviews.external_id, mviews.content, '');
+      (''/basic/text/'', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+      mviews.permissions, mviews.external_id, mviews.content, '''');
     INSERT INTO datasetannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
         VALUES
-        (nextval('seq_datasetannotationlink'),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.dataset, mviews.group_id);
+        (nextval(''seq_datasetannotationlink''),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.dataset, mviews.group_id);
 
   END LOOP;
   DELETE FROM datasetannotation;
@@ -695,16 +695,16 @@ BEGIN
   FOR mviews IN SELECT id, owner_id, group_id, creation_id, update_id, permissions, external_id, version, project, content
   FROM projectannotation LOOP
 
-    SELECT INTO ann nextval('seq_annotation');
+    SELECT INTO ann nextval(''seq_annotation'');
     INSERT INTO annotation
       (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
       VALUES
-      ('/basic/text/', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
-      mviews.permissions, mviews.external_id, mviews.content, '');
+      (''/basic/text/'', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+      mviews.permissions, mviews.external_id, mviews.content, '''');
     INSERT INTO projectannotationlink
         (id, permissions, owner_id, creation_id, update_id, child, parent, group_id)
         VALUES
-        (nextval('seq_projectannotationlink'),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.project, mviews.group_id);
+        (nextval(''seq_projectannotationlink''),mviews.permissions, mviews.owner_id, mviews.creation_id, mviews.update_id, ann, mviews.project, mviews.group_id);
 
   END LOOP;
   DELETE FROM projectannotation;
@@ -1034,9 +1034,9 @@ BEGIN
         foreign key (roilink_id)
         references roilink;
 
-  RETURN 'success';
+  RETURN ''success'';
 END;
-$$ LANGUAGE plpgsql;
+' LANGUAGE plpgsql;
 
 SELECT OMERO3A__1__upgrade();
 DROP FUNCTION OMERO3A__1__upgrade();
