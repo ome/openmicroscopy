@@ -37,6 +37,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -184,9 +185,6 @@ implements TabPaneInterface
 	/** Map of the channel name to channel number .*/
 	Map<String, Integer> nameMap = new HashMap<String, Integer>();
 	
-	/** The map of the shape stats to coord. */
-	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
-	
 	/** Map of the pixel intensity values to coord. */
 	HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>> pixelStats;
 	
@@ -319,7 +317,6 @@ implements TabPaneInterface
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) return;
 		
-		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
 		pixelStats = new HashMap<Coord3D, Map<Integer, Map<PlanePoint2D, Double>>>();
 		shapeMap = new HashMap<Coord3D, ROIShape>();
 		minStats = new HashMap<Coord3D, Map<Integer, Double>>();
@@ -347,8 +344,7 @@ implements TabPaneInterface
 			
 			shapeStats = AnalysisStatsWrapper.convertStats(
 				(Map) ROIStats.get(shape));
-			shapeStatsList.put(shape.getCoord3D(), shapeStats);
-			
+				
 			minStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MIN));
 			maxStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MAX));
 			meanStats.put(shape.getCoord3D(), shapeStats.get(StatsType.MEAN));
@@ -373,17 +369,17 @@ implements TabPaneInterface
 				}
 			}
 			
-		}
-		if(channelName.size()==0 || nameMap.size() ==0 || 
+			if(channelName.size()==0 || nameMap.size() ==0 || 
 				channelColour.size() == 0)
-		{
-			state = State.READY;
-			return;
-		}
+			{
+				state = State.READY;
+				return;
+			}
 		
-		coord = shape.getCoord3D();
+			coord = shape.getCoord3D();
+			getResults(shape);
+		}
 		state = State.READY;
-		getResults(shape);
 	}
 	
 	/** Populate the table with the data. 
@@ -391,8 +387,8 @@ implements TabPaneInterface
 	 */
 	private void getResults(ROIShape shape)
 	{
-		if(state==State.ANALYSING)
-			return;
+	//	if(state==State.ANALYSING)
+	//		return;
 		Vector<Vector> rows = new Vector<Vector>();
 		
 		Iterator<String> channelIterator = channelName.values().iterator();
@@ -507,16 +503,33 @@ implements TabPaneInterface
 	 */
 	private void addResults()
 	{
-		Collection<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
-		if(selectedFigures.size()!=1)
-			return;
-		Iterator<Figure> iterator =  selectedFigures.iterator();
-		ROIFigure fig = (ROIFigure)iterator.next();
-		if(fig instanceof MeasureTextFigure)
-			return;
+		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
+//		if(selectedFigures.size()!=1)
+//			return;
+		System.err.println("selectedFigures : "  + selectedFigures.size());
+		/*Iterator<Figure> iterator =  selectedFigures.toArray(a)
+		while(iterator.hasNext())
+		{
+			ROIFigure fig = (ROIFigure)iterator.next();
+			if(fig instanceof MeasureTextFigure)
+				continue;
+			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+			shapeList.add(fig.getROIShape());
+			view.calculateStats(fig.getROIShape().getID(), shapeList);
+		}
+*/		
+		System.err.println("selectedFigures : "  + selectedFigures.size());
 		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-		shapeList.add(fig.getROIShape());
-		view.calculateStats(fig.getROIShape().getID(), shapeList);
+		Figure[] figureArray = new Figure[selectedFigures.size()];
+		selectedFigures.toArray(figureArray);
+		for(Figure figure : figureArray)
+		{
+			ROIFigure fig = (ROIFigure)figure;
+			if(fig instanceof MeasureTextFigure)
+				continue;
+			shapeList.add(fig.getROIShape());
+		}
+		view.calculateStats(shapeList);
 	}
 	
 	/**

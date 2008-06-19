@@ -28,10 +28,21 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
 
 //Third-party libraries
 import org.jhotdraw.draw.DefaultDrawingView;
+import org.jhotdraw.draw.Drawing;
+import org.jhotdraw.draw.Figure;
+import org.jhotdraw.util.ResourceBundleUtil;
 
 //Application-internal dependencies
 
@@ -53,6 +64,8 @@ public class DrawingCanvasView
 	extends DefaultDrawingView
 {
 
+	private boolean 	duplicateAction = false;
+	
 	/** The default background. */
 	private static final Color			BACKGROUND = new Color(0xf0f0f0);
 	
@@ -95,4 +108,23 @@ public class DrawingCanvasView
         if (p.x > 0) g.setColor(BACKGROUND);
     }
 	
+	public void duplicate() {
+       this.setDuplicateAction();
+       super.duplicate();
+    }
+	
+	private void setDuplicateAction()
+	{
+		duplicateAction = true;
+	}
+	
+	public void unsetDuplicate()
+	{
+		duplicateAction = false;
+	}
+	
+	public boolean isDuplicate()
+	{
+		return duplicateAction;
+	}
 }

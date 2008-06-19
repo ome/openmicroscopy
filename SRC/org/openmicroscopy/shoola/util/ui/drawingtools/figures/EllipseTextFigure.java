@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.font.TextLayout;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -183,7 +184,7 @@ public class EllipseTextFigure
 		{	
 			text = text.trim();
 			TextLayout layout = getTextLayout();
-			Rectangle2D.Double r = getBounds();
+			Rectangle r = getTransformedShape().getBounds();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
 			double textWith = fm.stringWidth(text);

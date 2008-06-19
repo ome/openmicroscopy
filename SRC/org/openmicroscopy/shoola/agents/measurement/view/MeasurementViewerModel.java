@@ -997,6 +997,16 @@ class MeasurementViewerModel
 	{
 		component.analyseShapeList(shapeList);
 	}
+	
+	/**
+	 * Calculate the stats for the roi in the shapelist with id.
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	public void calculateStats(ArrayList<ROIShape> shapeList)
+	{
+		component.analyseShapeList(shapeList);
+	}
 
 	public ROI cloneROI(long id) throws ROICreationException, NoSuchROIException
 	{

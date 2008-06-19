@@ -776,7 +776,8 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	ROI roi = null;
     	try {
-    		roi = model.createROI(figure, true);
+    		roi = model.createROI(figure,!getDrawingView().isDuplicate());
+    		getDrawingView().unsetDuplicate();
     	} catch (Exception e) {
 			handleROIException(e, CREATE_MSG);
 		}
@@ -1028,7 +1029,19 @@ class MeasurementViewerUI
 		if (model.getState() != MeasurementViewer.READY) return;
 		model.calculateStats(id, shapeList);
 	}
-	
+
+    /**
+	 * Calculate the stats for the Rois in the shapelist. This method
+	 * will call the graphView.
+	 * 
+	 * @param id see above.
+	 * @param shapeList see above.
+	 */
+	void calculateStats(ArrayList<ROIShape> shapeList)
+	{
+		if (model.getState() != MeasurementViewer.READY) return;
+		model.calculateStats(shapeList);
+	}
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
