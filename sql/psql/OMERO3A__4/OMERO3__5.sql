@@ -658,7 +658,7 @@ BEGIN
     INSERT INTO annotation
         (discriminator, id, owner_id, group_id, creation_id, permissions, external_id, textValue, name)
         VALUES
-        (''/basic/text/,'' ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
+        (''/basic/text/'', ann, mviews.owner_id, mviews.group_id, mviews.creation_id,
          mviews.permissions, mviews.external_id, mviews.content, '''');
 
     INSERT INTO imageannotationlink
