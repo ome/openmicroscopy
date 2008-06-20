@@ -85,6 +85,14 @@ public interface IScript
 	 * @throws ApiUsageException
 	 */
 	String getScript(long id) throws ApiUsageException;
+
+    /**
+     * Get the script from the server with details from OriginalFile
+     * @param id see above
+     * @return see above
+     * @throws ApiUsageException
+     */
+    Map getScriptWithDetails(long id) throws ApiUsageException;
 	
 	/**
 	 * Get the parameters that the script takes. This is a key-value pair map,

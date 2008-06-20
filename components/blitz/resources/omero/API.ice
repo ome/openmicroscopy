@@ -151,6 +151,7 @@ module omero {
 	idempotent long getScriptID(string name) throws  ServerError;
 	long uploadScript(string script) throws ServerError;
 	idempotent string getScript(long id) throws ServerError;
+	idempotent RTypeDict getScriptWithDetails(long id) throws ServerError;
 	idempotent RTypeDict getParams(long id) throws ServerError;
 	RTypeDict runScript(long id, RTypeDict map) throws ServerError;
 	void deleteScript(long id) throws ServerError;

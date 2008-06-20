@@ -35,6 +35,7 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
+import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
 import ome.model.jobs.JobStatus;
@@ -44,6 +45,7 @@ import ome.parameters.Parameters;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import omero.RLong;
+import omero.RObject;
 import omero.RString;
 import omero.RType;
 import omero.ServerError;
@@ -143,6 +145,48 @@ public class ScriptI extends _IScriptDisp {
      * @return see above.
      * @throws ServerError validation, api usage. 
      */
+    public Map<String,RType> getScriptWithDetails(long id, Current __current) throws ServerError {
+
+        final OriginalFile file = getOriginalFile(id);
+        if (file == null) {
+            return null;
+        }        
+
+        final long size = file.getSize();
+        if (size > Integer.MAX_VALUE || size < 0) {
+            throw new ome.conditions.ValidationException("Script size : "
+                    + size + " invalid on Blitz.OMERO server.");
+        }
+
+        Map<String,RType> scr = new HashMap<String,RType>();
+        scr.put((String) factory.executor.execute(factory.principal,
+                new Executor.Work() {
+
+                    public Object doWork(TransactionStatus status,
+                            Session session, ServiceFactory sf) {
+                        RawFileStore rawFileStore = sf.createRawFileStore();
+                        try {
+                            rawFileStore.setFileId(file.getId());
+                            String script = new String(rawFileStore.read(0L,
+                                    (int) size));
+
+                            return script;
+                        } finally {
+                            rawFileStore.close();
+                        }
+                    }
+                }), new omero.util.IceMapper().toRType(file));
+        return scr;
+    }
+    
+    /**
+     * Return the script with the name to the user.
+     * 
+     * @param name see above.
+     * @param __current ice context.
+     * @return see above.
+     * @throws ServerError validation, api usage. 
+     */
     public String getScript(long id, Current __current) throws ServerError {
 
         final OriginalFile file = getOriginalFile(id);
@@ -174,7 +218,7 @@ public class ScriptI extends _IScriptDisp {
                     }
                 });
     }
-
+    
     /**
      * Get the Parameters of the script.
      * 

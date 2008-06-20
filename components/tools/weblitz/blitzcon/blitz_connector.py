@@ -678,7 +678,7 @@ class ImageWrapper (BlitzObjectWrapper):
         if not tb.setPixelsId(pixels_id):
             tb.resetDefaults()
             tb.setPixelsId(pixels_id)
-        return tb.getThumbnailDirect(*size)
+        return tb.getThumbnailDirect(omero.RInt(64),omero.RInt(64))
 
     @assert_re
     def getChannels (self):

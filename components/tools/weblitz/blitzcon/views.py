@@ -118,6 +118,7 @@ def getBlitzConnection (request, client_base, with_session=False, skip_connect=F
         else:
             connectors[ckey] = blitzcon
             #print "Have connection, will travel:%s" % str(ckey)
+    print connectors
     return blitzcon
 
 @timeit
