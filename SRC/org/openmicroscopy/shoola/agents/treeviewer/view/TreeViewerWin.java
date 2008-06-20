@@ -247,7 +247,7 @@ class TreeViewerWin
         item = new JMenuItem(a);
         menu.add(item);
         item.setText(a.getActionName());
-        menuItems.add(item);
+        //menuItems.add(item);
         //createRootMenu();
         a = controller.getAction(TreeViewerControl.SWITCH_USER);
         item = new JMenuItem(a);

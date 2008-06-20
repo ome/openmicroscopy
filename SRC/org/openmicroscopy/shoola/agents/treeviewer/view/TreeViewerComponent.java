@@ -662,9 +662,13 @@ class TreeViewerComponent
 		
 		Collection siblings = (Collection) l.get(0);;
 		
-		Browser browser = model.getSelectedBrowser();
+		
 		int size = siblings.size();
-		browser.onSelectedNode(parent, selected, size > 0);
+		if (view.getDisplayMode() != SEARCH_MODE) {
+			Browser browser = model.getSelectedBrowser();
+			browser.onSelectedNode(parent, selected, size > 0);
+		}
+		
 		
 		mv.setSelectionMode(size == 0);
 		mv.setRootObject(selected);
@@ -1853,9 +1857,9 @@ class TreeViewerComponent
 			throw new IllegalStateException("This method cannot be invoked " +
 					"in the DISCARDED state");
 		Browser b = model.getSelectedBrowser();
+		DataBrowserFactory.discardAll();
+	    view.removeAllFromWorkingPane();
         if (b != null) b.refreshTree();
-        DataBrowserFactory.discardAll();
-        view.removeAllFromWorkingPane();
 	}
 
 	/**

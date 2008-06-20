@@ -22,10 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.view;
 
-
-
-
-
 //Java imports
 import java.awt.Font;
 import java.awt.event.ActionEvent;

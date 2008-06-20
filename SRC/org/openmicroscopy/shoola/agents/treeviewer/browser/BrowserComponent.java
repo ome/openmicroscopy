@@ -1093,12 +1093,13 @@ class BrowserComponent
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}
+		model.setSelectedDisplay(null, true);
 		model.setState(READY);
 		countItems(null);
 		model.getParentModel().setStatus(false, "", true);
 		PartialNameVisitor v = new PartialNameVisitor(view.isPartialName());
 		accept(v, TreeImageDisplayVisitor.TREEIMAGE_NODE_ONLY);
-		firePropertyChange(DATA_REFRESHED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		//firePropertyChange(DATA_REFRESHED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 		fireStateChange(); 
 	}
 

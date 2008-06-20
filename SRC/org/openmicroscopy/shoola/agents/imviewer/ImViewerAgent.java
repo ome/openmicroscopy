@@ -43,10 +43,13 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+
+import pojos.ExperimenterData;
 
 /** 
  * The ImViewer agent. This agent displays an <code>Image</code> and the 
@@ -83,6 +86,17 @@ public class ImViewerAgent
      */
     public static Registry getRegistry() { return registry; }
     
+    /**
+	 * Helper method returningthe current user's details.
+	 * 
+	 * @return See above.
+	 */
+	public static ExperimenterData getUserDetails()
+	{ 
+		return (ExperimenterData) registry.lookup(
+								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
     /**
      * Handles the {@link ViewImage} event.
      * 

@@ -80,6 +80,7 @@ public class ViewImage
             throw new IllegalArgumentException("Image not null.");
         this.image = image;
         requesterBounds = bounds;
+        selectedUserID = -1;
     }
     
     /**

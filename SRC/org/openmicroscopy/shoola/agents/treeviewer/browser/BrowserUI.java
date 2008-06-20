@@ -1003,9 +1003,9 @@ class BrowserUI
         dtm.reload();
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
-            while (i.hasNext())
+            while (i.hasNext()) {
             	expNode.addChildDisplay((TreeImageDisplay) i.next()) ;
-            buildTreeNode(expNode, sorter.sort(nodes), 
+            } buildTreeNode(expNode, sorter.sort(nodes), 
                         (DefaultTreeModel) treeDisplay.getModel());
         } else buildEmptyNode(expNode);
         Iterator j = nodesToReset.iterator();

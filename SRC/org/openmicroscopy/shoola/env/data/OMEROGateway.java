@@ -151,6 +151,11 @@ class OMEROGateway
 		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character(')'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character('('));
+		SUPPORTED_SPECIAL_CHAR.add(new Character(':'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('|'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('!'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('{'));
+		SUPPORTED_SPECIAL_CHAR.add(new Character('}'));
 		WILD_CARDS = new ArrayList<String>();
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");
@@ -822,6 +827,7 @@ class OMEROGateway
 	ExperimenterData getUserDetails(String name)
 		throws DSOutOfServiceException
 	{
+		isSessionAlive();
 		try {
 			IPojos service = getPojosService();
 			Set<String> set = new HashSet<String>(1);
@@ -3552,6 +3558,7 @@ class OMEROGateway
 	Map getImagesTaggedCount(Set rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		isSessionAlive();
 		try {
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();

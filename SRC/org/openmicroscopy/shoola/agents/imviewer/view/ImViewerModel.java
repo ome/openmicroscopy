@@ -629,8 +629,10 @@ class ImViewerModel
 	}
 
 	/**
+	 * Returns <code>true</code> if the magnification factor was set 
+	 * when the image was first loaded, <code>false</code> otherwise.
 	 * 
-	 * @return
+	 * @return See above.
 	 */
 	boolean isInitMagnificationFactor() { return initMagnificationFactor; }
 	
@@ -935,7 +937,15 @@ class ImViewerModel
 	void saveRndSettings()
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (currentRndControl != null) currentRndControl.saveCurrentSettings(); 
+		if (currentRndControl != null) {
+			RndProxyDef def = currentRndControl.saveCurrentSettings(); 
+			if (def != null) {
+				if (renderingSettings != null) {
+					ExperimenterData exp = ImViewerAgent.getUserDetails();
+					renderingSettings.put(exp, def);
+				}
+			}
+		}
 	}
 
 	/**
@@ -1291,7 +1301,7 @@ class ImViewerModel
 	}
 	
 	/**
-	 * Returns the id of the ower. 
+	 * Returns the id of the owner of the image.
 	 * 
 	 * @return See above.
 	 */

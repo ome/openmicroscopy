@@ -70,7 +70,7 @@ public class RenderingSettingsLoader
         super(viewer);
         this.pixelsID = pixelsID;
     }
-
+    
     /**
      * Retrieves the rendering settings for the selected pixels set.
      * @see DataLoader#load()

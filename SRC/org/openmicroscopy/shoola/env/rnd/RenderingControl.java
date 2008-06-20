@@ -459,12 +459,14 @@ public interface RenderingControl
     
     /** 
      * Saves the current rendering settings to the database.
+     * Returns the copy of the saved rendering data.
      *  
+     * @return See above.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    public void saveCurrentSettings()
+    public RndProxyDef saveCurrentSettings()
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /** 

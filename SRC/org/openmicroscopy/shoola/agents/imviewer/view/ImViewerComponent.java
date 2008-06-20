@@ -399,7 +399,7 @@ class ImViewerComponent
 	void setRndSettings()
 	{
 		model.copyRndSettings();
-		view.enableButtons(true);
+		view.enablePasteButton(true);
 		firePropertyChange(RND_SETTINGS_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 

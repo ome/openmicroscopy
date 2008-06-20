@@ -846,15 +846,17 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#saveCurrentSettings()
      */
-    public void saveCurrentSettings()
+    public RndProxyDef saveCurrentSettings()
     	throws RenderingServiceException, DSOutOfServiceException
     { 
     	DataServicesFactory.isSessionAlive(context);
     	try {
     		servant.saveCurrentSettings();
+    		return rndDef;
 		} catch (Throwable e) {
 			handleException(e, ERROR+"save current settings.");
 		}
+		return null;
     }
 
     /** 

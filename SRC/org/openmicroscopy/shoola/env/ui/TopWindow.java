@@ -101,8 +101,10 @@ public abstract class TopWindow
 	 */
 	protected void configureQuickLaunchBtn(Icon icon, String tooltip)
 	{
-		quickLaunchBtn.setIcon(icon);
-		quickLaunchBtn.setToolTipText(UIUtilities.formatToolTipText(tooltip));
+		if (quickLaunchBtn != null) quickLaunchBtn.setIcon(icon);
+		if (quickLaunchBtn != null) 
+			quickLaunchBtn.setToolTipText(
+					UIUtilities.formatToolTipText(tooltip));
 	}
 	
 	/**
@@ -114,8 +116,8 @@ public abstract class TopWindow
 	 */
 	protected void configureWinMenuEntry(String name, Icon icon)
 	{
-		winMenuEntry.setText(name);
-		winMenuEntry.setIcon(icon);
+		if (winMenuEntry != null) winMenuEntry.setText(name);
+		if (winMenuEntry != null) winMenuEntry.setIcon(icon);
 	}
 	
 	/**
@@ -182,8 +184,8 @@ public abstract class TopWindow
 	 */
 	public void enableButtons(boolean b)
 	{
-		quickLaunchBtn.setEnabled(b);
-		winMenuEntry.setEnabled(b);
+		if (quickLaunchBtn != null) quickLaunchBtn.setEnabled(b);
+		if (winMenuEntry != null) winMenuEntry.setEnabled(b);
 	}
 	
 	/** Shows the window. */

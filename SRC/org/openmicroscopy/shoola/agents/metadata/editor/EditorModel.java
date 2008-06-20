@@ -731,6 +731,7 @@ class EditorModel
 	{
 		Set<Long> ids = new HashSet<Long>();
 		Collection l = getViewedBy();
+		if (l == null) return;
 		Iterator i = l.iterator();
 		ViewedByDef def = null;
 		while (i.hasNext()) {
@@ -741,7 +742,6 @@ class EditorModel
 								(ImageData) refObject, ids);
 		loader.load();
 		loaders.add(loader);
-		
 	}
 
 	/** Cancels any ongoing thumbnails retrieval. */
