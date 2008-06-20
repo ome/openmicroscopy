@@ -504,27 +504,13 @@ implements TabPaneInterface
 	private void addResults()
 	{
 		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
-//		if(selectedFigures.size()!=1)
-//			return;
-		System.err.println("selectedFigures : "  + selectedFigures.size());
-		/*Iterator<Figure> iterator =  selectedFigures.toArray(a)
+		if(selectedFigures.size()!=1)
+			return;
+		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		Iterator<Figure> iterator =  selectedFigures.iterator();
 		while(iterator.hasNext())
 		{
 			ROIFigure fig = (ROIFigure)iterator.next();
-			if(fig instanceof MeasureTextFigure)
-				continue;
-			ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-			shapeList.add(fig.getROIShape());
-			view.calculateStats(fig.getROIShape().getID(), shapeList);
-		}
-*/		
-		System.err.println("selectedFigures : "  + selectedFigures.size());
-		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
-		Figure[] figureArray = new Figure[selectedFigures.size()];
-		selectedFigures.toArray(figureArray);
-		for(Figure figure : figureArray)
-		{
-			ROIFigure fig = (ROIFigure)figure;
 			if(fig instanceof MeasureTextFigure)
 				continue;
 			shapeList.add(fig.getROIShape());
