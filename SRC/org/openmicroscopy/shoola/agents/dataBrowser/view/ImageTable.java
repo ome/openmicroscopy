@@ -45,6 +45,7 @@ import org.jdesktop.swingx.JXTreeTable;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
@@ -304,7 +305,9 @@ class ImageTable
 			ImageTableNode node = (ImageTableNode) value;
 			Object v = node.getHierarchyObject();
 			if (v instanceof ImageData) {
-				setIcon(icons.getIcon(IconManager.IMAGE));
+				if (EditorUtil.isAnnotated(v))
+					setIcon(icons.getIcon(IconManager.IMAGE_ANNOTATED));
+			    else setIcon(icons.getIcon(IconManager.IMAGE));
 				setText(node.getUserObject().toString());
 			} else if (v instanceof DatasetData) {
 				setIcon(icons.getIcon(IconManager.DATASET));

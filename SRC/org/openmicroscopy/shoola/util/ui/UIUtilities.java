@@ -60,8 +60,8 @@ import javax.swing.JSeparator;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -634,9 +634,10 @@ public class UIUtilities
      */
     public static void unifiedButtonLookAndFeel(AbstractButton b)
     {
-        b.setMargin(new Insets(0, 2, 0, 3));
-        b.setBorderPainted(false);
-        b.setFocusPainted(false);
+        //b.setMargin(new Insets(0, 2, 0, 3));
+        //b.setBorderPainted(false);
+        //b.setFocusPainted(false);
+        b.setBorder(new EmptyBorder(2, 2, 2, 2));
     }
 
     /**
@@ -647,8 +648,10 @@ public class UIUtilities
      */
     public static void opacityCheck(AbstractButton b)
     {
-    	String laf = UIManager.getSystemLookAndFeelClassName();
-    	b.setContentAreaFilled(!(MAC_L_AND_F.equals(laf)));
+    	//String laf = UIManager.getSystemLookAndFeelClassName();
+    	String osName = System.getProperty("os.name");
+    	b.setContentAreaFilled(!(osName.startsWith("Mac OS")));
+    	//b.setContentAreaFilled(!(MAC_L_AND_F.equals(laf)));
     }
     
     /**

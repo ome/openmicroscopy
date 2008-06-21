@@ -153,11 +153,14 @@ public class IconManager
     /** The <code>Annotation 8</code> icon. */
     public static int			OWNER_8 = 34;
     
+    /** The <code>Image annotated</code> icon. */
+    public static int			IMAGE_ANNOTATED = 35;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 34;
+    private static int          MAX_ID = 35;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -198,6 +201,7 @@ public class IconManager
         relPaths[CUT] = "nuvola_editcut16.png";
         relPaths[UNDO] = "nuvola_undo16.png";
         relPaths[OWNER_8] = "nuvola_kdmconfig8.png";
+        relPaths[IMAGE_ANNOTATED] = "tagged_image16.png";
     }
     
     /** The sole instance. */

@@ -683,9 +683,9 @@ class OmeroMetadataServiceImpl
 			 while (i.hasNext()) {
 				 exp = (ExperimenterData) i.next();
 				 def = new ViewedByDef(exp, 
-						 	(RndProxyDef) settings.get(exp), 
-						 	os.loadRatings(ImageData.class, 
-			 				imageID, exp.getId()));
+						 	(RndProxyDef) settings.get(exp), null);
+						 	//os.loadRatings(ImageData.class, 
+			 				//imageID, exp.getId()));
 				 def.setIds(imageID, pixelsID);
 				 list.add(def);
 			}

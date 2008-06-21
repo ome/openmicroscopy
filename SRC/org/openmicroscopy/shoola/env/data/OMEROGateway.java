@@ -827,7 +827,7 @@ class OMEROGateway
 	ExperimenterData getUserDetails(String name)
 		throws DSOutOfServiceException
 	{
-		isSessionAlive();
+		//isSessionAlive();
 		try {
 			IPojos service = getPojosService();
 			Set<String> set = new HashSet<String>(1);

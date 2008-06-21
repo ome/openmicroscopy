@@ -33,6 +33,7 @@ import java.awt.Point;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JToggleButton;
@@ -73,12 +74,16 @@ class ToolBar
      * 
      * @return See above.
      */
-    private JToolBar createManagementBar()
+    private JComponent createManagementBar()
     {
+    	/*
         JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
+    	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
+        */
+    	//Test to see how it looks on linux
+    	Box bar = Box.createHorizontalBox();
         JButton b = new JButton(controller.getAction(TreeViewerControl.VIEW));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);

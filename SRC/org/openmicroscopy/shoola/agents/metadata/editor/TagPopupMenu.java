@@ -88,11 +88,11 @@ class TagPopupMenu
 		browse.setActionCommand(""+BROWSE);
 		browse.setIcon(icons.getIcon(IconManager.BROWSE));
 		browse.setToolTipText("Browse the selected tags.");
-		edit = new JMenuItem("Edit");
+		edit = new JMenuItem("Describe");
 		edit.addActionListener(this);
 		edit.setActionCommand(""+EDIT);
 		edit.setIcon(icons.getIcon(IconManager.EDIT));
-		edit.setToolTipText("Edit the selected tags.");
+		edit.setToolTipText("Describe the selected tags.");
 		//edit.setEnabled(uiDelegate.getSelectedTagsCount() == 1);
 	}
 	

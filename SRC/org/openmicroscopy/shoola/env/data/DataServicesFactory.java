@@ -168,7 +168,7 @@ public class DataServicesFactory
 							"Time out", "Your session has expired.\n" +
     						"The changes you might have made have not been " +
     						"saved. \n" +
-    						"To do so, you will need to reactivate" +
+    						"To do so, you will need to reactivate " +
     						"the session.");
         msg.setYesText("Reconnect");
         msg.setNoText("Exit");

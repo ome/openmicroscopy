@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -155,6 +154,7 @@ class ViewedByUI
 		p.add(new ThumbnailCanvas(model, img, def));
 		
 		String name = model.formatOwner(def.getExperimenter());
+		/*
 		Collection ratings = def.getRatings();
 		int value = 0;
 		if (ratings != null && ratings.size() != 0) {
@@ -164,11 +164,11 @@ class ViewedByUI
 		}
 		RatingComponent rate = new RatingComponent(value, 
 								RatingComponent.MEDIUM_SIZE, false);
-		
+		*/
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		content.add(new JLabel(name));
-		content.add(rate);
+		//content.add(rate);
 		
 		p.add(content);
 		return UIUtilities.buildComponentPanel(p, 0, 0);
