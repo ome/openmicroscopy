@@ -82,7 +82,7 @@ public class Tree
 		IMPORT_FIELDS("Import Fields"), LOAD_DEFAULTS("Load Default Values"), 
 		LOAD_DEFAULTS_HIGHLIGHTED_FIELDS("Load Defaults for Highlighted Fields"), 
 		CLEAR_FIELDS("Clear Fields"), CLEAR_FIELDS_HIGHLIGHTED_FIELDS("Clear Fields for Highlighted Fields"), 
-		 UNLOCK_HIGHLIGHTED_FIELDS("Unlock highlighted fields"), REQUIRED_FIELDS("Set Highlighted Fields as mandatory");
+		 REQUIRED_FIELDS("Set Highlighted Fields as mandatory");
 		private Actions(String name){
 			this.name = name;
 		}
@@ -231,10 +231,6 @@ public class Tree
 				clearFieldsforHighlightedFields();
 				break;
 			}
-			case UNLOCK_HIGHLIGHTED_FIELDS: {
-				unlockHighlightedFields();
-				break;
-			}
 			case REQUIRED_FIELDS: {
 				setRequiredFields();
 				break;
@@ -338,36 +334,15 @@ public class Tree
 		selectionChanged();		// to update undo button etc
 	}
 	
-	/**
-	 * This removes the time-stamp (UTCmillisecs) from each field, to indicate
-	 * that they are unlocked. 
-	 */
-	private void unlockHighlightedFields() {
-		
-		// if fields are highlighted, unlock them.
-		if (highlightedFields.size() > 0) {
-			UndoableEdit edit = new EditUnlockFields(highlightedFields);
-			undoSupport.postEdit(edit);
-			setTreeEdited(true);
-			
-			// or if the root node is highlighted, unlock it.
-		} else if (rootNode.isHighlighted()) {
-			UndoableEdit edit = new EditUnlockFields(rootNode);
-			undoSupport.postEdit(edit);
-			setTreeEdited(true);
-		}
-		
-		selectionChanged();		// to update undo button etc
-	}
 	
 	private void setRequiredFields() {
-		// if fields are highlighted, unlock them.
+		// if fields are highlighted, set required for them.
 		if (highlightedFields.size() > 0) {
 			UndoableEdit edit = new EditRequiredField(highlightedFields);
 			undoSupport.postEdit(edit);
 			setTreeEdited(true);
 			
-			// or if the root node is highlighted, unlock it.
+			// or if the root node is highlighted, make required!
 		} else if (rootNode.isHighlighted()) {
 			UndoableEdit edit = new EditRequiredField(rootNode);
 			undoSupport.postEdit(edit);
@@ -1331,7 +1306,8 @@ public class Tree
 	}
 	
 	/**
-	 * This checks to see if any field marked as "Required" (DataFieldConstants.REQUIRED_FIELD = 'true')
+	 * This checks to see if any field marked as 
+	 * "Required" (DataFieldConstants.REQUIRED_FIELD = 'true')
 	 * is also not filled out (ie dataField.isFieldFilled() is false). 
 	 * Used for ensuring that "required" fields are not left blank when the form is saved.
 	 * 

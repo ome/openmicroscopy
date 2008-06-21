@@ -232,7 +232,9 @@ public class DataField
 		// reset the blue colour
 		node.nodeClicked(true);
 		
-		
+		// Causes UI fields to be re-drawn. 
+		// (selectionChanged(), called by dataFieldUpdated(edit) is not 
+		// sufficient to cause fields to be re-drawn). 
 		notifyXmlObservers(); 
 	}
 	

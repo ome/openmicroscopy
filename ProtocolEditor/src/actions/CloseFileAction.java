@@ -49,10 +49,10 @@ public class CloseFileAction
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		closeCurrentFile();
+		closeCurrentFile(e);
 	}
 	
-	public void closeCurrentFile() {
+	public void closeCurrentFile(ActionEvent e) {
 		
 //		 check whether you want to save edited file 
 		if (model.isCurrentFileEdited()) {
@@ -60,7 +60,10 @@ public class CloseFileAction
 				(frame, "Save the current file before closing?");
 			if (result == JOptionPane.YES_OPTION) {
 				// save Protocol (no exp details)	Experiment must be saved by user manually
-			//	saveFileAs();
+				
+				SaveFileAction saveFile = new SaveFileAction(model);
+				saveFile.actionPerformed(e);
+				
 			} else if (result == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
