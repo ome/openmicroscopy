@@ -400,14 +400,16 @@ public class FormFieldLink extends FormField {
 			// .. and if not null, convert it to absolute path.
 			if (URLlink != null) {
 				
+				// check if file exists (need to get full path first)!
+				File editorFile = ((DataField)dataField).getNode().getTree().getFile();
+				URLlink = FilePathMethods.getAbsolutePathFromRelativePath(editorFile, URLlink);
 				File linkedFile = new File(URLlink);
+				
+				// if file does not exist - broken link
 				if (! linkedFile.exists()) {
 					linkType = BROKEN_LINK;
 				} else {
-				
-					File editorFile = ((DataField)dataField).getNode().getTree().getFile();
-					URLlink = FilePathMethods.getAbsolutePathFromRelativePath(editorFile, URLlink);
-					
+					// otherwise, set the link type according to file type
 					if ((isEditorFileExtension(URLlink)) 
 						&& (SAXValidator.isFileEditorFile(linkedFile)))
 						linkType = RELATIVE_EDITOR_LINK;
