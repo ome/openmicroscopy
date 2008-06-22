@@ -327,6 +327,18 @@ class UserNotifierManager
 	}
 	
 	/**
+	 * Returns the version number.
+	 * 
+	 * @return See above.
+	 */
+	String getVersionNumber()
+	{
+		if (container == null) return "";
+		Object version = container.getRegistry().lookup(LookupNames.VERSION);
+		return (String) version;
+	}
+	
+	/**
 	 * Reacts to property changes fired by dialogs.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */

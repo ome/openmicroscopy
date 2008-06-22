@@ -495,6 +495,13 @@ public abstract class TreeImageDisplay
         return -1;
     }
 
+    /**
+     * Returns the number of items.
+     * 
+     * @return See above.
+     */
+    public int getNumberOfItems() { return numberItems; }
+    
     /** 
      * Overridden to return the name of the hierarchy object. 
      * @see Object#toString()

@@ -418,17 +418,18 @@ class TreeViewerModel
 			if (n.getUserObject() instanceof DataObject) {
 				object = (DataObject) n.getUserObject();
 				if ((object instanceof ProjectData) || 
-						(object instanceof CategoryGroupData)) {
+						(object instanceof DatasetData)) {
 					if (toRemove == null) toRemove = new HashSet<DataObject>();
 					toRemove.add(object);
 				} else {
-
+					/*
 					po = (DataObject) parent.getUserObject();
 					if (map == null) map = new HashMap<DataObject, Set>();
 					l = (Set) map.get(po);
 					if (l == null) l = new HashSet<DataObject>();
 					l.add(object);
 					map.put(po, l);
+					*/
 				}
 			}
 		}

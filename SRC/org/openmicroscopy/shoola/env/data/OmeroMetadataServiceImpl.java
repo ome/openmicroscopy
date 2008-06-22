@@ -63,6 +63,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -612,10 +613,9 @@ class OmeroMetadataServiceImpl
 			//Check that the annotation is not shared.
 			List<Long> ids = new ArrayList<Long>();
 			ids.add(ho.getId());
-			
 			List l = gateway.findAnnotationLinks(object.getClass(), -1, ids);
 			if (l == null || l.size() == 0)
-				gateway.deleteObject(ho);
+				gateway.deleteObject(ho);//oly work if the annotation is not shared
 		}
 		return PojoMapper.asDataObject(gateway.findIObject(object.asIObject()));
 	}

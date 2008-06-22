@@ -37,6 +37,7 @@ import javax.swing.JFrame;
 import ome.model.core.OriginalFile;
 
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -150,7 +151,7 @@ public class UserNotifierImpl
     	else e = new Exception(detail);
     	if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, "", e); 
-    	d.setVersion(SplashScreenManager.VERSION);
+    	d.setVersion(manager.getVersionNumber());
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);
@@ -267,7 +268,7 @@ public class UserNotifierImpl
 		MessengerDialog d = new MessengerDialog(SHARED_FRAME, 
 												DEFAULT_COMMENT_TITLE, 
 												email);   
-		d.setVersion(SplashScreenManager.VERSION);
+		d.setVersion(manager.getVersionNumber());
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);

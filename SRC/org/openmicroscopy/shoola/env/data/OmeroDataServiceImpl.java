@@ -62,13 +62,10 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
-import pojos.TextualAnnotationData;
-import pojos.URLAnnotationData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.
@@ -426,6 +423,7 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("No children to remove.");
 		Iterator i = children.iterator();
 		if (parent == null) {
+			/*
 			int index = 0;
 			IObject[] ioObjects  = new IObject[children.size()];
 			IObject o;
@@ -435,6 +433,10 @@ class OmeroDataServiceImpl
 				index++;
 			}
 			gateway.deleteObjects(ioObjects);
+			*/
+			while (i.hasNext()) {
+				deleteContainer((DataObject) i.next(), false);
+			}
 		} else {
 			cut(parent, children);
 		}
@@ -1232,5 +1234,77 @@ class OmeroDataServiceImpl
 			throw new IllegalArgumentException("Pixels set ID not valid.");
 		return gateway.getOriginalFiles(pixelsID);
 	}
-
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#deleteContainer(DataObject, DataObject, boolean)
+	 */
+	public void deleteContainer(DataObject child, boolean content)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (child == null) return;
+		IObject object = gateway.findIObject(child.asIObject());
+		//TODO: implement content later 
+		//remove Annotation linked to the object.
+		IObject[] remove;
+		int j = 0;
+		Iterator i;
+		IObject obj;
+		//First remove annotation linked to the object
+		context.getMetadataService().clearAnnotation(child);
+		List l;
+		List children;
+		ILink link;
+		if (child instanceof DatasetData) {
+			//Find all dataset-image links.
+			
+			l = gateway.findLinks(child.asIObject(), null);
+			if (l != null && l.size() > 0) {
+				children = new ArrayList();
+				i = l.iterator();
+				remove = new IObject[l.size()];
+				j = 0;
+				while (i.hasNext()) {
+					link = (ILink) i.next();
+					remove[j] = link;
+					children.add(link.getChild());
+					j++;
+				}
+				//delete the links
+				gateway.deleteObjects(remove);
+				if (content) {
+					
+				}
+			}
+			Set<Long> ids = new HashSet<Long>(1);
+			ids.add(child.getId());
+			l = gateway.findLinks(ProjectData.class, ids, -1);
+			if (l != null && l.size() > 0) {
+				i = l.iterator();
+				remove = new IObject[l.size()];
+				j = 0;
+				while (i.hasNext()) {
+					obj = (IObject) i.next();
+					remove[j] = obj;
+					j++;
+				}
+				gateway.deleteObjects(remove);
+			}
+		} else if (child instanceof ProjectData) {
+			l = gateway.findLinks(child.asIObject(), null);
+			if (l != null && l.size() > 0) {
+				i = l.iterator();
+				remove = new IObject[l.size()];
+				j = 0;
+				while (i.hasNext()) {
+					obj = (IObject) i.next();
+					remove[j] = obj;
+					j++;
+				}
+				gateway.deleteObjects(remove);
+			}
+		}
+		gateway.deleteObject(child.asIObject());
+	}
+	
 }

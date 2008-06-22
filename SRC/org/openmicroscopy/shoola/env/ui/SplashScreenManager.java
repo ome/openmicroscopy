@@ -39,6 +39,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -80,7 +81,7 @@ class SplashScreenManager
 	static final String	TITLE = "Open Microscopy Environment";
 	
     /** The client's version. */
-    static final String	VERSION = "Beta3.0";
+    //static final String	VERSION = "Beta3.0";
     
 	/** The component's UI. */
 	private ScreenLogin			view;
@@ -150,12 +151,14 @@ class SplashScreenManager
     	if (view != null) view.requestFocusOnField();
     }
     
+    /** Initializes the view. */
     private void initializedView()
     {
     	if (view != null) return;	
     	Image img = IconManager.getOMEImageIcon();
+    	Object version = container.getRegistry().lookup(LookupNames.VERSION);
     	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
-				VERSION);
+				(String) version);
 		view.showConnectionSpeed(true);
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();
@@ -178,8 +181,7 @@ class SplashScreenManager
 		container = c;
 		this.component = component;
 		Image img = IconManager.getOMEImageIcon();
-    	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
-				VERSION);
+    	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img);
 		viewTop = new ScreenLogo(TITLE, IconManager.getSplashScreen(), img);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = viewTop.getExtendedSize();

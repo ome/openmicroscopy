@@ -277,14 +277,7 @@ public interface TreeViewer
 	 * 						have a parent, <code>false</code> otherwise.
 	 */
 	public void createDataObject(DataObject object, boolean withParent);
-
-	/**
-	 * Removes the {@link DataObject} hosted by the passed node.
-	 * 
-	 * @param object The node hosting the {@link DataObject} to remove.
-	 */
-	public void removeObject(TreeImageDisplay object);
-
+	
 	/**
 	 * Removes the {@link DataObject}s hosted by the passed nodes.
 	 * 

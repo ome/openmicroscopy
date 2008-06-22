@@ -39,10 +39,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
-import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -61,7 +58,7 @@ public class DeleteAction
 {
 
     /** Name of the action. */
-    private static final String NAME = "Remove";
+    private static final String NAME = "Delete";//"Remove";
     
     /** Name of the action if the selected items are <code>Project</code>s. */
     private static final String NAME_ROOT_P = "Remove projects";
@@ -95,7 +92,7 @@ public class DeleteAction
     /** 
      * Description of the action if the selected item is <code>null</code>. 
      */
-    private static final String DESCRIPTION = "Remove the selected item.";
+    private static final String DESCRIPTION = "Delete.";
     
     /** 
      * Description of the action if the selected items are 
@@ -190,7 +187,7 @@ public class DeleteAction
             return;
         }
         Object ho = selectedDisplay.getUserObject(); 
-        
+        /*
         if (ho instanceof ProjectData) {
         	name = NAME_ROOT_P;
         	putValue(Action.SHORT_DESCRIPTION, 
@@ -242,6 +239,15 @@ public class DeleteAction
         	setEnabled(false);
         	putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION));
+        }
+        */
+        if ((ho instanceof DatasetData) || (ho instanceof ProjectData)) {
+        	TreeImageDisplay[] selected = browser.getSelectedDisplays();
+        	if (selected.length > 1) setEnabled(false);
+        	else {
+        		setEnabled(model.isObjectWritable(ho) 
+        				&& selectedDisplay.getNumberOfItems() == 0);
+        	}
         }
         description = (String) getValue(Action.SHORT_DESCRIPTION);
     }

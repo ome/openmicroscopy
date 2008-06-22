@@ -160,7 +160,6 @@ public class OptionsDialog
 	 * Builds and lays out the panel hosting the comments.
 	 * 
 	 * @param instructions	The message explaining to the user what to do.
-	 * @param comment		The comment's text.
 	 * @param icon			The icon to display.
 	 * @return See above.
 	 */

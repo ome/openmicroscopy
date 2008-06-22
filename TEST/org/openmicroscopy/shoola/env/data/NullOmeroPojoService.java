@@ -439,5 +439,13 @@ public class NullOmeroPojoService
 	{
 		return null;
 	}
+
+	/**
+	 * No-op implementation
+	 * @see OmeroDataService#deleteContainer(DataObject, boolean)
+	 */
+	public void deleteContainer(DataObject object, boolean content) 
+		throws DSOutOfServiceException, DSAccessException
+		{}
 	
 }

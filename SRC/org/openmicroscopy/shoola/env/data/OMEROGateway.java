@@ -1723,13 +1723,17 @@ class OMEROGateway
 		try {
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
-			String sql = "select link from "+table+" as link where " +
-			"link.parent.id = :parentID and link.child.id in " +
-			"(:childIDs)";
-			IQuery service = getQueryService();
 			Parameters param = new Parameters();
 			param.addLong("parentID", parent.getId());
-			param.addList("childIDs", children);
+			String sql = "select link from "+table+" as link where " +
+			"link.parent.id = :parentID"; 
+			if (children != null && children.size() > 0) {
+				sql += " and link.child.id in (:childIDs)";
+				param.addList("childIDs", children);
+			}
+			IQuery service = getQueryService();
+			
+			
 			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
@@ -1757,12 +1761,15 @@ class OMEROGateway
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
-			"link.details.owner.id = :userID and link.child.id in " +
-			"(:childIDs)";
+			"link.child.id in (:childIDs)";
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
 			param.addSet("childIDs", children);
-			param.addLong("userID", userID);
+			if (userID >= 0) {
+				sql += " and link.details.owner.id = :userID";
+				param.addLong("userID", userID);
+			}
+			
 			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+

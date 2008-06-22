@@ -36,7 +36,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchResult;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
@@ -719,6 +718,22 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	public Collection getOriginalFiles(long pixelsID)
-	throws DSOutOfServiceException, DSAccessException;
+		throws DSOutOfServiceException, DSAccessException;
+
+
+	/**
+	 * Deletes the specified data objects.
+	 * 
+	 * @param object Deletes the specifed data object.
+	 * @param content Pass <code>true</code> to delete the object and 
+	 * the content
+	 *
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public void deleteContainer(DataObject object, boolean content)
+		throws DSOutOfServiceException, DSAccessException;
 	
 }

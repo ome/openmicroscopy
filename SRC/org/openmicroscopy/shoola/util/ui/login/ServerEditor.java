@@ -443,6 +443,7 @@ public class ServerEditor
 	/** Stops the cell editing. */
 	void stopEdition()
 	{
+		setEditing(false);
 		TableCellEditor editor = table.getCellEditor();
 		if (editor != null) editor.stopCellEditing();
 	}

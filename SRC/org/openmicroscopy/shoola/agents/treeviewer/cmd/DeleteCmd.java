@@ -25,21 +25,19 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-
 import pojos.DataObject;
 
 /** 
- * 
+ * Delete the selected object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,8 +76,9 @@ public class DeleteCmd
         TreeImageDisplay n;
         for (int i = 0; i < nodes.length; i++) {
             n = nodes[i];
-            if (n != null && (n.getUserObject() instanceof DataObject)) 
-                objects.add(n);
+            if (n != null && (n.getUserObject() instanceof DataObject)) {
+            	objects.add(n);
+            }
         }
         if (objects.size() > 0) model.removeObjects(objects);
     }

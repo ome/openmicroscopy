@@ -186,7 +186,6 @@ class ServerDialog
 											new Integer(LoginCredentials.LOW));
 					}
 				}
-				
 			}
 		}
 		close();
@@ -312,7 +311,6 @@ class ServerDialog
 		JPanel p = new JPanel();
 		p.setBorder(BorderFactory.createTitledBorder("Connection Speed"));
 		buttonsGroup = new ButtonGroup();
-		
 		JRadioButton button = new JRadioButton();
 		button.setText("LAN");
 		button.setActionCommand(""+HIGH_SPEED);
@@ -391,20 +389,6 @@ class ServerDialog
 			case MEDIUM_SPEED:
 			case LOW_SPEED:
 				finishButton.setEnabled(true);
-				/*
-			case HIGH_SPEED:
-				firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-									new Integer(LoginCredentials.HIGH));
-				break;
-			case MEDIUM_SPEED:
-				firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-									new Integer(LoginCredentials.MEDIUM));
-				break;
-			case LOW_SPEED:
-				firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-									new Integer(LoginCredentials.LOW));
-				break;
-				*/
 		}
 	}
 	

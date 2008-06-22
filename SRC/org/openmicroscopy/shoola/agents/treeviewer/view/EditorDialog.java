@@ -31,6 +31,9 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -263,6 +266,10 @@ class EditorDialog
         saveButton.setActionCommand(""+SAVE);
         saveButton.setEnabled(false);
         getRootPane().setDefaultButton(saveButton);
+        addWindowListener(new WindowAdapter()
+        {
+        	public void windowOpened(WindowEvent e) { nameArea.requestFocus(); } 
+        });
     }   
     
     /**

@@ -492,31 +492,6 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#removeObject(TreeImageDisplay)
-	 */
-	public void removeObject(TreeImageDisplay node)
-	{
-		/*
-      switch (model.getState()) {
-          case READY:
-          case NEW:  
-          case LOADING_THUMBNAIL:
-              break;
-          default:
-              throw new IllegalStateException("This method should only be " +
-              "invoked in the READY or NEW state.");
-      }
-		 */
-		if (node == null)
-			throw new IllegalArgumentException("No node to remove.");
-		if (!(node.getUserObject() instanceof DataObject))
-			throw new IllegalArgumentException("Can only remove DataObject.");
-		model.fireDataObjectsDeletion(node);
-		fireStateChange();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#removeObjects(List)
 	 */
 	public void removeObjects(List nodes)
@@ -532,6 +507,14 @@ class TreeViewerComponent
               "invoked in the READY or NEW state.");
       }
 		 */
+		if (nodes == null) return;
+		boolean askQuestion = false;
+		Iterator i = nodes.iterator();
+		TreeImageDisplay node;
+		while (i.hasNext()) {
+			node = (TreeImageDisplay) i.next();
+			if (node.getNumberOfItems() > 0) askQuestion = true;
+		}
 		model.fireDataObjectsDeletion(nodes);
 		fireStateChange();
 	}

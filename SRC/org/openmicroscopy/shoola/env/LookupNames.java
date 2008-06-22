@@ -47,6 +47,9 @@ package org.openmicroscopy.shoola.env;
 public class LookupNames
 {
     
+    /** Field to access the <code>Version</code> information. */
+	public static final String VERSION = "Version";	
+	
     /** Field to access the <code>env</code> package. */
 	public static final  String ENV = "/env";
 	
@@ -153,6 +156,4 @@ public class LookupNames
     
     public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
     
-    
-	
 }
