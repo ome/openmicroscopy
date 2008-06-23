@@ -35,7 +35,7 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
-import omeroj.service.ImageService;
+import omerojava.service.ImageService;
 
 
 /** 
