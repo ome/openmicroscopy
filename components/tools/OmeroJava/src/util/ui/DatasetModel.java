@@ -33,7 +33,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 import omero.model.Dataset;
 import omero.model.Project;
-import omeroj.service.OmeroJService;
+import omerojava.service.OmeroJavaService;
 
 //Java imports
 
@@ -56,10 +56,10 @@ import omeroj.service.OmeroJService;
  */
 public class DatasetModel
 {	
-	OmeroJService service;
+	OmeroJavaService service;
 	UserNode 	userNode;
 	
-	public DatasetModel(OmeroJService service) 
+	public DatasetModel(OmeroJavaService service) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		this.service = service;

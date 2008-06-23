@@ -31,6 +31,8 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import omerojava.service.OmeroJavaService;
+
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
@@ -38,7 +40,6 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 //Application-internal dependencies
 
-import omeroj.service.OmeroJService;
 
 /** 
  * 
@@ -56,7 +57,7 @@ import omeroj.service.OmeroJService;
 public class DatasetTree
 {
 	/** Link to the data service which is part of the ServiceFactory. */
-	OmeroJService	service;
+	OmeroJavaService	service;
 	
 	DatasetModel model;
 	DatasetView view;
@@ -67,7 +68,7 @@ public class DatasetTree
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public DatasetTree(OmeroJService service) 
+	public DatasetTree(OmeroJavaService service) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		this.service = service;

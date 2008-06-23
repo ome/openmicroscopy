@@ -20,9 +20,9 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 import omero.model.Dataset;
+import omerojava.service.OmeroJavaService;
 
 
-import omeroj.service.OmeroJService;
 
 
 /*
@@ -70,7 +70,7 @@ public class DatasetBrowser
 	DatasetTree datasetTree; 
 	long value;
 	
-	public DatasetBrowser(OmeroJService sf) throws DSOutOfServiceException, DSAccessException
+	public DatasetBrowser(OmeroJavaService sf) throws DSOutOfServiceException, DSAccessException
 	{
 		super();
 		this.setName("Select Dataset");
@@ -80,7 +80,7 @@ public class DatasetBrowser
 		this.setSize(300,400);
 	}
 	
-	private void buildUI(OmeroJService sf) throws DSOutOfServiceException, DSAccessException
+	private void buildUI(OmeroJavaService sf) throws DSOutOfServiceException, DSAccessException
 	{
 		JPanel panel = new JPanel();
 		JScrollPane scrollPane = new JScrollPane(panel);
