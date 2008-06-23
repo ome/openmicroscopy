@@ -35,7 +35,7 @@ import org.xml.sax.SAXParseException;
 import tree.DataFieldConstants;
 import util.PreferencesManager;
 import util.XMLMethods;
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,7 +57,7 @@ public class IndexTemplateFields {
   
   private IndexTemplateFields() {}
 
-  public static final String INDEX_TEMPLATE_PATH = XMLModel.OMERO_EDITOR_FILE + File.separator + "indexTemplate";
+  public static final String INDEX_TEMPLATE_PATH = ConfigConstants.OMERO_EDITOR_FILE + File.separator + "indexTemplate";
   
   // this index is separate from the keyword search index
   static final File INDEX_DIR = new File(INDEX_TEMPLATE_PATH);

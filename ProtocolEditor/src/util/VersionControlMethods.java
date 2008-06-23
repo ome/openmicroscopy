@@ -25,7 +25,7 @@ package util;
 
 import java.util.StringTokenizer;
 
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 /**
  * This class contains a method for checking the current version number of this software
@@ -101,7 +101,7 @@ public class VersionControlMethods {
 	 * @return
 	 */
 	public static String getSoftwareVersionNumber() {
-		return XMLModel.EDITOR_VERSION_NUMBER;
+		return ConfigConstants.EDITOR_VERSION_NUMBER;
 	}
 	
 	/**

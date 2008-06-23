@@ -98,43 +98,6 @@ public class XMLModel
 	CalendarMain omeroEditorCalendar;
 	
 	/**
-	 * The folder that should be used to store all temp. files, config files, logs etc. 
-	 */
-	public static final String OMERO_EDITOR_FILE = System.getProperty("user.home") + File.separator +
-		"omero" + File.separator + "Editor";
-	
-	/**
-	 * This string is used to add a "version" attribute to the XML documents saved by this application.
-	 */
-	public static final String VERSION = "version";
-	
-	/**
-	 * Prior to OMERO 3.0-Beta-3.0, all documents have been assigned "version=1.0".
-	 * The version number will contain both the milestone eg "3.0" and the version, eg "3.1.2"
-	 * separated by a dash. So, 3.0-Beta-3.0 will be "3.0-3.0"
-	 * 
-	 * NB. There is also a reference to the current version in the 
-	 * jar "client-3.0-Beta3.jar" etc. This is used at startup, right before the
-	 * "splash-screen" is displayed, to check that this is the "current" version.
-	 * 
-	 */
-	public static final String EDITOR_VERSION_NUMBER = "3.0-3.0";
-	
-	/**
-	 * This is an identifier, eg. for Exception handler's bug reporter.
-	 * It consists of the EDITOR_VERSION_NUMBER, as well as any release candidate id,
-	 * So, 3.0-Beta-3.0, release candidate 2 will be "3.0-3.0rc2".
-	 * For the Milestone releases, the editor release Id will be the same as 
-	 * the EDITOR_VERSION_NUMBER.
-	 */
-	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "";
-	
-	/**
-	 * DOM Document used to pass XML files between methods such as readXMLtoDOM() and openXMLFile()
-	 */
-	//private Document document; 
-	
-	/**
 	 * DOM Document used to pass XML files between export/save methods
 	 */
 	private Document outputDocument;
@@ -207,9 +170,9 @@ public class XMLModel
 		/*
 		 * Create a folder in the location of OMERO_EDITOR_FILE, if one does not exist already.
 		 */
-		File omeroEditorDir = new File(OMERO_EDITOR_FILE);
+		File omeroEditorDir = new File(ConfigConstants.OMERO_EDITOR_FILE);
 		if (!omeroEditorDir.exists()) {
-			System.out.println(OMERO_EDITOR_FILE + " does not exist...");
+			System.out.println(ConfigConstants.OMERO_EDITOR_FILE + " does not exist...");
 			omeroEditorDir.getParentFile().mkdir();		// Make the /User/omero/  directory if needed
 			omeroEditorDir.mkdir();					// Make the /User/omero/Editor directory
 		}
@@ -473,7 +436,7 @@ public class XMLModel
 			 */
 			String fileVersionNumber = getCurrentTree().getVersionNumber();
 			if (! VersionControlMethods.isFileVersionFromFuture(fileVersionNumber))
-				getCurrentTree().setVersionNumber(EDITOR_VERSION_NUMBER);
+				getCurrentTree().setVersionNumber(ConfigConstants.EDITOR_VERSION_NUMBER);
 			
 			getRootNode().getDataField().setAttribute(DataFieldConstants.PROTOCOL_FILE_NAME, outputFile.getName(), false);
 			// don't add the protocolFileName change to undo/redo, but still want UI to update...
@@ -724,7 +687,7 @@ public class XMLModel
 		currentTree = new Tree(this, this);
 		openFiles.add(currentTree);
 		// create new file(name)
-		setCurrentFile(new File(OMERO_EDITOR_FILE + File.separator + "untitled" 
+		setCurrentFile(new File(ConfigConstants.OMERO_EDITOR_FILE + File.separator + "untitled" 
 				+ (newFileNamingIndex < 2 ? "" : newFileNamingIndex) + ".tmp"));
 		newFileNamingIndex++;
 		

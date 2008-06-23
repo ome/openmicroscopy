@@ -67,7 +67,7 @@ import ui.fieldEditors.FieldEditor;
 import ui.formFields.FormField;
 import ui.formFields.FormFieldNumber;
 import validation.XMLSchema;
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 // Tree manages the tree data structure
 // also knows which fields are currently selected (applies actions to these)
@@ -1417,7 +1417,7 @@ public class Tree
 	 * @param versionNumber	 	A string that represents the current version of the software. eg "3.0-3.1.2".
 	 */
 	public void setVersionNumber(String versionNumber) {
-		getRootNode().getDataField().setAttribute(XMLModel.VERSION, versionNumber, false);
+		getRootNode().getDataField().setAttribute(ConfigConstants.VERSION, versionNumber, false);
 	}
 	
 	/**
@@ -1427,7 +1427,7 @@ public class Tree
 	 * @return
 	 */
 	public String getVersionNumber() {
-		return getRootNode().getDataField().getAttribute(XMLModel.VERSION);
+		return getRootNode().getDataField().getAttribute(ConfigConstants.VERSION);
 	}
 	
 	// turn on/off xmlValidation

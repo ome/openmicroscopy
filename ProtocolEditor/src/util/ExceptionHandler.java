@@ -37,7 +37,7 @@ import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 /**
  * This class handles exceptions and allows users to submit bugs and comments.
@@ -125,7 +125,7 @@ public class ExceptionHandler implements PropertyChangeListener {
 		else e = new Exception(detail);
 		if (title == null || title.length() == 0) title = DEFAULT_ERROR_TITLE;
 		MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, "", e); 
-		d.setVersion(XMLModel.EDITOR_RELEASE_ID);
+		d.setVersion(ConfigConstants.EDITOR_RELEASE_ID);
 		d.addPropertyChangeListener(new ExceptionHandler());
 		d.setModal(true);
 		UIUtilities.centerAndShow(d);
@@ -137,7 +137,7 @@ public class ExceptionHandler implements PropertyChangeListener {
     	String title = "Comment";
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, email);
     	
-    	d.setVersion(XMLModel.EDITOR_RELEASE_ID);
+    	d.setVersion(ConfigConstants.EDITOR_RELEASE_ID);
     	d.addPropertyChangeListener(new ExceptionHandler());
     	// Insight has setModal(true), but I prefer false, so that users can reproduce some
     	// behavior while composing a message.

@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import ui.IModel;
 import util.FileDownload;
 import util.ImageFactory;
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 /**
  * This pop-up panel (displayed in it's own JFrame) displays a web page:
@@ -217,7 +217,7 @@ public class UrlChooser extends JPanel {
 		
 		try {
 			
-			String newFileName = XMLModel.OMERO_EDITOR_FILE + "/download" + newFileIndex++ ;
+			String newFileName = ConfigConstants.OMERO_EDITOR_FILE + "/download" + newFileIndex++ ;
 			
 			File downloadedFile = FileDownload.downloadFile(url, newFileName);
 			model.openThisFile(downloadedFile);

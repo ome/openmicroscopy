@@ -50,7 +50,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 
 import util.PreferencesManager;
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -68,7 +68,7 @@ public class IndexFiles {
   
   private IndexFiles() {}
 
-  public static final String INDEX_PATH = XMLModel.OMERO_EDITOR_FILE + File.separator + "index";
+  public static final String INDEX_PATH = ConfigConstants.OMERO_EDITOR_FILE + File.separator + "index";
   
   static final File INDEX_DIR = new File(INDEX_PATH);
   

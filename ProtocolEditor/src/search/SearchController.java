@@ -25,7 +25,7 @@ import ui.XMLView;
 import util.ImageFactory;
 import util.XMLMethods;
 import util.XMLMethods.ElementAttributesHashMapHandler;
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 /*
  *------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ public class SearchController
 	}
 	
 	public void searchWithCurrentFileAsForm() {
-		File file = new File(XMLModel.OMERO_EDITOR_FILE + File.separator + "searchFile");
+		File file = new File(ConfigConstants.OMERO_EDITOR_FILE + File.separator + "searchFile");
 			
 		model.exportTreeToXmlFile(file);
 		
@@ -232,7 +232,7 @@ public class SearchController
 	 * Uses the currently opened file from <code>IModel</code> to start a more-like-this search.
 	 */
 	public void findMoreLikeThis() {
-		File file = new File(XMLModel.OMERO_EDITOR_FILE + File.separator + "searchFile");
+		File file = new File(ConfigConstants.OMERO_EDITOR_FILE + File.separator + "searchFile");
 		
 		model.exportTreeToXmlFile(file);
 		

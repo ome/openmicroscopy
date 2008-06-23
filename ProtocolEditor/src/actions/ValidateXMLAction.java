@@ -36,7 +36,7 @@ import ui.XMLView;
 import util.ImageFactory;
 import validation.SAXValidator;
 import validation.XMLSchema;
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 public class ValidateXMLAction 
 	extends ProtocolEditorAction {
@@ -52,7 +52,7 @@ public class ValidateXMLAction
 	
 	public void actionPerformed(ActionEvent e) {
 		
-		File xmlFile = new File(XMLModel.OMERO_EDITOR_FILE  + "/tempFile");
+		File xmlFile = new File(ConfigConstants.OMERO_EDITOR_FILE  + "/tempFile");
 		model.exportTreeToXmlFile(xmlFile);
 		List<String> errorMsgs = SAXValidator.validateXML(xmlFile);
 	

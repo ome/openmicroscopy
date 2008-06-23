@@ -53,7 +53,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import tree.DataFieldConstants;
 import util.XMLMethods;
-import xmlMVC.XMLModel;
+import xmlMVC.ConfigConstants;
 
 public class SAXValidator {
 	
@@ -138,7 +138,7 @@ public class SAXValidator {
 	// need to convert to SAX first....
 	static public ArrayList<String> validate(Document document) throws SAXException {
 		Transformer transformer;
-		File tempFile = new File(XMLModel.OMERO_EDITOR_FILE + "/xmlValidation.xml");
+		File tempFile = new File(ConfigConstants.OMERO_EDITOR_FILE + "/xmlValidation.xml");
 		try {
 			// transform to SAX by outputting to temp file...
 			transformer = TransformerFactory.newInstance().newTransformer();
