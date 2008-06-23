@@ -95,7 +95,7 @@ public class XMLView
 	DefaultChangeListener
 	{
 	
-	XMLModel xmlModel;
+	IModel xmlModel;
 	Controller controller;
 	
 	DataFieldNode rootOfImportTree;
@@ -173,7 +173,7 @@ public class XMLView
 	private Icon sendCommentIcon;
 
 	
-    public XMLView(XMLModel xmlModel) {
+    public XMLView(IModel xmlModel) {
     	
     	// adds this as a changeListener of model
     	super(xmlModel);
@@ -757,12 +757,14 @@ public class XMLView
 	}
 	*/
 	
+	/*
 	public class CompareFileListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent arg0) {
 			xmlModel.compareCurrentFiles();
 		}	
 	}
+	*/
 
 	
 	public class SearchDisplayListener implements ChangeListener {

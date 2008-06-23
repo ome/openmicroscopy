@@ -81,7 +81,7 @@ public class Controller
 	extends AbstractComponent
 	implements ChangeListener {
 
-	protected XMLModel model;
+	protected IModel model;
 	protected XMLView view;
 	protected JFrame frame = null;
 	
@@ -205,7 +205,7 @@ public class Controller
     /** Maps actions ids onto actual <code>Action</code> object. */
     private Map<Integer, Action>	actionsMap;
 	
-	public Controller (XMLModel model, XMLView view) {
+	public Controller (IModel model, XMLView view) {
 	
 		this.model = model;
 		// listen for changes in selection AND changes in XML (should only be observing one really!)

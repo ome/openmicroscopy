@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.JPanel;
+
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
@@ -193,6 +195,8 @@ public interface IModel {
 	public DataFieldNode getRootNode();
 	
 	public List<DataFieldNode> getHighlightedFields();
+	
+	public JPanel getFieldEditorToDisplay();
 	
 	public void editCurrentTree(Actions newAction);
 	
