@@ -57,6 +57,7 @@ import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
 import tree.IAttributeSaver;
+import tree.ITreeManager;
 import tree.Tree;
 import tree.Tree.Actions;
 import ui.AbstractComponent;
@@ -105,12 +106,12 @@ public class XMLModel
 	/**
 	 * A list of open files, each represented by a <code>Tree</code> class. 
 	 */
-	private ArrayList<Tree> openFiles = new ArrayList<Tree>();
-	private Tree currentTree;			// tree being currently edited and displayed
+	private ArrayList<ITreeManager> openFiles = new ArrayList<ITreeManager>();
+	private ITreeManager currentTree;			// tree being currently edited and displayed
 	
 	ArrayList<String> errorMessages = new ArrayList<String>();	// xmlValidation messages
 	
-	private Tree importTree;	// tree of a file used for importing fields
+	private ITreeManager importTree;	// tree of a file used for importing fields
 	
 	
 	/* clipboard of fields, for copy and paste functionality (between files) */
@@ -188,7 +189,7 @@ public class XMLModel
 	public void openThisFile(File xmlFile) {
 		
 		// need to check if the file is already open 
-		for (Tree tree: openFiles) {
+		for (ITreeManager tree: openFiles) {
 			if (tree.getFile().getAbsolutePath().equals(xmlFile.getAbsolutePath())) {
 				// if so, simply make this the current file, and refresh UI
 				currentTree = tree;
@@ -304,7 +305,7 @@ public class XMLModel
 	
 	// import the selected nodes of the tree, or if none selected, import it all!
 	public void importFieldsFromImportTree() {
-		Tree tree = getCurrentTree();
+		ITreeManager tree = getCurrentTree();
 		if (importTree.getHighlightedFields().size() > 0) {
 			tree.copyAndInsertDataFields(importTree.getHighlightedFields());
 		}
@@ -325,7 +326,7 @@ public class XMLModel
 		try {
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			outputDocument = db.newDocument();
-			Tree tree = getCurrentTree();
+			ITreeManager tree = getCurrentTree();
 			Tree.buildDOMfromTree(tree.getRootNode(), outputDocument);
 			return true;
 		} catch (Exception ex) { 
@@ -496,7 +497,7 @@ public class XMLModel
 	// delegates commands from xmlView to Tree. int Tree.editCommand is a list of known commands
 	public void editCurrentTree(Actions editCommand) {
 		// System.out.println("XMLModel editCurrentTree: " + editCommand.toString());
-		Tree tree = getCurrentTree();
+		ITreeManager tree = getCurrentTree();
 		if (tree != null )tree.editTree(editCommand);
 		xmlUpdated();
 	}
@@ -711,11 +712,6 @@ public class XMLModel
 		xmlUpdated();
 	}
 	
-	public ArrayList<IAttributeSaver> getObservationFields() {
-		if(getCurrentTree() == null) 
-			return new ArrayList<IAttributeSaver>();
-		return getCurrentTree().getObservationFields();
-	}
 	
 	// used to tell if there are any changes to the current file that need saving
 	public boolean isCurrentFileEdited() {
@@ -737,45 +733,24 @@ public class XMLModel
 			return getCurrentTree().getFile();
 		else return null;
 	}
-	
-	// for each file, can turn on/off xmlValidation
-	public void setXmlValidation(boolean validationOn) {
-		if (getCurrentTree() != null)
-			getCurrentTree().setXmlValidation(validationOn);
-	}
-	public boolean getXmlValidation() {
-		if (getCurrentTree() != null)
-			return getCurrentTree().getXmlValidation();
-		else return false;
-	}
-	
+
 	
 	public DataFieldNode getRootNode() {
-		Tree tree = getCurrentTree();
+		ITreeManager tree = getCurrentTree();
 		if (tree != null)
 		return tree.getRootNode();
 		
 		else return null;
 	}
 	public JPanel getFieldEditorToDisplay() {
-		Tree tree = getCurrentTree();
+		ITreeManager tree = getCurrentTree();
 		if (tree == null) return new JPanel();
 		else
 			return tree.getFieldEditorToDisplay();
 	}
 	
-	// used to find potential child names for OME elements
-	public String getNameOfCurrentFieldsParent() {
-		return getCurrentTree().getNameOfCurrentFieldsParent();
-	}
-	// used to add a child of defined name
-	public void addNewChildToTree(String childName) {
-		if (getCurrentTree() == null) return;
-		getCurrentTree().addDataField(childName);
-		xmlUpdated();
-	}
 	
-	public Tree getCurrentTree() {
+	public ITreeManager getCurrentTree() {
 		return currentTree;
 	}
 	
@@ -790,7 +765,7 @@ public class XMLModel
 	public boolean tryClosingAllFiles() {
 		
 		for (int i=openFiles.size()-1 ;i>=0 ; i--) {
-			Tree tree = openFiles.get(i);
+			ITreeManager tree = openFiles.get(i);
 			if (!tree.isTreeEdited()) {
 				openFiles.remove(tree);
 			}

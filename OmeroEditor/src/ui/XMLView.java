@@ -57,8 +57,6 @@ import cmd.OpenFileCmd;
 
 import actions.NewFileAction;
 
-import ols.ObservationCreator;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import tree.DataFieldNode;
-import tree.Tree;
+import tree.NodeManagerMethods;
 
 public class EditPromoteFields extends AbstractUndoableEdit {
 	
@@ -41,17 +41,17 @@ public class EditPromoteFields extends AbstractUndoableEdit {
 	}
 	
 	public void undo() {
-		Tree.demoteDataFields(movedFields);
+		NodeManagerMethods.demoteDataFields(movedFields);
 		// now have to restore any extra children of last node, acquired when it was promoted
 		DataFieldNode lastNode = movedFields.get(movedFields.size()-1);
 		int lastNodeNewChildCount = lastNode.getChildren().size();
 		
 		for (int i=lastNodeNewChildCount-1; i>lastNodeChildCount-1; i--) {
-			Tree.promoteDataField(lastNode.getChild(i));
+			NodeManagerMethods.promoteDataField(lastNode.getChild(i));
 		}
 	}
 	public void redo() {
-		Tree.promoteDataFields(movedFields);
+		NodeManagerMethods.promoteDataFields(movedFields);
 	}
 	
 	public String getPresentationName() {

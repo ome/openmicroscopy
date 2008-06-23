@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import tree.DataFieldNode;
-import tree.Tree;
+import tree.NodeManagerMethods;
 
 public class EditMoveFieldsDown extends AbstractUndoableEdit {
 	
@@ -40,10 +40,10 @@ public class EditMoveFieldsDown extends AbstractUndoableEdit {
 	}
 	
 	public void undo() {
-		Tree.moveFieldsUp(movedFields);
+		NodeManagerMethods.moveFieldsUp(movedFields);
 	}
 	public void redo() {
-		Tree.moveFieldsDown(movedFields);
+		NodeManagerMethods.moveFieldsDown(movedFields);
 	}
 	
 	public String getPresentationName() {

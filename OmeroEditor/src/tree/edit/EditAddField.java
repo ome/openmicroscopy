@@ -25,7 +25,7 @@ package tree.edit;
 import javax.swing.undo.AbstractUndoableEdit;
 
 import tree.DataFieldNode;
-import tree.Tree;
+import tree.NodeManagerMethods;
 
 public class EditAddField extends AbstractUndoableEdit {
 	
@@ -48,7 +48,7 @@ public class EditAddField extends AbstractUndoableEdit {
 	}
 	
 	public void redo() {
-		Tree.addDataField(newNode, parentNode, index);
+		NodeManagerMethods.addDataField(newNode, parentNode, index);
 	}
 	
 

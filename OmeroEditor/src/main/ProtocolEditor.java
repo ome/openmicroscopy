@@ -29,7 +29,6 @@ import java.util.List;
 import javax.swing.JPanel;
 
 import ols.Observation;
-import ols.ObservationCreator;
 
 import ui.XMLView;
 import xmlMVC.XMLModel;
@@ -124,14 +123,5 @@ public class ProtocolEditor {
 		return view.getMainContentPanel();
 	}
 	
-	/**
-	 * Returns a list of <code>Observation</code> objects 
-	 * These are fields that the user chooses, to correspond to observations they intend to make from their results.
-	 * An external application, such as Phenote, will use these to create a results table, for collection of data.
-	 * 
-	 * @return	a list of Observation objects
-	 */
-	public List<Observation> getObservations() {
-		return ObservationCreator.getObservations(model);
-	}
+	
 }
