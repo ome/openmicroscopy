@@ -57,7 +57,6 @@ public class Main {
 			
 			new XMLModel(true);
 
-			
 		// catch any uncaught exceptions	
 		} catch (Throwable se) {
 			
