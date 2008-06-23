@@ -1,5 +1,5 @@
-function [omerojService] = createOmeroJService(iceConfig, username, password)
+function [omerojavaService] = createOmeroJavaService(iceConfig, username, password)
 
 
-omerojService = omeroj.service.OmeroJService(java.lang.String(iceConfig));
-omerojService.createSession(username, password);
+omerojavaService = omerojava.service.OmeroJavaService(java.lang.String(iceConfig));
+omerojavaService.createSession(username, password);
