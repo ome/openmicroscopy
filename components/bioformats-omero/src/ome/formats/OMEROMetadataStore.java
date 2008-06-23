@@ -2,27 +2,21 @@
  * ome.formats.OMEROMetadataStore
  *
  *------------------------------------------------------------------------------
- *
- *  Copyright (C) 2005 Open Microscopy Environment
- *      Massachusetts Institute of Technology,
- *      National Institutes of Health,
- *      University of Dundee
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
- *
-GPL'd. See License attached to this project
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
@@ -96,7 +90,6 @@ import ome.system.Server;
 import ome.system.ServiceFactory;
 import ome.api.IRepositoryInfo;
 import ome.conditions.SessionException;
-import ome.formats.importer.Main;
 import ome.formats.importer.MetaLightSource;
 
 import org.apache.commons.logging.Log;
@@ -210,13 +203,23 @@ public class OMEROMetadataStore implements MetadataStore
     public void checkSF()
     {
         try {
+            // first try to automatically reconnect to the server
             iQuery.findByString(Experimenter.class, "omeName", login.getName());
         } 
         catch (SessionException e)
         {
-            System.err.println("reconnecting to sf");
+            log.debug(String.format("Session error, attempting a reconnect...."));
             sf = new ServiceFactory(server, login);
             InitializeServices(sf);
+            try {
+                // test again
+                iQuery.findByString(Experimenter.class, "omeName", login.getName());
+                log.debug(String.format(" Reconnect successful."));
+            }
+            catch (SessionException e2)
+            {
+                log.debug(String.format(" Reconnect failed!"));                
+            }
         }
     }
 
@@ -288,6 +291,10 @@ public class OMEROMetadataStore implements MetadataStore
 
         /* Create a new instrument list */
         instrumentList = new ArrayList<Instrument>();
+        
+        lsidMap = new HashMap<String, IObject>();
+        currentLSID =  null;
+        
     }
 
     /*
@@ -314,6 +321,7 @@ public class OMEROMetadataStore implements MetadataStore
      */
     private IObject getEnumeration(Class<? extends IObject> klass, String value)
     {
+        checkSF();
         if (klass == null)
             throw new NullPointerException("Expecting not-null klass.");
         if (value == null) return null;
@@ -602,14 +610,11 @@ public class OMEROMetadataStore implements MetadataStore
                     pos += rlen;
                     ByteBuffer nioBuffer = ByteBuffer.wrap(buf);
                     nioBuffer.limit(rlen);
-                    if (Main.DO_SHA1)
-                    {
-                        try {
-                            md.update(nioBuffer);
-                        } catch (Exception e) {
-                            // This better not happen. :)
-                            throw new RuntimeException(e);
-                        }
+                    try {
+                        md.update(nioBuffer);
+                    } catch (Exception e) {
+                        // This better not happen. :)
+                        throw new RuntimeException(e);
                     }
                 }
 
@@ -843,6 +848,23 @@ public class OMEROMetadataStore implements MetadataStore
         i.setDescription(description);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageInstrumentRef(java.lang.Integer, int)
+     */
+    public void setImageInstrumentRef(Integer instrumentRef, int imageIndex)
+    {
+        Image image = getImage(imageIndex);
+        Instrument instrument = getInstrument(instrumentRef);
+        log.debug(String.format(
+                "Setting ImageInstrumentRef[%d] image: '%d", instrumentRef, imageIndex));
+        if (instrument != null)
+        {
+            log.debug(String.format(
+                    " -- skipped till fixed."));
+            //image.setSetup(instrument);
+        }
+    }
+    
     /* ---- Pixels ---- */
 
     /* (non-Javadoc)
@@ -930,9 +952,11 @@ public class OMEROMetadataStore implements MetadataStore
                 "Setting Image[%d] Pixels[%d] pixel type: '%s'",
                 imageIndex, pixelsIndex, pixelType));
 
+        String lcPixelType = pixelType.toLowerCase();
+        
         // Retrieve enumerations from the server               
         PixelsType type =
-            (PixelsType) getEnumeration(PixelsType.class, pixelType);
+            (PixelsType) getEnumeration(PixelsType.class, lcPixelType);
 
         Pixels p = getPixels(imageIndex, pixelsIndex);
         p.setPixelsType(type);
@@ -1482,21 +1506,49 @@ public class OMEROMetadataStore implements MetadataStore
     }
 
     public void setStageLabelName(String name, int imageIndex) {
+        log.debug(String.format(
+                "Setting setStageName[%s] Image[%d]", name, imageIndex));
+        if (name == null)
+        {
+            log.debug(String.format("Stage label cannot be null, setting to 'ome'."));
+            name = "ome";
+        }
         StageLabel sl = getStageLabel(imageIndex);
         sl.setName(name);
     }
 
     public void setStageLabelX(Float x, int imageIndex) {
+        log.debug(String.format(
+                "Setting setStageLabelX[%f] Image[%d]", x, imageIndex));
+        if (x == null)
+        {
+            log.debug(String.format("Stage label X cannot be null, setting to 0.0f."));
+            x = 0.0f;
+        }
         StageLabel sl = getStageLabel(imageIndex);
         sl.setPositionX(x);
     }
 
     public void setStageLabelY(Float y, int imageIndex) {
+        log.debug(String.format(
+                "Setting setStageLabelY[%f] Image[%d]", y, imageIndex));
+        if (y == null)
+        {
+            log.debug(String.format("Stage label Y cannot be null, setting to 0.0f."));
+            y = 0.0f;
+        }
         StageLabel sl = getStageLabel(imageIndex);
         sl.setPositionY(y); 
     }
 
     public void setStageLabelZ(Float z, int imageIndex) {
+        log.debug(String.format(
+                "Setting setStageLabelZ[%f] Image[%d]", z, imageIndex));
+        if (z == null)
+        {
+            log.debug(String.format("Stage label Z cannot be null, setting to 0.0f."));
+            z = 0.0f;
+        }
         StageLabel sl = getStageLabel(imageIndex);
         sl.setPositionZ(z);   
     }
@@ -2078,14 +2130,14 @@ public class OMEROMetadataStore implements MetadataStore
         
         Instrument instrument = getInstrument(instrumentIndex);
         Objective objective = getObjective(instrument, objectiveIndex); 
-        if (objective != null)
+        if (objective != null && calibratedMagnification != null) // fix for older ome formats
             objective.setMagnificiation(calibratedMagnification.doubleValue());
     }
 
     public void setObjectiveImmersion(String immersion, int instrumentIndex,
             int objectiveIndex) {
         log.debug(String.format(
-                "setObjectiveImmersion[%f] instrumentIndex[%d] detectorIndex[%d]",
+                "setObjectiveImmersion[%s] instrumentIndex[%d] detectorIndex[%d]",
                 immersion, instrumentIndex, objectiveIndex));
         
         Instrument instrument = getInstrument(instrumentIndex);
@@ -2605,6 +2657,214 @@ public class OMEROMetadataStore implements MetadataStore
         Objective objective = getObjective(instrument, objectiveIndex); 
         //if (objective != null)
             // needs to be added
+    }
+
+    
+    /* ------ new just before beta 3 release from curtis - not handled today ----- */
+    
+    public void setPlateDescription(String description, int plateIndex)
+    {
+        log.debug(String.format(
+                "ignoring setPlateDescription"));
+    }
+
+    public void setPlateExternalIdentifier(String externalIdentifier,
+            int plateIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateExternalIdentifier"));
+    }
+
+    public void setPlateID(String id, int plateIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateID"));
+    }
+
+    public void setPlateName(String name, int plateIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateName"));
+    }
+
+    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateRefID"));
+    }
+
+    public void setPlateStatus(String status, int plateIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateStatus"));
+    }
+
+    public void setReagentDescription(String description, int screenIndex,
+            int reagentIndex)
+    {
+        log.debug(String.format(
+        "ignoring setReagentDescription"));
+    }
+
+    public void setReagentID(String id, int screenIndex, int reagentIndex)
+    {
+        log.debug(String.format(
+        "ignoring setReagentID"));
+    }
+
+    public void setReagentName(String name, int screenIndex, int reagentIndex)
+    {
+        log.debug(String.format(
+        "ignoring setReagentName"));
+    }
+
+    public void setReagentReagentIdentifier(String reagentIdentifier,
+            int screenIndex, int reagentIndex)
+    {
+        log.debug(String.format(
+        "ignoring setReagentReagentIdentifier"));
+    }
+
+    public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
+            int screenAcquisitionIndex)
+    {
+        log.debug(String.format(
+        "ignoring setScreenAcquisitionEndTime"));
+    }
+
+    public void setScreenAcquisitionID(String id, int screenIndex,
+            int screenAcquisitionIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateDescription"));
+    }
+
+    public void setScreenAcquisitionStartTime(String startTime,
+            int screenIndex, int screenAcquisitionIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateDescription"));
+    }
+
+    public void setScreenID(String id, int screenIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateDescription"));
+    }
+
+    public void setScreenName(String name, int screenIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateDescription"));
+    }
+
+    public void setScreenProtocolDescription(String protocolDescription,
+            int screenIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateDescription"));
+    }
+
+    public void setScreenProtocolIdentifier(String protocolIdentifier,
+            int screenIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateDescription"));
+    }
+
+    public void setScreenReagentSetDescription(String reagentSetDescription,
+            int screenIndex)
+    {
+        log.debug(String.format(
+        "ignoring setScreenReagentSetDescription"));
+    }
+
+    public void setScreenType(String type, int screenIndex)
+    {
+        log.debug(String.format(
+        "ignoring setScreenType"));
+    }
+
+    public void setUUID(String uuid)
+    {
+        log.debug(String.format(
+        "ignoring setUUID"));
+    }
+
+    public void setWellColumn(Integer column, int wellIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellColumn"));
+    }
+
+    public void setWellExternalDescription(String externalDescription,
+            int wellIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellExternalDescription"));
+    }
+
+    public void setWellExternalIdentifier(String externalIdentifier,
+            int wellIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellExternalIdentifier"));
+    }
+
+    public void setWellID(String id, int wellIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellID"));
+    }
+
+    public void setWellRow(Integer row, int wellIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellRow"));
+    }
+
+    public void setWellSampleID(String id, int wellIndex, int wellSampleIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellSampleID"));
+    }
+
+    public void setWellSampleIndex(Integer index, int wellIndex,
+            int wellSampleIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellSampleIndex"));
+    }
+
+    public void setWellSamplePosX(Float posX, int wellIndex, int wellSampleIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellSamplePosX"));
+    }
+
+    public void setWellSamplePosY(Float posY, int wellIndex, int wellSampleIndex)
+    {
+        log.debug(String.format(
+        "ignoring setPlateDescription"));
+    }
+
+    public void setWellSampleTimepoint(Integer timepoint, int wellIndex,
+            int wellSampleIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellSamplePosY"));
+    }
+
+    public void setWellType(String type, int wellIndex)
+    {
+        log.debug(String.format(
+        "ignoring setWellType"));
+    }
+
+    public void setImageInstrumentRef(String instrumentRef, int imageIndex)
+    {
+        log.debug(String.format(
+        "ignoring setImageInstrumentRef"));
     }
     
     // Bio-formats also needs a way to link OTF to Logical Channel

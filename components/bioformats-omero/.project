@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>omero-bioformats-omero</name>
+	<name>Beta 3.0</name>
 	<comment></comment>
 	<projects>
+		<project>LOCI Software</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

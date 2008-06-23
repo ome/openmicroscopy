@@ -195,23 +195,28 @@ public class ImportHandler
                     {
                         qTable.setProgressFailed(j);
 
-                        viewer.appendToOutputLn("> [" + j + "] Lossless JPEG not supported. See " +
+                        viewer.appendToOutputLn("> [" + j + "] Lossless JPEG not supported.");
+                                /*
+                                See " +
                                 "http://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG for " +
                                 "details on this error.");
+                                */
                         JOptionPane
                         .showMessageDialog(
                                 viewer,
                                 "\nThe importer cannot import the lossless JPEG images used by the file" +
-                                "\n" + importContainer[j].imageName +
+                                "\n" + importContainer[j].imageName + "");
+                                /*		"
                                 "\n\nThere maybe be a native library available for your operating system" +
                                 "\nthat will support this format. For details on this error, check:" +
                                 "\nhttp://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG");
+                                */
                     }
                     
                     try
                     {
                         db.updateImportStatus(importKey, "incomplete");
-                        db.updateFileStatus(importKey, j, "unknown format");
+                        db.updateFileStatus(importKey, j, "failed");
                     } catch (SQLException e)
                     {
                         e.printStackTrace();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="loci/formats/auto/MetadataAutogen.java|loci/formats/gui/CacheComponent.java|loci/formats/meta/AggregateMetadata.java|loci/formats/ome/OMEXML2003FCMetadata.java|loci/formats/ome/OMEXML200706Metadata.java|loci/formats/ome/OMEXMLMetadata.java|loci/formats/ome/OmeisImporter.java|loci/formats/out/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
@@ -35,5 +35,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/swing-layout.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-aop-jdk50-4.2.1.GA.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-aop-jdk50-client-4.2.1.GA.jar"/>
+	<classpathentry kind="lib" path="lib/jboss-aspect-library-jdk50-4.2.1.GA.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/loci.formats"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

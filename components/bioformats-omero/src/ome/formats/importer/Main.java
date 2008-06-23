@@ -68,13 +68,13 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    public static String        versionText = "Beta 3.0 Test";
+    public static String        versionText = "Beta 3.0";
     
     public static String        versionNumber = "300";
     
     /** The data of the last release date. */
     public static String        releaseDate      
-         = "2007-06-06 15:18:13 +0100 (Wed, 04 Oct 2007)";
+         = "2008-06-16 16:18:13 +0100 (Mon, 16 Jun 2008)";
 
     /** The repository revision. */
     public static String        revision  = "$LastChangedRevision$";
@@ -83,8 +83,6 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     public static String        revisionDate     
          = "$LastChangedDate$";
 
-    
-    
     /** Logger for this class. */
     @SuppressWarnings("unused")
     private static Log          log     = LogFactory.getLog(Main.class);
@@ -94,7 +92,6 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
     private static boolean USE_QUAQUA = true;
-    public final static boolean DO_SHA1 = true;
     
     
     public final static String TITLE            = "OMERO.importer";
@@ -159,6 +156,8 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     public Main()
     {
         super(TITLE);
+        
+        isUpgradeRequired();
         
         gui = new GuiCommonElements();
          
@@ -291,6 +290,8 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 
         this.setVisible(false);
 
+        loginHandler = LoginHandler.getLoginHandler(this, false, false);
+        
         LogAppender.getInstance().setTextArea(debugTextPane);
         appendToOutputLn("> Starting the importer (revision "
                 + getPrintableKeyword(revision) + ").");
@@ -299,7 +300,6 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         
         //System.err.println(isUpgradeRequired());
         
-        loginHandler = LoginHandler.getLoginHandler(this, false, false);
         HistoryHandler historyHandler = HistoryHandler.getHistoryHandler();
         historyPanel.add(historyHandler, BorderLayout.CENTER);
         
@@ -608,9 +608,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             System.setProperty("Quaqua.design", "panther");
             
             try {
-                UIManager.setLookAndFeel(
-                    "ch.randelshofer.quaqua.QuaquaLookAndFeel"
-                );
+                UIManager.setLookAndFeel("ch.randelshofer.quaqua.QuaquaLookAndFeel");
            } catch (Exception e) { System.err.println(laf + " not supported.");}
         } else {
             try {

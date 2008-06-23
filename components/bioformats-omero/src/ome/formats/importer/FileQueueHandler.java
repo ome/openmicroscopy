@@ -32,7 +32,6 @@ import javax.swing.UIManager;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.model.containers.Dataset;
-import ome.model.containers.Project;
 
 @SuppressWarnings("serial")
 public class FileQueueHandler 
@@ -69,7 +68,7 @@ public class FileQueueHandler
         //reader.setChannelStatCalculationStatus(true);
         
         setLayout(new BorderLayout());
-        fileChooser = new FileQueueChooser();
+        fileChooser = new FileQueueChooser(reader);
         fileChooser.addActionListener(this);
         fileChooser.addPropertyChangeListener(this);
         
