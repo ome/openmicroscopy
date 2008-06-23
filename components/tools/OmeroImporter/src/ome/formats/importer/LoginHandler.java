@@ -55,6 +55,8 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
 public class LoginHandler implements IObservable, ActionListener, WindowListener, PropertyChangeListener, WindowStateListener, WindowFocusListener
 {
     
+    private static boolean NEW_LOGIN = true;
+    
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     public volatile JFrame      f;
@@ -83,7 +85,9 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
     public LoginFrame          frame;
 
-    private boolean modal;
+    private LoginCredentials    lc;
+    
+    private boolean modal, displayTop;
     
     private HistoryTable historyTable = null;
 
@@ -96,23 +100,10 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         historyTable = HistoryTable.getHistoryTable();
         addObserver(historyTable);
         
-        
         viewer.enableMenus(false);
-        boolean cancelled = displayLoginDialog(viewer, modal);
-        //boolean cancelled = viewer.displayLoginDialog(this, modal);
         
-        if (modal == true && cancelled == true)
-        {
-            loginCancelled();
-        }
-        
-        if (modal == true && cancelled == false)
-        {
-            tryLogin();
-        }
-        
+        displayLogin(true);
     }
-
     
     public static synchronized LoginHandler getLoginHandler(Main viewer, boolean modal, boolean center)
     {
@@ -145,44 +136,107 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     
     private static LoginHandler ref;
     
+    public void displayLogin(boolean displayTop)
+    {
+        boolean cancelled;
+        this.displayTop = displayTop;
+        
+        if (NEW_LOGIN)
+        {
+            cancelled = viewer.displayLoginDialog(this, modal, displayTop);
+        } else {
+            cancelled = displayLoginDialog(viewer, modal);  
+        }
+        
+        if (modal == true && cancelled == true)
+        {
+            loginCancelled();
+        }
+        
+        if (modal == true && cancelled == false)
+        {
+            tryLogin();
+        }
+    }
+    
     public void tryLogin()
     {
         new Thread()
         {
             public void run()
             {
-                SplashWindow.disposeSplash();
-                viewer.setVisible(true);
-
-                if (!modal)
+                if (!NEW_LOGIN)
                 {
-                    username = frame.username;
-                    password = frame.password;
-                    server = frame.currentServer;
-                    port = frame.port;
-                    frame.updateServerList(server);                    
-                } else
-                {
-                    username = dialog.username;
-                    password = dialog.password;
-                    server = dialog.currentServer;
-                    port = dialog.port;
-                    dialog.updateServerList(server);                    
+                    SplashWindow.disposeSplash();
+                    viewer.setVisible(true);
+                    
+                    if (!modal)
+                    {
+                        username = frame.username;
+                        password = frame.password;
+                        server = frame.currentServer;
+                        port = frame.port;
+                        frame.updateServerList(server);                    
+                    } else
+                    {
+                        username = dialog.username;
+                        password = dialog.password;
+                        server = dialog.currentServer;
+                        port = dialog.port;
+                        dialog.updateServerList(server);                    
+                    }
+                    
+                    userPrefs.put("username", username);
+                    userPrefs.put("server", server);
+                    userPrefs.put("port", port);
+                    
+                } else {
+                        username = lc.getUserName();
+                        password = lc.getPassword();
+                        server = lc.getHostName();
+                        port = "1099";
                 }
-
-
-                userPrefs.put("username", username);
-                // userPrefs.put("password", password); // save the password
-                userPrefs.put("server", server);
-                userPrefs.put("port", port);
-
+            
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
                 "Trying to connect to " + server);
                 viewer.statusBar.setProgress(true, -1, "connecting....");
+                
                 try
                 {
-                    if (!isValidLogin())
+                    if (isValidLogin())
                     {
+                        if (NEW_LOGIN)
+                        {
+                            viewer.view.close();
+                            viewer.viewTop.close();
+                            viewer.setVisible(true);
+                        }
+
+                        viewer.statusBar.setProgress(false, 0, "");
+                        viewer.appendToOutput("> Login Successful.\n");
+                        viewer.enableMenus(true);
+                        viewer.setImportEnabled(true);
+                        viewer.loggedIn = true;
+                        notifyObservers("LOGGED_IN", null);
+                                                
+                        // if this fails, using the old server without repositorySpace
+                        try {
+                            long freeSpace = store.getRepositorySpace();
+                            NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+                            String freeMB = formatter.format(freeSpace/1000);                
+                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
+                                    "Connected to " + server + ". Free space: " + 
+                                    freeMB + " MB.");
+                            return;
+                        } catch (Exception e) 
+                        {
+                            viewer.statusBar.setStatusIcon("gfx/server_connect16.png", "Connected to " + server + ".");
+                            return;
+                        }
+                    } else {   
+                        if (NEW_LOGIN)
+                            viewer.view.setAlwaysOnTop(false);
+                        System.err.println("Login Valid");
                         viewer.statusBar.setProgress(false, 0, "");
                         viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
                                 "Incorrect username/password. Server login failed, please try to "
@@ -194,20 +248,28 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         viewer.appendToOutput("> Login failed. Try to relog.\n");
                         viewer.enableMenus(true);
                         viewer.loggedIn = false;
+                        
+                        if (NEW_LOGIN)
+                            refreshNewLogin();
                         return;
                     }
                 } catch (Exception e)
-                {
+                {                   
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);
                     e.printStackTrace(pw);
                     log.info(sw);
+                    
+                    //e.printStackTrace();
 
                     viewer.statusBar.setProgress(false, 0, "");
                     viewer.statusBar.setStatusIcon("gfx/error_msg16.png",
                     "Server connection to " + server +" failed. " +
                             "Please try again.");
-
+                    
+                    if (NEW_LOGIN)
+                        viewer.view.setAlwaysOnTop(false);
+                    
                     JOptionPane
                     .showMessageDialog(
                             viewer,
@@ -217,32 +279,22 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                     viewer.appendToOutput("> Login failed. Try to relog.\n");
                     viewer.enableMenus(true);
                     viewer.loggedIn = false;
+                    
+                    if (NEW_LOGIN)
+                        refreshNewLogin();
                     return;
-                }
-
-                viewer.statusBar.setProgress(false, 0, "");
-                viewer.appendToOutput("> Login Successful.\n");
-                viewer.enableMenus(true);
-                viewer.setImportEnabled(true);
-                viewer.loggedIn = true;
-                notifyObservers("LOGGED_IN", null);
-                // if this fails, using the old server without repositorySpace
-                try {
-                    long freeSpace = store.getRepositorySpace();
-                    NumberFormat formatter = NumberFormat.getInstance(Locale.US);
-                    String freeMB = formatter.format(freeSpace/1000);                
-                    viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
-                            "Connected to " + server + ". Free space: " + 
-                            freeMB + " MB.");
-                } catch (Exception e) 
-                {
-                    viewer.statusBar.setStatusIcon("gfx/server_connect16.png",
-                            "Connected to " + server + ".");
                 }
             }
         }.start();
     }
 
+    void refreshNewLogin()
+    {
+        viewer.view.setAlwaysOnTop(true);
+        //viewer.viewTop.setAlwaysOnTop(true); 
+        viewer.view.requestFocusOnField();
+    }
+    
     void loginCancelled() {
         viewer.loggedIn = false;
         viewer.enableMenus(true);
@@ -274,11 +326,13 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             store = new OMEROMetadataStore(username, password, server, port);
             store.getProjects();
             
-        } catch (EJBAccessException e)
+        } catch (Exception e)
         {
+            e.printStackTrace();
             return false;
-        }
+        } 
 
+        //System.err.println(store.toString());
         return true;
     }
 
@@ -290,33 +344,42 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     public void propertyChange(PropertyChangeEvent evt)
     {
         String prop = evt.getPropertyName();
-        if (prop.equals(Actions.LOGIN))
+        
+        if (!NEW_LOGIN)
         {
-            tryLogin();
-        }
-        if (prop.equals(Actions.LOGIN_CANCELLED))
-        {
-            loginCancelled();
-        }
-
-        /*
-        if (prop.equals(ScreenLogin.LOGIN_PROPERTY)) {
-            LoginCredentials lc = (LoginCredentials) evt.getNewValue();
-            if (lc != null)
-                {
-                    tryLogin();
-                }
-        } else if (ScreenLogin.QUIT_PROPERTY.equals(prop)) {
-            if (viewer.quitConfirmed(viewer) == true)
+            if (prop.equals(Actions.LOGIN))
+            {
+                tryLogin();
+            }
+            if (prop.equals(Actions.LOGIN_CANCELLED))
             {
                 loginCancelled();
-                //System.exit(0);
             }
-        } else if (ScreenLogin.TO_FRONT_PROPERTY.equals(prop) || 
-                ScreenLogo.MOVE_FRONT_PROPERTY.equals(prop)) {
-            //updateView();
-        }
-        */
+
+        } else {
+            if (prop.equals(ScreenLogin.LOGIN_PROPERTY)) {
+                System.err.println(evt.getNewValue());
+                lc = (LoginCredentials) evt.getNewValue();
+                if (lc != null)
+                {
+                    //System.err.println("Trying login");
+                    tryLogin();
+                }
+            } else if (ScreenLogin.QUIT_PROPERTY.equals(prop)) {
+                if (displayTop)
+                {
+                    if (viewer.quitConfirmed(viewer) == true)
+                    {
+                        System.exit(0);
+                    }    
+                } else {
+                    viewer.view.dispose();
+                }
+                
+            } else if (ScreenLogin.TO_FRONT_PROPERTY.equals(prop) || 
+                    ScreenLogo.MOVE_FRONT_PROPERTY.equals(prop)) {
+            } 
+        } 
     }
 
     // Observable methods

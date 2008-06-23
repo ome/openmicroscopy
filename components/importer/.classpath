@@ -11,7 +11,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/asm-attrs.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/cglib.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/checkstyle.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/common.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-beanutils.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-logging.jar"/>
@@ -37,7 +36,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/lucene-core.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/model-psql.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
@@ -48,5 +46,8 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity-tools-generic.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/LOCI Software"/>
+	<classpathentry kind="lib" path="target/libs/client.jar"/>
+	<classpathentry kind="lib" path="target/libs/common.jar"/>
+	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

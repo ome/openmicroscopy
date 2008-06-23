@@ -64,12 +64,13 @@ public class FileQueueChooser
     
     private Component fileList = null;
     
-    ImageReader reader = new ImageReader();
+    ImageReader reader;
     
     JButton refreshBtn;
     
-    FileQueueChooser() {
+    FileQueueChooser(OMEROWrapper wrapper) {
         
+        this.reader = wrapper.getImageReader();
         try {
             JPanel fp = null;
             JToolBar tb = null;
@@ -188,34 +189,14 @@ public class FileQueueChooser
         this.setFileSelectionMode(JFileChooser.FILES_ONLY);
         this.setMultiSelectionEnabled(true);
         this.setDragEnabled(true);
-        //this.setAccessory(new FindAccessory(this));
-        
-        IFormatReader[] readers = ((ImageReader) reader).getReaders();
-        Vector v = new Vector();
-        for (int i=0; i<readers.length; i++) {
-            // NB: By default, some readers might need to open a file to
-            // determine if it is the proper type, when the extension alone
-            // isn't enough to distinguish.
-            //
-            // We want to disable that behavior for ImageReader,
-            // because otherwise the combination filter is too slow.
-            //
-            // Also, most of the formats that do this are TIFF-based, and the
-            // TIFF reader will already green-light anything with .tif
-            // extension, making more thorough checks redundant.
-            //if (readers[i].isMetadataComplete())
-                v.add(new FormatFileFilter(readers[i], false));
-        }
-        
-        FileFilter ff[] = ComboFileFilter.sortFilters(v);
-        
-        int readerFFSize = ff.length;
-        /** Gets a JFileChooser that recognizes accepted file types. */
         
         setAcceptAllFileFilterUsed(false);
-        ff = new FileFilter[readerFFSize + 6];
-        System.arraycopy(ComboFileFilter.sortFilters(
-                loci.formats.gui.GUITools.buildFileFilters(reader)), 0, ff, 0, readerFFSize);
+
+        
+        FileFilter[] originalFF = loci.formats.gui.GUITools.buildFileFilters(reader);
+        int readerFFSize = originalFF.length;
+
+        FileFilter[] ff = new FileFilter[readerFFSize + 6];
         ff[readerFFSize] = new DashFileFilter();
         ff[readerFFSize + 1] = new R3DNewFileFilter();
         ff[readerFFSize + 2] = new R3DOldFileFilter();
@@ -223,15 +204,12 @@ public class FileQueueChooser
         ff[readerFFSize + 4] = new D3DOldFileFilter();
         ff[readerFFSize + 5] = new D3DNPrjFileFilter();
 
-        // set up the full filter for all supported types
-        FileFilter[] comboFF = new FileFilter[readerFFSize];
-        System.arraycopy(ComboFileFilter.sortFilters(
-                loci.formats.gui.GUITools.buildFileFilters(reader)), 0, comboFF, 0, readerFFSize);
+        System.arraycopy(originalFF, 0, ff, 0, originalFF.length);
+
         //FileFilter combo = null;
         for (int i = 0; i < ff.length; i++)
             this.addChoosableFileFilter(ff[i]);
         this.setFileFilter(ff[0]);
-        //if (combo != null) this.setFileFilter(combo);
         
          //Retrieve all JLists and JTables from the fileChooser
         fileListObjects = getFileListObjects(this);
@@ -474,7 +452,7 @@ public class FileQueueChooser
         { System.err.println(laf + " not supported."); }
         System.err.println("laf: " + UIManager.getLookAndFeel());
         
-        FileQueueChooser c = new FileQueueChooser();
+        FileQueueChooser c = new FileQueueChooser(null);
         
         JFrame f = new JFrame(); 
         c.setMultiSelectionEnabled(true);

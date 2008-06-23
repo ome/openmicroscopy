@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import loci.formats.FormatException;
-import loci.formats.FormatTools;
 import loci.formats.DataTools;
 import ome.conditions.ApiUsageException;
 import ome.formats.OMEROMetadataStore;
@@ -178,6 +178,7 @@ public class ImportLibrary implements IObservable
     {
         reader.close();
         reader.setMetadataStore(store);
+        reader.setMinMaxStore(store);
         reader.setId(fileName);
         //reset series count
         log.debug("Image Count: " + reader.getImageCount());
@@ -222,53 +223,73 @@ public class ImportLibrary implements IObservable
         int series = 0;
         for (Image image : imageList)
         {
-        	// FIXME: This assumes only *one* set of pixels.
-        	Pixels pix = (Pixels) image.iteratePixels().next();
-            String name = imageName;
-            String seriesName = reader.getImageName(series);
+            int pixelCount = image.sizeOfPixels();
             
-            if (reader.getImageReader().isRGB())
+            // FIXME: This assumes only *one* set of pixels.
+            //Pixels pix = (Pixels) image.iteratePixels().next();
+            // FIXME: above problem is fixed
+            for (int x = 0; x < pixelCount; x++)
             {
-                log.debug("Setting color channels to RGB format.");
-                if (pix.sizeOfChannels() == 3)
-                {
-                    Color red = new Color();
-                    red.setRed(255);
-                    red.setGreen(0);
-                    red.setBlue(0);
-                    red.setAlpha(255);
-                    
-                    Color green = new Color();
-                    green.setGreen(255);
-                    green.setRed(0);
-                    green.setBlue(0);
-                    green.setAlpha(255); 
-                    
-                    Color blue = new Color();
-                    blue.setBlue(255);
-                    blue.setGreen(0);
-                    blue.setRed(0);
-                    blue.setAlpha(255);            
-                    
-                    pix.getChannel(0).setColorComponent(red);
-                    pix.getChannel(1).setColorComponent(green);
-                    pix.getChannel(2).setColorComponent(blue);
-                }
+                Pixels pix = (Pixels) image.getPixels(x);
+
+                String name = imageName;
+                String seriesName = reader.getImageName(series);
                 
+                if (reader.getImageReader().isRGB() || reader.getImageReader().isIndexed())
+                {
+                    log.debug("Setting color channels to RGB format.");
+                    if (pix.sizeOfChannels() == 3)
+                    {
+                        Color red = new Color();
+                        red.setRed(255);
+                        red.setGreen(0);
+                        red.setBlue(0);
+                        red.setAlpha(255);
+                        
+                        Color green = new Color();
+                        green.setGreen(255);
+                        green.setRed(0);
+                        green.setBlue(0);
+                        green.setAlpha(255); 
+                        
+                        Color blue = new Color();
+                        blue.setBlue(255);
+                        blue.setGreen(0);
+                        blue.setRed(0);
+                        blue.setAlpha(255);            
+                        
+                        pix.getChannel(0).setColorComponent(red);
+                        pix.getChannel(1).setColorComponent(green);
+                        pix.getChannel(2).setColorComponent(blue);
+                    }
+                    
+                }
+
+                if (seriesName != null && seriesName.length() != 0)
+                    name += " [" + seriesName + "]";
+
+                pix.getImage().setName(name);
+                if (pix.getPixelsDimensions() == null)
+                {  
+                    log.debug(String.format("Failsafe check: " +
+                            "null PixelDimensions found, setting sizeX,Y,Z to 1.0f"));
+                    PixelsDimensions pixDims = new PixelsDimensions();
+                    pixDims.setSizeX(1.0f);
+                    pixDims.setSizeY(1.0f);
+                    pixDims.setSizeZ(1.0f);
+                    pix.setPixelsDimensions(pixDims);
+                } else {   
+                    log.debug(String.format("Failsafe check: " +
+                            "PixelDimensions found with null sizes, setting sizeX,Y,Z to 1.0f"));
+                    if (pix.getPixelsDimensions().getSizeX() == null)
+                        pix.getPixelsDimensions().setSizeX(1.0f);
+                    if (pix.getPixelsDimensions().getSizeY() == null)
+                        pix.getPixelsDimensions().setSizeY(1.0f);
+                    if (pix.getPixelsDimensions().getSizeZ() == null)
+                        pix.getPixelsDimensions().setSizeZ(1.0f);
+                }
             }
 
-            if (seriesName != null && seriesName.length() != 0)
-                name += " [" + seriesName + "]";
-
-            pix.getImage().setName(name);
-            if (pix.getPixelsDimensions() == null)
-            {   
-                PixelsDimensions pixDims = new PixelsDimensions();
-                pixDims.setSizeX(1.0f);
-                pixDims.setSizeY(1.0f);
-                pixDims.setSizeZ(1.0f);
-                pix.setPixelsDimensions(pixDims);
-            }
             series++;
             
         }
@@ -437,14 +458,11 @@ public class ImportLibrary implements IObservable
                     ByteBuffer buf =
                         reader.openPlane2D(fileName, planeNumber, arrayBuf).getData();
                     arrayBuf = swapIfRequired(buf, fileName);
-                    if (true) //DO_SHA1 XXX
-                    {
-                        try {
-                            md.update(arrayBuf);
-                        } catch (Exception e) {
-                            // This better not happen. :)
-                            throw new RuntimeException(e);
-                        }
+                    try {
+                        md.update(arrayBuf);
+                    } catch (Exception e) {
+                        // This better not happen. :)
+                        throw new RuntimeException(e);
                     }
                     step.step(series, i);
                     store.setPlane(pixId, arrayBuf, z, c, t);
@@ -566,11 +584,9 @@ public class ImportLibrary implements IObservable
     {
       int pixelType = reader.getPixelType();
       int bytesPerPixel = getBytesPerPixel(pixelType);
-
-      // We've got nothing to do if the samples are only 8-bits wide or if they
-      // are floating point.
-      if (pixelType == FormatTools.FLOAT || pixelType == FormatTools.DOUBLE
-                  || bytesPerPixel == 1) 
+      
+      // We've got nothing to do if the samples are only 8-bits wide.
+      if (bytesPerPixel == 1) 
           return buffer.array();
 
       //System.err.println(fileName + " is Little Endian: " + isLittleEndian(fileName));
@@ -580,9 +596,15 @@ public class ImportLibrary implements IObservable
           for (int i = 0; i < (buffer.capacity() / 2); i++) {
             buf.put(i, DataTools.swap(buf.get(i)));
           }
-        } else if (bytesPerPixel == 4) { // int/uint
+        } else if (bytesPerPixel == 4) { // int/uint/float
             IntBuffer buf = buffer.asIntBuffer();
             for (int i = 0; i < (buffer.capacity() / 4); i++) {
+              buf.put(i, DataTools.swap(buf.get(i)));
+            }
+        } else if (bytesPerPixel == 8) // double
+        {
+            LongBuffer buf = buffer.asLongBuffer();
+            for (int i = 0; i < (buffer.capacity() / 8); i++) {
               buf.put(i, DataTools.swap(buf.get(i)));
             }
         } else {

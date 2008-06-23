@@ -12,5 +12,8 @@
 	<classpathentry kind="lib" path="target/libs/swingx.jar"/>
 	<classpathentry kind="lib" path="target/libs/TableLayout.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
+	<classpathentry kind="lib" path="target/libs/client.jar"/>
+	<classpathentry kind="lib" path="target/libs/common.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
