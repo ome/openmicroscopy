@@ -1,0 +1,116 @@
+
+
+
+                                   README
+
+                      OPEN MICROSCOPY ENVIRONMENT (OME)
+                              
+                                 OMERO.insight
+                                 
+                                    Legal
+
+
+
+
+
+
+
+  Preamble
+  --------
+  
+  Within this document, the term 'third-party software' shall refer to the set 
+  of all the files which are contained in the shoola-omero Subversion 
+  module and which 
+  are listed in each 'Artifacts' entry within the 
+  'Third-Party Software Licenses' section of this document. 
+  The term 'OMERO.editor' or, equivalently, 'our software'
+  shall refer to any other file contained in the shoola-omero Subversion module.
+  
+  
+  
+  Purpose
+  -------
+  
+  This document states which licenses apply to which files in the 
+  shoola-omero Subversion module. 
+  It also gives credit to other projects and developers that 
+  provided us with their valuable software.
+  
+  
+  
+  OMERO.insight License
+  ---------------------
+  
+  Our software is licensed under the terms of the GNU General Public License
+  (GPL), a copy of which may be found in the 'gpl.txt' file within this
+  directory.
+  
+  
+  
+  Third-Party Software Licenses
+  -----------------------------
+  
+  We are in debt with many open-source projects for providing us with valuable
+  artifacts, ranging from application libraries to graphics files. This section
+  lists all the third-party software that is used by OMERO.editor.  
+  Software artifacts are grouped according to the project of provenience and 
+  using the following format:
+  
+  Project: The name of the project the artifacts belong to and a brief 
+  		(optional) description.
+  Web Site: The project's Web site address.
+  Artifacts: The files our software makes use of.  The wildcard character * can
+  		be appended to a sequence of characters S denoting a file name.  
+  		This shall mean 'all the files whose name starts with S'.  For example, 
+  		'ant-*' means all the files whose name starts with 'ant-'.
+  		Unless otherwise specified, directory pathnames are given relative to 
+  		the root of the Shoola SVN module.
+  License: The type of license that applies to the files listed in 'Artifacts'.
+  License File: The file, within this directory, that contains the license.
+  
+  Follows the list.
+  
+
+
+  Project: The Lucene Project.  Used to index and search for files.
+  Web Site: http://lucene.apache.org/
+  Artifacts: The lucene-core- jar under lib
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  
+  Project: The iCal4j Project. Used to export dates and events in iCalendar (ics) format.
+  Web Site: http://ical4j.sourceforge.net/
+  Artifacts: The ical4j-  jar under lib/
+  License: iCal4j license.
+  License File: iCal4j license
+
+  
+  Project: The Log4j Project.  The logging framework used by OMERO.insight.
+  Web Site: http://logging.apache.org/log4j/
+  Artifacts: The log4j-* file under lib/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  
+  Project: The Eclipse project.  We're using a few of their icons.
+  Web Site: http://www.eclipse.org/
+  Artifacts: All the eclipse_* graphics files contained the Shoola SVN module.
+  License: Common Public License (CPL) v1.0
+  License File: cpl-v10.html
+
+
+  Project: The Nuvola icon theme.  It provides most of the icons in OMERO.insight.
+  Web Site: http://www.icon-king.com/
+  Artifacts: All the nuvola_* graphics files contained the Shoola SVN
+  			 module.
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt
+  
+  
+  Project: The JCalendar project. 
+  JCalendar is a Java date chooser bean for graphically picking a date.
+  Web Site: http://www.toedter.com/en/jcalendar/
+  Artifacts: The jcalendar-* file under LIB/
+  License: Lesser General Public License (LGPL)
+  License File: lgpl.txt
