@@ -1,0 +1,34 @@
+<ivy-module version="1.0">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+  <info
+      organisation="omero"
+      module="OmeroJava"
+      status="integration"/>
+  <configurations>
+    <conf name="core"/>
+    <conf name="build" extends="core"/>
+    <conf name="test"  extends="core"/>
+  </configurations>
+  <publications>
+    <artifact name="OmeroJava" type="jar" conf="core" />
+  </publications>
+  <dependencies>
+    <!-- Internal -->
+    <dependency name="blitz" rev="${omero.version}" changing="true" conf="core->client"/>
+  </dependencies>
+</ivy-module>
+
