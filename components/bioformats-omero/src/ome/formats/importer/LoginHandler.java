@@ -167,7 +167,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             {
                 if (!NEW_LOGIN)
                 {
-                    SplashWindow.disposeSplash();
+                    //SplashWindow.disposeSplash();
                     viewer.setVisible(true);
                     
                     if (!modal)
@@ -298,7 +298,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     void loginCancelled() {
         viewer.loggedIn = false;
         viewer.enableMenus(true);
-        SplashWindow.disposeSplash();
+        //SplashWindow.disposeSplash();
         viewer.setVisible(true);
     }
     

@@ -52,7 +52,7 @@ public abstract class About
 
         if (useSplashScreen == true)
         {
-            SplashWindow.splash(Splasher.class.getResource(Main.splash));
+            //SplashWindow.splash(Splasher.class.getResource(Main.splash));
         } else
         {
 

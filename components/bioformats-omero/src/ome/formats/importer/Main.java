@@ -87,8 +87,6 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     @SuppressWarnings("unused")
     private static Log          log     = LogFactory.getLog(Main.class);
 
-    public static Point splashLocation = Splasher.location;
-
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
     private static boolean USE_QUAQUA = true;
@@ -622,7 +620,8 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 
     public static Point getSplashLocation()
     {
-        return splashLocation;
+        return null;
+        //return splashLocation;
     }
 
     public void update(IObservable importLibrary, Object message, Object[] args)
