@@ -295,7 +295,7 @@ public class IconManager
         relPaths[CATEGORY_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[IMAGES_EXPLORER] = "eclipse_outline_co16.png";
         relPaths[MANAGER] = "nuvola_file-manager16.png";
-        relPaths[PROJECT] = "nuvola_folder_blue_open16.png";//"nuvola_document16.png";
+        relPaths[PROJECT] = "nuvola_folder_darkblue_open16.png";//"nuvola_document16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[IMAGE] = "nuvola_image16.png";
         relPaths[CATEGORY] = "nuvola_knotes16.png";
@@ -362,7 +362,7 @@ public class IconManager
         relPaths[SEARCH] = "nuvola_find16.png";
         relPaths[EDIT_REMOVE] = "remove12.png";
         relPaths[ADD_12] = "add12.png";
-        relPaths[PROJECT_ANNOTATED] = "tagged_project16.png";
+        relPaths[PROJECT_ANNOTATED] = "tagged_project_darkblue16.png";
         relPaths[TAGS_EXPLORER] = "eclipse_hierarchicalLayout16.png";
         relPaths[TAG] = "nuvola_knotes16.png";
         relPaths[SET_RND_SETTINGS] = "nuvola_redo16.png";
