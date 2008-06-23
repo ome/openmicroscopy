@@ -156,7 +156,7 @@ class ServerDialog
 	}
 	
 	/** Fires a property indicating that a new server is selected. */
-	private void apply()
+	void apply()
 	{
 		editor.stopEdition();
 		String server = editor.getSelectedServer();
@@ -368,7 +368,9 @@ class ServerDialog
 			showMessagePanel(true, (JComponent) evt.getNewValue());
 		}  else if (ServerEditor.REMOVE_MESSAGE_PROPERTY.equals(name)) {
 			showMessagePanel(false, (JComponent) evt.getNewValue());
-		} 
+		} else if (ServerEditor.APPLY_SERVER_PROPERTY.equals(name)) {
+			apply();
+		}
 	}
 	
 	/** 

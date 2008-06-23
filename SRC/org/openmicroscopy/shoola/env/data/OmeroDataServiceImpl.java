@@ -1242,6 +1242,7 @@ class OmeroDataServiceImpl
 	public void deleteContainer(DataObject child, boolean content)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		List result = new ArrayList();
 		if (child == null) return;
 		IObject object = gateway.findIObject(child.asIObject());
 		//TODO: implement content later 
@@ -1255,9 +1256,10 @@ class OmeroDataServiceImpl
 		List l;
 		List children;
 		ILink link;
+		Set<Long> ids = new HashSet<Long>(1);
+		Long id;
 		if (child instanceof DatasetData) {
 			//Find all dataset-image links.
-			
 			l = gateway.findLinks(child.asIObject(), null);
 			if (l != null && l.size() > 0) {
 				children = new ArrayList();
@@ -1267,16 +1269,20 @@ class OmeroDataServiceImpl
 				while (i.hasNext()) {
 					link = (ILink) i.next();
 					remove[j] = link;
-					children.add(link.getChild());
+					children.add(link.getChild().getId());
 					j++;
 				}
 				//delete the links
 				gateway.deleteObjects(remove);
 				if (content) {
-					
+					//remove images.
+					i = children.iterator();
+					while (i.hasNext()) {
+						id = (Long) i.next();
+						//gateway.removeObject(Image, objectID)
+					}
 				}
 			}
-			Set<Long> ids = new HashSet<Long>(1);
 			ids.add(child.getId());
 			l = gateway.findLinks(ProjectData.class, ids, -1);
 			if (l != null && l.size() > 0) {

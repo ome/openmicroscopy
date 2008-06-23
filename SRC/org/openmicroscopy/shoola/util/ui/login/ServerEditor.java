@@ -92,6 +92,9 @@ public class ServerEditor
 	/** Bound property indicating that a server is added to the list. */
 	static final String 		ADD_PROPERTY = "add";
 	
+	/** Bound property indicating to apply the selection. */
+	static final String 		APPLY_SERVER_PROPERTY = "applyServer";
+	
     /** The message displayed when the entered server address already exists. */
     private static final String	EMPTY_MSG = "Server address already " +
     												"exists.";
@@ -164,9 +167,8 @@ public class ServerEditor
 		}
 		editor = table.getCellEditor();
 		
-		if (editor != null) {
-			editor.stopCellEditing();
-		}
+		if (editor != null) editor.stopCellEditing();
+		
 		if (model.getRowCount() == 0) setEditing(false);
 		handleServers(activeServer);
 		editing = false;
@@ -416,7 +418,8 @@ public class ServerEditor
             firePropertyChange(ADD_MESSAGE_PROPERTY, null, emptyMessagePanel);
         } else {
         	if (emptyMessagePanel == null) return;
-        	firePropertyChange(REMOVE_MESSAGE_PROPERTY, null, emptyMessagePanel);
+        	firePropertyChange(REMOVE_MESSAGE_PROPERTY, null, 
+        			emptyMessagePanel);
             emptyMessagePanel = null;
         }
 	}
@@ -537,7 +540,7 @@ public class ServerEditor
 	}
 	
 	/** Creates a new instance. */
-	public ServerEditor()
+	ServerEditor()
 	{
 		this(null);
 	}
@@ -547,7 +550,7 @@ public class ServerEditor
 	 * 
 	 * @param activeServer The server the user is currently connected to.
 	 */
-	public ServerEditor(String activeServer)
+	ServerEditor(String activeServer)
 	{
 		icons = IconManager.getInstance();
 		this.activeServer = activeServer;
@@ -560,7 +563,7 @@ public class ServerEditor
 	}
 	
 	/** Requests focus if no server address at init time. */
-	public void initFocus()
+	void initFocus()
 	{
 		int n = 0;
 		List servers = getServers();
@@ -569,5 +572,5 @@ public class ServerEditor
 			requesFocusOnEditedCell(table.getRowCount()-1);
 		}
 	}
-	
+
 }

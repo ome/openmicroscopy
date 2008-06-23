@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.util.ui.login;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -77,6 +80,12 @@ public class ServerListEditor
 	}
 	
 	/** 
+	 * Invokes when a new server name is entered or
+	 * an existing one is edited.
+	 */
+	private  void handleKeyEnter() { table.handleKeyEnter(); }
+	
+	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param table The table this editor is for. Mustn't be <code>null</code>.
@@ -89,6 +98,12 @@ public class ServerListEditor
 		component = new JTextField();
 		component.addActionListener(this);
 		component.getDocument().addDocumentListener(this);
+		component.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER)
+					handleKeyEnter();
+			}
+		});
 	}
 	
     /**
@@ -109,7 +124,6 @@ public class ServerListEditor
         return component;
     }
 
-    
     /**
      * Returns the edited text. This method is invoked when the editing is
      * completed

@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
+import ome.api.IDelete;
 import ome.api.IPixels;
 import ome.api.IPojos;
 import ome.api.IQuery;
@@ -437,6 +438,13 @@ class OMEROGateway
 	 * @return See above.
 	 */
 	private IPixels getPixelsService() { return entry.getPixelsService(); }
+	
+	/**
+	 * Returns the {@link IDelete} service.
+	 * 
+	 * @return See above.
+	 */
+	private IDelete getDeleteService() { return entry.getDeleteService(); }
 	
 	/**
 	 * Returns the {@link ThumbnailStore} service.
@@ -3725,10 +3733,46 @@ class OMEROGateway
 			return service.findAllByQuery(sql, param);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot remove the tag description.");
 		}
 		return new ArrayList();
+	}
+	
+	/**
+	 * Deletes the passed object using the {@link IDelete} service.
+	 * Returns an emtpy list of nothing prevent the delete to happen,
+	 * otherwise returns a list of objects preventing the delete to happen.
+	 * 
+	 * @param objectType The type of object to delete.
+	 * @param objectID   The id of the object to delete.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<IObject> removeObject(Class objectType, Long objectID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+
+		isSessionAlive();
+		try {
+			IDelete service = getDeleteService();
+			if (ImageData.class.equals(objectType)) {
+				List r = service.checkImageDelete(objectID, false);
+				if (r == null || r.size() == 0) {
+					service.deleteImage(objectID, true);
+					return r;
+				}
+				return r;
+			}
+			
+			
+			
+		} catch (Exception e) {
+			handleException(e, "Cannot delete: "+objectType+" "+objectID);
+		}
+		return new ArrayList<IObject>();
 	}
 	
 }

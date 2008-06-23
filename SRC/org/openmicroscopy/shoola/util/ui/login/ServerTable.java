@@ -153,6 +153,16 @@ class ServerTable
 		});
 	}
 	
+	/** 
+	 * Invokes when a new server name is entered or
+	 * an existing one is edited.
+	 */
+	void handleKeyEnter()
+	{
+		parent.firePropertyChange(ServerEditor.APPLY_SERVER_PROPERTY, 
+				Boolean.FALSE, Boolean.TRUE);
+	}
+	
 	/**
 	 * Handles the text modification in the edited cell.
 	 * 

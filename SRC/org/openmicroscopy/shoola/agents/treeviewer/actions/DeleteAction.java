@@ -245,8 +245,7 @@ public class DeleteAction
         	TreeImageDisplay[] selected = browser.getSelectedDisplays();
         	if (selected.length > 1) setEnabled(false);
         	else {
-        		setEnabled(model.isObjectWritable(ho) 
-        				&& selectedDisplay.getNumberOfItems() == 0);
+        		setEnabled(model.isObjectWritable(ho));
         	}
         }
         description = (String) getValue(Action.SHORT_DESCRIPTION);

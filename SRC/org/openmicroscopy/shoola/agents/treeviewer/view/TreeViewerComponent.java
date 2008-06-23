@@ -508,15 +508,24 @@ class TreeViewerComponent
       }
 		 */
 		if (nodes == null) return;
-		boolean askQuestion = false;
+		boolean askQuestion = true;
 		Iterator i = nodes.iterator();
 		TreeImageDisplay node;
 		while (i.hasNext()) {
 			node = (TreeImageDisplay) i.next();
 			if (node.getNumberOfItems() > 0) askQuestion = true;
 		}
-		model.fireDataObjectsDeletion(nodes);
-		fireStateChange();
+		if (askQuestion) {
+			DeleteDialog dialog = new DeleteDialog(view);
+			if (dialog.centerMsgBox() == DeleteDialog.YES_OPTION) {
+				model.fireDataObjectsDeletion(nodes);
+				fireStateChange();
+			}
+		} else {
+			model.fireDataObjectsDeletion(nodes);
+			fireStateChange();
+		}
+		
 	}
 
 	/**

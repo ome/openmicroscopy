@@ -25,36 +25,33 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextField;
 
+
+
+//Third-party libraries
 import layout.TableLayout;
 
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * A modal dialog asking what the user wants to delete.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -89,8 +86,10 @@ public class DeleteDialog
 	/** User have selected the no option. */
 	public final static int			NO_OPTION = 0;
 	
+	/** Indicates to delete the elements in the container. */
 	public final static int			WITH_CONTENT = 0;
 	
+	/** Indicates not to delete the elements in the container. */
 	public final static int			WITHOUT_CONTENT = 1;
 	
 	/** Controls to ask a confirmation question */
@@ -105,6 +104,7 @@ public class DeleteDialog
 	/** Delete the objects but not the contents. */
 	private JRadioButton 	withoutContent;
 	
+	/** Either {@link #YES_OPTION} or {@link #NO_OPTION}. */
 	private int				option;
 	
     /** Hides the dialog and disposes of it. */
@@ -165,6 +165,11 @@ public class DeleteDialog
 		return UIUtilities.buildComponentPanelRight(controlPanel);
 	}
 	
+	/** 
+	 * Returns the component hosting the various choices.
+	 * 
+	 * @return See above.
+	 */
 	private JPanel buildMainPane()
 	{
 		JPanel p = new JPanel();
@@ -183,13 +188,22 @@ public class DeleteDialog
 		p.add(choice, "0, 2, 2, 2");
 		return p;
 	}
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
-		c.add(buildMainPane());
-		c.add(buildControlPanel());
+		JPanel body = new JPanel();
+		body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
+		//c.add(buildMainPane());
+		//Tmp
+		JLabel l = new JLabel();
+		l.setText("<html><body>Limitation: Only the selected container will be <br>" +
+				"deleted not the elements contained in it</body></html>");
+		body.add(UIUtilities.buildComponentPanel(l));
+		body.add(buildControlPanel());
+		add(body);
 	}
 	
 	/**
@@ -203,6 +217,7 @@ public class DeleteDialog
 		initComponents();
 		setProperties();
 		buildGUI();
+		pack();
 	}
 	
 	/**

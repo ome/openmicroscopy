@@ -63,7 +63,6 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
-import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;

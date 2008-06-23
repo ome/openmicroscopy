@@ -41,7 +41,6 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.SaveData;
-import org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
@@ -95,7 +94,7 @@ public class TreeViewerFactory
 	static void attachWindowMenuToTaskBar()
 	{
 		if (isWindowMenuAttachedToTaskBar()) return;
-		TaskBar tb = HiViewerAgent.getRegistry().getTaskBar();
+		TaskBar tb = TreeViewerAgent.getRegistry().getTaskBar();
 		tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
 		singleton.isAttached = true;
 	}
