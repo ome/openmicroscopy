@@ -35,8 +35,6 @@ import org.hibernate.search.Search;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.Assert;
 
-import sun.util.logging.resources.logging;
-
 /**
  * Search based on Lucene's {@link Query} class. Takes a Google-like search
  * string and returns fully formed objects via Hibernate Search.
