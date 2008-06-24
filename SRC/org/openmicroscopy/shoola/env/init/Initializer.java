@@ -74,6 +74,7 @@ public class Initializer
      * dependencies on external resources.
      */
     protected static final List<Class>     initList = new ArrayList<Class>();
+    
     static {
         //This must be the first task to run b/c it will bring up
         //the splash screen.
@@ -82,7 +83,6 @@ public class Initializer
         //NB: All tasks require this one to be run first 
         //(b/c it creates and fills up the container's config).
         initList.add(ContainerConfigInit.class);
-        
         initList.add(LoggerInit.class);
         initList.add(EventBusInit.class);
         initList.add(CmdProcessorInit.class);
@@ -294,7 +294,7 @@ public class Initializer
 	 * Adds the specified initialization listener to the notification set.
 	 * 
 	 * @param subscriber	The listener.
-	 * @return	<code>true</code> if <code>subscriber</code> is not already in 
+	 * @return 	<code>true</code> if <code>subscriber</code> is not already in 
 	 * 			the notification set, <code>false</code> otherwise.
 	 * @throws	NullPointerException If <code>null</code> is passed in. 
 	 */

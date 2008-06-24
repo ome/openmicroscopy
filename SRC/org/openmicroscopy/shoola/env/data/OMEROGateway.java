@@ -160,6 +160,7 @@ class OMEROGateway
 		WILD_CARDS = new ArrayList<String>();
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");
+		WILD_CARDS.add("~");
 	}
 	
 	/**

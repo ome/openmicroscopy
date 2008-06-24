@@ -84,11 +84,8 @@ public class TaskBarManager
 	implements AgentEventListener, PropertyChangeListener
 {
 
-	/** The name of the about file in the config directory. */
-	private static final String		ABOUT_FILE = "about.xml";
-	
-	/** The name of the documentation file in the docs directory. */
-	private static final String		DOC_FILE = "insight_index.html";
+	/** The window's title. */
+	static final String		TITLE_ABOUT = "About";
 	
 	/** The value of the tag to find. */
 	private static final String		A_TAG = "a";
@@ -206,14 +203,13 @@ public class TaskBarManager
 			while (true) {
                 line = in.readLine();
                 if (line == null) break;
-                //buffer.append("\n");
                 if (number != 0) buffer.append(line);
                 number++;
             }
 			in.close();
             message = buffer.toString();
 		} catch (Exception e) {
-			message = "Error: About information not found";
+			message = "Error: Cannot find the About file.";
 		}
 		return message;
 	}
@@ -409,11 +405,14 @@ public class TaskBarManager
     private void softwareAbout()
     {
     	//READ content of the about file.
-    	String refFile = container.resolveConfigFile(ABOUT_FILE);
+    	String aboutFile = (String) container.getRegistry().lookup(
+    			LookupNames.ABOUT_FILE);
+    	String refFile = container.resolveConfigFile(aboutFile);
     	String message = loadAbout(refFile);
-    	
+    	String title = (String) container.getRegistry().lookup(
+    			LookupNames.SOFTWARE_NAME);
         suDialog = new SoftwareUpdateDialog(view, message, refFile);
-        suDialog.setTitle(SoftwareUpdateDialog.TITLE_ABOUT);
+        suDialog.setTitle(TITLE_ABOUT+title+"...");
         suDialog.addPropertyChangeListener(
         		SoftwareUpdateDialog.OPEN_URL_PROPERTY, this);
         UIUtilities.centerAndShow(suDialog);
@@ -422,8 +421,8 @@ public class TaskBarManager
     /** Launches a browser with the documentation. */
     private void help()
     {
-    	String path = "file://"+container.resolveDocFile(DOC_FILE);
-    	openURL(path);
+    	//String path = "file://"+container.resolveDocFile(DOC_FILE);
+    	//openURL(path);
     }
     
 	/**

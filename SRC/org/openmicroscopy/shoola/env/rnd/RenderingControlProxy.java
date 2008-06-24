@@ -869,6 +869,7 @@ class RenderingControlProxy
     	DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
+    		 setModel(HSB);
     		 invalidateCache();
     		 initialize();
     		 //tmpSolutionForNoiseReduction();
@@ -1222,6 +1223,7 @@ class RenderingControlProxy
 		DataServicesFactory.isSessionAlive(context);
     	try {
     		 servant.resetDefaultsNoSave();
+    		 setModel(HSB);
     		 List list = servant.getAvailableFamilies();
     		 ChannelMetadata m;
     		 Iterator j;
@@ -1239,6 +1241,7 @@ class RenderingControlProxy
 				 servant.setChannelWindow(i, m.getGlobalMin(),
 						 				m.getGlobalMax());
 			 }
+    		
     		 invalidateCache();
     		 initialize();
 		} catch (Throwable e) {

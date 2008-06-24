@@ -50,6 +50,12 @@ public class LookupNames
     /** Field to access the <code>Version</code> information. */
 	public static final String VERSION = "Version";	
 	
+	/** Field to access the <code>Name oof the sofware</code>. */
+	public static final String SOFTWARE_NAME = "SoftwareName";	
+	
+	/** Field to access the <code>About file</code> information. */
+	public static final String ABOUT_FILE = "AboutFile";
+	
     /** Field to access the <code>env</code> package. */
 	public static final  String ENV = "/env";
 	

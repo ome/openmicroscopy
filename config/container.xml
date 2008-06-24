@@ -232,9 +232,11 @@
   <entry name="LookAndFeel">system</entry>
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   * 
-   * Version number of the client.
+   * Information related to the version of the software, name of the software,
+   * etc.
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
     <entry name="Version">Beta3.0</entry>
+    <entry name="SoftwareName">OMERO.insight</entry>
+    <entry name="AboutFile">about.xml</entry>
 </container>
