@@ -45,7 +45,7 @@
     <dependency org="PDFBox" name="PDFBox" rev="0.7.3" conf="build->default"/>
     <dependency org="FontBox" name="FontBox" rev="0.1.0" conf="build->default"/>
     <!-- Duplicated with client/ivy.xml -->
-    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/>
+    <!--dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/-->
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" conf="build->default"/>
     <dependency org="spring" name="spring-ldap" rev="1.2.1" conf="build->default"/>
