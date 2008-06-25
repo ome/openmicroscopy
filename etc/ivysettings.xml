@@ -14,7 +14,8 @@
 -->
 
   <properties file="${ivy.settings.dir}/local.properties"/>
-  <settings defaultCache="${ivy.settings.dir}/../lib/cache" defaultResolver="omero-resolver"/>
+  <settings defaultResolver="omero-resolver"/>
+  <caches defaultCacheDir="${ivy.settings.dir}/../lib/cache"/>
   <resolvers>
 
     <!-- Main resolver. Uses the OMERO_HOME/lib/repository directory after first

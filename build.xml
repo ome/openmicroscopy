@@ -1,205 +1,186 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="main" default="usage" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="main" default="build-default" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # $Id$
-# 
-# Copyright 2006 University of Dundee. All rights reserved.
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
-# 
+#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Written by:  Josh Moore <josh.moore@gmx.de>
+# Written by:  Josh Moore, josh at glencoesoftware.com
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-  DOCUMENTATION:
-  =================================================
 
-  To use this script you need only have downloaded
-  the source code (either from subversion or as
-  distribution). The build system can be used by 
-  calling:
-
-    java omero <arguments>
-
-  from within the OMERO_HOME directory (this is 
-  what you checked out of subversion and where this
-  file is located).
+Rewrite of the OMERO build system to allow for building
+individual components. Use "ant -p" to see the individual
+build-* targets.
 
 -->
 
-	<property name="import.dir" value="${basedir}/components/antlib/resources"/>
-	<import file="${import.dir}/global.xml"/>
-	<import file="${import.dir}/setup.xml"/>
-	<import file="${import.dir}/dependencies.xml"/>
-	<import file="${import.dir}/multiproject.xml"/>
+    <property name="import.dir" value="${basedir}/components/antlib/resources"/>
+    <import file="${basedir}/deprecated.xml"/>
+    <import file="${import.dir}/global.xml"/>
 
-	<target name="help" depends="usage"/>
-	<target name="usage"
-		description="Usage information">
-		<concat>
-			<filelist dir="${import.dir}" files="usage-ant.txt"/>
-		</concat>
-	</target>
-	<target name="all-help"
-		description="Print all help targets">
-		<echo>
-		  help                  -- Simple build help
-		  help-deps             -- Help on dependency management
-		  help-life             -- Help on lifecycle targets (compile, test, ...)
-		  help-setup            -- Help on setup targets
-		  help-server           -- Help on server management
-		  help-release          -- Help on release process
-		</echo>
-	</target>
-	
+    <!-- Top-level ivy setup. Also defined in antlib/resources/dependencies.xml -->
+     <path id="ivy.classpath">
+        <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath"/>
+    <property name="deps.buildlist.dir" value="${omero.home}/components"/>
 
-<!-- 	===============================================
-		BUILD
-==================================================  -->
-	<target name="fullbuild" depends="check-system,clean,build,reload-db"
-		description="Extensive build which checks and cleans the build environment, builds, and setups the database"/>
+    <ivy:settings id="ivy.toplevel"  file="${etc.dir}/ivysettings.xml" override="true"/>
+    <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
+        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+    </ivy:buildlist>
+    <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
+        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/app/**,**/bioformats-omero/**,**/policy/**,**/tools/**"/>
+    </ivy:buildlist>
+    <ivy:buildlist reference="appserver.buildpath" settingsRef="ivy.toplevel">
+        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/blitz/**,**/policy/**,**/tools/**"/>
+    </ivy:buildlist>
+    <!-- Single file paths defined in antlib/resources/directories.xml -->
 
-	<target name="build" depends="install"
-		description="A simple build that will install all artifacts to ${omero.repo.local}"/>
+    <target name="no-tests" description="Disable tests">
+        <property name="test.skip" value="true"/>
+    </target>
 
-	<target name="deploy" depends="check-system">
-		<iterate buildpathref="app.buildpath" target="deploy"/>
-	</target>
+    <target name="clean" description="Calls 'clean' on all components">
+        <iterate buildpathref="all.buildpath"   target="clean"/>
+        <iterate buildpathref="tools.buildpath" target="clean"/>
+        <delete dir="${dist.dir}"/>
+        <delete dir="${lib.dir}/cache"/>
+    </target>
 
-	<target name="fulldeploy" depends="fullbuild,deploy"/>
+    <target name="build-default" description="Build all components except for C++">
+        <property name="test.skip" value="true"/>
+        <antcall target="clean" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
+        <iterate buildpathref="app.buildpath" target="dist"/>
+        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
+        <antcall target="build-py" inheritRefs="true" inheritAll="true"/>
+        <antcall target="build-importer" inheritRefs="true" inheritAll="true"/>
+    </target>
 
-	<target name="clean" depends="multiproject"
-		description="Lifecycle target: calls 'clean' on all components">
-		<iterate target="clean"/>
-		<delete dir="${dist.dir}"/>
-		<delete dir="${lib.dir}/cache"/>
-	</target>
+    <target name="build-all" description="Build everything and copy to dist">
+        <iterate buildpathref="all.buildpath" target="dist"/>
+        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="tools.buildpath" target="build"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
 
-	<target name="withtools"
-		description="Calls build and dist on the tools component, copying over dist/">
-		<iterate buildpathref="tools.buildpath" target="build"/>
-		<iterate buildpathref="tools.buildpath" target="dist"/>
-	</target>
+    <target name="build-blitz" description="Build blitz and copy to dist/blitz">
+        <iterate buildpathref="blitzserver.buildpath" target="dist"/>
+        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
+        <antcall target="build-py" inheritRefs="true" inheritAll="true"/>
+        <!-- Must also build python since it provides our command lines -->
+    </target>
 
-	<target name="cleantools"
-		description="Calls cleans on the tools component and removes tools/target">
-		<iterate buildpathref="tools.buildpath" target="clean"/>
-	</target>
+    <target name="build-ear" description="Build ear and copy to dist">
+        <iterate buildpathref="appserver.buildpath" target="dist"/>
+        <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
 
-	<target name="zip">
-		<zip destfile="${product.name}-${omero.version}.zip">
-			<zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                            excludes="bin/omero"/>
-			<zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
-                            includes="bin/omero"
-                            filemode="755"/>
-		</zip>
-	</target>
+    <target name="build-importer" description="Build importer and copy to dist/client">
+        <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
 
-	<target name="tar">
-		<tar destfile="${product.name}-${omero.version}.tar.bz2" compress="bzip2">
-			<zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"/>
-		</tar>
-	</target>
+    <target name="build-cpp" description="Build C++ bindings and copy to dist/client">
+        <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
 
-<!-- 	===============================================
-		Mgmt Targets
-	==================================================  -->
+    <target name="build-py" description="Build python bindings and copy to dist/client">
+        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+    </target>
 
-	<target name="reload-db">
-		<iterate buildpathref="server.buildpath" target="reload-db"/>
-	</target>
+    <!--
+    Packaging
+    -->
+    <target name="zip">
+        <zip destfile="${product.name}-${omero.version}.zip">
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
+                excludes="bin/omero"/>
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
+                includes="bin/omero"
+                filemode="755"/>
+        </zip>
+    </target>
 
-	<target name="addgroup">
-		<iterate buildpathref="client.buildpath" target="addgroup"/>
-	</target>
+    <target name="tar">
+        <tar destfile="${product.name}-${omero.version}.tar.bz2" compress="bzip2">
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
+                excludes="bin/omero"/>
+            <zipfileset dir="${dist.dir}" prefix="${product.name}-${omero.version}"
+                includes="bin/omero"
+                filemode="755"/>
+        </tar>
+    </target>
 
-	<target name="adduser">
-		<iterate buildpathref="client.buildpath" target="adduser"/>
-	</target>
+    <target name="prepare-dist">
+        <mkdir dir="${dist.dir}/bin"/>
+            <copy todir="${dist.dir}/etc" overwrite="true">
+                <fileset dir="${omero.home}/etc">
+                    <exclude name="local.properties"/>
+                </fileset>
+            </copy>
+            <copy todir="${dist.dir}">
+                <fileset dir="${omero.home}">
+                    <include name="omero.class"/>
+                    <include name="components/antlib/**"/>
+                    <include name="sql/**"/>
+                    <include name="lib/tools/**"/>
+                </fileset>
+            </copy>
 
-	<target name="dist" depends="multiproject,_dist">
-		<iterate target="dist"/>
-                <mkdir dir="${dist.dir}/bin"/>
-                <chmod perm="a+x">
-                        <fileset dir="${dist.dir}/bin" includes="omero"/>
-                        <fileset dir="${dist.dir}/lib" includes="**/*.py"/>
-                </chmod>
-	</target>
+            <mkdir dir="${dist.dir}/client"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" transitive="false"/>
+            <ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true" log="quiet"/>
+            <mkdir dir="${dist.dir}/lib/repository"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" transitive="true"/>
+            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet"/>
 
-	<target name="_dist" depends="deps-configure">
-		<mkdir dir="${dist.dir}"/>
-		<!-- 
-			etc/
-			========================================================
-			Copies example property files to the ${dist.dir}
-			for use by the user to configure the install.
-		-->
-		<copy todir="${dist.dir}/etc" overwrite="true">
-			<fileset dir="${omero.home}/etc">
-				<exclude name="local.properties"/>
-			</fileset>
-		</copy>
+            <copy
+                file="${import.dir}/omero.xml"
+                tofile="${dist.dir}/build.xml"
+                overwrite="true" />
+            <copy
+                file="${import.dir}/omero.ivy"
+                tofile="${dist.dir}/omero.ivy"
+                overwrite="true" />
 
-		<!-- 
-			Copies ...
-		-->
-		<copy todir="${dist.dir}">
-			<fileset dir="${omero.home}">
-				<include name="omero.class"/>
-				<include name="components/antlib/**"/>
-				<include name="sql/**"/>
-				<include name="lib/tools/**"/>
-			</fileset>
-		</copy>
+    </target>
 
-		<mkdir dir="${dist.dir}/client"/>
-		<ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" transitive="false"/>
-		<ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true"/>
-		<mkdir dir="${dist.dir}/lib/repository"/>
-		<ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" transitive="true"/>
-		<ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true"/>
+    <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component">
+        <ivy:retrieve pattern="${omero.home}/omero.ivy" log="quiet" sync="true" symlink="true"/>
+        <iterate buildpathref="all.buildpath" target="prepare"/>
+        <iterate buildpathref="OmeroImporter.buildpath" target="prepare"/>
+        <iterate buildpathref="licenses.buildpath" target="prepare"/>
+    </target>
 
-		<!-- Copy new build.xml to ${dist.dir} -->
-                <copy
-                        file="${import.dir}/omero.xml"
-                        tofile="${dist.dir}/build.xml"
-                        overwrite="true"
-                />
-                <copy
-                        file="${import.dir}/omero.ivy"
-                        tofile="${dist.dir}/omero.ivy"
-                        overwrite="true"
-                />
+     <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components">
+        <iterate target="findbugs"/>
+        <iterate buildpathref="tools.buildpath" target="findbugs"/>
+     </target>
 
-	</target>
-
-	<target name="get-libs">
-		<property name="deps.build.dir" value="${omero.home}"/>
-		<antcall target="deps-retrieve" inheritAll="true" inheritRefs="true"/>
-	</target>
-
-	 <target name="findbugs" depends="multiproject" description="Generates findbugs.xml and checkstyle.xml for all components">
-		<iterate target="findbugs"/>
-		<iterate buildpathref="tools.buildpath" target="findbugs"/>
-	 </target>
-
-	 <target name="coverage" depends="get-libs"
-		description="Merge code coverage reports into single top-level report">
-		<taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
-		<emma>
-			<merge outfile="${target.dir}/coverage.es" >
-				<fileset dir="components" includes="**/target/coverage.emma,**/target/metadata.emma"/>
-			</merge>
-			<report sourcepath="${src.dir}" >
-				<fileset dir="${target.dir}" includes="coverage.es"/>
-				<html outfile="${target.dir}/coverage.html" />
-				<xml outfile="${target.dir}/coverage.xml" />
-			</report>
-		</emma>
-	 </target>
+     <target name="coverage" depends="prepare-eclipse"
+        description="Merge code coverage reports into single top-level report">
+        <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
+        <emma>
+            <merge outfile="${target.dir}/coverage.es" >
+                <fileset dir="components" includes="**/target/coverage.emma,**/target/metadata.emma"/>
+            </merge>
+            <report sourcepath="${src.dir}" >
+                <fileset dir="${target.dir}" includes="coverage.es"/>
+                <html outfile="${target.dir}/coverage.html" />
+                <xml outfile="${target.dir}/coverage.xml" />
+            </report>
+        </emma>
+     </target>
 
 </project>

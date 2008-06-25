@@ -14,7 +14,8 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="importer" rev="${omero.version}" changing="true" />
-    <dependency name="client" rev="${omero.version}" changing="true" />
+    <!--dependency name="client" rev="${omero.version}" changing="true" /-->
+    <dependency name="common" rev="${omero.version}" changing="true" />
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="unknown" conf="build->default"/>
     <dependency org="gui" name="hsqldb" rev="1.8.0.9" conf="build->default"/>

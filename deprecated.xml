@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="deprecated" default="usage" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+        <target name="quick" depends="no-tests"          description="DEPRECATED: Use no-tests"/>
+	<target name="fullbuild" depends="build-default" description="DEPRECATED: Use build-all"/>
+	<target name="build" depends="build-default"     description="DEPRECATED: Use build-default"/>
+        <target name="dist"                              description="DEPRECATED: Use build-* targets"/>
+	<target name="withtools" depends="build-all"     description="DEPRECATED: Use build-all or build-[COMPONENT]"/>
+	<target name="cleantools" depends="clean"        description="DEPRECATED: Use clean"/>
+
+</project>

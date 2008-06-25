@@ -45,7 +45,11 @@
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
-    <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target" unless="skip.compile"/>
+    <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target" unless="skip.compile">
+        <ivy:publish artifactspattern="${target.dir}/[module].[ext]" 
+            resolver="tools-resolver" pubrevision="${omero.version}"
+            publishivy="false" overwrite="true"/>
+    </target>
 
     <target name="tools-clean" depends="clean"/>
 

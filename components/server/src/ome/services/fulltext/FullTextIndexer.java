@@ -145,11 +145,11 @@ public class FullTextIndexer implements Work {
                         try {
                             action.go(session);
                         } catch (Exception e) {
+                            String msg = "FullTextIndexer stuck! "
+                                    + "Failed to index EventLog: " + eventLog;
+                            log.error(msg, e);
                             loader.rollback(eventLog);
-                            throw new InternalException(
-                                    "FullTextIndexer stuck! "
-                                            + "Failed to index EventLog: "
-                                            + eventLog);
+                            throw new InternalException(msg);
                         }
                         action.log(log);
                     }

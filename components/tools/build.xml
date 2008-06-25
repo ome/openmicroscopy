@@ -6,9 +6,8 @@
    <import file="${import.dir}/global.xml"/>
    <property name="deps.buildlist.dir" value="${omero.home}/components/tools/"/>
    <import file="${import.dir}/dependencies.xml"/>
-   <import file="${import.dir}/multiproject.xml"/>
    <import file="${import.dir}/lifecycle.xml"/>
-   
+
 	<target name="help" description="This help message">
 		<echo>
 			The tools/ directory is a special repository
@@ -39,12 +38,16 @@
 		<jar update="true" destfile="${dist.dir}/blitz/services.jar" basedir="${tools.classes}" includes="**/*"/>
 		<!-- This must be reworked upstream -->
 		<jar update="true" destfile="${dist.dir}/${product.final.name}" basedir="${dist.dir}/blitz" includes="services.jar"/>
+                <chmod perm="a+x">
+                        <fileset dir="${dist.dir}/bin" includes="omero"/>
+                </chmod>
+
 	</target>
 
 	<target name="clean"
 		depends="deps-buildlist"
 		description="Calls 'tools-clean' on all components.">
-	  	<iterate target="tools-clean"/>
+		<iterate target="tools-clean"/>
 		<delete dir="${tools.dest}"/>
 	</target>
 

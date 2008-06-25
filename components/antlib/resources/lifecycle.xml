@@ -30,6 +30,67 @@
 		</echo>
 	</target>
 
+	<target name="variables-define">
+		<condition property="test.with.fail">
+			<equals arg1="${multi.test.with.fail}" arg2="true"/>
+		</condition>
+		<condition property="test.skip">
+			<equals arg1="${multi.test.skip}" arg2="true"/>
+		</condition>
+		<condition property="emma.enabled">
+			<equals arg1="${multi.emma.enabled}" arg2="true"/>
+		</condition>
+		<condition property="generate.skip">
+			<equals arg1="${multi.generate.skip}" arg2="true"/>
+		</condition>
+		<condition property="checks.skip">
+			<equals arg1="${multi.checks.skip}" arg2="true"/>
+		</condition>
+	</target>
+
+	<target name="load-groovy">
+		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" />
+		<fail unless="groovy-exists" message="Groovy ${msg.macro.missing_fail}"/>
+
+		<!-- http://groovy.codehaus.org/Ant+Task+Troubleshooting -->
+		<taskdef name="rootLoaderRef" classname="org.codehaus.groovy.ant.RootLoaderRef" classpathref="omero.classpath"/>
+		<rootLoaderRef ref="groovy.classpath">
+			<classpath refid="omero.classpath"/>
+		</rootLoaderRef>
+		<taskdef classname="org.codehaus.groovy.ant.Groovy" loaderref="groovy.classpath" name="groovy"/>
+	</target>
+
+	<target name="quick" description="Turn off tests">
+		<property name="config.skip" value="true"/>
+		<property name="test.skip" value="true"/>
+		<property name="generate.skip" value="true"/>
+	</target>
+
+	<target name="nochecks" description="Turn off checks">
+		<property name="checks.skip" value="true"/>
+	</target>
+
+	<target name="fail-on-error" description="Fail if tests do not pass">
+		<property name="test.with.fail" value="true"/>
+	</target>
+
+	<target name="setup-db" depends="prepare">
+		<java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
+			<arg value="${omero.rootpass}"/>
+		</java>
+		<copy file="${sql.dir}/schema.sql" tofile="${target.dir}/ddl.sql"  overwrite="true"/>
+                <copy file="${sql.dir}/data.sql"   tofile="${target.dir}/data.sql"  overwrite="true"/>
+                <copy file="${sql.dir}/views.sql"   tofile="${target.dir}/views.sql"  overwrite="true"/>
+                <replace file="${target.dir}/data.sql" token="@ROOTPASS@" value="${ROOTPASS}"/>
+                <replace file="${target.dir}/data.sql" token="@DBPATCH@" value="${omero.dbpatch}"/>
+                <replace file="${target.dir}/data.sql" token="@DBVERSION@" value="${omero.dbversion}"/>
+                <sql_run>
+                        <transaction src="${target.dir}/ddl.sql"/>
+                        <transaction src="${target.dir}/data.sql"/>
+                        <transaction src="${target.dir}/views.sql"/>
+                </sql_run>
+	</target>
+
 	<target name="prepare" depends="deps-retrieve,variables-define">
 <!--
 		<available file="${deps.lib.dir}" property="deps.lib.dir.needed"/>
