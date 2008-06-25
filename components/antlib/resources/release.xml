@@ -74,7 +74,7 @@
 		<fileset dir="components/tools/licenses" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
-		<fileset dir="components/tools/OmeroJ" defaultexcludes="yes">
+		<fileset dir="components/tools/OmeroJava" defaultexcludes="yes">
 			<patternset refid="all.java.files"/>
 		</fileset>
 
