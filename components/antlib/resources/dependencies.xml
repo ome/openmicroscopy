@@ -89,7 +89,7 @@
 	  description="Copy dependencies into the component-local deps.lib.dir."
 	  unless="deps.lib.dir.needed">
     <mkdir dir="${deps.lib.dir}"/>
-    <ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="true" symlink="true"/>
+    <ivy:retrieve pattern="${deps.lib.dir}/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
   </target>
 
   <target name="deps-info"
