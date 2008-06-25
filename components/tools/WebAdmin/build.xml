@@ -1,4 +1,4 @@
-<project name="webadmin" default="main" basedir=".">
+<project name="webadmin" default="main" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 
 	<property environment="env" />
 	<property file="./build.properties" />
@@ -49,7 +49,11 @@
 		</delete>
 	</target>
 
-	<target name="compile" depends="prepare,deps-retrieve">
+	<!-- Here we cannot use deps-retrieve directly because the sync=true property
+	deletes lib/.svn -->
+	<target name="compile" depends="deps-configure">
+		<makeDirectories/>
+    		<ivy:retrieve pattern="${basedir}/WEB-INF/lib/[artifact].[ext]" log="quiet" sync="false" symlink="true"/>
 		<mkdir dir="${basedir}/WEB-INF/classes" />
 		<myjavac classpathref="project.class.path" destdir="${build.dir}">
 			<include name="**/*.java" />
