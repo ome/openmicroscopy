@@ -139,11 +139,11 @@ build-* targets.
             </copy>
 
             <mkdir dir="${dist.dir}/client"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" transitive="false"/>
-            <ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true" log="quiet"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" transitive="false" settingsRef="ivy.toplevel"/>
+            <ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
             <mkdir dir="${dist.dir}/lib/repository"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" transitive="true"/>
-            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" transitive="true" settingsRef="ivy.toplevel"/>
+            <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
 
             <copy
                 file="${import.dir}/omero.xml"
@@ -157,19 +157,22 @@ build-* targets.
     </target>
 
     <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component">
-        <ivy:retrieve pattern="${omero.home}/omero.ivy" log="quiet" sync="true" symlink="true"/>
+        <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" sync="true" symlink="true" settingsRef="ivy.toplevel"/>
         <iterate buildpathref="all.buildpath" target="prepare"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="prepare"/>
         <iterate buildpathref="licenses.buildpath" target="prepare"/>
     </target>
 
      <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components">
-        <iterate target="findbugs"/>
+        <iterate buildpathref="all.buildpath"   target="findbugs"/>
         <iterate buildpathref="tools.buildpath" target="findbugs"/>
      </target>
 
      <target name="coverage" depends="prepare-eclipse"
         description="Merge code coverage reports into single top-level report">
+  	<path id="omero.classpath">
+    		<fileset dir="${omero.home}/target/libs" />
+  	</path>
         <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
         <emma>
             <merge outfile="${target.dir}/coverage.es" >
