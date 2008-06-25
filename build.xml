@@ -183,4 +183,8 @@ build-* targets.
         </emma>
      </target>
 
+     <target name="setup">
+        <ant antfile="${omero.home}/components/antlib/resources/setup.xml" target="setup"/>
+     </target>
+
 </project>
