@@ -58,7 +58,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-codec.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-dbcp.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/commons-discovery.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-io.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-lang.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-logging.jar"/>
@@ -91,11 +90,9 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/jdtcore.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jmock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jtidy.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/jug.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/junit.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/lucene-core.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/mule.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
@@ -103,10 +100,8 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/quartz.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/rendering.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/romio.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/smack.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-ldap.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/spring-ldap-tiger.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-mock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testing.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testng.jar"/>
@@ -118,7 +113,5 @@
 	<classpathentry kind="lib" path="target/libs/activation.jar"/>
 	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
-	<classpathentry kind="lib" path="target/libs/nanoxml.jar"/>
-	<classpathentry kind="lib" path="target/libs/commons-validator.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>

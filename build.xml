@@ -81,7 +81,6 @@ build-* targets.
     <target name="build-ear" description="Build ear and copy to dist">
         <iterate buildpathref="appserver.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
-        <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
     <target name="build-importer" description="Build importer and copy to dist/client">
