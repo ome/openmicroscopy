@@ -29,12 +29,12 @@ if nargin == 0 %returns the vaild image extensions
     LoadedImage = 'Any file supported by bioformats. (see http://www.openmicroscopy.org.uk/downloads/#bio-formats)';
     return
 elseif nargin == 4,
-    blitzGateway = varargin{1};
+    omeroGateway = varargin{1};
     CurrentFileName = varargin{2};
     c = str2num(varargin{3});
     handles = varargin{4};
     [pixelsId, z, t] = parseFileDetails(CurrentFileName);
-    LoadedImage = im2double(getPlane(blitzGateway, pixelsId, z, c, t))/65535;
+    LoadedImage = im2double(getPlane(omeroGateway, pixelsId, z, c, t))/65535;
 end
    
     

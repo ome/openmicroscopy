@@ -106,7 +106,7 @@ drawnow
 %%% through this module.
 if SetBeingAnalyzed == 1
     iceConfigPath = strcat(Pathname,'/ice.config');
-    omeroService = createOmerojService(iceConfigPath,UserName, Password);
+    omeroService = createOmeroJavaService(iceConfigPath,UserName, Password);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% Check that the Project, Dataset and images exist in Dataset. %
     %%% TODO:                                                        %
@@ -167,7 +167,7 @@ iceConfigPath = strcat(Pathname,'/ice.config');
 handles.Pipeline.('iceConfigPath') = iceConfigPath;
 handles.Pipeline.('UserName') = UserName;
 handles.Pipeline.('Password') = Password;
-omeroService = createOmerojService(iceConfigPath,UserName, Password);
+omeroService = createOmeroJavaService(iceConfigPath,UserName, Password);
 
 for n = 1:handles.Pipeline.imagesPerSet
         %%% This try/catch will catch any problems in the load images module.

@@ -134,7 +134,7 @@ fieldname = strcat('FileCnt', num2str(SetBeingAnalyzed));
 currentFileDetails = handles.Pipeline.(fieldname);
 [pixelsId, z, t] = parseFileDetails(currentFileDetails);
     
-omeroService = createOmerojService(iceConfigPath,UserName, Password);
+omeroService = createOmeroJavaService(iceConfigPath,UserName, Password);
 if SetBeingAnalyzed == 1 
     %%% CREATE COPY OF THE CURRENT PIXELS.
     channelList = java.util.ArrayList;
@@ -198,9 +198,9 @@ for i = 1:numImages(ImageName)
     handles.Pipeline.(minField) = minValue;
     handles.Pipeline.(maxField) = maxValue;
         
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%% UPLOAD IMAGE TO HARD DRIVE %%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% UPLOAD IMAGE TO OMERO.blitz %%%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     drawnow
     uploadPixelsID = handles.Pipeline.('uploadPixelsID');
     uploadPlane(omeroService, int64(uploadPixelsID), int32(str2num(z)), ...
