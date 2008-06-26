@@ -137,8 +137,31 @@ class BlitzGateway
 		blitzClient = client;
 		sessionClosed = true;
 		serviceMap = new HashMap<String, ServiceInterfacePrx>();
+		createServices();
 	}
 	
+	/**
+	 * This makes sure all services have been created before the other gateways
+	 * need to call them. 
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	private void createServices() throws DSOutOfServiceException, DSAccessException
+	{
+		getRenderingSettingsService();
+		getPixelsService();
+		getScriptService();
+		getRepositoryService();
+		getPojosService();
+		getQueryService();
+		getUpdateService();
+		getAdminService();
+		getTypesService();
+	}
+	
+	/**
+	 * Keep all services in the serviceMap alive.
+	 */
 	public void keepAlive()
 	{
 		Iterator<ServiceInterfacePrx> iterator = serviceMap.values().iterator();
@@ -146,6 +169,10 @@ class BlitzGateway
 			session.keepAlive(iterator.next());
 	}
 	
+	/**
+	 * Keep service alive.
+	 * @param prx service proxy to keep alive.
+	 */
 	public void keepAlive(ServiceInterfacePrx prx)
 	{
 		session.keepAlive(prx);
@@ -168,6 +195,7 @@ class BlitzGateway
 				session = blitzClient.createSession(user, password);
 				userName = user;
 				sessionClosed = false;
+				createServices();
 			}
 			catch(Exception e)
 			{
