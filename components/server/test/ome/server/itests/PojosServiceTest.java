@@ -36,10 +36,7 @@ import org.testng.annotations.Test;
 
 /**
  * 
- * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
- * @since 1.0
+ * @author Josh Moore, josh at glencoesoftware.com
  */
 public class PojosServiceTest extends AbstractManagedContextTest {
 
@@ -122,7 +119,7 @@ public class PojosServiceTest extends AbstractManagedContextTest {
 
     }
 
-    // ticket 651
+    @Test(groups = "ticket:651")
     public void testIntervalInPojoOptions() {
         Long userID = factory.getAdminService().getEventContext()
                 .getCurrentUserId();
@@ -148,6 +145,35 @@ public class PojosServiceTest extends AbstractManagedContextTest {
         iPojos.getImagesByOptions(options.map());
         iPojos.getImages(Dataset.class, Collections.singleton(ds.getId()),
                 options.map());
+    }
+
+    @Test(groups = "ticket:1018")
+    public void testIntervalPojoMethodsReturnsCounts() {
+        Long userID = factory.getAdminService().getEventContext()
+                .getCurrentUserId();
+        // create
+        Dataset ds = new Dataset();
+        ds.setName("ticket:1018");
+        Image im = new Image();
+        im.setName("ticket:1018");
+        Pixels pi = ObjectFactory.createPixelGraph(null);
+        im.addPixels(pi);
+        ds.linkImage(im);
+        ds = iUpdate.saveAndReturnObject(ds);
+
+        // test
+        Timestamp startTime = getDate("before");
+        Timestamp endTime = getDate("after");
+
+        PojoOptions options = new PojoOptions();
+        options.exp(userID);
+        options.startTime(startTime);
+        options.endTime(endTime);
+
+        Set<Image> images = iPojos.getImagesByOptions(options.map());
+        Image i = images.iterator().next();
+        assertTrue(i.getAnnotationLinksCountPerOwner() != null);
+
     }
 
     // ~ Helpers

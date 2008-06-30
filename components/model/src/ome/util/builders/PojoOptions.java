@@ -38,6 +38,10 @@ public class PojoOptions
 
     public static final String END_TIME = "endTime";
 
+    public static final String OFFSET = "offset";
+
+    public static final String LIMIT = "limit";
+
     private final Map options = new HashMap();
 
     public PojoOptions() {
@@ -146,6 +150,34 @@ public class PojoOptions
 
     public Timestamp getEndTime() {
         return (Timestamp) options.get(END_TIME);
+    }
+
+    /*
+     * ============================== Pagination ==============================
+     */
+
+    public PojoOptions paginate(int offset, int limit) {
+        options.put(OFFSET, offset);
+        options.put(LIMIT, limit);
+        return this;
+    }
+
+    public PojoOptions noPagination() {
+        remove(OFFSET);
+        remove(LIMIT);
+        return this;
+    }
+
+    public boolean isPagination() {
+        return options.containsKey(OFFSET);
+    }
+
+    public Integer getOffset() {
+        return (Integer) options.get(OFFSET);
+    }
+
+    public Integer getLimit() {
+        return (Integer) options.get(LIMIT);
     }
 
     /*

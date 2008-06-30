@@ -62,7 +62,10 @@ module omero {
     const string POJOLEAVES       = "leaves";         // omero::RBool (whether or not Images returned)
     const string POJOEXPERIMENTER = "experimenter";   // omero::RLong
     const string POJOGROUP        = "group";          // omero::RLong
-
+    const string POJOLIMIT        = "limit";          // omero::RInt
+    const string POJOOFFSET       = "offset";         // omero::RInt
+    const string POJOSTARTTIME    = "startTime";      // omero::RTime
+    const string POJOENDTIME      = "endTime";        // omero::RTime
     /*
      * Used by IPojos.findCGCPaths(...,string algo,...)
      */
