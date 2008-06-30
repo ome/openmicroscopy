@@ -40,7 +40,6 @@ import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ImageData;
 
 /** 
@@ -476,19 +475,6 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public List updateAnnotationFor(Map toUpdate)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Returns a map whose keys are the <code>GroupData</code> objetcs
-	 * and the values are the <code>ExperimenterData</code>s contained
-	 * in the group.
-	 * 
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Map<GroupData, Set> getAvailableGroups()
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

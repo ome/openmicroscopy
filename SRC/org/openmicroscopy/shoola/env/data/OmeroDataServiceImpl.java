@@ -62,7 +62,6 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
-import pojos.GroupData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
@@ -170,8 +169,6 @@ class OmeroDataServiceImpl
 		if (rootNodeIDs == null) po.exp(new Long(userID));
 		if (withLeaves) po.leaves();
 		else po.noLeaves();
-		//po.countsFor(new Long(userID));
-		//If rootNodeIDs, returns the orphaned containers:
 		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
 				po.map()); 
 		if (rootNodeIDs == null && parents != null) {
@@ -761,16 +758,6 @@ class OmeroDataServiceImpl
 			}
 		}
 		return results;
-	}
-
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#getAvailableGroups()
-	 */
-	public Map<GroupData, Set> getAvailableGroups() 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return gateway.getAvailableGroups();
 	}
 
 	/**

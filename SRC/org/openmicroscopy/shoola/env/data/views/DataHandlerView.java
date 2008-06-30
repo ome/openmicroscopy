@@ -38,7 +38,6 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
-import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 
@@ -445,13 +444,5 @@ public interface DataHandlerView
 	 */
 	public CallHandle advancedSearchFor(SearchDataContext context, 
 										AgentEventListener observer);
-	
-	/**
-	 * Loads the experimenter groups.
-	 * 
-	 * @param observer Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadAvailableGroups(AgentEventListener observer);
 	
 }

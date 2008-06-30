@@ -384,16 +384,6 @@ public class DataHandlerViewImpl
 		BatchCallTree cmd = new ObjectFinder(context);
 		return cmd.exec(observer);
 	}
-	
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadAvailableGroups(AgentEventListener)
-	 */
-	public CallHandle loadAvailableGroups(AgentEventListener observer)
-	{
-		BatchCallTree cmd = new AdminLoader(-1, AdminLoader.GROUP);
-		return cmd.exec(observer);
-	}
 
 	/**
 	 * Implemented as specified by the view interface.

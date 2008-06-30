@@ -556,7 +556,8 @@ class OMEROGateway
 	private boolean isSystemGroup(ExperimenterGroup group)
 	{
 		String n = group.getName();
-		return ("system".equals(n) || "user".equals(n) || "default".equals(n));
+		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
+				"guest".equals(n));
 	}
 
 	/**
@@ -1868,19 +1869,21 @@ class OMEROGateway
 	} 
 	
 	/**
-	 * Retrieves the available experimenter groups.
+	 * Retrieves the groups visible by the current experimenter.
 	 * 
+	 * @param loggedInUser The user currently logged in.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	Map<GroupData, Set> getAvailableGroups()
+	Map<GroupData, Set> getAvailableGroups(ExperimenterData loggedInUser)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			IAdmin service = getAdminService();
+			//Need method server side.
 			List<ExperimenterGroup> groups = service.lookupGroups();
 			Iterator i = groups.iterator();
 			ExperimenterGroup group;
@@ -1888,9 +1891,17 @@ class OMEROGateway
 			List<Experimenter> experimenters;
 			Map<GroupData, Set> pojos = new HashMap<GroupData, Set>();
 			DataObject pojoGroup;
+			//
+			List<GroupData> l = loggedInUser.getGroups();
+			Iterator<GroupData> k = l.iterator();
+			List<Long> groupIds = new ArrayList<Long>();
+			while (k.hasNext()) {
+				groupIds.add(k.next().getId());
+			}
+			
 			while (i.hasNext()) {
 				group = (ExperimenterGroup) i.next();
-				if (!isSystemGroup(group)) {
+				if (!isSystemGroup(group) && groupIds.contains(group.getId())) {
 					pojoGroup = PojoMapper.asDataObject(group);
 					experimenters = containedExperimenters(group.getId());
 					pojos.put((GroupData) pojoGroup, 

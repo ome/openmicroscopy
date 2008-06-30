@@ -746,9 +746,10 @@ public interface TreeViewer
 	public void refreshTree();
 
 	/**
+	 * Browses the images acquired during the passed time interval.
 	 * 
-	 * @param node
-	 * @param set
+	 * @param node The node holding the time information.
+	 * @param set Tne 
 	 */
 	public void browseTimeInterval(TreeImageTimeSet node, Set set);
 	

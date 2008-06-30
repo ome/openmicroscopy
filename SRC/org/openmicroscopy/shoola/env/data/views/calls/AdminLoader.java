@@ -54,9 +54,6 @@ public class AdminLoader
 	extends BatchCallTree
 {
 
-	/** Identifies to load the available groups. */
-	public static final int GROUP = 0;
-	
 	/** Identifies to load the available and used space. */
 	public static final int SPACE = 1;
 	
@@ -67,23 +64,6 @@ public class AdminLoader
     private BatchCall   loadCall;
     
     /**
-     * Creates a {@link BatchCall} to retrieve the experimenter groups.
-     * 
-     * @param userID	The id of the user or <code>-1</code>.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall availableGroupsCall(final long userID)
-    {
-        return new BatchCall("Loading experimenter groups") {
-            public void doCall() throws Exception
-            {
-                OmeroDataService os = context.getDataService();
-                result = os.getAvailableGroups();
-            }
-        };
-    }
-    
-    /**
      * Creates a {@link BatchCall} to retrieve the available and used
      * disk space.
      * 
@@ -92,7 +72,7 @@ public class AdminLoader
      */
     private BatchCall availableSpaceCall(final long userID)
     {
-        return new BatchCall("Loading available and used disk space") {
+        return new BatchCall("Loading disk space information") {
             public void doCall() throws Exception
             {
                 OmeroDataService os = context.getDataService();
@@ -162,9 +142,6 @@ public class AdminLoader
     public AdminLoader(long userID, int index)
     {
     	switch (index) {
-			case GROUP:
-				loadCall = availableGroupsCall(userID);
-				break;
 			case SPACE:
 				loadCall = availableSpaceCall(userID);
 		}

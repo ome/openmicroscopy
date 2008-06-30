@@ -252,7 +252,7 @@ public class DataServicesFactory
         Map<GroupData, Set> groups;
         List<ExperimenterData> exps = new ArrayList<ExperimenterData>();
         try {
-        	 groups = omeroGateway.getAvailableGroups();
+        	 groups = omeroGateway.getAvailableGroups(exp);
         	 registry.bind(LookupNames.USER_GROUP_DETAILS, groups);
         	 
         	 List<Long> ids = new ArrayList<Long>();

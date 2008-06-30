@@ -179,8 +179,12 @@ class ImViewerComponent
 						while (i.hasNext()) {
 							((HistoryItem) i.next()).setHighlight(null);
 						}
-						model.resetMappingSettings(item.getRndSettings(), true);
 						item.setHighlight(Color.BLUE);
+						view.setCursor(Cursor.getPredefinedCursor(
+								Cursor.WAIT_CURSOR));
+						model.resetMappingSettings(item.getRndSettings(), true);
+						view.setCursor(Cursor.getPredefinedCursor(
+								Cursor.DEFAULT_CURSOR));
 						renderXYPlane();
 					} catch (Exception e) {
 						// TODO: handle exception
