@@ -20,8 +20,7 @@ import ome.model.meta.Session;
 
 /**
  * Provides method for sharing - collaboration process for images, datasets,
- * projects. All methods will receive the id of the pixels set to copy the
- * rendering settings from.
+ * projects.
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
