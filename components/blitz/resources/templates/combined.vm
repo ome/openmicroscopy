@@ -70,7 +70,7 @@ DECLARATION BLOCK:
 [$ice] \#include <omero/model/${parent}.ice>
 #set( $include = '\#include' )
 #set( $importModify = '.replaceAll("^","[ice]").replaceAll(".*java.*","").replaceAll("import.*[.](.*?);","$include <omero/model/$1.ice>") ' )
-$secondpassclassimports$importModify
+\$secondpassclassimports\$importModify
 #end
 [$hdr] \#include <omero/ClientErrors.h>
 [$hdr] \#include <omero/IObject.h>
@@ -504,9 +504,11 @@ ICE BLOCK:
 
 ASSOCIATION TYPES BLOCK:
 
-#set( $hasSet  = false)
+#set( $hasSet  = false )
 #set( $hasLink = false )
+#if( $property.one2Many )
 #set( $hasSet  = $property.one2Many)
+#end
 #if( $property.class.name.equals("ome.dsl.ChildLink") || $property.class.name.equals("ome.dsl.ParentLink"))
 #set( $hasLink = true )
 #end

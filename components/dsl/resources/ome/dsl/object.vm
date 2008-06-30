@@ -284,8 +284,13 @@ implements java.io.Serializable, IObject#if($type.global), IGlobal#end#if(!$type
 #if( $prop.isLink )
 #set( $LinkType = ${prop.type} )
 #set( $Link = ${prop.shortType} )
+### Preventing velocity warnings during build with if/ends
+#if( $prop.target )
 #set( $ElementType = ${prop.target})
+#end
+#if( $prop.shortTarget )
 #set( $Element = ${prop.shortTarget})
+#end
 ##
 #if($prop.class.name == "ome.dsl.ChildLink" )
 #set( $order = "this, addition" )
