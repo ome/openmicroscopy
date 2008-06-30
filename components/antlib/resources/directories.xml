@@ -33,7 +33,7 @@
 	<property name="lib.dir"       value="${root.dir}/lib" />
 	<property name="tools.dir"     value="${root.dir}/lib/tools" />
 	<property name="dist.dir"      value="${root.dir}/dist" />
-	
+
 	<!-- Components -->
 	<property name="dsl.comp"       value="${components.dir}/dsl"/>
 	<property name="model.comp"     value="${components.dir}/model"/>

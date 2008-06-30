@@ -60,9 +60,10 @@ build-* targets.
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="app.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
-        <antcall target="build-py" inheritRefs="true" inheritAll="true"/>
-        <antcall target="build-importer" inheritRefs="true" inheritAll="true"/>
-        <antcall target="build-webadmin" inheritRefs="true" inheritAll="true"/>
+        <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
+        <iterate buildpathref="WebAdmin.buildpath" target="tools-dist"/>
+        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
     <target name="build-all" description="Build everything and copy to dist">
