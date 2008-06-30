@@ -110,6 +110,9 @@ public interface IShare extends ServiceInterface {
     void draftShare(@NotNull
     Session share);
 
+    //  ~ Getting items
+    // =========================================================================
+        
     /**
      * Looks up all {@link ome.model.IObject items} belonge to the
      * {@link ome.model.meta.Session share}.
@@ -151,6 +154,9 @@ public interface IShare extends ServiceInterface {
     Session share, @NotNull
     IObject item);
 
+    //  ~ Getting comments
+    // =========================================================================
+
     /**
      * Looks up all {@link ome.model.annotations.Annotation comments} belonge to
      * the {@link ome.model.meta.Session shares}
@@ -187,6 +193,9 @@ public interface IShare extends ServiceInterface {
      */
     void deleteComment(@NotNull
     Annotation comment);
+
+    //  ~ Getting members
+    // =========================================================================
 
     /**
      * Adds {@link ome.model.meta.Experimenter experimenters} to
