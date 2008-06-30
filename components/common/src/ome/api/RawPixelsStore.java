@@ -1,5 +1,5 @@
 /*
- * ome.api.IPixels
+ *   ome.api.RawPixelsStore
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -7,25 +7,17 @@
 
 package ome.api;
 
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
-
 /**
- * metadata gateway for the {@link omeis.providers.re.RenderingEngine}. This
- * service provides all DB access that the rendering engine needs. This allows
- * the rendering engine to also be run external to the server (e.g. client-side)
- * 
- * @author <br>
- *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date: 2005/06/08
- *          15:21:59 $) </small>
- * @since OME2.2
+ * Binary data provider. Initialized with the id of a
+ * {@link ome.model.core.Pixels} instance, this interface can provide various
+ * slices, stacks, regions of the 5-dimensional (X-Y planes with multiple
+ * Z-sections and Channels over Time). The byte array returned by the getter
+ * methods and passed to the setter methods can and will be interpreted
+ * according to results of {@link #getByteWidth()}, {@link #isFloat()}, and
+ * {@link #isSigned()}.
  */
 public interface RawPixelsStore extends StatefulServiceInterface {
+
     // State management.
     public void setPixelsId(long pixelsId);
 
