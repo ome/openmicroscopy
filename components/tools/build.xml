@@ -35,6 +35,7 @@
 			side code for use with OMERO.
 		</echo>
 		<mkdir dir="${dist.dir}/blitz/"/>
+		<mkdir dir="${dist.dir}/bin/"/>
 		<jar update="true" destfile="${dist.dir}/blitz/services.jar" basedir="${tools.classes}" includes="**/*"/>
 		<!-- This must be reworked upstream -->
 		<jar update="true" destfile="${dist.dir}/${product.final.name}" basedir="${dist.dir}/blitz" includes="services.jar"/>
