@@ -4,25 +4,24 @@
       module="OmeroImporter"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
   </configurations>
   <publications>
-    <artifact name="OmeroImporter" type="jar" conf="core" />
+    <artifact name="OmeroImporter" type="jar"/>
   </publications>
-  <dependencies>
+  <dependencies defaultconfmapping="build,test,client->default">
     <!-- Internal -->
-    <dependency name="importer" rev="${omero.version}" changing="true" />
-    <!--dependency name="client" rev="${omero.version}" changing="true" /-->
-    <dependency name="common" rev="${omero.version}" changing="true" />
+    <dependency name="importer" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
+    <dependency name="client" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
     <!-- Gui -->
-    <dependency org="gui" name="TableLayout" rev="unknown" conf="build->default"/>
-    <dependency org="gui" name="hsqldb" rev="1.8.0.9" conf="build->default"/>
-    <dependency org="gui" name="quaqua-filechooser-only" rev="unknown" conf="build->default"/>
-    <dependency org="gui" name="swingx" rev="2007_09_16" conf="build->default"/>
-    <dependency org="gui" name="libquaqua" rev="unknown" conf="build->default"/>
-    <dependency org="gui" name="omero-client-utils" rev="unknown" conf="build->default"/>
-    <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}" conf="build->default"/>
+    <dependency org="gui" name="TableLayout" rev="unknown"/>
+    <dependency org="gui" name="hsqldb" rev="1.8.0.9"/>
+    <dependency org="gui" name="quaqua-filechooser-only" rev="unknown"/>
+    <dependency org="gui" name="swingx" rev="2007_09_16"/>
+    <dependency org="gui" name="libquaqua" rev="unknown"/>
+    <dependency org="gui" name="omero-client-utils" rev="unknown"/>
+    <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
   </dependencies>
 </ivy-module>

@@ -39,14 +39,17 @@
         </jar>
     </target>
 
-    <target name="install" depends="lifecycle.install,standalone"/>
+    <target name="install" depends="lifecycle.install">
+       <standalone conf="client"/>
+    </target>
 
     <target name="tools-init"/>
 
     <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
 
     <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target" unless="skip.compile">
-        <ivy:publish artifactspattern="${target.dir}/[module].[ext]" 
+        <ivy:retrieve conf="client" pattern="../target/client/[module]-[revision].[ext]" log="quiet"/>
+        <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
             resolver="tools-resolver" pubrevision="${omero.version}"
             publishivy="false" overwrite="true"/>
     </target>

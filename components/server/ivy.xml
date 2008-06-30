@@ -4,50 +4,51 @@
       module="server"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="server" type="jar" conf="core" />
+    <artifact name="server" type="jar"/>
   </publications>
-  <dependencies>
+  <dependencies defaultconfmapping="build,test,server->default">
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" />
+    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
+    <dependency name="importer" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
+    <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
+    <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
     <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test" />
-    <dependency name="importer" rev="${omero.version}" changing="true" />
-    <dependency name="romio" rev="${omero.version}" changing="true" />
-    <dependency name="rendering" rev="${omero.version}" changing="true" />
     <!-- Public -->
-    <dependency org="commons-lang" name="commons-lang" rev="2.1" conf="build->default"/>
-    <dependency org="activemq" name="activemq-core" rev="3.2" conf="build->default"/>
-    <dependency org="ant" name="ant-launcher" rev="1.6.5" conf="build->default"/>
-    <dependency org="c3p0" name="c3p0" rev="${versions.c3p0}" conf="build->default"/>
-    <dependency org="commons-beanutils" name="commons-beanutils" rev="1.7.0" conf="build->default"/>
-    <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="build->default"/>
-    <dependency org="commons-dbcp" name="commons-dbcp" rev="1.2.1" conf="build->default"/>
-    <dependency org="commons-pool" name="commons-pool" rev="1.2" conf="build->default"/>
-    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}" conf="build->default"/>
-    <dependency org="dbunit" name="dbunit" rev="2.1" conf="build->default"/>
-    <dependency org="drools" name="drools-all-jdk5" rev="2.5-beta-2" conf="build->default"/>
-    <dependency org="eclipse" name="jdtcore" rev="3.1.0" conf="build->default"/>
-    <dependency org="jamon" name="jamon" rev="1.0" conf="build->default"/>
-    <dependency org="omero" name="jbosssx" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="omero" name="jboss-jaxrpc" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="org/acegisecurity" name="acegi-security" rev="1.0.0-RC1" conf="build->default"/>
-    <dependency org="quartz" name="quartz" rev="1.5.2" conf="build->default"/>
-    <dependency org="xerces" name="xerces" rev="2.0.2" conf="build->default"/>
-    <dependency org="xml-apis" name="xml-apis" rev="1.0.b2" conf="build->default"/>
-    <dependency org="mail" name="mail" rev="1.4.1" conf="build->default"/>
-    <dependency org="activation" name="activation" rev="1.1.1" conf="build->default"/>
-    <dependency org="PDFBox" name="PDFBox" rev="0.7.3" conf="build->default"/>
-    <dependency org="FontBox" name="FontBox" rev="0.1.0" conf="build->default"/>
+    <dependency org="commons-lang" name="commons-lang" rev="2.1"/>
+    <dependency org="activemq" name="activemq-core" rev="3.2"/>
+    <dependency org="ant" name="ant-launcher" rev="1.6.5"/>
+    <dependency org="c3p0" name="c3p0" rev="${versions.c3p0}"/>
+    <dependency org="commons-beanutils" name="commons-beanutils" rev="1.7.0"/>
+    <dependency org="commons-codec" name="commons-codec" rev="1.3"/>
+    <dependency org="commons-dbcp" name="commons-dbcp" rev="1.2.1"/>
+    <dependency org="commons-pool" name="commons-pool" rev="1.2"/>
+    <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
+    <dependency org="dbunit" name="dbunit" rev="2.1"/>
+    <dependency org="drools" name="drools-all-jdk5" rev="2.5-beta-2"/>
+    <dependency org="eclipse" name="jdtcore" rev="3.1.0"/>
+    <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}"/>
+    <dependency org="jamon" name="jamon" rev="1.0"/>
+    <dependency org="omero" name="jbosssx" rev="${versions.jboss}"/>
+    <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}"/>
+    <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}"/>
+    <dependency org="omero" name="jboss-jaxrpc" rev="${versions.jboss}"/>
+    <dependency org="org/acegisecurity" name="acegi-security" rev="1.0.0-RC1"/>
+    <dependency org="quartz" name="quartz" rev="1.5.2"/>
+    <dependency org="xerces" name="xerces" rev="2.0.2"/>
+    <dependency org="xml-apis" name="xml-apis" rev="1.0.b2"/>
+    <dependency org="mail" name="mail" rev="1.4.1"/>
+    <dependency org="activation" name="activation" rev="1.1.1"/>
+    <dependency org="PDFBox" name="PDFBox" rev="0.7.3"/>
+    <dependency org="FontBox" name="FontBox" rev="0.1.0"/>
+    <dependency org="spring" name="spring-ldap" rev="1.2.1"/>
     <!-- Duplicated with client/ivy.xml -->
-    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="spring" name="spring-ldap" rev="1.2.1" conf="build->default"/>
+    <dependency org="omero" name="jbossall-client" rev="${versions.jboss}"/>
+    <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}"/>
+    <dependency org="omero" name="jboss-ejb3" rev="${versions.jboss}"/>
   </dependencies>
 </ivy-module>

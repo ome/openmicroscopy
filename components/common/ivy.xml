@@ -4,18 +4,18 @@
       module="common"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="common" type="jar" conf="core" />
+    <artifact name="common" type="jar"/>
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" />
+    <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client;server->server"/>
     <!-- Public -->
-    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/> 
-    <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}" conf="build->default"/>
+    <dependency org="jamon" name="jamon" rev="${versions.jamon}" conf="test->default"/>
   </dependencies>
 </ivy-module>

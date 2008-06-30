@@ -4,16 +4,17 @@
       module="rendering"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="rendering" type="jar" conf="core" />
+    <artifact name="rendering" type="jar"/>
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" />
-    <dependency name="romio" rev="${omero.version}" changing="true" />
+    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client;server->server"/>
+    <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client;server->server"/>
   </dependencies>
 </ivy-module>

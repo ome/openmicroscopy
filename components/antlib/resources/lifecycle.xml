@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="lifecycle" default="help" basedir=".">
+<project name="lifecycle" default="help" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -172,8 +172,7 @@
 	   <sequential>
 		 <mkdir dir="@{output}"/>
 		 <exec executable="slice2@{lang}" 
-		    failonerror="true" failifexecutionfails="true"
-		    output="@{output}/.output.log">
+		    failonerror="true" failifexecutionfails="true">
 		        <arg value="--tie"/>
 		 	<arg value="--output-dir"/>
 			<arg value="@{output}"/>
@@ -427,27 +426,31 @@
 		<eclipse.refreshLocal resource="omero-server" depth="infinite"/>
 		<eclipse.refreshLocal resource="omero-client" depth="infinite"/>
 		<eclipse.refreshLocal resource="omero-shoola-adapter" depth="infinite"/>
-		<eclipse.refreshLocal resource="missing" depth="infinite"/>		
+		<eclipse.refreshLocal resource="missing" depth="infinite"/>
 	</target>
 
-  <target name="standalone">
-    <copy todir="${target.dir}/standalone">
-      <fileset dir="${deps.lib.dir}" includes="**/*"/>
-      <fileset dir="${target.dir}" includes="*.jar"/>
-    </copy>
-    <jar update="true" destfile="${target.dir}/standalone/${ivy.module}.jar">
-      <fileset dir="${resrc.dir}">
-        <include name="**/config.*"/>
-        <include name="**/*.config"/>
-        <include name="**/*.xml"/>
-      </fileset>
-      <fileset dir="${resrc.dest}">
-        <include name="**/*.properties"/>
-      </fileset>
-    </jar>
-  </target>
-
     <!-- MACROS -->
+
+    <macrodef name="standalone">
+        <attribute name="conf"/>
+        <attribute name="dir" default="${basedir}/target/standalone/"/>
+        <attribute name="pattern" default="[module].[ext]"/>
+        <attribute name="jar" default="@{dir}/${ivy.module}.jar"/>
+        <sequential>
+            <ivy:retrieve conf="@{conf}" pattern="@{dir}/@{pattern}" log="quiet"/>
+            <copy file="${target.dir}/${ivy.module}.jar" tofile="@{jar}"/>
+            <jar update="true" destfile="@{jar}">
+                <fileset dir="${resrc.dir}">
+                    <include name="**/config.*"/>
+                    <include name="**/*.config"/>
+                    <include name="**/*.xml"/>
+                </fileset>
+                <fileset dir="${resrc.dest}">
+                    <include name="**/*.properties"/>
+                </fileset>
+            </jar>
+        </sequential>
+  </macrodef>
 
     <macrodef name="copyResource">
         <attribute name="file"/>

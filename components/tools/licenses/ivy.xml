@@ -4,18 +4,17 @@
       module="licenses"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
-    <conf name="client"  extends="core"/>
-    <conf name="server"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="licenses" type="jar" conf="core" />
+    <artifact name="licenses" type="jar"/>
   </publications>
-  <dependencies>
+  <dependencies defaultconfmapping="build->build;test->test;server->server;client->client">
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" conf="client->core" />
+    <dependency name="common" rev="${omero.version}" changing="true"/>
     <dependency name="importer" rev="${omero.version}" changing="true" />
     <dependency name="romio" rev="${omero.version}" changing="true" />
     <dependency name="rendering" rev="${omero.version}" changing="true" />

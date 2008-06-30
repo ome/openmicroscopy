@@ -4,12 +4,12 @@
       module="main"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="runtime"/>
   </configurations>
   <publications>
-    <artifact name="main" type="zip" conf="core" />
+    <artifact name="main" type="zip" conf="runtime" />
   </publications>
   <dependencies>
     <!-- Internal -->
@@ -17,7 +17,7 @@
     <dependency name="importer" rev="${omero.version}" changing="true" />
     <dependency name="romio" rev="${omero.version}" changing="true" />
     <dependency name="rendering" rev="${omero.version}" changing="true" />
-    <dependency name="server" rev="${omero.version}" changing="true" />
-    <dependency name="blitz" rev="${omero.version}" changing="true" />
+    <dependency name="blitz" rev="${omero.version}" changing="true" conf="server"/>
+    <dependency name="server" rev="${omero.version}" changing="true" conf="server"/>
   </dependencies>
 </ivy-module>

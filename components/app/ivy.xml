@@ -4,20 +4,15 @@
       module="app"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="app" type="ear" conf="core" />
+    <artifact name="app" type="ear"/>
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" />
-    <dependency name="importer" rev="${omero.version}" changing="true" />
-    <dependency name="romio" rev="${omero.version}" changing="true" />
-    <dependency name="rendering" rev="${omero.version}" changing="true" />
-    <dependency name="server" rev="${omero.version}" changing="true" />
-    <dependency name="blitz" rev="${omero.version}" changing="true" />
+    <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
   </dependencies>
 </ivy-module>

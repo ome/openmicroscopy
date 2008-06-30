@@ -36,7 +36,7 @@ build-* targets.
         <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
     </ivy:buildlist>
     <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/app/**,**/bioformats-omero/**,**/policy/**,**/tools/**"/>
+        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/app/**,**/policy/**,**/tools/**"/>
     </ivy:buildlist>
     <ivy:buildlist reference="appserver.buildpath" settingsRef="ivy.toplevel">
         <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/blitz/**,**/policy/**,**/tools/**"/>
@@ -62,6 +62,7 @@ build-* targets.
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <antcall target="build-py" inheritRefs="true" inheritAll="true"/>
         <antcall target="build-importer" inheritRefs="true" inheritAll="true"/>
+        <antcall target="build-webadmin" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-all" description="Build everything and copy to dist">
@@ -143,10 +144,10 @@ build-* targets.
             </copy>
 
             <mkdir dir="${dist.dir}/client"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" transitive="false" settingsRef="ivy.toplevel"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel"/>
             <ivy:retrieve conf="client" pattern="${dist.dir}/client/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
             <mkdir dir="${dist.dir}/lib/repository"/>
-            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" transitive="true" settingsRef="ivy.toplevel"/>
+            <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
 
             <copy

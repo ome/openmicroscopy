@@ -4,25 +4,20 @@
       module="blitz"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="server" extends="core"/>
-    <conf name="client" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="blitz" type="jar" conf="core" />
+    <artifact name="blitz" type="jar"/>
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" />
-    <dependency name="importer" rev="${omero.version}" changing="true" />
-    <dependency name="romio" rev="${omero.version}" changing="true" />
-    <dependency name="rendering" rev="${omero.version}" changing="true" />
-    <dependency name="server" rev="${omero.version}" changing="true"/>
-    <dependency name="client" rev="${omero.version}" changing="true" conf="client,test->core"/>
+    <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
+    <dependency name="client" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
     <!-- Public -->
-    <dependency org="omero" name="ice" rev="${versions.ice}" conf="core->default"/>
+    <dependency org="omero" name="ice" rev="${versions.ice}" conf="build,test,client,server->default"/>
   </dependencies>
 </ivy-module>
 

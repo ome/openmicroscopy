@@ -4,17 +4,16 @@
       module="WebAdmin"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
   </configurations>
   <publications>
-    <artifact name="WebAdmin" type="war" conf="core" />
+    <artifact name="WebAdmin" type="war"/>
   </publications>
-  <dependencies>
+  <dependencies defaultconfmapping="build,test,client->default">
     <!-- Internal -->
-    <dependency org="omero" name="common"   rev="${omero.version}" changing="true" />
-    <dependency org="omero" name="client"   rev="${omero.version}" changing="true" />
+    <dependency org="omero" name="client"   rev="${omero.version}" changing="true" conf="build->build;test->test;client->client" />
     <dependency org="omero" name="jboss-servlet-api" rev="${versions.jboss}" />
     <dependency org="omero" name="jboss-j2ee" rev="${versions.jboss}" />
     <dependency org="omero" name="jboss-servlet-api" rev="${versions.jboss}" />

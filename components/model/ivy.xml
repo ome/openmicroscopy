@@ -4,34 +4,36 @@
       module="model-${omero.db.profile}"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="model-${omero.db.profile}" type="jar" conf="core" />
+    <artifact name="model-${omero.db.profile}" type="jar"/>
   </publications>
-  <dependencies>
+  <dependencies defaultconfmapping="build,test,client,server->default">
     <!-- Internal -->
-    <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build,test"/>
+    <dependency name="dsl" rev="${omero.version}" changing="true" conf="build->build;test->test;client->runtime;server->runtime"/>
     <!-- Public -->
-    <dependency org="jboss" name="jboss-j2ee" rev="${versions.jboss}" conf="build->default"/>
-    <dependency org="jboss" name="jboss-ejb3x" rev="${versions.jboss}" conf="build->default"/> 
+    <dependency org="jboss" name="jboss-j2ee" rev="${versions.jboss}"/>
+    <dependency org="jboss" name="jboss-ejb3x" rev="${versions.jboss}"/>
+    <!-- Hibernate server -->
+    <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="server->default"/>
+    <dependency org="asm" name="asm-attrs" rev="${versions.asm}" conf="server->default"/>
+    <dependency org="asm" name="asm" rev="${versions.asm}" conf="server->default"/>
+    <dependency org="cglib" name="cglib" rev="${versions.cglib}" conf="server->default"/>
+    <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="server->default"/>
     <!-- Hibernate -->
-    <dependency org="antlr" name="antlr" rev="${versions.antlr}" conf="build->default"/>
-    <dependency org="asm" name="asm-attrs" rev="${versions.asm}" conf="build->default"/>
-    <dependency org="asm" name="asm" rev="${versions.asm}" conf="build->default"/>
-    <dependency org="cglib" name="cglib" rev="${versions.cglib}" conf="build->default"/>
-    <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="build->default"/>
-    <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="build->default"/> 
-    <dependency org="org/hibernate" name="hibernate-tools" rev="${versions.hibernate-tools}" conf="build->default"/> 
-    <dependency org="org/hibernate" name="freemarker" rev="${versions.hibernate-tools}" conf="build->default"/> 
-    <dependency org="org/hibernate" name="jtidy" rev="${versions.hibernate-tools}" conf="build->default"/> 
-    <dependency org="hibernate" name="hibernate-annotations" rev="${versions.hibernate-annotations}" conf="build->default"/> 
-    <dependency org="hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build->default"/> 
-    <dependency org="hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build->default"/> 
-    <dependency org="hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-commons-annotations}" conf="build->default"/> 
-    <dependency org="javax/persistence" name="persistence-api" rev="${versions.persistence-api}" conf="build->default"/>
-    <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}" conf="build->default"/>
+    <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="server->default"/>
+    <dependency org="org/hibernate" name="hibernate-tools" rev="${versions.hibernate-tools}" conf="build->default"/>
+    <dependency org="org/hibernate" name="freemarker" rev="${versions.hibernate-tools}" conf="build->default"/>
+    <dependency org="org/hibernate" name="jtidy" rev="${versions.hibernate-tools}" conf="build->default"/>
+    <dependency org="hibernate" name="hibernate-annotations" rev="${versions.hibernate-annotations}"/>
+    <dependency org="hibernate" name="hibernate-search" rev="${versions.hibernate-search}"/>
+    <dependency org="hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}"/>
+    <dependency org="hibernate" name="hibernate-commons-annotations" rev="${versions.hibernate-commons-annotations}"/>
+    <dependency org="javax/persistence" name="persistence-api" rev="${versions.persistence-api}"/>
+    <dependency org="org/apache/lucene" name="lucene-core" rev="${versions.lucene}"/>
   </dependencies>
 </ivy-module>

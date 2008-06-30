@@ -19,16 +19,16 @@
       module="OmeroJava"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
   </configurations>
   <publications>
-    <artifact name="OmeroJava" type="jar" conf="core" />
+    <artifact name="OmeroJava" type="jar"/>
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="blitz" rev="${omero.version}" changing="true" conf="core->client"/>
+    <dependency name="blitz" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
   </dependencies>
 </ivy-module>
 

@@ -4,15 +4,16 @@
       module="romio"
       status="integration"/>
   <configurations>
-    <conf name="core"/>
-    <conf name="build" extends="core"/>
-    <conf name="test"  extends="core"/>
+    <conf name="build"/>
+    <conf name="test"/>
+    <conf name="client"/>
+    <conf name="server"/>
   </configurations>
   <publications>
-    <artifact name="romio" type="jar" conf="core" />
+    <artifact name="romio" type="jar"/>
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" />
+    <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server;client->client"/>
   </dependencies>
 </ivy-module>
