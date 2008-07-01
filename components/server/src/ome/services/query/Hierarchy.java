@@ -1,20 +1,12 @@
 /*
- * ome.services.query.IObjectClassQuery
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-/*------------------------------------------------------------------------------
- *
- * Written by:    Josh Moore <josh.moore@gmx.de>
- *
- *------------------------------------------------------------------------------
- */
-
 package ome.services.query;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,24 +14,25 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-// Third-party libraries
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.model.containers.CategoryGroupCategoryLink;
+import ome.model.containers.CategoryImageLink;
+import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
+import ome.model.containers.Project;
+import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Image;
+
 import org.hibernate.Criteria;
 import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.hibernate.transform.ResultTransformer;
-
-// Application-internal dependencies
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Image;
 
 /**
  * single-point of entry for walking of OME container hierarchies.
  * 
  * 
- * @author Josh Moore, <a href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
- * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
+ * @author Josh Moore, josh at glencoesoftware.com
  * @since OMERO 3.0
  */
 public class Hierarchy {
@@ -63,6 +56,10 @@ public class Hierarchy {
                 Image.class, Category.class, CategoryGroup.class };
 
         static int[] depth = new int[] { 2, 1, 0, 1, 2 };
+
+        static Class[] link = new Class[] { ProjectDatasetLink.class,
+                DatasetImageLink.class, null, CategoryImageLink.class,
+                CategoryGroupCategoryLink.class };
 
         static String[] child = new String[] { "datasetLinks", "imageLinks",
                 null, "imageLinks", "categoryLinks" };
@@ -252,20 +249,16 @@ public class Hierarchy {
         }
 
         switch (depth) {
-            case 2:
-                retVal[3] = c
-                        .createCriteria(path[1][1], "genitem_2", joinStyle);
-                retVal[2] = c
-                        .createCriteria(path[1][0], "genlink_2", joinStyle);
-            case 1:
-                retVal[1] = c
-                        .createCriteria(path[0][1], "genitem_1", joinStyle);
-                retVal[0] = c
-                        .createCriteria(path[0][0], "genlink_1", joinStyle);
-            case 0:
-                return retVal;
-            default:
-                throw new RuntimeException("Unhandled container depth.");
+        case 2:
+            retVal[3] = c.createCriteria(path[1][1], "genitem_2", joinStyle);
+            retVal[2] = c.createCriteria(path[1][0], "genlink_2", joinStyle);
+        case 1:
+            retVal[1] = c.createCriteria(path[0][1], "genitem_1", joinStyle);
+            retVal[0] = c.createCriteria(path[0][0], "genlink_1", joinStyle);
+        case 0:
+            return retVal;
+        default:
+            throw new RuntimeException("Unhandled container depth.");
         }
     }
 
