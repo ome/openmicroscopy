@@ -24,30 +24,36 @@ build-* targets.
     <import file="${basedir}/deprecated.xml"/>
     <import file="${import.dir}/global.xml"/>
 
-    <!-- Top-level ivy setup. Also defined in antlib/resources/dependencies.xml -->
-     <path id="ivy.classpath">
-        <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
-    </path>
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath"/>
-    <property name="deps.buildlist.dir" value="${omero.home}/components"/>
+    <target name="ivy" unless="ivy.done">
 
-    <ivy:settings id="ivy.toplevel"  file="${etc.dir}/ivysettings.xml" override="true"/>
-    <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
-        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
-    </ivy:buildlist>
-    <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
-        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/app/**,**/policy/**,**/tools/**"/>
-    </ivy:buildlist>
-    <ivy:buildlist reference="appserver.buildpath" settingsRef="ivy.toplevel">
-        <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/blitz/**,**/policy/**,**/tools/**"/>
-    </ivy:buildlist>
-    <!-- Single file paths defined in antlib/resources/directories.xml -->
+        <!-- Prevent future invocations and PermGen errors-->
+        <property name="ivy.done" value="done"/>
+
+        <!-- Top-level ivy setup. Also defined in antlib/resources/dependencies.xml -->
+        <path id="ivy.classpath">
+            <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
+        </path>
+        <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath"/>
+        <property name="deps.buildlist.dir" value="${omero.home}/components"/>
+
+        <ivy:settings id="ivy.toplevel"  file="${etc.dir}/ivysettings.xml" override="true"/>
+        <ivy:buildlist reference="all.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/policy/**,**/tools/**"/>
+        </ivy:buildlist>
+        <ivy:buildlist reference="blitzserver.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/app/**,**/policy/**,**/tools/**"/>
+        </ivy:buildlist>
+        <ivy:buildlist reference="appserver.buildpath" settingsRef="ivy.toplevel">
+            <fileset dir="${deps.buildlist.dir}" includes="*/build.xml" excludes="**/blitz/**,**/policy/**,**/tools/**"/>
+        </ivy:buildlist>
+        <!-- Single file paths defined in antlib/resources/directories.xml -->
+    </target>
 
     <target name="no-tests" description="Disable tests">
         <property name="test.skip" value="true"/>
     </target>
 
-    <target name="clean" description="Calls 'clean' on all components">
+    <target name="clean" description="Calls 'clean' on all components" depends="ivy">
         <iterate buildpathref="all.buildpath"   target="clean"/>
         <iterate buildpathref="tools.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
@@ -57,7 +63,7 @@ build-* targets.
 	</delete>
     </target>
 
-    <target name="build-default" description="Build all components except for C++">
+    <target name="build-default" description="Build all components except for C++" depends="ivy">
         <property name="test.skip" value="true"/>
         <antcall target="clean" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
@@ -69,23 +75,22 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-all" description="Build everything and copy to dist">
+    <target name="build-all" description="Build everything and copy to dist" depends="ivy">
         <iterate buildpathref="all.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-blitz" description="Build blitz and copy to dist/blitz">
+    <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="ivy">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
-        <antcall target="build-py" inheritRefs="true" inheritAll="true"/>
         <!-- Must also build python since it provides our command lines -->
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-ear" description="Build ear and copy to dist">
+    <target name="build-ear" description="Build ear and copy to dist" depends="ivy">
         <iterate buildpathref="appserver.buildpath" target="dist"/>
 	<!-- WORKAROUND: creating the blitz jar to make prepare-dist work-->
         <iterate buildpathref="blitzserver.buildpath" target="install"/>
@@ -138,7 +143,8 @@ build-* targets.
         </tar>
     </target>
 
-    <target name="prepare-dist">
+    <!-- Internal target -->
+    <target name="prepare-dist" depends="ivy">
         <mkdir dir="${dist.dir}/bin"/>
             <copy todir="${dist.dir}/etc" overwrite="true">
                 <fileset dir="${omero.home}/etc">
@@ -172,7 +178,7 @@ build-* targets.
 
     </target>
 
-    <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component">
+    <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component" depends="ivy">
         <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel"/>
