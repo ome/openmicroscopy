@@ -40,6 +40,7 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         Map<String, Object> params = new HashMap<String, Object>();
         Class klass = (Class) value(CLASS);
         Collection ids = (Collection) value(IDS);
+        PojoOptions po = new PojoOptions((Map) value(OPTIONS));
 
         StringBuilder sb = new StringBuilder();
         sb.append("select img from Image img ");
@@ -86,16 +87,13 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         sb.append("where ");
 
         // if PojoOptions sets START_TIME and/or END_TIME
-        if (check(OPTIONS)) {
-            PojoOptions po = new PojoOptions((Map) value(OPTIONS));
-            if (po.getStartTime() != null) {
-                sb.append("img.details.creationEvent.time > :starttime and ");
-                params.put("starttime", po.getStartTime());
-            }
-            if (po.getEndTime() != null) {
-                sb.append("img.details.creationEvent.time < :endtime and ");
-                params.put("endtime", po.getEndTime());
-            }
+        if (po.getStartTime() != null) {
+            sb.append("img.details.creationEvent.time > :starttime and ");
+            params.put("starttime", po.getStartTime());
+        }
+        if (po.getEndTime() != null) {
+            sb.append("img.details.creationEvent.time < :endtime and ");
+            params.put("endtime", po.getEndTime());
         }
 
         // see https://trac.openmicroscopy.org.uk/omero/ticket/296
@@ -117,6 +115,7 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         for (String param : params.keySet()) {
             q.setParameter(param, params.get(param));
         }
+
         q.setParameterList("ids", ids);
         setQuery(q);
     }

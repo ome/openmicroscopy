@@ -15,6 +15,7 @@
 package ome.logic;
 
 // Java imports
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -59,9 +60,12 @@ import ome.tools.lsid.LsidUtils;
 import ome.util.CBlock;
 import ome.util.builders.PojoOptions;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -345,20 +349,61 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     }
 
+    static final Map<Class, String> paginationQueries = new HashMap();
+    static {
+        paginationQueries.put(Dataset.class,
+                "select link.child.id from DatasetImageLink "
+                        + " link where link.parent.id in (:ids)"
+                        + "order by link.child.id");
+        paginationQueries
+                .put(
+                        Project.class,
+                        "select distinct dil.child.id from ProjectDatasetLink pdl "
+                                + "join pdl.child ds join ds.imageLinks as dil "
+                                + "where pdl.parent.id in (:ids) order by dil.child.id");
+    }
+
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public Set getImages(Class rootNodeType, Set rootNodeIds, Map options) {
+    @SuppressWarnings("unchecked")
+    public Set getImages(final Class rootNodeType, final Set rootNodeIds,
+            final Map options) {
 
         if (rootNodeIds.size() == 0) {
             return new HashSet();
         }
 
-        PojoOptions po = new PojoOptions(options);
+        final PojoOptions po = new PojoOptions(options);
+
+        // Effective values
+        Class effType = rootNodeType;
+        Set<Long> effIds = rootNodeIds;
+
+        if (po.isPagination()) {
+            final String query = paginationQueries.get(rootNodeType);
+            if (query == null) {
+                throw new ApiUsageException(rootNodeType.getName()
+                        + " does not support pagination yet.");
+            }
+            effType = Image.class;
+            effIds = new HashSet<Long>((List<Long>) iQuery
+                    .execute(new HibernateCallback() {
+                        public Object doInHibernate(Session s)
+                                throws HibernateException, SQLException {
+                            return s.createQuery(query).setParameterList("ids",
+                                    rootNodeIds).setMaxResults(po.getLimit())
+                                    .setFirstResult(po.getOffset()).list();
+                        }
+                    }));
+            if (effIds == null || effIds.size() == 0) {
+                return new HashSet();
+            }
+        }
 
         Query<List<IObject>> q = getQueryFactory().lookup(
                 PojosGetImagesQueryDefinition.class.getName(),
-                new Parameters().addIds(rootNodeIds).addClass(rootNodeType)
-                        .addOptions(po.map()));
+                new Parameters().addIds(effIds).addClass(effType).addOptions(
+                        po.map()));
 
         List<IObject> l = iQuery.execute(q);
         return new HashSet<IObject>(l);

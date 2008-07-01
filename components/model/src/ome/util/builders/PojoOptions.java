@@ -65,7 +65,7 @@ public class PojoOptions
 
     protected void copy(Map map) {
         String[] s = new String[] { LEAF, EXPERIMENTER, GROUP, START_TIME,
-                END_TIME };
+                END_TIME, OFFSET, LIMIT };
         for (int i = 0; i < s.length; i++) {
             if (map.containsKey(s[i])) {
                 this.options.put(s[i], map.get(s[i]));
