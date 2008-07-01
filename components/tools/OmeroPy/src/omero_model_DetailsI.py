@@ -32,42 +32,42 @@ class DetailsI(_omero_model.Details):
       def getOwner(self):
           return self.owner
 
-      def setOwner(self, _owner):
+      def setOwner(self, value):
           self.owner = value
           pass
 
       def getGroup(self):
           return self.group
 
-      def setGroup(self, _group):
+      def setGroup(self, value):
           self.group = value
           pass
 
       def getCreationEvent(self):
           return self.creationEvent
 
-      def setCreationEvent(self, _creationEvent):
+      def setCreationEvent(self, value):
           self.creationEvent = value
           pass
 
       def getUpdateEvent(self):
           return self.updateEvent
 
-      def setUpdateEvent(self, _updateEvent):
+      def setUpdateEvent(self, value):
           self.updateEvent = value
           pass
 
       def getPermissions(self):
           return self.permissions
 
-      def setPermissions(self, _permissions):
+      def setPermissions(self, value):
           self.permissions = value
           pass
 
       def getExternalInfo(self):
           return self.externalInfo
 
-      def setExternalInfo(self, _externalInfo):
+      def setExternalInfo(self, value):
           self.externalInfo = value
           pass
 
