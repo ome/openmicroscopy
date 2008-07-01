@@ -18,10 +18,12 @@ export JAVA_OPTS=${JAVA_OPTS:-"-Xmx600M -Djavac.maxmem=600M -Djavadoc.maxmem=600
 # Various builds for usability
 #
 java $JAVA_OPTS omero clean build-importer
-java $JAVA_OPTS omero clean build-webadmin
-java $JAVA_OPTS omero clean build-ear
-java $JAVA_OPTS omero clean build-blitz
-java $JAVA_OPTS omero clean build-py
+#  Temporarily removing the following due to
+#  PermGen exceptions
+#java $JAVA_OPTS omero clean build-webadmin
+#java $JAVA_OPTS omero clean build-ear
+#java $JAVA_OPTS omero clean build-blitz
+#java $JAVA_OPTS omero clean build-py
 
 #
 # Real build
