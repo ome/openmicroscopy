@@ -304,7 +304,8 @@ public interface IPojos extends ServiceInterface {
 
     /**
      * Retrieve a user's (or all users') images within any given container. For
-     * example, all images in project.
+     * example, all images in project, applying temporal filtering or
+     * pagination.
      * 
      * @param rootNodeType
      *            A Class which will have its hierarchy searched for Images. Not
@@ -316,7 +317,17 @@ public interface IPojos extends ServiceInterface {
      *            <code>experimenter|group</code> apply at the Image level.
      *            OPTIONS: - startTime and/or endTime should be
      *            Timestamp.valueOf("YYYY-MM-DD hh:mm:ss.ms");
+     *            <p>
+     *            "limit" and "offset" are applied at the Image-level. That is,
+     *            calling with Dataset.class, limit == 10 and offset == 0 will
+     *            first perform one query to get an effective set of
+     *            rootNodeIds, then getImages will be called with an effective
+     *            rootNodeType of Image.class and the new ids.
+     *            </p>
      * @return A set of images.
+     * @see ome.util.builders.PojoOptions#paginate(int, int)
+     * @see ome.util.builders.PojoOptions#startTime(java.sql.Timestamp)
+     * @see ome.util.builders.PojoOptions#endTime(java.sql.Timestamp)
      */
     public <T extends IObject> Set<Image> getImages(@NotNull
     Class<T> rootNodeType, @NotNull

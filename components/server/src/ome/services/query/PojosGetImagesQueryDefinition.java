@@ -22,6 +22,7 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.parameters.Parameters;
+import ome.tools.hibernate.QueryBuilder;
 import ome.util.builders.PojoOptions;
 
 import org.hibernate.HibernateException;
@@ -42,81 +43,65 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
         Collection ids = (Collection) value(IDS);
         PojoOptions po = new PojoOptions((Map) value(OPTIONS));
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("select img from Image img ");
-        sb.append("left outer join fetch img.details.creationEvent ");
-        sb.append("left outer join fetch img.details.updateEvent ");
-        sb.append("left outer join fetch img.pixels as pix ");
-        sb.append("left outer join fetch pix.pixelsType as pt ");
-        sb.append("left outer join fetch pix.pixelsDimensions as pd ");
-        sb.append("left outer join fetch "
-                + "img.annotationLinksCountPerOwner as i_c_ann ");
-        sb.append("left outer join fetch "
-                + "img.datasetLinksCountPerOwner as i_c_ds ");
-
-        if (Dataset.class.isAssignableFrom(klass)
-                || Project.class.isAssignableFrom(klass)) {
-            sb.append("join img.datasetLinks dil ");
-            sb.append("join dil.parent ds ");
-            // sb.append("left outer join fetch "
-            // + "ds.annotationLinksCountPerOwner as ds_c ");
-        }
-
-        if (Project.class.isAssignableFrom(klass)) {
-            sb.append("join ds.projectLinks pdl ");
-            sb.append("join pdl.parent prj ");
-            // sb.append("left outer join fetch "
-            // + "prj.annotationLinksCountPerOwner as prj_c ");
-        }
-
-        if (Category.class.isAssignableFrom(klass)
-                || CategoryGroup.class.isAssignableFrom(klass)) {
-            sb.append("join img.categoryLinks cil ");
-            sb.append("join cil.parent cat ");
-            // sb.append("left outer join fetch "
-            // + "cat.annotationLinksCountPerOwner as cat_c ");
-        }
-
-        if (CategoryGroup.class.isAssignableFrom(klass)) {
-            sb.append("join cat.categoryGroupLinks cgcl ");
-            sb.append("join cgcl.parent cg ");
-            // sb.append("left outer join fetch "
-            // + "cgcl.annotationLinksCountPerOwner as cgcl_c ");
-        }
-
-        sb.append("where ");
-
-        // if PojoOptions sets START_TIME and/or END_TIME
-        if (po.getStartTime() != null) {
-            sb.append("img.details.creationEvent.time > :starttime and ");
-            params.put("starttime", po.getStartTime());
-        }
-        if (po.getEndTime() != null) {
-            sb.append("img.details.creationEvent.time < :endtime and ");
-            params.put("endtime", po.getEndTime());
-        }
+        QueryBuilder qb = new QueryBuilder(256);
+        qb.select("img");
+        qb.from("Image", "img");
+        qb.join("img.details.creationEvent", "ce", true, true);
+        qb.join("img.details.updateEvent", "ue", true, true);
+        qb.join("img.pixels", "pix", true, true);
+        qb.join("pix.pixelsType", "pt", true, true);
+        qb.join("pix.pixelsDimensions", "pd", true, true);
+        qb.join("img.annotationLinksCountPerOwner", "i_c_ann", true, true);
+        qb.join("img.datasetLinksCountPerOwner", "i_c_ds", true, true);
 
         // see https://trac.openmicroscopy.org.uk/omero/ticket/296
         if (Image.class.isAssignableFrom(klass)) {
-            sb.append("img.id in (:ids) ");
+            qb.where();
+            qb.and("img.id in (:ids)");
         } else if (Dataset.class.isAssignableFrom(klass)) {
-            sb.append("ds.id in (:ids)");
+            qb.join("img.datasetLinks", "dil", false, false);
+            qb.join("dil.parent", "ds", false, false);
+            // ds.annotationLinksCountPerOwner, ds_c
+            qb.where();
+            qb.and("ds.id in (:ids)");
         } else if (Project.class.isAssignableFrom(klass)) {
-            sb.append("prj.id in (:ids)");
+            qb.join("img.datasetLinks", "dil", false, false);
+            qb.join("dil.parent", "ds", false, false);
+            qb.join("ds.projectLinks", "pdl", false, false);
+            qb.join("pdl.parent", "prj", false, false);
+            // "prj.annotationLinksCountPerOwner as prj_c "
+            qb.where();
+            qb.and("prj.id in (:ids)");
         } else if (Category.class.isAssignableFrom(klass)) {
-            sb.append("cat.id in (:ids)");
+            qb.join("img.categoryLinks", "cil", false, false);
+            qb.join("cil.parent", "cat", false, false);
+            // + "cat.annotationLinksCountPerOwner as cat_c ");
+            qb.where();
+            qb.and("cat.id in (:ids)");
         } else if (CategoryGroup.class.isAssignableFrom(klass)) {
-            sb.append("cg.id in (:ids)");
+            qb.join("img.categoryLinks", "cil", false, false);
+            qb.join("cil.parent", "cat", false, false);
+            qb.join("cat.categoryGroupLinks", "cgcl", false, false);
+            qb.join("cgcl.parent", "cg", false, false);
+            // + "cgcl.annotationLinksCountPerOwner as cgcl_c ");
+            qb.where();
+            qb.and("cg.id in (:ids)");
         } else {
             throw new ApiUsageException("Query not implemented for " + klass);
         }
 
-        org.hibernate.Query q = session.createQuery(sb.toString());
-        for (String param : params.keySet()) {
-            q.setParameter(param, params.get(param));
+        // if PojoOptions sets START_TIME and/or END_TIME
+        if (po.getStartTime() != null) {
+            qb.and("img.details.creationEvent.time > :starttime");
+            qb.param("starttime", po.getStartTime());
+        }
+        if (po.getEndTime() != null) {
+            qb.and("img.details.creationEvent.time < :endtime");
+            qb.param("endtime", po.getEndTime());
         }
 
-        q.setParameterList("ids", ids);
+        qb.paramList("ids", ids);
+        org.hibernate.Query q = qb.query(session);
         setQuery(q);
     }
 
