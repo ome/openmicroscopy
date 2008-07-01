@@ -84,6 +84,8 @@ build-* targets.
 
     <target name="build-ear" description="Build ear and copy to dist">
         <iterate buildpathref="appserver.buildpath" target="dist"/>
+	<!-- WORKAROUND: creating the blitz jar to make prepare-dist work-->
+        <iterate buildpathref="blitzserver.buildpath" target="install"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
