@@ -7,11 +7,24 @@
 #
 # Script used by hudson.openmicroscopy.org.uk
 
-export JBOSS_HOME=$HOME/root/opt/jboss
-export JAVA_OPTS="-Xmx600M -Djavac.maxmem=600M -Djavadoc.maxmem=600M -XX:MaxPermSize=256m"
+set -e
+set -u
+set -x
+
+export JBOSS_HOME=${JBOSS_HOME:-"HOME/root/opt/jboss"}
+export JAVA_OPTS=${JAVA_OPTS:-"-Xmx600M -Djavac.maxmem=600M -Djavadoc.maxmem=600M -XX:MaxPermSize=256m"}
 
 #
-# Build
+# Various builds for usability
+#
+java $JAVA_OPTS omero clean build-importer
+java $JAVA_OPTS omero clean build-webadmin
+java $JAVA_OPTS omero clean build-ear
+java $JAVA_OPTS omero clean build-blitz
+java $JAVA_OPTS omero clean build-py
+
+#
+# Real build
 #
 J=7 java $JAVA_OPTS omero build-all
 # integration unfinished
