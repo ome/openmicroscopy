@@ -13,12 +13,11 @@ import java.util.Map;
 
 import ome.model.core.Image;
 import ome.parameters.Parameters;
+import ome.tools.hibernate.QueryBuilder;
 import ome.util.builders.PojoOptions;
 
-import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.criterion.Restrictions;
 
 public class PojosGetImagesByOptionsQueryDefinition extends Query {
 
@@ -31,28 +30,35 @@ public class PojosGetImagesByOptionsQueryDefinition extends Query {
     @Override
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
-        Criteria c = session.createCriteria(Image.class);
-        c.createAlias("details.creationEvent", "create");
-        c.createAlias("details.updateEvent", "update");
-        c.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
-        Criteria pix = c.createCriteria("pixels", LEFT_JOIN);
-        pix.createCriteria("pixelsType", LEFT_JOIN);
-        pix.createCriteria("pixelsDimensions", LEFT_JOIN);
+        // TODO copied from PojosGetImagesQueryDefinition. Should be merged.
+        QueryBuilder qb = new QueryBuilder(256);
+        qb.select("img");
+        qb.from("Image", "img");
+        qb.join("img.details.creationEvent", "ce", true, true);
+        qb.join("img.details.updateEvent", "ue", true, true);
+        qb.join("img.pixels", "pix", true, true);
+        qb.join("pix.pixelsType", "pt", true, true);
+        qb.join("pix.pixelsDimensions", "pd", true, true);
+        qb.join("img.annotationLinksCountPerOwner", "i_c_ann", true, true);
+        // qb.join("img.datasetLinksCountPerOwner", "i_c_ds", true, true);
+
+        qb.where();
 
         // if PojoOptions sets START_TIME and/or END_TIME
         if (check(OPTIONS)) {
             PojoOptions po = new PojoOptions((Map) value(OPTIONS));
-
             if (po.getStartTime() != null) {
-                c.add(Restrictions.gt("create.time", po.getStartTime()));
+                qb.and("img.details.creationEvent.time > :starttime");
+                qb.param("starttime", po.getStartTime());
             }
             if (po.getEndTime() != null) {
-                c.add(Restrictions.lt("create.time", po.getEndTime()));
+                qb.and("img.details.creationEvent.time < :endtime");
+                qb.param("endtime", po.getEndTime());
             }
         }
 
-        setCriteria(c);
+        setQuery(qb.query(session));
     }
 
     @Override
