@@ -52,6 +52,9 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
         <delete dir="${lib.dir}/cache"/>
+	<delete includeemptydirs="true">
+	    <fileset dir="${lib.dir}/repository/omero" includes="**/*"/>
+	</delete>
     </target>
 
     <target name="build-default" description="Build all components except for C++">
