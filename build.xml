@@ -188,7 +188,7 @@ build-* targets.
         <iterate buildpathref="licenses.buildpath" target="prepare"/>
     </target>
 
-     <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components">
+     <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="ivy">
         <iterate buildpathref="all.buildpath"   target="findbugs"/>
         <iterate buildpathref="tools.buildpath" target="findbugs"/>
      </target>
