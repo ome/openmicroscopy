@@ -4,7 +4,7 @@
     <property environment="py"/>
     <property name="py.DESTDIR"    value="${up-two}/target/"/>
     <property name="py.ICE_HOME"   value="/usr/share/Ice"/>
-    <property name="py.ICE_CONFIG" value="${basedir}/../../blitz/resources/ice.config,${basedir}/../../../etc/local.properties"/>
+    <property name="py.ICE_CONFIG" value="${basedir}/../../blitz/target/generated/resources/local.properties"/>
 
     <macrodef name="setup_py">
         <element name="args" implicit="true"/>
@@ -21,7 +21,7 @@
         <attribute name="include" default="@{todir}"/>
         <element name="files" implicit="true"/>
         <sequential>
-            <apply executable="slice2py" failonerror="true" parallel="true">
+            <apply executable="slice2py" failonerror="true"><!-- parallel="true" -->
                 <arg value="--no-package"/>
                 <arg value="--output-dir"/>
                 <arg value="@{todir}"/>

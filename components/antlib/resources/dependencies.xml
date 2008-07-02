@@ -21,7 +21,20 @@
     Use namespace "deps-" for all targets, "deps." for all variables.
   </description>
 
-  <target name="deps-ivy" unless="ivy.done">
+  <!--
+      This tasks configures Ivy by reading the configuration files under the top-level
+      etc directory. If this target is NOT called for some reason, Ivy will fail with
+      strange errors.
+    -->
+  <target name="deps-configure"
+	  description="Parses the Ivy configuration. Required by all Ivy activities."
+          unless="ivy.done">
+    <fail>
+        <condition><not>
+            <available file="${etc.dir}/local.properties"/>
+        </not></condition>
+        ${msg.macro.missing_properties}
+    </fail>
 
     <!-- Prevent future invocations and PermGen errors -->
     <property name="ivy.done" value="done"/>
@@ -59,22 +72,7 @@
     <path id="omero.test.classpath">
       <path refid="omero.classpath" />
     </path>
-  </target>
 
-  <!--
-      This tasks configures Ivy by reading the configuration files under the top-level
-      etc directory. If this target is NOT called for some reason, Ivy will fail with
-      strange errors.
-    -->
-  <target name="deps-configure"
-	  description="Parses the Ivy configuration. Required by all Ivy activities."
-          depends="deps-ivy">
-    <fail>
-        <condition><not>
-            <available file="${etc.dir}/local.properties"/>
-        </not></condition>
-        ${msg.macro.missing_properties}
-    </fail>
     <ivy:settings id="ivy.instance"  file="${etc.dir}/ivysettings.xml" override="true"/>
   </target>
 
@@ -97,7 +95,7 @@
 
   <target name="deps-info"
 	  description="Parses ivy.xml file, setting several ant variables."
-          depends="deps-ivy">
+          depends="deps-configure">
     <ivy:info file="${basedir}/ivy.xml"/>
   </target>
 

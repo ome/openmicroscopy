@@ -75,7 +75,7 @@
 		<delete dir="${jboss.deploy.dir}/${war.file}" includeEmptyDirs="true" />
 	</target>
 
-	<target name="war" depends="clean, compile">
+	<target name="war" depends="compile">
 		<war warfile="${war.file.name}" webxml="${basedir}/WEB-INF/web.xml">
 			<fileset dir="${basedir}" includes="**/*.*" excludes="*.war, **/*.java, *.xml, src/**/*, target/**/*, **/*.nbattrs, web.xml, **/WEB-INF/**/*.*, **/*.classpath" />
 			<webinf dir="${basedir}/WEB-INF" includes="**/* **/*.class" excludes="web.xml, **/*.jar, **/*.class" />

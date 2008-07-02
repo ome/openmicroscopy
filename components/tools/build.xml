@@ -54,7 +54,7 @@
 
 	<target name="findbugs"
 		depends="deps-buildlist">
-	  	<iterate target="findbugs"/>
+		<iterate target="findbugs"/>
 	</target>
 
 </project>

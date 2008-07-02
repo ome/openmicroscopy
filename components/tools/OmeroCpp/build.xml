@@ -12,9 +12,13 @@
     <target name="tools-init">
         <get-source todir="${copy.dir}">
             <fileset dir="../../blitz/resources" includes="**/*.h"/>
-            <fileset dir="../../blitz/target/generated/resources" includes="**/*.h"/>
+            <fileset dir="../../blitz/target/generated/resources" includes="**/*.h">
+                <present present="srconly" targetdir="src"/>
+            </fileset>
             <fileset dir="../../blitz/src" includes="**/*.h,**/*.cpp"/>
-            <fileset dir="../../blitz/target/generated/src" includes="**/*.h,**/*.cpp"/>
+            <fileset dir="../../blitz/target/generated/src" includes="**/*.h,**/*.cpp">
+                <present present="srconly" targetdir="src"/>
+            </fileset>
         </get-source>
         <!--
             For ease of use, we concatenate all of our header files

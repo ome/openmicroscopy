@@ -30,19 +30,26 @@
     <target name="tools-init">
         <get-source todir="${copy.dir}">
             <fileset dir="../../blitz/src" includes="**/*.py"/>
-            <fileset dir="../../blitz/target/generated/src" includes="**/*.py"/>
+            <fileset dir="../../blitz/target/generated/src" includes="**/*.py">
+                <present present="srconly" targetdir="src"/>
+            </fileset>
         </get-source>
         <copy todir="${copy.dir}">
             <fileset dir="src" includes="**/*.py"/>
         </copy>
-<!--    <setup_py>
-            <arg value="icegen"/>
-        </setup_py> -->
         <slice_py todir="${copy.dir}" prefix="omero_">
-            <fileset dir="${copy.dir}/omero" includes="*.ice"/>
+            <fileset dir="${copy.dir}/omero" includes="*.ice">
+                <depend targetdir="${copy.dir}">
+                    <mapper type="regexp" from="^(.*?)[.]ice$$" to="omero_\1_ice.py"/>
+                </depend>
+            </fileset>
         </slice_py>
         <slice_py todir="${copy.dir}" prefix="omero_model_">
-            <fileset dir="${copy.dir}/omero/model/" includes="*.ice"/>
+            <fileset dir="${copy.dir}/omero/model/" includes="*.ice">
+                <depend targetdir="${copy.dir}">
+                    <mapper type="regexp" from="^(.*?)[.]ice$$" to="omero_model_\1_ice.py"/>
+                </depend>
+            </fileset>
         </slice_py>
     </target>
 
