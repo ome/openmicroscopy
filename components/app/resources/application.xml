@@ -10,9 +10,13 @@
       <ejb>server.jar</ejb>
     </module>
 
+    <!--
+    Removing blitz.jar from the application. This only needs to be
+    activated if OMERO.blitz is to run within the application server.
     <module>
       <ejb>blitz.jar</ejb>
     </module>
+    -->
 
     <!-- The services.jar is automatically produced by the apps/
     component build system from the tools/target directory. It is
