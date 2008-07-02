@@ -30,24 +30,6 @@
 		</echo>
 	</target>
 
-	<target name="variables-define">
-		<condition property="test.with.fail">
-			<equals arg1="${multi.test.with.fail}" arg2="true"/>
-		</condition>
-		<condition property="test.skip">
-			<equals arg1="${multi.test.skip}" arg2="true"/>
-		</condition>
-		<condition property="emma.enabled">
-			<equals arg1="${multi.emma.enabled}" arg2="true"/>
-		</condition>
-		<condition property="generate.skip">
-			<equals arg1="${multi.generate.skip}" arg2="true"/>
-		</condition>
-		<condition property="checks.skip">
-			<equals arg1="${multi.checks.skip}" arg2="true"/>
-		</condition>
-	</target>
-
 	<target name="load-groovy">
 		<available property="groovy-exists" classname="org.codehaus.groovy.ant.Groovy" classpathref="omero.classpath" />
 		<fail unless="groovy-exists" message="Groovy ${msg.macro.missing_fail}"/>
@@ -91,11 +73,12 @@
                 </sql_run>
 	</target>
 
-	<target name="prepare" depends="deps-retrieve,variables-define">
+	<target name="prepare" depends="deps-retrieve">
 <!--
 		<available file="${deps.lib.dir}" property="deps.lib.dir.needed"/>
 		<antcall target="deps-retrieve" inheritrefs="true"/>
 -->
+                <defineVariables/>
 		<makeDirectories/>
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
@@ -103,24 +86,6 @@
 		<copyResource file="${root.dir}/etc/log4j.properties"/>
 		<copyResource file="${root.dir}/etc/jndi.properties"/>
 		<copyResource file="${root.dir}/etc/c3p0.properties"/>
-		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
-		<available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
-		<condition property="skip.ice">
-		   <or><not><isset property="uses.ice"/></not>
-		   <equals arg1="${no.ice}" arg2="true" trim="true"/></or>
-		</condition>
-		<fail message="${msg.macro.missing_fail} slice2java">
-		  <condition><and>
-		    <not><isset property="skip.ice"/></not>
-		    <not><isset property="slice2java-exists"/></not>
-		  </and></condition>
-		</fail>
-		<fail message="${msg.prepare.bad.ice.home}">
-		  <condition><and>
-		    <not><isset property="skip.ice"/></not>
-		    <not><available file="${ice.home}" type="dir"/></not>
-		  </and></condition>
-		</fail>
 		<!-- Used (at least) by server.xml and omero.xml -->
 		<presetdef name="sql_run">
 			<sql

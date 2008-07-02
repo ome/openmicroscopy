@@ -26,69 +26,112 @@
 -->
 
         <tstamp>
-	  <format property="now" pattern="yyyyMMddHHmmss"/>
-	</tstamp>
+          <format property="now" pattern="yyyyMMddHHmmss"/>
+        </tstamp>
 
-	<!-- Where to find things. It is assume that to have imported this 
-	file any build script will have had to define the import.dir variable-->
-	<import file="${import.dir}/directories.xml"/>
-	<import file="${import.dir}/release.xml"/>
+        <!-- Where to find things. It is assume that to have imported this 
+        file any build script will have had to define the import.dir variable-->
+        <import file="${import.dir}/directories.xml"/>
+        <import file="${import.dir}/release.xml"/>
 
-	<!-- Define properties :
-		The user's environment (env) overrides all other
-		variables, then comes the user defined
-		local.properties, then the controlled *.properties
-		files.
-	-->
+        <!-- Define properties :
+                The user's environment (env) overrides all other
+                variables, then comes the user defined
+                local.properties, then the controlled *.properties
+                files.
+        -->
 
-	<property environment="env" />
-	<property file="${root.dir}/etc/local.properties" />
-	<property file="${root.dir}/etc/local.properties.example" />
-	<property file="${root.dir}/etc/omero.properties" />
-	<property file="${root.dir}/etc/hibernate.properties" />
-	<property name="test.with.fail" value="true"/>
+        <property environment="env" />
+        <property file="${root.dir}/etc/local.properties" />
+        <property file="${root.dir}/etc/local.properties.example" />
+        <property file="${root.dir}/etc/omero.properties" />
+        <property file="${root.dir}/etc/hibernate.properties" />
+        <property name="test.with.fail" value="true"/>
         <property name="classpath.file" value="classpath.xml"/>
 
-	<!-- Imports -->
-	<import file="${import.dir}/patterns.xml"/>
-	<import file="${import.dir}/macros.xml"/>
+        <!-- Imports -->
+        <import file="${import.dir}/patterns.xml"/>
+        <import file="${import.dir}/macros.xml"/>
 
-	<!-- Message bundles, so all properties are defined -->
-	<property file="${import.dir}/messages.properties" />
+        <!-- Message bundles, so all properties are defined -->
+        <property file="${import.dir}/messages.properties" />
 
         <!-- Post-import properties -->
         <property name="sql.dir" value="${omero.home}/sql/${omero.db.profile}/${omero.dbversion}__${omero.dbpatch}"/>
 
         <!--
-	  The idea for this macro is taken from maven2. Use deps-buildlist
+          The idea for this macro is taken from maven2. Use deps-buildlist
           to create deps.build.path if you do not have one specified.
         -->
-	<macrodef name="iterate">
-		<attribute name="inheritAll" default="false"/>
-		<attribute name="inheritRefs" default="false"/>
-		<attribute name="buildpathref" default="deps.build.path"/>
-		<attribute name="target"/>
-		<sequential>
-		<subant verbose="true" buildpathref="@{buildpathref}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
-			<property name="multi.test.with.fail" value="${test.with.fail}"/>
-			<property name="multi.test.skip" value="${test.skip}"/>
-			<property name="multi.generate.skip" value="${generate.skip}"/>
-			<property name="multi.checks.skip" value="${checks.skip}"/>
-			<property name="multi.emma.enabled" value="${emma.enabled}"/>
-			<!-- Defaults set in dependencies.xml -->
-			<property name="ivy.buildlist.ivyfilepath" value="${ivy.buildlist.ivyfilepath}"/>
-			<property name="ivy.dep.file" value="${ivy.dep.file}"/>
-		</subant>
-		</sequential>
-	</macrodef>
+        <macrodef name="iterate">
+                <attribute name="inheritAll" default="false"/>
+                <attribute name="inheritRefs" default="false"/>
+                <attribute name="buildpathref" default="deps.build.path"/>
+                <attribute name="target"/>
+                <sequential>
+                <subant verbose="true" buildpathref="@{buildpathref}" inheritAll="@{inheritAll}" inheritRefs="@{inheritRefs}" failonerror="true" target="@{target}">
+                        <property name="multi.test.with.fail" value="${test.with.fail}"/>
+                        <property name="multi.test.skip" value="${test.skip}"/>
+                        <property name="multi.generate.skip" value="${generate.skip}"/>
+                        <property name="multi.checks.skip" value="${checks.skip}"/>
+                        <property name="multi.emma.enabled" value="${emma.enabled}"/>
+                        <property name="multi.no.ice" value="${no.ice}"/>
+                        <!-- Defaults set in dependencies.xml -->
+                        <property name="ivy.buildlist.ivyfilepath" value="${ivy.buildlist.ivyfilepath}"/>
+                        <property name="ivy.dep.file" value="${ivy.dep.file}"/>
+                </subant>
+                </sequential>
+        </macrodef>
+
+        <macrodef name="defineVariables">
+            <sequential>
+                <condition property="test.with.fail">
+                        <equals arg1="${multi.test.with.fail}" arg2="true"/>
+                </condition>
+                <condition property="test.skip">
+                        <equals arg1="${multi.test.skip}" arg2="true"/>
+                </condition>
+                <condition property="emma.enabled">
+                        <equals arg1="${multi.emma.enabled}" arg2="true"/>
+                </condition>
+                <condition property="generate.skip">
+                        <equals arg1="${multi.generate.skip}" arg2="true"/>
+                </condition>
+                <condition property="checks.skip">
+                        <equals arg1="${multi.checks.skip}" arg2="true"/>
+                </condition>
+                <condition property="no.ice">
+                        <equals arg1="${multi.no.ice}" arg2="true"/>
+                </condition>
+                <available property="slice2java-exists" filepath="${env.PATH}" file="slice2java" />
+                <available property="slice2java-exists" filepath="${env.PATH}" file="slice2java.exe" />
+                <condition property="skip.ice">
+                   <or><not><isset property="uses.ice"/></not>
+                   <equals arg1="${no.ice}" arg2="true" trim="true"/></or>
+                </condition>
+                <fail message="${msg.macro.missing_fail} slice2java">
+                  <condition><and>
+                    <not><isset property="skip.ice"/></not>
+                    <not><isset property="slice2java-exists"/></not>
+                  </and></condition>
+                </fail>
+                <fail message="${msg.prepare.bad.ice.home}">
+                  <condition><and>
+                    <not><isset property="skip.ice"/></not>
+                    <not><available file="${ice.home}" type="dir"/></not>
+                  </and></condition>
+                </fail>
+            </sequential>
+        </macrodef>
+
 
     <!-- = = = = = = = = = = = = = = = = =
           help
          = = = = = = = = = = = = = = = = = -->
-	<target name="help">
-		<echo>
-			This build file is intended for import only.
-		</echo>
-	</target>
+        <target name="help">
+                <echo>
+                        This build file is intended for import only.
+                </echo>
+        </target>
 
 </project>

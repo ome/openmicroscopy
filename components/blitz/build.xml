@@ -34,12 +34,6 @@
 	<target name="install" depends="lifecycle.install">
 		<standalone conf="server"/>
 		<useServices dir="${target.dir}/standalone"/>
-		<copy todir="${target.dir}/standalone">
-			<fileset dir="${resrc.dir}">
-				<include name="blitz"/>
-				<include name="blitz.tac"/>
-			</fileset>
-		</copy>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =
@@ -50,10 +44,13 @@
 		<is-done name="icegen1"  srcdir="${common.comp}/${generated.rel}/resources" includes="${hbm.pat}"/>
 		<is-done name="icegen2" srcdir="${resrc.dir}" includes="**/*.vm"/>
 		<condition property="icegen.not.required">
-			<and>
-				<isset property="icegen1.not.required"/>
-				<isset property="icegen2.not.required"/>
-			</and>
+			<or>
+				<isset property="skip.ice"/>
+				<and>
+					<isset property="icegen1.not.required"/>
+					<isset property="icegen2.not.required"/>
+				</and>
+			</or>
 		</condition>
 	</target>
 

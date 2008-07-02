@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="python" default="install" basedir=".">
 
-    <property environment="py"/>
-    <property name="py.DESTDIR"    value="${up-two}/target/"/>
-    <property name="py.ICE_HOME"   value="/usr/share/Ice"/>
-    <property name="py.ICE_CONFIG" value="${basedir}/../../blitz/target/generated/resources/local.properties"/>
+    <property name="env.DESTDIR"    value="${up-two}/target/"/>
+    <property name="env.ICE_CONFIG" value="${basedir}/../../blitz/target/generated/resources/local.properties"/>
+
+    <defineVariables/>
+    <condition property="env.NOPYTHON"><isset property="skip.ice"/></condition>
 
     <macrodef name="setup_py">
         <element name="args" implicit="true"/>
@@ -28,41 +29,41 @@
                 <arg value="--prefix"/>
                 <arg value="@{prefix}"/>
                 <arg value="-I@{include}"/>
-                <arg value="-I${py.ICE_HOME}/slice"/>
+                <arg value="-I${ice.home}/slice"/>
                 <files/>
             </apply>
         </sequential>
     </macrodef>
 
-    <target name="python-build" unless="py.NOPYTHON">
+    <target name="python-build" unless="env.NOPYTHON">
         <mkdir dir="${basedir}/build/lib"/>
         <setup_py>
             <arg value="build"/>
         </setup_py>
     </target>
 
-    <target name="python-test" unless="py.NOPYTHON">
+    <target name="python-test" unless="env.NOPYTHON">
         <setup_py>
             <arg value="test"/>
         </setup_py>
     </target>
 
-    <target name="python-integration" unless="py.NOPYTHON">
+    <target name="python-integration" unless="env.NOPYTHON">
         <setup_py>
-            <env key="ICE_CONFIG" value="${py.ICE_CONFIG}"/>
+            <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
             <arg value="test"/>
             <arg value="-s"/>
             <arg value="test.integration.suite"/>
         </setup_py>
     </target>
 
-    <target name="python-install" unless="py.NOPYTHON">
+    <target name="python-install" unless="env.NOPYTHON">
         <copy todir="../target">
             <fileset dir="build" includes="**/*"/>
         </copy>
     </target>
 
-    <target name="python-clean" unless="py.NOPYTHON">
+    <target name="python-clean" unless="env.NOPYTHON">
         <setup_py>
             <arg value="clean"/>
         </setup_py>

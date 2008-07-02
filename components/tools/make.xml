@@ -1,35 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project name="make" default="install" basedir=".">
 
-    <property environment="make"/>
-    <property name="make.ICE_HOME"    value="/usr/share/Ice"/>
-    <property name="make.DESTDIR"     value="${up-two}/target/"/>
-    <property name="make.LDFLAGS"     value="-fPIC"/>
-    <property name="make.CXXFLAGS"    value="-fPIC -O0 -g -D_REENTRANT -Wall"/>
-    <property name="make.J"           value="1"/>
+    <property name="env.DESTDIR"     value="${up-two}/target/"/>
+    <property name="env.LDFLAGS"     value="-fPIC"/>
+    <property name="env.CXXFLAGS"    value="-fPIC -O0 -g -D_REENTRANT -Wall"/>
+    <property name="env.J"           value="1"/>
     <!-- Checking for ccache before making it the default. -->
-    <available property="make.CXX" filepath="${make.PATH}" file="cache" value="ccache g++"/>
-    <property name="make.CXX"         value="g++"/>
+    <available property="env.CXX" filepath="${env.PATH}" file="cache" value="ccache g++"/>
+    <property name="env.CXX"         value="g++"/>
 
-    <condition property="make.MAC_UNIVERSAL" value="-arch i386 -arch ppc" else="">
+    <defineVariables/>
+    <condition property="env.NOMAKE"><isset property="skip.ice"/></condition>
+
+    <condition property="env.MAC_UNIVERSAL" value="-arch i386 -arch ppc" else="">
         <and><os family="mac"/><os family="unix"/></and>
     </condition>
 
-    <condition property="make.MAC_TRACKING" value="--disable-dependency-tracking" else="">
+    <condition property="env.MAC_TRACKING" value="--disable-dependency-tracking" else="">
         <and><os family="mac"/><os family="unix"/></and>
     </condition>
 
     <macrodef name="autogen">
         <attribute name="file" default="${basedir}/../autogen.sh"/>
-        <attribute name="icehome" default="${make.ICE_HOME}"/>
-        <attribute name="ldflags" default="${make.LDFLAGS} ${make.MAC_UNIVERSAL}"/>
-        <attribute name="cxxflags" default="${make.CXXFLAGS} ${make.MAC_UNIVERSAL}"/>
-        <attribute name="other" default="${make.MAC_TRACKING}"/>
+        <attribute name="icehome" default="${ice.home}"/>
+        <attribute name="ldflags" default="${env.LDFLAGS} ${env.MAC_UNIVERSAL}"/>
+        <attribute name="cxxflags" default="${env.CXXFLAGS} ${env.MAC_UNIVERSAL}"/>
+        <attribute name="other" default="${env.MAC_TRACKING}"/>
         <sequential>
         <exec executable="@{file}" failonerror="true">
-            <arg value="--with-ice=${make.ICE_HOME}"/>
-            <arg value="--prefix=${make.DESTDIR}"/>
-            <arg value="CXX=${make.CXX}"/>
+            <arg value="--with-ice=${ice.home}"/>
+            <arg value="--prefix=${env.DESTDIR}"/>
+            <arg value="CXX=${env.CXX}"/>
             <arg value="CXXFLAGS=@{ldflags}"/>
             <arg value="LDFLAGS=@{ldflags}"/>
             <arg line="@{other}"/>
@@ -48,29 +49,29 @@
         </sequential>
     </macrodef>
 
-    <target name="make-autogen" unless="make.NOMAKE">
+    <target name="make-autogen" unless="env.NOMAKE">
         <autogen/>
     </target>
 
-    <target name="make-build" unless="make.NOMAKE">
+    <target name="make-build" unless="env.NOMAKE">
         <autogen/>
         <make dir="src"> <arg value="slice"/> </make>
-        <make dir="src"> <arg value="-j${make.J}"/> </make>
+        <make dir="src"> <arg value="-j${env.J}"/> </make>
         <make dir="src"> <arg value="install"/> </make>
     </target>
 
-    <target name="make-test" unless="make.NOMAKE">
+    <target name="make-test" unless="env.NOMAKE">
         <make dir="test"> <arg value="all"/> </make>
     </target>
 
-    <target name="make-install" unless="make.NOMAKE">
+    <target name="make-install" unless="env.NOMAKE">
         <copy todir="../target/include">
             <fileset dir="src/slice_generated" includes="**/*.h"/>
             <fileset dir="src" includes="**/*.h" excludes="**/slice_generated/**/*"/>
         </copy>
     </target>
 
-    <target name="make-clean" unless="make.NOMAKE">
+    <target name="make-clean" unless="env.NOMAKE">
         <!-- Doesn't fail on error to permit calling the target twice -->
         <make failonerror="false"> <arg value="clean-all"/> </make>
         <delete dir="${basedir}/src/slice_generated"/>

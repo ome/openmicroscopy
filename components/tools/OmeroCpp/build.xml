@@ -5,11 +5,13 @@
     <dirname property="up-one"        file="${up-two}"/>
     <property name="import.dir"       value="${up-one}/antlib/resources"/>
     <property name="copy.dir"         value="target/temp"/>
+    <property name="uses.ice"         value="true"/>
 
+    <import file="${import.dir}/global.xml"/>
     <import file="../make.xml"/>
     <import file="../common.xml"/>
 
-    <target name="tools-init">
+    <target name="tools-init" unless="env.NOMAKE">
         <get-source todir="${copy.dir}">
             <fileset dir="../../blitz/resources" includes="**/*.h"/>
             <fileset dir="../../blitz/target/generated/resources" includes="**/*.h">
@@ -49,9 +51,9 @@
         </concat>
     </target>
 
-    <target name="tools-build" depends="tools-init,make-build" description="Uses autogen.sh and make to build artifacts"/>
+    <target name="tools-build" depends="tools-init,make-build" description="Uses autogen.sh and make to build artifacts" unless="env.NOMAKE"/>
 
-    <target name="tools-dist" depends="tools-build,make-install" description="Copies files into tools/target">
+    <target name="tools-dist" depends="tools-build,make-install" description="Copies files into tools/target" unless="env.NOMAKE">
         <copy file="${copy.dir}/omero/ModelI.h" todir="../target/include/omero"/>
         <!-- Here we have to copy ModelI.h out of ${copy.dir} and into include, since
         ${copy.dir} is already in the dist. Later we may want to test copying them all
