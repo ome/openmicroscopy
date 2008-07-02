@@ -23,6 +23,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+
 import ome.annotations.NotNull;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
@@ -189,7 +190,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     public void setLdapService(LocalLdap ldapService) {
         getBeanHelper().throwIfAlreadySet(ldap, ldapService);
         this.ldap = ldapService;
-        if(!this.ldap.getSetting()) {
+        if (!this.ldap.getSetting()) {
             this.ldap = null;
         }
     }
@@ -495,6 +496,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         }
 
         group = new ExperimenterGroup(group.getId(), false);
+
+        // ticket:1021 - check for already added groups
+        for (GroupExperimenterMap link : e.unmodifiableGroupExperimenterMap()) {
+            ExperimenterGroup test = link.parent();
+            if (test.getId().equals(group.getId())) {
+                return link; // EARLY EXIT!
+            }
+        }
 
         GroupExperimenterMap link = e.linkExperimenterGroup(group);
         link.getDetails().copy(getSecuritySystem().newTransientDetails(link));

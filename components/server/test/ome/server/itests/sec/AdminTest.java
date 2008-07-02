@@ -122,6 +122,38 @@ public class AdminTest extends AbstractManagedContextTest {
         assertTrue(e.sizeOfGroupExperimenterMap() == 1);
     }
 
+    @Test(groups = "ticket:1021")
+    public void testDefaultGroupNotAddedTwice() throws Exception {
+        List<ExperimenterGroup> groups = iAdmin.lookupGroups();
+        ExperimenterGroup def = null, nonDef = null;
+        for (ExperimenterGroup group : groups) {
+            if (group.getName().equals("user")
+                    || group.getName().equals("system")) {
+                continue;
+            }
+            if (def == null) {
+                def = group;
+            } else if (nonDef == null) {
+                nonDef = group;
+            } else {
+                break;
+            }
+        }
+        assertNotNull(def);
+        assertNotNull(nonDef);
+
+        Experimenter e = testExperimenter();
+        long id = iAdmin.createExperimenter(e, def, nonDef);
+        e = iAdmin.lookupExperimenter(e.getOmeName());
+        assertEquals("should be 2", 2, e.sizeOfGroupExperimenterMap());
+
+        e = testExperimenter();
+        id = iAdmin.createExperimenter(e, def, nonDef, def);
+        e = iAdmin.lookupExperimenter(e.getOmeName());
+        assertEquals("should still be 2", 2, e.sizeOfGroupExperimenterMap());
+
+    }
+
     private ExperimenterGroup testGroup() {
         ExperimenterGroup g = new ExperimenterGroup();
         g.setName(uuid());
