@@ -74,6 +74,9 @@
     <property name="jboss.deploy.dir" value="${jboss.home}/server/${jboss.server.config}/deploy"/>
 
    <target name="deploy" depends="deps-info">
+    <fail><condition><not><available file="${jboss.deploy.dir}"/></not></condition>
+        Could not find ${jboss.deploy.dir}
+    </fail>
     <copy tofile="${jboss.deploy.dir}/${product.final.name}">
         <fileset dir="target" includes="${ivy.module}.ear"/>
     </copy>
