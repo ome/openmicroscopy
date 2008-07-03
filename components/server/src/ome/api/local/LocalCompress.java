@@ -19,7 +19,7 @@ import java.io.OutputStream;
  * @version 3.0 <small> (<b>Internal version:</b> $Rev: 1167 $ $Date: 2006-12-15 10:39:34 +0000 (Fri, 15 Dec 2006) $) </small>
  * @since 3.0
  */
-public interface LocalCompress extends ome.api.ICompress {
+public interface LocalCompress {
 
     /**
      * Compresses a buffered image to an output stream.

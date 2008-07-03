@@ -8,7 +8,7 @@
 package ome.io.nio;
 
 import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 
 import ome.model.enums.PixelsType;
 
@@ -45,7 +45,7 @@ public class PixelData
     protected PixelsType pixelsType;
     
     /** The pixels data backing buffer. */
-    protected MappedByteBuffer data;
+    protected ByteBuffer data;
     
     /** If the data is signed. */
     protected boolean isSigned;
@@ -62,7 +62,7 @@ public class PixelData
 	 * @param pixelsType The pixels type.
 	 * @param data The raw pixel data.
 	 */
-	public PixelData(PixelsType pixelsType, MappedByteBuffer data)
+	public PixelData(PixelsType pixelsType, ByteBuffer data)
 	{
 		this.data = data;
 		this.pixelsType = pixelsType;
@@ -152,6 +152,49 @@ public class PixelData
     }
     
     /**
+     * Sets the pixel intensity value of the pixel at a given offset within
+     * the backing buffer. This method takes into account bytes per pixel. 
+     * 
+     * @param offset The relative offset (taking into account the number of 
+     * bytes per pixel) within the backing buffer.
+     * @param value Pixel value to set.
+     */
+    public void setPixelValue(int offset, double value)
+    {
+        setPixelValueDirect(offset * bytesPerPixel, value);
+    }
+    
+    /**
+     * Sets the pixel intensity value of the pixel at a given offset within
+     * the backing buffer. This method does not take into account bytes per
+     * pixel.
+     * 
+     * @param offset The absolute offset within the backing buffer.
+     * @param value Pixel value to set.
+     */
+    public void setPixelValueDirect(int offset, double value)
+    {
+        switch (javaType)
+        {
+            case BYTE:
+                data.put(offset, (byte) value);
+                break;
+            case SHORT:
+                data.putShort(offset, (short) value);
+                break;
+            case INT:
+                data.putInt(offset, (int) value);
+                break;
+            case FLOAT:
+                data.putFloat(offset, (float) value);
+                break;
+            case DOUBLE:
+                data.putDouble(offset, value);
+                break;
+        }
+    }
+    
+    /**
      * Returns the pixel intensity value of the pixel at a given offset within
      * the backing buffer. This method takes into account bytes per pixel. 
      * 
@@ -211,7 +254,7 @@ public class PixelData
      * 
      * @return See above.
      */
-    public MappedByteBuffer getData()
+    public ByteBuffer getData()
     {
     	return data;
     }

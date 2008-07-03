@@ -10,9 +10,7 @@ import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
-import ome.api.ICompress;
 import ome.api.local.LocalCompress;
-import ome.api.local.LocalLdap;
 
 public class CompressImpl implements LocalCompress {
 

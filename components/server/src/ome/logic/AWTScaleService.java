@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.api.IScale;
-import ome.services.ThumbnailBean;
 
 /**
  * Provides methods for scaling buffered images.
@@ -33,7 +32,7 @@ import ome.services.ThumbnailBean;
  */
 public class AWTScaleService implements IScale {
     /** The logger for this class. */
-    private static Log log = LogFactory.getLog(ThumbnailBean.class);
+    private static Log log = LogFactory.getLog(AWTScaleService.class);
 
     /*
      * (non-Javadoc)

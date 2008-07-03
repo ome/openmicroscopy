@@ -527,7 +527,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     	BufferedImage image;
     	try
     	{
-    		int[] buf = renderer.renderAsPackedInt(pd);
+    		int[] buf = renderer.renderAsPackedInt(pd, null);
     		image = ImageUtil.createBufferedImage(buf, origSizeX, origSizeY);
     	} 
     	catch (IOException e)

@@ -1,7 +1,7 @@
 package ome.io.nio.utests;
 
 import java.io.File;
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -231,7 +231,7 @@ public class DeltaVisionTest extends TestCase {
 
             PixelData data = deltaVision.getRegion(new Integer(800), new Long(
                     offset)); // plane 0
-            MappedByteBuffer buffer = data.getData();
+            ByteBuffer buffer = data.getData();
 
             // File file = new File("myplane" + i + ".dat");
             // FileOutputStream out = new FileOutputStream (file);

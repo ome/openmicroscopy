@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
 import ome.conditions.ResourceError;
+import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -421,30 +422,48 @@ public class Renderer {
      * @param pd
      *            Selects a plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
+     * @param newBuffer
+     *             The pixel buffer to use in place of the one currently
+     *             defined in the renderer. This will not change the state
+     *             of the Renderer. If <code>null</code> is passed the existing
+     *             pixel buffer will be used.
      * @return An <i>RGB</i> image ready to be displayed on screen.
      * @throws IOException
-     *             If an error occured while trying to pull out data from the
+     *             If an error occurred while trying to pull out data from the
      *             pixels data repository.
      * @throws QuantizationException
      *             If an error occurred while quantizing the pixels raw data.
      * @throws NullPointerException
      *             If <code>pd</code> is <code>null</code>.
      */
-    public int[] renderAsPackedInt(PlaneDef pd) throws IOException,
-            QuantizationException {
+    public int[] renderAsPackedInt(PlaneDef pd, PixelBuffer newBuffer)
+        throws IOException, QuantizationException
+    {
         if (pd == null) {
             throw new NullPointerException("No plane definition.");
         }
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
-        RGBIntBuffer img = renderingStrategy.renderAsPackedInt(this, pd);
-        stats.stop();
-        // TODO: Commenting this out for now. -- callan
-        //log.info(stats.getStats());
-        return img.getDataBuffer();
+        PixelBuffer oldBuffer = buffer;
+        try
+        {
+            if (newBuffer != null)
+            {
+                buffer = newBuffer;
+            }
+            RGBIntBuffer img = renderingStrategy.renderAsPackedInt(this, pd);
+            stats.stop();
+            // TODO: Commenting this out for now. -- callan
+            //log.info(stats.getStats());
+            return img.getDataBuffer();
+        }
+        finally
+        {
+            buffer = oldBuffer;
+        }
     }
-
+    
     /**
      * Returns the size, in bytes, of the {@link RGBBuffer} that would be
      * rendered from the plane selected by <code>pd</code>. Note that the

@@ -209,7 +209,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != size)
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getRegion(size, offset).getData();
+		ByteBuffer b = getRegion(size, offset).getData();
 		b.get(buffer);
 		return buffer;
     }
@@ -227,7 +227,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getRowSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getRow(y, z, c, t).getData();
+		ByteBuffer b = getRow(y, z, c, t).getData();
 		b.get(buffer);
 		return buffer;
     }
@@ -236,7 +236,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 			Integer count, Integer offset, byte[] buffer)
 		throws IOException, DimensionsOutOfBoundsException
 	{
-		MappedByteBuffer b = getPlane(z, c, t).getData();
+		ByteBuffer b = getPlane(z, c, t).getData();
 		b.position(offset);
 		b.get(buffer, 0, count * getByteWidth());
 		return buffer;
@@ -265,7 +265,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getPlaneSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getPlane(z, c, t).getData();
+		ByteBuffer b = getPlane(z, c, t).getData();
 		b.get(buffer);
 		return buffer;
     }
@@ -283,7 +283,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getStackSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getStack(c, t).getData();
+		ByteBuffer b = getStack(c, t).getData();
 		b.get(buffer);
 		return buffer;
     }
@@ -301,7 +301,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     {
 		if (buffer.length != getTimepointSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getTimepoint(t).getData();
+		ByteBuffer b = getTimepoint(t).getData();
 		b.get(buffer);
 		return buffer;
     }
@@ -347,7 +347,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
-    	setPlane(MappedByteBuffer.wrap(buffer), z, c, t);
+    	setPlane(ByteBuffer.wrap(buffer), z, c, t);
     }
 
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
@@ -402,7 +402,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
         for (int t = 0; t < getSizeT(); t++) {
             try {
-                MappedByteBuffer buffer = getTimepoint(t).getData();
+                ByteBuffer buffer = getTimepoint(t).getData();
                 md.update(buffer);
             } catch (DimensionsOutOfBoundsException e) {
                 // This better not happen. :)

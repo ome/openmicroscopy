@@ -8,7 +8,7 @@
 package ome.io.nio;
 
 import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 
 import ome.conditions.ApiUsageException;
 import ome.model.enums.PixelsType;
@@ -37,7 +37,7 @@ public class ReorderedPixelData extends PixelData
 	 * @param data The raw pixel data.
 	 * @param rowSize The size of each pixels row in bytes.
 	 */
-	public ReorderedPixelData(PixelsType pixelsType, MappedByteBuffer data,
+	public ReorderedPixelData(PixelsType pixelsType, ByteBuffer data,
 			                  int rowSize)
 	{
 		super(pixelsType, data);
@@ -81,7 +81,7 @@ public class ReorderedPixelData extends PixelData
      * 
      * @return See above.
      */
-    public MappedByteBuffer getData()
+    public ByteBuffer getData()
     {
     	return data;
     }

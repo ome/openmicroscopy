@@ -123,8 +123,8 @@ abstract class RenderingStrategy {
     /**
      * Encapsulates a specific rendering algorithm. The image is rendered
      * according to the current settings hold by the <code>ctx</code>
-     * argument. Typically, active wavelenghts are processed by first quantizing
-     * the wavelenght data in the plane selected by <code>pd</code> &#151; the
+     * argument. Typically, active wavelengths are processed by first quantizing
+     * the wavelength data in the plane selected by <code>pd</code> &#151; the
      * quantum strategy is retrieved from the {@link QuantumManager} (accessed
      * through the <code>ctx</code> object) and the actual data from the
      * {@link omeis.providers.re.data.PixelsData PixelsData} service (again,

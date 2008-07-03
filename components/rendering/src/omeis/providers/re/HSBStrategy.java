@@ -41,19 +41,17 @@ import omeis.providers.re.quantum.QuantumStrategy;
 /**
  * Transforms a plane within a given pixels set into an <i>RGB</i> image. As
  * many wavelengths (channels) as desired can contribute to the final image and
- * each wavelength is mapped to a color. All this things are specified by the
+ * each wavelength is mapped to a color. All these things are specified by the
  * rendering context.
  * <p>
- * When multiple wavelengths have to be combined into the final image (this is
- * the case if the rendering context specifies more than one active channel),
- * this strategy renders each wavelength in a separate thread &#151; this often
- * results in parallel rendering on multi-processor machines.
+ * This strategy renders the in "regions", dividing the planar data up based
+ * on {@link #maxTasks} and assigning each task to its own thread. This should
+ * result in parallel rendering on multi-processor machines.
  * </p>
  * <p>
  * Thread-safety relies on the fact that the rendering context is not going to
- * change during the whole image rendering process. (This is enforced by the
- * {@link RenderingEngineImpl}; in fact, while the <code>render</code> method
- * executes, the whole component is locked.)
+ * change during the whole image rendering process and that each task is
+ * working on its own atomic unit of work.
  * </p>
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -260,7 +258,7 @@ class HSBStrategy extends RenderingStrategy {
     /**
      * Implemented as specified by the superclass.
      * 
-     * @see RenderingStrategy#render(Renderer ctx, PlaneDef planeDef)
+     * @see RenderingStrategy#renderAsPackedInt(Renderer ctx, PlaneDef planeDef)
      */
     @Override
     RGBIntBuffer renderAsPackedInt(Renderer ctx, PlaneDef planeDef)

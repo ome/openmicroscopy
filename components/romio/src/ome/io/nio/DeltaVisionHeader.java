@@ -1,5 +1,6 @@
 package ome.io.nio;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 
@@ -20,7 +21,7 @@ import ome.model.enums.PixelsType;
  */
 public class DeltaVisionHeader {
 
-	private MappedByteBuffer data;
+	private ByteBuffer data;
 	
 	/**
 	 * A common sequence of processed images. Sometimes referred
@@ -104,7 +105,7 @@ public class DeltaVisionHeader {
 	 * @param data
 	 * @param endian
 	 */
-	public DeltaVisionHeader(MappedByteBuffer data, boolean endian) {
+	public DeltaVisionHeader(ByteBuffer data, boolean endian) {
 		this.data = data;
 		
 		// make sure this is a header

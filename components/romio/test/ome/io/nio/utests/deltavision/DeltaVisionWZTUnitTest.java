@@ -6,7 +6,7 @@
  */
 package ome.io.nio.utests.deltavision;
 
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 
 import org.testng.annotations.*;
 
@@ -29,7 +29,7 @@ public class DeltaVisionWZTUnitTest extends TestCase
     public void testFirstPlaneSecondTimepointFirstChannelMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(0, 0, 1).getData();
+    	ByteBuffer buf = dv.getPlane(0, 0, 1).getData();
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
     	assertEquals("9618bf50881340fbc925abb3b458de2a", md);
     }
@@ -38,7 +38,7 @@ public class DeltaVisionWZTUnitTest extends TestCase
     public void testFirstPlaneSecondChannelMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(0, 1, 0).getData();
+    	ByteBuffer buf = dv.getPlane(0, 1, 0).getData();
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
     	assertEquals("73ab6431bca5f102882f956162d30d3b", md);
     }
@@ -47,7 +47,7 @@ public class DeltaVisionWZTUnitTest extends TestCase
     public void testSecondPlaneFirstChannelMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(1, 0, 0).getData();
+    	ByteBuffer buf = dv.getPlane(1, 0, 0).getData();
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
     	assertEquals("5c4501a98e5eb984c46841948e1ace6e", md);
     }
@@ -56,9 +56,9 @@ public class DeltaVisionWZTUnitTest extends TestCase
     public void testLastPlaneMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(dv.getSizeZ() - 1,
-    	                                   dv.getSizeC() - 1,
-    	                                   dv.getSizeT() - 1).getData();
+    	ByteBuffer buf = dv.getPlane(dv.getSizeZ() - 1,
+    	                             dv.getSizeC() - 1,
+    	                             dv.getSizeT() - 1).getData();
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
     	assertEquals("a78c365ab044e179b6cae0b6150df3a4", md);
     }

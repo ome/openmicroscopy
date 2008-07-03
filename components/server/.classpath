@@ -57,19 +57,15 @@
 	<classpathentry kind="lib" path="target/libs/log4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/lucene-core.jar"/>
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
-	<classpathentry kind="lib" path="target/libs/mule.jar"/>
-	<classpathentry kind="lib" path="target/libs/nanoxml.jar"/>
 	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
-	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry kind="lib" path="target/libs/quartz.jar"/>
 	<classpathentry kind="lib" path="target/libs/rendering.jar"/>
 	<classpathentry kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring-ldap-tiger.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-mock.jar"/>
 	<classpathentry kind="lib" path="target/libs/testing.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>

@@ -77,6 +77,10 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	/** The pixels set we're currently copying to. */
 	private Pixels to;
 
+    /**
+     * Returns the interface this implementation is for.
+     * @see AbstractLevel2Service#getServiceInterface()
+     */
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IPixels.class;
     }

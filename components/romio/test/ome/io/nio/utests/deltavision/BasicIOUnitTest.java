@@ -2,7 +2,7 @@ package ome.io.nio.utests.deltavision;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 
 import org.testng.annotations.Test;
 
@@ -32,7 +32,7 @@ public class BasicIOUnitTest extends TestCase
     public void testFirstPlaneSize() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(0, 0, 0).getData();
+    	ByteBuffer buf = dv.getPlane(0, 0, 0).getData();
     	assertEquals(131072, buf.capacity());
     }
     
@@ -40,7 +40,7 @@ public class BasicIOUnitTest extends TestCase
     public void testFirstPlaneMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(0, 0, 0).getData();
+    	ByteBuffer buf = dv.getPlane(0, 0, 0).getData();
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
     	assertEquals("1fa547fa11e3defe7057f3c88cf3c049", md);
     }

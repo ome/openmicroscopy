@@ -1,0 +1,352 @@
+package ome.io.nio;
+
+import java.io.IOException;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import ome.model.core.Pixels;
+
+/**
+ * Class implementation of the PixelBuffer interface for in memory planar pixel
+ * data. It does not support indexing the pixel data as one large array as the
+ * data is underlying modeled as a 5-dimensional array. It is also 
+ * <b>read-only.</b>
+ *
+ * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:chris@glencoesoftware.com">chris@glencoesoftware.com</a>
+ * @version $Revision$
+ * @since 3.0
+ * @see PixelBuffer
+ */
+public class InMemoryPlanarPixelBuffer implements PixelBuffer
+{
+    /** ZCT ordered planar data. */
+    private byte[][][][] planes;
+    
+    /** Pixels object describing the planar data's dimensionality. */
+    private Pixels pixels;
+    
+    /**
+     * Constructs an in memory pixel buffer based on a defined dimensionality.
+     * @param pixels Dimensionality and pixels type of the planar data.
+     * @param planes The planar data.
+     */
+    public InMemoryPlanarPixelBuffer(Pixels pixels, byte[][][][] planes)
+    {
+        this.pixels = pixels;
+        this.planes = planes;
+    }
+    
+    public byte[] calculateMessageDigest() throws IOException
+    {
+        MessageDigest md;
+
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+
+        for (int z = 0; z < getSizeZ(); z++) {
+            for (int c = 0; c < getSizeC(); c++) {
+                for (int t = 0; t < getSizeT(); t++) {
+                    try {
+                        ByteBuffer buffer = getPlane(z, c, t).getData();
+                        md.update(buffer);
+                    } catch (DimensionsOutOfBoundsException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
+        return md.digest();
+    }
+
+    public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+            throws DimensionsOutOfBoundsException
+    {
+        if (y != null && (y > getSizeY() - 1 || y < 0)) {
+            throw new DimensionsOutOfBoundsException("Y '" + y
+                    + "' greater than sizeY '" + getSizeY() + "'.");
+        }
+
+        if (z != null && (z > getSizeZ() - 1 || z < 0)) {
+            throw new DimensionsOutOfBoundsException("Z '" + z
+                    + "' greater than sizeZ '" + getSizeZ() + "'.");
+        }
+
+        if (c != null && (c > getSizeC() - 1 || c < 0)) {
+            throw new DimensionsOutOfBoundsException("C '" + c
+                    + "' greater than sizeC '" + getSizeC() + "'.");
+        }
+
+        if (t != null && (t > getSizeT() - 1 || t < 0)) {
+            throw new DimensionsOutOfBoundsException("T '" + t
+                    + "' greater than sizeT '" + getSizeT() + "'.");
+        }
+    }
+
+    public void close() throws IOException
+    {
+    }
+
+    public int getByteWidth()
+    {
+        return PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
+    }
+
+    public long getId()
+    {
+        throw new NullPointerException("In memory planar buffers have no Id.");
+    }
+
+    public String getPath()
+    {
+        throw new NullPointerException("In memory planar buffers have no path.");
+    }
+
+    public PixelData getPlane(Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException
+    {
+        ByteBuffer buf = ByteBuffer.wrap(planes[z][c][t]);
+        return new PixelData(pixels.getPixelsType(), buf);
+    }
+
+    public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
+            throws IOException, DimensionsOutOfBoundsException
+    {
+        return planes[z][c][t];
+    }
+
+    public Long getPlaneOffset(Integer z, Integer c, Integer t)
+            throws DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+                "Not supported with in memory planar buffers.");
+    }
+
+    public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
+            Integer count, Integer offset, byte[] buffer) throws IOException,
+            DimensionsOutOfBoundsException
+    {
+        byte[] plane = planes[z][c][t];
+        int sourceOffset = offset * getByteWidth();
+        int length = count * getByteWidth();
+        System.arraycopy(plane, sourceOffset, buffer, 0, length);
+        return buffer;
+    }
+
+    public Integer getPlaneSize()
+    {
+        return pixels.getSizeX() * pixels.getSizeY() * getByteWidth();
+    }
+
+    public PixelData getRegion(Integer size, Long offset) throws IOException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public byte[] getRegionDirect(Integer size, Long offset, byte[] buffer)
+            throws IOException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException
+    {
+        // TODO: This could be supported, we're just not going to right now.
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public byte[] getRowDirect(Integer y, Integer z, Integer c, Integer t,
+            byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+    {
+        // TODO: This could be supported, we're just not going to right now.
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
+            throws DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public Integer getRowSize()
+    {
+        return getSizeX() * getByteWidth();
+    }
+
+    public int getSizeC()
+    {
+        return pixels.getSizeC();
+    }
+
+    public int getSizeT()
+    {
+        return pixels.getSizeT();
+    }
+
+    public int getSizeX()
+    {
+        return pixels.getSizeX();
+    }
+
+    public int getSizeY()
+    {
+        return pixels.getSizeY();
+    }
+
+    public int getSizeZ()
+    {
+        return pixels.getSizeZ();
+    }
+
+    public PixelData getStack(Integer c, Integer t) throws IOException,
+            DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public byte[] getStackDirect(Integer c, Integer t, byte[] buffer)
+            throws IOException, DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public Long getStackOffset(Integer c, Integer t)
+            throws DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public Integer getStackSize()
+    {
+        return getPlaneSize() * pixels.getSizeZ();
+    }
+
+    public PixelData getTimepoint(Integer t) throws IOException,
+            DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public byte[] getTimepointDirect(Integer t, byte[] buffer)
+            throws IOException, DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public Long getTimepointOffset(Integer t)
+            throws DimensionsOutOfBoundsException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public Integer getTimepointSize()
+    {
+        return getStackSize() * pixels.getSizeC();
+    }
+
+    public Integer getTotalSize()
+    {
+        return getTimepointSize() * pixels.getSizeT();
+    }
+
+    public boolean isFloat()
+    {
+        MappedByteBuffer b = null;
+        PixelData d = new PixelData(pixels.getPixelsType(), b);
+        return d.isFloat();
+    }
+
+    public boolean isSigned()
+    {
+        MappedByteBuffer b = null;
+        PixelData d = new PixelData(pixels.getPixelsType(), b);
+        return d.isSigned();
+    }
+
+    public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setRegion(Integer size, Long offset, byte[] buffer)
+            throws IOException, BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setRegion(Integer size, Long offset, ByteBuffer buffer)
+            throws IOException, BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
+            Integer t) throws IOException, DimensionsOutOfBoundsException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
+            DimensionsOutOfBoundsException, BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+
+    public void setTimepoint(byte[] buffer, Integer t) throws IOException,
+            DimensionsOutOfBoundsException, BufferOverflowException
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+}

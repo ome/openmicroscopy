@@ -18,7 +18,6 @@
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry kind="lib" path="target/libs/dom4j.jar"/>
 	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
-	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>
 	<classpathentry kind="lib" path="target/libs/emma.jar"/>
 	<classpathentry kind="lib" path="target/libs/findbugs-ant.jar"/>
@@ -41,7 +40,6 @@
 	<classpathentry kind="lib" path="target/libs/model-psql.jar"/>
 	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
-	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-mock.jar"/>

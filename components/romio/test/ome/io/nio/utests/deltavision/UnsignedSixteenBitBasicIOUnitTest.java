@@ -1,6 +1,6 @@
 package ome.io.nio.utests.deltavision;
 
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 
 import org.testng.annotations.Test;
 
@@ -33,7 +33,7 @@ public class UnsignedSixteenBitBasicIOUnitTest extends TestCase
     public void testFirstPlaneSize() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(0, 0, 0).getData();
+    	ByteBuffer buf = dv.getPlane(0, 0, 0).getData();
     	assertEquals(460800, buf.capacity());
     }
     
@@ -41,7 +41,7 @@ public class UnsignedSixteenBitBasicIOUnitTest extends TestCase
     public void testFirstPlaneMd5() throws Exception
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
-    	MappedByteBuffer buf = dv.getPlane(0, 0, 0).getData();
+    	ByteBuffer buf = dv.getPlane(0, 0, 0).getData();
     	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
     	assertEquals("b495cb7c7dda3930fbf923cfbcb8c8e2", md);
     }

@@ -10,11 +10,9 @@ package ome.io.nio;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.nio.MappedByteBuffer;
 import java.nio.ShortBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -51,7 +49,7 @@ public class DeltaVision implements PixelBuffer {
 
 	private Integer totalSize;
 	
-	protected MappedByteBuffer buf;
+	protected ByteBuffer buf;
 
 	private OriginalFile originalFile;
 	
@@ -93,7 +91,7 @@ public class DeltaVision implements PixelBuffer {
 
 		for (int t = 0; t < getSizeT(); t++) {
 			try {
-				MappedByteBuffer buffer = getTimepoint(t).getData();
+				ByteBuffer buffer = getTimepoint(t).getData();
 				md.update(buffer);
 			} catch (DimensionsOutOfBoundsException e) {
 				throw new RuntimeException(e);
@@ -131,7 +129,7 @@ public class DeltaVision implements PixelBuffer {
 	{
 		if (buffer.length != count * header.getBytesPerPixel())
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer plane = getPlane(z, c, t).getData();
+		ByteBuffer plane = getPlane(z, c, t).getData();
 		swapAndReorderIfRequired(plane, ByteBuffer.wrap(buffer), offset, count);
 		return buffer;
 	}
@@ -156,7 +154,7 @@ public class DeltaVision implements PixelBuffer {
 	{
 		if (buffer.length != getPlaneSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getPlane(z, c, t).getData();
+		ByteBuffer b = getPlane(z, c, t).getData();
 		swapAndReorderIfRequired(b, ByteBuffer.wrap(buffer), 
 		                         0, getSizeX() * getSizeY());
 		return buffer;
@@ -191,7 +189,7 @@ public class DeltaVision implements PixelBuffer {
 	public PixelData getRegion(Integer size, Long offset)
 			throws IOException {
 		FileChannel fileChannel = getFileChannel();
-		MappedByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
+		ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
 		if (!header.isNative())
 			buf.order(ByteOrder.LITTLE_ENDIAN);
 		return new PixelData(header.getOmeroPixelType(), buf);
@@ -205,7 +203,7 @@ public class DeltaVision implements PixelBuffer {
 	{
 		if (buffer.length != size)
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getRegion(size, offset).getData();
+		ByteBuffer b = getRegion(size, offset).getData();
 		b.get(buffer);
 		return buffer;
 	}
@@ -229,7 +227,7 @@ public class DeltaVision implements PixelBuffer {
 	{
 		if (buffer.length != getRowSize())
 			throw new ApiUsageException("Buffer size incorrect.");
-		MappedByteBuffer b = getRow(y, z, c, t).getData();
+		ByteBuffer b = getRow(y, z, c, t).getData();
 		swapAndReorderIfRequired(b, ByteBuffer.wrap(buffer), 0, getSizeX());
 		return buffer;
 	}

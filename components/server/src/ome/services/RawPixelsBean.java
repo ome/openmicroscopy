@@ -283,7 +283,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public byte[] getRegion(int arg0, long arg1) {
         errorIfNotLoaded();
 
-        MappedByteBuffer region = null;
+        ByteBuffer region = null;
         try {
             region = buffer.getRegion(arg0, arg1).getData();
         } catch (Exception e) {
@@ -505,7 +505,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     // ~ Helpers
     // =========================================================================
 
-    private byte[] bufferAsByteArrayWithExceptionIfNull(MappedByteBuffer buffer) {
+    private byte[] bufferAsByteArrayWithExceptionIfNull(ByteBuffer buffer) {
         byte[] b = new byte[buffer.capacity()];
         buffer.get(b, 0, buffer.capacity());
         return b;

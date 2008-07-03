@@ -475,24 +475,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
-     * Loads objects from the Hibernate store in a list context.
-     * @param klass The type of object to load.
-     * @param nodeIds The object IDs to load.
-     * @return A typed {@link java.util.List} of objects retrieved from the
-     * Hibernate store.
-     */
-    private <T extends IObject> List<T> loadObjects(Class<T> klass, 
-    												Set<Long> nodeIds)
-    {
-    	List<T> toReturn = new ArrayList<T>();
-    	for (Long nodeId : nodeIds)
-    	{
-    		toReturn.add(iQuery.get(klass, nodeId));
-    	}
-    	return toReturn;
-    }
-
-    /**
      * Applies the settings to the passed collection of Images. Returns a map
      * with two keys: A <code>True</code> key whose value is a list of image's
      * ids the settings were successfully applied to, a <code>False</code> key
@@ -586,7 +568,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @param metaService
      *            The value to set.
      */
-    @RolesAllowed("user")
     public void setPixelsMetadata(IPixels metaService) {
         getBeanHelper().throwIfAlreadySet(this.pixelsMetadata, metaService);
         pixelsMetadata = metaService;
@@ -598,7 +579,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * @param dataService
      *            The value to set.
      */
-    @RolesAllowed("user")
     public void setPixelsData(PixelsService dataService) {
         getBeanHelper().throwIfAlreadySet(this.pixelsData, dataService);
         pixelsData = dataService;
@@ -608,7 +588,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
      * Returns the interface this implementation is for.
      * @see AbstractLevel2Service#getServiceInterface()
      */
-    @RolesAllowed("user")
     public Class<? extends ServiceInterface> getServiceInterface() {
         return IRenderingSettings.class;
     }

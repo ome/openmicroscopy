@@ -32,6 +32,7 @@ import javax.interceptor.Interceptors;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.api.IPixels;
+import ome.api.IProjection;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalCompress;
@@ -40,7 +41,9 @@ import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
+import ome.io.nio.InMemoryPlanarPixelBuffer;
 import ome.logic.AbstractLevel2Service;
 import ome.model.IObject;
 import ome.model.core.Channel;
@@ -157,6 +160,9 @@ public class RenderingBean extends AbstractLevel2Service implements
     
     /** Reference to the service used to manage rendering settings. */
     private transient IRenderingSettings settingsSrv;
+    
+    /** Reference to the service used for projecting pixel data. */
+    private transient IProjection projectionService;
 
     /**
      * read-write lock to prevent READ-calls during WRITE operations. Unneeded
@@ -196,6 +202,14 @@ public class RenderingBean extends AbstractLevel2Service implements
         getBeanHelper().throwIfAlreadySet(this.settingsSrv, settingsService);
         settingsSrv = settingsService;
     }
+    
+    /** set injector. For use during configuration. Can only be called once. */
+    public void setProjectionService(IProjection projectionService)
+    {
+        getBeanHelper().throwIfAlreadySet(this.projectionService,
+                                          projectionService);
+        this.projectionService = projectionService;
+    }
 
     // ~ Lifecycle methods
     // =========================================================================
@@ -212,7 +226,7 @@ public class RenderingBean extends AbstractLevel2Service implements
     /** lifecycle method -- {@link PostPassivate}. */
     @PostActivate
     public void postPassivate() {
-    	log.info("***** Returning from passivation... ******");
+    	log.debug("***** Returning from passivation... ******");
     	create();
     	wasPassivated = true;
     	rwl = new ReentrantReadWriteLock();
@@ -221,7 +235,7 @@ public class RenderingBean extends AbstractLevel2Service implements
     /** lifecycle method -- {@link PrePassivate}. */
     @PrePassivate
     public void passivate() {
-    	log.info("***** Passivating... ******");
+    	log.debug("***** Passivating... ******");
     	closeRenderer();
     	renderer = null;
     }
@@ -461,23 +475,18 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#render(PlaneDef)
      */
     @RolesAllowed("user")
-    public RGBBuffer render(PlaneDef pd) throws ResourceError,
-            ValidationException {
+    public RGBBuffer render(PlaneDef pd) {
         rwl.readLock().lock();
 
         try {
             errorIfInvalidState();
             return renderer.render(pd);
         } catch (IOException e) {
-            ResourceError re = new ResourceError("IO error while rendering:\n"
-                    + e.getMessage());
-            re.initCause(e);
-            throw re;
+            log.error("IO error while rendering.", e);
+            throw new ResourceError(e.getMessage());
         } catch (QuantizationException e) {
-            InternalException ie = new InternalException(
-                    "QuantizationException while rendering:\n" + e.getMessage());
-            ie.initCause(e);
-            throw ie;
+            log.error("Quantization exception while rendering.", e);
+            throw new InternalException(e.getMessage());
         } finally {
             rwl.readLock().unlock();
         }
@@ -489,23 +498,18 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#render(PlaneDef)
      */
     @RolesAllowed("user")
-    public int[] renderAsPackedInt(PlaneDef pd)
-    	throws ResourceError, ValidationException {
+    public int[] renderAsPackedInt(PlaneDef pd) {
     	rwl.writeLock().lock();
 
     	try {
     		errorIfInvalidState();
-    		return renderer.renderAsPackedInt(pd);
+    		return renderer.renderAsPackedInt(pd, null);
     	} catch (IOException e) {
-    		ResourceError re = new ResourceError("IO error while rendering:\n"
-    				+ e.getMessage());
-    		re.initCause(e);
-    		throw re;
+    	    log.error("IO error while rendering.", e);
+    	    throw new ResourceError(e.getMessage());
     	} catch (QuantizationException e) {
-    		InternalException ie = new InternalException(
-    				"QuantizationException while rendering:\n" + e.getMessage());
-    		ie.initCause(e);
-    		throw ie;
+    	    log.error("Quantization exception while rendering.", e);
+    	    throw new InternalException(e.getMessage());
     	} finally {
     		rwl.writeLock().unlock();
     	}
@@ -517,8 +521,9 @@ public class RenderingBean extends AbstractLevel2Service implements
      * @see RenderingEngine#renderCompressed()
      */
     @RolesAllowed("user")
-    public byte[] renderCompressed(PlaneDef pd) throws ResourceError,
-            ValidationException {
+    public byte[] renderCompressed(PlaneDef pd) {
+        rwl.writeLock().lock();
+        
         int[] buf = renderAsPackedInt(pd);
         int sizeX = pixelsObj.getSizeX();
         int sizeY = pixelsObj.getSizeY();
@@ -531,6 +536,90 @@ public class RenderingBean extends AbstractLevel2Service implements
             log.error("Could not compress rendered image.", e);
             throw new ResourceError(e.getMessage());
         } finally {
+            rwl.writeLock().unlock();
+            try {
+                byteStream.close();
+            } catch (IOException e) {
+                log.error("Could not close byte stream.", e);
+                throw new ResourceError(e.getMessage());
+            }
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#renderProjectedAsPackedInt()
+     */
+    @RolesAllowed("user")
+    public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
+                                            int stepping, int start, int end) {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            ChannelBinding[] channelBindings = renderer.getChannelBindings();
+            byte[][][][] planes = new byte[1][pixelsObj.getSizeC()][1][];
+            long pixelsId = pixelsObj.getId();
+            int projectedSizeC = 0;
+            for (int i = 0; i < channelBindings.length; i++)
+            {
+                if (channelBindings[i].getActive())
+                {
+                    planes[0][i][0] =
+                        projectionService.projectStack(pixelsId, algorithm,
+                                                       timepoint, i, stepping,
+                                                       start, end);
+                    projectedSizeC += 1;
+                }
+            }
+            Pixels projectedPixels = new Pixels();
+            projectedPixels.setSizeX(pixelsObj.getSizeX());
+            projectedPixels.setSizeY(pixelsObj.getSizeY());
+            projectedPixels.setSizeZ(1);
+            projectedPixels.setSizeT(1);
+            projectedPixels.setSizeC(projectedSizeC);
+            projectedPixels.setPixelsType(pixelsObj.getPixelsType());
+            PixelBuffer projectedPlanes =
+                new InMemoryPlanarPixelBuffer(projectedPixels, planes);
+            PlaneDef pd = new PlaneDef(PlaneDef.XY, 0);
+            pd.setZ(0);
+            return renderer.renderAsPackedInt(pd, projectedPlanes);
+        } catch (IOException e) {
+            log.error("IO error while rendering.", e);
+            throw new ResourceError(e.getMessage());
+        } catch (QuantizationException e) {
+            log.error("Quantization exception while rendering.", e);
+            throw new InternalException(e.getMessage());
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#renderProjectedCompressed()
+     */
+    @RolesAllowed("user")
+    public byte[] renderProjectedCompressed(int algorithm, int timepoint,
+                                           int stepping, int start, int end) {
+        rwl.writeLock().lock();
+        
+        int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,
+                                               stepping, start, end);
+        int sizeX = pixelsObj.getSizeX();
+        int sizeY = pixelsObj.getSizeY();
+        BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX, sizeY);
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        try {
+            compressionSrv.compressToStream(image, byteStream);
+            return byteStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Could not compress rendered image.", e);
+            throw new ResourceError(e.getMessage());
+        } finally {
+            rwl.writeLock().unlock();
             try {
                 byteStream.close();
             } catch (IOException e) {

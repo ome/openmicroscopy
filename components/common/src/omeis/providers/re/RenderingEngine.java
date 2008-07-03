@@ -77,7 +77,7 @@ public interface RenderingEngine extends SelfConfigurableService,
      * @throws ValidationException
      *             If <code>pd</code> is <code>null</code>.
      */
-    public RGBBuffer render(PlaneDef pd) throws ValidationException;
+    public RGBBuffer render(PlaneDef pd);
 
     /**
      * Renders the data selected by <code>pd</code> according to the current
@@ -94,7 +94,7 @@ public interface RenderingEngine extends SelfConfigurableService,
      *             If <code>pd</code> is <code>null</code>.
      * @see render()
      */
-    public int[] renderAsPackedInt(PlaneDef pd) throws ValidationException;
+    public int[] renderAsPackedInt(PlaneDef pd);
     
     /**
      * Renders the data selected by <code>pd</code> according to the current
@@ -109,7 +109,64 @@ public interface RenderingEngine extends SelfConfigurableService,
      * @see render()
      * @see renderAsPackedInt()
      */
-    public byte[] renderCompressed(PlaneDef pd) throws ValidationException;
+    public byte[] renderCompressed(PlaneDef pd);
+    
+    
+    /**
+     * Performs a projection through selected optical sections of a particular 
+     * timepoint with the currently active channels and renders the data for
+     * display.
+     * @param algorithm {@link IProjection#MAXIMUM_INTENSITY},
+     * {@link IProjection#MEAN_INTENSITY} or {@link IProjection#SUM_INTENSITY}.
+     * @param stepping Stepping value to use while calculating the projection.
+     * For example, <code>stepping=1</code> will use every optical section from
+     * <code>start</code> to <code>end</code> where <code>stepping=2</code> will
+     * use every other section from <code>start</code> to <code>end</code> to
+     * perform the projection.
+     * @param start Optical section to start projecting from.
+     * @param end Optical section to finish projecting.
+     * @return A packed-integer <i>RGBA</i> rendered image of the projected
+     * pixels.
+     * @throws ValidationException Where:
+     * <ul>
+     *   <li><code>algorithm</code> is unknown</li>
+     *   <li><code>timepoint</code> is out of range</li>
+     *   <li><code>start</code> is out of range</li>
+     *   <li><code>end</code> is out of range</li>
+     *   <li><code>start > end</code></li>
+     * </ul>
+     * @see IPixels#projectPixels()
+     */
+    public int[] renderProjectedAsPackedInt(int algorithm, int timepoint,
+                                            int stepping, int start, int end);
+    
+    /**
+     * Performs a projection through selected optical sections of a particular 
+     * timepoint with the currently active channels, renders the data for
+     * display and compresses the resulting RGBA composite image.
+     * @param algorithm {@link IProjection#MAXIMUM_INTENSITY},
+     * {@link IProjection#MEAN_INTENSITY} or {@link IProjection#SUM_INTENSITY}.
+     * @param stepping Stepping value to use while calculating the projection.
+     * For example, <code>stepping=1</code> will use every optical section from
+     * <code>start</code> to <code>end</code> where <code>stepping=2</code> will
+     * use every other section from <code>start</code> to <code>end</code> to
+     * perform the projection.
+     * @param start Optical section to start projecting from.
+     * @param end Optical section to finish projecting.
+     * @return A compressed <i>RGBA</i> rendered JPEG image of the projected
+     * pixels.
+     * @throws ValidationException Where:
+     * <ul>
+     *   <li><code>algorithm</code> is unknown</li>
+     *   <li><code>timepoint</code> is out of range</li>
+     *   <li><code>start</code> is out of range</li>
+     *   <li><code>end</code> is out of range</li>
+     *   <li><code>start > end</code></li>
+     * </ul>
+     * @see IPixels#projectPixels()
+     */
+    public byte[] renderProjectedCompressed(int algorithm, int timepoint,
+                                            int stepping, int start, int end);
 
     /**
      * Loads the <code>Pixels</code> set this Rendering Engine is for.
