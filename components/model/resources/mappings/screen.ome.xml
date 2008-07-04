@@ -60,8 +60,8 @@
       <optional name="externalDescription" type="string"/>
       <optional name="externalIdentifier" type="string"/>
       <optional name="type" type="string"/>
-      <zeromany name="wellSamples" type="ome.model.screen.WellSample"
-        inverse="well" ordered="true"/>
+      <zeromany name="wellSample" type="ome.model.screen.WellSample"
+        inverse="well"/>
       <manyone name="plate" type="ome.model.screen.Plate" inverse="well"/>
     </properties>
   </type>
