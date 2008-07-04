@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="editor" default="build" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+
+    <property name="target.dir" value="${basedir}/target"/>
+
+    <target name="build" description="Create an editor distributable">
+        <path id="editor.classpath">
+            <fileset dir="${basedir}/lib/" includes="**/*.jar"/>
+        </path>
+        <mkdir dir="${target.dir}/classes"/>
+        <mkdir dir="${target.dir}/dist"/>
+        <javac fork="yes" destdir="${target.dir}/classes" classpathref="editor.classpath" sourcepath=""
+               source="1.5" target="1.5" debug="on" debuglevel="lines,var,source"
+               deprecation="on">
+            <src path="${basedir}/src"/>
+        </javac>
+        <pathconvert property="manifest" refid="editor.classpath" pathsep=" " dirsep="/"/>
+        <jar destfile="${target.dir}/dist/OMERO.editor.jar">
+            <manifest>
+                <attribute name="Class-Path" value="${manifest}"/>
+                <attribute name="Main-Class" value="main.ProtocolEditor"/>
+            </manifest>
+            <fileset dir="${target.dir}/classes"/>
+            <fileset dir="${basedir}/src/" includes="**/*.png"/>
+        </jar>
+        <copy todir="${target.dir}/dist">
+            <fileset dir="${basedir}/lib/" includes="**/*.jar"/>
+        </copy>
+    </target>
+
+    <target name="clean" description="Clean all compiled artifacts">
+        <delete dir="${basedir}/target"/>
+    </target>
+
+</project>
