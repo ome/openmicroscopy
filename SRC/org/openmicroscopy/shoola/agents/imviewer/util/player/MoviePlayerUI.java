@@ -27,23 +27,21 @@ package org.openmicroscopy.shoola.agents.imviewer.util.player;
 
 
 //Java imports
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.TitledBorder;
 
 //Third-party libraries
 
@@ -132,13 +130,13 @@ class MoviePlayerUI
 	JTextField          endT;
 
 	/** Box to select to play the movie across z-section. */
-	JRadioButton        acrossZ;
+	JCheckBox           acrossZ;
 
 	/** Box to select to play the movie across timepoint. */
-	JRadioButton        acrossT;
+	JCheckBox           acrossT;
 
 	/** Box to select to play the movie across z-section and timepoint. */
-	JRadioButton        acrossZT;
+	//JRadioButton        acrossZT;
 
 	/** Two knobs slider to select the z-section interval. */
 	TwoKnobsSlider      zSlider;
@@ -195,7 +193,7 @@ class MoviePlayerUI
 				MoviePlayer.FPS_MIN, max, 1));
 		editor = new JTextField(""+model.getTimerDelay(), (""+max).length());
 		String s = "Select or enter the movie playback rate " +
-		"(frames per second).";
+				"(frames per second).";
 		editor.setToolTipText(UIUtilities.formatToolTipText(s));
 		fps.setEditor(editor);
 
@@ -231,13 +229,14 @@ class MoviePlayerUI
 		endT = new JTextField(""+model.getEndT(), (""+maxT).length());
 		endT.setToolTipText(
 				UIUtilities.formatToolTipText("Enter the end timepoint."));
-		acrossZ = new JRadioButton("Across Z");
-		acrossT = new JRadioButton("Across T");
-		acrossZT = new JRadioButton("Across Z and T");
-		ButtonGroup group = new ButtonGroup();
-		group.add(acrossZ);
-		group.add(acrossT);
-		group.add(acrossZT);
+		acrossZ = new JCheckBox("Across Z");
+		acrossT = new JCheckBox("Across T");
+		//acrossZT = new JRadioButton("Across Z and T");
+		
+		//ButtonGroup group = new ButtonGroup();
+		//group.add(acrossZ);
+		//group.add(acrossT);
+		//group.add(acrossZT);
 	}
 
 	/** 
@@ -289,7 +288,7 @@ class MoviePlayerUI
 		gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.anchor = GridBagConstraints.WEST;
-		JLabel l = new JLabel("Play");
+		JLabel l = new JLabel("Play Mode:");
 		contain.add(l, gbc);
 		gbc.gridx = 1;
 		gbc.insets = new Insets(0, 10, 0, 0);
@@ -340,7 +339,7 @@ class MoviePlayerUI
 	 * @param controls The panel to wrap.
 	 * @return See below.
 	 */
-	private JPanel buildGroupPanel(TwoKnobsSlider slider, JRadioButton button,
+	private JPanel buildGroupPanel(TwoKnobsSlider slider, JCheckBox button,
 			JPanel controls)
 	{
 		JPanel p = new JPanel(), group = new JPanel();
@@ -358,6 +357,7 @@ class MoviePlayerUI
 	{
 		// lays out the movie selection
 		JPanel movie = new JPanel();
+		movie.setBorder(new TitledBorder("Frame Selection"));
 		movie.setLayout(new GridBagLayout());
 		GridBagConstraints mc = new GridBagConstraints();
 		mc.insets = new Insets(5, 5, 5, 5);
@@ -372,12 +372,13 @@ class MoviePlayerUI
 						endT));
 		mc.gridy = 2;
 		movie.add(p, mc);
-		mc.gridy = 3;
-		movie.add(acrossZT, mc);
+		//mc.gridy = 3;
+		//movie.add(acrossZT, mc);
 
 
 		//lays out the controls
 		JPanel controls = new JPanel();
+		controls.setBorder(new TitledBorder("Animation Control"));
 		GridBagConstraints c = new GridBagConstraints();
 		controls.setLayout(new GridBagLayout());
 		c.gridx = 0;
@@ -397,14 +398,18 @@ class MoviePlayerUI
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		add(controls, gbc);
 		gbc.gridy = 1;
 		gbc.fill = GridBagConstraints.BOTH;
+		/*
 		JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
 		sep.setPreferredSize(new Dimension(this.getWidth(), 2));
 		sep.setMinimumSize(new Dimension(this.getWidth(), 2));
-
 		add(sep, gbc);
+		*/
+		
+		
 		gbc.gridy = 2;
 		add(movie, gbc);
 	}
@@ -437,18 +442,18 @@ class MoviePlayerUI
 		endT.setEnabled(maxT != 0);
 		acrossZ.setEnabled(maxZ != 0);
 		acrossT.setEnabled(maxT != 0);
-		acrossZT.setEnabled(!((maxZ == 0) || (maxT == 0)));
+		//acrossZT.setEnabled(!((maxZ == 0) || (maxT == 0)));
 
 		switch (model.getMovieIndex()) {
-		case MoviePlayerDialog.ACROSS_Z:
-			acrossZ.setSelected(true);
-			break;
-		case MoviePlayerDialog.ACROSS_T:
-			acrossT.setSelected(true);
-			break;
-		case MoviePlayerDialog.ACROSS_ZT:
-			acrossZT.setSelected(true);
-			break;
+			case MoviePlayerDialog.ACROSS_Z:
+				acrossZ.setSelected(true);
+				break;
+			case MoviePlayerDialog.ACROSS_T:
+				acrossT.setSelected(true);
+				break;
+			case MoviePlayerDialog.ACROSS_ZT:
+				acrossZ.setSelected(true);
+				acrossT.setSelected(true);
 		}
 	}
 
@@ -461,11 +466,11 @@ class MoviePlayerUI
 	int getMovieType(int uiType)
 	{
 		switch (uiType) {
-		case LOOP_CMD: return MoviePlayer.LOOP;
-		case BACKWARD_CMD: return MoviePlayer.BACKWARD;
-		case FORWARD_CMD: return MoviePlayer.FORWARD;
-		case PINGPONG_CMD: return MoviePlayer.PINGPONG;
-		case LOOP_BACKWARD_CMD: return MoviePlayer.LOOP_BACKWARD;
+			case LOOP_CMD: return MoviePlayer.LOOP;
+			case BACKWARD_CMD: return MoviePlayer.BACKWARD;
+			case FORWARD_CMD: return MoviePlayer.FORWARD;
+			case PINGPONG_CMD: return MoviePlayer.PINGPONG;
+			case LOOP_BACKWARD_CMD: return MoviePlayer.LOOP_BACKWARD;
 		}
 		throw new IllegalArgumentException("UI index not supported.");
 	}
@@ -555,15 +560,17 @@ class MoviePlayerUI
 	void setMovieIndex(int index)
 	{
 		switch (index) {
-		case MoviePlayerDialog.ACROSS_Z:
-			acrossZ.setSelected(true);
-			break;
-		case MoviePlayerDialog.ACROSS_T:
-			acrossT.setSelected(true);
-			break;
-		case MoviePlayerDialog.ACROSS_ZT:
-			acrossZT.setSelected(true);
-			break;
+			case MoviePlayerDialog.ACROSS_Z:
+				acrossZ.setSelected(true);
+				break;
+			case MoviePlayerDialog.ACROSS_T:
+				acrossT.setSelected(true);
+				break;
+				/*
+			case MoviePlayerDialog.ACROSS_ZT:
+				acrossZT.setSelected(true);
+				break;
+				*/
 		}
 	}
 
@@ -578,12 +585,12 @@ class MoviePlayerUI
 	void doClick(int index)
 	{
 		switch (index) {
-		case MoviePlayerDialog.DO_CLICK_PAUSE:
-			pause.doClick();
-			break;
-		case MoviePlayerDialog.DO_CLICK_PLAY:
-			play.doClick();
-			break;
+			case MoviePlayerDialog.DO_CLICK_PAUSE:
+				pause.doClick();
+				break;
+			case MoviePlayerDialog.DO_CLICK_PLAY:
+				play.doClick();
+				break;
 		}
 	}
   

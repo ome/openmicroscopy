@@ -161,7 +161,7 @@ class MoviePlayerControl
         attachFieldListeners(view.endZ, END_Z);
         attachButtonListener(view.acrossZ, ACROSS_Z_CMD);
         attachButtonListener(view.acrossT, ACROSS_T_CMD);
-        attachButtonListener(view.acrossZT, ACROSS_ZT_CMD);
+        //attachButtonListener(view.acrossZT, ACROSS_ZT_CMD);
         view.tSlider.addPropertyChangeListener(this);
         view.zSlider.addPropertyChangeListener(this);
     }
@@ -325,10 +325,30 @@ class MoviePlayerControl
                     movieEndActionHandler(view.startZ, view.endZ, TYPE_Z); 
                     break;
                 case ACROSS_T_CMD:
-                    model.setMovieIndex(MoviePlayerDialog.ACROSS_T);
+                	if (view.acrossZ.isSelected()) {
+                		if (view.acrossT.isSelected())
+                			model.setMovieIndex(MoviePlayerDialog.ACROSS_ZT);
+                		else 
+                			model.setMovieIndex(MoviePlayerDialog.ACROSS_Z);
+                	} else {
+                		if (view.acrossT.isSelected())
+                			model.setMovieIndex(MoviePlayerDialog.ACROSS_T);
+                		else 
+                			view.acrossT.setSelected(true);
+                	}
                     break;
                 case ACROSS_Z_CMD:
-                    model.setMovieIndex(MoviePlayerDialog.ACROSS_Z);
+                	if (view.acrossT.isSelected()) {
+                		if (view.acrossZ.isSelected())
+                			model.setMovieIndex(MoviePlayerDialog.ACROSS_ZT);
+                		else 
+                			model.setMovieIndex(MoviePlayerDialog.ACROSS_T);
+                	} else {
+                		if (view.acrossZ.isSelected())
+                			model.setMovieIndex(MoviePlayerDialog.ACROSS_Z);
+                		else 
+                			view.acrossZ.setSelected(true);
+                	}
                     break;
                 case ACROSS_ZT_CMD:
                     model.setMovieIndex(MoviePlayerDialog.ACROSS_ZT);

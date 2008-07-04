@@ -118,6 +118,7 @@ public class MoviePlayerDialog
     public MoviePlayerDialog(JFrame owner, ImViewer model)
     {
         super(owner);
+        setResizable(false);
         if (model == null) throw new NullPointerException("No model.");
         setTitle("Movie Player: "+model.getImageName());
         this.model = model;
