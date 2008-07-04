@@ -71,6 +71,9 @@ public class CreateFolderDialog
 	/** The default text displayed in the field. */
 	private static final String		DEFAULT_NAME = "untitled folder";
 	
+	/** The default text. */
+	private static final String		DEFAULT_TEXT = "New Folder";
+	
 	/** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -150,10 +153,15 @@ public class CreateFolderDialog
         return p;
 	}
 	
-	/** Builds and lays out the UI. */
-	private void buildGUI()
+	/** 
+	 * Builds and lays out the UI. 
+	 * 
+	 * @param name The title and text.
+	 */
+	private void buildGUI(String name)
 	{
-		JLabel label = new JLabel("Name of new folder:");
+		String s = "Name of "+name.toLowerCase()+":";
+		JLabel label = new JLabel(s);
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(UIUtilities.buildComponentPanel(label));
@@ -163,14 +171,43 @@ public class CreateFolderDialog
 							BorderLayout.CENTER);
 	}
 	
-	/** Initializes the dialog. */
-	private void initialize()
+	/** 
+	 * Initializes the widget. 
+	 * 
+	 * @param name The title and text.
+	 */
+	private void initialize(String name)
 	{
-		setTitle("New Folder");
+		if (name == null || name.length() == 0) name = DEFAULT_TEXT;
+		setTitle(name);
 		setModal(true);
 		setResizable(false);
 		initComponents();
-		buildGUI();
+		buildGUI(name);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner The owner of the dialog.
+	 * @param text  The title and text.
+	 */
+	public CreateFolderDialog(JDialog owner, String text)
+	{
+		super(owner);
+		initialize(text);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner The owner of the dialog.
+	 * @param text  The title and text.
+	 */
+	public CreateFolderDialog(JFrame owner, String text)
+	{
+		super(owner);
+		initialize(text);
 	}
 	
 	/**
@@ -180,8 +217,7 @@ public class CreateFolderDialog
 	 */
 	public CreateFolderDialog(JDialog owner)
 	{
-		super(owner);
-		initialize();
+		this(owner, DEFAULT_TEXT);
 	}
 
 	/**
@@ -191,8 +227,7 @@ public class CreateFolderDialog
 	 */
 	public CreateFolderDialog(JFrame owner)
 	{
-		super(owner);
-		initialize();
+		this(owner, DEFAULT_TEXT);
 	}
 	
 	/**

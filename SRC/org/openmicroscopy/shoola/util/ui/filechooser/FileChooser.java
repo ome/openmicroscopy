@@ -324,6 +324,11 @@ public class FileChooser
         UIUtilities.centerAndShow(d);
     }
     
+    /** 
+     * Returns the path to the folder or <code>null</code>.
+     * 
+     * @return See above.
+     */
     public File getFolderPath()
     {
     	if (folderPath != null) return new File(folderPath);

@@ -44,6 +44,7 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
@@ -333,6 +334,20 @@ public class PixelsServicesFactory
 		return null;
 	}
 
+	public static BufferedImage renderProjected(Registry context, Long pixelsID, 
+			int startZ, int endZ, int type, int stepping)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (!(context.equals(registry)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		RenderingControlProxy proxy = 
+			(RenderingControlProxy) singleton.rndSvcProxies.get(pixelsID);
+		if (proxy == null) 
+			throw new RuntimeException("No rendering service " +
+			"initialized for the specified pixels set.");
+		return proxy.renderProjected(startZ, endZ, stepping, type);
+	}
+	
 	/**
 	 * Returns the compression quality related to the passed level.
 	 * 

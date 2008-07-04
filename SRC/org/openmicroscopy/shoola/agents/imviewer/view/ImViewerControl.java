@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.MovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PasteRndSettingsAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.PreferencesAction;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ROIToolAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ResetRndSettingsAction;
@@ -92,6 +93,8 @@ import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.InfoDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.util.tagging.view.Tagger;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -300,6 +303,9 @@ class ImViewerControl
 	 */
 	static final Integer     SET_ORIGINAL_RND_SETTINGS = new Integer(62);
 	
+	/** Identifies the <code>Projection</code> action. */
+	static final Integer     PROJECTION = new Integer(63);
+	
 	/** 
 	 * Reference to the {@link ImViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -397,6 +403,7 @@ class ImViewerControl
 		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
 		actionsMap.put(SET_ORIGINAL_RND_SETTINGS, 
 						new SetOriginalRndSettingsAction(model));
+		actionsMap.put(PROJECTION, new ProjectionAction(model));
 	}
 
 	/** 
@@ -728,12 +735,12 @@ class ImViewerControl
 	 */
 	public void propertyChange(PropertyChangeEvent pce)
 	{
-		String propName = pce.getPropertyName(); 
-		if (ImViewer.Z_SELECTED_PROPERTY.equals(propName)) {
+		String pName = pce.getPropertyName(); 
+		if (ImViewer.Z_SELECTED_PROPERTY.equals(pName)) {
 			view.setZSection(((Integer) pce.getNewValue()).intValue());
-		} else if (ImViewer.T_SELECTED_PROPERTY.equals(propName)) {
+		} else if (ImViewer.T_SELECTED_PROPERTY.equals(pName)) {
 			view.setTimepoint(((Integer) pce.getNewValue()).intValue());
-		} else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(propName)) {
+		} else if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(pName)) {
 			Map map = (Map) pce.getNewValue();
 			if (map == null) return;
 			if (map.size() != 1) return;
@@ -744,18 +751,18 @@ class ImViewerControl
 				model.setChannelSelection(index.intValue(), 
 						((Boolean) map.get(index)).booleanValue());
 			}
-		} else if (LoadingWindow.CLOSED_PROPERTY.equals(propName)) {
+		} else if (LoadingWindow.CLOSED_PROPERTY.equals(pName)) {
 			model.discard();
-		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(propName)) {
+		} else if (Renderer.RENDER_PLANE_PROPERTY.equals(pName)) {
 			model.renderXYPlane();
-		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(propName)) {
+		} else if (Renderer.SELECTED_CHANNEL_PROPERTY.equals(pName)) {
 			if (model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL)) {
 				int c = ((Integer) pce.getNewValue()).intValue();
 				for (int i = 0; i < model.getMaxC(); i++)
 					model.setChannelActive(i, i == c);
 				model.displayChannelMovie();
 			}
-		} else if (ChannelButton.INFO_PROPERTY.equals(propName)) {
+		} else if (ChannelButton.INFO_PROPERTY.equals(pName)) {
 			int index = ((Integer) pce.getNewValue()).intValue();
 			ChannelMetadata data = model.getChannelMetadata(index);
 			if (data != null) {
@@ -767,29 +774,29 @@ class ImViewerControl
 				un.notifyInfo("Channel info", "No metadata for the " +
 						"selected channel.");
 			}
-		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(propName) ||
-				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(propName)) {
+		} else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(pName) ||
+				ChannelColorMenuItem.CHANNEL_COLOR_PROPERTY.equals(pName)) {
 			colorPickerIndex = ((Integer) pce.getNewValue()).intValue();
 			showColorPicker(colorPickerIndex);
-		} else if (ColourPicker.COLOUR_PROPERTY.equals(propName)) { 
+		} else if (ColourPicker.COLOUR_PROPERTY.equals(pName)) { 
 			Color c = (Color) pce.getNewValue();
 			if (colorPickerIndex != -1) {
 				model.setChannelColor(colorPickerIndex, c);
 			}
-		} else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(propName)) {
+		} else if (UnitBarSizeDialog.UNIT_BAR_VALUE_PROPERTY.equals(pName)) {
 			double v = ((Double) pce.getNewValue()).doubleValue();
 			model.setUnitBarSize(v);
-		} else if (InfoDialog.UPDATE_PROPERTY.equals(propName)) {
+		} else if (InfoDialog.UPDATE_PROPERTY.equals(pName)) {
 			//TODO: implement method
-		} else if (ImViewer.ICONIFIED_PROPERTY.equals(propName)) {
+		} else if (ImViewer.ICONIFIED_PROPERTY.equals(pName)) {
 			if (moviePlayer != null)
 				model.playMovie(false, false, -1);
 			view.onIconified();
-		} else if (LensComponent.LENS_LOCATION_PROPERTY.equals(propName)) {
+		} else if (LensComponent.LENS_LOCATION_PROPERTY.equals(pName)) {
 			view.scrollToNode((Rectangle) pce.getNewValue());
-		} else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(propName)) {
+		} else if (MoviePlayerDialog.CLOSE_PROPERTY.equals(pName)) {
 			model.playMovie(false, false, -1);
-		} else if (MoviePlayerDialog.STATE_CHANGED_PROPERTY.equals(propName)) {
+		} else if (MoviePlayerDialog.STATE_CHANGED_PROPERTY.equals(pName)) {
 			boolean b = ((Boolean) pce.getNewValue()).booleanValue();
 			if (!b && !getMoviePlayer().isVisible()) {
 				PlayMovieAction action = 
@@ -799,22 +806,28 @@ class ImViewerControl
 				action.setActionIcon(true);
 				model.playMovie(false, false, -1);
 			}
-		} else if (TinyPane.CLOSED_PROPERTY.equals(propName)) {
+		} else if (TinyPane.CLOSED_PROPERTY.equals(pName)) {
 			Object node = pce.getNewValue();
 			if (node instanceof HistoryItem)
 				view.removeHistoryItem((HistoryItem) node);
-		} else if (PreferencesDialog.VIEWER_PREF_PROPERTY.equals(propName)) {
+		} else if (PreferencesDialog.VIEWER_PREF_PROPERTY.equals(pName)) {
 			Map  map = (Map) pce.getNewValue();
 			if (map == null) ImViewerFactory.setPreferences(null);
 			ViewerPreferences pref = ImViewerFactory.getPreferences();
 			if (pref == null) pref = new ViewerPreferences();
 			pref.setSelectedFields(map);
 			ImViewerFactory.setPreferences(pref);
-		} else if (UsersPopupMenu.USER_RNDSETTINGS_PROPERTY.equals(propName)) {
+		} else if (UsersPopupMenu.USER_RNDSETTINGS_PROPERTY.equals(pName)) {
 			ExperimenterData exp = (ExperimenterData) pce.getNewValue();
 			model.setUserRndSettings(exp);
-		} else if (Tagger.TAG_LOADED_PROPERTY.equals(propName)) {
+		} else if (Tagger.TAG_LOADED_PROPERTY.equals(pName)) {
 			view.showMenu(ImViewer.CATEGORY_MENU);
+		} else if (ProjectionDialog.PROJECTION_PREVIEW_PROPERTY.equals(pName)) {
+			model.projectionPreview((ProjectionRef) pce.getNewValue());
+		} else if (ProjectionDialog.PROJECTION_PROPERTY.equals(pName)) {
+			model.projectImage((ProjectionRef) pce.getNewValue());
+		} else if (ProjectionDialog.LOAD_DATASETS_PROPERTY.equals(pName)) {
+			model.loadContainers();
 		}
 	}
 

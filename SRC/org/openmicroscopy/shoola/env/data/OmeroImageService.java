@@ -39,6 +39,9 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
+import pojos.DatasetData;
+import pojos.ImageData;
+
 /** 
 * List of methods to view images or thumbnails.
 *
@@ -274,6 +277,46 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map getRenderingSettings(long pixelsID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Creates a preview projected image 
+	 * 
+	 * @param pixelsID  The ID of the pixels set.
+	 * @param startZ    The first optical section.
+	 * @param endZ      The last optical section.
+	 * @param stepping  The stepping used during the projection.
+	 * @param type      The type of projection.
+	 * @return The buffered image representing the projected image.
+	 * @throws RenderingServiceException If the server cannot render the image.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 */
+	public BufferedImage renderProjected(long pixelsID, int startZ, int endZ, 
+			 int stepping, int type)
+		throws RenderingServiceException, DSOutOfServiceException; 
+	
+	/**
+	 * Projects the specified set of pixels according to the projection's 
+	 * parameters. Adds the created image to the passed dataset.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @param startZ   The first optical section.
+	 * @param endZ     The last optical section.
+	 * @param stepping The stepping used to project. Default is <code>1</code>.
+	 * @param type     The projection's type.
+	 * @param channels The channels to project.
+	 * @param datasets The collection of datasets to add the image to.
+	 * @param name     The name of the projected image.
+	 * @return The newly created image.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public ImageData projectImage(long pixelsID, int startZ, int endZ, 
+			int stepping, int type, List<Integer> channels, 
+			List<DatasetData> datasets, String name)
 		throws DSOutOfServiceException, DSAccessException;
 
 }

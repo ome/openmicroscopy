@@ -41,6 +41,9 @@ import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 
+import pojos.DatasetData;
+import pojos.ImageData;
+
 
 /** 
  * 
@@ -197,6 +200,30 @@ public class NullRenderingService
 	public Map<Long, BufferedImage> getThumbnailSet(List pixelsID, 
 			                                        int maxLength) 
 	    throws RenderingServiceException
+	{
+		return null;
+	}
+	
+	/**
+     * No-op implementation
+     * @see OmeroImageService#renderProjected(long, int, int, int, int)
+     */
+	public BufferedImage renderProjected(long pixelsID, int startZ, int endZ, 
+			int stepping, int type) 
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#projectImage(long, int, int, int, int, List, 
+     *              List, String)
+     */
+	public ImageData projectImage(long pixelsID, int startZ, int endZ, 
+			int stepping, int type, List<Integer> channels, 
+			List<DatasetData> datasets, String name) 
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}

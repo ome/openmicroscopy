@@ -328,9 +328,9 @@ class RenderingControlProxy
 		//Need to adjust the cache.
 		Object array = getFromCache(pDef);
 		try {
-			if (array != null) {
+			if (array != null) 
 				return ImageIO.read(new ByteArrayInputStream((byte[]) array));
-			}
+			
 			byte[] values = servant.renderCompressed(pDef);
 			initializeCache(pDef, values.length);
 			cache(pDef, values);
@@ -383,6 +383,68 @@ class RenderingControlProxy
             cache(pDef, img);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the plane.");
+		}
+        
+        return img;
+	}
+	
+	/**
+	 * Projects the selected section of the optical sections
+	 * and renders a compressed image.
+	 * 
+	 * @param startZ   The first optical section.
+	 * @param endZ     The last optical section.
+	 * @param stepping The stepping of the projection.
+	 * @param type     The projection type.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	private BufferedImage renderProjectedCompressed(int startZ, int endZ, 
+			                               int stepping, int type)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		try {
+			
+			byte[] values = servant.renderProjectedCompressed(type, 
+					getDefaultT(), stepping, startZ, endZ);
+			
+			JPEGImageDecoder decoder = 
+				JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
+			return decoder.decodeAsBufferedImage();
+		} catch (Throwable e) {
+			handleException(e, ERROR+"cannot render projected selection.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Projects the selected section of the optical sections
+	 * and renders a compressed image.
+	 * 
+	 * @param startZ   The first optical section.
+	 * @param endZ     The last optical section.
+	 * @param stepping The stepping of the projection.
+	 * @param type     The projection type.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	private BufferedImage renderProjectedUncompressed(int startZ, int endZ, 
+            int stepping, int type)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+        BufferedImage img = null;
+        try {
+            int[] buf = servant.renderProjectedAsPackedInt(type, 
+					getDefaultT(), stepping, startZ, endZ);
+            int sizeX1 = pixs.getSizeX().intValue();
+            int sizeX2 = pixs.getSizeY().intValue();
+            img = Factory.createImage(buf, 32, sizeX1, sizeX2);
+		} catch (Throwable e) {
+			handleException(e, ERROR+"cannot render projected selection.");
 		}
         
         return img;
@@ -1248,5 +1310,19 @@ class RenderingControlProxy
 			handleException(e, ERROR+"default settings.");
 		}
 	}
-    
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#renderProjected(int, int, int, int)
+	 */
+	public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
+			                           int type) 
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		DataServicesFactory.isSessionAlive(context);
+        if (isCompressed()) 
+        	return renderProjectedCompressed(startZ, endZ, stepping, type);
+        return renderProjectedUncompressed(startZ, endZ, stepping, type);
+	}
+
 }

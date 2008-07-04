@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import javax.swing.ImageIcon;
@@ -38,11 +39,13 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
  * Defines the interface provided by the viewer component. 
@@ -834,5 +837,47 @@ public interface ImViewer
 
 	/** Sets the original rendering settings. */
 	public void setOriginalRndSettings();
+
+	/** Shows the projection dialog and preview. */
+	public void showProjection();
+
+	/**
+	 * Projects a selected portion of the optical sections 
+	 * for the currently selected timepoint and active channel.
+	 * 
+	 * @param ref Object containing the projection parameters.
+	 */
+	public void projectionPreview(ProjectionRef ref);
+
+	/**
+	 * Projects the whole image according the projection parameters.
+	 * 
+	 * @param ref Object containing the projection parameters.
+	 */
+	public void projectImage(ProjectionRef ref);
+
+	/**
+	 * Sets the containers contained the image.
+	 * 
+	 * @param containers The collection to set.
+	 */
+	public void setContainers(Collection containers);
+
+	/** Loads the containers containing the image. */
+	public void loadContainers();
+	
+	/**
+	 * Sets the projected preview image.
+	 * 
+	 * @param image The value to display.
+	 */
+	public void setRenderProjected(BufferedImage image);
+	
+	/**
+	 * Sets the newly created projected image.
+	 * 
+	 * @param image The projected image.
+	 */
+	public void setProjectedImage(ImageData image);
 	
 }

@@ -41,8 +41,10 @@ import java.util.Map;
 import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
@@ -52,6 +54,7 @@ import org.openmicroscopy.shoola.agents.imviewer.rnd.RendererFactory;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.ChannelPlayer;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.Player;
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -1363,5 +1366,58 @@ class ImViewerModel
 
     /** Resets the history when switching to a new rendering control.*/
 	void resetHistory() { historyItems = null; }
+
+	/**
+     * Projects the selected optical sections for the currently selected 
+     * timepoint and the active channels and returned a projected image.
+     * 
+     * @param startZ   The first optical section.
+     * @param endZ     The last optical section.
+     * @param stepping Stepping value to use while calculating the projection.
+     * @param type 	   One of the projection type defined by this class.
+     * @return See above.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
+	BufferedImage renderProjected(int startZ, int endZ, int stepping, int type) 
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		return currentRndControl.renderProjected(startZ, endZ, stepping, type);
+	}
+
+	/**
+	 * Starts an asynchronous call to render a preview of the projected image.
+	 * 
+	 * @param ref Object with the projection's parameters.
+	 */
+	void fireRenderProjected(ProjectionRef ref)
+	{
+		ProjectionSaver loader = new ProjectionSaver(component, getPixelsID(), 
+				                  ref, ProjectionSaver.PREVIEW);
+		loader.load();
+	}
+	
+	/**
+	 * Starts an asynchronous call to project image.
+	 * 
+	 * @param ref Object with the projection's parameters.
+	 */
+	void fireProjectImage(ProjectionRef ref)
+	{
+		ProjectionSaver loader = new ProjectionSaver(component, getPixelsID(), 
+				ref, ProjectionSaver.PROJECTION);
+		loader.load();
+	}
+	
+	/**
+	 * Starts an asynchronous retrieval of the containers containing the 
+	 * image.
+	 */
+	void fireContainersLoading()
+	{
+		ContainerLoader loader = new ContainerLoader(component, getImageID());
+		loader.load();
+	}
     
 }

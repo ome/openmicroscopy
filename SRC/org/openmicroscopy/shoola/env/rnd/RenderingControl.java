@@ -32,6 +32,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IProjection;
 import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
@@ -58,6 +59,15 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 public interface RenderingControl
 {
 
+	/** Identifies the <code>Maximum intensity</code> projection. */
+	public static final int 	MAX_INTENSITY = IProjection.MAXIMUM_INTENSITY;
+	
+	/** Identifies the <code>Mean intensity</code> projection. */
+	public static final int 	MEAN_INTENSITY = IProjection.MEAN_INTENSITY;
+	
+	/** Identifies the <code>Sum intensity</code> projection. */
+	public static final int 	SUM_INTENSITY = IProjection.SUM_INTENSITY;
+	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int		UNCOMPRESSED = 0;
 	
@@ -630,11 +640,11 @@ public interface RenderingControl
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
-	 * @param pDef      The plane to render.
+	 * @param pDef The plane to render.
+	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
-	 * @return See above.
 	 */
 	public BufferedImage renderPlane(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException;
@@ -656,4 +666,21 @@ public interface RenderingControl
     public void setOriginalRndSettings()
     	throws RenderingServiceException, DSOutOfServiceException;
 	
+    /**
+     * Projects the selected optical sections for the currently selected 
+     * timepoint and the active channels and returned a projected image.
+     * 
+     * @param startZ   The first optical section.
+     * @param endZ     The last optical section.
+     * @param stepping Stepping value to use while calculating the projection.
+     * @param type 	   One of the projection type defined by this class.
+     * @return See above.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
+    public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
+    									int type)
+    	throws RenderingServiceException, DSOutOfServiceException;
+    
 }

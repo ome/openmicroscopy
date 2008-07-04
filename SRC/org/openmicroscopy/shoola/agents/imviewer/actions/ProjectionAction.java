@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.actions.RendererAction
+ * org.openmicroscopy.shoola.agents.imviewer.actions.ProjectionAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
 
@@ -28,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
 
 //Third-party libraries
 
@@ -37,50 +37,62 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Brings up on screen the rendering controls tool.
+ * Brings up the projection dialog.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta3
  */
-public class RendererAction
-    extends ViewerAction
+public class ProjectionAction 
+	extends ViewerAction
 {
 
-    /** The name of the action. */
-    private static final String NAME = "Renderer";
+	/** The name of the action. */
+    private static final String NAME = "Projection";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Bring up the rendering " +
-                                                "controls tool.";
+    private static final String DESCRIPTION = "Projection.";
+    
+    /** 
+     * Overriden to make sure that the movie player is not enabled when 
+     * there is only one channel.
+     * @see ViewerAction#onStateChange(ChangeEvent)
+     */
+    protected void onStateChange(ChangeEvent e)
+    {
+    	switch (model.getState()) {
+			case ImViewer.DISCARDED:
+				break;
+			case ImViewer.RENDERING_CONTROL_LOADED:
+			case ImViewer.READY:
+				setEnabled(model.getMaxZ() > 0);
+		}
+    }
     
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
      */
-    public RendererAction(ImViewer model)
+    public ProjectionAction(ImViewer model)
     {
-        super(model, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-        		
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager icons = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, icons.getIcon(IconManager.RENDERER));
+    	super(model, NAME);
+    	putValue(Action.SHORT_DESCRIPTION, 
+    			UIUtilities.formatToolTipText(DESCRIPTION));
+    	IconManager icons = IconManager.getInstance();
+    	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECTION));
     }
     
     /** 
-     * Brings up on screen the rendering controls tool.
+     * Brings up the projection component.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.showRenderer(); }
+    public void actionPerformed(ActionEvent e) { model.showProjection(); }
     
 }

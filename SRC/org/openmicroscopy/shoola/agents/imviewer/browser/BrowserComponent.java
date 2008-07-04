@@ -349,6 +349,15 @@ class BrowserComponent
 			gridView.getViewport().setBackground(color);
 	}
 
+	/** 
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getBackgroundColor()
+     */
+	public Color getBackgroundColor()
+	{
+		return model.getBackgroundColor();
+	}
+	
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getAnnotator()

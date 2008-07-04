@@ -34,8 +34,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BoxLayout;
@@ -59,6 +61,8 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.PlayMovieAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.HistoryItem;
 import org.openmicroscopy.shoola.agents.imviewer.util.PreferencesDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
+import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
@@ -79,6 +83,7 @@ import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 /** 
 * Implements the {@link ImViewer} interface to provide the functionality
@@ -115,9 +120,6 @@ class ImViewerComponent
 	/** The message if rendering setting to annotation. */
 	static final String						ANNOTATION = "The annotations";
 	
-	/** The message if rendering setting to annotation. */
-	static final String						RATING = "The rating";
-	
 	/** The Model sub-component. */
 	private ImViewerModel       			model;
 
@@ -148,6 +150,12 @@ class ImViewerComponent
 	 */
 	private boolean							saveBeforeCopy;
 
+	/** The possible projections options. */
+	private Map<Integer, String>			projections;
+	
+	/** The projection dialog. */
+	private ProjectionDialog				projection;
+	
 	/** Creates an history item. */
 	private void createHistoryItem()
 	{
@@ -732,7 +740,8 @@ class ImViewerComponent
 				if (pref.isFieldSelected(ViewerPreferences.HISTORY) &&
 					pref.isHistory()) {
 					if (image != null)
-						view.setRestoreSize(image.getWidth(), image.getHeight());
+						view.setRestoreSize(image.getWidth(), 
+								image.getHeight());
 					//boolean oldValue = view.isHistoryShown();
 					view.showHistory(true);
 					//firePropertyChange(HISTORY_VISIBLE_PROPERTY, oldValue, 
@@ -2396,6 +2405,147 @@ class ImViewerComponent
 			reload(ex);
 		}
 		
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#showProjection()
+	 */
+	public void showProjection()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		if (projections == null) {
+			projections = new LinkedHashMap<Integer, String>();
+			projections.put(RenderingControl.MAX_INTENSITY, 
+					"Maximum Intensity");
+			projections.put(RenderingControl.MEAN_INTENSITY, 
+					"Mean Intensity");
+			projections.put(RenderingControl.SUM_INTENSITY, 
+					"Sum Intensity");
+		}
+		if (projection == null) {
+			projection = new ProjectionDialog(view, projections,
+									model.getMaxZ()+1, 
+									model.getBrowser().getBackgroundColor(),
+									model.getImageName(), 
+									model.getOriginalImage());
+			projection.addPropertyChangeListener(controller);
+			projection.setProjectedImage(model.getOriginalImage());
+			UIUtilities.incrementRelativeToAndShow(view.getBounds(), 
+					projection);
+		} else {
+			projection.setVisible(true);
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#projectImage(ProjectionRef)
+	 */
+	public void projectImage(ProjectionRef ref)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		if (projection == null) return;
+		if (!projection.isVisible()) return;
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		un.notifyInfo("Projection preview", "Not yet implemented");
+		projection.setVisible(false);
+		projection.dispose();
+		projection = null;
+		//model.fireProjectImage(ref);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setRenderProjected(BufferedImage)
+	 */
+	public void setRenderProjected(BufferedImage image)
+	{
+		if (image == null) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Projection preview", "An error has occurred " +
+					"while projecting the data.");
+		}
+		projection.setProjectedImage(image);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#projectionPreview(ProjectionRef)
+	 */
+	public void projectionPreview(ProjectionRef ref)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		if (projection == null) return;
+		if (!projection.isVisible()) return;
+		
+		/*
+		BufferedImage img = null;
+		try {
+			img = model.renderProjected(ref.getStartZ(), ref.getEndZ(), 
+									ref.getStepping(), ref.getType());
+		} catch (Exception e) {
+			projection.setProjectedImage(null);
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Projection preview", "An error has occurred " +
+					"while projecting the data.");
+		}
+		projection.setProjectedImage(img);
+		*/
+		model.fireRenderProjected(ref);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setContainers(Collection)
+	 */
+	public void setContainers(Collection containers)
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		if (projection == null) return;
+		if (!projection.isVisible()) return;
+		projection.setContainers(containers);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#loadContainers()
+	 */
+	public void loadContainers()
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalArgumentException("This method cannot be invoked" +
+					" in the DISCARDED state.");
+		if (projection == null) return;
+		if (!projection.isVisible()) return;
+		model.fireContainersLoading();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setProjectedImage(ImageData)
+	 */
+	public void setProjectedImage(ImageData image)
+	{
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		String message;
+		if (image == null) 
+			message = "An error has occurred while creating the " +
+					"projected image.";
+		else message = "The image, "+image.getName() +" has been successfully "
+		       +"created";
+		un.notifyInfo("Projection", message);
+		projection.setVisible(false);
+		projection.dispose();
+		projection = null;
 	}
 
 }

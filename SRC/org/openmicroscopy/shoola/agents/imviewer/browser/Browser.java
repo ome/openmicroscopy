@@ -331,6 +331,13 @@ public interface Browser
 	 */
 	public double getGridRatio();
 
+	/**
+	 * Returns the background color of the canvas.
+	 * 
+	 * @return See above.
+	 */
+	public Color getBackgroundColor();
+	
 	public void initializeMagnificationFactor(double f);
 	
 }

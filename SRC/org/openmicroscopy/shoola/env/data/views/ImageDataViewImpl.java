@@ -37,9 +37,12 @@ import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
 import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+
+import pojos.DatasetData;
 
 /** 
  * Implementation of the {@link ImageDataView} interface.
@@ -150,6 +153,34 @@ class ImageDataViewImpl
 	{
 		BatchCallTree cmd = new RenderingSettingsLoader(pixelsID);
 		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#renderProjected(long, int, int, int, int, 
+     *                       AgentEventListener)
+     */
+	public CallHandle renderProjected(long pixelsID, int startZ, int endZ, 
+			int stepping, int type, AgentEventListener observer)
+    {
+		BatchCallTree cmd = new ProjectionSaver(pixelsID, startZ, endZ, 
+				                  stepping, type);
+		return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#projectImage(long, int, int, int, int, List, List, 
+     *                               String, AgentEventListener)
+     */
+	public CallHandle projectImage(long pixelsID, int startZ, int endZ, 
+			int stepping, int type, List<Integer> channels, 
+			List<DatasetData> datasets, String name, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ProjectionSaver(pixelsID, startZ, endZ, 
+                stepping, type, channels, datasets, name);
+        return cmd.exec(observer);
 	}
 
 }

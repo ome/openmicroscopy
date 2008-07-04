@@ -55,6 +55,7 @@ import ome.api.IAdmin;
 import ome.api.IDelete;
 import ome.api.IPixels;
 import ome.api.IPojos;
+import ome.api.IProjection;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
@@ -432,13 +433,6 @@ class OMEROGateway
 	 * @return See above.
 	 */
 	private IAdmin getAdminService() { return entry.getAdminService(); }
-	
-	/**
-	 * Returns the {@link IPixels} service.
-	 * 
-	 * @return See above.
-	 */
-	private IPixels getPixelsService() { return entry.getPixelsService(); }
 	
 	/**
 	 * Returns the {@link IDelete} service.
@@ -1808,7 +1802,7 @@ class OMEROGateway
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
 			"link.child.id = :childID";
-			if (userID != -1) sql += "and link.details.owner.id = :userID";
+			if (userID != -1) sql += " and link.details.owner.id = :userID";
 			IQuery service = getQueryService();
 			Parameters param = new Parameters();
 			param.addLong("childID", childID);
@@ -3784,7 +3778,36 @@ class OMEROGateway
 		} catch (Exception e) {
 			handleException(e, "Cannot delete: "+objectType+" "+objectID);
 		}
+		
 		return new ArrayList<IObject>();
+	}
+	
+	/**
+	 * Projects the specified set of pixels according to the projection's 
+	 * parameters. Adds the created image to the passed dataset.
+	 * 
+	 * @param pixelsID The id of the pixels set.
+	 * @param startZ   The first optical section.
+	 * @param endZ     The last optical section.
+	 * @param stepping The stepping used to project. Default is <code>1</code>.
+	 * @param type     The projection's type.
+	 * @param channels The channels to project.
+	 * @param datasets The collection of datasets to add the image to.
+	 * @param name     The name of the projected image.
+	 * @return The newly created image.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	ImageData projectImage(long pixelsID, int startZ, int endZ, 
+			int stepping, int type, List<Integer> channels, 
+			List<DatasetData> datasets, String name)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		
+		
+		return null;
 	}
 	
 }
