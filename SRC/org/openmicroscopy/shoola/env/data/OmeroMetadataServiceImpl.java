@@ -102,6 +102,151 @@ class OmeroMetadataServiceImpl
 									LookupNames.CURRENT_USER_DETAILS);
 	}
 	
+	/** 
+	 * Prepares the annotation to add.
+	 * 
+	 * @param toAdd The collection of annotation to prepare.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	private List<AnnotationData> prepareAnnotationToAdd(
+            List<AnnotationData> toAdd)
+    	throws DSOutOfServiceException, DSAccessException
+    {
+		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
+		Iterator i;
+		if (toAdd == null || toAdd.size() == 0) return annotations;
+		i = toAdd.iterator();
+		AnnotationData ann;
+		Annotation iobject = null;
+		FileAnnotationData fileAnn;
+		FileAnnotation fa;
+		OriginalFile of;
+		List<Annotation> toCreate = new ArrayList<Annotation>();
+		List<IObject> links = new ArrayList<IObject>();
+		TextualAnnotationData desc;
+		TagAnnotationData tag;
+		IObject link = null;
+		Map map = (new PojoOptions()).map();
+		while (i.hasNext()) {
+			ann = (AnnotationData) i.next();
+			if (ann.getId() < 0) {
+				if (ann instanceof FileAnnotationData) {
+					fileAnn = (FileAnnotationData) ann;
+					of = gateway.uploadFile(fileAnn.getAttachedFile(), 
+							fileAnn.getServerFileFormat());
+					fa = new FileAnnotation();
+					fa.setFile(of);
+					iobject = fa;
+				} else {
+					if (ann instanceof TagAnnotationData) {
+						IObject r = gateway.createObject(
+								ModelMapper.createAnnotation(ann), map);
+						tag = (TagAnnotationData) ann;
+						desc = tag.getTagDescription();
+						if (desc != null) {
+							link = ModelMapper.createAnnotationAndLink(r, desc);
+							if (link != null) 
+								gateway.createObject(link, map);
+						}
+						annotations.add(
+								(AnnotationData) PojoMapper.asDataObject(r));
+					} else 
+						iobject = ModelMapper.createAnnotation(ann);
+				} 
+				if (iobject != null)
+					toCreate.add(iobject);
+
+			} else {
+				if (ann instanceof TagAnnotationData) {
+//					update description
+					tag = (TagAnnotationData) ann;
+					updateAnnotationData(tag);
+				}
+				annotations.add(ann);
+			}
+
+		}
+
+		if (toCreate.size() > 0) {
+			i = toCreate.iterator();
+			IObject[] array = new IObject[toCreate.size()];
+			int index = 0;
+			while (i.hasNext()) {
+				array[index] = (IObject) i.next();
+				index++;
+			}
+			IObject[] r = gateway.createObjects(array, 
+					(new PojoOptions()).map());
+			annotations.addAll(PojoMapper.asDataObjects(r));
+		}
+		if (links.size() > 0) {
+			i = links.iterator();
+			IObject[] array = new IObject[links.size()];
+			int index = 0;
+			while (i.hasNext()) {
+				array[index] = (IObject) i.next();
+				index++;
+			}
+			gateway.createObjects(array, (new PojoOptions()).map());
+		}
+		return annotations;
+    }
+
+	/**
+	 * Links the annotation and the data object.
+	 * 
+	 * @param data       The data object to annotate.
+	 * @param annotation The annotation to link.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMEDS service.
+	 */
+	private void linkAnnotation(DataObject data, AnnotationData annotation)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		Class ioType = gateway.convertPojos(data.getClass());
+		IObject ho = gateway.findIObject(ioType, data.getId());
+		ModelMapper.unloadCollections(ho);
+		ILink link = null;
+		boolean exist = false;
+		IObject annObject;
+		if (annotation instanceof TagAnnotationData) {
+			TagAnnotationData tag = (TagAnnotationData) annotation;
+//			tag a tag
+			if (TagAnnotationData.class.equals(data.getClass())) {
+				annObject = tag.asIObject();
+				ModelMapper.unloadCollections(annObject);
+				link = (ILink) gateway.findAnnotationLink(
+						AnnotationData.class, tag.getId(), ho.getId());
+				if (link == null) 
+					link = ModelMapper.linkAnnotation(annObject, ho);
+			} else {
+				annObject = tag.asIObject();
+				ModelMapper.unloadCollections(annObject);
+				link = (ILink) gateway.findAnnotationLink(ho.getClass(), 
+						ho.getId(), tag.getId());
+				if (link == null)
+					link = ModelMapper.linkAnnotation(ho, annObject);
+				else {
+					updateAnnotationData(tag);
+					exist = true;
+				}
+			}
+		} else if (annotation instanceof RatingAnnotationData) {
+			clearAnnotation(data.getClass(), data.getId(), 
+					RatingAnnotationData.class);
+			link = ModelMapper.linkAnnotation(ho, annotation.asIObject());
+		} else {
+			annObject = annotation.asIObject();
+			ModelMapper.unloadCollections(annObject);
+			link = ModelMapper.linkAnnotation(ho, annObject);
+		}
+		if (link != null) 
+			gateway.createObject(link, (new PojoOptions()).map());
+	}
 	/**
 	 * Updates the passed annotation.
 	 * 
@@ -121,31 +266,10 @@ class OmeroMetadataServiceImpl
 		if (ann instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			TextualAnnotationData description = tag.getTagDescription();
-			if (description != null) {
+			//if (description != null) {
 				id = tag.getId();
 				if (id >= 0) {
-					/*
-					List links = gateway.findAnnotationLinks(Annotation.class, 
-							                      id, null);
-					if (links != null) {
-						Iterator i = links.iterator();
-						long userID = getUserDetails().getId();
-						AnnotationAnnotationLink aaLink;
-						List<IObject> toRemove = new ArrayList<IObject>(); 
-						while (i.hasNext()) {
-							aaLink = (AnnotationAnnotationLink) i.next();
-							ho = aaLink.getChild();
-							if (ho.getDetails().getOwner().getId() == userID) {
-								toRemove.add(ho);
-								gateway.deleteObject(aaLink);
-							}
-						}
-						i = toRemove.iterator();
-						while (i.hasNext()) {
-							gateway.deleteObject((IObject) i.next());
-						}
-					}
-					*/
+					
 					gateway.removeTagDescription(id, getUserDetails().getId());
 				}	
 				ioType = gateway.convertPojos(TagAnnotationData.class);
@@ -153,52 +277,9 @@ class OmeroMetadataServiceImpl
 				link = ModelMapper.createAnnotationAndLink(ho, description);
 				if (link != null) 
 					gateway.createObject(link, (new PojoOptions()).map());
-			}
+			//}
 		}
 		
-	}
-	
-	/**
-	 * Clears the passed annotations linked to the annotation 
-	 * specifed by the id.
-	 * 
-	 * @param parentID				The id of the parent annotation.
-	 * @param childrenAnnotations	The collection of linked annotations.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMEDS service. 
-	 */
-	private void clearAnnotationAnnotationLink(long parentID, 
-			                                 List childrenAnnotations)
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		if (childrenAnnotations == null || 
-				childrenAnnotations.size() == 0) return;
-		Iterator i = childrenAnnotations.iterator();
-		List<Long> ids = new ArrayList<Long>();
-		List<IObject> toRemove = new ArrayList<IObject>(); 
-		long userID = getUserDetails().getId();
-		AnnotationData data;
-		while (i.hasNext()) {
-			data = (AnnotationData) i.next();
-			if (data.getOwner().getId() == userID) {
-				ids.add(data.getId());
-				toRemove.add(data.asIObject());
-			}
-		}
-		List l = null;
-		if (ids.size() != 0)
-			l = gateway.findAnnotationLinks(Annotation.class, parentID, ids);
-		if (l != null) {
-			i = l.iterator();
-			while (i.hasNext()) {
-				gateway.deleteObject((IObject) i.next());
-			}
-			i = toRemove.iterator();
-			while (i.hasNext()) {
-				gateway.deleteObject((IObject) i.next());
-			}
-		}
 	}
 	
 	/**
@@ -720,131 +801,6 @@ class OmeroMetadataServiceImpl
 			}
 		}	
 		return annotations;
-	}
-	
-	private List<AnnotationData> prepareAnnotationToAdd(
-			                        List<AnnotationData> toAdd)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		List<AnnotationData> annotations = new ArrayList<AnnotationData>();
-		Iterator i;
-		if (toAdd == null || toAdd.size() == 0) return annotations;
-		i = toAdd.iterator();
-		AnnotationData ann;
-		Annotation iobject = null;
-		FileAnnotationData fileAnn;
-		FileAnnotation fa;
-		OriginalFile of;
-		List<Annotation> toCreate = new ArrayList<Annotation>();
-		List<IObject> links = new ArrayList<IObject>();
-		TextualAnnotationData desc;
-		TagAnnotationData tag;
-		IObject link = null;
-		Map map = (new PojoOptions()).map();
-		while (i.hasNext()) {
-			ann = (AnnotationData) i.next();
-			if (ann.getId() < 0) {
-				if (ann instanceof FileAnnotationData) {
-					fileAnn = (FileAnnotationData) ann;
-					of = gateway.uploadFile(fileAnn.getAttachedFile(), 
-										fileAnn.getServerFileFormat());
-					fa = new FileAnnotation();
-					fa.setFile(of);
-					iobject = fa;
-				} else {
-					if (ann instanceof TagAnnotationData) {
-						IObject r = gateway.createObject(
-								ModelMapper.createAnnotation(ann), map);
-						tag = (TagAnnotationData) ann;
-						desc = tag.getTagDescription();
-						if (desc != null) {
-							link = ModelMapper.createAnnotationAndLink(r, desc);
-							if (link != null) 
-								gateway.createObject(link, map);
-						}
-						annotations.add(
-								(AnnotationData) PojoMapper.asDataObject(r));
-					} else 
-						iobject = ModelMapper.createAnnotation(ann);
-				} 
-				if (iobject != null)
-					toCreate.add(iobject);
-				
-			} else {
-				if (ann instanceof TagAnnotationData) {
-					//update description
-					tag = (TagAnnotationData) ann;
-					updateAnnotationData(tag);
-				}
-				annotations.add(ann);
-			}
-				
-		}
-		
-		if (toCreate.size() > 0) {
-			i = toCreate.iterator();
-			IObject[] array = new IObject[toCreate.size()];
-			int index = 0;
-			while (i.hasNext()) {
-				array[index] = (IObject) i.next();
-				index++;
-			}
-			IObject[] r = gateway.createObjects(array, 
-					               (new PojoOptions()).map());
-			annotations.addAll(PojoMapper.asDataObjects(r));
-		}
-		if (links.size() > 0) {
-			i = links.iterator();
-			IObject[] array = new IObject[links.size()];
-			int index = 0;
-			while (i.hasNext()) {
-				array[index] = (IObject) i.next();
-				index++;
-			}
-			gateway.createObjects(array, (new PojoOptions()).map());
-		}
-		return annotations;
-	}
-	
-	private void linkAnnotation(DataObject data, AnnotationData annotation)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		Class ioType = gateway.convertPojos(data.getClass());
-		IObject ho = gateway.findIObject(ioType, data.getId());
-		ModelMapper.unloadCollections(ho);
-		ILink link = null;
-		boolean exist = false;
-		IObject annObject;
-		if (annotation instanceof TagAnnotationData) {
-			TagAnnotationData tag = (TagAnnotationData) annotation;
-			//tag a tag
-			if (TagAnnotationData.class.equals(data.getClass())) {
-				annObject = tag.asIObject();
-				ModelMapper.unloadCollections(annObject);
-				link = (ILink) gateway.findAnnotationLink(
-						AnnotationData.class, tag.getId(), ho.getId());
-				if (link == null) 
-					link = ModelMapper.linkAnnotation(annObject, ho);
-			} else {
-				annObject = tag.asIObject();
-				ModelMapper.unloadCollections(annObject);
-				link = (ILink) gateway.findAnnotationLink(ho.getClass(), 
-													ho.getId(), tag.getId());
-				if (link == null)
-					link = ModelMapper.linkAnnotation(ho, annObject);
-				else exist = true;
-			}
-		} else if (annotation instanceof RatingAnnotationData) {
-			clearAnnotation(data.getClass(), data.getId(), 
-					RatingAnnotationData.class);
-			link = ModelMapper.linkAnnotation(ho, annotation.asIObject());
-		} else {
-			annObject = annotation.asIObject();
-			ModelMapper.unloadCollections(annObject);
-			link = ModelMapper.linkAnnotation(ho, annObject);
-		}
-		if (link != null) 
-			gateway.createObject(link, (new PojoOptions()).map());
 	}
 	
 	/**

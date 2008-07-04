@@ -1024,6 +1024,9 @@ class TagsUI
 			TagComponent comp = selectedTags.get(0);
 			TagAnnotationData tag = (TagAnnotationData) comp.getAnnotation();
 			tag.setTagDescription((String) evt.getNewValue());
+			//Need to check if 
+			
+			
 			addedTags.add(tag);
 			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
 					Boolean.TRUE);
