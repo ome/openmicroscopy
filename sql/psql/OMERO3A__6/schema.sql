@@ -2112,7 +2112,6 @@
         owner_id int8 not null,
         update_id int8 not null,
         well int8 not null,
-        well_index int4 not null,
         primary key (id)
     );
 
