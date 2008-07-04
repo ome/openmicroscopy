@@ -22,10 +22,9 @@
       <optional name="reagentSetDescription" type="string"/>
       <child name="plateLinks" type="ome.model.screen.ScreenPlateLink"
         target="ome.model.screen.Plate"/>
-      <child name="reagentLinks"
-        type="ome.model.screen.ScreenReagentLink"
-        target="ome.model.screen.Reagent"/>
-      <onemany name="screenAcquisition"
+      <zeromany name="reagent"
+        type="ome.model.screen.Reagent" inverse="screen"/>
+      <zeromany name="screenAcquisition"
         type="ome.model.screen.ScreenAcquisition" inverse="screen"/>
     </properties>
   </type>
@@ -36,8 +35,9 @@
       <optional name="endTime" type="timestamp"/>
       <manyone name="screen" type="ome.model.screen.Screen"
         inverse="screenAcquisition"/>
-      <onemany name="wellSample" type="ome.model.screen.WellSample"
-        inverse="screenAcquisition"/>
+      <child name="wellSampleLinks"
+        type="ome.model.screen.ScreenAcquisitionWellSampleLink"
+	target="ome.model.screen.WellSample"/>
     </properties>
   </type>
 
@@ -55,11 +55,12 @@
     <properties>
       <optional name="column" type="int"/>
       <optional name="row" type="int"/>
-      <optional name="reagent" type="ome.model.screen.Reagent"/>
+      <child name="reagentLinks" type="ome.model.screen.WellReagentLink"
+        target="ome.model.screen.Reagent"/>
       <optional name="externalDescription" type="string"/>
       <optional name="externalIdentifier" type="string"/>
       <optional name="type" type="string"/>
-      <onemany name="wellSamples" type="ome.model.screen.WellSample"
+      <zeromany name="wellSamples" type="ome.model.screen.WellSample"
         inverse="well" ordered="true"/>
       <manyone name="plate" type="ome.model.screen.Plate" inverse="well"/>
     </properties>
@@ -72,19 +73,20 @@
       <optional name="timepoint" type="int"/>
       <child name="imageLinks" type="ome.model.screen.WellSampleImageLink"
         target="ome.model.core.Image"/>
-      <manyone name="well" type="ome.model.screen.Well" inverse="wellSample" ordered="true"/>
-      <manyone name="screenAcquisition"
-        type="ome.model.screen.ScreenAcquisition" inverse="wellSample" />
+      <manyone name="well" type="ome.model.screen.Well" inverse="wellSample"/>
+      <parent name="screenAcquisitionLinks"
+        type="ome.model.screen.ScreenAcquisitionWellSampleLink"
+	target="ome.model.screen.ScreenAcquisition"/>
     </properties>
   </type>
 
   <type id="ome.model.screen.Reagent" annotated="true" named="true" described="true">
     <properties>
       <optional name="reagentIdentifier" type="string"/>
-      <parent name="screenLinks"
-        type="ome.model.screen.ScreenReagentLink"
-        target="ome.model.screen.Screen"/>
-      <zeromany name="wells" type="ome.model.screen.Well" inverse="reagent"/>
+      <manyone name="screen" type="ome.model.screen.Screen" inverse="reagent"/>
+      <parent name="wellLinks"
+        type="ome.model.screen.WellReagentLink"
+	target="ome.model.screen.Well"/>
     </properties>
   </type>
 
@@ -97,9 +99,16 @@
     </properties>
   </link>
 
-  <link id="ome.model.screen.ScreenReagentLink">
+  <link id="ome.model.screen.ScreenAcquisitionWellSampleLink">
     <properties>
-      <from_parent type="ome.model.screen.Screen"/>
+      <from_parent type="ome.model.screen.ScreenAcquisition"/>
+      <to_child type="ome.model.screen.WellSample"/>
+    </properties>
+  </link>
+
+  <link id="ome.model.screen.WellReagentLink">
+    <properties>
+      <from_parent type="ome.model.screen.Well"/>
       <to_child type="ome.model.screen.Reagent"/>
     </properties>
   </link>
