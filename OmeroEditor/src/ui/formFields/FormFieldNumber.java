@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.components.AttributeTextEditor;
 
 public class FormFieldNumber extends FormField {
 	
@@ -43,22 +44,19 @@ public class FormFieldNumber extends FormField {
 	public FormFieldNumber (IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
 		
-		String valueString = dataField.getAttribute(DataFieldConstants.VALUE);
 		
 		String units = dataField.getAttribute(DataFieldConstants.UNITS);
 		
-		numberTextBox = new JTextField(valueString);
-		visibleAttributes.add(numberTextBox);
+		numberTextBox = new AttributeTextEditor(dataField, 
+				DataFieldConstants.VALUE);
+		
 		numberTextBox.addFocusListener(componentFocusListener);
 		numberTextBox.addFocusListener(new NumberCheckerListener());
-		numberTextBox.setName(DataFieldConstants.VALUE);
 		numberTextBox.setMaximumSize(new Dimension(100, 30));
-		numberTextBox.addFocusListener(focusChangedListener);
-		numberTextBox.addKeyListener(textChangedListener);
 		numberTextBox.setToolTipText("Must enter a number");
 		
 		unitsLabel = new JLabel(units);
-		visibleAttributes.add(unitsLabel);
+		
 		
 		horizontalBox.add(numberTextBox);
 		horizontalBox.add(Box.createHorizontalStrut(10));
@@ -124,7 +122,7 @@ public class FormFieldNumber extends FormField {
 	}
 	
 	private void checkForNumber() {
-		String number = numberTextBox.getText();
+		String number = dataField.getAttribute(DataFieldConstants.VALUE);
 		float value;
 		try {
 			if (number.length() > 0) {
@@ -140,7 +138,6 @@ public class FormFieldNumber extends FormField {
 	// overridden by subclasses if they have other attributes to retrieve from dataField
 	public void dataFieldUpdated() {
 		super.dataFieldUpdated();
-		numberTextBox.setText(dataField.getAttribute(DataFieldConstants.VALUE));
 		checkForNumber();
 		setUnits(dataField.getAttribute(DataFieldConstants.UNITS));
 	}

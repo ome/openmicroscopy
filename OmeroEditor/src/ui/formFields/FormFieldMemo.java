@@ -28,6 +28,7 @@ import javax.swing.border.Border;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.components.AttributeTextAreaEditor;
 
 public class FormFieldMemo extends FormField {
 	
@@ -38,31 +39,11 @@ public class FormFieldMemo extends FormField {
 	public FormFieldMemo(IDataFieldObservable dataFieldObs) {
 		super(dataFieldObs);
 		
-		/*
-		inputEditor = new AttributeMemoFormatEditor(dataField, 
-				"", DataFieldConstants.VALUE, dataField.getAttribute(DataFieldConstants.VALUE));
-		inputEditor.getTextArea().addFocusListener(componentFocusListener);
-		horizontalBox.add(inputEditor);
-		*/
+		textInput = new AttributeTextAreaEditor(dataField, 
+				DataFieldConstants.VALUE);
 		
-		
-		String value = dataField.getAttribute(DataFieldConstants.VALUE);
-		
-		textInput = new JTextArea(value);
-		visibleAttributes.add(textInput);
-		textInput.setRows(2);
-		textInput.setLineWrap(true);
-		textInput.setWrapStyleWord(true);
-		//JScrollPane textScroller = new JScrollPane(textInput);
-		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
-		Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-		Border compoundBorder = BorderFactory.createCompoundBorder(bevelBorder, emptyBorder);
-		textInput.setBorder(compoundBorder);
-		//textInput.setMaximumSize(new Dimension(500, 500));
 		textInput.addMouseListener(new FormPanelMouseListener());
-		textInput.setName(DataFieldConstants.VALUE);
-		textInput.addFocusListener(focusChangedListener);
-		textInput.addKeyListener(textChangedListener);
+		
 		horizontalBox.add(textInput);
 		
 
@@ -83,12 +64,6 @@ public class FormFieldMemo extends FormField {
 			textInput.setEnabled(enabled);
 	}
 	
-	
-	// overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdated() {
-		super.dataFieldUpdated();
-		textInput.setText(dataField.getAttribute(DataFieldConstants.VALUE));
-	}
 	
 	public void setHighlighted(boolean highlight) {
 		super.setHighlighted(highlight);

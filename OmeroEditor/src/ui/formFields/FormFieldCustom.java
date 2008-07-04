@@ -33,6 +33,7 @@ import javax.swing.JTextField;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.XMLView;
+import ui.components.AttributeTextEditor;
 import ui.components.AttributesDialog;
 import util.ImageFactory;
 
@@ -56,22 +57,23 @@ public class FormFieldCustom extends FormField {
 			horizontalBox.add(showAttributesButton);
 		}
 		
-		textInput = new JTextField();
+		textInput = new AttributeTextEditor(dataField, 
+				DataFieldConstants.TEXT_NODE_VALUE);
 		textInput.addMouseListener(new FormPanelMouseListener());
-		textInput.setName(DataFieldConstants.TEXT_NODE_VALUE);
-		textInput.addFocusListener(focusChangedListener);
-		textInput.addKeyListener(textChangedListener);
+		
+		textInput.setVisible(false);	// not visible unless text node
+		
+		horizontalBox.add(textInput);
+		
 		checkForTextNodeValue();
 		
 	}
 
 	public void checkForTextNodeValue() {
 		String textNodeValue = dataField.getAttribute(DataFieldConstants.TEXT_NODE_VALUE);
-		//System.out.println("FormFieldCustom constructor: textNodeValue = " + textNodeValue);
-		if (textNodeValue != null) {
-			textInput.setText(textNodeValue);
-			horizontalBox.add(textInput);
-		}
+		
+		textInput.setVisible(textNodeValue != null);
+		
 	}
 	
 	// called when dataField changes

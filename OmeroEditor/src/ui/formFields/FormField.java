@@ -68,7 +68,9 @@ import util.ImageFactory;
 // This FormField superclass merely arranges Name and Description (as a toolTip)
 // Subclasses have eg TextFields etc
 
-public abstract class FormField extends JPanel implements DataFieldObserver{
+public abstract class FormField 
+	extends JPanel 
+	implements DataFieldObserver{
 	
 	IDataFieldObservable dataFieldObs;
 	IAttributeSaver dataField;
@@ -83,9 +85,10 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	// property change listener, property name
 	public static final String HAS_FOCUS = "hasFocus";
 	
-	boolean textChanged = false;
-	TextChangedListener textChangedListener = new TextChangedListener();
-	FocusListener focusChangedListener = new FocusChangedListener();
+	/**
+	 * Add this listener to various buttons etc, so that if they are clicked.
+	 * this field will become selected.
+	 */
 	FocusListener componentFocusListener = new FormFieldComponentFocusListener();
 	
 	/*
@@ -127,8 +130,6 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 	Icon notCollapsedIcon;
 	Icon spacerIcon;		// A blank icon to replace collapsedIcon if there are no children.
 	
-	// used in Diff (comparing two trees), to get a ref to all components, to colour red if different!
-	ArrayList<JComponent> visibleAttributes = new ArrayList<JComponent>();
 		
 	boolean showDescription = false;	// not saved, just used to toggle
 	
@@ -204,7 +205,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		 */
 		descriptionLabel = new JLabel();
 		descriptionLabel.setBackground(null);
-		visibleAttributes.add(descriptionLabel);
+		
 		infoIcon = ImageFactory.getInstance().getIcon(ImageFactory.INFO_ICON);
 		descriptionButton = new JButton(infoIcon);
 		//unifiedButtonLookAndFeel(descriptionButton);
@@ -558,6 +559,7 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		public void propertyChange(PropertyChangeEvent evt) {
 			if(evt.getPropertyName().equals(FormField.HAS_FOCUS)) {
 				panelClicked(true);
+				System.out.println("FormField. FocusGainedPropertyChangedListener");
 			}
 		}
 	}
@@ -760,41 +762,12 @@ public abstract class FormField extends JPanel implements DataFieldObserver{
 		
 	}
 
-	public ArrayList<JComponent> getVisibleAttributes() {
-		return visibleAttributes;
-	}
 	
 	private String addHtmlTagsForNameLabel(String text) {
 		text = "<html>" + text + "</html>";
 		return text;
 	}
 	
-	
-	public class TextChangedListener implements KeyListener {
-		
-		public void keyTyped(KeyEvent event) {
-			textChanged = true;		// some character was typed, so set this flag
-		}
-		public void keyPressed(KeyEvent event) {}
-		public void keyReleased(KeyEvent event) {}
-	
-	}
-	
-	public class FocusChangedListener implements FocusListener {
-		
-		public void focusLost(FocusEvent event) {
-			if (textChanged) {
-				JTextComponent source = (JTextComponent)event.getSource();
-				
-				setDataFieldAttribute(source.getName(), source.getText(), true);
-				
-				textChanged = false;
-			}
-		}
-		public void focusGained(FocusEvent event) {}
-	}
-	
-
 	// called to update dataField with attribute
 	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
 		dataField.setAttribute(attributeName, value, notifyUndoRedo);

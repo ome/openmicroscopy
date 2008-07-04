@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import ui.components.AttributeTextEditor;
 
 public class FormFieldDate extends FormField {
 	
@@ -39,12 +40,11 @@ public class FormFieldDate extends FormField {
 		
 		String date = dataField.getAttribute(DataFieldConstants.VALUE);
 		
-		textInput = new JTextField(date);
-		visibleAttributes.add(textInput);
+		textInput = new AttributeTextEditor(dataField, 
+				DataFieldConstants.VALUE);
+		
 		textInput.addFocusListener(componentFocusListener);
-		textInput.setName(DataFieldConstants.VALUE);
-		textInput.addFocusListener(focusChangedListener);
-		textInput.addKeyListener(textChangedListener);
+
 		horizontalBox.add(textInput);
 		
 		// enable or disable components based on the locked status of this field
@@ -88,12 +88,6 @@ public class FormFieldDate extends FormField {
 	public boolean isFieldFilled() {
 		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		return ((value != null) && (value.length() > 0));
-	}
-	
-	// overridden by subclasses if they have other attributes to retrieve from dataField
-	public void dataFieldUpdated() {
-		super.dataFieldUpdated();
-		textInput.setText(dataField.getAttribute(DataFieldConstants.VALUE));
 	}
 	
 	
