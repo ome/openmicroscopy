@@ -37,8 +37,13 @@ public class ScreenPlateWellTest extends TestCase {
             acq2 = new ScreenAcquisition(), acq3 = new ScreenAcquisition(),
             acq4 = new ScreenAcquisition();
 
-    public Reagent reagentA = new Reagent("A"), reagentB = new Reagent("B"),
-            reagentC = new Reagent("C");
+    public Reagent reagentA = new Reagent(), reagentB = new Reagent(),
+            reagentC = new Reagent();
+    {
+        reagentA.setName("A");
+        reagentB.setName("B");
+        reagentC.setName("C");
+    }
 
     public Image i1_1a = new Image("i1_1a");
     public Image i1_1b = new Image("i1_1b");
