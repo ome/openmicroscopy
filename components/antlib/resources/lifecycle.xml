@@ -56,7 +56,7 @@
 		<property name="test.with.fail" value="true"/>
 	</target>
 
-	<target name="setup-db" depends="prepare">
+	<target name="setup-db" depends="prepare" description="Creates and installs the OMERO db in a fresh database">
 		<java classname="ome.security.PasswordUtil" outputproperty="ROOTPASS" classpathref="omero.classpath">
 			<arg value="${omero.rootpass}"/>
 		</java>
