@@ -595,12 +595,34 @@ module omero {
 	void setCallback(SimpleCallback* callback);
 
 	/*
-	 * Closes the service factory and all related services.
+	 * Deprecated misnomer.
 	 */
-	void close();
+	["deprecated:close() is deprecated. use closeOnDestroy() instead."] void close();
+
+	/*
+	 * Marks the session for closure rather than detachment, which will
+	 * be triggered by the destruction of the Glacier2 connection via
+	 * router.destroySession()
+	 *
+	 * Closing the session rather the detaching is more secure, since all
+	 * resources are removed from the server and can safely be set once
+	 * it is clear that a client is finished with those resources.
+	 */
+	void closeOnDestroy();
+
+	/*
+	 * Marks the session for detachment rather than closure, which will
+	 * be triggered by the destruction of the Glacier2 connection via
+	 * router.destroySession()
+	 *
+	 * This is the default and allows a lost session to be reconnected,
+	 * at a slight security cost since the session will persist longer
+	 * and can be used by others if the UUID is intercepted.
+	 */
+	void detachOnDestroy();
 
 	// Session management
-	
+
 	/*
 	 * Returns a list of string ids for currently active services. This will
 	 * _not_ keep services alive, and in fact checks for all expired services

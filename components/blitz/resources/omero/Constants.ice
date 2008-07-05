@@ -13,6 +13,12 @@ module omero {
   module constants {
 
     /*
+     * Key in the ImplicitContext which must be filled
+     * by all omero.client implementations.
+     */
+    const string CLIENTUUID = "omero.client.uuid";
+
+    /*
      * The names of the OmeroContext instances
      * defined in beanRefContext.xml files. Only useful
      * in the Java mappings.

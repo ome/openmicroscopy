@@ -17,6 +17,7 @@ import model
 import util
 from omero_ext import pysys
 import omero_Constants_ice
+import uuid
 
 class client(object):
     """
@@ -30,36 +31,20 @@ class client(object):
     def __init__(self, args = pysys.argv, id = Ice.InitializationData()):
 
         self.sf = None
-        self.ic = None
-        ic = Ice.initialize(args,id)
-        if not ic:
+        self.ic = Ice.initialize(args,id)
+        if not self.ic:
             raise ClientError("Improper initialization")
+        # Register Object Factory
         self.of = ObjectFactory()
-        self.of.registerObjectFactory(ic)
-        self.ic = ic
-        self.close_on_destroy = True
-
-    def closeOnDestroy(self):
-        """
-        Closes the blitz session when destroyConnection() is called on exit.
-        This prevents other clients from attaching to the same blitz session,
-        and is more secure.
-        """
-        self.close_on_destroy = True
-
-    def detachOnDestroy(self):
-        """
-        Prevents the blitz session from being closed when destroyConnection()
-        is called. This will allow other clients to attach to the session for
-        distribtued work. This is less secure, but in many cases valuable.
-        """
-        self.close_on_destroy = False
+        self.of.registerObjectFactory(self.ic)
+        # Define our unique identifier (used during close/detach)
+        self.ic.getImplicitContext().put(omero.constants.CLIENT_UUID, str(uuid.uuid4()))
 
     def __del__(self):
         try:
             self.destroyConnection()
         except exceptions.Exception, e:
-            print "Error in __del__:" + str(e.__class__)
+            print "Ignoring error in client.__del__:" + str(e.__class__)
 
     def getCommunicator(self):
         return self.ic
@@ -215,17 +200,19 @@ class client(object):
         finally:
             file.close()
 
-    def destroyConnection(self):
+    def closeSession(self):
         """
         Closes the Router connection created by createSession(). Due to a bug in Ice,
         only one connection is allowed per communicator, so we also destroy the communicator.
         """
+
+        # If 'sf' exists we remove it.
+        if not hasattr(self, 'sf'):
+            self.sf = None
+
         # If 'ic' does not exist we don't have anything to do
         if not hasattr(self, 'ic') or not self.ic:
             return
-
-        if self.close_on_destroy:
-            self.closeSession()
 
         prx = self.ic.getDefaultRouter()
         router = Glacier2.RouterPrx.checkedCast(prx)
@@ -248,24 +235,6 @@ class client(object):
             pysys.stderr.write("Ice exception while destroying communicator:")
             pysys.stderr.write(msg)
         self.ic = None
-
-    def closeSession(self):
-        """
-        Call close on the session (ServiceFactoryPrx) which first decrements
-        the reference count. If its reference count becomes 0, then the session
-        will be removed from the server.
-        """
-        # If 'sf' does not exist we don't have a session at all
-        if not hasattr(self, 'sf'):
-            return
-        # But even if we do have 'sf', the connection may have been lost and 'close' will fail
-        try:
-            try:
-                self.sf.close()
-            except:
-                pass
-        finally:
-            self.sf = None
 
     def _env(self, method, *args):
         """ Helper method to access session environment"""

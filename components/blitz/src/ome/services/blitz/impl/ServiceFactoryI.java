@@ -144,6 +144,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     final Map<String, Ice.Object> interactiveSlots;
 
+    /**
+     * The CLIENT_UUIDs for which a close should be invoked on this session.
+     */
+    final Map<String, Boolean> closeUuids;
+
     final Principal principal;
 
     final List<HardWiredInterceptor> cptors;
@@ -171,20 +176,24 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
-        activeServants = getServantMap(ACTIVE_SERVANTS, cache);
-        interactiveSlots = getServantMap(INTERACTIVE_SLOTS, cache);
+        // TODO the getMap() method could be put in our own Cache class
+        activeServants = getMap(ACTIVE_SERVANTS, cache);
+        interactiveSlots = getMap(INTERACTIVE_SLOTS, cache);
+        closeUuids = getMap(CLOSE_UUIDS, cache);
     }
 
     static String ACTIVE_SERVANTS = "activeServants";
     static String INTERACTIVE_SLOTS = "interactiveSlots";
+    static String CLOSE_UUIDS = "closeUuids";
 
-    private Map<String, Ice.Object> getServantMap(String key, Ehcache cache) {
-        Map<String, Ice.Object> ids;
+    @SuppressWarnings("unchecked")
+    private <T> Map<String, T> getMap(String key, Ehcache cache) {
+        Map<String, T> ids;
         if (!cache.isKeyInCache(key)) {
-            ids = new ConcurrentHashMap<String, Ice.Object>();
+            ids = new ConcurrentHashMap<String, T>();
             cache.put(new Element(key, ids));
         } else {
-            ids = (Map<String, Ice.Object>) cache.get(key).getObjectValue();
+            ids = (Map<String, T>) cache.get(key).getObjectValue();
         }
         return ids;
     }
@@ -463,64 +472,19 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         throw new UnsupportedOperationException();
     }
 
+    public void detachOnDestroy(Ice.Current current) {
+        String key = current.ctx.get(omero.constants.CLIENTUUID.value);
+        closeUuids.remove(key);
+    }
+
+    @Deprecated
     public void close(Ice.Current current) {
+        closeOnDestroy(current);
+    }
 
-        if (log.isInfoEnabled()) {
-            log.info(String.format("Closing %s session", this));
-        }
-
-        // Cleaning up resources
-
-        // INTERACTIVE
-        Set<String> ipIds = interactiveSlots.keySet();
-        for (String id : ipIds) {
-            InteractiveProcessorI ip = (InteractiveProcessorI) interactiveSlots
-                    .get(id);
-            ip.stop();
-            current.adapter.remove(Ice.Util.stringToIdentity(id));
-            interactiveSlots.remove(id);
-        }
-
-        // SERVANTS
-        // Here we call the "close()" method on all methods which require that
-        // logic allowing the IceMethodInvoker to raise the
-        // UnregisterServantEvent, otherwise there is a recursive call back
-        // to close.
-        List<String> ids = activeServices(current);
-        for (String idString : ids) {
-            Ice.Identity id = Ice.Util.stringToIdentity(idString);
-            Ice.Object obj = current.adapter.find(id);
-            try {
-                if (obj instanceof StatefulServiceInterface) {
-                    Method m = obj.getClass().getMethod("close",
-                            Ice.Current.class);
-                    Ice.Current __curr = new Ice.Current();
-                    __curr.id = id;
-                    __curr.adapter = current.adapter;
-                    __curr.operation = "close";
-                    __curr.mode = current.mode; // FIXME due to bug
-                    // http://www.zeroc.com/forums/bug-reports/3348-ice-current-hashcode-can-throw-npe-null-enum.html
-                    m.invoke(obj, __curr);
-                } else {
-                    unregisterServant(id, current);
-                }
-            } catch (Exception e) {
-                log.error("Failure to close: " + idString + "=" + obj, e);
-            }
-        }
-
-        // All resources cleaned up to the best of our ability,
-        // now we can remove the current session. If an exception if thrown,
-        // there's not much we can do.
-        try {
-            current.adapter.remove(ServiceFactoryI.sessionId(principal
-                    .getName()));
-            sessionManager.close(this.principal.getName());
-        } catch (Throwable t) {
-            // FIXME
-            InternalException ie = new InternalException(t.getMessage());
-            ie.setStackTrace(t.getStackTrace());
-        }
+    public void closeOnDestroy(Ice.Current current) {
+        String key = current.ctx.get(omero.constants.CLIENTUUID.value);
+        closeUuids.put(key, Boolean.TRUE);
     }
 
     /**
@@ -530,7 +494,80 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * destroyed, a client can attempt to reconnect
      */
     public void destroy(Ice.Current current) {
-        sessionManager.detach(this.principal.getName());
+
+        // First detach and get the reference count.
+        int ref = sessionManager.detach(this.principal.getName());
+
+        // If we are supposed to close, do only so if the ref count
+        // is < 1.
+        String key = current.ctx.get(omero.constants.CLIENTUUID.value);
+        if (key != null && ref < 1) {
+
+            ref = sessionManager.close(this.principal.getName());
+
+            // If someone has attached since we called detach() above, do not
+            // destroy this session.
+            if (ref > 0) {
+                return;
+            }
+
+            if (log.isInfoEnabled()) {
+                log.info(String.format("Closing %s session", this));
+            }
+
+            // Cleaning up resources
+
+            // INTERACTIVE
+            Set<String> ipIds = interactiveSlots.keySet();
+            for (String id : ipIds) {
+                InteractiveProcessorI ip = (InteractiveProcessorI) interactiveSlots
+                        .get(id);
+                ip.stop();
+                current.adapter.remove(Ice.Util.stringToIdentity(id));
+                interactiveSlots.remove(id);
+            }
+
+            // SERVANTS
+            // Here we call the "close()" method on all methods which require
+            // that
+            // logic allowing the IceMethodInvoker to raise the
+            // UnregisterServantEvent, otherwise there is a recursive call back
+            // to close.
+            List<String> ids = activeServices(current);
+            for (String idString : ids) {
+                Ice.Identity id = Ice.Util.stringToIdentity(idString);
+                Ice.Object obj = current.adapter.find(id);
+                try {
+                    if (obj instanceof StatefulServiceInterface) {
+                        Method m = obj.getClass().getMethod("close",
+                                Ice.Current.class);
+                        Ice.Current __curr = new Ice.Current();
+                        __curr.id = id;
+                        __curr.adapter = current.adapter;
+                        __curr.operation = "close";
+                        __curr.mode = current.mode; // FIXME due to bug
+                        // http://www.zeroc.com/forums/bug-reports/3348-ice-current-hashcode-can-throw-npe-null-enum.html
+                        m.invoke(obj, __curr);
+                    } else {
+                        unregisterServant(id, current);
+                    }
+                } catch (Exception e) {
+                    log.error("Failure to close: " + idString + "=" + obj, e);
+                }
+            }
+
+            // All resources cleaned up to the best of our ability,
+            // now we can remove the current session. If an exception if thrown,
+            // there's not much we can do.
+            try {
+                current.adapter.remove(ServiceFactoryI.sessionId(principal
+                        .getName()));
+            } catch (Throwable t) {
+                // FIXME
+                InternalException ie = new InternalException(t.getMessage());
+                ie.setStackTrace(t.getStackTrace());
+            }
+        }
     }
 
     public List<String> activeServices(Current __current) {
