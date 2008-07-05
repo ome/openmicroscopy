@@ -50,7 +50,23 @@ public interface SessionManager extends ApplicationListener {
      */
     Session create(Principal principal);
 
+    /**
+     * 
+     * @param session
+     * @return
+     */
     Session update(Session session);
+
+    /**
+     * Allows decrementing the reference count for a session without calling the
+     * actual {@link #close(String)} logic. This is useful when it is assumed
+     * that another user will re-attach to the same session. A timeout can still
+     * cause the session to be removed.
+     * 
+     * @param uuid
+     * @return
+     */
+    int detach(String uuid);
 
     /**
      * @param sessionId

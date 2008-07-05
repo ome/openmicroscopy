@@ -10,10 +10,13 @@ package ome.services.sessions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.model.meta.Session;
 
 public class SessionContextImpl implements SessionContext {
+
+    private final AtomicInteger refCount = new AtomicInteger(0);
     private final Session session;
     private final List<Long> leaderOfGroups;
     private final List<Long> memberOfGroups;
@@ -27,6 +30,18 @@ public class SessionContextImpl implements SessionContext {
         this.memberOfGroups = Collections.unmodifiableList(new ArrayList(
                 mGroups));
         this.roles = Collections.unmodifiableList(new ArrayList(roles));
+    }
+
+    public int refCount() {
+        return refCount.get();
+    }
+
+    public int increment() {
+        return refCount.incrementAndGet();
+    }
+
+    public int decrement() {
+        return refCount.decrementAndGet();
     }
 
     public Session getSession() {

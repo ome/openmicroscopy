@@ -9,7 +9,11 @@ package ome.server.utests.sessions;
 import java.util.Collections;
 import java.util.List;
 
-import ome.conditions.ApiUsageException;
+import net.sf.ehcache.CacheManager;
+import ome.api.local.LocalAdmin;
+import ome.api.local.LocalQuery;
+import ome.api.local.LocalUpdate;
+import ome.conditions.AuthenticationException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.model.internal.Details;
@@ -19,13 +23,20 @@ import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManagerImpl;
+import ome.services.sessions.state.SessionCache;
+import ome.services.util.Executor;
+import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import ome.testing.MockServiceFactory;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
+import org.jmock.core.Invocation;
+import org.jmock.core.Stub;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -35,24 +46,34 @@ import org.testng.annotations.Test;
  */
 public class SessMgrUnitTest extends MockObjectTestCase {
 
-    private static class TestSessionManager extends SessionManagerImpl {
+    private final class DoWorkStub implements Stub {
+        public Object invoke(Invocation i) throws Throwable {
+            Executor.Work work = (Executor.Work) i.parameterValues.get(1);
+            return work.doWork(null, null, sf);
+        }
 
+        public StringBuffer describeTo(StringBuffer sb) {
+            sb.append("calls doWork on work");
+            return sb;
+        }
     }
 
-    private Mock adminMock, updateMock, queryMock;
-    private TestSessionManager mgr;
-    private Session session;
-
-    @BeforeTest
-    public void config() {
-        mgr = new TestSessionManager();
-        mgr.setRoles(new Roles());
-
-        session = new Session();
-        session.setUuid("uuid");
-        session.setId(1L);
+    private final class TestManager extends SessionManagerImpl {
+        Session doDefine() {
+            return define("uuid", "message", System.currentTimeMillis(),
+                    defaultTimeToIdle, defaultTimeToLive, "Test", "rw----");
+        }
     }
 
+    private final OmeroContext oc = new OmeroContext(
+            "classpath:ome/testing/empty.xml");
+    private final MockServiceFactory sf = new MockServiceFactory();
+    private Mock exMock;
+    private TestManager mgr;
+    private SessionCache cache;
+
+    // State
+    Session session = new Session();
     Principal principal = new Principal("u", "g", "Test");
     String credentials = "password";
     Experimenter user = new Experimenter(1L, true);
@@ -61,24 +82,70 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     List<Long> l_ids = Collections.singletonList(1L);
     List<String> userRoles = Collections.singletonList("single");
 
+    @BeforeTest
+    public void config() {
+
+        exMock = mock(Executor.class);
+        sf.mockAdmin = mock(LocalAdmin.class);
+        sf.mockUpdate = mock(LocalUpdate.class);
+        sf.mockQuery = mock(LocalQuery.class);
+
+        cache = new SessionCache();
+        cache.setCacheManager(CacheManager.getInstance());
+
+        mgr = new TestManager();
+        mgr.setRoles(new Roles());
+        mgr.setSessionCache(cache);
+        mgr.setExecutor((Executor) exMock.proxy());
+        mgr.setApplicationContext(oc);
+        mgr.setDefaultTimeToIdle(100 * 1000L);
+        mgr.setDefaultTimeToLive(300 * 1000L);
+
+        session = mgr.doDefine();
+        session.setId(1L);
+
+        user.setOmeName(principal.getName());
+    }
+
     void prepareSessionCreation() {
-        adminMock.expects(once()).method("checkPassword").will(
+
+        exMock.expects(atLeastOnce()).method("execute").will(new DoWorkStub());
+
+        sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
-        adminMock.expects(once()).method("userProxy").will(returnValue(user));
-        adminMock.expects(once()).method("groupProxy").will(returnValue(group));
-        adminMock.expects(once()).method("getMemberOfGroupIds").will(
+        sf.mockAdmin.expects(atLeastOnce()).method("userProxy").will(
+                returnValue(user));
+        sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").will(
+                returnValue(group));
+        sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds").will(
                 returnValue(m_ids));
-        adminMock.expects(once()).method("getLeaderOfGroupIds").will(
+        sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds").will(
                 returnValue(l_ids));
-        adminMock.expects(once()).method("getUserRoles").will(
+        sf.mockAdmin.expects(atLeastOnce()).method("getUserRoles").will(
                 returnValue(userRoles));
-        adminMock.expects(once()).method("checkPassword").will(
+        sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
-        queryMock.expects(once()).method("findAllByQuery")
+        sf.mockQuery.expects(once()).method("findAllByQuery")
                 .will(
                         returnValue(Collections
                                 .singletonList(new ExperimenterGroup())));
-        updateMock.expects(once()).method("saveObject");
+        sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
+                .will(returnValue(session));
+
+    }
+
+    void prepareSessionUpdate() {
+        prepareSessionCreation();
+        // exMock.expects(atLeastOnce()).method("execute").will(new
+        // DoWorkStub());
+        //
+        // sf.mockAdmin.expects(once()).method("userProxy")
+        // .will(returnValue(user));
+        // sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").will(
+        // returnValue(group));
+        // sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
+        // new SetIdStub(1L));
+        //
     }
 
     @Test
@@ -90,7 +157,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
          */
 
         prepareSessionCreation();
-        session = mgr.create(principal, credentials);
+        assert session == mgr.create(principal, credentials);
         assertNotNull(session);
         assertNotNull(session.getUuid());
 
@@ -140,10 +207,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
         testCreateNewSession();
         session.setDefaultEventType("somethingnew");
-        updateMock.expects(once()).method("saveAndReturnObject").will(
+        sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
                 returnValue(rv));
+
+        prepareSessionUpdate();
         Session test = mgr.update(session);
-        assertTrue(test == rv); // insists that a copy is performed
+        assertFalse(test == rv); // insists that a copy is performed
     }
 
     @Test(expectedExceptions = SessionException.class)
@@ -203,7 +272,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             }
 
         };
-        updateMock.expects(once()).method("saveObject").with(closedSession);
+        sf.mockUpdate.expects(once()).method("saveObject").with(closedSession);
         mgr.close(session.getUuid());
         assertNull(mgr.find(session.getUuid()));
 
@@ -223,7 +292,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             }
 
         };
-        updateMock.expects(once()).method("saveObject").with(closedSession);
+        sf.mockUpdate.expects(once()).method("saveObject").with(closedSession);
         mgr.close(session.getUuid());
         assertNull(mgr.find(session.getUuid()));
         fail("NYI");
@@ -259,35 +328,37 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     }
 
     void prepareForCreateSession() {
-        adminMock.expects(once()).method("userProxy").will(returnValue(user));
-        adminMock.expects(once()).method("groupProxy").will(returnValue(group));
-        adminMock.expects(once()).method("getMemberOfGroupIds").will(
+        sf.mockAdmin.expects(once()).method("userProxy")
+                .will(returnValue(user));
+        sf.mockAdmin.expects(once()).method("groupProxy").will(
+                returnValue(group));
+        sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds").will(
                 returnValue(m_ids));
-        adminMock.expects(once()).method("getLeaderOfGroupIds").will(
+        sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds").will(
                 returnValue(l_ids));
-        adminMock.expects(once()).method("getUserRoles").will(
+        sf.mockAdmin.expects(once()).method("getUserRoles").will(
                 returnValue(userRoles));
-        adminMock.expects(once()).method("checkPassword").will(
+        sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
     }
 
-    @Test(expectedExceptions = ApiUsageException.class)
+    @Test(expectedExceptions = AuthenticationException.class)
     public void testCreateSessionFailsAUEOnNullPrincipal() throws Exception {
-        adminMock.expects(once()).method("checkPassword").will(
+        sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
         mgr.create(null, "password");
     }
 
-    @Test(expectedExceptions = ApiUsageException.class)
+    @Test(expectedExceptions = AuthenticationException.class)
     public void testCreateSessionFailsAUEOnNullOmeName() throws Exception {
-        adminMock.expects(once()).method("checkPassword").will(
+        sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
         mgr.create(new Principal(null, null, null), "password");
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(expectedExceptions = AuthenticationException.class)
     public void testCreateSessionFailsSV() throws Exception {
-        adminMock.expects(once()).method("checkPassword").will(
+        sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(false));
         mgr.create(principal, "password");
     }
@@ -295,7 +366,9 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test(expectedExceptions = SecurityViolation.class)
     public void testChecksForDefaultGroupsOnCreation() throws Exception {
         prepareForCreateSession();
-        queryMock.expects(once()).method("findAllByQuery").will(
+        sf.mockAdmin.expects(once()).method("getDefaultGroup").will(
+                returnValue(group));
+        sf.mockQuery.expects(once()).method("findAllByQuery").will(
                 returnValue(Collections.EMPTY_LIST));
         mgr.create(new Principal("user", "user", "User"), "user");
     }
@@ -319,5 +392,28 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     @Test
     public void testUpdateChecksIfUserIsMemberOfGroup() throws Exception {
         fail("NYI");
+    }
+
+    @Test
+    public void testReferenceCounting() throws Exception {
+        testCreateNewSession();
+        String uuid = session.getUuid();
+        SessionContext ctx = cache.getSessionContext(uuid);
+
+        assertEquals(1, ctx.refCount());
+        assertNull(ctx.getSession().getClosed());
+
+        mgr.create(new Principal(uuid));
+        assertEquals(2, ctx.refCount());
+        assertNull(ctx.getSession().getClosed());
+
+        mgr.close(uuid);
+        assertEquals(1, ctx.refCount());
+        assertNull(ctx.getSession().getClosed());
+
+        prepareSessionUpdate();
+        mgr.close(uuid);
+        assertEquals(0, ctx.refCount());
+        assertNotNull(ctx.getSession().getClosed());
     }
 }

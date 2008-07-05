@@ -72,19 +72,19 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private final String internal_uuid = UUID.randomUUID().toString();
 
     // Injected
-    OmeroContext context;
-    Roles roles;
-    SessionCache cache;
-    Executor executor;
-    long defaultTimeToIdle;
-    long defaultTimeToLive;
+    protected OmeroContext context;
+    protected Roles roles;
+    protected SessionCache cache;
+    protected Executor executor;
+    protected long defaultTimeToIdle;
+    protected long defaultTimeToLive;
 
     /**
      * A private session for use only by this instance for running methods via
      * {@link Executor}
      */
-    Principal asroot;
-    SessionContext sc;
+    protected Principal asroot;
+    protected SessionContext sc;
 
     // ~ Injectors
     // =========================================================================
@@ -154,13 +154,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         try {
             SessionContext context = cache.getSessionContext(credentials);
             if (context != null) {
+                context.increment();
                 return context.getSession(); // EARLY EXIT!
             }
         } catch (SessionException se) {
             // oh well.
         }
 
-        boolean ok = executeCheckPassword(_principal, credentials);
+        // Though trusted values, if we receive a null principal, not ok;
+        boolean ok = _principal == null ? false : executeCheckPassword(
+                _principal, credentials);
 
         if (!ok) {
             log.warn("Failed to authenticate: " + _principal);
@@ -178,6 +181,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             SessionContext context = cache.getSessionContext(principal
                     .getName());
             if (context != null) {
+                context.increment();
                 return context.getSession(); // EARLY EXIT!
             }
         } catch (SessionException se) {
@@ -204,6 +208,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             cache.removeSession(session.getUuid());
             throw re;
         }
+
+        // All successful, increment and return.
+        ctx.increment();
         return session;
     }
 
@@ -293,6 +300,16 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         return (sessionContext == null) ? null : sessionContext.getSession();
     }
 
+    public int getReferenceCount(String uuid) {
+        SessionContext ctx = cache.getSessionContext(uuid);
+        return ctx.refCount();
+    }
+
+    public int detach(String uuid) {
+        SessionContext ctx = cache.getSessionContext(uuid);
+        return ctx.decrement();
+    }
+
     /*
      */
     public void close(String uuid) {
@@ -301,26 +318,28 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         try {
             ctx = cache.getSessionContext(uuid);
         } catch (SessionException se) {
-            ctx = null;
+            return; // EARLY EXIT!
         }
 
-        if (ctx == null) {
-            return;
-        }
+        int refCount = ctx.decrement();
+        if (refCount < 1) {
 
-        Session s = ctx.getSession();
-        s.setClosed(new Timestamp(System.currentTimeMillis()));
-        update(s);
+            Session s = ctx.getSession();
+            s.setClosed(new Timestamp(System.currentTimeMillis()));
+            update(s);
 
-        try {
-            context.publishEvent(new DestroySessionMessage(this, s.getUuid()));
-        } catch (RuntimeException re) {
-            log.warn("Session destruction cancelled by event listener", re);
-            throw re;
+            try {
+                context.publishEvent(new DestroySessionMessage(this, s
+                        .getUuid()));
+            } catch (RuntimeException re) {
+                log.warn("Session destruction cancelled by event listener", re);
+                throw re;
+            }
+            // This the publishEvent returns successfully, then we update our
+            // cache
+            // since ehcache is not tx-friendly.
+            cache.removeSession(uuid);
         }
-        // This the publishEvent returns successfully, then we update our cache
-        // since ehcache is not tx-friendly.
-        cache.removeSession(uuid);
     }
 
     public List<String> getUserRoles(String uuid) {

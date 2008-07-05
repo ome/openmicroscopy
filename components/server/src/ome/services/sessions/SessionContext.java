@@ -23,6 +23,25 @@ import ome.system.EventContext;
 public interface SessionContext extends EventContext {
 
     Session getSession();
+
     List<String> getUserRoles();
 
+    // Reference counting
+
+    /**
+     * Return the current number of references which this session is aware of.
+     */
+    int refCount();
+
+    /**
+     * Increment the current {@link #refCount() reference count} and return the
+     * new value atomically.
+     */
+    int increment();
+
+    /**
+     * Decrement the current {@link #refCount() reference count} and return the
+     * new value atomically.
+     */
+    int decrement();
 }

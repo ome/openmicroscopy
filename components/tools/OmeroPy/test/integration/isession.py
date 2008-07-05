@@ -69,5 +69,15 @@ class TestISession(lib.ITest):
         guest_sess = guest_client.createSession("guest",sess.uuid)
         guest_client.closeSession()
 
+    def testCreationDestructionClosing(self):
+        self.client.detachOnDestroy()
+        sess = self.client.sf.ice_getIdentity().category
+        self.client.destroyConnection()
+
+        self.client = omero.client()
+        self.client.createSession(sess, sess)
+        self.client.closeOnDestroy()
+        self.client.destroyConnection()
+
 if __name__ == '__main__':
     unittest.main()

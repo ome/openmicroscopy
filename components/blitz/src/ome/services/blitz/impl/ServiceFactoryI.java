@@ -523,11 +523,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         }
     }
 
+    /**
+     * Destruction simply decrements the reference count for a session to allow
+     * reconnecting to it. This means that the Glacier timeout property is
+     * fairly unimportant. If a Glacier connection times out or is otherwise
+     * destroyed, a client can attempt to reconnect
+     */
     public void destroy(Ice.Current current) {
-        if (log.isInfoEnabled()) {
-            log.info(String.format("Destroying %s session", current.id.name));
-        }
-        close(current);
+        sessionManager.detach(this.principal.getName());
     }
 
     public List<String> activeServices(Current __current) {

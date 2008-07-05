@@ -10,7 +10,7 @@
 
 """
 
-import exceptions
+import exceptions, traceback
 import Ice, Glacier2
 import api
 import model
@@ -20,7 +20,8 @@ import omero_Constants_ice
 
 class client(object):
     """
-    Central blitz entry point
+    Central blitz entry point. Currently useful for a single session, after closing the
+    connection, create another instance.
 
     Typical usage includes:
     client = omero.client()    # Uses --Ice.Config argument or ICE_CONFIG variable
@@ -36,21 +37,29 @@ class client(object):
         self.of = ObjectFactory()
         self.of.registerObjectFactory(ic)
         self.ic = ic
-        self.close_on_destroy = False
-
-    def closeOnDestroy(self):
         self.close_on_destroy = True
 
+    def closeOnDestroy(self):
+        """
+        Closes the blitz session when destroyConnection() is called on exit.
+        This prevents other clients from attaching to the same blitz session,
+        and is more secure.
+        """
+        self.close_on_destroy = True
+
+    def detachOnDestroy(self):
+        """
+        Prevents the blitz session from being closed when destroyConnection()
+        is called. This will allow other clients to attach to the session for
+        distribtued work. This is less secure, but in many cases valuable.
+        """
+        self.close_on_destroy = False
+
     def __del__(self):
-        if self.close_on_destroy:
-            self.closeSession()
-        if self.ic:
-            try:
-                self.ic.destroy()
-            except (), msg:
-                pysys.stderr.write("Ice exception while destroying communicator:")
-                pysys.stderr.write(msg)
-            self.ic = None
+        try:
+            self.destroyConnection()
+        except exceptions.Exception, e:
+            print "Error in __del__:" + str(e.__class__)
 
     def getCommunicator(self):
         return self.ic
@@ -206,7 +215,46 @@ class client(object):
         finally:
             file.close()
 
+    def destroyConnection(self):
+        """
+        Closes the Router connection created by createSession(). Due to a bug in Ice,
+        only one connection is allowed per communicator, so we also destroy the communicator.
+        """
+        # If 'ic' does not exist we don't have anything to do
+        if not hasattr(self, 'ic') or not self.ic:
+            return
+
+        if self.close_on_destroy:
+            self.closeSession()
+
+        prx = self.ic.getDefaultRouter()
+        router = Glacier2.RouterPrx.checkedCast(prx)
+
+        # Now destroy the actual session if possible,
+        # which will always trigger an exception,
+        # regardless of actually being connected or not
+        if router:
+            try:
+                router.destroySession()
+            except exceptions.Exception, e:
+                pass
+                # SNEE happens if we call sf.close() before
+                # calling destroySession(). CLE happens since
+                # we are disconnecting
+
+        try:
+            self.ic.destroy()
+        except (), msg:
+            pysys.stderr.write("Ice exception while destroying communicator:")
+            pysys.stderr.write(msg)
+        self.ic = None
+
     def closeSession(self):
+        """
+        Call close on the session (ServiceFactoryPrx) which first decrements
+        the reference count. If its reference count becomes 0, then the session
+        will be removed from the server.
+        """
         # If 'sf' does not exist we don't have a session at all
         if not hasattr(self, 'sf'):
             return
@@ -218,14 +266,6 @@ class client(object):
                 pass
         finally:
             self.sf = None
-        # Now destroy the actual session, which will always trigger an exception, regardless of
-        # actually being connected or not
-        prx = self.ic.getDefaultRouter()
-        router = Glacier2.RouterPrx.checkedCast(prx)
-        try:
-            router.destroySession()
-        except Ice.ConnectionLostException:
-            pass
 
     def _env(self, method, *args):
         """ Helper method to access session environment"""
