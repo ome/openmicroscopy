@@ -23,6 +23,7 @@
         lazy-init="true">
     <constructor-arg index="0">
       <list>
+        <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/model.xml</value>
       </list>
     </constructor-arg>
@@ -33,6 +34,7 @@
           lazy-init="true">
     <constructor-arg index="0">
       <list>
+        <value>classpath:ome/services/messaging.xml</value>
         <!-- Arranged roughly in stack order -->
         <value>classpath:ome/services/config-local.xml</value>
         <value>classpath:ome/services/security.xml</value>

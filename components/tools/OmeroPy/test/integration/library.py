@@ -11,6 +11,8 @@
 import unittest
 import omero
 import tempfile
+import traceback
+import exceptions
 
 class ITest(unittest.TestCase):
 
@@ -31,11 +33,22 @@ class ITest(unittest.TestCase):
         return tmpfile
 
     def tearDown(self):
-        self.client.closeSession()
+        failure = False
+        try:
+            self.client.closeSession()
+        except:
+            traceback.print_exc()
+            failure = True
         if self.root:
-            self.root.closeSession()
+            try:
+                self.root.closeSession()
+            except:
+                traceback.print_exc()
+                failure = True
         for tmpfile in self.tmpfiles:
             try:
                 tmpfile.close()
             except:
                 print "Error closing:"+tmpfile
+        if failure:
+           raise exceptions.Exception("Exception on client.closeSession")

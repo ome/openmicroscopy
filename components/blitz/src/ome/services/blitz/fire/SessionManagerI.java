@@ -127,17 +127,22 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                 sessionToClientIds.put(s.getUuid(), new HashSet<String>());
                 log.debug(String.format("Created session %s for user %s",
                         id.name, userId));
-            } else {
-                sessionToClientIds.get(s.getUuid()).add(session.clientId);
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("Rejoined session %s for user %s",
-                            id.name, userId));
-                }
-
             }
+            sessionToClientIds.get(s.getUuid()).add(session.clientId);
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("Rejoined session %s for user %s",
+                        id.name, userId));
+            }
+
             return Glacier2.SessionPrxHelper.uncheckedCast(_prx);
 
         } catch (Exception t) {
+
+            if (t instanceof ApiUsageException) {
+                ApiUsageException aue = (ApiUsageException) t;
+                throw new CannotCreateSessionException(aue.message);
+            }
+
             ConvertToBlitzExceptionMessage convert = new ConvertToBlitzExceptionMessage(
                     this, t);
             try {
@@ -149,9 +154,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             if (convert.to instanceof CannotCreateSessionException) {
                 throw (CannotCreateSessionException) convert.to;
-            } else if (convert.to instanceof ApiUsageException) {
-                ApiUsageException aue = (ApiUsageException) convert.to;
-                throw new CannotCreateSessionException(aue.message);
             }
 
             // FIXME this copying should be a part of ome.conditions.*
@@ -206,28 +208,31 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      *            for reaping the given sessions except to get the current
      *            {@link Ice.ObjectAdapter}
      */
-    private void reapSessions(Ice.Current cantUseThisCurrent) {
+    public void reapSessions(Ice.Current cantUseThisCurrent) {
         Ice.ObjectAdapter adapter = cantUseThisCurrent.adapter;
         synchronized (sessionsForReaping) {
-            List<String> ids = new ArrayList<String>(sessionsForReaping);
-            for (String id : ids) {
-                for (String clientId : sessionToClientIds.get(id)) {
+            List<String> sessionIds = new ArrayList<String>(sessionsForReaping);
+            for (String sessionId : sessionIds) {
+                Set<String> clientIds = sessionToClientIds.keySet();
+                for (String clientId : clientIds) {
                     try {
                         Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
-                                id);
+                                sessionId);
                         Ice.Object obj = adapter.find(iid);
                         if (obj == null) {
-                            log.debug(id + " already removed.");
+                            log.debug(Ice.Util.identityToString(iid)
+                                    + " already removed.");
                         } else {
                             ServiceFactoryI sf = (ServiceFactoryI) obj;
                             sf.doDestroy(adapter);
                         }
-                        sessionsForReaping.remove(id);
                     } catch (Exception e) {
-                        log.error("Error reaping session " + id
+                        log.error("Error reaping session " + sessionId
                                 + " from client " + clientId, e);
                     }
                 }
+                sessionToClientIds.remove(sessionId);
+                sessionsForReaping.remove(sessionId);
             }
         }
     }

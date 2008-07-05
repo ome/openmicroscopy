@@ -20,7 +20,6 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
-import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.ServantDefinition;
@@ -515,12 +514,25 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             doDestroy(current.adapter);
 
         }
+
+        // All resources cleaned up or not based on the reference count.
+        // Now we can remove the current session. If an exception if thrown,
+        // there's not much we can do.
+        try {
+            current.adapter.remove(sessionId(principal.getName()));
+        } catch (Throwable t) {
+            // FIXME
+            log.error("Possible memory leak: can't remove service factory", t);
+        }
+
     }
 
     /**
-     * Performs the actual cleanup operation. Since {@link #destroy()} is called
-     * non-discriminantly by the router, even when a client has just died, we
-     * have this internal method for handling the actual closing of resources.
+     * Performs the actual cleanup operation on all the resources shared between
+     * this and other {@link ServiceFactoryI} instances in the same
+     * {@link Session}. Since {@link #destroy()} is called regardless by the
+     * router, even when a client has just died, we have this internal method
+     * for handling the actual closing of resources.
      */
     public void doDestroy(Ice.ObjectAdapter adapter) {
 
@@ -533,11 +545,16 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // INTERACTIVE
         Set<String> ipIds = interactiveSlots.keySet();
         for (String id : ipIds) {
-            InteractiveProcessorI ip = (InteractiveProcessorI) interactiveSlots
-                    .get(id);
-            ip.stop();
-            adapter.remove(Ice.Util.stringToIdentity(id));
-            interactiveSlots.remove(id);
+            InteractiveProcessorI ip = null;
+            try {
+                ip = (InteractiveProcessorI) interactiveSlots.get(id);
+                ip.stop();
+            } catch (Exception e) {
+                log.error("Error stopping interactive processor: " + ip);
+            } finally {
+                adapter.remove(Ice.Util.stringToIdentity(id));
+                interactiveSlots.remove(id);
+            }
         }
 
         // SERVANTS
@@ -567,16 +584,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             }
         }
 
-        // All resources cleaned up to the best of our ability,
-        // now we can remove the current session. If an exception if thrown,
-        // there's not much we can do.
-        try {
-            adapter.remove(sessionId(principal.getName()));
-        } catch (Throwable t) {
-            // FIXME
-            InternalException ie = new InternalException(t.getMessage());
-            ie.setStackTrace(t.getStackTrace());
-        }
     }
 
     public List<String> activeServices(Current __current) {
@@ -709,12 +716,17 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             Ice.Object already = current.adapter.find(id);
             if (null == already) {
                 current.adapter.add(servant, id);
+                if (log.isInfoEnabled()) {
+                    log.info("Created servant:" + servantString(id, servant));
+                }
             } else {
                 current.adapter.remove(id);
                 current.adapter.add(servant, id);
-            }
-            if (log.isInfoEnabled()) {
-                log.info("Created servant:" + servantString(id, servant));
+                if (already.hashCode() != servant.hashCode()) {
+                    log.info(String.format("Replacing %s with %s",
+                            servantString(id, already), servantString(id,
+                                    servant)));
+                }
             }
         } catch (Exception e) {
             // FIXME

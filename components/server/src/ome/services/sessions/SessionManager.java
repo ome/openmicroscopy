@@ -69,6 +69,12 @@ public interface SessionManager extends ApplicationListener {
     int detach(String uuid);
 
     /**
+     * Return the number of client which are presumed to be attached to this
+     * session.
+     */
+    int getReferenceCount(String uuid);
+
+    /**
      * @param sessionId
      * @return A current session. Null if the session id is not found.
      */

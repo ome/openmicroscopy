@@ -36,7 +36,7 @@
  <bean id="securitySystem" factory-bean="securityMock" factory-method="proxy"/>
  <bean id="methodSecurity" factory-bean="methodMock" factory-method="proxy"/>
  <bean id="sessionManager" factory-bean="sessionsMock" factory-method="proxy"/>
- 
+ <bean id="executor"       factory-bean="executorMock" factory-method="proxy"/>
  <!-- Here it is necessary to specify the HardWiredInterceptors instances
  even if they are *not* specified in Spring -->
  <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring">
@@ -75,5 +75,8 @@
   <bean id="sessionsMock" class="org.jmock.Mock">
    <constructor-arg value="ome.services.sessions.SessionManager" type="java.lang.Class"/>
  </bean>
+
+ 
+  <bean id="executorMock" class="ome.icy.fixtures.ExecutorMockFactory"/>
 
 </beans>

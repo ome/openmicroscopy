@@ -218,13 +218,18 @@ class client(object):
         only one connection is allowed per communicator, so we also destroy the communicator.
         """
 
-        # If 'sf' exists we remove it.
+        # If 'sf' exists we remove it, but save it for the weird chance that ic is None
+        sf = None
         if hasattr(self, 'sf'):
+            sf = self.sf
             self.sf = None
 
         # If 'ic' does not exist we don't have anything to do
         if not hasattr(self, 'ic') or not self.ic:
-            return
+            if sf:
+                self.ic = sf.ice_getCommunicator()
+            else:
+                return
 
         try:
             prx = self.ic.getDefaultRouter()

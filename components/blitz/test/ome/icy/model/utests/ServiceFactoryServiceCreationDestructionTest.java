@@ -164,11 +164,8 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         mockAdapter.expects(once()).method("remove").will(returnValue(close));
         callsActiveServices(Collections.singletonList(reServiceId));
         String id = sf.activeServices(curr).get(0).toString();
-        Ice.Current curr = new Ice.Current();
-        curr.id = Ice.Util.stringToIdentity("username/sessionid");
-        curr.adapter = adapter;
         // Events now called by SessionManagerI
-        sf.unregisterServant(Ice.Util.stringToIdentity(id), curr);
+        sf.unregisterServant(Ice.Util.stringToIdentity(id), adapter);
     }
 
     private void callsActiveServices(List<String> idList) {

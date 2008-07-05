@@ -8,9 +8,11 @@
    Use is subject to license terms supplied in LICENSE.txt
 
 """
+import unittest
 import test.integration.library as lib
 import omero
 import omero_RTypes_ice
+import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
 from omero_model_DatasetI import DatasetI
@@ -43,9 +45,12 @@ class TestISession(lib.ITest):
         isess.closeSession(s)
 
     def testCreateSessionForUser(self):
-        user = self.root.sf.getQueryService().findAllByQuery("""
+        p = omero.sys.Parameters()
+        p.theFilter = omero.sys.Filter()
+        p.theFilter.limit = omero.RInt(1)
+        user = self.root.sf.getQueryService().findByQuery("""
             select e from Experimenter e where e.id > 0 and e.omeName != 'guest'
-            """, None)[0]
+            """, p)
         p = omero.sys.Principal()
         p.name  = user.omeName.val
         p.group = "user"
@@ -70,14 +75,39 @@ class TestISession(lib.ITest):
         guest_client.closeSession()
 
     def testCreationDestructionClosing(self):
-        self.client.detachOnDestroy()
-        sess = self.client.sf.ice_getIdentity().category
-        self.client.destroyConnection()
+        c1 = omero.client()
+        s1 = c1.createSession()
+        s1.detachOnDestroy()
+        uuid = s1.ice_getIdentity().name
 
-        self.client = omero.client()
-        self.client.createSession(sess, sess)
-        self.client.closeOnDestroy()
-        self.client.destroyConnection()
+        # Intermediate "disrupter"
+        c2 = omero.client()
+        s2 = c2.createSession(uuid, uuid)
+        s2.closeOnDestroy()
+        s2.getAdminService().getEventContext()
+        c2.closeSession()
+
+        # 1 should still be able to continue
+        s1.getAdminService().getEventContext()
+
+        # Now if s1 exists another session should be able to connect
+        c1.closeSession()
+        c3 = omero.client()
+        s3 = c3.createSession(uuid, uuid)
+        s3.closeOnDestroy()
+        s3.getAdminService().getEventContext()
+        c3.closeSession()
+
+        # Now a connection should not be possible
+        c4 = omero.client()
+        s4 = c4.createSession(uuid, uuid);
+
+    def testSimpleDestruction(self):
+        c = omero.client()
+        c.ic.getImplicitContext().put(omero.constants.CLIENTUUID,"SimpleDestruction")
+        s = c.createSession()
+        s.closeOnDestroy()
+        c.closeSession()
 
 if __name__ == '__main__':
     unittest.main()
