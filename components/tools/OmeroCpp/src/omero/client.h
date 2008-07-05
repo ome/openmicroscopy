@@ -31,7 +31,7 @@ namespace omero {
    * communication. An instance also provides access to a single
    * omero::api::ServiceFactoryPrx which is the blitz session facade,
    * from which all other proxies can be obtained. Once the
-   * ServiceFactoryPrx is destroyed, times out, or close() is called,
+   * ServiceFactoryPrx is destroyed or the session times out,
    * all proxies obtained from this instance are also destroyed.
    *
    * Methods which take an Ice::Context should only be used when
@@ -48,7 +48,6 @@ namespace omero {
 
     // These are the central instances provided by this class.
   protected:
-    bool close_on_destroy;
     Ice::CommunicatorPtr ic;
     omero::api::ServiceFactoryPrx sf;
 
@@ -75,8 +74,8 @@ namespace omero {
 
     /*
      * Destroys the communicator instance. To have the session destroyed,
-     * call close on the client before destruction. Otherwise, the session
-     * will be destroyed by the server on timeout.
+     * call getSession().closeOnDestroy() on the client before destruction.
+     * Otherwise, the session will be destroyed by the server on timeout.
      */
     ~client();
 
@@ -98,18 +97,24 @@ namespace omero {
     omero::api::ServiceFactoryPrx createSession(const std::string& username = std::string(), const std::string& password = std::string());
 
     /*
-     * Frees server-side resources. This method attempts to do everything
-     * it can without throwing an exception.
+     * Closes the Router connection created by createSession(). Due to a bug in Ice,
+     * only one connection is allowed per communicator, so we also destroy the
+     * communicator.
      */
     void closeSession();
 
     /*
-     * If called, then an existing session will be closed during
-     * destruction.
+     * Environment methods. Allows to store and retrieve
      */
-    void closeOnDestroy() {
-        close_on_destroy = true;
-    }
+    omero::RTypePtr getInput(const std::string& key);
+    omero::RTypePtr getOutput(const std::string& key);
+    void setInput(const std::string& key, omero::RTypePtr value);
+    void setOutput(const std::string& key, omero::RTypePtr value);
+    std::vector<std::string> getInputKeys();
+    std::vector<std::string> getOutputKeys();
+  protected:
+    const std::string sess();
+    omero::api::ISessionPrx env();
 
   };
 

@@ -101,7 +101,7 @@ const omero::client* Fixture::login(const std::string& username, const std::stri
         char** argv = new char*[0];
         omero::client* client = new omero::client(argc, argv);
         client->createSession(username, password);
-        client->closeOnDestroy();
+        //  client->getSession()->closeOnDestroy(); Default.
         clients.push_back(client);
         return client;
     } catch (const Glacier2::CannotCreateSessionException& ccse) {

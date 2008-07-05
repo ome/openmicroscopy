@@ -9,9 +9,13 @@ package omero;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
+import omero.api.IAdminPrx;
+import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
 import omero.util.ObjectFactoryRegistrar;
@@ -55,8 +59,6 @@ public class client {
     Ice.Communicator ic;
 
     ServiceFactoryPrx sf;
-
-    boolean close_on_destroy = false;
 
     boolean closed = false;
 
@@ -105,35 +107,29 @@ public class client {
         if (ic == null) {
             throw new ClientError("No communicator.");
         }
+        // Register Object Factory
         ObjectFactoryRegistrar.registerObjectFactory(ic,
                 ObjectFactoryRegistrar.INSTANCE);
+        // Define our unique identifer (used during close/detach)
+        ic.getImplicitContext().put(omero.constants.CLIENTUUID.value,
+                UUID.randomUUID().toString());
         CLIENTS.add(this);
     }
 
     // Destruction
     // =========================================================================
 
-    public void closeOnDestroy() {
-        close_on_destroy = true;
-    }
-
+    /**
+     * Equivalent to OmeroPy's __del__ or OmeroCpp's omero::client::~client()
+     */
     public void close() {
-        if (close_on_destroy) {
-            try {
-                closeSession();
-            } catch (Exception e) {
-                // ok.
-            }
-        }
-        if (ic != null) {
-            try {
-                ic.getLogger()
-                        .trace("omero.client.destroy", "Destroying " + ic);
-                ic.destroy();
-                ic = null;
-            } catch (Exception e) {
-                // ok
-            }
+        try {
+            closeSession();
+        } catch (Exception e) {
+            System.out.println("Ignoring error in client.close()");
+            e.printStackTrace();
+        } finally {
+            closed = true;
         }
     }
 
@@ -142,6 +138,9 @@ public class client {
     }
 
     public ServiceFactoryPrx getServiceFactory() {
+        if (sf == null) {
+            throw new ClientError("Call createSession() to login.");
+        }
         return sf;
     }
 
@@ -160,6 +159,8 @@ public class client {
 
     public ServiceFactoryPrx createSession(String username, String password)
             throws CannotCreateSessionException, PermissionDeniedException {
+
+        // Check the required properties
         if (username == null) {
             username = getProperty("omero.user");
             if (username == null) {
@@ -173,14 +174,21 @@ public class client {
             }
         }
 
+        // Acquire router and get the proxy
+        // For whatever reason, we have to se the context
+        // on the router context here as well
         Glacier2.SessionPrx prx = getRouter().createSession(username, password);
         if (null == prx) {
-            throw new ClientError("No session obtained");
+            throw new ClientError("Obtained null object proxy");
         }
+        prx = Glacier2.SessionPrxHelper.uncheckedCast(prx.ice_context(ic
+                .getImplicitContext().getContext()));
         sf = ServiceFactoryPrxHelper.checkedCast(prx);
         if (sf == null) {
-            throw new ClientError("No session obtained");
+            throw new ClientError(
+                    "Obtained object proxy is not a ServiceFactory");
         }
+
         return this.sf;
     }
 
@@ -198,15 +206,18 @@ public class client {
     }
 
     public void closeSession() {
-        if (this.sf == null) {
-            return; // EARLY EXIT
+
+        ServiceFactoryPrx old = this.sf;
+        if (this.sf != null) {
+            this.sf = null;
         }
 
-        try {
-            sf.close();
-            sf = null;
-        } catch (Exception e) {
-            // what can we do
+        if (ic == null && sf != null) {
+            ic = sf.ice_getCommunicator();
+        }
+
+        if (ic == null) {
+            return; // EARLY EXIT!
         }
 
         try {
@@ -215,23 +226,36 @@ public class client {
             // ok. We don't want it to exist
         } catch (Ice.ConnectionLostException cle) {
             // ok. Exception will always be thrown
+        } finally {
+            ic = null;
         }
     }
 
-    public Object getInput(String key) {
-        throw new UnsupportedOperationException();
+    // Environment methods
+    // =========================================================================
+
+    public RType getInput(String key) throws ServerError {
+        return env().getInput(sess(), key);
     }
 
-    public Object getOutput(String key) {
-        throw new UnsupportedOperationException();
+    public RType getOutput(String key) throws ServerError {
+        return env().getOutput(sess(), key);
     }
 
-    public void setInput(String key, Object value) {
-        throw new UnsupportedOperationException();
+    public void setInput(String key, RType value) throws ServerError {
+        env().setInput(sess(), key, value);
     }
 
-    public void setOutput(String key, Object value) {
-        throw new UnsupportedOperationException();
+    public void setOutput(String key, RType value) throws ServerError {
+        env().setOutput(sess(), key, value);
+    }
+
+    public List<String> getInputKeys() throws ServerError {
+        return env().getInputKeys(sess());
+    }
+
+    public List<String> getOutputKeys() throws ServerError {
+        return env().getOutputKeys(sess());
     }
 
     // Helpers
@@ -248,4 +272,26 @@ public class client {
         return sb.toString();
     }
 
+    /**
+     * Helper method to access session environment
+     */
+    protected ISessionPrx env() throws ServerError {
+        if (sf == null) {
+            throw new ClientError("No session active");
+        }
+        ISessionPrx s = sf.getSessionService();
+        return s;
+    }
+
+    /**
+     * Helper method to access session id
+     */
+    protected String sess() throws ServerError {
+        if (sf == null) {
+            throw new ClientError("No session active");
+        }
+        IAdminPrx a = sf.getAdminService();
+        String u = a.getEventContext().sessionUuid;
+        return u;
+    }
 }
