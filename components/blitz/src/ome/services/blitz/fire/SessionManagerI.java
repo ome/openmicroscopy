@@ -10,7 +10,9 @@ package ome.services.blitz.fire;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
@@ -24,6 +26,7 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import omero.ApiUsageException;
 import omero.constants.EVENT;
 import omero.constants.GROUP;
 
@@ -70,6 +73,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected final Set<String> sessionsForReaping = new HashSet<String>();
 
+    /**
+     * An internal mapping to all {@link ServiceFactoryI} instances for a given
+     * session since there is no method on {@link Ice.ObjectAdapter} to retrieve
+     * all servants.
+     */
+    protected final Map<String, Set<String>> sessionToClientIds = new ConcurrentHashMap<String, Set<String>>();
+
     public SessionManagerI(SecuritySystem secSys,
             SessionManager sessionManager, Executor executor) {
         this.securitySystem = secSys;
@@ -101,32 +111,33 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
         }
 
         try {
-            Ice.ObjectPrx _prx;
+
+            // Create the session for this ServiceFactory
             Principal p = new Principal(userId, group, event);
             ome.model.meta.Session s = sessionManager.create(p);
             Principal sp = new Principal(s.getUuid(), group, event);
 
-            Ice.Identity id = ServiceFactoryI.sessionId(s.getUuid());
-            Ice.Object servant = current.adapter.find(id);
-            if (servant == null) {
-                ServiceFactoryI session = new ServiceFactoryI(context,
-                        sessionManager, executor, sp, CPTORS);
+            // Create the ServiceFactory
+            ServiceFactoryI session = new ServiceFactoryI(current, context,
+                    sessionManager, executor, sp, CPTORS);
 
-                _prx = current.adapter.add(session, id);
-                if (log.isDebugEnabled()) {
-                    log.debug(String.format("Created session %s for user %s",
-                            id.name, userId));
-                }
+            Ice.Identity id = session.sessionId(s.getUuid());
+            Ice.ObjectPrx _prx = current.adapter.add(session, id);
+            if (!sessionToClientIds.containsKey(s.getUuid())) {
+                sessionToClientIds.put(s.getUuid(), new HashSet<String>());
+                log.debug(String.format("Created session %s for user %s",
+                        id.name, userId));
             } else {
+                sessionToClientIds.get(s.getUuid()).add(session.clientId);
                 if (log.isDebugEnabled()) {
                     log.debug(String.format("Rejoined session %s for user %s",
                             id.name, userId));
                 }
-                _prx = current.adapter.createProxy(id);
+
             }
             return Glacier2.SessionPrxHelper.uncheckedCast(_prx);
 
-        } catch (RuntimeException t) {
+        } catch (Exception t) {
             ConvertToBlitzExceptionMessage convert = new ConvertToBlitzExceptionMessage(
                     this, t);
             try {
@@ -138,6 +149,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
             if (convert.to instanceof CannotCreateSessionException) {
                 throw (CannotCreateSessionException) convert.to;
+            } else if (convert.to instanceof ApiUsageException) {
+                ApiUsageException aue = (ApiUsageException) convert.to;
+                throw new CannotCreateSessionException(aue.message);
             }
 
             // FIXME this copying should be a part of ome.conditions.*
@@ -157,11 +171,18 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Ice.Current curr = msg.getCurrent();
 
             // And unregister the service if possible
-            Ice.Identity id = ServiceFactoryI.sessionId(curr.id.category);
+            Ice.Identity id;
+            try {
+                id = ServiceFactoryI.sessionId(curr, curr.id.category);
+            } catch (ApiUsageException e) {
+                throw new RuntimeException(
+                        "Could not unregister servant: could not create session id");
+            }
             Ice.Object obj = curr.adapter.find(id);
             if (obj instanceof ServiceFactoryI) {
                 ServiceFactoryI sf = (ServiceFactoryI) obj;
-                sf.unregisterServant(Ice.Util.stringToIdentity(key), curr);
+                sf.unregisterServant(Ice.Util.stringToIdentity(key),
+                        curr.adapter);
             }
         } else if (event instanceof DestroySessionMessage) {
             // Cannot destroy here without an ObjectAdapter instance.
@@ -179,23 +200,33 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      * 
      * Unfortunately, that message does not have an {@link Ice.Current} instance
      * and so reaping must happen asynchronously.
+     * 
+     * @param cantUseThisCurrent
+     *            a current from another method invocation which is not usable
+     *            for reaping the given sessions except to get the current
+     *            {@link Ice.ObjectAdapter}
      */
-    private void reapSessions(Ice.Current current) {
+    private void reapSessions(Ice.Current cantUseThisCurrent) {
+        Ice.ObjectAdapter adapter = cantUseThisCurrent.adapter;
         synchronized (sessionsForReaping) {
             List<String> ids = new ArrayList<String>(sessionsForReaping);
             for (String id : ids) {
-                try {
-                    Ice.Identity iid = ServiceFactoryI.sessionId(id);
-                    Ice.Object obj = current.adapter.find(iid);
-                    if (obj == null) {
-                        log.debug(id + " already removed.");
-                    } else {
-                        ServiceFactoryI sf = (ServiceFactoryI) obj;
-                        sf.close(current);
+                for (String clientId : sessionToClientIds.get(id)) {
+                    try {
+                        Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
+                                id);
+                        Ice.Object obj = adapter.find(iid);
+                        if (obj == null) {
+                            log.debug(id + " already removed.");
+                        } else {
+                            ServiceFactoryI sf = (ServiceFactoryI) obj;
+                            sf.doDestroy(adapter);
+                        }
+                        sessionsForReaping.remove(id);
+                    } catch (Exception e) {
+                        log.error("Error reaping session " + id
+                                + " from client " + clientId, e);
                     }
-                    sessionsForReaping.remove(id);
-                } catch (Exception e) {
-                    log.error("Error reaping session " + id, e);
                 }
             }
         }

@@ -125,7 +125,17 @@ import Ice.Current;
  */
 public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
+    // STATIC
+
     private final static Log log = LogFactory.getLog(ServiceFactoryI.class);
+
+    // PRIVATE STATE
+
+    boolean doClose = false;
+
+    public final String clientId;
+
+    // SHARED STATE
 
     final SessionManager sessionManager;
 
@@ -144,11 +154,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     final Map<String, Ice.Object> interactiveSlots;
 
-    /**
-     * The CLIENT_UUIDs for which a close should be invoked on this session.
-     */
-    final Map<String, Boolean> closeUuids;
-
     final Principal principal;
 
     final List<HardWiredInterceptor> cptors;
@@ -162,9 +167,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // ~ Initialization and context methods
     // =========================================================================
 
-    public ServiceFactoryI(OmeroContext context, SessionManager manager,
-            Executor executor, Principal p,
-            List<HardWiredInterceptor> interceptors) {
+    public ServiceFactoryI(Ice.Current current, OmeroContext context,
+            SessionManager manager, Executor executor, Principal p,
+            List<HardWiredInterceptor> interceptors) throws ApiUsageException {
+        this.clientId = clientId(current);
         this.context = context;
         this.sessionManager = manager;
         this.executor = executor;
@@ -179,12 +185,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // TODO the getMap() method could be put in our own Cache class
         activeServants = getMap(ACTIVE_SERVANTS, cache);
         interactiveSlots = getMap(INTERACTIVE_SLOTS, cache);
-        closeUuids = getMap(CLOSE_UUIDS, cache);
     }
 
     static String ACTIVE_SERVANTS = "activeServants";
     static String INTERACTIVE_SLOTS = "interactiveSlots";
-    static String CLOSE_UUIDS = "closeUuids";
 
     @SuppressWarnings("unchecked")
     private <T> Map<String, T> getMap(String key, Ehcache cache) {
@@ -473,18 +477,16 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public void detachOnDestroy(Ice.Current current) {
-        String key = current.ctx.get(omero.constants.CLIENTUUID.value);
-        closeUuids.remove(key);
+        doClose = false;
     }
 
     @Deprecated
     public void close(Ice.Current current) {
-        closeOnDestroy(current);
+        doClose = false;
     }
 
     public void closeOnDestroy(Ice.Current current) {
-        String key = current.ctx.get(omero.constants.CLIENTUUID.value);
-        closeUuids.put(key, Boolean.TRUE);
+        doClose = true;
     }
 
     /**
@@ -500,8 +502,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         // If we are supposed to close, do only so if the ref count
         // is < 1.
-        String key = current.ctx.get(omero.constants.CLIENTUUID.value);
-        if (key != null && ref < 1) {
+        if (doClose && ref < 1) {
 
             ref = sessionManager.close(this.principal.getName());
 
@@ -511,62 +512,70 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 return;
             }
 
-            if (log.isInfoEnabled()) {
-                log.info(String.format("Closing %s session", this));
-            }
+            doDestroy(current.adapter);
 
-            // Cleaning up resources
+        }
+    }
 
-            // INTERACTIVE
-            Set<String> ipIds = interactiveSlots.keySet();
-            for (String id : ipIds) {
-                InteractiveProcessorI ip = (InteractiveProcessorI) interactiveSlots
-                        .get(id);
-                ip.stop();
-                current.adapter.remove(Ice.Util.stringToIdentity(id));
-                interactiveSlots.remove(id);
-            }
+    /**
+     * Performs the actual cleanup operation. Since {@link #destroy()} is called
+     * non-discriminantly by the router, even when a client has just died, we
+     * have this internal method for handling the actual closing of resources.
+     */
+    public void doDestroy(Ice.ObjectAdapter adapter) {
 
-            // SERVANTS
-            // Here we call the "close()" method on all methods which require
-            // that
-            // logic allowing the IceMethodInvoker to raise the
-            // UnregisterServantEvent, otherwise there is a recursive call back
-            // to close.
-            List<String> ids = activeServices(current);
-            for (String idString : ids) {
-                Ice.Identity id = Ice.Util.stringToIdentity(idString);
-                Ice.Object obj = current.adapter.find(id);
-                try {
-                    if (obj instanceof StatefulServiceInterface) {
-                        Method m = obj.getClass().getMethod("close",
-                                Ice.Current.class);
-                        Ice.Current __curr = new Ice.Current();
-                        __curr.id = id;
-                        __curr.adapter = current.adapter;
-                        __curr.operation = "close";
-                        __curr.mode = current.mode; // FIXME due to bug
-                        // http://www.zeroc.com/forums/bug-reports/3348-ice-current-hashcode-can-throw-npe-null-enum.html
-                        m.invoke(obj, __curr);
-                    } else {
-                        unregisterServant(id, current);
-                    }
-                } catch (Exception e) {
-                    log.error("Failure to close: " + idString + "=" + obj, e);
-                }
-            }
+        if (log.isInfoEnabled()) {
+            log.info(String.format("Closing %s session", this));
+        }
 
-            // All resources cleaned up to the best of our ability,
-            // now we can remove the current session. If an exception if thrown,
-            // there's not much we can do.
+        // Cleaning up resources
+
+        // INTERACTIVE
+        Set<String> ipIds = interactiveSlots.keySet();
+        for (String id : ipIds) {
+            InteractiveProcessorI ip = (InteractiveProcessorI) interactiveSlots
+                    .get(id);
+            ip.stop();
+            adapter.remove(Ice.Util.stringToIdentity(id));
+            interactiveSlots.remove(id);
+        }
+
+        // SERVANTS
+        // Here we call the "close()" method on all methods which require
+        // that
+        // logic allowing the IceMethodInvoker to raise the
+        // UnregisterServantEvent, otherwise there is a recursive call back
+        // to close.
+        List<String> ids = activeServices();
+        for (String idString : ids) {
+            Ice.Identity id = Ice.Util.stringToIdentity(idString);
+            Ice.Object obj = adapter.find(id);
             try {
-                current.adapter.remove(ServiceFactoryI.sessionId(principal
-                        .getName()));
-            } catch (Throwable t) {
-                // FIXME
-                InternalException ie = new InternalException(t.getMessage());
-                ie.setStackTrace(t.getStackTrace());
+                if (obj instanceof StatefulServiceInterface) {
+                    Method m = obj.getClass().getMethod("close",
+                            Ice.Current.class);
+                    Ice.Current __curr = new Ice.Current();
+                    __curr.id = id;
+                    __curr.adapter = adapter;
+                    __curr.operation = "close";
+                    m.invoke(obj, __curr);
+                } else {
+                    unregisterServant(id, adapter);
+                }
+            } catch (Exception e) {
+                log.error("Failure to close: " + idString + "=" + obj, e);
             }
+        }
+
+        // All resources cleaned up to the best of our ability,
+        // now we can remove the current session. If an exception if thrown,
+        // there's not much we can do.
+        try {
+            adapter.remove(sessionId(principal.getName()));
+        } catch (Throwable t) {
+            // FIXME
+            InternalException ie = new InternalException(t.getMessage());
+            ie.setStackTrace(t.getStackTrace());
         }
     }
 
@@ -722,14 +731,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * Now called by {@link ome.services.blitz.fire.SessionManagerI} in response
      * to an {@link UnregisterServantMessage}
      */
-    public void unregisterServant(Ice.Identity id, Ice.Current current) {
+    public void unregisterServant(Ice.Identity id, Ice.ObjectAdapter adapter) {
 
         // Here we assume that if the "close()" call is required, that it has
         // already been made, either by a user or by the SF.close() method in
         // which case unregisterServant() is being closed via
         // onApplicationEvent().
         // Otherwise, it is being called directly by SF.close().
-        Ice.Object obj = current.adapter.remove(id);
+        Ice.Object obj = adapter.remove(id);
         Object removed = activeServants.remove(Ice.Util.identityToString(id));
         if (removed == null) {
             log.error("Adapter and active servants out of sync.");
@@ -747,11 +756,40 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return sb.toString();
     }
 
-    public static Ice.Identity sessionId(String uuid) {
+    // Id Helpers
+    // =========================================================================
+    // Used for naming service factory instances and creating Ice.Identities
+    // from Ice.Currents, etc.
+
+    public static Ice.Identity sessionId(Ice.Current current, String uuid)
+            throws ApiUsageException {
+        String clientId = clientId(current);
+        return sessionId(clientId, uuid);
+    }
+
+    public static Ice.Identity sessionId(String clientId, String uuid) {
         Ice.Identity id = new Ice.Identity();
-        id.category = "session";
+        id.category = "session-" + clientId;
         id.name = uuid;
         return id;
+
+    }
+
+    public Ice.Identity sessionId(String uuid) {
+        return sessionId(clientId, uuid);
+    }
+
+    public static String clientId(Ice.Current current) throws ApiUsageException {
+        String clientId = null;
+        if (current.ctx != null) {
+            clientId = current.ctx.get(omero.constants.CLIENTUUID.value);
+        }
+        if (clientId == null) {
+            throw new ApiUsageException(null, null, "No "
+                    + omero.constants.CLIENTUUID.value
+                    + " key provided in context.");
+        }
+        return clientId;
     }
 
 }
