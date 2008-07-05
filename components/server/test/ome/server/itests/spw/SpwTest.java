@@ -29,25 +29,27 @@ public class SpwTest extends AbstractManagedContextTest {
 
     @Test
     public void testMinimalSave() {
-        // The trick is to save via the WellSample
+
         Screen s = new Screen("s");
         Plate p = new Plate("p");
         Well w = new Well();
-        Reagent r = new Reagent("r");
+        Reagent r = new Reagent();
+        r.setName("r");
         ScreenAcquisition sa = new ScreenAcquisition(s);
-        WellSample ws = new WellSample(w, sa);
+        WellSample ws = new WellSample(w);
+        ws.linkScreenAcquisition(sa);
 
         s.linkPlate(p);
         p.addWell(w);
 
-        s.linkReagent(r);
-        r.addWell(w);
+        s.addReagent(r);
+        r.linkWell(w);
 
         ws.linkImage(new Image("i"));
         w.addWellSample(ws);
-        sa.addWellSample(ws);
+        sa.linkWellSample(ws);
 
-        ws = iUpdate.saveAndReturnObject(ws);
+        s = iUpdate.saveAndReturnObject(s);
     }
 
     @Test
@@ -60,26 +62,26 @@ public class SpwTest extends AbstractManagedContextTest {
         s.linkPlate(p);
         p.addWell(w);
 
-        Reagent r = new Reagent("r");
-        s.linkReagent(r);
-        r.addWell(w);
+        Reagent r = new Reagent();
+        r.setName("r");
+        s.addReagent(r);
+        r.linkWell(w);
 
         s = iUpdate.saveAndReturnObject(s);
         p = s.linkedPlateList().get(0);
         w = p.unmodifiableWells().iterator().next();
 
-        w = iQuery
-                .findByQuery(
-                        "select w from Well w left outer join fetch w.wellSamples where w.id = :id",
-                        new Parameters().addId(w.getId()));
+        w = iQuery.findByQuery("select w from Well w "
+                + "left outer join fetch w.wellSample " + "where w.id = :id",
+                new Parameters().addId(w.getId()));
 
         sa = new ScreenAcquisition(s);
         sa = iUpdate.saveAndReturnObject(sa);
 
-        WellSample ws = new WellSample(w, sa);
+        WellSample ws = new WellSample(w);
+        ws.linkScreenAcquisition(sa);
         ws.linkImage(new Image("i"));
         w.addWellSample(ws);
-        sa.addWellSample(ws);
         ws = iUpdate.saveAndReturnObject(ws);
 
         iQuery.findAllByQuery("select w from Well w where w.column is null",
