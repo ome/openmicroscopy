@@ -312,13 +312,13 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     /*
      */
-    public void close(String uuid) {
+    public int close(String uuid) {
 
         SessionContext ctx;
         try {
             ctx = cache.getSessionContext(uuid);
         } catch (SessionException se) {
-            return; // EARLY EXIT!
+            return -1; // EARLY EXIT!
         }
 
         int refCount = ctx.decrement();
@@ -339,6 +339,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             // cache
             // since ehcache is not tx-friendly.
             cache.removeSession(uuid);
+            return -2;
+        } else {
+            return refCount;
         }
     }
 

@@ -74,7 +74,13 @@ public interface SessionManager extends ApplicationListener {
      */
     Session find(String uuid);
 
-    void close(String uuid);
+    /**
+     * If reference count for the session is less than 1, close the session.
+     * Otherwise decrement the reference count. The current reference count is
+     * returned. If -1, then no such session existed. If -2, then the session
+     * was removed.
+     */
+    int close(String uuid);
 
     // Security methods
     // =========================================================================
