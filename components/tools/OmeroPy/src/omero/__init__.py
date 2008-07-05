@@ -18,6 +18,7 @@ import util
 from omero_ext import pysys
 import omero_Constants_ice
 import uuid
+import omero.constants
 
 class client(object):
     """
@@ -38,13 +39,14 @@ class client(object):
         self.of = ObjectFactory()
         self.of.registerObjectFactory(self.ic)
         # Define our unique identifier (used during close/detach)
-        self.ic.getImplicitContext().put(omero.constants.CLIENT_UUID, str(uuid.uuid4()))
+        self.ic.getImplicitContext().put(omero.constants.CLIENTUUID, str(uuid.uuid4()))
 
     def __del__(self):
         try:
-            self.destroyConnection()
+            self.closeSession()
         except exceptions.Exception, e:
             print "Ignoring error in client.__del__:" + str(e.__class__)
+            traceback.print_exc()
 
     def getCommunicator(self):
         return self.ic
@@ -65,6 +67,8 @@ class client(object):
 
     def createSession(self, username=None, password=None):
         import omero
+
+        # Check the required properties
         if not username:
             username = self.getProperty("omero.user")
         elif isinstance(username,omero.RString):
@@ -78,16 +82,24 @@ class client(object):
         if not password or len(password) == 0:
             raise ClientError("No password specified")
 
+        # Acquire router and get the proxy
+        # For whatever reason, we have to set the context
+        # on the router context here as well.
         prx = self.ic.getDefaultRouter()
         if not prx:
             raise ClientError("No default router found.")
+        prx = prx.ice_context(self.ic.getImplicitContext().getContext())
         router = Glacier2.RouterPrx.checkedCast(prx)
         if not router:
             raise ClientError("Error obtaining Glacier2 router.")
         session = router.createSession(username, password)
+        if not session:
+            raise ClientError("Obtained null object proxy")
+
+        # Check type
         self.sf = api.ServiceFactoryPrx.checkedCast(session)
         if not self.sf:
-            raise ClientError("No session obtained.")
+            raise ClientError("Obtained object proxy is not a ServiceFactory")
         return self.sf
 
     def sha1(self, filename):
@@ -207,34 +219,36 @@ class client(object):
         """
 
         # If 'sf' exists we remove it.
-        if not hasattr(self, 'sf'):
+        if hasattr(self, 'sf'):
             self.sf = None
 
         # If 'ic' does not exist we don't have anything to do
         if not hasattr(self, 'ic') or not self.ic:
             return
 
-        prx = self.ic.getDefaultRouter()
-        router = Glacier2.RouterPrx.checkedCast(prx)
-
-        # Now destroy the actual session if possible,
-        # which will always trigger an exception,
-        # regardless of actually being connected or not
-        if router:
-            try:
-                router.destroySession()
-            except exceptions.Exception, e:
-                pass
-                # SNEE happens if we call sf.close() before
-                # calling destroySession(). CLE happens since
-                # we are disconnecting
-
         try:
-            self.ic.destroy()
-        except (), msg:
-            pysys.stderr.write("Ice exception while destroying communicator:")
-            pysys.stderr.write(msg)
-        self.ic = None
+            prx = self.ic.getDefaultRouter()
+            router = Glacier2.RouterPrx.checkedCast(prx)
+
+            # Now destroy the actual session if possible,
+            # which will always trigger an exception,
+            # regardless of actually being connected or not
+            if router:
+                try:
+                    router.destroySession()
+                except exceptions.Exception, e:
+                    pass
+                    # SNEE happens if we call sf.close() before
+                    # calling destroySession(). CLE happens since
+                    # we are disconnecting
+
+            try:
+                self.ic.destroy()
+            except (), msg:
+                pysys.stderr.write("Ice exception while destroying communicator:")
+                pysys.stderr.write(msg)
+        finally:
+            self.ic = None
 
     def _env(self, method, *args):
         """ Helper method to access session environment"""

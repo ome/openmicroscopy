@@ -92,6 +92,7 @@
            <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
            <property name="Glacier2.PermissionsVerifier" value="BlitzVerifier@BlitzAdapters"/>
            <property name="Glacier2.SessionManager" value="BlitzManager@BlitzAdapters"/>
+           <property name="Glacier2.Client.ForwardContext" value="1"/>
            <property name="Ice.MessageSizeMax" value="4096"/>
          </properties>
        </server>
