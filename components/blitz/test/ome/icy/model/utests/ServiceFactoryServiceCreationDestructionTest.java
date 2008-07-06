@@ -23,6 +23,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import omero.api.IAdminPrxHelper;
 import omero.api._IAdminTie;
+import omero.constants.CLIENTUUID;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Mock;
@@ -50,6 +51,11 @@ public class ServiceFactoryServiceCreationDestructionTest extends
     SessionManager manager;
     ServiceFactoryI sf;
     Map<String, Ice.Object> map;
+    Ice.Current current = new Ice.Current();
+    {
+        current.ctx = new HashMap<String, String>();
+        current.ctx.put(CLIENTUUID.value, "clientuuid");
+    }
 
     // FIXME OmeroContext should be an interface!
     // OmeroContext context = new OmeroContext(new String[]{
@@ -102,7 +108,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         });
 
         Principal p = new Principal("session", "group", "type");
-        sf = new ServiceFactoryI(context, manager, executor, p, hwi);
+        sf = new ServiceFactoryI(current, context, manager, executor, p, hwi);
     };
 
     @Test

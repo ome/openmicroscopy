@@ -7,6 +7,7 @@
 package ome.icy.service.utests;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import net.sf.ehcache.Ehcache;
@@ -19,6 +20,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
+import omero.constants.CLIENTUUID;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -48,6 +50,11 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
     OmeroContext ctx = new OmeroContext(new String[] {
             "classpath:omero/test.xml",
             "classpath:ome/services/blitz-servantDefinitions.xml" });
+    Ice.Current current = new Ice.Current();
+    {
+        current.ctx = new HashMap<String, String>();
+        current.ctx.put(CLIENTUUID.value, "clientuuid");
+    }
 
     @Override
     @Configuration(beforeTestMethod = true)
@@ -76,13 +83,13 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
 
         Principal p = new Principal("user1", "group", "event");
 
-        sf1 = new ServiceFactoryI(ctx, manager, executor, p,
+        sf1 = new ServiceFactoryI(current, ctx, manager, executor, p,
                 new ArrayList<HardWiredInterceptor>());
         curr1.id = id1;
         curr1.adapter = adapter;
 
         Principal p2 = new Principal("user2", "group", "event");
-        sf2 = new ServiceFactoryI(ctx, manager, executor, p2,
+        sf2 = new ServiceFactoryI(current, ctx, manager, executor, p2,
                 new ArrayList<HardWiredInterceptor>());
         curr2.id = id2;
         curr2.adapter = adapter;

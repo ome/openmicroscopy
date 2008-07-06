@@ -17,6 +17,7 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import omero.api.ServiceInterfacePrx;
 import omero.api._IQueryTie;
+import omero.constants.CLIENTUUID;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -41,6 +42,11 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
     SessionManager manager;
     Ice.Identity id = Ice.Util.stringToIdentity("test");
     Map<String, Ice.Object> map = new HashMap<String, Ice.Object>();
+    Ice.Current current = new Ice.Current();
+    {
+        current.ctx = new HashMap<String, String>();
+        current.ctx.put(CLIENTUUID.value, "clientuuid");
+    }
 
     @Override
     @Configuration(beforeTestMethod = true)
@@ -57,8 +63,8 @@ public class ServiceFactoryKeepAliveUnitTest extends MockObjectTestCase {
                 .will(returnValue(true));
         cacheMock.expects(once()).method("get").will(
                 returnValue(new Element("activeServants", map)));
-        sf = new ServiceFactoryI(null, manager, executor, new Principal("a",
-                "b", "c"), null);
+        sf = new ServiceFactoryI(current, null, manager, executor,
+                new Principal("a", "b", "c"), null);
     }
 
     @Test
