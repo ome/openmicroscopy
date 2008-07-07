@@ -49,7 +49,7 @@ build-* targets.
         <!-- Single file paths defined in antlib/resources/directories.xml -->
     </target>
 
-    <target name="no-tests" description="Disable tests">
+    <target name="quick" description="Disable tests">
         <property name="test.skip" value="true"/>
     </target>
 
@@ -58,12 +58,12 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
         <delete dir="${lib.dir}/cache"/>
-	<delete includeemptydirs="true">
-	    <fileset dir="${lib.dir}/repository/omero" includes="**/*"/>
-	</delete>
+        <delete includeemptydirs="true">
+            <fileset dir="${lib.dir}/repository/omero" includes="**/*"/>
+        </delete>
     </target>
 
-    <target name="build-default" description="Build all components except for C++" depends="ivy">
+    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="ivy">
         <property name="test.skip" value="true"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="app.buildpath" target="dist"/>
@@ -92,7 +92,7 @@ build-* targets.
 
     <target name="build-ear" description="Build ear and copy to dist" depends="ivy">
         <iterate buildpathref="appserver.buildpath" target="dist"/>
-	<!-- WORKAROUND: creating the blitz jar to make prepare-dist work-->
+        <!-- WORKAROUND: creating the blitz jar to make prepare-dist work-->
         <iterate buildpathref="blitzserver.buildpath" target="install"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
     </target>
@@ -155,7 +155,7 @@ build-* targets.
 
     <!-- Internal target -->
     <target name="prepare-dist" depends="ivy">
-        <mkdir dir="${dist.dir}/bin"/>
+           <mkdir dir="${dist.dir}/bin"/>
             <copy todir="${dist.dir}/etc" overwrite="true">
                 <fileset dir="${omero.home}/etc">
                     <exclude name="local.properties"/>
@@ -166,7 +166,6 @@ build-* targets.
                     <include name="omero.class"/>
                     <include name="components/antlib/**"/>
                     <include name="sql/**"/>
-                    <include name="lib/tools/**"/>
                 </fileset>
             </copy>
 
@@ -198,16 +197,16 @@ build-* targets.
         <iterate buildpathref="licenses.buildpath" target="prepare"/>
     </target>
 
-     <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="ivy">
-        <iterate buildpathref="all.buildpath"   target="findbugs"/>
-        <iterate buildpathref="tools.buildpath" target="findbugs"/>
-     </target>
+    <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="ivy">
+       <iterate buildpathref="all.buildpath"   target="findbugs"/>
+       <iterate buildpathref="tools.buildpath" target="findbugs"/>
+    </target>
 
-     <target name="coverage" depends="prepare-eclipse"
+    <target name="coverage" depends="prepare-eclipse"
         description="Merge code coverage reports into single top-level report">
-  	<path id="omero.classpath">
-    		<fileset dir="${omero.home}/target/libs" />
-  	</path>
+        <path id="omero.classpath">
+                <fileset dir="${omero.home}/target/libs" />
+        </path>
         <taskdef resource="emma_ant.properties" classpathref="omero.classpath" />
         <emma>
             <merge outfile="${target.dir}/coverage.es" >
@@ -219,10 +218,102 @@ build-* targets.
                 <xml outfile="${target.dir}/coverage.xml" />
             </report>
         </emma>
-     </target>
+    </target>
 
-     <target name="setup">
+    <target name="setup">
         <ant antfile="${omero.home}/components/antlib/resources/setup.xml" target="setup"/>
-     </target>
+    </target>
+
+    <target name="javadoc" description="Generate Javadocs for all components under dist/docs/api">
+        <mkdir dir="${dist.dir}/docs/api"/>
+        <patternset id="all.java.files">
+            <!-- Includes prefixed with "**" in order to pick up
+            tools/ components -->
+            <include name="src/**/*.java"/>
+            <include name="target/generated/src/**/*.java"/>
+            <exclude name="xxx/**"/>
+        </patternset>
+
+        <javadoc
+            failonerror="true"
+            Verbose="true"
+            maxmemory="${javadoc.maxmem}"
+            destdir="dist/docs/api"
+            author="true"
+            version="true"
+            use="true"
+            breakiterator="true"
+            windowtitle="OMERO (OME Remote Objects) Server">
+
+            <classpath>
+                <fileset dir="lib">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+
+            <fileset dir="components/common/" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+            <fileset dir="components/server/" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+            <fileset dir="components/romio/" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+            <fileset dir="components/rendering/" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+                <fileset dir="components/client/" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+            <!-- Skipping generated files for blitz. Just too many -->
+            <fileset dir="components/blitz/src" defaultexcludes="yes" includes="**/*.java"/>
+            <fileset dir="components/tools/WebAdmin" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+            <fileset dir="components/tools/admin" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+            <fileset dir="components/tools/licenses" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+            <fileset dir="components/tools/OmeroJava" defaultexcludes="yes">
+                <patternset refid="all.java.files"/>
+            </fileset>
+
+            <doctitle><![CDATA[<h1> Omero API </h1>]]></doctitle>
+            <bottom><![CDATA[
+            <p><b><i>Copyright &#169; 2007 The University of Dundee. All Rights Reserved.</i></b></p>
+            ]]></bottom>
+
+            <tag name="DEV.TODO" scope="all" description="To do:"/>
+
+            <group title="A. Core System"
+                    packages="ome.api:ome.conditions*:ome.parameters*:ome.system*"/>
+            <group title="B. Model"
+                    packages="ome.model*"/>
+            <group title="C. Client Packages"
+                    packages="ome.client*:ome.adapters*:pojos*"/>
+            <group title="D. Server Packages"
+                    packages="ome.api.local*:ome.services*:ome.logic*:ome.tools*:ome.security*:ome.io*:ome.annotations*"/>
+            <group title="E. Blitz Server"
+                    packages="ome.services.blitz*"/>
+            <group title="E. Blitz Client"
+                    packages="omero*:omeroj*"/>
+            <group title="G. Rendering Engine"
+                    packages="omeis*"/>
+            <group title="H. Utilities"
+                    packages="ome.util*:ome.testing*"/>
+            <group title="I. Deprecated"
+                    packages="ome.dynamic*:ome.rules*"/>
+
+            <link href="http://java.sun.com/j2se/1.5/docs/api/"/>
+            <link href="http://www.springframework.org/docs/api/"/>
+            <link href="http://www.hibernate.org/hib_docs/v3/api/"/>
+            <link href="http://aopalliance.sourceforge.net/doc/"/>
+            <link href="http://lucene.apache.org/java/2_2_0/api"/>
+
+        </javadoc>
+    </target>
 
 </project>

@@ -97,7 +97,7 @@
 		<fileset dir="${omero.home}" includes="*.ear" id="ear.files"/>
 	</target>
 
-	<target name="deploy" depends="update">
+	<target name="deploy" depends="update" description="Copy *.ear to JBOSS_HOME/server/default/deploy">
                 <fail unless="env.JBOSS_HOME"/>
 		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>
 		<property name="jboss.deploy.dir" value="${env.JBOSS_HOME}/server/default/deploy"/>

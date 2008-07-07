@@ -15,7 +15,6 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -->
-        <target name="quick" depends="no-tests"          description="DEPRECATED: Use no-tests"/>
 	<target name="fullbuild" depends="build-default" description="DEPRECATED: Use build-all"/>
 	<target name="build" depends="build-default"     description="DEPRECATED: Use build-default"/>
         <target name="dist"                              description="DEPRECATED: Use build-* targets"/>
