@@ -57,11 +57,17 @@
 	<path id="app.buildpath">
 	  <pathelement location="${app.comp}/build.xml"/>
 	</path>
+	<path id="dsl.buildpath">
+	  <pathelement location="${dsl.comp}/build.xml"/>
+	</path>
 	<path id="client.buildpath">
 	  <pathelement location="${client.comp}/build.xml"/>
 	</path>
 	<path id="common.buildpath">
 	  <pathelement location="${common.comp}/build.xml"/>
+	</path>
+	<path id="model.buildpath">
+	  <pathelement location="${model.comp}/build.xml"/>
 	</path>
 	<path id="server.buildpath">
 	  <pathelement location="${server.comp}/build.xml"/>
