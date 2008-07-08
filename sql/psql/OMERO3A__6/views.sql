@@ -89,11 +89,6 @@ BEGIN;
   CREATE OR REPLACE VIEW count_CategoryGroup_categoryLinks_by_owner (CategoryGroup_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM CategoryGroupCategoryLink GROUP BY parent, owner_id ORDER BY parent;
 
-  DROP TABLE count_WellSample_imageLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_WellSample_imageLinks_by_owner (WellSample_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM WellSampleImageLink GROUP BY parent, owner_id ORDER BY parent;
-
   DROP TABLE count_WellSample_screenAcquisitionLinks_by_owner;
 
   CREATE OR REPLACE VIEW count_WellSample_screenAcquisitionLinks_by_owner (WellSample_id, owner_id, count) AS select child, owner_id, count(*)
@@ -148,11 +143,6 @@ BEGIN;
 
   CREATE OR REPLACE VIEW count_Image_datasetLinks_by_owner (Image_id, owner_id, count) AS select child, owner_id, count(*)
     FROM DatasetImageLink GROUP BY child, owner_id ORDER BY child;
-
-  DROP TABLE count_Image_sampleLinks_by_owner;
-
-  CREATE OR REPLACE VIEW count_Image_sampleLinks_by_owner (Image_id, owner_id, count) AS select child, owner_id, count(*)
-    FROM WellSampleImageLink GROUP BY child, owner_id ORDER BY child;
 
   DROP TABLE count_Image_annotationLinks_by_owner;
 

@@ -27,14 +27,13 @@
 			<optional name="context" type="ome.model.experiment.Experiment"/>
 
 			<zeromany name="pixels" type="ome.model.core.Pixels" inverse="image" ordered="true"/>
+			<zeromany name="wellSamples" type="ome.model.screen.WellSample" inverse="image"/>
 
 			<!-- Containers -->
 			<parent name="categoryLinks" type="ome.model.containers.CategoryImageLink"
 				target="ome.model.containers.Category"/>
 			<parent name="datasetLinks" type="ome.model.containers.DatasetImageLink"
 				target="ome.model.containers.Dataset"/>
-			<parent name="sampleLinks" type="ome.model.screen.WellSampleImageLink"
-				target="ome.model.screen.WellSample"/>
 		</properties>
 	</type>
 

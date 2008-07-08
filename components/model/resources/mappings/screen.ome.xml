@@ -60,20 +60,20 @@
       <optional name="externalDescription" type="string"/>
       <optional name="externalIdentifier" type="string"/>
       <optional name="type" type="string"/>
-      <zeromany name="wellSample" type="ome.model.screen.WellSample"
+      <zeromany name="wellSamples" type="ome.model.screen.WellSample"
         inverse="well"/>
       <manyone name="plate" type="ome.model.screen.Plate" inverse="well"/>
     </properties>
   </type>
 
+  <!-- A WellSample is effectively a WellImageLink -->
   <type id="ome.model.screen.WellSample" annotated="true">
     <properties>
       <optional name="posX" type="float"/>
       <optional name="posY" type="float"/>
       <optional name="timepoint" type="int"/>
-      <child name="imageLinks" type="ome.model.screen.WellSampleImageLink"
-        target="ome.model.core.Image"/>
-      <manyone name="well" type="ome.model.screen.Well" inverse="wellSample"/>
+      <manyone name="well" type="ome.model.screen.Well" inverse="wellSamples"/>
+      <manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
       <parent name="screenAcquisitionLinks"
         type="ome.model.screen.ScreenAcquisitionWellSampleLink"
 	target="ome.model.screen.ScreenAcquisition"/>
@@ -110,13 +110,6 @@
     <properties>
       <from_parent type="ome.model.screen.Well"/>
       <to_child type="ome.model.screen.Reagent"/>
-    </properties>
-  </link>
-
-  <link id="ome.model.screen.WellSampleImageLink">
-    <properties>
-      <from_parent type="ome.model.screen.WellSample"/>
-      <to_child type="ome.model.core.Image"/>
     </properties>
   </link>
 

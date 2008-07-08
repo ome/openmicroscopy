@@ -43,7 +43,6 @@ BEGIN;
     create sequence seq_wellreagentlink;
     create sequence seq_wellsample;
     create sequence seq_wellsampleannotationlink;
-    create sequence seq_wellsampleimagelink;
 
     drop view count_ScreenAcquisition_annotationLinks_by_owner;
     drop view count_Screen_annotationLinks_by_owner;
@@ -283,25 +282,12 @@ BEGIN;
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
+        image int8 not null,
         well int8 not null,
         primary key (id)
     );
 
     create table wellsampleannotationlink (
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        child int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        parent int8 not null,
-        primary key (id)
-    );
-
-    create table wellsampleimagelink (
         id int8 not null,
         permissions int8 not null,
         version int4,
@@ -765,6 +751,11 @@ BEGIN;
         foreign key (external_id) 
         references externalinfo;
 
+    alter table wellsample 
+        add constraint FKwellsample_image_image 
+        foreign key (image) 
+        references image;
+
     alter table wellsampleannotationlink 
         add constraint FKwellsampleannotationlink_child_annotation 
         foreign key (child) 
@@ -800,41 +791,6 @@ BEGIN;
         foreign key (external_id) 
         references externalinfo;
 
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_child_image 
-        foreign key (child) 
-        references image;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_update_id_event 
-        foreign key (update_id) 
-        references event;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_creation_id_event 
-        foreign key (creation_id) 
-        references event;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_parent_wellsample 
-        foreign key (parent) 
-        references wellsample;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
   CREATE OR REPLACE VIEW count_Plate_screenLinks_by_owner (Plate_id, owner_id, count) AS select child, owner_id, count(*)
     FROM ScreenPlateLink GROUP BY child, owner_id ORDER BY child;
 
@@ -853,9 +809,6 @@ BEGIN;
   CREATE OR REPLACE VIEW count_ScreenAcquisition_wellSampleLinks_by_owner (ScreenAcquisition_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM ScreenAcquisitionWellSampleLink GROUP BY parent, owner_id ORDER BY parent;
 
-  CREATE OR REPLACE VIEW count_WellSample_imageLinks_by_owner (WellSample_id, owner_id, count) AS select parent, owner_id, count(*)
-    FROM WellSampleImageLink GROUP BY parent, owner_id ORDER BY parent;
-
   CREATE OR REPLACE VIEW count_WellSample_screenAcquisitionLinks_by_owner (WellSample_id, owner_id, count) AS select child, owner_id, count(*)
     FROM ScreenAcquisitionWellSampleLink GROUP BY child, owner_id ORDER BY child;
 
@@ -867,9 +820,6 @@ BEGIN;
 
   CREATE OR REPLACE VIEW count_Well_annotationLinks_by_owner (Well_id, owner_id, count) AS select parent, owner_id, count(*)
     FROM WellAnnotationLink GROUP BY parent, owner_id ORDER BY parent;
-
-  CREATE OR REPLACE VIEW count_Image_sampleLinks_by_owner (Image_id, owner_id, count) AS select child, owner_id, count(*)
-    FROM WellSampleImageLink GROUP BY child, owner_id ORDER BY child;
 
   CREATE OR REPLACE VIEW count_Reagent_wellLinks_by_owner (Reagent_id, owner_id, count) AS select child, owner_id, count(*)
     FROM WellReagentLink GROUP BY child, owner_id ORDER BY child;

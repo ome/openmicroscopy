@@ -33,10 +33,11 @@ public class SpwTest extends AbstractManagedContextTest {
         Screen s = new Screen("s");
         Plate p = new Plate("p");
         Well w = new Well();
+        Image i = new Image("i");
         Reagent r = new Reagent();
         r.setName("r");
         ScreenAcquisition sa = new ScreenAcquisition(s);
-        WellSample ws = new WellSample(w);
+        WellSample ws = new WellSample();
         ws.linkScreenAcquisition(sa);
 
         s.linkPlate(p);
@@ -45,8 +46,8 @@ public class SpwTest extends AbstractManagedContextTest {
         s.addReagent(r);
         r.linkWell(w);
 
-        ws.linkImage(new Image("i"));
         w.addWellSample(ws);
+        i.addWellSample(ws);
         sa.linkWellSample(ws);
 
         s = iUpdate.saveAndReturnObject(s);
@@ -72,15 +73,17 @@ public class SpwTest extends AbstractManagedContextTest {
         w = p.unmodifiableWells().iterator().next();
 
         w = iQuery.findByQuery("select w from Well w "
-                + "left outer join fetch w.wellSample " + "where w.id = :id",
+                + "left outer join fetch w.wellSamples " + "where w.id = :id",
                 new Parameters().addId(w.getId()));
 
         sa = new ScreenAcquisition(s);
         sa = iUpdate.saveAndReturnObject(sa);
 
-        WellSample ws = new WellSample(w);
+        i = new Image("i");
+
+        WellSample ws = new WellSample();
         ws.linkScreenAcquisition(sa);
-        ws.linkImage(new Image("i"));
+        i.addWellSample(ws);
         w.addWellSample(ws);
         ws = iUpdate.saveAndReturnObject(ws);
 

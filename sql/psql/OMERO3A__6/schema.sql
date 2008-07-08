@@ -458,13 +458,6 @@
         primary key (image_id, owner_id)
     );
 
-    create table count_Image_sampleLinks_by_owner (
-        image_id int8 not null,
-        count int8 not null,
-        owner_id int8,
-        primary key (image_id, owner_id)
-    );
-
     create table count_Job_originalFileLinks_by_owner (
         job_id int8 not null,
         count int8 not null,
@@ -585,13 +578,6 @@
     );
 
     create table count_WellSample_annotationLinks_by_owner (
-        wellsample_id int8 not null,
-        count int8 not null,
-        owner_id int8,
-        primary key (wellsample_id, owner_id)
-    );
-
-    create table count_WellSample_imageLinks_by_owner (
         wellsample_id int8 not null,
         count int8 not null,
         owner_id int8,
@@ -2111,25 +2097,12 @@
         group_id int8 not null,
         owner_id int8 not null,
         update_id int8 not null,
+        image int8 not null,
         well int8 not null,
         primary key (id)
     );
 
     create table wellsampleannotationlink (
-        id int8 not null,
-        permissions int8 not null,
-        version int4,
-        child int8 not null,
-        creation_id int8 not null,
-        external_id int8 unique,
-        group_id int8 not null,
-        owner_id int8 not null,
-        update_id int8 not null,
-        parent int8 not null,
-        primary key (id)
-    );
-
-    create table wellsampleimagelink (
         id int8 not null,
         permissions int8 not null,
         version int4,
@@ -2908,11 +2881,6 @@
         foreign key (image_id) 
         references image;
 
-    alter table count_Image_sampleLinks_by_owner 
-        add constraint FK_count_to_Image_sampleLinks 
-        foreign key (image_id) 
-        references image;
-
     alter table count_Job_originalFileLinks_by_owner 
         add constraint FK_count_to_Job_originalFileLinks 
         foreign key (job_id) 
@@ -3000,11 +2968,6 @@
 
     alter table count_WellSample_annotationLinks_by_owner 
         add constraint FK_count_to_WellSample_annotationLinks 
-        foreign key (wellsample_id) 
-        references wellsample;
-
-    alter table count_WellSample_imageLinks_by_owner 
-        add constraint FK_count_to_WellSample_imageLinks 
         foreign key (wellsample_id) 
         references wellsample;
 
@@ -5908,6 +5871,11 @@
         foreign key (external_id) 
         references externalinfo;
 
+    alter table wellsample 
+        add constraint FKwellsample_image_image 
+        foreign key (image) 
+        references image;
+
     alter table wellsampleannotationlink 
         add constraint FKwellsampleannotationlink_child_annotation 
         foreign key (child) 
@@ -5940,41 +5908,6 @@
 
     alter table wellsampleannotationlink 
         add constraint FKwellsampleannotationlink_external_id_externalinfo 
-        foreign key (external_id) 
-        references externalinfo;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_child_image 
-        foreign key (child) 
-        references image;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_update_id_event 
-        foreign key (update_id) 
-        references event;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_owner_id_experimenter 
-        foreign key (owner_id) 
-        references experimenter;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_creation_id_event 
-        foreign key (creation_id) 
-        references event;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_parent_wellsample 
-        foreign key (parent) 
-        references wellsample;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_group_id_experimentergroup 
-        foreign key (group_id) 
-        references experimentergroup;
-
-    alter table wellsampleimagelink 
-        add constraint FKwellsampleimagelink_external_id_externalinfo 
         foreign key (external_id) 
         references externalinfo;
 
@@ -6229,5 +6162,3 @@
     create sequence seq_wellsample;
 
     create sequence seq_wellsampleannotationlink;
-
-    create sequence seq_wellsampleimagelink;

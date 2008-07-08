@@ -81,14 +81,14 @@ public class ScreenPlateWellTest extends TestCase {
         well2_2.addWellSample(ws2_2a);
         well2_2.addWellSample(ws2_2b);
 
-        ws1_1a.linkImage(i1_1a);
-        ws1_1b.linkImage(i1_1b);
-        ws1_2a.linkImage(i1_2a);
-        ws1_2b.linkImage(i1_2b);
-        ws2_1a.linkImage(i2_1a);
-        ws2_1b.linkImage(i2_1b);
-        ws2_2a.linkImage(i2_2a);
-        ws2_2b.linkImage(i2_2b);
+        i1_1a.addWellSample(ws1_1a);
+        i1_1b.addWellSample(ws1_1b);
+        i1_2a.addWellSample(ws1_2a);
+        i1_2b.addWellSample(ws1_2b);
+        i2_1a.addWellSample(ws2_1a);
+        i2_1b.addWellSample(ws2_1b);
+        i2_2a.addWellSample(ws2_2a);
+        i2_2b.addWellSample(ws2_2b);
 
         screen.addScreenAcquisition(acq1);
         screen.addScreenAcquisition(acq2);
