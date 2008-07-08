@@ -204,7 +204,6 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
         slice_generated//omero/model/WellReagentLink.cpp\
         slice_generated//omero/model/WellSample.cpp\
         slice_generated//omero/model/WellSampleAnnotationLink.cpp\
-        slice_generated//omero/model/WellSampleImageLink.cpp\
         slice_generated//omero/model/XmlAnnotation.cpp\
         slice_generated//omero/ROMIO.cpp\
         slice_generated//omero/RTypes.cpp\
@@ -359,6 +358,5 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
         ../target//temp/omero/model/WellReagentLinkI.cpp\
         ../target//temp/omero/model/WellSampleAnnotationLinkI.cpp\
         ../target//temp/omero/model/WellSampleI.cpp\
-        ../target//temp/omero/model/WellSampleImageLinkI.cpp\
         ../target//temp/omero/model/XmlAnnotationI.cpp\
         ../target//temp/omero/ObjectFactoryRegistrar.cpp
