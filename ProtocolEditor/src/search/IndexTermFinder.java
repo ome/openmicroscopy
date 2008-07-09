@@ -68,7 +68,7 @@ public class IndexTermFinder {
 		  
 		  Date start = new Date();
 		  
-		
+		searchString = searchString.toLowerCase();
 		  
 		String searchField = "contents";
 		
