@@ -4,12 +4,17 @@
 package ui.components;
 
 import java.awt.BorderLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -20,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
 
 import tree.IAttributeSaver;
 import util.ImageFactory;
@@ -62,6 +68,40 @@ public class AttributeMemoFormatEditor extends JPanel{
 		toolBarButtonBorder = new EmptyBorder(spacing,spacing,spacing,spacing);
 		toolBarBox = Box.createHorizontalBox();
 		
+		/*
+		 * Paste button to paste clip-board text into the EditorPane. 
+		 * The system Paste (Control-V) doesn't work when pasting text from
+		 * a word document, perhaps because it contains unknown characters.
+		 * NB. formatting is lost in this process. 
+		 */
+		Icon pasteIcon = ImageFactory.getInstance().getIcon(ImageFactory.PASTE_ICON);
+		JButton pasteButton = new JButton(pasteIcon);
+		pasteButton.setToolTipText("Paste Text");
+		pasteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+		        Transferable t = Toolkit.getDefaultToolkit().
+		        	getSystemClipboard().getContents(null);
+		    
+		        try {
+		            if (t != null && t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+		                String text = (String)t.getTransferData(DataFlavor.stringFlavor);
+		                int offset = editorPane.getCaretPosition();
+		                editorPane.getDocument().insertString(offset, text, null);
+		            }
+		        } catch (UnsupportedFlavorException ex) {
+		        } catch (IOException ex) {
+		        } catch (BadLocationException ex) {
+					// TODO Auto-generated catch block
+					ex.printStackTrace();
+				}    
+			}
+		}
+		);
+		pasteButton.setBorder(toolBarButtonBorder);
+		toolBarBox.add(pasteButton);
+		
+		
 		Icon bulletPointsIcon = ImageFactory.getInstance().getIcon(ImageFactory.BULLET_POINTS_ICON); 
 		JButton unorderedListButton = new JButton(bulletPointsIcon);
 		unorderedListButton.setActionCommand(SimpleHTMLEditorPane.INSERT_UNORDERED_LIST_ITEM);
@@ -84,6 +124,8 @@ public class AttributeMemoFormatEditor extends JPanel{
 		underlineButton.addActionListener(new FontFormattingChangedListener());
 		underlineButton.setBorder(toolBarButtonBorder);
 		toolBarBox.add(underlineButton);
+		
+
 		
 		JPanel topPanel = new JPanel(new BorderLayout());
 		topPanel.add(attributeName, BorderLayout.WEST);
