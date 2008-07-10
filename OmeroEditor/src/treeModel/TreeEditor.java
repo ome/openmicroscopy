@@ -70,10 +70,12 @@ public class TreeEditor {
 	}
 	
 	 /** Remove the currently selected nodes. */
-    public void removeCurrentNodes() {
+    public void deleteSelectedFields() {
     	UndoableEdit edit = new DeleteFields(treeModel, tree.getSelectionPaths());
 		undoSupport.postEdit(edit);
     }
+    
+    
     
     
     public void undo() {

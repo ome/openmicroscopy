@@ -51,6 +51,8 @@ import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+import fields.Field;
+
 public class DynamicTreeDemo extends JPanel 
                              implements ActionListener {
     private int newNodeSuffix = 1;
@@ -132,7 +134,7 @@ public class DynamicTreeDemo extends JPanel
             tree.addSiblingObject(new Field("Field " + newNodeSuffix++, ""));
         } else if (REMOVE_COMMAND.equals(command)) {
             //Remove button clicked
-            treeEdit.removeCurrentNodes();
+            treeEdit.deleteSelectedFields();
         } else if (UNDO_COMMAND.equals(command)) {
             
             treeEdit.undo();

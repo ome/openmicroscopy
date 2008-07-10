@@ -1,8 +1,11 @@
 package search;
 
 import java.awt.BorderLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,10 +15,14 @@ import java.util.HashMap;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
+import org.openmicroscopy.shoola.util.ui.HistoryDialog;
 import org.xml.sax.SAXParseException;
 
 import tree.DataFieldConstants;
@@ -64,7 +71,8 @@ import xmlMVC.ConfigConstants;
 
 public class SearchController 
 	extends AbstractComponent
-	implements ActionListener {
+	implements ActionListener,
+	DocumentListener, PropertyChangeListener {
 	
 	/**
 	 * Action command for determining which search to perform;
@@ -116,6 +124,13 @@ public class SearchController
 	boolean displayControllerPanel = true;
 	
 	/**
+	 * A popup to display the terms from the lucene index that match what the
+	 * user is typing into the searchTermSource, so as to provide an
+	 * Auto-Complete functionality. 
+	 */
+	HistoryDialog popup;
+	
+	/**
 	 * Creates an instance of this class. 
 	 * @param model		model is used to open files (search hits) and provide current-file
 	 */
@@ -132,6 +147,7 @@ public class SearchController
 	 */
 	public void setSearchTermSource(JTextComponent searchTermSource) {
 		this.searchTermSource = searchTermSource;
+		searchTermSource.getDocument().addDocumentListener(this);
 	}
 	
 	
@@ -310,6 +326,43 @@ public class SearchController
 		if (displayControllerPanel)
 			return searchControllerPanel;
 		else return null;
+	}
+	
+	public void autoComplete() {
+		Rectangle rect = searchTermSource.getBounds();
+		String text = searchTermSource.getText();
+		if (text.length() < 2) return;
+		
+		String[] matchingTerms = IndexTermFinder.getMatchingTerms(text);
+		
+		popup = new HistoryDialog(matchingTerms, rect.width);
+		popup.addPropertyChangeListener(
+				HistoryDialog.SELECTION_PROPERTY, this);
+		
+		popup.show(searchTermSource, 0, rect.height);
+		
+		searchTermSource.requestFocusInWindow();
+	}
+
+	public void insertUpdate(DocumentEvent e) {
+		autoComplete();
+	}
+	
+	public void changedUpdate(DocumentEvent e) {
+		autoComplete();
+	}
+	public void removeUpdate(DocumentEvent e) {
+		autoComplete();
+	}
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (HistoryDialog.SELECTION_PROPERTY.equals(evt.getPropertyName())) {
+			Object item = evt.getNewValue();
+			searchTermSource.setText(item.toString());
+			
+			popup.setVisible(false);
+			
+		}
 	}
 
 }

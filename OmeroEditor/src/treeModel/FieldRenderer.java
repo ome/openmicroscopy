@@ -24,9 +24,12 @@ package treeModel;
 
 import java.awt.Component;
 
+import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellRenderer;
+
+import util.ImageFactory;
 
 //Java imports
 
@@ -56,6 +59,11 @@ public class FieldRenderer
                 tree, value, selected,
                 expanded, leaf, row,
                 hasFocus);
+			
+			Icon bigIcon = ImageFactory.getInstance().getIcon(
+					ImageFactory.ALARM_ICON_64);
+			
+			setIcon(bigIcon);
 			
 			return this;
 	}

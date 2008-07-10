@@ -44,9 +44,7 @@ import java.awt.Toolkit;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 

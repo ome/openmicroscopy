@@ -23,8 +23,11 @@
 package search;
 
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.TermEnum;
 
@@ -60,39 +63,61 @@ public class IndexTermFinder {
 	public static String index = IndexFiles.INDEX_PATH;
 	public static String field = "contents";
 	
-	  public static void main(String[] args) throws Exception {
+	  public static String[] getMatchingTerms(String searchString) {
 		  
 		  
 		  Date start = new Date();
 		  
-		String searchString = "ant";
+		searchString = searchString.toLowerCase();
 		  
 		String searchField = "contents";
+		
+		ArrayList<String> matchingTerms = new ArrayList<String>();
 
-	    IndexReader reader = IndexReader.open(index);
+	
+	    IndexReader reader;
+		try {
+			reader = IndexReader.open(index);
+			TermEnum terms = reader.terms();
+		    
+		    int termCounter = 0;
+		    while (terms.next()) {
+		    	// ignore terms unless from the field of interest
+		    	String field = terms.term().field();
+		    	if (! field.equals(searchField))
+		    		continue;
+		    	
+		    	String term = terms.term().toString();
+		    	term = term.replaceFirst(field + ":", "");
+		    	
+		    	if (term.startsWith(searchString)) {
+		    		System.out.println(termCounter + " " + term);
+		    		termCounter++;
+		    		
+		    		matchingTerms.add(term);
+		    	}
+		    }
+		    
+		    Date end = new Date();
+		      System.out.println("Search took " + (end.getTime() - start.getTime()) +
+		    		  " milliseconds");
+		      
+		    reader.close();
+		} catch (CorruptIndexException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-	    TermEnum terms = reader.terms();
-	    
-	    int termCounter = 0;
-	    while (terms.next()) {
-	    	// ignore terms unless from the field of interest
-	    	String field = terms.term().field();
-	    	if (! field.equals(searchField))
-	    		continue;
-	    	
-	    	String term = terms.term().toString();
-	    	term = term.replaceFirst(field + ":", "");
-	    	
-	    	if (term.startsWith(searchString)) {
-	    		System.out.println(termCounter + " " + term);
-	    		termCounter++;
-	    	}
+	    String[] results = new String[matchingTerms.size()]; 
+	    int termIndex = 0;
+	    for (String term : matchingTerms) {
+	    	results[termIndex] = term;
+	    	termIndex++;
 	    }
 	    
-	    Date end = new Date();
-	      System.out.println("Search took " + (end.getTime() - start.getTime()) +
-	    		  " milliseconds");
-	      
-	    reader.close();
+	    return results;
 	  }
 }

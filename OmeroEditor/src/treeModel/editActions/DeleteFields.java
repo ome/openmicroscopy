@@ -86,6 +86,10 @@ extends AbstractUndoableEdit {
 		
 	}
 	
+	public static boolean canDo(TreePath[] selectedPaths) { 
+		return (selectedPaths.length > 0);
+	}
+	
 	public void undo() {
 		TreeModelMethods.insertNodesInto(treeModel, deletedFields, parentNode,
 				indexOfFirstHighlightedField);
