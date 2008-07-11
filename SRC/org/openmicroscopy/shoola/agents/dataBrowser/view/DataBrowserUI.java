@@ -86,6 +86,9 @@ class DataBrowserUI
 	private DataBrowserToolBar 		toolBar;
 	
 	/** Reference to the tool bar. */
+	private DataBrowserWellToolBar 	wellToolBar;
+	
+	/** Reference to the tool bar. */
 	private DataBrowserStatusBar 	statusBar;
 	
 	/** Reference to the model. */
@@ -107,7 +110,9 @@ class DataBrowserUI
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
-		add(toolBar, BorderLayout.NORTH);
+		if (model.getType() == DataBrowserModel.WELLS) 
+			add(wellToolBar, BorderLayout.NORTH);
+		else add(toolBar, BorderLayout.NORTH);
 		add(model.getBrowser().getUI(), BorderLayout.CENTER);
 		add(statusBar, BorderLayout.SOUTH);
 	}
@@ -132,6 +137,7 @@ class DataBrowserUI
 		this.model = model;
 		this.controller = controller;
 		toolBar = new DataBrowserToolBar(this, controller);
+		wellToolBar = new DataBrowserWellToolBar(this, controller);
 		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;
 		setNumberOfImages(-1);
@@ -385,6 +391,8 @@ class DataBrowserUI
 		browser.accept(visitor, ImageDisplayVisitor.IMAGE_NODE_ONLY);
 		browser.accept(browser.getSelectedLayout(), 
 						ImageDisplayVisitor.IMAGE_SET_ONLY);
+		//if (model.getType() == DataBrowserModel.WELLS);
+		//	browser.getSelectedLayout().doLayout();
 	}
 	
     /**

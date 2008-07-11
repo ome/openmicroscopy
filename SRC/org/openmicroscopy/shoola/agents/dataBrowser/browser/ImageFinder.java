@@ -116,7 +116,8 @@ public class ImageFinder
     public void visit(ImageNode node)
     {
         imageNodes.add(node);
-        images.add((ImageData) node.getHierarchyObject());
+        Object ho = node.getHierarchyObject();
+        if (ho instanceof ImageData) images.add((ImageData) ho);
     }
 
     /** 
@@ -126,22 +127,27 @@ public class ImageFinder
     public void visit(ImageSet node)
     {
     	if (node == null) return;
-    	if (node.containsImages()) {
+    	//if (node.containsImages()) {
     		JComponent desktop = node.getInternalDesktop();
     		Component[] comps = desktop.getComponents();
     		if (comps != null) {
     			Component c;
     			ImageNode n;
+    			Object ho;
     			for (int i = 0; i < comps.length; i++) {
 					c = comps[i];
 					if (c instanceof ImageNode) {
 						n = (ImageNode) c;
-						visibleImages.add((ImageData) n.getHierarchyObject());
-						visibleImageNodes.add(n);
+						ho = n.getHierarchyObject();
+						if (ho instanceof ImageData) {
+							visibleImages.add((ImageData) ho);
+							visibleImageNodes.add(n);
+						}
+						
 					}
 				}
     		}
-    	}
+    	//}
     }
 
 }

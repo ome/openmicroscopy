@@ -52,7 +52,9 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -299,6 +301,38 @@ class MetadataViewerComponent
 		MessageBox dialog;
 		if (refObject instanceof ProjectData) {
 			model.fireSaving(toAdd, toRemove, toSave);
+		} else if (refObject instanceof ScreenData) {
+			model.fireSaving(toAdd, toRemove, toSave);
+		} else if (refObject instanceof PlateData) {
+//			Only update properties. 
+			//TODO:Improve code
+			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
+				model.fireSaving(toAdd, toRemove, toSave);
+				return;
+			}
+			dialog = new MessageBox(view, "Save Annotations", 
+						         "Do you want to attach the annotations to: ");
+			JPanel p = new JPanel();
+			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+			ButtonGroup group = new ButtonGroup();
+			JRadioButton single = new JRadioButton();
+			single.setText("The selected plate");
+			single.setSelected(true);
+			group.add(single);
+			p.add(single);
+			JRadioButton batchAnnotation = new JRadioButton();
+			group.add(batchAnnotation);
+			p.add(batchAnnotation);
+			batchAnnotation.setText("All the wells");
+			dialog.addBodyComponent(p);
+			int option = dialog.centerMsgBox();
+			if (option == MessageBox.YES_OPTION) {
+				//toSave.add(data);
+				if (single.isSelected()) 
+					model.fireSaving(toAdd, toRemove, toSave);
+				else
+					model.fireBatchSaving(toAdd, toRemove, toSave);
+			}
 		} else if (refObject instanceof DatasetData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {

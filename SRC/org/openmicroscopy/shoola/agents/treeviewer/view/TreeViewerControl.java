@@ -244,6 +244,12 @@ class TreeViewerControl
 	/** Identifies the <code>Create tag</code> in the File menu. */
 	static final Integer    CREATE_TOP_TAG = new Integer(38);
 	
+	/** Identifies the <code>Screens Explorer</code> action in the View menu. */
+	static final Integer	SCREENS_EXPLORER = new Integer(39);
+	
+	/** Identifies the <code>Create project</code> in the File menu. */
+	static final Integer    CREATE_TOP_SCREEN = new Integer(40);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -270,6 +276,8 @@ class TreeViewerControl
 		actionsMap.put(COPY_OBJECT, new CopyAction(model));
 		actionsMap.put(DELETE_OBJECT, new DeleteAction(model));
 		actionsMap.put(PASTE_OBJECT, new PasteAction(model));
+		actionsMap.put(SCREENS_EXPLORER, 
+				new BrowserSelectionAction(model, Browser.SCREENS_EXPLORER));
 		actionsMap.put(HIERARCHY_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.PROJECT_EXPLORER));
 		actionsMap.put(TAGS_EXPLORER, 
@@ -314,6 +322,9 @@ class TreeViewerControl
 		actionsMap.put(RESET_RND_SETTINGS, new ResetRndSettingsAction(model));
 		actionsMap.put(SEARCH, new SearchAction(model));
 		actionsMap.put(SET_RND_SETTINGS, new SetRndSettingsAction(model));
+		actionsMap.put(CREATE_TOP_SCREEN, 
+				new CreateTopContainerAction(model, 
+						CreateTopContainerAction.SCREEN));
 	}
 
 	/** 
@@ -691,6 +702,15 @@ class TreeViewerControl
 	 */
 	public void stateChanged(ChangeEvent ce)
 	{
+		switch (model.getSelectedBrowser().getState()) {
+			case Browser.BROWING_DATA:
+				loadingWindow.setStatus(TreeViewer.LOADING_TITLE);
+				UIUtilities.centerAndShow(loadingWindow);
+				return;
+			case Browser.READY:
+				loadingWindow.setVisible(false);
+				break;
+		}
 		switch (model.getState()) {
 			case TreeViewer.DISCARDED:
 				view.closeViewer();
@@ -715,6 +735,7 @@ class TreeViewerControl
 			case TreeViewer.SETTINGS_RND:
 				UIUtilities.centerAndShow(loadingWindow);
 				break;
+			
 		}
 	}
 

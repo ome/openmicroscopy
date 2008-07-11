@@ -44,6 +44,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
+import pojos.ScreenData;
 
 /** 
  * Views or browses the selected node depending on the hierarchy object type.
@@ -138,11 +140,15 @@ public class ViewAction
             	name = BROWSE;
             	putValue(Action.SMALL_ICON, icons.getIcon(IconManager.BROWSER));
             }
+            
             if (selectedDisplay instanceof TreeImageSet) {
             	setEnabled(
             			((TreeImageSet) selectedDisplay).getNumberItems() > 0);
-            } else
+            } else {
             	setEnabled(true);
+            }
+            if (ho instanceof ScreenData) setEnabled(false);
+            else if (ho instanceof PlateData) setEnabled(true);
         }
     }
     

@@ -39,7 +39,6 @@ import javax.swing.JLabel;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.editor.EditorUI;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.tpane.TinyPane;
 import pojos.CategoryData;
@@ -176,14 +175,6 @@ public abstract class ImageDisplay
         childrenDisplay = new HashSet<ImageDisplay>();
         setToolTipText(getNodeName());
     }
- 
-    /** Fired a property change event to bring up the annotation widget. */
-    public void fireAnnotation()
-    {
-        if ((hierarchyObject instanceof ImageData) ||
-                (hierarchyObject instanceof DatasetData))
-        firePropertyChange(ANNOTATE_NODE_PROPERTY, null, this);
-    }
     
     /**
      * Returns the parent node to this node in the visualization tree.
@@ -297,16 +288,21 @@ public abstract class ImageDisplay
     	List<JLabel> nodes = new ArrayList<JLabel>();
     	IconManager icons = IconManager.getInstance();
     	if (hierarchyObject instanceof DataObject) {
-    		ExperimenterData owner = ((DataObject) hierarchyObject).getOwner();
-    		if (owner != null) {
-    			ExperimenterData exp = DataBrowserAgent.getUserDetails();
-    			if (exp.getId() != owner.getId()) {
-    				JLabel l = new JLabel(icons.getIcon(IconManager.OWNER_8));
-    				l.setToolTipText("Owner: "+EditorUtil.formatExperimenter(
-    						DataBrowserAgent.getExperimenter(owner.getId())));
-    				nodes.add(l);
-    			}
-    		}
+    		try {
+    			ExperimenterData owner = ((DataObject) hierarchyObject).getOwner();
+        		if (owner != null) {
+        			ExperimenterData exp = DataBrowserAgent.getUserDetails();
+        			if (exp.getId() != owner.getId()) {
+        				JLabel l = new JLabel(icons.getIcon(IconManager.OWNER_8));
+        				l.setToolTipText("Owner: "+EditorUtil.formatExperimenter(
+        						DataBrowserAgent.getExperimenter(owner.getId())));
+        				nodes.add(l);
+        			}
+        		}
+			} catch (Exception e) {
+				// TODO: handle exception
+			}
+    		
     	}
     	if (EditorUtil.isAnnotated(hierarchyObject)) 
     		nodes.add(new JLabel(icons.getIcon(IconManager.ANNOTATION_8)));

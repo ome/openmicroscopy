@@ -46,6 +46,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Command to refresh a data trees.
@@ -227,7 +228,8 @@ public class DMRefreshLoader
         if (ImageData.class.equals(rootNodeType)) 
         	loadCall = makeImagesBatchCall(nodes);
         else if (ProjectData.class.equals(rootNodeType) || 
-        		CategoryGroupData.class.equals(rootNodeType))
+        		CategoryGroupData.class.equals(rootNodeType) ||
+        		ScreenData.class.equals(rootNodeType))
         	loadCall = makeBatchCall(rootNodeType,  nodes);
     }
     

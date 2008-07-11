@@ -203,6 +203,19 @@ public class Factory
 
     /**
      * Creates a default thumbnail whose width is {@link #DEFAULT_THUMB}
+     * and height is {@link #DEFAULT_THUMB} and the passed message.
+     * 
+     * @param text The text to set.
+     * @return See above,
+     */
+    public static BufferedImage createDefaultThumbnail(String text)
+    {
+    	return createDefaultThumbnail(DEFAULT_THUMB, DEFAULT_THUMB, 
+    									text);
+    }
+    
+    /**
+     * Creates a default thumbnail whose width is {@link #DEFAULT_THUMB}
      * and height is {@link #DEFAULT_THUMB} and default message
      * {@link #LOADING_TEXT}.
      * 

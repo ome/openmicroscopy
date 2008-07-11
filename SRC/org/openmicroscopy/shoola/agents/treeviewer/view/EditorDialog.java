@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Basic modal dialog brought up to create a new container.
@@ -326,11 +327,14 @@ class EditorDialog
         IconManager im = IconManager.getInstance();
         TitlePanel tp = null;
         if (data instanceof ProjectData) {
-        	 tp = new TitlePanel("Create project", "Create a new project", 
-                     im.getIcon(IconManager.CREATE_BIG));
+        	tp = new TitlePanel("Create project", "Create a new project", 
+        			im.getIcon(IconManager.CREATE_BIG));
         } else if (data instanceof DatasetData) {
-        	 tp = new TitlePanel("Create dataset", "Create a new dataset", 
-                     im.getIcon(IconManager.CREATE_BIG));
+        	tp = new TitlePanel("Create dataset", "Create a new dataset", 
+        			im.getIcon(IconManager.CREATE_BIG));
+        } else if (data instanceof ScreenData) {
+        	tp = new TitlePanel("Create screen", "Create a new screen", 
+        			im.getIcon(IconManager.CREATE_BIG));
         }
        return tp;
     }
@@ -372,6 +376,11 @@ class EditorDialog
 			d.setName(nameArea.getText().trim());
 			d.setDescription(descriptionArea.getText().trim());
 			data = d;
+    	} else if (data instanceof ScreenData) {
+    		ScreenData d = (ScreenData) data;
+			d.setName(nameArea.getText().trim());
+			d.setDescription(descriptionArea.getText().trim());
+			data = d;
     	}
     	if (withParent) firePropertyChange(CREATE_PROPERTY, null, data);
     	else firePropertyChange(CREATE_NO_PARENT_PROPERTY, null, data);
@@ -387,8 +396,9 @@ class EditorDialog
     {
     	if (object == null)
     		throw new IllegalArgumentException("No object to create.");
-    	if ((object instanceof ProjectData) || (object instanceof DatasetData))
-    		return;
+    	if (object instanceof ProjectData) return;
+    	if (object instanceof DatasetData) return;
+    	if (object instanceof ScreenData) return;
     	throw new IllegalArgumentException("Object not supported.");
     }
     

@@ -104,6 +104,11 @@ class ToolBar
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
         b = new JButton(controller.getAction(
+                TreeViewerControl.CREATE_TOP_SCREEN));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
+        
+        b = new JButton(controller.getAction(
                 TreeViewerControl.CREATE_TOP_DATASET));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);

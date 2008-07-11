@@ -66,8 +66,10 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.PixelsData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -266,6 +268,10 @@ class EditorModel
 			return ((ProjectData) refObject).getName();
 		else if (refObject instanceof TagAnnotationData)
 			return ((TagAnnotationData) refObject).getTagValue();
+		else if (refObject instanceof ScreenData)
+			return ((ScreenData) refObject).getName();
+		else if (refObject instanceof PlateData)
+			return ((PlateData) refObject).getName();
 		return "";
 	}
 	
@@ -282,6 +288,10 @@ class EditorModel
 			return ((DatasetData) refObject).getDescription();
 		else if (refObject instanceof ProjectData)
 			return ((ProjectData) refObject).getDescription();
+		else if (refObject instanceof ScreenData)
+			return ((ScreenData) refObject).getDescription();
+		else if (refObject instanceof PlateData)
+			return ((PlateData) refObject).getDescription();
 		return "";
 	}
 	

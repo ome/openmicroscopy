@@ -47,7 +47,9 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -417,6 +419,10 @@ public abstract class TreeImageDisplay
         	return exp.getFirstName()+" "+exp.getLastName();
         } else if (obj instanceof TagAnnotationData)
         	return ((TagAnnotationData) obj).getTagValue();
+        else if (obj instanceof ScreenData)
+        	return ((ScreenData) obj).getName();
+        else if (obj instanceof PlateData)
+        	return ((PlateData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
@@ -435,6 +441,8 @@ public abstract class TreeImageDisplay
         	if (partialName) return EditorUtil.getPartialName(name);
         	return name;
         } else if (uo instanceof ExperimenterData)
+        	return getNodeName();
+        else if (uo instanceof PlateData)
         	return getNodeName();
         else if (uo instanceof String && numberItems < 0) 
         	return name;

@@ -44,12 +44,15 @@ import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ExistingObjectsSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ExperimenterImagesCounter;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.PlateWellsLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.ScreenPlatesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.TagsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -358,6 +361,29 @@ class DataManagerViewImpl
 	{
 		BatchCallTree cmd = new TagsLoader(TagsLoader.LEVEL_TAG_SET, id, images, 
 				                        userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#loadScreenPlates(Class, Set, long, 
+	 *                                     AgentEventListener)
+	 */
+	public CallHandle loadScreenPlates(Class rootType, Set rootIDs, long userID, 
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new ScreenPlatesLoader(rootType, rootIDs, userID);
+		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see DataManagerView#loadPlateWells(long, long, AgentEventListener)
+	 */
+	public CallHandle loadPlateWells(long plateID, long userID, 
+									AgentEventListener observer)
+	{
+		BatchCallTree cmd = new PlateWellsLoader(plateID, userID);
 		return cmd.exec(observer);
 	}
   

@@ -50,7 +50,9 @@ import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -112,6 +114,14 @@ public class TreeCellRenderer
         	if (tags != null && tags.size() > 0)
         		icon = icons.getIcon(IconManager.TAG_SET);
         	else icon = icons.getIcon(IconManager.TAG);
+        } else if (usrObject instanceof ScreenData) {
+        	if (EditorUtil.isAnnotated(usrObject))
+        		icon = icons.getIcon(IconManager.SCREEN_ANNOTATED);
+        	else icon = icons.getIcon(IconManager.SCREEN);
+        } else if (usrObject instanceof PlateData) {
+        	if (EditorUtil.isAnnotated(usrObject))
+        		icon = icons.getIcon(IconManager.PLATE_ANNOTATED);
+        	else icon = icons.getIcon(IconManager.PLATE);
         } else if (node instanceof TreeImageTimeSet)
         	icon = icons.getIcon(IconManager.DATE);
         else if (usrObject instanceof String)

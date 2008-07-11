@@ -41,9 +41,11 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImageLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExperimenterImagesCounter;
+import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDataLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.RefreshExperimenterDef;
+import org.openmicroscopy.shoola.agents.treeviewer.ScreenPlateLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TagSetsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -54,7 +56,9 @@ import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -134,7 +138,8 @@ class BrowserModel
             case Browser.PROJECT_EXPLORER:
             case Browser.CATEGORY_EXPLORER:
             case Browser.IMAGES_EXPLORER:    
-            case Browser.TAGS_EXPLORER:    
+            case Browser.TAGS_EXPLORER:  
+            case Browser.SCREENS_EXPLORER:  
                 break;
             default:
                 throw new IllegalArgumentException("Browser type not valid.");
@@ -320,18 +325,24 @@ class BrowserModel
     		Object ho = node.getUserObject();
             int type = -1;
             int level = -1;
-            if (ho instanceof DatasetData) 
-            	type = ExperimenterDataLoader.DATASET;
-            else if (ho instanceof CategoryData) 
-            	type = ExperimenterDataLoader.CATEGORY;
-            else if (ho instanceof TagAnnotationData) {
-            	type = ExperimenterDataLoader.TAGS;
-            	level = ExperimenterDataLoader.TAG_LEVEL;
-            }	
-            currentLoader = new ExperimenterDataLoader(component, type, 
-            					(TreeImageSet) expNode, (TreeImageSet) node);
-            if (level != -1)
-            	((ExperimenterDataLoader) currentLoader).setTagLevel(level);	
+            if (ho instanceof PlateData) {
+            	currentLoader = new PlateWellsLoader(component, 
+    					(TreeImageSet) node, ((PlateData) ho).getId());
+            } else {
+            	if (ho instanceof DatasetData) 
+                	type = ExperimenterDataLoader.DATASET;
+                else if (ho instanceof CategoryData) 
+                	type = ExperimenterDataLoader.CATEGORY;
+                else if (ho instanceof TagAnnotationData) {
+                	type = ExperimenterDataLoader.TAGS;
+                	level = ExperimenterDataLoader.TAG_LEVEL;
+                }	
+                currentLoader = new ExperimenterDataLoader(component, type, 
+                					(TreeImageSet) expNode, 
+                					(TreeImageSet) node);
+                if (level != -1)
+                	((ExperimenterDataLoader) currentLoader).setTagLevel(level);	
+            }
     	}
         currentLoader.load();
     }
@@ -517,6 +528,13 @@ class BrowserModel
 	void fireExperimenterDataLoading(TreeImageSet expNode)
 	{
 		int index = -1;
+		if (browserType == Browser.SCREENS_EXPLORER) {
+			currentLoader = new ScreenPlateLoader(component, expNode, 
+												ScreenPlateLoader.SCREEN);
+	        currentLoader.load();
+	        state = Browser.LOADING_DATA;
+			return;
+		}
 		switch (browserType) {
 			case Browser.PROJECT_EXPLORER:
 				index = ExperimenterDataLoader.PROJECT;
@@ -555,6 +573,8 @@ class BrowserModel
 				break;
 			case Browser.TAGS_EXPLORER:
 				klass = TagAnnotationData.class;
+			case Browser.SCREENS_EXPLORER:
+				klass = ScreenData.class;
 		}
         state = Browser.LOADING_DATA;
         currentLoader = new RefreshExperimenterDataLoader(component, klass,
@@ -618,6 +638,20 @@ class BrowserModel
 		currentLoader.load();
 	}
 
+	/**
+	 * Browses the node hosting the project to browse.
+	 * 
+	 * @param node The node to browse
+	 */
+	void browsePlate(TreeImageDisplay node)
+	{
+		state = Browser.BROWING_DATA;
+		Object ho = node.getUserObject();
+		currentLoader = new PlateWellsLoader(component, 
+				(TreeImageSet) node, ((PlateData) ho).getId());
+		currentLoader.load();
+	}
+	
 	/**
 	 * Browses the node hosting the time interval to browse.
 	 * 

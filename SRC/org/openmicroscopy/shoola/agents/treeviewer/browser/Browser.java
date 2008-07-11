@@ -82,22 +82,25 @@ public interface Browser
     static final int                IN_CATEGORY_FILTER = 202;
     
     /** Flag to denote the <i>New</i> state. */
-    public static final int     	NEW = 1;
+    public static final int     	NEW = 10;
     
     /** Flag to denote the <i>Loading Data</i> state. */
-    public static final int     	LOADING_DATA = 2;
+    public static final int     	LOADING_DATA = 11;
     
     /** Flag to denote the <i>Loading Data</i> state. */
-    public static final int     	LOADING_LEAVES = 3;
+    public static final int     	LOADING_LEAVES = 12;
     
     /** Flag to denote the <i>Counting items</i> state. */
-    public static final int     	COUNTING_ITEMS = 4;
+    public static final int     	COUNTING_ITEMS = 13;
+    
+    /** Flag to denote the <i>Browsing</i> state. */
+    public static final int     	BROWING_DATA = 14;
     
     /** Flag to denote the <i>Ready</i> state. */
-    public static final int     	READY = 5;
+    public static final int     	READY = 15;
 
     /** Flag to denote the <i>Discarded</i> state. */
-    public static final int     	DISCARDED = 6;
+    public static final int     	DISCARDED = 16;
 
     /** 
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
@@ -122,6 +125,12 @@ public interface Browser
      * explorer.
      */
     public static final int     	TAGS_EXPLORER = 103;
+    
+    /** 
+     * Indicates that the browser corresponds to a <code>Screen</code>
+     * explorer.
+     */
+    public static final int     	SCREENS_EXPLORER = 104;
     
     /** Indicates to sort the nodes by date. */
     public static final int         SORT_NODES_BY_DATE = 300;
@@ -168,6 +177,11 @@ public interface Browser
      * The browser's title corresponding to {@link #TAGS_EXPLORER} type.
      */
     public static final String     TAGS_TITLE = "Tags";
+    
+    /** 
+     * The browser's title corresponding to {@link #SCREENS_EXPLORER} type.
+     */
+    public static final String     SCREENS_TITLE = "Screens";
     
     /**
      * Sets the selected {@link TreeImageDisplay node}.
@@ -582,4 +596,15 @@ public interface Browser
 	 */
 	public void setTimeIntervalImages(Set set, TreeImageTimeSet node);
 	
+	 /**
+     * Callback used by a data loader to set the wells contained in the 
+     * currently selected plate.
+     * 
+     * @param wells    The collection of wells.
+     * @param parent    The parent of the well.
+     * @throws IllegalStateException If the current state is not 
+     *                               {@link #LOADING_LEAVES}.
+     */
+    public void setWells(Set wells, TreeImageSet parent);
+
 }

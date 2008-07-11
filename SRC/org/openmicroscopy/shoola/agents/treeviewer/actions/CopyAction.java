@@ -41,7 +41,9 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
 * Action to copy the selected elements, a {@link CopyCmd} is executed.
@@ -103,12 +105,20 @@ public class CopyAction
 					setEnabled(model.isObjectWritable(ho));
 				else setEnabled(false);
 			}
-
 		} else if (ho instanceof CategoryData) {
 			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
 			if (parentDisplay == null) setEnabled(false);
 			else {
 				if (parentDisplay.getUserObject() instanceof CategoryGroupData)
+					setEnabled(model.isObjectWritable(ho));
+				else setEnabled(false);
+			}
+		} else if (ho instanceof PlateData) {
+			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
+			if (parentDisplay == null) setEnabled(false);
+			else {
+				Object parent = parentDisplay.getUserObject();
+				if (parent instanceof ScreenData)
 					setEnabled(model.isObjectWritable(ho));
 				else setEnabled(false);
 			}

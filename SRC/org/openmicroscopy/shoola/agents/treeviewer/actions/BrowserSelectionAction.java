@@ -86,6 +86,11 @@ public class BrowserSelectionAction
                 putValue(Action.SMALL_ICON,
                     im.getIcon(IconManager.TAGS_EXPLORER));
                 break;
+            case Browser.SCREENS_EXPLORER:
+                putValue(Action.NAME, Browser.SCREENS_TITLE);
+                putValue(Action.SMALL_ICON,
+                        im.getIcon(IconManager.SCREENS_EXPLORER));
+                break;
             default:
                 throw new IllegalArgumentException("Browser type not " +
                         "supported.");

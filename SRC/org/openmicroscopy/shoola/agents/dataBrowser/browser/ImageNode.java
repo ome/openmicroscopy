@@ -89,6 +89,16 @@ public class ImageNode
     }
 
     /**
+     * Sets the tool tip of the {@link #canvas}.
+     * 
+     * @param text The value to set.
+     */
+    void setCanvasToolTip(String text)
+    {
+    	if (canvas != null) canvas.setToolTipText(text);
+    }
+    
+    /**
      * Creates a new leaf node.
      * 
      * @param title             The frame's title.
@@ -109,12 +119,14 @@ public class ImageNode
         						RIGHT));
         setNodeDecoration();
         setTitleBarType(SMALL_BAR);
-        if (t == null) throw new NullPointerException("No thumbnail.");
+        //if (t == null) throw new NullPointerException("No thumbnail.");
         thumbnail = t;
-        canvas = new ThumbnailCanvas(this);
-        getInternalDesktop().add(canvas, new Integer(0));
-        setCanvasSize(t.getWidth(), t.getHeight());
-        canvas.setToolTipText(getNodeName());
+        if (t != null) {
+        	canvas = new ThumbnailCanvas(this);
+            getInternalDesktop().add(canvas, new Integer(0));
+            setCanvasSize(t.getWidth(), t.getHeight());
+            canvas.setToolTipText(getNodeName());
+        }
     }
     
     /**
@@ -127,7 +139,7 @@ public class ImageNode
     {
     	 getTitleBar().addMouseListener(listener);
     	 //addMouseListener(listener);
-    	 canvas.addMouseListener(listener);
+    	 if (canvas != null) canvas.addMouseListener(listener);
     }
     
     /** Fired a property change event to bring up the classification widget. */
@@ -227,7 +239,7 @@ public class ImageNode
      */
     public void setCanvasSize(int w, int h)
     {
-        canvas.setBounds(0, 0, w, h);
+    	if (canvas != null) canvas.setBounds(0, 0, w, h);
         getInternalDesktop().setSize(w, h);
         getInternalDesktop().setPreferredSize(new Dimension(w, h));
     }
@@ -241,7 +253,8 @@ public class ImageNode
     {
     	ImageNode img = new ImageNode(getTitle(), getHierarchyObject(), 
     								getThumbnail());
-    	img.setCanvasSize(canvas.getWidth(), canvas.getHeight());
+    	if (canvas != null) 
+    		img.setCanvasSize(canvas.getWidth(), canvas.getHeight());
     	return img;
     }
     

@@ -64,7 +64,10 @@ public class CreateTopContainerAction
 	public static final int DATASET = CreateCmd.DATASET;
 	
 	/** Indicates to create a <code>Tag</code>. */
-	public static final int TAG = CreateCmd.TAG;;
+	public static final int TAG = CreateCmd.TAG;
+	
+	/** Indicates to create a <code>Screen</code>. */
+	public static final int SCREEN = CreateCmd.SCREEN;
 	
     /** The name of the action for the creation of a <code>Project</code>. */
     private static final String NAME = "New...";
@@ -83,6 +86,9 @@ public class CreateTopContainerAction
     /** The name of the action for the creation of a <code>Tag</code>. */
     private static final String NAME_TAG = "New Tag...";
     
+    /** The name of the action for the creation of a <code>Screen</code>. */
+    private static final String NAME_SCREEN = "New Screen...";
+    
     /** Description of the action for a <code>Tag</code> . */
     private static final String DESCRIPTION_TAG = "Create a new Tag.";
     
@@ -95,6 +101,9 @@ public class CreateTopContainerAction
     /** Description of the action for a <code>CategoryGroup</code> . */
     private static final String DESCRIPTION_CATEGORY_GROUP = 
                                 "Create a new Tag Set.";
+    
+    /** The name of the action for the creation of a <code>Screen</code>. */
+    private static final String DESCRIPTION_SCREEN = "Create a new Screen.";
     
     /** The type of node to create. */
     private int nodeType;
@@ -126,7 +135,12 @@ public class CreateTopContainerAction
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_TAG));
 				break;
-	
+			case SCREEN:
+				name = NAME;
+				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SCREEN));
+				putValue(Action.SHORT_DESCRIPTION, 
+		                UIUtilities.formatToolTipText(DESCRIPTION_SCREEN));
+				break;
 			default:
 				throw new IllegalArgumentException("Type not supported.");
 		}

@@ -54,7 +54,9 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -372,6 +374,20 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setWells(Set, TreeImageSet)
+     */
+    public void setWells(Set wells, TreeImageSet parent)
+    {
+        if (model.getState() != BROWING_DATA) return;
+        //No node added to the tree.
+        model.setState(READY);
+        model.getParentModel().setWells(parent, wells);
+        model.getParentModel().setStatus(false, "", true);
+        fireStateChange();
+    }
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#setSelectedDisplay(TreeImageDisplay)
      */
     public void setSelectedDisplay(TreeImageDisplay display)
@@ -492,6 +508,8 @@ class BrowserComponent
                 return im.getIcon(IconManager.CATEGORY_EXPLORER);
             case IMAGES_EXPLORER:
                 return im.getIcon(IconManager.IMAGES_EXPLORER);
+            case SCREENS_EXPLORER:
+            	return im.getIcon(IconManager.SCREENS_EXPLORER);
         }
         return null;
     }
@@ -692,6 +710,7 @@ class BrowserComponent
             TreeImageDisplay node = getLastSelectedDisplay();
             if ((object instanceof ProjectData) ||
                 (object instanceof CategoryGroupData) ||
+                (object instanceof ScreenData) ||
                 ((object instanceof DatasetData) && parent == null)) {
                 nodes = new ArrayList(1);
                 nodes.add(loggedUser);
@@ -1238,7 +1257,10 @@ class BrowserComponent
 				model.browseTagset(node);
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);
+		} else if (uo instanceof PlateData) {
+			model.browsePlate(node);
 		}
+		fireStateChange();
 	}
 
 	/**
@@ -1290,7 +1312,6 @@ class BrowserComponent
 	public void setTimeIntervalImages(Set set, TreeImageTimeSet node)
 	{
 		model.getParentModel().browseTimeInterval(node, set);
-		
 	}
-    
+
 }

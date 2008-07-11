@@ -53,9 +53,7 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
 import ome.api.IDelete;
-import ome.api.IPixels;
 import ome.api.IPojos;
-import ome.api.IProjection;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
@@ -89,6 +87,10 @@ import ome.model.enums.Format;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
+import ome.model.screen.Well;
+import ome.model.screen.WellSample;
 import ome.parameters.Parameters;
 import ome.parameters.QueryParameter;
 import ome.system.EventContext;
@@ -108,10 +110,14 @@ import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.URLAnnotationData;
+import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
 * Unified access point to the various <i>OMERO</i> services.
@@ -270,6 +276,7 @@ class OMEROGateway
 		else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
 		else if (klass.equals(CategoryGroup.class)) 
 			table = "CategoryGroupCategoryLink";
+		else if (klass.equals(Screen.class)) table = "ScreenPlateLink";
 		return table;
 	}
 
@@ -292,10 +299,12 @@ class OMEROGateway
 			table = "DatasetAnnotationLink";
 		else if (klass.equals(ProjectData.class)) 
 			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageData.class)) 
-			table = "ImageAnnotationLink";
-		else if (klass.equals(PixelsData.class)) 
-			table = "PixelAnnotationLink";
+		else if (klass.equals(ImageData.class)) table = "ImageAnnotationLink";
+		else if (klass.equals(PixelsData.class)) table = "PixelAnnotationLink";
+		else if (klass.equals(Screen.class)) table = "ScreenAnnotationLink";
+		else if (klass.equals(Plate.class)) table = "PlateAnnotationLink";
+		else if (klass.equals(ScreenData.class)) table = "ScreenAnnotationLink";
+		else if (klass.equals(PlateData.class)) table = "PlateAnnotationLink";
 		return table;
 	}
 	
@@ -312,6 +321,8 @@ class OMEROGateway
 		else if (klass.equals(ProjectData.class)) return "Project";
 		else if (klass.equals(CategoryGroupData.class)) return "CategoryGroup";
 		else if (klass.equals(ImageData.class)) return "Image";
+		else if (klass.equals(ScreenData.class)) return "Screen";
+		else if (klass.equals(PlateData.class)) return "Plate";
 		return null;
 	}
 	
@@ -805,6 +816,9 @@ class OMEROGateway
 			return FileAnnotation.class;
 		else if (nodeType.equals(URLAnnotationData.class))
 			return UrlAnnotation.class;
+		else if (nodeType.equals(ScreenData.class)) return Screen.class;
+		else if (nodeType.equals(PlateData.class)) return Plate.class;
+		else if (nodeType.equals(WellData.class)) return Well.class;
 		else throw new IllegalArgumentException("NodeType not supported");
 	}
 	
@@ -1512,8 +1526,12 @@ class OMEROGateway
 			ThumbnailStore service = getThumbService();
 			Set<Long> ids = new HashSet<Long>();
 			Iterator<Long> i = pixelsID.iterator();
-			while (i.hasNext()) 
-				ids.add(i.next());
+			while (i.hasNext())  {
+				long id = i.next();
+				
+				ids.add(id);
+			}
+				
 			return service.getThumbnailByLongestSideSet(maxLength, ids);
 		} catch (Throwable t) {
 			if (thumbnailService != null) thumbnailService.close();
@@ -3808,6 +3826,136 @@ class OMEROGateway
 		
 		
 		return null;
+	}
+	
+	//TMP: 
+	Set loadPlateWells(long plateID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			List results;
+			IQuery service = getQueryService();
+			StringBuilder sb = new StringBuilder();
+			Parameters param = new Parameters();
+			param.addLong("plateID", plateID);
+			
+			sb.append("select well from Well well ");
+			/*
+			sb.append("left outer join fetch well.wellSample ws ");
+			sb.append("left outer join fetch ws.imageLinks wsil ");
+			//sb.append("left outer join fetch wsil.child img ");
+			 */
+			sb.append("where well.plate.id = :plateID");
+			results = service.findAllByQuery(sb.toString(), param);
+			Iterator i = results.iterator();
+			
+			Well well;
+			List<Long> ids = new ArrayList<Long>();
+			while (i.hasNext()) {
+				well = (Well) i.next();
+				ids.add(well.getId());
+			}
+			sb = new StringBuilder();
+			param = new Parameters();
+			param.addList("wellIDs", ids);
+			sb.append("select ws from WellSample ws ");
+			sb.append("left outer join fetch ws.well well ");
+			sb.append("left outer join fetch well.wellSample ");
+			sb.append("left outer join fetch ws.imageLinks wsil ");
+			sb.append("left outer join fetch wsil.child img ");
+			sb.append("left outer join fetch img.pixels as pix ");
+            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+			sb.append("where ws.well.id in (:wellIDs)");
+			List samples = service.findAllByQuery(sb.toString(), param);
+			i = samples.iterator();
+			WellSample ws;
+			WellSampleData data;
+			Map<Long, List<WellSampleData>> 
+				map = new HashMap<Long, List<WellSampleData>>();
+			List<WellSampleData> list;
+			while (i.hasNext()) {
+				ws = (WellSample) i.next();
+				data = (WellSampleData) PojoMapper.asDataObject(ws);
+				well = ws.getWell();
+				list = map.get(well.getId());
+				if (list == null) {
+					list = new ArrayList<WellSampleData>();
+					map.put(well.getId(), list);
+				}
+				list.add(data);
+			}
+			Set<DataObject> wells = new HashSet<DataObject>();
+			i = results.iterator();
+			WellData wellData;
+			while (i.hasNext()) {
+				well = (Well) i.next();
+				wellData = (WellData) PojoMapper.asDataObject(well);
+				list = map.get(well.getId());
+				if (list != null)
+					wellData.setWellSamples(list);
+				wells.add(wellData);
+			}
+			return wells;
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot load screen");
+		}
+		return new HashSet();
+	}
+	
+	Set loadScreenPlate(Class rootType, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			List results;
+			IQuery service = getQueryService();
+			StringBuilder sb = new StringBuilder();
+			Parameters param = new Parameters();
+			if (ScreenData.class.equals(rootType)) {
+				sb.append("select screen from Screen screen ");
+				sb.append("left outer join fetch "
+		                   + "screen.annotationLinksCountPerOwner s_a_c ");
+	            sb.append("left outer join fetch screen.plateLinks spl ");
+	            sb.append("left outer join fetch spl.child plate ");
+	            if (userID >= 0) {
+	            	sb.append("where screen.details.owner.id = :uid");
+	            	param.addLong("uid", userID);
+	            }
+				results = service.findAllByQuery(sb.toString(), param);
+				Set<Plate> plates = new HashSet<Plate>();
+				Screen s;
+				for (IObject o : plates) {
+	                s = (Screen) o;
+	                plates.addAll(s.linkedPlateList());
+	            }
+	            if (plates.size() > 0) {
+	            	String sql = "select p from Plate p "
+	                + "left outer join fetch p.annotationLinksCountPerOwner " +
+	                "where p in (:list)";
+	            	param.addSet("list", plates);
+	            	service.findAllByQuery(sql, param);
+	            }
+	            return PojoMapper.asDataObjects(results);
+			} else if (PlateData.class.equals(rootType)) {
+				sb.append("select p from Plate p ");
+				sb.append("left outer join fetch "
+		                   + "p.annotationLinksCountPerOwner p_a_c ");
+				if (userID >= 0) {
+	            	sb.append("where p.details.owner.id = :uid");
+	            	param.addLong("uid", userID);
+	            }
+				results = service.findAllByQuery(sb.toString(), param);
+				return PojoMapper.asDataObjects(results);
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			handleException(e, "Cannot load screen");
+		}
+		return new HashSet();
 	}
 	
 }

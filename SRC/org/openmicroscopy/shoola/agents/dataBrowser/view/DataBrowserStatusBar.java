@@ -90,7 +90,7 @@ class DataBrowserStatusBar
 		zoomSlider.addChangeListener(this);
 		progressBar = new JProgressBar();
         status = new JLabel();
-		
+		progressBar.setVisible(false);
 	}
 	
 	/** Builds and lays out the UI. */

@@ -52,8 +52,11 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 
 /** 
  * This class contains a collection of utility static methods that transform
@@ -99,6 +102,10 @@ public class TreeViewerTranslator
             else title = UIUtilities.formatTime(time); 
             toolTip = UIUtilities.formatToolTipText(title);
             //node.setToolTip(toolTip); 
+        } else if (node.getUserObject() instanceof WellData) {
+        	toolTip = UIUtilities.formatToolTipText(
+        		((WellData) node.getUserObject()).getExternalDescription());
+        	node.setToolTip(toolTip);
         }
     }
     
@@ -233,6 +240,86 @@ public class TreeViewerTranslator
     }
     
     /**
+     * Transforms a {@link PlateData} into a visualisation object i.e.
+     * a {@link TreeImageSet}.
+     * 
+     * @param data      The {@link PlateData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.                 
+     * @return See above.
+     */
+    private static TreeImageDisplay transformPlate(PlateData data, long userID, 
+    		long groupID)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        TreeImageSet plate =  new TreeImageSet(data);
+        /*
+        Set images = data.getImages();
+        if (images == null) dataset.setNumberItems(-1);
+        else {
+            dataset.setChildrenLoaded(Boolean.TRUE);
+            dataset.setNumberItems(images.size());
+            Iterator i = images.iterator();
+            DataObject tmp;
+            ImageData child;
+            while (i.hasNext()) {
+            	tmp = (DataObject) i.next();
+                if (tmp instanceof ImageData) {
+                	 child = (ImageData) tmp;
+                	 if (EditorUtil.isReadable(child, userID, groupID))
+                         dataset.addChildDisplay(transformImage(child));
+                }
+            }
+        }
+        */
+        formatToolTipFor(plate);
+        return plate;
+    }
+    
+    /**
+     * Transforms a {@link WellData} into a visualisation object i.e.
+     * a {@link TreeImageSet}.
+     * 
+     * @param data      The {@link WellData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                      retrieving the data.                 
+     * @return See above.
+     */
+    private static TreeImageDisplay transformWell(WellData data, long userID, 
+    		long groupID)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        TreeImageSet well =  new TreeImageSet(data);
+        /*
+        Set images = data.getImages();
+        if (images == null) dataset.setNumberItems(-1);
+        else {
+            dataset.setChildrenLoaded(Boolean.TRUE);
+            dataset.setNumberItems(images.size());
+            Iterator i = images.iterator();
+            DataObject tmp;
+            ImageData child;
+            while (i.hasNext()) {
+            	tmp = (DataObject) i.next();
+                if (tmp instanceof ImageData) {
+                	 child = (ImageData) tmp;
+                	 if (EditorUtil.isReadable(child, userID, groupID))
+                         dataset.addChildDisplay(transformImage(child));
+                }
+            }
+        }
+        */
+        formatToolTipFor(well);
+        return well;
+    }
+    
+    /**
      * Transforms a {@link TagAnnotationData} into a visualisation object i.e.
      * a {@link TreeImageSet}.
      * 
@@ -322,6 +409,44 @@ public class TreeViewerTranslator
             project.setNumberItems(0);
         }
         return project;
+    }
+    
+    /**
+     * Transforms a {@link ScreenData} into a visualisation object i.e.
+     * a {@link TreeImageSet}. The {@link PlateData plates} are also
+     * transformed and linked to the newly created {@link TreeImageSet}.
+     * 
+     * @param data      The {@link ScreenData} to transform.
+     *                  Mustn't be <code>null</code>.
+     * @param plates    Collection of plates to add.
+     * @param userID    The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.             
+     * @return See above.
+     */
+    private static TreeImageDisplay transformScreen(ScreenData data, 
+                        Set plates, long userID, long groupID)
+    {
+        if (data == null)
+            throw new IllegalArgumentException("Cannot be null");
+        TreeImageSet screen = new TreeImageSet(data);
+        if (plates != null) {
+        	screen.setChildrenLoaded(Boolean.TRUE);
+            Iterator i = plates.iterator();
+            PlateData child;
+            while (i.hasNext()) {
+                child = (PlateData) i.next();
+                if (EditorUtil.isReadable(child, userID, groupID))
+                	screen.addChildDisplay(transformPlate(child, userID, 
+                                                            groupID));
+            }
+            screen.setNumberItems(plates.size());
+        } else {
+            //The plates not loaded.
+            screen.setChildrenLoaded(Boolean.FALSE); 
+            screen.setNumberItems(0);
+        }
+        return screen;
     }
     
     /**
@@ -472,62 +597,19 @@ public class TreeViewerTranslator
                 	child = transformTag((TagAnnotationData) ho, userID, 
                 			            groupID);
                 	results.add(child);
+                } else if (ho instanceof ScreenData) {
+                	results.add(transformScreen((ScreenData) ho, 
+                            ((ScreenData) ho).getPlates(), userID, 
+                                                groupID));
+                } else if (ho instanceof PlateData) {
+                	results.add(transformPlate((PlateData) ho, userID, 
+                			groupID));
+                } else if (ho instanceof WellData) {
+                	results.add(transformWell((WellData) ho, userID, groupID));
                 }
             }   
         }
         if (orphan != null) orphan.setExpanded(false);
-        return results;
-    }
-    
-    /**
-     * Transforms a set of {@link DataObject}s into their corresponding 
-     * visualization objects. The elements of the set can either be
-     * {@link ProjectData} or {@link CategoryGroupData}.
-     * 
-     * @param dataObjects   The collection of {@link DataObject}s to transform.
-     * @param userID        The id of the current user.
-     * @param groupID       The id of the group the current user selects when 
-     *                      retrieving the data.    
-     * @return A set of visualization objects.
-     */
-    public static Set transformContainers(Set dataObjects, long userID,
-                                        long groupID)
-    {
-        if (dataObjects == null)
-            throw new IllegalArgumentException("No objects.");
-        Set<TreeImageDisplay> results = 
-        			new HashSet<TreeImageDisplay>(dataObjects.size());
-        Iterator i = dataObjects.iterator();
-        DataObject ho, child;
-        Iterator j;
-        while (i.hasNext()) {
-            ho = (DataObject) i.next();
-            if (ho instanceof ProjectData) {
-                j = ((ProjectData) ho).getDatasets().iterator();
-                while (j.hasNext()) {
-                    child = (DataObject) j.next();
-                    if (EditorUtil.isReadable(child, userID, groupID))
-                        results.add(transformDataset((DatasetData) child, 
-                                                    userID, groupID));
-                }  
-            } else if (ho instanceof CategoryGroupData) {
-                j = ((CategoryGroupData) ho).getCategories().iterator();
-                while (j.hasNext()) {
-                    child = (DataObject) j.next();
-                    if (EditorUtil.isReadable(child, userID, groupID))
-                        results.add(transformCategory((CategoryData) child, 
-                                                    userID, groupID));
-                }   
-            } else if (ho instanceof DatasetData) {
-            	if (EditorUtil.isReadable(ho, userID, groupID))
-                    results.add(transformDataset((DatasetData) ho, 
-                                                userID, groupID));
-            } else if (ho instanceof CategoryData) {
-            	if (EditorUtil.isReadable(ho, userID, groupID))
-            		results.add(transformCategory((CategoryData) ho, 
-                            userID, groupID));
-            }
-        }
         return results;
     }
     
@@ -640,6 +722,23 @@ public class TreeViewerTranslator
     						orphan.addChildDisplay(display);
     					}
                 	}
+                } else if (ho instanceof ScreenData) {
+                	if (expandedTopNodes != null)
+                		expanded = (List) expandedTopNodes.get(
+                				ScreenData.class);
+                    display = transformScreen((ScreenData) ho, 
+                            ((ScreenData) ho).getPlates(), userID, groupID);
+                    if (expanded != null)
+	                    display.setExpanded(
+	                    		expanded.contains(new Long(ho.getId())));
+
+                    results.add(display);
+                } else if (ho instanceof PlateData) {
+                	display = transformPlate((PlateData) ho, userID, groupID);
+                	if (expanded != null)
+                		display.setExpanded(
+                				expanded.contains(new Long(ho.getId())));
+                	results.add(display);
                 }
             }
         }
@@ -678,6 +777,11 @@ public class TreeViewerTranslator
                                         userID, groupID);
         else if (object instanceof ImageData)
             return transformImage((ImageData) object);
+        else if (object instanceof ScreenData)
+            return transformScreen((ScreenData) object, 
+            		((ScreenData) object).getPlates(), userID, groupID);
+        else if (object instanceof PlateData)
+            return transformPlate((PlateData) object, userID, groupID);
         throw new IllegalArgumentException("Data Type not supported.");
     }
     
@@ -838,6 +942,6 @@ public class TreeViewerTranslator
         }
         return r;
 	}
-        
+    
 }
     

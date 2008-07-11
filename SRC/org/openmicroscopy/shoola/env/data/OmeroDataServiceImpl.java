@@ -63,7 +63,9 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -165,6 +167,9 @@ class OmeroDataServiceImpl
 			boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException 
 	{
+		if (ScreenData.class.equals(rootNodeType)) {
+			return loadScreenPlates(rootNodeType, rootNodeIDs, userID);
+		}
 		PojoOptions po = new PojoOptions();
 		if (rootNodeIDs == null) po.exp(new Long(userID));
 		if (withLeaves) po.leaves();
@@ -617,6 +622,13 @@ class OmeroDataServiceImpl
 			} catch (ArrayStoreException ase) {
 				throw new IllegalArgumentException(
 						"items can only be images.");
+			}
+		} else if (parent instanceof ScreenData) {
+			try {
+				children.toArray(new PlateData[] {});
+			} catch (ArrayStoreException ase) {
+				throw new IllegalArgumentException(
+						"items can only be plate.");
 			}
 		} else
 			throw new IllegalArgumentException("parent object not supported");
@@ -1298,6 +1310,52 @@ class OmeroDataServiceImpl
 			}
 		}
 		gateway.deleteObject(child.asIObject());
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#loadScreenPlates(Class, Set, long)
+	 */
+	public Set loadScreenPlates(Class rootNodeType, Set rootNodeIDs, 
+										long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//Add controls
+		Set all = new HashSet();
+		Collection r = gateway.loadScreenPlate(rootNodeType, userID);
+		all.addAll(r);
+		if (ScreenData.class.equals(rootNodeType)) {
+			Iterator i = r.iterator();
+			ScreenData screen;
+			Set<Long> plateIDs = new HashSet<Long>();
+			Set<PlateData> plates;
+			Iterator j;
+			PlateData plate;
+			while (i.hasNext()) {
+				screen = (ScreenData) i.next();
+				plates = screen.getPlates();
+				j = plates.iterator();
+				while (j.hasNext()) {
+					plate = (PlateData) j.next();
+					plateIDs.add(plate.getId());
+				}
+			}
+			r = gateway.loadScreenPlate(PlateData.class, userID);
+			i = r.iterator();
+			while (i.hasNext()) {
+				plate = (PlateData) i.next();
+				if (!plateIDs.contains(plate.getId()))
+					all.add(plate);
+			}
+		} 
+		return all;
+	}
+
+	public Collection loadPlateWells(long plateID, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		
+		return gateway.loadPlateWells(plateID, userID);
 	}
 	
 }

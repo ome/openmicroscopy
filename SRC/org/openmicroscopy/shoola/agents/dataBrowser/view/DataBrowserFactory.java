@@ -41,6 +41,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
 
 /** 
  * Factory to create {@link DataBrowser} components.
@@ -101,12 +102,25 @@ public class DataBrowserFactory
 	 * 
 	 * @param grandParent	The grandparent of the node.
 	 * @param parent		The parent's node.
+	 * @param wells			The collection to set.
+	 * @return See above.
+	 */
+	public static final DataBrowser getWellsDataBrowser(Object grandParent, 
+										Object parent, Set<WellData> wells)
+	{
+		return singleton.createWellsDataBrowser(grandParent, parent, wells);
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of images.
+	 * 
+	 * @param grandParent	The grandparent of the node.
+	 * @param parent		The parent's node.
 	 * @param images		The collection to set.
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(Object grandParent, 
-										Object parent, 
-										Set<ImageData> images)
+										Object parent, Set<ImageData> images)
 	{
 		return singleton.createImagesDataBrowser(grandParent, parent, images);
 	}
@@ -178,6 +192,30 @@ public class DataBrowserFactory
 	{
 		browsers = new HashMap<String, DataBrowser>();
 		searchBrowser = null;
+	}
+	
+	/**
+	 * Creates a new {@link DataBrowser} for the passed collection of wells.
+	 * 
+	 * @param grandParent	The grandParent of the node.
+	 * @param parent		The parent's node.
+	 * @param wells			The collection to set.
+	 * @return See above.
+	 */
+	private DataBrowser createWellsDataBrowser(Object grandParent, 
+												Object parent, 
+										Set<WellData> wells)
+	{
+		DataBrowserModel model = new WellsModel(parent, wells);
+		model.setGrandParent(grandParent);
+		DataBrowserComponent comp = new DataBrowserComponent(model);
+		model.initialize(comp);
+		comp.initialize();
+		String key = parent.toString();
+		if (parent instanceof DataObject) 
+			key += ((DataObject) parent).getId();
+		browsers.put(key, comp);
+		return comp;
 	}
 	
 	/**

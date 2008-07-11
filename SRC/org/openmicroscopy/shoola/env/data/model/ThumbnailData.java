@@ -90,13 +90,7 @@ public class ThumbnailData
      */
     public ThumbnailData(long imageID, BufferedImage thumbnail)
     {
-        if (imageID <= 0) 
-            throw new IllegalArgumentException("Non-positive image id: "+
-                                               imageID+".");
-        if (thumbnail == null)
-            throw new NullPointerException("No thumbnail.");
-        this.imageID = imageID;
-        this.thumbnail = thumbnail;
+        this(imageID, thumbnail, -1);
     }
     
     /**

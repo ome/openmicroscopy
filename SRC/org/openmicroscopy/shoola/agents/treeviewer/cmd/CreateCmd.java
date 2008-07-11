@@ -36,6 +36,7 @@ import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  *  Displays the editor to create a new <code>DataObject</code>.
@@ -64,8 +65,11 @@ public class CreateCmd
     /** Indicates to create a <code>Category</code>. */
     public static final int CATEGORY = 3;
     
-    /** Indicates to create a <code>Category</code>. */
+    /** Indicates to create a <code>Tag</code>. */
     public static final int TAG = 4;
+    
+    /** Indicates to create a <code>Screen</code>. */
+    public static final int SCREEN = 5;
     
     /** Reference to the model. */
     private TreeViewer  model;
@@ -93,6 +97,7 @@ public class CreateCmd
             case DATASET: return new DatasetData(); 
             case CATEGORY_GROUP: return new CategoryGroupData(); 
             case CATEGORY: return new CategoryData(); 
+            case SCREEN: return new ScreenData(); 
             default:
                 throw new IllegalArgumentException("Type not supported");
         }

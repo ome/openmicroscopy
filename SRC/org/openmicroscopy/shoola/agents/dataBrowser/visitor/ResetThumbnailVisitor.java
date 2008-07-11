@@ -24,17 +24,15 @@ package org.openmicroscopy.shoola.agents.dataBrowser.visitor;
 
 
 //Java imports
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Collection;
-
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
-
 import pojos.ImageData;
 
 /** 
@@ -75,11 +73,15 @@ public class ResetThumbnailVisitor
 	public void visit(ImageNode node)
 	{
 		Thumbnail th = node.getThumbnail();
+		if (th == null) return;
 		if (ids == null || ids.size() == 0)
 			th.setFullScaleThumb(null);
 		else {
-			ImageData d = (ImageData) node.getHierarchyObject();
-			if (ids.contains(d.getId())) th.setFullScaleThumb(null);
+			Object ho = node.getHierarchyObject(); 
+			if (ho instanceof ImageData) {
+				ImageData d = (ImageData) ho;
+				if (ids.contains(d.getId())) th.setFullScaleThumb(null);
+			}
 		}
 	}
 

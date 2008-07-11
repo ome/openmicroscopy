@@ -44,6 +44,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -112,6 +113,18 @@ class BrowserModel
 	
 	/** The collection of original images. */
 	private Set<ImageDisplay>	originalNodes;
+	
+	/** 
+	 * Set to <code>true</code> to display the row value as a letter, 
+	 * to <code>false</code> to display it as a number.
+	 */
+	private boolean 			rowAsLetter;
+	
+	/** 
+	 * Set to <code>true</code> to display the column value as a letter, 
+	 * to <code>false</code> to display it as a number.
+	 */
+	private boolean 			columnAsLetter;
 	
 	/**
 	 * Adds the children of the passed node to its internal desktop.
@@ -218,11 +231,23 @@ class BrowserModel
 	String currentPathString(ImageDisplay parent)
 	{
 	    StringBuffer buf = new StringBuffer();
-	    String title;
+	    String title = "";
 	    while (parent != null && !(parent instanceof RootDisplay)) {
-	        title = parent.getTitle();
-	        if (title == null || title.length() == 0) title = "[..]";
-	        if (parent instanceof ImageSet) buf.insert(0, " > ");
+	    	if (parent instanceof CellDisplay) {
+	    		int type = ((CellDisplay) parent).getType();
+	    		if (type == CellDisplay.TYPE_HORIZONTAL)
+	    			title = "column: "+parent.getTitle();
+	    		else title = "row: "+parent.getTitle();
+	    	} else if (parent instanceof WellImageNode) {
+	    		WellImageNode wiNode = (WellImageNode) parent;
+	    		title = "Well: "+wiNode.getRowDisplay();
+	    		title += "-"+wiNode.getColumnDisplay();
+
+	    	} else {
+	    		title = parent.getTitle();
+	    		if (title == null || title.length() == 0) title = "[..]";
+	    		if (parent instanceof ImageSet) buf.insert(0, " > ");
+	    	}
 	        buf.insert(0, title);
 	        parent = parent.getParentDisplay();
 	    }
@@ -423,6 +448,7 @@ class BrowserModel
 	    switch (layout.getIndex()) {
 	        case LayoutFactory.SQUARY_LAYOUT:
 	        case LayoutFactory.FLAT_LAYOUT:  
+	        case LayoutFactory.PLATE_LAYOUT:  
 	            selectedLayout = layout;
 	            break;
 	    }

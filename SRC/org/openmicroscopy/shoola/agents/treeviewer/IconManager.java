@@ -281,11 +281,26 @@ public class IconManager
     /** The <code>Add metadata 48</code> icon. */
     public static int           ADD_METADATA_48 = 75;
     
+    /** The <code>Screens Explorer</code> icon. */
+    public static int           SCREENS_EXPLORER = 76;
+    
+    /** The <code>Screen</code> icon. */
+    public static int           SCREEN = 77;
+    
+    /** The <code>Screen Annotated</code> icon. */
+    public static int           SCREEN_ANNOTATED = 78;
+    
+    /** The <code>Plate</code> icon. */
+    public static int           PLATE = 79;
+    
+    /** The <code>Plate Annotated</code> icon. */
+    public static int           PLATE_ANNOTATED = 80;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 75;
+    private static int          MAX_ID = 80;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -369,6 +384,12 @@ public class IconManager
         relPaths[TAG_SET] = "nuvola_knotesRedRed16.png";
         relPaths[ADD_METADATA] = "nuvola_knotesOrange16.png";
         relPaths[ADD_METADATA_48] = "nuvola_kdmconfig48.png";
+        relPaths[SCREENS_EXPLORER] ="eclipse_hierarchicalLayout16.png";
+        relPaths[SCREEN] = "nuvola_folder_blue_open_modified_screen16.png";
+        relPaths[SCREEN_ANNOTATED] =
+        	"nuvola_folder_blue_open_modified_screen_annotated16.png";
+        relPaths[PLATE_ANNOTATED] ="plate_annotated16.png";
+        relPaths[PLATE] ="plate16.png";
     }
     
     /** The sole instance. */

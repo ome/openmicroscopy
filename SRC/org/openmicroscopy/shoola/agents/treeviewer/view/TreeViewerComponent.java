@@ -1056,12 +1056,12 @@ class TreeViewerComponent
 			return;
 		}
 		switch (index) {
-		case CUT_AND_PASTE:
-		case COPY_AND_PASTE:    
-			break;
-
-		default:
-			throw new IllegalArgumentException("Index not supported.");
+			case CUT_AND_PASTE:
+			case COPY_AND_PASTE:    
+				break;
+	
+			default:
+				throw new IllegalArgumentException("Index not supported.");
 		}
 		model.setNodesToCopy(nodes, index);
 		//controller.getAction(TreeViewerControl.PASTE_OBJECT).setEnabled(true);
@@ -1869,6 +1869,24 @@ class TreeViewerComponent
 		if (display != null) grandParentObject =  display.getUserObject();
 		DataBrowser dataBrowser = DataBrowserFactory.getDataBrowser(
 					grandParentObject, parentObject, leaves);
+		dataBrowser.addPropertyChangeListener(controller);
+		dataBrowser.activate();
+		view.removeAllFromWorkingPane();
+		view.addComponent(dataBrowser.getUI());
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setWells(TreeImageSet, Set)
+	 */
+	public void setWells(TreeImageSet parent, Set wells)
+	{
+		Object parentObject = parent.getUserObject();
+		TreeImageDisplay display = parent.getParentDisplay();
+		Object grandParentObject = null;
+		if (display != null) grandParentObject =  display.getUserObject();
+		DataBrowser dataBrowser = DataBrowserFactory.getWellsDataBrowser(
+					grandParentObject, parentObject, wells);
 		dataBrowser.addPropertyChangeListener(controller);
 		dataBrowser.activate();
 		view.removeAllFromWorkingPane();

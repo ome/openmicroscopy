@@ -92,8 +92,11 @@ abstract class DataBrowserModel
 	/** Identifies the <code>SearchModel</code>. */
 	static final int	SEARCH = 3;
 	
-	/** Identifies the <code>DatasetsModel</code>. */
+	/** Identifies the <code>TagsModel</code>. */
 	static final int	TAGSETS = 4;
+	
+	/** Identifies the <code>WellsModel</code>. */
+	static final int	WELLS = 5;
 	
 	/** Holds one of the state flags defined by {@link DataBrowser}. */
     private int					state;
@@ -164,20 +167,29 @@ abstract class DataBrowserModel
      */
     ViewerSorter getSorter() { return sorter; }
     
-    /** Lays out the browser. */
+    /** Creates a default layout and lays out the nodes. */
     void layoutBrowser()
     {
+    	layoutBrowser(LayoutFactory.SQUARY_LAYOUT);
+    }
+    
+    /** 
+     * Lays out the browser. 
+     * 
+     * @param type The type of layout to create.
+     */
+    void layoutBrowser(int type)
+    {
     	if (browser == null) return;
-    	//Do initial layout and set the icons.
+		//Do initial layout and set the icons.
     	if (browser.getSelectedLayout() == null) {
-    		Layout layout = LayoutFactory.getDefaultLayout(sorter, 1);
+    		Layout layout = LayoutFactory.createLayout(type, sorter, 1);
             browser.setSelectedLayout(layout);
-          
     	}
         browser.accept(browser.getSelectedLayout(), 
         				ImageDisplayVisitor.IMAGE_SET_ONLY);
     }
-
+    
     /**
      * Creates or recycles the table view.
      * 
@@ -210,7 +222,9 @@ abstract class DataBrowserModel
     				ImageDisplayVisitor.IMAGE_NODE_ONLY);
     	}
     	loader = createDataLoader(refresh, ids);
-    	if (loader == null) return;
+    	if (loader == null) {
+    		return;
+    	}
     	state = DataBrowser.LOADING;
     	loader.load();
     }

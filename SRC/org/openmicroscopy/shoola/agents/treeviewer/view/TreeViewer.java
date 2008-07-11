@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -204,7 +205,7 @@ public interface TreeViewer
 	 * The title displayed in the {@link LoadingWindow} during the saving 
 	 * process.
 	 */
-	public static final String      LOADING_TITLE = "Loading...";
+	public static final String      LOADING_TITLE = "Loading Data...";
 
 	/** Identifies the <code>Create Object</code> operation. */
 	public static final int         CREATE_OBJECT = 300;
@@ -752,5 +753,7 @@ public interface TreeViewer
 	 * @param set Tne 
 	 */
 	public void browseTimeInterval(TreeImageTimeSet node, Set set);
-	
+
+	public void setWells(TreeImageSet parent, Set wells);
+
 }

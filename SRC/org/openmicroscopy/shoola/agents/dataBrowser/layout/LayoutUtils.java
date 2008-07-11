@@ -137,7 +137,7 @@ public class LayoutUtils
      * @param images The collection to handle.
      * @return See above,
      */
-    static Dimension maxChildDim(List images)
+    static Dimension maxChildDim(Collection images)
     {
         Dimension maxDim = new Dimension(0, 0);
         Iterator children = images.iterator();

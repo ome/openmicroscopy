@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * Action to cut the selected elements, a {@link CutCmd} is executed.
@@ -97,7 +98,7 @@ public class CutAction
         }
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
-             (ho instanceof CategoryData))
+             (ho instanceof CategoryData) || (ho instanceof PlateData))
             setEnabled(model.isObjectWritable(ho));
         else setEnabled(false);
     }

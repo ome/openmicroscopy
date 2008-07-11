@@ -46,7 +46,10 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
+import pojos.WellData;
 
 /** 
  * Sorts the values.
@@ -198,6 +201,10 @@ public class ViewerSorter
      */
     private int compareDataObjects(DataObject o1, DataObject o2)
     {
+    	if (o1 instanceof WellData) {
+    		return compareNumbers(((WellData) o1).getRow(), 
+    				((WellData) o2).getRow());
+    	}
         if (!byDate) {
         	int r = compareStrings(getNameFor(o1), getNameFor(o2));
         	if (r == 0) //equals so checks id.
@@ -298,11 +305,14 @@ public class ViewerSorter
             return ((GroupData) obj).getName();
         else if (obj instanceof AnnotationData) 
         	return ((AnnotationData) obj).getContentAsString();
+        else if (obj instanceof ScreenData)
+        	return ((ScreenData) obj).getName();
+        else if (obj instanceof PlateData)
+        	return ((PlateData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     }
-    
-    
+
     /**
      * Compares two {@link Object}s.
      * 

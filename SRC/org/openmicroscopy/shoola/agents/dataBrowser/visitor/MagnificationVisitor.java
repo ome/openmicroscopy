@@ -75,14 +75,18 @@ public class MagnificationVisitor
 	public void visit(ImageNode node)
 	{
 		 Thumbnail th = node.getThumbnail();
-	     double sf = th.getScalingFactor();
-	     if (sf != factor) th.scale(factor); 	 
+		 if (th != null) {
+			 double sf = th.getScalingFactor();
+		     if (sf != factor) th.scale(factor); 
+		 }
 	}
 
     /** 
      * Implemented as specified by {@link ImageDisplayVisitor}. 
      * @see ImageDisplayVisitor#visit(ImageSet)
      */
-	public void visit(ImageSet node) {}
+	public void visit(ImageSet node)
+	{
+	}
 	
 }

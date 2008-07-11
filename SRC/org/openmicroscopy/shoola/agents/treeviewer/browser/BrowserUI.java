@@ -72,6 +72,7 @@ import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * The Browser's View.
@@ -484,8 +485,9 @@ class BrowserUI
                     	buildTreeNode(display, sorter.sort(children), tm);
                     }
                 } else {
-                    tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
-                        display, display.getChildCount());
+                	if (!(display.getUserObject() instanceof PlateData))
+                    	tm.insertNodeInto(new DefaultMutableTreeNode(EMPTY_MSG), 
+                        				display, display.getChildCount());
                 }  
             }
         } 
@@ -699,6 +701,8 @@ class BrowserUI
                 return Browser.IMAGES_TITLE;
             case Browser.TAGS_EXPLORER:
                 return Browser.TAGS_TITLE;
+            case Browser.SCREENS_EXPLORER:
+            	return Browser.SCREENS_TITLE;
         }
         return "";
     }

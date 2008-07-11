@@ -59,7 +59,9 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PermissionData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -439,22 +441,27 @@ class PropertiesUI
 		String desc = descriptionArea.getText().trim();
 		if (object instanceof ProjectData) {
 			ProjectData p = (ProjectData) object;
-			if (name.length() > 0)
-				p.setName(name);
+			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof DatasetData) {
 			DatasetData p = (DatasetData) object;
-			if (name.length() > 0)
-				p.setName(name);
+			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof ImageData) {
 			ImageData p = (ImageData) object;
-			if (name.length() > 0)
-				p.setName(name);
+			if (name.length() > 0) p.setName(name);
 			p.setDescription(desc);
 		} else if (object instanceof TagAnnotationData) {
 			TagAnnotationData p = (TagAnnotationData) object;
 			p.setTagDescription(desc);
+		} else if (object instanceof ScreenData) {
+			ScreenData p = (ScreenData) object;
+			if (name.length() > 0) p.setName(name);
+			p.setDescription(desc);
+		} else if (object instanceof PlateData) {
+			PlateData p = (PlateData) object;
+			if (name.length() > 0) p.setName(name);
+			p.setDescription(desc);
 		}
 	}
 	

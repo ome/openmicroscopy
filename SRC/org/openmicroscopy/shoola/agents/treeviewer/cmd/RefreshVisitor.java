@@ -42,7 +42,9 @@ import pojos.CategoryData;
 import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 
@@ -177,7 +179,27 @@ public class RefreshVisitor
             	l = new ArrayList<Long>();
             	expandedTopNodes.put(ProjectData.class, l);
             }
-            l.add(new Long(id));
+            l.add(new Long(id)); 
+        } else if ((userObject instanceof ScreenData) 
+        		&& node.isExpanded()) {
+        	long id = ((DataObject) userObject).getId();
+        	List l = expandedTopNodes.get(ScreenData.class);
+        	if (l == null) {
+        		l = new ArrayList<Long>();
+        		expandedTopNodes.put(ScreenData.class, l);
+        	}
+        	l.add(new Long(id));
+        } else if (userObject instanceof PlateData) {
+        	parent = node.getParentDisplay();
+    		if (!(parent.getUserObject() instanceof ScreenData)) {
+    			long id = ((DataObject) userObject).getId();
+                List l = expandedTopNodes.get(PlateData.class);
+                if (l == null) {
+                	l = new ArrayList<Long>();
+                	expandedTopNodes.put(PlateData.class, l);
+                }
+                l.add(id);
+    		}
         } else if (node instanceof TreeImageTimeSet && node.isChildrenLoaded() 
         		&& node.isExpanded() && node.containsImages())
         	foundNodes.add(node);

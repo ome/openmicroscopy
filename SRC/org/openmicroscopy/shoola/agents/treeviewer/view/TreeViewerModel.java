@@ -63,7 +63,9 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 
 /** 
@@ -167,7 +169,9 @@ class TreeViewerModel
 			((objParent instanceof CategoryData) && 
 			(obj instanceof ImageData)) || 
 			((objParent instanceof DatasetData)
-			&& (obj instanceof ImageData)))
+			&& (obj instanceof ImageData)) ||
+			((objParent instanceof ScreenData) &&
+					(obj instanceof PlateData)))
 		{
 			Map map;
 			Set children;
@@ -219,6 +223,9 @@ class TreeViewerModel
 		selectedBrowser = browser;
 		browser.setSelected(true);
 		browsers.put(new Integer(Browser.PROJECT_EXPLORER), browser);
+		browser = BrowserFactory.createBrowser(Browser.SCREENS_EXPLORER,
+									component, experimenter);
+		browsers.put(new Integer(Browser.SCREENS_EXPLORER), browser);
 		browser = BrowserFactory.createBrowser(Browser.TAGS_EXPLORER,
 				component, experimenter);
 		browsers.put(new Integer(Browser.TAGS_EXPLORER), browser);

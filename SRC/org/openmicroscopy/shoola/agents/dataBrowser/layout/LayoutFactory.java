@@ -28,6 +28,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Map;
+import java.util.Set;
+
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 /** 
@@ -52,6 +56,9 @@ public class LayoutFactory
     /** Identifies the <i>Flat</i> layout.*/
     public static final int     FLAT_LAYOUT = 2;
     
+    /** Identifies the <i>Plate</i> layout.*/
+    public static final int     PLATE_LAYOUT = 3;
+    
     /**
      * Creates the specified layout.
      * 
@@ -73,10 +80,23 @@ public class LayoutFactory
                 return new SquaryLayout(sorter, itemsPerRow);
             case FLAT_LAYOUT:
                 return new FlatLayout(sorter);
+            case PLATE_LAYOUT:
+            	return new PlateLayout();
+            	
             default:
                 throw new IllegalArgumentException("Unsupported layout type: "+
                                                     +type+".");
         }
+    }
+    
+    /** 
+     * Creates a {@link PlateLayout}
+     * 
+     * @return See above.
+     */
+    public static Layout createPlateLayout()
+    {
+    	return new PlateLayout(); 
     }
     
     /**
@@ -111,6 +131,7 @@ public class LayoutFactory
         switch (type) {
             case SQUARY_LAYOUT: return SquaryLayout.DESCRIPTION;
             case FLAT_LAYOUT: return FlatLayout.DESCRIPTION;
+            case PLATE_LAYOUT: return PlateLayout.DESCRIPTION;
             default:
                 return "";
         }

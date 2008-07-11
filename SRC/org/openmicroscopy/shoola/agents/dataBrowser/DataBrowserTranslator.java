@@ -25,9 +25,11 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -36,6 +38,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -45,6 +48,8 @@ import pojos.ImageData;
 import pojos.PermissionData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
+import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
  * This class contains a collection of utility static methods that transform
@@ -125,8 +130,11 @@ public class DataBrowserTranslator
      */
     private static ImageNode linkImageTo(ImageData is, ImageSet parent)
     {
+    	long id = is.getId();
+    	String name = "";
+    	if (id >= 0) name = is.getName();
         ThumbnailProvider provider = new ThumbnailProvider(is);
-        ImageNode node = new ImageNode(is.getName(), is, provider);
+        ImageNode node = new ImageNode(name, is, provider);
         formatToolTipFor(node);  
         provider.setImageNode(node);
         if (parent != null) parent.addChildDisplay(node);
@@ -191,7 +199,7 @@ public class DataBrowserTranslator
             node = new ImageSet(data.getName(), note, data);
             formatToolTipFor(node);
             linkImagesTo(images, node, userID, groupID);
-        }
+        } 
         return node;
     }
 
@@ -300,6 +308,66 @@ public class DataBrowserTranslator
         return results;
     }
  
+    
+    private static ImageDisplay transformWell(WellData data, long userID,  
+    		                                long groupID)
+    {
+    	if (data == null) 
+            throw new IllegalArgumentException("No tag.");
+        if (!isReadable(data, userID, groupID)) return null;
+        WellSampleData wsd;
+        ImageData child;
+        WellImageNode node = null;
+        List<WellSampleData> samples = data.getWellSamples();
+        if (samples == null || samples.size() == 0) {
+        	child = new ImageData();
+        	child.setId(-1);
+        	node = createWellImage(child);
+        	node.setWellData(data);
+        } else {
+        	List images = new ArrayList();
+        	Iterator<WellSampleData> i = samples.iterator();
+        	Set imgs;
+        	int j = 0;
+        	Iterator k;
+        	while (i.hasNext()) {
+				wsd = i.next();
+				imgs = wsd.getImages();
+				if (imgs.size() > 0) 
+					images.addAll(imgs);
+				if (j == 0 && imgs.size() > 0) {
+					k = imgs.iterator();
+					while (k.hasNext()) {
+						child = (ImageData) k.next();
+						if (isReadable(child, userID, groupID)) {
+		                	node = createWellImage(child);
+		                	node.setWellData(data);
+		                }
+					}
+				}
+			}
+        }
+        return node;
+    }
+    
+    /**
+     * Creates a well image node.
+     * 
+     * @param is The image data to host.
+     * @return See above.
+     */
+    private static WellImageNode createWellImage(ImageData is)
+    {
+    	long id = is.getId();
+    	String name = "";
+    	if (id >= 0) name = is.getName();
+        ThumbnailProvider provider = new ThumbnailProvider(is);
+        WellImageNode node = new WellImageNode(name, is, provider);
+        //formatToolTipFor(node);  
+        provider.setImageNode(node);
+        return node;
+    }
+    
     /**
      * Transforms a Datasets/Images hierarchy into a visualisation
      * tree. 
@@ -578,7 +646,10 @@ public class DataBrowserTranslator
             } else if (ho instanceof TagAnnotationData) {
             	child = transformTag((TagAnnotationData) ho, userID, 
 			            groupID);
-            	results.add(child);
+            	if (child != null) results.add(child);
+            } else if (ho instanceof WellData) {
+            	child = transformWell((WellData) ho, userID, groupID);
+            	if (child != null) results.add(child);
             }
         }
         if (unclassified != null) results.add(unclassified);

@@ -236,7 +236,7 @@
    * etc.
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-    <entry name="Version">Beta3.0</entry>
+    <entry name="Version">Beta3.0.1SPW</entry>
     <entry name="SoftwareName">OMERO.insight</entry>
     <entry name="AboutFile">about.xml</entry>
 </container>

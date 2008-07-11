@@ -722,4 +722,36 @@ public interface OmeroDataService
 	public void deleteContainer(DataObject object, boolean content)
 		throws DSOutOfServiceException, DSAccessException;
 	
+	/**
+	 * Retrieves hierarchy trees rooted by a given node.
+	 * i.e. the requested node as root and all of its descendants.
+	 * 
+	 * @param rootNodeType  The top-most type which will be searched for 
+	 *                      Can be <code>Screen</code>,
+	 *                      <code>Plate</code>.. 
+	 *                      Mustn't be <code>null</code>.
+	 * @param rootNodeIDs   A set of the IDs of top-most containers. 
+	 *                      Passed <code>null</code> to retrieve all top-most
+	 *                      nodes e.g. all user's screens.
+	 * @param userID		The Id of the selected user.
+	 * @return  A set of hierarchy trees.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public Set loadScreenPlates(Class rootNodeType, Set rootNodeIDs, 
+										long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * 
+	 * @param plateID
+	 * @param userID
+	 * @return
+	 * @throws DSOutOfServiceException
+	 * @throws DSAccessException
+	 */
+	public Collection loadPlateWells(long plateID, long userID)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

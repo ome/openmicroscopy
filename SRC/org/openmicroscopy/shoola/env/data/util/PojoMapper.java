@@ -49,6 +49,10 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
+import ome.model.screen.Well;
+import ome.model.screen.WellSample;
 import pojos.ArchivedAnnotationData;
 import pojos.BooleanAnnotationData;
 import pojos.CategoryData;
@@ -61,11 +65,15 @@ import pojos.GroupData;
 import pojos.ImageData;
 import pojos.LongAnnotationData;
 import pojos.PixelsData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.URLAnnotationData;
+import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
  * Helper methods to convert {@link IObject}s into their corresponding
@@ -144,6 +152,14 @@ public class PojoMapper
         	return new ExperimenterData((Experimenter) object); 
         else if (object instanceof ExperimenterGroup) 
             return new GroupData((ExperimenterGroup) object); 
+        else if (object instanceof Screen)
+        	return new ScreenData((Screen) object);
+        else if (object instanceof Plate)
+        	return new PlateData((Plate) object);
+        else if (object instanceof Well)
+        	return new WellData((Well) object);
+        else if (object instanceof WellSample)
+        	return new WellSampleData((WellSample) object);
         throw new IllegalArgumentException("Unknown IObject type: "+
                 object.getClass().getName());
     }

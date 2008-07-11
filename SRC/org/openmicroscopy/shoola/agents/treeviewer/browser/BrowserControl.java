@@ -45,10 +45,13 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.TagAnnotationData;
 
@@ -206,7 +209,7 @@ class BrowserControl
         	return;
         }
         if ((ho instanceof DatasetData) || (ho instanceof CategoryData) ||
-            (ho instanceof TagAnnotationData)) {
+            (ho instanceof TagAnnotationData) || (ho instanceof PlateData)) {
         	model.loadExperimenterData(getDataOwner(display), display);
         } else if (ho instanceof ExperimenterData) {
         	model.loadExperimenterData(display, null);
@@ -311,7 +314,16 @@ class BrowserControl
      */
     public void stateChanged(ChangeEvent e)
     {
-        view.onStateChanged(model.getState() == Browser.READY);
+    	int state = model.getState();
+    	switch (state) {
+			case Browser.BROWING_DATA:
+				
+				break;
+	
+			default:
+				break;
+		}
+		view.onStateChanged(state == Browser.READY);
     }
 
 }

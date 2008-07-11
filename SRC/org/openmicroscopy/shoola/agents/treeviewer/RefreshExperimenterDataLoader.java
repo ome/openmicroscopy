@@ -46,6 +46,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -85,7 +86,8 @@ public class RefreshExperimenterDataLoader
     {
         if (ProjectData.class.equals(klass) || ImageData.class.equals(klass) ||
         	CategoryGroupData.class.equals(klass) ||
-        	TagAnnotationData.class.equals(klass))
+        	TagAnnotationData.class.equals(klass) ||
+        	ScreenData.class.equals(klass))
             return;
         throw new IllegalArgumentException("Root node not supported.");
     }
@@ -123,6 +125,8 @@ public class RefreshExperimenterDataLoader
                 } else if (parent instanceof TagAnnotationData) {
                 	children = new HashSet(1);
                 	children.add(parent);
+                } else if (parent instanceof ScreenData) {
+                	children = ((ScreenData) parent).getPlates();
                 }
                 map.put(parent, children);
             }

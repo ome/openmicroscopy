@@ -41,10 +41,13 @@ import ome.model.annotations.AnnotationAnnotationLink;
 import ome.model.annotations.DatasetAnnotationLink;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.annotations.LongAnnotation;
+import ome.model.annotations.PlateAnnotationLink;
 import ome.model.annotations.ProjectAnnotationLink;
+import ome.model.annotations.ScreenAnnotationLink;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.UrlAnnotation;
+import ome.model.annotations.WellAnnotationLink;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
 import ome.model.containers.CategoryGroupCategoryLink;
@@ -55,6 +58,10 @@ import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
 import ome.model.core.Image;
 import ome.model.meta.Experimenter;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
+import ome.model.screen.ScreenPlateLink;
+import ome.model.screen.Well;
 import ome.util.Filter;
 import ome.util.Filterable;
 import pojos.AnnotationData;
@@ -65,6 +72,7 @@ import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.URLAnnotationData;
@@ -248,6 +256,15 @@ public class ModelMapper
             CategoryImageLink l = new CategoryImageLink();
             l.link(unloadedCategory, unloadedImage);
             return l;
+        } else if (parent instanceof Screen) {
+            if (!(child instanceof Plate))
+                throw new IllegalArgumentException("Child not valid.");
+            Screen unloadedScreen = new Screen(parent.getId(), false);
+            Plate unloadedPlate = new Plate(child.getId(), false);
+            
+            ScreenPlateLink l = new ScreenPlateLink();
+            l.link(unloadedScreen, unloadedPlate);
+            return l;
         }
         return null;
     }
@@ -374,9 +391,15 @@ public class ModelMapper
                 model.linkDataset(new Dataset(new Long(parent.getId()), 
                                             false));
             return model; 
-        } else 
-            throw new IllegalArgumentException("Child and parent are not" +
-                    " compatible.");
+        } else if (child instanceof ScreenData) {
+        	ScreenData data = (ScreenData) child;
+        	Screen model = new Screen();
+            model.setName(data.getName());
+            model.setDescription(data.getDescription());
+            return model;
+        }
+        throw new IllegalArgumentException("Child and parent are not " +
+        		"compatible.");
     }
     
     /**
@@ -497,7 +520,6 @@ public class ModelMapper
     		ImageAnnotationLink l = new ImageAnnotationLink();
     		l.setParent(m);
     		l.setChild(annotation);
-    		
     		return l;
     	} else if (annotatedObject instanceof Project) {
     		Project m = (Project) annotatedObject;
@@ -509,6 +531,24 @@ public class ModelMapper
     		Annotation ann = (Annotation) annotatedObject;
     		AnnotationAnnotationLink l = new AnnotationAnnotationLink();
     		l.setParent(ann);
+    		l.setChild(annotation);
+    		return l;
+    	} else if (annotatedObject instanceof Screen) {
+    		Screen m = (Screen) annotatedObject;
+    		ScreenAnnotationLink l = new ScreenAnnotationLink();
+    		l.setParent(m);
+    		l.setChild(annotation);
+    		return l;
+    	} else if (annotatedObject instanceof Plate) {
+    		Plate m = (Plate) annotatedObject;
+    		PlateAnnotationLink l = new PlateAnnotationLink();
+    		l.setParent(m);
+    		l.setChild(annotation);
+    		return l;
+    	} else if (annotatedObject instanceof Well) {
+    		Well m = (Well) annotatedObject;
+    		WellAnnotationLink l = new WellAnnotationLink();
+    		l.setParent(m);
     		l.setChild(annotation);
     		return l;
     	}
@@ -548,6 +588,12 @@ public class ModelMapper
     		return ((ImageAnnotationLink) annotation).getParent();
     	else if (annotation instanceof AnnotationAnnotationLink)
     		return ((AnnotationAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof PlateAnnotationLink)
+    		return ((PlateAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof ScreenAnnotationLink)
+    		return ((ScreenAnnotationLink) annotation).getParent();
+    	else if (annotation instanceof WellAnnotationLink)
+    		return ((WellAnnotationLink) annotation).getParent();
     	return null;
     }
     
@@ -565,6 +611,12 @@ public class ModelMapper
     		return ((ProjectAnnotationLink) annotation).getChild();
     	else if (annotation instanceof ImageAnnotationLink)
     		return ((ImageAnnotationLink) annotation).getChild();
+    	else if (annotation instanceof PlateAnnotationLink)
+    		return ((PlateAnnotationLink) annotation).getChild();
+    	else if (annotation instanceof ScreenAnnotationLink)
+    		return ((ScreenAnnotationLink) annotation).getChild();
+    	else if (annotation instanceof WellAnnotationLink)
+    		return ((WellAnnotationLink) annotation).getChild();
     	return null;
     }
     
@@ -606,20 +658,7 @@ public class ModelMapper
     		Category o = (Category) oldObject;
     		n.setName(o.getName());
     		n.setDescription(o.getDescription());
-    	} 
-    	/*
-    	else if (oldObject instanceof ImageAnnotation) {
-    		ImageAnnotation n = (ImageAnnotation) newObject;
-    		ImageAnnotation o = (ImageAnnotation) oldObject;
-    		n.setContent(o.getContent());
-    		n.setImage(o.getImage()); 
-    	} else if (oldObject instanceof DatasetAnnotation) {
-    		DatasetAnnotation n = (DatasetAnnotation) newObject;
-    		DatasetAnnotation o = (DatasetAnnotation) oldObject;
-    		n.setContent(o.getContent());
-    		n.setDataset(o.getDataset()); 
-    	*/
-    	else if (oldObject instanceof Experimenter) {
+    	} else if (oldObject instanceof Experimenter) {
     		Experimenter n = (Experimenter) newObject;
     		Experimenter o = (Experimenter) oldObject;
     		n.setEmail(o.getEmail());
@@ -627,6 +666,16 @@ public class ModelMapper
     		n.setLastName(o.getLastName());
     		n.setInstitution(o.getInstitution());
     		//n.setDefaultGroup(o.getDefaultGroup());
+    	} else if (oldObject instanceof Screen) {
+    		Screen n = (Screen) newObject;
+    		Screen o = (Screen) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
+    	} else if (oldObject instanceof Plate) {
+    		Plate n = (Plate) newObject;
+    		Plate o = (Plate) oldObject;
+    		n.setName(o.getName());
+    		n.setDescription(o.getDescription());
     	}
     }
     

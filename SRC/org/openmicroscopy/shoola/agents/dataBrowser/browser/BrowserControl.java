@@ -107,7 +107,9 @@ public class BrowserControl
     boolean isSelectionValid(ImageDisplay node)
     {
     	if (!(node instanceof ImageNode)) return true;
-    	ImageData img = (ImageData) node.getHierarchyObject();
+    	Object ho = node.getHierarchyObject();
+    	if (!(ho instanceof ImageData)) return true;
+    	ImageData img = (ImageData) ho;
 		try {
 			img.getDefaultPixels();
 			return true;

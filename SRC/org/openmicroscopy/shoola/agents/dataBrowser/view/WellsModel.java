@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.view.DatasetsModel 
+ * org.openmicroscopy.shoola.agents.dataBrowser.view.WellsModel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,13 +23,14 @@
 package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
-
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+
 
 //Third-party libraries
 
@@ -39,13 +40,17 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import pojos.DatasetData;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import pojos.ImageData;
+import pojos.WellData;
 
 /** 
- * A concrete Model for a collection of D/D hierarchy consisting of a single 
- * tree rooted by given Datasets.
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,53 +60,70 @@ import pojos.ImageData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta3
  */
-class DatasetsModel 
+class WellsModel
 	extends DataBrowserModel
 {
 
 	/** The collection of objects this model is for. */
-	private Set<DatasetData> datasets;
+	private Set<WellData>	wells;
 
+	/** The number of rows. */
+	private int			  	rows;
+	
+	/** The number of columns. */
+	private int           	columns;
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param parent	The parent of the datasets.
-	 * @param datasets 	The collection to datasets the model is for.
+	 * @param parent	The parent of the wells.
+	 * @param wells 	The collection to wells the model is for.
 	 */
-	DatasetsModel(Object parent, Set<DatasetData> datasets)
+	WellsModel(Object parent, Set<WellData> wells)
 	{
 		super();
-		if (datasets  == null) 
-			throw new IllegalArgumentException("No datasets.");
-		this.datasets = datasets;
+		if (wells  == null) 
+			throw new IllegalArgumentException("No wells.");
+		this.wells = wells;
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
-		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, 
+		Set wellImageNodes = DataBrowserTranslator.transformHierarchy(wells, 
 							userID, 0);
-        browser = BrowserFactory.createBrowser(visTrees);
-        layoutBrowser();
-        Iterator<DatasetData> i = datasets.iterator();
-		DatasetData data;
-		List<Long> ids = new ArrayList<Long>();
-		Set images;
-		Iterator j;
-		ImageData img;
-		while (i.hasNext()) {
-			data = i.next();
-			images = data.getImages();
-			if (images != null) {
-				j = images.iterator();
-				while (j.hasNext()) {
-					img = (ImageData) j.next();
-					if (!ids.contains(img.getId())) {
-						ids.add(img.getId());
-						numberOfImages++;
-					}
-				}
-			}
+		
+		
+        Iterator<WellData> i = wells.iterator();
+        rows = -1;
+        columns = -1;
+        WellData well;
+        int row, column;
+        while (i.hasNext()) {
+        	well = i.next();
+			row = well.getRow();
+			column = well.getColumn();
+			if (row > rows) rows = row;
+			if (column > columns) columns = column;
 		}
+		columns++;
+		rows++;
+		
+		Iterator j = wellImageNodes.iterator();
+		WellImageNode node;
+		while (j.hasNext()) {
+			node = (WellImageNode) j.next();
+			node.setRowDisplay(EditorUtil.LETTERS.get(node.getRow()+1));
+			node.setColumnDisplay(""+(node.getColumn()+1));
+		}
+		//info should come from the plate.
+		for (int k = 1; k <= columns; k++) 
+			wellImageNodes.add(new CellDisplay(k-1, ""+k));
+		for (int k = 1; k <= rows; k++) 
+			wellImageNodes.add(new CellDisplay(k-1, EditorUtil.LETTERS.get(k), 
+					CellDisplay.TYPE_VERTICAL));
+		
+        browser = BrowserFactory.createBrowser(wellImageNodes);
+		layoutBrowser(LayoutFactory.PLATE_LAYOUT);
 	}
 	
 	/**
@@ -111,53 +133,31 @@ class DatasetsModel
 	protected DataBrowserLoader createDataLoader(boolean refresh, 
 			Collection ids)
 	{
-		if (refresh) imagesLoaded = 0;
-		if (imagesLoaded != 0 && ids != null)
-			imagesLoaded = imagesLoaded-ids.size();
-		if (imagesLoaded == numberOfImages) return null;
-		//only load thumbnails not loaded.
-		List<ImageNode> nodes = browser.getVisibleImageNodes();
-		if (nodes == null || nodes.size() == 0) return null;
-		Iterator<ImageNode> i = nodes.iterator();
+		Set l = browser.getImageNodes();
+		Iterator i = l.iterator();
 		ImageNode node;
-		List<ImageData> imgs = new ArrayList<ImageData>();
 		ImageData img;
-		List<Long> loaded = new ArrayList<Long>();
-		if (ids != null) {
-			while (i.hasNext()) {
-				node = i.next();
-				if (node.getThumbnail().getFullScaleThumb() == null) {
-					img = (ImageData) node.getHierarchyObject();
-					if (ids.contains(img.getId())) {
-						if (!loaded.contains(img.getId())) {
-							imgs.add(img);
-							loaded.add(img.getId());
-							imagesLoaded++;
-						}
-					}
-				}
-			}
-		} else {
-			while (i.hasNext()) {
-				node = i.next();
-				if (node.getThumbnail().getFullScaleThumb() == null) {
-					img = (ImageData) node.getHierarchyObject();
-					if (!loaded.contains(img.getId())) {
-						imgs.add(img);
-						loaded.add(img.getId());
-						imagesLoaded++;
-					}
-				}
+		List<ImageData> images = new ArrayList<ImageData>();
+		while (i.hasNext()) {
+			node = (ImageNode) i.next();
+			if (node instanceof WellImageNode) {
+				img = (ImageData) node.getHierarchyObject();
+				if (img.getId() < 0) 
+					node.getThumbnail().setFullScaleThumb(
+							Factory.createDefaultThumbnail("N/A"));
+				else 
+					images.add(img);
 			}
 		}
-		
-		return new ThumbnailLoader(component, sorter.sort(imgs));
+
+		if (images.size() == 0) return null;
+		return new ThumbnailLoader(component, images);
 	}
 	
 	/**
 	 * Returns the type of this model.
 	 * @see DataBrowserModel#getType()
 	 */
-	protected int getType() { return DataBrowserModel.DATASETS; }
+	protected int getType() { return DataBrowserModel.WELLS; }
 	
 }

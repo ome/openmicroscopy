@@ -447,5 +447,18 @@ public class NullOmeroPojoService
 	public void deleteContainer(DataObject object, boolean content) 
 		throws DSOutOfServiceException, DSAccessException
 		{}
+
+	public Set loadScreenPlates(Class root, Set rootIDs, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	public Collection loadPlateWells(long plateID, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

@@ -63,6 +63,7 @@ import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -215,7 +216,7 @@ class OmeroMetadataServiceImpl
 		IObject annObject;
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
-//			tag a tag
+			//tag a tag.
 			if (TagAnnotationData.class.equals(data.getClass())) {
 				annObject = tag.asIObject();
 				ModelMapper.unloadCollections(annObject);
@@ -897,6 +898,33 @@ class OmeroMetadataServiceImpl
 						}
 					}
 				}
+			} else if (object instanceof PlateData) {
+				//Load all the wells
+				images = gateway.loadPlateWells(object.getId(), userID);
+				if (images != null) {
+					k = images.iterator();
+					while (k.hasNext()) {
+						child = (DataObject) k.next();
+						if (!childrenIds.contains(child.getId())) {
+							result.add(child);
+							childrenIds.add(child.getId());
+							if (annotations != null) {
+								i = annotations.iterator();
+								while (i.hasNext())
+									linkAnnotation(child, 
+											(AnnotationData) i.next());
+							}
+							if (toRemove != null) {
+								i = toRemove.iterator();
+								while (i.hasNext())
+									removeAnnotation((AnnotationData) i.next(), 
+														child);
+							}
+						}
+					}
+				}
+				
+				
 			} else if (object instanceof ImageData) {
 				service.updateDataObject(object);
 				if (annotations != null) {

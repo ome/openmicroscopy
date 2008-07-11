@@ -124,9 +124,11 @@ public class ImageSet
                     throw new IllegalArgumentException(
                         "This node can only contain ImageNodes.");
             } else  { //Children are ImageSets.
+            	/*
                 if (!childClass.equals(ImageSet.class))
                     throw new IllegalArgumentException(
                         "This node can only contain ImageSets.");
+                        */
             }
         }
         super.addChildDisplay(child);

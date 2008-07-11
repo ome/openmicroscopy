@@ -396,4 +396,10 @@ public interface DataManagerView
 			AgentEventListener observer);
   
 	
+	public CallHandle loadScreenPlates(Class rootType, Set rootIDs, long userID, 
+			AgentEventListener observer);
+	
+	public CallHandle loadPlateWells(long plateID, long userID, 
+								AgentEventListener observer);
+	
 }
