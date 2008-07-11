@@ -38,6 +38,10 @@ import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
+import ome.model.screen.Well;
+import ome.model.screen.WellSample;
 
 /**
  * Abstract superclass for objects that hold <i>OMEDS</i> data. Delegates
@@ -370,9 +374,7 @@ public abstract class DataObject {
      * 
      * @return not null IObject
      */
-    public IObject asIObject() {
-        return value;
-    }
+    public IObject asIObject() { return value; }
 
     /**
      * not null; may through class-cast exception
@@ -380,100 +382,132 @@ public abstract class DataObject {
      * @throws ClassCastException
      * @return not null IObject
      */
-    public IAnnotated asIAnnotated() {
-        return (IAnnotated) asIObject();
-    }
+    public IAnnotated asIAnnotated() { return (IAnnotated) asIObject(); }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as an Experimenter.
+     * Not null; may through class-cast exception
+     * 
      * 
      * @throws ClassCastException
      * @return not null IObject
      */
-    public Experimenter asExperimenter() {
-        return (Experimenter) asIObject();
-    }
+    public Experimenter asExperimenter() { return (Experimenter) asIObject(); }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as an Experimenter Group.
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
      * @return not null IObject
      */
-    public ExperimenterGroup asGroup() {
-        return (ExperimenterGroup) asIObject();
+    public ExperimenterGroup asGroup()
+    { 
+    	return (ExperimenterGroup) asIObject();
     }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as an Annotation.
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
      * @return not null IObject
      */
-    public Annotation asAnnotation() {
-        return (Annotation) asIObject();
-    }
+    public Annotation asAnnotation() { return (Annotation) asIObject(); }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as an Image.
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
      * @return not null IObject
      */
-    public Image asImage() {
-        return (Image) asIObject();
-    }
+    public Image asImage() { return (Image) asIObject(); }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as a Dataset.
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
      * @return not null IObject
      */
-    public Dataset asDataset() {
-        return (Dataset) asIObject();
+    public Dataset asDataset() { return (Dataset) asIObject(); }
+
+    /**
+     * Returns the hosted IObject as a Category. 
+     * Not null; may through class-cast exception
+     * 
+     * @throws ClassCastException
+     * @return See above
+     */
+    public Category asCategory() { return (Category) asIObject(); }
+
+    /**
+     * Returns the hosted IObject as a CategoryGroup. 
+     * Not null; may through class-cast exception
+     * 
+     * @throws ClassCastException
+     * @return See above
+     */
+    public CategoryGroup asCategoryGroup()
+    {
+    	return (CategoryGroup) asIObject();
     }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as a Project. 
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
-     * @return not null IObject
+     * @return See above
      */
-    public Category asCategory() {
-        return (Category) asIObject();
-    }
+    public Project asProject() { return (Project) asIObject(); }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as a Pixels. 
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
-     * @return not null IObject
+     * @return See above
      */
-    public CategoryGroup asCategoryGroup() {
-        return (CategoryGroup) asIObject();
-    }
+    public Pixels asPixels() { return (Pixels) asIObject(); }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as a Screen. 
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
-     * @return not null IObject
+     * @return See above
      */
-    public Project asProject() {
-        return (Project) asIObject();
-    }
+    public Screen asScreen() { return (Screen) asIObject(); }
 
     /**
-     * not null; may through class-cast exception
+     * Returns the hosted IObject as a Plate. 
+     * Not null; may through class-cast exception
      * 
      * @throws ClassCastException
-     * @return not null IObject
+     * @return See above
      */
-    public Pixels asPixels() {
-        return (Pixels) asIObject();
-    }
-
+    public Plate asPlate() { return (Plate) asIObject(); }
+    
+    /**
+     * Returns the hosted IObject as a Well. 
+     * Not null; may through class-cast exception
+     * 
+     * @throws ClassCastException
+     * @return See above
+     */
+    public Well asWell() { return (Well) asIObject(); }
+    
+    /**
+     * Returns the hosted IObject as a Well. 
+     * Not null; may through class-cast exception
+     * 
+     * @throws ClassCastException
+     * @return See above
+     */
+    public WellSample asWellSample() { return (WellSample) asIObject(); }
+    
 }
 
 /**

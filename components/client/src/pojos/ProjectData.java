@@ -45,9 +45,10 @@ public class ProjectData extends DataObject {
     public final static String DATASET_LINKS = Project.DATASETLINKS;
 
     /**
-     * All the Datasets that contain this Image. The elements of this set are
-     * {@link DatasetData} objects. If this Image is not contained in any
-     * Dataset, then this set will be empty &#151; but never <code>null</code>.
+     * All the Datasets that are contained this Project. 
+     * The elements of this set are {@link DatasetData} objects. 
+     * If this Project does not contained in any Dataset, 
+     * then this set will be empty &#151; but never <code>null</code>.
      */
     private Set datasets;
 
