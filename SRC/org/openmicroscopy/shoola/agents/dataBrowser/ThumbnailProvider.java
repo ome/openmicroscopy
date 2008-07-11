@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -323,4 +324,12 @@ public class ThumbnailProvider
      */
 	public BufferedImage getFullSizeImage() { return fullSizeImage; }
 
+    /**
+     * Implemented as specified by the {@link Thumbnail} I/F.
+     * @see Thumbnail#getOriginalSize()
+     */
+	public Dimension getOriginalSize()
+	{ 
+		return new Dimension(originalWidth, originalHeight);
+	}
 }

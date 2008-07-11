@@ -76,6 +76,9 @@ class WellsModel
 	/** The number of columns. */
 	private int           	columns;
 	
+	/** The dimension of a well. */
+	private Dimension 		wellDimension;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -87,6 +90,7 @@ class WellsModel
 		super();
 		if (wells  == null) 
 			throw new IllegalArgumentException("No wells.");
+		wellDimension = null;
 		this.wells = wells;
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
@@ -106,6 +110,9 @@ class WellsModel
 			//TODO: modify when info available from plate.
 			node.setRowDisplay(EditorUtil.LETTERS.get(row+1)); 
 			node.setColumnDisplay(""+(column+1));
+			if (((ImageData) node.getHierarchyObject()).getId() >= 0 &&
+					wellDimension == null)
+				wellDimension = node.getThumbnail().getOriginalSize();
 		}
 		columns++;
 		rows++;
@@ -136,10 +143,11 @@ class WellsModel
 			node = (ImageNode) i.next();
 			if (node instanceof WellImageNode) {
 				img = (ImageData) node.getHierarchyObject();
-				if (img.getId() < 0) 
+				if (img.getId() < 0 && !refresh) {
 					node.getThumbnail().setFullScaleThumb(
-							Factory.createDefaultThumbnail("N/A"));
-				else 
+							Factory.createDefaultThumbnail(wellDimension.width, 
+									wellDimension.height, "N/A"));
+				} else 
 					images.add(img);
 			}
 		}

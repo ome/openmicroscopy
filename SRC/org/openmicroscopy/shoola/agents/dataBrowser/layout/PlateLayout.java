@@ -35,9 +35,12 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageNode;
+
+import pojos.ImageData;
 
 
 /** 
@@ -119,10 +122,22 @@ public class PlateLayout
 					if (cell.getType() == CellDisplay.TYPE_HORIZONTAL)
 						col.add(cell);
 					else row.add(cell);
-				} else 
+				} else {
 					l.add(n);
+				}
+					
 			}
-    		Dimension maxDim = LayoutUtils.maxChildDim(l);
+    		//Dimension maxDim = LayoutUtils.maxChildDim(l);
+    		Dimension maxDim = new Dimension(0, 0);
+            Iterator children = l.iterator();
+            ImageDisplay child;
+            ImageData img;
+            while (children.hasNext()) {
+                child = (ImageDisplay) children.next();
+                img = (ImageData) child.getHierarchyObject();
+                if (img.getId() >= 0)
+                	maxDim = LayoutUtils.max(maxDim, child.getPreferredSize());
+            }
     		 //First need to set width and height
     		Dimension d = col.get(0).getPreferredSize();
     		int height = d.height;
@@ -151,7 +166,7 @@ public class PlateLayout
     			c = wiNode.getColumn();
     			d = wiNode.getPreferredSize();
     			wiNode.setBounds(width+c*maxDim.width, height+r*maxDim.height, 
- 					   		maxDim.width, maxDim.height);
+ 					   		d.width, d.height);
 			}
         }
     }

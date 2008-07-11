@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import javax.swing.Icon;
 
@@ -155,5 +156,12 @@ public interface Thumbnail
      * @param image The value to set.
      */
     public void setFullSizeImage(BufferedImage image);
+    
+    /**
+     * Returns the original size of the thumbnail.
+     * 
+     * @return See above.
+     */
+    public Dimension getOriginalSize();
     
 }
