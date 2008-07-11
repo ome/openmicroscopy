@@ -52,6 +52,8 @@ import omero.api.IScriptPrx;
 import omero.api.IScriptPrxHelper;
 import omero.api.ISessionPrx;
 import omero.api.ISessionPrxHelper;
+import omero.api.ISharePrx;
+import omero.api.ISharePrxHelper;
 import omero.api.ITypesPrx;
 import omero.api.ITypesPrxHelper;
 import omero.api.IUpdatePrx;
@@ -88,6 +90,7 @@ import omero.constants.REPOSITORYINFO;
 import omero.constants.SCRIPTSERVICE;
 import omero.constants.SEARCH;
 import omero.constants.SESSIONSERVICE;
+import omero.constants.SHARESERVICE;
 import omero.constants.THUMBNAILSTORE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
@@ -247,6 +250,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public ISessionPrx getSessionService(Current current) throws ServerError {
         return ISessionPrxHelper.uncheckedCast(getByName(SESSIONSERVICE.value,
+                current));
+    }
+
+    public ISharePrx getShareService(Current current) throws ServerError {
+        return ISharePrxHelper.uncheckedCast(getByName(SHARESERVICE.value,
                 current));
     }
 

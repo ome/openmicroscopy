@@ -6,15 +6,18 @@
  */
 package ome.api;
 
-// Java imports
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-// Third-party libraries
-
-// Application-internal dependencies
 import ome.annotations.NotNull;
+import ome.annotations.Validate;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
+import ome.model.annotations.TextAnnotation;
+import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 
@@ -22,180 +25,286 @@ import ome.model.meta.Session;
  * Provides method for sharing - collaboration process for images, datasets,
  * projects.
  * 
- * @author <br>
- *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
- *         href="mailto:josh.moore@gmx.de"> josh.moore@gmx.de</a>
- * @version 3.0 <small> (<b>Internal version:</b> $Revision: 1552 $ $Date:
- *          2007-05-23 09:43:33 +0100 (Wed, 23 May 2007) $) </small>
- * @since OME4.0
+ * @author Aleksandra Tarkowska, aleksandrat at lifesci.dundee.ac.uk
+ * @author Josh Moore, josh at glencoesoftware.com
+ * 
+ * @since 3.0-Beta4
  */
 public interface IShare extends ServiceInterface {
 
-    // ~ Getting shares
+    /**
+     * Turns on the access control lists attached to the given share for the
+     * current session. Warning: this will slow down the execution of the
+     * current session for all database reads. Writing to the database will not
+     * be allowed.
+     * 
+     * @param shareId
+     */
+    void activate(long shareId);
+
+    // ~ Admin
     // =========================================================================
 
     /**
-     * Looks up all {@link ome.model.meta.Session shares} present.
+     * Looks up all shares present. Requires administrative privileges.
      * 
-     * @return list
+     * @param active
+     *            if true, then only shares which can be used for login will be
+     *            returned. All "draft" shares (see
+     *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
+     *            and {@link #closeShare(long) closed shares} will be filtered.
+     * @return set of shares. Never null. May be empty.
      */
-    List<Session> lookupShares();
+    Set<Session> getAllShares(boolean active);
+
+    // ~ Getting shares and objects (READ)
+    // =========================================================================
 
     /**
-     * Gets all owned {@link ome.model.meta.Session shares} for specified
-     * {@link ome.model.meta.Experimenter experimenter}.
+     * Gets all owned shares for the current {@link Experimenter}
      * 
-     * @param exp
-     * @return list
+     * @param active
+     *            if true, then only shares which can be used for login will be
+     *            returned. All "draft" shares (see
+     *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
+     *            and {@link #closeShare(long) closed shares} will be filtered.
+     * @return set of shares. Never null. May be empty.
      */
-    List<Session> getOwnedShares(@NotNull
-    Experimenter exp);
+    Set<Session> getOwnShares(boolean active);
 
     /**
-     * Gets all {@link ome.model.meta.Session shares} where specified
-     * experimenter is a member of
-     * {@link ome.model.meta.Experimenter experimenter}.
+     * Gets all shares where current {@link Experimenter} is a member.
      * 
-     * @param exp
-     * @return list
+     * @param active
+     *            if true, then only shares which can be used for login will be
+     *            returned. All "draft" shares (see
+     *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
+     *            and {@link #closeShare(long) closed shares} will be filtered.
+     * @return set of shares. Never null. May be empty.
      */
-    List<Session> getMemberShares(@NotNull
-    Experimenter exp);
+    Set<Session> getMemberShares(boolean active);
 
     /**
-     * Gets {@link ome.model.meta.Session shares} and all related:
-     * {@link ome.model.IObject items},
+     * Gets all shares owned by the given {@link Experimenter}.
+     * 
+     * @param active
+     *            if true, then only shares which can be used for login will be
+     *            returned. All "draft" shares (see
+     *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
+     *            and {@link #closeShare(long) closed shares} will be filtered.
+     * @return set of shares. Never null. May be empty.
+     */
+    Set<Session> getSharesOwnedBy(@NotNull
+    Experimenter user, boolean active);
+
+    /**
+     * Gets all shares where given {@link Experimenter} is a member.
+     * 
+     * @param active
+     *            if true, then only shares which can be used for login will be
+     *            returned. All "draft" shares (see
+     *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
+     *            and {@link #closeShare(long) closed shares} will be filtered.
+     * @return set of shares. Never null. May be empty.
+     */
+    Set<Session> getMemberSharesFor(@NotNull
+    Experimenter user, boolean active);
+
+    /**
+     * Gets a share as a {@link Session} with all related:
      * {@link ome.model.annotations.Annotation comments},
-     * {@link ome.model.meta.Experimenter members}.
+     * {@link ome.model.meta.Experimenter members}, fully loaded.
      * 
      * @param sessionId
-     * @return
+     * @return a {@link Session} with id and {@link Details} set. The owner in
+     *         the Details object is the true owner, and the group in the
+     *         Details has all member users linked. {@link Annotation} instances
+     *         of the share are linked to the {@link Session}. Missing is a
+     *         list of share guests.
      */
-    Session getShare(@NotNull
-    Long sessionId);
+    Session getShare(long sessionId);
+
+    /**
+     * Looks up all {@link ome.model.IObject items} belong to the
+     * {@link ome.model.meta.Session share}.
+     * 
+     * @param shareId
+     * @return list of objects. Not null. Probably not empty.
+     */
+    <T extends IObject> List<T> getContents(long shareId);
+
+    /**
+     * Returns a range of items from the share.
+     * 
+     * @see #getContents(long)
+     */
+    <T extends IObject> List<T> getContentSubList(long shareId, int start,
+            int finish);
+
+    /**
+     * Returns the number of items in the share.
+     */
+    int getContentSize(long shareId);
+
+    /**
+     * Returns the contents of the share keyed by type.
+     */
+    <T extends IObject> Map<Class<T>, List<Long>> getContentMap(long shareId);
+
+    // ~ Creating share (WRITE)
+    // =========================================================================
 
     /**
      * Creates {@link ome.model.meta.Session share} with all related:
      * {@link ome.model.IObject items},
-     * {@link ome.model.meta.Experimenter members}.
+     * {@link ome.model.meta.Experimenter members}, and guests.
      * 
-     * @param share
-     * @param items
+     * @param description
+     * @param expiration
      * @param exps
+     * @param guests
+     * @param enabled
+     *            if true, then the share is immediately available for use. If
+     *            false, then the share is in draft state. All methods on this
+     *            interface will work for shares <em>except</em>
+     *            {@link #activate(long)}. Similarly, the share password cannot
+     *            be used by guests to login.
      */
-    void createShare(@NotNull
-    Session share, List<IObject> items, List<Experimenter> exps);
+    <T extends IObject> long createShare(@NotNull
+    String description, Timestamp expiration, @Validate(IObject.class)
+    List<T> items, @Validate(Experimenter.class)
+    List<Experimenter> exps, @Validate(String.class)
+    List<String> guests, boolean enabled);
+
+    void setDescription(long shareId, @NotNull
+    String description);
+
+    void setExpiration(long shareId, @NotNull
+    Timestamp expiration);
+
+    void setActive(long shareId, boolean active);
 
     /**
-     * Updates {@link ome.model.meta.Session share}
+     * Closes {@link ome.model.meta.Session share}. No further logins will be
+     * possible and all getters (e.g.
+     * {@link #getMemberShares(boolean), {@link #getAllShares(boolean), ...}
+     * will filter these results if "active" is true.
      * 
-     * @param share
+     * @param shareId
      */
-    void updateShare(@NotNull
-    Session share);
+    void closeShare(long shareId);
 
-    /**
-     * Closes {@link ome.model.meta.Session share}
-     * 
-     * @param share
-     */
-    void closeShare(@NotNull
-    Session share);
-
-    /**
-     * Drafts {@link ome.model.meta.Session share}.
-     * 
-     * @param share
-     */
-    void draftShare(@NotNull
-    Session share);
-
-    //  ~ Getting items
+    // ~ Getting items
     // =========================================================================
-        
-    /**
-     * Looks up all {@link ome.model.IObject items} belonge to the
-     * {@link ome.model.meta.Session share}.
-     * 
-     * @param share
-     * @return list
-     */
-    List<IObject> lookupItems(@NotNull
-    Session share);
 
     /**
      * Adds new {@link ome.model.IObject items} to
      * {@link ome.model.meta.Session share}.
      * 
-     * @param share
-     * @param items
+     * @param shareId
+     * @param objects
      */
-    void addItems(@NotNull
-    Session share, List<IObject> items);
+    <T extends IObject> void addObjects(long shareId, @NotNull
+    T... objects);
 
     /**
      * Adds new {@link ome.model.IObject item} to
      * {@link ome.model.meta.Session share}.
      * 
-     * @param share
-     * @param items
+     * @param shareId
+     * @param object
      */
-    void addItem(@NotNull
-    Session share, IObject items);
+    <T extends IObject> void addObject(long shareId, @NotNull
+    T object);
 
     /**
-     * Deletes existing {@link ome.model.IObject item} from the
-     * {@link ome.model.meta.Session shares}
+     * Remove existing items from the share.
+     * 
+     * @param shareId
+     * @param objects
+     */
+    <T extends IObject> void removeObjects(long shareId, @NotNull
+    T... objects);
+
+    /**
+     * Removes existing {@link ome.model.IObject item} from the
+     * {@link ome.model.meta.Session share}.
      * 
      * @param share
      * @param item
      */
-    void deleteItem(@NotNull
-    Session share, @NotNull
-    IObject item);
+    <T extends IObject> void removeObject(long shareId, @NotNull
+    T object);
 
-    //  ~ Getting comments
+    // ~ Getting comments
     // =========================================================================
 
     /**
-     * Looks up all {@link ome.model.annotations.Annotation comments} belonge to
-     * the {@link ome.model.meta.Session shares}
+     * Looks up all {@link ome.model.annotations.Annotation comments} which
+     * belong to the {@link ome.model.meta.Session share}.
      * 
      * @param share
+     * @return list of Annotation
+     */
+    List<Annotation> getComments(long shareId);
+
+    /**
+     * Creates {@link ome.model.annotations.TextAnnotation comment} for
+     * {@link ome.model.meta.Session share}.
+     * 
+     * @param share
+     * @param comment
+     */
+    TextAnnotation addComment(long shareId, @NotNull
+    String comment);
+
+    /**
+     * Creates {@link TextAnnotation comment} which replies to an existing
+     * comment.
+     * 
+     * @param shareId
+     * @param comment
+     * @param replyTo
      * @return
      */
-    List<Annotation> lookupComments(@NotNull
-    Session share);
+    TextAnnotation addReply(long shareId, @NotNull
+    String comment, @NotNull
+    TextAnnotation replyTo);
 
     /**
-     * Creates {@link ome.model.annotations.Annotation comment} for
-     * {@link ome.model.meta.Session share}
-     * 
-     * @param share
-     * @param comment
-     */
-    void createComment(@NotNull
-    Session share, @NotNull
-    Annotation comment);
-
-    /**
-     * Edits {@link ome.model.annotations.Annotation comment}
-     * 
-     * @param comment
-     */
-    void editComment(@NotNull
-    Annotation comment);
-
-    /**
-     * Deletes {@link ome.model.annotations.Annotation comment}
+     * Deletes {@link ome.model.annotations.Annotation comment} from the
+     * database.
      * 
      * @param comment
      */
     void deleteComment(@NotNull
     Annotation comment);
 
-    //  ~ Getting members
+    // ~ Member administration
     // =========================================================================
+
+    /**
+     * Get all {@link Experimenter users} who are a member of the share.
+     */
+    Set<Experimenter> getAllMembers(long shareId);
+
+    /**
+     * Get the email addresses for all share guests.
+     */
+    Set<String> getAllGuests(long shareId);
+
+    /**
+     * Get a single set containing the
+     * {@link Experimenter#getOmeName() login names} of the
+     * {@link Experimenters} as well email addresses for guests.
+     * 
+     * @param shareId
+     * @return
+     * @throws ValidationException
+     *             if there is a conflict between email addresses and user
+     *             names.
+     */
+    Set<String> getAllUsers(long shareId) throws ValidationException;
 
     /**
      * Adds {@link ome.model.meta.Experimenter experimenters} to
@@ -204,37 +313,66 @@ public interface IShare extends ServiceInterface {
      * @param share
      * @param exps
      */
-    void addUsers(@NotNull
-    Session share, List<Experimenter> exps);
+    void addUsers(long shareId, Experimenter... exps);
 
     /**
-     * Deletes {@link ome.model.meta.Experimenter experimenters} from
+     * Adds guest email addresses to the share.
+     * 
+     * @param shareId
+     * @param emailAddresses
+     */
+    void addGuests(long shareId, String... emailAddresses);
+
+    /**
+     * Removes {@link ome.model.meta.Experimenter experimenters} from
      * {@link ome.model.meta.Session share}
      * 
-     * @param share
+     * @param shareId
      * @param exps
      */
-    void deleteUsers(@NotNull
-    Session share, List<Experimenter> exps);
+    void removeUsers(long shareId, @Validate(Experimenter.class)
+    List<Experimenter> exps);
+
+    /**
+     * Removes guest email addresses from the share.
+     * 
+     * @param shareId
+     * @param exp
+     */
+    void removeGuests(long shareId, String... emailAddresses);
 
     /**
      * Adds {@link ome.model.meta.Experimenter experimenter} to
      * {@link ome.model.meta.Session share}
      * 
-     * @param share
+     * @param shareId
      * @param exps
      */
-    void addUser(@NotNull
-    Session share, Experimenter exp);
+    void addUser(long shareId, Experimenter exp);
 
     /**
-     * Deletes {@link ome.model.meta.Experimenter experimenter} from
+     * Add guest email address to the share.
+     * 
+     * @param shareId
+     * @param emailAddress
+     */
+    void addGuest(long shareId, String emailAddress);
+
+    /**
+     * Removes {@link ome.model.meta.Experimenter experimenter} from
      * {@link ome.model.meta.Session share}
      * 
-     * @param share
+     * @param shareId
      * @param exps
      */
-    void deleteUser(@NotNull
-    Session share, Experimenter exp);
+    void removeUser(long shareId, Experimenter exp);
+
+    /**
+     * Removes guest email address from share.
+     * 
+     * @param shareId
+     * @param emailAddress
+     */
+    void removeGuest(long shareId, String emailAddress);
 
 }

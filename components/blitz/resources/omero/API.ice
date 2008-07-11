@@ -66,9 +66,14 @@ module omero {
       sequence<omero::model::IObject> IObjectList;
 
       dictionary<string, IObjectList> IObjectListMap;
-
+      
+      dictionary<string, Ice::LongSeq> IdListMap;
+      
     ["java:type:java.util.ArrayList"]
       sequence<omero::model::Image> ImageList;
+
+    ["java:type:java.util.ArrayList"]
+      sequence<omero::model::Session> SessionList;
 
     ["java:type:java.util.ArrayList<String>:java.util.List<String>"]
       sequence<string> StringSet;
@@ -276,6 +281,57 @@ module omero {
         void setOutput(string sess, string key, omero::RType value) throws ServerError;
         StringSet getInputKeys(string sess) throws ServerError;
         StringSet getOutputKeys(string sess) throws ServerError;
+      };
+
+    interface IShare extends ServiceInterface
+      {
+        void activate(long shareId);
+        omero::model::Session getShare(long sessionId);
+        SessionList getAllShares(bool active);
+        SessionList getOwnShares(bool active);
+        SessionList getMemberShares(bool active);
+        SessionList getSharesOwnedBy(omero::model::Experimenter user, bool active);
+        SessionList getMemberSharesFor(omero::model::Experimenter user, bool active);
+        IObjectList getContents(long shareId);
+        IObjectList getContentSubList(long shareId, int start, int finish);
+        int getContentSize(long shareId);
+        IdListMap getContentMap(long shareId);
+
+        long createShare(string description, 
+                         omero::RTime expiration, 
+                         IObjectList items,
+                         ExperimenterList exps,
+                         Ice::StringSeq guests,
+                         bool enabled);
+        void setDescription(long shareId, string description);
+        void setExpiration(long shareId, omero::RTime expiration);
+        void setActive(long shareId, bool active);
+        void closeShare(long shareId);
+
+        void addObjects(long shareId, IObjectList iobjects);
+        void addObject(long shareId, omero::model::IObject iobject);
+        void removeObjects(long shareId, IObjectList iobjects);
+        void removeObject(long shareId, omero::model::IObject iobject);
+
+        AnnotationList getComments(long shareId);
+        omero::model::TextAnnotation addComment(long shareId, string comment);
+        omero::model::TextAnnotation addReply(long shareId,
+                                              string comment, 
+                                              omero::model::TextAnnotation replyTo);
+        void deleteComment(omero::model::Annotation comment);
+
+        ExperimenterList getAllMembers(long shareId);
+        Ice::StringSeq getAllGuests(long shareId);
+        Ice::StringSeq getAllUsers(long shareId) throws ValidationException;
+        void addUsers(long shareId, ExperimenterList exps);
+        void addGuests(long shareId, Ice::StringSeq emailAddresses);
+        void removeUsers(long shareId, ExperimenterList exps);
+        void removeGuests(long shareId, Ice::StringSeq emailAddresses);
+        void addUser(long shareId, omero::model::Experimenter exp);
+        void addGuest(long shareId, string emailAddress);
+        void removeUser(long shareId, omero::model::Experimenter exp);
+        void removeGuest(long shareId, string emailAddress);
+      
       };
 
     interface ITypes extends ServiceInterface
@@ -552,15 +608,16 @@ module omero {
     interface ServiceFactory extends Glacier2::Session
       {
 	// Central OMERO.blitz stateless services.
-	IScript*   getScriptService() throws ServerError;
 	IAdmin*    getAdminService() throws ServerError;
 	IConfig*   getConfigService() throws ServerError;
 	IPixels*   getPixelsService() throws ServerError;
 	IPojos*    getPojosService() throws ServerError;
 	IQuery*    getQueryService() throws ServerError;
-        IRenderingSettings* getRenderingSettingsService() throws ServerError;
+    IRenderingSettings* getRenderingSettingsService() throws ServerError;
 	IRepositoryInfo* getRepositoryInfoService() throws ServerError;
+	IScript*   getScriptService() throws ServerError;
 	ISession*  getSessionService() throws ServerError;
+	IShare*    getShareService() throws ServerError;
 	ITypes*    getTypesService() throws ServerError;
 	IUpdate*   getUpdateService() throws ServerError;
 

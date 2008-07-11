@@ -9,6 +9,7 @@ package ome.system;
 
 // Java imports
 import java.util.Properties;
+
 import ome.api.IAdmin;
 import ome.api.IAnalysis;
 import ome.api.IConfig;
@@ -20,6 +21,7 @@ import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
 import ome.api.ISession;
+import ome.api.IShare;
 import ome.api.ITypes;
 import ome.api.IUpdate;
 import ome.api.JobHandle;
@@ -201,6 +203,10 @@ public class ServiceFactory {
 
     public IQuery getQueryService() {
         return getServiceByClass(IQuery.class);
+    }
+
+    public IShare getShareService() {
+        return getServiceByClass(IShare.class);
     }
 
     public ITypes getTypesService() {
