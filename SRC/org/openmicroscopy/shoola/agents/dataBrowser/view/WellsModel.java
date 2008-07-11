@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ import pojos.ImageData;
 import pojos.WellData;
 
 /** 
- * 
+ * A concrete model for a plate.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -91,30 +92,23 @@ class WellsModel
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set wellImageNodes = DataBrowserTranslator.transformHierarchy(wells, 
 							userID, 0);
-		
-		
-        Iterator<WellData> i = wells.iterator();
         rows = -1;
         columns = -1;
-        WellData well;
         int row, column;
-        while (i.hasNext()) {
-        	well = i.next();
-			row = well.getRow();
-			column = well.getColumn();
-			if (row > rows) rows = row;
-			if (column > columns) columns = column;
-		}
-		columns++;
-		rows++;
-		
 		Iterator j = wellImageNodes.iterator();
 		WellImageNode node;
 		while (j.hasNext()) {
 			node = (WellImageNode) j.next();
-			node.setRowDisplay(EditorUtil.LETTERS.get(node.getRow()+1));
-			node.setColumnDisplay(""+(node.getColumn()+1));
+			row = node.getRow();
+			column = node.getColumn();
+			if (row > rows) rows = row;
+			if (column > columns) columns = column;
+			//TODO: modify when info available from plate.
+			node.setRowDisplay(EditorUtil.LETTERS.get(row+1)); 
+			node.setColumnDisplay(""+(column+1));
 		}
+		columns++;
+		rows++;
 		//info should come from the plate.
 		for (int k = 1; k <= columns; k++) 
 			wellImageNodes.add(new CellDisplay(k-1, ""+k));
