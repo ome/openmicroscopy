@@ -52,7 +52,7 @@ public class WellData
 {
 
     /** Identifies the {@link Well#WELLSAMPLE} field. */
-    public final static String WELL_SAMPLE_LINKS = Well.WELLSAMPLE;
+    //public final static String WELL_SAMPLE_LINKS = Well.WELLSAMPLE;
     
     /**
      * All the well samples that are linked to this Well.

@@ -109,6 +109,7 @@ public class WellSampleData
      */
     public Set getImages()
     {
+    	/*
         if (images == null && asWellSample().sizeOfImageLinks() >= 0) {
             images = new HashSet<ImageData>(
             		asWellSample().eachLinkedImage(new CBlock() {
@@ -118,6 +119,8 @@ public class WellSampleData
             }));
         }
         return images == null ? null : new HashSet<ImageData>(images);
+        */
+    	return null;
     }
     
 //  Link mutations
@@ -130,6 +133,7 @@ public class WellSampleData
      */
     public void setImages(Set<ImageData> newValue)
    	{
+    	/*
         Set<ImageData> currentValue = getImages();
         SetMutator<ImageData> 
         	m = new SetMutator<ImageData>(currentValue, newValue);
@@ -145,6 +149,7 @@ public class WellSampleData
         }
 
         images = new HashSet<ImageData>(m.result());
+        */
     }
     
 }
