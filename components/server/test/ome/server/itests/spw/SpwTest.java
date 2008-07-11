@@ -90,4 +90,30 @@ public class SpwTest extends AbstractManagedContextTest {
         iQuery.findAllByQuery("select w from Well w where w.column is null",
                 null);
     }
+
+    @Test
+    public void testRetrievingWellSamples() {
+        loginRoot();
+
+        Plate plate = new Plate("plate");
+        Well well = new Well();
+        WellSample sample = new WellSample();
+        Image image = new Image("image");
+        plate.addWell(well);
+        well.addWellSample(sample);
+        sample.setImage(image);
+        plate = iUpdate.saveAndReturnObject(plate);
+        well = plate.unmodifiableWells().iterator().next();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("select well from Well well ");
+        sb.append("left outer join fetch well.wellSamples ws ");
+        sb.append("left outer join fetch ws.image wsi ");
+        sb.append("where well.plate.id = :plateID");
+
+        well = iQuery.findByQuery(sb.toString(), new Parameters().addLong(
+                "plateID", well.getPlate().getId()));
+        assertNotNull(well);
+        assertTrue(well.sizeOfWellSamples() > 0);
+    }
 }
