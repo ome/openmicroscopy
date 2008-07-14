@@ -385,7 +385,7 @@ public interface IShare extends ServiceInterface {
      * @param shareId
      * @return map of experimenter and IP address
      */
-    Map<Experimenter, String> getActiveConnections(@NotNull
+    Map<String, Experimenter> getActiveConnections(@NotNull
     long shareId);
 
     /**
@@ -394,7 +394,7 @@ public interface IShare extends ServiceInterface {
      * @param shareId
      * @return map of experimenter and IP address
      */
-    Map<Experimenter, String> getPastConnections(@NotNull
+    Map<String, Experimenter> getPastConnections(@NotNull
     long shareId);
 
     /**
@@ -418,9 +418,9 @@ public interface IShare extends ServiceInterface {
      *            time
      * @param to -
      *            time
-     * @return map of dates and type of actions
+     * @return List of events
      */
-    Event getEvents(@NotNull
+    List<Event> getEvents(@NotNull
     long shareId, Experimenter experimenter, Timestamp from, Timestamp to);
 
 }
