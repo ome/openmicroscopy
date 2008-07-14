@@ -375,4 +375,51 @@ public interface IShare extends ServiceInterface {
      */
     void removeGuest(long shareId, String emailAddress);
 
+    // ~ Event administration
+    // =========================================================================
+
+    /**
+     * Gets actual active connections to {@link ome.model.meta.Session share}.
+     * 
+     * @param shareId
+     * @return map of experimenter and IP address
+     */
+    Map<Experimenter, String> getActiveConnections(@NotNull
+    long shareId);
+
+    /**
+     * Gets previous connections to {@link ome.model.meta.Session share}.
+     * 
+     * @param shareId
+     * @return map of experimenter and IP address
+     */
+    Map<Experimenter, String> getPastConnections(@NotNull
+    long shareId);
+
+    /**
+     * Makes the connection invalid for {@link ome.model.meta.Session share} for
+     * specifiec user.
+     * 
+     * @param shareId
+     * @param exp -
+     *            connection
+     */
+    void invalidateConnection(@NotNull
+    long shareId, Experimenter exp);
+
+    /**
+     * Gets events for {@link ome.model.meta.Session share} per
+     * {@link ome.model.meta.Experimenter experimenter} for period of time.
+     * 
+     * @param shareId
+     * @param exp
+     * @param from -
+     *            time
+     * @param to -
+     *            time
+     * @return map of dates and type of actions
+     */
+    Map<Timestamp, String> getEvents(@NotNull
+    long shareId, Experimenter experimenter, Timestamp from, Timestamp to);
+
 }
