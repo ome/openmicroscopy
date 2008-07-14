@@ -283,19 +283,22 @@ module omero {
         StringSet getOutputKeys(string sess) throws ServerError;
       };
 
+    dictionary<omero::model::Experimenter, string> ConnMap;
+    
     interface IShare extends ServiceInterface
       {
         void activate(long shareId);
-        omero::model::Session getShare(long sessionId);
-        SessionList getAllShares(bool active);
-        SessionList getOwnShares(bool active);
-        SessionList getMemberShares(bool active);
-        SessionList getSharesOwnedBy(omero::model::Experimenter user, bool active);
-        SessionList getMemberSharesFor(omero::model::Experimenter user, bool active);
-        IObjectList getContents(long shareId);
-        IObjectList getContentSubList(long shareId, int start, int finish);
-        int getContentSize(long shareId);
-        IdListMap getContentMap(long shareId);
+        omero::model::Session getShare(long sessionId) throws ServerError;
+        SessionList getAllShares(bool active) throws ServerError;
+        SessionList getOwnShares(bool active) throws ServerError;
+        SessionList getMemberShares(bool active) throws ServerError;
+        SessionList getSharesOwnedBy(omero::model::Experimenter user, bool active) throws ServerError;
+        SessionList getMemberSharesFor(omero::model::Experimenter user, bool active) throws ServerError;
+
+        IObjectList getContents(long shareId) throws ServerError;
+        IObjectList getContentSubList(long shareId, int start, int finish) throws ServerError;
+        int getContentSize(long shareId) throws ServerError;
+        IdListMap getContentMap(long shareId) throws ServerError;
 
         long createShare(string description, 
                          omero::RTime expiration, 
@@ -331,7 +334,12 @@ module omero {
         void addGuest(long shareId, string emailAddress);
         void removeUser(long shareId, omero::model::Experimenter exp);
         void removeGuest(long shareId, string emailAddress);
-      
+
+        ConnMap getActiveConnections(long shareId) throws ServerError;
+        ConnMap getPastConnections(long shareId) throws ServerError;
+        void invalidateConnection(long shareId, omero::model::Experimenter exp) throws ServerError;
+        omero::model::Event getEvents(long shareId, omero::model::Experimenter exp, omero::RTime from, omero::RTime to) throws ServerError;
+
       };
 
     interface ITypes extends ServiceInterface
