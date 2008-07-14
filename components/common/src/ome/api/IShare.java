@@ -18,6 +18,7 @@ import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.internal.Details;
+import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 
@@ -419,7 +420,7 @@ public interface IShare extends ServiceInterface {
      *            time
      * @return map of dates and type of actions
      */
-    Map<Timestamp, String> getEvents(@NotNull
+    Event getEvents(@NotNull
     long shareId, Experimenter experimenter, Timestamp from, Timestamp to);
 
 }
