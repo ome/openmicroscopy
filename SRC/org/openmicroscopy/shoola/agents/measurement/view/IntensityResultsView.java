@@ -311,9 +311,9 @@ implements TabPaneInterface
 	 */
 	public void displayAnalysisResults()
 	{
-		if(state==State.ANALYSING)
-			return;
-		state = State.ANALYSING;
+		//if(state==State.ANALYSING)
+		//	return;
+		//state = State.ANALYSING;
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) return;
 		
@@ -503,9 +503,10 @@ implements TabPaneInterface
 	 */
 	private void addResults()
 	{
-		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
-		if(selectedFigures.size()!=1)
+		if(state == State.ANALYSING)
 			return;
+		state = State.ANALYSING;
+		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
 		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 		Iterator<Figure> iterator =  selectedFigures.iterator();
 		while(iterator.hasNext())
@@ -516,6 +517,7 @@ implements TabPaneInterface
 			shapeList.add(fig.getROIShape());
 		}
 		view.calculateStats(shapeList);
+		state = state.READY;
 	}
 	
 	/**
