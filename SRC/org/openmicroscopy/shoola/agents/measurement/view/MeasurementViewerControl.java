@@ -316,7 +316,6 @@ class MeasurementViewerControl
 	 */
 	public void figureAdded(DrawingEvent e)
 	{
-		//if (model.getState() != MeasurementViewer.READY) return;
 		Figure f = e.getFigure();
 		if (!(f instanceof ROIFigure)) return;
 		ROIFigure roiFigure = (ROIFigure) f;
@@ -355,7 +354,7 @@ class MeasurementViewerControl
 	 */
 	public void selectionChanged(FigureSelectionEvent evt)
 	{
-		Collection figures = evt.getView().getSelectedFigures();
+		Collection<Figure> figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
 		if (view.inDataView() && figures.size() == 1) {
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
