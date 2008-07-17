@@ -29,9 +29,10 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
-import ui.formFields.FormField;
 import ui.formFields.FormFieldContainer;
 
 import java.awt.BorderLayout;
@@ -92,7 +93,7 @@ public class FormDisplay
 			this.add(verticalFormBox, BorderLayout.NORTH);
 			
 			
-			FormField formField = (FormField)rootNode.getFormField();
+			FieldPanel formField = (FieldPanel)rootNode.getFormField();
 			formField.setModel(model);
 			formField.refreshRootField(true);	// displays the correct buttons etc. 
 		
@@ -110,7 +111,7 @@ public class FormDisplay
 		
 		//System.out.println("FormDisplay: buildFormTree() " + dfNode.getDataField().getName());
 		
-		boolean subStepsCollapsed = ((FormField)dfNode.getFormField()).subStepsCollapsed();
+		boolean subStepsCollapsed = ((FieldPanel)dfNode.getFormField()).subStepsCollapsed();
 		
 		if (!subStepsCollapsed) {
 			// add the children to the childBox - this will recursively build tree for each
@@ -119,7 +120,7 @@ public class FormDisplay
 		
 		//		set visibility of the childBox wrt collapsed boolean of dataField
 		//	 & sets collapse button visible if dataFieldNode has children
-		((FormField)dfNode.getFormField()).refreshTitleCollapsed();
+		((FieldPanel)dfNode.getFormField()).refreshTitleCollapsed();
 		
 	}
 	

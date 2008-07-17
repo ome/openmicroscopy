@@ -26,11 +26,13 @@ import java.awt.Color;
 
 import javax.swing.JTextField;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.AttributeTextEditor;
 
-public class FormFieldDate extends FormField {
+public class FormFieldDate extends FieldPanel {
 	
 	JTextField textInput;
 	
@@ -91,8 +93,8 @@ public class FormFieldDate extends FormField {
 	}
 	
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the textBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && (!textInput.hasFocus()))

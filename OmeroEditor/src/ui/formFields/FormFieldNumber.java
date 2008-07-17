@@ -31,11 +31,13 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.AttributeTextEditor;
 
-public class FormFieldNumber extends FormField {
+public class FormFieldNumber extends FieldPanel {
 	
 	JTextField numberTextBox;
 	JLabel unitsLabel;
@@ -161,8 +163,8 @@ public class FormFieldNumber extends FormField {
 		}
 	}
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the textBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && (!numberTextBox.hasFocus()))

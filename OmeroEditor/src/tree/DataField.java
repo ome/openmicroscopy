@@ -33,12 +33,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.undo.UndoableEdit;
 
+import fields.FieldPanel;
+
 import tree.edit.EditDataFieldAttribute;
 import tree.edit.EditDataFieldAttributes;
 import tree.edit.EditDataFieldType;
 import ui.FieldEditorFormFieldFactory;
 import ui.fieldEditors.FieldEditor;
-import ui.formFields.FormField;
 
 
 // the in-memory form of an xml element
@@ -71,7 +72,7 @@ public class DataField
 	public static final String FIELD_SELECTED = "fieldSelected";
 
 	// the two JPanels that display the dataField, and hold optional attributes
-	FormField formField;
+	FieldPanel formField;
 	FieldEditor fieldEditor;
 	
 	// Observers of the datafield. eg formField and fieldEditor
@@ -295,7 +296,7 @@ public class DataField
 		if (formField == null)
 			getFormField();
 		
-		formField.setHighlighted(highlighted);
+		formField.setSelected(highlighted);
 	}
 	
 	public JPanel getFieldEditor() {

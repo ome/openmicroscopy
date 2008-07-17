@@ -62,6 +62,8 @@ import javax.swing.filechooser.FileFilter;
 
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
+import fields.FieldPanel;
+
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
@@ -73,7 +75,7 @@ import util.FilePathMethods;
 import util.ImageFactory;
 import util.PreferencesManager;
 
-public class FormFieldImage extends FormField {
+public class FormFieldImage extends FieldPanel {
 	
 	JLabel imageLabel;
 	String imagePath;

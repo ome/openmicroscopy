@@ -41,6 +41,8 @@ import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import fields.FieldPanel;
+
 import omeroCal.view.DatePicker;
 
 import tree.DataFieldConstants;
@@ -61,7 +63,7 @@ import ui.components.CustomComboBox;
  * @author will
  *
  */
-public class FormFieldDateTime extends FormField {
+public class FormFieldDateTime extends FieldPanel {
 	
 	DatePicker datePicker;
 	ActionListener calendarListener;
@@ -432,8 +434,8 @@ public class FormFieldDateTime extends FormField {
 	
 	
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the textBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && (!datePicker.hasFocus()))

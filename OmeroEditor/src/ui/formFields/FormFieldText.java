@@ -23,30 +23,71 @@
 package ui.formFields;
 
 import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JTextField;
+
+import fields.Field;
+import fields.FieldPanel;
+import fields.IField;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.AttributeTextEditor;
 
-public class FormFieldText extends FormField {
+public class FormFieldText extends FieldPanel {
 	
 	JTextField textInput;
 	
-	public FormFieldText(IDataFieldObservable dataFieldObs) {
-		super(dataFieldObs);
+	/**
+	 * bound property
+	 */
+	public static final String TEXT_VALUE = "textValue";
+
+	
+	public FormFieldText() {
+		this(new Field());
+	}
+	
+	public FormFieldText(IField field) {
+		super(field);
 		
 		String value = dataField.getAttribute(DataFieldConstants.VALUE);
 		
+		textInput = new JTextField("test this");
+		
+		textInput.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) {
+				valueChanged();
+			}
+			
+		});
+		
+		/*
 		textInput = new AttributeTextEditor(dataField, 
 				DataFieldConstants.VALUE);
-		textInput.addFocusListener(componentFocusListener);		// to highlight field when textBox gets focus
+				*/
+		//textInput.addFocusListener(componentFocusListener);		// to highlight field when textBox gets focus
 
 		horizontalBox.add(textInput);
 		
 		// enable or disable components based on the locked status of this field
 		refreshLockedStatus();
+	}
+	
+	public void valueChanged() {
+		this.firePropertyChange(TEXT_VALUE, "", textInput.getText());
+	}
+	
+	public void setValue(Object value) {
+		String text = value.toString();
+		textInput.setText(text);
+	}
+	
+	public String getText() {
+		return textInput.getText();
 	}
 	
 	/**
@@ -62,19 +103,7 @@ public class FormFieldText extends FormField {
 			textInput.setEnabled(enabled);
 	}
 	
-	/**
-	 * Gets the names of the attributes where this field stores its "value"s.
-	 * This is used eg. (if a single value is returned)
-	 * as the destination to copy the default value when defaults are loaded.
-	 * Also used by EditClearFields to set all values back to null. 
-	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
-	 * subclasses if they want to store their values under a different attributes (eg "seconds" for TimeField)
-	 * 
-	 * @return	the name of the attribute that holds the "value" of this field
-	 */
-	public String[] getValueAttributes() {
-		return new String[] {DataFieldConstants.VALUE};
-	}
+	
 	
 	/**
 	 * This method tests to see whether the field has been filled out. 
@@ -97,10 +126,10 @@ public class FormFieldText extends FormField {
 		textInput.setEditable(enabled);
 	}
 	
-	public void setHighlighted(boolean highlight) {
+	public void setSelected(boolean highlight) {
 		//boolean previouslyHighlighted = highlighted;
 		
-		super.setHighlighted(highlight);
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the textBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && !textInput.hasFocus()) {

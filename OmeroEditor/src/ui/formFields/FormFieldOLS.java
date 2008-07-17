@@ -30,14 +30,16 @@ import java.awt.event.ActionListener;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
+import fields.FieldPanel;
+import fields.FieldPanel.FocusGainedPropertyChangedListener;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.OLSMetadataPanel;
 import ui.components.OntologyTermSelector;
-import ui.formFields.FormField.FocusGainedPropertyChangedListener;
 import util.ImageFactory;
 
-public class FormFieldOLS extends FormField {
+public class FormFieldOLS extends FieldPanel {
 	
 	// variables
 	String termIdAndName;

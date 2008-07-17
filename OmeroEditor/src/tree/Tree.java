@@ -46,6 +46,8 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import fields.FieldPanel;
+
 import tree.edit.EditAddField;
 import tree.edit.EditClearFields;
 import tree.edit.EditCopyDefaultValues;
@@ -64,7 +66,6 @@ import tree.edit.EditUnlockFields;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.fieldEditors.FieldEditor;
-import ui.formFields.FormField;
 import ui.formFields.FormFieldNumber;
 import validation.XMLSchema;
 import xmlMVC.ConfigConstants;

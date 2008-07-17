@@ -46,6 +46,8 @@ import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
+import fields.FieldPanel;
+
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
@@ -58,7 +60,7 @@ import util.PreferencesManager;
 import validation.SAXValidator;
 
 
-public class FormFieldLink extends FormField {
+public class FormFieldLink extends FieldPanel {
 
 	/**
 	 * A link (stored in the VALUE attribute of the dataField) that is the

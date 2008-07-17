@@ -30,6 +30,8 @@ import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.XMLView;
@@ -37,7 +39,7 @@ import ui.components.AttributeTextEditor;
 import ui.components.AttributesDialog;
 import util.ImageFactory;
 
-public class FormFieldCustom extends FormField {
+public class FormFieldCustom extends FieldPanel {
 	
 	
 	AttributesDialog attDialog;
@@ -110,8 +112,8 @@ public class FormFieldCustom extends FormField {
 	}
 	
 	// called when user clicks on panel
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		
 		// if the user highlighted this field by clicking the field  
 		// need to get focus, otherwise focus will remain elsewhere. 

@@ -26,11 +26,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.AttributeTextAreaEditor;
 
-public class FormFieldMemo extends FormField {
+public class FormFieldMemo extends FieldPanel {
 	
 	//AttributeMemoFormatEditor inputEditor;
 	
@@ -65,8 +67,8 @@ public class FormFieldMemo extends FormField {
 	}
 	
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the textArea itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && (!textInput.hasFocus()))

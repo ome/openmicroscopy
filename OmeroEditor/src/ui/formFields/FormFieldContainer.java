@@ -39,6 +39,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
+import fields.FieldPanel;
+
 import tree.DataFieldNode;
 import ui.IModel;
 
@@ -63,7 +65,7 @@ import ui.IModel;
 public class FormFieldContainer extends JPanel {
 
 	DataFieldNode dataFieldNode;
-	FormField formField;
+	FieldPanel formField;
 	
 	JToolBar childContainer;
 	
@@ -83,7 +85,7 @@ public class FormFieldContainer extends JPanel {
 		// setBorder(BorderFactory.createLineBorder(Color.red));
 		
 		
-		formField = (FormField)dataFieldNode.getFormField();
+		formField = (FieldPanel)dataFieldNode.getFormField();
 		formField.setModel(model);
 		add(formField, BorderLayout.NORTH);
 		

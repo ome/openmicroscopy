@@ -27,11 +27,13 @@ import java.awt.Dimension;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.XMLView;
 
-public class FormFieldProtocol extends FormField {
+public class FormFieldProtocol extends FieldPanel {
 	
 	JLabel fileName;
 	JLabel fileNameLabel;
@@ -68,8 +70,8 @@ public class FormFieldProtocol extends FormField {
 			fileNameLabel.setText("");
 	}
 
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the textBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && (!collapseAllChildrenButton.hasFocus()))

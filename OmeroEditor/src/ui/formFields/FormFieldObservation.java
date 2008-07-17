@@ -9,12 +9,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.DataFieldComboBox;
 import ui.components.OntologyTermSelector;
 
-public class FormFieldObservation extends FormField {
+public class FormFieldObservation extends FieldPanel {
 	
 	public static final String FREE_TEXT = "Text";
 	public static final String NUMBER = "Number";

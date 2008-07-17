@@ -79,6 +79,8 @@ public class ContiguousChildSelectionModel
      */
    public void setSelectionPaths(TreePath[] pPaths) { 
 	   
+	   //System.out.println("ContiguousChildSelectionModel   setSelectionPaths" +
+		//   		"length = " + pPaths.length);
 	   
 	   if (pPaths.length > 0) {
 		   TreePath firstPathParent = pPaths[0].getParentPath();
@@ -183,10 +185,16 @@ public class ContiguousChildSelectionModel
 	
 	   System.out.println("ContiguousChildSelectionModel   addSelectionPaths" +
 	   		"length = " + paths.length);
+	   
 	   /*
 	    * Check if any new paths have different parent 
 	    */
 	   TreePath[] currentPaths = this.getSelectionPaths();
+	   // if no selection, simple set the selection paths to the new paths
+	   if ((currentPaths == null) || (currentPaths.length == 0)) {
+		   setSelectionPaths(paths);
+		   return;
+	   }
 	   TreePath currentParent = currentPaths[0].getParentPath();
 	   
 	   /*

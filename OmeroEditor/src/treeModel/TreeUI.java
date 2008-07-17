@@ -22,19 +22,27 @@
  */
 package treeModel;
 
+//Java imports
+
 import java.awt.BorderLayout;
 
+import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-
-//Java imports
+import javax.swing.tree.DefaultTreeCellEditor;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellEditor;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import fields.DefaultFieldEditor;
+
+
 /** 
+ * This UI class displays a JTree in a scroll pane. 
  * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -48,26 +56,60 @@ import javax.swing.JTree;
 public class TreeUI 
 	extends JPanel {
 	
-	private TreeModel model;
-	
 	private JTree tree;
 	
 	public TreeUI(TreeModel model) {
 		
 		super(new BorderLayout());
-		
-		this.model = model;
+
 		
 		tree = new JTree(model);
+		/*
+		 * The default UI (BasicTreeUI) is replaced with a subclass
+		 * to modify the selection and editing behavior.
+		 */
+		tree.setUI(new MyBasicTreeUI());
+		
+		/*
+		 * A custom selection model allows multiple nodes to be selected,
+		 * but ensures that they are contiguous and are all siblings.
+		 */
 		tree.setSelectionModel(new ContiguousChildSelectionModel());
+		
+		/*
+		 * Setting the row height to 0 allows each node to choose it's
+		 * own size. The JTree will call getPreferredSize() for each.
+		 */
 		tree.setRowHeight(0);
-		tree.setCellRenderer(new FieldRenderer());
+		
+		/*
+		 * A custom TreeCellRenderer (extends DefaultTreeCellRenderer)
+		 * renders nodes as JPanels.
+		 */
+		DefaultTreeCellRenderer fieldRenderer = new FieldRenderer();
+		tree.setCellRenderer(fieldRenderer);
+		
+		/*
+		 * A TreeCellEditor for editing fields.
+		 * This merely delegates to the fieldRenderer because the same 
+		 * components are used for display and editing of the tree Cells.
+		 */
+		TreeCellEditor fieldEditor = new DefaultFieldEditor(fieldRenderer);
+		/*
+		 * The DefaultTreeCellEditor (when passed a TreeCellEditor) uses this 
+		 * to switch between editing and display. 
+		 */
+	    TreeCellEditor editor = new DefaultTreeCellEditor(tree, fieldRenderer, fieldEditor);
+	    tree.setCellEditor(editor);
 		
 		tree.setEditable(true);
 		
+		/*
+		 * Place the JTree in a ScrollPane and add it to this panel. 
+		 */
 		JScrollPane treeScroller = new JScrollPane(tree);
-		
 		add(treeScroller, BorderLayout.CENTER);
 	}
+
 	
 }

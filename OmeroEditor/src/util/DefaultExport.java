@@ -11,11 +11,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import fields.FieldPanel;
+
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
 import tree.IAttributeSaver;
-import ui.formFields.FormField;
 
 /*
  *------------------------------------------------------------------------------
@@ -215,7 +216,7 @@ public class DefaultExport
         
         if (true) {
         	String colour = dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR);
-        	Color bgColour = FormField.getColorFromString(colour);
+        	Color bgColour = FieldPanel.getColorFromString(colour);
         	if (bgColour != null) {
         		int r = bgColour.getRed();
         		int g = bgColour.getGreen();

@@ -25,12 +25,13 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.JTextComponent;
 
+import fields.FieldPanel;
+
 import ols.Ontologies;
 import ols.OntologyLookUp;
 
 import tree.DataField;
 import tree.IAttributeSaver;
-import ui.formFields.FormField;
 
 public class OntologyTermSelector extends JPanel {
 	
@@ -337,7 +338,7 @@ public class OntologyTermSelector extends JPanel {
 	
 	public class ComponentFocusListener implements FocusListener {
 		public void focusGained(FocusEvent e) {
-			OntologyTermSelector.this.firePropertyChange(FormField.HAS_FOCUS, false, true);
+			OntologyTermSelector.this.firePropertyChange(fields.HAS_FOCUS, false, true);
 		}
 		public void focusLost(FocusEvent e) {}
 	}

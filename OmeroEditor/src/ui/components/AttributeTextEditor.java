@@ -25,6 +25,8 @@ package ui.components;
 //Java imports
 import javax.swing.JTextField;
 
+import fields.IField;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -52,7 +54,7 @@ public class AttributeTextEditor
 	extends JTextField 
 	implements DataFieldObserver {
 	
-	IAttributeSaver dataField;
+	IField dataField;
 	String attributeName;
 	
 	/**
@@ -62,7 +64,7 @@ public class AttributeTextEditor
 	 * 						be edited.
 	 * @param attributeName		The name of the attribute to be edited.
 	 */
-	public AttributeTextEditor(IAttributeSaver dataField, String attributeName) {
+	public AttributeTextEditor(IField dataField, String attributeName) {
 		
 		this.dataField = dataField;
 		this.attributeName = attributeName;

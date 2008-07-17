@@ -28,6 +28,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import tree.DataFieldConstants;
+
 import fields.Field;
 
 //Java imports
@@ -77,15 +79,29 @@ public class TreeEditorFactory {
 	
 	public static TreeNode createDummyTree() {
 		
-		Field rootField = new Field("Title", "My Experiment");
+		Field rootField = new Field();
+		rootField.setAttribute(DataFieldConstants.ELEMENT_NAME, "Title");
 		DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(rootField);
 		
-		DefaultMutableTreeNode p1Name = new DefaultMutableTreeNode(new Field("Protocol", "10-2-08"));
-		DefaultMutableTreeNode p2Name = new DefaultMutableTreeNode(new Field("Temperature", "37'C"));
-		DefaultMutableTreeNode c1Name = new DefaultMutableTreeNode(new Field("Cells", "HeLa"));
-		DefaultMutableTreeNode c2Name = new DefaultMutableTreeNode(new Field("DNA", "GFP-H2B"));
-		DefaultMutableTreeNode c3Name = new DefaultMutableTreeNode(new Field("Incubation time", "3 hrs"));
-		DefaultMutableTreeNode c4Name = new DefaultMutableTreeNode(new Field("On ice", "10 mins"));
+		Field field;
+		
+		DefaultMutableTreeNode p1Name = new DefaultMutableTreeNode(
+				new Field("Protocol", "10-2-08", DataFieldConstants.TEXT_ENTRY_STEP));
+		DefaultMutableTreeNode p2Name = new DefaultMutableTreeNode(
+				new Field("Temperature", "37'C", DataFieldConstants.TEXT_ENTRY_STEP));
+		
+		field = new Field("Date", null, DataFieldConstants.DATE_TIME_FIELD);
+		// field.setAttribute(DataFieldConstants.SECONDS, "3600");
+		//field.setAttribute(DataFieldConstants.UTC_MILLISECS, "This is a test description");
+		DefaultMutableTreeNode c1Name = new DefaultMutableTreeNode(field);
+		DefaultMutableTreeNode c2Name = new DefaultMutableTreeNode(
+				new Field("DNA", null, DataFieldConstants.FIXED_PROTOCOL_STEP));
+		DefaultMutableTreeNode c3Name = new DefaultMutableTreeNode(
+				new Field("Incubation time", "3 hrs", DataFieldConstants.TEXT_ENTRY_STEP));
+		DefaultMutableTreeNode c4Name = new DefaultMutableTreeNode(
+				new Field("On ice", "10 mins", DataFieldConstants.TEXT_ENTRY_STEP));
+		
+	
         
         rootNode.add(p1Name);
         rootNode.add(p2Name);

@@ -42,12 +42,14 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+import fields.FieldPanel;
+
 import table.InteractiveTableModel;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import util.ImageFactory;
 
-public class FormFieldTable extends FormField {
+public class FormFieldTable extends FieldPanel {
 	
 	private String[] columnNames = new String[0];
 
@@ -434,8 +436,8 @@ public class FormFieldTable extends FormField {
 		refreshColumnAutoResizeMode();
 	}
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		
 		addRowButton.setEnabled(highlight);
 		removeRowsButton.setEnabled(highlight);

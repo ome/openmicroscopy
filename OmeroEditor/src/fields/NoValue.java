@@ -1,6 +1,8 @@
-/*
+ /*
+ * fields.NoValue 
+ *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -17,33 +19,47 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
- *	author Will Moore will@lifesci.dundee.ac.uk
  */
+package fields;
 
-package ui.formFields;
+//Java imports
 
-import fields.FieldPanel;
-import tree.IDataFieldObservable;
+//Third-party libraries
 
-public class FormFieldFixed extends FieldPanel {
+//Application-internal dependencies
+
+/** 
+ * This is the "Value" object for a field that has no experimental values.
+ * Ie, a fixed field that does not change. 
+ *
+ * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+public class NoValue 
+	extends AbstractValueObject {
+
+	public NoValue(String fieldType) {
+		super(fieldType);
+	}
 	
-	public FormFieldFixed(IDataFieldObservable dataFieldObs) {
-		super(dataFieldObs);
-			
-	}
-
-	@Override
-	public void enableEditing(boolean enabled) {
-	}
-
-	@Override
+	/**
+	 * No values for this field.
+	 */
 	public String[] getValueAttributes() {
-		return new String[0];
+		return new String[] {};
 	}
 
-	@Override
+	/**
+	 * A fixed field is never unfilled. 
+	 * Never needs completing.
+	 */
 	public boolean isFieldFilled() {
-		// can't be unfilled! 
 		return true;
 	}
+
 }

@@ -16,12 +16,14 @@ import javax.swing.JSpinner.DefaultEditor;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.TimeEditor;
 import ui.fieldEditors.FieldEditorTime;
 
-public class FormFieldTime extends FormField {
+public class FormFieldTime extends FieldPanel {
 	
 	// Up till 7th March 08, this string was hrs:mins:secs (eg "02:12:05" )
 	// But better to store seconds. 
@@ -290,8 +292,8 @@ public class FormFieldTime extends FormField {
 	}
 
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the textBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		boolean hasFocus = (((DefaultEditor)hoursSpinner.getEditor()).getTextField().hasFocus() || 

@@ -22,6 +22,7 @@
 
 package ui;
 
+import fields.FieldPanel;
 import tree.DataField;
 import tree.DataFieldConstants;
 import ui.fieldEditors.FieldEditor;
@@ -39,7 +40,6 @@ import ui.fieldEditors.FieldEditorProtocol;
 import ui.fieldEditors.FieldEditorTable;
 import ui.fieldEditors.FieldEditorText;
 import ui.fieldEditors.FieldEditorTime;
-import ui.formFields.FormField;
 import ui.formFields.FormFieldCheckBox;
 import ui.formFields.FormFieldCustom;
 import ui.formFields.FormFieldDate;
@@ -142,9 +142,9 @@ public class FieldEditorFormFieldFactory {
 	
 	
 	// FormField Factory
-	public FormField getFormField(DataField dataField) {
+	public FieldPanel getFormField(DataField dataField) {
 		
-		FormField formField = null;
+		FieldPanel formField = null;
 		
 		String inputType = dataField.getInputType();
 		

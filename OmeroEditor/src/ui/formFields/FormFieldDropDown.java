@@ -28,12 +28,14 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JComboBox;
 
+import fields.FieldPanel;
+import fields.FieldPanel.FormPanelMouseListener;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.CustomComboBox;
-import ui.formFields.FormField.FormPanelMouseListener;
 
-public class FormFieldDropDown extends FormField {
+public class FormFieldDropDown extends FieldPanel {
 	
 	ActionListener valueSelectionListener = new ValueSelectionListener();
 	
@@ -186,8 +188,8 @@ public class FormFieldDropDown extends FormField {
 		}
 	}
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the comboBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && (!comboBox.hasFocus()))

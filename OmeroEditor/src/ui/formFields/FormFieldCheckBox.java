@@ -5,10 +5,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
+import fields.FieldPanel;
+
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 
-public class FormFieldCheckBox extends FormField {
+public class FormFieldCheckBox extends FieldPanel {
 	
 	boolean checkedValue;
 	JCheckBox checkBox;
@@ -89,8 +91,8 @@ public class FormFieldCheckBox extends FormField {
 		
 	}
 	
-	public void setHighlighted(boolean highlight) {
-		super.setHighlighted(highlight);
+	public void setSelected(boolean highlight) {
+		super.setSelected(highlight);
 		// if the user highlighted this field by clicking the field (not the checkBox itself) 
 		// need to get focus, otherwise focus will remain elsewhere. 
 		if (highlight && (!checkBox.hasFocus()))

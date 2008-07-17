@@ -30,6 +30,8 @@ import java.awt.event.KeyListener;
 
 import javax.swing.text.JTextComponent;
 
+import fields.IField;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -42,7 +44,7 @@ import tree.IAttributeSaver;
  * textChanged = true.
  * Then when focus is lost, the focusListener updates the dataField
  * attribute (if textChanged), by calling 
- * setDataFieldAttribute. 
+ * setDataFieldAttribute. TextChanged is reset to false.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -59,11 +61,11 @@ public class AttributeEditorListeners
 	
 	boolean textChanged;
 	
-	IAttributeSaver dataField;
+	IField dataField;
 	
 	String attributeName;
 	
-	public AttributeEditorListeners(IAttributeSaver dataField, 
+	public AttributeEditorListeners(IField dataField, 
 			String attributeName) {
 		
 		this.dataField = dataField;
@@ -90,8 +92,25 @@ public class AttributeEditorListeners
 	
 	// called to update dataField with attribute
 	protected void setDataFieldAttribute(String value, boolean notifyUndoRedo) {
-		dataField.setAttribute(attributeName, value, notifyUndoRedo);
+		dataField.setAttribute(attributeName, value);
 		textChanged = false;
+	}
+	
+	/**
+	 * Convenience method for adding listeners to a text component, such that
+	 * the text component will then update the IField, using its
+	 * setAttribute(attributeName, value) method.
+	 * 
+	 * @param textComp		The text component to add the listeners to
+	 * @param field			The IField that will be updated with new text value	
+	 * @param attributeName	The name of the attribute to set to the new value
+	 */
+	public static void addListeners(JTextComponent textComp, IField field, 
+			String attributeName) {
+		AttributeEditorListeners listeners = new AttributeEditorListeners(field, 
+				attributeName);
+		textComp.addFocusListener(listeners);
+		textComp.addKeyListener(listeners);
 	}
 
 }
