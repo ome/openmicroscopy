@@ -33,12 +33,17 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.BezierFigure;
+import org.jhotdraw.geom.BezierPath;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
@@ -93,7 +98,7 @@ public class MeasureBezierFigure
 	/** Create an instance of the bezier figure. */
 	public MeasureBezierFigure()
 	{
-		super("Text");
+		super("Text",false);
 		c = true;
 		shape = null;
 		roi = null;
@@ -121,7 +126,7 @@ public class MeasureBezierFigure
 	 */
 	public MeasureBezierFigure(String text)
 	{
-		super(text, true);
+		super(text, false);
 		c = true;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
@@ -175,9 +180,9 @@ public class MeasureBezierFigure
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
-				if(getPointCount() > 1)
+				if(super.getNodeCount() > 1)
 				{
-					int midPoint = this.getPointCount()/2-1;
+					int midPoint = this.getNodeCount()/2-1;
 					if(midPoint<0)
 						midPoint = 0;
 					Point2D p0 = getPoint(midPoint);
@@ -393,12 +398,11 @@ public class MeasureBezierFigure
 		Point2D.Double pt;
 		for (int i = 0 ; i < path.size(); i++)
 		{
-			pointArrayX.add(path.get(i).getControlPoint(0).getX());
 			pointArrayY.add(path.get(i).getControlPoint(0).getY());
 		}
 		AnnotationKeys.POINTARRAYX.set(shape, pointArrayX);
 		AnnotationKeys.POINTARRAYY.set(shape, pointArrayY);
-		if (isClosed())
+		if (super.isClosed())
 		{
 			AnnotationKeys.AREA.set(shape,getArea());
 			AnnotationKeys.PERIMETER.set(shape, getLength());
@@ -417,6 +421,13 @@ public class MeasureBezierFigure
 			AnnotationKeys.ENDPOINTX.set(shape, getPt(path.size()-1).getX());
 			AnnotationKeys.ENDPOINTY.set(shape, getPt(path.size()-1).getY());
 		}
+	}
+	
+	public MeasureBezierFigure clone()
+	{
+		
+		MeasureBezierFigure that = (MeasureBezierFigure)super.clone();
+		return that;
 	}
 	
 	/**
