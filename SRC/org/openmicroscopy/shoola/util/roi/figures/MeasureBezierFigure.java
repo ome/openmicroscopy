@@ -67,6 +67,8 @@ public class MeasureBezierFigure
 	implements ROIFigure
 {
 
+	
+	boolean c;
 	/** The list of X coords of the nodes on the line. */
 	private ArrayList<Double>			pointArrayX;
 
@@ -92,6 +94,7 @@ public class MeasureBezierFigure
 	public MeasureBezierFigure()
 	{
 		super("Text");
+		c = true;
 		shape = null;
 		roi = null;
 		pointArrayX = new ArrayList<Double>();
@@ -106,6 +109,7 @@ public class MeasureBezierFigure
 	public MeasureBezierFigure(boolean closed)
 	{
 		super("Text", closed);
+		c = closed;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();
@@ -118,6 +122,7 @@ public class MeasureBezierFigure
 	public MeasureBezierFigure(String text)
 	{
 		super(text, true);
+		c = true;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();
@@ -131,6 +136,7 @@ public class MeasureBezierFigure
 	public MeasureBezierFigure(String text, boolean closed)
 	{
 		super(text, closed);
+		c = closed;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
 		lengthArray = new ArrayList<Double>();

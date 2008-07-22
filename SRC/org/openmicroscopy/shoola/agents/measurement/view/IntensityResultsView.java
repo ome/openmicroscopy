@@ -311,9 +311,6 @@ implements TabPaneInterface
 	 */
 	public void displayAnalysisResults()
 	{
-		//if(state==State.ANALYSING)
-		//	return;
-		//state = State.ANALYSING;
 		this.ROIStats = model.getAnalysisResults();
 		if (ROIStats == null || ROIStats.size() == 0) return;
 		
@@ -387,8 +384,6 @@ implements TabPaneInterface
 	 */
 	private void getResults(ROIShape shape)
 	{
-	//	if(state==State.ANALYSING)
-	//		return;
 		Vector<Vector> rows = new Vector<Vector>();
 		
 		Iterator<String> channelIterator = channelName.values().iterator();
@@ -503,10 +498,12 @@ implements TabPaneInterface
 	 */
 	private void addResults()
 	{
+		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures();
+		if(selectedFigures.size()==0)
+			return;
 		if(state == State.ANALYSING)
 			return;
 		state = State.ANALYSING;
-		Set<Figure> selectedFigures = view.getDrawingView().getSelectedFigures(); 
 		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 		Iterator<Figure> iterator =  selectedFigures.iterator();
 		while(iterator.hasNext())
