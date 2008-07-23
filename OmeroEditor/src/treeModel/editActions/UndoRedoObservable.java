@@ -1,5 +1,5 @@
  /*
- * fields.IField 
+ * treeModel.undoableTreeEdits.UndoRedoObservable 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package fields;
+package treeModel.editActions;
 
 //Java imports
 
@@ -29,13 +29,9 @@ package fields;
 //Application-internal dependencies
 
 /** 
- * This interface specifies methods of a Field, which corresponds to a node
- * in the data tree.
- * IField extends the IValue interface, which has getAttribute() and setAttribute() 
- * methods.
- * A field may contain several values, so the IField has methods to get the 
- * count of values, and to get a value by index.
- * 
+ * This Interface should be implemented by an UndoManager that wants to 
+ * notify listeners of undo() and redo() events. 
+ * Implemented by {#link ObservableUndoManager}.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,18 +41,25 @@ package fields;
  * </small>
  * @since OME3.0
  */
-public interface IField 
-	extends IAttributes {
+public interface UndoRedoObservable {
 	
-
-	public int getParamCount();
+	/**
+	 * Allows UndoRedoListeners to register for undo() or redo() notification
+	 * 
+	 * @param listener	The UndoRedoListener to register
+	 */
+	public void addUndoRedoListener(UndoRedoListener listener);
 	
-	public IParam getParamAt(int index);
+	/**
+	 * Allows UndoRedoListeners to un-register for undo() or redo() notification
+	 * 
+	 * @param listener	The UndoRedoListener to un-register
+	 */
+	public void removeUndoRedoListener(UndoRedoListener listener);
 	
-	public void addParam(IParam param);
-	
-	public boolean removeParam(IParam param);
-	
-	public boolean isFieldFilled();
+	/**
+	 * Calls the undoRedoPerformed() method of listeners. 
+	 */
+	public void notifyListeners();
 
 }

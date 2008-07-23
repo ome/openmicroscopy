@@ -1,5 +1,5 @@
  /*
- * fields.IFieldValue 
+ * fields.IValue 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -29,7 +29,9 @@ package fields;
 //Application-internal dependencies
 
 /** 
- * 
+ * This interface specifies the minimum methods needed to save and 
+ * retrieve data. 
+ * It also has a convenience method for querying boolean attributes.  
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -39,17 +41,9 @@ package fields;
  * </small>
  * @since OME3.0
  */
-public interface IFieldValue 
-	extends IField {
+public interface IParam 
+	extends IAttributes {
 	
-	
-	/**
-	 * Returns a string that defines the field type.
-	 * Such as DataFieldConstants.TEXT_ENTRY_STEP
-	 * 
-	 * @return
-	 */
-	public String getFieldType();
 	
 	/**
 	 * This method tests to see whether the field has been filled out. 
@@ -63,26 +57,24 @@ public interface IFieldValue
 	 * 
 	 * @return	True if the field has been filled out by user. Required values are not null. 
 	 */
-	public boolean isFieldFilled();
+	public boolean isParamFilled();
 	
 	/**
-	 * Gets the names of the attributes where this field stores its "value"s.
-	 * This is used eg. (if a single value is returned)
-	 * as the destination to copy the default value when defaults are loaded.
-	 * Also used by EditClearFields to set all values back to null. 
-	 * Mostly this is DataFieldConstants.VALUE, but this method should be over-ridden by 
-	 * subclasses if they want to store their values under a different attributes (eg "seconds" for TimeField)
-	 * 
-	 * @return	the name of the attribute that holds the "value" of this field
+	 * This method returns a list of the names of attributes. 
+	 * These attributes represent the experimental "value" of this
+	 * parameter (rather than other attributes such as name or default
+	 * values that represent the "template" part of the parameter. 
+	 * This method is used for eg. clearing the value of a parameter by 
+	 * setting all value attributes to null. 
 	 */
 	public String[] getValueAttributes();
-
+	
 	/**
-	 * A convenience method to test whether the attribute is included in
-	 * the list of value attributes. 
+	 * Unless specified by subclasses, parameter has no default values.
+	 * If a list of default values is given, these should be given in the 
+	 * same order as the value attributes to which they apply 
 	 * 
-	 * @param attributeName		The name of the attribute to test. 
-	 * @return		True if the attribute is a value attribute. 
+	 * @see getValueAttributes();
 	 */
-	public boolean isValueAttribute(String attributeName);
+	public String[] getDefaultAttributes();
 }

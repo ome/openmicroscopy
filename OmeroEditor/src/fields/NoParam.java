@@ -1,5 +1,5 @@
  /*
- * treeModel.editActions.TreeModelMethods 
+ * fields.NoValue 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,12 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel.editActions;
-
-import java.util.List;
-
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
+package fields;
 
 //Java imports
 
@@ -34,7 +29,8 @@ import javax.swing.tree.MutableTreeNode;
 //Application-internal dependencies
 
 /** 
- * 
+ * This is the "Value" object for a field that has no experimental values.
+ * Ie, a fixed field that does not change. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -44,25 +40,26 @@ import javax.swing.tree.MutableTreeNode;
  * </small>
  * @since OME3.0
  */
-public class TreeModelMethods {
-	
-	public static void insertNodesInto(DefaultTreeModel treeModel,
-			List<MutableTreeNode> nodes, 
-			MutableTreeNode parent,
-			int index) {
-		
-		for (MutableTreeNode node: nodes) {
-			treeModel.insertNodeInto(node, parent, index);
-			index++;
-		}
+public class NoParam 
+	extends AbstractParam {
+
+	public NoParam(String fieldType) {
+		super(fieldType);
 	}
 	
-	public static void removeNodesFromParent(DefaultTreeModel treeModel,
-			List<MutableTreeNode> nodes) {
-		
-		for (MutableTreeNode node: nodes) {
-			treeModel.removeNodeFromParent(node);
-		}
+	/**
+	 * No values for this parameter.
+	 */
+	public String[] getValueAttributes() {
+		return new String[] {};
 	}
-	
+
+	/**
+	 * A fixed parameter is never unfilled. 
+	 * Never needs completing.
+	 */
+	public boolean isParamFilled() {
+		return true;
+	}
+
 }

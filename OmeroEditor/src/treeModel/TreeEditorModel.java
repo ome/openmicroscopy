@@ -1,5 +1,5 @@
  /*
- * fields.DateTimeValueObject 
+ * treeModel.TreeModel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,9 +20,11 @@
  *
  *------------------------------------------------------------------------------
  */
-package fields;
+package treeModel;
 
-import tree.DataFieldConstants;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
 //Java imports
 
@@ -41,39 +43,14 @@ import tree.DataFieldConstants;
  * </small>
  * @since OME3.0
  */
-public class DateTimeValueObject extends AbstractValueObject {
+public class TreeEditorModel 
+	extends DefaultTreeModel {
 
-	public static final String DATE_ATTRIBUTE = DataFieldConstants.UTC_MILLISECS;
-	
-	public static final String TIME_ATTRIBUTE = DataFieldConstants.SECONDS;
-	
-	/**
-	 * Creates an instance. 
-	 * 
-	 * @param fieldType		The String defining the field type
-	 */
-	public DateTimeValueObject(String fieldType) {
-		super(fieldType);
-	}
-	
-	
-	/**
-	 * The value attribute is a single value
-	 */
-	public String[] getValueAttributes() {
-		
-		return new String[] {DATE_ATTRIBUTE, 
-				TIME_ATTRIBUTE};
+	public TreeEditorModel(TreeModel model) {
+		super((TreeNode)model.getRoot());
 	}
 
-	/**
-	 * This field is filled if the value isn't null, and 
-	 * is not an empty string. 
-	 */
-	public boolean isFieldFilled() {
-		String timeValue = getAttribute(getValueAttributes()[0]);
-		
-		return (timeValue != null && timeValue.length() > 0);
+	public TreeEditorModel(TreeNode node) {
+		super(node);
 	}
-
 }

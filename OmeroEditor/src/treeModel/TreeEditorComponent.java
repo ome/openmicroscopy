@@ -22,7 +22,14 @@
  */
 package treeModel;
 
+import java.io.File;
+
+import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+
+import treeIO.TreeModelFactory;
 
 //Java imports
 
@@ -44,14 +51,14 @@ import javax.swing.JComponent;
 public class TreeEditorComponent
 	implements ITreeEditor {
 	
-	private TreeModel model;
+	private TreeEditorModel model;
 	
 	private TreeEditorUI view;
 	
 	private TreeEditorControl controller;
 	
 	
-	public TreeEditorComponent(TreeModel model) {
+	public TreeEditorComponent(TreeEditorModel model) {
 		
 		this.model = model;
 		
@@ -70,6 +77,25 @@ public class TreeEditorComponent
 	public JComponent getUI() {
 		
 		return view;
+	}
+
+	/**
+	 * NOT TESTED YET!
+	 */
+	/*
+	 * TODO	test this etc. 
+	 */
+	public void openFile(File xmlFile) {
+		
+		TreeModel treeModel = TreeModelFactory.getTree(xmlFile);
+		
+		model.setRoot((TreeNode)treeModel.getRoot());
+	}
+
+	
+	public Action getAction(int actionIndex) {
+		
+		return controller.getAction(actionIndex);
 	}
 
 }

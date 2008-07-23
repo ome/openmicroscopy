@@ -479,7 +479,7 @@ public class DataField
 	 */
 	public boolean isFieldFilled() {
 		if (formField == null) getFormField();	// make sure there is one
-		return formField.isFieldFilled();
+		return formField.isParamFilled();
 	}
 	
 	// used for getting the destination attribute for storing value of this field

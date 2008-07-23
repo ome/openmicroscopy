@@ -22,18 +22,19 @@
  */
 package fields;
 
-import java.util.HashMap;
-
-import tree.DataFieldConstants;
 
 //Java imports
+import java.util.HashMap;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import tree.DataFieldConstants;
+
+
 /** 
- * 
+ * An abstract example
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -43,45 +44,50 @@ import tree.DataFieldConstants;
  * </small>
  * @since OME3.0
  */
-public abstract class AbstractValueObject 
+public abstract class AbstractParam 
 	implements
-	IFieldValue {
+	IParam {
 	
-	private String fieldType;
+	public static final String PARAM_TYPE = "paramType";
+	
+	public static final String PARAM_NAME = "paramName";
+	
 	
 	private HashMap<String, String> valueAttributesMap;
 
 	
-	public AbstractValueObject(String fieldType) {
-		this.fieldType = fieldType;
+	public AbstractParam(String fieldType) {
 		valueAttributesMap = new HashMap<String, String>();
+		valueAttributesMap.put(PARAM_TYPE, fieldType);
 	}
 	
+	/**
+	 * This method returns a list of the names of attributes. 
+	 * These attributes represent the experimental "value" of this
+	 * parameter (rather than other attributes such as name or default
+	 * values that represent the "template" part of the parameter. 
+	 * This method is used for eg. clearing the value of a parameter by 
+	 * setting all value attributes to null. 
+	 */
 	public abstract String[] getValueAttributes();
 
-	public abstract boolean isFieldFilled();
-
 	/**
-	 * A convenience method to test whether the attribute is included in
-	 * the list of value attributes. 
+	 * Unless specified by subclasses, parameter has no default values.
+	 * If a list of default values is given, these should be given in the 
+	 * same order as the value attributes to which they apply 
 	 * 
-	 * @param attributeName		The name of the attribute to test. 
-	 * @return		True if the attribute is a value attribute. 
+	 * @see getValueAttributes();
 	 */
-	public boolean isValueAttribute(String attributeName) {
-		
-		if (attributeName == null) return false;
-		
-		String[] attributes = getValueAttributes();
-		for (int i=0; i<attributes.length; i++) {
-			if (attributeName.equals(attributes[i]))
-				return true;
-		}
-		return false;
+	public String[] getDefaultAttributes() {
+		return new String[] {};
 	}
 	
+	public abstract boolean isParamFilled();
+
+	
+	
 	public String getFieldType() {
-		return fieldType;
+		return getAttribute(PARAM_TYPE);
 	}
 	
 	public String getAttribute(String name) {

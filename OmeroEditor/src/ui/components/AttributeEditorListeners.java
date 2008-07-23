@@ -30,6 +30,7 @@ import java.awt.event.KeyListener;
 
 import javax.swing.text.JTextComponent;
 
+import fields.IAttributes;
 import fields.IField;
 
 //Third-party libraries
@@ -61,11 +62,11 @@ public class AttributeEditorListeners
 	
 	boolean textChanged;
 	
-	IField dataField;
+	IAttributes dataField;
 	
 	String attributeName;
 	
-	public AttributeEditorListeners(IField dataField, 
+	public AttributeEditorListeners(IAttributes dataField, 
 			String attributeName) {
 		
 		this.dataField = dataField;
@@ -105,7 +106,7 @@ public class AttributeEditorListeners
 	 * @param field			The IField that will be updated with new text value	
 	 * @param attributeName	The name of the attribute to set to the new value
 	 */
-	public static void addListeners(JTextComponent textComp, IField field, 
+	public static void addListeners(JTextComponent textComp, IAttributes field, 
 			String attributeName) {
 		AttributeEditorListeners listeners = new AttributeEditorListeners(field, 
 				attributeName);

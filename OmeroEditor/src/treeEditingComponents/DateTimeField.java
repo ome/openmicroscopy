@@ -43,9 +43,10 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
-import fields.DateTimeValueObject;
+import fields.DateTimeParam;
 import fields.FieldPanel;
 import fields.IField;
+import fields.IParam;
 
 import omeroCal.view.DatePicker;
 import ui.components.CustomComboBox;
@@ -76,7 +77,7 @@ public class DateTimeField
 	extends JPanel 
 	implements PropertyChangeListener {
 	
-	private IField field;
+	private IParam param;
 	
 	
 	DatePicker datePicker;
@@ -87,9 +88,9 @@ public class DateTimeField
 	
 	HrsMinsEditor hrsMinsEditor;
 	
-	public DateTimeField (IField field) {
+	public DateTimeField (IParam param) {
 		
-		this.field = field;
+		this.param = param;
 		
 		this.setBackground(null);
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -111,7 +112,7 @@ public class DateTimeField
 		this.add(Box.createHorizontalStrut(10));
 		this.add(new JLabel( " Set Time?"));
 		
-		String timeInSecs = field.getAttribute(DateTimeValueObject.TIME_ATTRIBUTE);
+		String timeInSecs = param.getAttribute(DateTimeParam.TIME_ATTRIBUTE);
 		
 		timeChosen = new JCheckBox();
 		timeChosen.setBackground(null);
@@ -135,7 +136,7 @@ public class DateTimeField
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (HrsMinsEditor.TIME_IN_SECONDS.equals(evt.getPropertyName())) {
-			field.setAttribute(DateTimeValueObject.TIME_ATTRIBUTE, 
+			param.setAttribute(DateTimeParam.TIME_ATTRIBUTE, 
 					evt.getNewValue().toString());
 		}
 		
@@ -152,7 +153,7 @@ public class DateTimeField
 							// the same as newValue (won't fire). Can't use null
 					hrsMinsEditor.getDisplayedTimeInSecs());
 		} else {
-			field.setAttribute(DateTimeValueObject.TIME_ATTRIBUTE, 
+			param.setAttribute(DateTimeParam.TIME_ATTRIBUTE, 
 					null);
 		}
 		/*

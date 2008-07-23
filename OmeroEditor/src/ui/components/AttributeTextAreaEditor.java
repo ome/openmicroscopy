@@ -27,6 +27,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
+import fields.IAttributes;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -36,7 +38,7 @@ import tree.IDataFieldObservable;
 
 /** 
  * This is a JTextArea, that is associated with a particular attribute
- * from a dataField.
+ * from an IAttributes set.
  * When the text of this TextArea is edited (and focus lost), the dataField
  * is updated with the new text.
  * This Class also listens for changes to dataField, and updates it's
@@ -51,10 +53,9 @@ import tree.IDataFieldObservable;
  * @since OME3.0
  */
 public class AttributeTextAreaEditor 
-	extends JTextArea 
-	implements DataFieldObserver {
+	extends JTextArea {
 		
-		IAttributeSaver dataField;
+		IAttributes attributes;
 		String attributeName;
 		
 		/**
@@ -64,15 +65,12 @@ public class AttributeTextAreaEditor
 		 * 						be edited.
 		 * @param attributeName		The name of the attribute to be edited.
 		 */
-		public AttributeTextAreaEditor(IAttributeSaver dataField, 
+		public AttributeTextAreaEditor(IAttributes dataField, 
 				String attributeName) {
 			
-			this.dataField = dataField;
+			this.attributes = dataField;
 			this.attributeName = attributeName;
 			
-			if (dataField instanceof IDataFieldObservable) {
-				((IDataFieldObservable)dataField).addDataFieldObserver(this);
-			}
 			
 			this.setRows(2);
 			this.setLineWrap(true);
@@ -89,12 +87,7 @@ public class AttributeTextAreaEditor
 			this.addFocusListener(listener);
 			this.addKeyListener(listener);
 			
-			dataFieldUpdated();
+			this.setText(dataField.getAttribute(attributeName));
 		}
 		
-		public void dataFieldUpdated() {
-			String textValue = dataField.getAttribute(attributeName);
-			this.setText(textValue);
-		}
-
 	}

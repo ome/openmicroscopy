@@ -203,11 +203,6 @@ public class FieldPanel
 	 */
 	Border imageBorderHighlight;
 	
-	/**
-	 * A flag used to toggle the display of the description. 
-	 */
-	boolean showDescription = false;
-	
 	
 	/**
 	 * Creates an instance of this class.
@@ -258,8 +253,9 @@ public class FieldPanel
 		descriptionButton.setFocusable(false); // so it is not selected by tabbing
 		descriptionButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event) {
-				showDescription = !showDescription;
-				descriptionLabel.setVisible(showDescription);
+				// TODO
+				// Need to set an attribute in the dataField such as 
+				// descriptionVisible = true / false
 			}
 		});
 		descriptionButton.setBackground(null);
@@ -325,6 +321,7 @@ public class FieldPanel
 		horizontalBox.add(urlButton);
 		horizontalBox.add(defaultButton);
 		horizontalBox.add(requiredFieldButton);
+		horizontalBox.add(descriptionLabel);
 		horizontalBox.add(Box.createHorizontalStrut(10));
 		
 		/*
@@ -336,7 +333,7 @@ public class FieldPanel
 		
 		contentsPanel.add(nameLabel, BorderLayout.WEST);
 		contentsPanel.add(horizontalBox, BorderLayout.CENTER);
-		contentsPanel.add(descriptionLabel, BorderLayout.SOUTH);
+		//contentsPanel.add(descriptionLabel, BorderLayout.SOUTH);
 		
 		contentsPanel.setBorder(imageBorder);
 		
@@ -348,22 +345,33 @@ public class FieldPanel
 		 * Update components with the values from dataField
 		 */
 		setNameText(addHtmlTagsForNameLabel(
-				dataField.getAttribute(DataFieldConstants.ELEMENT_NAME)));
+				dataField.getAttribute(Field.FIELD_NAME)));
 		setDescriptionText(
-				dataField.getAttribute(DataFieldConstants.DESCRIPTION));
-		setURL(dataField.getAttribute(DataFieldConstants.URL));
+				dataField.getAttribute(Field.FIELD_DESCRIPTION));
+		setURL(dataField.getAttribute(Field.FIELD_URL));
 		
 		refreshBackgroundColour();
 		
 		refreshDefaultValue();
 		
-		/*
-		 * Add additional UI components for editing the value of this field.
-		 * Use a Factory to create the UI components, depending on the value type
-		 */
-		IFieldValue valueObject = ((Field)field).getValueObject();
-		JComponent edit = EditingComponentFactory.getEditingComponent(valueObject);
-		addFieldComponent(edit);
+		buildParamComponents();
+	}
+	
+	/**
+	 * Add additional UI components for editing the value of this field.
+	 * Use a Factory to create the UI components, depending on the value type
+	 */
+	public void buildParamComponents() {
+
+		int paramCount = dataField.getParamCount();
+		
+		for (int i=0; i<paramCount; i++) {
+			IParam param = dataField.getParamAt(i);
+			JComponent edit = EditingComponentFactory.getEditingComponent(param);
+			if (edit != null)
+				addFieldComponent(edit);
+		}
+		
 	}
 	
 	
@@ -439,12 +447,15 @@ public class FieldPanel
 		}
 	}
 	
+
+	
 	public void setDescriptionText(String description) {
 		if ((description != null) && (description.trim().length() > 0)) {
 			String htmlDescription = "<html><div style='width:200px; padding-left:30px;'>" + description + "</div></html>";
 			descriptionButton.setToolTipText(htmlDescription);
 			descriptionButton.setVisible(true);
-			descriptionLabel.setVisible(showDescription);
+			// TODO setVisibility of label based on dataField attribute 
+			//descriptionLabel.setVisible(showDescription);
 			descriptionLabel.setFont(XMLView.FONT_TINY);
 			descriptionLabel.setText(htmlDescription);
 		}
@@ -551,19 +562,35 @@ public class FieldPanel
 	}
 
 
+	/**
+	 * If the size of a sub-component of this panel changes, 
+	 * the JTree in which it is contained must be required to 
+	 * re-draw the panel. 
+	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		
 		if (SIZE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
 		
-			if ((tree != null) && (treeNode !=null)) {
-				
-				TreePath path = new TreePath(treeNode.getPath());
-				
-				tree.getUI().startEditingAtPath(tree, path);
-			}
+			refreshSizeOfPanel();
 		}
 	}
 
+	
+	/**
+	 * This method is used to refresh the size of this panel in the JTree.
+	 * It must also remain in the editing mode, otherwise the user who
+	 * is currently editing it will be required to click again to 
+	 * continue editing.
+	 * This can be achieved by calling startEditingAtPath(tree, path)
+	 */
+	public void refreshSizeOfPanel() {
+		if ((tree != null) && (treeNode !=null)) {
+			
+			TreePath path = new TreePath(treeNode.getPath());
+			
+			tree.getUI().startEditingAtPath(tree, path);
+		}
+	}
 	
 
 }

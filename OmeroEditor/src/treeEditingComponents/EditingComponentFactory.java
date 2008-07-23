@@ -24,13 +24,12 @@ package treeEditingComponents;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 import tree.DataFieldConstants;
 
-import fields.IFieldValue;
+import fields.AbstractParam;
+import fields.IParam;
+import fields.SingleParam;
 
 //Java imports
 
@@ -67,43 +66,33 @@ import fields.IFieldValue;
  */
 public class EditingComponentFactory {
 	
-	public static JComponent getEditingComponent(IFieldValue valueObject) {
+	public static JComponent getEditingComponent(IParam paramObject) {
 		
-		String inputType = valueObject.getFieldType();
+		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
 		
 		if (inputType == null) {
 			return new JPanel();
 		}
 		
-		if (inputType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
-			return new TextFieldEditor(valueObject);
+		if (inputType.equals(SingleParam.TEXT_LINE_PARAM)) {
+			return new TextFieldEditor(paramObject);
 		} 
 		
 		if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			return new DateTimeField(valueObject);
+			return new DateTimeField(paramObject);
 		} 
+		
+		if (inputType.equals(SingleParam.TEXT_BOX_PARAM)) {
+			return new TextBoxEditor(paramObject);
+		}
 		
 		if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
 			return new JPanel();
 		}
 		
-		return new JPanel();
+		return null;
 	}
 	
-	public static JComponent getEditingComponent(IFieldValue valueObj, 
-			JTree tree,
-			TreeNode treeNode
-			) {
-		
-		JComponent comp = getEditingComponent(valueObj);
-		
-		if (comp instanceof DateTimeField) {
-			DateTimeField field = (DateTimeField)comp;
-			field.setTree(tree);
-			field.setTreeNode((DefaultMutableTreeNode)treeNode);
-		}
-		
-		return comp;
-	}
+	
 
 }

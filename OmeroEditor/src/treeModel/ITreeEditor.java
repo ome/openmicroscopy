@@ -22,7 +22,11 @@
  */
 package treeModel;
 
+import java.io.File;
+
+import javax.swing.Action;
 import javax.swing.JComponent;
+import javax.swing.undo.UndoableEdit;
 
 //Java imports
 
@@ -49,4 +53,13 @@ public interface ITreeEditor {
 	 */
 	public JComponent getUI();
 	
+	/**
+	 * Opens an XML file, populating the TreeModel
+	 * 
+	 * @param xmlFile	The XML OMERO.editor file to open. 
+	 */
+	public void openFile(File xmlFile);
+	
+	
+	public Action getAction(int actionIndex);
 }

@@ -1,5 +1,5 @@
  /*
- * fields.TextValue 
+ * treeEditingComponents.TextBoxEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,9 +20,14 @@
  *
  *------------------------------------------------------------------------------
  */
-package fields;
+package treeEditingComponents;
 
-import tree.DataFieldConstants;
+import java.awt.Dimension;
+
+import javax.swing.JPanel;
+
+import ui.components.AttributeTextAreaEditor;
+import fields.IParam;
 
 //Java imports
 
@@ -30,8 +35,13 @@ import tree.DataFieldConstants;
 
 //Application-internal dependencies
 
+
 /** 
- * 
+ * This is an editing component that edits a text value in a 
+ * IFieldValue object. 
+ * If the text in this component is changed, then the update occurs
+ * when the focus is lost, using the IFieldValue.setAttribute(name, value) method.
+ * This behavior is managed by the AttributeEditorListeners class.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -41,35 +51,27 @@ import tree.DataFieldConstants;
  * </small>
  * @since OME3.0
  */
-public class TextValueObject 
-	extends AbstractValueObject {
-
-	/**
-	 * Creates an instance. 
-	 * 
-	 * @param fieldType		The String defining the field type
-	 */
-	public TextValueObject(String fieldType) {
-		super(fieldType);
-	}
+public class TextBoxEditor 
+	extends JPanel {
 	
-	
-	/**
-	 * The value attribute is a single value
-	 */
-	public String[] getValueAttributes() {
+	public TextBoxEditor(IParam param) {
 		
-		return new String[] {DataFieldConstants.VALUE};
-	}
-
-	/**
-	 * This field is filled if the value isn't null, and 
-	 * is not an empty string. 
-	 */
-	public boolean isFieldFilled() {
-		String textValue = getAttribute(getValueAttributes()[0]);
+		super();
+		setBackground(null);
 		
-		return (textValue != null && textValue.length() > 0);
+		String[] attributes = param.getValueAttributes();
+		String attributeName = "value";		// default
+		if (attributes.length > 0) {
+			attributeName = attributes[0];
+		}
+		
+		AttributeTextAreaEditor textBox = new AttributeTextAreaEditor(param, 
+				attributeName);
+		
+		textBox.setPreferredSize(new Dimension(300, 100));
+		this.add(textBox);
+		
+		// System.out.println(attributeName + " " + value);
 	}
 
 }

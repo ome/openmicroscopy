@@ -1,5 +1,5 @@
  /*
- * fields.IField 
+ * fields.DateTimeValueObject 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,6 +22,8 @@
  */
 package fields;
 
+import tree.DataFieldConstants;
+
 //Java imports
 
 //Third-party libraries
@@ -29,13 +31,9 @@ package fields;
 //Application-internal dependencies
 
 /** 
- * This interface specifies methods of a Field, which corresponds to a node
- * in the data tree.
- * IField extends the IValue interface, which has getAttribute() and setAttribute() 
- * methods.
- * A field may contain several values, so the IField has methods to get the 
- * count of values, and to get a value by index.
- * 
+ * An experimental parameter that represents a Date (with optional Time).
+ * Also an optional Alarm time can be set (in seconds before 
+ * (negative value) or after the Date/Time).
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,18 +43,41 @@ package fields;
  * </small>
  * @since OME3.0
  */
-public interface IField 
-	extends IAttributes {
-	
+public class DateTimeParam extends AbstractParam {
 
-	public int getParamCount();
+	public static final String DATE_ATTRIBUTE = DataFieldConstants.UTC_MILLISECS;
 	
-	public IParam getParamAt(int index);
+	public static final String TIME_ATTRIBUTE = DataFieldConstants.SECONDS;
 	
-	public void addParam(IParam param);
+	public static final String ALARM_SECONDS = DataFieldConstants.ALARM_SECONDS;
 	
-	public boolean removeParam(IParam param);
+	/**
+	 * Creates an instance. 
+	 * 
+	 * @param fieldType		The String defining the field type
+	 */
+	public DateTimeParam(String fieldType) {
+		super(fieldType);
+	}
 	
-	public boolean isFieldFilled();
+	
+	/**
+	 * The value attribute is a single value
+	 */
+	public String[] getValueAttributes() {
+		
+		return new String[] {DATE_ATTRIBUTE, 
+				TIME_ATTRIBUTE, ALARM_SECONDS};
+	}
+
+	/**
+	 * This field is filled if the DATE value isn't null, and 
+	 * is not an empty string. 
+	 */
+	public boolean isParamFilled() {
+		String dateValue = getAttribute(DATE_ATTRIBUTE);
+		
+		return (dateValue != null && dateValue.length() > 0);
+	}
 
 }

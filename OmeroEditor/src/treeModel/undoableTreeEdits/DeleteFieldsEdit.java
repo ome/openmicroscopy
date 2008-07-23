@@ -1,5 +1,5 @@
  /*
- * treeModel.editActions.DeleteFields 
+ * treeModel.undoableTreeEdits.DeleteFields 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,25 +20,25 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel.editActions;
+package treeModel.undoableTreeEdits;
+
+//Java imports
 
 import java.util.ArrayList;
 
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
-import javax.swing.undo.AbstractUndoableEdit;
-
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * This is the UndoableEdit for deleting fields from a JTree.
+ * The constructor takes an instance of the JTree to be edited. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -48,20 +48,73 @@ import javax.swing.undo.AbstractUndoableEdit;
  * </small>
  * @since OME3.0
  */
-public class DeleteFields 
-extends AbstractUndoableEdit {
-	
+public class DeleteFieldsEdit 
+	extends UndoableTreeEdit {
+
+	/**
+	 * A list of the fields that are deleted.
+	 * A reference to these fields must be kept in order that they 
+	 * can be undeleted. 
+	 */
 	ArrayList<MutableTreeNode> deletedFields;
+	
+	/**
+	 * The child index of the first deleted field. 
+	 * This is required so that when fields are undeleted, they can be 
+	 * added back to their parent in the right order, with respect to
+	 * siblings that weren't deleted.  
+	 */
 	int indexOfFirstHighlightedField;
+	
+	/**
+	 * The parent of the deleted fields.
+	 * This is needed so that deleted fields can be added back to this parent.
+	 */
 	DefaultMutableTreeNode parentNode;
-	
-	DefaultTreeModel treeModel;
-	
-	public DeleteFields (DefaultTreeModel treeModel, TreePath[] selectedPaths) {
-		
-		this.treeModel = treeModel;
+
+	/**
+	 * Creates an instance of this class. 
+	 * If JTree tree is null, it is necessary to call 
+	 * setTree(JTree) before this Edit can be used. 
+	 * 
+	 * @param tree		The JTree to edit (delete fields)
+	 */
+	public DeleteFieldsEdit(JTree tree) {
+		super(tree);
 		
 		deletedFields = new ArrayList<MutableTreeNode>();
+	}
+
+	/**
+	 * Can only delete fields if the number of selected fields is not zero
+	 * and the selected field is not the root. 
+	 */
+	@Override
+	public boolean canDo() {
+		
+		if (tree == null) return false;
+		
+		if (tree.getSelectionCount() == 0)
+			return false;
+		/*
+		 * Need to check the root node is not selected
+		 */
+		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)
+			tree.getLastSelectedPathComponent();
+		// if the root is selected, can't delete it. Return false
+		return(! selectedNode.isRoot());
+	}
+
+	/**
+	 * Performs the delete fields operation.
+	 * Stores a list of the deleted fields for undo.
+	 */
+	@Override
+	public void doEdit() {
+		
+		if (! canDo() ) return;
+		
+		TreePath[] selectedPaths = tree.getSelectionPaths();
 		
 		if (selectedPaths.length > 0) {
 			DefaultMutableTreeNode firstField = (DefaultMutableTreeNode)
@@ -86,28 +139,51 @@ extends AbstractUndoableEdit {
 		
 	}
 	
-	public static boolean canDo(TreePath[] selectedPaths) { 
-		return (selectedPaths.length > 0);
-	}
-	
+	/**
+	 * Adds the deleted fields back to their parent, then selects them,
+	 * so they are highlighted. 
+	 */
 	public void undo() {
 		TreeModelMethods.insertNodesInto(treeModel, deletedFields, parentNode,
 				indexOfFirstHighlightedField);
+		/*
+		 * Select the undeleted nodes
+		 */
+		TreePath[] paths = new TreePath[deletedFields.size()];
+		int index = 0;
+		for (MutableTreeNode node : deletedFields) {
+			DefaultMutableTreeNode dnode = (DefaultMutableTreeNode)node;
+			paths[index++] = new TreePath(dnode.getPath());
 		}
-	public void redo() {
-		TreeModelMethods.removeNodesFromParent(treeModel, deletedFields);
-		
-		System.out.println("EditDeleteField redo()");
+		tree.setSelectionPaths(paths);
 	}
 	
+	/**
+	 * Re-deletes the fields. 
+	 * No need to change selection, as the JTree will remove them from 
+	 * the selected paths. 
+	 */
+	public void redo() {
+		TreeModelMethods.removeNodesFromParent(treeModel, deletedFields);
+	}
+	
+	/**
+	 * Presentation name is "Delete Fields"
+	 */
 	public String getPresentationName() {
 		     return "Delete Fields";
 	}
 	
+	/**
+	 * Can always undo
+	 */
 	 public boolean canUndo() {
 	         return true;
 	  }
 
+	 /**
+	  * Can always redo
+	  */
 	  public boolean canRedo() {
 	         return true;
 	  }

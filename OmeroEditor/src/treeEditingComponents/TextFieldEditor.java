@@ -32,7 +32,7 @@ import javax.swing.JTextField;
 
 import ui.components.AttributeEditorListeners;
 
-import fields.IFieldValue;
+import fields.IParam;
 
 
 /** 
@@ -53,18 +53,18 @@ import fields.IFieldValue;
 public class TextFieldEditor 
 	extends JTextField {
 	
-	public TextFieldEditor(IFieldValue field) {
+	public TextFieldEditor(IParam param) {
 		
 		super();
 		
-		String[] attributes = field.getValueAttributes();
+		String[] attributes = param.getValueAttributes();
 		String attributeName = "value";		// default
 		if (attributes.length > 0) {
 			attributeName = attributes[0];
 		}
-		String value = field.getAttribute(attributeName);
+		String value = param.getAttribute(attributeName);
 		
-		AttributeEditorListeners.addListeners(this, field, attributeName);
+		AttributeEditorListeners.addListeners(this, param, attributeName);
 		
 		// System.out.println(attributeName + " " + value);
 		setText(value);

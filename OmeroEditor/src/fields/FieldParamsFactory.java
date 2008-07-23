@@ -22,27 +22,13 @@
  */
 package fields;
 
-import tree.DataFieldConstants;
-import ui.fieldEditors.FieldEditorCheckBox;
-import ui.fieldEditors.FieldEditorCustom;
-import ui.fieldEditors.FieldEditorDate;
-import ui.fieldEditors.FieldEditorDateTime;
-import ui.fieldEditors.FieldEditorDropDown;
-import ui.fieldEditors.FieldEditorFixed;
-import ui.fieldEditors.FieldEditorMemo;
-import ui.fieldEditors.FieldEditorNumber;
-import ui.fieldEditors.FieldEditorOLS;
-import ui.fieldEditors.FieldEditorObservation;
-import ui.fieldEditors.FieldEditorProtocol;
-import ui.fieldEditors.FieldEditorTable;
-import ui.fieldEditors.FieldEditorText;
-import ui.fieldEditors.FieldEditorTime;
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+
+import tree.DataFieldConstants;
 
 /** 
  * 
@@ -55,23 +41,23 @@ import ui.fieldEditors.FieldEditorTime;
  * </small>
  * @since OME3.0
  */
-public class FieldValueFactory {
+public class FieldParamsFactory {
 	
-	public static IFieldValue getFieldValue(String inputType) {
+	public static IParam getFieldParam(String paramType) {
 		
-		IFieldValue fieldValue = null;
+		IParam fieldValue = null;
 		
-		if (inputType == null) {
-			fieldValue = new NoValue(DataFieldConstants.FIXED_PROTOCOL_STEP);
+		if (paramType == null) {
+			fieldValue = new NoParam(DataFieldConstants.FIXED_PROTOCOL_STEP);
 		}
-		else if (inputType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
-			fieldValue = new TextValueObject(DataFieldConstants.TEXT_ENTRY_STEP);
+		else if (paramType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
+			fieldValue = new SingleParam(DataFieldConstants.TEXT_ENTRY_STEP);
 		}
-		else if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
-			fieldValue = new NoValue(DataFieldConstants.FIXED_PROTOCOL_STEP);
+		else if (paramType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
+			fieldValue = new NoParam(DataFieldConstants.FIXED_PROTOCOL_STEP);
 		}
-		else if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			fieldValue = new DateTimeValueObject(DataFieldConstants.DATE_TIME_FIELD);
+		else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
+			fieldValue = new DateTimeParam(DataFieldConstants.DATE_TIME_FIELD);
 		}
 		
 		return fieldValue;

@@ -1,5 +1,5 @@
  /*
- * treeModel.TreeModel 
+ * treeModel.undoableTreeEdits.UndoRedoListener 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,10 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel;
-
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
+package treeModel.editActions;
 
 //Java imports
 
@@ -32,7 +29,11 @@ import javax.swing.tree.TreeNode;
 //Application-internal dependencies
 
 /** 
- * 
+ * A listener interface for undo() or redo() events.
+ * Has a single method, undoRedoPerformed().
+ * Implemented by {#link RedoEditAction} and {#link UndoEditAction}
+ * so that (for example) the Redo Action becomes enabled following
+ * an undo().
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -42,12 +43,13 @@ import javax.swing.tree.TreeNode;
  * </small>
  * @since OME3.0
  */
-public class TreeModel 
-	extends DefaultTreeModel {
-
-	public TreeModel(TreeNode root) {
-		super(root);
-		// TODO Auto-generated constructor stub
-	}
+public interface UndoRedoListener {
+	
+	/**
+	 * Should be called following an undo() or a redo() event. 
+	 * Listeners can therefore update their status based on the new 
+	 * undo/redo queue. 
+	 */
+	public void undoRedoPerformed();
 
 }

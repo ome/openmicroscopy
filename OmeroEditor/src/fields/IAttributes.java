@@ -1,5 +1,5 @@
  /*
- * fields.NoValue 
+ * fields.IAttributes 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -29,8 +29,7 @@ package fields;
 //Application-internal dependencies
 
 /** 
- * This is the "Value" object for a field that has no experimental values.
- * Ie, a fixed field that does not change. 
+ * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -40,26 +39,31 @@ package fields;
  * </small>
  * @since OME3.0
  */
-public class NoValue 
-	extends AbstractValueObject {
-
-	public NoValue(String fieldType) {
-		super(fieldType);
-	}
+public interface IAttributes {
 	
 	/**
-	 * No values for this field.
+	 * Returns the string value of the named attribute.
+	 * 
+	 * @param name	Name of the attribute
+	 * @return		The value of the attribute
 	 */
-	public String[] getValueAttributes() {
-		return new String[] {};
-	}
-
+	public String getAttribute(String name);
+	
 	/**
-	 * A fixed field is never unfilled. 
-	 * Never needs completing.
+	 * Sets the value of the named attribute.
+	 * 
+	 * @param name	The name of the attribute	
+	 * @param value	The value of the attribute
 	 */
-	public boolean isFieldFilled() {
-		return true;
-	}
+	public void setAttribute(String name, String value);
+	
+	/**
+	 * A method for querying the value of a boolean attribute
+	 * 
+	 * @param attributeName		The name of the attribute
+	 * @return		True if the attribute value is "true". 
+	 */
+	public boolean isAttributeTrue(String attributeName);
+
 
 }

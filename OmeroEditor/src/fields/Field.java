@@ -23,13 +23,34 @@
 
 package fields;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import tree.DataFieldConstants;
 
-
+/**
+ * 
+ * 
+ * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 public class Field 
 	implements IField {
+	
+	public static final String FIELD_NAME = "fieldName";
+	
+	public static final String FIELD_DESCRIPTION = "fieldDescription";
+	
+	public static final String FIELD_URL = "fieldUrl";
+	
+	
+	private List<IParam> fieldParams;
 
 	HashMap<String, String> allAttributesMap;
 	
@@ -39,65 +60,43 @@ public class Field
 	 * It represents the experimental parameters that are stored by this
 	 * field. 
 	 */
-	private IFieldValue fieldValue;
+	//private IFieldValue fieldValue;
 	
 	public Field() {
-		this("untitled", null, DataFieldConstants.FIXED_PROTOCOL_STEP);
+		this("untitled");
 	}
 	
-	public Field(String name, String value, String fieldType) {
+	public Field(String name) {
 		
 		allAttributesMap = new HashMap<String, String>();
+		fieldParams = new ArrayList<IParam>();
 		
-		fieldValue = FieldValueFactory.getFieldValue(fieldType);
+		setAttribute(FIELD_NAME, name);
 		
-		setAttribute(DataFieldConstants.ELEMENT_NAME, name);
-		setAttribute(DataFieldConstants.VALUE, value);
 	}
 	
 	public String getAttribute(String name) {
 		//System.out.println("Field getAttribute()");
-		if (fieldValue.isValueAttribute(name)) {
-			return fieldValue.getAttribute(name);
-		}
 		
 		return allAttributesMap.get(name);
 	}
 	
 	public void setAttribute(String name, String value) {
-		System.out.println("Field setAttribute() " + name + " = " + value);
-		if (fieldValue.isValueAttribute(name)) {
-			fieldValue.setAttribute(name, value);
-		}
+		
 		allAttributesMap.put(name, value);
 	}
 	
 	public String toString() {
-		return getAttribute(DataFieldConstants.ELEMENT_NAME) + ": " + 
-		getAttribute(DataFieldConstants.VALUE);
+		return getAttribute(DataFieldConstants.ELEMENT_NAME);
 	}
 
+	
 	public boolean isAttributeTrue(String attributeName) {
 		String value = getAttribute(attributeName);
 		return DataFieldConstants.TRUE.equals(value);
 	}
 	
-	public IFieldValue getValueObject() {
-		return fieldValue;
-	}
-	
-	/**
-	 * Gets the names of the attributes where this field stores its "value"s.
-	 * This is used eg. (if a single value is returned)
-	 * as the destination to copy the default value when defaults are loaded.
-	 * Also used by EditClearFields to set all values back to null. 
-	 * This method delegates to the Value object for this field.
-	 *  
-	 * @return	the names of the attributes that holds the "value" of this field
-	 */
-	public String[] getValueAttributes() {
-		return fieldValue.getValueAttributes();
-	}
+
 	
 	/**
 	 * This method tests to see whether the field has been filled out. 
@@ -112,6 +111,28 @@ public class Field
 	 * @return	True if the field has been filled out by user. Required values are not null. 
 	 */
 	public boolean isFieldFilled() {
-		return fieldValue.isFieldFilled();
+		
+		for (IParam param : fieldParams) {
+			if (! param.isParamFilled()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public int getParamCount() {
+		return fieldParams.size();
+	}
+
+	public IParam getParamAt(int index) {
+		return fieldParams.get(index);
+	}
+
+	public void addParam(IParam param) {
+		fieldParams.add(param);
+	}
+
+	public boolean removeParam(IParam param) {
+		return fieldParams.remove(param);
 	}
 }

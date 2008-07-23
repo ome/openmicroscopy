@@ -24,7 +24,13 @@ package treeModel;
 
 import java.awt.BorderLayout;
 
+import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import treeModel.editActions.AbstractEditorAction;
 
 //Java imports
 
@@ -46,7 +52,7 @@ import javax.swing.JPanel;
 public class TreeEditorUI 
 	extends JPanel {
 	
-	private TreeModel model;
+	private TreeEditorModel model;
 	
 	private TreeEditorControl controller;
 	
@@ -54,7 +60,7 @@ public class TreeEditorUI
 	private TreeUI treeUI;
 	
 	
-	public void initialise(TreeModel model, TreeEditorControl controller) {
+	public void initialise(TreeEditorModel model, TreeEditorControl controller) {
 		
 		this.model = model;
 		
@@ -70,7 +76,22 @@ public class TreeEditorUI
 		
 		treeUI = new TreeUI(model);
 		
+		Box toolBarBox = Box.createHorizontalBox();
+		
+		addActionButton(toolBarBox, TreeEditorControl.DELETE_FIELD_ACTION);
+		addActionButton(toolBarBox, TreeEditorControl.UNDO_ACTION);
+		addActionButton(toolBarBox, TreeEditorControl.REDO_ACTION);
+		
+		add(toolBarBox, BorderLayout.NORTH);
 		add(treeUI, BorderLayout.CENTER);
+	}
+	
+	public void addActionButton(JComponent comp, int index) {
+		Action newAction = controller.getAction(index);
+		if (newAction instanceof AbstractEditorAction) {
+			((AbstractEditorAction)newAction).setTree(treeUI.getJTree());
+		}
+		comp.add(new JButton(newAction));
 	}
 
 }
