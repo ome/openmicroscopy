@@ -45,10 +45,28 @@ import tree.DataFieldConstants;
  */
 public class DateTimeParam extends AbstractParam {
 
+	/**
+	 * A property of this parameter. 
+	 * This stores a Date (not time) in UTC milliseconds.
+	 * Used by the Date-Picker 
+	 * If the number of millisecs is equivalent to a small number of days (<10)
+	 * then this is a "relative" date, a number of days after a previous date.
+	 */
 	public static final String DATE_ATTRIBUTE = DataFieldConstants.UTC_MILLISECS;
 	
+	/**
+	 * A property of this parameter. 
+	 * This stores a Time of Day in Seconds. Optional. 
+	 */
 	public static final String TIME_ATTRIBUTE = DataFieldConstants.SECONDS;
 	
+	/**
+	 * A property of this parameter. 
+	 * This stores an alarm time in seconds, relative to the Date-Time
+	 * specified by the other attributes of this parameter.
+	 * This will be a negative number if the alarm is before the event.
+	 * Eg 1 hour before = "-3600"
+	 */
 	public static final String ALARM_SECONDS = DataFieldConstants.ALARM_SECONDS;
 	
 	/**
@@ -62,7 +80,7 @@ public class DateTimeParam extends AbstractParam {
 	
 	
 	/**
-	 * The value attribute is a single value
+	 * This parameter stores its value in 3 attributes. 
 	 */
 	public String[] getValueAttributes() {
 		

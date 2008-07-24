@@ -32,7 +32,9 @@ import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import javax.swing.undo.UndoableEditSupport;
 
+import treeModel.editActions.AddFieldAction;
 import treeModel.editActions.DeleteFieldsAction;
+import treeModel.editActions.DuplicateFieldsAction;
 import treeModel.editActions.RedoEditAction;
 import treeModel.editActions.UndoEditAction;
 import treeModel.undoableTreeEdits.ObservableUndoManager;
@@ -72,6 +74,11 @@ public class TreeEditorControl {
 	
 	public static final Integer REDO_ACTION = new Integer(3);
 	
+	public static final Integer ADD_FIELD_ACTION = new Integer(4);
+	
+	public static final Integer DUPLICATE_FIELDS_ACTION = new Integer(5);
+	
+	
 	public void initialise(ITreeEditor model, TreeEditorUI view) {
 		
 		this.model = model;
@@ -90,9 +97,11 @@ public class TreeEditorControl {
 		
 		actions = new HashMap<Integer, Action>();
 		
+		actions.put(ADD_FIELD_ACTION, new AddFieldAction(undoSupport));
 		actions.put(DELETE_FIELD_ACTION, new DeleteFieldsAction(undoSupport));
 		actions.put(UNDO_ACTION, new UndoEditAction(undoManager, undoSupport));
 		actions.put(REDO_ACTION, new RedoEditAction(undoManager, undoSupport));
+		actions.put(DUPLICATE_FIELDS_ACTION, new DuplicateFieldsAction(undoSupport));
 		
 	}
 	

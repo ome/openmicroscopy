@@ -34,7 +34,17 @@ import tree.DataFieldConstants;
 
 
 /** 
- * An abstract example
+ * An Abstract superclass of the Parameter object used to model an 
+ * experimental variable (or parameter) within a Field (or tree node). 
+ * All Parameter objects store their data in an attribute Map<String, String>.
+ * 
+ * Subclasses must implement the getValueAttributes() method to provide an
+ * Array of the attribute names that they use to store the "value" of the
+ * parameter (as opposed to name etc).
+ * Subclasses may want to implement getDefaultAttributes(), if they
+ * have attributes for storing default values.
+ * Subclasses must also implement isParamFilled(), depending on how many
+ * attributes must be not null in order that the field is 'valid'
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -48,8 +58,17 @@ public abstract class AbstractParam
 	implements
 	IParam {
 	
+	/**
+	 * A property of a Parameter object that indicates what type of data
+	 * the parameter is. Eg. {link# SingleParam.TEXT_LINE_PARAM}
+	 */
 	public static final String PARAM_TYPE = "paramType";
 	
+	/**
+	 * A property to give a name to this Parameter object. 
+	 * Users will set this and it can be displayed in UI. 
+	 * eg "Temperature"
+	 */
 	public static final String PARAM_NAME = "paramName";
 	
 	
@@ -59,6 +78,26 @@ public abstract class AbstractParam
 	public AbstractParam(String fieldType) {
 		valueAttributesMap = new HashMap<String, String>();
 		valueAttributesMap.put(PARAM_TYPE, fieldType);
+	}
+	
+	/**
+	 * Convenience method for getting all the attributes of this class,
+	 * eg for duplicating an instance.
+	 * 	
+	 * @return		A map of all the attributes for this Parameter
+	 */
+	public HashMap<String, String> getAllAttributes() {
+		return valueAttributesMap;
+	}
+	
+	/**
+	 * Convenience method for setting all the attributes of this class,
+	 * eg for cloning an instance.
+	 * 	
+	 * @newAttributes		A map of all the new attributes for this Parameter
+	 */
+	public void setAllAttributes(HashMap<String, String> newAttributes) {
+		valueAttributesMap = newAttributes;
 	}
 	
 	/**
@@ -82,22 +121,36 @@ public abstract class AbstractParam
 		return new String[] {};
 	}
 	
+	/**
+	 * Should return true if the parameter is filled. 
+	 */
 	public abstract boolean isParamFilled();
-
 	
-	
+	/**
+	 * Returns a string to identify the type of field. 
+	 * @return
+	 */
 	public String getFieldType() {
 		return getAttribute(PARAM_TYPE);
 	}
 	
+	/**
+	 * @see		IAttributes.getAttribute(String name)
+	 */
 	public String getAttribute(String name) {
 		return valueAttributesMap.get(name);
 	}
 
+	/**
+	 * @see		IAttributes.isAttributeTrue(String attributeName)
+	 */
 	public boolean isAttributeTrue(String attributeName) {
 		return (DataFieldConstants.TRUE.equals(getAttribute(attributeName)));
 	}
 
+	/**
+	 * @see		IAttributes.setAttribute(String name, String value)
+	 */
 	public void setAttribute(String name, String value) {
 		System.out.println("ValueObject setAttribute() " + name + " = " + value);
 		valueAttributesMap.put(name, value);

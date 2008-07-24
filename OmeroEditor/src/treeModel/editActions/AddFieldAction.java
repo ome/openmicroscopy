@@ -1,5 +1,5 @@
  /*
- * treeModel.editActions.DeleteFieldsAction 
+ * treeModel.editActions.AddFieldAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -33,16 +33,16 @@ import javax.swing.undo.UndoableEditSupport;
 
 //Application-internal dependencies
 
-import treeModel.undoableTreeEdits.DeleteFieldsEdit;
+import treeModel.undoableTreeEdits.AddFieldEdit;
 import treeModel.undoableTreeEdits.UndoableTreeEdit;
 import util.ImageFactory;
 
 
 /** 
- * This Action is used to delete fields from a JTree. 
+ * This Action is used to add a field to a JTree. 
  * The setTree(JTree) method must be called before this Action can 
  * be used.
- * This class wraps an instance of the UndoableEdit subclass DeleteFields.
+ * This class wraps an instance of the UndoableEdit subclass AddFieldEdit.
  * On actionPerformed(), it creates a new instance of this class and
  * posts it to the undo/redo queue specified in the constructor.  
  *
@@ -54,38 +54,38 @@ import util.ImageFactory;
  * </small>
  * @since OME3.0
  */
-public class DeleteFieldsAction 
+public class AddFieldAction 
 	extends AbstractEditorAction {
 	
 	/**
 	 * Creates an instance of this class.
 	 * setTree(JTree tree) needs to be called before this edit can be used.
-	 * This class wraps an instance of DeleteFieldsEdit, to which the 
+	 * This class wraps an instance of AddFieldEdit, to which the 
 	 * actionPerformed() method delegates. 
 	 * 
 	 * @see	{#link AbstractEditorAction}
 	 * 
 	 * @param undoSupport	The UndoableSupport to post edits to the undo/redo queue
 	 */
-	public DeleteFieldsAction(UndoableEditSupport undoSupport) {
+	public AddFieldAction(UndoableEditSupport undoSupport) {
 		super(undoSupport);
 		
 		/*
 		 * treeUI is null at this point.
 		 */
-		undoableTreeEdit = new DeleteFieldsEdit(treeUI);
+		undoableTreeEdit = new AddFieldEdit(treeUI);
 		
-		putValue(Action.NAME, "Delete Fields");
-		putValue(Action.SHORT_DESCRIPTION, "Delete the currently selected fields");
-		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.DELETE_ICON));  
+		putValue(Action.NAME, "Add Field");
+		putValue(Action.SHORT_DESCRIPTION, "Add a new field");
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.ADD_ICON)); 
 	}
 
 	/**
-	 * This creates a new instance of DeleteFieldsEdit, calls it's doEdit()
+	 * This creates a new instance of AddFieldEdit, calls it's doEdit()
 	 * method and posts it to the undo/redo queue. 
 	 */
 	public void actionPerformed(ActionEvent e) {
-		UndoableTreeEdit edit = new DeleteFieldsEdit(treeUI);
+		UndoableTreeEdit edit = new AddFieldEdit(treeUI);
 		
 		edit.doEdit();
 		

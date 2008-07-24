@@ -53,7 +53,6 @@ import javax.swing.tree.TreePath;
 //Application-internal dependencies
 
 import tree.DataFieldConstants;
-import treeEditingComponents.DateTimeField;
 import treeEditingComponents.EditingComponentFactory;
 import ui.XMLView;
 import ui.components.ImageBorder;
@@ -65,6 +64,7 @@ import util.ImageFactory;
  * This is the UI component that represents a field in the JTree.
  * Displays a name, description etc. and holds other UI 
  * components that are specific to the types of data being edited. 
+ * These components display and edit the Parameters of this field.
  * 
 * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
 * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

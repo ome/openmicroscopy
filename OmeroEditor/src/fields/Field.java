@@ -26,11 +26,15 @@ package fields;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import tree.DataFieldConstants;
 
 /**
- * 
+ * This is the data object that occupies a node of the tree hierarchy. 
+ * It has name, description, url, stored in an AttributeMap, and may
+ * have 0, 1 or more Parameter objects {link# IParam} to store 
+ * experimental variables, or parameters. 
  * 
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -43,29 +47,70 @@ import tree.DataFieldConstants;
 public class Field 
 	implements IField {
 	
+	/**
+	 * A property of this field. The attribute for an (optional) Name.
+	 */
 	public static final String FIELD_NAME = "fieldName";
 	
+	/**
+	 * A property of this field. The attribute for an optional Description.
+	 */
 	public static final String FIELD_DESCRIPTION = "fieldDescription";
 	
+	/**
+	 * A property of this field. The attribute for an optional Url.
+	 */
 	public static final String FIELD_URL = "fieldUrl";
 	
-	
+	/**
+	 * The list of Parameters, representing experimental variables for this 
+	 * field.
+	 */
 	private List<IParam> fieldParams;
 
+	/**
+	 * A map of attributes for this Field. eg Name, Description etc. 
+	 */
 	HashMap<String, String> allAttributesMap;
 	
 	/**
-	 * The "Value" of the field. 
-	 * This could be a simple string, or a mixture of dates, times etc. 
-	 * It represents the experimental parameters that are stored by this
-	 * field. 
+	 * Default constructor. Sets the name of the field to "untitled"
 	 */
-	//private IFieldValue fieldValue;
-	
 	public Field() {
 		this("untitled");
 	}
 	
+	/**
+	 * Duplicates a field by making a copy of the given field. 
+	 * 
+	 * @param cloneField	The field to be copied. 
+	 */
+	public Field(Field cloneField) {
+		this();
+		
+		/*
+		 * Clone all attributes
+		 */
+		allAttributesMap = new HashMap<String,String>
+				(cloneField.getAllAttributes());
+		
+		/*
+		 * Clone the parameter objects...
+		 */
+		for (int i=0; i<cloneField.getParamCount(); i++) {
+			IParam param = cloneField.getParamAt(i);
+			IParam newP = FieldParamsFactory.cloneParam(param);
+			addParam(newP);
+		}
+	}
+	
+	/**
+	 * A constructor used to set the name of the field.
+	 * This constructor is called by the others, in order to initialise
+	 * the attributesMap and parameters list. 
+	 * 
+	 * @param name		A name given to this field. 
+	 */
 	public Field(String name) {
 		
 		allAttributesMap = new HashMap<String, String>();
@@ -75,22 +120,41 @@ public class Field
 		
 	}
 	
+	/**
+	 * gets an attribute in the attributesMap
+	 */
 	public String getAttribute(String name) {
 		//System.out.println("Field getAttribute()");
 		
 		return allAttributesMap.get(name);
 	}
 	
+	/**
+	 * gets all attributes in the attributesMap
+	 */
+	public Map getAllAttributes() {
+		return allAttributesMap;
+	}
+	
+	/**
+	 * sets an attribute in the attributesMap
+	 */
 	public void setAttribute(String name, String value) {
 		
 		allAttributesMap.put(name, value);
 	}
 	
+	/**
+	 * For display etc. Simply returns the name...
+	 */
 	public String toString() {
 		return getAttribute(DataFieldConstants.ELEMENT_NAME);
 	}
 
-	
+	/**
+	 * Convenience method for querying the attributes map for 
+	 * boolean attributes.
+	 */
 	public boolean isAttributeTrue(String attributeName) {
 		String value = getAttribute(attributeName);
 		return DataFieldConstants.TRUE.equals(value);
@@ -101,14 +165,10 @@ public class Field
 	/**
 	 * This method tests to see whether the field has been filled out. 
 	 * ie, Has the user entered a "valid" value into the Form. 
-	 * For fields that have a single 'value', this method will return true if 
-	 * that value is filled (not null). 
-	 * For fields with several attributes, it depends on what is considered 'filled'.
-	 * This method can be used to check that 'Obligatory Fields' have been completed 
-	 * when a file is saved. 
-	 * Subclasses should override this method.
+	 * This will return false if any of the parameters for this field are
+	 * not filled. 
 	 * 
-	 * @return	True if the field has been filled out by user. Required values are not null. 
+	 * @return	True if the all the parameters have been filled out by user.  
 	 */
 	public boolean isFieldFilled() {
 		
@@ -120,18 +180,30 @@ public class Field
 		return true;
 	}
 
+	/**
+	 * Returns the number of IParam parameters for this field.
+	 */
 	public int getParamCount() {
 		return fieldParams.size();
 	}
 
+	/**
+	 * Returns the parameter of this field at the given index.
+	 */
 	public IParam getParamAt(int index) {
 		return fieldParams.get(index);
 	}
 
+	/**
+	 * Adds a parameter to the list for this field
+	 */
 	public void addParam(IParam param) {
 		fieldParams.add(param);
 	}
 
+	/**
+	 * Removes the specified parameter from the list. 
+	 */
 	public boolean removeParam(IParam param) {
 		return fieldParams.remove(param);
 	}

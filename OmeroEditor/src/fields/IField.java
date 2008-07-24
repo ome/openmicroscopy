@@ -48,15 +48,41 @@ package fields;
 public interface IField 
 	extends IAttributes {
 	
-
+	/**
+	 * Returns the number of parameters for this field
+	 * 
+	 * @return 	the number of parameters for this field
+	 */
 	public int getParamCount();
 	
+	/**
+	 * Returns a parameter object at the specified index
+	 * 
+	 * @param index		
+	 * @return
+	 */
 	public IParam getParamAt(int index);
 	
+	/**
+	 * Adds a parameter object to the field
+	 * 
+	 * @param param
+	 */
 	public void addParam(IParam param);
 	
+	/**
+	 * Removes a parameter object from the field
+	 * 
+	 * @param param		The object to remove
+	 * @return		True if the object was found and removed.
+	 */
 	public boolean removeParam(IParam param);
 	
+	/**
+	 * Indicates whether all parameters have been filled out. 
+	 * 
+	 * @return		True if all the parameters have been filled. 
+	 */
 	public boolean isFieldFilled();
 
 }

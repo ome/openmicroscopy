@@ -29,7 +29,8 @@ package fields;
 //Application-internal dependencies
 
 /** 
- * 
+ * Methods for editing a collection of attributes.
+ * The attributes are identified by name (String) and the values are Strings.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

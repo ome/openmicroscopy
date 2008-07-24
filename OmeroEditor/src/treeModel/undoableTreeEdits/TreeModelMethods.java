@@ -26,8 +26,11 @@ package treeModel.undoableTreeEdits;
 
 import java.util.List;
 
+import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 
 //Third-party libraries
 
@@ -90,6 +93,24 @@ public class TreeModelMethods {
 		for (MutableTreeNode node: nodes) {
 			treeModel.removeNodeFromParent(node);
 		}
+	}
+	
+	/**
+	 * Set the selected nodes in the JTree.
+	 * This builds an array of TreePath[] and calls setSelectedPaths on JTree
+	 * 
+	 * @param nodes		The List of nodes to select	
+	 * @param tree		The JTree in which these nodes exist
+	 */
+	public static void selectNodes(List<MutableTreeNode> nodes, JTree tree) {
+
+		TreePath[] paths = new TreePath[nodes.size()];
+		int index = 0;
+		for (MutableTreeNode node : nodes) {
+			DefaultMutableTreeNode dnode = (DefaultMutableTreeNode)node;
+			paths[index++] = new TreePath(dnode.getPath());
+		}
+		tree.setSelectionPaths(paths);
 	}
 	
 }

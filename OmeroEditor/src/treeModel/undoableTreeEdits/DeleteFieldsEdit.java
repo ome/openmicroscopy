@@ -28,7 +28,6 @@ import java.util.ArrayList;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -146,16 +145,8 @@ public class DeleteFieldsEdit
 	public void undo() {
 		TreeModelMethods.insertNodesInto(treeModel, deletedFields, parentNode,
 				indexOfFirstHighlightedField);
-		/*
-		 * Select the undeleted nodes
-		 */
-		TreePath[] paths = new TreePath[deletedFields.size()];
-		int index = 0;
-		for (MutableTreeNode node : deletedFields) {
-			DefaultMutableTreeNode dnode = (DefaultMutableTreeNode)node;
-			paths[index++] = new TreePath(dnode.getPath());
-		}
-		tree.setSelectionPaths(paths);
+		
+		TreeModelMethods.selectNodes(deletedFields, tree);
 	}
 	
 	/**

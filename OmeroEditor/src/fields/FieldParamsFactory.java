@@ -28,10 +28,13 @@ package fields;
 
 //Application-internal dependencies
 
+import java.util.HashMap;
+
 import tree.DataFieldConstants;
 
 /** 
- * 
+ * This factory is used to create new Parameter objects (subclasses of
+ * AbstractParam), according to the String that describes their data type.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -43,18 +46,36 @@ import tree.DataFieldConstants;
  */
 public class FieldParamsFactory {
 	
+	public static IParam cloneParam(IParam cloneThis) {
+		
+		String paramType = cloneThis.getAttribute(AbstractParam.PARAM_TYPE);
+		
+		AbstractParam newParam = (AbstractParam)getFieldParam(paramType);
+		HashMap<String, String> attr = new HashMap<String, String>(
+				((AbstractParam)cloneThis).getAllAttributes());
+		
+		if(newParam != null)	// just in case...
+		newParam.setAllAttributes(attr);
+		
+		return newParam;
+	}
+	
+	/**
+	 * This create new Parameter objects (subclasses of
+	 * AbstractParam), according to the String that describes their data type.
+	 * 
+	 * @param paramType		A string to describe the data type
+	 * @return		A new parameter object
+	 */
 	public static IParam getFieldParam(String paramType) {
 		
 		IParam fieldValue = null;
 		
-		if (paramType == null) {
-			fieldValue = new NoParam(DataFieldConstants.FIXED_PROTOCOL_STEP);
+		if (paramType.equals(SingleParam.TEXT_LINE_PARAM)) {
+			fieldValue = new SingleParam(SingleParam.TEXT_LINE_PARAM);
 		}
-		else if (paramType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
-			fieldValue = new SingleParam(DataFieldConstants.TEXT_ENTRY_STEP);
-		}
-		else if (paramType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
-			fieldValue = new NoParam(DataFieldConstants.FIXED_PROTOCOL_STEP);
+		else if (paramType.equals(SingleParam.TEXT_BOX_PARAM)) {
+			fieldValue = new SingleParam(SingleParam.TEXT_BOX_PARAM);
 		}
 		else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
 			fieldValue = new DateTimeParam(DataFieldConstants.DATE_TIME_FIELD);

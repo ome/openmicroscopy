@@ -25,10 +25,12 @@ package treeModel;
 import java.awt.BorderLayout;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 import treeModel.editActions.AbstractEditorAction;
 
@@ -78,6 +80,8 @@ public class TreeEditorUI
 		
 		Box toolBarBox = Box.createHorizontalBox();
 		
+		addActionButton(toolBarBox, TreeEditorControl.ADD_FIELD_ACTION);
+		addActionButton(toolBarBox, TreeEditorControl.DUPLICATE_FIELDS_ACTION);
 		addActionButton(toolBarBox, TreeEditorControl.DELETE_FIELD_ACTION);
 		addActionButton(toolBarBox, TreeEditorControl.UNDO_ACTION);
 		addActionButton(toolBarBox, TreeEditorControl.REDO_ACTION);
@@ -91,7 +95,12 @@ public class TreeEditorUI
 		if (newAction instanceof AbstractEditorAction) {
 			((AbstractEditorAction)newAction).setTree(treeUI.getJTree());
 		}
-		comp.add(new JButton(newAction));
+		JButton newButton = new JButton(newAction);
+		Border emptyBorder = BorderFactory.createEmptyBorder(4,4,4,4);
+		newButton.setText(null);
+		newButton.setBorder(emptyBorder);
+		newButton.setBackground(null);
+		comp.add(newButton);
 	}
 
 }

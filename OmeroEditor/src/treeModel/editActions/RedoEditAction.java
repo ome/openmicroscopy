@@ -33,6 +33,8 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEditSupport;
 
+import util.ImageFactory;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -77,7 +79,7 @@ public class RedoEditAction
 		undoSupport.addUndoableEditListener(this);
 		
 		putValue(Action.NAME, "Redo");
-		//putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.ADD_ICON)); 
+		putValue(Action.SMALL_ICON, ImageFactory.getInstance().getIcon(ImageFactory.REDO_ICON)); 
 		
 		refreshStatus(); 	// sets description, enabled etc.
 	}
