@@ -81,6 +81,7 @@ public class FieldParamsFactory {
 			fieldValue = new DateTimeParam(DataFieldConstants.DATE_TIME_FIELD);
 		}
 		
+		System.err.println("PARAM_TYPE " + paramType + " NOT RECOGNIZED. Return NULL IParam");
 		return fieldValue;
 		
 		/*

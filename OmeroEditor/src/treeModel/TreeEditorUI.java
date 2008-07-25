@@ -76,7 +76,11 @@ public class TreeEditorUI
 		
 		this.setLayout(new BorderLayout());
 		
-		treeUI = new TreeUI(model);
+		/*
+		 * TreeUI needs a reference to controller so that fields etc can
+		 *  call undo/redo edits.
+		 */
+		treeUI = new TreeUI(model, controller);
 		
 		Box toolBarBox = Box.createHorizontalBox();
 		

@@ -61,25 +61,27 @@ import fields.IField;
 public class FieldRenderer 
 	extends DefaultTreeCellRenderer {
 	
-	public FieldRenderer() {
+	TreeEditorControl controller;
+	
+	public FieldRenderer(TreeEditorControl controller) {
 		super();
+		
+		this.controller = controller;
 	}
 
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean selected, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
 		
-		
 		if (value instanceof DefaultMutableTreeNode) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
 			Object object = node.getUserObject();
 			if (object instanceof IField) {
 				IField field = (IField)object;
+				
 				FieldPanel fieldPanel = new FieldPanel(field, tree, node);
 				
-				
-				//fieldPanel.setTree(tree);
-				//fieldPanel.setTreeNode(node);
+				fieldPanel.setController(controller);
 				
 				fieldPanel.setSelected(selected);
 				

@@ -22,26 +22,28 @@
  */
 package treeEditingComponents;
 
+//Java imports
+
 import java.awt.Dimension;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-
-import ui.components.AttributeTextAreaEditor;
-import fields.IParam;
-
-//Java imports
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import fields.FieldPanel;
+import fields.IParam;
 
 /** 
  * This is an editing component that edits a text value in a 
  * IFieldValue object. 
  * If the text in this component is changed, then the update occurs
- * when the focus is lost, using the IFieldValue.setAttribute(name, value) method.
- * This behavior is managed by the AttributeEditorListeners class.
+ * when the focus is lost, by firing property changed.
+ * This behavior is managed by the AttributeEditListeners class.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -52,26 +54,63 @@ import fields.IParam;
  * @since OME3.0
  */
 public class TextBoxEditor 
-	extends JPanel {
+	extends JPanel 
+	implements ITreeEditComp {
+	
+	IParam param;
+	
+	String attributeName;
+	
+	JTextArea textBox;
 	
 	public TextBoxEditor(IParam param) {
 		
 		super();
 		setBackground(null);
 		
+		this.param = param;
+		
 		String[] attributes = param.getValueAttributes();
-		String attributeName = "value";		// default
+		attributeName = "value";		// default
 		if (attributes.length > 0) {
 			attributeName = attributes[0];
 		}
 		
-		AttributeTextAreaEditor textBox = new AttributeTextAreaEditor(param, 
-				attributeName);
+		
+		String text = param.getAttribute(attributeName);
+		
+		textBox = new JTextArea(text);
+		textBox.setRows(2);
+		textBox.setLineWrap(true);
+		textBox.setWrapStyleWord(true);
+		//JScrollPane textScroller = new JScrollPane(textInput);
+		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
+		Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
+		Border compoundBorder = BorderFactory.createCompoundBorder(bevelBorder, emptyBorder);
+		textBox.setBorder(compoundBorder);
+		
+		AttributeEditListeners.addListeners(textBox, this, attributeName);
 		
 		textBox.setPreferredSize(new Dimension(300, 100));
 		this.add(textBox);
 		
 		// System.out.println(attributeName + " " + value);
+	}
+	
+	public void attributeEdited(String attributeName, String newValue) {
+		/*
+		 * Before calling propertyChange, need to make sure that 
+		 * getAttributeName() will return the name of the newly edited property
+		 */
+		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, null, textBox.getText());
+	}
+	
+	public IParam getParameter() {
+		return param;
+	}
+	
+	public String getAttributeName() {
+		return attributeName;
 	}
 
 }

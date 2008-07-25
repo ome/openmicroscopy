@@ -127,13 +127,18 @@ public class DuplicateFieldsEdit
 		 * Clone the selected nodes, adding them to a new list
 		 */
 		DefaultMutableTreeNode node;
+		DefaultMutableTreeNode newNode;
 		Field oldField;
-		Field newField;
+		Object newField;
 		for (int i=0; i<selectedPaths.length; i++) {
 			node = (DefaultMutableTreeNode)selectedPaths[i].getLastPathComponent();
 			oldField = (Field)node.getUserObject();
-			newField = new Field(oldField);
-			newNodes.add(new DefaultMutableTreeNode(newField));
+			
+			newField = (Field)oldField.clone();
+			newNode = new DefaultMutableTreeNode(newField);
+			TreeModelMethods.duplicateNode(node, newNode);
+			newNodes.add(newNode);
+			
 		}
 		
 		/*

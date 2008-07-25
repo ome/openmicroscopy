@@ -56,10 +56,13 @@ public class TreeUI
 	
 	private JTree tree;
 	
-	public TreeUI(TreeEditorModel model) {
+	private TreeEditorControl controller;
+	
+	public TreeUI(TreeEditorModel model, TreeEditorControl controller) {
 		
 		super(new BorderLayout());
 
+		this.controller = controller;
 		
 		tree = new JTree(model);
 		/*
@@ -83,8 +86,10 @@ public class TreeUI
 		/*
 		 * A custom TreeCellRenderer (extends DefaultTreeCellRenderer)
 		 * renders nodes as JPanels.
+		 * The field renderer will pass a reference of the controller to 
+		 * the fields, so that they can call undo/redo edits etc. 
 		 */
-		DefaultTreeCellRenderer fieldRenderer = new FieldRenderer();
+		DefaultTreeCellRenderer fieldRenderer = new FieldRenderer(controller);
 		tree.setCellRenderer(fieldRenderer);
 		
 		/*

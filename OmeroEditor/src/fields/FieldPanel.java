@@ -54,6 +54,9 @@ import javax.swing.tree.TreePath;
 
 import tree.DataFieldConstants;
 import treeEditingComponents.EditingComponentFactory;
+import treeEditingComponents.ITreeEditComp;
+import treeEditingComponents.TextBoxEditor;
+import treeModel.TreeEditorControl;
 import ui.XMLView;
 import ui.components.ImageBorder;
 import util.BareBonesBrowserLaunch;
@@ -94,6 +97,11 @@ public class FieldPanel
 	 * The source of data that this field is displaying and editing. 
 	 */
 	IField dataField;
+	
+	/**
+	 * The controller for managing undo/redo. Eg manages attribute editing...
+	 */
+	TreeEditorControl controller;
 	
 	/**
 	 * The JTree that this field is displayed in. 
@@ -384,6 +392,7 @@ public class FieldPanel
 		horizontalBox.add(comp);
 		
 		comp.addPropertyChangeListener(SIZE_CHANGED_PROPERTY, this);
+		comp.addPropertyChangeListener(VALUE_CHANGED_PROPERTY, this);
 	}
 	
 	
@@ -569,12 +578,33 @@ public class FieldPanel
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		
-		if (SIZE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+		String propName = evt.getPropertyName();
+		
+		if (SIZE_CHANGED_PROPERTY.equals(propName)) {
 		
 			refreshSizeOfPanel();
 		}
+		
+		if (VALUE_CHANGED_PROPERTY.equals(propName)) {
+			
+			if (evt.getSource() instanceof ITreeEditComp) {
+				ITreeEditComp src = (ITreeEditComp)evt.getSource();
+				IParam param = src.getParameter();
+				String attrName = src.getAttributeName();
+				
+				Object newVal = evt.getNewValue();
+				String newValue = (newVal == null ? null : newVal.toString());
+				
+				controller.editAttribute(param, attrName, newValue, tree, treeNode);
+				
+			}
+			
+		}
 	}
 
+	public void setController(TreeEditorControl controller) {
+		this.controller = controller;
+	}
 	
 	/**
 	 * This method is used to refresh the size of this panel in the JTree.

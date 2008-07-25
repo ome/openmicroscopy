@@ -68,6 +68,11 @@ public class EditingComponentFactory {
 	
 	public static JComponent getEditingComponent(IParam paramObject) {
 		
+		if (paramObject == null) {
+			System.out.println("getEditingComponent: paramObject NOT RECOGNIZED. " +
+					"Return JPanel()");
+			return new JPanel();
+		}
 		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
 		
 		if (inputType == null) {

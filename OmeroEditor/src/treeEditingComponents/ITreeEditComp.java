@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.textFieldEditor 
+ * treeEditingComponents.ITreeEditComp 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,21 +22,16 @@
  */
 package treeEditingComponents;
 
-//Java imports
+import fields.IParam;
 
-import javax.swing.JTextField;
+//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import fields.FieldPanel;
-import fields.IParam;
-
-
 /** 
- * This is an editing component that edits a text value in a 
- * IFieldValue object. 
+ * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -46,47 +41,11 @@ import fields.IParam;
  * </small>
  * @since OME3.0
  */
-public class TextFieldEditor 
-	extends JTextField 
-	implements ITreeEditComp {
-	
-	IParam param;
-	
-	String attributeName;
-	
-	public TextFieldEditor(IParam param) {
-		
-		super();
-		
-		this.param = param;
-		
-		String[] attributes = param.getValueAttributes();
-		attributeName = "value";		// default
-		if (attributes.length > 0) {
-			attributeName = attributes[0];
-		}
-		String value = param.getAttribute(attributeName);
-		
-		AttributeEditListeners.addListeners(this, this, attributeName);
-		
-		// System.out.println(attributeName + " " + value);
-		setText(value);
-	}
-	
-	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, null, this.getText());
-	}
-	
-	public IParam getParameter() {
-		return param;
-	}
-	
-	public String getAttributeName() {
-		return attributeName;
-	}
+public interface ITreeEditComp {
 
+	public void attributeEdited(String attributeName, String newValue);
+	
+	public IParam getParameter();
+	
+	public String getAttributeName();
 }

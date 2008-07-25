@@ -26,17 +26,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.Action;
+import javax.swing.JTree;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.tree.TreeNode;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import javax.swing.undo.UndoableEditSupport;
+
+import fields.IAttributes;
 
 import treeModel.editActions.AddFieldAction;
 import treeModel.editActions.DeleteFieldsAction;
 import treeModel.editActions.DuplicateFieldsAction;
 import treeModel.editActions.RedoEditAction;
 import treeModel.editActions.UndoEditAction;
+import treeModel.undoableTreeEdits.AttributeEdit;
 import treeModel.undoableTreeEdits.ObservableUndoManager;
 
 //Java imports
@@ -108,6 +113,28 @@ public class TreeEditorControl {
 	public Action getAction(int actionIndex) {
 		
 		return actions.get(actionIndex);
+	}
+	
+	/**
+	 * This method adds an attributeEdit to the undo/redo queue and then
+	 * update the JTree UI.
+	 * JTree update (optional) requires that JTree and TreeNode are not null.
+	 * But they are not required for editing of the data.
+	 * TODO   Would be better for changes to the data to notify the TreeModel
+	 * in which the data is held (without the classes modifying the data
+	 * having to manually call DefaultTreeModel.nodeChanged(node);
+	 * 
+	 * @param attributes		The collection of attributes to edit
+	 * @param name		The name of the attribute to edit
+	 * @param value		The new value for the named attribute. 
+	 * @param tree		The JTree displaying the data. This can be null
+	 * @param node		The node in the JTree that holds data. Can be null. 
+	 */
+	public void editAttribute(IAttributes attributes, String name, String value,
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new AttributeEdit(attributes, name, value, tree, node);
+		undoSupport.postEdit(edit);
 	}
 	
 	/**

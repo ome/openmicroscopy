@@ -45,7 +45,8 @@ import tree.DataFieldConstants;
  * @since OME3.0
  */
 public class Field 
-	implements IField {
+	implements IField,
+	Cloneable {
 	
 	/**
 	 * A property of this field. The attribute for an (optional) Name.
@@ -81,28 +82,54 @@ public class Field
 	}
 	
 	/**
+	 * Returns a copy of this object.
+	 * This is implemented manually, rather than calling super.clone()
+	 * Therefore, any subclasses should also manually override this method to 
+	 * copy any additional attributes they have.  
+	 */
+	public Object clone() {
+		
+		//Field newField = (Field)super.clone();
+		
+		Field newField = new Field();
+		
+		HashMap<String,String> newAtt = new HashMap<String,String>(getAllAttributes());
+		
+		newField.setAllAttributes(newAtt);
+		
+		for (int i=0; i<getParamCount(); i++) {
+			IParam param = getParamAt(i);
+			IParam newP = FieldParamsFactory.cloneParam(param);
+			newField.addParam(newP);
+		}
+		
+		return newField;
+	}
+	
+	/**
 	 * Duplicates a field by making a copy of the given field. 
 	 * 
 	 * @param cloneField	The field to be copied. 
-	 */
+	 
 	public Field(Field cloneField) {
 		this();
 		
 		/*
 		 * Clone all attributes
-		 */
+		 
 		allAttributesMap = new HashMap<String,String>
 				(cloneField.getAllAttributes());
 		
 		/*
 		 * Clone the parameter objects...
-		 */
+		 
 		for (int i=0; i<cloneField.getParamCount(); i++) {
 			IParam param = cloneField.getParamAt(i);
 			IParam newP = FieldParamsFactory.cloneParam(param);
 			addParam(newP);
 		}
 	}
+*/
 	
 	/**
 	 * A constructor used to set the name of the field.
@@ -134,6 +161,15 @@ public class Field
 	 */
 	public Map getAllAttributes() {
 		return allAttributesMap;
+	}
+	
+	/**
+	 * sets the attribute map.
+	 * 
+	 * @param newAtt	The new attribute map
+	 */
+	public void setAllAttributes(HashMap<String,String> newAtt) {
+		allAttributesMap = newAtt;
 	}
 	
 	/**
@@ -198,7 +234,8 @@ public class Field
 	 * Adds a parameter to the list for this field
 	 */
 	public void addParam(IParam param) {
-		fieldParams.add(param);
+		if (param != null)
+			fieldParams.add(param);
 	}
 
 	/**

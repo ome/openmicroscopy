@@ -24,13 +24,17 @@ package treeModel.undoableTreeEdits;
 
 //Java imports
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+
+import fields.Field;
 
 //Third-party libraries
 
@@ -98,19 +102,79 @@ public class TreeModelMethods {
 	/**
 	 * Set the selected nodes in the JTree.
 	 * This builds an array of TreePath[] and calls setSelectedPaths on JTree
+	 * It will then call scrollPathToVisible(path) on the first path, so
+	 * as to display it if it's in a ScrollPane. 
+	 * NB. nodes need to be instances of DefaultMutableTreeNode for this
+	 * method to work. Nodes that cannot be cast to DefaultMutableTreeNodes
+	 * will be ignored.
 	 * 
 	 * @param nodes		The List of nodes to select	
 	 * @param tree		The JTree in which these nodes exist
 	 */
 	public static void selectNodes(List<MutableTreeNode> nodes, JTree tree) {
 
+		if (tree == null) return;
+		
 		TreePath[] paths = new TreePath[nodes.size()];
 		int index = 0;
-		for (MutableTreeNode node : nodes) {
-			DefaultMutableTreeNode dnode = (DefaultMutableTreeNode)node;
-			paths[index++] = new TreePath(dnode.getPath());
+		for (TreeNode node : nodes) {
+			if (node instanceof DefaultMutableTreeNode) {
+				DefaultMutableTreeNode dnode = (DefaultMutableTreeNode)node;
+				paths[index++] = new TreePath(dnode.getPath());
+			}
 		}
 		tree.setSelectionPaths(paths);
+		
+		if (paths.length > 0) {
+			tree.scrollPathToVisible(paths[0]);
+		}
+	}
+	
+	
+	/**
+	 * Set the selected node in the JTree, and scroll to visible.
+	 * This method delegates to selectNodes(nodes, tree).
+	 * 
+	 * @see selectNodes(List<TreeNode> nodes, JTree tree)
+	 * 
+	 * @param node		The node to select	
+	 * @param tree		The JTree in which these nodes exist
+	 */
+	public static void selectNode(TreeNode node, JTree tree) {
+		List<MutableTreeNode> nodes = new ArrayList<MutableTreeNode>();
+		if (node instanceof MutableTreeNode) {
+			nodes.add((MutableTreeNode)node);
+			selectNodes(nodes, tree);
+		}
+	}
+	
+	
+	/**
+	 * Duplicates the child of oldNode and adds them to newNode.
+	 * Also recursively calls this method for child nodes to copy
+	 * the entire sub-tree of oldNode to newNode. 
+	 * This method casts the User Object from each node to a 
+	 * Field and duplicates this object using Field.clone() before
+	 * placing this in a new node. 
+	 * 
+	 * @param oldNode	The existing node with children to copy
+	 * @param newNode	The new node, with no children added yet.
+	 * 
+	 */
+	public static void duplicateNode(DefaultMutableTreeNode oldNode,
+			DefaultMutableTreeNode newNode) {
+		
+		for(int i=0; i<oldNode.getChildCount(); i++) {
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode)
+				oldNode.getChildAt(i);
+			Field oldField = (Field)child.getUserObject();
+			Field newField = (Field)oldField.clone();
+			
+			DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(newField);
+			newNode.add(newChild);
+			
+			duplicateNode(child, newChild);
+		}
 	}
 	
 }
