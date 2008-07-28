@@ -1,8 +1,8 @@
 <!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
   
-<suite name="bioformats-omero.unit" >
+<suite name="OmeroImporter.unit" >
   
-  <test name="bioformats-omero.unit.active">
+  <test name="OmeroImporter.unit.active">
     <groups>
       <run>
         <exclude name="broken"/>
