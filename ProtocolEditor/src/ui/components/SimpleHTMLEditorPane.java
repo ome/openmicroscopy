@@ -23,10 +23,12 @@
 
 package ui.components;
 
+import java.awt.Color;
 import java.awt.Event;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Enumeration;
 import java.util.HashMap;
 
 import javax.swing.AbstractAction;
@@ -37,9 +39,18 @@ import javax.swing.JEditorPane;
 import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
+import javax.swing.text.Style;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
+import javax.swing.text.html.HTML.Tag;
+import javax.swing.text.html.HTMLEditorKit.InsertHTMLTextAction;
+
+import ui.components.htmlActions.BoldRedTextAction;
+import ui.components.htmlActions.FontColorAction;
+import ui.components.htmlActions.InsertSpanAction;
+import ui.components.htmlActions.NoFontAction;
 
 public class SimpleHTMLEditorPane extends JEditorPane {
 	
@@ -60,19 +71,59 @@ public class SimpleHTMLEditorPane extends JEditorPane {
 		super();
 		
 		this.setEditorKit(htmlEditorKit);
+		
 		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
 		Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
 		Border compoundBorder = BorderFactory.createCompoundBorder(bevelBorder, emptyBorder);
 		this.setBorder(compoundBorder);
 		
+		/*
+		StyleSheet styleSheet = htmlEditorKit.getStyleSheet();
+		Enumeration<?> names = styleSheet.getStyleNames();
 		
+		while (names.hasMoreElements()) {
+			String styleName = names.nextElement().toString();
+			System.out.println("\nSTYLE: " + styleName);
+			Style styleOb = styleSheet.getStyle(styleName);
+			Enumeration<?> attributeNames = styleOb.getAttributeNames();
+			
+			while (attributeNames.hasMoreElements()) {
+				Object attributeName = attributeNames.nextElement();
+				Object attribute = styleOb.getAttribute(attributeName);
+				System.out.println("   " + attributeName + " = " + attribute);
+			}
+		}
+		*/
+		
+		
+				
 		actionsArray = getActions();
 		actions = new HashMap<Object, Action>();
 	    for (int i = 0; i < actionsArray.length; i++) {
 	        Action a = actionsArray[i];
 	        actions.put(a.getValue(Action.NAME), a);
-	       // System.out.println(a.getValue(Action.NAME));
+	        //System.out.println(a.getValue(Action.NAME));
 	    }
+	    	
+	    /*
+	     * Add a custom action
+	     
+	    actions.put("InsertCustomSpan", 
+	    		new InsertHTMLTextAction("InsertCustomSpan", "<ol><li></li></ol>",
+	   				 HTML.Tag.BODY, HTML.Tag.OL));
+	    
+	    actions.put("MonoYellow", new FontColorAction("MonoYellow", "Monospaced", Color.yellow));
+	    actions.put("SansBlue", new FontColorAction("SansBlue", "SansSerif", Color.blue));
+	    actions.put("SerifWhite", new FontColorAction("SerifWhite", "Serif", Color.white));
+	    
+	    actions.put ("InsertHTML", new InsertHTMLTextAction("InsertHTML",
+	    		"<span style='background: red'>New Text</span>",
+	    		HTML.Tag.P, HTML.Tag.SPAN, null, null ));
+	    
+	    actions.put("InsertSpan", new InsertSpanAction("InsertSpan"));
+	    */
+	    
+	    actions.put("BoldRed", new BoldRedTextAction("BoldRed"));
 	    
 		boldFontAction = actions.get(FONT_BOLD);
 		//boldFontAction.putValue(Action.NAME, "Bold");

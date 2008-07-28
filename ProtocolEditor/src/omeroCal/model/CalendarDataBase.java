@@ -585,9 +585,7 @@ public class CalendarDataBase
 			CALENDAR_TABLE + "." + UID + "=" + calendarID + " AND " + 
 			EVENT_TABLE + "." + CAL_ID + "=" + calendarID;
 		
-		System.out.println();
-		System.out.println(query);
-		System.out.println();
+		// System.out.println(query);
 		
 		try {
 			ResultSet calFileResult = getQueryResults(query);
@@ -675,9 +673,7 @@ public class CalendarDataBase
 		 CALENDAR_TABLE + "." + UID + "=" + 
 			EVENT_TABLE + "." + CAL_ID ;
 	
-		System.out.println();
-		System.out.println(query);
-		System.out.println();
+		// System.out.println(query);
 	
 		try {
 			ResultSet calFileResult = getQueryResults(query);
@@ -770,9 +766,7 @@ public class CalendarDataBase
 		 "AND " + 
 		 ALARM_DATE + " <= '" + toDate + "' ";
 	
-		System.out.println();
-		System.out.println(query);
-		System.out.println();
+		// System.out.println(query);
 	
 		try {
 			ResultSet calFileResult = getQueryResults(query);
@@ -907,9 +901,7 @@ public class CalendarDataBase
 		"WHERE " + 
 		CAL_INFO + " = " + formatStringForSQLQuery(calendarInfo) ;
 	
-		System.out.println();
-		System.out.println(query);
-		System.out.println();
+		// System.out.println(query);
 		
 		try {
 			ResultSet calFileResult = getQueryResults(query);

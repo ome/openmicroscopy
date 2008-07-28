@@ -34,6 +34,7 @@ import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -127,6 +128,17 @@ public class SimpleHTMLEditorPanel extends JPanel{
 	public void addToToolBar(JComponent component) {
 		component.setBorder(toolBarButtonBorder);
 		toolBarBox.add(component);
+	}
+	
+	/**
+	 * Allows users of this editor panel to get access to the html editing
+	 * actions of the EditorPane.
+	 * Delegates to the SimpleHTMLEditorPane.
+	 * 
+	 * @return	The Action as defined by the actionName
+	 */
+	public Action getAction(String actionName) {
+		return editorPane.getHtmlEditorKitAction(actionName);
 	}
 
 	

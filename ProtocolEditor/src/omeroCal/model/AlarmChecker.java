@@ -163,7 +163,7 @@ public class AlarmChecker {
 		
 		// Start the timer.
 		timer = new Timer(timerTickInMillis, new TimeElapsedListener());
-		System.out.println("Created alarm timer...");
+		//System.out.println("Created alarm timer...");
 		timer.start();
 	}
 	
@@ -269,7 +269,7 @@ public class AlarmChecker {
 		String message = "<html><b>" + timeString + "</b><br>" +
 			eventName + "</html>";
 		
-		System.out.println("AlarmChecker message: " + message);
+		//System.out.println("AlarmChecker message: " + message);
 		
 		// Fire the alarm!! 
 		Icon alarmIcon = ImageFactory.getInstance().getIcon(ImageFactory.ALARM_GIF_64);
@@ -285,7 +285,7 @@ public class AlarmChecker {
 	 */
 	public void getAlarmedEventsFromDB() {
 		
-		System.out.println("AlarmChecker getAlarmedEventsFromDB()");
+		// System.out.println("AlarmChecker getAlarmedEventsFromDB()");
 		
 		/*
 		 * Need to define 2 date-times to get alarmed events from DB.
