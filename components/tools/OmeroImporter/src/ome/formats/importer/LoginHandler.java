@@ -167,7 +167,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             {
                 if (!NEW_LOGIN)
                 {
-                    SplashWindow.disposeSplash();
+                    //SplashWindow.disposeSplash();
                     viewer.setVisible(true);
                     
                     if (!modal)
@@ -298,7 +298,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     void loginCancelled() {
         viewer.loggedIn = false;
         viewer.enableMenus(true);
-        SplashWindow.disposeSplash();
+        //SplashWindow.disposeSplash();
         viewer.setVisible(true);
     }
     
@@ -326,11 +326,10 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             store = new OMEROMetadataStore(username, password, server, port);
             store.getProjects();
             
-        } catch (Exception e)
+        } catch (EJBAccessException e)
         {
-            e.printStackTrace();
             return false;
-        } 
+        }
 
         //System.err.println(store.toString());
         return true;

@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -45,10 +46,17 @@ import layout.TableLayout;
 public class CommentMessenger extends JDialog implements ActionListener
 {
     private static final long serialVersionUID = -894653530593047377L;
+    
+    private Preferences    userPrefs = 
+        Preferences.userNodeForPackage(Main.class);
 
+    private String userEmail = userPrefs.get("userEmail", "");
+    
     boolean debug = false;
     
     String url = "http://users.openmicroscopy.org.uk/~brain/omero/commentcollector.php";
+    
+    private static final String ICON = "gfx/nuvola_mail_send64.png";
 
     GuiCommonElements       gui;
     
@@ -99,10 +107,10 @@ public class CommentMessenger extends JDialog implements ActionListener
         gui.enterPressesWhenFocused(sendBtn);
         
         // fill out the comments panel (changes according to icon existance)        
-        Icon questionIcon = UIManager.getIcon("OptionPane.questionIcon");
+        Icon icon = gui.getImageIcon(ICON);
         
         int iconSpace = 0;
-        if (questionIcon != null) iconSpace = questionIcon.getIconWidth() + 20;
+        if (icon != null) iconSpace = icon.getIconWidth() + 20;
         
         double commentTable[][] = 
         {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
@@ -115,7 +123,7 @@ public class CommentMessenger extends JDialog implements ActionListener
                 "importer and improve our software. Any personal details you provide are" +
                 " purely optional, and will only be used for development purposes.";
 
-        JLabel iconLabel = new JLabel(questionIcon);
+        JLabel iconLabel = new JLabel(icon);
         commentPanel.add(iconLabel, "0,0, l, c");
         
         @SuppressWarnings("unused")
@@ -124,6 +132,8 @@ public class CommentMessenger extends JDialog implements ActionListener
 
         emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input tyour email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
+        
+        emailTextField.setText(userEmail);
         
         commentTextArea = gui.addTextArea(commentPanel, "Comment:", 
                 "", 'W', "0, 2, 2, 2", debug);
@@ -145,6 +155,8 @@ public class CommentMessenger extends JDialog implements ActionListener
         {           
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
+            
+            userPrefs.put("userEmail", emailText);
             
             sendRequest(emailText, commentText, "Extra data goes here.");
         }

@@ -34,6 +34,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ResourceBundle;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -68,7 +69,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 {
     private static final long   serialVersionUID = 1228000122345370913L;
 
-    public static String        versionText = "Beta 3.0";
+    public static String        versionText = "Pre-3.0.2";
     
     public static String        versionNumber = "300";
     
@@ -86,9 +87,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     /** Logger for this class. */
     @SuppressWarnings("unused")
     private static Log          log     = LogFactory.getLog(Main.class);
-
-    public static Point splashLocation = Splasher.location; 
-    
+   
     // -- Constants --
     private final static boolean useSplashScreenAbout   = false;
     private static boolean USE_QUAQUA = true;
@@ -362,7 +361,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             view.setBounds((screenSize.width-d.width)/2,
                     (screenSize.height-totalHeight)/2, 
                     dlogin.width, dlogin.height);
-            view.setQuitButtonText("Cancel");
+            view.setQuitButtonText("Canel");
         }
         view.addPropertyChangeListener((PropertyChangeListener) viewer);
         view.addWindowStateListener((WindowStateListener) viewer);
@@ -395,7 +394,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             doc.insertString(doc.getLength(), s, style);
             
             //trim the document size so it doesn't grow to big
-            int maxChars = 100000;
+            int maxChars = 200000;
             if (doc.getLength() > maxChars)
                 doc.remove(0, doc.getLength() - maxChars);
             
@@ -416,6 +415,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
      */
     public void appendToDebug(String s)
     {
+        log.debug(s);
         try
         {          
             StyledDocument doc = (StyledDocument) debugTextPane.getDocument();
@@ -432,7 +432,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             doc.insertString(doc.getLength(), s, style);
             
             //trim the document size so it doesn't grow to big
-            int maxChars = 100000;
+            int maxChars = 200000;
             if (doc.getLength() > maxChars)
                 doc.remove(0, doc.getLength() - maxChars);
             
@@ -481,7 +481,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         }
         else if ("comment".equals(cmd))
         {
-            new CommentMessenger(this, "Comment Dialog", true);
+            new CommentMessenger(this, "OMERO.importer Comment Dialog", true);
         }
     }
 
@@ -622,8 +622,8 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
 
     public static Point getSplashLocation()
     {
-        //return null;
-        return splashLocation;
+        return null;
+        //return splashLocation;
     }
 
     public void update(IObservable importLibrary, Object message, Object[] args)
@@ -654,6 +654,25 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         {
             appendToOutputLn("> Successfully stored with pixels id \"" + args[5] + "\".");
             appendToOutputLn("> [" + args[1] + "] Image imported successfully!");
+        }
+        
+        if (message == Actions.IO_EXCEPTION)
+        {
+            final JOptionPane optionPane = new JOptionPane( 
+                    "The importer cannot retrieve one of your images in a timely manner.\n" +
+                    "The file in question is:\n'" + args[0] + "'\n\n" +
+                    "There are a number of reasons you may see this error:\n" +
+                    " - The file has been deleted.\n" +
+                    " - There was a networking error retrieving a remotely saved file.\n" +
+                    " - An archived file has not been fully retrieved from backup.\n\n" +
+                    "The importer will now try to continue with the remainer of your imports.\n",
+                    JOptionPane.ERROR_MESSAGE);
+            
+            final JDialog dialog = new JDialog(this, "IO Error");
+            dialog.setAlwaysOnTop(true);
+            dialog.setContentPane(optionPane);
+            dialog.pack();
+            dialog.setVisible(true);
         }
     }
 

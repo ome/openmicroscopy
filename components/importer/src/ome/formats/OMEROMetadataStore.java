@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import loci.formats.meta.IMinMaxStore;
 import loci.formats.meta.MetadataStore;
@@ -44,6 +45,7 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
+import ome.model.IEnum;
 import ome.model.IObject;
 import ome.model.acquisition.Arc;
 import ome.model.acquisition.Detector;
@@ -84,6 +86,11 @@ import ome.model.enums.PhotometricInterpretation;
 import ome.model.enums.PixelsType;
 import ome.model.enums.Pulse;
 import ome.model.meta.Experimenter;
+import ome.model.screen.Plate;
+import ome.model.screen.Screen;
+import ome.model.screen.ScreenAcquisition;
+import ome.model.screen.Well;
+import ome.model.screen.WellSample;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
 import ome.system.Login;
@@ -130,15 +137,26 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     /** The "root" image object */
     private List<Image> imageList = new ArrayList<Image>();
 
-    /** An list of Pixels that we have worked on ordered by first access. */
+    /** A list of Pixels that we have worked on ordered by first access. */
     private List<Pixels> pixelsList = new ArrayList<Pixels>();
+    
+    /** A list of Screens that we have worked on ordered by first access. */
+    private List<Screen> screenList = new ArrayList<Screen>();
 
+    /** A list of Plates that we have worked on ordered by first access. */
+    private List<Plate> plateList = new ArrayList<Plate>();
+    
     /** A list of lightsource objects */
     private List<Instrument> instrumentList = new ArrayList<Instrument>();
 
     /** A list of lightsource objects */
     private Map<String, IObject> lsidMap = new HashMap<String, IObject>();
-
+    
+    /** Enumeration cache. */
+    private Map<Class<? extends IObject>, List<IObject>> enumCache = 
+        new HashMap<Class<? extends IObject>, List<IObject>>();
+        
+    private Vector<WellSample> wsVector = new Vector<WellSample>();
 
     /** 
      * PlaneInfo ordered cache which compensates for pixels.planeInfo being a
@@ -153,11 +171,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     private Timestamp creationTimestamp;
 
     private String currentLSID;
-
-    private String oldUUID;
+    
+    private enum OMETypes {SCREEN, PLATE, WELL, WELL_SAMPLE}
     
     private Server server;
     private Login login;
+
 
     /**
      * Creates a new instance.
@@ -190,8 +209,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             sf = new ServiceFactory(server, login);
 
             InitializeServices(sf);
-            
-           oldUUID = sf.getAdminService().getEventContext().getCurrentSessionUuid();
 
             exp = iQuery.findByString(Experimenter.class, "omeName", username);
         } catch (Throwable t)
@@ -286,12 +303,13 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void createRoot()
     {
+        planeInfoCache = new HashMap<Pixels, List<PlaneInfo>>();
+        
         imageList = new ArrayList<Image>();
         pixelsList = new ArrayList<Pixels>();
-        planeInfoCache = new HashMap<Pixels, List<PlaneInfo>>();
-
-        /* Create a new instrument list */
         instrumentList = new ArrayList<Instrument>();
+        plateList = new ArrayList<Plate>();
+        screenList = new ArrayList<Screen>();
         
         lsidMap = new HashMap<String, IObject>();
         currentLSID =  null;
@@ -322,17 +340,31 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     private IObject getEnumeration(Class<? extends IObject> klass, String value)
     {
-        checkSF();
         if (klass == null)
             throw new NullPointerException("Expecting not-null klass.");
         if (value == null) return null;
 
-        IObject enumeration = iQuery.findByString(klass, "value", value);
-
-        if (enumeration == null)
-            throw new EnumerationException("Problem finding enumeration: ",
-                    klass, value);
-        return enumeration;
+        if (!enumCache.containsKey(klass))
+        {
+            checkSF();
+            List<IObject> enumerations = (List<IObject>) iQuery.findAll(klass, null);
+            if (enumerations == null)
+                throw new EnumerationException("Problem finding enumeration: ",
+                                               klass, value);
+            enumCache.put(klass, enumerations);
+        }
+        
+        List<IObject> enumerations = enumCache.get(klass);
+        for (IObject object : enumerations)
+        {
+            IEnum enumeration = (IEnum) object;
+            if (value.equals(enumeration.getValue()))
+            {
+                return object;
+            }
+        }
+        throw new EnumerationException("Problem finding enumeration: ",
+                                       klass, value);
     }
 
     public long getExperimenterID()
@@ -351,8 +383,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         if (!lsidMap.containsKey(id))
         {
-            currentLSID = id;
-            lsidMap.put(id,null);
+            lsidMap.put(id,null); 
+            log.debug(String.format("Mapping ID[%s]", id));
         }
     }
     
@@ -383,6 +415,21 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         getPixels(pixelsIndex).getChannel(channelIdx).setStatsInfo(statsInfo);
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.IMinMaxStore#setChannelGlobalMinMax(int, double, double, int)
+     */
+    public void setChannelGlobalMinMax(int channel, double minimum,
+            double maximum, int series)
+    {
+        log.debug(String.format(
+                "Setting Pixels[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
+                series, channel, minimum, maximum));
+        StatsInfo statsInfo = new StatsInfo();
+        statsInfo.setGlobalMin(minimum);
+        statsInfo.setGlobalMax(maximum);
+        getPixels(series).getChannel(channel).setStatsInfo(statsInfo);
+    }
+    
     /**
      * Writes a set of bytes as a plane in the OMERO image repository.
      * 
@@ -436,6 +483,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public void addImageToDataset(Image image, Dataset dataset)
     {
+        checkSF();
         Image unloadedImage = new Image(image.getId(), false);
         Dataset unloadedDataset = new Dataset(dataset.getId(), false);
         DatasetImageLink link = new DatasetImageLink();
@@ -456,6 +504,31 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     }
 
+    /**
+     * Creates a new dataset, adding it to the mentioned project
+     * @param name
+     * @param description
+     * @param project
+     * @return returns the new dataset created
+     */
+    public Dataset addDataset(String name, String description, Project project)
+    {
+        checkSF();
+        Dataset dataset = new Dataset();
+        if (name.length() != 0)
+            dataset.setName(name);
+        if (description.length() != 0)
+            dataset.setDescription(description);
+        Project p = new Project(project.getId(), false);
+        dataset.linkProject(p);
+        
+        Dataset storedDataset = null;
+        
+        IUpdate iUpdate = getIUpdate();
+        storedDataset = iUpdate.saveAndReturnObject(dataset);
+        return storedDataset;
+    }
+    
     /**
      * Retrieves dataset names of the current user from the active OMERO
      * instance.
@@ -508,22 +581,80 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     /**
      * Saves the current <i>root</i> pixelsList to the database.
      */
+    
+    /*
     public List<Pixels> saveToDB()
     {
         checkSF();
         IUpdate update = sf.getUpdateService();
         Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
-        IObject[] o = update.saveAndReturnArray(imageArray);
         pixelsList = new ArrayList<Pixels>();
-        for (int i = 0; i < o.length; i++)
+        for (int i = 0; i < imageArray.length; i++)
         {
-            Image image = (Image) o[i];
+            Image image = update.saveAndReturnObject(imageArray[i]);
+            log.debug("Saving image: " + (i + 1) + " of " + imageArray.length);
             // FIXME: This assumes only *one* pixels set.
             pixelsList.add((Pixels) image.iteratePixels().next());
             imageList.set(i, image);
+            if (plateList.size() > 0 && wsVector.size() > i)
+            {
+                log.debug("Linking wellsample to image");
+                wsVector.get(i).linkImage(image);
+            }
+        }
+        if (plateList.size() > 0)
+        {
+            log.debug("Saving plate");
+            Plate[] plates = plateList.toArray(new Plate[plateList.size()]);
+            update.saveAndReturnArray(plates);
         }
         return pixelsList;
     }
+    */
+    
+    public List<Pixels> saveToDB()
+    {
+        checkSF();
+        IUpdate update = sf.getUpdateService();
+        Image[] imageArray = imageList.toArray(new Image[imageList.size()]);
+        pixelsList = new ArrayList<Pixels>();
+
+        int buffersize = 20;
+
+        for (int i = 0; i < imageArray.length; i=i+buffersize)
+        {
+            int end = i + buffersize;
+            if (end > imageArray.length) end = imageArray.length;
+
+            Image[] subImageArray = new Image[end - i];
+            System.arraycopy(imageArray, i, subImageArray, 0, end - i);
+            IObject[] o = update.saveAndReturnArray(subImageArray);
+            log.debug("Saving images: " + (i + 1) + " to " + end);
+
+            for (int j = 0; j < o.length; j++)
+            {
+                Image image = (Image) o[j];
+                pixelsList.add((Pixels) image.iteratePixels().next());
+                imageList.set(i+j, image);
+
+                if (plateList.size() > 0 && wsVector.size() > i+j)
+                {
+                    log.debug("Linking wellsample to image");
+                    wsVector.get(i+j).linkImage(image);
+                }
+            }
+        }
+        
+        if (plateList.size() > 0)
+        {
+            log.debug("Saving plate");
+            Plate[] plates = plateList.toArray(new Plate[plateList.size()]);
+            update.saveAndReturnArray(plates);
+        }
+        return pixelsList;
+    }
+        
+    
 
     public ServiceFactory getSF()
     {
@@ -533,7 +664,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public IUpdate getIUpdate()
     {
-        checkSF();
+        checkSF(); 
         return iUpdate;
     }
     
@@ -2277,6 +2408,518 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 sizeY, instrumentIndex, otfIndex));    
     }
 
+    
+    /* ------ Screen ------ */
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenID(java.lang.String, int)
+     */
+    public void setScreenID(String id, int screenIndex)
+    {
+        // Add this lsid to the lsidMap and set currentID = id.
+        mapLSID(id);
+        
+        log.debug(String.format(
+                "Mapping ScreenID[%s] screenIndex[%d]",
+                id, screenIndex));
+    }
+    
+    /**
+     * Wraps same functionality as addScreen (for uniformity with existing methods)
+     * @param name
+     * @param description
+     * @return returns the new screen created
+     */
+    public Screen getScreen(int screenIndex)
+    {
+        return getScreen(screenIndex);
+    }
+ 
+    /**
+     * Checks if a screen already exists on the screenList, creating it if it doesn't
+     * @param name
+     * @param description
+     * @return returns the new screen created
+     */
+    public Screen addScreen(int screenIndex)
+    {
+        if (screenList.size() < (screenIndex + 1))
+        {
+            for (int i = screenList.size(); i < screenIndex; i++)
+            {
+                // Inserting null here so that we don't place potentially bogus
+                // Screens into the list which will eventually be saved into
+                // the database.
+                screenList.add(null);
+            }
+            screenList.add(new Screen());
+        }
+
+        // We're going to check to see if the screen list has a null value and
+        // update it as required.
+        Screen s = screenList.get(screenIndex);
+        if (s == null)
+        {
+            s = new Screen();
+            screenList.set(screenIndex, s);
+        }
+        return s;
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenName(java.lang.String, int)
+     */
+    public void setScreenName(String name, int screenIndex)
+    {
+        log.debug(String.format(
+                "setScreenName[%s] screenIndex[%d]",
+                name, screenIndex));
+        
+        Screen s = getScreen(screenIndex);
+ 
+        if (name != null)
+            s.setName(name);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenProtocolDescription(java.lang.String, int)
+     */
+    public void setScreenProtocolDescription(String protocolDescription,
+            int screenIndex)
+    {
+        log.debug(String.format(
+                "setScreenProtocolDescription[%s] screenIndex[%d]",
+                protocolDescription, screenIndex));
+        
+        Screen s = getScreen(screenIndex);
+ 
+        if (protocolDescription != null)
+            s.setProtocolDescription(protocolDescription);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenProtocolIdentifier(java.lang.String, int)
+     */
+    public void setScreenProtocolIdentifier(String protocolIdentifier,
+            int screenIndex)
+    {
+        log.debug(String.format(
+                "setScreenProtocolIdentifier[%s] screenIndex[%d]",
+                protocolIdentifier, screenIndex));
+        
+        Screen s = getScreen(screenIndex);
+ 
+        if (protocolIdentifier != null)
+            s.setProtocolIdentifier(protocolIdentifier);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenReagentSetDescription(java.lang.String, int)
+     */
+    public void setScreenReagentSetDescription(String reagentSetDescription,
+            int screenIndex)
+    {
+        log.debug(String.format(
+                "setScreenReagentSetDescription[%s] screenIndex[%d]",
+                reagentSetDescription, screenIndex));
+        
+        Screen s = getScreen(screenIndex);
+ 
+        if (reagentSetDescription != null)
+            s.setReagentSetDescription(reagentSetDescription);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setScreenType(java.lang.String, int)
+     */
+    public void setScreenType(String type, int screenIndex)
+    {
+        log.debug(String.format(
+                "setScreenType[%s] screenIndex[%d]",
+                type, screenIndex));
+        
+        Screen s = getScreen(screenIndex);
+ 
+        if (type != null)
+            s.setType(type);
+    }
+
+    /* ------ ScreenAcquisition ----- */
+    
+    public void setScreenAcquisitionID(String id, int screenIndex,
+            int screenAcquisitionIndex)
+    {
+        // Add this lsid to the lsidMap and set currentID = id.
+        mapLSID(id);
+        
+        log.debug(String.format(
+                "Mapping setScreenAcquisitionID[%s] screenIndex[%d]",
+                id, screenIndex));
+    }
+    
+    
+    private ScreenAcquisition getScreenAcquisition(Screen screen, int screenAcquisitionIndex)
+    {
+        
+        if ((screen.sizeOfScreenAcquisition() - 1) < screenAcquisitionIndex)
+        {
+            ScreenAcquisition sa = new ScreenAcquisition();
+            lsidMap.put(currentLSID, sa);
+        } 
+
+        return (ScreenAcquisition) lsidMap.get(currentLSID);
+    }
+    
+    public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
+            int screenAcquisitionIndex)
+    {
+        log.debug(String.format(
+                "setScreenAcquisitionEndTime[%s] screenIndex[%d]",
+                endTime, screenIndex));
+        
+        Screen s = getScreen(screenIndex);
+        ScreenAcquisition sa = getScreenAcquisition(s, screenAcquisitionIndex);
+
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
+        Timestamp ts;
+        try
+        {
+            ts = new Timestamp(parser.parse(endTime).getTime());
+            sa.setEndTime(ts);
+        }
+        catch (ParseException e)
+        {
+            log.debug(String.format(" setEndTime() failed!")); 
+        }
+    }
+
+    public void setScreenAcquisitionStartTime(String startTime,
+            int screenIndex, int screenAcquisitionIndex)
+    {
+        log.debug(String.format(
+                "setScreenAcquisitionStartTime[%s] screenIndex[%d]",
+                startTime, screenIndex));
+        
+        Screen s = getScreen(screenIndex);
+        ScreenAcquisition sa = getScreenAcquisition(s, screenAcquisitionIndex);
+
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-d'T'HH:mm:ssZ");
+        Timestamp ts;
+        try
+        {
+            ts = new Timestamp(parser.parse(startTime).getTime());
+            sa.setStartTime(ts);
+        }
+        catch (ParseException e)
+        {
+            log.debug(String.format(" setStartTime() failed!")); 
+        }
+    }
+    
+    /* ------ Plate ------ */
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateID(java.lang.String, int)
+     */
+    public void setPlateID(String id, int plateIndex)
+    {
+        currentLSID = "ome.formats.importer.plate." + plateIndex;
+        mapLSID(currentLSID);
+    }
+
+    /**
+     * Wraps same functionality as addPlate (for uniformity with existing methods)
+     * @param name
+     * @param description
+     * @return returns the new plate created
+     */
+    public Plate getPlate(int plateIndex)
+    {
+        return addPlate(plateIndex);
+    }
+ 
+    /**
+     * Checks if a plate already exists on the plateList, creating it if it doesn't
+     * @param name
+     * @param description
+     * @return returns the new plate created
+     */
+    public Plate addPlate(int plateIndex)
+    {
+        setPlateID(null, plateIndex);
+        
+        if (plateList.size() < (plateIndex + 1))
+        {
+            for (int i = plateList.size(); i < plateIndex; i++)
+            {
+                // Inserting null here so that we don't place potentially bogus
+                // Plates into the list which will eventually be saved into
+                // the database.
+                plateList.add(null);
+            }
+            plateList.add(new Plate());
+        }
+
+        // We're going to check to see if the plate list has a null value and
+        // update it as required.
+        Plate p = plateList.get(plateIndex);
+        if (p == null)
+        {
+            p = new Plate();
+            plateList.set(plateIndex, p);
+        }
+        return p;
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateDescription(java.lang.String, int)
+     */
+    public void setPlateDescription(String description, int plateIndex)
+    {
+        log.debug(String.format(
+                "setPlateDescription[%s] plateIndex[%d]",
+                description, plateIndex));
+        
+        Plate p = getPlate(plateIndex);
+ 
+        if (description != null)
+            p.setDescription(description);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateExternalIdentifier(java.lang.String, int)
+     */
+    public void setPlateExternalIdentifier(String externalIdentifier,
+            int plateIndex)
+    {
+        log.debug(String.format(
+                "setPlateExternalIdentifier[%s] plateIndex[%d]",
+                externalIdentifier, plateIndex));
+        
+        Plate p = getPlate(plateIndex);
+ 
+        if (externalIdentifier != null)
+            p.setExternalIdentifier(externalIdentifier);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateName(java.lang.String, int)
+     */
+    public void setPlateName(String name, int plateIndex)
+    {
+        log.debug(String.format(
+                "setPlateName[%s] plateIndex[%d]",
+                name, plateIndex));
+        
+        Plate p = getPlate(plateIndex);
+ 
+        if (name != null)
+            p.setName(name);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateStatus(java.lang.String, int)
+     */
+    public void setPlateStatus(String status, int plateIndex)
+    {
+        log.debug(String.format(
+                "setPlateStatus[%s] plateIndex[%d]",
+                status, plateIndex));
+        
+        Plate p = getPlate(plateIndex);
+ 
+        if (status != null)
+            p.setStatus(status);
+    }
+
+    /* ------ Well ------ */
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellID(java.lang.String, int, int)
+     */
+    public void setWellID(String id, int plateIndex, int wellIndex)
+    {
+        currentLSID = "ome.formats.importer.well." + plateIndex + "." + wellIndex;
+        mapLSID(id);
+    }
+    
+    public Well getWell(int plateIndex, int wellIndex)
+    {
+        Plate plate = getPlate(plateIndex);
+        setWellID(null, plateIndex, wellIndex);
+
+        Well w = null;
+        
+        if ((plate.sizeOfWells() - 1) < wellIndex)
+        {
+            w = new Well();
+            lsidMap.put(currentLSID, w);
+            plate.addWell(w);
+        } else 
+        {
+            w = (Well) lsidMap.get(currentLSID);
+        }
+        
+        return w;
+    }
+    
+    public void setWellColumn(Integer column, int plateIndex, int wellIndex)
+    {
+        log.debug(String.format(
+                "setWellColumn[%d] plateIndex[%d] wellIndex[%d]",
+                column, plateIndex, wellIndex));
+        
+        Well w = getWell(plateIndex, wellIndex);
+
+        if (column != null)
+            w.setColumn(column);
+    }
+
+    public void setWellExternalDescription(String externalDescription, int plateIndex, 
+            int wellIndex)
+    {
+        log.debug(String.format(
+                "setWellExternalDescription[%d] plateIndex[%d] wellIndex[%d]",
+                externalDescription, plateIndex, wellIndex));
+        
+        Well w = getWell(plateIndex, wellIndex);
+
+        if (externalDescription != null)
+            w.setExternalDescription(externalDescription);
+    }
+
+    public void setWellExternalIdentifier(String externalIdentifier, int plateIndex, 
+            int wellIndex)
+    {
+        log.debug(String.format(
+                "setWellExternalIdentifier[%d] plateIndex[%d] wellIndex[%d]",
+                externalIdentifier, plateIndex, wellIndex));
+        
+        Well w = getWell(plateIndex, wellIndex);
+
+        if (externalIdentifier != null)
+            w.setExternalIdentifier(externalIdentifier);
+    }
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellRow(java.lang.Integer, int, int)
+     */
+    public void setWellRow(Integer row, int plateIndex, int wellIndex)
+    {
+        log.debug(String.format(
+                "setWellRow[%d] plateIndex[%d] wellIndex[%d]",
+                row, plateIndex, wellIndex));
+        
+        Well w = getWell(plateIndex, wellIndex);
+
+        if (row != null)
+            w.setRow(row);
+    }
+
+
+    public void setWellType(String type, int plateIndex, int wellIndex)
+    {
+        log.debug(String.format(
+                "setWellType[%s] plateIndex[%d] wellIndex[%d]",
+                type, plateIndex, wellIndex));
+        
+        Well w = getWell(plateIndex, wellIndex);
+ 
+        if (type != null)
+            w.setType(type);
+    }
+    
+    /* Well Sample */
+    
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setWellSampleID(java.lang.String, int, int, int)
+     */
+    public void setWellSampleID(String id, int plateIndex, int wellIndex, int wellSampleIndex)
+    {
+        currentLSID = "ome.formats.importer.wellSample." + plateIndex + "." + wellIndex + "." + wellSampleIndex;
+        mapLSID(id);
+    }
+
+    private WellSample getWellSample(int plateIndex, int wellIndex, int wellSampleIndex)
+    {
+        Well well = getWell(plateIndex, wellIndex);
+        setWellSampleID(null, plateIndex, wellIndex, wellSampleIndex);
+       
+        WellSample ws = null;
+        
+        if ((well.sizeOfWellSample() -1) < wellSampleIndex)
+        {
+            ws = new WellSample();
+            //ws.setWell(well);
+            well.addWellSample(ws);
+            lsidMap.put(currentLSID, ws);
+        } else 
+        {
+            ws = (WellSample) lsidMap.get(currentLSID);
+        }
+        
+        return ws;
+    }
+    
+    public void setWellSampleIndex(Integer index, int plateIndex, int wellIndex,
+            int wellSampleIndex)
+    {
+        log.debug(String.format(
+                "setWellSampleIndex[%d] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
+                index, plateIndex, wellIndex, wellSampleIndex));
+        
+        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        
+        //Image i = getImage(index);
+        //ws.linkImage(i);
+        
+        if (wsVector.size() <= index)
+        {
+            wsVector.setSize(index +1);
+        }
+        
+        wsVector.set(index, ws);
+    }
+
+    public void setWellSamplePosX(Float posX, int plateIndex, int wellIndex, int wellSampleIndex)
+    {
+        log.debug(String.format(
+                "setWellSamplePosX[%f] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
+                posX, plateIndex, wellIndex, wellSampleIndex));
+        
+        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+ 
+        if (posX != null)
+            ws.setPosX(posX);
+    }
+
+    public void setWellSamplePosY(Float posY, int plateIndex, int wellIndex, int wellSampleIndex)
+    {
+        log.debug(String.format(
+                "setWellSamplePosY[%f] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
+                posY, plateIndex, wellIndex, wellSampleIndex));
+        
+        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+ 
+        if (posY != null)
+            ws.setPosX(posY);
+    }
+
+    public void setWellSampleTimepoint(Integer timepoint, int plateIndex, int wellIndex,
+            int wellSampleIndex)
+    {
+        log.debug(String.format(
+                "setWellSampleTimepoint[%d] plateIndex[%d] wellIndex[%d] wellSampleIndex[%d]",
+                timepoint, plateIndex, wellIndex, wellSampleIndex));
+        
+        WellSample ws = getWellSample(plateIndex, wellIndex, wellSampleIndex);
+ 
+        if (timepoint != null)
+            ws.setTimepoint(timepoint);
+    }
+    
+    
+    
     /* ---- Restricted "Admin Only" methods ---- */
 
     public void setExperimenterDataDirectory(String dataDirectory,
@@ -2600,6 +3243,17 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 uuid, imageIndex, pixelsIndex));
     }
 
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setPlateRefID(java.lang.String, int, int)
+     */
+    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
+    {
+        log.debug(String.format(
+                "IGNORING: setPlateRefID[%s] screenIndex[%d] plateRefIndex[%d]",
+                id, screenIndex, plateRefIndex));
+    }
+    
+    
     /* ---- Methods that are missing from the data model and need to be added ---- */
 
     /* ---- PixelsDimenions ---- */
@@ -2659,46 +3313,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         //if (objective != null)
             // needs to be added
     }
-
-    
-    /* ------ new just before beta 3 release from curtis - not handled today ----- */
-    
-    public void setPlateDescription(String description, int plateIndex)
-    {
-        log.debug(String.format(
-                "ignoring setPlateDescription"));
-    }
-
-    public void setPlateExternalIdentifier(String externalIdentifier,
-            int plateIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateExternalIdentifier"));
-    }
-
-    public void setPlateID(String id, int plateIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateID"));
-    }
-
-    public void setPlateName(String name, int plateIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateName"));
-    }
-
-    public void setPlateRefID(String id, int screenIndex, int plateRefIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateRefID"));
-    }
-
-    public void setPlateStatus(String status, int plateIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateStatus"));
-    }
+  
+    /* ------ Reagent ------ */
 
     public void setReagentDescription(String description, int screenIndex,
             int reagentIndex)
@@ -2726,65 +3342,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         "ignoring setReagentReagentIdentifier"));
     }
 
-    public void setScreenAcquisitionEndTime(String endTime, int screenIndex,
-            int screenAcquisitionIndex)
-    {
-        log.debug(String.format(
-        "ignoring setScreenAcquisitionEndTime"));
-    }
-
-    public void setScreenAcquisitionID(String id, int screenIndex,
-            int screenAcquisitionIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateDescription"));
-    }
-
-    public void setScreenAcquisitionStartTime(String startTime,
-            int screenIndex, int screenAcquisitionIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateDescription"));
-    }
-
-    public void setScreenID(String id, int screenIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateDescription"));
-    }
-
-    public void setScreenName(String name, int screenIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateDescription"));
-    }
-
-    public void setScreenProtocolDescription(String protocolDescription,
-            int screenIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateDescription"));
-    }
-
-    public void setScreenProtocolIdentifier(String protocolIdentifier,
-            int screenIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateDescription"));
-    }
-
-    public void setScreenReagentSetDescription(String reagentSetDescription,
-            int screenIndex)
-    {
-        log.debug(String.format(
-        "ignoring setScreenReagentSetDescription"));
-    }
-
-    public void setScreenType(String type, int screenIndex)
-    {
-        log.debug(String.format(
-        "ignoring setScreenType"));
-    }
+    
+    /* ------ new just before beta 3 release from curtis - not handled today ----- */
 
     public void setUUID(String uuid)
     {
@@ -2792,93 +3351,10 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         "ignoring setUUID"));
     }
 
-    public void setWellColumn(Integer column, int wellIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellColumn"));
-    }
-
-    public void setWellExternalDescription(String externalDescription,
-            int wellIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellExternalDescription"));
-    }
-
-    public void setWellExternalIdentifier(String externalIdentifier,
-            int wellIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellExternalIdentifier"));
-    }
-
-    public void setWellID(String id, int wellIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellID"));
-    }
-
-    public void setWellRow(Integer row, int wellIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellRow"));
-    }
-
-    public void setWellSampleID(String id, int wellIndex, int wellSampleIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellSampleID"));
-    }
-
-    public void setWellSampleIndex(Integer index, int wellIndex,
-            int wellSampleIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellSampleIndex"));
-    }
-
-    public void setWellSamplePosX(Float posX, int wellIndex, int wellSampleIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellSamplePosX"));
-    }
-
-    public void setWellSamplePosY(Float posY, int wellIndex, int wellSampleIndex)
-    {
-        log.debug(String.format(
-        "ignoring setPlateDescription"));
-    }
-
-    public void setWellSampleTimepoint(Integer timepoint, int wellIndex,
-            int wellSampleIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellSamplePosY"));
-    }
-
-    public void setWellType(String type, int wellIndex)
-    {
-        log.debug(String.format(
-        "ignoring setWellType"));
-    }
-
     public void setImageInstrumentRef(String instrumentRef, int imageIndex)
     {
         log.debug(String.format(
         "ignoring setImageInstrumentRef"));
-    }
-
-    public void setChannelGlobalMinMax(int channel, double minimum,
-            double maximum, int series)
-    {
-        log.debug(String.format(
-                "Setting Pixels[%d] Channel[%d] globalMin: '%f' globalMax: '%f'",
-                series, channel, minimum, maximum));
-        StatsInfo statsInfo = new StatsInfo();
-        statsInfo.setGlobalMin(minimum);
-        statsInfo.setGlobalMax(maximum);
-        getPixels(series).getChannel(channel).setStatsInfo(statsInfo);
-    }
-    
+    }    
     // Bio-formats also needs a way to link OTF to Logical Channel
 }

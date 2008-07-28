@@ -68,8 +68,7 @@ import ome.formats.importer.util.Actions;
  */
 public class ImportLibrary implements IObservable
 {
-
-    
+   
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
     /**
@@ -176,12 +175,37 @@ public class ImportLibrary implements IObservable
     /** opens the file using the {@link FormatReader} instance */
     public void open(String fileName) throws IOException, FormatException
     {
+        /* test code ------
+        Object[] args;
+        
+        args = new Object[1];
+        args[0] = fileName;
+        
+        try {
+            reader.setId(fileName);
+            //reset series count
+            log.debug("Image Count: " + reader.getImageCount());
+        } catch (java.io.IOException e) {
+            IOException(fileName);
+        }*/
+        
         reader.close();
         reader.setMetadataStore(store);
         reader.setMinMaxStore(store);
         reader.setId(fileName);
         //reset series count
         log.debug("Image Count: " + reader.getImageCount());
+    }
+
+    private void IOException(String fileName)
+    {
+        Object[] args;
+        
+        args = new Object[1];
+        args[0] = fileName;
+        notifyObservers(Actions.IO_EXCEPTION, args);
+        //reset series count
+        log.debug("IO Exception. Unable to retrieve image: " + fileName);
     }
 
     /**
@@ -367,7 +391,10 @@ public class ImportLibrary implements IObservable
         formatString = formatString.replace("class loci.formats.in.", "");
         formatString = formatString.replace("Reader", "");
         System.err.println(formatString);
-        store.setOriginalFiles(files, formatString);
+        if (archive == true)
+        {
+            store.setOriginalFiles(files, formatString);
+        }
         
         reader.getUsedFiles();
         

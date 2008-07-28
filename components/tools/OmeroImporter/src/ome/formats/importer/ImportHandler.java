@@ -88,7 +88,7 @@ public class ImportHandler
                     }
                     catch (Throwable e)
                     {
-                        new DebugMessenger(null, "Error Dialog", true, e);
+                        new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
                     }
                 }
             };
@@ -226,7 +226,7 @@ public class ImportHandler
                 {
                 	qTable.setProgressFailed(j);
                     viewer.appendToOutputLn("> [" + j + "] Failure importing.");
-                    new DebugMessenger(null, "Error Dialog", true, e);
+                    new DebugMessenger(null, "OMERO.importer Error Dialog", true, e);
                     if (importStatus < 0)   importStatus = -3;
                     else                    importStatus = -2;
                     

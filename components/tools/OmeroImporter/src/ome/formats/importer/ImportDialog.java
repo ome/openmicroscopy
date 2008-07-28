@@ -99,6 +99,8 @@ public class ImportDialog extends JDialog implements ActionListener
     public  ProjectItem[] projectItems = null;
 
     public boolean    cancelled = true;
+    
+    private boolean ARCHIVE_ENABLED = false;
 
     /** Logger for this class. */
     @SuppressWarnings("unused")
@@ -251,10 +253,16 @@ public class ImportDialog extends JDialog implements ActionListener
         this.getRootPane().setDefaultButton(importBtn);
         gui.enterPressesWhenFocused(importBtn);
 
-        archiveImage = gui.addCheckBox(importPanel, 
-                "Archive the original imported file(s) to the server.", "0,4,4,t", debug);
-        archiveImage.setSelected(false);
-        archiveImage.setVisible(true);
+        
+            archiveImage = gui.addCheckBox(importPanel, 
+                    "Archive the original imported file(s) to the server.", "0,4,4,t", debug);
+            archiveImage.setSelected(false);
+            if (ARCHIVE_ENABLED)
+            {
+                archiveImage.setVisible(true);
+            } else {
+                archiveImage.setVisible(false);                
+            }
 
         /////////////////////// START METADATA PANEL ////////////////////////
         

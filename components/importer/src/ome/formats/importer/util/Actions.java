@@ -37,10 +37,11 @@ public class Actions
     public static final String HISTORYSEARCH = "history_search";
     public static final String CLEARHISTORY = "history_clear";
     public static final String LOADING_IMAGE = "loading_image";
-    public static final Object LOADED_IMAGE = "loaded_image";
-    public static final Object DATASET_STORED = "dataset_stored";
-    public static final Object IMPORT_STEP = "import_step";
-    public static final Object DATA_STORED = "data_stored";
-    public static final Object IMPORT_DONE = "import_done";
+    public static final String LOADED_IMAGE = "loaded_image";
+    public static final String DATASET_STORED = "dataset_stored";
+    public static final String IMPORT_STEP = "import_step";
+    public static final String DATA_STORED = "data_stored";
+    public static final String IMPORT_DONE = "import_done";
     public static final String HISTORYREIMPORT = "history_reimport";
+    public static final String IO_EXCEPTION = "java.io.IOException";
 }

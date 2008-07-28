@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
-import ome.formats.OMEROMetadataStore;
 import ome.model.core.Pixels;
 
 import loci.formats.ChannelFiller;

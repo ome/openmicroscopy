@@ -1,59 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="OmeroImporter" default="install" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
-<!--
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#
-# $Id$
-#
-# Copyright 2008 Glencoe Software, Inc. All rights reserved.
-# Use is subject to license terms supplied in LICENSE.txt
-#
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<project name="bioformats-omero" default="install" basedir=".">
+   
+	<property name="import.dir" value="${basedir}/../antlib/resources"/>
+	<import file="${import.dir}/global.xml"/>
+	<import file="${import.dir}/dependencies.xml"/>
+	<import file="${import.dir}/lifecycle.xml"/>
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Written by:  Josh Moore, josh at glencoesoftware.com
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	<target name="compile" depends="generate">
+   	   <copy todir="${classes.dir}">
+                <fileset dir="${src.dir}">
+                        <include name="loci/formats/readers.txt"/>
+                </fileset>
+	   </copy>
+   	   <copy todir="${testclasses.dir}">
+                <fileset dir="${test.dir}">
+                        <include name="tinyTest.d3d.dv"/>
+                </fileset>
+	   </copy>
+	   
+	   <!-- COPY: from antlib/resources/lifecycle.xml-->
+		<copyResources/>
 
--->
-    <description>
-        Build framework for the OmeroImporter GUI code. The shipped application
-        is primarily built through the Eclipse .project and .classpath files,
-        but this build is here to allow continuous integration testing.
-    </description>
-
-    <property name="main.class" value="ome.formats.importer.Main"/>
-
-    <dirname property="up-two" file="${basedir}"/>
-    <dirname property="up-one" file="${up-two}"/>
-    <property name="import.dir"       value="${up-one}/antlib/resources"/>
-    <import file="${import.dir}/global.xml"/>
-    <import file="${import.dir}/dependencies.xml"/>
-    <import file="${import.dir}/lifecycle.xml"/>
-
-    <import file="../common.xml"/>
-
-    <target name="package" depends="lifecycle.package">
-        <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
-            <fileset dir="${resrc.dir}" includes="*.icns"/>
-            <fileset dir="${src.dir}" includes="**/*.png"/>
-        </jar>
-    </target>
-
-    <target name="install" depends="lifecycle.install">
-       <standalone conf="client"/>
-    </target>
-
-    <target name="tools-init"/>
-
-    <target name="tools-build" depends="tools-init,install" description="Creates all artifacts for tools/target"/>
-
-    <target name="tools-dist" depends="deps-resolve,tools-build" description="Copied artifacts to tools/target" unless="skip.compile">
-        <ivy:retrieve conf="client" pattern="${tools.dest}/client/[module]-[revision].[ext]" log="quiet"/>
-        <ivy:publish artifactspattern="${target.dir}/[module].[ext]"
-            resolver="tools-resolver" pubrevision="${omero.version}"
-            publishivy="false" overwrite="true"/>
-    </target>
-
-    <target name="tools-clean" depends="clean"/>
-
+		<!-- Defaults: override in global.xml files -->
+		<property name="javac.source" value="1.5"/>
+		<property name="javac.target" value="1.5"/>
+		<property name="javac.debug"  value="on"/>
+		<property name="javac.debuglevel" value="lines,vars,source"/>
+		<javac 
+			fork="yes"
+			destdir="${classes.dir}"
+			classpathref="omero.classpath" 
+			source="${javac.source}"
+			target="${javac.target}"
+			debug="${javac.debug}"
+			debuglevel="${javac.debuglevel}"
+			sourcepath=""
+		>
+			<src path="${src.dir}"/>
+			<include name="**/EnumerationException*"/>
+			<include name="**/OMEROMetadataStore*"/>
+			<include name="**/OMEROWrapper*"/>
+			<include name="**/ImportContainer*"/>
+			<include name="**/ImportLibrary*"/>
+			<include name="**/ImportFixture*"/>
+			<include name="**/Plane2D*"/>
+			<include name="**/TinyImportFixture*"/>
+			<include name="**/loci/formats/**/*"/>
+			<exclude name="**/loci/formats/gui/**/*"/>
+			<exclude name="**/loci/**/*Test*"/>
+		</javac>
+		<!-- END COPY-->
+	</target>
+	
 </project>

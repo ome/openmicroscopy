@@ -24,6 +24,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -59,9 +60,16 @@ public class DebugMessenger extends JDialog implements ActionListener
 {
     private static final long serialVersionUID = -1026712513033611084L;
 
+    private Preferences    userPrefs = 
+        Preferences.userNodeForPackage(Main.class);
+
+    private String userEmail = userPrefs.get("userEmail", "");
+    
     boolean debug = false;
 
     String url = "http://users.openmicroscopy.org.uk/~brain/omero/bugcollector.php";   
+    
+    private static final String ICON = "gfx/nuvola_error64.png";
     
     GuiCommonElements       gui;
     
@@ -132,10 +140,10 @@ public class DebugMessenger extends JDialog implements ActionListener
                     tPane.getBorder()));
         
         // fill out the comments panel (changes according to icon existance)        
-        Icon errorIcon = UIManager.getIcon("OptionPane.errorIcon");
+        Icon icon = gui.getImageIcon(ICON);
         
         int iconSpace = 0;
-        if (errorIcon != null) iconSpace = errorIcon.getIconWidth() + 10;
+        if (icon != null) iconSpace = icon.getIconWidth() + 10;
         
         double commentTable[][] = 
         {{iconSpace, (160 - iconSpace), TableLayout.FILL}, // columns
@@ -151,7 +159,7 @@ public class DebugMessenger extends JDialog implements ActionListener
         "and will only be used for development purposes.\n\nPlease note that " +
         "your application may need to be restarted to work properly.";
 
-        JLabel iconLabel = new JLabel(errorIcon);
+        JLabel iconLabel = new JLabel(icon);
         commentPanel.add(iconLabel, "0,0, l, c");
         
         @SuppressWarnings("unused")
@@ -160,6 +168,8 @@ public class DebugMessenger extends JDialog implements ActionListener
 
         emailTextField = gui.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input your email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
+        
+        emailTextField.setText(userEmail);
         
         commentTextArea = gui.addTextArea(commentPanel, "What you were doing when you crashed?", 
                 "", 'W', "0, 2, 2, 2", debug);
@@ -208,6 +218,8 @@ public class DebugMessenger extends JDialog implements ActionListener
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
             String debugText = debugTextPane.getText();
+            
+            userPrefs.put("userEmail", emailText);
             
             sendRequest(emailText, commentText, debugText, "Extra data goes here.");
         }

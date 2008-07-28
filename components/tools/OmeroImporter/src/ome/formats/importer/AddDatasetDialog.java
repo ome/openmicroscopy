@@ -150,7 +150,7 @@ public class AddDatasetDialog extends JDialog implements ActionListener
             
             if (datasetName.trim().length() > 0)
             {
-                dataset = addDataset(datasetName, datasetDescription);
+                dataset = store.addDataset(datasetName, datasetDescription, project);
                 userPrefs.putLong("savedDataset", dataset.getId());
                 dispose();
             } else {
@@ -164,6 +164,7 @@ public class AddDatasetDialog extends JDialog implements ActionListener
         }
     }
 
+    @Deprecated 
     private Dataset addDataset(String name, String description)
     {
         dataset = new Dataset();

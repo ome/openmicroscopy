@@ -111,7 +111,7 @@ public class FileQueueHandler
                     new ImportDialog(viewer, "Import", true, store);
                 if (dialog.cancelled == true || dialog.dataset == null) 
                     return;
-
+                
                 addFileToQueue(file, dialog.dataset,
                         dialog.dataset.getName(), dialog.project.getName(), 
                         dialog.useFullPath, dialog.numOfDirectories, 

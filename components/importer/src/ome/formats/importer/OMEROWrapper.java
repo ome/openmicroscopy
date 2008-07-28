@@ -36,8 +36,8 @@ public class OMEROWrapper extends MinMaxCalculator
         try
         {
             iReader = new ImageReader(
-                    new ClassList("readers.txt", 
-                            IFormatReader.class));
+                    new ClassList("importer_readers.txt", 
+                            IFormatReader.class, OMEROWrapper.class));
             
             filler = new ChannelFiller(iReader);
         } catch (IOException e)
@@ -119,20 +119,20 @@ public class OMEROWrapper extends MinMaxCalculator
 	 * @throws FormatException if there is an error parsing metadata.
 	 * @throws IOException if there is an error reading the file.
 	 */
-	public void setChannelGlobalMinMax(String id)
-		throws FormatException, IOException
-	{
-	    for(int c = 0; c < getSizeC(); c++)
+    public void setChannelGlobalMinMax(String id)
+        throws FormatException, IOException
+    {
+        for(int c = 0; c < getSizeC(); c++)
         {
             double gMin = Double.MIN_VALUE;
             double gMax = Double.MAX_VALUE;
-            
+
             double cMin = getChannelGlobalMinimum(c);
             double cMax = getChannelGlobalMaximum(c);
 
             gMin = cMin;
             gMax = cMax;
-                       
+
             //getMetadataStore().setChannelGlobalMinMax(c, gMin, gMax, new Integer(getSeries()));
         }    
     }
