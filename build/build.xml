@@ -43,7 +43,7 @@
  *    simple: public targets have a description attribute (private targets do
  *    not) and are listed by the usage target.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-<project name="OMERO.insight" default="usage" basedir="../">
+<project name="OMERO.insight" default="usage" basedir="../" xmlns:ivy="antlib:org.apache.ivy.ant">
  
   <description>The OMERO.insight Java Client Project.</description> 
   
@@ -103,10 +103,7 @@
   <import file="${base.build.dir}/test.xml"/> 
   <import file="${base.build.dir}/docs.xml"/> 
   <import file="${base.build.dir}/dist.xml"/>
- 
- 
-  
-  
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Set the timestamp and create the build directory where all output will go. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
@@ -123,7 +120,55 @@
 	<fail if="java.not.ok" message="Must use JDK 1.5.x or higher to build."/>
     <mkdir dir="${build.dir}"/> 
   </target> 
-  
+ 
+  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Use Ivy to download any dependencies that we need and possibly override
+     classpath definitions.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+  <target name="ivy-init" unless="ivy.done">
+    <!-- Overriding this value will cause a completely different classpath to
+    be used. -->
+    <property name="ivy.resolver" value="local-resolver"/>
+    <property name="ivy.done" value="done"/>
+    <property name="ivy.dep.file" value="${base.build.dir}/ivy.xml"/>
+    <path id="ivy.classpath">
+        <fileset dir="${base.lib.dir}/ivy" includes="*.jar"/>
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.classpath"/>
+    <ivy:settings file="${base.build.dir}/ivysettings.xml" override="true"/>
+  </target>
+
+  <target name="ivy-get" depends="ivy-init">
+    <ivy:retrieve pattern="${build.dir}/ivycache/[artifact]-[revision].[ext]" log="quiet" sync="true" symlink="false"/>
+  </target>
+
+  <target name="ivy-override" depends="ivy-init">
+    <!-- Overrides classpaths that are created during file parsing (import).
+    This could be more elegant, especially with regard to what goes into each
+    classpath, but for hudson's purposes, it should initially suffice -->
+    <ivy:resolve file="${base.build.dir}/ivy.xml" type="jar" log="quiet"/>
+    <ivy:cachepath pathid="app.compile.classpath" transitive="true"/>
+  </target>
+
+  <target name="ivy-publish" depends="ivy-init">
+    <macrodef name="ivyPub">
+      <attribute name="artifactspattern"/>
+      <sequential>
+        <ivy:publish
+          artifactspattern="@{artifactspattern}"
+          srcivypattern="${base.build.dir}/ivy.xml"
+          resolver="hudson-repository"
+          pubrevision="${dist.bundle.version}"
+          status="integration"
+          overwrite="true"/>
+      </sequential>
+    </macrodef>
+    <ivy:resolve file="${base.build.dir}/ivy.xml" type="jar" log="quiet"/>
+    <ivyPub artifactspattern="${dist.dir}/omero.insight.jar"/>
+    <ivy:resolve file="${base.build.dir}/ivy.xml" type="zip" log="quiet"/>
+    <ivyPub artifactspattern="${dist.dir}/omero.insight-${dist.bundle.version}.zip"/>
+  </target>
+ 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Build, test, and package the app.
    * We first remove any previous build artifact, then we go through the main 
