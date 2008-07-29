@@ -201,6 +201,8 @@ build-* targets.
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
+        <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="testing" settingsRef="ivy.toplevel"/>
+        <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <iterate buildpathref="all.buildpath" target="prepare"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="prepare"/>
         <iterate buildpathref="licenses.buildpath" target="prepare"/>

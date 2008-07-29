@@ -6,6 +6,7 @@
   <configurations>
     <conf name="client"/>
     <conf name="server"/>
+    <conf name="testing"/>
   </configurations>
   <publications>
     <artifact name="server" type="jar" conf="server" />
@@ -13,7 +14,7 @@
   <dependencies>
     <!-- NOTE: Jars from lib/tools will be copied separately -->
     <!-- Internal -->
-    <dependency name="client" rev="${omero.version}" changing="true" conf="client->client"/>
+    <dependency name="client" rev="${omero.version}" changing="true" conf="client->client;testing->*"/>
     <dependency name="server" rev="${omero.version}" changing="true" conf="server->server"/>
     <dependency name="blitz" rev="${omero.version}" changing="true" conf="server->server;client->client"/>
     <!-- For java omero.class -->

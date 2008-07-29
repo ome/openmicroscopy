@@ -61,9 +61,7 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-lang.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/commons-pool.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/dbunit.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dom4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/drools-all-jdk5.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/emma_ant.jar"/>
@@ -71,13 +69,14 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/findbugs-ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/freemarker.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/groovy.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/hibernate.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/hibernate.jar" sourcepath="/Users/josh/code/SOURCES/Hibernate_Branch_3_2"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-annotations.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-commons-annotations.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-search.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-tools.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/hibernate-validator.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/ice.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/ice-db.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jamon.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jbossall-client.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/jboss-annotations-ejb3.jar"/>
@@ -95,11 +94,10 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/postgresql.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/quartz.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/rendering.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/romio.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar"/>
+	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar" sourcepath="/Users/josh/lib/spring-framework-2.5"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-ldap.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-mock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testing.jar"/>
