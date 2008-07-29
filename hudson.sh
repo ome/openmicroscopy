@@ -45,3 +45,4 @@ java $JAVA_OPTS omero coverage
 #
 rm -f OMERO.server-build*.zip
 java -Domero.version=build$BUILD_NUMBER omero zip
+java -Domero.version=build$BUILD_NUMBER omero ivy-hudson

@@ -51,6 +51,12 @@
       </filesystem>
     </chain>
 
+    <!-- Hudson resolver. Used by hudson to build a central repository -->
+    <filesystem name="hudson-repository">
+        <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
+        <artifact pattern="${user.home}/.hudson/repository/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
+    </filesystem>
+
   </resolvers>
 
   <!-- The loci modules can be fetched from another path by changing the "loci.resolver" 

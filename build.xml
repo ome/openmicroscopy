@@ -24,7 +24,7 @@ build-* targets.
     <import file="${basedir}/deprecated.xml"/>
     <import file="${import.dir}/global.xml"/>
 
-    <target name="ivy" unless="ivy.done">
+    <target name="ivy-init" unless="ivy.done">
 
         <!-- Prevent future invocations and PermGen errors-->
         <property name="ivy.done" value="done"/>
@@ -53,7 +53,7 @@ build-* targets.
         <property name="test.skip" value="true"/>
     </target>
 
-    <target name="clean" description="Calls 'clean' on all components" depends="ivy">
+    <target name="clean" description="Calls 'clean' on all components" depends="ivy-init">
         <iterate buildpathref="all.buildpath"   target="clean"/>
         <iterate buildpathref="tools.buildpath" target="clean"/>
         <delete dir="${dist.dir}"/>
@@ -63,7 +63,7 @@ build-* targets.
         </delete>
     </target>
 
-    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="ivy">
+    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="ivy-init">
         <property name="test.skip" value="true"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="app.buildpath" target="dist"/>
@@ -76,14 +76,14 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-all" description="Build everything and copy to dist" depends="ivy">
+    <target name="build-all" description="Build everything and copy to dist" depends="ivy-init">
         <iterate buildpathref="all.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="tools.buildpath" target="build"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="ivy">
+    <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="ivy-init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>
         <!-- Must also build python since it provides our command lines -->
@@ -91,7 +91,7 @@ build-* targets.
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 
-    <target name="build-ear" description="Build ear and copy to dist" depends="ivy">
+    <target name="build-ear" description="Build ear and copy to dist" depends="ivy-init">
         <iterate buildpathref="appserver.buildpath" target="dist"/>
         <!-- WORKAROUND: creating the blitz jar to make prepare-dist work-->
         <iterate buildpathref="blitzserver.buildpath" target="install"/>
@@ -127,7 +127,7 @@ build-* targets.
         <!-- Currently has no logic, since build-blitz requires all of this -->
     </target>
 
-    <target name="build-schema" description="Build new DB schema and copy to sql/" depends="ivy">
+    <target name="build-schema" description="Build new DB schema and copy to sql/" depends="ivy-init">
         <iterate buildpathref="dsl.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="publish-schema"/>
@@ -156,12 +156,12 @@ build-* targets.
         </tar>
     </target>
 
-    <target name="deploy" description="Copy the dist/${product.name}.ear to $JBOSS_HOME/server/default/deploy" depends="ivy">
+    <target name="deploy" description="Copy the dist/${product.name}.ear to $JBOSS_HOME/server/default/deploy" depends="ivy-init">
         <iterate buildpathref="app.buildpath" target="deploy"/>
     </target>
 
     <!-- Internal target -->
-    <target name="prepare-dist" depends="ivy">
+    <target name="prepare-dist" depends="ivy-init">
             <mkdir dir="${dist.dir}/bin"/>
             <copy todir="${dist.dir}/etc" overwrite="true">
                 <fileset dir="${omero.home}/etc">
@@ -196,7 +196,7 @@ build-* targets.
 
     </target>
 
-    <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component" depends="ivy">
+    <target name="prepare-eclipse" description="Symlink (or copy) all lib/repository jars needed by each component" depends="ivy-init">
         <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel"/>
         <ivy:retrieve pattern="${omero.home}/target/libs/[artifact].[ext]" log="quiet" symlink="true" settingsRef="ivy.toplevel"/>
         <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="client" settingsRef="ivy.toplevel"/>
@@ -208,7 +208,7 @@ build-* targets.
         <iterate buildpathref="licenses.buildpath" target="prepare"/>
     </target>
 
-    <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="ivy">
+    <target name="findbugs" description="Generates findbugs.xml and checkstyle.xml for all components" depends="ivy-init">
        <iterate buildpathref="all.buildpath"   target="findbugs"/>
        <iterate buildpathref="tools.buildpath" target="findbugs"/>
     </target>
@@ -325,6 +325,20 @@ build-* targets.
             <link href="http://lucene.apache.org/java/2_2_0/api"/>
 
         </javadoc>
+
     </target>
 
+    <target name="ivy-hudson" depends="ivy-init">
+        <ivy:resolve settingsRef="ivy.toplevel"
+            file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
+        <ivy:publish settingsRef="ivy.toplevel"
+            artifactspattern="${omero.home}/ivy.xml" forcedeliver="true"
+            resolver="omero-resolver" pubrevision="${omero.version}"
+            pubdate="${now}" status="integration" overwrite="true"/>
+        <ivy:install settingsRef="ivy.toplevel"
+            organisation="omero" module="main" revision="${omero.version}" 
+            from="omero-resolver" to="hudson-repository"
+            transitive="true" overwrite="true"/>
+    </target>
+ 
 </project>

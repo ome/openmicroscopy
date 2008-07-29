@@ -1,23 +1,20 @@
 <ivy-module version="1.0">
-  <info
-      organisation="omero"
-      module="main"
-      status="integration"/>
+  <info organisation="omero" module="main" revision="3.0-Beta3" status="integration" publication="20080729132901"/>
   <configurations>
     <conf name="build"/>
     <conf name="test"/>
     <conf name="runtime"/>
   </configurations>
   <publications>
-    <artifact name="main" type="zip" conf="runtime" />
+    <artifact name="main" type="zip" conf="runtime"/>
   </publications>
   <dependencies>
     <!-- Internal -->
-    <dependency name="common" rev="${omero.version}" changing="true" />
-    <dependency name="importer" rev="${omero.version}" changing="true" />
-    <dependency name="romio" rev="${omero.version}" changing="true" />
-    <dependency name="rendering" rev="${omero.version}" changing="true" />
-    <dependency name="blitz" rev="${omero.version}" changing="true" conf="server"/>
-    <dependency name="server" rev="${omero.version}" changing="true" conf="server"/>
+    <dependency name="common" rev="3.0-Beta3" changing="true"/>
+    <dependency name="importer" rev="3.0-Beta3" changing="true"/>
+    <dependency name="romio" rev="3.0-Beta3" changing="true"/>
+    <dependency name="rendering" rev="3.0-Beta3" changing="true"/>
+    <dependency name="blitz" rev="3.0-Beta3" changing="true" conf="*->server"/>
+    <dependency name="server" rev="3.0-Beta3" changing="true" conf="*->server"/>
   </dependencies>
 </ivy-module>
