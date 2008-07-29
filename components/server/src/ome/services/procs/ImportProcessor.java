@@ -36,7 +36,7 @@ public class ImportProcessor implements ApplicationContextAware, Processor {
         try {
             this.context = (OmeroContext) applicationContext;
             this.store = new OMEROMetadataStore(new ServiceFactory(context));
-            this.reader = new OMEROWrapper();
+            this.reader = null; // new OMEROWrapper();  WORKAROUND for NPE
         } catch (Exception e) {
             throw new FatalBeanException("Error creating ImportProcessor", e);
         }
