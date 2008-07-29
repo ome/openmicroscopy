@@ -23,220 +23,266 @@
 
 package ui.components;
 
+//Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PipedReader;
-import java.io.PipedWriter;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.HashMap;
 
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.text.JTextComponent;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.BadLocationException;
 
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
-import tree.ITreeModel;
 import tree.Tree;
 import ui.IModel;
-import ui.SelectionObserver;
-import ui.XMLUpdateObserver;
 import ui.components.htmlActions.InsertSpanAction;
+import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 import util.XMLMethods;
 import xmlMVC.ConfigConstants;
-import xmlMVC.XMLModel;
 
+/** 
+* The Text importer is a dialog containing a JEditorPane, in which users can 
+* paste and edit text for importing. 
+* The JEditorPane is a SimpleHTMLEditorPane, add editing actions defined by
+* the TextImporter class are used to format the html, highlighting text
+* that should be used for field titles, parameters and units. 
+* Upon import, the html (as XHTML) is converted to a DOM document and 
+* parsed to retrieve this defined text, which is used to build a "flat"
+* Tree of OMERO.editor fields (All fields are children of the root), which
+* is then opened in the main OMERO.editor window. 
+*
+* @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 
-public class TextImporter extends JPanel{
+public class TextImporter 
+	extends ImportDialog {
 
-	IModel model;
 	
-	ITreeModel tree;
-	
-	JFrame frame;
-	
-	// protected JTextArea textArea;
-	
-	//alternative, 
-	SimpleHTMLEditorPane textArea;
-	
-	private String title;
-	
-	private String headerMessage;
-	
-	private Icon headerIcon;
-	
+	/**
+	 * The HTML tag for paragraph. Used to retrieve all the p elements from 
+	 * the DOM document.
+	 */
 	public static final String P = "p";
 	
+	/**
+	 * The HTML span tag. Used to retrieve all the span elements from DOM doc.
+	 */
 	public static final String SPAN = "span";
 	
+	/**
+	 * A class name, added as an attribute to the span tag. Used to identify
+	 * span elements that highlight the an experimental parameter. 
+	 */
 	public static final String PARAM = "param";
 	
+	/**
+	 * A class name, added as an attribute to the span tag. Used to identify
+	 * span elements that highlight the units of a parameter. 
+	 */
 	public static final String UNITS = "units";
 	
+	/**
+	 * The number of characters of text (taken from the description) to use
+	 * as the field title, if no field title is defined by the user. 
+	 */
+	public static final int MAX_NAME_CHARS = 40;
 	
-	public TextImporter() {}
+	/**
+	 * The pixel spacing between buttons in the toolbar. 
+	 */
+	public static final int BUTTON_SPACING = 4;
 	
+	
+	/**
+	 * Creates an instance of this class. 
+	 * After initialising and building the UI (done by the superclass
+	 * constructor), this method creates a toolBar and a help button, 
+	 * which are added to the 
+	 * titleAndToolbarContainer.
+	 * 
+	 * @param model		The model required for opening new files etc. 
+	 */
 	public TextImporter(IModel model) {
 		
-		initialise(model);
-		
-		title = "Import Text";
-		 
-		headerMessage = "Please paste the text you wish to import into the text area below. \n" +
-			"Each new line will become a new field when imported.";
-		 
-		headerIcon = ImageFactory.getInstance().getIcon(ImageFactory.KORGANIZER_ICON);
-		
-		 
-		buildAndDisplayUI();
-	}
-	
-	
-	
-	public void buildAndDisplayUI() {
-		
-
-		setLayout(new BorderLayout());
-		
-		int panelWidth = 800;
+		super(model, "Import Table");
 		
 		
-		this.setPreferredSize(new Dimension(panelWidth, 500));
-		
-		// Header.
-		TitlePanel titlePanel = new TitlePanel(title, headerMessage, headerIcon);
-		
-		
-		// Text Area...
-		/*
-		textArea = new JTextArea();
-		textArea.setText("<Paste your text here>");
-		textArea.setWrapStyleWord(true);
-		textArea.setLineWrap(true);
-		textArea.addFocusListener(new TextAreaFocusListener());
-		
-		textArea.setRows(20);
-		textArea.setColumns(40);
-		*/
-		
-		// .. or a text editor pane
-		textArea = new SimpleHTMLEditorPane();
-		
-		// ..with a tool bar..
+		// add a tool bar..
 		Box toolbarBox = Box.createHorizontalBox();
+		Border eb = new EmptyBorder(3,2,3,2);
+		Border bb = BorderFactory.createRaisedBevelBorder();
+		Border tb = BorderFactory.createCompoundBorder(bb, eb);
 		
-		JButton b2 = new JButton(textArea.getHtmlEditorKitAction("BoldRed"));
-		b2.setText("Field Title");
-		b2.setToolTipText("Turn on / off the Field Title");
-		toolbarBox.add(b2);
+		toolbarBox.setBorder(eb);
 		
-		Action paramAction = new InsertSpanAction("Parameter", PARAM, Color.blue);
+		/*
+		 * ...with buttons for the following HTML-editing Actions:
+		 * 
+		 * This adds a <b> tag, and also adds a red background, using a <
+		 * font> tag. 
+		 * Used to highlight field titles. 
+		 */
+		Action boldRed = ((SimpleHTMLEditorPane)textArea)
+				.getHtmlEditorKitAction("BoldRed");
+		JButton fieldTitle = new JButton(boldRed);
+		fieldTitle.setText("<html><span <span style='color: red ; font-weight: bold'>" +
+				"Field Title</span></html>");
+		fieldTitle.setToolTipText("Specify a custom field title");
+		fieldTitle.setBorder(tb);
+		toolbarBox.add(fieldTitle);
+		
+		toolbarBox.add(Box.createHorizontalStrut(BUTTON_SPACING));
+		toolbarBox.add(new JSeparator(SwingConstants.VERTICAL));
+		toolbarBox.add(Box.createHorizontalStrut(BUTTON_SPACING));
+		
+		/*
+		 * This Action adds a <span> tag, with an orange background.
+		 * The tag has a class="param" attribute, and is used to 
+		 * highlight experimental parameters. 
+		 */
+		Action paramAction = new InsertSpanAction("Parameter", PARAM, 
+				new Color(226, 92, 2));
 		JButton paramButton = new JButton(paramAction);
+		paramButton.setBorder(tb);
+		paramButton.setBackground(new Color(226, 92, 2));
 		toolbarBox.add(paramButton);
+		toolbarBox.add(Box.createHorizontalStrut(BUTTON_SPACING));
 		
+		/*
+		 * This Action adds a <span> tag, with a yellow background.
+		 * The tag has a class="units" attribute, and is used to 
+		 * highlight field units. 
+		 */
 		Action unitsAction = new InsertSpanAction("Units", UNITS, Color.yellow);
 		JButton unitsButton = new JButton(unitsAction);
+		unitsButton.setBorder(tb);
+		unitsButton.setBackground(Color.yellow);
 		toolbarBox.add(unitsButton);
+		toolbarBox.add(Box.createHorizontalStrut(BUTTON_SPACING));
+		
+		/*
+		 * This Action adds a <span> tag, with a white background.
+		 * The tag has no attributes, and is used to 
+		 * clear the highlighting of Parameters and Units.
+		 */
+		Action clearAction = new InsertSpanAction("Clear", null, Color.white);
+		JButton clearButton = new JButton(clearAction);
+		clearButton.setBorder(tb);
+		clearButton.setBackground(null);
+		toolbarBox.add(clearButton);
 		
 		toolbarBox.add(new JPanel());	// so to align buttons to left.
 		
-		Box titleAndToolbarContainer = Box.createVerticalBox();
-		titleAndToolbarContainer.add(titlePanel);
-		titleAndToolbarContainer.add(toolbarBox);
-		
-		add(titleAndToolbarContainer, BorderLayout.NORTH);
-		
-		
-		// ... in a scroll pane
-		Dimension scrollPaneSize = new Dimension(panelWidth, 350);
-		textArea.setMaximumSize(scrollPaneSize);
-		JScrollPane scrollPane = new JScrollPane(
-				textArea, 
-				 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setPreferredSize(scrollPaneSize);
-		scrollPane.setMinimumSize(scrollPaneSize);
-		
-		this.add(scrollPane, BorderLayout.CENTER);
-		
-		
-		// Buttons
-		JButton importButton = new JButton("Import");
-		importButton.addActionListener(new ImportListener());
-		importButton.setSelected(true);
-		
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(new ActionListener() {
+		/*
+		 * A help function to the online guide at
+		 * http://trac.openmicroscopy.org.uk/shoola/wiki/TextImport
+		 */
+		Icon infoIcon = ImageFactory.getInstance().getIcon(ImageFactory.INFO_ICON);
+		JButton helpButton = new JButton("Online help", infoIcon);
+		helpButton.setToolTipText("Open an on-line guide to text importing");
+		helpButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				frame.setVisible(false);
+				BareBonesBrowserLaunch.openURL(
+					"http://trac.openmicroscopy.org.uk/shoola/wiki/TextImport");
 			}
 		});
 		
-		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.add(cancelButton);
-		buttonBox.add(importButton);
-		buttonBox.add(Box.createHorizontalStrut(12));
-		JPanel buttonBoxContainer = new JPanel(new BorderLayout());
-		buttonBoxContainer.add(buttonBox, BorderLayout.EAST);
-		this.add(buttonBoxContainer, BorderLayout.SOUTH);
-	
-		displayInFrame(this);
+		titleAndToolbarContainer.add(toolbarBox, BorderLayout.WEST);
+		titleAndToolbarContainer.add(helpButton, BorderLayout.EAST);
+		
 	}
 	
-	public void initialise(IModel model) {
-		this.model = model;
-		
-		SelectionObserver sO = (SelectionObserver)model;
-		XMLUpdateObserver xO = (XMLUpdateObserver)model;
-		
-		tree = new Tree(sO, xO);
-	}
-	
-	public class ImportListener implements ActionListener {
 
-		public void actionPerformed(ActionEvent e) {
-			//importTextToTree();
-			
-			importXhtmlToTree();
-		}
+	/**
+	 * The text component is initialised as an instance of 
+	 * SimpleHTMLEditorPane, a JEditorPane that uses an HTML editor kit. 
+	 */
+	public void initialiseTextArea() {
 		
+		setSubTitle("Please paste the text you wish to import into " +
+		"the text area below."); 
+
+		setHeaderMessage("Each paragraph will become a new field when imported. \n" +
+				"The text will become the field description. \n" +
+				"The field title will be the first " + MAX_NAME_CHARS + " characters " +
+				"of the description, unless specified.\n" +
+		"Additional parameters and units can also be specified.");
+ 
+		setHeaderIcon(ImageFactory.getInstance().getIcon(
+				ImageFactory.KORGANIZER_ICON));
+		
+		/*
+		 * A new SimpleHTMLEditorPane.
+		 */
+		textArea = new SimpleHTMLEditorPane();
+		try {
+			// have to use this method, as setText() changes the Editor kit to
+			// a non-HTML editor kit. 
+			textArea.getDocument().insertString(0, "Paste text here", null);
+		} catch (BadLocationException e1) {
+			e1.printStackTrace();
+		}
 	}
 	
-	public void importXhtmlToTree() {
+	/**
+	 * The import method involves saving the HTML text as a temporary text file, 
+	 * which allows it to be converted into a DOM document. 
+	 * The DOM document is then parsed to obtain all the paragraphs (P elements).
+	 * Currently, paragraphs have no padding, so a user is forced to 
+	 * separate paragraphs with "blank" paragraphs (paragraph with no text). 
+	 * The parsing uses these as markers between fields.
+	 * Each collection of p elements that are combined to create a field are
+	 * queried for span elements, of class "param" or "units". 
+	 * If present, these will affect the type of field that is created
+	 * eg Number or Text field, and the text in these elements
+	 * is used to populate the Default and Units attributes.
+	 */
+	public void importText() {
 		
+		/*
+		 * Get the HTML text from the text area, and write it to a 
+		 * temporary file...
+		 */
 		String htmlText = textArea.getText();
 		
 		File tempFile = new File(
 				ConfigConstants.OMERO_EDITOR_FILE + 
 				File.separator + "importFile");
 		
-
 		FileWriter writer;
 		try {
 			writer = new FileWriter(tempFile);
@@ -248,10 +294,15 @@ public class TextImporter extends JPanel{
 		}
 	
 		
-		
+		/*
+		 * ... Read the file as a DOM document. 
+		 */
 		try {
 			Document xhtmlDoc = XMLMethods.readXMLtoDOM(tempFile);
 			
+			/*
+			 * Get all the <p> elements (paragraphs) in a list.
+			 */
 			NodeList paragraphs = xhtmlDoc.getElementsByTagName(P);
 			
 			String newLine =  "";
@@ -259,9 +310,9 @@ public class TextImporter extends JPanel{
 			/*
 			 * Define the root node of a tree.
 			 * This will get instantiated by the first paragraph of the NodeList
+			 * Subsequent paragraphs are added as children of this node. 
 			 */
 			DataFieldNode rootNode = null;
-			
 			
 			String fieldName = null;
 			String desc = "";
@@ -277,23 +328,36 @@ public class TextImporter extends JPanel{
 
 				newLine = paraElement.getTextContent().trim();
 				
+				//System.out.println(newLine);
+				
 				/*
-				 * If this element has some text, 
+				 * If this element has some text, it is not a break between
+				 * paragraphs...
 				 */
 				if (newLine.length() > 0) {
 					
+					/*
+					 * Concatenate all the lines from a contiguous <p> elements
+					 * to form the description of a single field. 
+					 */
+					if (desc.length() > 0)
+						desc = desc + "<br>";
+					
+					desc = desc + newLine;
 					
 					/*
-					 * Does this element have children? Get the first <b>
+					 * Does this element have children? Get the <b>
+					 * elements and concatenate their text content...
 					 */
 					NodeList bolds = paraElement.getElementsByTagName("b");
-					if (bolds.getLength() > 0) {
-						Element firstBoldElement = (Element)bolds.item(0);
-						fieldName = firstBoldElement.getTextContent();
+					for (int b =0; b < bolds.getLength(); b++) {
+						Element bold = (Element)bolds.item(b);
+						if (fieldName == null) fieldName = bold.getTextContent();
+						else fieldName = fieldName + " " + bold.getTextContent();
 					}
 					
 					/*
-					 * Go through <span> elements, looking for 
+					 * Go through <span> elements, looking for...
 					 */
 					NodeList spans = paraElement.getElementsByTagName("span");
 					for (int s=0; s<spans.getLength(); s++) {
@@ -301,6 +365,7 @@ public class TextImporter extends JPanel{
 						String className = span.getAttribute("class");
 						/*
 						 * Look for <span> elements that have class="param" 
+						 * Just save the first value. Ignore others.
 						 */
 						if ("param".equals(className) && (paramDefault == null)) {
 							paramDefault = span.getTextContent().trim();
@@ -308,19 +373,13 @@ public class TextImporter extends JPanel{
 						/*
 						 * Does this field have units? 
 						 * Check to see if this <span> defines units...
+						 * Just save the first value. Ignore others.
 						 */
 						else if ("units".equals(className) && (paramUnits == null)) {
 							paramUnits = span.getTextContent().trim();
 						}
 						
 					}
-					
-					
-					
-					if (desc.length() > 0)
-						desc = desc + "<br>";
-					
-					desc = desc + newLine;
 					
 				}
 				
@@ -339,11 +398,11 @@ public class TextImporter extends JPanel{
 					HashMap<String,String> map = new HashMap<String,String>();
 					
 					if ((fieldName == null) && (desc != null)) {
-						if (desc.length() < 40) {
+						if (desc.length() < MAX_NAME_CHARS) {
 							fieldName = desc;
 							desc = "";
 						} else {
-							fieldName = desc.substring(0, 38) + "...";
+							fieldName = desc.substring(0, MAX_NAME_CHARS - 2) + "...";
 						}
 					}
 					if (fieldName != null)
@@ -351,6 +410,9 @@ public class TextImporter extends JPanel{
 					if (desc.length() > 0) 
 						map.put(DataFieldConstants.DESCRIPTION, desc);
 				
+					/*
+					 * Define the type of field, based on the attributes found
+					 */
 					if ((paramDefault == null) && (paramUnits == null)) {
 						// Field has no parameter or units. Fixed step.
 						map.put(DataFieldConstants.INPUT_TYPE, 
@@ -371,23 +433,36 @@ public class TextImporter extends JPanel{
 						map.put(DataFieldConstants.UNITS, paramUnits);
 					}
 				
-					
-					
+					/*
+					 * If the rootNode is null, this must be the first 
+					 * field created. Therefore, instantiate the root and
+					 * add it to the tree. 
+					 */
 					if (rootNode == null) {
-						System.out.println("Creating root node...");
+						//System.out.println("Creating root node...");
 						rootNode = new DataFieldNode(map, tree);
 						tree.setRootNode(rootNode);
+						
+					/*
+					 * Otherwise, the root node has been created, so add the
+					 * new field as a child of the root. 
+					 */
 					} else {
-						System.out.println(" Adding childNode");
+						//System.out.println(" Adding childNode");
 						DataFieldNode newNode = new DataFieldNode(map, tree);
 						rootNode.addChild(newNode);
 					}
 					
+					/*
+					 * Having added a field, these values are reset for 
+					 * a new field. 
+					 */
 					desc = "";
 					fieldName = null;
 					paramDefault = null;
 					paramUnits = null;
-				}
+					
+				}	// end of if (newLine.length == 0)
 				
 			}	// end of for-loop (all <p> elements)
 			
@@ -398,99 +473,9 @@ public class TextImporter extends JPanel{
 			e.printStackTrace();
 		}
 		
-		
-		
 		/*
-		 * Delete the temp file (unless bug-fixing)
+		 * Finally, delete the temp file (unless bug-fixing)
 		 */
-	   // tempFile.delete();
-	}
-	
-	
-	public void importTextToTree() {
-		String wholeText = textArea.getText();
-		
-		StringReader sr = new StringReader(wholeText);
-		
-		BufferedReader br = new BufferedReader(sr);
-		
-		try {
-			String newLine = br.readLine();
-			
-			/*
-			 * Create the root node of a tree.
-			 */
-			
-			HashMap<String,String> attributeMap = new HashMap<String,String>();
-			attributeMap.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.PROTOCOL_TITLE);
-			attributeMap.put(DataFieldConstants.ELEMENT_NAME, newLine);
-			
-			DataFieldNode rootNode = new DataFieldNode(attributeMap, tree);
-			
-			tree.setRootNode(rootNode);
-			
-			newLine = br.readLine();
-			
-			while (newLine != null) {
-				System.out.println(newLine);
-				
-				/*
-				 * For each new line, Take the text, put it in a new node,
-				 * and add the node as a child of root node. 
-				 */
-				if (newLine.length() > 0) {
-					HashMap<String,String> map = new HashMap<String,String>();
-					map.put(DataFieldConstants.INPUT_TYPE, DataFieldConstants.FIXED_PROTOCOL_STEP);
-					map.put(DataFieldConstants.ELEMENT_NAME, newLine);
-				
-					DataFieldNode newNode = new DataFieldNode(map, tree);
-					rootNode.addChild(newNode);
-				}
-				
-				newLine = br.readLine();
-			}
-			
-			model.openTree((Tree)tree);
-			
-		} catch (IOException ioEx) {
-			// TODO Auto-generated catch block
-			ioEx.printStackTrace();
-		}
-	}
-	
-	public class TextAreaFocusListener implements FocusListener {
-		public void focusGained(FocusEvent e) {
-			if (e.getSource() instanceof JTextComponent) {
-				JTextComponent source = (JTextComponent)e.getSource();
-				int textLength = source.getText().length();
-				source.setSelectionStart(0);
-				source.setSelectionEnd(textLength);
-			}
-		}
-		public void focusLost(FocusEvent e) {}
-		
-	}
-	
-	public void displayInFrame(JPanel panel) {
-		
-		frame = new JFrame();
-		
-		frame.getContentPane().add(panel);
-		
-		frame.pack();
-		frame.setLocation(50, 50);
-		frame.setVisible(true);
-	}
-	
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
-	public void setHeaderMessage(String message) {
-		this.headerMessage = message;
-	}
-	
-	public void setHeaderIcon(Icon icon) {
-		this.headerIcon = icon;
+	    tempFile.delete();
 	}
 }

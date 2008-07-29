@@ -23,10 +23,18 @@
 
 package ui.components;
 
+//Java imports
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
+
+import javax.swing.JTextArea;
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
@@ -34,13 +42,40 @@ import tree.Tree;
 import ui.IModel;
 import util.ImageFactory;
 
-
+/** 
+* The table Importer is a dialog containing a Text Area in which users 
+* can paste tab-delimited data that is imported into a table field in
+* OMERO.editor.
+*
+* @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
 public class TableImporter 
-	extends TextImporter {
+	extends ImportDialog {
 
+	/**
+	 * Creates an instance of this class.
+	 * 
+	 * @param model		The model used for opening newly imported files. 
+	 */
 	public TableImporter(IModel model) {
 		
-		initialise(model);
+		super(model, "Import Table");
+		
+	}
+	
+	/**
+	 * This is called by the superclass constructor, before building the UI.
+	 * Subclasses should initialise the text area. 
+	 * In this case, it is simply a JTextArea. 
+	 * Header message and Icon are also set here. 
+	 */
+	public void initialiseTextArea() {
 		
 		setTitle("Import Table");
 		 
@@ -49,11 +84,26 @@ public class TableImporter
 		 
 		setHeaderIcon(ImageFactory.getInstance().getIcon(ImageFactory.KORGANIZER_ICON));
 		
-		 
-		buildAndDisplayUI();
+		
+		// Text Area...
+		
+		textArea = new JTextArea();
+		textArea.setText("<Paste your text here>");
+		((JTextArea)textArea).setWrapStyleWord(true);
+		((JTextArea)textArea).setLineWrap(true);
+		textArea.addFocusListener(new TextAreaFocusListener());
+		
 	}
 	
-	public void importTextToTree() {
+	/**
+	 * The text import method, called when the user hits the "Import" button.
+	 * The TableImporter creates a Tree with a single child Table field to 
+	 * hold the table data. 
+	 * 
+	 * The tab-delimited text is parsed, placing each token of text into
+	 * a separate cell of the table. 
+	 */
+	public void importText() {
 		String wholeText = textArea.getText();
 		
 		StringReader sr = new StringReader(wholeText);

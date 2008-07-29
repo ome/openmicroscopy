@@ -62,11 +62,20 @@ public class InsertSpanAction
 	Color bgColour;
 	
 	/**
-	 * Creates an instance of this class.
+	 * Creates an instance of this Action, which will add a span element to 
+	 * selected text, with the class attribute equal to spanClassValue,
+	 * and a background of bgColor (JEditorPane display only, not in html).
+	 * The class attribute and colour can be null.
+	 * The generated span element replaces other span elements in the 
+	 * selected text. 
 	 * 
-	 * @param actionName
-	 * @param spanClassValue
-	 * @param bgColour
+	 * @param actionName		The name of the action.
+	 * @param spanClassValue	The value of the class attribute in the span
+	 * 							element. eg class = "value". 
+	 * 							Can be null: No class attribute will be added.
+	 * @param bgColour		A background colour to indicate the extent of the
+	 * 						span element in the JEditorPane. Not saved as html.
+	 * 						If null, no Colour will be added. 
 	 */
 	public InsertSpanAction(String actionName, String spanClassValue, 
 			Color bgColour) {
@@ -85,6 +94,7 @@ public class InsertSpanAction
 			 * An attribute set, to hold a list of attributes (not html specific)
 			 */
 			MutableAttributeSet divAttributes = new SimpleAttributeSet();
+			if (spanClassValue != null)
 			divAttributes.addAttribute(HTML.Attribute.CLASS, spanClassValue);
 			
 			/*
