@@ -175,11 +175,13 @@ public class AbstractManagedContextTest extends
         return OmeroContext.getManagedServerContext();
     }
 
-    protected void login(String userName, String groupName, String eventType) {
+    protected Principal login(String userName, String groupName,
+            String eventType) {
         Principal p = new Principal(userName, groupName, eventType);
         Session s = sessionManager.create(p);
         p = new Principal(s.getUuid(), groupName, eventType);
         securitySystem.login(p);
+        return p;
     }
 
     protected String uuid() {
