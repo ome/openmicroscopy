@@ -145,7 +145,7 @@ class TaskBarManager
 	 * The exit action.
 	 * Just forwards to the container.
 	 */
-	private void doExit()
+	protected void doExit()
     { 
        // IconManager icons = IconManager.getInstance(container.getRegistry());
       
@@ -239,15 +239,14 @@ class TaskBarManager
 		}
 		*/
 		
-		int n = JOptionPane.showConfirmDialog(null, "Really Quit?");
-		if (n == JOptionPane.YES_OPTION) {
+		
 			
 			// save settings etc..
 			StartupShutdown.prepareForSystemExit();
 			
 			System.exit(0);
 
-		}
+		
 		
        /* MessageBox msg;
         msg = new MessageBox(view, "Exit application", 

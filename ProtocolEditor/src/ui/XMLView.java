@@ -612,7 +612,7 @@ public class XMLView
 	                mainWindowClosing();
 	            }
 	        }); */ 
-			new TaskBarManager(XMLFrame);	// handles system quit command for Macs 
+			new MyTaskBarManager(XMLFrame, this);	// handles system quit command for Macs 
 			
 			XMLFrame.setLocation(200, 100);
 			XMLFrame.setVisible(true);
@@ -680,7 +680,47 @@ public class XMLView
 		protocolTab.setVisible(!noFiles);
 	}
 	
-	
+	/**
+	 * Need to check all currently opened files to see if any are unsaved.
+	 * If so, Ask the user if they want to quit anyway, or return to 
+	 * application and save files. 
+	 * Close all files that are saved, so that only unsaved ones are open. 
+	 * 
+	 * @return 		true if there are no unsaved files open, or the user
+	 * 				decides to quit anyway. 
+	 */
+	public boolean tryQuitApp() {
+		
+		boolean okToQuit = true;
+		
+		int openFileCount = xmlModel.getOpenFileList().length;
+		
+		for (int i=0; i<openFileCount; i++) {
+			xmlModel.changeCurrentFile(i);
+			if (! xmlModel.isCurrentFileEdited()) {
+				xmlModel.closeCurrentFile();
+			} else {
+				okToQuit = false;
+			}
+		}
+		
+		if (! okToQuit) {
+			
+			Object[] options = {"Quit Anyway", "Save Files"};
+			int n = JOptionPane.showOptionDialog(null,
+					"Some files failed to close because they have unsaved \n" +
+					"changes. Would you like to save changes or Quit?",
+					"Really Quit?",
+					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE,
+					null,     //do not use a custom Icon
+					options,  //the titles of buttons
+					options[1]); //default button title
+			
+			if (n == 0)		// if user chose "Quit Anyway"...
+				okToQuit = true;
+		}
+		return okToQuit;
+	}
 	
 	// display the DataField in the XMLScrollPane
 	public void displayThisDataField(DataField field) {
