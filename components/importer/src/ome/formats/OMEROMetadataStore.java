@@ -640,7 +640,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 if (plateList.size() > 0 && wsVector.size() > i+j)
                 {
                     log.debug("Linking wellsample to image");
-                    wsVector.get(i+j).linkImage(image);
+                    wsVector.get(i+j).setImage(image);
                 }
             }
         }
@@ -2847,7 +2847,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
        
         WellSample ws = null;
         
-        if ((well.sizeOfWellSample() -1) < wellSampleIndex)
+        if ((well.sizeOfWellSamples() -1) < wellSampleIndex)
         {
             ws = new WellSample();
             //ws.setWell(well);
