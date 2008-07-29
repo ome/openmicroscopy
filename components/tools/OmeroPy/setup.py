@@ -26,7 +26,7 @@ use_setuptools()
 from setuptools import setup
 
 setup(name="OmeroPy",
-      version="0.1dev",
+      version="3.0-Beta3.1",
       description="Python bindings to the OMERO.blitz server",
       long_description="""\
 Python bindings to the OMERO.blitz server.

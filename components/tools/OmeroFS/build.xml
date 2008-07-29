@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="OmeroFS" default="tools-dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+    Python code for the FS server.
+    </description>
+
+    <property name="uses.ice" value="true"/>
+    <dirname property="up-two" file="${basedir}"/>
+    <dirname property="up-one" file="${up-two}"/>
+    <property name="import.dir"       value="${up-one}/antlib/resources"/>
+
+    <import file="${import.dir}/global.xml"/>
+    <import file="../common.xml"/>
+    <import file="../python.xml"/>
+
+    <target name="tools-init" unless="env.NOPYTHON"/>
+
+    <target name="tools-build" depends="tools-init" description="Creates all artifacts for tools/target" unless="env.NOPYTHON">
+        <antcall target="python-build" inheritAll="true" inheritRefs="true"/>
+    </target>
+
+    <target name="tools-dist" depends="tools-build" description="Copied artifacts to tools/target" unless="env.NOPYTHON">
+        <antcall target="python-install" inheritAll="true" inheritRefs="true"/>
+    </target>
+
+    <target name="tools-clean" depends="python-clean"/>
+
+</project>
