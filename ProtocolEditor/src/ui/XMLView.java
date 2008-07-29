@@ -534,7 +534,7 @@ public class XMLView
 			setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_C);
 			protocolMenu.add(copyFieldsMenuItem);
 			JMenuItem pasteFieldsMenuItem = new JMenuItem(controller.getAction(Controller.PASTE_FIELD));
-			setMenuItemAccelerator(copyFieldsMenuItem, KeyEvent.VK_V);
+			setMenuItemAccelerator(pasteFieldsMenuItem, KeyEvent.VK_V);
 			protocolMenu.add(pasteFieldsMenuItem);
 			menuBar.add(protocolMenu);
 			
