@@ -47,6 +47,7 @@
         <property file="${root.dir}/etc/hibernate.properties" />
         <property name="test.with.fail" value="true"/>
         <property name="classpath.file" value="classpath.xml"/>
+        <property name="omero.resolver" value="omero-resolver"/>
 
         <!-- Imports -->
         <import file="${import.dir}/patterns.xml"/>

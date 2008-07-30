@@ -182,7 +182,7 @@ build-* targets.
             <mkdir dir="${dist.dir}/lib/repository"/>
             <ivy:resolve file="${import.dir}/omero.ivy" type="jar" conf="server" settingsRef="ivy.toplevel"/>
             <ivy:retrieve conf="server" pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
-            <ivy:resolve organisation="apache" module="ant" revision="${versions.ant}" inline="true" />
+            <ivy:resolve organisation="apache" module="ant" revision="${versions.ant}" inline="true" settingsRef="ivy.toplevel"/>
             <ivy:retrieve pattern="${dist.dir}/lib/repository/[module]-[revision].[ext]" sync="true" log="quiet" settingsRef="ivy.toplevel"/>
 
             <copy
@@ -332,13 +332,18 @@ build-* targets.
         <ivy:resolve settingsRef="ivy.toplevel"
             file="${omero.home}/ivy.xml" type="zip" log="quiet"/>
         <ivy:publish settingsRef="ivy.toplevel"
-            artifactspattern="${omero.home}/ivy.xml" forcedeliver="true"
-            resolver="omero-resolver" pubrevision="${omero.version}"
-            pubdate="${now}" status="integration" overwrite="true"/>
+            artifactspattern="${omero.home}/OMERO.server-${omero.version}.zip"
+            srcivypattern="${omero.home}/ivy.xml"
+            forcedeliver="true"
+            resolver="omero-resolver"
+            pubrevision="${omero.version}"
+            pubdate="${now}"
+            status="integration"
+            overwrite="true"/>
         <ivy:install settingsRef="ivy.toplevel"
-            organisation="omero" module="main" revision="${omero.version}" 
+            organisation="omero" module="main" revision="${omero.version}"
             from="omero-resolver" to="hudson-repository"
             transitive="true" overwrite="true"/>
     </target>
- 
+
 </project>

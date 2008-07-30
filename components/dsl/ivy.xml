@@ -19,7 +19,7 @@
     <dependency org="commons-logging" name="commons-logging" rev="${versions.commons-logging}" conf="build,test,runtime->default"/>
     <dependency org="commons-collections" name="commons-collections" rev="${versions.commons-collections}" conf="build,test,runtime->default"/>
     <!-- build requirements -->
-    <dependency org="ant" name="ant" rev="${versions.ant}"/>
+    <dependency org="apache" name="ant" rev="${versions.ant}"/>
     <dependency org="velocity-tools" name="velocity-tools-generic" rev="1.1"/>
     <dependency org="velocity" name="velocity" rev="1.4"/>
     <dependency org="emma" name="emma" rev="${versions.emma}"/>

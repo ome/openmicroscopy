@@ -32,7 +32,7 @@
     <dependency org="commons-io" name="commons-io" rev="${versions.commons-io}"/>
     <dependency org="eclipse" name="jdtcore" rev="3.1.0"/>
     <dependency org="net/sf/ehcache" name="ehcache" rev="${versions.ehcache}"/>
-    <dependency org="jamon" name="jamon" rev="1.0"/>
+    <dependency org="jamon" name="jamon" rev="${versions.jamon}"/>
     <dependency org="omero" name="jbosssx" rev="${versions.jboss}"/>
     <dependency org="omero" name="jboss-ejb3x" rev="${versions.jboss}"/>
     <dependency org="omero" name="jboss-annotations-ejb3" rev="${versions.jboss}"/>
