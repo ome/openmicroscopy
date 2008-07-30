@@ -38,14 +38,17 @@
 
   <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
 
+  <bean id="sharingACLVoter" class="ome.security.sharing.SharingACLVoter">
+    <constructor-arg ref="
+  </bean>
+  
   <bean id="basicACLVoter" class="ome.security.basic.BasicACLVoter">
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="tokenHolder"/>
   </bean>
 
-  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean"
-        init-method="init">
+  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean">
     <description>
     Used by hibernate.xml during the creation of SessionFactory.
     </description>

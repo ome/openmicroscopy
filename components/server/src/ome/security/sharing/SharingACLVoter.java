@@ -12,7 +12,9 @@ import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.security.ACLVoter;
+import ome.security.SystemTypes;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.basic.CurrentDetails;
 import ome.services.sharing.ShareStore;
 
 import org.apache.commons.logging.Log;
@@ -29,13 +31,17 @@ public class SharingACLVoter implements ACLVoter {
 
     private final static Log log = LogFactory.getLog(SharingACLVoter.class);
 
+    private final SystemTypes sysTypes;
+
     private final ShareStore store;
 
-    private final BasicSecuritySystem basic;
+    private final CurrentDetails cd;
 
-    public SharingACLVoter(BasicSecuritySystem basic, ShareStore store) {
+    public SharingACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            ShareStore store) {
+        this.sysTypes = sysTypes;
         this.store = store;
-        this.basic = basic;
+        this.cd = cd;
     }
 
     // ~ Interface methods
@@ -54,10 +60,10 @@ public class SharingACLVoter implements ACLVoter {
     public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
         // Assert.notNull(d);
-        if (d == null || basic.isSystemType(klass)) {
+        if (d == null || sysTypes.isSystemType(klass)) {
             return true;
         }
-        long session = basic.getEventContext().getCurrentSessionId();
+        long session = cd.getCurrentEventContext()
         return store.contains(session, klass, id);
     }
 

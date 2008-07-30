@@ -46,12 +46,8 @@ public class SecuritySystemHolder implements SecuritySystem {
         this.sharing = sharing;
     }
 
-    public void chooseBasic() {
-        current.set(basic);
-    }
-
-    public void chooseSharing() {
-        current.set(sharing);
+    public SecuritySystem choose() {
+        this.basic.getEventContext()
     }
 
     // Delegation
@@ -59,80 +55,80 @@ public class SecuritySystemHolder implements SecuritySystem {
 
     public Details checkManagedDetails(IObject object, Details trustedDetails)
             throws ApiUsageException, SecurityViolation {
-        return current.get().checkManagedDetails(object, trustedDetails);
+        return choose().checkManagedDetails(object, trustedDetails);
     }
 
     public void clearEventContext() {
-        current.get().clearEventContext();
+        choose().clearEventContext();
     }
 
     public void disable(String... ids) {
-        current.get().disable(ids);
+        choose().disable(ids);
     }
 
     public <T extends IObject> T doAction(SecureAction action, T... objs) {
-        return current.get().doAction(action, objs);
+        return choose().doAction(action, objs);
     }
 
     public void enable(String... ids) {
-        current.get().enable(ids);
+        choose().enable(ids);
     }
 
     public ACLVoter getACLVoter() {
-        return current.get().getACLVoter();
+        return choose().getACLVoter();
     }
 
     public EventContext getEventContext() {
-        return current.get().getEventContext();
+        return choose().getEventContext();
     }
 
     public Roles getSecurityRoles() {
-        return current.get().getSecurityRoles();
+        return choose().getSecurityRoles();
     }
 
     public boolean hasPrivilegedToken(IObject obj) {
-        return current.get().hasPrivilegedToken(obj);
+        return choose().hasPrivilegedToken(obj);
     }
 
     public boolean isDisabled(String id) {
-        return current.get().isDisabled(id);
+        return choose().isDisabled(id);
     }
 
     public boolean isEmptyEventContext() {
-        return current.get().isEmptyEventContext();
+        return choose().isEmptyEventContext();
     }
 
     public boolean isReady() {
-        return current.get().isReady();
+        return choose().isReady();
     }
 
     public boolean isSystemType(Class<? extends IObject> klass) {
-        return current.get().isSystemType(klass);
+        return choose().isSystemType(klass);
     }
 
     public void loadEventContext(boolean isReadyOnly) {
-        current.get().loadEventContext(isReadyOnly);
+        choose().loadEventContext(isReadyOnly);
     }
 
     public void login(Principal principal) {
-        current.get().login(principal);
+        choose().login(principal);
     }
 
     public int logout() {
-        return current.get().logout();
+        return choose().logout();
     }
 
     public Details newTransientDetails(IObject object)
             throws ApiUsageException, SecurityViolation {
-        return current.get().newTransientDetails(object);
+        return choose().newTransientDetails(object);
     }
 
     public void runAsAdmin(AdminAction action) {
-        current.get().runAsAdmin(action);
+        choose().runAsAdmin(action);
     }
 
     public void setEventContext(EventContext context) {
-        current.get().setEventContext(context);
+        choose().setEventContext(context);
     }
 
 }

@@ -18,12 +18,24 @@ import org.apache.commons.logging.LogFactory;
  * Manages a special token (a unique object) which can be inserted into
  * {@link IObject} instances for special almost-administrative handling.
  * 
+ * Identifies loose "ownership" of certain objects.
+ * 
+ * @see IObject#getGraphHolder()
+ * @see GraphHolder#hasToken()
  */
 public class TokenHolder {
 
     private static Log log = LogFactory.getLog(TokenHolder.class);
 
     private final Token token = new Token();
+
+    public void setToken(GraphHolder gh) {
+        gh.setToken(token, token);
+    }
+
+    public void clearToken(GraphHolder gh) {
+        gh.setToken(token, null);
+    }
 
     public boolean hasPrivilegedToken(IObject obj) {
 

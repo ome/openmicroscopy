@@ -28,6 +28,8 @@ import ome.annotations.RevisionNumber;
 @RevisionNumber("$Revision$")
 public interface EventContext {
 
+    Long getCurrentShareId();
+
     Long getCurrentSessionId();
 
     String getCurrentSessionUuid();

@@ -21,7 +21,6 @@ import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
-import ome.model.internal.Token;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -118,14 +117,14 @@ public class CurrentDetails {
 
     // ~ Events and Details
     // =================================================================
-    // TODO keep up with stach here?
-    public void newEvent(long sessionId, EventType type, Token token) {
+    // TODO keep up with stack here?
+    public void newEvent(long sessionId, EventType type, TokenHolder tokenHolder) {
         Event e = new Event();
         e.setType(type);
         e.setTime(new Timestamp(System.currentTimeMillis()));
         e.setExperimenter(getOwner());
         e.setExperimenterGroup(getGroup());
-        e.getGraphHolder().setToken(token, token);
+        tokenHolder.setToken(e.getGraphHolder());
         e.getDetails().setPermissions(Permissions.READ_ONLY);
         e.setSession(new Session(sessionId, false));
         setCreationEvent(e);

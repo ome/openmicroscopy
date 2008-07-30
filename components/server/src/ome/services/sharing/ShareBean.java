@@ -96,7 +96,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         holder.chooseSharing();
         throw new RuntimeException("Need to set the id somewhere. "
                 + "Perhaps we create a new SharingSecuritySystem (stateful?) "
-                + "attached to the session?");
+                + "attached to the session? Also need to reset the thread"
+                + "when we exit? Needs to sit in the session.");
     }
 
     // ~ Admin

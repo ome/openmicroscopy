@@ -71,16 +71,6 @@ import org.springframework.util.Assert;
 public class BasicSecuritySystem implements SecuritySystem {
     private final static Log log = LogFactory.getLog(BasicSecuritySystem.class);
 
-    /**
-     * private token for identifying loose "ownership" of certain objects.
-     * 
-     * @see IObject#getGraphHolder()
-     * @see GraphHolder#hasToken()
-     */
-    private final Token token = new Token();
-
-    /** active principal stack */
-
     protected final OmeroInterceptor interceptor;
 
     protected final SystemTypes sysTypes;
@@ -284,6 +274,7 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
         final LocalUpdate update = (LocalUpdate) sf.getUpdateService();
+        final LocalQuery query = (LocalQuery) sf.getQueryService();
 
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
@@ -302,7 +293,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         } else {
             exp = admin.userProxy(ec.getCurrentUserId());
         }
-        exp.getGraphHolder().setToken(token, token);
+        tokenHolder.setToken(exp.getGraphHolder());
         cd.setOwner(exp);
 
         // Active group
@@ -318,7 +309,7 @@ public class BasicSecuritySystem implements SecuritySystem {
                     "User %s is not a member of group %s", p.getName(), p
                             .getGroup()));
         }
-        grp.getGraphHolder().setToken(token, token);
+        tokenHolder.setToken(grp.getGraphHolder());
         cd.setGroup(grp);
 
         // isAdmin
@@ -332,11 +323,11 @@ public class BasicSecuritySystem implements SecuritySystem {
             t = ec.getCurrentEventType();
         }
         EventType type = new EventType(t);
-        type.getGraphHolder().setToken(token, token);
-        cd.newEvent(ec.getCurrentSessionId().longValue(), type, token);
+        tokenHolder.setToken(type.getGraphHolder());
+        cd.newEvent(ec.getCurrentSessionId().longValue(), type, tokenHolder);
 
         Event event = getCurrentEvent();
-        event.getGraphHolder().setToken(token, token);
+        tokenHolder.setToken(event.getGraphHolder());
 
         // If this event is not read only, then lets save this event to prevent
         // flushing issues later.
@@ -404,7 +395,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     }
 
     public void newEvent(long sessionId, EventType type) {
-        cd.newEvent(sessionId, type, token);
+        cd.newEvent(sessionId, type, tokenHolder);
     }
 
     public void setCurrentEvent(Event event) {
@@ -567,7 +558,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         // Holding onto the graph holders since they protect the access
         // to their tokens
         for (GraphHolder graphHolder : ghs) {
-            graphHolder.setToken(token, token); // oneTimeToken
+            tokenHolder.setToken(graphHolder); // oneTimeToken
         }
 
         T retVal;
@@ -575,7 +566,7 @@ public class BasicSecuritySystem implements SecuritySystem {
             retVal = action.updateObject(objs);
         } finally {
             for (GraphHolder graphHolder : ghs) {
-                graphHolder.setToken(token, null);
+                tokenHolder.clearToken(graphHolder);
             }
         }
         return retVal;

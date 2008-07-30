@@ -58,10 +58,28 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
     }
 
     /**
-     * adds all default listeners. These will be overwritten during
-     * {@link #createInstance()}. Do not configure listeners here.
+     * this {@link FactoryBean} produces a {@link Map} instance for use in
+     * {@link LocalSessionFactoryBean#setEventListeners(Map)}
      */
-    public void init() {
+    @Override
+    public Class getObjectType() {
+        return Map.class;
+    }
+
+    /**
+     * being a singleton implies that this {@link FactoryBean} will only ever
+     * create one instance.
+     */
+    @Override
+    public boolean isSingleton() {
+        return true;
+    }
+
+    /**
+     * First, adds all default listeners. These are then overwritten.
+     */
+    @Override
+    protected Object createInstance() throws Exception {
         put("auto-flush", eventListeners.getAutoFlushEventListeners());
         put("merge", eventListeners.getMergeEventListeners());
         put("create", eventListeners.getPersistEventListeners());
@@ -95,28 +113,6 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
         put("post-commit-insert", eventListeners
                 .getPostCommitInsertEventListeners());
         assertHasAllKeys();
-    }
-
-    /**
-     * this {@link FactoryBean} produces a {@link Map} instance for use in
-     * {@link LocalSessionFactoryBean#setEventListeners(Map)}
-     */
-    @Override
-    public Class getObjectType() {
-        return Map.class;
-    }
-
-    /**
-     * being a singleton implies that this {@link FactoryBean} will only ever
-     * create one instance.
-     */
-    @Override
-    public boolean isSingleton() {
-        return true;
-    }
-
-    @Override
-    protected Object createInstance() throws Exception {
         overrides();
         additions();
         return map;
