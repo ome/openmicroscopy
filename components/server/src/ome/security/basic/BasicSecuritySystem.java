@@ -31,7 +31,6 @@ import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.GroupExperimenterMap;
-import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
@@ -83,8 +82,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     protected final Roles roles;
 
-    protected final ACLVoter acl;
-
     protected final SessionManager sessionManager;
 
     protected final ServiceFactory sf;
@@ -102,8 +99,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
                 cd, th, ph);
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
-                new Roles(), sf, new BasicACLVoter(cd, st, th),
-                new TokenHolder(), ph);
+                new Roles(), sf, new TokenHolder(), ph);
         return sec;
     }
 
@@ -113,15 +109,13 @@ public class BasicSecuritySystem implements SecuritySystem {
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
             SessionManager sessionManager, Roles roles, ServiceFactory sf,
-            ACLVoter acl, TokenHolder tokenHolder,
-            PrincipalHolder principalHolder) {
+            TokenHolder tokenHolder, PrincipalHolder principalHolder) {
         this.principalHolder = principalHolder;
         this.sessionManager = sessionManager;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
         this.sysTypes = sysTypes;
         this.roles = roles;
-        this.acl = acl;
         this.cd = cd;
         this.sf = sf;
     }
@@ -281,6 +275,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         final EventContext ec = sessionManager.getEventContext(p);
 
         // start refilling current details
+        cd.setShareId(ec.getCurrentShareId());
         cd.setReadOnly(isReadOnly);
 
         cd.setMemberOfGroups(ec.getMemberOfGroupsList());
@@ -625,10 +620,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     public EventContext getEventContext() {
         return cd.getCurrentEventContext();
-    }
-
-    public ACLVoter getACLVoter() {
-        return acl;
     }
 
     // ~ Helpers

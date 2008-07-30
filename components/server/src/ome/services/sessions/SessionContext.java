@@ -29,6 +29,11 @@ public interface SessionContext extends EventContext {
     // Reference counting
 
     /**
+     * The Share id is the only mutable bit in the {@link SessionContext}.
+     */
+    void setShareId(Long shareId);
+
+    /**
      * Return the current number of references which this session is aware of.
      */
     int refCount();

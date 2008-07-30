@@ -10,6 +10,7 @@ package ome.services.util;
 import java.sql.SQLException;
 
 import ome.security.SecuritySystem;
+import ome.security.basic.PrincipalHolder;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -135,16 +136,16 @@ public interface Executor extends ApplicationContextAware {
         protected OmeroContext context;
 
         final protected ProxyFactoryBean proxyFactory;
-        final protected SecuritySystem secSystem;
+        final protected PrincipalHolder principalHolder;
         final protected String[] proxyNames;
         final protected TransactionTemplate txTemplate;
         final protected HibernateTemplate hibTemplate;
 
-        public Impl(SecuritySystem secSystem, TransactionTemplate tt,
+        public Impl(PrincipalHolder principalHolder, TransactionTemplate tt,
                 HibernateTemplate ht, String[] proxyNames) {
             this.txTemplate = tt;
             this.hibTemplate = ht;
-            this.secSystem = secSystem;
+            this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
             this.proxyFactory = new ProxyFactoryBean();
             this.proxyFactory.setInterceptorNames(this.proxyNames);
@@ -203,7 +204,7 @@ public interface Executor extends ApplicationContextAware {
             outer = (Work) this.proxyFactory.getObject();
 
             if (p != null) {
-                this.secSystem.login(p);
+                this.principalHolder.login(p);
             }
             try {
                 // Arguments will be replaced after hibernate is in effect
@@ -211,7 +212,7 @@ public interface Executor extends ApplicationContextAware {
                         this.context));
             } finally {
                 if (p != null) {
-                    this.secSystem.logout();
+                    this.principalHolder.logout();
                 }
             }
         }

@@ -21,7 +21,6 @@ import ome.model.internal.Details;
 import ome.model.internal.Permissions;
 import ome.model.internal.Token;
 import ome.security.ACLEventListener;
-import ome.security.ACLVoter;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
@@ -44,12 +43,6 @@ import ome.system.Roles;
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
 public class SharingSecuritySystem implements SecuritySystem {
-
-    private final ACLVoter voter;
-
-    public SharingSecuritySystem(ACLVoter voter) {
-        this.voter = voter;
-    }
 
     public Details checkManagedDetails(IObject object, Details trustedDetails)
             throws ApiUsageException, SecurityViolation {
@@ -75,10 +68,6 @@ public class SharingSecuritySystem implements SecuritySystem {
     public void enable(String... ids) {
         // TODO Auto-generated method stub
 
-    }
-
-    public ACLVoter getACLVoter() {
-        return voter;
     }
 
     public EventContext getEventContext() {

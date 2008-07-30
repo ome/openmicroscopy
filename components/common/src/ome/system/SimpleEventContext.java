@@ -35,6 +35,8 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     private static final long serialVersionUID = -3918201598642847439L;
 
+    protected Long shareId;
+
     protected Long csId;
 
     protected Long cgId;
@@ -68,7 +70,7 @@ public class SimpleEventContext implements EventContext, Serializable {
         if (ec == null) {
             throw new IllegalArgumentException("Argument cannot be null.");
         }
-
+        shareId = ec.getCurrentShareId();
         csId = ec.getCurrentSessionId();
         cgId = ec.getCurrentGroupId();
         cuId = ec.getCurrentUserId();
@@ -81,6 +83,10 @@ public class SimpleEventContext implements EventContext, Serializable {
         isReadOnly = ec.isReadOnly();
         memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
         leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
+    }
+
+    public Long getCurrentShareId() {
+        return shareId;
     }
 
     public Long getCurrentSessionId() {

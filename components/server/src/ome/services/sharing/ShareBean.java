@@ -35,6 +35,7 @@ import ome.model.annotations.TextAnnotation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.SecuritySystemHolder;
+import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.Principal;
@@ -68,13 +69,13 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     public final static String NS_ENABLED = "ome.share.enabled";
 
-    final LocalAdmin admin;
+    final protected LocalAdmin admin;
 
-    final SessionManager sessionManager;
+    final protected SessionManager sessionManager;
 
-    final ShareStore store;
+    final protected ShareStore store;
 
-    final SecuritySystemHolder holder;
+    final protected SecuritySystemHolder holder;
 
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IShare.class;
@@ -93,11 +94,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public void activate(long shareId) {
-        holder.chooseSharing();
-        throw new RuntimeException("Need to set the id somewhere. "
-                + "Perhaps we create a new SharingSecuritySystem (stateful?) "
-                + "attached to the session? Also need to reset the thread"
-                + "when we exit? Needs to sit in the session.");
+        String uuid = this.admin.getEventContext().getCurrentSessionUuid();
+        SessionContext sc = (SessionContext) sessionManager
+                .getEventContext(new Principal(uuid));
+        sc.setShareId(shareId);
     }
 
     // ~ Admin

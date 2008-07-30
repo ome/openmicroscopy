@@ -47,7 +47,12 @@ public class SecuritySystemHolder implements SecuritySystem {
     }
 
     public SecuritySystem choose() {
-        this.basic.getEventContext()
+        Long shareId = this.basic.getEventContext().getCurrentShareId();
+        if (shareId == null) {
+            return basic;
+        } else {
+            return sharing;
+        }
     }
 
     // Delegation

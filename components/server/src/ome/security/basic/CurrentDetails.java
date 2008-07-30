@@ -193,6 +193,10 @@ public class CurrentDetails {
     // ~ Delegation FIXME possibly remove setters for set(Exp,Grp)
     // =========================================================================
 
+    public void setShareId(Long shareId) {
+        this.data.get().shareId = shareId;
+    }
+
     public Event getCreationEvent() {
         return getDetails().getCreationEvent();
     }

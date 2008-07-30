@@ -162,7 +162,7 @@
 -->
 
   <bean id="executor" class="ome.services.util.Executor$Impl">
-    <constructor-arg ref="securitySystem"/>
+    <constructor-arg ref="principalHolder"/>
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="statelessInterceptors"/>

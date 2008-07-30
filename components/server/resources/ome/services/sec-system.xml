@@ -33,11 +33,6 @@
     <constructor-arg ref="sharingACLVoter"/>
   </bean>
 
-  <bean id="sharingACLVoter" class="ome.security.sharing.SharingACLVoter">
-    <constructor-arg ref="basicSecuritySystem"/>
-    <constructor-arg ref="shareStore"/>
-  </bean>
-
   <bean id="basicSecuritySystem" class="ome.security.basic.BasicSecuritySystem">
     <constructor-arg ref="omeroInterceptor"/>
     <constructor-arg ref="systemTypes"/>
@@ -45,7 +40,6 @@
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
-    <constructor-arg ref="basicACLVoter"/>
     <constructor-arg ref="tokenHolder"/>
     <constructor-arg ref="principalHolder"/>
   </bean>

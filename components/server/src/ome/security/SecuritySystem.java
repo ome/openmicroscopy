@@ -219,5 +219,4 @@ public interface SecuritySystem {
 
     EventContext getEventContext();
 
-    ACLVoter getACLVoter();
 }

@@ -13,7 +13,6 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.security.ACLVoter;
 import ome.security.SystemTypes;
-import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.services.sharing.ShareStore;
 
@@ -63,7 +62,7 @@ public class SharingACLVoter implements ACLVoter {
         if (d == null || sysTypes.isSystemType(klass)) {
             return true;
         }
-        long session = cd.getCurrentEventContext()
+        long session = cd.getCurrentEventContext().getCurrentShareId();
         return store.contains(session, klass, id);
     }
 

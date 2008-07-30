@@ -32,6 +32,8 @@ class BasicEventContext implements EventContext {
     // this should never be null. Making private
     private Details details = Details.create();
 
+    Long shareId;
+
     Permissions umask;
 
     boolean isAdmin = false;
@@ -50,6 +52,10 @@ class BasicEventContext implements EventContext {
 
     // ~ EventContext interface
     // =========================================================================
+
+    public Long getCurrentShareId() {
+        return shareId;
+    }
 
     public Long getCurrentSessionId() {
         Event e = getDetails().getCreationEvent();

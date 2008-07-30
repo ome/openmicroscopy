@@ -21,7 +21,9 @@ public class SessionContextImpl implements SessionContext {
     private final List<Long> leaderOfGroups;
     private final List<Long> memberOfGroups;
     private final List<String> roles; /* group names for memberOfGroups */
+    private Long shareId;
 
+    @SuppressWarnings("unchecked")
     public SessionContextImpl(Session session, List<Long> lGroups,
             List<Long> mGroups, List<String> roles) {
         this.session = session;
@@ -30,6 +32,7 @@ public class SessionContextImpl implements SessionContext {
         this.memberOfGroups = Collections.unmodifiableList(new ArrayList(
                 mGroups));
         this.roles = Collections.unmodifiableList(new ArrayList(roles));
+        this.shareId = shareId;
     }
 
     public int refCount() {
@@ -66,6 +69,14 @@ public class SessionContextImpl implements SessionContext {
 
     public List<String> getUserRoles() {
         return roles;
+    }
+
+    public void setShareId(Long shareId) {
+        this.shareId = shareId;
+    }
+
+    public Long getCurrentShareId() {
+        return shareId;
     }
 
     public Long getCurrentSessionId() {
