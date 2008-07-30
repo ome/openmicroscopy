@@ -9,7 +9,7 @@ package ome.server.utests.sec;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.OmeroInterceptor;
 import ome.services.sessions.SessionManager;
-import ome.system.Roles;
+import ome.testing.MockServiceFactory;
 
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.Configuration;
@@ -24,10 +24,9 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         super.setUp();
-        BasicSecuritySystem sec = new BasicSecuritySystem(new Roles());
-        sec.setSessionManager((SessionManager) mock(SessionManager.class)
-                .proxy());
-        oi = new OmeroInterceptor(sec);
+        MockServiceFactory sf = new MockServiceFactory();
+        SessionManager sm = (SessionManager) mock(SessionManager.class).proxy();
+        BasicSecuritySystem sec = BasicSecuritySystem.selfConfigure(sm, sf);
     }
 
     // ~ TESTS

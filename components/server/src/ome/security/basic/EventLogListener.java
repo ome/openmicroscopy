@@ -10,6 +10,8 @@ package ome.security.basic;
 // Java imports
 
 // Third-party imports
+import ome.model.IObject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.event.PostDeleteEvent;
@@ -18,9 +20,6 @@ import org.hibernate.event.PostInsertEvent;
 import org.hibernate.event.PostInsertEventListener;
 import org.hibernate.event.PostUpdateEvent;
 import org.hibernate.event.PostUpdateEventListener;
-
-// Application-internal dependencies
-import ome.model.IObject;
 
 /**
  * responsible for responding to all Hibernate Events. Delegates tasks to
@@ -35,13 +34,13 @@ public class EventLogListener implements PostUpdateEventListener,
 
     private static Log log = LogFactory.getLog(EventLogListener.class);
 
-    protected BasicSecuritySystem secSys;
+    protected final CurrentDetails cd;
 
     /**
      * main constructor.
      */
-    public EventLogListener(BasicSecuritySystem securitySystem) {
-        this.secSys = securitySystem;
+    public EventLogListener(CurrentDetails cd) {
+        this.cd = cd;
     }
 
     // 
@@ -69,7 +68,7 @@ public class EventLogListener implements PostUpdateEventListener,
         if (entity instanceof IObject) {
             Class klass = entity.getClass();
             Long id = ((IObject) entity).getId();
-            secSys.addLog(action, klass, id);
+            cd.addLog(action, klass, id);
         }
     }
 

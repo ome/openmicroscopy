@@ -34,14 +34,19 @@
           lazy-init="true">
     <constructor-arg index="0">
       <list>
+        <!--
+        Arranged roughly in stack order, which is to say that beans
+        from files higher in the list, should not use beans from files
+        lower in the list.
+        -->
         <value>classpath:ome/services/messaging.xml</value>
-        <!-- Arranged roughly in stack order -->
         <value>classpath:ome/services/config-local.xml</value>
-        <value>classpath:ome/services/security.xml</value>
+        <value>classpath:ome/services/datalayer.xml</value>
+        <value>classpath:ome/services/sec-primitives.xml</value>
+        <value>classpath:ome/services/hibernate.xml</value>
         <value>classpath:ome/services/services.xml</value>
         <value>classpath*:ome/services/service-*.xml</value>
-        <value>classpath:ome/services/hibernate.xml</value>
-        <value>classpath:ome/services/datalayer.xml</value>
+        <value>classpath:ome/services/sec-system.xml</value>
       </list>
     </constructor-arg>
     <constructor-arg index="1" ref="ome.model"/>

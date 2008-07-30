@@ -34,7 +34,8 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     @Configuration(beforeTestClass = true)
     public void init() throws Exception {
         setUp();
-        metadata = new ExtendedMetadata(hibernateTemplate.getSessionFactory());
+        metadata = new ExtendedMetadata();
+        metadata.setSessionFactory(hibernateTemplate.getSessionFactory());
         tearDown();
     }
 

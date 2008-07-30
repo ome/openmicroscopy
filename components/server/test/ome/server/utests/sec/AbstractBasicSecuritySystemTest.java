@@ -22,7 +22,6 @@ import ome.security.basic.BasicSecuritySystem;
 import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
 import ome.system.Principal;
-import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 
 import org.jmock.Mock;
@@ -70,11 +69,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockEc = mock(EventContext.class);
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
-        sec = new BasicSecuritySystem(new Roles());
-        sec.setSessionManager(mgr);
-        sec.setUpdateService((LocalUpdate) sf.getUpdateService());
-        sec.setQueryService((LocalQuery) sf.getQueryService());
-        sec.setAdminService((LocalAdmin) sf.getAdminService());
+        sec = BasicSecuritySystem.selfConfigure(mgr, sf);
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {

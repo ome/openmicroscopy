@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+
+<beans>
+
+  <description>
+  sec-primitives.xml defines the low-level decision makers and state holders
+  for security questions. These classes can safely be used by the hibernate
+  layer, such as via the EventListener.
+  </description>
+
+  <bean id="currentDetails" class="ome.security.basic.CurrentDetails"/>
+
+  <bean id="internalServiceFactory" class="ome.tools.spring.InternalServiceFactory"/>
+
+  <bean id="principalHolder" class="ome.security.basic.PrincipalHolder"/>
+
+  <bean id="roles" class="ome.system.Roles"/>
+
+  <bean id="securityFilter" class="ome.tools.hibernate.SecurityFilter"/>
+
+  <bean id="systemTypes" class="ome.security.SystemTypes"/>
+
+  <bean id="tokenHolder" class="ome.security.basic.TokenHolder"/>
+
+  <bean id="basicACLVoter" class="ome.security.basic.BasicACLVoter">
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="systemTypes"/>
+    <constructor-arg ref="tokenHolder"/>
+  </bean>
+
+  <bean id="eventListeners" class="ome.security.basic.EventListenersFactoryBean"
+        init-method="init">
+    <description>
+    Used by hibernate.xml during the creation of SessionFactory.
+    </description>
+    <constructor-arg ref="basicACLVoter"/>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="tokenHolder"/>
+    <constructor-arg ref="omeroInterceptor"/>
+    <property name="debugAll" value="false"/>
+  </bean>
+
+  <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"
+    init-method="init"><!-- Init called to add root login method. -->
+    <property name="sessionCache"  ref="sessionCache"/>
+    <property name="roles"         ref="roles"/>
+    <property name="executor"      ref="executor"/>
+    <property name="defaultTimeToIdle" value="${omero.sessions.timeout}"/>
+    <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>
+  </bean>
+
+  <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
+    <property name="sessionManager" ref="sessionManager"/>
+  </bean>
+
+  <bean id="omeroInterceptor" class="ome.security.basic.OmeroInterceptor">
+    <description>
+    Scope: private
+    </description>
+    <constructor-arg ref="systemTypes"/>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="tokenHolder"/>
+    <constructor-arg ref="principalHolder"/>
+    <constructor-arg ref="extendedMetadata"/>
+  </bean>
+
+
+</beans>

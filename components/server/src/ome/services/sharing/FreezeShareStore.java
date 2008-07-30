@@ -87,6 +87,12 @@ public class FreezeShareStore extends ShareStore {
     }
 
     @Override
+    public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
+            long objId) {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    @Override
     public void doClose() {
         if (conn != null) {
             Ice.Communicator ic = conn.getCommunicator();

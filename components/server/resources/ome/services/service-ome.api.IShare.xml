@@ -29,6 +29,7 @@
     <constructor-arg ref="internal:ome.api.IAdmin"/>
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="shareStore"/>
+    <constructor-arg ref="securitySystem"/>
   </bean> 
  
   <bean name="managed:ome.api.IShare" parent="managedService">

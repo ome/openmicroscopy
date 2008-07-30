@@ -15,43 +15,53 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
-// Third-party imports
+import ome.security.ACLEventListener;
+import ome.security.ACLVoter;
+import ome.tools.hibernate.EventMethodInterceptor;
+import ome.tools.hibernate.ReloadingRefreshEventListener;
+
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.event.EventListeners;
-
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
-import org.springframework.util.Assert;
-
-// Application-internal dependencies
-import ome.security.ACLEventListener;
-import ome.tools.hibernate.EventMethodInterceptor;
-import ome.tools.hibernate.ReloadingRefreshEventListener;
 
 /**
  * configuring all the possible {@link EventListeners event listeners} within
  * XML can be cumbersome.
  */
 public class EventListenersFactoryBean extends AbstractFactoryBean {
-    protected BasicSecuritySystem secSys;
 
-    private EventListeners eventListeners = new EventListeners();
+    private final EventListeners eventListeners = new EventListeners();
 
-    private Map<String, LinkedList<Object>> map = new HashMap<String, LinkedList<Object>>();
+    private final Map<String, LinkedList<Object>> map = new HashMap<String, LinkedList<Object>>();
+
+    private final CurrentDetails cd;
+
+    private final TokenHolder th;
+
+    private final ACLVoter voter;
+
+    private final OmeroInterceptor interceptor;
 
     // ~ FactoryBean
     // =========================================================================
+
+    public EventListenersFactoryBean(CurrentDetails cd, TokenHolder th,
+            ACLVoter voter, OmeroInterceptor interceptor) {
+        this.cd = cd;
+        this.th = th;
+        this.voter = voter;
+        this.interceptor = interceptor;
+    }
 
     /**
      * adds all default listeners. These will be overwritten during
      * {@link #createInstance()}. Do not configure listeners here.
      */
-    public EventListenersFactoryBean(BasicSecuritySystem securitySystem) {
-        Assert.notNull(securitySystem);
-        this.secSys = securitySystem;
+    public void init() {
         put("auto-flush", eventListeners.getAutoFlushEventListeners());
         put("merge", eventListeners.getMergeEventListeners());
         put("create", eventListeners.getPersistEventListeners());
@@ -91,6 +101,7 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
      * this {@link FactoryBean} produces a {@link Map} instance for use in
      * {@link LocalSessionFactoryBean#setEventListeners(Map)}
      */
+    @Override
     public Class getObjectType() {
         return Map.class;
     }
@@ -122,11 +133,11 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
     }
 
     protected void overrides() {
-        override("merge", new MergeEventListener(secSys));
+        override("merge", new MergeEventListener(cd, th));
         override(new String[] { "replicate", "save", "update" },
                 getDisablingProxy());
         // TODO this could be a prepend.
-        override("flush-entity", new FlushEntityEventListener(secSys));
+        override("flush-entity", new FlushEntityEventListener(interceptor));
     }
 
     protected void additions() {
@@ -140,24 +151,24 @@ public class EventListenersFactoryBean extends AbstractFactoryBean {
                     new EventMethodInterceptor.DisableAction() {
                         @Override
                         protected boolean disabled(MethodInvocation mi) {
-                            return secSys.isDisabled(k);// getType(mi));
+                            return cd.isDisabled(k);// getType(mi));
                         }
                     });
             append(key, getProxy(emi));
         }
 
-        ACLEventListener acl = new ACLEventListener(secSys.getACLVoter());
+        ACLEventListener acl = new ACLEventListener(voter);
         append("post-load", acl);
         append("pre-insert", acl);
         append("pre-update", acl);
         append("pre-delete", acl);
 
-        EventLogListener ell = new ome.security.basic.EventLogListener(secSys);
+        EventLogListener ell = new ome.security.basic.EventLogListener(cd);
         append("post-insert", ell);
         append("post-update", ell);
         append("post-delete", ell);
 
-        UpdateEventListener uel = new UpdateEventListener(secSys);
+        UpdateEventListener uel = new UpdateEventListener(cd);
         append("pre-update", uel);
 
         if (debugAll) {

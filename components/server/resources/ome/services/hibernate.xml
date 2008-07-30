@@ -28,9 +28,14 @@
   <bean id="extendedMetadata" class="ome.tools.hibernate.ExtendedMetadata">
     <description>
     Simple cache for metadata needed throughout the server. Uses the Hibernate
-    metamodel to fill the cache during creation.
+    metamodel to fill the cache during creation. On ContextRefreshedEvent,
+    the ExtendedMetadata instance will acquire the SessionFactory from the
+    ApplicationContext and assemble its metadata. The SessionFactory cannot
+    be injected directly because several security objects depend on the 
+    metadata, but they themselves must be injected into the SessionFactory
+    for proper functioning. To prevent this circular dependency, we do a
+    form of lazy loading.
     </description>
-    <constructor-arg ref="sessionFactory"/>
   </bean>
 
   <bean id="hibernateProperties"

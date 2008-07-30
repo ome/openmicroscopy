@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc.. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+
+<beans>
+
+  <description>
+  sec-system.xml defines the interceptors for all methods which need
+  authentication and authorization as well as the core security system
+  classes.
+  </description>
+
+  <bean id="securitySystem" class="ome.security.SecuritySystemHolder">
+    <constructor-arg ref="basicSecuritySystem"/>
+    <constructor-arg ref="sharingSecuritySystem"/>
+  </bean>
+
+  <bean id="sharingSecuritySystem" class="ome.security.sharing.SharingSecuritySystem">
+    <constructor-arg ref="sharingACLVoter"/>
+  </bean>
+
+  <bean id="sharingACLVoter" class="ome.security.sharing.SharingACLVoter">
+    <constructor-arg ref="basicSecuritySystem"/>
+    <constructor-arg ref="shareStore"/>
+  </bean>
+
+  <bean id="basicSecuritySystem" class="ome.security.basic.BasicSecuritySystem">
+    <constructor-arg ref="omeroInterceptor"/>
+    <constructor-arg ref="systemTypes"/>
+    <constructor-arg ref="currentDetails"/>
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="roles"/>
+    <constructor-arg ref="internalServiceFactory"/>
+    <constructor-arg ref="basicACLVoter"/>
+    <constructor-arg ref="tokenHolder"/>
+    <constructor-arg ref="principalHolder"/>
+  </bean>
+
+  <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"
+   lazy-init="true">
+    <property name="securitySystem" ref="basicSecuritySystem"/>
+    <property name="methodSecurity" ref="methodSecurity"/>
+  </bean>
+
+  <bean id="eventHandler" class="ome.security.basic.EventHandler">
+    <description>
+    Scope: private
+    </description>
+    <constructor-arg ref="basicSecuritySystem"/>
+    <constructor-arg ref="hibernateTemplate"/>
+  </bean>
+
+</beans>

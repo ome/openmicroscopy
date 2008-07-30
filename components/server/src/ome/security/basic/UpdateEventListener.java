@@ -10,18 +10,15 @@ package ome.security.basic;
 // Java imports
 
 // Third-party imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.hibernate.event.PreUpdateEvent;
-import org.hibernate.event.PreUpdateEventListener;
-
-// Application-internal dependencies
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.model.IObject;
 import ome.model.internal.Details;
-import ome.security.basic.BasicSecuritySystem;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.event.PreUpdateEvent;
+import org.hibernate.event.PreUpdateEventListener;
 
 /**
  * responsible for setting the
@@ -43,13 +40,13 @@ public class UpdateEventListener implements PreUpdateEventListener {
 
     private static Log log = LogFactory.getLog(UpdateEventListener.class);
 
-    private BasicSecuritySystem secSys;
+    private final CurrentDetails cd;
 
     /**
      * main constructor. controls access to individual db rows..
      */
-    public UpdateEventListener(BasicSecuritySystem bss) {
-        this.secSys = bss;
+    public UpdateEventListener(CurrentDetails cd) {
+        this.cd = cd;
     }
 
     /**
@@ -58,7 +55,7 @@ public class UpdateEventListener implements PreUpdateEventListener {
      */
     public boolean onPreUpdate(PreUpdateEvent event) {
         Object entity = event.getEntity();
-        if (entity instanceof IObject && !secSys.isDisabled(UPDATE_EVENT)) {
+        if (entity instanceof IObject && !cd.isDisabled(UPDATE_EVENT)) {
             int[] dirty = event.getPersister().findDirty(event.getState(),
                     event.getOldState(), event.getEntity(), event.getSource());
             if (dirty == null || dirty.length == 0) {
@@ -68,7 +65,7 @@ public class UpdateEventListener implements PreUpdateEventListener {
             else {
                 // otherwise change update event (last modification)
                 IObject obj = (IObject) entity;
-                obj.getDetails().setUpdateEvent(secSys.currentEvent());
+                obj.getDetails().setUpdateEvent(cd.getCreationEvent());
             }
         }
         return false;

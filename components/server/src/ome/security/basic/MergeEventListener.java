@@ -10,7 +10,13 @@ package ome.security.basic;
 // Java imports
 import java.util.Map;
 
-// Third-party imports
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.conditions.SecurityViolation;
+import ome.model.IEnum;
+import ome.model.IObject;
+import ome.tools.hibernate.HibernateUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -23,14 +29,6 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.ForeignKeyDirection;
 import org.springframework.orm.hibernate3.support.IdTransferringMergeEventListener;
 import org.springframework.util.Assert;
-
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
-import ome.conditions.SecurityViolation;
-import ome.model.IEnum;
-import ome.model.IObject;
-import ome.tools.hibernate.HibernateUtils;
 
 /**
  * responsible for responding to merge events. in particular in load/re-loading
@@ -55,17 +53,21 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
 
     private static Log log = LogFactory.getLog(MergeEventListener.class);
 
-    private BasicSecuritySystem secSys;
+    private final CurrentDetails cd;
+
+    private final TokenHolder th;
 
     /** main constructor. Requires a non-null security system */
-    public MergeEventListener(BasicSecuritySystem securitySystem) {
-        Assert.notNull(securitySystem);
-        this.secSys = securitySystem;
+    public MergeEventListener(CurrentDetails cd, TokenHolder th) {
+        Assert.notNull(cd);
+        Assert.notNull(th);
+        this.cd = cd;
+        this.th = th;
     }
 
     @Override
     public void onMerge(MergeEvent event) throws HibernateException {
-        if (secSys.isDisabled(MERGE_EVENT)) {
+        if (cd.isDisabled(MERGE_EVENT)) {
             throw new SecurityViolation(
                     "The MergeEventListener has been disabled.");
         }
@@ -75,7 +77,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
     @Override
     public void onMerge(MergeEvent event, Map copyCache)
             throws HibernateException {
-        if (secSys.isDisabled(MERGE_EVENT)) {
+        if (cd.isDisabled(MERGE_EVENT)) {
             throw new SecurityViolation(
                     "The MergeEventListener has been disabled.");
         }
@@ -167,7 +169,7 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
     }
 
     protected void propagateHiddenValues(IObject from, IObject to) {
-        secSys.copyToken(from, to);
+        th.copyToken(from, to);
         if (from.getDetails() != null && from.getDetails().filteredSize() > 0) {
             to.getDetails().addFiltered(from.getDetails().filteredSet());
         }

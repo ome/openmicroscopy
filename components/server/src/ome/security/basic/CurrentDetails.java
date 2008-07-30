@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -27,6 +28,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.system.EventContext;
+import ome.tools.hibernate.HibernateUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +48,7 @@ import org.apache.commons.logging.LogFactory;
  * ==> current user is "nobody" (anonymous)
  * 
  */
-class CurrentDetails {
+public class CurrentDetails {
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
     private final ThreadLocal<BasicEventContext> data = new InheritableThreadLocal<BasicEventContext>() {
@@ -55,6 +57,43 @@ class CurrentDetails {
             return new BasicEventContext();
         };
     };
+
+    // High-level methods used to fulfill {@link SecuritySystem}
+    // =================================================================
+
+    /**
+     * Checks if the current {@link Thread} has non-null {@link Experimenter},
+     * {@link Event}, and {@linkExperimenterGroup}, required for proper
+     * functioning of the security system.
+     */
+    public boolean isReady() {
+        if (getCreationEvent() != null && getGroup() != null
+                && getOwner() != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isOwnerOrSupervisor(IObject object) {
+        if (object == null) {
+            throw new ApiUsageException("Object can't be null");
+        }
+        final Long o = HibernateUtils.nullSafeOwnerId(object);
+        final Long g = HibernateUtils.nullSafeGroupId(object);
+
+        final EventContext ec = getCurrentEventContext();
+        final boolean isAdmin = ec.isCurrentUserAdmin();
+        final boolean isPI = ec.getLeaderOfGroupsList().contains(g);
+        final boolean isOwner = ec.getCurrentUserId().equals(o);
+
+        if (isAdmin || isPI || isOwner) {
+            return true;
+        }
+        return false;
+    }
+
+    // State management
+    // =================================================================
 
     /**
      * removes all current context. This must stay in sync with the instance

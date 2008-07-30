@@ -24,6 +24,7 @@ import ome.model.internal.Permissions;
 import ome.model.internal.Token;
 import ome.security.ACLVoter;
 import ome.security.SecuritySystem;
+import ome.security.SystemTypes;
 import ome.tools.hibernate.SecurityFilter;
 
 import org.apache.commons.logging.Log;
@@ -46,10 +47,17 @@ public class BasicACLVoter implements ACLVoter {
 
     private final static Log log = LogFactory.getLog(BasicACLVoter.class);
 
-    private final BasicSecuritySystem secSys;
+    protected final CurrentDetails currentUser;
 
-    public BasicACLVoter(BasicSecuritySystem securitySystem) {
-        this.secSys = securitySystem;
+    protected final SystemTypes sysTypes;
+
+    protected final TokenHolder tokenHolder;
+
+    public BasicACLVoter(CurrentDetails cd, SystemTypes sysTypes,
+            TokenHolder tokenHolder) {
+        this.currentUser = cd;
+        this.sysTypes = sysTypes;
+        this.tokenHolder = tokenHolder;
     }
 
     // ~ Interface methods
@@ -59,7 +67,7 @@ public class BasicACLVoter implements ACLVoter {
      * 
      */
     public boolean allowChmod(IObject iObject) {
-        return secSys.isOwnerOrSupervisor(iObject);
+        return currentUser.isOwnerOrSupervisor(iObject);
     }
 
     /**
@@ -71,12 +79,12 @@ public class BasicACLVoter implements ACLVoter {
     public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
         // Assert.notNull(d);
-        if (d == null || secSys.isSystemType(klass)) {
+        if (d == null || sysTypes.isSystemType(klass)) {
             return true;
         }
-        return SecurityFilter.passesFilter(d, secSys.currentUserId(), secSys
-                .memberOfGroups(), secSys.leaderOfGroups(), secSys
-                .currentUserIsAdmin());
+        return SecurityFilter.passesFilter(d, currentUser.getOwner().getId(),
+                currentUser.getMemberOfGroups(), currentUser
+                        .getLeaderOfGroups(), currentUser.isAdmin());
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {
@@ -89,11 +97,11 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
         Class cls = iObject.getClass();
 
-        if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin()) {
+        if (tokenHolder.hasPrivilegedToken(iObject) || currentUser.isAdmin()) {
             return true;
         }
 
-        else if (secSys.isSystemType(cls)) {
+        else if (sysTypes.isSystemType(cls)) {
             return false;
         }
 
@@ -130,9 +138,9 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
 
         // needs no details info
-        if (secSys.hasPrivilegedToken(iObject) || secSys.currentUserIsAdmin()) {
+        if (tokenHolder.hasPrivilegedToken(iObject) || currentUser.isAdmin()) {
             return true;
-        } else if (secSys.isSystemType(iObject.getClass())) {
+        } else if (sysTypes.isSystemType(iObject.getClass())) {
             return false;
         }
 
@@ -155,7 +163,7 @@ public class BasicACLVoter implements ACLVoter {
         Long g = d.getGroup() == null ? null : d.getGroup().getId();
 
         // needs no permissions info
-        if (g != null && secSys.leaderOfGroups().contains(g)) {
+        if (g != null && currentUser.getLeaderOfGroups().contains(g)) {
             return true;
         }
 
@@ -174,11 +182,11 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
         if (p.isGranted(USER, WRITE) && o != null
-                && o.equals(secSys.currentUserId())) {
+                && o.equals(currentUser.getOwner().getId())) {
             return true;
         }
         if (p.isGranted(GROUP, WRITE) && g != null
-                && secSys.memberOfGroups().contains(g)) {
+                && currentUser.getMemberOfGroups().contains(g)) {
             return true;
         }
 

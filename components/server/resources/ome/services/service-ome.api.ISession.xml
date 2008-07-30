@@ -36,15 +36,6 @@
     <property name="target" ref="internal:ome.api.ISession"/>
   </bean>  
 
-  <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"
-    init-method="init"><!-- Init called to add root login method. -->
-    <property name="sessionCache"  ref="sessionCache"/>
-    <property name="roles"         ref="roles"/>
-    <property name="executor"      ref="executor"/>
-    <property name="defaultTimeToIdle" value="${omero.sessions.timeout}"/>
-    <property name="defaultTimeToLive" value="${omero.sessions.maximum}"/>
-  </bean>  
-
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
     <property name="cacheManager"  ref="cacheManager"/>
   </bean>

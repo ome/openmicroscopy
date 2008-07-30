@@ -1,12 +1,11 @@
 /*
- * ome.tools.hibernate.ExtendedMetadata
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.tools.hibernate;
 
-// Java imports
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,6 +22,8 @@ import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.internal.Permissions;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
@@ -30,6 +31,9 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.EmbeddedComponentType;
 import org.hibernate.type.Type;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
  * extension of the model metadata provided by {@link SessionFactory}. During
@@ -42,7 +46,9 @@ import org.hibernate.type.Type;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class ExtendedMetadata {
+public class ExtendedMetadata implements ApplicationListener {
+
+    private final static Log log = LogFactory.getLog(ExtendedMetadata.class);
 
     private final Map<String, Locks> locksHolder = new HashMap<String, Locks>();
 
@@ -54,8 +60,10 @@ public class ExtendedMetadata {
 
     private final Map<String, Class<IObject>> targetHolder = new HashMap<String, Class<IObject>>();
 
-    private final Set<Class<IAnnotated>> annotationTypes;
-    
+    private final Set<Class<IAnnotated>> annotationTypes = new HashSet<Class<IAnnotated>>();
+
+    private boolean initialized = false;
+
     // NOTES:
     // TODO we could just delegate to sf and implement the same interface.
     // TOTEST
@@ -64,17 +72,39 @@ public class ExtendedMetadata {
     // a collection valued (non-association) type. (does that exist??)
     // will also need to handle components if we have any other than details.
     // Doesn't handle ComponentTypes
+
     /**
-     * constructor which takes a non-null Hibernate {@link SessionFactory} and
-     * eagerly parses the available metadata for later use.
+     * Listener method which waits for a {@link ContextRefreshedEvent} and then
+     * extracts the {@link SessionFactory} from the {@link ApplicationContext}
+     * and pases it to {@link #setSessionFactory(SessionFactory)}.
+     */
+    public void onApplicationEvent(
+            org.springframework.context.ApplicationEvent event) {
+
+        if (!(event instanceof ContextRefreshedEvent)) {
+            return; // EARLY EXIT!!
+        }
+
+        ContextRefreshedEvent cre = (ContextRefreshedEvent) event;
+        ApplicationContext ctx = cre.getApplicationContext();
+        SessionFactory sessionFactory = (SessionFactory) ctx
+                .getBean("sessionFactory");
+        setSessionFactory(sessionFactory);
+    }
+
+    /**
+     * Initializes the metadata needed by this instance.
      * 
+     * @param sessionFactory
      * @see SessionFactory#getAllClassMetadata()
      */
-    @SuppressWarnings("unchecked")
-    public ExtendedMetadata(SessionFactory sessionFactory) {
-        if (sessionFactory == null) {
-            throw new ApiUsageException("SessionFactory may not be null.");
+    public void setSessionFactory(SessionFactory sessionFactory) {
+
+        if (initialized) {
+            return; // EARLY EXIT !!
         }
+
+        log.info("Calculating ExtendedMetadata...");
 
         Map<String, ClassMetadata> m = sessionFactory.getAllClassMetadata();
 
@@ -101,24 +131,24 @@ public class ExtendedMetadata {
             Map<String, String> queries = countQueriesAndEditTargets(key,
                     lockedByHolder.get(key));
             collectionCountHolder.putAll(queries);
-            
+
             // Checking classes, specifically for ITypes
             Class c = cm.getMappedClass(EntityMode.POJO);
             if (IAnnotated.class.isAssignableFrom(c)) {
                 anns.add(c);
             }
         }
-        annotationTypes = Collections.unmodifiableSet(anns);
-
+        annotationTypes.addAll(anns);
+        initialized = true;
     }
 
     /**
      * Returns all the classes which implement {@link IAnnotated}
      */
     public Set<Class<IAnnotated>> getAnnotationTypes() {
-        return annotationTypes;
+        return Collections.unmodifiableSet(annotationTypes);
     }
-    
+
     /**
      * walks the {@link IObject} argument <em>non-</em>recursively and
      * gathers all attached {@link IObject} instances which may need to be

@@ -10,16 +10,15 @@ package ome.security.basic;
 // Java imports
 
 // Third-party imports
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.event.FlushEntityEvent;
 import org.hibernate.event.def.DefaultFlushEntityEventListener;
 import org.springframework.util.Assert;
-
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
 
 /**
  * responsible for responding to {@link FlushEntityEvent}. Necessary to perform
@@ -38,17 +37,18 @@ public class FlushEntityEventListener extends DefaultFlushEntityEventListener {
 
     private static Log log = LogFactory.getLog(FlushEntityEventListener.class);
 
-    private BasicSecuritySystem secSys;
+    private final OmeroInterceptor interceptor;
 
     /** main constructor. Requires a non-null security system */
-    public FlushEntityEventListener(BasicSecuritySystem securitySystem) {
-        Assert.notNull(securitySystem);
-        this.secSys = securitySystem;
+    public FlushEntityEventListener(OmeroInterceptor interceptor) {
+        Assert.notNull(interceptor);
+        this.interceptor = interceptor;
     }
 
     @Override
     public void onFlushEntity(FlushEntityEvent event) throws HibernateException {
-        secSys.lockMarked();
+
+        interceptor.lockMarked();
         super.onFlushEntity(event);
     }
 }

@@ -29,7 +29,6 @@ import ome.security.basic.BasicSecuritySystem;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManager;
 import ome.system.Principal;
-import ome.system.Roles;
 import ome.testing.MockServiceFactory;
 import ome.tools.hibernate.UpdateFilter;
 
@@ -101,9 +100,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
 
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
-
-        sec = new BasicSecuritySystem(new Roles());
-        ((BasicSecuritySystem) sec).setSessionManager(mgr);
+        sec = BasicSecuritySystem.selfConfigure(mgr, sf);
 
         filter = new UpdateFilter();
 
