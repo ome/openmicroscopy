@@ -1,12 +1,11 @@
 /*
- * ome.tools.hibernate.SessionHandler
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.tools.hibernate;
 
-// Java imports
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -16,7 +15,10 @@ import java.util.WeakHashMap;
 
 import javax.sql.DataSource;
 
-// Third-party libraries
+import ome.api.StatefulServiceInterface;
+import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -25,14 +27,15 @@ import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate3.HibernateInterceptor;
 import org.springframework.orm.hibernate3.SessionHolder;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
-// Application-internal dependencies
-import ome.api.StatefulServiceInterface;
-import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
 
 /**
  * holder for Hibernate sessions in stateful servics. A count of calls is kept.
@@ -80,7 +83,7 @@ class SessionStatus {
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
-public class SessionHandler implements MethodInterceptor {
+public class SessionHandler implements MethodInterceptor, ApplicationListener {
 
     /**
      * used by the SessionHandler to test for the end of the stateful service's
@@ -90,12 +93,20 @@ public class SessionHandler implements MethodInterceptor {
 
     private final static Log log = LogFactory.getLog(SessionHandler.class);
 
-    private Map<Object, SessionStatus> sessions = Collections
+    private final Map<Object, SessionStatus> sessions = Collections
             .synchronizedMap(new WeakHashMap<Object, SessionStatus>());
 
-    private DataSource dataSource;
+    private final SessionFactory factory;
 
-    private SessionFactory factory;
+    /**
+     * Used strictly to enable a single session during Context initialization.
+     */
+    private final DataSourceTransactionManager tx;
+
+    /**
+     * One shot initialization transaction.
+     */
+    private final TransactionStatus txStatus;
 
     private final static SessionHolder DUMMY = new EmptySessionHolder();
 
@@ -111,19 +122,44 @@ public class SessionHandler implements MethodInterceptor {
      * @param factory
      *            Not null.
      */
-    public SessionHandler(DataSource dataSource, SessionFactory factory) {
-        if (dataSource == null || factory == null) {
+    public SessionHandler(SessionFactory factory,
+            DataSourceTransactionManager tx) {
+        if (factory == null || tx == null) {
             throw new ApiUsageException(CTOR_MSG);
         }
 
-        this.dataSource = dataSource;
         this.factory = factory;
+        this.tx = tx;
 
         try {
             close = StatefulServiceInterface.class.getMethod("close");
         } catch (Exception e) {
             throw new InternalException(
                     "Can't get StatefulServiceInterface.close method.");
+        }
+
+        // Creating a session for use during startup. And Spring bean which
+        // wishes to use a single Hibernate session during initialization can
+        // add a dependency on SessionHandler. This is cleaned up once the
+        // refreshed-context event arives.
+        txStatus = tx.getTransaction(new DefaultTransactionDefinition());
+        Session session = acquireAndBindSession();
+        SessionStatus status = new SessionStatus(session);
+        sessions.put(this, status);
+    }
+
+    /**
+     * Cleans up the session created during
+     * {@link SessionHandler#SessionHandler(SessionFactory) construction}. If
+     * this point is reached, we assume that the transaction can be committed.
+     */
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ContextRefreshedEvent) {
+            SessionStatus status = sessions.remove(this);
+            // status.session.flush();
+            // status.session.disconnect();
+            // status.session.close();
+            tx.commit(txStatus);
         }
     }
 
