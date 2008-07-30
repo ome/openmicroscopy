@@ -60,21 +60,21 @@ public class ShareMap extends Freeze.Map
     }
 
     public Freeze.Map.EntryIterator
-    findByOwner(String __index, boolean __onlyDups)
+    findByOwner(long __index, boolean __onlyDups)
     {
-        return _indices[1].untypedFind(__index, __onlyDups);
+        return _indices[1].untypedFind(new java.lang.Long(__index), __onlyDups);
     }
 
     public Freeze.Map.EntryIterator
-    findByOwner(String __index)
+    findByOwner(long __index)
     {
-        return _indices[1].untypedFind(__index, true);
+        return _indices[1].untypedFind(new java.lang.Long(__index), true);
     }
 
     public int
-    ownerCount(String __index)
+    ownerCount(long __index)
     {
-        return _indices[1].untypedCount(__index);
+        return _indices[1].untypedCount(new java.lang.Long(__index));
     }
 
     public byte[]
@@ -194,7 +194,7 @@ public class ShareMap extends Freeze.Map
         encodeKey(Object key, Ice.Communicator communicator)
         {
             IceInternal.BasicStream __os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
-            __os.writeString(((String)key));
+            __os.writeLong(((java.lang.Long)key).longValue());
             java.nio.ByteBuffer buf = __os.prepareWrite();
             byte[] r = new byte[buf.limit()];
             buf.get(r);
@@ -210,8 +210,8 @@ public class ShareMap extends Freeze.Map
             buf.position(0);
             buf.put(bytes);
             buf.position(0);
-            java.lang.String r;
-            r = __is.readString();
+            java.lang.Long r;
+            r = new java.lang.Long(__is.readLong());
             return r;
         }
 
@@ -231,7 +231,7 @@ public class ShareMap extends Freeze.Map
         extractKey(Object value)
         {
             ome.services.sharing.data.ShareData typedValue = (ome.services.sharing.data.ShareData)value;
-            return typedValue.owner;
+            return new java.lang.Long(typedValue.owner);
         }
 
         private OwnerIndex(String name)

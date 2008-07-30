@@ -13,6 +13,7 @@ import java.util.Set;
 
 import ome.api.IShare;
 import ome.model.IObject;
+import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 
@@ -38,7 +39,7 @@ public abstract class ShareStore {
     // User Methods
     // =========================================================================
 
-    public <T extends IObject> void set(long id, String owner, List<T> objects,
+    public <T extends IObject> void set(long id, long owner, List<T> objects,
             List<Long> members, List<String> guests, boolean enabled) {
         ShareData data = new ShareData();
         data.id = id;
@@ -46,12 +47,18 @@ public abstract class ShareStore {
         data.members = new ArrayList<Long>(members);
         data.guests = new ArrayList<String>(guests);
         data.enabled = enabled;
-        data.objects = map(objects);
+        data.objectMap = map(objects);
+        data.objectList = list(objects);
 
         List<ShareItem> shareItems = asItems(id, objects, members, guests);
 
         doSet(data, shareItems);
 
+    }
+
+    public void update(ShareData data) {
+        List<ShareItem> shareItems = asItems(data);
+        doSet(data, shareItems);
     }
 
     // Template methods
@@ -95,6 +102,11 @@ public abstract class ShareStore {
 
     public abstract ShareData get(long id);
 
+    public abstract List<ShareData> getShares(boolean active);
+
+    public abstract List<ShareData> getShares(long userId, boolean own,
+            boolean active);
+
     public abstract <T extends IObject> boolean doContains(long sessionId,
             Class<T> kls, long objId);
 
@@ -120,6 +132,24 @@ public abstract class ShareStore {
         return shareItems;
     }
 
+    private <T extends IObject> List<ShareItem> asItems(ShareData data) {
+        Map<String, List<Long>> map = data.objectMap;
+
+        List<ShareItem> shareItems = new ArrayList<ShareItem>();
+        for (String type : map.keySet()) {
+            for (Long id : map.get(type)) {
+                ShareItem shareItem = new ShareItem();
+                shareItem.share = data.id;
+                shareItem.id = id;
+                shareItem.type = type;
+                shareItem.members = data.members;
+                shareItem.guests = data.guests;
+                shareItems.add(shareItem);
+            }
+        }
+        return shareItems;
+    }
+
     private <T extends IObject> Map<String, List<Long>> map(List<T> items) {
         Map<String, List<Long>> map = new HashMap<String, List<Long>>();
         for (T t : items) {
@@ -132,5 +162,17 @@ public abstract class ShareStore {
             ids.add(t.getId());
         }
         return map;
+    }
+
+    private <T extends IObject> List<Obj> list(List<T> items) {
+        List<Obj> objList = new ArrayList<Obj>();
+        for (T t : items) {
+            Obj obj = new Obj();
+            String kls = t.getClass().getName();
+            obj.type = kls;
+            obj.id = t.getId();
+            objList.add(obj);
+        }
+        return objList;
     }
 }

@@ -11,6 +11,15 @@
 
 module  ome { module services { module sharing { module data {
 
+    class Obj
+    {
+        string type;
+        long id;
+    };
+
+    ["java:type:java.util.ArrayList<ome.services.sharing.data.Obj>:java.util.List<ome.services.sharing.data.Obj>"]
+    sequence<Obj> ObjSeq;
+
     ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
     sequence<long> LongSeq;
 
@@ -25,11 +34,14 @@ module  ome { module services { module sharing { module data {
     class ShareData
     {
         long id;
-        string owner;
+        long owner;
         LongSeq members;
         StringSeq guests;
-        IdMap objects;
+        IdMap objectMap;
+        ObjSeq objectList;
+
         bool enabled;
+        long optlock;
     };
 
     /*

@@ -7,7 +7,10 @@ package ome.services.sharing;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,19 +28,25 @@ import ome.api.IShare;
 import ome.api.ServiceInterface;
 import ome.api.local.LocalAdmin;
 import ome.conditions.ApiUsageException;
+import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.logic.AbstractLevel2Service;
 import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
+import ome.model.annotations.SessionAnnotationLink;
 import ome.model.annotations.TextAnnotation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
+import ome.parameters.Parameters;
 import ome.security.SecuritySystemHolder;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
+import ome.services.sharing.data.Obj;
+import ome.services.sharing.data.ShareData;
 import ome.services.util.OmeroAroundInvoke;
+import ome.system.EventContext;
 import ome.system.Principal;
 
 import org.apache.commons.logging.Log;
@@ -54,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @see IShare
  */
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional
+@Transactional(readOnly = true)
 @Stateless
 @Remote(IShare.class)
 @RemoteBindings( {
@@ -68,6 +77,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public final static Log log = LogFactory.getLog(ShareBean.class);
 
     public final static String NS_ENABLED = "ome.share.enabled";
+
+    public final static String NS_COMMENT = "ome.share.comment/";
 
     final protected LocalAdmin admin;
 
@@ -94,7 +105,28 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public void activate(long shareId) {
-        String uuid = this.admin.getEventContext().getCurrentSessionUuid();
+        EventContext ec = this.admin.getEventContext();
+        String uuid = ec.getCurrentSessionUuid();
+        long sessionId = ec.getCurrentSessionId();
+        long userId = ec.getCurrentUserId();
+
+        // Check status of the store
+        ShareData data = store.get(sessionId);
+        if (data == null) {
+            throw new ApiUsageException("No such share:" + shareId);
+        }
+        if (!data.enabled) {
+            throw new SecurityViolation("Share disabled."); // TODO other
+            // exception
+        }
+
+        // Check if current user is a member
+        if (!data.members.contains(userId)) {
+            throw new SecurityViolation("User " + userId
+                    + " is not a member of share " + shareId);
+        }
+
+        // Ok, set share
         SessionContext sc = (SessionContext) sessionManager
                 .getEventContext(new Principal(uuid));
         sc.setShareId(shareId);
@@ -105,8 +137,8 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("system")
     public Set<Session> getAllShares(boolean active) {
-        // this.iQuery.findAllByQuery();
-        return null;
+        List<ShareData> shares = store.getShares(active);
+        return sharesToSessions(shares);
     }
 
     // ~ Getting shares and objects (READ)
@@ -114,42 +146,77 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public Set<Session> getOwnShares(boolean active) {
-        // this.iQuery.findAllByQuery();
-        return null;
+        long id = admin.getEventContext().getCurrentUserId();
+        List<ShareData> shares = store.getShares(id, true /* own */, active);
+        return sharesToSessions(shares);
     }
 
     @RolesAllowed("user")
     public Set<Session> getMemberShares(boolean active) {
-        // this.iQuery.findAllByQuery();
-        return null;
+        long id = admin.getEventContext().getCurrentUserId();
+        List<ShareData> shares = store.getShares(id, false /* own */, active);
+        return sharesToSessions(shares);
     }
 
     @RolesAllowed("user")
     public Set<Session> getSharesOwnedBy(@NotNull
     Experimenter user, boolean active) {
-        return null;
+        List<ShareData> shares = store.getShares(user.getId(), true /* own */,
+                active);
+        return sharesToSessions(shares);
     }
 
     @RolesAllowed("user")
     public Set<Session> getMemberSharesFor(@NotNull
     Experimenter user, boolean active) {
-        return null;
+        List<ShareData> shares = store.getShares(user.getId(),
+                false /* own */, active);
+        return sharesToSessions(shares);
     }
 
     @RolesAllowed("user")
-    public <T extends IObject> Map<Session, List<T>> getShare(long sessionId) {
-        return null;
+    public Session getShare(long sessionId) {
+        ShareData data = store.get(sessionId);
+        Session session = shareToSession(data);
+        return session;
     }
 
     @RolesAllowed("user")
     public <T extends IObject> List<T> getContents(long shareId) {
-        return null;
+        ShareData data = store.get(shareId);
+        return list(data.objectList);
+    }
+
+    @RolesAllowed("user")
+    public <T extends IObject> List<T> getContentSubList(long shareId,
+            int start, int finish) {
+        ShareData data = store.get(shareId);
+        try {
+            return list(data.objectList.subList(start, finish));
+        } catch (IndexOutOfBoundsException ioobe) {
+            throw new ApiUsageException("Invalid range: " + start + " to "
+                    + finish);
+        }
+    }
+
+    @RolesAllowed("user")
+    public <T extends IObject> Map<Class<T>, List<Long>> getContentMap(
+            long shareId) {
+        ShareData data = store.get(shareId);
+        return map(data.objectMap);
+    }
+
+    @RolesAllowed("user")
+    public int getContentSize(long shareId) {
+        ShareData data = store.get(shareId);
+        return data.objectList.size();
     }
 
     // ~ Creating share (WRITE)
     // =========================================================================
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public <T extends IObject> long createShare(@NotNull
     String description, Timestamp expiration, List<T> items,
             List<Experimenter> exps, List<String> guests, boolean enabled) {
@@ -157,16 +224,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         //
         // Input validation
         //
-        long time, now = System.currentTimeMillis();
-        if (expiration != null) {
-            time = expiration.getTime();
-            if (time < now) {
-                throw new ApiUsageException(
-                        "Expiration time must be in the future.");
-            }
-        } else {
-            time = Long.MAX_VALUE;
-        }
+        long time = expirationAsLong(expiration);
 
         if (exps == null) {
             exps = Collections.emptyList();
@@ -181,9 +239,11 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         //
         // Setting defaults on new session
         //
-        final String user = this.admin.getEventContext().getCurrentUserName();
-        Session session = sessionManager.create(new Principal(user));
-        session.setTimeToLive(time - now);
+        final String omename = this.admin.getEventContext()
+                .getCurrentUserName();
+        final Long user = this.admin.getEventContext().getCurrentUserId();
+        Session session = sessionManager.create(new Principal(omename));
+        session.setTimeToLive(time);
         session.setDefaultEventType("SHARE");
         session.setMessage(description);
 
@@ -207,40 +267,113 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void setDescription(long shareId, @NotNull
     String description) {
+        String uuid = idToUuid(shareId);
+        Session session = sessionManager.find(uuid);
+        session.setMessage(description);
+        sessionManager.update(session);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void setExpiration(long shareId, @NotNull
     Timestamp expiration) {
+        String uuid = idToUuid(shareId);
+        Session session = sessionManager.find(uuid);
+        session.setTimeToLive(expirationAsLong(expiration));
+        sessionManager.update(session);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
+    public void setActive(long shareId, boolean active) {
+        ShareData data = store.get(shareId);
+        data.enabled = active;
+        store.update(data);
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void closeShare(long shareId) {
+        String uuid = idToUuid(shareId);
+        sessionManager.close(uuid);
     }
 
     // ~ Getting items
     // =========================================================================
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public <T extends IObject> void addObjects(long shareId, @NotNull
     T... objects) {
+        ShareData data = store.get(shareId);
+        for (T object : objects) {
+            List<Long> ids = data.objectMap.get(object.getClass().getName());
+            ids.add(object.getId());
+            Obj obj = new Obj();
+            obj.type = object.getClass().getName();
+            obj.id = object.getId();
+            data.objectList.add(obj);
+        }
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public <T extends IObject> void addObject(long shareId, @NotNull
     T object) {
+        ShareData data = store.get(shareId);
+        List<Long> ids = data.objectMap.get(object.getClass().getName());
+        ids.add(object.getId());
+        Obj obj = new Obj();
+        obj.type = object.getClass().getName();
+        obj.id = object.getId();
+        data.objectList.add(obj);
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public <T extends IObject> void removeObjects(long shareId, @NotNull
     T... objects) {
+        ShareData data = store.get(shareId);
+        for (T object : objects) {
+            List<Long> ids = data.objectMap.get(object.getClass().getName());
+            ids.remove(object.getId());
+        }
+        List<Obj> toRemove = new ArrayList<Obj>();
+        for (T object : objects) {
+            for (Obj obj : data.objectList) {
+                if (obj.type.equals(object.getClass().getName())) {
+                    if (obj.id == object.getId().longValue()) {
+                        toRemove.add(obj);
+                    }
+                }
+            }
+        }
+        data.objectList.removeAll(toRemove);
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public <T extends IObject> void removeObject(long shareId, @NotNull
     T object) {
+        ShareData data = store.get(shareId);
+        List<Long> ids = data.objectMap.get(object.getClass().getName());
+        ids.remove(object.getId());
+        List<Obj> toRemove = new ArrayList<Obj>();
+        for (Obj obj : data.objectList) {
+            if (obj.type.equals(object.getClass().getName())) {
+                if (obj.id == object.getId().longValue()) {
+                    toRemove.add(obj);
+                }
+            }
+        }
+        data.objectList.removeAll(toRemove);
+        store.update(data);
     }
 
     // ~ Getting comments
@@ -248,75 +381,228 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public List<Annotation> getComments(long shareId) {
-        return null;
+        return iQuery.findAllByQuery("select comment from Session s "
+                + "left outer join fetch s.annotationLinks links "
+                + "left outer join fetch links.child comment "
+                + "where s.id = :id and comment.ns like :ns ", new Parameters()
+                .addString("ns", NS_COMMENT + "%").addId(shareId));
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public TextAnnotation addComment(long shareId, @NotNull
     String comment) {
-        return null;
+        Session s = iQuery.get(Session.class, shareId);
+        TextAnnotation commentAnnotation = new TextAnnotation();
+        commentAnnotation.setTextValue(comment);
+        commentAnnotation.setNs(NS_COMMENT);
+        SessionAnnotationLink link = s.linkAnnotation(commentAnnotation);
+        link = iUpdate.saveAndReturnObject(link);
+        return (TextAnnotation) link.child();
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public TextAnnotation addReply(long shareId, @NotNull
     String comment, @NotNull
     TextAnnotation replyTo) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void deleteComment(@NotNull
     Annotation comment) {
+        iUpdate.deleteObject(comment);
     }
 
     // ~ Member administration
     // =========================================================================
 
     @RolesAllowed("user")
-    public Set<Experimenter> getAllUsers(long shareId) {
-        return null;
+    public Set<Experimenter> getAllMembers(long shareId) {
+        ShareData data = store.get(shareId);
+        List<Experimenter> e = loadMembers(data);
+        return new HashSet<Experimenter>(e);
     }
 
     @RolesAllowed("user")
     public Set<String> getAllGuests(long shareId) {
-        return null;
+        ShareData data = store.get(shareId);
+        return new HashSet<String>(data.guests);
     }
 
     @RolesAllowed("user")
-    public Set<String> getAllMembers(long shareId) throws ValidationException {
-        return null;
+    public Set<String> getAllUsers(long shareId) throws ValidationException {
+        ShareData data = store.get(shareId);
+        List<Experimenter> members = loadMembers(data);
+        Set<String> names = new HashSet<String>();
+        for (Experimenter e : members) {
+            names.add(e.getOmeName());
+        }
+        for (String string : data.guests) {
+            if (names.contains(string)) {
+                throw new ValidationException(string
+                        + " is both a guest name and a member name");
+            } else {
+                names.add(string);
+            }
+        }
+        return names;
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void addUsers(long shareId, Experimenter... exps) {
+        List<Experimenter> es = Arrays.asList(exps);
+        ShareData data = store.get(shareId);
+        for (Experimenter experimenter : es) {
+            data.members.remove(experimenter.getId());
+        }
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void addGuests(long shareId, String... emailAddresses) {
+        List<String> addresses = Arrays.asList(emailAddresses);
+        ShareData data = store.get(shareId);
+        data.guests.addAll(addresses);
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void removeUsers(long shareId, List<Experimenter> exps) {
+        ShareData data = store.get(shareId);
+        for (Experimenter experimenter : exps) {
+            data.members.remove(experimenter.getId());
+        }
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void removeGuests(long shareId, String... emailAddresses) {
+        List<String> addresses = Arrays.asList(emailAddresses);
+        ShareData data = store.get(shareId);
+        data.guests.removeAll(addresses);
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void addUser(long shareId, Experimenter exp) {
+        ShareData data = store.get(shareId);
+        data.members.add(exp.getId());
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void addGuest(long shareId, String emailAddress) {
+        ShareData data = store.get(shareId);
+        data.guests.add(emailAddress);
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void removeUser(long shareId, Experimenter exp) {
+        ShareData data = store.get(shareId);
+        data.members.remove(exp.getId());
+        store.update(data);
     }
 
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void removeGuest(long shareId, String emailAddress) {
+        ShareData data = store.get(shareId);
+        data.guests.remove(emailAddress);
+        store.update(data);
     }
 
+    // Helpers
+    // =========================================================================
+
+    private String idToUuid(long shareId) {
+        Session s = iQuery.get(Session.class, shareId);
+        return s.getUuid();
+    }
+
+    private List<Experimenter> loadMembers(ShareData data) {
+        List<Experimenter> members = iQuery.findAllByQuery(
+                "select e from Experimenter e " + "where e.id in (:ids)",
+                new Parameters().addIds(data.members));
+        return members;
+    }
+
+    /**
+     * Convert a {@link Timestamp expiration} into a long which can be set on
+     * {@link Session#setTimeToLive(Long)}.
+     * 
+     * @return the time in milliseconds that this session can exist.
+     */
+    private long expirationAsLong(Timestamp expiration) {
+        long now = System.currentTimeMillis();
+        long time;
+        if (expiration != null) {
+            time = expiration.getTime();
+            if (time < now) {
+                throw new ApiUsageException(
+                        "Expiration time must be in the future.");
+            }
+        } else {
+            time = Long.MAX_VALUE;
+        }
+
+        return time - now;
+    }
+
+    private Set<Session> sharesToSessions(List<ShareData> datas) {
+        Set<Session> sessions = new HashSet<Session>();
+        for (ShareData data : datas) {
+            sessions.add(shareToSession(data));
+        }
+        return sessions;
+    }
+
+    private Session shareToSession(ShareData data) {
+        String uuid = idToUuid(data.id);
+        return sessionManager.find(uuid);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends IObject> Map<Class<T>, List<Long>> map(
+            Map<String, List<Long>> map) {
+        Map<Class<T>, List<Long>> rv = new HashMap<Class<T>, List<Long>>();
+        for (String key : map.keySet()) {
+            try {
+                Class<T> kls = (Class<T>) Class.forName(key);
+                rv.put(kls, map.get(key));
+            } catch (Exception e) {
+                throw new ValidationException("Share contains invalid type: "
+                        + key);
+            }
+        }
+        return rv;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends IObject> List<T> list(List<Obj> objectList) {
+        List<T> rv = new ArrayList<T>();
+        for (Obj o : objectList) {
+            T t;
+            try {
+                t = (T) Class.forName(o.type).newInstance();
+            } catch (Exception e) {
+                throw new ValidationException("Share contains invalid type: "
+                        + o.type);
+            }
+            t.setId(o.id);
+            t.unload();
+            rv.add(t);
+        }
+        return rv;
+    }
 }

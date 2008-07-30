@@ -287,7 +287,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Get all {@link Experimenter users} who are a member of the share.
      */
-    Set<Experimenter> getAllUsers(long shareId);
+    Set<Experimenter> getAllMembers(long shareId);
 
     /**
      * Get the email addresses for all share guests.
@@ -305,7 +305,7 @@ public interface IShare extends ServiceInterface {
      *             if there is a conflict between email addresses and user
      *             names.
      */
-    Set<String> getAllMembers(long shareId) throws ValidationException;
+    Set<String> getAllUsers(long shareId) throws ValidationException;
 
     /**
      * Adds {@link ome.model.meta.Experimenter experimenters} to

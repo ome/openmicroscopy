@@ -331,7 +331,7 @@ module omero {
         void addGuest(long shareId, string emailAddress);
         void removeUser(long shareId, omero::model::Experimenter exp);
         void removeGuest(long shareId, string emailAddress);
-
+        // Move to collections.ice when merged
         //dictionary<string, omero::model::Experimenter> getActiveConnections(long shareId);
         //dictionary<string, omero::model::Experimenter> getPastConnections(long shareId);
         void invalidateConnection(long shareId, omero::model::Experimenter exp);

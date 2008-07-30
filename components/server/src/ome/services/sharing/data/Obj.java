@@ -11,22 +11,16 @@
 
 package ome.services.sharing.data;
 
-public class ShareData extends Ice.ObjectImpl
+public class Obj extends Ice.ObjectImpl
 {
-    public ShareData()
+    public Obj()
     {
     }
 
-    public ShareData(long id, long owner, java.util.List<Long> members, java.util.List<String> guests, java.util.Map<java.lang.String, java.util.List<Long>> objectMap, java.util.List<ome.services.sharing.data.Obj> objectList, boolean enabled, long optlock)
+    public Obj(String type, long id)
     {
+        this.type = type;
         this.id = id;
-        this.owner = owner;
-        this.members = members;
-        this.guests = guests;
-        this.objectMap = objectMap;
-        this.objectList = objectList;
-        this.enabled = enabled;
-        this.optlock = optlock;
     }
 
     private static class __F extends Ice.LocalObjectImpl implements Ice.ObjectFactory
@@ -35,7 +29,7 @@ public class ShareData extends Ice.ObjectImpl
         create(String type)
         {
             assert(type.equals(ice_staticId()));
-            return new ShareData();
+            return new Obj();
         }
 
         public void
@@ -54,7 +48,7 @@ public class ShareData extends Ice.ObjectImpl
     public static final String[] __ids =
     {
         "::Ice::Object",
-        "::ome::services::sharing::data::ShareData"
+        "::ome::services::sharing::data::Obj"
     };
 
     public boolean
@@ -104,14 +98,8 @@ public class ShareData extends Ice.ObjectImpl
     {
         __os.writeTypeId(ice_staticId());
         __os.startWriteSlice();
+        __os.writeString(type);
         __os.writeLong(id);
-        __os.writeLong(owner);
-        LongSeqHelper.write(__os, members);
-        StringSeqHelper.write(__os, guests);
-        IdMapHelper.write(__os, objectMap);
-        ObjSeqHelper.write(__os, objectList);
-        __os.writeBool(enabled);
-        __os.writeLong(optlock);
         __os.endWriteSlice();
         super.__write(__os);
     }
@@ -124,14 +112,8 @@ public class ShareData extends Ice.ObjectImpl
             __is.readTypeId();
         }
         __is.startReadSlice();
+        type = __is.readString();
         id = __is.readLong();
-        owner = __is.readLong();
-        members = LongSeqHelper.read(__is);
-        guests = StringSeqHelper.read(__is);
-        objectMap = IdMapHelper.read(__is);
-        objectList = ObjSeqHelper.read(__is);
-        enabled = __is.readBool();
-        optlock = __is.readLong();
         __is.endReadSlice();
         super.__read(__is, true);
     }
@@ -140,7 +122,7 @@ public class ShareData extends Ice.ObjectImpl
     __write(Ice.OutputStream __outS)
     {
         Ice.MarshalException ex = new Ice.MarshalException();
-        ex.reason = "type ome::services::sharing::data::ShareData was not generated with stream support";
+        ex.reason = "type ome::services::sharing::data::Obj was not generated with stream support";
         throw ex;
     }
 
@@ -148,23 +130,11 @@ public class ShareData extends Ice.ObjectImpl
     __read(Ice.InputStream __inS, boolean __rid)
     {
         Ice.MarshalException ex = new Ice.MarshalException();
-        ex.reason = "type ome::services::sharing::data::ShareData was not generated with stream support";
+        ex.reason = "type ome::services::sharing::data::Obj was not generated with stream support";
         throw ex;
     }
 
+    public String type;
+
     public long id;
-
-    public long owner;
-
-    public java.util.List<Long> members;
-
-    public java.util.List<String> guests;
-
-    public java.util.Map<java.lang.String, java.util.List<Long>> objectMap;
-
-    public java.util.List<ome.services.sharing.data.Obj> objectList;
-
-    public boolean enabled;
-
-    public long optlock;
 }

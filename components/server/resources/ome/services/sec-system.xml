@@ -30,7 +30,6 @@
   </bean>
 
   <bean id="sharingSecuritySystem" class="ome.security.sharing.SharingSecuritySystem">
-    <constructor-arg ref="sharingACLVoter"/>
   </bean>
 
   <bean id="basicSecuritySystem" class="ome.security.basic.BasicSecuritySystem">

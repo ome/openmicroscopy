@@ -6,15 +6,18 @@
 package ome.services.sharing;
 
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import ome.api.IShare;
+import ome.conditions.OptimisticLockException;
 import ome.model.IObject;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
@@ -68,9 +71,10 @@ public class BlobShareStore extends ShareStore {
                         "SELECT sum(CASE WHEN t.typname=? THEN 1 ELSE 0 END) FROM pg_type t",
                         new Object[] { "private_shares" },
                         new int[] { Types.VARCHAR })) {
-            sysjdbc
-                    .execute("CREATE TABLE private_shares "
-                            + "(id BIGINT PRIMARY KEY, item_count INTEGER, data BYTEA)");
+            sysjdbc.execute("CREATE TABLE private_shares "
+                    + "(id BIGINT PRIMARY KEY NOT NULL, "
+                    + "item_count INTEGER NOT NULL, " + "data BYTEA NOT NULL, "
+                    + "optlock BIGINT NOT NULL)");
         }
     }
 
@@ -100,19 +104,116 @@ public class BlobShareStore extends ShareStore {
             os.destroy();
         }
 
-        userjdbc
-                .update(
-                        "INSERT INTO private_shares (id, item_count, data) VALUES (?, ?, ?)",
-                        new Object[] { data.id, items.size(),
-                                new SqlLobValue(bytes, handler) }, new int[] {
-                                Types.BIGINT, Types.INTEGER, Types.BLOB });
+        long oldOptLock = data.optlock;
+        long newOptLock = oldOptLock + 1;
+
+        try {
+            userjdbc.update(
+                    "INSERT INTO private_shares (id, item_count, data, optlock) "
+                            + "VALUES (?,?,?,?)", new Object[] { data.id,
+                            items.size(), new SqlLobValue(bytes, handler),
+                            newOptLock }, new int[] { Types.BIGINT,
+                            Types.INTEGER, Types.BLOB, Types.BIGINT });
+        } catch (Exception e) {
+            // Exception means that there was already an item with that id.
+            try {
+                userjdbc.update("UPDATE private_shares "
+                        + "set item_count = ?, data = ?, optlock = ? "
+                        + "WHERE id = ? AND OPTLOCK = ?", new Object[] {
+                        items.size(), new SqlLobValue(bytes, handler),
+                        newOptLock, data.id, oldOptLock }, new int[] {
+                        Types.INTEGER, Types.BLOB, Types.BIGINT, Types.BIGINT,
+                        Types.BIGINT });
+            } catch (EmptyResultDataAccessException empty) {
+                throw new OptimisticLockException(
+                        "Share was updated by another thread. Try again.");
+            }
+        }
     }
 
     @Override
     public ShareData get(long id) {
-        byte[] data = (byte[]) userjdbc.queryForObject(
-                "select data from private_shares where id = ?",
-                new Object[] { id }, new int[] { Types.BIGINT }, byte[].class);
+        try {
+            byte[] data = (byte[]) userjdbc.queryForObject(
+                    "select data from private_shares where id = ?",
+                    new Object[] { id }, new int[] { Types.BIGINT },
+                    byte[].class);
+            return parse(data);
+        } catch (EmptyResultDataAccessException empty) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<ShareData> getShares(boolean active) {
+        List<ShareData> rv = new ArrayList<ShareData>();
+        try {
+            List<byte[]> data = userjdbc.queryForList(
+                    "select data from private_shares", byte[].class);
+            for (byte[] bs : data) {
+                ShareData d = parse(bs);
+                if (active && !d.enabled) {
+                    continue;
+                }
+                rv.add(parse(bs));
+            }
+            return rv;
+        } catch (EmptyResultDataAccessException empty) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<ShareData> getShares(long userId, boolean own, boolean active) {
+        List<ShareData> rv = new ArrayList<ShareData>();
+        try {
+            List<byte[]> data = userjdbc.queryForList(
+                    "select data from private_shares", byte[].class);
+            for (byte[] bs : data) {
+                ShareData d = parse(bs);
+                if (active && !d.enabled) {
+                    continue;
+                }
+                if (own) {
+                    if (d.owner != userId) {
+                        continue;
+                    }
+                } else {
+                    if (!d.members.contains(userId)) {
+                        continue;
+                    }
+                }
+                rv.add(parse(bs));
+            }
+            return rv;
+        } catch (EmptyResultDataAccessException empty) {
+            return null;
+        }
+    }
+
+    @Override
+    public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
+            long objId) {
+        ShareData data = get(sessionId);
+        List<Long> ids = data.objectMap.get(kls.getName());
+        return ids.contains(objId);
+    }
+
+    @Override
+    public void doClose() {
+        // no-op
+    }
+
+    @Override
+    public Set<Long> keys() {
+        return new HashSet<Long>(userjdbc.queryForList(
+                "select id from seq_private_shares", Long.class));
+    }
+
+    // Helpers
+    // =========================================================================
+
+    private ShareData parse(byte[] data) {
         Ice.InputStream is = Ice.Util.createInputStream(ic, data);
         final ShareData[] shareData = new ShareData[1];
         try {
@@ -128,24 +229,4 @@ public class BlobShareStore extends ShareStore {
         }
         return shareData[0];
     }
-
-    @Override
-    public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
-            long objId) {
-        ShareData data = get(sessionId);
-        List<Long> ids = data.objects.get(kls.getName());
-        return ids.contains(objId);
-    }
-
-    @Override
-    public void doClose() {
-        // no-op
-    }
-
-    @Override
-    public Set<Long> keys() {
-        return new HashSet<Long>(userjdbc.queryForList(
-                "select id from seq_private_shares", Long.class));
-    }
-
 }

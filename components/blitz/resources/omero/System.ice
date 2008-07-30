@@ -38,6 +38,7 @@ module omero {
      */
     class EventContext
     {
+      long   shareId;
       long   sessionId;
       string sessionUuid;
       long   userId;

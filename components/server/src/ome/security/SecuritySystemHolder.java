@@ -79,10 +79,6 @@ public class SecuritySystemHolder implements SecuritySystem {
         choose().enable(ids);
     }
 
-    public ACLVoter getACLVoter() {
-        return choose().getACLVoter();
-    }
-
     public EventContext getEventContext() {
         return choose().getEventContext();
     }
