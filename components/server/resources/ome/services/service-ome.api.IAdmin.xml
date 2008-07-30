@@ -32,6 +32,7 @@
     <property name="mailSender" ref="mailSender"/>
     <property name="templateMessage" ref="templateMessage"/>
     <property name="ldapService" ref="internal-ome.api.LocalLdap"/>
+    <property name="aclVoter"    ref="aclVoter"/>
   </bean> 
  
   <bean name="managed-ome.api.IAdmin" parent="managedService">

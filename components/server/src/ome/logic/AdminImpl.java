@@ -162,6 +162,8 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected transient LocalLdap ldap;
 
+    protected transient ACLVoter aclVoter;
+
     /** injector for usage by the container. Not for general use */
     public final void setJdbcTemplate(SimpleJdbcTemplate jdbcTemplate) {
         getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcTemplate);
@@ -193,6 +195,11 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         if (!this.ldap.getSetting()) {
             this.ldap = null;
         }
+    }
+
+    public void setAclVoter(ACLVoter aclVoter) {
+        getBeanHelper().throwIfAlreadySet(this.aclVoter, aclVoter);
+        this.aclVoter = aclVoter;
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -752,7 +759,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @RolesAllowed("user")
     public void changePermissions(final IObject iObject, final Permissions perms) {
 
-        final ACLVoter aclVoter = getSecuritySystem().getACLVoter(); // TODO
         // inject
         final IObject[] copy = new IObject[1];
 

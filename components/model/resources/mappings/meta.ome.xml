@@ -125,4 +125,12 @@
 		</properties>
 	</type>
 
+        <type id="ome.model.meta.Share" immutable="false" global="true" annotated="true">
+            <properties>
+                   <required name="session"            type="ome.model.meta.Session"/>
+                   <required name="itemCount"          type="long"/>
+                   <required name="active"             type="boolean"/>
+                   <required name="data"               type="byte[]"/>
+            </properties>
+        </type>
 </types>

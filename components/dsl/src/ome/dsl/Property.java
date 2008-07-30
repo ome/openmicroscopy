@@ -20,7 +20,7 @@ import java.util.Set;
 // Application-internal dependencies
 
 /**
- * reprents the <b>definition</b> of a property within a SemanticType
+ * represents the <b>definition</b> of a property within a SemanticType
  * 
  * @author <br>
  *         Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -102,6 +102,8 @@ public abstract class Property { // TODO need to define equality so that two
 
     public final static String TEXT = "text";
 
+    public final static String BYTES = "byte[]";
+
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
         JAVATYPES.put(STRING, String.class.getName());
@@ -112,6 +114,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(LONG, Long.class.getName());
         JAVATYPES.put(TIMESTAMP, Timestamp.class.getName());
         JAVATYPES.put(TEXT, String.class.getName());
+        JAVATYPES.put(BYTES, BYTES);
     }
 
     public final static Map<String, String> DBTYPES = new HashMap<String, String>();

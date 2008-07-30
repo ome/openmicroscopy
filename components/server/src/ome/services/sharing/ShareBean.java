@@ -35,8 +35,9 @@ import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BooleanAnnotation;
-import ome.model.annotations.SessionAnnotationLink;
 import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.SessionAnnotationLink;
+import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.parameters.Parameters;
@@ -522,6 +523,30 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         store.update(data);
     }
 
+    // Events
+    // =========================================================================
+
+    @RolesAllowed("user")
+    public Map<String, Experimenter> getActiveConnections(long shareId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @RolesAllowed("user")
+    public List<Event> getEvents(long shareId, Experimenter experimenter,
+            Timestamp from, Timestamp to) {
+        throw new UnsupportedOperationException();
+    }
+
+    @RolesAllowed("user")
+    public Map<String, Experimenter> getPastConnections(long shareId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @RolesAllowed("user")
+    public void invalidateConnection(long shareId, Experimenter exp) {
+        throw new UnsupportedOperationException();
+    }
+
     // Helpers
     // =========================================================================
 
@@ -605,4 +630,5 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         }
         return rv;
     }
+
 }

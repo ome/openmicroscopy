@@ -130,8 +130,17 @@ public class FreezeShareStore extends ShareStore {
 
     @Override
     public ShareData get(long id) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<ShareData> getShares(boolean active) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<ShareData> getShares(long userId, boolean own, boolean active) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

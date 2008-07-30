@@ -436,6 +436,12 @@ in the [Ice] sections below, but not for all others.
 #set( $setter = "${property.name} == null ? null : new omero.RFloat(${property.name}) ")
 #set( $cppType   = "omero::RFloatPtr" )
 
+#elseif( $javaType.equals("byte[]"))
+#set( $javaType = "byte[]")
+#set( $getter = "this.$property.name" )
+#set( $setter = "${property.name}")
+#set( $cppType = "Ice::ByteSeq")
+
 #elseif( $javaType.startsWith("long")) ## for Permissions
 #set( $javaType = "Long" )
 #set( $getter   = "new Long(this.$property.name)" )
@@ -481,6 +487,8 @@ ICE BLOCK:
 [$Ice]       omero::RInt ${property.name};
 #elseif ( ${shortType} == "Long" )
 [$Ice]       omero::RLong ${property.name};
+#elseif( $shortType.equals("byte[]"))
+[$Ice]       Ice::ByteSeq ${property.name};
 #elseif( $property.one2Many )
 [$Ice]       $seqName ${property.name};
 [$Ice]       bool ${property.name}Loaded;
