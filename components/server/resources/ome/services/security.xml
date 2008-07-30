@@ -51,6 +51,10 @@
   
   <!-- Scope: private -->
 
+  <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
+    <property name="sessionManager" ref="sessionManager"/>
+  </bean>
+  
   <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"
   	lazy-init="true">
   	<property name="securitySystem" ref="securitySystem"/>

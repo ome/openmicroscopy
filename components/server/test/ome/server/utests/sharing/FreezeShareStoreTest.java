@@ -13,7 +13,7 @@ import java.util.Collections;
 import junit.framework.TestCase;
 import ome.model.IObject;
 import ome.model.core.Image;
-import ome.services.sharing.ShareStore;
+import ome.services.sharing.FreezeShareStore;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -24,9 +24,9 @@ import org.testng.annotations.Test;
  * @since 3.0-Beta2
  */
 @Test(groups = "sharing")
-public class ShareStoreTest extends TestCase {
+public class FreezeShareStoreTest extends TestCase {
 
-    ShareStore store;
+    FreezeShareStore store;
     File tmpDir;
 
     @BeforeMethod
@@ -34,7 +34,7 @@ public class ShareStoreTest extends TestCase {
         tmpDir = File.createTempFile("test", "store");
         tmpDir.delete();
         tmpDir.mkdir();
-        store = new ShareStore("ShareStoreTest", tmpDir);
+        store = new FreezeShareStore("FreezeShareStoreTest", tmpDir);
     }
 
     @AfterMethod

@@ -33,7 +33,7 @@
     <constructor-arg ref="sessionFactory"/>
   </bean>
 
-  <bean id="hibernateProperties-defaults" abstract="true"
+  <bean id="hibernateProperties"
     class="org.springframework.beans.factory.config.PropertiesFactoryBean">
     <description>
     Scope: private
@@ -104,7 +104,17 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="allowCreate" value="false"/>
   </bean>
- 
+
+  <bean id="simpleJdbcTemplate" class="ome.tools.spring.DelegatingJdbcTemplate">
+    <description>
+    Scope: private
+    
+    This template uses session.connection() for data access. See javadocs for
+    more info.
+    </description>
+    <constructor-arg ref="hibernateTemplate"/>
+  </bean>
+  
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
     <description>
     Scope: private

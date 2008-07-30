@@ -28,19 +28,6 @@
 
   <!--  Scope: private -->
 
-  <bean id="methodSecurity" class="ome.security.basic.BasicMethodSecurity">
-	<property name="sessionManager" ref="sessionManager"/>
-  </bean>
-
-  <bean id="hibernateProperties" parent="hibernateProperties-defaults">
-    <description>
-    Scope: private
-    </description>
-    <property name="properties">
-      <props merge="true"/>
-    </property>
-  </bean>
-
   <bean id="transactionManager" lazy-init="true"
         class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <description>
@@ -58,16 +45,6 @@
     <property name="transactionAttributeSource">
       <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
     </property>
-  </bean>
-
-  <bean id="simpleJdbcTemplate" class="ome.tools.spring.DelegatingJdbcTemplate">
-    <description>
-    Scope: private
-    
-    This template uses session.connection() for data access. See javadocs for
-    more info.
-    </description>
-    <constructor-arg ref="hibernateTemplate"/>
   </bean>
 
   <bean id="unsafeJdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
@@ -90,5 +67,7 @@
       <property name="user" value="${hibernate.connection.username}"/>
       <property name="password" value="${hibernate.connection.password}"/>
   </bean>
+
+  <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
 
 </beans>

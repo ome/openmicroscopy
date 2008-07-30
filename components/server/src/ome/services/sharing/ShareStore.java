@@ -5,7 +5,6 @@
 
 package ome.services.sharing;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,79 +15,24 @@ import ome.api.IShare;
 import ome.model.IObject;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
-import ome.services.sharing.data.ShareItems;
-import ome.services.sharing.data.ShareMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.util.Assert;
 
 /**
- * Entry to the Ice code generated data/ directory.
+ * Entry to the Ice code generated data/ directory. Subclasess of
+ * {@link ShareStore} know how to efficiently store and look up
+ * {@link ShareData} instances.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  * @see IShare
  */
-public class ShareStore {
+public abstract class ShareStore {
 
-    final private static Log log = LogFactory.getLog(ShareStore.class);
+    final protected Log log = LogFactory.getLog(this.getClass());
 
-    final protected String envRoot;
-
-    final protected String envMap;
-
-    final protected String envItems;
-
-    final protected File envLocation;
-
-    final protected Freeze.Connection conn;
-
-    // Initialization/Destruction
-    // =========================================================================
-
-    public ShareStore(String root, File location) {
-        Assert.notNull(root);
-        Assert.notNull(location);
-        this.envRoot = root;
-        this.envMap = root + "Map";
-        this.envItems = root + "Items";
-        this.envLocation = location;
-
-        Ice.Communicator ic = null;
-        try {
-            ic = Ice.Util.initialize(new String[] {});
-            conn = Freeze.Util.createConnection(ic, envLocation
-                    .getAbsolutePath());
-            ShareMap map = new ShareMap(conn, envMap, true);
-            ShareItems items = new ShareItems(conn, envItems, true);
-            int mapsize = map.size();
-            int itemssize = items.size();
-            log.info("Loaded store with " + mapsize + " shares and "
-                    + itemssize + " objects");
-            map.close();
-            items.close();
-        } catch (Exception e) {
-            if (ic != null) {
-                ic.destroy();
-            }
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void close() {
-        if (conn != null) {
-            Ice.Communicator ic = conn.getCommunicator();
-            try {
-                conn.close();
-            } catch (Exception e) {
-                log.error("Error closing store", e);
-            }
-            if (ic != null) {
-                ic.destroy();
-            }
-        }
-    }
+    final protected Ice.Communicator ic = Ice.Util.initialize();
 
     // User Methods
     // =========================================================================
@@ -103,34 +47,47 @@ public class ShareStore {
         data.enabled = enabled;
         data.objects = map(objects);
 
-        List<ShareItem> shareItems = asItems(objects, members, guests);
+        List<ShareItem> shareItems = asItems(id, objects, members, guests);
 
-        Freeze._TransactionOperationsNC tx = conn.beginTransaction();
-        ShareMap map = new ShareMap(conn, envMap, false);
-        ShareItems items = new ShareItems(conn, envItems, false);
+        doSet(data, shareItems);
+
+    }
+
+    public final void init() {
+        doInit();
+        int mapsize = totalShares();
+        int itemssize = totalSharedItems();
+        log.info("Loaded store " + this + " with " + mapsize + " shares and "
+                + itemssize + " objects");
+
+    }
+
+    public final void close() {
         try {
-            map.put(id, data);
-            for (ShareItem shareItem : shareItems) {
-                items.put(shareItem.type + ":_" + shareItem.id, shareItem);
-            }
-        } catch (Exception e) {
-            tx.rollback();
-            tx = null;
-            throw new RuntimeException(e);
+            doClose();
         } finally {
-            if (tx != null) {
-                tx.commit();
-            }
+            ic.destroy();
         }
-
     }
 
-    public Set<Long> keys() {
-        ShareMap map = new ShareMap(conn, envMap, false);
-        return map.keySet();
-    }
+    // Abstract Methods
+    // =========================================================================
 
-    // User Methods
+    public abstract void doInit();
+
+    public abstract int totalShares();
+
+    public abstract int totalSharedItems();
+
+    public abstract Set<Long> keys();
+
+    public abstract ShareData get(long id);
+
+    public abstract void doSet(ShareData data, List<ShareItem> items);
+
+    public abstract void doClose();
+
+    // Helper Methods
     // =========================================================================
 
     private <T extends IObject> List<ShareItem> asItems(long share,
