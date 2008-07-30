@@ -53,6 +53,7 @@ import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
+import ome.services.sharing.ShareStore;
 import ome.system.EventContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -98,6 +99,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     private LocalQuery query;
     private LocalUpdate update;
     private SessionManager sessionManager;
+    private ShareStore store;
     private final Roles roles;
 
     /** metadata for calculating certain walks */
@@ -148,6 +150,10 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     public void setUpdateService(LocalUpdate update) {
         this.update = update;
+    }
+
+    public void setShareStore(ShareStore store) {
+        this.store = store;
     }
 
     // ~ Login/logout

@@ -89,12 +89,7 @@
     The session handler is used to handle sessions for stateful beans. A single
     session is opened for any new stateful session invocation, and will be closed
     once "close()" is invoked.
-    
-    The handler also creates a session for use by Spring beans during initialization:
-    "init-method=...". To use this facility, add the "depends-on='sessionHandler'" 
-    attribute if necessary.
     </description>
-    <constructor-arg ref="transactionManager"/>
     <constructor-arg ref="sessionFactory"/>    
   </bean>
 

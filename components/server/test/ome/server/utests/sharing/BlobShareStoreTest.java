@@ -18,7 +18,8 @@ import ome.services.sharing.BlobShareStore;
 import ome.services.sharing.data.ShareData;
 import ome.system.OmeroContext;
 
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -33,7 +34,7 @@ public class BlobShareStoreTest extends TestCase {
 
     OmeroContext ctx;
     BlobShareStore store;
-    JdbcTemplate template;
+    SimpleJdbcTemplate template;
     DataSource ds;
     LobHandler lob;
 
@@ -44,14 +45,21 @@ public class BlobShareStoreTest extends TestCase {
                 "classpath:ome/services/config-local.xml" });
         ds = (DataSource) ctx.getBean("dataSource");
         lob = (LobHandler) ctx.getBean("lobHandler");
-        template = new JdbcTemplate(ds);
-        template.execute("drop sequence seq_private_shares");
-        template.execute("drop table private_shares");
-        store = new BlobShareStore(template, lob);
+        template = new SimpleJdbcTemplate(ds);
+        try {
+            template.getJdbcOperations().execute(
+                    "drop sequence seq_private_shares");
+            template.getJdbcOperations().execute("drop table private_shares");
+        } catch (BadSqlGrammarException e) {
+            // Then the tables probably don't exist.
+        }
+        store = new BlobShareStore(template, template, lob);
+        store.init();
     }
 
     @AfterMethod
     public void cleanup() throws Exception {
+        store.close();
     }
 
     @Test

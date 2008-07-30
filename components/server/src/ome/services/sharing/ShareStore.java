@@ -18,6 +18,7 @@ import ome.services.sharing.data.ShareItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
  * Entry to the Ice code generated data/ directory. Subclasess of
@@ -53,13 +54,19 @@ public abstract class ShareStore {
 
     }
 
+    // Template methods
+    // =========================================================================
+
+    /**
+     * Calls {@link #doInit()} within a transaction with a session available to
+     * all {@link HibernateTemplate} callbacks.
+     */
     public final void init() {
         doInit();
         int mapsize = totalShares();
         int itemssize = totalSharedItems();
         log.info("Loaded store " + this + " with " + mapsize + " shares and "
                 + itemssize + " objects");
-
     }
 
     public final void close() {
@@ -68,6 +75,11 @@ public abstract class ShareStore {
         } finally {
             ic.destroy();
         }
+    }
+
+    public final <T extends IObject> boolean contains(long sessionId,
+            Class<T> kls, long objId) {
+        return doContains(sessionId, kls, objId);
     }
 
     // Abstract Methods
@@ -82,6 +94,9 @@ public abstract class ShareStore {
     public abstract Set<Long> keys();
 
     public abstract ShareData get(long id);
+
+    public abstract <T extends IObject> boolean doContains(long sessionId,
+            Class<T> kls, long objId);
 
     public abstract void doSet(ShareData data, List<ShareItem> items);
 

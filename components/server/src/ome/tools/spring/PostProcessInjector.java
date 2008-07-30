@@ -10,10 +10,14 @@ package ome.tools.spring;
 // Java imports
 
 // Third-party imports
+import java.util.List;
+
 import ome.api.local.LocalAdmin;
 import ome.api.local.LocalQuery;
 import ome.api.local.LocalUpdate;
+import ome.security.SecuritySystem;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.sharing.SharingSecuritySystem;
 import ome.services.sessions.SessionManagerImpl;
 import ome.tools.hibernate.ExtendedMetadata;
 
@@ -25,18 +29,31 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  */
 public class PostProcessInjector implements InitializingBean {
     SessionManagerImpl sessionManager;
-    BasicSecuritySystem securitySystem;
-    ExtendedMetadata extendedMetdata;
+    List<SecuritySystem> securitySystems;
+    ExtendedMetadata extendedMetadata;
     LocalAdmin adminService;
     LocalQuery queryService;
     LocalUpdate updateService;
 
     public void afterPropertiesSet() throws Exception {
-        securitySystem.setExtendedMetadata(extendedMetdata);
-        securitySystem.setSessionManager(sessionManager);
-        securitySystem.setAdminService(adminService);
-        securitySystem.setQueryService(queryService);
-        securitySystem.setUpdateService(updateService);
+        for (SecuritySystem ss : securitySystems) {
+            if (ss instanceof BasicSecuritySystem) {
+                BasicSecuritySystem securitySystem = (BasicSecuritySystem) ss;
+                securitySystem.setExtendedMetadata(extendedMetadata);
+                securitySystem.setSessionManager(sessionManager);
+                securitySystem.setAdminService(adminService);
+                securitySystem.setQueryService(queryService);
+                securitySystem.setUpdateService(updateService);
+            } else if (ss instanceof SharingSecuritySystem) {
+                SharingSecuritySystem securitySystem = (SharingSecuritySystem) ss;
+                // securitySystem.setSessionManager(sessionManager);
+            }
+        }
+
+    }
+
+    public void setSecuritySystems(List<SecuritySystem> securitySystems) {
+        this.securitySystems = securitySystems;
     }
 
     public void setAdminService(LocalAdmin adminService) {
@@ -51,16 +68,12 @@ public class PostProcessInjector implements InitializingBean {
         this.updateService = updateService;
     }
 
-    public void setSecuritySystem(BasicSecuritySystem securitySystem) {
-        this.securitySystem = securitySystem;
-    }
-
     public void setSessionManager(SessionManagerImpl sessionManager) {
         this.sessionManager = sessionManager;
     }
 
     public void setExtendedMetadata(ExtendedMetadata extendedMetdata) {
-        this.extendedMetdata = extendedMetdata;
+        this.extendedMetadata = extendedMetdata;
     }
 
 }

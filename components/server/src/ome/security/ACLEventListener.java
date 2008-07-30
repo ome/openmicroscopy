@@ -10,9 +10,14 @@ package ome.security;
 // Java imports
 
 // Third-party imports
+import ome.annotations.RevisionDate;
+import ome.annotations.RevisionNumber;
+import ome.conditions.SecurityViolation;
+import ome.model.IObject;
+import ome.tools.hibernate.HibernateUtils;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.hibernate.event.PostDeleteEvent;
 import org.hibernate.event.PostDeleteEventListener;
 import org.hibernate.event.PostInsertEvent;
@@ -29,13 +34,6 @@ import org.hibernate.event.PreLoadEvent;
 import org.hibernate.event.PreLoadEventListener;
 import org.hibernate.event.PreUpdateEvent;
 import org.hibernate.event.PreUpdateEventListener;
-
-// Application-internal dependencies
-import ome.annotations.RevisionDate;
-import ome.annotations.RevisionNumber;
-import ome.conditions.SecurityViolation;
-import ome.model.IObject;
-import ome.tools.hibernate.HibernateUtils;
 
 /**
  * responsible for intercepting all pre-INSERT, pre-UPDATE, pre-DELETE, and
@@ -62,7 +60,7 @@ public class ACLEventListener implements
 
     private static Log log = LogFactory.getLog(ACLEventListener.class);
 
-    private ACLVoter aclVoter;
+    private final ACLVoter aclVoter;
 
     /**
      * main constructor. controls access to individual db rows..
@@ -101,9 +99,9 @@ public class ACLEventListener implements
     public void onPostLoad(PostLoadEvent event) {
         Object entity = event.getEntity();
         if (entity instanceof IObject) {
-            IObject obj = (IObject) entity;
-            if (!aclVoter.allowLoad(obj.getClass(), obj.getDetails())) {
-                aclVoter.throwLoadViolation(obj);
+            IObject o = (IObject) entity;
+            if (!aclVoter.allowLoad(o.getClass(), o.getDetails(), o.getId())) {
+                aclVoter.throwLoadViolation(o);
             }
         }
     }

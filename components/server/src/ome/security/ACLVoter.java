@@ -54,10 +54,14 @@ public interface ACLVoter {
      * @param d
      *            the non-null trusted details (usually from the db) for this
      *            instance
+     * @param id
+     *            the id of the object which will be loaded. As opposed to the
+     *            rest of the object, this must be known.
      * @return true if loading of this object can proceed
      * @see ACLEventListener#onPostLoad(org.hibernate.event.PostLoadEvent)
      */
-    boolean allowLoad(Class<? extends IObject> klass, Details trustedDetails);
+    boolean allowLoad(Class<? extends IObject> klass, Details trustedDetails,
+            long id);
 
     /**
      * test whether the given object should be insertable into the DB.

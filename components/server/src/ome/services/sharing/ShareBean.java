@@ -6,6 +6,7 @@
 package ome.services.sharing;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import ome.model.annotations.BooleanAnnotation;
 import ome.model.annotations.TextAnnotation;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
+import ome.security.SecuritySystemHolder;
 import ome.services.sessions.SessionManager;
 import ome.services.util.OmeroAroundInvoke;
 import ome.system.Principal;
@@ -72,14 +74,18 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     final ShareStore store;
 
+    final SecuritySystemHolder holder;
+
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IShare.class;
     }
 
-    public ShareBean(LocalAdmin admin, SessionManager mgr, ShareStore store) {
+    public ShareBean(LocalAdmin admin, SessionManager mgr, ShareStore store,
+            SecuritySystemHolder holder) {
         this.admin = admin;
         this.sessionManager = mgr;
         this.store = store;
+        this.holder = holder;
     }
 
     // ~ Service Methods
@@ -87,7 +93,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public void activate(long shareId) {
-        // this.getSecuritySystem().setAcls();
+        holder.chooseSharing();
+        throw new RuntimeException("Need to set the id somewhere. "
+                + "Perhaps we create a new SharingSecuritySystem (stateful?) "
+                + "attached to the session?");
     }
 
     // ~ Admin
@@ -187,7 +196,11 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         session = sessionManager.update(session);
 
         // Storing representation
-        store.set(session.getId(), user, items, exps, guests, enabled);
+        List<Long> members = new ArrayList<Long>(exps.size());
+        for (Experimenter e : exps) {
+            members.add(e.getId());
+        }
+        store.set(session.getId(), user, items, members, guests, enabled);
 
         return session.getId();
     }

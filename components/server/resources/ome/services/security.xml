@@ -30,8 +30,22 @@
 
 <beans>
 
-  <bean id="securitySystem" class="ome.security.basic.BasicSecuritySystem">
-    <constructor-arg ref="roles"/>    
+  <bean id="securitySystem" class="ome.security.SecuritySystemHolder">
+    <constructor-arg ref="basicSecuritySystem"/>
+    <constructor-arg ref="sharingSecuritySystem"/>
+  </bean>
+
+  <bean id="sharingSecuritySystem" class="ome.security.sharing.SharingSecuritySystem">
+    <constructor-arg ref="sharingACLVoter"/>
+  </bean>
+
+  <bean id="sharingACLVoter" class="ome.security.sharing.SharingACLVoter">
+    <constructor-arg ref="basicSecuritySystem"/>
+    <constructor-arg ref="shareStore"/>
+  </bean>
+
+  <bean id="basicSecuritySystem" class="ome.security.basic.BasicSecuritySystem">
+    <constructor-arg ref="roles"/> 
   </bean>
   <!-- Due to several circular dependencies, the security system which is used
   frequently, has several of its dependencies loaded by a post processor -->
@@ -39,7 +53,12 @@
     <description>
     Scope: private
     </description>
-    <property name="securitySystem" ref="securitySystem"/>
+    <property name="securitySystems">
+      <list>
+        <ref bean="basicSecuritySystem"/>
+        <ref bean="sharingSecuritySystem"/>
+      </list>
+    </property>
     <property name="extendedMetadata" ref="extendedMetadata"/>
     <property name="sessionManager" ref="sessionManager"/>
     <property name="adminService" ref="internal:ome.api.IAdmin"/>
@@ -57,7 +76,7 @@
   
   <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"
   	lazy-init="true">
-  	<property name="securitySystem" ref="securitySystem"/>
+  	<property name="securitySystem" ref="basicSecuritySystem"/>
   	<property name="methodSecurity" ref="methodSecurity"/>
   </bean>
 

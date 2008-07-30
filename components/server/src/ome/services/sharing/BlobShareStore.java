@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import ome.api.IShare;
+import ome.model.IObject;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 
@@ -31,7 +32,17 @@ import Ice.ReadObjectCallback;
  */
 public class BlobShareStore extends ShareStore {
 
-    final protected JdbcOperations jdbc;
+    /**
+     * Jdbc template to be used for system calls. Does not particpate in
+     * hibernate sessions.
+     */
+    final protected JdbcOperations sysjdbc;
+
+    /**
+     * Jdbc templates to be used for user calls. Will take part in hibernate
+     * sessions.
+     */
+    final protected JdbcOperations userjdbc;
 
     final protected LobHandler handler;
 
@@ -41,19 +52,26 @@ public class BlobShareStore extends ShareStore {
     /**
      * 
      */
-    public BlobShareStore(SimpleJdbcTemplate template, LobHandler handler) {
-        Assert.notNull(template);
-        Assert.notNull(handler);
-        this.jdbc = template.getJdbcOperations();
+    public BlobShareStore(SimpleJdbcTemplate user, SimpleJdbcTemplate sys,
+            LobHandler handler) {
+        Assert.notNull(user);
+        Assert.notNull(sys);
+        this.userjdbc = user.getJdbcOperations();
+        this.sysjdbc = sys.getJdbcOperations();
         this.handler = handler;
     }
 
     @Override
     public void doInit() {
-        this.jdbc
-                .execute("CREATE TABLE private_shares (id BIGINT PRIMARY KEY, data bytea)");
-        this.jdbc.execute("CREATE SEQUENCE seq_private_shares");
-
+        if (1 != sysjdbc
+                .queryForInt(
+                        "SELECT sum(CASE WHEN t.typname=? THEN 1 ELSE 0 END) FROM pg_type t",
+                        new Object[] { "private_shares" },
+                        new int[] { Types.VARCHAR })) {
+            sysjdbc
+                    .execute("CREATE TABLE private_shares "
+                            + "(id BIGINT PRIMARY KEY, item_count INTEGER, data BYTEA)");
+        }
     }
 
     // Overrides
@@ -61,12 +79,12 @@ public class BlobShareStore extends ShareStore {
 
     @Override
     public int totalShares() {
-        return jdbc.queryForInt("select count(id) from private_shares");
+        return sysjdbc.queryForInt("select count(id) from private_shares");
     }
 
     @Override
     public int totalSharedItems() {
-        return jdbc
+        return sysjdbc
                 .queryForInt("select sum(item_count) from private_shares");
     }
 
@@ -82,15 +100,17 @@ public class BlobShareStore extends ShareStore {
             os.destroy();
         }
 
-        long id = jdbc.queryForLong("SELECT nextval('seq_private_shares')");
-        jdbc.update("INSERT INTO private_shares (id, data) VALUES (?, ?)",
-                new Object[] { id, new SqlLobValue(bytes, handler) },
-                new int[] { Types.BIGINT, Types.BLOB });
+        userjdbc
+                .update(
+                        "INSERT INTO private_shares (id, item_count, data) VALUES (?, ?, ?)",
+                        new Object[] { data.id, items.size(),
+                                new SqlLobValue(bytes, handler) }, new int[] {
+                                Types.BIGINT, Types.INTEGER, Types.BLOB });
     }
 
     @Override
     public ShareData get(long id) {
-        byte[] data = (byte[]) jdbc.queryForObject(
+        byte[] data = (byte[]) userjdbc.queryForObject(
                 "select data from private_shares where id = ?",
                 new Object[] { id }, new int[] { Types.BIGINT }, byte[].class);
         Ice.InputStream is = Ice.Util.createInputStream(ic, data);
@@ -110,13 +130,21 @@ public class BlobShareStore extends ShareStore {
     }
 
     @Override
+    public <T extends IObject> boolean doContains(long sessionId, Class<T> kls,
+            long objId) {
+        ShareData data = get(sessionId);
+        List<Long> ids = data.objects.get(kls.getName());
+        return ids.contains(objId);
+    }
+
+    @Override
     public void doClose() {
         // no-op
     }
 
     @Override
     public Set<Long> keys() {
-        return new HashSet<Long>(jdbc.queryForList(
+        return new HashSet<Long>(userjdbc.queryForList(
                 "select id from seq_private_shares", Long.class));
     }
 

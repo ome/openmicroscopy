@@ -46,8 +46,9 @@
 
     <bean id="shareStore" class="ome.services.sharing.BlobShareStore"
         init-method="init" destroy-method="close">
-      <constructor-arg ref="simpleJdbcTemplate"/>
-      <constructor-arg ref="lobHandler"/>
+      <constructor-arg ref="simpleJdbcTemplate" index="0"/>
+      <constructor-arg ref="unsafeJdbcTemplate" index="1"/>
+      <constructor-arg ref="lobHandler" index="2"/>
     </bean>
 
 </beans>

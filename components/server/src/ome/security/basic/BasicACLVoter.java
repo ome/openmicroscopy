@@ -63,12 +63,12 @@ public class BasicACLVoter implements ACLVoter {
     }
 
     /**
-     * 
-     * 
      * delegates to SecurityFilter because that is where the logic is defined
      * for the {@link #enableReadFilter(Object) read filter}
+     * 
+     * Ignores the id for the moment.
      */
-    public boolean allowLoad(Class<? extends IObject> klass, Details d) {
+    public boolean allowLoad(Class<? extends IObject> klass, Details d, long id) {
         Assert.notNull(klass);
         // Assert.notNull(d);
         if (d == null || secSys.isSystemType(klass)) {

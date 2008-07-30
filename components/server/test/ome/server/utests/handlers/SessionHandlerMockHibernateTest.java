@@ -9,17 +9,22 @@ package ome.server.utests.handlers;
 // Java imports
 import java.lang.reflect.Method;
 import java.sql.Connection;
+
 import javax.sql.DataSource;
 
 import junit.framework.Assert;
+import ome.api.ServiceInterface;
+import ome.api.StatefulServiceInterface;
+import ome.conditions.InternalException;
+import ome.tools.hibernate.SessionHandler;
+import omeis.providers.re.RenderingEngine;
 
-// Third-party libraries
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.classic.Session;
 import org.hibernate.FlushMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.classic.Session;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.builder.ArgumentsMatchBuilder;
@@ -28,14 +33,9 @@ import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.testng.annotations.*;
-
-// Application-internal dependencies
-import ome.api.ServiceInterface;
-import ome.api.StatefulServiceInterface;
-import ome.conditions.InternalException;
-import ome.tools.hibernate.SessionHandler;
-import omeis.providers.re.RenderingEngine;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.ExpectedExceptions;
+import org.testng.annotations.Test;
 
 /**
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
@@ -77,7 +77,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
 
         newSession();
         newSessionFactory();
-        handler = new SessionHandler(dataSource, factory);
+        handler = new SessionHandler(factory);
         // must call newXInvocation in test
 
         // these are reused unless otherwise noted
@@ -110,7 +110,7 @@ public class SessionHandlerMockHibernateTest extends MockObjectTestCase {
     @ExpectedExceptions(InternalException.class)
     public void testStatelessInvocation() throws Throwable {
         newStatelessInvocation();
-        handler = new SessionHandler(dataSource, factory);
+        handler = new SessionHandler(factory);
         handler.invoke(invocation);
         super.verify();
     }

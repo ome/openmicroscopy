@@ -27,14 +27,8 @@ import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.hibernate3.HibernateInterceptor;
 import org.springframework.orm.hibernate3.SessionHolder;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
@@ -83,7 +77,7 @@ class SessionStatus {
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
-public class SessionHandler implements MethodInterceptor, ApplicationListener {
+public class SessionHandler implements MethodInterceptor {
 
     /**
      * used by the SessionHandler to test for the end of the stateful service's
@@ -97,16 +91,6 @@ public class SessionHandler implements MethodInterceptor, ApplicationListener {
             .synchronizedMap(new WeakHashMap<Object, SessionStatus>());
 
     private final SessionFactory factory;
-
-    /**
-     * Used strictly to enable a single session during Context initialization.
-     */
-    private final DataSourceTransactionManager tx;
-
-    /**
-     * One shot initialization transaction.
-     */
-    private final TransactionStatus txStatus;
 
     private final static SessionHolder DUMMY = new EmptySessionHolder();
 
@@ -122,14 +106,12 @@ public class SessionHandler implements MethodInterceptor, ApplicationListener {
      * @param factory
      *            Not null.
      */
-    public SessionHandler(SessionFactory factory,
-            DataSourceTransactionManager tx) {
-        if (factory == null || tx == null) {
+    public SessionHandler(SessionFactory factory) {
+        if (factory == null) {
             throw new ApiUsageException(CTOR_MSG);
         }
 
         this.factory = factory;
-        this.tx = tx;
 
         try {
             close = StatefulServiceInterface.class.getMethod("close");
@@ -138,29 +120,6 @@ public class SessionHandler implements MethodInterceptor, ApplicationListener {
                     "Can't get StatefulServiceInterface.close method.");
         }
 
-        // Creating a session for use during startup. And Spring bean which
-        // wishes to use a single Hibernate session during initialization can
-        // add a dependency on SessionHandler. This is cleaned up once the
-        // refreshed-context event arives.
-        txStatus = tx.getTransaction(new DefaultTransactionDefinition());
-        Session session = acquireAndBindSession();
-        SessionStatus status = new SessionStatus(session);
-        sessions.put(this, status);
-    }
-
-    /**
-     * Cleans up the session created during
-     * {@link SessionHandler#SessionHandler(SessionFactory) construction}. If
-     * this point is reached, we assume that the transaction can be committed.
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            SessionStatus status = sessions.remove(this);
-            // status.session.flush();
-            // status.session.disconnect();
-            // status.session.close();
-            tx.commit(txStatus);
-        }
     }
 
     public void cleanThread() {
