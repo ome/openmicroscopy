@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-   Integration test focused on the omero.api.IPojos interface
+   Integration test focused on the omero.api.ISession interface
    a running server.
 
    Copyright 2008 Glencoe Software, Inc. All rights reserved.

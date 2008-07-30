@@ -699,7 +699,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
         return false;
     }
-    
+
     protected boolean isNullablePrimitive(Class<?> p) {
         if (p.equals(Integer.class) || p.equals(Integer[].class)
                 || p.equals(Long.class) || p.equals(Long[].class)
@@ -749,6 +749,11 @@ public class IceMapper extends ome.util.ModelMapper implements
             // doesn't
             // support
             // Sets.
+        } else if (Timestamp.class.isAssignableFrom(p)) {
+            if (arg != null) {
+                throw new RuntimeException("This must be null here");
+            }
+            return null;
         } else if (Map.class.isAssignableFrom(p)) {
             return reverse((Map) arg);
         } else if (PlaneDef.class.isAssignableFrom(p)) {
@@ -761,7 +766,7 @@ public class IceMapper extends ome.util.ModelMapper implements
     }
 
     public Object handleOutput(Class type, Object o) throws ServerError {
-    if (o == null) {
+        if (o == null) {
             return null;
         } else if (RType.class.isAssignableFrom(type)) {
             return o;
@@ -796,6 +801,6 @@ public class IceMapper extends ome.util.ModelMapper implements
         } else {
             throw new ApiUsageException(null, null, "Can't handle output "
                     + type);
-        } 
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * ome.system.SimpleEventContext
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -14,13 +14,6 @@ import java.util.List;
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
 import ome.model.internal.Permissions;
-import ome.security.SecuritySystem;
-
-// Java imports
-
-// Third-party libraries
-
-// Application-internal dependencies
 
 /**
  * simple, non-thread-safe, serializable {@link ome.system.EventContext}
@@ -82,7 +75,7 @@ public class SimpleEventContext implements EventContext, Serializable {
      * any of {@link #getCurrentEventId()}, {@link #isCurrentUserAdmin()},
      * {@link #isReadOnly()}, or {@link #getCurrentUmask()} throws an
      * exception, those fields will remain null assuming that the
-     * {@link SecuritySystem} will reload them later.
+     * {@link ome.security.SecuritySystem} will reload them later.
      */
     protected void copy(EventContext ec) {
         this.shareId = ec.getCurrentShareId();

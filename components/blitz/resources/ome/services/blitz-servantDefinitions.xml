@@ -81,6 +81,12 @@
     <property name="tieClass" value="omero.api._ISessionTie"/>
   </bean>
 
+  <bean id="omero.api.IShare" class="ome.services.blitz.util.ServantDefinition">
+    <property name="operationsClass" value="omero.api._IShareOperations"/>
+    <property name="serviceClass" value="ome.api.IShare"/>
+    <property name="tieClass" value="omero.api._IShareTie"/>
+  </bean>
+
   <bean id="omero.api.ITypes" class="ome.services.blitz.util.ServantDefinition">
     <property name="operationsClass" value="omero.api._ITypesOperations"/>
     <property name="serviceClass" value="ome.api.ITypes"/>

@@ -20,6 +20,7 @@ import ome.api.IConfig;
 import ome.api.IPojos;
 import ome.api.IQuery;
 import ome.api.ISession;
+import ome.api.IShare;
 import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.api.RawPixelsStore;
@@ -29,6 +30,7 @@ import ome.api.ThumbnailStore;
 import ome.conditions.SecurityViolation;
 import ome.model.IObject;
 import ome.model.enums.Family;
+import ome.model.internal.Permissions;
 import ome.model.meta.ExperimenterGroup;
 import ome.parameters.QueryParameter;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
@@ -389,6 +391,20 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         mapper.toRType(Arrays.asList(m));
     }
 
+    // Share
+
+    @Test
+    public void testShareWorks() throws Exception {
+
+        IShare s;
+
+        init(IShare.class, "createShare");
+        method().will(returnValue(1L));
+        Object rv = invoke("d", null, null, null, null, true);
+        ServantHelper.throwIfNecessary(rv);
+        assertNotNull(rv);
+    }
+
     // Admin
 
     @Test
@@ -457,6 +473,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
             public boolean isReadOnly() {
                 return false;
+            }
+
+            public Permissions getCurrentUmask() {
+                return null;
             }
         }));
 
