@@ -55,7 +55,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // don't need ready sec.sys.
         sec.isReady();
         sec.isSystemType(null);
-        sec.getACLVoter().allowLoad(user.getClass(), Details.create(), 1L);
+        aclVoter.allowLoad(user.getClass(), Details.create(), 1L);
         sec.getSecurityRoles();
         sf.mockQuery.expects(atLeastOnce()).method("contains").will(
                 returnValue(true));
@@ -155,44 +155,44 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         ;
 
         try {
-            sec.getACLVoter().allowCreation(user);
+            aclVoter.allowCreation(user);
             fail("Should throw ApiUsage");
         } catch (ApiUsageException api) {
         }
         ;
         try {
-            sec.getACLVoter().allowUpdate(user, Details.create());
+            aclVoter.allowUpdate(user, Details.create());
             fail("Should throw ApiUsage");
         } catch (ApiUsageException api) {
         }
         ;
         try {
-            sec.getACLVoter().allowDelete(user, Details.create());
+            aclVoter.allowDelete(user, Details.create());
             fail("Should throw ApiUsage");
         } catch (ApiUsageException api) {
         }
         ;
         // throw no matter what
         try {
-            sec.getACLVoter().throwLoadViolation(user);
+            aclVoter.throwLoadViolation(user);
             fail("Should throw SecViol");
         } catch (SecurityViolation sv) {
         }
         ;
         try {
-            sec.getACLVoter().throwCreationViolation(user);
+            aclVoter.throwCreationViolation(user);
             fail("Should throw SecViol");
         } catch (SecurityViolation sv) {
         }
         ;
         try {
-            sec.getACLVoter().throwUpdateViolation(user);
+            aclVoter.throwUpdateViolation(user);
             fail("Should throw SecViol");
         } catch (SecurityViolation sv) {
         }
         ;
         try {
-            sec.getACLVoter().throwDeleteViolation(user);
+            aclVoter.throwDeleteViolation(user);
             fail("Should throw SecViol");
         } catch (SecurityViolation sv) {
         }
@@ -399,25 +399,25 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // uses Springs assert
         try {
-            sec.getACLVoter().allowLoad(null, null, 1L);
+            aclVoter.allowLoad(null, null, 1L);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
         ;
         try {
-            sec.getACLVoter().allowCreation(null);
+            aclVoter.allowCreation(null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
         ;
         try {
-            sec.getACLVoter().allowUpdate(null, null);
+            aclVoter.allowUpdate(null, null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
         ;
         try {
-            sec.getACLVoter().allowDelete(null, null);
+            aclVoter.allowDelete(null, null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
@@ -435,25 +435,25 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         }
         ;
         try {
-            sec.getACLVoter().throwLoadViolation(null);
+            aclVoter.throwLoadViolation(null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
         ;
         try {
-            sec.getACLVoter().throwCreationViolation(null);
+            aclVoter.throwCreationViolation(null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
         ;
         try {
-            sec.getACLVoter().throwUpdateViolation(null);
+            aclVoter.throwUpdateViolation(null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
         ;
         try {
-            sec.getACLVoter().throwDeleteViolation(null);
+            aclVoter.throwDeleteViolation(null);
             fail("Should throw IllegalArg");
         } catch (IllegalArgumentException iae) {
         }
@@ -544,14 +544,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // 1. not system type
         sec.loadEventContext(false);
-        assertFalse(sec.getACLVoter().allowCreation(e));
-        assertTrue(sec.getACLVoter().allowCreation(i));
+        assertFalse(aclVoter.allowCreation(e));
+        assertTrue(aclVoter.allowCreation(i));
         sec.clearEventContext();
 
         // 2. is privileged
         SecureAction checkAllowCreate = new SecureAction() {
             public <T extends IObject> T updateObject(T... objs) {
-                assertTrue(sec.getACLVoter().allowCreation(objs[0]));
+                assertTrue(aclVoter.allowCreation(objs[0]));
                 return null;
             }
         };
@@ -561,8 +561,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // 3. user is admin.
         prepareMocksWithRootDetails(false);
         sec.loadEventContext(false);
-        assertTrue(sec.getACLVoter().allowCreation(e));
-        assertTrue(sec.getACLVoter().allowCreation(i));
+        assertTrue(aclVoter.allowCreation(e));
+        assertTrue(aclVoter.allowCreation(i));
         sec.clearEventContext();
 
     }
@@ -583,15 +583,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // 1. not system type
         sec.loadEventContext(false);
-        assertFalse(sec.getACLVoter().allowUpdate(e, d));
-        assertTrue(sec.getACLVoter().allowUpdate(i, d));
+        assertFalse(aclVoter.allowUpdate(e, d));
+        assertTrue(aclVoter.allowUpdate(i, d));
         sec.clearEventContext();
 
         // 2. is privileged
         SecureAction checkAllowCreate = new SecureAction() {
             public <T extends IObject> T updateObject(T... objs) {
-                assertTrue(sec.getACLVoter().allowUpdate(objs[0],
-                        objs[0].getDetails()));
+                assertTrue(aclVoter.allowUpdate(objs[0], objs[0].getDetails()));
                 return null;
             }
         };
@@ -601,8 +600,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // 3. user is admin.
         prepareMocksWithRootDetails(false);
         sec.loadEventContext(false);
-        assertTrue(sec.getACLVoter().allowUpdate(e, e.getDetails()));
-        assertTrue(sec.getACLVoter().allowUpdate(i, i.getDetails()));
+        assertTrue(aclVoter.allowUpdate(e, e.getDetails()));
+        assertTrue(aclVoter.allowUpdate(i, i.getDetails()));
         sec.clearEventContext();
 
         // PERMISSIONS BASED
@@ -614,11 +613,11 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         i.getDetails().setOwner(new Experimenter(2L, false));
         i.getDetails().setGroup(new ExperimenterGroup(2L, false));
         i.getDetails().setPermissions(new Permissions());
-        assertTrue(sec.getACLVoter().allowUpdate(i, i.getDetails()));
+        assertTrue(aclVoter.allowUpdate(i, i.getDetails()));
 
         // now lower permissions
         i.getDetails().setPermissions(Permissions.READ_ONLY);
-        assertFalse(sec.getACLVoter().allowUpdate(i, i.getDetails()));
+        assertFalse(aclVoter.allowUpdate(i, i.getDetails()));
 
     }
 
@@ -635,15 +634,14 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         // 1. not system type
         sec.loadEventContext(false);
-        assertFalse(sec.getACLVoter().allowDelete(e, d));
-        assertTrue(sec.getACLVoter().allowDelete(i, d));
+        assertFalse(aclVoter.allowDelete(e, d));
+        assertTrue(aclVoter.allowDelete(i, d));
         sec.clearEventContext();
 
         // 2. is privileged
         SecureAction checkAllowCreate = new SecureAction() {
             public <T extends IObject> T updateObject(T... objs) {
-                assertTrue(sec.getACLVoter().allowDelete(objs[0],
-                        objs[0].getDetails()));
+                assertTrue(aclVoter.allowDelete(objs[0], objs[0].getDetails()));
                 return null;
             }
         };
@@ -653,8 +651,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // 3. user is admin.
         prepareMocksWithRootDetails(false);
         sec.loadEventContext(false);
-        assertTrue(sec.getACLVoter().allowDelete(e, e.getDetails()));
-        assertTrue(sec.getACLVoter().allowDelete(i, i.getDetails()));
+        assertTrue(aclVoter.allowDelete(e, e.getDetails()));
+        assertTrue(aclVoter.allowDelete(i, i.getDetails()));
         sec.clearEventContext();
 
         // PERMISSIONS BASED
@@ -666,11 +664,11 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         i.getDetails().setOwner(new Experimenter(2L, false));
         i.getDetails().setGroup(new ExperimenterGroup(2L, false));
         i.getDetails().setPermissions(new Permissions());
-        assertTrue(sec.getACLVoter().allowDelete(i, i.getDetails()));
+        assertTrue(aclVoter.allowDelete(i, i.getDetails()));
 
         // now lower permissions
         i.getDetails().setPermissions(Permissions.READ_ONLY);
-        assertFalse(sec.getACLVoter().allowDelete(i, i.getDetails()));
+        assertFalse(aclVoter.allowDelete(i, i.getDetails()));
 
         sec.clearEventContext();
     }
@@ -688,13 +686,13 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         d.setPermissions(new Permissions());
 
         sec.loadEventContext(false);
-        assertTrue(sec.getACLVoter().allowLoad(Image.class, d, 1L));
+        assertTrue(aclVoter.allowLoad(Image.class, d, 1L));
         d.setPermissions(new Permissions().revoke(WORLD, READ));
-        assertFalse(sec.getACLVoter().allowLoad(Image.class, d, 1L));
+        assertFalse(aclVoter.allowLoad(Image.class, d, 1L));
         // now in my group where i'm PI
         d.setPermissions(new Permissions().revoke(GROUP, READ));
         d.setGroup(group);
-        assertTrue(sec.getACLVoter().allowLoad(Image.class, d, 1L));
+        assertTrue(aclVoter.allowLoad(Image.class, d, 1L));
 
         sec.clearEventContext();
 

@@ -9,18 +9,15 @@ package ome.server.utests.sharing;
 import java.util.Arrays;
 import java.util.Collections;
 
-import javax.sql.DataSource;
-
 import junit.framework.TestCase;
 import ome.model.IObject;
 import ome.model.core.Image;
+import ome.model.meta.Share;
 import ome.services.sharing.BlobShareStore;
 import ome.services.sharing.data.ShareData;
 import ome.system.OmeroContext;
 
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,26 +31,15 @@ public class BlobShareStoreTest extends TestCase {
 
     OmeroContext ctx;
     BlobShareStore store;
-    SimpleJdbcTemplate template;
-    DataSource ds;
-    LobHandler lob;
+    HibernateTemplate ht;
 
     @BeforeMethod
     public void setup() throws Exception {
         ctx = new OmeroContext(new String[] {
                 "classpath:ome/services/datalayer.xml",
                 "classpath:ome/services/config-local.xml" });
-        ds = (DataSource) ctx.getBean("dataSource");
-        lob = (LobHandler) ctx.getBean("lobHandler");
-        template = new SimpleJdbcTemplate(ds);
-        try {
-            template.getJdbcOperations().execute(
-                    "drop sequence seq_private_shares");
-            template.getJdbcOperations().execute("drop table private_shares");
-        } catch (BadSqlGrammarException e) {
-            // Then the tables probably don't exist.
-        }
-        store = new BlobShareStore(template, template, lob);
+        ht = (HibernateTemplate) ctx.getBean("hibernateTemplate");
+        store = new BlobShareStore(ht);
         store.init();
     }
 
@@ -64,10 +50,12 @@ public class BlobShareStoreTest extends TestCase {
 
     @Test
     public <T extends IObject> void testSimple() {
-        store.set(1L, "user", Collections.<T> emptyList(), Collections
-                .<Long> emptyList(), Collections.<String> emptyList(), false);
-        store.set(2L, "other", Arrays.asList(new Image(1L, false)), Arrays
-                .asList(1L, 2L), Arrays.asList("example@example.com"), true);
+        store.set(new Share(1L, true), 3L, Collections.<T> emptyList(),
+                Collections.<Long> emptyList(), Collections
+                        .<String> emptyList(), false);
+        store.set(new Share(2L, true), 4L, Arrays.asList(new Image(1L, false)),
+                Arrays.asList(1L, 2L), Arrays.asList("example@example.com"),
+                true);
         ShareData data = store.get(2L);
         assertEquals(2L, data.id);
         assertEquals("example@example.com", data.guests.get(0));

@@ -45,7 +45,7 @@
 	</link>
 
 	<!-- EVENTS -->
-        <type id="ome.model.meta.Session" immutable="true" global="true" annotated="true">
+        <type id="ome.model.meta.Session" global="true" annotated="true">
             <properties>
             <!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
@@ -125,9 +125,8 @@
 		</properties>
 	</type>
 
-        <type id="ome.model.meta.Share" immutable="false" global="true" annotated="true">
+        <type id="ome.model.meta.Share" global="true" superclass="ome.model.meta.Session">
             <properties>
-                   <required name="session"            type="ome.model.meta.Session"/>
                    <required name="itemCount"          type="long"/>
                    <required name="active"             type="boolean"/>
                    <required name="data"               type="byte[]"/>

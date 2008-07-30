@@ -34,13 +34,15 @@ import ome.logic.AbstractLevel2Service;
 import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
-import ome.model.annotations.BooleanAnnotation;
-import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.SessionAnnotationLink;
+import ome.model.annotations.TextAnnotation;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 import ome.parameters.Parameters;
+import ome.security.AdminAction;
+import ome.security.SecureAction;
 import ome.security.SecuritySystemHolder;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
@@ -89,6 +91,32 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     final protected SecuritySystemHolder holder;
 
+    abstract class SecureShare implements SecureAction {
+
+        public final <T extends IObject> T updateObject(T... objs) {
+            doUpdate((Share) objs[0]);
+            return null;
+        }
+
+        abstract void doUpdate(Share share);
+
+    }
+
+    class SecureStore extends SecureShare {
+
+        ShareData data;
+
+        SecureStore(ShareData data) {
+            this.data = data;
+        }
+
+        @Override
+        void doUpdate(Share share) {
+            store.update(share, data);
+        }
+
+    }
+
     public final Class<? extends ServiceInterface> getServiceInterface() {
         return IShare.class;
     }
@@ -112,7 +140,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         long userId = ec.getCurrentUserId();
 
         // Check status of the store
-        ShareData data = store.get(sessionId);
+        ShareData data = store.get(shareId);
         if (data == null) {
             throw new ApiUsageException("No such share:" + shareId);
         }
@@ -220,7 +248,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public <T extends IObject> long createShare(@NotNull
     String description, Timestamp expiration, List<T> items,
-            List<Experimenter> exps, List<String> guests, boolean enabled) {
+            List<Experimenter> exps, List<String> guests, final boolean enabled) {
 
         //
         // Input validation
@@ -243,28 +271,25 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         final String omename = this.admin.getEventContext()
                 .getCurrentUserName();
         final Long user = this.admin.getEventContext().getCurrentUserId();
-        Session session = sessionManager.create(new Principal(omename));
-        session.setTimeToLive(time);
-        session.setDefaultEventType("SHARE");
-        session.setMessage(description);
+        Share share = sessionManager.createShare(new Principal(omename),
+                enabled, time, "SHARE", description);
 
-        // Enabled
-        BooleanAnnotation enabledTag = new BooleanAnnotation();
-        enabledTag.setBoolValue(enabled);
-        enabledTag.setNs(NS_ENABLED);
-        session.linkAnnotation(enabledTag);
-
-        // Updating
-        session = sessionManager.update(session);
-
-        // Storing representation
-        List<Long> members = new ArrayList<Long>(exps.size());
+        final List<T> _items = items;
+        final List<String> _guests = guests;
+        final List<Long> _users = new ArrayList<Long>(exps.size());
         for (Experimenter e : exps) {
-            members.add(e.getId());
+            _users.add(e.getId());
         }
-        store.set(session.getId(), user, items, members, guests, enabled);
 
-        return session.getId();
+        share = iQuery.get(Share.class, share.getId());
+        this.sec.doAction(new SecureShare() {
+            @Override
+            void doUpdate(Share share) {
+                store.set(share, user, _items, _users, _guests, enabled);
+            }
+        }, share);
+        adminFlush();
+        return share.getId();
     }
 
     @RolesAllowed("user")
@@ -292,7 +317,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void setActive(long shareId, boolean active) {
         ShareData data = store.get(shareId);
         data.enabled = active;
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -318,7 +343,12 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             obj.id = object.getId();
             data.objectList.add(obj);
         }
-        store.update(data);
+        store(shareId, data);
+    }
+
+    private void store(long shareId, ShareData data) {
+        Share share = iQuery.get(Share.class, shareId);
+        this.sec.doAction(new SecureStore(data), share);
     }
 
     @RolesAllowed("user")
@@ -332,7 +362,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         obj.type = object.getClass().getName();
         obj.id = object.getId();
         data.objectList.add(obj);
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -355,7 +385,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             }
         }
         data.objectList.removeAll(toRemove);
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -374,7 +404,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
             }
         }
         data.objectList.removeAll(toRemove);
-        store.update(data);
+        store(shareId, data);
     }
 
     // ~ Getting comments
@@ -460,7 +490,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         for (Experimenter experimenter : es) {
             data.members.remove(experimenter.getId());
         }
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -469,7 +499,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         List<String> addresses = Arrays.asList(emailAddresses);
         ShareData data = store.get(shareId);
         data.guests.addAll(addresses);
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -479,7 +509,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         for (Experimenter experimenter : exps) {
             data.members.remove(experimenter.getId());
         }
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -488,7 +518,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         List<String> addresses = Arrays.asList(emailAddresses);
         ShareData data = store.get(shareId);
         data.guests.removeAll(addresses);
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -496,7 +526,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void addUser(long shareId, Experimenter exp) {
         ShareData data = store.get(shareId);
         data.members.add(exp.getId());
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -504,7 +534,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void addGuest(long shareId, String emailAddress) {
         ShareData data = store.get(shareId);
         data.guests.add(emailAddress);
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -512,7 +542,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void removeUser(long shareId, Experimenter exp) {
         ShareData data = store.get(shareId);
         data.members.remove(exp.getId());
-        store.update(data);
+        store(shareId, data);
     }
 
     @RolesAllowed("user")
@@ -520,7 +550,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     public void removeGuest(long shareId, String emailAddress) {
         ShareData data = store.get(shareId);
         data.guests.remove(emailAddress);
-        store.update(data);
+        store(shareId, data);
     }
 
     // Events
@@ -631,4 +661,11 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         return rv;
     }
 
+    void adminFlush() {
+        getSecuritySystem().runAsAdmin(new AdminAction() {
+            public void runAsAdmin() {
+                iUpdate.flush();
+            }
+        });
+    }
 }

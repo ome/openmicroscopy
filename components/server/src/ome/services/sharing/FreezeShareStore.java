@@ -14,6 +14,7 @@ import java.util.Set;
 
 import ome.api.IShare;
 import ome.model.IObject;
+import ome.model.meta.Share;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 import ome.services.sharing.data.ShareItems;
@@ -108,7 +109,7 @@ public class FreezeShareStore extends ShareStore {
     // =========================================================================
 
     @Override
-    public void doSet(ShareData data, List<ShareItem> items) {
+    public void doSet(Share share, ShareData data, List<ShareItem> items) {
         Freeze._TransactionOperationsNC tx = conn.beginTransaction();
         ShareMap map = new ShareMap(conn, envMap, false);
         ShareItems shareItems = new ShareItems(conn, envItems, false);

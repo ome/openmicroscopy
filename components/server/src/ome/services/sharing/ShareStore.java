@@ -13,6 +13,7 @@ import java.util.Set;
 
 import ome.api.IShare;
 import ome.model.IObject;
+import ome.model.meta.Share;
 import ome.services.sharing.data.Obj;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
@@ -39,10 +40,11 @@ public abstract class ShareStore {
     // User Methods
     // =========================================================================
 
-    public <T extends IObject> void set(long id, long owner, List<T> objects,
-            List<Long> members, List<String> guests, boolean enabled) {
+    public <T extends IObject> void set(Share share, long owner,
+            List<T> objects, List<Long> members, List<String> guests,
+            boolean enabled) {
         ShareData data = new ShareData();
-        data.id = id;
+        data.id = share.getId();
         data.owner = owner;
         data.members = new ArrayList<Long>(members);
         data.guests = new ArrayList<String>(guests);
@@ -50,15 +52,16 @@ public abstract class ShareStore {
         data.objectMap = map(objects);
         data.objectList = list(objects);
 
-        List<ShareItem> shareItems = asItems(id, objects, members, guests);
+        List<ShareItem> shareItems = asItems(share.getId(), objects, members,
+                guests);
 
-        doSet(data, shareItems);
+        doSet(share, data, shareItems);
 
     }
 
-    public void update(ShareData data) {
+    public void update(Share share, ShareData data) {
         List<ShareItem> shareItems = asItems(data);
-        doSet(data, shareItems);
+        doSet(share, data, shareItems);
     }
 
     // Template methods
@@ -110,7 +113,8 @@ public abstract class ShareStore {
     public abstract <T extends IObject> boolean doContains(long sessionId,
             Class<T> kls, long objId);
 
-    public abstract void doSet(ShareData data, List<ShareItem> items);
+    public abstract void doSet(Share share, ShareData data,
+            List<ShareItem> items);
 
     public abstract void doClose();
 

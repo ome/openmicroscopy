@@ -28,6 +28,7 @@ import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 import ome.services.messages.CreateSessionMessage;
 import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.UserGroupUpdateEvent;
@@ -128,18 +129,21 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // ~ Session definition
     // =========================================================================
 
-    protected Session define(String uuid, String message, long started,
-            long idle, long live, String eventType, String defaultPermissions) {
-        final Session s = new Session();
+    protected void define(Session s, String uuid, String message, long started,
+            long idle, long live, String eventType, Permissions umask) {
+
+        if (umask == null) {
+            umask = Permissions.DEFAULT;
+        }
+
         s.setUuid(uuid);
         s.setMessage(message);
         s.setStarted(new Timestamp(started));
         s.setTimeToIdle(idle);
         s.setTimeToLive(live);
         s.setDefaultEventType(eventType);
-        s.setDefaultPermissions(defaultPermissions);
+        s.setDefaultPermissions(umask.toString());
         s.getDetails().setPermissions(Permissions.USER_PRIVATE);
-        return s;
     }
 
     // ~ Session management
@@ -175,7 +179,27 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public Session create(Principal principal) {
+        Session session = new Session();
+        define(session, UUID.randomUUID().toString(), "Initial message.",
+                System.currentTimeMillis(), defaultTimeToIdle,
+                defaultTimeToLive, principal.getEventType(), principal
+                        .getUmask());
+        return createSession(principal, session);
+    }
 
+    public Share createShare(Principal principal, boolean enabled,
+            long timeToLive, String eventType, String description) {
+        Share share = new Share();
+        define(share, UUID.randomUUID().toString(), description, System
+                .currentTimeMillis(), defaultTimeToIdle, timeToLive, eventType,
+                principal.getUmask());
+        share.setActive(enabled);
+        share.setData(new byte[] {});
+        share.setItemCount(0L);
+        return (Share) createSession(principal, share);
+    }
+
+    private Session createSession(Principal principal, Session session) {
         // If username exists as session, then return that
         try {
             SessionContext context = cache.getSessionContext(principal
@@ -189,11 +213,6 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
 
         principal = checkPrincipalNameAndDefaultGroup(principal);
-
-        Session session = define(UUID.randomUUID().toString(),
-                "Initial message.", System.currentTimeMillis(),
-                defaultTimeToIdle, defaultTimeToLive, principal.getEventType(),
-                principal.getUmask().toString());
         session = executeUpdate(session);
         SessionContext ctx = currentDatabaseShapshot(principal, session);
 
@@ -689,10 +708,10 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 .executeStateless(new Executor.StatelessWork() {
                     public Object doWork(StatelessSession sSession) {
                         final Permissions p = Permissions.USER_PRIVATE;
-                        final Session s = define(internal_uuid,
-                                "Session Manager internal", System
-                                        .currentTimeMillis(), Long.MAX_VALUE,
-                                0L, "Sessions", p.toString());
+                        final Session s = new Session();
+                        define(s, internal_uuid, "Session Manager internal",
+                                System.currentTimeMillis(), Long.MAX_VALUE, 0L,
+                                "Sessions", p);
 
                         // Have to copy values over due to unloaded
                         final Session s2 = copy(s);

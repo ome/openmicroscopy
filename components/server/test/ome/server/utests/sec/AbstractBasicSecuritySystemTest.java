@@ -18,11 +18,19 @@ import ome.model.enums.EventType;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.security.SystemTypes;
+import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicSecuritySystem;
+import ome.security.basic.CurrentDetails;
+import ome.security.basic.OmeroInterceptor;
+import ome.security.basic.PrincipalHolder;
+import ome.security.basic.TokenHolder;
 import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
 import ome.system.Principal;
+import ome.system.Roles;
 import ome.testing.MockServiceFactory;
+import ome.tools.hibernate.ExtendedMetadata;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -40,6 +48,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
     SessionManager mgr;
 
     BasicSecuritySystem sec;
+
+    BasicACLVoter aclVoter;
 
     // login information
     Principal p;
@@ -69,7 +79,16 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockEc = mock(EventContext.class);
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
-        sec = BasicSecuritySystem.selfConfigure(mgr, sf);
+
+        CurrentDetails cd = new CurrentDetails();
+        SystemTypes st = new SystemTypes();
+        TokenHolder th = new TokenHolder();
+        PrincipalHolder ph = new PrincipalHolder();
+        OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
+                cd, th, ph);
+        sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
+                new TokenHolder(), ph);
+        aclVoter = new BasicACLVoter(cd, st, th);
     }
 
     protected void prepareMocksWithUserDetails(boolean readOnly) {

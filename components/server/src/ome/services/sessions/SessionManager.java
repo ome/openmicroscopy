@@ -12,6 +12,7 @@ import java.util.Map;
 import net.sf.ehcache.Ehcache;
 import ome.conditions.RemovedSessionException;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 import ome.services.util.Executor;
 import ome.system.EventContext;
 import ome.system.Principal;
@@ -49,6 +50,15 @@ public interface SessionManager extends ApplicationListener {
      * @return Not null. Instead an exception will be thrown.
      */
     Session create(Principal principal);
+
+    /**
+     * 
+     * @param principal
+     * @param enabled
+     * @return
+     */
+    Share createShare(Principal principal, boolean enabled, long timeToLive,
+            String eventType, String description);
 
     /**
      * 

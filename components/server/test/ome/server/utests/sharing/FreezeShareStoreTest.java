@@ -13,6 +13,7 @@ import java.util.Collections;
 import junit.framework.TestCase;
 import ome.model.IObject;
 import ome.model.core.Image;
+import ome.model.meta.Share;
 import ome.services.sharing.FreezeShareStore;
 
 import org.testng.annotations.AfterMethod;
@@ -48,10 +49,12 @@ public class FreezeShareStoreTest extends TestCase {
 
     @Test
     public <T extends IObject> void testSimple() {
-        store.set(1L, "user", Collections.<T> emptyList(), Collections
-                .<Long> emptyList(), Collections.<String> emptyList(), false);
-        store.set(2L, "other", Arrays.asList(new Image(1L, false)), Arrays
-                .asList(1L, 2L), Arrays.asList("example@exmple.com"), true);
+        store.set(new Share(1L, false), 3L, Collections.<T> emptyList(),
+                Collections.<Long> emptyList(), Collections
+                        .<String> emptyList(), false);
+        store.set(new Share(2L, false), 4L,
+                Arrays.asList(new Image(1L, false)), Arrays.asList(1L, 2L),
+                Arrays.asList("example@exmple.com"), true);
     }
     // Helpers
     // ====================

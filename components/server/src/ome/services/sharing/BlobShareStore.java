@@ -5,7 +5,7 @@
 
 package ome.services.sharing;
 
-import java.sql.Types;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,14 +14,16 @@ import java.util.Set;
 import ome.api.IShare;
 import ome.conditions.OptimisticLockException;
 import ome.model.IObject;
+import ome.model.meta.Share;
 import ome.services.sharing.data.ShareData;
 import ome.services.sharing.data.ShareItem;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.core.support.SqlLobValue;
-import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.util.Assert;
 
 import Ice.ReadObjectCallback;
@@ -36,18 +38,10 @@ import Ice.ReadObjectCallback;
 public class BlobShareStore extends ShareStore {
 
     /**
-     * Jdbc template to be used for system calls. Does not particpate in
-     * hibernate sessions.
+     * HibernateTemplate used to query and update the store during normal
+     * operation.
      */
-    final protected JdbcOperations sysjdbc;
-
-    /**
-     * Jdbc templates to be used for user calls. Will take part in hibernate
-     * sessions.
-     */
-    final protected JdbcOperations userjdbc;
-
-    final protected LobHandler handler;
+    final protected HibernateTemplate ht;
 
     // Initialization/Destruction
     // =========================================================================
@@ -55,27 +49,14 @@ public class BlobShareStore extends ShareStore {
     /**
      * 
      */
-    public BlobShareStore(SimpleJdbcTemplate user, SimpleJdbcTemplate sys,
-            LobHandler handler) {
-        Assert.notNull(user);
-        Assert.notNull(sys);
-        this.userjdbc = user.getJdbcOperations();
-        this.sysjdbc = sys.getJdbcOperations();
-        this.handler = handler;
+    public BlobShareStore(HibernateTemplate ht) {
+        Assert.notNull(ht);
+        this.ht = ht;
     }
 
     @Override
     public void doInit() {
-        if (1 != sysjdbc
-                .queryForInt(
-                        "SELECT sum(CASE WHEN t.typname=? THEN 1 ELSE 0 END) FROM pg_type t",
-                        new Object[] { "private_shares" },
-                        new int[] { Types.VARCHAR })) {
-            sysjdbc.execute("CREATE TABLE private_shares "
-                    + "(id BIGINT PRIMARY KEY NOT NULL, "
-                    + "item_count INTEGER NOT NULL, " + "data BYTEA NOT NULL, "
-                    + "optlock BIGINT NOT NULL)");
-        }
+        // Currently nothing.
     }
 
     // Overrides
@@ -83,17 +64,16 @@ public class BlobShareStore extends ShareStore {
 
     @Override
     public int totalShares() {
-        return sysjdbc.queryForInt("select count(id) from private_shares");
+        return -1;
     }
 
     @Override
     public int totalSharedItems() {
-        return sysjdbc
-                .queryForInt("select sum(item_count) from private_shares");
+        return -1;
     }
 
     @Override
-    public void doSet(ShareData data, List<ShareItem> items) {
+    public void doSet(Share share, ShareData data, List<ShareItem> items) {
         Ice.OutputStream os = Ice.Util.createOutputStream(ic);
         byte[] bytes = null;
         try {
@@ -108,48 +88,37 @@ public class BlobShareStore extends ShareStore {
         long newOptLock = oldOptLock + 1;
 
         try {
-            userjdbc.update(
-                    "INSERT INTO private_shares (id, item_count, data, optlock) "
-                            + "VALUES (?,?,?,?)", new Object[] { data.id,
-                            items.size(), new SqlLobValue(bytes, handler),
-                            newOptLock }, new int[] { Types.BIGINT,
-                            Types.INTEGER, Types.BLOB, Types.BIGINT });
-        } catch (Exception e) {
-            // Exception means that there was already an item with that id.
-            try {
-                userjdbc.update("UPDATE private_shares "
-                        + "set item_count = ?, data = ?, optlock = ? "
-                        + "WHERE id = ? AND OPTLOCK = ?", new Object[] {
-                        items.size(), new SqlLobValue(bytes, handler),
-                        newOptLock, data.id, oldOptLock }, new int[] {
-                        Types.INTEGER, Types.BLOB, Types.BIGINT, Types.BIGINT,
-                        Types.BIGINT });
-            } catch (EmptyResultDataAccessException empty) {
-                throw new OptimisticLockException(
-                        "Share was updated by another thread. Try again.");
-            }
+            ht.find(
+                    "select s from Share s where s.id = " + data.id
+                            + " and s.version =" + data.optlock).get(0);
+        } catch (IndexOutOfBoundsException ioobe) {
+            throw new OptimisticLockException("Share " + data.id
+                    + " has been updated by someone else.");
         }
+
+        share.setActive(data.enabled);
+        share.setData(bytes);
+        share.setItemCount((long) items.size());
+        share.setVersion((int) newOptLock);
+        ht.merge(share);
+
     }
 
     @Override
-    public ShareData get(long id) {
-        try {
-            byte[] data = (byte[]) userjdbc.queryForObject(
-                    "select data from private_shares where id = ?",
-                    new Object[] { id }, new int[] { Types.BIGINT },
-                    byte[].class);
-            return parse(data);
-        } catch (EmptyResultDataAccessException empty) {
+    public ShareData get(final long id) {
+        Share s = (Share) ht.get(Share.class, id);
+        if (s == null) {
             return null;
         }
+        byte[] data = s.getData();
+        return parse(data);
     }
 
     @Override
     public List<ShareData> getShares(boolean active) {
         List<ShareData> rv = new ArrayList<ShareData>();
         try {
-            List<byte[]> data = userjdbc.queryForList(
-                    "select data from private_shares", byte[].class);
+            List<byte[]> data = data();
             for (byte[] bs : data) {
                 ShareData d = parse(bs);
                 if (active && !d.enabled) {
@@ -167,8 +136,7 @@ public class BlobShareStore extends ShareStore {
     public List<ShareData> getShares(long userId, boolean own, boolean active) {
         List<ShareData> rv = new ArrayList<ShareData>();
         try {
-            List<byte[]> data = userjdbc.queryForList(
-                    "select data from private_shares", byte[].class);
+            List<byte[]> data = data();
             for (byte[] bs : data) {
                 ShareData d = parse(bs);
                 if (active && !d.enabled) {
@@ -205,15 +173,26 @@ public class BlobShareStore extends ShareStore {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Set<Long> keys() {
-        return new HashSet<Long>(userjdbc.queryForList(
-                "select id from seq_private_shares", Long.class));
+        return new HashSet<Long>(ht.executeFind(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+                Query q = session.createQuery("select id from Share");
+                return q.list();
+            }
+        }));
     }
 
     // Helpers
     // =========================================================================
 
     private ShareData parse(byte[] data) {
+
+        if (data == null) {
+            return null; // EARLY EXIT!
+        }
+
         Ice.InputStream is = Ice.Util.createInputStream(ic, data);
         final ShareData[] shareData = new ShareData[1];
         try {
@@ -229,4 +208,21 @@ public class BlobShareStore extends ShareStore {
         }
         return shareData[0];
     }
+
+    /**
+     * Returns a list of data from all shares.
+     * 
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private List<byte[]> data() {
+        List<byte[]> data = ht.executeFind(new HibernateCallback() {
+            public Object doInHibernate(Session session)
+                    throws HibernateException, SQLException {
+                return session.createQuery("select data from Share").list();
+            }
+        });
+        return data;
+    }
+
 }

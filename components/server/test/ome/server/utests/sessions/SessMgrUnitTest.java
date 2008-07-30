@@ -60,8 +60,11 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     private final class TestManager extends SessionManagerImpl {
         Session doDefine() {
-            return define("uuid", "message", System.currentTimeMillis(),
-                    defaultTimeToIdle, defaultTimeToLive, "Test", "rw----");
+            Session s = new Session();
+            define(s, "uuid", "message", System.currentTimeMillis(),
+                    defaultTimeToIdle, defaultTimeToLive, "Test",
+                    Permissions.USER_PRIVATE);
+            return s;
         }
     }
 
