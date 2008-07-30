@@ -19,19 +19,19 @@
 
 <beans>
 
- <alias name="internal:ome.api.IAdmin" alias="managed:ome.api.IAdmin"/>
- <bean id="internal:ome.api.IAdmin" factory-bean="mock:ome.api.IAdmin" factory-method="proxy"/>
+ <alias name="internal-ome.api.IAdmin" alias="managed-ome.api.IAdmin"/>
+ <bean id="internal-ome.api.IAdmin" factory-bean="mock:ome.api.IAdmin" factory-method="proxy"/>
  
- <alias name="internal:ome.api.IQuery" alias="managed:ome.api.IQuery"/>
- <bean id="internal:ome.api.IQuery" factory-bean="mock:ome.api.IQuery" factory-method="proxy"/>
+ <alias name="internal-ome.api.IQuery" alias="managed-ome.api.IQuery"/>
+ <bean id="internal-ome.api.IQuery" factory-bean="mock:ome.api.IQuery" factory-method="proxy"/>
  
- <alias name="internal:ome.api.IUpdate" alias="managed:ome.api.IUpdate"/>
- <bean id="internal:ome.api.IUpdate" factory-bean="mock:ome.api.IUpdate" factory-method="proxy"/>
+ <alias name="internal-ome.api.IUpdate" alias="managed-ome.api.IUpdate"/>
+ <bean id="internal-ome.api.IUpdate" factory-bean="mock:ome.api.IUpdate" factory-method="proxy"/>
  
- <alias name="internal:ome.api.RawPixelsStore" alias="managed:ome.api.RawPixelsStore"/>
- <bean id="internal:ome.api.RawPixelsStore" factory-bean="mock:ome.api.RawPixelsStore" factory-method="proxy"/>
+ <alias name="internal-ome.api.RawPixelsStore" alias="managed-ome.api.RawPixelsStore"/>
+ <bean id="internal-ome.api.RawPixelsStore" factory-bean="mock:ome.api.RawPixelsStore" factory-method="proxy"/>
  
- <bean id="managed:omeis.providers.re.RenderingEngine" factory-bean="mock:omeis.providers.re.RenderingEngine" factory-method="proxy"/>
+ <bean id="managed-omeis.providers.re.RenderingEngine" factory-bean="mock:omeis.providers.re.RenderingEngine" factory-method="proxy"/>
  
  <bean id="securitySystem" factory-bean="securityMock" factory-method="proxy"/>
  <bean id="methodSecurity" factory-bean="methodMock" factory-method="proxy"/>

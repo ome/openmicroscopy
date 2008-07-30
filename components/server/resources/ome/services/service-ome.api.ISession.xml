@@ -19,7 +19,7 @@
 
 <beans>	
 
-  <bean name="internal:ome.api.ISession" class="ome.services.sessions.SessionBean">
+  <bean name="internal-ome.api.ISession" class="ome.services.sessions.SessionBean">
     <description>
     Privileged bean which has several "private" references injected. This is not
     an example of what should be done.
@@ -27,13 +27,13 @@
     <property name="sessionManager" ref="sessionManager"/>
   </bean> 
  
-  <bean name="managed:ome.api.ISession" parent="selfManagingService">
+  <bean name="managed-ome.api.ISession" parent="selfManagingService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.ISession</value>
       </list>
     </property>
-    <property name="target" ref="internal:ome.api.ISession"/>
+    <property name="target" ref="internal-ome.api.ISession"/>
   </bean>  
 
   <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  

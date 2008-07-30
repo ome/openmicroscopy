@@ -19,26 +19,26 @@
 
 <beans>	
 
-  <alias name="internal:ome.api.IShare" alias="internal:ome.api.LocalShare"/>
+  <alias name="internal-ome.api.IShare" alias="internal-ome.api.LocalShare"/>
   
-  <bean parent="level2" name="internal:ome.api.IShare" class="ome.services.sharing.ShareBean">
+  <bean parent="level2" name="internal-ome.api.IShare" class="ome.services.sharing.ShareBean">
     <description>
     Bean which uses the SessionManager and ISession to create special access
     control lists for sharing persistent objects with other users and guests.
     </description>
-    <constructor-arg ref="internal:ome.api.IAdmin"/>
+    <constructor-arg ref="internal-ome.api.IAdmin"/>
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="shareStore"/>
     <constructor-arg ref="securitySystem"/>
   </bean> 
  
-  <bean name="managed:ome.api.IShare" parent="managedService">
+  <bean name="managed-ome.api.IShare" parent="managedService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.IShare</value>
       </list>
     </property>
-    <property name="target" ref="internal:ome.api.IShare"/>
+    <property name="target" ref="internal-ome.api.IShare"/>
   </bean> 
   
   <!--

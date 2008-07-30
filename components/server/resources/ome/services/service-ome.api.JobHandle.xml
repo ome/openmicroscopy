@@ -20,10 +20,10 @@
 <beans>	
 
   <bean singleton="false" parent="stateful"
-        id="internal:ome.api.JobHandle"
+        id="internal-ome.api.JobHandle"
      class="ome.services.JobBean">
-    <property name="typesService" ref="internal:ome.api.ITypes"/>
-    <property name="updateService" ref="internal:ome.api.IUpdate"/>
+    <property name="typesService" ref="internal-ome.api.ITypes"/>
+    <property name="updateService" ref="internal-ome.api.IUpdate"/>
     <property name="processManager" ref="processManager"/>
     <property name="jobNotification" ref="jobNotification"/>
   </bean>
@@ -32,9 +32,9 @@
     <property name="scheduler" ref="scheduler"/>
   </bean>
 
-  <bean id="managed:ome.api.JobHandle" parent="managedStatefulService" singleton="false">
+  <bean id="managed-ome.api.JobHandle" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.JobHandle"/>
-    <property name="target" ref="internal:ome.api.JobHandle"/>
+    <property name="target" ref="internal-ome.api.JobHandle"/>
   </bean>
   
   <bean id="processManager" class="ome.services.procs.ProcessManager">

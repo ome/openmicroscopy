@@ -143,7 +143,7 @@ public class OmeroAroundInvoke implements SelfConfigurableService,
         Object bean = context.getTarget();
         if (bean instanceof SelfConfigurableService) {
             SelfConfigurableService service = (SelfConfigurableService) bean;
-            String factoryName = "&managed:"
+            String factoryName = "&managed-"
                     + service.getServiceInterface().getName();
             AOPAdapter adapter = AOPAdapter.create(
                     (ProxyFactoryBean) applicationContext.getBean(factoryName),

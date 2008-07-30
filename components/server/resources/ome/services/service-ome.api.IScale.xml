@@ -18,5 +18,5 @@
 -->
 
 <beans>	
-  <bean id="internal:ome.api.IScale" class="ome.logic.AWTScaleService"/>
+  <bean id="internal-ome.api.IScale" class="ome.logic.AWTScaleService"/>
 </beans>

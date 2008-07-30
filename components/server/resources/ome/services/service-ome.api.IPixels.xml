@@ -19,11 +19,11 @@
 
 <beans>	
 
-  <bean parent="level2" id="internal:ome.api.IPixels" class="ome.logic.PixelsImpl"/>
+  <bean parent="level2" id="internal-ome.api.IPixels" class="ome.logic.PixelsImpl"/>
   
-  <bean id="managed:ome.api.IPixels" parent="managedService">
+  <bean id="managed-ome.api.IPixels" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IPixels"/>
-    <property name="target" ref="internal:ome.api.IPixels"/>
+    <property name="target" ref="internal-ome.api.IPixels"/>
   </bean>
   
 </beans>

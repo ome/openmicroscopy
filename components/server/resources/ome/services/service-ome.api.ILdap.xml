@@ -19,15 +19,15 @@
 
 <beans>
 
-	<alias name="internal:ome.api.ILdap" alias="internal:ome.api.LocalLdap"/>
+	<alias name="internal-ome.api.ILdap" alias="internal-ome.api.LocalLdap"/>
 
-	<bean parent="level2" name="internal:ome.api.ILdap"
+	<bean parent="level2" name="internal-ome.api.ILdap"
 		class="ome.logic.LdapImpl">
 		<description>
 			Privileged bean which has several "private" references
 			injected. This is not an example of what should be done.
 		</description>
-		<property name="adminService" ref="internal:ome.api.IAdmin"/>
+		<property name="adminService" ref="internal-ome.api.IAdmin"/>
 		<property name="ldapTemplate" ref="ldapTemplate" />
 		<property name="jdbcTemplate" ref="simpleJdbcTemplate" />
 		<property name="config" value="${omero.ldap.config}" />
@@ -36,14 +36,14 @@
 		<property name="values" value="${omero.ldap.values}" />
 	</bean>
 
-	<bean name="managed:ome.api.ILdap" parent="managedService">
+	<bean name="managed-ome.api.ILdap" parent="managedService">
 		<property name="proxyInterfaces">
 			<list>
 				<value>ome.api.ILdap</value>
 				<value>ome.api.local.LocalLdap</value>
 			</list>
 		</property>
-		<property name="target" ref="internal:ome.api.ILdap" />
+		<property name="target" ref="internal-ome.api.ILdap" />
 	</bean>
 
 	<bean id="ldapTemplate" class="org.springframework.ldap.core.LdapTemplate">

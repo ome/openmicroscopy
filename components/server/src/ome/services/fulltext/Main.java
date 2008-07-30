@@ -37,7 +37,7 @@ public class Main {
         context = OmeroContext.getManagedServerContext();
         executor = (Executor) context.getBean("executor");
         factory = (SessionFactory) context.getBean("sessionFactory");
-        rawQuery = (IQuery) context.getBean("internal:ome.api.IQuery");
+        rawQuery = (IQuery) context.getBean("internal-ome.api.IQuery");
         manager = (SessionManager) context.getBean("sessionManager");
     }
 

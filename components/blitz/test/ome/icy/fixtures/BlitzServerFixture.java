@@ -63,11 +63,11 @@ public class BlitzServerFixture extends MockObjectTestCase {
     int serviceTimeout;
 
     // Keys for the mocks that are known to be needed
-    final static String adm = "internal:ome.api.IAdmin",
-            qu = "internal:ome.api.IQuery", up = "internal:ome.api.IUpdate",
+    final static String adm = "internal-ome.api.IAdmin",
+            qu = "internal-ome.api.IQuery", up = "internal-ome.api.IUpdate",
             ss = "securitySystem",
-            re = "managed:omeis.providers.re.RenderingEngine",
-            px = "internal:ome.api.RawPixelsStore", ms = "methodSecurity",
+            re = "managed-omeis.providers.re.RenderingEngine",
+            px = "internal-ome.api.RawPixelsStore", ms = "methodSecurity",
             sm = "sessionManager";
 
     public BlitzServerFixture() {

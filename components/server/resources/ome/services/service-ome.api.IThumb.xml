@@ -20,21 +20,21 @@
 <beans>	
 
   <bean singleton="false" parent="level2"
-  		id="internal:ome.api.ThumbnailStore"
+  		id="internal-ome.api.ThumbnailStore"
   	class="ome.services.ThumbnailBean">
   	<constructor-arg><value>true</value></constructor-arg>
     <property name="ioService" ref="/OMERO/Thumbs"/>
-    <property name="IPixels" ref="internal:ome.api.IPixels"/>
+    <property name="IPixels" ref="internal-ome.api.IPixels"/>
     <property name="pixelDataService" ref="/OMERO/Pixels"/>
-    <property name="scaleService" ref="internal:ome.api.IScale"/>
-    <property name="compressionService" ref="internal:ome.api.ICompress"/>
-    <property name="IRepositoryInfo" ref="internal:ome.api.IRepositoryInfo"/>
-    <property name="settingsService" ref="internal:ome.api.IRenderingSettings"/>
+    <property name="scaleService" ref="internal-ome.api.IScale"/>
+    <property name="compressionService" ref="internal-ome.api.ICompress"/>
+    <property name="IRepositoryInfo" ref="internal-ome.api.IRepositoryInfo"/>
+    <property name="settingsService" ref="internal-ome.api.IRenderingSettings"/>
   </bean>
   
-  <bean id="managed:ome.api.ThumbnailStore" parent="managedStatefulService" singleton="false">
+  <bean id="managed-ome.api.ThumbnailStore" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.ThumbnailStore"/>
-    <property name="target" ref="internal:ome.api.ThumbnailStore"/>    
+    <property name="target" ref="internal-ome.api.ThumbnailStore"/>    
   </bean>
 
 </beans>

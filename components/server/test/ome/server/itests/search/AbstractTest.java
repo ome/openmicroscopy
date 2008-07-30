@@ -33,7 +33,7 @@ public abstract class AbstractTest extends AbstractManagedContextTest {
 
     IQuery rawQuery() {
         return (IQuery) this.applicationContext
-                .getBean("internal:ome.api.IQuery");
+                .getBean("internal-ome.api.IQuery");
     }
 
     OriginalFilesService getFileService() {

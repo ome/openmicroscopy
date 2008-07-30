@@ -33,7 +33,7 @@ public class InternalServiceFactory extends ServiceFactory implements
 
     @Override
     protected String getPrefix() {
-        return "internal:";
+        return "internal-";
     }
 
     /**

@@ -19,22 +19,22 @@
 
 <beans>	
 
-  <bean parent="level1" id="internal:ome.api.IUpdate" class="ome.logic.UpdateImpl">
-    <property name="queryService" ref="internal:ome.api.LocalQuery"/>
+  <bean parent="level1" id="internal-ome.api.IUpdate" class="ome.logic.UpdateImpl">
+    <property name="queryService" ref="internal-ome.api.LocalQuery"/>
     <property name="executor" ref="executor"/>
     <property name="sessionManager" ref="sessionManager"/>
     <property name="fullTextBridge" ref="fullTextBridge"/>
   </bean>
-  <alias name="internal:ome.api.IUpdate" alias="internal:ome.api.LocalUpdate"/>
+  <alias name="internal-ome.api.IUpdate" alias="internal-ome.api.LocalUpdate"/>
 
-  <bean id="managed:ome.api.IUpdate" parent="managedService">
+  <bean id="managed-ome.api.IUpdate" parent="managedService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.IUpdate</value>
         <value>ome.api.local.LocalUpdate</value>        
       </list>
     </property>
-    <property name="target" ref="internal:ome.api.IUpdate"/>
+    <property name="target" ref="internal-ome.api.IUpdate"/>
   </bean>
   
 </beans>

@@ -20,16 +20,16 @@
 <beans>	
 
   <bean singleton="false" parent="stateful"
-        id="internal:ome.api.RawFileStore" 
+        id="internal-ome.api.RawFileStore" 
      class="ome.services.RawFileBean">
     <constructor-arg><value>true</value></constructor-arg>
     <property name="originalFilesService" ref="/OMERO/Files"/>
-    <property name="IRepositoryInfo" ref="internal:ome.api.IRepositoryInfo"/>
+    <property name="IRepositoryInfo" ref="internal-ome.api.IRepositoryInfo"/>
   </bean>
 
-  <bean id="managed:ome.api.RawFileStore" parent="managedStatefulService" singleton="false">
+  <bean id="managed-ome.api.RawFileStore" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.RawFileStore"/>
-    <property name="target" ref="internal:ome.api.RawFileStore"/>
+    <property name="target" ref="internal-ome.api.RawFileStore"/>
   </bean>
   
 </beans>

@@ -20,19 +20,19 @@
 <beans>	
 
   <bean singleton="false" parent="level2"
-        id="internal:omeis.providers.re.RenderingEngine" 
+        id="internal-omeis.providers.re.RenderingEngine" 
      class="ome.services.RenderingBean">
 	<!-- following copied from parent="binary" -->
-    <property name="pixelsMetadata" ref="internal:ome.api.IPixels"/>
+    <property name="pixelsMetadata" ref="internal-ome.api.IPixels"/>
     <property name="pixelsData"     ref="/OMERO/Pixels"/>
-    <property name="compressionService" ref="internal:ome.api.ICompress"/>
-    <property name="settingsService" ref="internal:ome.api.IRenderingSettings"/>
-    <property name="projectionService" ref="internal:ome.api.IProjection"/>
+    <property name="compressionService" ref="internal-ome.api.ICompress"/>
+    <property name="settingsService" ref="internal-ome.api.IRenderingSettings"/>
+    <property name="projectionService" ref="internal-ome.api.IProjection"/>
   </bean>
 
-  <bean id="managed:omeis.providers.re.RenderingEngine" parent="managedStatefulService" singleton="false">
+  <bean id="managed-omeis.providers.re.RenderingEngine" parent="managedStatefulService" singleton="false">
     <property name="proxyInterfaces" value="omeis.providers.re.RenderingEngine"/>
-    <property name="target" ref="internal:omeis.providers.re.RenderingEngine"/>
+    <property name="target" ref="internal-omeis.providers.re.RenderingEngine"/>
   </bean>
 
 </beans>

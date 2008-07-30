@@ -241,7 +241,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         // SelfConfigurableService>
         // but there are issues because of the ApplicationContextAware. Perhaps
         // we can combine them later.
-        applyBeanPropertyValues(target, "internal:" + beanInterface.getName());
+        applyBeanPropertyValues(target, "internal-" + beanInterface.getName());
     }
 
     /**

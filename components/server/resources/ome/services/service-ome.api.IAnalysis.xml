@@ -19,11 +19,11 @@
 
 <beans>
 
-  <bean parent="level2" id="internal:ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
+  <bean parent="level2" id="internal-ome.api.IAnalysis" class="ome.logic.AnalysisImpl"/>
 
-  <bean id="managed:ome.api.IAnalysis" parent="managedService">
+  <bean id="managed-ome.api.IAnalysis" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.IAnalysis"/>
-    <property name="target" ref="internal:ome.api.IAnalysis"/>
+    <property name="target" ref="internal-ome.api.IAnalysis"/>
   </bean>
   
 </beans>

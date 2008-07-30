@@ -675,7 +675,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         Object srv = null;
         try {
-            srv = context.getBean("managed:" + sd.getServiceClass().getName());
+            srv = context.getBean("managed-" + sd.getServiceClass().getName());
         } catch (Exception e) {
             ApiUsageException aue = new ApiUsageException();
             aue.message = "No managed service of given type found:"

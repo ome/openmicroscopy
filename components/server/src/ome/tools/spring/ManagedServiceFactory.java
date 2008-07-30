@@ -35,7 +35,7 @@ public class ManagedServiceFactory extends ServiceFactory implements
 
     @Override
     protected String getPrefix() {
-        return "managed:";
+        return "managed-";
     }
 
     /**

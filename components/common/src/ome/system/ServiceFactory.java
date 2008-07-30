@@ -340,10 +340,10 @@ public class ServiceFactory {
      * used by {@link #getServiceByClass(Class)} to find the correct service
      * proxy in the {@link #ctx}
      * 
-     * @return a {@link String}, usually "internal:" or "managed:"
+     * @return a {@link String}, usually "internal-" or "managed-"
      */
     protected String getPrefix() {
-        return "managed:";
+        return "managed-";
     }
 
     /**

@@ -20,16 +20,16 @@
 <beans>
 
   <bean singleton="false" parent="stateful"
-        id="internal:ome.api.Search"
+        id="internal-ome.api.Search"
      class="ome.services.SearchBean">
      <property name="executor" ref="executor"/>
      <property name="analyzer" value="${omero.search.analyzer}"/>
      <property name="maxClauseCount" value="${omero.search.maxclause}"/>
   </bean>
 
-  <bean id="managed:ome.api.Search" parent="selfManagingService" singleton="false">
+  <bean id="managed-ome.api.Search" parent="selfManagingService" singleton="false">
     <property name="proxyInterfaces" value="ome.api.Search"/>
-    <property name="target" ref="internal:ome.api.Search"/>
+    <property name="target" ref="internal-ome.api.Search"/>
   </bean>
 
   <!-- Trigger for running lucene -->
@@ -71,14 +71,14 @@
   <alias name="persistentEventLogLoader" alias="eventLogLoader"/>
 
   <bean id="persistentEventLogLoader" class="ome.services.fulltext.PersistentEventLogLoader">
-    <property name="queryService" ref="internal:ome.api.LocalQuery"/>
+    <property name="queryService" ref="internal-ome.api.LocalQuery"/>
     <property name="template" ref="simpleJdbcTemplate"/>
     <property name="key" value="PersistentEventLogLoader.v2.current_id"/>
     <property name="query" value="select value from configuration where name = ?"/>
     <property name="insert" value="insert into configuration (name, value) values (?,?)"/>
     <property name="update" value="update configuration set value = ? where name = ?"/>
     <property name="delete" value="delete from configuration where name = ?"/>
-    <property name="types" ref="internal:ome.api.ITypes"/>
+    <property name="types" ref="internal-ome.api.ITypes"/>
     <property name="batchSize" value="${omero.search.batch}"/>
     <property name="excludes" value="${omero.search.excludes}"/>
   </bean>

@@ -19,7 +19,7 @@
 
 <beans>	
 
-  <bean id="internal:ome.api.IRepositoryInfo" class="ome.logic.RepositoryInfoImpl">
+  <bean id="internal-ome.api.IRepositoryInfo" class="ome.logic.RepositoryInfoImpl">
     <property name="datadir" value="${omero.data.dir}"/>
     <property name="thumbnailService" ref="/OMERO/Thumbs"/>
     <property name="pixelsService" ref="/OMERO/Pixels"/>
@@ -28,9 +28,9 @@
   </bean>
   
   
-  <bean id="managed:ome.api.IRepositoryInfo" parent="managedService">
+  <bean id="managed-ome.api.IRepositoryInfo" parent="managedService">
 	<property name="proxyInterfaces" value="ome.api.IRepositoryInfo"/>
-    <property name="target" ref="internal:ome.api.IRepositoryInfo"/>
+    <property name="target" ref="internal-ome.api.IRepositoryInfo"/>
   </bean>
 
 </beans>

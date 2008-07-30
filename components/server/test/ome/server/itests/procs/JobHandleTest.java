@@ -54,7 +54,7 @@ public class JobHandleTest extends TestCase {
         mgr = new PManager(new P(sf.getQueryService()), fixture.mgr,
                 fixture.sec, fixture.ex);
         JobBean bean = (JobBean) fixture.ctx
-                .getBean("internal:ome.api.JobHandle");
+                .getBean("internal-ome.api.JobHandle");
         Field pm = bean.getClass().getDeclaredField("pm");
         pm.setAccessible(true);
         pm.set(bean, mgr);

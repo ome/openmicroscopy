@@ -19,7 +19,7 @@
 
 <beans>	
 
-  <bean parent="level2" id="internal:ome.api.ITypes" class="ome.logic.TypesImpl" >
+  <bean parent="level2" id="internal-ome.api.ITypes" class="ome.logic.TypesImpl" >
   	<description>
     Privileged bean which has several "private" references injected. This is not
     an example of what should be done.
@@ -27,9 +27,9 @@
     <property name="sessionFactory" ref="sessionFactory"/>
   </bean>
   
-  <bean id="managed:ome.api.ITypes" parent="managedService">
+  <bean id="managed-ome.api.ITypes" parent="managedService">
     <property name="proxyInterfaces" value="ome.api.ITypes"/>
-    <property name="target" ref="internal:ome.api.ITypes"/>
+    <property name="target" ref="internal-ome.api.ITypes"/>
   </bean>
   
 </beans>

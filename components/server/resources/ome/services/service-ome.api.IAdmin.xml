@@ -19,9 +19,9 @@
 
 <beans>	
 
-  <alias name="internal:ome.api.IAdmin" alias="internal:ome.api.LocalAdmin"/>
+  <alias name="internal-ome.api.IAdmin" alias="internal-ome.api.LocalAdmin"/>
   
-  <bean parent="level2" name="internal:ome.api.IAdmin" class="ome.logic.AdminImpl">
+  <bean parent="level2" name="internal-ome.api.IAdmin" class="ome.logic.AdminImpl">
     <description>
     Privileged bean which has several "private" references injected. This is not
     an example of what should be done.
@@ -31,17 +31,17 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="mailSender" ref="mailSender"/>
     <property name="templateMessage" ref="templateMessage"/>
-    <property name="ldapService" ref="internal:ome.api.LocalLdap"/>
+    <property name="ldapService" ref="internal-ome.api.LocalLdap"/>
   </bean> 
  
-  <bean name="managed:ome.api.IAdmin" parent="managedService">
+  <bean name="managed-ome.api.IAdmin" parent="managedService">
     <property name="proxyInterfaces">
       <list>
         <value>ome.api.IAdmin</value>
         <value>ome.api.local.LocalAdmin</value>        
       </list>
     </property>
-    <property name="target" ref="internal:ome.api.IAdmin"/>
+    <property name="target" ref="internal-ome.api.IAdmin"/>
   </bean> 
   
   <!-- configure the MailSender with the authenticated session -->

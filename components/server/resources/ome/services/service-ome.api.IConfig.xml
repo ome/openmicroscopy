@@ -32,18 +32,18 @@
 <beans>	
 
   <description>
-  Service implementation ("internal:") and wrapper ("managed:") for the 
+  Service implementation ("internal-") and wrapper ("managed-") for the 
   ome.api.IConfig interface. 
 
-  managed:ome.api.IConfig - This is for remoting and should only be apply 
+  managed-ome.api.IConfig - This is for remoting and should only be apply 
     interceptors to the "internal" version below. essentially ignore.
-  internal:ome.api.IConfig - This is the bean that needs to have items 
+  internal-ome.api.IConfig - This is the bean that needs to have items 
     injected. Used server side. If not available, everyone has to go 
     through the levels of interception
 
   </description>
 
-  <bean parent="level2" id="internal:ome.api.IConfig" class="ome.logic.ConfigImpl">
+  <bean parent="level2" id="internal-ome.api.IConfig" class="ome.logic.ConfigImpl">
     <description>
     The implementation of our interface. Provided with a JDBC template for 
     accessing the database time. Safe to use ONLY from within another service!
@@ -51,12 +51,12 @@
     <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
   </bean>
   
-  <bean id="managed:ome.api.IConfig" parent="managedService">
+  <bean id="managed-ome.api.IConfig" parent="managedService">
     <description>
     An AOP-wrapped proxy for our implementation. Enforces all server policies.
     </description>
     <property name="proxyInterfaces" value="ome.api.IConfig"/>
-    <property name="target" ref="internal:ome.api.IConfig"/>
+    <property name="target" ref="internal-ome.api.IConfig"/>
   </bean>
   
 <!--
