@@ -64,6 +64,9 @@ public class StringQuery extends Query {
         for (int i = 0; i < nParams.length; i++) {
             String p = nParams[i];
             Object v = value(p);
+            if (v == null) {
+                throw new ApiUsageException("Null parameters not allowed: " + p);
+            }
             if (Collection.class.isAssignableFrom(v.getClass())) {
                 query.setParameterList(p, (Collection) v);
             } else {
