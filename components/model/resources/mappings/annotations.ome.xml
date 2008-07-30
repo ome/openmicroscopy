@@ -28,6 +28,7 @@
       <optional name="textValue" type="text" mutable="false"/>
     </properties>
   </type>
+  <type id="ome.model.annotations.CommentAnnotation" discriminator="/basic/text/comment/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
   <type id="ome.model.annotations.TagAnnotation" discriminator="/basic/text/tag/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
   <type id="ome.model.annotations.XmlAnnotation" discriminator="/basic/text/xml/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>
   <type id="ome.model.annotations.UrlAnnotation" discriminator="/basic/text/url/" superclass="ome.model.annotations.TextAnnotation" immutable="true"/>

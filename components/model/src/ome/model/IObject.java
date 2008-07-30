@@ -7,6 +7,7 @@
 package ome.model;
 
 // Java imports
+import java.io.Serializable;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
@@ -28,7 +29,7 @@ import ome.util.Validation;
  * @author josh
  * 
  */
-public interface IObject extends Filterable {
+public interface IObject extends Filterable, Serializable {
 
     /**
      * primary key of this object. Before the session is flushed, this value

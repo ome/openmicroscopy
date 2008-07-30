@@ -41,6 +41,8 @@
 	<classpathentry kind="lib" path="target/libs/hibernate-search.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-tools.jar"/>
 	<classpathentry kind="lib" path="target/libs/hibernate-validator.jar"/>
+	<classpathentry kind="lib" path="target/libs/ice.jar"/>
+	<classpathentry kind="lib" path="target/libs/ice-db.jar"/>
 	<classpathentry kind="lib" path="target/libs/importer.jar"/>
 	<classpathentry kind="lib" path="target/libs/jamon.jar"/>
 	<classpathentry kind="lib" path="target/libs/jbossall-client.jar"/>

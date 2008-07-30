@@ -18,6 +18,9 @@
     <dependency name="romio" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
     <dependency name="rendering" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
     <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test" />
+    <!-- Ice -->
+    <dependency org="omero" name="ice" rev="${versions.ice}"/>
+    <dependency org="omero" name="ice-db" rev="${versions.ice}"/>
     <!-- Public -->
     <dependency org="commons-lang" name="commons-lang" rev="2.1"/>
     <dependency org="activemq" name="activemq-core" rev="3.2"/>

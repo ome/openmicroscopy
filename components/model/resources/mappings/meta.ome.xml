@@ -12,29 +12,27 @@
 <types>
 
 	<!-- MANAGEMENT -->
-	<type id="ome.model.meta.ExperimenterGroup" described="true">
-		<properties>
-      <!-- TODO unqiuelynamed=true? -->
-      <required name="name" type="string" unique="true"/>
-			<child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"
-        target="ome.model.meta.Experimenter"/>
-		</properties>
-	</type>
+    <type id="ome.model.meta.ExperimenterGroup" described="true" annotated="true">
+        <properties>
+            <required name="name" type="string" unique="true"/>
+            <child name="groupExperimenterMap" type="ome.model.meta.GroupExperimenterMap"
+                   target="ome.model.meta.Experimenter"/>
+        </properties>
+    </type>
 
-	<type id="ome.model.meta.Experimenter" global="true" annotated="true">
-		<!-- ## needs to be ome_name -->
-		<properties>
-			<parent name="groupExperimenterMap" ordered="true"
-				type="ome.model.meta.GroupExperimenterMap"
-				target="ome.model.meta.ExperimenterGroup"/>
-			<required name="omeName" type="string" unique="true"/>
-			<required name="firstName" type="string"/>
-			<optional name="middleName" type="string"/>
-			<required name="lastName" type="string"/>
-			<optional name="institution" type="string"/>
-			<component id="ome.model.internal.Email" required="false">
-				<optional name="email" type="string"/>
-			</component>
+    <type id="ome.model.meta.Experimenter" global="true" annotated="true">
+        <properties>
+            <parent name="groupExperimenterMap" ordered="true"
+                    type="ome.model.meta.GroupExperimenterMap"
+                    target="ome.model.meta.ExperimenterGroup"/>
+            <required name="omeName" type="string" unique="true"/>
+            <required name="firstName" type="string"/>
+            <optional name="middleName" type="string"/>
+            <required name="lastName" type="string"/>
+            <optional name="institution" type="string"/>
+            <component id="ome.model.internal.Email" required="false">
+                <optional name="email" type="string"/>
+            </component>
 			<!-- ## add to dsl [email/] -->
 		</properties>
 	</type>
@@ -47,7 +45,7 @@
 	</link>
 
 	<!-- EVENTS -->
-        <type id="ome.model.meta.Session" immutable="true" global="true">
+        <type id="ome.model.meta.Session" immutable="true" global="true" annotated="true">
             <properties>
             <!-- Type & Group are not really optional. Needed to bootstrap.
                  Constraints are added later -->
