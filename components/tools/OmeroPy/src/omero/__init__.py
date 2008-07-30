@@ -30,7 +30,7 @@ class client(object):
     """
 
     def __init__(self, args = pysys.argv, id = Ice.InitializationData()):
-
+        self.ic = None
         self.sf = None
         self.ic = Ice.initialize(args,id)
         if not self.ic:
@@ -49,6 +49,8 @@ class client(object):
             traceback.print_exc()
 
     def getCommunicator(self):
+        if not self.ic:
+            raise ClientError("No Ice.Communicator active; reinitialize or create a new client instance")
         return self.ic
 
     def getSession(self):
@@ -85,10 +87,10 @@ class client(object):
         # Acquire router and get the proxy
         # For whatever reason, we have to set the context
         # on the router context here as well.
-        prx = self.ic.getDefaultRouter()
+        prx = self.getCommunicator().getDefaultRouter()
         if not prx:
             raise ClientError("No default router found.")
-        prx = prx.ice_context(self.ic.getImplicitContext().getContext())
+        prx = prx.ice_context(self.getCommunicator().getImplicitContext().getContext())
         router = Glacier2.RouterPrx.checkedCast(prx)
         if not router:
             raise ClientError("Error obtaining Glacier2 router.")
@@ -232,7 +234,7 @@ class client(object):
                 return
 
         try:
-            prx = self.ic.getDefaultRouter()
+            prx = self.getCommunicator().getDefaultRouter()
             router = Glacier2.RouterPrx.checkedCast(prx)
 
             # Now destroy the actual session if possible,
@@ -248,7 +250,7 @@ class client(object):
                     # we are disconnecting
 
             try:
-                self.ic.destroy()
+                self.getCommunicator().destroy()
             except (), msg:
                 pysys.stderr.write("Ice exception while destroying communicator:")
                 pysys.stderr.write(msg)
