@@ -121,6 +121,11 @@ public class XMLView
 	
 	public static final int BUTTON_SPACING = 5;
 	
+	/**
+	 * The title for the main window frame. 
+	 */
+	public static final String FRAME_TITLE = "OMERO.editor";
+	
 	JFrame XMLFrame;
 	JPanel mainContentPane;		// this holds toolbar (North) and XMLUIPanel (Centre)
 	JSplitPane splitPane;
@@ -426,7 +431,7 @@ public class XMLView
 	}
 	
 	public void buildFrame() {
-	    	XMLFrame = new JFrame("OMERO.editor");
+	    	XMLFrame = new JFrame(FRAME_TITLE);
 	    	XMLFrame.setIconImage( ((ImageIcon)protocolIcon).getImage());
 	    	
 			// Build menus
@@ -672,12 +677,29 @@ public class XMLView
 	}
 	
 	
-	// if no files open, hide the tabbed pane
+	/**
+	 * This hides the protocol editing pane if no files are open. 
+	 * Also updates the Window title with the file name (if any open). 
+	 */
 	public void refreshAnyFilesOpen() {
 		
-		boolean noFiles = (xmlModel.getOpenFileList().length == 0);
+		String[] files = xmlModel.getOpenFileList();
+		boolean noFiles = (files.length == 0);
 
 		protocolTab.setVisible(!noFiles);
+		
+		/*
+		 * Set the Title of the Window to display the current file name.
+		 */
+		if (XMLFrame != null) {
+			String frameName = FRAME_TITLE;		// default if no files open
+			if (!noFiles) {
+				int fileIndex = xmlModel.getCurrentFileIndex();
+				String fileName = files[fileIndex];
+				frameName = fileName;
+			}
+			XMLFrame.setTitle(frameName);
+		}
 	}
 	
 	/**
