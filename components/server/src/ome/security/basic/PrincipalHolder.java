@@ -7,44 +7,38 @@
 
 package ome.security.basic;
 
-import java.util.LinkedList;
-
+import ome.security.SecuritySystem;
 import ome.system.Principal;
 
 /**
- * Stack of active {@link Principal} instances.
+ * Stack of active {@link Principal} instances. As a user logs in, an empty
+ * context is created which must later be primed by the {@link SecuritySystem}
+ * in order to be operational.
  * 
  * @see BasicSecuritySystem
  */
-public class PrincipalHolder {
+public interface PrincipalHolder {
 
-    protected ThreadLocal<LinkedList<Principal>> principalHolder = new ThreadLocal<LinkedList<Principal>>() {
-        @Override
-        protected java.util.LinkedList<Principal> initialValue() {
-            return new LinkedList<Principal>();
-        }
-    };
+    /**
+     * Get the number of active principal contexts.
+     */
+    public int size();
 
-    public int size() {
-        final LinkedList<Principal> l = principalHolder.get();
-        return l.size();
-    }
+    /**
+     * Get the last, i.e. currently active, principal.
+     * 
+     * @return
+     */
+    public Principal getLast();
 
-    public Principal getLast() {
-        final LinkedList<Principal> l = principalHolder.get();
-        return l.getLast();
-    }
+    /**
+     * Add a new principal context to the stack.
+     */
+    public void login(Principal principal);
 
-    public void login(Principal principal) {
-        principalHolder.get().addLast(principal);
-    }
-
-    public int logout() {
-        LinkedList<Principal> list = principalHolder.get();
-        if (list.size() > 0) {
-            list.removeLast();
-        }
-        return list.size();
-    }
-
+    /**
+     * Pop the last created principal context and return the number of active
+     * contexts remaining.
+     */
+    public int logout();
 }

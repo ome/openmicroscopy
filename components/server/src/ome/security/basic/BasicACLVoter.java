@@ -83,8 +83,8 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
         return SecurityFilter.passesFilter(d, currentUser.getOwner().getId(),
-                currentUser.getMemberOfGroups(), currentUser
-                        .getLeaderOfGroups(), currentUser.isAdmin());
+                currentUser.getMemberOfGroupsList(), currentUser
+                        .getLeaderOfGroupsList(), currentUser.isAdmin());
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {
@@ -163,7 +163,7 @@ public class BasicACLVoter implements ACLVoter {
         Long g = d.getGroup() == null ? null : d.getGroup().getId();
 
         // needs no permissions info
-        if (g != null && currentUser.getLeaderOfGroups().contains(g)) {
+        if (g != null && currentUser.getLeaderOfGroupsList().contains(g)) {
             return true;
         }
 
@@ -186,7 +186,7 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
         if (p.isGranted(GROUP, WRITE) && g != null
-                && currentUser.getMemberOfGroups().contains(g)) {
+                && currentUser.getMemberOfGroupsList().contains(g)) {
             return true;
         }
 

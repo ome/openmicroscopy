@@ -30,7 +30,7 @@ public class ShareBeanTest extends MockObjectTestCase {
 
         admin = (LocalAdmin) mockAdmin.proxy();
         mgr = (SessionManager) mockMgr.proxy();
-        bean = new ShareBean(admin, mgr, null, null);
+        bean = new ShareBean(admin, mgr, null);
     }
 
     @Test

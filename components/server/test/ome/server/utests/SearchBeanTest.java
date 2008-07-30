@@ -14,6 +14,7 @@ import ome.model.IObject;
 import ome.model.annotations.TagAnnotation;
 import ome.model.core.Image;
 import ome.services.SearchBean;
+import ome.services.fulltext.FullTextAnalyzer;
 import ome.services.search.SearchAction;
 import ome.services.search.SearchValues;
 import ome.services.util.Executor;
@@ -28,7 +29,7 @@ import org.testng.annotations.Test;
 
 public class SearchBeanTest extends MockObjectTestCase {
 
-    protected Class<? extends Analyzer> analyzer;
+    protected Class<? extends Analyzer> analyzer = FullTextAnalyzer.class;
     protected Executor executor = new Executor.Impl(null, null, null, null) {
         @Override
         public Object execute(Principal p, Work work) {

@@ -63,8 +63,8 @@ public class SecuritySystemHolder implements SecuritySystem {
         return choose().checkManagedDetails(object, trustedDetails);
     }
 
-    public void clearEventContext() {
-        choose().clearEventContext();
+    public void invalidateEventContext() {
+        choose().invalidateEventContext();
     }
 
     public void disable(String... ids) {
@@ -93,10 +93,6 @@ public class SecuritySystemHolder implements SecuritySystem {
 
     public boolean isDisabled(String id) {
         return choose().isDisabled(id);
-    }
-
-    public boolean isEmptyEventContext() {
-        return choose().isEmptyEventContext();
     }
 
     public boolean isReady() {

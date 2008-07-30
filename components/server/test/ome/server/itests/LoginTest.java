@@ -77,7 +77,7 @@ public class LoginTest extends TestCase {
     public void testLoggedOutAfterCall() throws Exception {
         login("root", "system", "Test");
         q.find(Experimenter.class, 0l);
-        assertTrue(sec.isEmptyEventContext());
+        assertTrue(!sec.isReady());
     }
 
     @Test

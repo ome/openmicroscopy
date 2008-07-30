@@ -9,9 +9,8 @@ package ome.services.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 
 import ome.annotations.AnnotationUtils;
 import ome.annotations.ApiConstraintChecker;
@@ -21,6 +20,7 @@ import ome.conditions.InternalException;
 import ome.conditions.OptimisticLockException;
 import ome.conditions.RootException;
 import ome.conditions.ValidationException;
+import ome.security.basic.CurrentDetails;
 import ome.services.messages.RegisterServiceCleanupMessage;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -43,24 +43,17 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
 
     private static Log log = LogFactory.getLog(ServiceHandler.class);
 
-    private boolean printXML = false;
-
-    private final ThreadLocal<List<RegisterServiceCleanupMessage>> cleanups = new ThreadLocal<List<RegisterServiceCleanupMessage>>();
+    private final CurrentDetails cd;
 
     public void onApplicationEvent(ApplicationEvent arg0) {
         if (arg0 instanceof RegisterServiceCleanupMessage) {
             RegisterServiceCleanupMessage cleanup = (RegisterServiceCleanupMessage) arg0;
-            List<RegisterServiceCleanupMessage> list = cleanups.get();
-            if (list == null) {
-                list = new ArrayList<RegisterServiceCleanupMessage>();
-                cleanups.set(list);
-            }
-            list.add(cleanup);
+            cd.addCleanup(cleanup);
         }
     }
 
-    public void setPrintXML(boolean value) {
-        this.printXML = value;
+    public ServiceHandler(CurrentDetails cd) {
+        this.cd = cd;
     }
 
     /**
@@ -92,11 +85,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
         try {
             o = arg0.proceed();
             finalOutput = " Rslt:\t" + o;
-
-            // Extended output and return.
-            log(o);
             return o;
-
         } catch (Throwable t) {
             finalOutput = " Excp:\t" + t;
             throw getAndLogException(t);
@@ -104,32 +93,20 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             if (log.isInfoEnabled()) {
                 log.info(finalOutput);
             }
-            List<RegisterServiceCleanupMessage> list = cleanups.get();
-            cleanups.remove();
-            if (list != null) {
-                for (RegisterServiceCleanupMessage registerServiceCleanupMessage : list) {
-                    try {
-                        log.info("Cleanup:"
-                                + registerServiceCleanupMessage.resource);
-                        registerServiceCleanupMessage.close();
-                    } catch (Exception e) {
-                        log.warn("Error while cleaning up", e);
-                    }
-                }
-            }
+            cleanup();
         }
 
     }
 
-    protected void log(Object o) throws Throwable {
-        if (printXML) {
-            // OutputStream os = new ByteArrayOutputStream();
-            // BurlapOutput out = new BurlapOutput(os);
-            // out.writeObject(o);
-            // byte[] b = ((ByteArrayOutputStream)os).toByteArray();
-            // os.close();
-            // log.info(new String(b));
-            log.warn("PrintXML is disabled");
+    protected void cleanup() {
+        Set<RegisterServiceCleanupMessage> cleanups = cd.emptyCleanups();
+        for (RegisterServiceCleanupMessage registerServiceCleanupMessage : cleanups) {
+            try {
+                log.info("Cleanup:" + registerServiceCleanupMessage.resource);
+                registerServiceCleanupMessage.close();
+            } catch (Exception e) {
+                log.warn("Error while cleaning up", e);
+            }
         }
     }
 

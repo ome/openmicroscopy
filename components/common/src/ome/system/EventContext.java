@@ -12,6 +12,7 @@ import java.util.List;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.model.internal.Permissions;
 
 /**
  * manages authenticated principals and other context for a given event. Just as
@@ -53,5 +54,7 @@ public interface EventContext {
     List<Long> getMemberOfGroupsList();
 
     List<Long> getLeaderOfGroupsList();
+
+    Permissions getCurrentUmask();
 
 }

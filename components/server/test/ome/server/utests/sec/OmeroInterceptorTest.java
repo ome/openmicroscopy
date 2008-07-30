@@ -6,6 +6,7 @@
  */
 package ome.server.utests.sec;
 
+import ome.security.SystemTypes;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.OmeroInterceptor;
 import ome.services.sessions.SessionManager;
@@ -27,6 +28,7 @@ public class OmeroInterceptorTest extends MockObjectTestCase {
         MockServiceFactory sf = new MockServiceFactory();
         SessionManager sm = (SessionManager) mock(SessionManager.class).proxy();
         BasicSecuritySystem sec = BasicSecuritySystem.selfConfigure(sm, sf);
+        oi = new OmeroInterceptor(new SystemTypes(), null, null, null);
     }
 
     // ~ TESTS

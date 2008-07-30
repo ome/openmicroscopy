@@ -20,15 +20,15 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Responsible for logging users in and out via the {@link Principal} before and
  * after the actual invocation of OMERO methods.
- *
+ * 
  * This class is the only {@link HardWiredInterceptor} which is hard-wired by
  * default into OMERO classes. This permits simple start-up without the need for
  * the ant build, which may replace the hard-wired value with a more extensive
  * list of {@link HardWiredInterceptor} instances.
- *
+ * 
  * Note: any internal "client" will have to handle logging in and out with an
  * appropriate {@link Principal}.
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
@@ -39,9 +39,10 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
     protected SecuritySystem securitySystem;
 
     protected MethodSecurity methodSecurity;
+
     /**
      * Lookup name.
-     *
+     * 
      * @DEV.TODO This should be replaced by a components concept
      */
     @Override
@@ -69,9 +70,7 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
     public Object invoke(MethodInvocation mi) throws Throwable {
 
         if (methodSecurity.isActive()) {
-            methodSecurity.checkMethod(
-                    mi.getThis(),
-                    mi.getMethod(),
+            methodSecurity.checkMethod(mi.getThis(), mi.getMethod(),
                     getPrincipal(mi));
         }
         try {
@@ -85,14 +84,14 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
     private void login(MethodInvocation mi) {
 
         Principal p = getPrincipal(mi);
-        if (p != null) {
-            securitySystem.login(p);
-            if (log.isDebugEnabled()) {
-                log.debug("Running with user: " + p.getName());
-            }
-        } else {
+        if (p == null) {
             throw new ApiUsageException(
                     "ome.system.Principal instance must be provided on login.");
+        }
+
+        securitySystem.login(p);
+        if (log.isDebugEnabled()) {
+            log.debug("Running with user: " + p.getName());
         }
 
     }

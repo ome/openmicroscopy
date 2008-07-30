@@ -6,15 +6,15 @@
  */
 package ome.io.nio.utests;
 
-import org.testng.annotations.*;
+import junit.framework.TestCase;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.util.PathUtil;
 
-import java.util.Properties;
-import junit.framework.TestCase;
+import org.testng.annotations.Configuration;
+import org.testng.annotations.Test;
 
 public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
     private Pixels pixels;
@@ -22,19 +22,19 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
     private PixelBuffer pixelBuffer;
 
     private PixelsService service;
-	
-	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
-    
-	@Override
+
+    private static final String ROOT = PathUtil.getInstance().getDataFilePath();
+
+    @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() {
         pixels = new Pixels();
         pixels.setId(1234567890123L);
-        pixels.setSizeX(256);
-        pixels.setSizeY(256);
-        pixels.setSizeZ(64);
-        pixels.setSizeC(3);
-        pixels.setSizeT(50);
+        pixels.setSizeX(4);
+        pixels.setSizeY(4);
+        pixels.setSizeZ(3);
+        pixels.setSizeC(2);
+        pixels.setSizeT(1);
 
         PixelsType type = new PixelsType();
         type.setValue("uint16");

@@ -24,11 +24,15 @@ public class DisablingTest extends AbstractManagedContextTest {
         loadSucceeds();
     }
 
+    /**
+     * As of the changes for IShare, this no longer holds true. Only logging out
+     * or invalidating the event context will reset the disabled flag.
+     */
     @Test
-    public void testGetsReset() throws Exception {
+    public void testDoesntGetsReset() throws Exception {
         securitySystem.disable("load");
         loadFails(); // this implicitly resets
-        assertFalse(securitySystem.isDisabled("load"));
+        assertTrue(securitySystem.isDisabled("load"));
     }
 
     // ~ Helpers

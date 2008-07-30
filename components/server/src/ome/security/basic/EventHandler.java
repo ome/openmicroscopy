@@ -7,6 +7,7 @@
 package ome.security.basic;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +43,7 @@ import org.springframework.util.Assert;
  * After the method is
  * {@link MethodInterceptor#invoke(MethodInvocation) invoked} various cleanup
  * actions are performed and finally all credentials all
- * {@link BasicSecuritySystem#clearEventContext() cleared} from the
+ * {@link BasicSecuritySystem#invalidateEventContext() cleared} from the
  * {@link Thread}.
  * 
  * 
@@ -111,11 +112,6 @@ public class EventHandler implements MethodInterceptor {
             ht.execute(new EnableFilterAction(secSys));
             retVal = arg0.proceed();
             saveLogs();
-            // Calling clearLogs posits that these EventLogs were successfully
-            // saved, and so this method may raise an event signalling such.
-            // This could eventually be reworked to be fully within the
-            // security system.
-            secSys.clearLogs();
             return retVal;
         } catch (Throwable ex) {
             failure = true;
@@ -149,7 +145,7 @@ public class EventHandler implements MethodInterceptor {
                 }
 
             } finally {
-                secSys.clearEventContext();
+                secSys.invalidateEventContext();
             }
         }
 
@@ -213,8 +209,17 @@ public class EventHandler implements MethodInterceptor {
         return false;
     }
 
+    /**
+     * Calling clearLogs posits that these EventLogs were successfully saved,
+     * and so this method may raise an event signalling such. This could
+     * eventually be reworked to be fully within the security system.
+     */
     void saveLogs() {
-        final List<EventLog> logs = secSys.getLogs();
+
+        // Grabbing a copy to prevent ConcurrentModificationEx
+        final List<EventLog> logs = new ArrayList<EventLog>(secSys.getLogs());
+        secSys.clearLogs();
+
         if (logs == null || logs.size() == 0) {
             return; // EARLY EXIT
         }
@@ -234,6 +239,10 @@ public class EventHandler implements MethodInterceptor {
                 return null;
             }
         });
+
+        if (secSys.getLogs().size() > 0) {
+            throw new InternalException("More logs present after saveLogs()");
+        }
 
     }
 

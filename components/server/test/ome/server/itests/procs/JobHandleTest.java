@@ -52,7 +52,7 @@ public class JobHandleTest extends TestCase {
         fixture = new ManagedContextFixture();
         sf = fixture.sf;
         mgr = new PManager(new P(sf.getQueryService()), fixture.mgr,
-                fixture.sec, fixture.ex);
+                fixture.security, fixture.ex);
         JobBean bean = (JobBean) fixture.ctx
                 .getBean("internal-ome.api.JobHandle");
         Field pm = bean.getClass().getDeclaredField("pm");

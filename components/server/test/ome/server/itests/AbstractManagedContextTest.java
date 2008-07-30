@@ -30,11 +30,13 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
+import ome.security.basic.PrincipalHolder;
 import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.testing.InterceptingServiceFactory;
 import ome.testing.OMEData;
 
 import org.springframework.context.ConfigurableApplicationContext;
@@ -63,6 +65,8 @@ public class AbstractManagedContextTest extends
     }
 
     // =========================================================================
+
+    protected LoginInterceptor loginAop;
 
     protected ServiceFactory factory;
 
@@ -96,6 +100,8 @@ public class AbstractManagedContextTest extends
 
     protected Roles roles;
 
+    protected PrincipalHolder holder;
+
     protected SessionManager sessionManager;
 
     /**
@@ -104,16 +110,6 @@ public class AbstractManagedContextTest extends
     @Override
     protected void onSetUp() throws Exception {
         this.applicationContext = createApplicationContext(null);
-        factory = new ServiceFactory((OmeroContext) applicationContext);
-        iQuery = (LocalQuery) factory.getQueryService();
-        iUpdate = (LocalUpdate) factory.getUpdateService();
-        iAdmin = (LocalAdmin) factory.getAdminService();
-        iLdap = (LocalLdap) factory.getLdapService();
-        iAnalysis = factory.getAnalysisService();
-        iConfig = factory.getConfigService();
-        iPojos = factory.getPojosService();
-        iPixels = factory.getPixelsService();
-        iSession = factory.getSessionService();
 
         DataSource dataSource = (DataSource) applicationContext
                 .getBean("dataSource");
@@ -134,8 +130,25 @@ public class AbstractManagedContextTest extends
         securitySystem = (SecuritySystem) applicationContext
                 .getBean("securitySystem");
         roles = securitySystem.getSecurityRoles();
+        holder = (PrincipalHolder) applicationContext
+                .getBean("principalHolder");
         sessionManager = (SessionManager) applicationContext
                 .getBean("sessionManager");
+
+        // Service setup
+        loginAop = new LoginInterceptor(holder);
+        factory = new ServiceFactory((OmeroContext) applicationContext);
+        factory = new InterceptingServiceFactory(factory, loginAop);
+        iQuery = (LocalQuery) factory.getQueryService();
+        iUpdate = (LocalUpdate) factory.getUpdateService();
+        iAdmin = (LocalAdmin) factory.getAdminService();
+        iLdap = (LocalLdap) factory.getLdapService();
+        iAnalysis = factory.getAnalysisService();
+        iConfig = factory.getConfigService();
+        iPojos = factory.getPojosService();
+        iPixels = factory.getPixelsService();
+        iSession = factory.getSessionService();
+
         loginRoot();
 
     }
@@ -179,9 +192,8 @@ public class AbstractManagedContextTest extends
             String eventType) {
         Principal p = new Principal(userName, groupName, eventType);
         Session s = sessionManager.create(p);
-        p = new Principal(s.getUuid(), groupName, eventType);
-        securitySystem.login(p);
-        return p;
+        loginAop.p = new Principal(s.getUuid(), groupName, eventType);
+        return loginAop.p;
     }
 
     protected String uuid() {
@@ -217,7 +229,9 @@ public class AbstractManagedContextTest extends
                     });
             return pixels.get(0);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return null;
+            // throw new RuntimeException(e);
+            // TEMPORARY WORKAROUND
         }
     }
 

@@ -43,7 +43,6 @@ import ome.model.meta.Share;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
 import ome.security.SecureAction;
-import ome.security.SecuritySystemHolder;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sharing.data.Obj;
@@ -89,8 +88,6 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     final protected ShareStore store;
 
-    final protected SecuritySystemHolder holder;
-
     abstract class SecureShare implements SecureAction {
 
         public final <T extends IObject> T updateObject(T... objs) {
@@ -121,12 +118,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         return IShare.class;
     }
 
-    public ShareBean(LocalAdmin admin, SessionManager mgr, ShareStore store,
-            SecuritySystemHolder holder) {
+    public ShareBean(LocalAdmin admin, SessionManager mgr, ShareStore store) {
         this.admin = admin;
         this.sessionManager = mgr;
         this.store = store;
-        this.holder = holder;
     }
 
     // ~ Service Methods
@@ -134,10 +129,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public void activate(long shareId) {
-        EventContext ec = this.admin.getEventContext();
-        String uuid = ec.getCurrentSessionUuid();
-        long sessionId = ec.getCurrentSessionId();
+
+        EventContext ec = admin.getEventContext();
         long userId = ec.getCurrentUserId();
+        String sessId = ec.getCurrentSessionUuid();
 
         // Check status of the store
         ShareData data = store.get(shareId);
@@ -150,14 +145,14 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         }
 
         // Check if current user is a member
-        if (!data.members.contains(userId)) {
+        if (data.owner != userId && !data.members.contains(userId)) {
             throw new SecurityViolation("User " + userId
-                    + " is not a member of share " + shareId);
+                    + " is not a member or owner of share " + shareId);
         }
 
         // Ok, set share
         SessionContext sc = (SessionContext) sessionManager
-                .getEventContext(new Principal(uuid));
+                .getEventContext(new Principal(sessId));
         sc.setShareId(shareId);
     }
 
@@ -337,6 +332,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
         ShareData data = store.get(shareId);
         for (T object : objects) {
             List<Long> ids = data.objectMap.get(object.getClass().getName());
+            if (ids == null) {
+                ids = new ArrayList<Long>();
+                data.objectMap.put(object.getClass().getName(), ids);
+            }
             ids.add(object.getId());
             Obj obj = new Obj();
             obj.type = object.getClass().getName();
@@ -349,6 +348,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     private void store(long shareId, ShareData data) {
         Share share = iQuery.get(Share.class, shareId);
         this.sec.doAction(new SecureStore(data), share);
+        adminFlush();
     }
 
     @RolesAllowed("user")

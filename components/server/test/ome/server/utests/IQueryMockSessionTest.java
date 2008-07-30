@@ -16,6 +16,7 @@ import ome.logic.QueryImpl;
 import ome.model.IObject;
 import ome.model.containers.Project;
 import ome.parameters.Filter;
+import ome.security.basic.CurrentDetails;
 import ome.services.util.ServiceHandler;
 
 import org.hibernate.Criteria;
@@ -50,7 +51,7 @@ public class IQueryMockSessionTest extends MockObjectTestCase {
         super.setUp();
         impl = new QueryImpl();
         ProxyFactory pf = new ProxyFactory(impl);
-        ServiceHandler serviceHandler = new ServiceHandler();
+        ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
         pf.addAdvice(serviceHandler);
         iQuery = (IQuery) pf.getProxy();
         createMocks();

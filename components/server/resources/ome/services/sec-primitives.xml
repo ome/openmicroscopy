@@ -25,10 +25,9 @@
   </description>
 
   <bean id="currentDetails" class="ome.security.basic.CurrentDetails"/>
+  <alias name="currentDetails" alias="principalHolder"/>
 
   <bean id="internalServiceFactory" class="ome.tools.spring.InternalServiceFactory"/>
-
-  <bean id="principalHolder" class="ome.security.basic.PrincipalHolder"/>
 
   <bean id="roles" class="ome.system.Roles"/>
 
@@ -87,7 +86,6 @@
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="tokenHolder"/>
-    <constructor-arg ref="principalHolder"/>
     <constructor-arg ref="extendedMetadata"/>
   </bean>
 

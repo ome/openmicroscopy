@@ -77,21 +77,16 @@ public class OmeroInterceptor implements Interceptor {
 
     private final CurrentDetails currentUser;
 
-    private final PrincipalHolder principalHolder;
-
     private final TokenHolder tokenHolder;
 
     private final ExtendedMetadata em;
 
     public OmeroInterceptor(SystemTypes sysTypes, ExtendedMetadata em,
-            CurrentDetails cd, TokenHolder tokenHolder,
-            PrincipalHolder principalHolder) {
-        Assert.notNull(principalHolder);
+            CurrentDetails cd, TokenHolder tokenHolder) {
         Assert.notNull(tokenHolder);
         Assert.notNull(sysTypes);
         Assert.notNull(em);
         Assert.notNull(cd);
-        this.principalHolder = principalHolder;
         this.tokenHolder = tokenHolder;
         this.sysTypes = sysTypes;
         this.currentUser = cd;
@@ -435,7 +430,7 @@ public class OmeroInterceptor implements Interceptor {
             // users are only allowed to set to another of their groups
             if (source.getGroup() != null && source.getGroup().getId() != null) {
                 // users can change to their own group
-                if (currentUser.getMemberOfGroups().contains(
+                if (currentUser.getMemberOfGroupsList().contains(
                         source.getGroup().getId())) {
                     newDetails.setGroup(source.getGroup());
                 }
@@ -835,7 +830,7 @@ public class OmeroInterceptor implements Interceptor {
             // or if the entity has been marked as privileged, then use the
             // current group.
             // TODO refactor
-            else if (currentUser.getMemberOfGroups().contains(
+            else if (currentUser.getMemberOfGroupsList().contains(
                     currentDetails.getGroup().getId())
                     || currentUser.isAdmin() || privileged) {
                 newDetails.setGroup(currentDetails.getGroup());
@@ -973,7 +968,7 @@ public class OmeroInterceptor implements Interceptor {
      * transient details should have the umask applied to them if soft.
      */
     void applyUmaskIfNecessary(Details d) {
-        Principal pr = principalHolder.getLast();
+        Principal pr = currentUser.getLast();
         Permissions p = d.getPermissions();
         if (p.isSet(Flag.SOFT)) {
             if (pr.hasUmask()) {

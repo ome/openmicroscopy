@@ -102,16 +102,16 @@ public class SharingTest extends AbstractManagedContextTest {
 
         share.addUser(id, secondMember);
 
-        assertEquals(0, share.getSharesOwnedBy(owner, true).size());
-        assertEquals(1, share.getMemberSharesFor(owner, true).size());
+        assertEquals(1, share.getSharesOwnedBy(owner, true).size());
+        assertEquals(0, share.getMemberSharesFor(owner, true).size());
         assertEquals(0, share.getSharesOwnedBy(firstMember, true).size());
         assertEquals(1, share.getMemberSharesFor(firstMember, true).size());
         assertEquals(0, share.getSharesOwnedBy(secondMember, true).size());
         assertEquals(1, share.getMemberSharesFor(secondMember, true).size());
         assertEquals(0, share.getSharesOwnedBy(nonMember, true).size());
         assertEquals(0, share.getMemberSharesFor(nonMember, true).size());
-        assertTrue(share.getAllMembers(id).contains(firstMember.getId()));
-        assertTrue(share.getAllMembers(id).contains(secondMember.getId()));
+        foundFirst = false;
+        foundSecond = false;
         for (Experimenter e : share.getAllMembers(id)) {
             if (e.getId().equals(firstMember.getId())) {
                 foundFirst = true;
@@ -124,19 +124,19 @@ public class SharingTest extends AbstractManagedContextTest {
 
         // Guests
 
-        assertEquals(2, share.getAllGuests(id));
+        assertEquals(2, share.getAllGuests(id).size());
         assertTrue(share.getAllGuests(id).contains(firstGuest));
         assertTrue(share.getAllGuests(id).contains(secondGuest));
 
         share.removeGuest(id, secondGuest);
 
-        assertEquals(1, share.getAllGuests(id));
+        assertEquals(1, share.getAllGuests(id).size());
         assertTrue(share.getAllGuests(id).contains(firstGuest));
         assertFalse(share.getAllGuests(id).contains(secondGuest));
 
         share.addGuest(id, secondGuest);
 
-        assertEquals(2, share.getAllGuests(id));
+        assertEquals(2, share.getAllGuests(id).size());
         assertTrue(share.getAllGuests(id).contains(firstGuest));
         assertTrue(share.getAllGuests(id).contains(secondGuest));
 
@@ -151,7 +151,27 @@ public class SharingTest extends AbstractManagedContextTest {
     }
 
     @Test
-    public void testOnlyMembersAndGuestsCanActivateShare() {
+    public void testElementFunctions() {
+
+        Experimenter owner = loginNewUser();
+        Dataset d = new Dataset("elements");
+        d = iUpdate.saveAndReturnObject(d);
+        long id = share.createShare("another description", null, null, null,
+                null, true);
+
+        assertEquals(0, share.getContentSize(id));
+        assertEquals(0, share.getContents(id).size());
+        assertEquals(0, share.getContentSubList(id, 0, 0).size());
+        assertEquals(0, share.getContentMap(id).size());
+        share.addObjects(id, d);
+        assertEquals(1, share.getContentSize(id));
+        assertEquals(1, share.getContents(id).size());
+        assertEquals(1, share.getContentSubList(id, 0, 1).size());
+        assertEquals(1, share.getContentMap(id).size());
+    }
+
+    @Test
+    public void testOnlyOwnerMembersAndGuestsCanActivateShare() {
 
         Experimenter nonMember = loginNewUser();
         Experimenter member = loginNewUser();
@@ -192,7 +212,7 @@ public class SharingTest extends AbstractManagedContextTest {
     public void testShareCreationAndViewing() {
 
         // New user who should be able to see the share.
-        Experimenter e = loginNewUser();
+        Experimenter member = loginNewUser();
 
         loginRoot();
         Dataset d = new Dataset("Dataset for share");
@@ -200,12 +220,12 @@ public class SharingTest extends AbstractManagedContextTest {
         d = iUpdate.saveAndReturnObject(d);
 
         long id = share.createShare("description", null, Collections
-                .singletonList(d), null, null, true);
+                .singletonList(d), Collections.singletonList(member), null,
+                true);
 
-        loginUser(e.getOmeName());
+        loginUser(member.getOmeName());
         share.activate(id);
         iQuery.get(Dataset.class, d.getId());
-
     }
 
     @Test

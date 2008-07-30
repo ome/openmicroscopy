@@ -2411,7 +2411,12 @@ public class SearchTest extends AbstractTest {
         search.byFullText("root");
         search.hasNext();
         Search internal = search;
+        int count = 0;
         while (internal instanceof Advised) {
+            count++;
+            if (count > 100) {
+                throw new RuntimeException("Something's funky");
+            }
             internal = (Search) ((Advised) search).getTargetSource()
                     .getTarget();
         }

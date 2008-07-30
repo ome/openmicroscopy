@@ -19,6 +19,7 @@ import ome.logic.PojosImpl;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
+import ome.security.basic.CurrentDetails;
 import ome.services.util.ServiceHandler;
 import ome.util.builders.PojoOptions;
 
@@ -44,7 +45,7 @@ public class PojosConstraintsTest extends MockObjectTestCase {
         super.setUp();
         impl = new PojosImpl();
         ProxyFactory factory = new ProxyFactory(impl);
-        ServiceHandler serviceHandler = new ServiceHandler();
+        ServiceHandler serviceHandler = new ServiceHandler(new CurrentDetails());
         factory.addAdvice(serviceHandler);
         manager = (IPojos) factory.getProxy();
     }

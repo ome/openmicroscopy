@@ -22,6 +22,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import Ice.ReadObjectCallback;
+
 /**
  * Entry to the Ice code generated data/ directory. Subclasess of
  * {@link ShareStore} know how to efficiently store and look up
@@ -62,6 +64,44 @@ public abstract class ShareStore {
     public void update(Share share, ShareData data) {
         List<ShareItem> shareItems = asItems(data);
         doSet(share, data, shareItems);
+    }
+
+    // Parsing
+    // =========================================================================
+
+    public final byte[] parse(ShareData data) {
+        Ice.OutputStream os = Ice.Util.createOutputStream(ic);
+        byte[] bytes = null;
+        try {
+            os.writeObject(data);
+            os.writePendingObjects();
+            bytes = os.finished();
+        } finally {
+            os.destroy();
+        }
+        return bytes;
+    }
+
+    public final ShareData parse(byte[] data) {
+
+        if (data == null) {
+            return null; // EARLY EXIT!
+        }
+
+        Ice.InputStream is = Ice.Util.createInputStream(ic, data);
+        final ShareData[] shareData = new ShareData[1];
+        try {
+            is.readObject(new ReadObjectCallback() {
+
+                public void invoke(Ice.Object arg0) {
+                    shareData[0] = (ShareData) arg0;
+                }
+            });
+            is.readPendingObjects();
+        } finally {
+            is.destroy();
+        }
+        return shareData[0];
     }
 
     // Template methods

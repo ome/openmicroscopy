@@ -64,13 +64,36 @@ public interface SecuritySystem {
      */
     int logout();
 
+    /**
+     * Returns the current {@link EventContext}. This
+     * 
+     * @return
+     */
+    EventContext getEventContext();
+
+    /**
+     * Prepares the current {@link EventContext} instance with the current
+     * {@link Principal}. An exception is thrown if there is none.
+     * 
+     * @param isReadyOnly
+     */
     void loadEventContext(boolean isReadyOnly);
 
+    /**
+     * Replace sthe current {@link EventContext} with the given argument. An
+     * exception is thrown if there is no current instance, i.e.
+     * {@link #login(Principal)} has not been called.
+     * 
+     * @param context
+     */
     void setEventContext(EventContext context);
 
-    void clearEventContext();
-
-    boolean isEmptyEventContext();
+    /**
+     * Clears the content of the {@link EventContext}so that the
+     * {@link SecuritySystem} will no longer return true for {@link #isReady()}.
+     * The {@link Principal} set during {@link #login(Principal)} is retained.
+     */
+    void invalidateEventContext();
 
     // ~ Checks
     // =========================================================================
@@ -216,7 +239,5 @@ public interface SecuritySystem {
     // ~ Configured Elements
     // =========================================================================
     Roles getSecurityRoles();
-
-    EventContext getEventContext();
 
 }

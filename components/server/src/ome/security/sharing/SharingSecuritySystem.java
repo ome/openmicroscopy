@@ -50,7 +50,7 @@ public class SharingSecuritySystem implements SecuritySystem {
         return null;
     }
 
-    public void clearEventContext() {
+    public void invalidateEventContext() {
         // TODO Auto-generated method stub
 
     }

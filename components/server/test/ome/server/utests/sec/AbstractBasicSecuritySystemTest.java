@@ -23,7 +23,6 @@ import ome.security.basic.BasicACLVoter;
 import ome.security.basic.BasicSecuritySystem;
 import ome.security.basic.CurrentDetails;
 import ome.security.basic.OmeroInterceptor;
-import ome.security.basic.PrincipalHolder;
 import ome.security.basic.TokenHolder;
 import ome.services.sessions.SessionManager;
 import ome.system.EventContext;
@@ -65,6 +64,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
 
     List<Long> leaderOfGroups, memberOfGroups;
 
+    CurrentDetails cd;
+
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
@@ -80,14 +81,13 @@ public abstract class AbstractBasicSecuritySystemTest extends
         mockMgr = mock(SessionManager.class);
         mgr = (SessionManager) mockMgr.proxy();
 
-        CurrentDetails cd = new CurrentDetails();
+        cd = new CurrentDetails();
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
-        PrincipalHolder ph = new PrincipalHolder();
         OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
-                cd, th, ph);
+                cd, th);
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
-                new TokenHolder(), ph);
+                new TokenHolder());
         aclVoter = new BasicACLVoter(cd, st, th);
     }
 
@@ -106,6 +106,8 @@ public abstract class AbstractBasicSecuritySystemTest extends
         leaderOfGroups = Collections.singletonList(1L);
         memberOfGroups = Collections.singletonList(1L);
 
+        mockEc.expects(atLeastOnce()).method("getCurrentShareId").will(
+                returnValue(null));
         mockEc.expects(atLeastOnce()).method("getCurrentSessionId").will(
                 returnValue(1L));
         mockEc.expects(atLeastOnce()).method("getCurrentUserId").will(
@@ -171,7 +173,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
     @Configuration(afterTestMethod = true)
     protected void tearDown() throws Exception {
         super.verify();
-        sec.clearEventContext();
+        sec.invalidateEventContext();
         super.tearDown();
     }
 

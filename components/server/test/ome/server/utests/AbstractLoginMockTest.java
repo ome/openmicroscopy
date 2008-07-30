@@ -166,7 +166,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
     protected void tearDown() throws Exception {
         super.verify();
         super.tearDown();
-        sec.clearEventContext();
+        sec.invalidateEventContext();
     }
 
     // ~ Protected helpers

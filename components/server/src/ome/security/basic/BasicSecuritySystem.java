@@ -9,7 +9,6 @@ package ome.security.basic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import ome.annotations.RevisionDate;
@@ -78,8 +77,6 @@ public class BasicSecuritySystem implements SecuritySystem {
 
     protected final TokenHolder tokenHolder;
 
-    protected final PrincipalHolder principalHolder;
-
     protected final Roles roles;
 
     protected final SessionManager sessionManager;
@@ -95,11 +92,10 @@ public class BasicSecuritySystem implements SecuritySystem {
         CurrentDetails cd = new CurrentDetails();
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
-        PrincipalHolder ph = new PrincipalHolder();
         OmeroInterceptor oi = new OmeroInterceptor(st, new ExtendedMetadata(),
-                cd, th, ph);
+                cd, th);
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
-                new Roles(), sf, new TokenHolder(), ph);
+                new Roles(), sf, new TokenHolder());
         return sec;
     }
 
@@ -109,8 +105,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     public BasicSecuritySystem(OmeroInterceptor interceptor,
             SystemTypes sysTypes, CurrentDetails cd,
             SessionManager sessionManager, Roles roles, ServiceFactory sf,
-            TokenHolder tokenHolder, PrincipalHolder principalHolder) {
-        this.principalHolder = principalHolder;
+            TokenHolder tokenHolder) {
         this.sessionManager = sessionManager;
         this.tokenHolder = tokenHolder;
         this.interceptor = interceptor;
@@ -124,11 +119,11 @@ public class BasicSecuritySystem implements SecuritySystem {
     // =========================================================================
 
     public void login(Principal principal) {
-        principalHolder.login(principal);
+        cd.login(principal);
     }
 
     public int logout() {
-        return principalHolder.logout();
+        return cd.logout();
     }
 
     // ~ Checks
@@ -194,13 +189,15 @@ public class BasicSecuritySystem implements SecuritySystem {
         checkReady("enableReadFilter");
         // beware
         // http://opensource.atlassian.com/projects/hibernate/browse/HHH-1932
+        EventContext ec = getEventContext();
         Session sess = (Session) session;
         sess.enableFilter(SecurityFilter.filterName).setParameter(
-                SecurityFilter.is_admin, currentUserIsAdmin()).setParameter(
-                SecurityFilter.current_user, currentUserId()).setParameterList(
-                SecurityFilter.current_groups, memberOfGroups())
-                .setParameterList(SecurityFilter.leader_of_groups,
-                        leaderOfGroups());
+                SecurityFilter.is_admin, ec.isCurrentUserAdmin()).setParameter(
+                SecurityFilter.current_user, ec.getCurrentUserId())
+                .setParameterList(SecurityFilter.current_groups,
+                        ec.getMemberOfGroupsList()).setParameterList(
+                        SecurityFilter.leader_of_groups,
+                        ec.getLeaderOfGroupsList());
     }
 
     /**
@@ -275,11 +272,8 @@ public class BasicSecuritySystem implements SecuritySystem {
         final EventContext ec = sessionManager.getEventContext(p);
 
         // start refilling current details
-        cd.setShareId(ec.getCurrentShareId());
+        cd.copy(ec);
         cd.setReadOnly(isReadOnly);
-
-        cd.setMemberOfGroups(ec.getMemberOfGroupsList());
-        cd.setLeaderOfGroups(ec.getLeaderOfGroupsList());
 
         // Experimenter
         Experimenter exp;
@@ -321,7 +315,7 @@ public class BasicSecuritySystem implements SecuritySystem {
         tokenHolder.setToken(type.getGraphHolder());
         cd.newEvent(ec.getCurrentSessionId().longValue(), type, tokenHolder);
 
-        Event event = getCurrentEvent();
+        Event event = cd.getCreationEvent();
         tokenHolder.setToken(event.getGraphHolder());
 
         // If this event is not read only, then lets save this event to prevent
@@ -353,7 +347,10 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         if (p.getName().equals(u_name) && p.getGroup().equals(g_name)
                 && p.getEventType().equals(t_name)) {
-            cd.setCurrentEventContext(bec);
+            // In this case we want to pop off the previous context and
+            // add the new one.
+            cd.logout();
+            cd.login(bec);
         }
 
         else {
@@ -365,15 +362,16 @@ public class BasicSecuritySystem implements SecuritySystem {
     }
 
     private Principal clearAndCheckPrincipal() {
-        // clear even if this fails. (make SecuritySystem unusable)
-        clearEventContext();
 
-        if (principalHolder.size() == 0) {
+        // clear even if this fails. (make SecuritySystem unusable)
+        invalidateEventContext();
+
+        if (cd.size() == 0) {
             throw new SecurityViolation(
                     "Principal is null. Not logged in to SecuritySystem.");
         }
 
-        final Principal p = principalHolder.getLast();
+        final Principal p = cd.getLast();
 
         if (p.getName() == null) {
             throw new InternalException(
@@ -443,71 +441,11 @@ public class BasicSecuritySystem implements SecuritySystem {
         cd.clearLogs();
     }
 
-    public void clearEventContext() {
+    public void invalidateEventContext() {
         if (log.isDebugEnabled()) {
-            log.debug("Clearing EventContext.");
+            log.debug("Invalidating current EventContext.");
         }
-
-        cd.clear();
-    }
-
-    // read-only ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    /**
-     * @see SecuritySystem#isEmptyEventContext()
-     */
-    public boolean isEmptyEventContext() {
-        EventContext ctx = cd.getCurrentEventContext();
-        // These are the only values which can be null checked in
-        // EventContext. Others (like leaderOfGroups) are never null.
-        return ctx.getCurrentEventId() == null
-                && ctx.getCurrentGroupId() == null
-                && ctx.getCurrentUserId() == null;
-    }
-
-    public Long currentUserId() {
-        checkReady("currentUserId");
-        return cd.getOwner().getId();
-    }
-
-    public Long currentGroupId() {
-        checkReady("currentGroupId");
-        return cd.getGroup().getId();
-    }
-
-    public Collection<Long> leaderOfGroups() {
-        checkReady("leaderOfGroups");
-        return cd.getLeaderOfGroups();
-    }
-
-    public Collection<Long> memberOfGroups() {
-        checkReady("memberOfGroups");
-        return cd.getMemberOfGroups();
-    }
-
-    public Experimenter currentUser() {
-        checkReady("currentUser");
-        return cd.getOwner();
-    }
-
-    public ExperimenterGroup currentGroup() {
-        checkReady("currentGroup");
-        return cd.getGroup();
-    }
-
-    public Event currentEvent() {
-        checkReady("currentEvent");
-        return cd.getCreationEvent();
-    }
-
-    public Event getCurrentEvent() {
-        checkReady("getCurrentEvent");
-        return cd.getCreationEvent();
-    }
-
-    public boolean currentUserIsAdmin() {
-        checkReady("currentUserIsAdmin");
-        return cd.isAdmin();
+        cd.invalidateCurrentEventContext();
     }
 
     // ~ Tokens & Actions
@@ -574,6 +512,10 @@ public class BasicSecuritySystem implements SecuritySystem {
      */
     public void runAsAdmin(final AdminAction action) {
         Assert.notNull(action);
+
+        // Need to check here so that no exception is thrown
+        // during the try block below
+        checkReady("runAsAdmin");
 
         final LocalQuery query = (LocalQuery) sf.getQueryService();
         query.execute(new HibernateCallback() {

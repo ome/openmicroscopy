@@ -26,8 +26,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.util.Assert;
 
-import Ice.ReadObjectCallback;
-
 /**
  * 
  * 
@@ -74,15 +72,6 @@ public class BlobShareStore extends ShareStore {
 
     @Override
     public void doSet(Share share, ShareData data, List<ShareItem> items) {
-        Ice.OutputStream os = Ice.Util.createOutputStream(ic);
-        byte[] bytes = null;
-        try {
-            os.writeObject(data);
-            os.writePendingObjects();
-            bytes = os.finished();
-        } finally {
-            os.destroy();
-        }
 
         long oldOptLock = data.optlock;
         long newOptLock = oldOptLock + 1;
@@ -95,11 +84,12 @@ public class BlobShareStore extends ShareStore {
             throw new OptimisticLockException("Share " + data.id
                     + " has been updated by someone else.");
         }
-
+        data.optlock = newOptLock;
+        share.setData(parse(data));
         share.setActive(data.enabled);
-        share.setData(bytes);
         share.setItemCount((long) items.size());
         share.setVersion((int) newOptLock);
+        byte[] bytes = parse(data);
         ht.merge(share);
 
     }
@@ -186,28 +176,6 @@ public class BlobShareStore extends ShareStore {
 
     // Helpers
     // =========================================================================
-
-    private ShareData parse(byte[] data) {
-
-        if (data == null) {
-            return null; // EARLY EXIT!
-        }
-
-        Ice.InputStream is = Ice.Util.createInputStream(ic, data);
-        final ShareData[] shareData = new ShareData[1];
-        try {
-            is.readObject(new ReadObjectCallback() {
-
-                public void invoke(Ice.Object arg0) {
-                    shareData[0] = (ShareData) arg0;
-                }
-            });
-            is.readPendingObjects();
-        } finally {
-            is.destroy();
-        }
-        return shareData[0];
-    }
 
     /**
      * Returns a list of data from all shares.

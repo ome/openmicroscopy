@@ -12,11 +12,13 @@ import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
+import ome.security.basic.PrincipalHolder;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
-import ome.tools.spring.ManagedServiceFactory;
+import ome.system.ServiceFactory;
+import ome.testing.InterceptingServiceFactory;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -27,12 +29,16 @@ public class ManagedContextFixture {
     public OmeroContext ctx = OmeroContext.getManagedServerContext();
     public SessionManager mgr = (SessionManager) ctx.getBean("sessionManager");
     public Executor ex = (Executor) ctx.getBean("executor");
-    public ManagedServiceFactory sf = new ManagedServiceFactory();
-    public SecuritySystem sec;
+    public ServiceFactory sf = new ServiceFactory(ctx);
+    public SecuritySystem security;
+    public PrincipalHolder holder;
+    public LoginInterceptor login;
 
     public ManagedContextFixture() {
-        sf.setApplicationContext(ctx);
-        sec = (SecuritySystem) sf.getContext().getBean("securitySystem");
+        security = (SecuritySystem) ctx.getBean("securitySystem");
+        holder = (PrincipalHolder) ctx.getBean("principalHolder");
+        login = new LoginInterceptor(holder);
+        sf = new InterceptingServiceFactory(sf, login);
         setCurrentUser("root");
         String user = newUser();
         setCurrentUser(user);
@@ -40,7 +46,6 @@ public class ManagedContextFixture {
 
     protected void tearDown() throws Exception {
         sf = null;
-        sec.logout();
         ctx.close();
     }
 
@@ -68,6 +73,6 @@ public class ManagedContextFixture {
         Principal p = new Principal(user, "user", "Test");
         Session s = mgr.create(p);
         p = new Principal(s.getUuid(), "user", "Test");
-        sec.login(p);
+        login.p = p;
     }
 }

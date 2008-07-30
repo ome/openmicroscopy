@@ -13,6 +13,8 @@ import java.util.List;
 
 import ome.annotations.RevisionDate;
 import ome.annotations.RevisionNumber;
+import ome.model.internal.Permissions;
+import ome.security.SecuritySystem;
 
 // Java imports
 
@@ -33,7 +35,7 @@ import ome.annotations.RevisionNumber;
 @RevisionNumber("$Revision: 1167 $")
 public class SimpleEventContext implements EventContext, Serializable {
 
-    private static final long serialVersionUID = -3918201598642847439L;
+    private static final long serialVersionUID = -3918201598642845539L;
 
     protected Long shareId;
 
@@ -61,6 +63,8 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     protected List<Long> leaderOfGroups;
 
+    protected Permissions umask;
+
     /** Constructor for subclasses */
     protected SimpleEventContext() {
     }
@@ -70,19 +74,35 @@ public class SimpleEventContext implements EventContext, Serializable {
         if (ec == null) {
             throw new IllegalArgumentException("Argument cannot be null.");
         }
-        shareId = ec.getCurrentShareId();
-        csId = ec.getCurrentSessionId();
-        cgId = ec.getCurrentGroupId();
-        cuId = ec.getCurrentUserId();
-        ceId = ec.getCurrentEventId();
-        csName = ec.getCurrentSessionUuid();
-        cgName = ec.getCurrentGroupName();
-        cuName = ec.getCurrentUserName();
-        ceType = ec.getCurrentEventType();
-        isAdmin = ec.isCurrentUserAdmin();
-        isReadOnly = ec.isReadOnly();
-        memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
-        leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
+        copy(ec);
+    }
+
+    /**
+     * Copies all values directly from the given instance into this instance. If
+     * any of {@link #getCurrentEventId()}, {@link #isCurrentUserAdmin()},
+     * {@link #isReadOnly()}, or {@link #getCurrentUmask()} throws an
+     * exception, those fields will remain null assuming that the
+     * {@link SecuritySystem} will reload them later.
+     */
+    protected void copy(EventContext ec) {
+        this.shareId = ec.getCurrentShareId();
+        this.csId = ec.getCurrentSessionId();
+        this.cgId = ec.getCurrentGroupId();
+        this.cuId = ec.getCurrentUserId();
+        this.csName = ec.getCurrentSessionUuid();
+        this.cgName = ec.getCurrentGroupName();
+        this.cuName = ec.getCurrentUserName();
+        this.ceType = ec.getCurrentEventType();
+        this.memberOfGroups = new ArrayList<Long>(ec.getMemberOfGroupsList());
+        this.leaderOfGroups = new ArrayList<Long>(ec.getLeaderOfGroupsList());
+        try {
+            this.isAdmin = ec.isCurrentUserAdmin();
+            this.isReadOnly = ec.isReadOnly();
+            this.umask = ec.getCurrentUmask();
+            this.ceId = ec.getCurrentEventId();
+        } catch (UnsupportedOperationException e) {
+            // ok
+        }
     }
 
     public Long getCurrentShareId() {
@@ -135,5 +155,9 @@ public class SimpleEventContext implements EventContext, Serializable {
 
     public String getCurrentEventType() {
         return ceType;
+    }
+
+    public Permissions getCurrentUmask() {
+        return umask;
     }
 }

@@ -16,7 +16,7 @@ import ome.services.sessions.SessionManager;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.Test;
 
-@Test( groups = "integration")
+@Test(groups = "integration")
 public class MethodSecurityTest extends AbstractManagedContextTest {
 
     BasicMethodSecurity msec;
@@ -24,15 +24,16 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
     @Test(groups = "ticket:645")
     public void testUserRoles() throws Exception {
 
-        SimpleJdbcTemplate jdbc =         (SimpleJdbcTemplate)
-        this.applicationContext.getBean("simpleJdbcTemplate");
+        // Using unsafe here since we are not within a hibernate session
+        SimpleJdbcTemplate jdbc = (SimpleJdbcTemplate) this.applicationContext
+                .getBean("unsafeJdbcTemplate");
 
-        SessionManager mgr = (SessionManager)
-        this.applicationContext.getBean("sessionManager");
+        SessionManager mgr = (SessionManager) this.applicationContext
+                .getBean("sessionManager");
 
         msec = new BasicMethodSecurity();
         msec.setSessionManager(mgr);
-        List<String> roles = PasswordUtil.userGroups(jdbc,"root");
+        List<String> roles = PasswordUtil.userGroups(jdbc, "root");
         assertTrue(roles.size() >= 2);
         boolean found = false;
         for (int i = 0; i < roles.size(); i++) {
@@ -42,7 +43,5 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
         }
         assertTrue(found);
     }
-
-
 
 }

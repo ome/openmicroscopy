@@ -24,7 +24,10 @@
   classes.
   </description>
 
-  <bean id="securitySystem" class="ome.security.SecuritySystemHolder">
+  <!-- Disabled the security system holder for the moment -->
+  <alias name="basicSecuritySystem" alias="securitySystem"/>
+
+  <bean id="securitySystemHolder" class="ome.security.SecuritySystemHolder">
     <constructor-arg ref="basicSecuritySystem"/>
     <constructor-arg ref="sharingSecuritySystem"/>
   </bean>
@@ -40,7 +43,6 @@
     <constructor-arg ref="roles"/>
     <constructor-arg ref="internalServiceFactory"/>
     <constructor-arg ref="tokenHolder"/>
-    <constructor-arg ref="principalHolder"/>
   </bean>
 
   <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"

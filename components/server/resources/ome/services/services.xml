@@ -58,7 +58,6 @@
     <bean id="statelessInterceptors" class="java.util.ArrayList">
         <constructor-arg>
             <list>
-                <value>profile</value>
                 <value>serviceHandler</value>
                 <value>proxyHandler</value>
                 <value>transactionHandler</value>
@@ -79,7 +78,6 @@
         </description>
         <property name="interceptorNames">
             <list>
-                <value>profile</value>
                 <value>serviceHandler</value>
             </list>
         </property>
@@ -94,7 +92,6 @@
 		class="org.springframework.aop.framework.ProxyFactoryBean">
 		<property name="interceptorNames">
 			<list>
-				<value>profile</value>
 				<value>serviceHandler</value>
 				<value>proxyHandler</value>
 				<value>transactionHandler</value>
@@ -107,6 +104,7 @@
 		       id="serviceHandler"
 		    class="ome.services.util.ServiceHandler"
 		lazy-init="true">
+		<constructor-arg ref="currentDetails"/>
 	</bean>
 
 	<bean id="profile"
@@ -162,7 +160,7 @@
 -->
 
   <bean id="executor" class="ome.services.util.Executor$Impl">
-    <constructor-arg ref="principalHolder"/>
+    <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="transactionTemplate"/>
     <constructor-arg ref="hibernateTemplate"/>
     <constructor-arg ref="statelessInterceptors"/>

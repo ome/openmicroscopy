@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 
 public class SessionContextImpl implements SessionContext {
@@ -21,7 +22,7 @@ public class SessionContextImpl implements SessionContext {
     private final List<Long> leaderOfGroups;
     private final List<Long> memberOfGroups;
     private final List<String> roles; /* group names for memberOfGroups */
-    private Long shareId;
+    private Long shareId = null;
 
     @SuppressWarnings("unchecked")
     public SessionContextImpl(Session session, List<Long> lGroups,
@@ -32,7 +33,6 @@ public class SessionContextImpl implements SessionContext {
         this.memberOfGroups = Collections.unmodifiableList(new ArrayList(
                 mGroups));
         this.roles = Collections.unmodifiableList(new ArrayList(roles));
-        this.shareId = shareId;
     }
 
     public int refCount() {
@@ -124,6 +124,10 @@ public class SessionContextImpl implements SessionContext {
     }
 
     public boolean isReadOnly() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Permissions getCurrentUmask() {
         throw new UnsupportedOperationException();
     }
 }
