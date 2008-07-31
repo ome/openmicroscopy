@@ -160,7 +160,7 @@ public class IceMethodInvoker {
         }
 
         Class retType = info.retType;
-        Object retVal;
+        Object retVal = null;
         try {
 
             // To replicate the lifecycle logic of the application server,
@@ -190,8 +190,12 @@ public class IceMethodInvoker {
                 UnregisterServantMessage usm = new UnregisterServantMessage(
                         this, Ice.Util.identityToString(current.id), current);
                 ctx.publishMessage(usm);
+            } else {
+                // Here we are skipping the close() since there is currently
+                // no logic in any of them. This is also essentially a HACK
+                // and should be re
+                retVal = info.method.invoke(obj, objs);
             }
-            retVal = info.method.invoke(obj, objs);
         } catch (Throwable t) {
             return handleException(t);
         }

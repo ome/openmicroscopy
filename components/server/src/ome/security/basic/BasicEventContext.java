@@ -107,6 +107,8 @@ class BasicEventContext extends SimpleEventContext {
 
     public void setEvent(Event event) {
         this.event = event;
+        this.ceId = event.getId();
+        this.ceType = event.getType().getValue();
     }
 
     public Experimenter getOwner() {
@@ -115,6 +117,8 @@ class BasicEventContext extends SimpleEventContext {
 
     public void setOwner(Experimenter owner) {
         this.owner = owner;
+        this.cuId = owner.getId();
+        this.cuName = owner.getOmeName();
     }
 
     public ExperimenterGroup getGroup() {
@@ -123,6 +127,8 @@ class BasicEventContext extends SimpleEventContext {
 
     public void setGroup(ExperimenterGroup group) {
         this.group = group;
+        this.cgId = group.getId();
+        this.cgName = group.getName();
     }
 
     public Set<String> getDisabledSubsystems() {

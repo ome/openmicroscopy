@@ -11,6 +11,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -76,6 +77,7 @@ import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
 import omero.api._ServiceFactoryDisp;
 import omero.constants.ADMINSERVICE;
+import omero.constants.CLIENTUUID;
 import omero.constants.CONFIGSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
@@ -583,6 +585,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     __curr.id = id;
                     __curr.adapter = adapter;
                     __curr.operation = "close";
+                    __curr.ctx = new HashMap<String, String>();
+                    __curr.ctx.put(CLIENTUUID.value, clientId);
                     m.invoke(obj, __curr);
                 } else {
                     unregisterServant(id, adapter);
