@@ -334,12 +334,13 @@ build-* targets.
         <ivy:publish settingsRef="ivy.toplevel"
             artifactspattern="${omero.home}/OMERO.server-${omero.version}.zip"
             srcivypattern="${omero.home}/ivy.xml"
-            forcedeliver="true"
             resolver="omero-resolver"
             pubrevision="${omero.version}"
             pubdate="${now}"
             status="integration"
             overwrite="true"/>
+            <!-- This causes the ivy file to be modified -->
+            <!--forcedeliver="true"-->
         <ivy:install settingsRef="ivy.toplevel"
             organisation="omero" module="main" revision="${omero.version}"
             from="omero-resolver" to="hudson-repository"
