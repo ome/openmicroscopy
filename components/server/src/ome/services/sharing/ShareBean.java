@@ -623,8 +623,7 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     }
 
     private Session shareToSession(ShareData data) {
-        String uuid = idToUuid(data.id);
-        return sessionManager.find(uuid);
+        return iQuery.find(Share.class, data.id);
     }
 
     @SuppressWarnings("unchecked")

@@ -15,6 +15,7 @@ import ome.conditions.SecurityViolation;
 import ome.model.containers.Dataset;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
+import ome.model.meta.Session;
 import ome.parameters.Filter;
 import ome.server.itests.AbstractManagedContextTest;
 
@@ -34,6 +35,31 @@ public class SharingTest extends AbstractManagedContextTest {
     @BeforeMethod
     public void setup() {
         share = factory.getShareService();
+    }
+
+    @Test
+    public void testRetrieval() {
+        loginRoot();
+
+        long id = share.createShare("disabled", null, null, null, null, false);
+
+        Set<Session> shares = share.getAllShares(true);
+        assertShareNotReturned(id, shares);
+
+        shares = share.getAllShares(false);
+        boolean found = false;
+        for (Session session : shares) {
+            found |= session.getId().longValue() == id;
+        }
+        assertTrue(found);
+
+        shares = share.getOwnShares(false);
+    }
+
+    private void assertShareNotReturned(long id, Set<Session> shares) {
+        for (Session session : shares) {
+            assertFalse(id + "==" + session, id == session.getId());
+        }
     }
 
     @Test

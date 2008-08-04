@@ -54,5 +54,9 @@ class TestISShare(lib.ITest):
 
         self.assert_(share.getContentSize(id) == 101)
 
+    def testRetrieval(self):
+        shs = self.root.sf.getShareService()
+        print shs.getAllShares(True)
+
 if __name__ == '__main__':
     unittest.main()
