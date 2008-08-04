@@ -48,6 +48,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -138,7 +139,7 @@ public class TextImporter
 	 */
 	public TextImporter(IModel model) {
 		
-		super(model, "Import Table");
+		super(model, "Import Text");
 		
 		
 		// add a tool bar..
@@ -221,17 +222,17 @@ public class TextImporter
 			}
 		});
 		
-		titleAndToolbarContainer.add(toolbarBox, BorderLayout.WEST);
-		titleAndToolbarContainer.add(helpButton, BorderLayout.EAST);
+		JPanel toolBarContainer = new JPanel(new BorderLayout());
+		toolBarContainer.add(toolbarBox, BorderLayout.WEST);
+		toolBarContainer.add(helpButton, BorderLayout.EAST);
+		
+		textAndToolbarContainer.add(toolBarContainer, BorderLayout.NORTH);
 		
 	}
 	
-
-	/**
-	 * The text component is initialised as an instance of 
-	 * SimpleHTMLEditorPane, a JEditorPane that uses an HTML editor kit. 
-	 */
-	public void initialiseTextArea() {
+	public void setHeaderComponents() {
+		
+		setOkButtonText("Import Text");
 		
 		setSubTitle("Please paste the text you wish to import into " +
 		"the text area below."); 
@@ -244,6 +245,13 @@ public class TextImporter
  
 		setHeaderIcon(ImageFactory.getInstance().getIcon(
 				ImageFactory.KORGANIZER_ICON));
+	}
+	
+	/**
+	 * The text component is initialised as an instance of 
+	 * SimpleHTMLEditorPane, a JEditorPane that uses an HTML editor kit. 
+	 */
+	public JTextComponent initialiseTextArea() {
 		
 		/*
 		 * A new SimpleHTMLEditorPane.
@@ -256,6 +264,8 @@ public class TextImporter
 		} catch (BadLocationException e1) {
 			e1.printStackTrace();
 		}
+		
+		return textArea;
 	}
 	
 	/**
@@ -271,7 +281,7 @@ public class TextImporter
 	 * eg Number or Text field, and the text in these elements
 	 * is used to populate the Default and Units attributes.
 	 */
-	public void importText() {
+	public void actionPerformed(ActionEvent evt) {
 		
 		/*
 		 * Get the HTML text from the text area, and write it to a 

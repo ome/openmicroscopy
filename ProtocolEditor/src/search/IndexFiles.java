@@ -68,7 +68,10 @@ public class IndexFiles {
   
   private IndexFiles() {}
 
-  public static final String INDEX_PATH = ConfigConstants.OMERO_EDITOR_FILE + File.separator + "index";
+  public static final String INDEX_PATH = ConfigConstants.OMERO_EDITOR_FILE + 
+  		File.separator + "index";
+  
+  public static final String CONTENTS = "contents";
   
   static final File INDEX_DIR = new File(INDEX_PATH);
   
@@ -148,7 +151,7 @@ public class IndexFiles {
                     Field.Store.YES, Field.Index.UN_TOKENIZED));
     		
     		// the whole doc is read with a File Reader, not saved, used for searching.
-    		doc.add(new Field("contents", new FileReader(file)));
+    		doc.add(new Field(CONTENTS, new FileReader(file)));
     		
     		// need a "snippet" field for clustering search results with Carrot2
     		// this should be a String????

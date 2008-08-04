@@ -22,34 +22,30 @@
  */
 package search;
 
+//Java imports
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
+//Third-party libraries
+
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.TermEnum;
 
-
-
-//Java imports
-
-//Third-party libraries
-
 //Application-internal dependencies
 
 /** 
- * This is a test class, to look at the possibility of using auto-complete
- * based on the contents of a Lucene index. 
+ * This class queries a Lucene search index for terms (or tokens). 
+ * 
+ * Can be used for auto-complete:
  * Eg. I start typing "Ant..." and the auto-complete suggests 
- * Antibody! 
- * Not sure where you'd want this (all the time)?
+ * Antibody
  * 
  * One problem is case sensitivity: Everything is lower case in 
  * Lucene index.
  * 
- *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
@@ -60,17 +56,55 @@ import org.apache.lucene.index.TermEnum;
  */
 public class IndexTermFinder {
 
-	public static String index = IndexFiles.INDEX_PATH;
-	public static String field = "contents";
+	/**
+	 * The path to the Lucene index. 
+	 */
+	private String index;
 	
-	  public static String[] getMatchingTerms(String searchString) {
-		  
-		  
-		  Date start = new Date();
-		  
+	/**
+	 * The field of Lucene documents that has been indexed, and contains
+	 * all the tokens of interest.
+	 */
+	private String docField;
+	
+	/**
+	 * Creates an instance of this class.
+	 * 
+	 * @param index		Path to the index to query. 
+	 * 					The field of the Lucene document is null, so all fields
+	 * 					will be searched.
+	 */
+	public IndexTermFinder(String index) {
+		this(index, null);
+	}
+	
+	/**
+	 * Creates an instance of this class, specifying the Lucene search index
+	 * and the field of the index (or document) to search.
+	 * 
+	 * @param index		Path to the Lucene index
+	 * @param field		Field in the Lucene document (or index) to search.
+	 */
+	public IndexTermFinder(String index, String field) {
+		
+		this.index = index;
+		this.docField = field;
+	}
+	
+	/**
+	 * For the index and field specified in the constructor (or setter methods)
+	 * this method will return all the tokens that start with the searchString.
+	 * 
+	 * @param searchString		Look for words in the index that start with this
+	 * @return		An array of tokens (words) in the index that match.
+	 */
+	public String[] getMatchingTerms(String searchString) {
+		
+		if (index == null) {
+			return new String[0];
+		}
+		
 		searchString = searchString.toLowerCase();
-		  
-		String searchField = "contents";
 		
 		ArrayList<String> matchingTerms = new ArrayList<String>();
 
@@ -84,31 +118,26 @@ public class IndexTermFinder {
 		    while (terms.next()) {
 		    	// ignore terms unless from the field of interest
 		    	String field = terms.term().field();
-		    	if (! field.equals(searchField))
+		    	if (! field.equals(docField))
 		    		continue;
 		    	
 		    	String term = terms.term().toString();
 		    	term = term.replaceFirst(field + ":", "");
 		    	
 		    	if (term.startsWith(searchString)) {
-		    		System.out.println(termCounter + " " + term);
 		    		termCounter++;
 		    		
 		    		matchingTerms.add(term);
 		    	}
 		    }
-		    
-		    Date end = new Date();
-		      System.out.println("Search took " + (end.getTime() - start.getTime()) +
-		    		  " milliseconds");
 		      
 		    reader.close();
 		} catch (CorruptIndexException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Ignore if can't find index...
+			// e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// ... or if index can't be read.
+			//e.printStackTrace();
 		}
 
 	    String[] results = new String[matchingTerms.size()]; 
@@ -120,4 +149,23 @@ public class IndexTermFinder {
 	    
 	    return results;
 	  }
+	
+	/**
+	 * Sets the index.
+	 * 
+	 * @param index		A path to the Lucene index you want to search.
+	 */
+	public void setIndex(String index){
+		this.index = index;
+	}
+	
+	/**
+	 * The field within the Lucene index that you want to search.
+	 * If this is null, all fields will be searched. 
+	 * 
+	 * @param field
+	 */
+	public void setField(String field) {
+		this.docField = field;
+	}
 }

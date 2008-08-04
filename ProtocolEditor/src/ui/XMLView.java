@@ -270,6 +270,7 @@ public class XMLView
 		
 		findToolBar = new FindToolBar(this, xmlModel);
 		fileManagerWestToolBar.add(findToolBar);
+		
 	
 		// Add the toolBar to the left of the full tool bar
 		fileManagerPanel.add(fileManagerWestToolBar, BorderLayout.WEST);
@@ -290,23 +291,23 @@ public class XMLView
 		moreLikeThisButton.setToolTipText("'More Like This' search to find files like the current one");;
 		moreLikeThisButton.setBorder(new EmptyBorder(0,2,0,4));
 		searchController.addSearchActionSource(moreLikeThisButton);
+	
 		
 		fileManagerEastToolBar.add(moreLikeThisButton);
 		
 		/*
 		 * template-search button
-		 * This is hidden for now, since this functionality is not finished.
-		 * Will return to work on the after Beta-3.0
-		 
-		Icon templateSearchIcon = ImageFactory.getInstance().getIcon(ImageFactory.TEMPLATE_SEARCH_ICON);
-		JButton templateSearchButton = new JButton(templateSearchIcon);
-		templateSearchButton.setActionCommand(SearchController.TEMPLATE_SEARCH);
-		templateSearchButton.setToolTipText("Use the current file as a search form. Fill in only those fields you wish to search for.");
-		templateSearchButton.setBorder(new EmptyBorder(0,2,0,4));
-		searchController.addSearchActionSource(templateSearchButton);
-		
-		fileManagerEastToolBar.add(templateSearchButton);
 		*/
+		Icon tempSearchIcon = ImageFactory.getInstance().getIcon(
+				ImageFactory.TEMPLATE_SEARCH_ICON); 
+		JButton templateSearchButton = new JButton(tempSearchIcon);
+		templateSearchButton.setToolTipText(
+				"Use a Template as an Advanced Search Form");
+		templateSearchButton.setActionCommand(SearchController.TEMPLATE_SEARCH);
+		templateSearchButton.setBorder(fileManagerToolBarBorder);
+		searchController.addSearchActionSource(templateSearchButton);
+		fileManagerEastToolBar.add(templateSearchButton);
+		
 		
 		// close-file button
 		addButton(Controller.CLOSE_FILE, "", fileManagerToolBarBorder, fileManagerEastToolBar);

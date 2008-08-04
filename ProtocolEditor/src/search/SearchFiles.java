@@ -48,6 +48,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.FilterIndexReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
@@ -60,11 +61,12 @@ import util.ExceptionHandler;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
+
+import javax.swing.JOptionPane;
 
 // most code from Lucene demo
 // each doc in search results is used to make a SearchResultHtml object. 
@@ -98,74 +100,146 @@ public class SearchFiles {
 
   private SearchFiles() {}
 
-  /** Simple command-line based search demo. */
-  public static void search(String searchString, ArrayList<SearchResultHtml> results) throws Exception {
+  
+  public static Hits getHits(String searchString, IndexReader reader) throws 
+  CorruptIndexException, 
+  ParseException, IOException {
 	  
-	  Hits hits = null;  
-	  
-    String queries = null;
-    //int repeat = 0;
-    //boolean raw = false;
-    String normsField = null;
+	  String queries = null;
+	    //int repeat = 0;
+	    //boolean raw = false;
+	    String normsField = null;
 
-    IndexReader reader = IndexReader.open(index);
+	
+	    	
+	    	 /*
+		    if (normsField != null)
+		      reader = new OneNormsReader(reader, normsField);
+			*/
+			
+		    Searcher searcher = new IndexSearcher(reader);
+		    Analyzer analyzer = new StandardAnalyzer();
 
+		    BufferedReader in = null;
+		    /*
+		    if (queries != null) {
+		      in = new BufferedReader(new FileReader(queries));
+		    } else {
+		    */
+		      in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
+		    
+		      QueryParser parser = new QueryParser(field, analyzer);
+		    
+		      
+		      Query query = parser.parse(searchString);
+		      System.out.println("Searching for: " + query.toString(field));
 
-    if (normsField != null)
-      reader = new OneNormsReader(reader, normsField);
-
-    Searcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer();
-
-    BufferedReader in = null;
-    if (queries != null) {
-      in = new BufferedReader(new FileReader(queries));
-    } else {
-      in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-    }
-      QueryParser parser = new QueryParser(field, analyzer);
-    
-      
-      Query query = parser.parse(searchString);
-      System.out.println("Searching for: " + query.toString(field));
-
-      hits = searcher.search(query);
-      
-      System.out.println(hits.length() + " total matching documents");
-
-      addHitsToList(hits, results, searchString);
-    
-    reader.close();
+		      Hits hits =  searcher.search(query);
+		      
+		      return hits;
+	    
   }
   
-  public static void search (File findMoreLikeThis, ArrayList<SearchResultHtml> results) throws Exception {
-	  Hits hits = null;
+  
+  	
+  	/**
+  	 * A method to get an index reader, to read a Lucene index. 
+  	 * If the index is not found, an exception is thrown, and the user
+  	 * gets a dialog asking if they want to create an index, and a 
+  	 * file chooser to select the folder of files to index. 
+  	 * If they cancel, this method will return null.  
+  	 * 
+  	 * @param indexPath		Path to the index directory
+  	 * @return		An index reader at the location defined by indexPath
+  	 */
+  	public static IndexReader getIndexReader(String indexPath) {
+  		
+  		try {
+  		  IndexReader reader = IndexReader.open(indexPath);
+  	  
+  		  return reader;
+  		  
+  	  } catch (IOException ioEx) {
+  	    	
+  		  int result = JOptionPane.showConfirmDialog(null, "Search index not found.\n" +
+  					"You need to create an index of all the files you want to search.\n"+
+  					"Please choose the root directory containing all your files","Index not found" ,JOptionPane.OK_CANCEL_OPTION);
+  		  if (result == JOptionPane.YES_OPTION) {
+  			  IndexFiles.indexFolderContents();
+    			
+  			  // assuming indexing went OK. Try searching again. 
+  			  try {
+  					return getIndexReader(indexPath);
+  			  } catch (Exception e) {
+  				  // user didn't index, or indexing failed. 
+  				  // show error and give user a chance to submit error
+  				  ExceptionHandler.showErrorDialog("Searching files failed - index not found",
+  	    					"", e);
+  				  e.printStackTrace();
+  				  return null;
+  			  }
+  		  }
+  		  return null;
+  	  }
+  	}
+  	
+  	
+  	
+  	public static void search(String searchString, List<Object> results) 
+  	throws 
+  	CorruptIndexException, 
+  	IOException, 
+  	ParseException {
 	  
-	  IndexReader reader = IndexReader.open(index);
-	  Searcher searcher = new IndexSearcher(reader);
-	  
-	  MoreLikeThis mlt = new MoreLikeThis(reader);
-	//  Reader target = new FileReader(findMoreLikeThis);  // orig source of doc you want to find similarities to
-	  Query query = null;
-	  try {
-		  query = mlt.like(findMoreLikeThis);
-		  hits = searcher.search(query);
-		// now the usual iteration thru 'hits' - the only thing to watch for is to make sure
-		// you ignore the doc if it matches your 'target' document, as it should be similar to itself 
 
-		  addHitsToList(hits, results, findMoreLikeThis.getName());
-	  } catch (FileNotFoundException ex) {
-		  // findMoreLikeThis file not found
-		// show error and give user a chance to submit error
+		  IndexReader reader = getIndexReader(index);
+	  
+		  Hits hits = getHits(searchString, reader);
+	  
+		  if (hits != null) {
+			  addHitsToList(hits, results, searchString);
+		  }
+		  
+		  /*
+		   * Have to close the reader AFTER reading the contents to hit list.
+		   */
+		  reader.close();
+		  
+	  
+    
+	}
+  
+  
+  
+  	public static void search (File findMoreLikeThis, List<Object> results) throws Exception {
+  		Hits hits = null;
+	  
+  		IndexReader reader = IndexReader.open(index);
+  		Searcher searcher = new IndexSearcher(reader);
+	  
+  		MoreLikeThis mlt = new MoreLikeThis(reader);
+  		//  Reader target = new FileReader(findMoreLikeThis);  // orig source of doc you want to find similarities to
+  		Query query = null;
+  		try {
+  			query = mlt.like(findMoreLikeThis);
+  			hits = searcher.search(query);
+  			// now the usual iteration thru 'hits' - the only thing to watch for is to make sure
+  			// you ignore the doc if it matches your 'target' document, as it should be similar to itself 
+
+  			addHitsToList(hits, results, findMoreLikeThis.getName());
+  		} catch (FileNotFoundException ex) {
+  			// findMoreLikeThis file not found
+  			// show error and give user a chance to submit error
 			ExceptionHandler.showErrorDialog("Find-More-Like-This file not found",
 					"File Not Found Error", ex);
-			
 	  }
 	  
 	  reader.close();
   }
   
-  public static void addHitsToList(Hits hits, ArrayList<SearchResultHtml> results, String searchString) {
+  public static void addHitsToList(Hits hits, List<Object> results, String searchString) {
+	  
+	  
 	  for (int start = 0; start < hits.length(); start += HITS_PER_PAGE) {
 	        int end = Math.min(hits.length(), start + HITS_PER_PAGE);
 	        for (int i = start; i < end; i++) {

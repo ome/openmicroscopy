@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,6 +46,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 import tree.DataFieldConstants;
+import tree.IAttributeSaver;
 
 // class to hold some useful XML methods
 
@@ -210,10 +212,59 @@ public class XMLMethods {
 			}
 			elementList.add(attributeMap);
 			
+		}	
+	}
+	
+	public static class ElementSearchHandler extends DefaultHandler {
+		
+		String tagName; 
+		String[] attsToCheck; 
+		String[] attValues;
+		int hits;
+		
+		public ElementSearchHandler(String tagName, String[] attsToCheck, 
+				IAttributeSaver map) {
+			this.tagName = tagName;
+			this.attsToCheck = attsToCheck;
+			/*
+			 * Make a copy of the values that need matching.
+			 */
+			attValues = new String[attsToCheck.length];
+			for (int i=0; i<attsToCheck.length; i++) {
+				attValues[i] = map.getAttribute(attsToCheck[i]);
+			}
+		}
+		
+		public void startElement(String uri, String localName, String qualName, 
+				Attributes attribs) {
+		
+			//System.out.println("XMLMethods ElementSearchHandler " + qualName);
+			
+			if ((tagName == null) || (tagName.equals(qualName))) {
+				for (int i=0; i< attsToCheck.length; i++) {
+					// if any attributes don't match, this isn't a hit. continue..
+					String xmlValue = attribs.getValue(attsToCheck[i]);
+					String attValue = attValues[i];
+					if (xmlValue == null) {
+						if (attValue != null) {		// one null = no match!
+							return;
+						}			
+					}
+					if (! xmlValue.equals(attValue)) {
+						return;		// values don't match
+					}
+				}
+				// checked all attributes. All match! 
+				hits++;
+			}
+		
+		}
+		
+		public int getHits() {
+			return hits;
 		}
 		
 	}
-	
 	
 	/**
 	 * Static method to convert an XML file into a DOM Document. 
@@ -276,6 +327,48 @@ public class XMLMethods {
   					"File could not be read", ioe);
          } 
          return document;
+	}
+	
+	
+	public static int getFieldMatches(File xmlFile, List<IAttributeSaver> fields,
+			String[] attsToMatch) { 		
+		
+		int hits = 0;
+		
+		try {
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParser saxParser = factory.newSAXParser();
+			XMLReader xmlReader = saxParser.getXMLReader();
+			
+			for (IAttributeSaver field : fields) {
+				String tagName = field.getAttribute(DataFieldConstants.INPUT_TYPE);
+			
+				ElementSearchHandler searcher = new ElementSearchHandler(tagName,
+						attsToMatch, field);
+				xmlReader.setContentHandler(searcher);
+				xmlReader.parse(xmlFile.toURL().toString());
+				
+				hits = hits + searcher.getHits();
+			}
+		
+		} catch (SAXParseException spEx) {
+			spEx.printStackTrace();
+		} catch (SAXException sEx) {
+			sEx.printStackTrace();
+		} catch (ParserConfigurationException pcEx) {
+			pcEx.printStackTrace();
+		} catch (FileNotFoundException fnfEx) {
+			fnfEx.printStackTrace();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
+		return hits;
+		
 	}
 
 }

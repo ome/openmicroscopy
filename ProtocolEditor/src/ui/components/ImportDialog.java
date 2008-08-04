@@ -34,6 +34,7 @@ import java.awt.event.FocusListener;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -65,7 +66,8 @@ import ui.XMLUpdateObserver;
 * @since OME3.0
 */
 
-public abstract class ImportDialog extends JPanel{
+public abstract class ImportDialog 
+	extends CustomDialog{
 
 	/**
 	 * A reference to the interface required for opening a newly created tree.
@@ -78,40 +80,16 @@ public abstract class ImportDialog extends JPanel{
 	ITreeModel tree;
 	
 	/**
-	 * The JFrame in which this dialog is displayed.
-	 */
-	JFrame frame;
-	
-	/**
 	 * The JEditorPane used to display and edit the text to be imported.
 	 */ 
 	JTextComponent textArea;
 	
-	/**
-	 * The title of the page.
-	 */
-	private String title;
 	
 	/**
-	 * The sub-title of the page.
-	 */
-	private String subTitle;
-	
-	/**
-	 * A header message, to give additional information
-	 */
-	private String headerMessage;
-	
-	/**
-	 * An icon to display at the top of the page
-	 */
-	private Icon headerIcon;
-	
-	/**
-	 * The container that holds the Title panel (NORTH), to which
+	 * The container that holds the textArea(CENTER), to which
 	 * subclasses can add eg tool bars. 
 	 */
-	protected JPanel titleAndToolbarContainer;
+	protected JPanel textAndToolbarContainer;
 	
 	/**
 	 * Creates a new instance of this class, but doesn't build and display UI.
@@ -124,53 +102,36 @@ public abstract class ImportDialog extends JPanel{
 	 */
 	public ImportDialog(IModel model, String title) {
 		
+		super(title);
+		
 		initialise(model);
 		
-		this.title = title;
-		
-		initialiseTextArea();
-		
-		buildAndDisplayUI();
 	}
 	
 	
 	/**
-	 * This method is called by the constructor, after calling 
-	 * initialiseTextArea();
 	 * This will build the UI, placing the textArea in a JScrollPane,
-	 * and place the whole UI panel in a JFrame. 
 	 */
-	protected void buildAndDisplayUI() {
-		
-		setLayout(new BorderLayout());
-		
-		int panelWidth = 800;
-
-		this.setPreferredSize(new Dimension(panelWidth, 500));
-		
-		// Header.
-		TitlePanel titlePanel = new TitlePanel(title, subTitle, headerMessage, headerIcon);
+	public JComponent getDialogContent() {
 		
 		/*
 		 * A JPanel with borderLayout, which allows subclasses to add 
 		 * components between the titlePanel and the textArea.
 		 * Eg. adding a toolBar to the EAST of the container. 
 		 */
-		titleAndToolbarContainer = new JPanel(new BorderLayout());
-		titleAndToolbarContainer.add(titlePanel, BorderLayout.NORTH);
+		textAndToolbarContainer = new JPanel(new BorderLayout());
 		
-		add(titleAndToolbarContainer, BorderLayout.NORTH);
 		
 		/*
 		 * The text area should have been instantiated. 
 		 * But, if not, create a JTextArea here. 
 		 */
 		if (textArea == null) 
-			textArea = new JTextArea();
+			textArea = initialiseTextArea();
 		textArea.addFocusListener(new TextAreaFocusListener());
 		
 		// put the text area in a scroll pane
-		Dimension scrollPaneSize = new Dimension(panelWidth, 350);
+		Dimension scrollPaneSize = new Dimension(PANEL_WIDTH, 350);
 		textArea.setMaximumSize(scrollPaneSize);
 		JScrollPane scrollPane = new JScrollPane(textArea, 
 				 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
@@ -178,34 +139,9 @@ public abstract class ImportDialog extends JPanel{
 		scrollPane.setPreferredSize(scrollPaneSize);
 		scrollPane.setMinimumSize(scrollPaneSize);
 		
-		this.add(scrollPane, BorderLayout.CENTER);
+		textAndToolbarContainer.add(scrollPane, BorderLayout.CENTER);
 		
-		
-		// Buttons at bottom of window.
-		JButton importButton = new JButton("Import");
-		importButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				importText();
-			}
-		});
-		importButton.setSelected(true);
-		
-		JButton cancelButton = new JButton("Cancel");
-		cancelButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				frame.setVisible(false);
-			}
-		});
-		
-		Box buttonBox = Box.createHorizontalBox();
-		buttonBox.add(cancelButton);
-		buttonBox.add(importButton);
-		buttonBox.add(Box.createHorizontalStrut(12));
-		JPanel buttonBoxContainer = new JPanel(new BorderLayout());
-		buttonBoxContainer.add(buttonBox, BorderLayout.EAST);
-		this.add(buttonBoxContainer, BorderLayout.SOUTH);
-	
-		displayInFrame(this);
+		return textAndToolbarContainer;
 	}
 	
 	/**
@@ -230,15 +166,7 @@ public abstract class ImportDialog extends JPanel{
 	 * This method can also be used as a place to set the
 	 * subTitle, headerMessage and headerIcon. 
 	 */
-	public abstract void initialiseTextArea();
-	
-	/**
-	 * The abstract import method which subclasses use to perform the
-	 * import process. 
-	 * This should take the text, use it to build a tree model, and 
-	 * pass this to IModel model, to open the file.
-	 */
-	public abstract void importText();
+	public abstract JTextComponent initialiseTextArea();
 	
 	/**
 	 * A focus listener added to the textArea.
@@ -268,60 +196,5 @@ public abstract class ImportDialog extends JPanel{
 		
 	}
 	
-	/**
-	 * This method displays the JPanel in a JFrame. 
-	 * 
-	 * @param panel		the JPanel to display.
-	 */
-	public void displayInFrame(JPanel panel) {
-		
-		frame = new JFrame();
-		
-		frame.getContentPane().add(panel);
-		
-		frame.pack();
-		frame.setLocation(50, 50);
-		frame.setVisible(true);
-	}
-	
-	/**
-	 * Method to allow subclasses to set the title, before the title panel
-	 * is created.
-	 * 
-	 * @param title
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	
-	/**
-	 * Method to allow subclasses to set the subTitle, before the title panel
-	 * is created.
-	 * 
-	 * @param title
-	 */
-	public void setSubTitle(String title) {
-		this.subTitle = title;
-	}
-	
-	/**
-	 * Method to allow subclasses to set the header message, before the title panel
-	 * is created.
-	 * 
-	 * @param message
-	 */
-	public void setHeaderMessage(String message) {
-		this.headerMessage = message;
-	}
-	
-	/**
-	 * Method to allow subclasses to set the header Icon, before the title panel
-	 * is created.
-	 * 
-	 * @param icon	An icon displayed in the header panel. 
-	 */
-	public void setHeaderIcon(Icon icon) {
-		this.headerIcon = icon;
-	}
 }
 

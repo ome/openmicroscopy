@@ -26,18 +26,25 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JComboBox;
-
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import ui.components.CustomComboBox;
-import ui.formFields.FormField.FormPanelMouseListener;
 
 public class FormFieldDropDown extends FormField {
 	
 	ActionListener valueSelectionListener = new ValueSelectionListener();
 	
 	String[] ddOptions = {" "};
+	
+	/**
+	 * The drop-down index for a "blank" (no option chosen)
+	 */
+	public static final int NULL_INDEX = 0;
+	
+	/**
+	 * The String to display in the No-Option-Chosen position. 
+	 */
+	public static final String NO_OPTION_CHOSEN = " ";
 	
 	CustomComboBox comboBox;
 	
@@ -104,12 +111,26 @@ public class FormFieldDropDown extends FormField {
 		return (dataField.getAttribute(DataFieldConstants.VALUE) != null);
 	}
 	
+	/**
+	 * Sets the drop-down options as defined by the comma-delimited options.
+	 * Also a "null" (blank) option is added at index 0, so that the field
+	 * can display no value. Otherwise, it can never be blank.  
+	 * 
+	 * @param options	A list of options, separated by commas. 
+	 */
 	public void setDropDownOptions(String options) {
 		if (options != null) {
 			String dropDownOptions = options;
-			ddOptions = dropDownOptions.split(",");
-			for(int i=0; i<ddOptions.length; i++) {
-				ddOptions[i] = ddOptions[i].trim();
+			String[] optionsSplit = dropDownOptions.split(",");
+			
+			/*
+			 * The drop-down options need to include a blank at the start
+			 * and to be trimmed. 
+			 */
+			ddOptions = new String[optionsSplit.length + 1];
+			ddOptions[NULL_INDEX] = NO_OPTION_CHOSEN;
+			for(int i=1; i<ddOptions.length; i++) {
+				ddOptions[i] = optionsSplit[i-1].trim();
 			}
 			
 			comboBox.removeActionListener(valueSelectionListener);
@@ -121,16 +142,26 @@ public class FormFieldDropDown extends FormField {
 			
 			// Set it to the current value, (if it exists in the new ddOptions)
 			String value = dataField.getAttribute(DataFieldConstants.VALUE);
+			boolean valueChanged = true;
 			if (value != null) {
-				for (int i=0; i<ddOptions.length; i++)
-					if (value.equals(ddOptions[i]))
+				// start at index 1, since 0 is blank / null
+				for (int i=1; i<ddOptions.length; i++) {
+					if (value.equals(ddOptions[i])) {
 						comboBox.setSelectedIndex(i);
+						valueChanged = false;
+						continue;
+					}
+				}
+				
+			} else {	// value == null
+				comboBox.setSelectedIndex(NULL_INDEX);
 			}
 			
 			comboBox.addActionListener(valueSelectionListener);
 			
-			//need to update value (in case it wasn't in the new ddOptions)
-			updateDataField();
+			//need to update value (if the old value isn't in the new options)
+			if (valueChanged)
+				updateDataField();
 		} else {
 			// options == null, remove all
 			comboBox.removeActionListener(valueSelectionListener);
@@ -146,13 +177,16 @@ public class FormFieldDropDown extends FormField {
 	}
 
 	
-	// overridden by subclasses (when focus lost) if they have values that need saving 
+	/**
+	 * called after the drop-down options have changed, to update the 
+	 * dataField, in case the new options didn't contain the old value. 
+	 */
 	public void updateDataField() {
-		int index = comboBox.getSelectedIndex();
-		if ((index >= 0) && (index < ddOptions.length)) {
-			String currentValue = ddOptions[index];
-			dataField.setAttribute(DataFieldConstants.VALUE, currentValue, false);
+		String value = comboBox.getSelectedItem().toString();
+		if(comboBox.getSelectedIndex() == NULL_INDEX) {
+			value = null;
 		}
+		dataField.setAttribute(DataFieldConstants.VALUE, value, false);
 	}
 
 //	 overridden by subclasses if they have a value and text field
@@ -182,7 +216,11 @@ public class FormFieldDropDown extends FormField {
 	
 	public class ValueSelectionListener implements ActionListener {
 		public void actionPerformed (ActionEvent event) {
-			dataField.setAttribute(DataFieldConstants.VALUE, comboBox.getSelectedItem().toString(), true);
+			String value = comboBox.getSelectedItem().toString();
+			if(comboBox.getSelectedIndex() == NULL_INDEX) {
+				value = null;
+			}
+			dataField.setAttribute(DataFieldConstants.VALUE, value, true);
 		}
 	}
 	

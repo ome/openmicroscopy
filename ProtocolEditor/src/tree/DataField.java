@@ -487,6 +487,30 @@ public class DataField
 		if (formField == null) getFormField();	// make sure there is one
 		return formField.getValueAttributes();
 	}
+	
+	/**
+	 * Returns the values of the attributes defined by getValueAttributes(),
+	 * Null values are not included. 
+	 * 
+	 * @return	An array of values for this field. 
+	 */
+	public String[] getValues() {
+		String[] valueAttributes = getValueAttributes();
+		ArrayList<String> values = new ArrayList<String>();
+		
+		for (int i=0; i<valueAttributes.length; i++) {
+			String val = getAttribute(valueAttributes[i]);
+			if (val != null) {
+				values.add(val);
+			}
+		}
+		String[] vals = new String[values.size()];
+		int index=0;
+		for (String v : values) {
+			vals[index++] = v;
+		}
+		return vals;
+	}
 
 	// a method used by the Tree class to convert from old xml version to new
 	public static String getNewInputTypeFromOldInputType(String oldInputType) {

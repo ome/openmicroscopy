@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
@@ -132,6 +133,7 @@ public class SearchController
 	
 	/**
 	 * Creates an instance of this class. 
+	 * 
 	 * @param model		model is used to open files (search hits) and provide current-file
 	 */
 	public SearchController(IModel model) {
@@ -143,6 +145,9 @@ public class SearchController
 	 * Used to provide the search with a searchTerm source. 
 	 * This is required before you can run a searchTerm search, but is not needed for 
 	 * a More-Like-This search.
+	 * A DocumentListener is added to allow auto-complete, based on words in the 
+	 * Lucene index.
+	 * 
 	 * @param searchTermSource
 	 */
 	public void setSearchTermSource(JTextComponent searchTermSource) {
@@ -152,7 +157,8 @@ public class SearchController
 	
 	
 	/**
-	 * Allows button components to register as source of searchAction
+	 * Allows button components to register as source of searchAction.
+	 * eg Keyword search button, Template search button...
 	 */
 	public void addSearchActionSource(AbstractButton button) {
 		button.addActionListener(this);
@@ -177,7 +183,7 @@ public class SearchController
 			findMoreLikeThis();
 		} else 
 		if (event.getActionCommand().equals(TEMPLATE_SEARCH)) {
-			searchWithCurrentFileAsForm();
+			handleTemplateSearch();
 		} else
 			searchFiles();
 	}
@@ -204,44 +210,6 @@ public class SearchController
 			return;
 		JPanel newResultPanel = new SearchPanel(searchQuery, model);
 		setSearchResultsPanel(newResultPanel);
-	}
-	
-	public void searchWithCurrentFileAsForm() {
-		File file = new File(ConfigConstants.OMERO_EDITOR_FILE + File.separator + "searchFile");
-			
-		model.exportTreeToXmlFile(file);
-		
-		XMLMethods xmlMethods = new XMLMethods();
-		try {
-			String searchQuery = "";
-			
-			ArrayList<HashMap<String, String>> elements = xmlMethods.getAllXmlFileAttributes(file, xmlMethods.new ElementAttributesHashMapHandler());
-			
-			for (HashMap<String, String> element : elements) {
-				String attributeName = element.get(DataFieldConstants.ELEMENT_NAME);
-				String value = element.get(DataFieldConstants.VALUE);
-				
-				if ((value != null) && (value.length() > 0) && 
-						(attributeName != null) && (attributeName.length() > 0)) {
-					attributeName = attributeName.replace(" ", "");
-					
-					searchQuery = searchQuery  + attributeName + ":" + "\"" + value + "\" ";
-				}
-			}
-			
-			System.out.println("SearchController searchWithCurrentFileAsForm() searchQuery = " + searchQuery);
-			
-			searchFiles(searchQuery);
-		
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		file.delete();
 	}
 
 	/**
@@ -271,6 +239,11 @@ public class SearchController
 		setSearchResultsPanel(newResultPanel);
 	}
 	
+	public void handleTemplateSearch() {
+		TemplateSearch templateSearcher = new TemplateSearch();
+		templateSearcher.addPropertyChangeListener(
+				TemplateSearch.TEMPLATE_SEARCH_DONE, this);
+	}
 	
 	
 	/**
@@ -293,7 +266,7 @@ public class SearchController
 	}
 	
 	/**
-	 * Builds the UI. 
+	 * Builds the UI of the search results panel.
 	 * A simple layout of a close-button placed above a space for the results panel.
 	 * The search results panel is added after a search, and replaced with subsequent searches.
 	 */
@@ -314,7 +287,8 @@ public class SearchController
 		
 	}
 	
-	/** called by observers that want to display the search panel after a search.
+	/** 
+	 * called by observers that want to display the search panel after a search.
 	 * Normally returns the <code>searchControllerPanel</code>, containing the closeButton
 	 * and the searchResultsPanel.
 	 * Unless the <code>displayControllerPanel</code> boolean is set to false (by the closeButton)
@@ -328,12 +302,23 @@ public class SearchController
 		else return null;
 	}
 	
+	/**
+	 * This method is called by the DocumentListener on the searchTermSource.
+	 * It adds auto-complete functionality to the search-term box, using 
+	 * tokens from the Lucene index, displaid in
+	 * the HistoryDialog, from the clients.jar. 
+	 */
 	public void autoComplete() {
 		Rectangle rect = searchTermSource.getBounds();
 		String text = searchTermSource.getText();
+		/*
+		 * Don't auto-complete for 0 or 1 letter.
+		 */
 		if (text.length() < 2) return;
 		
-		String[] matchingTerms = IndexTermFinder.getMatchingTerms(text);
+		IndexTermFinder indexFinder = new IndexTermFinder(IndexFiles.INDEX_PATH,
+				IndexFiles.CONTENTS);
+		String[] matchingTerms = indexFinder.getMatchingTerms(text);
 		
 		popup = new HistoryDialog(matchingTerms, rect.width);
 		popup.addPropertyChangeListener(
@@ -344,24 +329,50 @@ public class SearchController
 		searchTermSource.requestFocusInWindow();
 	}
 
+	/**
+	 * Method of DocumentListener added to the search box, for auto-complete.
+	 * Simply calls autoComplete()
+	 */
 	public void insertUpdate(DocumentEvent e) {
 		autoComplete();
 	}
 	
+	/**
+	 * Method of DocumentListener added to the search box, for auto-complete.
+	 * Simply calls autoComplete()
+	 */
 	public void changedUpdate(DocumentEvent e) {
 		autoComplete();
 	}
+	
+	/**
+	 * Method of DocumentListener added to the search box, for auto-complete.
+	 * Simply calls autoComplete()
+	 */
 	public void removeUpdate(DocumentEvent e) {
 		autoComplete();
 	}
 
+	/**
+	 * This class listeners for changes to windows or dialogs that it creates.
+	 * eg. Auto-complete dialog to populate the search box with a chosen word,
+	 * or The template search dialog when the search has been completed. 
+	 */
 	public void propertyChange(PropertyChangeEvent evt) {
-		if (HistoryDialog.SELECTION_PROPERTY.equals(evt.getPropertyName())) {
+		String propName = evt.getPropertyName();
+		
+		if (HistoryDialog.SELECTION_PROPERTY.equals(propName)) {
 			Object item = evt.getNewValue();
 			searchTermSource.setText(item.toString());
 			
 			popup.setVisible(false);
+		}
+		
+		if (TemplateSearch.TEMPLATE_SEARCH_DONE.equals(propName)) {
 			
+			List<Object> results = (List<Object>)evt.getNewValue();
+			JPanel newResultPanel = new SearchPanel(results, " ", model);
+			setSearchResultsPanel(newResultPanel);
 		}
 	}
 

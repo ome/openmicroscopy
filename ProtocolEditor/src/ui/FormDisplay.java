@@ -69,7 +69,7 @@ public class FormDisplay
 	
 	
 	
-	FormDisplay(DataFieldNode rootNode) {
+	public FormDisplay(DataFieldNode rootNode) {
 		
 		this.rootNode = rootNode;
 		

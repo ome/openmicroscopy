@@ -24,14 +24,11 @@ package search;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -40,10 +37,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import ui.IModel;
-import ui.XMLView;
 import util.BareBonesBrowserLaunch;
 import util.ExceptionHandler;
-import util.ImageFactory;
 
 // instance of this class made for each search (passed search term in constructor)
 // gets a list of SearchResultHtml objects and builds html from them. Displays in JEditorPane
@@ -56,7 +51,7 @@ public class SearchPanel extends JPanel {
 	
 	String resultsText;
 	
-	ArrayList<SearchResultHtml> results = new ArrayList<SearchResultHtml>();
+	List<Object> results = new ArrayList<Object>();
 	
 	public SearchPanel(File file, IModel model) {
 	
@@ -77,13 +72,20 @@ public class SearchPanel extends JPanel {
 		
 	}
 	
+	public SearchPanel(List<Object> results, String searchString, IModel model) {
+		this.model = model;
+		
+		this.results = results;
+		buildResultsPanel(searchString);
+	}
+	
 	public void buildResultsPanel(String searchTerm) {
 		resultsText = "<html><div style='padding: 5px 5px 5px 5px; width=300;'>";
 		
 		// show the top 10 results
 		for (int i=0; (i<results.size() && i<10); i++) {
 			// opens each original document to get context for search string
-			resultsText = resultsText + results.get(i).getHtmlText();
+			resultsText = resultsText + results.get(i).toString();
 		}
 		
 		if (results.isEmpty()) {
@@ -94,7 +96,7 @@ public class SearchPanel extends JPanel {
 		
 		JEditorPane resultsPane;
 		resultsPane = new JEditorPane("text/html", resultsText);
-		// size!! Does f***-all!
+		// size!! Has no effect!
 		Dimension size = new Dimension(400, 400);
 		resultsPane.setMaximumSize(size);
 		resultsPane.setPreferredSize(size);
@@ -121,30 +123,14 @@ public class SearchPanel extends JPanel {
 	public void search(String searchString) {
 		// try to search index
 		try {
+			SearchFiles.getIndexReader(IndexFiles.INDEX_PATH);
 			SearchFiles.search(searchString, results);
 		 
-		} catch (FileNotFoundException ex) {
-		
-			int result = JOptionPane.showConfirmDialog(this, "Search index not found.\n" +
-					"You need to create an index of all the files you want to search.\n"+
-					"Please choose the root directory containing all your files","Index not found" ,JOptionPane.OK_CANCEL_OPTION);
-    		if (result == JOptionPane.YES_OPTION) {
-    			IndexFiles.indexFolderContents();
-    			
-    			// assuming indexing went OK. Try searching again. 
-    			try {
-					SearchFiles.search(searchString, results);
-				} catch (Exception e) {
-					// user didn't index, or indexing failed. 
-					// show error and give user a chance to submit error
-	    			ExceptionHandler.showErrorDialog("Searching files failed - index not found",
-	    					"", e);}
-    		}
 		} catch (Exception ex) {
 			// show error and give user a chance to submit error
 			ExceptionHandler.showErrorDialog("Searching files failed",
 					"", ex);
-			
+			ex.printStackTrace();
 		}
 	}
 	

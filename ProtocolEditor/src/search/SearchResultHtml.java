@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.xml.sax.SAXParseException;
 
 import util.XMLMethods;
@@ -71,7 +70,7 @@ public class SearchResultHtml {
 
 	}
 	
-	public String getHtmlText() {
+	public String toString() {
 		
 		// if file not found...
         if (!file.exists()){

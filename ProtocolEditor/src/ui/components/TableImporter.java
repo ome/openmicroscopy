@@ -25,12 +25,14 @@ package ui.components;
 
 //Java imports
 
+import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 
 import javax.swing.JTextArea;
+import javax.swing.text.JTextComponent;
 
 //Third-party libraries
 
@@ -69,13 +71,9 @@ public class TableImporter
 		
 	}
 	
-	/**
-	 * This is called by the superclass constructor, before building the UI.
-	 * Subclasses should initialise the text area. 
-	 * In this case, it is simply a JTextArea. 
-	 * Header message and Icon are also set here. 
-	 */
-	public void initialiseTextArea() {
+	public void setHeaderComponents() {
+		
+		setOkButtonText("Import Table");
 		
 		setTitle("Import Table");
 		 
@@ -84,6 +82,15 @@ public class TableImporter
 		 
 		setHeaderIcon(ImageFactory.getInstance().getIcon(ImageFactory.KORGANIZER_ICON));
 		
+	}
+	
+	/**
+	 * This is called by the superclass constructor, before building the UI.
+	 * Subclasses should initialise the text area. 
+	 * In this case, it is simply a JTextArea. 
+	 * Header message and Icon are also set here. 
+	 */
+	public JTextComponent initialiseTextArea() {
 		
 		// Text Area...
 		
@@ -93,6 +100,7 @@ public class TableImporter
 		((JTextArea)textArea).setLineWrap(true);
 		textArea.addFocusListener(new TextAreaFocusListener());
 		
+		return textArea;
 	}
 	
 	/**
@@ -103,7 +111,7 @@ public class TableImporter
 	 * The tab-delimited text is parsed, placing each token of text into
 	 * a separate cell of the table. 
 	 */
-	public void importText() {
+	public void actionPerformed (ActionEvent evt) {
 		String wholeText = textArea.getText();
 		
 		StringReader sr = new StringReader(wholeText);
