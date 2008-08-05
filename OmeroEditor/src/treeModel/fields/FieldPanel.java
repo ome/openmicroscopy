@@ -20,7 +20,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package fields;
+package treeModel.fields;
 
 
 // Java Imports

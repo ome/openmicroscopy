@@ -5,10 +5,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import fields.FieldPanel;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 
 public class FormFieldCheckBox extends FieldPanel {
 	

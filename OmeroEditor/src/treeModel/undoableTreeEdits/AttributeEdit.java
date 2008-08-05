@@ -31,7 +31,8 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.undo.AbstractUndoableEdit;
 
-import fields.IAttributes;
+import treeModel.fields.IAttributes;
+
 
 //Third-party libraries
 
@@ -148,11 +149,7 @@ public class AttributeEdit
 	public void undo() {
 		attributes.setAttribute(attributeName, oldValue);
 		
-		notifyNodeChanged();
-		TreeModelMethods.selectNode(node, tree);
-		
-		DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
-		tree.startEditingAtPath(new TreePath(dmtNode.getPath()));
+		notifySelectStartEdit();
 	}
 	
 	/**
@@ -161,6 +158,19 @@ public class AttributeEdit
 	public void redo() {
 		attributes.setAttribute(attributeName, newValue);
 		
+		notifySelectStartEdit();
+	}
+	
+	/**
+	 * This should be called after undo or redo.
+	 * It notifies listeners to the treeModel that a change has been made,
+	 * then selects the edited node in the JTree specified in the constructor. 
+	 * Finally, startEditingAtPath(path) to the edited node is called on 
+	 * this JTree. This means that after an undo/redo, the edited node is 
+	 * "active", so that a user can edit directly, rather than needing a 
+	 * click before editing. 
+	 */
+	private void notifySelectStartEdit() {
 		notifyNodeChanged();
 		TreeModelMethods.selectNode(node, tree);
 		

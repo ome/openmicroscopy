@@ -43,12 +43,12 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 
-import fields.DateTimeParam;
-import fields.FieldPanel;
-import fields.IParam;
 
 import omeroCal.view.DatePicker;
 import tree.DataFieldConstants;
+import treeModel.fields.DateTimeParam;
+import treeModel.fields.FieldPanel;
+import treeModel.fields.IParam;
 import ui.components.CustomComboBox;
 import uiComponents.HrsMinsEditor;
 

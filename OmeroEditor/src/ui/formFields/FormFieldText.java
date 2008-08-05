@@ -28,12 +28,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JTextField;
 
-import fields.Field;
-import fields.FieldPanel;
-import fields.IField;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.Field;
+import treeModel.fields.FieldPanel;
+import treeModel.fields.IField;
 import ui.components.AttributeTextEditor;
 
 public class FormFieldText extends FieldPanel {

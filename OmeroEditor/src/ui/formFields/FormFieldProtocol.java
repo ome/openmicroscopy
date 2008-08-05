@@ -27,10 +27,10 @@ import java.awt.Dimension;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 
-import fields.FieldPanel;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import ui.XMLView;
 
 public class FormFieldProtocol extends FieldPanel {

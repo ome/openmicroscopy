@@ -25,7 +25,6 @@ package ui.components;
 //Java imports
 import javax.swing.JTextField;
 
-import fields.IField;
 
 //Third-party libraries
 
@@ -33,6 +32,7 @@ import fields.IField;
 import tree.DataFieldObserver;
 import tree.IAttributeSaver;
 import tree.IDataFieldObservable;
+import treeModel.fields.IField;
 
 /** 
  * This is a JTextField, that is associated with a particular attribute

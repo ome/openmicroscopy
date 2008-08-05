@@ -26,10 +26,10 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import tree.DataFieldConstants;
+import treeModel.fields.AbstractParam;
+import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
 
-import fields.AbstractParam;
-import fields.IParam;
-import fields.SingleParam;
 
 //Java imports
 

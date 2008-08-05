@@ -46,7 +46,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import fields.FieldPanel;
 
 import tree.edit.EditAddField;
 import tree.edit.EditClearFields;
@@ -63,6 +62,7 @@ import tree.edit.EditMultiplyValues;
 import tree.edit.EditPromoteFields;
 import tree.edit.EditRequiredField;
 import tree.edit.EditUnlockFields;
+import treeModel.fields.FieldPanel;
 import ui.SelectionObserver;
 import ui.XMLUpdateObserver;
 import ui.fieldEditors.FieldEditor;

@@ -28,11 +28,11 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JComboBox;
 
-import fields.FieldPanel;
-import fields.FieldPanel.FormPanelMouseListener;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
+import treeModel.fields.FieldPanel.FormPanelMouseListener;
 import ui.components.CustomComboBox;
 
 public class FormFieldDropDown extends FieldPanel {

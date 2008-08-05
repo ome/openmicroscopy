@@ -25,13 +25,13 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.JTextComponent;
 
-import fields.FieldPanel;
 
 import ols.Ontologies;
 import ols.OntologyLookUp;
 
 import tree.DataField;
 import tree.IAttributeSaver;
+import treeModel.fields.FieldPanel;
 
 public class OntologyTermSelector extends JPanel {
 	

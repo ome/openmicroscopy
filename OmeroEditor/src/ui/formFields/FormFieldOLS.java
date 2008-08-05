@@ -30,11 +30,11 @@ import java.awt.event.ActionListener;
 import javax.swing.Icon;
 import javax.swing.JButton;
 
-import fields.FieldPanel;
-import fields.FieldPanel.FocusGainedPropertyChangedListener;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
+import treeModel.fields.FieldPanel.FocusGainedPropertyChangedListener;
 import ui.OLSMetadataPanel;
 import ui.components.OntologyTermSelector;
 import util.ImageFactory;

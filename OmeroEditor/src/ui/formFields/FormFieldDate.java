@@ -26,10 +26,10 @@ import java.awt.Color;
 
 import javax.swing.JTextField;
 
-import fields.FieldPanel;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import ui.components.AttributeTextEditor;
 
 public class FormFieldDate extends FieldPanel {

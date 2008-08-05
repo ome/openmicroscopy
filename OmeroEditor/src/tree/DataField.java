@@ -33,11 +33,11 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.undo.UndoableEdit;
 
-import fields.FieldPanel;
 
 import tree.edit.EditDataFieldAttribute;
 import tree.edit.EditDataFieldAttributes;
 import tree.edit.EditDataFieldType;
+import treeModel.fields.FieldPanel;
 import ui.FieldEditorFormFieldFactory;
 import ui.fieldEditors.FieldEditor;
 

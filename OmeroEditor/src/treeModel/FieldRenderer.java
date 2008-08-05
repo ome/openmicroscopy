@@ -32,12 +32,13 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import treeModel.fields.FieldPanel;
+import treeModel.fields.IField;
+
 //Third-party libraries
 
 //Application-internal dependencies
 
-import fields.FieldPanel;
-import fields.IField;
 
 
 

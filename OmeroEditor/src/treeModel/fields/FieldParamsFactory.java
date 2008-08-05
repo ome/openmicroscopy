@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package fields;
+package treeModel.fields;
 
 //Java imports
 

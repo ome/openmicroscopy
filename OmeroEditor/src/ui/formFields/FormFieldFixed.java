@@ -22,8 +22,8 @@
 
 package ui.formFields;
 
-import fields.FieldPanel;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 
 public class FormFieldFixed extends FieldPanel {
 	

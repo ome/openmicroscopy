@@ -46,11 +46,11 @@ import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
-import fields.FieldPanel;
 
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import ui.components.FileChooserReturnFile;
 import ui.components.PopupMenuButton;
 import util.BareBonesBrowserLaunch;

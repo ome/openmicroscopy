@@ -31,12 +31,13 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
+import treeModel.fields.FieldPanel;
+import treeModel.fields.IParam;
+
 //Third-party libraries
 
 //Application-internal dependencies
 
-import fields.FieldPanel;
-import fields.IParam;
 
 /** 
  * This is an editing component that edits a text value in a 

@@ -26,10 +26,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
-import fields.FieldPanel;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import ui.components.AttributeTextAreaEditor;
 
 public class FormFieldMemo extends FieldPanel {

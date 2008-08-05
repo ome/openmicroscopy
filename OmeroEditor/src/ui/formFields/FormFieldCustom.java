@@ -30,10 +30,10 @@ import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
-import fields.FieldPanel;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import ui.XMLView;
 import ui.components.AttributeTextEditor;
 import ui.components.AttributesDialog;

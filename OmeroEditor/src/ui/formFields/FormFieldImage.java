@@ -62,11 +62,11 @@ import javax.swing.filechooser.FileFilter;
 
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
-import fields.FieldPanel;
 
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import ui.Controller;
 import ui.components.CustomPopupMenu;
 import ui.components.FileChooserReturnFile;

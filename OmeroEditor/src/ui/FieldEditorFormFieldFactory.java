@@ -22,9 +22,9 @@
 
 package ui;
 
-import fields.FieldPanel;
 import tree.DataField;
 import tree.DataFieldConstants;
+import treeModel.fields.FieldPanel;
 import ui.fieldEditors.FieldEditor;
 import ui.fieldEditors.FieldEditorCheckBox;
 import ui.fieldEditors.FieldEditorCustom;

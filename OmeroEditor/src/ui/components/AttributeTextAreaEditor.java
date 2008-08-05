@@ -27,7 +27,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
-import fields.IAttributes;
 
 //Third-party libraries
 
@@ -35,6 +34,7 @@ import fields.IAttributes;
 import tree.DataFieldObserver;
 import tree.IAttributeSaver;
 import tree.IDataFieldObservable;
+import treeModel.fields.IAttributes;
 
 /** 
  * This is a JTextArea, that is associated with a particular attribute

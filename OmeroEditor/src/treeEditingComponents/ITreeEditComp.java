@@ -22,7 +22,7 @@
  */
 package treeEditingComponents;
 
-import fields.IParam;
+import treeModel.fields.IParam;
 
 //Java imports
 

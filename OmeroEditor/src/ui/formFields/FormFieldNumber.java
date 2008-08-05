@@ -31,10 +31,10 @@ import javax.swing.Box;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import fields.FieldPanel;
 
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import ui.components.AttributeTextEditor;
 
 public class FormFieldNumber extends FieldPanel {

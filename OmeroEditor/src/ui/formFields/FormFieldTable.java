@@ -42,11 +42,11 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
-import fields.FieldPanel;
 
 import table.InteractiveTableModel;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
+import treeModel.fields.FieldPanel;
 import util.ImageFactory;
 
 public class FormFieldTable extends FieldPanel {

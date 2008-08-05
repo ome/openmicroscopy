@@ -44,15 +44,15 @@ import org.xml.sax.SAXException;
 
 //Application-internal dependencies
 
-import fields.DateTimeParam;
-import fields.Field;
-import fields.IAttributes;
-import fields.IField;
-import fields.IParam;
-import fields.SingleParam;
 
 import tree.DataField;
 import tree.DataFieldConstants;
+import treeModel.fields.DateTimeParam;
+import treeModel.fields.Field;
+import treeModel.fields.IAttributes;
+import treeModel.fields.IField;
+import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
 import util.ExceptionHandler;
 import util.XMLMethods;
 

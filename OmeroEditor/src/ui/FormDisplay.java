@@ -29,10 +29,10 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import fields.FieldPanel;
 
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
+import treeModel.fields.FieldPanel;
 import ui.formFields.FormFieldContainer;
 
 import java.awt.BorderLayout;

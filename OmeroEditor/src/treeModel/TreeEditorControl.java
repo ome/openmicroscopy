@@ -34,13 +34,13 @@ import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 import javax.swing.undo.UndoableEditSupport;
 
-import fields.IAttributes;
 
 import treeModel.editActions.AddFieldAction;
 import treeModel.editActions.DeleteFieldsAction;
 import treeModel.editActions.DuplicateFieldsAction;
 import treeModel.editActions.RedoEditAction;
 import treeModel.editActions.UndoEditAction;
+import treeModel.fields.IAttributes;
 import treeModel.undoableTreeEdits.AttributeEdit;
 import treeModel.undoableTreeEdits.ObservableUndoManager;
 

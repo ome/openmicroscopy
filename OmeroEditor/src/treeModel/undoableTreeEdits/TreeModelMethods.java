@@ -34,7 +34,8 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import fields.Field;
+import treeModel.fields.Field;
+
 
 //Third-party libraries
 

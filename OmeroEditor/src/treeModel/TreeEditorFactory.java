@@ -32,8 +32,8 @@ import javax.swing.tree.TreeNode;
 
 import tree.DataFieldConstants;
 import treeIO.TreeModelFactory;
+import treeModel.fields.Field;
 
-import fields.Field;
 
 //Java imports
 

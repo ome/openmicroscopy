@@ -21,7 +21,7 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-package fields;
+package treeModel.fields;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -30,13 +30,13 @@ import java.awt.event.KeyListener;
 
 import javax.swing.text.JTextComponent;
 
-import fields.IAttributes;
-import fields.IField;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import tree.IAttributeSaver;
+import treeModel.fields.IAttributes;
+import treeModel.fields.IField;
 
 /** 
  * This is a pair of listeners that should be added to any text field 

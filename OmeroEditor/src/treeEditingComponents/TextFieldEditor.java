@@ -26,12 +26,13 @@ package treeEditingComponents;
 
 import javax.swing.JTextField;
 
+import treeModel.fields.FieldPanel;
+import treeModel.fields.IParam;
+
 //Third-party libraries
 
 //Application-internal dependencies
 
-import fields.FieldPanel;
-import fields.IParam;
 
 
 /** 

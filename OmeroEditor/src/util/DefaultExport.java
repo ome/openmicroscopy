@@ -11,12 +11,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import fields.FieldPanel;
 
 import tree.DataField;
 import tree.DataFieldConstants;
 import tree.DataFieldNode;
 import tree.IAttributeSaver;
+import treeModel.fields.FieldPanel;
 
 /*
  *------------------------------------------------------------------------------

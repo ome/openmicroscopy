@@ -39,9 +39,9 @@ import javax.swing.JToolBar;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
-import fields.FieldPanel;
 
 import tree.DataFieldNode;
+import treeModel.fields.FieldPanel;
 import ui.IModel;
 
 /**
