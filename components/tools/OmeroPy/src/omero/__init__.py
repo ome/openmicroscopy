@@ -33,6 +33,7 @@ class client(object):
         self.ic = None
         self.sf = None
         self.ic = Ice.initialize(args,id)
+        self._ic_args = (args, id)
         if not self.ic:
             raise ClientError("Improper initialization")
         # Register Object Factory
