@@ -6,6 +6,7 @@
 package ome.services.sharing;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 import Ice.ReadObjectCallback;
+import Ice.UnmarshalOutOfBoundsException;
 
 /**
  * Entry to the Ice code generated data/ directory. Subclasess of
@@ -82,7 +84,7 @@ public abstract class ShareStore {
         return bytes;
     }
 
-    public final ShareData parse(byte[] data) {
+    public final ShareData parse(long id, byte[] data) {
 
         if (data == null) {
             return null; // EARLY EXIT!
@@ -98,6 +100,13 @@ public abstract class ShareStore {
                 }
             });
             is.readPendingObjects();
+        } catch (UnmarshalOutOfBoundsException oob) {
+            log.error("Share " + id + " is malformed. Creating empty share.");
+            shareData[0] = new ShareData(id, -1L, Collections
+                    .<Long> emptyList(), Collections.<String> emptyList(),
+                    Collections.<String, List<Long>> emptyMap(), Collections
+                            .<Obj> emptyList(), false, 0L);
+            // Eventually we'll need to handle conversion, etc. here or above
         } finally {
             is.destroy();
         }

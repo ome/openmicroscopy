@@ -7,8 +7,10 @@ package ome.services.sharing;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ome.api.IShare;
@@ -101,20 +103,21 @@ public class BlobShareStore extends ShareStore {
             return null;
         }
         byte[] data = s.getData();
-        return parse(data);
+        return parse(id, data);
     }
 
     @Override
-    public List<ShareData> getShares(boolean active) {
+    public List<ShareData> getShares(boolean activeOnly) {
         List<ShareData> rv = new ArrayList<ShareData>();
         try {
-            List<byte[]> data = data();
-            for (byte[] bs : data) {
-                ShareData d = parse(bs);
-                if (active && !d.enabled) {
+            Map<Long, byte[]> data = data();
+            for (Long id : data.keySet()) {
+                byte[] bs = data.get(id);
+                ShareData d = parse(id, bs);
+                if (activeOnly && !d.enabled) {
                     continue;
                 }
-                rv.add(parse(bs));
+                rv.add(d);
             }
             return rv;
         } catch (EmptyResultDataAccessException empty) {
@@ -123,13 +126,15 @@ public class BlobShareStore extends ShareStore {
     }
 
     @Override
-    public List<ShareData> getShares(long userId, boolean own, boolean active) {
+    public List<ShareData> getShares(long userId, boolean own,
+            boolean activeOnly) {
         List<ShareData> rv = new ArrayList<ShareData>();
         try {
-            List<byte[]> data = data();
-            for (byte[] bs : data) {
-                ShareData d = parse(bs);
-                if (active && !d.enabled) {
+            Map<Long, byte[]> data = data();
+            for (Long id : data.keySet()) {
+                byte[] bs = data.get(id);
+                ShareData d = parse(id, bs);
+                if (activeOnly && !d.enabled) {
                     continue;
                 }
                 if (own) {
@@ -141,7 +146,7 @@ public class BlobShareStore extends ShareStore {
                         continue;
                     }
                 }
-                rv.add(parse(bs));
+                rv.add(d);
             }
             return rv;
         } catch (EmptyResultDataAccessException empty) {
@@ -183,14 +188,18 @@ public class BlobShareStore extends ShareStore {
      * @return
      */
     @SuppressWarnings("unchecked")
-    private List<byte[]> data() {
-        List<byte[]> data = ht.executeFind(new HibernateCallback() {
+    private Map<Long, byte[]> data() {
+        List<Object[]> data = ht.executeFind(new HibernateCallback() {
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
-                return session.createQuery("select data from Share").list();
+                return session.createQuery("select id, data from Share").list();
             }
         });
-        return data;
+        Map<Long, byte[]> rv = new HashMap<Long, byte[]>();
+        for (Object[] objects : data) {
+            rv.put((Long) objects[0], (byte[]) objects[1]);
+        }
+        return rv;
     }
 
 }
