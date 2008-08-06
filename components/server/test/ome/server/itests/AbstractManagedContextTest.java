@@ -229,9 +229,7 @@ public class AbstractManagedContextTest extends
                     });
             return pixels.get(0);
         } catch (Exception e) {
-            return null;
-            // throw new RuntimeException(e);
-            // TEMPORARY WORKAROUND
+            throw new RuntimeException(e);
         }
     }
 
