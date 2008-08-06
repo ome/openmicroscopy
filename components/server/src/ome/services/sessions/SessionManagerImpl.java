@@ -23,7 +23,6 @@ import ome.conditions.RemovedSessionException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.SessionException;
 import ome.conditions.ValidationException;
-import ome.model.IObject;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -343,21 +342,25 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         int refCount = ctx.decrement();
         if (refCount < 1) {
 
-            Session s = ctx.getSession();
-            s.setClosed(new Timestamp(System.currentTimeMillis()));
-            update(s);
+            final Session s = ctx.getSession();
+            final DestroySessionMessage destroy = new DestroySessionMessage(
+                    this, s.getUuid());
 
             try {
-                context.publishEvent(new DestroySessionMessage(this, s
-                        .getUuid()));
+                // Publishing event before we close the session so that any
+                // listeners can do necessary work.
+                context.publishEvent(destroy);
             } catch (RuntimeException re) {
                 log.warn("Session destruction cancelled by event listener", re);
                 throw re;
             }
-            // This the publishEvent returns successfully, then we update our
-            // cache
-            // since ehcache is not tx-friendly.
+
+            // If this publishEvent returns successfully, then we update our
+            // cache since ehcache is not tx-friendly.
+            s.setClosed(new Timestamp(System.currentTimeMillis()));
+            update(s);
             cache.removeSession(uuid);
+
             return -2;
         } else {
             return refCount;
@@ -616,11 +619,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends IObject> T executeUpdate(final T obj) {
-        return (T) executor.execute(asroot, new Executor.Work() {
+    private Session executeUpdate(final Session session) {
+        return (Session) executor.execute(asroot, new Executor.Work() {
             public Object doWork(TransactionStatus status,
                     org.hibernate.Session s, ServiceFactory sf) {
-                return sf.getUpdateService().saveAndReturnObject(obj);
+                return sf.getUpdateService().saveAndReturnObject(session);
             }
         }, false);
     }
