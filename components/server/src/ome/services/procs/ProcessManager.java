@@ -178,7 +178,7 @@ public class ProcessManager extends ExecutionThread implements IProcessManager {
 
         try {
 
-            this.executor.execute(getPrincipal(), this.work, true);
+            this.executor.execute(getPrincipal(), this.work, false);
 
         } catch (Exception e) {
             if (log.isErrorEnabled()) {

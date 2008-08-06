@@ -274,19 +274,8 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
     @RolesAllowed("user")
     public Job getJob() {
-        errorIfInvalidState();
-        checkAndRegister();
-        Job job = iQuery.findByQuery("select j from Job j "
-                + "left outer join fetch j.status status "
-                + "left outer join fetch j.originalFileLinks links "
-                + "left outer join fetch links.child file "
-                + "left outer join fetch j.details.owner owner "
-                + "left outer join fetch owner.groupExperimenterMap map "
-                + "left outer join fetch map.parent where j.id = :id",
-                new Parameters().addId(jobId));
-        if (job == null) {
-            throw new ApiUsageException("Unknown job:" + jobId);
-        }
+
+        Job job = internalJobOnly();
 
         //
         // FIXME Unknown lazy initialization exceptions. Cleaning up for the
@@ -333,7 +322,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
     @RolesAllowed("user")
     public void cancelJob() {
         errorIfInvalidState();
-        Job job = getJob();
+        Job job = internalJobOnly();
         job.setStatus(new JobStatus(JobHandle.CANCELLED));
         secureSave(job);
         Process p = pm.runningProcess(jobId);
@@ -355,6 +344,23 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
     // Helpers ~
     // =========================================================================
+
+    private Job internalJobOnly() {
+        errorIfInvalidState();
+        checkAndRegister();
+        Job job = iQuery.findByQuery("select j from Job j "
+                + "left outer join fetch j.status status "
+                + "left outer join fetch j.originalFileLinks links "
+                + "left outer join fetch links.child file "
+                + "left outer join fetch j.details.owner owner "
+                + "left outer join fetch owner.groupExperimenterMap map "
+                + "left outer join fetch map.parent where j.id = :id",
+                new Parameters().addId(jobId));
+        if (job == null) {
+            throw new ApiUsageException("Unknown job:" + jobId);
+        }
+        return job;
+    }
 
     private Job secureSave(Job job) {
         job = sec.doAction(new SecureAction() {

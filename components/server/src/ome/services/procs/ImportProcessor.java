@@ -8,12 +8,13 @@
 package ome.services.procs;
 
 import ome.formats.OMEROMetadataStore;
-import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
@@ -26,6 +27,8 @@ import org.springframework.context.ApplicationContextAware;
  */
 public class ImportProcessor implements ApplicationContextAware, Processor {
 
+    private final static Log log = LogFactory.getLog(ImportProcessor.class);
+
     private OmeroContext context;
     private OMEROMetadataStore store;
     private OMEROWrapper reader;
@@ -36,7 +39,7 @@ public class ImportProcessor implements ApplicationContextAware, Processor {
         try {
             this.context = (OmeroContext) applicationContext;
             this.store = new OMEROMetadataStore(new ServiceFactory(context));
-            this.reader = null; // new OMEROWrapper();  WORKAROUND for NPE
+            this.reader = null; // new OMEROWrapper(); WORKAROUND for NPE
         } catch (Exception e) {
             throw new FatalBeanException("Error creating ImportProcessor", e);
         }
@@ -44,19 +47,19 @@ public class ImportProcessor implements ApplicationContextAware, Processor {
 
     public Process process(long id) {
         try {
-            this.library = new ImportLibrary(store, reader);
-            for (ImportContainer c : library.getFilesAndDatasets()) {
-                library.setDataset(c.getDataset());
-                String filename = c.file.getAbsolutePath();
-                library.open(filename);
-                // Needs synchronization with importer library
-                // library.calculateImageCount(filename);
-                // long pixId = library.importMetadata(filename);
-                // library.importData(pixId, filename, null);//step);
-            }
+            log.warn("NO-OP");
+            // this.library = new ImportLibrary(store, reader);
+            // for (ImportContainer c : library.getFilesAndDatasets()) {
+            // library.setDataset(c.getDataset());
+            // String filename = c.file.getAbsolutePath();
+            // library.open(filename);
+            // Needs synchronization with importer library
+            // library.calculateImageCount(filename);
+            // long pixId = library.importMetadata(filename);
+            // library.importData(pixId, filename, null);//step);
+            // }
         } catch (Exception e) {
-            System.err
-                    .println("XXXXXXXXXXXXX << WRITE TO MSG >> XXXXXXXXXXXXXXX");
+            log.error(e);
         }
         return null;
 
