@@ -268,6 +268,9 @@ public class IceMethodInvoker {
         } else if (ome.conditions.SessionTimeoutException.class.isAssignableFrom(c)) {
             omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
             return IceMapper.fillServerError(ste, t);
+        } else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
+            omero.InternalException ie = new omero.InternalException();
+            return IceMapper.fillServerError(ie, t);
         } else if (ome.conditions.AuthenticationException.class.isAssignableFrom(c)) {
             // not an omero.ServerError()
             omero.AuthenticationException ae = new omero.AuthenticationException(t.getMessage());
