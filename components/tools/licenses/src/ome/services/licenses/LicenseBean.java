@@ -51,7 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RevisionDate("$Date: 2006-12-15 11:39:34 +0100 (Fri, 15 Dec 2006) $")
 @RevisionNumber("$Revision: 1167 $")
 @TransactionManagement(TransactionManagementType.BEAN)
-@Transactional
+@Transactional(readOnly = true)
 @Stateless
 @Remote(ILicense.class)
 @RemoteBindings( {
