@@ -29,7 +29,7 @@ public class SessionBeanIntegrationTest extends TestCase {
     public void testExceptionThrownOnClose() throws Exception {
 
         ManagedContextFixture fixture = new ManagedContextFixture();
-        Search search = fixture.sf.createSearchService();
+        Search search = fixture.managedSf.createSearchService();
         search.close();
     }
 

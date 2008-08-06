@@ -19,6 +19,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.testing.InterceptingServiceFactory;
+import ome.tools.spring.InternalServiceFactory;
 
 /**
  * @author Josh Moore, josh at glencoesoftware.com
@@ -29,7 +30,8 @@ public class ManagedContextFixture {
     public OmeroContext ctx = OmeroContext.getManagedServerContext();
     public SessionManager mgr = (SessionManager) ctx.getBean("sessionManager");
     public Executor ex = (Executor) ctx.getBean("executor");
-    public ServiceFactory sf = new ServiceFactory(ctx);
+    public ServiceFactory managedSf = new ServiceFactory(ctx);
+    public ServiceFactory internalSf;
     public SecuritySystem security;
     public PrincipalHolder holder;
     public LoginInterceptor login;
@@ -38,14 +40,15 @@ public class ManagedContextFixture {
         security = (SecuritySystem) ctx.getBean("securitySystem");
         holder = (PrincipalHolder) ctx.getBean("principalHolder");
         login = new LoginInterceptor(holder);
-        sf = new InterceptingServiceFactory(sf, login);
+        managedSf = new InterceptingServiceFactory(managedSf, login);
+        internalSf = new InternalServiceFactory(ctx);
         setCurrentUser("root");
         String user = newUser();
         setCurrentUser(user);
     }
 
     protected void tearDown() throws Exception {
-        sf = null;
+        managedSf = null;
         ctx.close();
     }
 
@@ -60,13 +63,14 @@ public class ManagedContextFixture {
         e.setFirstName("managed");
         e.setMiddleName("context");
         e.setLastName("test");
-        IAdmin admin = sf.getAdminService();
+        IAdmin admin = managedSf.getAdminService();
         admin.createUser(e, "default");
         return uuid;
     }
 
     public String getCurrentUser() {
-        return sf.getAdminService().getEventContext().getCurrentUserName();
+        return managedSf.getAdminService().getEventContext()
+                .getCurrentUserName();
     }
 
     public void setCurrentUser(String user) {

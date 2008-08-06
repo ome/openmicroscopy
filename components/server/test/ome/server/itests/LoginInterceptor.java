@@ -18,18 +18,26 @@ import org.aopalliance.intercept.MethodInvocation;
 public class LoginInterceptor implements MethodInterceptor {
 
     final PrincipalHolder holder;
-    Principal p;
+    public Principal p;
 
     LoginInterceptor(PrincipalHolder holder) {
         this.holder = holder;
     }
 
     public Object invoke(MethodInvocation arg0) throws Throwable {
+        int still;
+        still = holder.size();
+        if (still != 0) {
+            throw new RuntimeException(still + " remaining on login!");
+        }
         holder.login(p);
         try {
             return arg0.proceed();
         } finally {
-            holder.logout();
+            still = holder.logout();
+            if (still != 0) {
+                throw new RuntimeException(still + " remaining on logout!");
+            }
         }
     }
 

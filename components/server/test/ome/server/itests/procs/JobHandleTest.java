@@ -24,12 +24,12 @@ import ome.services.procs.ProcessManager;
 import ome.services.procs.ProcessorSkeleton;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
-import ome.system.ServiceFactory;
 import ome.util.ContextFilter;
 
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
-import org.testng.annotations.Configuration;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -40,19 +40,17 @@ import org.testng.annotations.Test;
 public class JobHandleTest extends TestCase {
 
     protected ManagedContextFixture fixture;
-    protected ServiceFactory sf;
     protected long id;
     protected JobHandle jh;
     protected PManager mgr;
 
     @Override
-    @Configuration(beforeTestMethod = true)
+    @BeforeClass
     protected void setUp() throws Exception {
         super.setUp();
         fixture = new ManagedContextFixture();
-        sf = fixture.sf;
-        mgr = new PManager(new P(sf.getQueryService()), fixture.mgr,
-                fixture.security, fixture.ex);
+        mgr = new PManager(new P(fixture.internalSf.getQueryService()),
+                fixture.mgr, fixture.security, fixture.ex);
         JobBean bean = (JobBean) fixture.ctx
                 .getBean("internal-ome.api.JobHandle");
         Field pm = bean.getClass().getDeclaredField("pm");
@@ -66,7 +64,7 @@ public class JobHandleTest extends TestCase {
     }
 
     @Override
-    @Configuration(afterTestMethod = true)
+    @AfterClass
     protected void tearDown() throws Exception {
         super.tearDown();
 
@@ -77,7 +75,7 @@ public class JobHandleTest extends TestCase {
         ScriptJob job = new ScriptJob();
         String uuid = UUID.randomUUID().toString();
         job.setMessage(uuid);
-        jh = sf.createJobHandle();
+        jh = fixture.managedSf.createJobHandle();
         id = jh.submit(job);
         assertTrue(id > 0L);
     }
@@ -92,13 +90,13 @@ public class JobHandleTest extends TestCase {
         job.setStatus(new JobStatus("Submitted"));
         job.setUsername("root");
         job.setScheduledFor(new Timestamp(System.currentTimeMillis() + 100L));
-        sf.getUpdateService().saveObject(job);
+        fixture.managedSf.getUpdateService().saveObject(job);
     }
 
     @Test
     public void testUserCanReattach() throws Exception {
         testJobIsSavedToDatabase();
-        JobHandle attach = sf.createJobHandle();
+        JobHandle attach = fixture.managedSf.createJobHandle();
         JobStatus status = attach.attach(id);
         assertTrue(status != null && status.getValue() != null);
     }
@@ -113,8 +111,8 @@ public class JobHandleTest extends TestCase {
     @Test
     public void testMultipleUsersCanAttach() throws Exception {
         testJobIsSavedToDatabase();
-        JobHandle attach1 = sf.createJobHandle();
-        JobHandle attach2 = sf.createJobHandle();
+        JobHandle attach1 = fixture.managedSf.createJobHandle();
+        JobHandle attach2 = fixture.managedSf.createJobHandle();
 
         String user1 = fixture.getCurrentUser();
         String user2 = fixture.newUser();

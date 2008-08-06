@@ -21,6 +21,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
@@ -52,13 +53,21 @@ public class LoginTest extends TestCase {
         u = sf.getUpdateService();
         sec = (SecuritySystem) ctx.getBean("securitySystem");
         sm = (SessionManager) ctx.getBean("sessionManager");
+        while (sec.logout() > 0) {
+            ;
+        }
+
+    }
+
+    @AfterClass
+    public void cleanup() {
+        while (sec.logout() > 0) {
+            // keep going;
+        }
     }
 
     @Test
     public void testNoLoginThrowsException() throws Exception {
-        while (sec.logout() > 0) {
-            ;
-        }
         try {
             q.find(Experimenter.class, 0l);
             fail("Non-logged-in call allowed!");

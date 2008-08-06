@@ -30,10 +30,10 @@ public class PixelServiceCreatesDirectoryUnitTest extends TestCase {
     protected void setUp() {
         pixels = new Pixels();
         pixels.setId(1234567890123L);
-        pixels.setSizeX(4);
-        pixels.setSizeY(4);
-        pixels.setSizeZ(3);
-        pixels.setSizeC(2);
+        pixels.setSizeX(8);
+        pixels.setSizeY(8);
+        pixels.setSizeZ(1);
+        pixels.setSizeC(1);
         pixels.setSizeT(1);
 
         PixelsType type = new PixelsType();

@@ -26,15 +26,13 @@ public class SessionTest extends AbstractManagedContextTest {
 
         loginRoot();
         Experimenter e = loginNewUser();
-        this.securitySystem.logout();
 
         ISession service = this.factory.getServiceByClass(ISession.class);
         Session s = service.createSession(new Principal(e.getOmeName(), "user",
                 "Test"), "ome");
 
         // This is what then gets passed to the
-        Principal p = new Principal(s.getUuid(), "user", "Test");
-        this.securitySystem.login(p);
+        loginAop.p = new Principal(s.getUuid(), "user", "Test");
 
         // Now we should be able to do something.
         EventContext ec = this.iAdmin.getEventContext();
