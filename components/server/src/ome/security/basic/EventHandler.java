@@ -8,15 +8,11 @@ package ome.security.basic;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
 import ome.model.meta.EventLog;
-import ome.security.SecuritySystem;
 import ome.system.EventContext;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -62,13 +58,6 @@ public class EventHandler implements MethodInterceptor {
 
     protected HibernateTemplate ht;
 
-    // for StatefulServices TODO
-    private final Map<Object, EventContext> objCtxMap = Collections
-            .synchronizedMap(new WeakHashMap<Object, EventContext>());
-
-    private final Map<Object, Object> objSeen = Collections
-            .synchronizedMap(new WeakHashMap<Object, Object>());
-
     /**
      * only public constructor, used for dependency injection. Requires an
      * active {@link HibernateTemplate} and {@link BasicSecuritySystem}.
@@ -111,7 +100,7 @@ public class EventHandler implements MethodInterceptor {
         try {
             ht.execute(new EnableFilterAction(secSys));
             retVal = arg0.proceed();
-            saveLogs();
+            saveLogs(readOnly);
             return retVal;
         } catch (Throwable ex) {
             failure = true;
@@ -179,42 +168,11 @@ public class EventHandler implements MethodInterceptor {
     }
 
     /**
-     * Loads a new {@link EventContext} into the {@link SecuritySystem} and
-     * replaces the proper values in {@link #objCtxMap} and {@link #objSeen}.
-     */
-    protected EventContext reloadContext(MethodInvocation arg0, boolean readOnly) {
-        EventContext ctx = null;
-        secSys.loadEventContext(readOnly);
-        ctx = secSys.getEventContext();
-        objCtxMap.put(arg0.getThis(), ctx);
-        objSeen.put(arg0.getThis(), objSeen); // Actualy a HashSet
-        return ctx;
-    }
-
-    /**
-     * Attempts to access non-id state in each of the members of the
-     * {@link EventContext}. Any {@link IllegalStateException} thrown will
-     * indicate an unloaded status.
-     */
-    protected boolean isContextUnloaded(EventContext ec) {
-        try {
-            ec.getCurrentUserName();
-            ec.getCurrentGroupName();
-            ec.getCurrentEventType();
-        } catch (IllegalStateException ise) {
-            // Then this can't be loaded.
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Calling clearLogs posits that these EventLogs were successfully saved,
      * and so this method may raise an event signalling such. This could
      * eventually be reworked to be fully within the security system.
      */
-    void saveLogs() {
+    void saveLogs(boolean readOnly) {
 
         // Grabbing a copy to prevent ConcurrentModificationEx
         final List<EventLog> logs = new ArrayList<EventLog>(secSys.getLogs());
@@ -222,6 +180,22 @@ public class EventHandler implements MethodInterceptor {
 
         if (logs == null || logs.size() == 0) {
             return; // EARLY EXIT
+        }
+
+        if (readOnly) {
+            // If we reach here, we have logs when we shouldn't.
+            StringBuilder sb = new StringBuilder();
+            sb.append("EventLogs in readOnly transaction:\n");
+            for (EventLog eventLog : logs) {
+                sb.append(eventLog.getAction());
+                sb.append(" ");
+                sb.append(eventLog);
+                sb.append(eventLog.getEntityType());
+                sb.append(" ");
+                sb.append(eventLog.getEntityId());
+                sb.append("\b");
+            }
+            throw new InternalException(sb.toString());
         }
 
         final SessionFactory sf = this.ht.getSessionFactory();
