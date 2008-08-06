@@ -102,7 +102,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
         Set<RegisterServiceCleanupMessage> cleanups = cd.emptyCleanups();
         for (RegisterServiceCleanupMessage registerServiceCleanupMessage : cleanups) {
             try {
-                log.info("Cleanup:" + registerServiceCleanupMessage.resource);
+                log.info("Cleanup: " + registerServiceCleanupMessage.resource);
                 registerServiceCleanupMessage.close();
             } catch (Exception e) {
                 log.warn("Error while cleaning up", e);

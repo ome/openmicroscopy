@@ -18,6 +18,8 @@ import javax.sql.DataSource;
 import ome.api.StatefulServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
+import ome.services.messages.RegisterServiceCleanupMessage;
+import ome.system.OmeroContext;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -27,6 +29,9 @@ import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.HibernateInterceptor;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -77,7 +82,8 @@ class SessionStatus {
  * @version 3.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
  * @since 3.0
  */
-public class SessionHandler implements MethodInterceptor {
+public class SessionHandler implements MethodInterceptor,
+        ApplicationContextAware {
 
     /**
      * used by the SessionHandler to test for the end of the stateful service's
@@ -89,6 +95,8 @@ public class SessionHandler implements MethodInterceptor {
 
     private final Map<Object, SessionStatus> sessions = Collections
             .synchronizedMap(new WeakHashMap<Object, SessionStatus>());
+
+    private OmeroContext ctx;
 
     private final SessionFactory factory;
 
@@ -122,6 +130,11 @@ public class SessionHandler implements MethodInterceptor {
 
     }
 
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        this.ctx = (OmeroContext) applicationContext;
+    }
+
     public void cleanThread() {
         if (TransactionSynchronizationManager.hasResource(factory)) {
             SessionHolder holder = (SessionHolder) TransactionSynchronizationManager
@@ -153,7 +166,8 @@ public class SessionHandler implements MethodInterceptor {
         return doStateful(invocation);
     }
 
-    private Object doStateful(MethodInvocation invocation) throws Throwable {
+    private Object doStateful(final MethodInvocation invocation)
+            throws Throwable {
         Object result = null;
         SessionStatus status = null;
         try {
@@ -174,9 +188,16 @@ public class SessionHandler implements MethodInterceptor {
             // it here.
             try {
                 if (isCloseSession(invocation)) {
-                    status = sessions.remove(invocation.getThis());
-                    status.session.disconnect();
-                    status.session.close();
+                    ctx.publishMessage(new RegisterServiceCleanupMessage(this,
+                            invocation.getThis()) {
+                        @Override
+                        public void close() {
+                            SessionStatus status = sessions.remove(invocation
+                                    .getThis());
+                            status.session.disconnect();
+                            status.session.close();
+                        }
+                    });
                 } else {
                     if (status != null) {
                         // Guarantee that no one has changed the FlushMode
