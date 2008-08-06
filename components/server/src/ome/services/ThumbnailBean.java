@@ -1251,6 +1251,8 @@ public class ThumbnailBean extends AbstractLevel2Service implements
         
         RenderingDef def = settingsService.createNewRenderingDef(pixels);
         settingsService.resetDefaults(def, pixels);
+        iUpdate.flush();
+        iUpdate.commit();
     }
 
 	public boolean isDiskSpaceChecking() {
