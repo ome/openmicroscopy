@@ -12,6 +12,7 @@ import java.util.List;
 
 import ome.api.StatefulServiceInterface;
 import ome.conditions.InternalException;
+import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.system.EventContext;
 
@@ -90,7 +91,7 @@ public class EventHandler implements MethodInterceptor {
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {
-            log.info(String.format("  Auth:\tuser=%s,group=%s,event=%s(%s)", ec
+            log.info(String.format(" Auth:\tuser=%s,group=%s,event=%s(%s)", ec
                     .getCurrentUserId(), ec.getCurrentGroupId(), ec
                     .getCurrentEventId(), ec.getCurrentEventType()));
         }
@@ -206,6 +207,10 @@ public class EventHandler implements MethodInterceptor {
                         .connection());
 
                 for (EventLog l : logs) {
+                    Event e = l.getEvent();
+                    if (e.getId() == null) {
+                        throw new RuntimeException("Transient event");
+                    }
                     s.insert(l);
                 }
 

@@ -8,9 +8,9 @@
 package ome.security.basic;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.logic.HardWiredInterceptor;
 import ome.security.MethodSecurity;
-import ome.security.SecuritySystem;
 import ome.system.Principal;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -36,7 +36,7 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
 
     private final static Log log = LogFactory.getLog(BasicSecurityWiring.class);
 
-    protected SecuritySystem securitySystem;
+    protected PrincipalHolder principalHolder;
 
     protected MethodSecurity methodSecurity;
 
@@ -53,8 +53,8 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
     /**
      * Setter injection.
      */
-    public void setSecuritySystem(SecuritySystem secSys) {
-        this.securitySystem = secSys;
+    public void setPrincipalHolder(PrincipalHolder principalHolder) {
+        this.principalHolder = principalHolder;
     }
 
     /**
@@ -89,7 +89,13 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
                     "ome.system.Principal instance must be provided on login.");
         }
 
-        securitySystem.login(p);
+        int size = principalHolder.size();
+        if (size > 0) {
+            throw new InternalException(
+                    "SecuritySystem is still active on login. " + size
+                            + " logins remaining in thread.");
+        }
+        principalHolder.login(p);
         if (log.isDebugEnabled()) {
             log.debug("Running with user: " + p.getName());
         }
@@ -97,7 +103,10 @@ public final class BasicSecurityWiring extends HardWiredInterceptor {
     }
 
     private void logout() {
-        securitySystem.logout();
+        int size = principalHolder.logout();
+        if (size > 0) {
+            log.error("SecuritySystem is still active on logout. " + size
+                    + " logins remaining in thread.");
+        }
     }
-
 }

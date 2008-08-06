@@ -66,8 +66,6 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         }, user);
         sec.copyToken(user, user);
         sec.invalidateEventContext();
-        sec.newEvent(1L, type);
-        sec.setCurrentEvent(event);
         sec.isReady();
         sec.disable("foo");
         sec.enable();
@@ -223,38 +221,12 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
     }
 
     /*
-     * Test method for 'ome.security.SecuritySystem.newEvent(EventType)'
-     */
-    public void testNewEvent() {
-        prepareMocksWithUserDetails(false);
-        sec.loadEventContext(false);
-        assertEquals(cd.getCreationEvent(), event);
-        sec.newEvent(1L, type);
-        assertNotSame(event, cd.getCreationEvent());
-        sec.invalidateEventContext();
-    }
-
-    /*
      * Test method for 'ome.security.SecuritySystem.getCreationEvent()'
      */
     public void testGetCurrentEvent() {
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
-        assertSame(cd.getCreationEvent(), event);
-        sec.invalidateEventContext();
-    }
-
-    /*
-     * Test method for 'ome.security.SecuritySystem.setCurrentEvent(Event)'
-     */
-    public void testSetCurrentEvent() {
-        prepareMocksWithUserDetails(false);
-        sec.loadEventContext(false);
-        assertSame(cd.getCreationEvent(), event);
-        Event newEvent = new Event();
-        sec.setCurrentEvent(newEvent);
-        assertNotSame(cd.getCreationEvent(), event);
-        assertSame(cd.getCreationEvent(), newEvent);
+        assertSame(cd.getEvent(), event);
         sec.invalidateEventContext();
     }
 
@@ -278,7 +250,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
 
         sec.loadEventContext(false);
         assertEquals(user.getId(), cd.getOwner().getId());
-        assertEquals(event.getId(), cd.getCreationEvent().getId());
+        assertEquals(event.getId(), cd.getEvent().getId());
         assertEquals(group.getId(), cd.getGroup().getId());
         assertTrue(sec.isReady());
         sec.invalidateEventContext();
@@ -292,8 +264,6 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         // can handle nulls
         sec.isSystemType(null);
         sec.copyToken(null, null);
-        sec.newEvent(1l, null);
-        sec.setCurrentEvent(null);
         sec.enable(null);
 
         // uses Springs assert
@@ -411,7 +381,8 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
     public void testLeaderOfGroups() throws Exception {
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
-        assertEquals(cd.getLeaderOfGroupsList(), leaderOfGroups);
+        assertEquals(cd.getCurrentEventContext().getLeaderOfGroupsList(),
+                leaderOfGroups);
         sec.invalidateEventContext();
     }
 
@@ -673,7 +644,7 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         prepareMocksWithUserDetails(false);
         sec.loadEventContext(false);
 
-        assertFalse(cd.isAdmin());
+        assertFalse(cd.getCurrentEventContext().isCurrentUserAdmin());
 
         Mock mockFilter = mock(Filter.class);
         final Filter filter = (Filter) mockFilter.proxy();
@@ -696,12 +667,12 @@ public class SecuritySystemTest extends AbstractBasicSecuritySystemTest {
         });
         AdminAction action = new AdminAction() {
             public void runAsAdmin() {
-                assertTrue(cd.isAdmin());
+                assertTrue(cd.getCurrentEventContext().isCurrentUserAdmin());
             }
         };
         sec.runAsAdmin(action);
 
-        assertFalse(cd.isAdmin());
+        assertFalse(cd.getCurrentEventContext().isCurrentUserAdmin());
 
     }
 

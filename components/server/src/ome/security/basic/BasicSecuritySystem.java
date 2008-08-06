@@ -265,15 +265,13 @@ public class BasicSecuritySystem implements SecuritySystem {
 
         final LocalAdmin admin = (LocalAdmin) sf.getAdminService();
         final LocalUpdate update = (LocalUpdate) sf.getUpdateService();
-        final LocalQuery query = (LocalQuery) sf.getQueryService();
 
         // Call to session manager throws an exception on failure
         final Principal p = clearAndCheckPrincipal();
         final EventContext ec = sessionManager.getEventContext(p);
 
-        // start refilling current details
+        // Refill current details
         cd.copy(ec);
-        cd.setReadOnly(isReadOnly);
 
         // Experimenter
         Experimenter exp;
@@ -283,7 +281,6 @@ public class BasicSecuritySystem implements SecuritySystem {
             exp = admin.userProxy(ec.getCurrentUserId());
         }
         tokenHolder.setToken(exp.getGraphHolder());
-        cd.setOwner(exp);
 
         // Active group
         ExperimenterGroup grp;
@@ -299,12 +296,16 @@ public class BasicSecuritySystem implements SecuritySystem {
                             .getGroup()));
         }
         tokenHolder.setToken(grp.getGraphHolder());
-        cd.setGroup(grp);
 
         // isAdmin
+        boolean isAdmin = false;
         if (roles.isSystemGroup(grp)) {
-            cd.setAdmin(true);
+            isAdmin = true;
         }
+
+        // In order to less frequently access the ThreadLocal in CurrentDetails
+        // All properities are now set in one shot, except for Event.
+        cd.setValues(exp, grp, isAdmin, isReadOnly);
 
         // Event
         String t = p.getEventType();
@@ -320,8 +321,9 @@ public class BasicSecuritySystem implements SecuritySystem {
         // If this event is not read only, then lets save this event to prevent
         // flushing issues later.
         if (!isReadOnly) {
-            setCurrentEvent(update.saveAndReturnObject(event));
+            cd.updateEvent(update.saveAndReturnObject(event));
         }
+
     }
 
     private Principal clearAndCheckPrincipal() {
@@ -342,20 +344,6 @@ public class BasicSecuritySystem implements SecuritySystem {
         }
 
         return p;
-    }
-
-    // TODO should possible set all or nothing.
-
-    public Details createDetails() {
-        return cd.createDetails();
-    }
-
-    public void newEvent(long sessionId, EventType type) {
-        cd.newEvent(sessionId, type, tokenHolder);
-    }
-
-    public void setCurrentEvent(Event event) {
-        cd.setCreationEvent(event);
     }
 
     public void addLog(String action, Class klass, Long id) {
@@ -468,15 +456,16 @@ public class BasicSecuritySystem implements SecuritySystem {
             public Object doInHibernate(Session session)
                     throws HibernateException, SQLException {
 
-                boolean wasAdmin = cd.isAdmin();
+                BasicEventContext c = cd.current();
+                boolean wasAdmin = c.isCurrentUserAdmin();
 
                 try {
-                    cd.setAdmin(true);
+                    c.setAdmin(true);
                     disable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session);
                     action.runAsAdmin();
                 } finally {
-                    cd.setAdmin(wasAdmin);
+                    c.setAdmin(wasAdmin);
                     enable(MergeEventListener.MERGE_EVENT);
                     enableReadFilter(session); // Now as non-admin
                 }

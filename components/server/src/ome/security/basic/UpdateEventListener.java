@@ -65,7 +65,7 @@ public class UpdateEventListener implements PreUpdateEventListener {
             else {
                 // otherwise change update event (last modification)
                 IObject obj = (IObject) entity;
-                obj.getDetails().setUpdateEvent(cd.getCreationEvent());
+                obj.getDetails().setUpdateEvent(cd.getEvent());
             }
         }
         return false;

@@ -47,7 +47,7 @@
 
   <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring"
    lazy-init="true">
-    <property name="securitySystem" ref="basicSecuritySystem"/>
+    <property name="principalHolder" ref="principalHolder"/>
     <property name="methodSecurity" ref="methodSecurity"/>
   </bean>
 

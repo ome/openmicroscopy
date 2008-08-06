@@ -82,9 +82,10 @@ public class BasicACLVoter implements ACLVoter {
         if (d == null || sysTypes.isSystemType(klass)) {
             return true;
         }
-        return SecurityFilter.passesFilter(d, currentUser.getOwner().getId(),
-                currentUser.getMemberOfGroupsList(), currentUser
-                        .getLeaderOfGroupsList(), currentUser.isAdmin());
+        BasicEventContext c = currentUser.current();
+        return SecurityFilter.passesFilter(d, c.getOwner().getId(), c
+                .getMemberOfGroupsList(), c.getLeaderOfGroupsList(), c
+                .isCurrentUserAdmin());
     }
 
     public void throwLoadViolation(IObject iObject) throws SecurityViolation {
@@ -97,7 +98,8 @@ public class BasicACLVoter implements ACLVoter {
         Assert.notNull(iObject);
         Class cls = iObject.getClass();
 
-        if (tokenHolder.hasPrivilegedToken(iObject) || currentUser.isAdmin()) {
+        if (tokenHolder.hasPrivilegedToken(iObject)
+                || currentUser.getCurrentEventContext().isCurrentUserAdmin()) {
             return true;
         }
 
@@ -137,8 +139,10 @@ public class BasicACLVoter implements ACLVoter {
     private boolean allowUpdateOrDelete(IObject iObject, Details trustedDetails) {
         Assert.notNull(iObject);
 
+        BasicEventContext c = currentUser.current();
+
         // needs no details info
-        if (tokenHolder.hasPrivilegedToken(iObject) || currentUser.isAdmin()) {
+        if (tokenHolder.hasPrivilegedToken(iObject) || c.isCurrentUserAdmin()) {
             return true;
         } else if (sysTypes.isSystemType(iObject.getClass())) {
             return false;
@@ -163,7 +167,7 @@ public class BasicACLVoter implements ACLVoter {
         Long g = d.getGroup() == null ? null : d.getGroup().getId();
 
         // needs no permissions info
-        if (g != null && currentUser.getLeaderOfGroupsList().contains(g)) {
+        if (g != null && c.getLeaderOfGroupsList().contains(g)) {
             return true;
         }
 
@@ -182,11 +186,11 @@ public class BasicACLVoter implements ACLVoter {
             return true;
         }
         if (p.isGranted(USER, WRITE) && o != null
-                && o.equals(currentUser.getOwner().getId())) {
+                && o.equals(c.getOwner().getId())) {
             return true;
         }
         if (p.isGranted(GROUP, WRITE) && g != null
-                && currentUser.getMemberOfGroupsList().contains(g)) {
+                && c.getMemberOfGroupsList().contains(g)) {
             return true;
         }
 

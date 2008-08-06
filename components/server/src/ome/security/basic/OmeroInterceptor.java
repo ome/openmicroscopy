@@ -399,6 +399,8 @@ public class OmeroInterceptor implements Interceptor {
 
         final Details source = obj.getDetails();
         final Details newDetails = source.newInstance();
+        final BasicEventContext bec = currentUser.current();
+
         newDetails.copy(currentUser.createDetails());
 
         if (source != null) {
@@ -416,7 +418,7 @@ public class OmeroInterceptor implements Interceptor {
                     && !newDetails.getOwner().getId().equals(
                             source.getOwner().getId())) {
                 // but this is root
-                if (currentUser.isAdmin()) {
+                if (bec.isCurrentUserAdmin()) {
                     newDetails.setOwner(source.getOwner());
                 } else {
                     throw new SecurityViolation(String.format(
@@ -430,13 +432,13 @@ public class OmeroInterceptor implements Interceptor {
             // users are only allowed to set to another of their groups
             if (source.getGroup() != null && source.getGroup().getId() != null) {
                 // users can change to their own group
-                if (currentUser.getMemberOfGroupsList().contains(
+                if (bec.getMemberOfGroupsList().contains(
                         source.getGroup().getId())) {
                     newDetails.setGroup(source.getGroup());
                 }
 
                 // and admin can change it too
-                else if (currentUser.isAdmin()) {
+                else if (bec.isCurrentUserAdmin()) {
                     newDetails.setGroup(source.getGroup());
                 }
 
@@ -543,6 +545,10 @@ public class OmeroInterceptor implements Interceptor {
                 privileged = true;
             }
 
+            // Acquiring the context here to prevent multiple
+            // accesses to the threadlocal
+            final BasicEventContext bec = currentUser.current();
+
             // isGlobal implies nothing (currently) about external info
             // see mapping.vm for more.
             altered |= managedExternalInfo(locked, privileged, iobj,
@@ -557,13 +563,13 @@ public class OmeroInterceptor implements Interceptor {
             // implies that owner doesn't matter
             if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
                 altered |= managedOwner(locked, privileged, iobj,
-                        previousDetails, currentDetails, newDetails);
+                        previousDetails, currentDetails, newDetails, bec);
             }
 
             // implies that group doesn't matter
             if (!IGlobal.class.isAssignableFrom(iobj.getClass())) {
                 altered |= managedGroup(locked, privileged, iobj,
-                        previousDetails, currentDetails, newDetails);
+                        previousDetails, currentDetails, newDetails, bec);
             }
 
             // the event check needs to be last, because we need to test
@@ -758,7 +764,7 @@ public class OmeroInterceptor implements Interceptor {
 
     protected boolean managedOwner(boolean locked, boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
-            Details newDetails) {
+            Details newDetails, final BasicEventContext bec) {
 
         if (!HibernateUtils.idEqual(previousDetails.getOwner(), currentDetails
                 .getOwner())) {
@@ -783,7 +789,7 @@ public class OmeroInterceptor implements Interceptor {
 
             // if the current user is an admin or if the entity has been
             // marked privileged, then use the current owner.
-            else if (currentUser.isAdmin() || privileged) {
+            else if (bec.isCurrentUserAdmin() || privileged) {
                 // ok
             }
 
@@ -807,7 +813,7 @@ public class OmeroInterceptor implements Interceptor {
 
     protected boolean managedGroup(boolean locked, boolean privileged,
             IObject obj, Details previousDetails, Details currentDetails,
-            Details newDetails) {
+            Details newDetails, final BasicEventContext bec) {
         // previous and current have different ids. either change it and return
         // true if permitted, or throw an exception.
         if (!HibernateUtils.idEqual(previousDetails.getGroup(), currentDetails
@@ -830,9 +836,9 @@ public class OmeroInterceptor implements Interceptor {
             // or if the entity has been marked as privileged, then use the
             // current group.
             // TODO refactor
-            else if (currentUser.getMemberOfGroupsList().contains(
+            else if (bec.getMemberOfGroupsList().contains(
                     currentDetails.getGroup().getId())
-                    || currentUser.isAdmin() || privileged) {
+                    || bec.isCurrentUserAdmin() || privileged) {
                 newDetails.setGroup(currentDetails.getGroup());
                 return true;
             }

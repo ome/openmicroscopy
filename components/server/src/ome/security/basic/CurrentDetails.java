@@ -56,27 +56,31 @@ public class CurrentDetails implements PrincipalHolder {
 
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
-    private final ThreadLocal<LinkedList<BasicEventContext>> data = new InheritableThreadLocal<LinkedList<BasicEventContext>>() {
-        @Override
-        protected LinkedList<BasicEventContext> initialValue() {
-            return new LinkedList<BasicEventContext>();
-        };
-    };
+    private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
+
+    private LinkedList<BasicEventContext> list() {
+        LinkedList<BasicEventContext> list = contexts.get();
+        if (list == null) {
+            list = new LinkedList<BasicEventContext>();
+            contexts.set(list);
+        }
+        return list;
+    }
 
     // PrincipalHolder methods
     // =================================================================
 
     public int size() {
-        return data.get().size();
+        return list().size();
     }
 
     public Principal getLast() {
-        return data.get().getLast().getPrincipal();
+        return list().getLast().getPrincipal();
     }
 
     public void login(Principal principal) {
         BasicEventContext c = new BasicEventContext(principal);
-        data.get().add(c);
+        login(c);
     }
 
     /**
@@ -84,14 +88,12 @@ public class CurrentDetails implements PrincipalHolder {
      * existing {@link BasicEventContext}.
      */
     public void login(BasicEventContext bec) {
-        data.get().add(bec);
+        list().add(bec);
     }
 
     public int logout() {
-        LinkedList<BasicEventContext> list = data.get();
-        if (list.size() > 0) {
-            Object o = list.removeLast();
-        }
+        LinkedList<BasicEventContext> list = list();
+        BasicEventContext c = list.removeLast();
         return list.size();
     }
 
@@ -145,16 +147,8 @@ public class CurrentDetails implements PrincipalHolder {
      * exception if there isn't one.
      */
     BasicEventContext current() {
-        return data.get().getLast();
-    }
-
-    /**
-     * removes all current context. This must stay in sync with the instance
-     * fields. If a new {@link ThreadLocal} is added,
-     * {@link ThreadLocal#remove()} <em>must</em> be called.
-     */
-    private void clearAll() {
-        data.remove();
+        BasicEventContext c = list().getLast();
+        return c;
     }
 
     /**
@@ -171,11 +165,13 @@ public class CurrentDetails implements PrincipalHolder {
      * context unusable. {@link #isReady()} will return false.
      */
     public void invalidateCurrentEventContext() {
-        current().invalidate();
+        BasicEventContext c = current();
+        c.invalidate();
     }
 
     // ~ Events and Details
     // =================================================================
+
     public Event newEvent(long sessionId, EventType type,
             TokenHolder tokenHolder) {
         BasicEventContext c = current();
@@ -202,6 +198,7 @@ public class CurrentDetails implements PrincipalHolder {
             if (log.isDebugEnabled()) {
                 log.debug("Not logging creation of logging type:" + klass);
             }
+            return; // EARLY EXIT
         } else {
             if (!isReady()) {
                 throw new InternalException("Not ready to add EventLog");
@@ -250,10 +247,6 @@ public class CurrentDetails implements PrincipalHolder {
         return d;
     }
 
-    public void setShareId(Long id) {
-        current().setShareId(id);
-    }
-
     public Experimenter getOwner() {
         return current().getOwner();
     }
@@ -262,83 +255,29 @@ public class CurrentDetails implements PrincipalHolder {
         return current().getGroup();
     }
 
-    public Event getCreationEvent() {
+    public Event getEvent() {
         return current().getEvent();
     }
 
-    public void setOwner(Experimenter e) {
-        current().setOwner(e);
+    /**
+     * Take all values during loadEventContext() in one shot. Event is set
+     * during {@link #newEvent(long, EventType, TokenHolder)} and possibly
+     * updated via {@link #updateEvent(Event)}.
+     */
+    void setValues(Experimenter owner, ExperimenterGroup group,
+            boolean isAdmin, boolean isReadOnly) {
+        BasicEventContext c = current();
+        c.setOwner(owner);
+        c.setGroup(group);
+        c.setAdmin(isAdmin);
+        c.setReadOnly(isReadOnly);
     }
 
-    public void setGroup(ExperimenterGroup g) {
-        current().setGroup(g);
-    }
-
-    public void setCreationEvent(Event e) {
-        BasicEventContext bec = current();
-        bec.setEvent(e);
-    }
-
-    // ~ Umask
-    // =========================================================================
-    public Permissions getUmask() {
-        Permissions umask = current().getCurrentUmask();
-        if (umask == null) {
-            umask = new Permissions();
-            setUmask(umask);
-        }
-        return umask;
-        /*
-         * FIXME should be configurable see
-         * https://trac.openmicroscopy.org.uk/omero/ticket/179
-         * getOwner().getProfile().getUmask object.getDetails().getUmask()
-         * CurrentDetails.getDetails().getUmask();
-         */
-    }
-
-    public void setUmask(Permissions umask) {
-        current().setUmask(umask);
-    }
-
-    // ~ Admin
-    // =========================================================================
-
-    public void setAdmin(boolean isAdmin) {
-        current().setAdmin(isAdmin);
-    }
-
-    public boolean isAdmin() {
-        return current().isCurrentUserAdmin();
-    }
-
-    // ~ ReadOnly
-    // =========================================================================
-
-    public void setReadOnly(boolean isReadOnly) {
-        current().setReadOnly(isReadOnly);
-    }
-
-    public boolean isReadOnly() {
-        return current().isReadOnly();
-    }
-
-    // ~ ReadOnly
-    // =========================================================================
-
-    public List<Long> getMemberOfGroupsList() {
-        return current().getMemberOfGroupsList();
-    }
-
-    public List<Long> getLeaderOfGroupsList() {
-        return current().getLeaderOfGroupsList();
-    }
-
-    public void setMemberOfGroups(List<Long> groupIds) {
-        current().setMemberOfGroups(groupIds);
-    }
-
-    public void setLeaderOfGroups(List<Long> groupIds) {
-        current().setLeaderOfGroups(groupIds);
+    /**
+     * Allows for updating the {@link Event} if the session is not readOnly.
+     */
+    void updateEvent(Event event) {
+        current().setEvent(event);
     }
 
     // ~ Cleanups
