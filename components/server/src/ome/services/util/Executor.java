@@ -8,6 +8,8 @@
 package ome.services.util;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
@@ -16,6 +18,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
 
+import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
@@ -24,7 +27,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.springframework.aop.ProxyMethodInvocation;
-import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -134,8 +137,7 @@ public interface Executor extends ApplicationContextAware {
         private final static Log log = LogFactory.getLog(Executor.class);
 
         protected OmeroContext context;
-
-        final protected ProxyFactoryBean proxyFactory;
+        final protected List<Advice> advices = new ArrayList<Advice>();
         final protected PrincipalHolder principalHolder;
         final protected String[] proxyNames;
         final protected TransactionTemplate txTemplate;
@@ -147,21 +149,14 @@ public interface Executor extends ApplicationContextAware {
             this.hibTemplate = ht;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
-            this.proxyFactory = new ProxyFactoryBean();
-            this.proxyFactory.setInterceptorNames(this.proxyNames);
-            try {
-                this.proxyFactory
-                        .setProxyInterfaces(new Class[] { Work.class });
-            } catch (Exception e) {
-                throw new RuntimeException("Error working with Work.class; "
-                        + "highly unlikely; " + "something is weird.", e);
-            }
         }
 
         public void setApplicationContext(ApplicationContext applicationContext)
                 throws BeansException {
             this.context = (OmeroContext) applicationContext;
-            this.proxyFactory.setBeanFactory(context);
+            for (String name : proxyNames) {
+                advices.add((Advice) this.context.getBean(name));
+            }
         }
 
         /**
@@ -188,27 +183,26 @@ public interface Executor extends ApplicationContextAware {
          */
         public Object execute(final Principal p, final Work work,
                 boolean readOnly) {
-            ProxyFactoryBean innerFactory = new ProxyFactoryBean();
-            innerFactory.copyFrom(this.proxyFactory);
-            innerFactory.setTarget(work);
-            innerFactory.addAdvice(new Interceptor(txTemplate, hibTemplate,
-                    readOnly));
-            Work inner = (Work) innerFactory.getObject();
+            Interceptor i = new Interceptor(txTemplate, hibTemplate, readOnly);
+            ProxyFactory factory = new ProxyFactory();
+            factory.setTarget(work);
+            factory.setInterfaces(new Class[] { Work.class });
 
-            // If we've already entered Executor.execute once and applied the
-            // ServiceHandler, then we might not want to re-apply all the
-            // interceptors.
-            // -----------------
-            Work outer;
-            this.proxyFactory.setTarget(inner);
-            outer = (Work) this.proxyFactory.getObject();
+            // Add interceptor twice: once at head, and once at tail
+            factory.addAdvice(0, i);
+            for (Advice advice : advices) {
+                factory.addAdvice(advice);
+            }
+            factory.addAdvice(i);
+
+            Work wrapper = (Work) factory.getProxy();
 
             if (p != null) {
                 this.principalHolder.login(p);
             }
             try {
                 // Arguments will be replaced after hibernate is in effect
-                return outer.doWork(null, null, new InternalServiceFactory(
+                return wrapper.doWork(null, null, new InternalServiceFactory(
                         this.context));
             } finally {
                 if (p != null) {
@@ -250,13 +244,16 @@ public interface Executor extends ApplicationContextAware {
          * Interceptor class which properly lookups and injects the transaction
          * and session objects in the
          * {@link Work#doWork(TransactionStatus, Session, ServiceFactory)}
-         * method.
+         * method. Interceptor works in two stages. During its first execution,
+         * the "readOnly" property is set if necessary. On the second execution,
+         * a hibernate- and transaction-template wrap the actual work.
          */
         static class Interceptor implements MethodInterceptor {
 
             private final boolean readOnly;
             private final TransactionTemplate txTemplate;
             private final HibernateTemplate hibTemplate;
+            private boolean stageOne = true;
 
             public Interceptor(TransactionTemplate tt, HibernateTemplate ht,
                     boolean readOnly) {
@@ -265,29 +262,50 @@ public interface Executor extends ApplicationContextAware {
                 this.hibTemplate = ht;
             }
 
-            public Object invoke(MethodInvocation arg0) throws Throwable {
+            public Object invoke(final MethodInvocation mi) throws Throwable {
 
-                // Used by EventHandler to set the readOnly status of this
-                // Event. Determines whether changes can be made to the
-                // database.
-                if (arg0 instanceof ProxyMethodInvocation) {
-                    ProxyMethodInvocation pmi = (ProxyMethodInvocation) arg0;
-                    pmi.setUserAttribute("readOnly", readOnly);
-                }
+                if (stageOne) {
 
-                final Work work = (Work) arg0.getThis();
-                final ServiceFactory sf = (ServiceFactory) arg0.getArguments()[2];
-
-                return txTemplate.execute(new TransactionCallback() {
-                    public Object doInTransaction(final TransactionStatus status) {
-                        return hibTemplate.execute(new HibernateCallback() {
-                            public Object doInHibernate(final Session session)
-                                    throws HibernateException, SQLException {
-                                return work.doWork(status, session, sf);
-                            }
-                        }, true);
+                    // Used by EventHandler to set the readOnly status of
+                    // this
+                    // Event. Determines whether changes can be made to the
+                    // database.
+                    if (mi instanceof ProxyMethodInvocation) {
+                        ProxyMethodInvocation pmi = (ProxyMethodInvocation) mi;
+                        pmi.setUserAttribute("readOnly", readOnly);
                     }
-                });
+                    stageOne = false;
+                    return mi.proceed();
+
+                } else {
+                    final Work work = (Work) mi.getThis();
+                    final ServiceFactory sf = (ServiceFactory) mi
+                            .getArguments()[2];
+
+                    return txTemplate.execute(new TransactionCallback() {
+                        public Object doInTransaction(
+                                final TransactionStatus status) {
+                            return hibTemplate.execute(new HibernateCallback() {
+                                public Object doInHibernate(
+                                        final Session session)
+                                        throws HibernateException, SQLException {
+                                    Object[] args = mi.getArguments();
+                                    args[0] = status;
+                                    args[1] = session;
+                                    try {
+                                        return mi.proceed();
+                                    } catch (Throwable e) {
+                                        if (e instanceof RuntimeException) {
+                                            throw (RuntimeException) e;
+                                        } else {
+                                            throw new RuntimeException(e);
+                                        }
+                                    }
+                                }
+                            }, true);
+                        }
+                    });
+                }
             }
         }
     }

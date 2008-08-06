@@ -622,7 +622,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     org.hibernate.Session s, ServiceFactory sf) {
                 return sf.getUpdateService().saveAndReturnObject(obj);
             }
-        });
+        }, false);
     }
 
     private boolean executeCheckPassword(final Principal _principal,
@@ -633,7 +633,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 return ((LocalAdmin) sf.getAdminService()).checkPassword(
                         _principal.getName(), credentials);
             }
-        });
+        }, true);
         return ok;
     }
 
@@ -643,7 +643,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                     org.hibernate.Session session, ServiceFactory sf) {
                 return ((LocalAdmin) sf.getAdminService()).userProxy(uid);
             }
-        });
+        }, true);
     }
 
     private ExperimenterGroup executeGroupProxy(final long gid) {
@@ -654,7 +654,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         return ((LocalAdmin) sf.getAdminService())
                                 .groupProxy(gid);
                     }
-                });
+                }, true);
     }
 
     @SuppressWarnings("unchecked")
@@ -677,7 +677,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                                     "User has no default group.");
                         }
                     }
-                });
+                }, true);
     }
 
     @SuppressWarnings("unchecked")
@@ -703,7 +703,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 list.add(userRoles);
                 return list;
             }
-        });
+        }, true);
 
     }
 
