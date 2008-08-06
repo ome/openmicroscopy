@@ -131,9 +131,4 @@ public class SharingSecuritySystem implements SecuritySystem {
 
     }
 
-    public void setEventContext(EventContext context) {
-        // TODO Auto-generated method stub
-
-    }
-
 }

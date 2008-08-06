@@ -80,15 +80,6 @@ public interface SecuritySystem {
     void loadEventContext(boolean isReadyOnly);
 
     /**
-     * Replace sthe current {@link EventContext} with the given argument. An
-     * exception is thrown if there is no current instance, i.e.
-     * {@link #login(Principal)} has not been called.
-     * 
-     * @param context
-     */
-    void setEventContext(EventContext context);
-
-    /**
      * Clears the content of the {@link EventContext}so that the
      * {@link SecuritySystem} will no longer return true for {@link #isReady()}.
      * The {@link Principal} set during {@link #login(Principal)} is retained.

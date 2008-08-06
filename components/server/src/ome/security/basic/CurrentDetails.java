@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import ome.conditions.ApiUsageException;
+import ome.conditions.InternalException;
 import ome.model.IObject;
 import ome.model.enums.EventType;
 import ome.model.internal.Details;
@@ -34,6 +35,7 @@ import ome.tools.hibernate.HibernateUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 /**
  * Stores information related to the security context of the current thread.
@@ -174,7 +176,8 @@ public class CurrentDetails implements PrincipalHolder {
 
     // ~ Events and Details
     // =================================================================
-    public void newEvent(long sessionId, EventType type, TokenHolder tokenHolder) {
+    public Event newEvent(long sessionId, EventType type,
+            TokenHolder tokenHolder) {
         BasicEventContext c = current();
         Event e = new Event();
         e.setType(type);
@@ -185,9 +188,30 @@ public class CurrentDetails implements PrincipalHolder {
         e.getDetails().setPermissions(Permissions.READ_ONLY);
         e.setSession(new Session(sessionId, false));
         c.setEvent(e);
+        return e;
     }
 
     public void addLog(String action, Class klass, Long id) {
+
+        Assert.notNull(action);
+        Assert.notNull(klass);
+        Assert.notNull(id);
+
+        if (Event.class.isAssignableFrom(klass)
+                || EventLog.class.isAssignableFrom(klass)) {
+            if (log.isDebugEnabled()) {
+                log.debug("Not logging creation of logging type:" + klass);
+            }
+        } else {
+            if (!isReady()) {
+                throw new InternalException("Not ready to add EventLog");
+            }
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("Adding log:" + action + "," + klass + "," + id);
+        }
+
         BasicEventContext c = current();
         List<EventLog> list = current().getLogs();
         if (list == null) {

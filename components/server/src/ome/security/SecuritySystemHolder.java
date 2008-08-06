@@ -124,8 +124,4 @@ public class SecuritySystemHolder implements SecuritySystem {
         choose().runAsAdmin(action);
     }
 
-    public void setEventContext(EventContext context) {
-        choose().setEventContext(context);
-    }
-
 }

@@ -313,51 +313,14 @@ public class BasicSecuritySystem implements SecuritySystem {
         }
         EventType type = new EventType(t);
         tokenHolder.setToken(type.getGraphHolder());
-        cd.newEvent(ec.getCurrentSessionId().longValue(), type, tokenHolder);
-
-        Event event = cd.getCreationEvent();
+        Event event = cd.newEvent(ec.getCurrentSessionId().longValue(), type,
+                tokenHolder);
         tokenHolder.setToken(event.getGraphHolder());
 
         // If this event is not read only, then lets save this event to prevent
         // flushing issues later.
         if (!isReadOnly) {
             setCurrentEvent(update.saveAndReturnObject(event));
-        }
-    }
-
-    /**
-     * Used by {@link EventHandler} to set the current {@link EventContext} so
-     * it is not necessarily to have a valid context here like in
-     * {@link #loadEventContext(boolean)}
-     * 
-     * @see SecuritySystem#setEventContext(EventContext)
-     */
-    public void setEventContext(EventContext context) {
-        final Principal p = clearAndCheckPrincipal();
-
-        if (!(context instanceof BasicEventContext)) {
-            throw new ApiUsageException("BasicSecuritySystem can only accept "
-                    + "BasicEventContext instances.");
-        }
-
-        final BasicEventContext bec = (BasicEventContext) context;
-        final String u_name = bec.getCurrentUserName();
-        final String g_name = bec.getCurrentGroupName();
-        final String t_name = bec.getCurrentEventType();
-
-        if (p.getName().equals(u_name) && p.getGroup().equals(g_name)
-                && p.getEventType().equals(t_name)) {
-            // In this case we want to pop off the previous context and
-            // add the new one.
-            cd.logout();
-            cd.login(bec);
-        }
-
-        else {
-            throw new InternalException(String.format(
-                    "Principal:%s/%s/%s does not match Context:%s/%s/%s", p
-                            .getName(), p.getGroup(), p.getEventType(), u_name,
-                    g_name, t_name));
         }
     }
 
@@ -396,24 +359,7 @@ public class BasicSecuritySystem implements SecuritySystem {
     }
 
     public void addLog(String action, Class klass, Long id) {
-
-        Assert.notNull(action);
-        Assert.notNull(klass);
-        Assert.notNull(id);
-
-        if (Event.class.isAssignableFrom(klass)
-                || EventLog.class.isAssignableFrom(klass)) {
-            log.debug("Not logging creation of logging type:" + klass);
-        }
-
-        else {
-            checkReady("addLog");
-
-            log.info("Adding log:" + action + "," + klass + "," + id);
-
-            // CurrentDetails.getCreationEvent().addEventLog(l);
-            cd.addLog(action, klass, id);
-        }
+        cd.addLog(action, klass, id);
     }
 
     public List<EventLog> getLogs() {
