@@ -25,10 +25,10 @@ import ome.model.meta.Session;
 /**
  * Provides method for sharing - collaboration process for images, datasets,
  * projects.
- *
+ * 
  * @author Aleksandra Tarkowska, aleksandrat at lifesci.dundee.ac.uk
  * @author Josh Moore, josh at glencoesoftware.com
- *
+ * 
  * @since 3.0-Beta4
  */
 public interface IShare extends ServiceInterface {
@@ -38,7 +38,7 @@ public interface IShare extends ServiceInterface {
      * current session. Warning: this will slow down the execution of the
      * current session for all database reads. Writing to the database will not
      * be allowed.
-     *
+     * 
      * @param shareId
      */
     void activate(long shareId);
@@ -48,47 +48,47 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Looks up all shares present. Requires administrative privileges.
-     *
-     * @param active
+     * 
+     * @param onlyActive
      *            if true, then only shares which can be used for login will be
      *            returned. All "draft" shares (see
      *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
      *            and {@link #closeShare(long) closed shares} will be filtered.
      * @return set of shares. Never null. May be empty.
      */
-    Set<Session> getAllShares(boolean active);
+    Set<Session> getAllShares(boolean onlyActive);
 
     // ~ Getting shares and objects (READ)
     // =========================================================================
 
     /**
      * Gets all owned shares for the current {@link Experimenter}
-     *
-     * @param active
+     * 
+     * @param onlyActive
      *            if true, then only shares which can be used for login will be
      *            returned. All "draft" shares (see
      *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
      *            and {@link #closeShare(long) closed shares} will be filtered.
      * @return set of shares. Never null. May be empty.
      */
-    Set<Session> getOwnShares(boolean active);
+    Set<Session> getOwnShares(boolean onlyActive);
 
     /**
      * Gets all shares where current {@link Experimenter} is a member.
-     *
-     * @param active
+     * 
+     * @param onlyActive
      *            if true, then only shares which can be used for login will be
      *            returned. All "draft" shares (see
      *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
      *            and {@link #closeShare(long) closed shares} will be filtered.
      * @return set of shares. Never null. May be empty.
      */
-    Set<Session> getMemberShares(boolean active);
+    Set<Session> getMemberShares(boolean onlyActive);
 
     /**
      * Gets all shares owned by the given {@link Experimenter}.
-     *
-     * @param active
+     * 
+     * @param onlyActive
      *            if true, then only shares which can be used for login will be
      *            returned. All "draft" shares (see
      *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
@@ -96,12 +96,12 @@ public interface IShare extends ServiceInterface {
      * @return set of shares. Never null. May be empty.
      */
     Set<Session> getSharesOwnedBy(@NotNull
-    Experimenter user, boolean active);
+    Experimenter user, boolean onlyActive);
 
     /**
      * Gets all shares where given {@link Experimenter} is a member.
-     *
-     * @param active
+     * 
+     * @param onlyActive
      *            if true, then only shares which can be used for login will be
      *            returned. All "draft" shares (see
      *            {@link #createShare(String, Timestamp, List, List, List, boolean)}
@@ -109,13 +109,13 @@ public interface IShare extends ServiceInterface {
      * @return set of shares. Never null. May be empty.
      */
     Set<Session> getMemberSharesFor(@NotNull
-    Experimenter user, boolean active);
+    Experimenter user, boolean onlyActive);
 
     /**
      * Gets a share as a {@link Session} with all related:
      * {@link ome.model.annotations.Annotation comments},
      * {@link ome.model.meta.Experimenter members}, fully loaded.
-     *
+     * 
      * @param sessionId
      * @return a {@link Session} with id and {@link Details} set. The owner in
      *         the Details object is the true owner, and the group in the
@@ -128,7 +128,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Looks up all {@link ome.model.IObject items} belong to the
      * {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param shareId
      * @return list of objects. Not null. Probably not empty.
      */
@@ -136,7 +136,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Returns a range of items from the share.
-     *
+     * 
      * @see #getContents(long)
      */
     <T extends IObject> List<T> getContentSubList(long shareId, int start,
@@ -159,7 +159,7 @@ public interface IShare extends ServiceInterface {
      * Creates {@link ome.model.meta.Session share} with all related:
      * {@link ome.model.IObject items},
      * {@link ome.model.meta.Experimenter members}, and guests.
-     *
+     * 
      * @param description
      * @param expiration
      * @param exps
@@ -189,8 +189,8 @@ public interface IShare extends ServiceInterface {
      * Closes {@link ome.model.meta.Session share}. No further logins will be
      * possible and all getters (e.g.
      * {@link #getMemberShares(boolean), {@link #getAllShares(boolean), ...}
-     * will filter these results if "active" is true.
-     *
+     * will filter these results if "onlyActive" is true.
+     * 
      * @param shareId
      */
     void closeShare(long shareId);
@@ -201,7 +201,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Adds new {@link ome.model.IObject items} to
      * {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param shareId
      * @param objects
      */
@@ -211,7 +211,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Adds new {@link ome.model.IObject item} to
      * {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param shareId
      * @param object
      */
@@ -220,7 +220,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Remove existing items from the share.
-     *
+     * 
      * @param shareId
      * @param objects
      */
@@ -230,7 +230,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Removes existing {@link ome.model.IObject item} from the
      * {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param share
      * @param item
      */
@@ -243,7 +243,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Looks up all {@link ome.model.annotations.Annotation comments} which
      * belong to the {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param share
      * @return list of Annotation
      */
@@ -252,7 +252,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Creates {@link ome.model.annotations.TextAnnotation comment} for
      * {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param share
      * @param comment
      */
@@ -262,7 +262,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Creates {@link TextAnnotation comment} which replies to an existing
      * comment.
-     *
+     * 
      * @param shareId
      * @param comment
      * @param replyTo
@@ -275,7 +275,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Deletes {@link ome.model.annotations.Annotation comment} from the
      * database.
-     *
+     * 
      * @param comment
      */
     void deleteComment(@NotNull
@@ -298,7 +298,7 @@ public interface IShare extends ServiceInterface {
      * Get a single set containing the
      * {@link Experimenter#getOmeName() login names} of the
      * {@link Experimenters} as well email addresses for guests.
-     *
+     * 
      * @param shareId
      * @return
      * @throws ValidationException
@@ -310,7 +310,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Adds {@link ome.model.meta.Experimenter experimenters} to
      * {@link ome.model.meta.Session share}
-     *
+     * 
      * @param share
      * @param exps
      */
@@ -318,7 +318,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Adds guest email addresses to the share.
-     *
+     * 
      * @param shareId
      * @param emailAddresses
      */
@@ -327,7 +327,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Removes {@link ome.model.meta.Experimenter experimenters} from
      * {@link ome.model.meta.Session share}
-     *
+     * 
      * @param shareId
      * @param exps
      */
@@ -336,7 +336,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Removes guest email addresses from the share.
-     *
+     * 
      * @param shareId
      * @param exp
      */
@@ -345,7 +345,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Adds {@link ome.model.meta.Experimenter experimenter} to
      * {@link ome.model.meta.Session share}
-     *
+     * 
      * @param shareId
      * @param exps
      */
@@ -353,7 +353,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Add guest email address to the share.
-     *
+     * 
      * @param shareId
      * @param emailAddress
      */
@@ -362,7 +362,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Removes {@link ome.model.meta.Experimenter experimenter} from
      * {@link ome.model.meta.Session share}
-     *
+     * 
      * @param shareId
      * @param exps
      */
@@ -370,7 +370,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Removes guest email address from share.
-     *
+     * 
      * @param shareId
      * @param emailAddress
      */
@@ -381,7 +381,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Gets actual active connections to {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param shareId
      * @return map of experimenter and IP address
      */
@@ -390,7 +390,7 @@ public interface IShare extends ServiceInterface {
 
     /**
      * Gets previous connections to {@link ome.model.meta.Session share}.
-     *
+     * 
      * @param shareId
      * @return map of experimenter and IP address
      */
@@ -400,7 +400,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Makes the connection invalid for {@link ome.model.meta.Session share} for
      * specifiec user.
-     *
+     * 
      * @param shareId
      * @param exp -
      *            connection
@@ -411,7 +411,7 @@ public interface IShare extends ServiceInterface {
     /**
      * Gets events for {@link ome.model.meta.Session share} per
      * {@link ome.model.meta.Experimenter experimenter} for period of time.
-     *
+     * 
      * @param shareId
      * @param exp
      * @param from -

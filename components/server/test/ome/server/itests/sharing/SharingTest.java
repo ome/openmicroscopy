@@ -35,6 +35,7 @@ public class SharingTest extends AbstractManagedContextTest {
     @BeforeMethod
     public void setup() {
         share = factory.getShareService();
+        loginRoot();
     }
 
     @Test
@@ -47,19 +48,53 @@ public class SharingTest extends AbstractManagedContextTest {
         assertShareNotReturned(id, shares);
 
         shares = share.getAllShares(false);
-        boolean found = false;
-        for (Session session : shares) {
-            found |= session.getId().longValue() == id;
-        }
-        assertTrue(found);
+        assertShareReturned(id, shares);
+
+        shares = share.getOwnShares(true);
+        assertShareNotReturned(id, shares);
 
         shares = share.getOwnShares(false);
-    }
+        assertShareReturned(id, shares);
 
-    private void assertShareNotReturned(long id, Set<Session> shares) {
-        for (Session session : shares) {
-            assertFalse(id + "==" + session, id == session.getId());
-        }
+        share.setActive(id, true);
+
+        shares = share.getOwnShares(true);
+        assertShareReturned(id, shares);
+
+        share.activate(id);
+
+        shares = share.getOwnShares(true);
+        assertShareReturned(id, shares);
+
+        // Create a new user and then add them to the share (as root)
+        Experimenter member = loginNewUser();
+        loginRoot();
+        share.addUser(id, member);
+
+        // Now as that user let's see how retrieval works
+        loginUser(member.getOmeName());
+
+        shares = share.getOwnShares(true);
+        assertShareNotReturned(id, shares);
+
+        shares = share.getOwnShares(false);
+        assertShareNotReturned(id, shares);
+
+        shares = share.getMemberShares(false);
+        assertShareReturned(id, shares);
+
+        shares = share.getMemberShares(true);
+        assertShareReturned(id, shares);
+
+        // As root, let's disable the share.
+        loginRoot();
+        share.setActive(id, false);
+        loginUser(member.getOmeName());
+
+        // Now it should not be returned
+        shares = share.getMemberShares(true);
+        assertShareNotReturned(id, shares);
+
     }
 
     @Test
@@ -258,4 +293,22 @@ public class SharingTest extends AbstractManagedContextTest {
     public void testWhoCanDoWhat() {
         fail("NYI");
     }
+
+    // Assertions
+    // =========================================================================
+
+    private void assertShareReturned(long id, Set<Session> shares) {
+        boolean found = false;
+        for (Session session : shares) {
+            found |= session.getId().longValue() == id;
+        }
+        assertTrue(found);
+    }
+
+    private void assertShareNotReturned(long id, Set<Session> shares) {
+        for (Session session : shares) {
+            assertFalse(id + "==" + session, id == session.getId());
+        }
+    }
+
 }
