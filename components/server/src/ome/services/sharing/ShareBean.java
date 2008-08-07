@@ -417,22 +417,30 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
 
     @RolesAllowed("user")
     public List<Annotation> getComments(long shareId) {
-        return iQuery.findAllByQuery("select comment from Session s "
-                + "left outer join fetch s.annotationLinks links "
-                + "left outer join fetch links.child comment "
-                + "where s.id = :id and comment.ns like :ns ", new Parameters()
-                .addString("ns", NS_COMMENT + "%").addId(shareId));
+        List<SessionAnnotationLink> links = iQuery.findAllByQuery(
+                "select l from SessionAnnotationLink l "
+                        + "join fetch l.parent as share "
+                        + "join fetch l.child as comment "
+                        + "where share.id = :id and comment.ns like :ns ",
+                new Parameters().addString("ns", NS_COMMENT + "%").addId(
+                        shareId));
+        List<Annotation> rv = new ArrayList<Annotation>();
+        for (SessionAnnotationLink link : links) {
+            rv.add(link.child());
+        }
+        return rv;
     }
 
     @RolesAllowed("user")
     @Transactional(readOnly = false)
     public TextAnnotation addComment(long shareId, @NotNull
     String comment) {
-        Session s = iQuery.get(Session.class, shareId);
+        Share s = new Share(shareId, false);
         TextAnnotation commentAnnotation = new TextAnnotation();
         commentAnnotation.setTextValue(comment);
         commentAnnotation.setNs(NS_COMMENT);
-        SessionAnnotationLink link = s.linkAnnotation(commentAnnotation);
+        SessionAnnotationLink link = new SessionAnnotationLink(s,
+                commentAnnotation);
         link = iUpdate.saveAndReturnObject(link);
         return (TextAnnotation) link.child();
     }
@@ -449,6 +457,13 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @Transactional(readOnly = false)
     public void deleteComment(@NotNull
     Annotation comment) {
+        List<SessionAnnotationLink> links = iQuery.findAllByQuery(
+                "select l from SessionAnnotationLink l "
+                        + "where l.child.id = :id", new Parameters()
+                        .addId(comment.getId()));
+        for (SessionAnnotationLink sessionAnnotationLink : links) {
+            iUpdate.deleteObject(sessionAnnotationLink);
+        }
         iUpdate.deleteObject(comment);
     }
 

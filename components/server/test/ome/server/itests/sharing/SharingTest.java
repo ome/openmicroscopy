@@ -8,10 +8,14 @@ package ome.server.itests.sharing;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import ome.api.IShare;
 import ome.conditions.SecurityViolation;
+import ome.model.IObject;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.TextAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
@@ -36,6 +40,22 @@ public class SharingTest extends AbstractManagedContextTest {
     public void setup() {
         share = factory.getShareService();
         loginRoot();
+    }
+
+    @Test
+    public void testComments() {
+        share = factory.getShareService();
+        long id = share.createShare("disabled", null, null, null, null, false);
+        TextAnnotation annotation = share.addComment(id, "hello");
+
+        List<Annotation> annotations = share.getComments(id);
+        assertContained(annotation, annotations);
+
+        share.deleteComment(annotation);
+
+        annotations = share.getComments(id);
+        assertNotContained(annotation, annotations);
+
     }
 
     @Test
@@ -309,6 +329,26 @@ public class SharingTest extends AbstractManagedContextTest {
         for (Session session : shares) {
             assertFalse(id + "==" + session, id == session.getId());
         }
+    }
+
+    private <I extends IObject> boolean contains(I obj, List<I> list) {
+        boolean found = false;
+        for (I test : list) {
+            if (test.getId().equals(obj.getId())) {
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private <I extends IObject> void assertContained(I obj, List<I> list) {
+        boolean found = contains(obj, list);
+        assertTrue(found);
+    }
+
+    private <I extends IObject> void assertNotContained(I obj, List<I> list) {
+        boolean found = contains(obj, list);
+        assertFalse(found);
     }
 
 }
