@@ -18,9 +18,12 @@ import ome.api.IQuery;
 import ome.server.itests.ManagedContextFixture;
 import ome.testing.Report;
 
+import org.apache.log4j.Category;
+import org.apache.log4j.Level;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.engine.FilterDefinition;
+import org.hibernate.stat.Statistics;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
@@ -39,13 +42,16 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
     static final String idsin = "p.id in (220, 221, 222, 223, 224, 225, 226, 227, 228, 229)";
     static final String alone_q = select + "where " + idsin;
     static final String links_q = select
-            + "left outer join fetch p.annotationLinks where " + idsin;
-    static final String channels_q = select + "join fetch p.channels where "
+            + "left outer join fetch p.annotationLinks links " + "where "
             + idsin;
+    static final String channels_q = select
+            + "left outer join fetch p.channels where " + idsin;
 
     ManagedContextFixture fixture = new ManagedContextFixture();
     DataSource ds = (DataSource) fixture.ctx.getBean("dataSource");
-    SessionFactory sf = loadSessionFactory(ds);
+    SessionFactory omesf = (SessionFactory) fixture.ctx
+            .getBean("sessionFactory");
+    SessionFactory rawsf = loadSessionFactory(ds);
 
     private SessionFactory loadSessionFactory(DataSource source) {
         Properties p = (Properties) fixture.ctx.getBean("hibernateProperties");
@@ -71,14 +77,14 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
     {
         calls.add(new Callable<Object>() {
             public Object call() throws Exception {
-                callHibernate("HA", alone_q);
+                callHibernateAlone();
                 return null;
             }
         });
 
         calls.add(new Callable<Object>() {
             public Object call() throws Exception {
-                callOMERO("OA", alone_q);
+                callOmeroAlone();
                 return null;
             }
         });
@@ -90,13 +96,13 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         });
         calls.add(new Callable<Object>() {
             public Object call() throws Exception {
-                callHibernate("HC", channels_q);
+                callHibernateChannels();
                 return null;
             }
         });
         calls.add(new Callable<Object>() {
             public Object call() throws Exception {
-                callOMERO("OC", channels_q);
+                callOmeroChannels();
                 return null;
             }
         });
@@ -109,13 +115,13 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         });
         calls.add(new Callable<Object>() {
             public Object call() throws Exception {
-                callHibernate("HL", links_q);
+                callHibernateLinks();
                 return null;
             }
         });
         calls.add(new Callable<Object>() {
             public Object call() throws Exception {
-                callOMERO("OL", links_q);
+                callOmeroLinks();
                 return null;
             }
         });
@@ -145,19 +151,43 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         }
     }
 
-    void callHibernate(String which, String query) throws Exception {
+    void callHibernateAlone() throws Exception {
+        _callHibernate("HA", alone_q);
+    }
+
+    void callHibernateChannels() throws Exception {
+        _callHibernate("HC", channels_q);
+    }
+
+    void callHibernateLinks() throws Exception {
+        _callHibernate("HL", links_q);
+    }
+
+    void _callHibernate(String which, String query) throws Exception {
         try {
             Monitor m = MonitorFactory.getTimeMonitor(which).start();
-            Session s = sf.openSession();
+            Session s = rawsf.openSession();
             s.createQuery(query).list();
             s.close();
             m.stop();
         } finally {
-            sf.close();
+            rawsf.close();
         }
     }
 
-    void callOMERO(String which, String query) {
+    void callOmeroAlone() throws Exception {
+        _callOmero("OA", alone_q);
+    }
+
+    void callOmeroChannels() throws Exception {
+        _callOmero("OC", channels_q);
+    }
+
+    void callOmeroLinks() throws Exception {
+        _callOmero("OL", links_q);
+    }
+
+    void _callOmero(String which, String query) {
         IQuery q = fixture.managedSf.getQueryService();
         Monitor m = MonitorFactory.getTimeMonitor(which).start();
         q.findAllByQuery(query, null);
@@ -187,30 +217,50 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
 
     void prime() throws Exception {
         // Prime the data sources
-        callHibernate("HP", alone_q);
-        callHibernate("HP", channels_q);
-        callHibernate("HP", links_q);
+        _callHibernate("HP", alone_q);
+        _callHibernate("HP", channels_q);
+        _callHibernate("HP", links_q);
         // callJdbcDirect("JP", alone_q);
         // callJdbcDirect("JP", channels_q);
         // callJdbcDirect("JP", links_q);
-        callOMERO("OP", alone_q);
-        callOMERO("OP", channels_q);
-        callOMERO("OP", links_q);
+        _callOmero("OP", alone_q);
+        _callOmero("OP", channels_q);
+        _callOmero("OP", links_q);
     }
 
     public void testCompareDirect() throws Exception {
         prime();
-        callHibernate("HA", alone_q);
-        callHibernate("HC", channels_q);
-        callHibernate("HL", links_q);
-        callOMERO("OA", alone_q);
-        callOMERO("OC", channels_q);
-        callOMERO("OL", links_q);
+
+        Statistics rawstats = rawsf.getStatistics();
+        Statistics omestats = omesf.getStatistics();
+
+        System.out.println("Clearing stats");
+        rawstats.clear();
+        omestats.clear();
+
+        Category.getInstance("org.hibernate.SQL").setLevel(Level.DEBUG);
+
+        // callHibernateAlone();
+        callHibernateChannels();
+        // callHibernateLinks();
+        System.out.println("**** RawStats");
+        rawstats.logSummary();
+        // callOmeroAlone();
+        callOmeroChannels();
+        // callOmeroLinks();
+        System.out.println("**** OmeStats");
+        omestats.logSummary();
+        System.out.println(new Report());
+
     }
 
     @Test(enabled = false)
     public static void main(String[] args) throws Exception {
-        new SqlHibernateDatasourceComparisonTest().testCompareDirect();
+        SqlHibernateDatasourceComparisonTest t = new SqlHibernateDatasourceComparisonTest();
+        try {
+            t.testComparseDataSources();
+        } finally {
+            t.fixture.close();
+        }
     }
-
 }

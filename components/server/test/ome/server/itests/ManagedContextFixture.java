@@ -40,6 +40,10 @@ public class ManagedContextFixture {
         this(OmeroContext.getManagedServerContext());
     }
 
+    public void close() {
+        ctx.closeAll();
+    }
+
     public ManagedContextFixture(OmeroContext ctx) {
         this.ctx = ctx;
         mgr = (SessionManager) ctx.getBean("sessionManager");
