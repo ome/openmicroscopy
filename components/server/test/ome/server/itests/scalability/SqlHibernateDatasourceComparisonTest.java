@@ -158,7 +158,7 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
     }
 
     void callOMERO(String which, String query) {
-        IQuery q = fixture.sf.getQueryService();
+        IQuery q = fixture.managedSf.getQueryService();
         Monitor m = MonitorFactory.getTimeMonitor(which).start();
         q.findAllByQuery(query, null);
         m.stop();
@@ -168,17 +168,7 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         try {
             // check pre-conditions
             assertEquals(9, calls.size());
-
-            // Prime the data sources
-            callHibernate("HP", alone_q);
-            callHibernate("HP", channels_q);
-            callHibernate("HP", links_q);
-            // callJdbcDirect("JP", alone_q);
-            // callJdbcDirect("JP", channels_q);
-            // callJdbcDirect("JP", links_q);
-            callOMERO("OP", alone_q);
-            callOMERO("OP", channels_q);
-            callOMERO("OP", links_q);
+            prime();
 
             List<Callable<Object>> copy = new ArrayList(calls);
             ScheduledThreadPoolExecutor ex = new ScheduledThreadPoolExecutor(1);
@@ -195,9 +185,32 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         }
     }
 
+    void prime() throws Exception {
+        // Prime the data sources
+        callHibernate("HP", alone_q);
+        callHibernate("HP", channels_q);
+        callHibernate("HP", links_q);
+        // callJdbcDirect("JP", alone_q);
+        // callJdbcDirect("JP", channels_q);
+        // callJdbcDirect("JP", links_q);
+        callOMERO("OP", alone_q);
+        callOMERO("OP", channels_q);
+        callOMERO("OP", links_q);
+    }
+
+    public void testCompareDirect() throws Exception {
+        prime();
+        callHibernate("HA", alone_q);
+        callHibernate("HC", channels_q);
+        callHibernate("HL", links_q);
+        callOMERO("OA", alone_q);
+        callOMERO("OC", channels_q);
+        callOMERO("OL", links_q);
+    }
+
     @Test(enabled = false)
     public static void main(String[] args) throws Exception {
-        new SqlHibernateDatasourceComparisonTest().testComparseDataSources();
+        new SqlHibernateDatasourceComparisonTest().testCompareDirect();
     }
 
 }
