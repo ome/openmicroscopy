@@ -41,6 +41,8 @@ import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import uiComponents.CustomLabel;
+
 public class SimpleHTMLEditorPane extends JEditorPane {
 	
 	public static final String FONT_BOLD = "font-bold";
@@ -59,6 +61,7 @@ public class SimpleHTMLEditorPane extends JEditorPane {
 		
 		super();
 		
+		this.setFont(CustomLabel.CUSTOM_FONT);
 		this.setEditorKit(htmlEditorKit);
 		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
 		Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);

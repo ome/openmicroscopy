@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.textFieldEditor 
+ * treeEditingComponents.NumberEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,26 +22,29 @@
  */
 package treeEditingComponents;
 
-//Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-import java.awt.Dimension;
-
-import javax.swing.JTextField;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 
 import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
+import uiComponents.UIsizes;
 import uiComponents.CustomLabel;
-import uiComponents.CustomTextField;
+
+//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-
-
 /** 
- * This is an editing component that edits a text value in a 
- * IFieldValue object. 
+ * This is the UI component for displaying the Number Field (with units label)
+ * and editing the number. 
+ * It delegates the editing to the TextFieldEditor. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -51,55 +54,59 @@ import uiComponents.CustomTextField;
  * </small>
  * @since OME3.0
  */
-public class TextFieldEditor 
-	extends CustomTextField 
-	implements ITreeEditComp {
+public class NumberEditor 
+	extends Box 
+	implements ITreeEditComp,
+	PropertyChangeListener {
 	
-	IParam param;
+	private IParam param;
 	
-	String attributeName;
-	
-	public TextFieldEditor(IParam param) {
-		
-		String[] attributes = param.getValueAttributes();
-		attributeName = "value";		// default
-		if (attributes.length > 0) {
-			attributeName = attributes[0];
-		}
+	public NumberEditor(IParam param) {
+		super(BoxLayout.X_AXIS);
 		
 		this.param = param;
-		initialise();
-	}
-	
-	public TextFieldEditor(IParam param, String attributeName) {
-		this.attributeName = attributeName;
-		this.param = param;
-		initialise();
-	}
-	
-	private void initialise() {
-		String value = param.getAttribute(attributeName);
 		
-		AttributeEditListeners.addListeners(this, this, attributeName);
+		TextFieldEditor numberField = new TextFieldEditor(param, 
+				SingleParam.PARAM_VALUE);
+		int minW = UIsizes.getInstance().
+			getDimension(UIsizes.NUMB_FIELD_MIN_WIDTH);
+		numberField.setMinWidth(minW);
+		numberField.addPropertyChangeListener(FieldPanel.VALUE_CHANGED_PROPERTY, 
+				this);
 		
-		this.setFont(CustomLabel.CUSTOM_FONT);
-		setText(value);
+		add(numberField);
+		
+		add(Box.createHorizontalStrut(10));
+		
+		String units = param.getAttribute(SingleParam.PARAM_UNITS);
+		add(new CustomLabel(units));
 	}
-	
+
+	/**
+	 * This doesn't need to do anything, since the propertyChangeEvent 
+	 * will come from the number field itself
+	 */
 	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, null, this.getText());
+		
 	}
-	
+
+	/**
+	 * This is the only attribute that you can modify from this class. 
+	 */
+	public String getAttributeName() {
+		return SingleParam.PARAM_VALUE;
+	}
+
 	public IParam getParameter() {
 		return param;
 	}
-	
-	public String getAttributeName() {
-		return attributeName;
+
+	/**
+	 * Simply pass on the property change event. 
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		this.firePropertyChange(evt.getPropertyName(), 
+				evt.getOldValue(), evt.getNewValue());
 	}
 
 }

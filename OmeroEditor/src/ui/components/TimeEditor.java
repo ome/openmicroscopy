@@ -214,5 +214,7 @@ public class TimeEditor
 		minsSpinner.setEnabled(enabled);
 		secsSpinner.setEnabled(enabled);
 	}
+	
+	
 
 }

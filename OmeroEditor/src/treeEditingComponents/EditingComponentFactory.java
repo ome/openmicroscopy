@@ -26,9 +26,11 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import tree.DataFieldConstants;
+import treeEditingComponents.editDefaults.DefaultTextField;
 import treeModel.fields.AbstractParam;
 import treeModel.fields.IParam;
 import treeModel.fields.SingleParam;
+import treeModel.fields.TimeParam;
 
 
 //Java imports
@@ -91,6 +93,18 @@ public class EditingComponentFactory {
 			return new TextBoxEditor(paramObject);
 		}
 		
+		if (inputType.equals(SingleParam.NUMBER_PARAM)) {
+			return new NumberEditor(paramObject);
+		}
+		
+		if (inputType.equals(SingleParam.BOOLEAN_PARAM)) {
+			return new BooleanEditor(paramObject);
+		}
+		
+		if (inputType.equals(TimeParam.TIME_PARAM)) {
+			return new TimerField(paramObject);
+		}
+		
 		if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
 			return new JPanel();
 		}
@@ -99,5 +113,37 @@ public class EditingComponentFactory {
 	}
 	
 	
+	
+public static JComponent getEditDefaultComponent(IParam paramObject) {
+		
+		if (paramObject == null) {
+			System.out.println("getEditingComponent: paramObject NOT RECOGNIZED. " +
+					"Return JPanel()");
+			return new JPanel();
+		}
+		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
+		
+		if (inputType == null) {
+			return new JPanel();
+		}
+		
+		if (inputType.equals(SingleParam.TEXT_LINE_PARAM)) {
+			return new DefaultTextField(paramObject);
+		} 
+		
+		if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
+			return new DateTimeField(paramObject);
+		} 
+		
+		if (inputType.equals(SingleParam.TEXT_BOX_PARAM)) {
+			return new TextBoxEditor(paramObject);
+		}
+		
+		if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
+			return new JPanel();
+		}
+		
+		return null;
+	}
 
 }

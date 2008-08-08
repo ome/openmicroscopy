@@ -30,6 +30,10 @@ package treeModel.fields;
 //Application-internal dependencies
 
 /** 
+ * This is a Parameter that has a single value attribute, PARAM_VALUE.
+ * Can be used as the data object for any parameter that has a single
+ * value, Eg. Text-Line, Text-Box, Number, Boolean, Enum (drop-down)?
+ * and a single default attribute DEFAULT_VALUE.
  * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -87,11 +91,16 @@ public class SingleParam
 	 */
 	public static final String BOOLEAN_PARAM = "booleanParam";
 	
-	/**
-	 * This defines a time parameter, in seconds. 
-	 * Equivalent to the "TimeField" of Beta 3.0
+	
+	/*
+	 * Additional attributes required by some of these parameters. 
 	 */
-	public static final String TIME_PARAM = "timeParam";
+	
+	/**
+	 * An attribute to describe the units of a NUMBER_PARAM.
+	 * eg "%" or "grams"
+	 */
+	public static final String PARAM_UNITS = "paramUnits";
 	
 	/**
 	 * An attribute used by the ENUM_PARAM to store a comma-delimited
@@ -111,7 +120,9 @@ public class SingleParam
 	
 	
 	/**
-	 * The value attribute is a single value
+	 * The value attribute is a single value.
+	 * If this is filled, then the parameter is filled.
+	 * If the field is cleared, this attribute is cleared etc.
 	 */
 	public String[] getValueAttributes() {
 		

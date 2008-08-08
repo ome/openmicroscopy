@@ -22,6 +22,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import tree.IAttributeSaver;
+import treeModel.fields.IField;
+import uiComponents.CustomLabel;
 import util.ImageFactory;
 
 public class AttributeMemoFormatEditor extends JPanel{
@@ -29,7 +31,7 @@ public class AttributeMemoFormatEditor extends JPanel{
 	 * 
 	 */
 
-	IAttributeSaver dataField;
+	IField dataField;
 	String attributeId;
 
 	boolean textChanged = false;
@@ -42,15 +44,16 @@ public class AttributeMemoFormatEditor extends JPanel{
 	FocusListener focusChangedListener = new FocusChangedListener();
 	
 	// constructor creates a new panel and adds a name and text area to it.
-	public AttributeMemoFormatEditor(IAttributeSaver dataField, String attribute, String value) {
-		this(dataField, attribute, attribute, value);
+	public AttributeMemoFormatEditor(IField dataField, String attribute) {
+		this(dataField, attribute, attribute);
 	}
-	public AttributeMemoFormatEditor(IAttributeSaver dataField, String label, String attribute, String value) {
+	public AttributeMemoFormatEditor(IField dataField, String label, String attribute) {
 		
 		this.dataField = dataField;
+		String value = dataField.getAttribute(attribute);
 		
 		this.setBorder(new EmptyBorder(3,3,3,3));
-		JLabel attributeName = new JLabel(label);
+		JLabel attributeName = new CustomLabel(label);
 		
 		editorPane = new SimpleHTMLEditorPane();
 		editorPane.addHtmlTagsAndSetText(value);
@@ -127,14 +130,14 @@ public class AttributeMemoFormatEditor extends JPanel{
 			editorPane.getHtmlEditorKitAction(actionCommand).actionPerformed(e);
 			
 			// update the changes to the dataField
-			setDataFieldAttribute(attributeId, getText(), true);
+			setDataFieldAttribute(attributeId, getText());
 			textChanged = false;
 		}
 	}
 	
 	// called to update dataField with attribute
-	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
-		dataField.setAttribute(attributeName, value, notifyUndoRedo);
+	protected void setDataFieldAttribute(String attributeName, String value) {
+		dataField.setAttribute(attributeName, value);
 	}
 	
 	public class TextChangedListener implements KeyListener {
@@ -152,7 +155,7 @@ public class AttributeMemoFormatEditor extends JPanel{
 		public void focusLost(FocusEvent event) {
 			if (textChanged) {
 				
-				setDataFieldAttribute(attributeId, getText(), true);
+				setDataFieldAttribute(attributeId, getText());
 				
 				textChanged = false;
 			}

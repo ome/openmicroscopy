@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.ITreeEditComp 
+ * uiComponents.CustomLabel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,25 +20,25 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeEditingComponents;
+package uiComponents;
 
 //Java imports
+import java.awt.Font;
+
+import javax.swing.Icon;
+import javax.swing.JLabel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import treeModel.fields.IParam;
-
-
 /** 
- * The editing components for each parameter type should implement this
- * interface. 
- * attributeEdited should be called when an attribute changes.
- * This should first make sure that getAttributeName
- * will return the name of the most recently changed attribute.
- * Then, notify propertyChangeListeners.
+ * A Custom Label, which should be used by the UI instead of using 
+ * JLabel. Sets the font to CUSTOM FONT.
  * 
+ * This font is also used by many other Custom UI components in this
+ * package, making it easy to change the font in many components in 
+ * one place (here!). 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -48,11 +48,44 @@ import treeModel.fields.IParam;
  * </small>
  * @since OME3.0
  */
-public interface ITreeEditComp {
+public class CustomLabel 
+	extends JLabel {
 
-	public void attributeEdited(String attributeName, String newValue);
+	/**
+	 * A custom font used by this label, and used by many other custom
+	 * UI components. 
+	 * Changing the size of this font may require you to change the size of
+	 * other components that have their size set explicitly. 
+	 */
+	public static final Font CUSTOM_FONT = new Font("SansSerif", Font.PLAIN, 11);
 	
-	public IParam getParameter();
+	/**
+	 * Simply delegates to JLabel superclass.
+	 */
+	public CustomLabel() {
+		super();
+	}
 	
-	public String getAttributeName();
+	/**
+	 * Simply delegates to JLabel superclass.
+	 */
+	public CustomLabel(Icon image) {
+		super(image);
+	}
+	
+	/**
+	 * Simply delegates to JLabel superclass.
+	 */
+	public CustomLabel(String text) {
+		super(text);
+	}
+	
+	/**
+	 * override this method as it is called by JLabel constructors.
+	 */
+	public void updateUI() {
+		
+		this.setFont(CUSTOM_FONT);
+		super.updateUI();
+	}
 }

@@ -12,13 +12,14 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.JTextComponent;
 
-import tree.IAttributeSaver;
+import treeModel.fields.IField;
+import uiComponents.CustomLabel;
 
 public class AttributeEditor extends JPanel {
 	
 boolean textChanged;
 	
-	IAttributeSaver dataField;
+	IField dataField;
 	
 	TextChangedListener textChangedListener = new TextChangedListener();
 	FocusListener focusChangedListener = new FocusChangedListener();
@@ -27,17 +28,19 @@ boolean textChanged;
 	JLabel attributeName;
 	
 	// constructor creates a new panel and adds a name and text field to it.
-	public AttributeEditor(IAttributeSaver dataField, String attribute, String value) {
-		this(dataField, attribute, attribute, value);
+	public AttributeEditor(IField dataField, String attribute) {
+		this(dataField, attribute, attribute);
 	}
 	
-	public AttributeEditor(IAttributeSaver dataField, String label, String attribute, String value) {
+	public AttributeEditor(IField dataField, String label, String attribute) {
 		
 		this.dataField = dataField;
+		String value = dataField.getAttribute(attribute);
 		
 		this.setBorder(new EmptyBorder(3,3,3,3));
-		attributeName = new JLabel(label);
+		attributeName = new CustomLabel(label);
 		attributeTextField = new JTextField(value);
+		attributeTextField.setFont(CustomLabel.CUSTOM_FONT);
 		attributeTextField.setName(attribute);
 		attributeTextField.setColumns(15);
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -77,7 +80,7 @@ public class TextChangedListener implements KeyListener {
 			if (textChanged) {
 				JTextComponent source = (JTextComponent)event.getSource();
 				
-				setDataFieldAttribute(source.getName(), source.getText(), true);
+				setDataFieldAttribute(source.getName(), source.getText());
 				
 				textChanged = false;
 			}
@@ -86,7 +89,7 @@ public class TextChangedListener implements KeyListener {
 	}
 	
 	// called to update dataField with attribute
-	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
-		dataField.setAttribute(attributeName, value, notifyUndoRedo);
+	protected void setDataFieldAttribute(String attributeName, String value) {
+		dataField.setAttribute(attributeName, value);
 	}
 }

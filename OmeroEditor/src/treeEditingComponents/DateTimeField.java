@@ -50,7 +50,9 @@ import treeModel.fields.DateTimeParam;
 import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
 import ui.components.CustomComboBox;
+import uiComponents.CustomLabel;
 import uiComponents.HrsMinsEditor;
+import uiComponents.HrsMinsField;
 
 
 /** 
@@ -87,7 +89,7 @@ public class DateTimeField
 	
 	JCheckBox timeChosen;
 	
-	HrsMinsEditor hrsMinsEditor;
+	HrsMinsField hrsMinsEditor;
 	
 	String lastUpdatedAttribute;
 	
@@ -119,7 +121,7 @@ public class DateTimeField
 		
 		this.add(daySelector);
 		this.add(Box.createHorizontalStrut(10));
-		this.add(new JLabel( " Set Time?"));
+		this.add(new CustomLabel( " Set Time?"));
 		
 		String timeInSecs = param.getAttribute(DateTimeParam.TIME_ATTRIBUTE);
 		
@@ -134,12 +136,12 @@ public class DateTimeField
 		this.add(timeChosen);
 		
 		
-		hrsMinsEditor = new HrsMinsEditor();
+		hrsMinsEditor = new HrsMinsField();
 		if (timeInSecs != null) {
-			hrsMinsEditor.setHrsMins(new Integer(timeInSecs));
+			hrsMinsEditor.setTimeInSecs(new Integer(timeInSecs));
 		}
 		hrsMinsEditor.setVisible(timeInSecs != null);
-		hrsMinsEditor.addPropertyChangeListener(HrsMinsEditor.TIME_IN_SECONDS, this);
+		hrsMinsEditor.addPropertyChangeListener(HrsMinsField.TIME_IN_SECONDS, this);
 		this.add(hrsMinsEditor);
 		
 		updateDateFromDataField();
@@ -168,14 +170,14 @@ public class DateTimeField
 					HrsMinsEditor.TIME_IN_SECONDS, 
 					-1, 	// has to be an artificial "oldValue" so it's not 
 							// the same as newValue (won't fire). Can't use null
-					hrsMinsEditor.getDisplayedTimeInSecs());
+					hrsMinsEditor.getTimeInSecs());
 		} else {
 			attributeEdited(DateTimeParam.TIME_ATTRIBUTE, null);
 		}
 		/*
 		 * Need to resize...
 		 */
-		this.firePropertyChange(FieldPanel.SIZE_CHANGED_PROPERTY, null, null);	
+		this.firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);	
 	}
 
 	public void attributeEdited(String attributeName, String newValue) {

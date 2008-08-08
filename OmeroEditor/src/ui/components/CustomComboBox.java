@@ -35,6 +35,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.border.EmptyBorder;
+
+import uiComponents.CustomLabel;
 
 /**
  * This is a ComboBox that has custom size behaviour and 
@@ -53,12 +56,15 @@ public class CustomComboBox extends JComboBox {
 	
 	public CustomComboBox(String[] items) {
 		super(items);
-		setBackground(null);
-		this.setRenderer(new TruncatedListItemRenderer());
-		this.addActionListener(new TruncateSelectionListener());
+		initialise();
 	}
 	public CustomComboBox() {
 		super();
+		initialise();
+	}
+	
+	private void initialise() {
+		this.setFont(CustomLabel.CUSTOM_FONT);
 		setBackground(null);
 		this.setRenderer(new TruncatedListItemRenderer());
 		this.addActionListener(new TruncateSelectionListener());
@@ -98,31 +104,7 @@ public class CustomComboBox extends JComboBox {
 	public Dimension getMaximumSize() {
 		
 		
-		Dimension prefSize = super.getPreferredSize();
-		
-		int prefWidth = 0;
-		int height = 0;
-		
-		prefWidth = (int)prefSize.getWidth();
-		
-		/*
-		 * If maxPreferredWidth is set,
-		 * make sure width is at least the max preferred width...
-		 */
-		if (maxPreferredWidth > 0) {
-			prefWidth = Math.max(prefWidth, maxPreferredWidth);
-		}
-		/*
-		 * If maximumWidth is set,
-		 * make sure width is not more than the absolute maximum width.
-		 */
-		if (maximumWidth > 0) {
-			prefWidth = Math.min(prefWidth, maximumWidth);
-		} 
-		
-		height = (int)prefSize.getHeight();
-		
-		return new Dimension(prefWidth, height);
+		return getPreferredSize();
 	}
 	
 	
@@ -251,8 +233,9 @@ public class CustomComboBox extends JComboBox {
 	 * 
 	 * @author will
 	 */
-	public class TruncatedListItemRenderer extends JLabel
-	implements ListCellRenderer {
+	public class TruncatedListItemRenderer 
+		extends CustomLabel
+		implements ListCellRenderer {
 
 		public TruncatedListItemRenderer() {
 	        setOpaque(true);
@@ -288,7 +271,7 @@ public class CustomComboBox extends JComboBox {
 				}
 				
 				setText(fullText);
-				setFont(list.getFont());
+				setBorder(new EmptyBorder(1,2,1,2));
 			}
 			
 			return this;

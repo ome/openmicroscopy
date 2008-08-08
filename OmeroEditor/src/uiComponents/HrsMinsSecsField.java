@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.HrsMinsEditor 
+ * uiComponents.TimerField 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -30,32 +30,33 @@ import java.beans.PropertyChangeListener;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Displays the Hrs and Mins in 2 JSpinners.
- * This class is not used. 
- * Now use HrsMinsField instead. Looks better! 
- *
- * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
- * @version 3.0
- * <small>
- * (<b>Internal version:</b> $Revision: $Date: $)
- * </small>
- * @since OME3.0
- */
-public class HrsMinsEditor 
-	extends JPanel 
+* This is a UI component for displaying and editing Hrs, Mins and Secs.
+* Uses a DoubleDigitField for the Hrs, Mins and for Secs. 
+* Fires a propertyChange TIME_IN_SECONDS when the DoubleDigitFields are
+* edited. 
+*
+* @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+* <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+* @version 3.0
+* <small>
+* (<b>Internal version:</b> $Revision: $Date: $)
+* </small>
+* @since OME3.0
+*/
+public class HrsMinsSecsField extends JPanel 
 	implements PropertyChangeListener {
 	
-	protected JSpinner hrsSpinner;
+	protected DoubleDigitField hrsField;
 	
-	protected JSpinner minsSpinner;
+	protected DoubleDigitField minsField;
+	
+	protected DoubleDigitField secsField;
 	
 	/**
 	 * Bound property for this component. 
@@ -65,59 +66,71 @@ public class HrsMinsEditor
 	
 	protected int currentTimeInSecs = 0;
 	
-	public HrsMinsEditor() {
+	public HrsMinsSecsField() {
 		
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBackground(null);
 		
-		hrsSpinner = new DoubleDigitSpinner(0, 0, 23, 1);
-		hrsSpinner.addPropertyChangeListener(DoubleDigitSpinner.SPINNER_VALUE, this);
+		hrsField = new DoubleDigitField(0, 23);
+		hrsField.addPropertyChangeListener(DoubleDigitField.DIGIT_VALUE_PROPERTY, this);
 		
-		minsSpinner = new DoubleDigitSpinner(0, 0, 59, 1);
-		minsSpinner.addPropertyChangeListener(DoubleDigitSpinner.SPINNER_VALUE, this);
+		minsField = new DoubleDigitField(0, 59);
+		minsField.addPropertyChangeListener(DoubleDigitField.DIGIT_VALUE_PROPERTY, this);
 		
-		add(hrsSpinner);
+		secsField = new DoubleDigitField(0, 59);
+		secsField.addPropertyChangeListener(DoubleDigitField.DIGIT_VALUE_PROPERTY, this);
+		
+		add(hrsField);
 		add(new JLabel(":"));
-		add(minsSpinner);
+		add(minsField);
+		add(new JLabel(":"));
+		add(secsField);
+		
+		setTimeInSecs(0);
 	}
 	
-	public void setHrsMins(int timeInSecs) {
+	public void setTimeInSecs(int timeInSecs) {
 		
 		int hours = 0;
 		int mins = 0;
+		int secs = 0;
 		
 		hours = timeInSecs / 3600;
 		mins = (timeInSecs - hours*3600) / 60;
+		secs = timeInSecs - hours*3600 - mins*60;
 		
-		hrsSpinner.setValue(hours);
-		minsSpinner.setValue(mins);
+		hrsField.setText(hours + "");
+		minsField.setText(mins + "");
+		secsField.setText(secs + "");
 		
 		currentTimeInSecs = timeInSecs;
 	}
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		
-		if (DoubleDigitSpinner.SPINNER_VALUE.equals(evt.getPropertyName())) {
-			int newTimeInSecs = getDisplayedTimeInSecs();
+		if (DoubleDigitField.DIGIT_VALUE_PROPERTY.equals(evt.getPropertyName())) {
+			int newTimeInSecs = getTimeInSecs();
 			
 			this.firePropertyChange(TIME_IN_SECONDS, currentTimeInSecs, newTimeInSecs);
 			
 			currentTimeInSecs = newTimeInSecs;
 		}
- 		
+		
 	}
 	
-	public int getDisplayedTimeInSecs() {
-		int hrs = new Integer(hrsSpinner.getValue().toString());
-		int mins = new Integer(minsSpinner.getValue().toString());
+	public int getTimeInSecs() {
+		int hrs = new Integer(hrsField.getText().toString());
+		int mins = new Integer(minsField.getText().toString());
+		int secs = new Integer(secsField.getText().toString());
 		
-		return (hrs * 3600) + (mins * 60);
+		return (hrs * 3600) + (mins * 60) + secs;
 	}
 	
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		hrsSpinner.setEnabled(enabled);
-		minsSpinner.setEnabled(enabled);
+		hrsField.setEnabled(enabled);
+		minsField.setEnabled(enabled);
+		secsField.setEnabled(enabled);
 	}
 
 }

@@ -82,6 +82,8 @@ public class TreeEditorUI
 		 */
 		treeUI = new TreeUI(model, controller);
 		
+		JPanel fieldEditor = new FieldEditorDisplay(treeUI.getJTree());
+		
 		Box toolBarBox = Box.createHorizontalBox();
 		
 		addActionButton(toolBarBox, TreeEditorControl.ADD_FIELD_ACTION);
@@ -92,6 +94,7 @@ public class TreeEditorUI
 		
 		add(toolBarBox, BorderLayout.NORTH);
 		add(treeUI, BorderLayout.CENTER);
+		add(fieldEditor, BorderLayout.EAST);
 	}
 	
 	public void addActionButton(JComponent comp, int index) {

@@ -53,6 +53,7 @@ import treeModel.fields.IAttributes;
 import treeModel.fields.IField;
 import treeModel.fields.IParam;
 import treeModel.fields.SingleParam;
+import treeModel.fields.TimeParam;
 import util.ExceptionHandler;
 import util.XMLMethods;
 
@@ -233,7 +234,7 @@ public class TreeModelFactory {
 			 param = new SingleParam(SingleParam.NUMBER_PARAM);
 			 setValueAndDefault(allAttributes, param);
 			 String units = allAttributes.get(DataFieldConstants.UNITS);
-			 param.setAttribute(DataFieldConstants.UNITS, units);
+			 param.setAttribute(SingleParam.PARAM_UNITS, units);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DROPDOWN_MENU_STEP)) {
 			 param = new SingleParam(SingleParam.ENUM_PARAM);
@@ -245,6 +246,15 @@ public class TreeModelFactory {
 		 else if (paramType.equals(DataFieldConstants.CHECKBOX_STEP)) {
 			 param = new SingleParam(SingleParam.BOOLEAN_PARAM);
 			 setValueAndDefault(allAttributes, param);
+		 } 
+		 else if (paramType.equals(DataFieldConstants.TIME_FIELD)) {
+			 param = new TimeParam(TimeParam.TIME_PARAM);
+			 // old (pre 7th March 08) use the old value "hh:mm:ss" and default
+			 setValueAndDefault(allAttributes, param);
+			 // newer XML uses SECONDS attribute for timeInSecs. 
+			 String secs = allAttributes.get(DataFieldConstants.SECONDS);
+			 param.setAttribute(TimeParam.SECONDS, secs);
+			 
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
 			 param = new DateTimeParam(DataFieldConstants.DATE_TIME_FIELD);

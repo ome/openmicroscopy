@@ -33,8 +33,8 @@ package treeModel.fields;
  * in the data tree.
  * IField extends the IValue interface, which has getAttribute() and setAttribute() 
  * methods.
- * A field may contain several values, so the IField has methods to get the 
- * count of values, and to get a value by index.
+ * A field may contain several parameters, so the IField has methods to get the 
+ * count of parameters, and to get a parameter by index.
  * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -71,6 +71,12 @@ public interface IField
 	public void addParam(IParam param);
 	
 	/**
+	 * Adds a parameter to the list for this field,
+	 * at the specified index.
+	 */
+	public void addParam(int index, IParam param);
+	
+	/**
 	 * Removes a parameter object from the field
 	 * 
 	 * @param param		The object to remove
@@ -85,4 +91,23 @@ public interface IField
 	 */
 	public boolean isFieldFilled();
 
+	/**
+	 * UI classes may want to set display attributes that do not affect
+	 * the data (eg collapsed state, description visible). 
+	 * 
+	 * @param name	The name of the display attribute. 
+	 * @param value		The new value of the attribute
+	 */
+	public void setDisplayAttribute(String name, String value);
+	
+	
+	/**
+	 * UI classes may want to get display attributes that do not affect
+	 * the data (eg collapsed state, description visible). 
+	 * 
+	 * @param name		The named attribute
+	 * @return 			The value of the attribute
+	 */
+	public String getDisplayAttribute(String name);
+	
 }

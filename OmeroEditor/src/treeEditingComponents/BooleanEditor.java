@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.textFieldEditor 
+ * treeEditingComponents.BooleanEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,26 +22,23 @@
  */
 package treeEditingComponents;
 
-//Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import java.awt.Dimension;
-
-import javax.swing.JTextField;
+import javax.swing.JCheckBox;
 
 import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
-import uiComponents.CustomLabel;
-import uiComponents.CustomTextField;
+import treeModel.fields.SingleParam;
+
+//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-
-
 /** 
- * This is an editing component that edits a text value in a 
- * IFieldValue object. 
+ * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -51,55 +48,48 @@ import uiComponents.CustomTextField;
  * </small>
  * @since OME3.0
  */
-public class TextFieldEditor 
-	extends CustomTextField 
-	implements ITreeEditComp {
+public class BooleanEditor 
+	extends JCheckBox
+	implements ITreeEditComp,
+	ActionListener {
+
+	private IParam param;
 	
-	IParam param;
+	String valueAttribute = SingleParam.PARAM_VALUE;
 	
-	String attributeName;
-	
-	public TextFieldEditor(IParam param) {
+	public BooleanEditor(IParam param) {
 		
-		String[] attributes = param.getValueAttributes();
-		attributeName = "value";		// default
-		if (attributes.length > 0) {
-			attributeName = attributes[0];
-		}
-		
+		super();
 		this.param = param;
-		initialise();
-	}
-	
-	public TextFieldEditor(IParam param, String attributeName) {
-		this.attributeName = attributeName;
-		this.param = param;
-		initialise();
-	}
-	
-	private void initialise() {
-		String value = param.getAttribute(attributeName);
+		addActionListener(this);
+		setBackground(null);
+		this.setBorderPaintedFlat(true);
 		
-		AttributeEditListeners.addListeners(this, this, attributeName);
+		boolean checked = param.isAttributeTrue(valueAttribute);
 		
-		this.setFont(CustomLabel.CUSTOM_FONT);
-		setText(value);
+		this.setSelected(checked);
 	}
 	
+	/**
+	 * 
+	 */
 	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, null, this.getText());
+		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, 
+				null, newValue);
 	}
-	
+
+	/**
+	 * This is the only attribute that you can modify from this class. 
+	 */
+	public String getAttributeName() {
+		return valueAttribute;
+	}
+
 	public IParam getParameter() {
 		return param;
 	}
-	
-	public String getAttributeName() {
-		return attributeName;
-	}
 
+	public void actionPerformed(ActionEvent e) {
+		attributeEdited(valueAttribute, this.isSelected() + "");
+	}
 }

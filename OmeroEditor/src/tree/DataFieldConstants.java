@@ -342,6 +342,7 @@ public class DataFieldConstants {
 	public static final String CUSTOM = "CustomField";
 	public static final String OLS_FIELD = "OntologyLookupServiceField";
 	public static final String OBSERVATION_DEFINITION = "ObservationDefinition";
+	
 	public static final String[] INPUT_TYPES = 
 	{FIXED_PROTOCOL_STEP, TEXT_ENTRY_STEP,
 	MEMO_ENTRY_STEP, DROPDOWN_MENU_STEP, CHECKBOX_STEP, NUMBER_ENTRY_STEP, DATE_TIME_FIELD, TIME_FIELD, LINK_FIELD, TABLE, 

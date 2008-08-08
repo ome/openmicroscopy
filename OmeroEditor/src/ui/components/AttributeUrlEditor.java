@@ -26,22 +26,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import tree.IAttributeSaver;
+import treeModel.fields.IField;
 
 public class AttributeUrlEditor extends AttributeEditor {
 
-	public AttributeUrlEditor(IAttributeSaver dataField, String label,
-			String attribute, String value) {
-		super(dataField, label, attribute, value);
+	public AttributeUrlEditor(IField dataField, String label,
+			String attribute) {
+		super(dataField, label, attribute);
 	}
 	
-	public AttributeUrlEditor(IAttributeSaver dataField, String attribute,
-			String value) {
-		super(dataField, attribute, value);
+	public AttributeUrlEditor(IField dataField, String attribute) {
+		super(dataField, attribute);
 	}
 	
 
 	// called to update dataField with attribute
-	protected void setDataFieldAttribute(String attributeName, String value, boolean notifyUndoRedo) {
+	protected void setDataFieldAttribute(String attributeName, String value) {
 		
 		/*
 		 * If the user entered a value, check that it is a URL. If not, add "http://"
@@ -57,7 +57,7 @@ public class AttributeUrlEditor extends AttributeEditor {
 		
 		// Now set attribute as normal. 
 		
-		dataField.setAttribute(attributeName, value, notifyUndoRedo);
+		dataField.setAttribute(attributeName, value);
 	}
 
 }

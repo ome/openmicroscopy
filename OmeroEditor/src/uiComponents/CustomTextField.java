@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.ComponentSizesRegistry 
+ * uiComponents.CustomTextField 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,17 +22,20 @@
  */
 package uiComponents;
 
-import java.util.HashMap;
-import java.util.Map;
-
 //Java imports
+
+import java.awt.Dimension;
+
+import javax.swing.JTextField;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * A Custom text field.
+ * Uses the same font as other custom UI components. 
+ * Overrides getPreferredSize() so that the field is at least a minimum width.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -42,23 +45,56 @@ import java.util.Map;
  * </small>
  * @since OME3.0
  */
-public class CompSizesReg {
-
+public class CustomTextField
+	extends JTextField {
 	
-	public static final String SPINNER_H = "spinnerH";
+	private int customMinWidth = 0;
 	
-	public static final String SPINNER_W = "spinnerW";
-	
-	
-	//public static Map<String, Integer> dimensionsMap = new HashMap<String, Integer>();
-	
-	public static int getDimension(String dimension) {
-		
-		if (SPINNER_H.equals(dimension)) return 25;
-		if (SPINNER_W.equals(dimension)) return 45;
-		
-		throw (new RuntimeException("Dimension Not Found"));
-
+	public CustomTextField(String text) {
+		super (text);
+		init();
 	}
 	
+	public CustomTextField() {
+		super();
+		init();
+	}
+	
+	/**
+	 * This is called manually by the constructors specified in this class.
+	 * Sets the font. 
+	 */
+	private void init() {
+		this.setFont(CustomLabel.CUSTOM_FONT);
+	}
+
+	/**
+	 * Returns a dimension that is at least the minimum width. 
+	 * Default is UIsizes.TEXT_FIELD_MIN_WIDTH, but can be set manually
+	 * using setMinWidth();
+	 */
+	public Dimension getPreferredSize() {
+		
+		Dimension size = super.getPreferredSize();
+		
+		int h = (int)size.getHeight();
+		int w = (int)size.getWidth();
+		
+		int minW;
+		if (customMinWidth > 0) {
+			minW = customMinWidth;
+		} else {
+			minW = UIsizes.getInstance().
+				getDimension(UIsizes.TEXT_FIELD_MIN_WIDTH);
+		}
+		w = Math.max(w, minW);
+		
+		size.setSize(w, h);
+		
+		return size;
+	}
+	
+	public void setMinWidth(int minWidth) {
+		customMinWidth = minWidth;
+	}
 }

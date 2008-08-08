@@ -38,7 +38,8 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 
 /** 
- * 
+ * A 2-Digit JSpinner.
+ * Not used in the current UI. (Been replaced with DoubleDigitField).
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -90,8 +91,9 @@ public class DoubleDigitSpinner
 		/*
 		 * Set dimensions based on the ComponentSizesRegistry
 		 */
-		int w = CompSizesReg.getDimension(CompSizesReg.SPINNER_W);
-		int h = CompSizesReg.getDimension(CompSizesReg.SPINNER_H);
+		UIsizes r = UIsizes.getInstance();
+		int w = r.getDimension(UIsizes.SPINNER_W);
+		int h = r.getDimension(UIsizes.SPINNER_H);
 		Dimension dim = new Dimension (w, h);
 		this.setPreferredSize(dim);
 		this.setMaximumSize(dim);

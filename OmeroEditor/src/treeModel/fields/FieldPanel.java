@@ -46,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.border.Border;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -55,10 +56,10 @@ import javax.swing.tree.TreePath;
 import tree.DataFieldConstants;
 import treeEditingComponents.EditingComponentFactory;
 import treeEditingComponents.ITreeEditComp;
-import treeEditingComponents.TextBoxEditor;
 import treeModel.TreeEditorControl;
 import ui.XMLView;
 import ui.components.ImageBorder;
+import uiComponents.CustomLabel;
 import util.BareBonesBrowserLaunch;
 import util.ImageFactory;
 
@@ -83,15 +84,30 @@ public class FieldPanel
 	{
 	
 	/**
-	 * bound property indicating that the value of this field has changed. 
+	 * This Field listens for changes to this property in the parameter
+	 * editing components it contains. 
+	 * change to this property indicates that the value of the parameter
+	 * has changed, requiring the change to be saved to the data model. 
 	 */
 	public static final String VALUE_CHANGED_PROPERTY = "valueChangedProperty";
 	
 	/**
-	 * bound property indicating that the size of this component (or 
-	 * one of it's contained components) has changed. 
+	 * This Field listens for changes to this property in the parameter
+	 * editing components it contains. 
+	 * Change in this property indicates that the field is currently being 
+	 * edited and needs refreshing. 
+	 * 
+	 * @ see refreshEditingOfPanel()
 	 */
-	public static final String SIZE_CHANGED_PROPERTY = "sizeChangedPropery";
+	public static final String UPDATE_EDITING_PROPERTY = "sizeChangedPropery";
+	
+	/**
+	 * This Field listens for changes to this property in the parameter
+	 * editing components it contains. 
+	 * Changes in this property indicates that this field needs to 
+	 * call nodeChanged() on this node in the TreeModel.
+	 */
+	public static final String NODE_CHANGED_PROPERTY = "nodeChangedProperty";
 	
 	/**
 	 * The source of data that this field is displaying and editing. 
@@ -111,15 +127,9 @@ public class FieldPanel
 	
 	/**
 	 * A reference to the node represented by this field. 
-	 * Used eg. to add this field to the selected paths. 
+	 * Used eg. to set the selected field to this node with undo/redo
 	 */
 	DefaultMutableTreeNode treeNode;
-	
-	
-	/**
-	 * Bound property indicating that the value of the field has been edited
-	 */
-	public static final String VALUE_CHANGED = "valueChanged";
 	
 	
 	/*
@@ -243,7 +253,7 @@ public class FieldPanel
 		 * A label to display the name of the field.
 		 * This is the only component that is always visible (but could be "")
 		 */
-		nameLabel = new JLabel();
+		nameLabel = new CustomLabel();
 		nameLabel.setBackground(null);
 		nameLabel.setOpaque(false);
 		
@@ -252,24 +262,25 @@ public class FieldPanel
 		 * A description label displays description below the field. Visibility false unless 
 		 * descriptionButton is clicked.
 		 */
-		descriptionLabel = new JLabel();
+		descriptionLabel = new CustomLabel();
 		descriptionLabel.setBackground(null);
 		
 		infoIcon = ImageFactory.getInstance().getIcon(ImageFactory.INFO_ICON);
 		descriptionButton = new JButton(infoIcon);
-		//unifiedButtonLookAndFeel(descriptionButton);
 		descriptionButton.setFocusable(false); // so it is not selected by tabbing
 		descriptionButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent event) {
-				// TODO
-				// Need to set an attribute in the dataField such as 
-				// descriptionVisible = true / false
+				boolean visible = 
+					"true".equals(dataField.getDisplayAttribute("descVisible"));
+				visible = ! visible;
+				dataField.setDisplayAttribute("descVisible", visible + "");
+				refreshEditingOfPanel();
 			}
 		});
 		descriptionButton.setBackground(null);
 		descriptionButton.setBorder(eb);
 		descriptionButton.setVisible(false);	// only made visible if description exists.
-		setDescriptionText(dataField.getAttribute(DataFieldConstants.DESCRIPTION)); 	// will update description label
+		setDescriptionText(); 	// will update description label
 		
 		
 		/*
@@ -329,7 +340,6 @@ public class FieldPanel
 		horizontalBox.add(urlButton);
 		horizontalBox.add(defaultButton);
 		horizontalBox.add(requiredFieldButton);
-		horizontalBox.add(descriptionLabel);
 		horizontalBox.add(Box.createHorizontalStrut(10));
 		
 		/*
@@ -341,7 +351,7 @@ public class FieldPanel
 		
 		contentsPanel.add(nameLabel, BorderLayout.WEST);
 		contentsPanel.add(horizontalBox, BorderLayout.CENTER);
-		//contentsPanel.add(descriptionLabel, BorderLayout.SOUTH);
+		contentsPanel.add(descriptionLabel, BorderLayout.SOUTH);
 		
 		contentsPanel.setBorder(imageBorder);
 		
@@ -354,8 +364,7 @@ public class FieldPanel
 		 */
 		setNameText(addHtmlTagsForNameLabel(
 				dataField.getAttribute(Field.FIELD_NAME)));
-		setDescriptionText(
-				dataField.getAttribute(Field.FIELD_DESCRIPTION));
+		setDescriptionText();
 		setURL(dataField.getAttribute(Field.FIELD_URL));
 		
 		refreshBackgroundColour();
@@ -366,8 +375,9 @@ public class FieldPanel
 	}
 	
 	/**
-	 * Add additional UI components for editing the value of this field.
-	 * Use a Factory to create the UI components, depending on the value type
+	 * Add additional UI components for editing the parameters of this field.
+	 * Use a Factory to create the UI components, depending on the 
+	 * type of each parameter. 
 	 */
 	public void buildParamComponents() {
 
@@ -384,15 +394,18 @@ public class FieldPanel
 	
 	
 	/**
-	 * Used to add additional components to the field
+	 * Used to add additional components to the field.
+	 * Will be displayed horizontally. 
+	 * Also adds this class as a property listener to these components. 
 	 * 
-	 * @param comp
+	 * @param comp	The component to add.
 	 */
 	public void addFieldComponent(JComponent comp) {
 		horizontalBox.add(comp);
 		
-		comp.addPropertyChangeListener(SIZE_CHANGED_PROPERTY, this);
+		comp.addPropertyChangeListener(UPDATE_EDITING_PROPERTY, this);
 		comp.addPropertyChangeListener(VALUE_CHANGED_PROPERTY, this);
+		comp.addPropertyChangeListener(NODE_CHANGED_PROPERTY, this);
 	}
 	
 	
@@ -457,14 +470,24 @@ public class FieldPanel
 	}
 	
 
-	
-	public void setDescriptionText(String description) {
+	/**
+	 * Called when the UI is built. Sets the visibility, text etc of 
+	 * the description box. 
+	 */
+	private void setDescriptionText() {
+		String description = dataField.getAttribute(
+				Field.FIELD_DESCRIPTION);
+		boolean showDescription = 
+			"true".equals(dataField.getDisplayAttribute("descVisible"));
+		
 		if ((description != null) && (description.trim().length() > 0)) {
-			String htmlDescription = "<html><div style='width:200px; padding-left:30px;'>" + description + "</div></html>";
+			String htmlDescription = 
+				"<html><div style='width:250px; padding-left:30px;'>" + 
+				description + 
+				"</div></html>";
 			descriptionButton.setToolTipText(htmlDescription);
 			descriptionButton.setVisible(true);
-			// TODO setVisibility of label based on dataField attribute 
-			//descriptionLabel.setVisible(showDescription);
+			descriptionLabel.setVisible(showDescription);
 			descriptionLabel.setFont(XMLView.FONT_TINY);
 			descriptionLabel.setText(htmlDescription);
 		}
@@ -476,6 +499,13 @@ public class FieldPanel
 			descriptionLabel.setVisible(false);
 		}
 	}
+	
+	/**
+	 * Called while building UI. Sets the visibility and tool tip text 
+	 * for the URL button. 
+	 * 
+	 * @param url
+	 */
 	public void setURL(String url) {
 		if (url == null) {
 			urlButton.setVisible(false);
@@ -530,9 +560,10 @@ public class FieldPanel
 		*/
 	}
 	
-	
-	
-	
+	/**
+	 * Allows the JTree to be set after this class is instantiated. 
+	 * @param tree
+	 */
 	public void setTree(JTree tree) {
 		this.tree = tree;
 	}
@@ -580,12 +611,16 @@ public class FieldPanel
 		
 		String propName = evt.getPropertyName();
 		
-		if (SIZE_CHANGED_PROPERTY.equals(propName)) {
+		if (UPDATE_EDITING_PROPERTY.equals(propName)) {
 		
-			refreshSizeOfPanel();
+			refreshEditingOfPanel();
 		}
 		
-		if (VALUE_CHANGED_PROPERTY.equals(propName)) {
+		else if (NODE_CHANGED_PROPERTY.equals(propName)) {
+			refreshPanel();
+		}
+		
+		else if (VALUE_CHANGED_PROPERTY.equals(propName)) {
 			
 			if (evt.getSource() instanceof ITreeEditComp) {
 				ITreeEditComp src = (ITreeEditComp)evt.getSource();
@@ -595,10 +630,12 @@ public class FieldPanel
 				Object newVal = evt.getNewValue();
 				String newValue = (newVal == null ? null : newVal.toString());
 				
+				System.out.println("FieldPanel propertyChange " + attrName + " " + newValue);
+				
+				if (controller != null)
 				controller.editAttribute(param, attrName, newValue, tree, treeNode);
 				
 			}
-			
 		}
 	}
 
@@ -613,12 +650,28 @@ public class FieldPanel
 	 * continue editing.
 	 * This can be achieved by calling startEditingAtPath(tree, path)
 	 */
-	public void refreshSizeOfPanel() {
+	public void refreshEditingOfPanel() {
 		if ((tree != null) && (treeNode !=null)) {
 			
 			TreePath path = new TreePath(treeNode.getPath());
 			
 			tree.getUI().startEditingAtPath(tree, path);
+		}
+	}
+	
+	/**
+	 * This method is used to refresh the size of this panel in the JTree,
+	 * without selecting this path for editing.
+	 */
+	public void refreshPanel() {
+		if ((tree != null) && (treeNode !=null)) {
+			
+			TreePath path = new TreePath(treeNode.getPath());
+			
+			DefaultTreeModel mod = (DefaultTreeModel)tree.getModel();
+			
+			System.out.println("FieldPanel refreshPanel");
+			mod.nodeChanged(treeNode);
 		}
 	}
 	

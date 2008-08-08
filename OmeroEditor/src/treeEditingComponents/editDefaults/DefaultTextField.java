@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.textFieldEditor 
+ * treeEditingComponents.editDefaults.DefaultTextField 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,28 +20,32 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeEditingComponents;
+package treeEditingComponents.editDefaults;
 
 //Java imports
 
-import java.awt.Dimension;
+import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-import javax.swing.JTextField;
-
-import treeModel.fields.FieldPanel;
-import treeModel.fields.IParam;
-import uiComponents.CustomLabel;
-import uiComponents.CustomTextField;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import treeEditingComponents.ITreeEditComp;
+import treeEditingComponents.TextFieldEditor;
+import treeModel.fields.FieldPanel;
+import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
+import uiComponents.CustomLabel;
 
 
 /** 
- * This is an editing component that edits a text value in a 
- * IFieldValue object. 
+ * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -51,55 +55,47 @@ import uiComponents.CustomTextField;
  * </small>
  * @since OME3.0
  */
-public class TextFieldEditor 
-	extends CustomTextField 
-	implements ITreeEditComp {
+public class DefaultTextField 
+	extends JPanel 
+	implements PropertyChangeListener,
+	ITreeEditComp {
 	
-	IParam param;
+	private IParam param;
 	
-	String attributeName;
-	
-	public TextFieldEditor(IParam param) {
+	public DefaultTextField(IParam param) {
 		
-		String[] attributes = param.getValueAttributes();
-		attributeName = "value";		// default
-		if (attributes.length > 0) {
-			attributeName = attributes[0];
-		}
+		super(new BorderLayout());
 		
 		this.param = param;
-		initialise();
-	}
-	
-	public TextFieldEditor(IParam param, String attributeName) {
-		this.attributeName = attributeName;
-		this.param = param;
-		initialise();
-	}
-	
-	private void initialise() {
-		String value = param.getAttribute(attributeName);
 		
-		AttributeEditListeners.addListeners(this, this, attributeName);
+		add(new CustomLabel ("Default: "), BorderLayout.WEST);
 		
-		this.setFont(CustomLabel.CUSTOM_FONT);
-		setText(value);
+		JComponent textField = new TextFieldEditor(param, 
+				SingleParam.DEFAULT_VALUE);
+		textField.addPropertyChangeListener(FieldPanel.VALUE_CHANGED_PROPERTY, 
+				this);
+		
+		add(textField, BorderLayout.CENTER);
+		
 	}
-	
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		
+		this.firePropertyChange(evt.getPropertyName(), 
+				evt.getOldValue(), evt.getNewValue());
+	}
+
 	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, null, this.getText());
+		// TODO Auto-generated method stub
+		
 	}
-	
+
+	public String getAttributeName() {
+		return SingleParam.DEFAULT_VALUE;
+	}
+
 	public IParam getParameter() {
 		return param;
-	}
-	
-	public String getAttributeName() {
-		return attributeName;
 	}
 
 }

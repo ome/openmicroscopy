@@ -26,7 +26,6 @@ package uiComponents;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -43,7 +42,8 @@ import javax.swing.text.MaskFormatter;
 //Application-internal dependencies
 
 /** 
- * A formatted text field that displays 2 digits. 
+ * A formatted text field that displays 2 digits, between a specified
+ * range. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -57,21 +57,62 @@ import javax.swing.text.MaskFormatter;
 public class DoubleDigitField 
 	extends JFormattedTextField {
 	
+	/**
+	 * The colour used to highlight the text when the field gains focus.
+	 */
 	public static final Color BLUE_HIGHLIGHT = new Color(181,213,255);
 	
-	Font timeFont = new Font("SansSerif", Font.PLAIN, 10);
+	/**
+	 * A bound property of this class. 
+	 * PropertyChangeEvent is fired when focus is lost from this 
+	 * field, IF the new value is different from the old value.
+	 */
+	public static final String DIGIT_VALUE_PROPERTY = "digitValueProperty";
 	
+	/**
+	 * The border displayed when the field has focus. 
+	 */
 	Border selectedBorder;
+	
+	/**
+	 * The border displayed when the field doesn't have focus.
+	 */
 	Border unSelectedBorder;
 	
+	/**
+	 * The minimum value allowed for this field. 
+	 * Range is checked when this field loses focus. 
+	 */
 	private int minValue;
 	
+	/**
+	 * The maximum value allowed for this field. 
+	 */
 	private int maxValue;
 	
+	/**
+	 * A temporary variable that allows checking whether the field has been
+	 * edited. 
+	 */
+	private String oldValue;
+	
+	/**
+	 * Creates an instance of this class.
+	 * The minimum value is set to zero. 
+	 * 
+	 * @param maxValue		The maximum value for this field.
+	 */
 	public DoubleDigitField(int maxValue) {
 		this(0, maxValue);
 	}
 	
+	/**
+	 * Creates an instance of this class.
+	 * Other constructor feeds into this one.
+	 * 
+	 * @param minValue	The minimum value for this field.
+	 * @param maxValue	The maximum value for this field.
+	 */
 	public DoubleDigitField(int minValue, int maxValue) {
 		
 		super(createFormatter("##"));
@@ -79,20 +120,32 @@ public class DoubleDigitField
 		this.minValue = minValue;
 		this.maxValue = maxValue;
 		
+		/*
+		 * Create the borders
+		 */
 		int padding = 2;
 		Border blackBorder = new LineBorder(Color.black);
-		Border whiteBorder = new LineBorder(Color.white);
+		Border whiteBorder = new LineBorder(Color.gray);
 		Border emptyBorder = new EmptyBorder(padding,padding,padding,padding);
 		selectedBorder = BorderFactory.createCompoundBorder(
 				   blackBorder, emptyBorder);
 		unSelectedBorder = BorderFactory.createCompoundBorder(
 				   whiteBorder, emptyBorder);
 		
-		Dimension fieldSize = new Dimension(19, 18);
+		/*
+		 * Get the sizes from the UIsizes registry. 
+		 */
+		UIsizes r = UIsizes.getInstance();
+		int width = r.getDimension(UIsizes.DOUBLE_DIGIT_FIELD_W);
+		int height = r.getDimension(UIsizes.SINGLE_ROW_HEiGHT);
+		Dimension fieldSize = new Dimension(width, height);
 		this.setPreferredSize(fieldSize);
 		this.setMaximumSize(fieldSize);
 		
-		this.setFont(timeFont);
+		/*
+		 * Sets font, highlight and border.
+		 */
+		this.setFont(CustomLabel.CUSTOM_FONT);
 		this.setBorder(unSelectedBorder);
 		this.setSelectionColor(BLUE_HIGHLIGHT);
 		this.setSelectedTextColor(Color.black);
@@ -100,6 +153,15 @@ public class DoubleDigitField
 		this.addFocusListener(new TimeFocusListener());
 	}
 	
+	/**
+	 * A focus listener for this field. 
+	 * Manages the change of appearance (border and highlight) when focus
+	 * gained and lost.
+	 * Also checks range and fires property change event when focus is lost. 
+	 * 
+	 * @author will
+	 *
+	 */
 	public class TimeFocusListener implements FocusListener {
 
 		public void focusGained(FocusEvent e) {
@@ -111,22 +173,53 @@ public class DoubleDigitField
 
 		public void focusLost(FocusEvent e) {
 			
-			validateValue();
+			String oldVal = oldValue;
+			String newValue = checkRange(getText().trim());
+			setText(newValue);	// make sure the display is within range.
+			if (! newValue.equals(oldVal)) {
+				DoubleDigitField.this.firePropertyChange(DIGIT_VALUE_PROPERTY, 
+						oldVal, newValue);
+			}
 			
 			JTextComponent source = (JTextComponent)e.getSource();
 			source.setBorder(unSelectedBorder);
 			source.setSelectionStart(0);
 			source.setSelectionEnd(0);
 		}
-		
 	}
 	
-	public void validateValue() {
+	/**
+	 * Makes sure that the returned value is between the min and max values. 
+	 * 
+	 * @param value		The value to check. Must be passed to an integer.
+	 * @return			The value after is has been brought within the range.
+	 */
+	public String checkRange(String value) {
 		
+		int val = new Integer(value);
+		val = Math.max(val, minValue);
+		val = Math.min(val, maxValue);
+		
+		return val + "";
 	}
 	
+	/**
+	 * Calls super.setText().
+	 * But first, it updates the value of oldValue, and formats the string
+	 * so that a single digit is converted to a douple digit. 
+	 */
+	public void setText(String text) {
+		oldValue = text;
+		
+		if (text.length() == 1) {
+			text = "0" + text;
+		}
+		super.setText(text);
+	}
 	
-	//A convenience method for creating a MaskFormatter.
+	/**
+	 * A convenience method for creating a MaskFormatter.
+	 */
     protected static MaskFormatter createFormatter(String s) {
         MaskFormatter formatter = null;
         try {

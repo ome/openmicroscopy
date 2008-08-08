@@ -64,21 +64,37 @@ public class Field
 	public static final String FIELD_URL = "fieldUrl";
 	
 	/**
+	 * A property of this field. 
+	 * Stores a color as a string in the form "r:g:b";
+	 */
+	public static final String BACKGROUND_COLOUR = "backgroundColour";
+	
+	/**
 	 * The list of Parameters, representing experimental variables for this 
 	 * field.
 	 */
 	private List<IParam> fieldParams;
 
 	/**
-	 * A map of attributes for this Field. eg Name, Description etc. 
+	 * A map of the template attributes for this Field. 
+	 * eg Name, Description etc. 
 	 */
-	HashMap<String, String> allAttributesMap;
+	HashMap<String, String> templateAttributesMap;
+	
+	/**
+	 * A map of the display attributes for this Field. 
+	 * eg Description visible, 
+	 * Not saved.  
+	 */
+	HashMap<String, String> displayAttributesMap;
 	
 	/**
 	 * Default constructor. Sets the name of the field to "untitled"
 	 */
 	public Field() {
-		this("untitled");
+		templateAttributesMap = new HashMap<String, String>();
+		displayAttributesMap = new HashMap<String, String>();
+		fieldParams = new ArrayList<IParam>();
 	}
 	
 	/**
@@ -107,31 +123,6 @@ public class Field
 	}
 	
 	/**
-	 * Duplicates a field by making a copy of the given field. 
-	 * 
-	 * @param cloneField	The field to be copied. 
-	 
-	public Field(Field cloneField) {
-		this();
-		
-		/*
-		 * Clone all attributes
-		 
-		allAttributesMap = new HashMap<String,String>
-				(cloneField.getAllAttributes());
-		
-		/*
-		 * Clone the parameter objects...
-		 
-		for (int i=0; i<cloneField.getParamCount(); i++) {
-			IParam param = cloneField.getParamAt(i);
-			IParam newP = FieldParamsFactory.cloneParam(param);
-			addParam(newP);
-		}
-	}
-*/
-	
-	/**
 	 * A constructor used to set the name of the field.
 	 * This constructor is called by the others, in order to initialise
 	 * the attributesMap and parameters list. 
@@ -140,27 +131,26 @@ public class Field
 	 */
 	public Field(String name) {
 		
-		allAttributesMap = new HashMap<String, String>();
-		fieldParams = new ArrayList<IParam>();
+		this();
 		
 		setAttribute(FIELD_NAME, name);
 		
 	}
 	
 	/**
-	 * gets an attribute in the attributesMap
+	 * gets an attribute in the templateAttributesMap
 	 */
 	public String getAttribute(String name) {
 		//System.out.println("Field getAttribute()");
 		
-		return allAttributesMap.get(name);
+		return templateAttributesMap.get(name);
 	}
 	
 	/**
-	 * gets all attributes in the attributesMap
+	 * gets all attributes in the templateAttributesMap
 	 */
 	public Map getAllAttributes() {
-		return allAttributesMap;
+		return templateAttributesMap;
 	}
 	
 	/**
@@ -169,7 +159,7 @@ public class Field
 	 * @param newAtt	The new attribute map
 	 */
 	public void setAllAttributes(HashMap<String,String> newAtt) {
-		allAttributesMap = newAtt;
+		templateAttributesMap = newAtt;
 	}
 	
 	/**
@@ -177,7 +167,7 @@ public class Field
 	 */
 	public void setAttribute(String name, String value) {
 		
-		allAttributesMap.put(name, value);
+		templateAttributesMap.put(name, value);
 	}
 	
 	/**
@@ -237,11 +227,35 @@ public class Field
 		if (param != null)
 			fieldParams.add(param);
 	}
+	
+	/**
+	 * Adds a parameter to the list for this field
+	 */
+	public void addParam(int index, IParam param) {
+		if (param != null)
+			fieldParams.add(index, param);
+	}
 
 	/**
 	 * Removes the specified parameter from the list. 
 	 */
 	public boolean removeParam(IParam param) {
 		return fieldParams.remove(param);
+	}
+
+	/**
+	 * Gets a display attribute (eg description visible)
+	 */
+	public String getDisplayAttribute(String name) {
+		return displayAttributesMap.get(name);
+	}
+
+	/**
+	 * Sets a display attribute. 
+	 * This will not be saved in the file, 
+	 */
+	public void setDisplayAttribute(String name, String value) {
+		System.out.println("Field setDisplayAttribute " + name + ": " + value);
+		displayAttributesMap.put(name, value);
 	}
 }

@@ -33,6 +33,7 @@ import javax.swing.border.Border;
 
 import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
+import uiComponents.CustomLabel;
 
 //Third-party libraries
 
@@ -83,6 +84,7 @@ public class TextBoxEditor
 		textBox = new JTextArea(text);
 		textBox.setRows(2);
 		textBox.setLineWrap(true);
+		textBox.setFont(CustomLabel.CUSTOM_FONT);
 		textBox.setWrapStyleWord(true);
 		//JScrollPane textScroller = new JScrollPane(textInput);
 		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
