@@ -16,6 +16,7 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
+import ome.security.basic.PrincipalHolder;
 import ome.services.sessions.SessionManager;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -45,6 +46,8 @@ public class LoginTest extends TestCase {
 
     protected ome.services.sessions.SessionManager sm;
 
+    protected PrincipalHolder ph;
+
     @Configuration(beforeTestClass = true)
     public void config() {
         ctx = OmeroContext.getManagedServerContext();
@@ -53,16 +56,17 @@ public class LoginTest extends TestCase {
         u = sf.getUpdateService();
         sec = (SecuritySystem) ctx.getBean("securitySystem");
         sm = (SessionManager) ctx.getBean("sessionManager");
-        while (sec.logout() > 0) {
-            ;
+        ph = (PrincipalHolder) ctx.getBean("principalHolder");
+        while (ph.size() > 0) {
+            ph.logout();
         }
 
     }
 
     @AfterClass
     public void cleanup() {
-        while (sec.logout() > 0) {
-            // keep going;
+        while (ph.size() > 0) {
+            ph.logout();
         }
     }
 
