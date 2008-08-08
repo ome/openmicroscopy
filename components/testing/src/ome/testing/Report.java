@@ -52,6 +52,9 @@ public class Report {
 
     @Override
     public String toString() {
+        if (header == null) {
+            return "====== No report =======";
+        }
         int[] labels = new int[] { AVG, TOTAL, MIN, MAX, LABEL, HITS };
         StringBuilder sb = new StringBuilder();
         for (int l : labels) {

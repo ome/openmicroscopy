@@ -27,19 +27,27 @@ import ome.tools.spring.InternalServiceFactory;
  */
 public class ManagedContextFixture {
 
-    public OmeroContext ctx = OmeroContext.getManagedServerContext();
-    public SessionManager mgr = (SessionManager) ctx.getBean("sessionManager");
-    public Executor ex = (Executor) ctx.getBean("executor");
-    public ServiceFactory managedSf = new ServiceFactory(ctx);
+    public OmeroContext ctx;
+    public SessionManager mgr;
+    public Executor ex;
+    public ServiceFactory managedSf;
     public ServiceFactory internalSf;
     public SecuritySystem security;
     public PrincipalHolder holder;
     public LoginInterceptor login;
 
     public ManagedContextFixture() {
+        this(OmeroContext.getManagedServerContext());
+    }
+
+    public ManagedContextFixture(OmeroContext ctx) {
+        this.ctx = ctx;
+        mgr = (SessionManager) ctx.getBean("sessionManager");
+        ex = (Executor) ctx.getBean("executor");
         security = (SecuritySystem) ctx.getBean("securitySystem");
         holder = (PrincipalHolder) ctx.getBean("principalHolder");
         login = new LoginInterceptor(holder);
+        managedSf = new ServiceFactory(ctx);
         managedSf = new InterceptingServiceFactory(managedSf, login);
         internalSf = new InternalServiceFactory(ctx);
         setCurrentUser("root");

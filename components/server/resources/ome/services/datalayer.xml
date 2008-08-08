@@ -2,7 +2,8 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+       default-lazy-init="true">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
@@ -57,17 +58,45 @@
     <constructor-arg ref="dataSource"/>
   </bean>
 
-  <bean id="dataSource" lazy-init="true"
+  <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
+
+  <!-- 
+    DATA SOURCES
+   -->
+
+  <alias name="${dataSource}" alias="dataSource"/>
+  <bean id="c3p0DataSource" lazy-init="true"
      class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     <description>
     Scope: private
     </description>
-      <property name="driverClass" value="${hibernate.connection.driver_class}"/>
-      <property name="jdbcUrl" value="${hibernate.connection.url}"/>
-      <property name="user" value="${hibernate.connection.username}"/>
+    <property name="driverClass" value="${hibernate.connection.driver_class}"/>
+    <property name="jdbcUrl" value="${hibernate.connection.url}"/>
+    <property name="user" value="${hibernate.connection.username}"/>
+    <property name="password" value="${hibernate.connection.password}"/>
+  </bean>
+
+  <!-- Alternative data sources -->
+  <bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+      <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+      <property name="url" value="${hibernate.connection.url}"/>
+      <property name="username" value="${hibernate.connection.username}"/>
       <property name="password" value="${hibernate.connection.password}"/>
   </bean>
 
-  <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
+  <bean id="pgSimpleDataSource" class="org.postgresql.jdbc2.optional.SimpleDataSource">
+      <property name="serverName" value="${database.host}"/>
+      <property name="databaseName" value="${database.name}"/>
+      <property name="user" value="${hibernate.connection.username}"/>
+      <property name="password" value="${hibernate.connection.password}"/>    
+  </bean>
 
+  <bean id="springSingleDataSource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
+      <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
+      <property name="url" value="${hibernate.connection.url}"/>
+      <property name="username" value="${hibernate.connection.username}"/>
+      <property name="password" value="${hibernate.connection.password}"/> 
+      <property name="suppressClose" value="true"/>
+  </bean>
+  
 </beans>

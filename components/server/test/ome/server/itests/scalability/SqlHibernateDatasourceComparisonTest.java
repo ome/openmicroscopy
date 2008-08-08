@@ -3,21 +3,24 @@ package ome.server.itests.scalability;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
-import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import javax.sql.DataSource;
 
+import junit.framework.TestCase;
 import ome.api.IQuery;
 import ome.server.itests.ManagedContextFixture;
 import ome.testing.Report;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.engine.FilterDefinition;
-import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.orm.hibernate3.FilterDefinitionFactoryBean;
 import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
@@ -27,57 +30,107 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 
 @Test(groups = { "integration" })
-public class SqlHibernateDatasourceComparisonTest {
+public class SqlHibernateDatasourceComparisonTest extends TestCase {
 
+    static {
+        System.setProperty("dataSource", "dbcpDataSource");
+    }
     static final String select = "select p from Pixels p ";
     static final String idsin = "p.id in (220, 221, 222, 223, 224, 225, 226, 227, 228, 229)";
     static final String alone_q = select + "where " + idsin;
-    static final String annotationLinks_q = select
+    static final String links_q = select
             + "left outer join fetch p.annotationLinks where " + idsin;
     static final String channels_q = select + "join fetch p.channels where "
             + idsin;
-    static final String[] names = new String[] { "c3p0DataSource",
-            "dbcpDataSource", "springSingleDataSource" };
 
     ManagedContextFixture fixture = new ManagedContextFixture();
-    Random random = new Random();
-    DataSource[] sources = new DataSource[names.length];
+    DataSource ds = (DataSource) fixture.ctx.getBean("dataSource");
+    SessionFactory sf = loadSessionFactory(ds);
+
+    private SessionFactory loadSessionFactory(DataSource source) {
+        Properties p = (Properties) fixture.ctx.getBean("hibernateProperties");
+        FilterDefinitionFactoryBean fdfb = new FilterDefinitionFactoryBean();
+        fdfb.setBeanName("securityFilter");
+        fdfb.setDefaultFilterCondition("true = true");
+        fdfb.afterPropertiesSet();
+        FilterDefinition fd = (FilterDefinition) fdfb.getObject();
+        AnnotationSessionFactoryBean asfb = new AnnotationSessionFactoryBean();
+        asfb.setHibernateProperties(p);
+        asfb.setConfigLocation(new ClassPathResource("hibernate.cfg.xml"));
+        asfb.setDataSource(ds);
+        asfb.setFilterDefinitions(new FilterDefinition[] { fd });
+        try {
+            asfb.afterPropertiesSet();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return (SessionFactory) asfb.getObject();
+    }
+
+    List<Callable<Object>> calls = new ArrayList<Callable<Object>>();
     {
-        for (int i = 0; i < sources.length; i++) {
-            sources[i] = source(names[i]);
-        }
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callHibernate("HA", alone_q);
+                return null;
+            }
+        });
+
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callOMERO("OA", alone_q);
+                return null;
+            }
+        });
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callJdbcDirect("JA", "select p.id from pixels p where " + idsin);
+                return null;
+            }
+        });
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callHibernate("HC", channels_q);
+                return null;
+            }
+        });
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callOMERO("OC", channels_q);
+                return null;
+            }
+        });
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callJdbcDirect("JC", "select p.id from pixels p, channel c "
+                        + "where c.pixels = p.id and " + idsin);
+                return null;
+            }
+        });
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callHibernate("HL", links_q);
+                return null;
+            }
+        });
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callOMERO("OL", links_q);
+                return null;
+            }
+        });
+        calls.add(new Callable<Object>() {
+            public Object call() throws Exception {
+                callJdbcDirect("JL",
+                        "select p.id from pixels p, pixelsannotationlink l "
+                                + "where l.parent = p.id and " + idsin);
+                return null;
+            }
+        });
     }
 
-    DataSource source(String name) {
-
-        class NameInterceptor implements MethodInterceptor {
-
-            final String name;
-
-            public NameInterceptor(String name) {
-                this.name = name;
-            }
-
-            public Object invoke(MethodInvocation arg0) throws Throwable {
-                if (arg0.getMethod().getName().equals("toString")) {
-                    return name.substring(0, 1);
-                } else {
-                    return arg0.proceed();
-                }
-            }
-        }
-
-        DataSource ds = (DataSource) fixture.ctx.getBean(name);
-        ProxyFactory factory = new ProxyFactory();
-        factory.setInterfaces(new Class[] { DataSource.class });
-        factory.setTarget(ds);
-        factory.addAdvice(new NameInterceptor(name));
-        return (DataSource) factory.getProxy();
-    }
-
-    void callJdbcDirect(DataSource ds, String which, String query)
-            throws Exception {
-        Monitor m = MonitorFactory.getTimeMonitor(which + "" + ds);
+    void callJdbcDirect(String which, String query) throws Exception {
+        Monitor m = MonitorFactory.getTimeMonitor(which);
         m.start();
         try {
             Connection c = ds.getConnection();
@@ -92,21 +145,7 @@ public class SqlHibernateDatasourceComparisonTest {
         }
     }
 
-    void callHibernate(DataSource ds, String which, String query)
-            throws Exception {
-        Properties p = (Properties) fixture.ctx.getBean("hibernateProperties");
-        FilterDefinitionFactoryBean fdfb = new FilterDefinitionFactoryBean();
-        fdfb.setBeanName("securityFilter");
-        fdfb.setDefaultFilterCondition("true = true");
-        fdfb.afterPropertiesSet();
-        FilterDefinition fd = (FilterDefinition) fdfb.getObject();
-        AnnotationSessionFactoryBean asfb = new AnnotationSessionFactoryBean();
-        asfb.setHibernateProperties(p);
-        asfb.setConfigLocation(new ClassPathResource("hibernate.cfg.xml"));
-        asfb.setDataSource(ds);
-        asfb.setFilterDefinitions(new FilterDefinition[] { fd });
-        asfb.afterPropertiesSet();
-        SessionFactory sf = (SessionFactory) asfb.getObject();
+    void callHibernate(String which, String query) throws Exception {
         try {
             Monitor m = MonitorFactory.getTimeMonitor(which).start();
             Session s = sf.openSession();
@@ -127,31 +166,27 @@ public class SqlHibernateDatasourceComparisonTest {
 
     public void testComparseDataSources() throws Exception {
         try {
-            for (int i = 0; i < names.length; i++) {
-                // Prime the data sources
-                callHibernate(sources[i], "HP", alone_q);
-                callJdbcDirect(sources[i], "JP", alone_q);
-            }
+            // check pre-conditions
+            assertEquals(9, calls.size());
+
+            // Prime the data sources
+            callHibernate("HP", alone_q);
+            callHibernate("HP", channels_q);
+            callHibernate("HP", links_q);
+            // callJdbcDirect("JP", alone_q);
+            // callJdbcDirect("JP", channels_q);
+            // callJdbcDirect("JP", links_q);
+            callOMERO("OP", alone_q);
+            callOMERO("OP", channels_q);
+            callOMERO("OP", links_q);
+
+            List<Callable<Object>> copy = new ArrayList(calls);
+            ScheduledThreadPoolExecutor ex = new ScheduledThreadPoolExecutor(1);
             for (int i = 0; i < 5; i++) {
-                for (int j = 0; j < sources.length; j++) {
-                    DataSource ds = sources[j];
-
-                    callHibernate(ds, "HA" + ds, alone_q);
-                    callOMERO("OA", alone_q);
-                    callJdbcDirect(ds, "JA", "select p.id from pixels p where "
-                            + idsin);
-
-                    callHibernate(ds, "HC" + ds, channels_q);
-                    callOMERO("OC", channels_q);
-                    callJdbcDirect(ds, "JC",
-                            "select p.id from pixels p, channel c "
-                                    + "where c.pixels = p.id and " + idsin);
-
-                    callHibernate(ds, "HL" + ds, annotationLinks_q);
-                    callOMERO("OL", annotationLinks_q);
-                    callJdbcDirect(ds, "JL",
-                            "select p.id from pixels p, pixelsannotationlink l "
-                                    + "where l.parent = p.id and " + idsin);
+                Collections.shuffle(copy);
+                List<Future<Object>> futures = ex.invokeAll(copy);
+                for (Future<Object> future : futures) {
+                    future.get();
                 }
             }
         } finally {
