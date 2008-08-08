@@ -311,8 +311,7 @@ class DSLHandler extends DefaultHandler {
         }
 
         /*
-         * Another post-processing step, which checks links for
-         * bidirectionality.
+         * Another post-processing step, which checks links for bidirectionality
          */
         for (String id : types.keySet()) {
             SemanticType t = types.get(id);
@@ -350,9 +349,22 @@ class DSLHandler extends DefaultHandler {
                     if (ord != null && ord.booleanValue()) {
                         String name = property.getName();
                         t.getUniqueConstraints().add(
-                                "\"id\",\"" + name + "_index\"");
+                                String
+                                        .format("\"%s\",\"%s_index\"", name,
+                                                name));
                     }
                 }
+            }
+        }
+
+        /*
+         * Similarly apply UNIQUE (parent, child) to all links
+         */
+        for (String id : types.keySet()) {
+            SemanticType t = types.get(id);
+            if (t instanceof LinkType) {
+                LinkType link = (LinkType) t;
+                link.getUniqueConstraints().add("\"parent\",\"child\"");
             }
         }
 

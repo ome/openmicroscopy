@@ -94,8 +94,12 @@ import ome.model.*;
 #else##########################################################
 ## TOP OF HIERARCHY
 @javax.persistence.Table(name = "${type.table}", uniqueConstraints = {
+#set( $comma = "0" )
 #foreach($cols in $type.uniqueConstraints)
-    @javax.persistence.UniqueConstraint(columnNames={$cols})
+#if( $comma == ""  )#set( $comma = ",")#end
+#if( $comma == "0" )#set( $comma = "" )#end
+    $comma @javax.persistence.UniqueConstraint(columnNames={$cols})
+#set( $comma = "," )
 #end
 })
 @org.hibernate.annotations.Entity( selectBeforeUpdate = true )
