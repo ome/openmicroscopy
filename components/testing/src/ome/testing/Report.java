@@ -55,7 +55,7 @@ public class Report {
         if (header == null) {
             return "====== No report =======";
         }
-        int[] labels = new int[] { AVG, TOTAL, MIN, MAX, LABEL, HITS };
+        int[] labels = new int[] { LABEL, AVG, MIN, MAX, TOTAL, HITS };
         StringBuilder sb = new StringBuilder();
         for (int l : labels) {
             sb.append(header[l]);
