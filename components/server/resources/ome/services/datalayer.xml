@@ -60,11 +60,16 @@
 
   <bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
 
-  <!-- 
+  <!--
     DATA SOURCES
    -->
 
-  <alias name="${dataSource}" alias="dataSource"/>
+  <!-- To re-activate data source testing (see test/ome/server/itests/scalability)
+  use the alias with ${dataSource} and define a dataSource property either in
+  a configuration file, or directly in your tests via System.setProperty() *before*
+  creating the Spring application context. -->
+  <!--alias name="${dataSource}" alias="dataSource"/-->
+  <alias name="c3p0DataSource" alias="dataSource"/>
   <bean id="c3p0DataSource" lazy-init="true"
      class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
     <description>
@@ -76,7 +81,7 @@
     <property name="password" value="${hibernate.connection.password}"/>
   </bean>
 
-  <!-- Alternative data sources -->
+  <!-- Alternative data sources, used for testing -->
   <bean id="dbcpDataSource" class="org.apache.commons.dbcp.BasicDataSource">
       <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
       <property name="url" value="${hibernate.connection.url}"/>
@@ -88,15 +93,15 @@
       <property name="serverName" value="${database.host}"/>
       <property name="databaseName" value="${database.name}"/>
       <property name="user" value="${hibernate.connection.username}"/>
-      <property name="password" value="${hibernate.connection.password}"/>    
+      <property name="password" value="${hibernate.connection.password}"/>
   </bean>
 
   <bean id="springSingleDataSource" class="org.springframework.jdbc.datasource.SingleConnectionDataSource">
       <property name="driverClassName" value="${hibernate.connection.driver_class}"/>
       <property name="url" value="${hibernate.connection.url}"/>
       <property name="username" value="${hibernate.connection.username}"/>
-      <property name="password" value="${hibernate.connection.password}"/> 
+      <property name="password" value="${hibernate.connection.password}"/>
       <property name="suppressClose" value="true"/>
   </bean>
-  
+
 </beans>
