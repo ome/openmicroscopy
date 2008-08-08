@@ -110,7 +110,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         PojoOptions po = new PojoOptions(options);
 
         if (null == rootNodeIds && !po.isExperimenter() && !po.isGroup()) {
-            throw new IllegalArgumentException(
+            throw new ApiUsageException(
                     "Set of ids for loadContainerHierarchy() may not be null "
                             + "if experimenter and group options are null.");
         }
@@ -119,7 +119,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
                 && !Dataset.class.equals(rootNodeType)
                 && !CategoryGroup.class.equals(rootNodeType)
                 && !Category.class.equals(rootNodeType)) {
-            throw new IllegalArgumentException(
+            throw new ApiUsageException(
                     "Class parameter for loadContainerIHierarchy() must be in "
                             + "{Project,Dataset,Category,CategoryGroup}, not "
                             + rootNodeType);
@@ -235,7 +235,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         }
 
         if (!IAnnotated.class.isAssignableFrom(rootNodeType)) {
-            throw new IllegalArgumentException(
+            throw new ApiUsageException(
                     "Class parameter for findAnnotation() "
                             + "must be a subclass of ome.model.IAnnotated");
         }
@@ -294,7 +294,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         }
 
         if (!IPojos.ALGORITHMS.contains(algorithm)) {
-            throw new IllegalArgumentException("No such algorithm known:"
+            throw new ApiUsageException("No such algorithm known:"
                     + algorithm);
         }
 
@@ -417,7 +417,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         PojoOptions po = new PojoOptions(options);
 
         if (!po.isStartTime() && !po.isEndTime()) {
-            throw new IllegalArgumentException("start or end time option "
+            throw new ApiUsageException("start or end time option "
                     + "is required for getImagesByOptions().");
         }
 
@@ -437,7 +437,7 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
         PojoOptions po = new PojoOptions(options);
 
         if (!po.isExperimenter() && !po.isGroup()) {
-            throw new IllegalArgumentException("experimenter or group option "
+            throw new ApiUsageException("experimenter or group option "
                     + "is required for getUserImages().");
         }
 
@@ -596,27 +596,27 @@ public class PojosImpl extends AbstractLevel2Service implements IPojos {
 
     protected void checkType(String type) {
         if (!type.matches(alphaNumericDotted)) {
-            throw new IllegalArgumentException(
+            throw new ApiUsageException(
                     "Type argument to getCollectionCount may ONLY be "
                             + "alpha-numeric with dots (" + alphaNumericDotted
                             + ")");
         }
 
         if (!iQuery.checkType(type)) {
-            throw new IllegalArgumentException(type + " is an unknown type.");
+            throw new ApiUsageException(type + " is an unknown type.");
         }
     }
 
     protected void checkProperty(String type, String property) {
 
         if (!property.matches(alphaNumeric)) {
-            throw new IllegalArgumentException("Property argument to "
+            throw new ApiUsageException("Property argument to "
                     + "getCollectionCount may ONLY be alpha-numeric ("
                     + alphaNumeric + ")");
         }
 
         if (!iQuery.checkProperty(type, property)) {
-            throw new IllegalArgumentException(type + "." + property
+            throw new ApiUsageException(type + "." + property
                     + " is an unknown property on type " + type);
         }
 
