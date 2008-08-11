@@ -50,9 +50,34 @@ import treeModel.fields.IParam;
  */
 public interface ITreeEditComp {
 
+	/**
+	 * This Field listens for changes to this property in the parameter
+	 * editing components it contains. 
+	 * change to this property indicates that the value of the parameter
+	 * has changed, requiring the change to be saved to the data model. 
+	 */
+	public static final String VALUE_CHANGED_PROPERTY = "valueChangedProperty";
+
+	
+	/**
+	 * This method can be called from other classes, or called from
+	 * subclasses of this class. 
+	 * 
+	 * fires PropertyChange for VALUE_CHANGED_PROPERTY
+	 * Listener (FieldPanel) will edit the attribute, adding the 
+	 * edit to the undo/redo queue. 
+	 * To to this, it will need to call getAttributeName() and 
+	 * getParameter(). 
+	 */
 	public void attributeEdited(String attributeName, String newValue);
 	
+	/**
+	 * Gets the parameter object that this UI component is editing. 
+	 */
 	public IParam getParameter();
 	
+	/**
+	 * Gets the name of the last-edited attribute.
+	 */
 	public String getAttributeName();
 }

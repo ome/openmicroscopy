@@ -30,6 +30,7 @@ import treeEditingComponents.editDefaults.DefaultTextField;
 import treeModel.fields.AbstractParam;
 import treeModel.fields.IParam;
 import treeModel.fields.SingleParam;
+import treeModel.fields.TableParam;
 import treeModel.fields.TimeParam;
 
 
@@ -103,6 +104,10 @@ public class EditingComponentFactory {
 		
 		if (inputType.equals(TimeParam.TIME_PARAM)) {
 			return new TimerField(paramObject);
+		}
+		
+		if (inputType.equals(TableParam.TABLE_PARAM)) {
+			return new TableEditor(paramObject);
 		}
 		
 		if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {

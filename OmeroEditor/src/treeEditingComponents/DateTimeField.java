@@ -159,6 +159,11 @@ public class DateTimeField
 		
 	}
 	
+	/**
+	 * Called when the showTime checkBox is checked/unchecked.
+	 * Toggles the display of the time, setting the TIME_ATTRIBUTE
+	 * to null if it is hidden and 0:00 if shown. 
+	 */
 	public void timeSelected() {
 		boolean showTime = timeChosen.isSelected();
 		hrsMinsEditor.setVisible(showTime);
@@ -180,6 +185,10 @@ public class DateTimeField
 		this.firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);	
 	}
 
+	/**
+	 * Sets the last updated attribute to attributeName, then fires 
+	 * propertyChanged. 
+	 */
 	public void attributeEdited(String attributeName, String newValue) {
 		/*
 		 * Before calling propertyChange, need to make sure that 
@@ -187,7 +196,7 @@ public class DateTimeField
 		 */
 		lastUpdatedAttribute = attributeName;
 		
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, null, newValue);
+		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, null, newValue);
 	}
 
 	public String getAttributeName() {

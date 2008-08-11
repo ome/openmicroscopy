@@ -125,7 +125,7 @@ public class TimerField
 	}
 	
 	public void attributeEdited(String attributeName, String newValue) {
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY , 
+		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY , 
 				null, newValue);
 	}
 	

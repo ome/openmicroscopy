@@ -22,23 +22,25 @@
  */
 package treeEditingComponents;
 
+//Java imports
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import treeModel.fields.FieldPanel;
-import treeModel.fields.IParam;
-import treeModel.fields.SingleParam;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
 
+import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
+
 /** 
- * 
+ * A UI Component for editing a Boolean Parameter. 
+ * Extends JCheckBox. 
+ * Fires propertyChanged when selected. 
+ * Updates parameter and adds attribute edit to undo/redo queue. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -53,14 +55,29 @@ public class BooleanEditor
 	implements ITreeEditComp,
 	ActionListener {
 
+	/**
+	 * The Parameter object being edited
+	 */
 	private IParam param;
 	
+	/**
+	 * The name of the attribute used to hold the value of the boolean.
+	 */
 	String valueAttribute = SingleParam.PARAM_VALUE;
 	
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param param
+	 */
 	public BooleanEditor(IParam param) {
 		
 		super();
 		this.param = param;
+		
+		/*
+		 * ActionListener responds to checkBox selection
+		 */
 		addActionListener(this);
 		setBackground(null);
 		this.setBorderPaintedFlat(true);
@@ -71,10 +88,10 @@ public class BooleanEditor
 	}
 	
 	/**
-	 * 
+	 * Fires propertyChange 
 	 */
 	public void attributeEdited(String attributeName, String newValue) {
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, 
+		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				null, newValue);
 	}
 

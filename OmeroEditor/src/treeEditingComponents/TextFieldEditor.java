@@ -28,7 +28,6 @@ import java.awt.Dimension;
 
 import javax.swing.JTextField;
 
-import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
 import uiComponents.CustomLabel;
 import uiComponents.CustomTextField;
@@ -91,7 +90,7 @@ public class TextFieldEditor
 		 * Before calling propertyChange, need to make sure that 
 		 * getAttributeName() will return the name of the newly edited property
 		 */
-		this.firePropertyChange(FieldPanel.VALUE_CHANGED_PROPERTY, null, this.getText());
+		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, null, this.getText());
 	}
 	
 	public IParam getParameter() {

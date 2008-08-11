@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeEditingComponents;
+package treeEditingComponents.editDefaults;
 
 //Java imports
 
@@ -49,6 +49,7 @@ import javax.swing.tree.TreePath;
 
 //Application-internal dependencies
 
+import treeEditingComponents.EditingComponentFactory;
 import treeModel.TreeEditorControl;
 import treeModel.fields.AbstractParam;
 import treeModel.fields.Field;

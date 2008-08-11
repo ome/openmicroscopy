@@ -31,6 +31,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -201,6 +202,18 @@ public class EventLabel
 		b = (int)Math.floor(b + (256-b)/factor);
 		
 		return new Color(r,g,b);
+	}
+	
+	/**
+	 * Return a String of the Name, and the start Time (hrs:mins PM)
+	 */
+	public String toString() {
+		SimpleDateFormat t = new SimpleDateFormat("h:mm a");
+		String time = t.format(calendarEvent.getStartTime());
+		
+		String eventName = calendarEvent.getName();
+		
+		return eventName + " at " + time;
 	}
 
 }

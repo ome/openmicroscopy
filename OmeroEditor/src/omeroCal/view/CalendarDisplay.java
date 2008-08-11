@@ -24,6 +24,9 @@
 package omeroCal.view;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -79,8 +82,30 @@ public class CalendarDisplay
 		
 		this.setLayout(new BorderLayout());
 		
-		centreComponent = new MonthView(controller);
+		/*
+		 * Create a month view with full day names, and days as panels 
+		 */
+		String[] dayNames = {"Monday","Tuesday","Wednesday","Thursday",
+				"Friday","Saturday","Sunday"};
+		DayRenderer dayRenderer = new DayRenderer(DayRenderer.DAY_PANEL);
+		MonthViewHeader header = new MonthViewHeader(dayNames, 13);
+		centreComponent = new MonthView(controller, dayRenderer, header);
+		header.addActionListener((ActionListener)centreComponent);
 		this.add(centreComponent, BorderLayout.CENTER);
+		
+		/*
+		 * Create a mini month view, displayed to the left of the main view.
+		 */
+		String[] dNames = {"M","T","W","T","F","S","S"};
+		dayRenderer = new DayRenderer(DayRenderer.DAY_ICON);
+		header = new MonthViewHeader(dNames, 10);
+		JPanel iconMonth = new MonthView(controller, dayRenderer, header);
+		iconMonth.setPreferredSize(new Dimension(170,160));
+		header.addActionListener((ActionListener)iconMonth);
+		JPanel iconMonthContainer = new JPanel(new BorderLayout());
+		iconMonthContainer.add(iconMonth, BorderLayout.SOUTH);
+		this.add(iconMonthContainer, BorderLayout.WEST);
+		
 		
 		infoPanelEast = new EventInfoPanel(null);
 		this.add(infoPanelEast, BorderLayout.EAST);

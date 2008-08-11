@@ -30,7 +30,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import treeEditingComponents.EditingComponentFactory;
-import treeEditingComponents.FieldEditorPanel;
+import treeEditingComponents.editDefaults.FieldEditorPanel;
 import treeModel.fields.IField;
 
 //Java imports

@@ -29,7 +29,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 
-import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
 import treeModel.fields.SingleParam;
 import uiComponents.UIsizes;
@@ -70,8 +69,8 @@ public class NumberEditor
 				SingleParam.PARAM_VALUE);
 		int minW = UIsizes.getInstance().
 			getDimension(UIsizes.NUMB_FIELD_MIN_WIDTH);
-		numberField.setMinWidth(minW);
-		numberField.addPropertyChangeListener(FieldPanel.VALUE_CHANGED_PROPERTY, 
+		//numberField.setMinWidth(minW);
+		numberField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				this);
 		
 		add(numberField);

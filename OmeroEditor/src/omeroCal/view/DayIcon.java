@@ -1,5 +1,6 @@
-
-/*
+ /*
+ * omeroCal.view.DayIcon 
+ *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -18,12 +19,11 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
- *	author Will Moore will@lifesci.dundee.ac.uk
  */
-
 package omeroCal.view;
 
-import java.awt.BorderLayout;
+//Java imports
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.text.SimpleDateFormat;
@@ -32,18 +32,20 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.BevelBorder;
 
-import omeroCal.model.CalendarEvent;
+//Third-party libraries
+
+//Application-internal dependencies
 
 /** 
- * A Panel to display the day of the month.
- * Contains the date in the top-left corner, and will display any events
- * in a vertical box. 
+ * A representation of a Day, that is very small and shows the date number only.
+ * If an event is added, the background color changes and toolTip updates, 
+ * but the event is not displayed. 
+ * 
+ * Use this day UI component for small icon views. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -53,72 +55,70 @@ import omeroCal.model.CalendarEvent;
  * </small>
  * @since OME3.0
  */
-public class DayOfMonth 
-	extends JPanel 
+public class DayIcon 
+	extends JPanel
 	implements IDayDisplay {
 	
-	Box eventBox;
-	
-	JLabel dayLabel;
+	/**
+	 * A Label to display the day of month
+	 */
+	private JLabel dayLabel;
 	
 	private Calendar date;
 	
-	public static final Color CAL_GREY = new Color(200, 200, 200);
-	
 	/**
-	 * A highlight color to indicate TODAY, if the current month is displayed
+	 * Creates an instance and builds the UI.
+	 * Sets size, dayLabel, background and border.
+	 * 
+	 * @param dayOfMonth	The day of the month (1-31) displayed in this panel
 	 */
-	public static final Color TODAY_BACKGROUND = new Color(255, 225, 225);
-	
-	public DayOfMonth(Calendar dayOfMonth) {
+	public DayIcon(Calendar dayOfMonth) {
 		
 		date = new GregorianCalendar();
 		date.setTime(dayOfMonth.getTime());
 		
 		int day = dayOfMonth.get(Calendar.DAY_OF_MONTH);
 		
-		setLayout(new BorderLayout());
-		setBorder(BorderFactory.createMatteBorder(1,0,0,1, CAL_GREY));
-		
-		Dimension daySize = new Dimension(115, 105);
+		Dimension daySize = new Dimension(20, 20);
 		setMinimumSize(daySize);
 		setPreferredSize(daySize);
 		
-		this.setBackground(Color.WHITE);
+		setBorder(BorderFactory.createMatteBorder(2,1,2,0, Color.white));
+		this.setBackground(DayOfMonth.CAL_GREY);
 		
-		dayLabel = new JLabel(day + "");
-		add(dayLabel , BorderLayout.NORTH);
-		
-		eventBox = Box.createVerticalBox();
-		add(eventBox, BorderLayout.CENTER);
+		dayLabel = new CalendarLabel(day + "");
+		add(dayLabel);
 	}
-	
-	public DayOfMonth() {
-		
-	}
-	
+
 	/**
-	 * Adds an event component, for display in this panel.
+	 * Changes the background colour and adds the event.toString()
+	 * to the toolTipText. 
 	 */
 	public void addEvent(JComponent event) {
-
-		eventBox.add(event);
+		String toolTip = this.getToolTipText();
+		if (toolTip == null) 
+			toolTip = "<html>";
+		else 
+			toolTip = toolTip + "<br>";
+		String eventText = event.toString();
+		this.setToolTipText(toolTip + eventText);
+		
+		this.setBackground(TimeDisplay.BLUE_HIGHLIGHT);
 	}
-	
+
 	/**
-	 * The month display includes days that are from the previous and next
-	 * months. 
-	 * These should be displayed differently, using this method. 
-	 * 
-	 * @param dayFromOtherMonth
+	 * Hides the dayLabel and sets the background to white. 
 	 */
 	public void setDayFromOtherMonth(boolean dayFromOtherMonth) {
-		dayLabel.setForeground(dayFromOtherMonth ? CAL_GREY : Color.black);
-		setBackground(dayFromOtherMonth ? new Color(247,247,247) : Color.white);
+		this.setBackground(Color.white);
+		dayLabel.setVisible(false);
 	}
-	
+
+	/**
+	 * If this day is today, change the background colour. 
+	 */
 	public void setToday(boolean today) {
-		setBackground(today ? TODAY_BACKGROUND : Color.white);
+		this.setBackground(DayOfMonth.TODAY_BACKGROUND);
 	}
 	
 	/**

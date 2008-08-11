@@ -56,6 +56,7 @@ import javax.swing.tree.TreePath;
 import tree.DataFieldConstants;
 import treeEditingComponents.EditingComponentFactory;
 import treeEditingComponents.ITreeEditComp;
+import treeEditingComponents.TableEditor;
 import treeModel.TreeEditorControl;
 import ui.XMLView;
 import ui.components.ImageBorder;
@@ -82,14 +83,6 @@ public class FieldPanel
 	extends JPanel 
 	implements PropertyChangeListener 
 	{
-	
-	/**
-	 * This Field listens for changes to this property in the parameter
-	 * editing components it contains. 
-	 * change to this property indicates that the value of the parameter
-	 * has changed, requiring the change to be saved to the data model. 
-	 */
-	public static final String VALUE_CHANGED_PROPERTY = "valueChangedProperty";
 	
 	/**
 	 * This Field listens for changes to this property in the parameter
@@ -401,10 +394,23 @@ public class FieldPanel
 	 * @param comp	The component to add.
 	 */
 	public void addFieldComponent(JComponent comp) {
+		if (comp instanceof TableEditor) {
+			/*
+	         * Want to add the table to the SOUTH of contentsPanel (where descriptionLabel is). 
+	         * Create new panel to hold both. 
+	         */
+	        JPanel tableContainer = new JPanel(new BorderLayout());
+	        tableContainer.setBackground(null);
+	        tableContainer.add(descriptionLabel, BorderLayout.NORTH);
+	        tableContainer.add(comp, BorderLayout.SOUTH);
+	        
+			contentsPanel.add(tableContainer, BorderLayout.SOUTH);
+		}
+		else 
 		horizontalBox.add(comp);
 		
 		comp.addPropertyChangeListener(UPDATE_EDITING_PROPERTY, this);
-		comp.addPropertyChangeListener(VALUE_CHANGED_PROPERTY, this);
+		comp.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		comp.addPropertyChangeListener(NODE_CHANGED_PROPERTY, this);
 	}
 	
@@ -620,7 +626,7 @@ public class FieldPanel
 			refreshPanel();
 		}
 		
-		else if (VALUE_CHANGED_PROPERTY.equals(propName)) {
+		else if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(propName)) {
 			
 			if (evt.getSource() instanceof ITreeEditComp) {
 				ITreeEditComp src = (ITreeEditComp)evt.getSource();

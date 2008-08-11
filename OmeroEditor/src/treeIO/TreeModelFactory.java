@@ -52,7 +52,9 @@ import treeModel.fields.Field;
 import treeModel.fields.IAttributes;
 import treeModel.fields.IField;
 import treeModel.fields.IParam;
+import treeModel.fields.MutableTableModel;
 import treeModel.fields.SingleParam;
+import treeModel.fields.TableParam;
 import treeModel.fields.TimeParam;
 import util.ExceptionHandler;
 import util.XMLMethods;
@@ -265,6 +267,38 @@ public class TreeModelFactory {
 			 william = allAttributes.get(DataFieldConstants.ALARM_SECONDS);
 			 param.setAttribute(DataFieldConstants.ALARM_SECONDS, william);
 		 } 
+		 else if (paramType.equals(DataFieldConstants.TABLE)) {
+			 param = new TableParam(TableParam.TABLE_PARAM);
+			 Object tM = ((TableParam)param).getTableModel();
+			 MutableTableModel tableModel = (MutableTableModel)tM;
+			 
+			 // fill columns
+			 String colData = allAttributes.get(
+					 DataFieldConstants.TABLE_COLUMN_NAMES);
+			 String[] colNames = colData.split(",");
+			 for (int c=0; c<colNames.length; c++) {
+				 tableModel.addEmptyColumn(colNames[c].trim());
+			 }
+			 
+			 // fill row data
+			 int row = 0;
+			 String[] cellData;
+			 String rowDataString = allAttributes.get(
+					 DataFieldConstants.ROW_DATA_NUMBER + row);
+			 // row data exists for this row.
+			 while (rowDataString != null) {
+				 tableModel.addEmptyRow();	// create the row
+				 cellData = rowDataString.split(",");
+				 // fill the cells
+				 for (int c=0; c<cellData.length; c++) {
+					 tableModel.setValueAt(cellData[c].trim(), row, c);
+				 }
+				 // get the next row
+				 row++;
+				 rowDataString = allAttributes.get(
+						 DataFieldConstants.ROW_DATA_NUMBER + row);
+			 }
+		 }
 		 
 		 //TODO ADD conversion from other element types to IParam
 		 

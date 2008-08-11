@@ -42,6 +42,8 @@ public class ImageFactory {
 	public static final String ICONS_FILE = "../graphx/";
 	
 	public static final String ALARM_GIF_64 = ICONS_FILE + "kalarmAnimated64.gif";
+	public static final String NEXT_ICON = ICONS_FILE + "next.png";
+	public static final String PREV_ICON = ICONS_FILE + "previous.png";
 	
 	
 	public Icon getIcon(String iconPathName) {

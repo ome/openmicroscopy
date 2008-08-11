@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 
 import treeEditingComponents.ITreeEditComp;
 import treeEditingComponents.TextFieldEditor;
-import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
 import treeModel.fields.SingleParam;
 import uiComponents.CustomLabel;
@@ -72,7 +71,7 @@ public class DefaultTextField
 		
 		JComponent textField = new TextFieldEditor(param, 
 				SingleParam.DEFAULT_VALUE);
-		textField.addPropertyChangeListener(FieldPanel.VALUE_CHANGED_PROPERTY, 
+		textField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				this);
 		
 		add(textField, BorderLayout.CENTER);

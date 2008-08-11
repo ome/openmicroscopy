@@ -28,6 +28,10 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +43,7 @@ import java.util.Observer;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,7 +60,8 @@ import ui.components.AlignedComponent;
 public class MonthView 
 	extends JPanel 
 	implements Observer,
-	IEventListener {
+	IEventListener,
+	ActionListener {
 
 	/**
 	 * A Model of the calendar
@@ -64,7 +70,8 @@ public class MonthView
 	
 	/**
 	 * A reference to the Year, Month and Day currently selected.
-	 * eg used to switch between MonthView and WeekView, which keeping same date highlighted
+	 * eg used to switch between MonthView and WeekView, 
+	 * while keeping same date highlighted
 	 */
 	GregorianCalendar currentDate;
 	
@@ -103,7 +110,7 @@ public class MonthView
 	/**
 	 * An array of the days this month.
 	 */
-	DayOfMonth[] days;
+	IDayDisplay[] days;
 	
 	/**
 	 * This is the number of days from the end of last month, that are displayed
@@ -120,31 +127,45 @@ public class MonthView
 	 */
 	JPanel daysGridPanel;
 	
+	/**
+	 * An action command: Change display to next month.
+	 */
+	public static final String NEXT_MONTH_CMD = "nextMonth";
+	
+	/**
+	 * An action command: Change display to previous month.
+	 */
+	public static final String PREV_MONTH_CMD = "prevMonth";
+	
+	/**
+	 * The day renderer. Creates new IDayDisplay components. 
+	 */
+	private DayRenderer dayRenderer;
+	
+	/**
+	 * The UI component that displays the Month name and has buttons
+	 * for browsing next/previous month
+	 */
+	private MonthViewHeader monthHeader;
+	
+	/**
+	 * A bound property of this class.
+	 * Property change fired when a day is clicked.
+	 */
+	public static final String DAY_CLICKED_PROPERTY = "dayClickedProperty";
 	
 	/**
 	 * Creates a new instance of MonthView, with the month and year set to current time.
 	 */
 	public MonthView() {
 		
-		buildUI();	// sets thisMonth to now
+		this(null, new DayRenderer(DayRenderer.DAY_PANEL), null);
 	}
 	
-	/**
-	 * Creates a new instance of MonthView, with the month and year set to date.
-	 * @param date	The date (month and year) that this class will represent.
-	 */
-	public MonthView(Date date) {
+	public MonthView(ICalendarModel controller, 
+			DayRenderer dayRenderer,
+			MonthViewHeader monthHeader) {
 		
-		this();
-		
-		currentDate = new GregorianCalendar();
-		currentDate.setTime(date);
-		
-	}
-	
-	public MonthView(ICalendarModel controller) {
-		
-		this();
 		
 		if (controller instanceof Observable) {
 			((Observable)controller).addObserver(this);
@@ -153,9 +174,14 @@ public class MonthView
 			((Controller)controller).addEventListener(this);
 		}
 		
+		this.dayRenderer = dayRenderer;
+		this.monthHeader = monthHeader;
 		this.controller = controller;
 		
+		buildUI();	// sets thisMonth to now
+		
 		addCalendarEvents();
+		refreshHeader();
 	}
 	
 	
@@ -181,47 +207,7 @@ public class MonthView
 		
 		this.add(daysGridPanel, BorderLayout.CENTER);
 		
-		
-		
-		JPanel daysOfWeekHeader = new JPanel(new GridLayout(0, 7));
-		int headerFontSize = 13;
-		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Monday", headerFontSize)));
-		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Tuesday", headerFontSize)));
-		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Wednesday", headerFontSize)));
-		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Thursday", headerFontSize)));
-		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Friday", headerFontSize)));
-		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Saturday", headerFontSize)));
-		daysOfWeekHeader.add(new AlignedComponent(new CalendarLabel("Sunday", headerFontSize)));
-		
-		
-		Box headerBox = Box.createVerticalBox();
-		
-		Box titleButtonsBox = Box.createHorizontalBox();
-		
-		JButton prevMonthButton = new JButton("<");
-		prevMonthButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				incrementMonth(-1);
-			}
-		});
-		JButton nextMonthButton = new JButton(">");
-		nextMonthButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				incrementMonth(1);
-			}
-		});
-		
-		monthYearLabel = new CalendarLabel("", 14);
-		refreshHeader();
-		
-		titleButtonsBox.add(prevMonthButton);
-		titleButtonsBox.add(monthYearLabel);
-		titleButtonsBox.add(nextMonthButton);
-		
-		headerBox.add(new AlignedComponent(titleButtonsBox, 5));
-		headerBox.add(daysOfWeekHeader);
-		
-		this.add(headerBox, BorderLayout.NORTH);
+		this.add(monthHeader, BorderLayout.NORTH);
 	}
 	
 	
@@ -269,44 +255,32 @@ public class MonthView
 		lastDisplayDate.add(Calendar.DAY_OF_MONTH, daysFromStartOfNextMonth);
 		
 		
-		int totalDaysDisplayed = daysRemainingLastMonth + daysThisMonth + daysFromStartOfNextMonth;
-		System.out.println("MonthView addDaysToGrid  totalDaysDisplayed = " + totalDaysDisplayed);
-		System.out.println("MonthView addDaysToGrid  daysThisMonth = " + daysThisMonth);
-		System.out.println("MonthView addDaysToGrid  daysFromStartOfNextMonth = " + daysFromStartOfNextMonth);
-		
+		int totalDaysDisplayed = daysRemainingLastMonth + daysThisMonth +
+			daysFromStartOfNextMonth;
+			
 
 		
 		// create an array to hold the days of the month, for easy reference
 	//	int daysThisMonth = currentDate.getActualMaximum(GregorianCalendar.DAY_OF_MONTH);
-		days = new DayOfMonth[totalDaysDisplayed + 1];
+		days = new IDayDisplay[totalDaysDisplayed + 1];
 		
 		int index;	// keep track of days added to grid
 		
-		// Add the days from last month to the grid
-		int dateOfFirstDisplayDate = firstDisplayDate.get(Calendar.DAY_OF_MONTH);
-		for (index=0; index <daysRemainingLastMonth; index++) {
-			days[index] = new DayOfMonth(dateOfFirstDisplayDate);
-			days[index].setDayFromOtherMonth(true);
-			daysGridPanel.add(days[index]);
-			dateOfFirstDisplayDate++;
+		// Add the days from last month to the grid 
+		Calendar newDayDate = new GregorianCalendar();
+		newDayDate.setTime(firstDisplayDate.getTime());
+		
+		index=0;
+		while (newDayDate.compareTo(lastDisplayDate) < 0) {
+			days[index] = dayRenderer.getDayComponent(newDayDate);
+			if (newDayDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)) {
+				days[index].setDayFromOtherMonth(true);
+			}
+			addDayToGrid((JComponent)days[index]);
+			newDayDate.add(Calendar.DAY_OF_MONTH, 1);
+			index++;
 		}
 		
-		// Add the days of this month to the grid.
-		int day = 1;
-		for (; index < daysThisMonth+daysRemainingLastMonth; index++) {
-			days[index] = new DayOfMonth(day);
-			daysGridPanel.add(days[index]);
-			day++;
-		}
-		
-		// Add the days of next month to the grid
-		day = 1;
-		for (; index < totalDaysDisplayed; index++) {
-			days[index] = new DayOfMonth(day);
-			days[index].setDayFromOtherMonth(true);
-			daysGridPanel.add(days[index]);
-			day++;
-		}
 		
 		// if the current month is being displayed, highlight Today
 		if ((now.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR)) && 
@@ -320,10 +294,13 @@ public class MonthView
 		daysGridPanel.repaint();
 	}
 	
+	private void addDayToGrid(JComponent day) {
+		day.addMouseListener(new DayClickListener());
+		daysGridPanel.add(day);
+	}
+	
 	public void refreshHeader() {
-		SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMMMM yyyy");
-		String monthYear = monthYearFormat.format(currentDate.getTime());
-		monthYearLabel.setText(monthYear);
+		monthHeader.refreshHeader(currentDate);
 	}
 	
 	/**
@@ -382,9 +359,9 @@ public class MonthView
 		 * days[displayIndex]
 		 */
 		if (eventMonth == thisMonth) {
-			System.out.println("Adding event to this month");
+			// System.out.println("Adding event to this month");
 			int displayIndex = dayOfMonth + daysRemainingLastMonth;
-			days[displayIndex].addEventLabel(eventLabel);
+			days[displayIndex].addEvent(eventLabel);
 			
 		} else 
 			// if in the previous month...
@@ -395,15 +372,15 @@ public class MonthView
 			int displayIndex = dayOfMonth - dateOfFirstDisplayDate + 1;
 			
 			if (displayIndex >= 0)
-				days[displayIndex].addEventLabel(eventLabel);
+				days[displayIndex].addEvent(eventLabel);
 			
 		} else 
 			// if event is in next month...
 			
 		if (eventMonth == thisMonth + 1) {
-			System.out.println("Adding event to next month");
+			// System.out.println("Adding event to next month");
 			int displayIndex = dayOfMonth + daysRemainingLastMonth + daysThisMonth;
-			days[displayIndex].addEventLabel(eventLabel);
+			days[displayIndex].addEvent(eventLabel);
 			
 		} else {
 			System.out.println("EVENT NOT DISPLAYED!!!");
@@ -413,12 +390,29 @@ public class MonthView
 		eventsDisplayed.add(eventLabel);
 	}
 	
+	/**
+	 * Sets the current date. 
+	 * The month view will switch to the month that contains this date. 
+	 * 
+	 * @param date	The new date. 
+	 */
+	public void setDate(Date date) {
+		currentDate.setTime(date);
+		
+		addDaysToGrid();
+		addCalendarEvents();
+		
+		refreshHeader();
+	}
 	
+	/**
+	 * Increments the currently displayed month. 
+	 * 
+	 * @param increment		The number of months to increment
+	 */
 	public void incrementMonth(int increment) {
 		
 		currentDate.add(Calendar.MONTH, increment);
-		
-		controller.incrementMonth(increment);
 		
 		addDaysToGrid();
 		addCalendarEvents();
@@ -455,5 +449,44 @@ public class MonthView
 		 * Get new events from database and add them to days on the grid. 
 		 */
 		addCalendarEvents();
+	}
+
+	/**
+	 * Respond to requests to change month etc. 
+	 */
+	public void actionPerformed(ActionEvent e) {
+		String command = e.getActionCommand();
+		
+		if (NEXT_MONTH_CMD.equals(command)) {
+			incrementMonth(1);
+		} else if (PREV_MONTH_CMD.equals(command)) {
+			incrementMonth(-1);
+		}
+	}
+
+	/**
+	 * A MouseListener for Days.
+	 * 
+	 * @author will
+	 *
+	 */
+	public class DayClickListener implements MouseListener {
+		public void mouseClicked(MouseEvent e) {
+			if (e.getSource() instanceof IDayDisplay) {
+				System.out.println("MonthView DayClicked: " + 
+						e.getSource().toString());
+				/*
+				 * Let propertyChangeListeners know that a day was clicked..
+				 */
+				MonthView.this.firePropertyChange(
+					MonthView.DAY_CLICKED_PROPERTY,
+					null, e.getSource());
+			}
+		}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
+		public void mousePressed(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+		
 	}
 }
