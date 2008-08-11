@@ -127,7 +127,7 @@ module omero {
 	long createExperimenter(omero::model::Experimenter user, 
 				omero::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError; 
 	long createGroup(omero::model::ExperimenterGroup group) throws ServerError;
-	idempotent void addGroups(omero::model::Experimenter user, ExperimenterList groups) throws ServerError;
+	idempotent void addGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
 	idempotent void removeGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
 	idempotent void setDefaultGroup(omero::model::Experimenter user, omero::model::ExperimenterGroup group) throws ServerError;
 	idempotent void setGroupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
