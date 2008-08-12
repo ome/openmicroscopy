@@ -43,6 +43,7 @@ import treeModel.editActions.UndoEditAction;
 import treeModel.fields.IAttributes;
 import treeModel.undoableTreeEdits.AttributeEdit;
 import treeModel.undoableTreeEdits.ObservableUndoManager;
+import treeModel.view.TreeEditorUI;
 
 //Java imports
 

@@ -30,6 +30,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
 import treeIO.TreeModelFactory;
+import treeModel.view.TreeEditorUI;
 
 //Java imports
 
@@ -74,9 +75,23 @@ public class TreeEditorComponent
 	}
 
 
+	/**
+	 * Returns the complete UI, including toolbar, editable tree-view and 
+	 * field editor panel. 
+	 */
 	public JComponent getUI() {
 		
-		return view;
+		return view.getUI();
+	}
+	
+	/**
+	 * Returns a view of the Tree, in a scrollPane.
+	 * This is a non-editable view of the data in a tree. 
+	 * 
+	 * @return		Custom JTree in a scrollpane. 
+	 */
+	public JComponent getTreeView() {
+		return view.getTreeUI(TreeEditorUI.NON_EDITABLE_TREE);
 	}
 
 	/**

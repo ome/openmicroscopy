@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel;
+package treeModel.view;
 
 //Java imports
 
@@ -32,6 +32,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import treeModel.TreeEditorControl;
 import treeModel.fields.FieldPanel;
 import treeModel.fields.IField;
 

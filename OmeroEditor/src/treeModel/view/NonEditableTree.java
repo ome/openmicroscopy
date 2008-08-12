@@ -1,5 +1,5 @@
  /*
- * treeModel.TreeUI 
+ * treeModel.view.NonEditableTree 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,27 +20,24 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel;
+package treeModel.view;
 
-//Java imports
-
-import java.awt.BorderLayout;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellEditor;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeSelectionModel;
+
+import treeModel.TreeEditorControl;
+
+//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-
-
 /** 
- * This UI class displays a JTree in a scroll pane. 
  * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -51,37 +48,25 @@ import javax.swing.tree.TreeCellEditor;
  * </small>
  * @since OME3.0
  */
-public class TreeUI 
-	extends JPanel {
+public class NonEditableTree 
+	extends JTree {
 	
-	private JTree tree;
+	public NonEditableTree(TreeModel model, TreeEditorControl controller) {
+		super(model);
+		
+		configureTree(controller);
+	}
 	
-	private TreeEditorControl controller;
-	
-	public TreeUI(TreeEditorModel model, TreeEditorControl controller) {
+	public void configureTree(TreeEditorControl controller) {
 		
-		super(new BorderLayout());
-
-		this.controller = controller;
-		
-		tree = new JTree(model);
-		/*
-		 * The default UI (BasicTreeUI) is replaced with a subclass
-		 * to modify the selection and editing behavior.
-		 */
-		tree.setUI(new MyBasicTreeUI());
-		
-		/*
-		 * A custom selection model allows multiple nodes to be selected,
-		 * but ensures that they are contiguous and are all siblings.
-		 */
-		tree.setSelectionModel(new ContiguousChildSelectionModel());
+		this.getSelectionModel().setSelectionMode(
+				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		
 		/*
 		 * Setting the row height to 0 allows each node to choose it's
 		 * own size. The JTree will call getPreferredSize() for each.
 		 */
-		tree.setRowHeight(0);
+		setRowHeight(0);
 		
 		/*
 		 * A custom TreeCellRenderer (extends DefaultTreeCellRenderer)
@@ -90,32 +75,10 @@ public class TreeUI
 		 * the fields, so that they can call undo/redo edits etc. 
 		 */
 		DefaultTreeCellRenderer fieldRenderer = new FieldRenderer(controller);
-		tree.setCellRenderer(fieldRenderer);
+		setCellRenderer(fieldRenderer);
 		
-		/*
-		 * A TreeCellEditor for editing fields.
-		 * This merely delegates to the fieldRenderer because the same 
-		 * components are used for display and editing of the tree Cells.
-		 */
-		TreeCellEditor fieldEditor = new DefaultFieldEditor(fieldRenderer);
-		/*
-		 * The DefaultTreeCellEditor (when passed a TreeCellEditor) uses this 
-		 * to switch between editing and display. 
-		 */
-	    TreeCellEditor editor = new DefaultTreeCellEditor(tree, fieldRenderer, fieldEditor);
-	    tree.setCellEditor(editor);
 		
-		tree.setEditable(true);
 		
-		/*
-		 * Place the JTree in a ScrollPane and add it to this panel. 
-		 */
-		JScrollPane treeScroller = new JScrollPane(tree);
-		add(treeScroller, BorderLayout.CENTER);
 	}
 
-	public JTree getJTree() {
-		return tree;
-	}
-	
 }

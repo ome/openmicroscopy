@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel;
+package treeModel.view;
 
 //Java imports
 

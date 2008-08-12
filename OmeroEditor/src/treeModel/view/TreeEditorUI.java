@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel;
+package treeModel.view;
 
 import java.awt.BorderLayout;
 
@@ -30,8 +30,11 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JTree;
 import javax.swing.border.Border;
 
+import treeModel.TreeEditorControl;
+import treeModel.TreeEditorModel;
 import treeModel.editActions.AbstractEditorAction;
 
 //Java imports
@@ -51,13 +54,15 @@ import treeModel.editActions.AbstractEditorAction;
  * </small>
  * @since OME3.0
  */
-public class TreeEditorUI 
-	extends JPanel {
+public class TreeEditorUI {
 	
 	private TreeEditorModel model;
 	
 	private TreeEditorControl controller;
 	
+	public static final int EDITABLE_TREE = 0;
+	
+	public static final int NON_EDITABLE_TREE = 1;
 	
 	private TreeUI treeUI;
 	
@@ -67,40 +72,47 @@ public class TreeEditorUI
 		this.model = model;
 		
 		this.controller = controller;
-		
-		buildUI();
 	}
 	
+	public JComponent getUI() {
+		
+		JPanel fullUI = new JPanel(new BorderLayout());
+
+		TreeUI treeUI = getTreeUI(EDITABLE_TREE);
+		JTree tree = treeUI.getJTree();
+		
+		fullUI.add(treeUI, BorderLayout.CENTER);
+		fullUI.add(getFieldEditor(tree), BorderLayout.EAST);
+		fullUI.add(getToolBar(tree), BorderLayout.NORTH);
+		
+		return fullUI;
+	}
 	
-	private void buildUI() {
-		
-		this.setLayout(new BorderLayout());
-		
-		/*
-		 * TreeUI needs a reference to controller so that fields etc can
-		 *  call undo/redo edits.
-		 */
-		treeUI = new TreeUI(model, controller);
-		
-		JPanel fieldEditor = new FieldEditorDisplay(treeUI.getJTree());
+	public TreeUI getTreeUI(int treeType) {
+		return TreeUI.createInstance(model, controller, treeType);
+	}
+	
+	public JComponent getFieldEditor(JTree tree) {
+		return new FieldEditorDisplay(tree);
+	}
+	
+	public JComponent getToolBar(JTree tree) {
 		
 		Box toolBarBox = Box.createHorizontalBox();
 		
-		addActionButton(toolBarBox, TreeEditorControl.ADD_FIELD_ACTION);
-		addActionButton(toolBarBox, TreeEditorControl.DUPLICATE_FIELDS_ACTION);
-		addActionButton(toolBarBox, TreeEditorControl.DELETE_FIELD_ACTION);
-		addActionButton(toolBarBox, TreeEditorControl.UNDO_ACTION);
-		addActionButton(toolBarBox, TreeEditorControl.REDO_ACTION);
+		addActionButton(toolBarBox, TreeEditorControl.ADD_FIELD_ACTION, tree);
+		addActionButton(toolBarBox, TreeEditorControl.DUPLICATE_FIELDS_ACTION, tree);
+		addActionButton(toolBarBox, TreeEditorControl.DELETE_FIELD_ACTION, tree);
+		addActionButton(toolBarBox, TreeEditorControl.UNDO_ACTION, tree);
+		addActionButton(toolBarBox, TreeEditorControl.REDO_ACTION, tree);
 		
-		add(toolBarBox, BorderLayout.NORTH);
-		add(treeUI, BorderLayout.CENTER);
-		add(fieldEditor, BorderLayout.EAST);
+		return toolBarBox;
 	}
 	
-	public void addActionButton(JComponent comp, int index) {
+	public void addActionButton(JComponent comp, int index, JTree tr) {
 		Action newAction = controller.getAction(index);
 		if (newAction instanceof AbstractEditorAction) {
-			((AbstractEditorAction)newAction).setTree(treeUI.getJTree());
+			((AbstractEditorAction)newAction).setTree(tr);
 		}
 		JButton newButton = new JButton(newAction);
 		Border emptyBorder = BorderFactory.createEmptyBorder(4,4,4,4);

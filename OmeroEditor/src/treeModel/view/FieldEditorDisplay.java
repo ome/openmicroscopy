@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package treeModel;
+package treeModel.view;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
