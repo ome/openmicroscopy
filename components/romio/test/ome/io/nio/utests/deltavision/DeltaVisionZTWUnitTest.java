@@ -13,6 +13,7 @@ import org.testng.annotations.*;
 import junit.framework.TestCase;
 import ome.io.nio.DeltaVision;
 import ome.io.nio.DeltaVisionHeader;
+import ome.io.nio.utests.Helper;
 import ome.model.core.OriginalFile;
 
 public class DeltaVisionZTWUnitTest extends TestCase

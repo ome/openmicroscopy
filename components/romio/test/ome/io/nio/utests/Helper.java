@@ -4,7 +4,7 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.io.nio.utests.deltavision;
+package ome.io.nio.utests;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;

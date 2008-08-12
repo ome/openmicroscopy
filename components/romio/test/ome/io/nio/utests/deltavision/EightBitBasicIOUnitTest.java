@@ -7,6 +7,7 @@ import org.testng.annotations.Test;
 import junit.framework.TestCase;
 
 import ome.io.nio.DeltaVision;
+import ome.io.nio.utests.Helper;
 import ome.model.core.OriginalFile;
 
 public class EightBitBasicIOUnitTest extends TestCase

@@ -26,7 +26,7 @@ import ome.model.core.Pixels;
 
 /**
  * Class implementation of the PixelBuffer interface for standard "proprietary"
- * ROMIO/OMEIS data data format.
+ * ROMIO/OMEIS data format.
  *
  * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:chris@glencoesoftware.com">chris@glencoesoftware.com</a>
@@ -52,7 +52,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     private Integer totalSize;
 
-    RomioPixelBuffer(String path, Pixels pixels) {
+    public RomioPixelBuffer(String path, Pixels pixels) {
         super(path);
         if (pixels == null) {
             throw new NullPointerException(
@@ -237,7 +237,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 		throws IOException, DimensionsOutOfBoundsException
 	{
 		ByteBuffer b = getPlane(z, c, t).getData();
-		b.position(offset);
+		b.position(offset * getByteWidth());
 		b.get(buffer, 0, count * getByteWidth());
 		return buffer;
 	}

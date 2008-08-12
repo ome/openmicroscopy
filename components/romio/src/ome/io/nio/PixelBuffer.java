@@ -146,7 +146,7 @@ public interface PixelBuffer
      * given 2D image plane. It is guaranteed that this buffer will have been 
      * byte swapped.
      * @throws IOException if there is a problem reading from the pixel buffer.
-     * @see getPlaneRegionDirect()
+     * @see getRegionDirect()
      */
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t, 
     		Integer count, Integer offset, byte[] buffer)
