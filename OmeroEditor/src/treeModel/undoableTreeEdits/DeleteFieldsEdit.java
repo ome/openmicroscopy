@@ -156,6 +156,7 @@ public class DeleteFieldsEdit
 	 */
 	public void redo() {
 		TreeModelMethods.removeNodesFromParent(treeModel, deletedFields);
+		tree.clearSelection();
 	}
 	
 	/**

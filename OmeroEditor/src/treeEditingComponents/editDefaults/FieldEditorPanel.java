@@ -61,8 +61,8 @@ import ui.components.AttributeMemoFormatEditor;
 import ui.components.AttributeUrlEditor;
 import ui.components.ColourMenuItem;
 import ui.components.ColourPopupMenu;
-import ui.components.CustomComboBox;
 import ui.components.SimpleHTMLEditorPane;
+import uiComponents.CustomComboBox;
 import uiComponents.CustomLabel;
 import util.ImageFactory;
 

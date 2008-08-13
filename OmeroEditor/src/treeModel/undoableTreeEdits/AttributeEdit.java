@@ -58,6 +58,11 @@ public class AttributeEdit
 	extends AbstractUndoableEdit {
 
 	/**
+	 * A name to display in the Undo/Redo buttons, that describes the edit.
+	 */
+	private String displayName;
+	
+	/**
 	 * The data source which will be edited, using setAttribute()
 	 */
 	IAttributes attributes;
@@ -103,11 +108,12 @@ public class AttributeEdit
 	 * @param tree		The JTree displaying the data
 	 * @param node		The node of JTree which contains the data
 	 */
-	public AttributeEdit(IAttributes attributes, String name, String value,
-			JTree tree, TreeNode node) {
+	public AttributeEdit(IAttributes attributes, String attributeName, 
+			String value, String displayName, JTree tree, TreeNode node) {
 		
 		this.attributes = attributes;
-		this.attributeName = name;
+		this.attributeName = attributeName;
+		this.displayName = displayName;
 		this.newValue = value;
 		this.tree = tree;
 		
@@ -197,10 +203,10 @@ public class AttributeEdit
 	}
 	
 	/**
-	 * Presentation name is "Edit..."
+	 * Presentation name is 
 	 */
 	public String getPresentationName() {
-		     return "Edit " + attributeName;
+		     return displayName;
 	}
 	
 	/**

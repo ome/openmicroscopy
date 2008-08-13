@@ -119,7 +119,7 @@ public class UIsizes {
 		dimensions.put(TEXT_FIELD_MIN_WIDTH, 200);
 		dimensions.put(NUMB_FIELD_MIN_WIDTH, 75);
 		dimensions.put(SINGLE_ROW_HEiGHT, 18);
-		dimensions.put(DOUBLE_DIGIT_FIELD_W, 19);
+		dimensions.put(DOUBLE_DIGIT_FIELD_W, 21);
 		dimensions.put(EMPTY_BORDER_THINKNESS, 2);
 		
 	}

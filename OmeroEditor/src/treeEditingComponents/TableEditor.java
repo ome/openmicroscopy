@@ -281,5 +281,9 @@ public class TableEditor
 		 */
 		this.firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);
 	}
+	
+	public String getEditDisplayName() {
+		return "Edit Table";
+	}
 
 }

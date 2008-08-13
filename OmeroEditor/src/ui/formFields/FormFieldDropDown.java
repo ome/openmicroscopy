@@ -33,7 +33,7 @@ import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import treeModel.fields.FieldPanel;
 import treeModel.fields.FieldPanel.FormPanelMouseListener;
-import ui.components.CustomComboBox;
+import uiComponents.CustomComboBox;
 
 public class FormFieldDropDown extends FieldPanel {
 	

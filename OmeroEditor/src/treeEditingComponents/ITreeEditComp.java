@@ -80,4 +80,14 @@ public interface ITreeEditComp {
 	 * Gets the name of the last-edited attribute.
 	 */
 	public String getAttributeName();
+	
+	/**
+	 * This method can be specify a display name for the last edit.
+	 * Used for undo/redo. 
+	 * eg displayName = "Edit Time" 
+	 * Undo toolTipText = "Undo Edit Time" etc. 
+	 * 
+	 * @return	A name for the edit, to display in UI. 
+	 */
+	public String getEditDisplayName();
 }

@@ -7,6 +7,7 @@ import javax.swing.JComboBox;
 
 import tree.DataField;
 import tree.IAttributeSaver;
+import uiComponents.CustomComboBox;
 
 public class DataFieldComboBox extends CustomComboBox {
 

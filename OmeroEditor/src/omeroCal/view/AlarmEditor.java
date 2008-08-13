@@ -35,7 +35,7 @@ import javax.swing.text.MaskFormatter;
 
 import omeroCal.model.CalendarEvent;
 
-import ui.components.CustomComboBox;
+import uiComponents.CustomComboBox;
 
 
 public class AlarmEditor

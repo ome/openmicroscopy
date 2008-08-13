@@ -35,6 +35,8 @@ import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -629,17 +631,30 @@ public class FieldPanel
 		else if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(propName)) {
 			
 			if (evt.getSource() instanceof ITreeEditComp) {
+				
+				/* Need controller to pass on the edit  */
+				if (controller == null) return;
+				
 				ITreeEditComp src = (ITreeEditComp)evt.getSource();
 				IParam param = src.getParameter();
 				String attrName = src.getAttributeName();
+				String displayName = src.getEditDisplayName();
 				
+				String newValue;
 				Object newVal = evt.getNewValue();
-				String newValue = (newVal == null ? null : newVal.toString());
+				if ((newVal instanceof String) || (newVal == null)){
+					newValue = (newVal == null ? null : newVal.toString());
+				 	controller.editAttribute(param, attrName, newValue, 
+				 			displayName, tree, treeNode);
+				}
 				
-				System.out.println("FieldPanel propertyChange " + attrName + " " + newValue);
+				//System.out.println("FieldPanel " + attrName + " " + newValue);
 				
-				if (controller != null)
-				controller.editAttribute(param, attrName, newValue, tree, treeNode);
+				else if (newVal instanceof HashMap) {
+					HashMap newVals = (HashMap)newVal;
+					controller.editAttributes(param, "edit", newVals, 
+							tree, treeNode);
+				}
 				
 			}
 		}

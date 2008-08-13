@@ -26,6 +26,8 @@ package treeIO;
 //Java imports
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -260,12 +262,23 @@ public class TreeModelFactory {
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
 			 param = new DateTimeParam(DataFieldConstants.DATE_TIME_FIELD);
-			 String william = allAttributes.get(DataFieldConstants.UTC_MILLISECS);
-			 param.setAttribute(DataFieldConstants.UTC_MILLISECS, william);
-			 william = allAttributes.get(DataFieldConstants.SECONDS);
-			 param.setAttribute(DataFieldConstants.SECONDS, william);
-			 william = allAttributes.get(DataFieldConstants.ALARM_SECONDS);
-			 param.setAttribute(DataFieldConstants.ALARM_SECONDS, william);
+			 String millisecs = allAttributes.get(DataFieldConstants.UTC_MILLISECS);
+			 if (millisecs != null) {
+				// create a test calendar (see below).
+				Calendar testForAbsoluteDate = new GregorianCalendar();
+				testForAbsoluteDate.setTimeInMillis(new Long(millisecs));
+				int year = testForAbsoluteDate.get(Calendar.YEAR);
+				if (year != 1970) {		// date is not "relative"
+					param.setAttribute(DateTimeParam.DATE_ATTRIBUTE, millisecs);
+				} else {		// date is relative. 
+					param.setAttribute(DateTimeParam.REL_DATE_ATTRIBUTE, millisecs);
+					param.setAttribute(DateTimeParam.IS_RELATIVE_DATE, "true");
+				}
+			 }
+			 millisecs = allAttributes.get(DataFieldConstants.SECONDS);
+			 param.setAttribute(DateTimeParam.TIME_ATTRIBUTE, millisecs);
+			 millisecs = allAttributes.get(DataFieldConstants.ALARM_SECONDS);
+			 param.setAttribute(DateTimeParam.ALARM_SECONDS, millisecs);
 		 } 
 		 else if (paramType.equals(DataFieldConstants.TABLE)) {
 			 param = new TableParam(TableParam.TABLE_PARAM);

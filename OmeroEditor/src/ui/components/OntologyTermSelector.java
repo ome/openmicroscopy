@@ -32,6 +32,7 @@ import ols.OntologyLookUp;
 import tree.DataField;
 import tree.IAttributeSaver;
 import treeModel.fields.FieldPanel;
+import uiComponents.CustomComboBox;
 
 public class OntologyTermSelector extends JPanel {
 	

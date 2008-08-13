@@ -48,11 +48,29 @@ public class DateTimeParam extends AbstractParam {
 	/**
 	 * A property of this parameter. 
 	 * This stores a Date (not time) in UTC milliseconds.
-	 * Used by the Date-Picker 
-	 * If the number of millisecs is equivalent to a small number of days (<10)
-	 * then this is a "relative" date, a number of days after a previous date.
+	 * Used by the Date-Picker to pick a date. 
+	 * NB. This attribute and the REL_DATE_ATTRIBUTE are mutually exclusive.
 	 */
 	public static final String DATE_ATTRIBUTE = DataFieldConstants.UTC_MILLISECS;
+	
+	/**
+	 * This stores a "Relative Date". Ie a date (in milliseconds) that is
+	 * a number of days AFTER an "Absolute" date. 
+	 * A date specified by this attribute can only be fixed in time when
+	 * it follows a Date-Time field with a Absolute date (DATE_ATTRIBUTE)
+	 * which is in UTC milliseconds.
+	 * NB. This attribute and the DATE_ATTRIBUTE are mutually exclusive. 
+	 */
+	public static final String REL_DATE_ATTRIBUTE = "relativeDate";
+	
+	/**
+	 * This boolean attribute specifies whether the date should be defined
+	 * by the REL_DATE_ATTRIBUTE or the DATE_ATTRIBUTE.
+	 * If true, use the REL_DATE_ATTRIBUTE, to fix the date. Otherwise,
+	 * use the DATE_ATTRIBUTE. 
+	 */
+	public static final String IS_RELATIVE_DATE = "isRelativeDate";
+	
 	
 	/**
 	 * A property of this parameter. 

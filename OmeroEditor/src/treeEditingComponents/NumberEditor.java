@@ -107,5 +107,9 @@ public class NumberEditor
 		this.firePropertyChange(evt.getPropertyName(), 
 				evt.getOldValue(), evt.getNewValue());
 	}
+	
+	public String getEditDisplayName() {
+		return "Edit Number";
+	}
 
 }

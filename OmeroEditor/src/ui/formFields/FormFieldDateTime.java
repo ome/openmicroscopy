@@ -47,7 +47,7 @@ import omeroCal.view.DatePicker;
 import tree.DataFieldConstants;
 import tree.IDataFieldObservable;
 import treeModel.fields.FieldPanel;
-import ui.components.CustomComboBox;
+import uiComponents.CustomComboBox;
 
 /**
  * This class allows users to pick a date,

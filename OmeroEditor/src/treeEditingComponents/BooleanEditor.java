@@ -109,4 +109,8 @@ public class BooleanEditor
 	public void actionPerformed(ActionEvent e) {
 		attributeEdited(valueAttribute, this.isSelected() + "");
 	}
+	
+	public String getEditDisplayName() {
+		return "Edit Checkbox";
+	}
 }

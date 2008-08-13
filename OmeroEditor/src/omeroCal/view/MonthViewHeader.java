@@ -66,6 +66,15 @@ public class MonthViewHeader
 	
 	SimpleDateFormat monthYearFormat;
 	
+	public static final String[] D_ARRAY =  {"M", "T","W","T","F","S","S"};
+	
+	public static final String[] DAYS_ARRAY = {"Monday","Tuesday","Wednesday",
+		"Thursday","Friday","Saturday","Sunday"};
+	
+	public MonthViewHeader() {
+		this(DAYS_ARRAY, 13);
+	}
+	
 	public MonthViewHeader(String[] dayNames, int fontSize) {
 		
 		super(new BorderLayout());

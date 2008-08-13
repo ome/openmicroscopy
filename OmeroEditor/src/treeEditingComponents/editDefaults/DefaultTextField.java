@@ -97,4 +97,8 @@ public class DefaultTextField
 		return param;
 	}
 
+	public String getEditDisplayName() {
+		return "Edit Default Value";
+	}
+
 }

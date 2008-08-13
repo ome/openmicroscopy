@@ -49,7 +49,7 @@ import tree.DataFieldConstants;
 import treeModel.fields.DateTimeParam;
 import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
-import ui.components.CustomComboBox;
+import uiComponents.CustomComboBox;
 import uiComponents.CustomLabel;
 import uiComponents.HrsMinsEditor;
 import uiComponents.HrsMinsField;
@@ -82,8 +82,14 @@ public class DateTimeField
 	
 	private IParam param;
 	
+	boolean relativeDate;
 	
 	DatePicker datePicker;
+	
+	/**
+	 * Display text for the date-picker if no date is chosen. 
+	 */
+	public static final String PICK_DATE = "Pick Date";
 	
 	CustomComboBox daySelector;
 	
@@ -105,21 +111,29 @@ public class DateTimeField
 		this.setBackground(null);
 		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
-		datePicker = new DatePicker();
-		datePicker.addActionListener(calendarListener);
+		relativeDate = param.isAttributeTrue(
+				DateTimeParam.IS_RELATIVE_DATE);
 		
-		this.add(datePicker);
-		this.add(new JLabel(" OR "));
+		if (! relativeDate) {
 		
-		// A combo-box for days
-		String[] dayOptions = {"Pick Day", "0 days", "1 day", "2 days","3 days","4 days",
-				"5 days","6 days","7 days","8 days","9 days","10 days"};
-		daySelector = new CustomComboBox(dayOptions);
-		daySelector.setMaximumWidth(110);
-		daySelector.setMaximumRowCount(dayOptions.length);
-		daySelector.addActionListener(daySelectedListener);
+			datePicker = new DatePicker();
+			datePicker.addActionListener(calendarListener);
 		
-		this.add(daySelector);
+			this.add(datePicker);
+		}
+		else {
+		
+			// A combo-box for days
+			String[] dayOptions = {"Pick Day", "0 days", "1 day", "2 days","3 days","4 days",
+					"5 days","6 days","7 days","8 days","9 days","10 days"};
+			daySelector = new CustomComboBox(dayOptions);
+			daySelector.setMaximumWidth(110);
+			daySelector.setMaximumRowCount(dayOptions.length);
+			daySelector.addActionListener(daySelectedListener);
+			
+			this.add(daySelector);
+		}
+		
 		this.add(Box.createHorizontalStrut(10));
 		this.add(new CustomLabel( " Set Time?"));
 		
@@ -194,9 +208,12 @@ public class DateTimeField
 		 * Before calling propertyChange, need to make sure that 
 		 * getAttributeName() will return the name of the newly edited property
 		 */
+		String oldValue = param.getAttribute(attributeName);
+		
 		lastUpdatedAttribute = attributeName;
 		
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, null, newValue);
+		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY,
+				oldValue, newValue);
 	}
 
 	public String getAttributeName() {
@@ -209,69 +226,44 @@ public class DateTimeField
 	
 	
 	/**
-	 * get the millisecs as a String from dataField, convert to Long, use to set time;
+	 * get the millisecs as a String from dataField, convert to Long, 
+	 * use to set time;
 	 */
 	public void updateDateFromDataField() {
-		String millisecs = param.getAttribute(DataFieldConstants.UTC_MILLISECS);
-		if (millisecs != null) {
-			long UTCMillisecs = new Long(millisecs);
-			Date date = new Date(UTCMillisecs);
-			
-			Calendar calendar = new GregorianCalendar();
-			calendar.setTime(date);
-			
-			int year = calendar.get(Calendar.YEAR);
-			
-			/*
-			 * If UTCMillisecs has been used to store an absolute date, the date will
-			 * be eg 2008. 
-			 * 
-			 * However, if UTCMillisecs has been used to store a relative date (eg 2 days)
-			 * then UTCMillisecs will simply equal that time in milliseconds. 
-			 * This means the year in a calendar will be 1970 (Epoch). 
-			 */
-			
-			// if date has been set, year is eg 2008.
-			if (year != 1970) {
+		if (! relativeDate) {
+			String millisecs = param.getAttribute(DateTimeParam.DATE_ATTRIBUTE);
+			if (millisecs != null) {
+				long UTCMillisecs = new Long(millisecs);
+				Date date = new Date(UTCMillisecs);
+				
 				datePicker.removeActionListener(calendarListener);
 				datePicker.setDate(date);
 				datePicker.addActionListener(calendarListener);
-				
-				daySelector.removeActionListener(daySelectedListener);
-				daySelector.setSelectedIndex(0);
-				daySelector.addActionListener(daySelectedListener);
 			} else {
-				
+				datePicker.removeActionListener(calendarListener);
+				datePicker.setDate(null);
+				datePicker.getEditor().setText(PICK_DATE);
+				datePicker.addActionListener(calendarListener);
+			}
+		}
+			
+		else {
+			String daysInMillis = param.getAttribute(DateTimeParam.REL_DATE_ATTRIBUTE);
+			if (daysInMillis != null) {
 				try {
+					long UTCMillisecs = new Long(daysInMillis);
 					int days = convertMillisecsToDays(UTCMillisecs);
 					
 					daySelector.removeActionListener(daySelectedListener);
 					daySelector.setSelectedIndex(days + 1);
 					daySelector.addActionListener(daySelectedListener);
-				
-					datePicker.removeActionListener(calendarListener);
-					datePicker.setDate(null);
-					datePicker.getEditor().setText("Pick Date");
-					datePicker.addActionListener(calendarListener);
 					
 				} catch (Exception e) {
 					// Either the millisecs value was too high for integer,
 					// or number of days was off the scale of the daySelector
 				}
 			}
-			
-		} else {
-			datePicker.removeActionListener(calendarListener);
-			datePicker.setDate(null);
-			datePicker.getEditor().setText("Pick Date");
-			datePicker.addActionListener(calendarListener);
-			
-			daySelector.removeActionListener(daySelectedListener);
-			daySelector.setSelectedIndex(0);
-			daySelector.addActionListener(daySelectedListener);
-		}
-		
-		
+		} 
 	}
 	
 	
@@ -299,53 +291,40 @@ public class DateTimeField
 	 */
 	public void saveDateValues() {
 
-		// sets time to NOW
-		Calendar calendar = new GregorianCalendar();
-		
-		DateFormat dateFormat = DateFormat.getDateInstance( DateFormat.DEFAULT);
-		DateFormat timeFormat = DateFormat.getTimeInstance (DateFormat.DEFAULT);
-		
-		Date date = datePicker.getDate();
-		if (date != null) {
-			calendar.setTime(date);
-			
-			long timeInMillis = calendar.getTimeInMillis();
-			attributeEdited(DataFieldConstants.UTC_MILLISECS, timeInMillis + "");
-		} else
-		
-		if (daySelector.getSelectedIndex() > 0){
-			int daysChosen = daySelector.getSelectedIndex() - 1;
-			
-			int millisecsPerDay = 24 * 60 * 60 * 1000;
-			
-			int daysInMillis = daysChosen * millisecsPerDay;
-			
-			attributeEdited(DataFieldConstants.UTC_MILLISECS, daysInMillis + "");
-		} else {
-			attributeEdited(DataFieldConstants.UTC_MILLISECS, null);
-		}
 	}	
 	
 
 	public class CalendarListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
 			
-			daySelector.removeActionListener(daySelectedListener);
-			daySelector.setSelectedIndex(0);
-			daySelector.addActionListener(daySelectedListener);
-			
-			saveDateValues();
+			Date date = datePicker.getDate();
+			if (date != null) {
+				long timeInMillis = date.getTime();
+				attributeEdited(DateTimeParam.DATE_ATTRIBUTE, timeInMillis + "");
+			} else {
+				
+			}
 		}
 		
 	}
 	
 	public class DaySelectedListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			datePicker.removeActionListener(calendarListener);
-			datePicker.setDate(null);
-			datePicker.addActionListener(calendarListener);
-			
-			saveDateValues();
+			if (daySelector.getSelectedIndex() > 0){
+				int daysChosen = daySelector.getSelectedIndex() - 1;
+				
+				int millisecsPerDay = 24 * 60 * 60 * 1000;
+				
+				int daysInMillis = daysChosen * millisecsPerDay;
+				
+				attributeEdited(DateTimeParam.REL_DATE_ATTRIBUTE, daysInMillis + "");
+			} else {
+				attributeEdited(DateTimeParam.REL_DATE_ATTRIBUTE, null);
+			}
 		}
+	}
+	
+	public String getEditDisplayName() {
+		return "Edit Date-Time";
 	}
 }

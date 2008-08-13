@@ -22,7 +22,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ui.components;
+package uiComponents;
 
 // java imports
 
@@ -37,7 +37,6 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 
-import uiComponents.CustomLabel;
 
 /**
  * This is a ComboBox that has custom size behaviour and 

@@ -100,5 +100,9 @@ public class TextFieldEditor
 	public String getAttributeName() {
 		return attributeName;
 	}
+	
+	public String getEditDisplayName() {
+		return "Edit Text";
+	}
 
 }

@@ -41,6 +41,7 @@ import tree.DataFieldConstants;
 import tree.DataFieldObserver;
 import tree.IAttributeSaver;
 import tree.IDataFieldObservable;
+import uiComponents.CustomComboBox;
 
 
 public class AlarmSetter 

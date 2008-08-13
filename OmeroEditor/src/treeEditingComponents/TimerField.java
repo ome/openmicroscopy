@@ -226,5 +226,9 @@ public class TimerField
 			timeInSeconds = TimeEditor.getSecondsFromTimeValue(timeValue);
 		}
 	}
+	
+	public String getEditDisplayName() {
+		return "Edit Time";
+	}
 
 }

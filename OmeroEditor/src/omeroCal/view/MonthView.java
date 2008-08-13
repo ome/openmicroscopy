@@ -162,6 +162,18 @@ public class MonthView
 		this(null, new DayRenderer(DayRenderer.DAY_PANEL), null);
 	}
 	
+	public MonthView(ICalendarModel controller) {
+		this (controller, new DayRenderer(DayRenderer.DAY_PANEL),
+				new MonthViewHeader());
+	}
+	
+	/**
+	 * Creates a new instance of the Month view. 
+	 * 
+	 * @param controller		For querying the model	
+	 * @param dayRenderer		Defines how a day is rendered. 
+	 * @param monthHeader		A component to display Month, Year etc.
+	 */
 	public MonthView(ICalendarModel controller, 
 			DayRenderer dayRenderer,
 			MonthViewHeader monthHeader) {
