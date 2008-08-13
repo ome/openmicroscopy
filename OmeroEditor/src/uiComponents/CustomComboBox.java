@@ -62,6 +62,12 @@ public class CustomComboBox extends JComboBox {
 		initialise();
 	}
 	
+	public CustomComboBox(int maxPreferredWidth) {
+		super();
+		initialise();
+		setMaxPreferredWidth(maxPreferredWidth);
+	}
+	
 	private void initialise() {
 		this.setFont(CustomLabel.CUSTOM_FONT);
 		setBackground(null);

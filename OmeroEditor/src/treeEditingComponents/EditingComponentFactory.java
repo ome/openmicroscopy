@@ -97,6 +97,9 @@ public class EditingComponentFactory {
 		if (inputType.equals(SingleParam.NUMBER_PARAM)) {
 			return new NumberEditor(paramObject);
 		}
+		if (inputType.equals(SingleParam.ENUM_PARAM)) {
+			return new EnumEditor(paramObject);
+		}
 		
 		if (inputType.equals(SingleParam.BOOLEAN_PARAM)) {
 			return new BooleanEditor(paramObject);
