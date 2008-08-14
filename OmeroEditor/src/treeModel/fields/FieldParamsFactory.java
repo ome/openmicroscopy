@@ -115,6 +115,9 @@ public class FieldParamsFactory {
 		else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
 			fieldValue = new DateTimeParam(DataFieldConstants.DATE_TIME_FIELD);
 		}
+		else if (paramType.equals(ImageParam.IMAGE_PARAM)) {
+			fieldValue = new ImageParam(ImageParam.IMAGE_PARAM);
+		}
 		
 		else 
 			System.err.println("FieldParamsFactory: PARAM_TYPE " + 

@@ -76,46 +76,64 @@ import uiComponents.HrsMinsField;
  * @since OME3.0
  */
 public class DateTimeField 
-	extends JPanel 
-	implements PropertyChangeListener,
-	ITreeEditComp{
+	extends AbstractParamEditor 
+	implements PropertyChangeListener {
 	
-	private IParam param;
+	/**
+	 * Is this date parameter a "Relative" date (defined as a number of days
+	 * after a previous date)
+	 */
+	private boolean relativeDate;
 	
-	boolean relativeDate;
-	
-	DatePicker datePicker;
+	/**
+	 * A date picker, for picking an "Absolute" date.
+	 */
+	private DatePicker datePicker;
 	
 	/**
 	 * Display text for the date-picker if no date is chosen. 
 	 */
 	public static final String PICK_DATE = "Pick Date";
 	
-	CustomComboBox daySelector;
+	/**
+	 * A comboBox for picking a "Relative" date (number of days)
+	 */
+	private CustomComboBox daySelector;
 	
-	JCheckBox timeChosen;
+	/**
+	 * CheckBox for choosing whether this date parameter also has a time 
+	 */
+	private JCheckBox timeChosen;
 	
-	HrsMinsField hrsMinsEditor;
+	/**
+	 * A UI component for editing Hrs and Mins
+	 */
+	private HrsMinsField hrsMinsEditor;
 	
-	String lastUpdatedAttribute;
+	/**
+	 * An ActionListener for the date picker. 
+	 */
+	private ActionListener calendarListener = new CalendarListener();
 	
-	CalendarListener calendarListener = new CalendarListener();
+	/**
+	 * An ActionListener for the comboBox for picking relative date (days)
+	 */
+	private ActionListener daySelectedListener = new DaySelectedListener();
 	
-	DaySelectedListener daySelectedListener = new DaySelectedListener();
-	
-	
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param param		The parameter being edited. 
+	 */
 	public DateTimeField (IParam param) {
 		
-		this.param = param;
-		
-		this.setBackground(null);
-		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		super(param);
 		
 		relativeDate = param.isAttributeTrue(
 				DateTimeParam.IS_RELATIVE_DATE);
 		
+		/* if not a relative date, display a date-picker */
 		if (! relativeDate) {
-		
 			datePicker = new DatePicker();
 			datePicker.addActionListener(calendarListener);
 		
@@ -123,7 +141,7 @@ public class DateTimeField
 		}
 		else {
 		
-			// A combo-box for days
+			// A combo-box for picking a relative date in days
 			String[] dayOptions = {"Pick Day", "0 days", "1 day", "2 days","3 days","4 days",
 					"5 days","6 days","7 days","8 days","9 days","10 days"};
 			daySelector = new CustomComboBox(dayOptions);
@@ -139,6 +157,7 @@ public class DateTimeField
 		
 		String timeInSecs = param.getAttribute(DateTimeParam.TIME_ATTRIBUTE);
 		
+		/* A checkBox for saying that you want to choose a time*/
 		timeChosen = new JCheckBox();
 		timeChosen.setBackground(null);
 		timeChosen.setSelected(timeInSecs != null);
@@ -149,7 +168,7 @@ public class DateTimeField
 		});
 		this.add(timeChosen);
 		
-		
+		/* HrsMins editor is only visible if timeChosen is selected*/
 		hrsMinsEditor = new HrsMinsField();
 		if (timeInSecs != null) {
 			hrsMinsEditor.setTimeInSecs(new Integer(timeInSecs));
@@ -158,19 +177,23 @@ public class DateTimeField
 		hrsMinsEditor.addPropertyChangeListener(HrsMinsField.TIME_IN_SECONDS, this);
 		this.add(hrsMinsEditor);
 		
+		
 		updateDateFromDataField();
 	}
 
+	
+	/**
+	 * A propertyChange listener for the HrsMins editor. 
+	 * If the TIME_IN_SECONDS property has changed. 
+	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		
-		System.out.println("DateTimeField propertyChange " + evt.getPropertyName());
 		if (HrsMinsEditor.TIME_IN_SECONDS.equals(evt.getPropertyName())) {
 			
 			String newVal = evt.getNewValue().toString();
 			
 			attributeEdited(DateTimeParam.TIME_ATTRIBUTE, newVal);
 		}
-		
 	}
 	
 	/**
@@ -199,31 +222,6 @@ public class DateTimeField
 		this.firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);	
 	}
 
-	/**
-	 * Sets the last updated attribute to attributeName, then fires 
-	 * propertyChanged. 
-	 */
-	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		String oldValue = param.getAttribute(attributeName);
-		
-		lastUpdatedAttribute = attributeName;
-		
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY,
-				oldValue, newValue);
-	}
-
-	public String getAttributeName() {
-		return this.lastUpdatedAttribute;
-	}
-
-	public IParam getParameter() {
-		return param;
-	}
-	
 	
 	/**
 	 * get the millisecs as a String from dataField, convert to Long, 
@@ -231,7 +229,8 @@ public class DateTimeField
 	 */
 	public void updateDateFromDataField() {
 		if (! relativeDate) {
-			String millisecs = param.getAttribute(DateTimeParam.DATE_ATTRIBUTE);
+			String millisecs = getParameter()
+				.getAttribute(DateTimeParam.DATE_ATTRIBUTE);
 			if (millisecs != null) {
 				long UTCMillisecs = new Long(millisecs);
 				Date date = new Date(UTCMillisecs);
@@ -248,7 +247,8 @@ public class DateTimeField
 		}
 			
 		else {
-			String daysInMillis = param.getAttribute(DateTimeParam.REL_DATE_ATTRIBUTE);
+			String daysInMillis = getParameter().
+				getAttribute(DateTimeParam.REL_DATE_ATTRIBUTE);
 			if (daysInMillis != null) {
 				try {
 					long UTCMillisecs = new Long(daysInMillis);

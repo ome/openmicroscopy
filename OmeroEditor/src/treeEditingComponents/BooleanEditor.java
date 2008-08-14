@@ -51,19 +51,13 @@ import treeModel.fields.SingleParam;
  * @since OME3.0
  */
 public class BooleanEditor 
-	extends JCheckBox
-	implements ITreeEditComp,
+	extends AbstractParamEditor
+	implements
 	ActionListener {
-
-	/**
-	 * The Parameter object being edited
-	 */
-	private IParam param;
 	
-	/**
-	 * The name of the attribute used to hold the value of the boolean.
-	 */
-	String valueAttribute = SingleParam.PARAM_VALUE;
+	private JCheckBox checkBox;
+	
+	private String valueAttribute = SingleParam.PARAM_VALUE;
 	
 	/**
 	 * Creates an instance.
@@ -72,42 +66,26 @@ public class BooleanEditor
 	 */
 	public BooleanEditor(IParam param) {
 		
-		super();
-		this.param = param;
+		super(param);
+		
+		checkBox = new JCheckBox();
 		
 		/*
 		 * ActionListener responds to checkBox selection
 		 */
-		addActionListener(this);
-		setBackground(null);
-		this.setBorderPaintedFlat(true);
+		checkBox.addActionListener(this);
+		checkBox.setBackground(null);
+		checkBox.setBorderPaintedFlat(true);
 		
 		boolean checked = param.isAttributeTrue(valueAttribute);
 		
-		this.setSelected(checked);
+		checkBox.setSelected(checked);
+		
+		this.add(checkBox);
 	}
 	
-	/**
-	 * Fires propertyChange 
-	 */
-	public void attributeEdited(String attributeName, String newValue) {
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
-				null, newValue);
-	}
-
-	/**
-	 * This is the only attribute that you can modify from this class. 
-	 */
-	public String getAttributeName() {
-		return valueAttribute;
-	}
-
-	public IParam getParameter() {
-		return param;
-	}
-
 	public void actionPerformed(ActionEvent e) {
-		attributeEdited(valueAttribute, this.isSelected() + "");
+		attributeEdited(valueAttribute, checkBox.isSelected() + "");
 	}
 	
 	public String getEditDisplayName() {

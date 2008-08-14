@@ -316,32 +316,6 @@ public class FormFieldLink extends FieldPanel {
 		
 		String currentFilePath = PreferencesManager.getPreference(PreferencesManager.CURRENT_IMAGES_FOLDER);
 		
-		// Create a file chooser
-		JFileChooser fc = new JFileChooser();
-		fc.setDialogType(JFileChooser.OPEN_DIALOG);
-		if (currentFilePath != null)
-			fc.setCurrentDirectory(new File(currentFilePath));
-		
-		JCheckBox relativeLink = new JCheckBox("Relative link");
-		relativeLink.setToolTipText("<html>The link to the chosen file will be 'relative' to the OMERO.editor file you are editing.<br>" +
-				"Choose this option if the location of both files is likely to change in a similar way (eg saved in the same folder).");
-		
-		customGetLinkDialog = new JDialog();
-		Container dialogPane = customGetLinkDialog.getContentPane();
-		dialogPane.setLayout(new BorderLayout());
-		dialogPane.add(fc, BorderLayout.CENTER);
-		
-		dialogPane.add(relativeLink, BorderLayout.SOUTH);
-		
-		fc.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				customGetLinkDialog.setVisible(false);
-			}});
-		customGetLinkDialog.pack();
-		customGetLinkDialog.setModal(true);
-		customGetLinkDialog.setLocationRelativeTo(this);
-		customGetLinkDialog.setVisible(true);
 		
 		File file = fc.getSelectedFile();
 		// remember where folder was

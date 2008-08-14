@@ -29,6 +29,8 @@ import tree.DataFieldConstants;
 import treeEditingComponents.editDefaults.DefaultTextField;
 import treeModel.fields.AbstractParam;
 import treeModel.fields.IParam;
+import treeModel.fields.ImageParam;
+import treeModel.fields.LinkParam;
 import treeModel.fields.SingleParam;
 import treeModel.fields.TableParam;
 import treeModel.fields.TimeParam;
@@ -97,6 +99,7 @@ public class EditingComponentFactory {
 		if (inputType.equals(SingleParam.NUMBER_PARAM)) {
 			return new NumberEditor(paramObject);
 		}
+		
 		if (inputType.equals(SingleParam.ENUM_PARAM)) {
 			return new EnumEditor(paramObject);
 		}
@@ -107,6 +110,14 @@ public class EditingComponentFactory {
 		
 		if (inputType.equals(TimeParam.TIME_PARAM)) {
 			return new TimerField(paramObject);
+		}
+		
+		if (inputType.equals(LinkParam.LINK_PARAM)) {
+			return new LinkEditor(paramObject);
+		}
+		
+		if (inputType.equals(ImageParam.IMAGE_PARAM)) {
+			return new ImageLinkEditor(paramObject);
 		}
 		
 		if (inputType.equals(TableParam.TABLE_PARAM)) {

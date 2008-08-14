@@ -85,7 +85,7 @@ public class NumberEditor
 	 * This doesn't need to do anything, since the propertyChangeEvent 
 	 * will come from the number field itself
 	 */
-	public void attributeEdited(String attributeName, String newValue) {
+	public void attributeEdited(String attributeName, Object newValue) {
 		
 	}
 

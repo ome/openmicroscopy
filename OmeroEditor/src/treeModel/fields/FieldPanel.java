@@ -652,7 +652,7 @@ public class FieldPanel
 				
 				else if (newVal instanceof HashMap) {
 					HashMap newVals = (HashMap)newVal;
-					controller.editAttributes(param, "edit", newVals, 
+					controller.editAttributes(param, displayName, newVals, 
 							tree, treeNode);
 				}
 				

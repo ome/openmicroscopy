@@ -22,6 +22,8 @@
  */
 package treeEditingComponents;
 
+//Java imports
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -29,19 +31,17 @@ import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
-import tree.DataFieldConstants;
-import treeModel.fields.IParam;
-import treeModel.fields.SingleParam;
-import uiComponents.CustomComboBox;
-
-//Java imports
-
 //Third-party libraries
 
 //Application-internal dependencies
 
+import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
+import uiComponents.CustomComboBox;
+
 /** 
- * 
+ * This is a UI component for choosing the value of an Enumeration parameter.
+ * Enumeration options are presented in a comboBox. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -52,16 +52,17 @@ import uiComponents.CustomComboBox;
  * @since OME3.0
  */
 public class EnumEditor 
-	extends JPanel
-	implements ITreeEditComp,
-	ActionListener {
+	extends AbstractParamEditor
+	implements ActionListener {
 	
-	private IParam param;
-	
-	private String lastUpdatedAttribute;
-	
+	/**
+	 * A string array of options to choose from. 
+	 */
 	private String[] ddOptions;
 	
+	/**
+	 * ComboBox for displaying options. 
+	 */
 	private JComboBox comboBox;
 	
 	/**
@@ -74,14 +75,19 @@ public class EnumEditor
 	 */
 	public static final String NO_OPTION_CHOSEN = " ";
 	
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param param		The parameter this field is editing.
+	 */
 	public EnumEditor(IParam param) {
 		
-		this.param = param;
+		super(param);
 		
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBackground(null);
 		
-		comboBox = new CustomComboBox(250);
+		comboBox = new CustomComboBox(150);
 		comboBox.addActionListener(this);
 		
 		String dropDownOptions = param.getAttribute(SingleParam.ENUM_OPTIONS);
@@ -122,7 +128,7 @@ public class EnumEditor
 			}
 			
 			// Set it to the current value, (if it exists in the new ddOptions)
-			String value = param.getAttribute(SingleParam.PARAM_VALUE);
+			String value = getParameter().getAttribute(SingleParam.PARAM_VALUE);
 			boolean newValNotFound = true;
 			if (value != null) {
 				// start at index 1, since 0 is blank / null
@@ -153,6 +159,19 @@ public class EnumEditor
 	}
 	
 	/**
+	 * actionPerformed for the comboBox. 
+	 */
+	public void actionPerformed(ActionEvent e) {
+		
+		String newValue = comboBox.getSelectedItem().toString();
+		if(comboBox.getSelectedIndex() == NULL_INDEX) {
+			newValue = null;
+		}
+		attributeEdited(SingleParam.PARAM_VALUE, newValue);
+	}
+
+
+	/**
 	 * called after the drop-down options have changed, to update the 
 	 * dataField, in case the new options didn't contain the old value. 
 	 * NB. This change will not be included in Undo/Redo, and therefore should
@@ -166,48 +185,12 @@ public class EnumEditor
 		if(comboBox.getSelectedIndex() == NULL_INDEX) {
 			value = null;
 		}
-		param.setAttribute(SingleParam.PARAM_VALUE, value);
+		getParameter().setAttribute(SingleParam.PARAM_VALUE, value);
 		
-	}
-	
-	
-	/**
-	 * Sets the last updated attribute to attributeName, then fires 
-	 * propertyChanged. 
-	 */
-	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		String oldValue = param.getAttribute(attributeName);
-		
-		lastUpdatedAttribute = attributeName;
-		
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY,
-				oldValue, newValue);
-	}
-	
-	public String getAttributeName() {
-		return lastUpdatedAttribute;
-	}
-
-	public IParam getParameter() {
-		return param;
 	}
 	
 	public String getEditDisplayName() {
 		return "Edit Dropdown Option";
-	}
-
-
-	public void actionPerformed(ActionEvent e) {
-		
-		String newValue = comboBox.getSelectedItem().toString();
-		if(comboBox.getSelectedIndex() == NULL_INDEX) {
-			newValue = null;
-		}
-		attributeEdited(SingleParam.PARAM_VALUE, newValue);
 	}
 
 }

@@ -36,7 +36,6 @@ import java.util.StringTokenizer;
  */
 public class FilePathMethods {
 
-	
 	/**
 	 * This method returns a file path that is relative to the location of 
 	 * the editorFile. 
@@ -46,11 +45,27 @@ public class FilePathMethods {
 	 * @param absolutePath
 	 * @return
 	 */
-	public static String getRelativePathFromAbsolutePath(File editorFile, String absolutePath) {
+	public static String getRelativePathFromAbsolutePath(File linkFromFile, 
+			String absolutePath) {
+		return getRelativePathFromAbsolutePath(linkFromFile.getParent(), 
+				absolutePath);
+	}
+	
+	/**
+	 * This method returns a file path that is relative to the location of 
+	 * the given directory.  
+	 * This relative path will link from the directory TO the 
+	 * location specified by absolutePath.
+	 * 
+	 * @param linkFromDir		The directory from which to link FROM
+	 * @param absolutePath		The file to link TO
+	 * @return		The path from the directory to the absolutePath. 
+	 */
+	public static String getRelativePathFromAbsolutePath(String linkFromDir, 
+			String absolutePath) {
+
 		
-		String editorFilePath = editorFile.getParent();
-		
-		if (editorFilePath == null) {
+		if (linkFromDir == null) {
 			throw new IllegalArgumentException("File must have valid file path");
 		}
 		
@@ -62,7 +77,7 @@ public class FilePathMethods {
 		 * Can't use string.split(File.separator) because the backslash of Windows 
 		 * File.separator causes regex errors. Need to use StringTokenizer...
 		 */
-		StringTokenizer st = new StringTokenizer(editorFilePath, fileSeparator);
+		StringTokenizer st = new StringTokenizer(linkFromDir, fileSeparator);
 		int tokens = st.countTokens();
 		
 		String[] editorFileDirectories = new String[tokens];

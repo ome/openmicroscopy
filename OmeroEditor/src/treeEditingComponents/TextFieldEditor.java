@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import javax.swing.JTextField;
 
 import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
 import uiComponents.CustomLabel;
 import uiComponents.CustomTextField;
 
@@ -51,54 +52,56 @@ import uiComponents.CustomTextField;
  * @since OME3.0
  */
 public class TextFieldEditor 
-	extends CustomTextField 
-	implements ITreeEditComp {
+	extends AbstractParamEditor {
 	
-	IParam param;
+	/**
+	 * The name of the attribute that you want to edit with this text field
+	 */
+	private String attributeName;
 	
-	String attributeName;
+	/**
+	 * Text field for editing the attribute's value
+	 */
+	private JTextField textField;
 	
+	/**
+	 * Creates an instance.
+	 * 	
+	 * @param param		The parameter that you are editing
+	 */
 	public TextFieldEditor(IParam param) {
 		
-		String[] attributes = param.getValueAttributes();
-		attributeName = "value";		// default
-		if (attributes.length > 0) {
-			attributeName = attributes[0];
-		}
-		
-		this.param = param;
+		super(param);
+		attributeName = SingleParam.PARAM_VALUE;
+
 		initialise();
 	}
 	
+	/**
+	 * Creates an instance.
+	 * 	
+	 * @param param		The parameter that you are editing
+	 * @param attributeName 	Specify the attribute you want to edit
+	 */
 	public TextFieldEditor(IParam param, String attributeName) {
+		
+		super(param);
 		this.attributeName = attributeName;
-		this.param = param;
 		initialise();
 	}
 	
+	/**
+	 * initialises the text field, adds listeners to call attributeEdited()
+	 * when focus lost (if text has been edited), and sets text. 
+	 */
 	private void initialise() {
-		String value = param.getAttribute(attributeName);
+		String value = getParameter().getAttribute(attributeName);
 		
-		AttributeEditListeners.addListeners(this, this, attributeName);
+		textField = new CustomTextField(200);
+		AttributeEditListeners.addListeners(textField, this, attributeName);
 		
-		this.setFont(CustomLabel.CUSTOM_FONT);
-		setText(value);
-	}
-	
-	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, null, this.getText());
-	}
-	
-	public IParam getParameter() {
-		return param;
-	}
-	
-	public String getAttributeName() {
-		return attributeName;
+		textField.setText(value);
+		add(textField);
 	}
 	
 	public String getEditDisplayName() {

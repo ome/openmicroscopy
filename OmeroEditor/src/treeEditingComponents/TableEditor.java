@@ -65,12 +65,8 @@ import util.ImageFactory;
  * @since OME3.0
  */
 public class TableEditor 
-	extends JPanel
-	implements ITreeEditComp,
-	ActionListener {
-	
-	
-	private IParam param;
+	extends AbstractParamEditor
+	implements ActionListener {
 	
 	/**
 	 * The JTable used to dislay the table data.
@@ -111,8 +107,8 @@ public class TableEditor
 	 */
 	public TableEditor(IParam param) {
 		
-		super(new BorderLayout());
-		this.param = param;
+		super(param);
+		setLayout(new BorderLayout());
 		
 		/*
 		 * Check this is a TableParam. 
@@ -183,14 +179,6 @@ public class TableEditor
 	}
 	
 	/**
-	 * This is not used, since the JTable edits the tableModel directly.
-	 * This means that there is no undo/redo etc. 
-	 */
-	public void attributeEdited(String attributeName, String newValue) {
-		
-	}
-	
-	/**
 	 * Need to override this method for the JPanel to fix a bug with 
 	 * resizing. 
 	 * Otherwise when the JTable gains focus, it makes this panel bigger.
@@ -209,14 +197,7 @@ public class TableEditor
 		size.setSize(width, height);
 		return size;
 	}
-	
-	public IParam getParameter() {
-		return param;
-	}
-	
-	public String getAttributeName() {
-		return null;
-	}
+
 
 	/**
 	 * The handler for the Add-Row and Remove-Rows buttons. 

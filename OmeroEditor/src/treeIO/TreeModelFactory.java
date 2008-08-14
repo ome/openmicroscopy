@@ -54,6 +54,8 @@ import treeModel.fields.Field;
 import treeModel.fields.IAttributes;
 import treeModel.fields.IField;
 import treeModel.fields.IParam;
+import treeModel.fields.ImageParam;
+import treeModel.fields.LinkParam;
 import treeModel.fields.MutableTableModel;
 import treeModel.fields.SingleParam;
 import treeModel.fields.TableParam;
@@ -311,6 +313,29 @@ public class TreeModelFactory {
 				 rowDataString = allAttributes.get(
 						 DataFieldConstants.ROW_DATA_NUMBER + row);
 			 }
+		 } else if (paramType.equals(DataFieldConstants.LINK_FIELD)){
+			 param = new LinkParam(LinkParam.LINK_PARAM);
+			 String link = allAttributes.get(
+					 DataFieldConstants.ABSOLUTE_FILE_LINK);
+			 param.setAttribute(LinkParam.ABSOLUTE_FILE_LINK, link);
+			 link = allAttributes.get(
+					 DataFieldConstants.RELATIVE_FILE_LINK);
+			 param.setAttribute(LinkParam.RELATIVE_FILE_LINK, link);
+			 link = allAttributes.get(
+					 DataFieldConstants.URL_LINK);
+			 param.setAttribute(LinkParam.URL_LINK, link);
+		 }
+		 else if (paramType.equals(DataFieldConstants.IMAGE_FIELD)){
+			 param = new ImageParam(ImageParam.IMAGE_PARAM);
+			 String link = allAttributes.get(
+					 DataFieldConstants.ABSOLUTE_IMAGE_PATH);
+			 param.setAttribute(ImageParam.ABSOLUTE_IMAGE_PATH, link);
+			 link = allAttributes.get(
+					 DataFieldConstants.RELATIVE_IMAGE_PATH);
+			 param.setAttribute(ImageParam.RELATIVE_IMAGE_PATH, link);
+			 String zoom = allAttributes.get(
+					 DataFieldConstants.IMAGE_ZOOM);
+			 param.setAttribute(ImageParam.IMAGE_ZOOM, zoom);
 		 }
 		 
 		 //TODO ADD conversion from other element types to IParam

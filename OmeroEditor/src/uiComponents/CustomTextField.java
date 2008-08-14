@@ -61,6 +61,18 @@ public class CustomTextField
 	}
 	
 	/**
+	 * Creates an instance
+	 * 
+	 * @param minWidth		Field will appear at least this wide.
+	 * Will expand bigger if needed. 
+	 */
+	public CustomTextField(int minWidth) {
+		super();
+		init();
+		setMinWidth(minWidth);
+	}
+	
+	/**
 	 * This is called manually by the constructors specified in this class.
 	 * Sets the font. 
 	 */

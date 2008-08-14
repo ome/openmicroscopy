@@ -27,11 +27,11 @@ package treeEditingComponents;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 
 import treeModel.fields.IParam;
+import treeModel.fields.SingleParam;
 import uiComponents.CustomLabel;
 
 //Third-party libraries
@@ -55,28 +55,18 @@ import uiComponents.CustomLabel;
  * @since OME3.0
  */
 public class TextBoxEditor 
-	extends JPanel 
-	implements ITreeEditComp {
+	extends AbstractParamEditor {
 	
-	IParam param;
-	
-	String attributeName;
-	
-	JTextArea textBox;
+	/**
+	 * The text box that edits the value of this parameter
+	 */
+	private JTextArea textBox;
 	
 	public TextBoxEditor(IParam param) {
 		
-		super();
-		setBackground(null);
+		super(param);
 		
-		this.param = param;
-		
-		String[] attributes = param.getValueAttributes();
-		attributeName = "value";		// default
-		if (attributes.length > 0) {
-			attributeName = attributes[0];
-		}
-		
+		String attributeName = SingleParam.PARAM_VALUE;
 		
 		String text = param.getAttribute(attributeName);
 		
@@ -97,22 +87,6 @@ public class TextBoxEditor
 		this.add(textBox);
 		
 		// System.out.println(attributeName + " " + value);
-	}
-	
-	public void attributeEdited(String attributeName, String newValue) {
-		/*
-		 * Before calling propertyChange, need to make sure that 
-		 * getAttributeName() will return the name of the newly edited property
-		 */
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, null, textBox.getText());
-	}
-	
-	public IParam getParameter() {
-		return param;
-	}
-	
-	public String getAttributeName() {
-		return attributeName;
 	}
 	
 	public String getEditDisplayName() {

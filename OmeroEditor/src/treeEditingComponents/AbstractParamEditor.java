@@ -24,6 +24,7 @@ package treeEditingComponents;
 
 //Java imports
 
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 //Third-party libraries
@@ -61,12 +62,14 @@ public abstract class AbstractParamEditor
 	 * Or, if multiple attributes are edited, this is updated to the 
 	 * name of the most-recently edited attribute.
 	 */
-	private String attributeName;
+	private String lastEditedAttribute;
 
 	public AbstractParamEditor(IParam param) {
 		
 		this.param = param;
 		
+		// default layout is BoxLayout. Can be changed by subclasses if needed
+		this.setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		this.setBackground(null);
 	}
 	
@@ -77,16 +80,25 @@ public abstract class AbstractParamEditor
 	 * fires PropertyChange for VALUE_CHANGED_PROPERTY
 	 * Listener (FieldPanel) will edit the attribute, adding the 
 	 * edit to the undo/redo queue. 
-	 * To to this, it will need to call getAttributeName() and 
-	 * getParameter(). 
+	 * The newValue could be a string (the value of the named attribute)
+	 * To to this, listeners will need to call getAttributeName().
+	 * Or newValue could be a Map of attribute:value pairs.
+	 * In this case, attributeName will not be queried by listeners. 
 	 */
-	public void attributeEdited(String attributeName, String newValue) {
+	public void attributeEdited(String attributeName, Object newValue) {
 		/*
 		 * Before calling propertyChange, need to make sure that 
 		 * getAttributeName() will return the name of the newly edited property
 		 */
-		this.attributeName = attributeName;
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY, null, newValue);
+		String oldValue = param.getAttribute(attributeName);
+		
+		lastEditedAttribute = attributeName;
+		
+		System.out.println("AbstractParamEditor attributeEdited " + attributeName +
+				" " + oldValue + " " + newValue);
+		
+		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY,
+				oldValue, newValue);
 	}
 	
 	/**
@@ -100,7 +112,7 @@ public abstract class AbstractParamEditor
 	 * Gets the name of the last-edited attribute.
 	 */
 	public String getAttributeName() {
-		return attributeName;
+		return lastEditedAttribute;
 	}
 
 }

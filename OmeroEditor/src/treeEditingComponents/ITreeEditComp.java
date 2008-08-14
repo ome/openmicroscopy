@@ -66,10 +66,11 @@ public interface ITreeEditComp {
 	 * fires PropertyChange for VALUE_CHANGED_PROPERTY
 	 * Listener (FieldPanel) will edit the attribute, adding the 
 	 * edit to the undo/redo queue. 
-	 * To to this, it will need to call getAttributeName() and 
-	 * getParameter(). 
+	 * The newValue could be a string (the value of the named attribute)
+	 * To to this, listeners will need to call getAttributeName().
+	 * Or newValue could be a Map of attribute:value pairs.  
 	 */
-	public void attributeEdited(String attributeName, String newValue);
+	public void attributeEdited(String attributeName, Object newValue);
 	
 	/**
 	 * Gets the parameter object that this UI component is editing. 

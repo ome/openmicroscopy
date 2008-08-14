@@ -216,10 +216,10 @@ public class AttributesEdit
 	}
 	
 	/**
-	 * Presentation name is "Edit..."
+	 * Presentation name is "Undo " + displayName
 	 */
 	public String getPresentationName() {
-		     return "Edit " + displayName;
+		     return displayName;
 	}
 	
 	/**

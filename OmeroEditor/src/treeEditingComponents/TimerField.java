@@ -24,18 +24,19 @@ package treeEditingComponents;
 
 //Java imports
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 import tree.DataFieldConstants;
 import treeModel.fields.FieldPanel;
@@ -46,10 +47,6 @@ import uiComponents.CustomButton;
 import uiComponents.CustomTimer;
 import uiComponents.HrsMinsSecsField;
 import util.ImageFactory;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * A timer field. Displays Hrs:Mins:Secs using a HrsMinsSecsField class.
@@ -64,56 +61,96 @@ import util.ImageFactory;
  * @since OME3.0
  */
 public class TimerField 
-	extends Box
-	implements ITreeEditComp,
+	extends AbstractParamEditor
+	implements
 	ActionListener,
 	PropertyChangeListener {
-
-	private IParam param;
 	
+	/**
+	 * The attribute used to store the value of this parameter (time in seconds)
+	 */
 	private String attributeName = TimeParam.SECONDS;
 	
+	/**
+	 * The Hours, Minuutes and Seconds editor. Fires property change events 
+	 * when edited, and returns time in seconds. 
+	 */
 	HrsMinsSecsField hrsMinsSecs;
 	
+	/**
+	 * An extension of the Swing timer. Counts down seconds. Keeps track of 
+	 * seconds. A timer object may be attached to the parameter object itself,
+	 * so that the counting down is not dependent on the UI.
+	 */
 	CustomTimer timer;
 	
+	/**
+	 * A button for starting and stopping the timer. 
+	 */
 	JButton startTimerButton;
 	
+	/**
+	 * The current time in seconds. 
+	 */
 	int timeInSeconds;
 	
+	/**
+	 * Icon for start timer button
+	 */
 	Icon startTimerIcon;
 	
+	/**
+	 * Icon displayed while the timer is running. 
+	 */
 	Icon stopTimerIcon;
 	
+	/**
+	 * Creates an instance. 
+	 * 
+	 * @param param		The parameter we're editing.
+	 */
 	public TimerField(IParam param) {
-		super(BoxLayout.X_AXIS);
 		
-		this.param = param;
+		super(param);
 		
 		/*
-		 * Gets data and sets the value of timeInSeconds
+		 * Get data and sets the value of timeInSeconds
 		 */
 		convertTimeStringToInts();
 		
+		/*
+		 * Create and add an hrsMinsSecs field. 
+		 * Add this as propertyChangeListener
+		 */
 		hrsMinsSecs = new HrsMinsSecsField();
 		hrsMinsSecs.addPropertyChangeListener(
 				HrsMinsSecsField.TIME_IN_SECONDS, this);
-		
 		this.add(hrsMinsSecs);
+		
 		this.add(Box.createHorizontalStrut(4));
 		
+		/*
+		 * Check whether a timer object has been set for the Time parameter
+		 * If the timer is running, get the current time.
+		 * If the timer is not running, the time
+		 * will be set when the start button is pressed. 
+		 */
 		Object t = ((TimeParam)param).getTimer();
 		if ((t != null) && (t instanceof CustomTimer)) {
 			timer = (CustomTimer)t;
 			timer.removeActionListeners();	// make sure no other listeners
-			timeInSeconds = timer.getCurrentSecs();
+			if (timer.isRunning())		// need to display current time.
+				timeInSeconds = timer.getCurrentSecs();
 		} else {
+			// if no timer exists, create one. 
 			timer = new CustomTimer();
-			timer.setCurrentSecs(timeInSeconds);
 			((TimeParam)param).setTimer(timer);
 		}
 		timer.addActionListener(new TimeElapsedListener());
 		
+		/*
+		 * A start-stop button for the timer. 
+		 */
 		ImageFactory imF = ImageFactory.getInstance();
 		startTimerIcon = imF.getIcon(ImageFactory.TIMER_START_ICON);
 		stopTimerIcon = imF.getIcon(ImageFactory.TIMER_STOP_ICON);
@@ -121,57 +158,71 @@ public class TimerField
 		startTimerButton.addActionListener(this);
 		this.add(startTimerButton);
 		
-		updateTimeSpinners();
+		/*
+		 * update the view with this value. 
+		 */
+		updateTimerUI();
 	}
 	
-	public void attributeEdited(String attributeName, String newValue) {
-		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY , 
-				null, newValue);
-	}
-	
-	
+	/**
+	 * An ActionListener for the timer. 
+	 * When the timer fires (each second), the value of timeInSeconds is 
+	 * updated from the timer, and the Timer UI is updated. 
+	 * If timer reaches 0 seconds, a message dialog is displayed, and 
+	 * the parameter is updated with the new time. 
+	 * 
+	 * @author will
+	 *
+	 */
 	public class TimeElapsedListener implements ActionListener {
 		public void actionPerformed(ActionEvent arg0) {
 			timeInSeconds = timer.getCurrentSecs();
-			System.out.println("TimerField timeElapsed " + timeInSeconds);
-			updateTimeSpinners();
+			updateTimerUI();
 			
 			if ((timeInSeconds == 0) && (TimerField.this.isVisible())) {
 				JOptionPane.showMessageDialog(TimerField.this, 
 						"Time's Up!", "Time Up", JOptionPane.ERROR_MESSAGE);
+				
+				attributeEdited(attributeName, timeInSeconds + "");
 			}
 		}
 	}
 	
-	private void updateTimeSpinners() {
+	/**
+	 * Updates the hrsMinsSecs fields with the new time value.
+	 * If the timer is running, this editor will be disabled.
+	 * Also updates the Start-stop button, with the start or stop icon.
+	 * In addition, this method fires a FieldPanel.NODE_CHANGED_PROPERTY
+	 * so that the JTree will refresh this node, even if this field is
+	 * not current being edited (selected). 
+	 */
+	private void updateTimerUI() {
 		hrsMinsSecs.setTimeInSecs(timeInSeconds);
 		
 		boolean timerRunning = timer.isRunning();
 		startTimerButton.setIcon(timerRunning ? stopTimerIcon :startTimerIcon);
 		hrsMinsSecs.setEnabled(! timerRunning);
 		
-		this.firePropertyChange(FieldPanel.NODE_CHANGED_PROPERTY, null, "timeInSeconds");
+		this.firePropertyChange(FieldPanel.NODE_CHANGED_PROPERTY, null, "timer");
 	}
 
-	public String getAttributeName() {
-		return attributeName;
-	}
-
-	public IParam getParameter() {
-		return param;
-	}
-
+	/**
+	 * Listens for changes to the HrsMinsSecsField.TIME_IN_SECONDS property.
+	 * Updates the timeInSeconds value, and calls attributeEdited() to 
+	 * save the new value to the parameter.
+	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		
 		if (HrsMinsSecsField.TIME_IN_SECONDS.equals(evt.getPropertyName())) {
 			timeInSeconds = Integer.parseInt(evt.getNewValue().toString());
-			timer.setCurrentSecs(timeInSeconds);
+			//timer.setCurrentSecs(timeInSeconds);
 			attributeEdited(attributeName, timeInSeconds + "");
 		}
 	}
 
 	/**
 	 * Called by the startTimer button.
+	 * If the timer is not running, it starts. Otherwise, stops! 
 	 */
 	public void actionPerformed(ActionEvent e) {
 		if (!timer.isRunning() && hrsMinsSecs.getTimeInSecs() > 0)
@@ -180,13 +231,21 @@ public class TimerField
 			stopCountDown();
 	}
 	
+	/**
+	 * Starts the timer.
+	 */
 	public void startCountDown() {
+		timer.setCurrentSecs(timeInSeconds);
 		timer.start();
-		updateTimeSpinners();
+		updateTimerUI();
 	}
+	
+	/**
+	 * Stops the timer. 
+	 */
 	public void stopCountDown() {
 		timer.stop();
-		updateTimeSpinners();
+		updateTimerUI();
 		attributeEdited(attributeName, hrsMinsSecs.getTimeInSecs() + "");
 	}
 	
@@ -198,8 +257,9 @@ public class TimerField
 	 */
 	private void convertTimeStringToInts() {
 		
+		IParam param = getParameter();
 		// this is the new way of storing time value (seconds)
-		String timeValue = param.getAttribute(DataFieldConstants.SECONDS);
+		String timeValue = param.getAttribute(TimeParam.SECONDS);
 
 		if (timeValue != null) {
 			timeInSeconds = TimeEditor.getSecondsFromTimeValue(timeValue);

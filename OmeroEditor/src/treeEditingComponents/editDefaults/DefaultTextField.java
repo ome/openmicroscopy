@@ -36,6 +36,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 
+import treeEditingComponents.AbstractParamEditor;
 import treeEditingComponents.ITreeEditComp;
 import treeEditingComponents.TextFieldEditor;
 import treeModel.fields.IParam;
@@ -55,17 +56,14 @@ import uiComponents.CustomLabel;
  * @since OME3.0
  */
 public class DefaultTextField 
-	extends JPanel 
-	implements PropertyChangeListener,
-	ITreeEditComp {
-	
-	private IParam param;
+	extends AbstractParamEditor
+	implements PropertyChangeListener {
 	
 	public DefaultTextField(IParam param) {
 		
-		super(new BorderLayout());
+		super(param);
 		
-		this.param = param;
+		setLayout(new BorderLayout());
 		
 		add(new CustomLabel ("Default: "), BorderLayout.WEST);
 		
@@ -80,21 +78,9 @@ public class DefaultTextField
 
 	public void propertyChange(PropertyChangeEvent evt) {
 		
-		this.firePropertyChange(evt.getPropertyName(), 
-				evt.getOldValue(), evt.getNewValue());
-	}
-
-	public void attributeEdited(String attributeName, String newValue) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public String getAttributeName() {
-		return SingleParam.DEFAULT_VALUE;
-	}
-
-	public IParam getParameter() {
-		return param;
+		if (SingleParam.DEFAULT_VALUE.equals(evt.getPropertyName())) {
+			attributeEdited(SingleParam.DEFAULT_VALUE, evt.getNewValue());
+		}
 	}
 
 	public String getEditDisplayName() {

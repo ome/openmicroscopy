@@ -9,7 +9,9 @@ import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-public class PopupMenuButton extends JButton {
+import uiComponents.CustomButton;
+
+public class PopupMenuButton extends CustomButton {
 	
 	JPopupMenu popupMenu;
 
