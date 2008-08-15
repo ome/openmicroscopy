@@ -475,8 +475,8 @@ class OmeroMetadataServiceImpl
 			results.setAttachments(attachments);
 		}
 		OmeroDataService os = context.getDataService();
-		results.setParents(os.findContainerPaths(object.getClass(),
-				object.getId(), userID));
+		//results.setParents(os.findContainerPaths(object.getClass(),
+		//		object.getId(), userID));
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
 			try {

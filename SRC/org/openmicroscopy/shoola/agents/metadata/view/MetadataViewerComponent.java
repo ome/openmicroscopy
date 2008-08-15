@@ -183,8 +183,8 @@ class MetadataViewerComponent
 		if (refObject == userObject) {
 			Browser browser = model.getBrowser();
 			if (result instanceof StructuredDataResults) {
-				browser.setStructuredDataResults(node, 
-												(StructuredDataResults) result);
+				//browser.setStructuredDataResults(node, 
+					//							(StructuredDataResults) result);
 				model.getEditor().setStructuredDataResults( 
 									(StructuredDataResults) result);
 				model.setStructuredDataResults((StructuredDataResults) result);
@@ -524,5 +524,22 @@ class MetadataViewerComponent
 		firePropertyChange(EXPERIMENTER_UPDATED_PROPERTY, null, data);
 		setRootObject(data);
 	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#loadParents(StructuredDataResults)
+	 */
+	public void loadParents(StructuredDataResults data)
+	{
+		if (data == null) return;
+		if (data.getParents() != null) return;
+		model.loadParents(data);
+	}
 	
+	public void setParents(StructuredDataResults data) 
+	{
+		if (data == null) return;
+		Browser browser = model.getBrowser();
+		//browser.setStructuredDataResults(data);
+	}
 }

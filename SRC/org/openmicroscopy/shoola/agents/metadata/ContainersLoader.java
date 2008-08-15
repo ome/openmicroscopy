@@ -28,9 +28,14 @@ package org.openmicroscopy.shoola.agents.metadata;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Collection;
+
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.DataObject;
 
 /** 
  * Loads the containers of a given object.
@@ -57,6 +62,8 @@ public class ContainersLoader
 	/** The ID of the parent of the {@link #refNode}. */
 	private long 		id;
 	
+	private StructuredDataResults data;
+	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
     
@@ -77,6 +84,23 @@ public class ContainersLoader
 		this.id = id;
 	}
 
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param viewer The viewer this data loader is for.
+	 * 				 Mustn't be <code>null</code>.
+	 * @param data	
+	 */
+	public ContainersLoader(MetadataViewer viewer, StructuredDataResults data)
+	{
+		super(viewer, null);
+		if (data == null)
+			throw new IllegalArgumentException("No element to handle.");
+		this.data = data;
+		type = data.getRelatedObject().getClass();
+		id = ((DataObject) data.getRelatedObject()).getId();
+	}
+	
 	/** 
 	 * Loads the folders containing the object. 
 	 * @see MetadataLoader#cancel()
@@ -99,7 +123,11 @@ public class ContainersLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setContainers(refNode, result);
+    	if (data == null) 
+    		viewer.setContainers(refNode, result);
+    	else {
+    		data.setParents((Collection) result);
+    	}
     }
     
 }

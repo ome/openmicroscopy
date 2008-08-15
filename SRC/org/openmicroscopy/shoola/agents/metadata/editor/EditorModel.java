@@ -1124,5 +1124,12 @@ class EditorModel
 		long id = data.getOwner().getId();
 		return MetadataViewerAgent.getExperimenter(id);
 	}
+
+	void loadParents()
+	{
+		if (data == null) return;
+		if (data.getParents() != null) return;
+		parent.loadParents(data);
+	}
 	
 }

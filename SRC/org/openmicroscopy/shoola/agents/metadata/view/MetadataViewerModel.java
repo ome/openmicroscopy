@@ -422,5 +422,10 @@ class MetadataViewerModel
 	 * @param state The value to set.
 	 */
 	void setState(int state) { this.state = state; }
+
+	void loadParents(StructuredDataResults data2) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

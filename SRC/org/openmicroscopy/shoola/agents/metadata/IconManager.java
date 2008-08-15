@@ -190,14 +190,20 @@ public class IconManager
     /** The <code>Tag 12</code> icon. */
     public static int           TAG_12 = 45;
     
-    /** The <code>XML Document</code> icon. */
+    /** The <code>HTML Document</code> icon. */
     public static int           HTML_DOC = 46;
+    
+    /** The <code>Screen</code> icon. */
+    public static int           SCREEN = 47;
+    
+    /** The <code>Plate</code> icon. */
+    public static int           PLATE = 48;
     
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int          MAX_ID = 46;
+	private static int          MAX_ID = 48;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -250,6 +256,8 @@ public class IconManager
 		relPaths[METADATA_48] = "nuvola_browser48.png";
 		relPaths[DOC] = "nuvola_kword16.png";
 		relPaths[TAG_12] = "nuvola_message12.png";
+		relPaths[SCREEN] = "nuvola_folder_blue_open_modified_screen16.png";
+        relPaths[PLATE] ="plate16.png";
 	}
    
 	/** The sole instance. */

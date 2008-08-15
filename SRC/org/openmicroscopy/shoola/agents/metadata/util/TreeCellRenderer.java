@@ -42,10 +42,12 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
- * 
+ * Renderer of Browser's tree.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -84,6 +86,12 @@ public class TreeCellRenderer
         	icon = icons.getIcon(IconManager.DATASET);
         else if (usrObject instanceof ImageData) 
         	icon = icons.getIcon(IconManager.IMAGE);
+        else if (usrObject instanceof ImageData) 
+        	icon = icons.getIcon(IconManager.IMAGE);
+        else if (usrObject instanceof ScreenData) 
+        	icon = icons.getIcon(IconManager.SCREEN);
+        else if (usrObject instanceof PlateData) 
+        	icon = icons.getIcon(IconManager.PLATE);
         else if (usrObject instanceof String)
         	icon = null;//icons.getIcon(IconManager.ROOT);
         setIcon(icon);

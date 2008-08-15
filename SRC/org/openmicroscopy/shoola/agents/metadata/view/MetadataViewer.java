@@ -32,6 +32,7 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserDisplay;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -262,5 +263,9 @@ public interface MetadataViewer
 	 * @param data The data to update.
 	 */
 	public void onExperimenterUpdated(ExperimenterData data);
+
+	public void loadParents(StructuredDataResults data);
+	
+	public void setParents(StructuredDataResults data);
 	
 }

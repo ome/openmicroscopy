@@ -1816,15 +1816,17 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			Parameters param = new Parameters();
+			param.addLong("childID", childID);
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
 			"link.child.id = :childID";
-			if (userID != -1) sql += " and link.details.owner.id = :userID";
+			if (userID >= 0) {
+				sql += " and link.details.owner.id = :userID";
+				param.addLong("userID", userID);
+			}
 			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("childID", childID);
-			if (userID != -1) param.addLong("userID", userID);
 			return service.findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+

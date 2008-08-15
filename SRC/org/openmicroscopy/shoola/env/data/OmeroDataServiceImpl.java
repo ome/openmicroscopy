@@ -46,6 +46,7 @@ import ome.model.containers.Project;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.meta.Event;
+import ome.model.screen.Screen;
 import ome.util.builders.PojoOptions;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
@@ -1203,6 +1204,8 @@ class OmeroDataServiceImpl
 				parentClass = Project.class;
 			else if (ImageData.class.equals(type))
 				parentClass = Dataset.class;
+			else if (PlateData.class.equals(type))
+				parentClass = Screen.class;
 			if (parentClass == null) return new HashSet();
 			List links = gateway.findLinks(parentClass, id, userID);
 			if (links == null) return new HashSet();

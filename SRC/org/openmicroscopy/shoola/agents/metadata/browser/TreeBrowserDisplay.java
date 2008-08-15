@@ -44,7 +44,9 @@ import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * 
@@ -103,7 +105,10 @@ public abstract class TreeBrowserDisplay
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
         	return EditorUtil.formatExperimenter(exp);
-        }
+        } else if (obj instanceof ScreenData) 
+        	return ((ScreenData) obj).getName();
+        else if (obj instanceof PlateData) 
+        	return ((PlateData) obj).getName();
         else if (obj instanceof String) return (String) obj;
         return "";
     		
@@ -130,8 +135,8 @@ public abstract class TreeBrowserDisplay
      * @param menuNode			Pass <code>true</code> to indicate that the node
      * 							is a menu node, <code>false</code> otherwise.
      */
-    protected TreeBrowserDisplay(Object hierarchyObject, Icon defaultIcon, boolean
-    							menuNode)
+    protected TreeBrowserDisplay(Object hierarchyObject, Icon defaultIcon,
+								boolean menuNode)
     {
         super();
         if (hierarchyObject == null) 

@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Implements the {@link Browser} interface to provide the functionality
@@ -182,6 +183,8 @@ class BrowserComponent
 			uo = i.next();
 			if (uo instanceof ProjectData)
 				nodes.add(new TreeBrowserNode(uo));
+			else if (uo instanceof ScreenData)
+				nodes.add(new TreeBrowserNode(uo));
 			else nodes.add(new TreeBrowserSet(uo));
 		}
 		view.setNodes(node, nodes);
@@ -193,7 +196,7 @@ class BrowserComponent
 	 * 										StructuredDataResults)
 	 */
 	public void setStructuredDataResults(TreeBrowserDisplay node, 
-									StructuredDataResults results)
+				StructuredDataResults results)
 	{
 		if (node == null) 
 			throw new IllegalArgumentException("No node to handle.");

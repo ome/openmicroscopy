@@ -53,6 +53,9 @@ public interface Browser
 	extends ObservableComponent
 {
 
+	/** The title related to this component. */
+	public static final String 		TITLE = "Related to";
+	
 	/** Bound property indicating that nodes are selected. */
 	public static final String		SELECTED_NODES_PROPERTY = "selectedNodes";
 

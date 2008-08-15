@@ -226,6 +226,17 @@ public class EditorUI
 		trees.add(tree);
 		if (model.getBrowser() != null) {
 			browserTree = new TreeComponent();
+			browserTree.addPropertyChangeListener(new PropertyChangeListener()
+			{
+			
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
+						model.loadParents();
+					}
+				}
+			
+			});
 			trees.add(browserTree);
 		}
 		emptyPane = new JPanel();
@@ -345,7 +356,7 @@ public class EditorUI
 			comp.setPreferredSize(MAX_SIZE);
 			JPanel collapseComponent = new JPanel();
 			
-			collapseComponent.setBorder(new TitledLineBorder("Contained in", 
+			collapseComponent.setBorder(new TitledLineBorder(Browser.TITLE, 
 							collapseComponent.getBackground()));
 			comp.setBorder(collapseComponent.getBorder());
 			browserTree.insertNode(comp, collapseComponent, false);
