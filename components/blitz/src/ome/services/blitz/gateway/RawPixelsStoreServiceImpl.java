@@ -22,23 +22,12 @@
  */
 package ome.services.blitz.gateway;
 
-
-
-//Java imports
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
-
-
-
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
+import omero.api.RawPixelsStorePrx;
+import omero.api.ServiceFactoryPrx;
 
 /** 
  * 
@@ -59,34 +48,34 @@ public class RawPixelsStoreServiceImpl
 	/** The gateway factory to create make connection, create and access 
 	 *  services .
 	 */
-	private GatewayFactory 	gatewayFactory;
+	private ServiceFactoryPrx gatewayFactory;
 
 	/** 
 	 * Map of the pixelsId and the gateway, this is used to store the created
 	 * RawFileStoreGateway. 
 	 */
-	private Map<Long, RawPixelsStoreGateway> gatewayMap;
+	private Map<Long, RawPixelsStorePrx> gatewayMap;
 	
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gatewayFactory To generate new instances of the 
 	 * RenderingEngineGateway.
 	 */
-	public RawPixelsStoreServiceImpl(GatewayFactory gatewayFactory) 
+	public RawPixelsStoreServiceImpl(ServiceFactoryPrx gatewayFactory) 
 	{
 		this.gatewayFactory = gatewayFactory;
-		gatewayMap = new HashMap<Long, RawPixelsStoreGateway>();
+		gatewayMap = new HashMap<Long, RawPixelsStorePrx>();
 	}
 
 	/**
-	 * Get the gateway for RawPixelsStoreGateway from the map, if it does not exist create it
+	 * Get the gateway for RawPixelsStorePrxfrom the map, if it does not exist create it
 	 * and add it to the map.
 	 * @param pixelsId see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	private RawPixelsStoreGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	private RawPixelsStorePrx getGateway(Long pixelsId) throws omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -96,7 +85,8 @@ public class RawPixelsStoreServiceImpl
 			}
 			else
 			{
-				RawPixelsStoreGateway gateway = gatewayFactory.getRawPixelsStoreGateway(pixelsId);
+				RawPixelsStorePrx gateway = gatewayFactory.createRawPixelsStore();
+				gateway.setPixelsId(pixelsId);
 				gatewayMap.put(pixelsId, gateway);
 				return gateway;
 			}
@@ -121,9 +111,9 @@ public class RawPixelsStoreServiceImpl
 	 * @param pixelsId see above.
 	 * @return true if the gateway was closed.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	public boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long pixelsId) throws omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -140,10 +130,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getByteWidth(long)
 	 */
-	public int getByteWidth(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getByteWidth(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getByteWidth();
@@ -154,9 +144,9 @@ public class RawPixelsStoreServiceImpl
 	 * @see blitzgateway.service.RawPixelsStoreService#getPlane(long, int, int, int)
 	 */
 	public byte[] getPlane(long pixelsId, int z, int c, int t)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getPlane(z, c, t);
@@ -166,10 +156,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getPlaneSize(long)
 	 */
-	public int getPlaneSize(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getPlaneSize(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getPlaneSize();
@@ -179,10 +169,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getRowSize(long)
 	 */
-	public int getRowSize(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getRowSize(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getRowSize();
@@ -192,10 +182,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getStackSize(long)
 	 */
-	public int getStackSize(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getStackSize(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getStackSize();
@@ -205,10 +195,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getTimepointSize(long)
 	 */
-	public int getTimepointSize(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getTimepointSize(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getTimepointSize();
@@ -218,10 +208,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#getTotalSize(long)
 	 */
-	public int getTotalSize(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getTotalSize(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getTotalSize();
@@ -231,10 +221,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#isFloat(long)
 	 */
-	public boolean isFloat(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public boolean isFloat(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.isFloat();
@@ -244,10 +234,10 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawPixelsStoreService#isSigned(long)
 	 */
-	public boolean isSigned(long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public boolean isSigned(long pixelsId) throws 
+			omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.isSigned();
@@ -258,9 +248,9 @@ public class RawPixelsStoreServiceImpl
 	 * @see blitzgateway.service.RawPixelsStoreService#setPlane(long, byte[], int, int, int)
 	 */
 	public void setPlane(long pixelsId, byte[] buf, int z, int c, int t)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		RawPixelsStoreGateway gateway = getGateway(pixelsId);
+		RawPixelsStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			gateway.setPlane(buf, z, c, t);		
@@ -270,13 +260,13 @@ public class RawPixelsStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	public void keepAlive() throws omero.ServerError
 	{
-		Iterator<RawPixelsStoreGateway> gatewayIterator = gatewayMap.values().iterator();
+		Iterator<RawPixelsStorePrx> gatewayIterator = gatewayMap.values().iterator();
 		while(gatewayIterator.hasNext())
 		{
-			RawPixelsStoreGateway gateway = gatewayIterator.next();
-			gateway.keepAlive();
+			RawPixelsStorePrx gateway = gatewayIterator.next();
+			gatewayFactory.keepAlive(gateway);
 		}
 	}
 

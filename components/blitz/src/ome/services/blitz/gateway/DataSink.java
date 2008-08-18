@@ -22,17 +22,8 @@
  */
 package ome.services.blitz.gateway;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.model.Pixels;
 
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 
@@ -190,7 +181,7 @@ public class DataSink
 	 *                              plane data from the pixels source.
 	 */
 	private Plane2D createPlane(int z, int t, int w, BytesConverter strategy) 
-		throws DSOutOfServiceException, DSAccessException
+		throws omero.ServerError
 	{
 		//Retrieve data
 		Integer planeIndex = linearize(z, w, t);
@@ -216,7 +207,7 @@ public class DataSink
 	 * @throws DSOutOfServiceException 
 	 */
 	public Plane2D getPlane(int z, int t, int w)
-		throws DSOutOfServiceException, DSAccessException
+		throws omero.ServerError
 	{
 		return createPlane(z, t, w, strategy);
 	}

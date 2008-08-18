@@ -22,23 +22,12 @@
  */
 package ome.services.blitz.gateway;
 
-
-
-//Java imports
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
-
-
-
-
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
+import omero.api.RawFileStorePrx;
+import omero.api.ServiceFactoryPrx;
 
 
 /** 
@@ -60,23 +49,23 @@ public class RawFileStoreServiceImpl
 	/** The gateway factory to create make connection, create and access 
 	 *  services .
 	 */
-	private GatewayFactory 	gatewayFactory;
+	private ServiceFactoryPrx 	gatewayFactory;
 
 	/** 
 	 * Map of the pixelsId and the gateway, this is used to store the created
 	 * RawFileStoreGateway. 
 	 */
-	private Map<Long, RawFileStoreGateway> gatewayMap;
+	private Map<Long, RawFileStorePrx> gatewayMap;
 	
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gatewayFactory To generate new instances of the 
 	 * RenderingEngineGateway.
 	 */
-	public RawFileStoreServiceImpl(GatewayFactory gatewayFactory) 
+	public RawFileStoreServiceImpl(ServiceFactoryPrx gatewayFactory) 
 	{
 		this.gatewayFactory = gatewayFactory;
-		gatewayMap = new HashMap<Long, RawFileStoreGateway>();
+		gatewayMap = new HashMap<Long, RawFileStorePrx>();
 	}
 
 	/**
@@ -85,9 +74,9 @@ public class RawFileStoreServiceImpl
 	 * @param fileId see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	private RawFileStoreGateway getGateway(Long fileId) throws DSOutOfServiceException, DSAccessException
+	private RawFileStorePrx getGateway(Long fileId) throws omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -97,7 +86,8 @@ public class RawFileStoreServiceImpl
 			}
 			else
 			{
-				RawFileStoreGateway gateway = gatewayFactory.getRawFileStoreGateway(fileId);
+				RawFileStorePrx gateway = gatewayFactory.createRawFileStore();
+				gateway.setFileId(fileId);
 				gatewayMap.put(fileId, gateway);
 				return gateway;
 			}
@@ -122,9 +112,9 @@ public class RawFileStoreServiceImpl
 	 * @param fileId see above.
 	 * @return true if the gateway was closed.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	public boolean closeGateway(long fileId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long fileId) throws omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -141,10 +131,9 @@ public class RawFileStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RawFileStoreService#exists(long)
 	 */
-	public boolean exists(long fileId) throws DSOutOfServiceException,
-			DSAccessException
+	public boolean exists(long fileId) throws omero.ServerError
 	{
-		RawFileStoreGateway gateway = getGateway(fileId);
+		RawFileStorePrx gateway = getGateway(fileId);
 		synchronized(gateway)
 		{
 			return gateway.exists();
@@ -155,9 +144,9 @@ public class RawFileStoreServiceImpl
 	 * @see blitzgateway.service.RawFileStoreService#read(long, long, int)
 	 */
 	public byte[] read(long fileId, long position, int length)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		RawFileStoreGateway gateway = getGateway(fileId);
+		RawFileStorePrx gateway = getGateway(fileId);
 		synchronized(gateway)
 		{
 			return gateway.read(position, length);
@@ -168,9 +157,9 @@ public class RawFileStoreServiceImpl
 	 * @see blitzgateway.service.RawFileStoreService#write(long, byte[], long, int)
 	 */
 	public void write(long fileId, byte[] buf, long position, int length)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		RawFileStoreGateway gateway = getGateway(fileId);
+		RawFileStorePrx gateway = getGateway(fileId);
 		synchronized(gateway)
 		{
 			gateway.write(buf, position, length);
@@ -180,13 +169,13 @@ public class RawFileStoreServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	public void keepAlive() throws omero.ServerError
 	{
-		Iterator<RawFileStoreGateway> gatewayIterator = gatewayMap.values().iterator();
+		Iterator<RawFileStorePrx> gatewayIterator = gatewayMap.values().iterator();
 		while(gatewayIterator.hasNext())
 		{
-			RawFileStoreGateway gateway = gatewayIterator.next();
-			gateway.keepAlive();
+			RawFileStorePrx gateway = gatewayIterator.next();
+			gatewayFactory.keepAlive(gateway);
 		}
 	}
 

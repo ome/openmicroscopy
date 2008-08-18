@@ -22,25 +22,16 @@
  */
 package ome.services.blitz.gateway;
 
-
-//Java imports
 import java.util.List;
 import java.util.Map;
 
-import omero.gateways.ContainerClass;
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
+import omero.api.ContainerClass;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Project;
-
-
-
-
-
 
 /** 
  * 
@@ -60,9 +51,9 @@ interface DataService
 	/**
 	 * Keep service alive.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	public void keepAlive() throws  omero.ServerError;
 
 	/**
 	 * Retrieves the images contained in containers specified by the 
@@ -73,21 +64,21 @@ interface DataService
 	 * @param nodeIds   Set of node ids..
 	 * @return A <code>Set</code> of retrieved images.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws omero.ServerError If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public List<Image> getImages(ContainerClass nodeType, List<Long> nodeIds)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Get the pixels associated with the image.
 	 * @param imageId
 	 * @return the list of pixels.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
+	 * @throws omero.ServerError If an error occurred while trying to 
 	 */
 	public List<Pixels> getPixelsFromImage(long imageId) 
-		throws DSOutOfServiceException, DSAccessException;
+		throws  omero.ServerError;
 	
 	/**
 	 * Get the Datasets from the projects with id's
@@ -95,10 +86,10 @@ interface DataService
 	 * @param getLeaves should image data be populated.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Dataset> getDatasets(List<Long> ids, boolean getLeaves)
-		throws DSOutOfServiceException, DSAccessException;
+		throws  omero.ServerError;
 
 	/**
 	 * Get the projects in the users.
@@ -106,70 +97,70 @@ interface DataService
 	 * @param getLeaves see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Project> getProjects(List<Long> ids, boolean getLeaves) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Get the PixelTypes available in the system.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<PixelsType> getPixelTypes() 
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 
 	/**
 	 * Get the pixelsType with type.
 	 * @param type see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public PixelsType getPixelType(String type) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 
 	/**
 	 * Run the query against the iQuery interface. 
 	 * @param myQuery the string containing the query.
 	 * @return result of query
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<IObject> findAllByQuery(String myQuery)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Run the query against the iQuery interface. 
 	 * @param myQuery the string containing the query.
 	 * @return result of query
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public IObject findByQuery(String myQuery)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 
 	/**
 	 * Attach an image to a dataset.
 	 * @param dataset 
 	 * @param image 
 	 * @throws DSOutOfServiceException 
-	 * @throws DSAccessException 
+	 * @throws omero.ServerError 
 	 * 
 	 */
 	public void attachImageToDataset(Dataset dataset, Image image)  
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Get the images, with pixels from a project. 
 	 * @param project see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Image> getImagesFromProject(Project project) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 
 
 	/**
@@ -177,40 +168,40 @@ interface DataService
 	 * @param dataset see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Image> getImagesFromDataset(Dataset dataset)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Get the datasets from a project.
 	 * @param project see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Dataset> getDatasetsFromProject(Project project)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Get the Pixels list from the dataset.
 	 * @param dataset see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Pixels> getPixelsFromDataset(Dataset dataset)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Get the Pixels list from the project.
 	 * @param project see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Pixels> getPixelsFromProject(Project project)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 	
 	/**
 	 * Get the pixels from the images in the list.
@@ -232,48 +223,48 @@ interface DataService
 	 * @param imageName see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Image> getImageFromDatasetByName(Long datasetId, String imageName)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 
 	/**
 	 * Get the list of images with name containing imageName.
 	 * @param imageName see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	public List<Image> getImageByName(String imageName)
-	throws DSOutOfServiceException, DSAccessException;
+	throws  omero.ServerError;
 
 	/**
 	 * Save the object to the db . 
 	 * @param obj see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	void saveObject(IObject obj) 
-							throws  DSOutOfServiceException, DSAccessException;
+							throws   omero.ServerError;
 	
 	/**
 	 * Save and return the Object.
 	 * @param obj see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	IObject saveAndReturnObject(IObject obj) 
-							throws  DSOutOfServiceException, DSAccessException;
+							throws   omero.ServerError;
 	
 	/**
 	 * Save the array.
 	 * @param graph see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	void saveArray(List<IObject> graph) 
-							throws  DSOutOfServiceException, DSAccessException;
+							throws   omero.ServerError;
 	
 	/**
 	 * Save and return the array.
@@ -281,20 +272,20 @@ interface DataService
 	 * @param graph the object
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	 <T extends omero.model.IObject>List<T> 
 	 			saveAndReturnArray(List<IObject> graph)
-	 						throws  DSOutOfServiceException, DSAccessException;
+	 						throws   omero.ServerError;
 	 
 	 /**
 	  * Delete the object.
 	  * @param row the object.(commonly a row in db)
 	  * @throws DSOutOfServiceException
-	  * @throws DSAccessException
+	  * @throws omero.ServerError
 	  */
 	void deleteObject(IObject row) 
-							throws  DSOutOfServiceException, DSAccessException;
+							throws   omero.ServerError;
 }
 
 

@@ -22,20 +22,14 @@
  */
 package ome.services.blitz.gateway;
 
-
-
-//Java imports
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import omero.RInt;
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
-
-
+import omero.api.ServiceFactoryPrx;
+import omero.api.ThumbnailStorePrx;
 
 /** 
  * 
@@ -56,34 +50,34 @@ public class ThumbnailServiceImpl
 	/** The gateway factory to create make connection, create and access 
 	 *  services .
 	 */
-	private GatewayFactory 	gatewayFactory;
+	private ServiceFactoryPrx gatewayFactory;
 
 	/** 
 	 * Map of the pixelsId and the gateway, this is used to store the created
 	 * renderingEngineGateways. 
 	 */
-	private Map<Long, ThumbnailGateway> gatewayMap;
+	private Map<Long, ThumbnailStorePrx> gatewayMap;
 	
 	/** batch service for batch thumbnail calls. */
-	private ThumbnailGateway batchService;
+	private ThumbnailStorePrx batchService;
 	
 	/** The lock for the batch Service. */
-	private String batchServiceLock;
+	private Object batchServiceLock;
 	
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gatewayFactory To generate new instances of the 
 	 * RenderingEngineGateway.
-	 * @throws DSAccessException 
+	 * @throws omero.ServerError 
 	 * @throws DSOutOfServiceException 
 	 */
-	public ThumbnailServiceImpl(GatewayFactory gatewayFactory) 
-		throws DSOutOfServiceException, DSAccessException 
+	public ThumbnailServiceImpl(ServiceFactoryPrx gatewayFactory) 
+		throws omero.ServerError 
 	{
 		this.gatewayFactory = gatewayFactory;
-		gatewayMap = new HashMap<Long, ThumbnailGateway>();
+		gatewayMap = new HashMap<Long, ThumbnailStorePrx>();
 		batchService = null;
-		batchServiceLock = new String("batchServiceLock");
+		batchServiceLock = new Object();
 	}
 
 	/**
@@ -92,14 +86,16 @@ public class ThumbnailServiceImpl
 	 * @param id see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	private ThumbnailGateway getBatchService(Long id) throws DSOutOfServiceException, DSAccessException
+	private ThumbnailStorePrx getBatchService(Long id) throws omero.ServerError
 	{
 		synchronized(batchServiceLock)
 		{
-			if(batchService==null)
-				batchService = gatewayFactory.getThumbnailGateway(id);
+			if(batchService==null) {
+				batchService = gatewayFactory.createThumbnailStore();
+			    batchService.setPixelsId(id);
+		} 
 			return batchService;
 		}
 	}
@@ -110,9 +106,9 @@ public class ThumbnailServiceImpl
 	 * @param pixelsId see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	private ThumbnailGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	private ThumbnailStorePrx getGateway(Long pixelsId) throws omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -122,7 +118,8 @@ public class ThumbnailServiceImpl
 			}
 			else
 			{
-				ThumbnailGateway gateway = gatewayFactory.getThumbnailGateway(pixelsId);
+				ThumbnailStorePrx gateway = gatewayFactory.createThumbnailStore();
+				gateway.setPixelsId(pixelsId);
 				gatewayMap.put(pixelsId, gateway);
 				return gateway;
 			}
@@ -147,9 +144,9 @@ public class ThumbnailServiceImpl
 	 * @param pixelsId see above.
 	 * @return true if the gateway was closed.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	public boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long pixelsId) throws omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -167,9 +164,9 @@ public class ThumbnailServiceImpl
 	 * @see blitzgateway.service.stateful.ThumbnailService#getThumbnail(long, omero.RInt, omero.RInt)
 	 */
 	public byte[] getThumbnail(long pixelsId, RInt sizeX, RInt sizeY)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		ThumbnailGateway gateway = getGateway(pixelsId);
+		ThumbnailStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getThumbnail(sizeX, sizeY);
@@ -180,9 +177,9 @@ public class ThumbnailServiceImpl
 	 * @see blitzgateway.service.stateful.ThumbnailService#getThumbnailByLongestSide(long, omero.RInt)
 	 */
 	public byte[] getThumbnailByLongestSide(long pixelsId, RInt size)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		ThumbnailGateway gateway = getGateway(pixelsId);
+		ThumbnailStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getThumbnailByLongestSide(size);
@@ -193,12 +190,11 @@ public class ThumbnailServiceImpl
 	 * @see blitzgateway.service.stateful.ThumbnailService#getThumbnailByLongestSideSet(omero.RInt, java.util.List)
 	 */
 	public Map<Long, byte[]> getThumbnailByLongestSideSet(RInt size,
-			List<Long> pixelsIds) throws DSOutOfServiceException,
-			DSAccessException
+			List<Long> pixelsIds) throws omero.ServerError
 	{
 		synchronized(batchServiceLock)
 		{
-			ThumbnailGateway service = getBatchService(pixelsIds.get(0));
+			ThumbnailStorePrx service = getBatchService(pixelsIds.get(0));
 			return service.getThumbnailByLongestSideSet(size, pixelsIds);
 		}
 	}
@@ -207,12 +203,11 @@ public class ThumbnailServiceImpl
 	 * @see blitzgateway.service.stateful.ThumbnailService#getThumbnailSet(omero.RInt, omero.RInt, java.util.List)
 	 */
 	public Map<Long, byte[]> getThumbnailSet(RInt sizeX, RInt sizeY,
-			List<Long> pixelsIds) throws DSOutOfServiceException,
-			DSAccessException
+			List<Long> pixelsIds) throws omero.ServerError
 	{
 		synchronized(batchServiceLock)
 		{
-			ThumbnailGateway service = getBatchService(pixelsIds.get(0));
+			ThumbnailStorePrx service = getBatchService(pixelsIds.get(0));
 			return service.getThumbnailSet(sizeX, sizeY, pixelsIds);
 		}
 	}
@@ -221,9 +216,9 @@ public class ThumbnailServiceImpl
 	 * @see blitzgateway.service.stateful.ThumbnailService#setRenderingDefId(long, long)
 	 */
 	public void setRenderingDefId(long pixelsId, long renderingDefId)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		ThumbnailGateway gateway = getGateway(pixelsId);
+		ThumbnailStorePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			gateway.setRenderingDefId(renderingDefId);
@@ -233,15 +228,15 @@ public class ThumbnailServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	public void keepAlive() throws omero.ServerError
 	{
-		Iterator<ThumbnailGateway> gatewayIterator = gatewayMap.values().iterator();
+		Iterator<ThumbnailStorePrx> gatewayIterator = gatewayMap.values().iterator();
 		while(gatewayIterator.hasNext())
 		{
-			ThumbnailGateway gateway = gatewayIterator.next();
-			gateway.keepAlive();
+			ThumbnailStorePrx gateway = gatewayIterator.next();
+			gatewayFactory.keepAlive(gateway);
 		}
-		batchService.keepAlive();
+		gatewayFactory.keepAlive(batchService);
 	}
 
 }

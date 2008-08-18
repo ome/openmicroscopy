@@ -22,18 +22,8 @@
  */
 package ome.services.blitz.gateway;
 
-import omero.gateways.BufferedImage;
-
+import omero.api.BufferedImage;
 import omero.model.Pixels;
-
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -55,7 +45,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	public void keepAlive() throws omero.ServerError;
 
 	/**
 	 * Render image as Buffered image. 
@@ -66,7 +56,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public BufferedImage getRenderedImage(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException;
+	public BufferedImage getRenderedImage(long pixelsId, int z, int t)	throws omero.ServerError;
 
 	/**
 	 * Render image as 3d matrix. 
@@ -77,7 +67,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException;
+	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)	throws omero.ServerError;
 
 	
 	/**
@@ -89,7 +79,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int[] renderAsPackedInt(Long pixelsId, int z, int t) throws DSOutOfServiceException, DSAccessException;
+	public int[] renderAsPackedInt(Long pixelsId, int z, int t) throws omero.ServerError;
 	
 	/**
 	 * Set the active channels in the pixels.
@@ -99,7 +89,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setActive(Long pixelsId, int w, boolean active) throws  DSOutOfServiceException, DSAccessException;
+	void setActive(Long pixelsId, int w, boolean active) throws  omero.ServerError;
 
 	/**
 	 * Is the channel active.
@@ -109,7 +99,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	boolean isActive(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException;
+	boolean isActive(Long pixelsId, int w) throws  omero.ServerError;
 
 	/**
 	 * Get the default Z section of the image
@@ -118,7 +108,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	int getDefaultZ(Long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getDefaultZ(Long pixelsId) throws  omero.ServerError;
 	
 	/**
 	 * Get the default T point of the image
@@ -127,7 +117,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	int getDefaultT(Long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getDefaultT(Long pixelsId) throws  omero.ServerError;
 	
 	/**
 	 * Set the default Z section of the image.
@@ -136,7 +126,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setDefaultZ(Long pixelsId, int z) throws  DSOutOfServiceException, DSAccessException;
+	void setDefaultZ(Long pixelsId, int z) throws  omero.ServerError;
 	
 	/**
 	 * Set the default timepoint of the image.
@@ -145,7 +135,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setDefaultT(Long pixelsId, int t) throws  DSOutOfServiceException, DSAccessException;
+	void setDefaultT(Long pixelsId, int t) throws  omero.ServerError;
 	
 	/**
 	 * Get the pixels of the Rendering engine.
@@ -154,7 +144,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Pixels getPixels(Long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	Pixels getPixels(Long pixelsId) throws  omero.ServerError;
 	
 	/**
 	 * Set the channel min, max.
@@ -165,7 +155,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setChannelWindow(Long pixelsId, int w, double start, double end) throws  DSOutOfServiceException, DSAccessException;
+	void setChannelWindow(Long pixelsId, int w, double start, double end) throws  omero.ServerError;
 	
 	/**
 	 * Get the channel min.
@@ -175,7 +165,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	double getChannelWindowStart(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException;
+	double getChannelWindowStart(Long pixelsId, int w) throws  omero.ServerError;
 	
 	/**
 	 * Get the channel max.
@@ -185,7 +175,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	double getChannelWindowEnd(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException;
+	double getChannelWindowEnd(Long pixelsId, int w) throws  omero.ServerError;
 
 	/**
 	 * Close the gateway for pixels = pixelsId
@@ -194,7 +184,7 @@ public interface RenderingService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException;
+	public boolean closeGateway(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Does the gateway map contain the gateway for pixelsId.

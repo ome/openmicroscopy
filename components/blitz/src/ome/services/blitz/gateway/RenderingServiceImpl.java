@@ -22,26 +22,16 @@
  */
 package ome.services.blitz.gateway;
 
-
-
-//Java imports
 import java.awt.Color;
-import omero.gateways.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
-
+import omero.api.BufferedImage;
+import omero.api.RenderingEnginePrx;
+import omero.api.ServiceFactoryPrx;
 import omero.model.Pixels;
-
-
-
-
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
+import omero.romio.PlaneDef;
 
 
 /** 
@@ -64,23 +54,23 @@ public class RenderingServiceImpl
 	/** The gateway factory to create make connection, create and access 
 	 *  services .
 	 */
-	private GatewayFactory 	gatewayFactory;
+	private ServiceFactoryPrx gatewayFactory;
 
 	/** 
 	 * Map of the pixelsId and the gateway, this is used to store the created
 	 * renderingEngineGateways. 
 	 */
-	private Map<Long, RenderingEngineGateway> gatewayMap;
+	private Map<Long, RenderingEnginePrx> gatewayMap;
 	
 	/**
 	 * Create the ImageService passing the gateway.
 	 * @param gatewayFactory To generate new instances of the 
-	 * RenderingEngineGateway.
+	 * RenderingEnginePrx.
 	 */
-	public RenderingServiceImpl(GatewayFactory gatewayFactory) 
+	public RenderingServiceImpl(ServiceFactoryPrx gatewayFactory) 
 	{
 		this.gatewayFactory = gatewayFactory;
-		gatewayMap = new HashMap<Long, RenderingEngineGateway>();
+		gatewayMap = new HashMap<Long, RenderingEnginePrx>();
 	}
 
 	/**
@@ -89,9 +79,9 @@ public class RenderingServiceImpl
 	 * @param pixelsId see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	private RenderingEngineGateway getGateway(Long pixelsId) throws DSOutOfServiceException, DSAccessException
+	private RenderingEnginePrx getGateway(Long pixelsId) throws  omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -101,7 +91,11 @@ public class RenderingServiceImpl
 			}
 			else
 			{
-				RenderingEngineGateway gateway = gatewayFactory.getRenderingEngineGateway(pixelsId);
+				RenderingEnginePrx gateway = gatewayFactory.createRenderingEngine();
+                gateway.lookupPixels(pixelsId);
+                if(!gateway.lookupRenderingDef(pixelsId))
+                    gateway.resetDefaults();
+                gateway.load();
 				gatewayMap.put(pixelsId, gateway);
 				return gateway;
 			}
@@ -126,9 +120,9 @@ public class RenderingServiceImpl
 	 * @param pixelsId see above.
 	 * @return true if the gateway was closed.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	public boolean closeGateway(long pixelsId) throws DSOutOfServiceException, DSAccessException
+	public boolean closeGateway(long pixelsId) throws  omero.ServerError
 	{
 		synchronized(gatewayMap)
 		{
@@ -146,9 +140,9 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#getChannelWindowEnd(java.lang.Long, int)
 	 */
 	public double getChannelWindowEnd(Long pixelsId, int w)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getChannelWindowEnd(w);
@@ -160,9 +154,9 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#getChannelWindowStart(java.lang.Long, int)
 	 */
 	public double getChannelWindowStart(Long pixelsId, int w)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getChannelWindowStart(w);
@@ -173,10 +167,10 @@ public class RenderingServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RenderingService#getDefaultT(java.lang.Long)
 	 */
-	public int getDefaultT(Long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getDefaultT(Long pixelsId) throws 
+			omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getDefaultT();
@@ -187,10 +181,10 @@ public class RenderingServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RenderingService#getDefaultZ(java.lang.Long)
 	 */
-	public int getDefaultZ(Long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public int getDefaultZ(Long pixelsId) throws 
+			omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getDefaultZ();
@@ -201,10 +195,10 @@ public class RenderingServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.RenderingService#getPixels(java.lang.Long)
 	 */
-	public Pixels getPixels(Long pixelsId) throws DSOutOfServiceException,
-			DSAccessException
+	public Pixels getPixels(Long pixelsId) throws 
+			omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.getPixels();
@@ -216,9 +210,9 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#isActive(java.lang.Long, int)
 	 */
 	public boolean isActive(Long pixelsId, int w)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			return gateway.isActive(w);
@@ -230,12 +224,18 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#renderAsPackedInt(java.lang.Long, int, int)
 	 */
 	public int[] renderAsPackedInt(Long pixelsId, int z, int t)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
+		PlaneDef def = new PlaneDef();
+		def.t = t;
+		def.z = z;
+		def.x = 0;
+		def.y = 0;
+		def.slice = 0;
 		synchronized(gateway)
 		{
-			return gateway.renderAsPackedInt(z, t);
+			return gateway.renderAsPackedInt(def);
 		}
 	}
 
@@ -244,9 +244,9 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#setActive(java.lang.Long, int, boolean)
 	 */
 	public void setActive(Long pixelsId, int w, boolean active)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			gateway.setActive(w, active);
@@ -258,9 +258,9 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#setChannelWindow(java.lang.Long, int, double, double)
 	 */
 	public void setChannelWindow(Long pixelsId, int w, double start, double end)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			gateway.setChannelWindow(w, start, end);
@@ -272,9 +272,9 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#setDefaultT(java.lang.Long, int)
 	 */
 	public void setDefaultT(Long pixelsId, int t)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			gateway.setDefaultT(t);
@@ -286,9 +286,9 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#setDefaultZ(java.lang.Long, int)
 	 */
 	public void setDefaultZ(Long pixelsId, int z)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
-		RenderingEngineGateway gateway = getGateway(pixelsId);
+		RenderingEnginePrx gateway = getGateway(pixelsId);
 		synchronized(gateway)
 		{
 			gateway.setDefaultZ(z);
@@ -300,7 +300,7 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#getRenderedImage(long, int, int)
 	 */
 	public BufferedImage getRenderedImage(long pixelsId, int z, int t)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
 		Pixels pixels = getPixels(pixelsId);
 		int[] buff = renderAsPackedInt(pixelsId, z, t);
@@ -313,7 +313,7 @@ public class RenderingServiceImpl
 	 * @see blitzgateway.service.RenderingService#getRenderedImageMatrix(long, int, int)
 	 */
 	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)
-			throws DSOutOfServiceException, DSAccessException
+			throws  omero.ServerError
 	{
 		Pixels pixels = getPixels(pixelsId);
 		int width = pixels.sizeX.val;
@@ -335,13 +335,13 @@ public class RenderingServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.gateway.BaseServiceInterface#keepAlive()
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	public void keepAlive() throws  omero.ServerError
 	{
-		Iterator<RenderingEngineGateway> gatewayIterator = gatewayMap.values().iterator();
+		Iterator<RenderingEnginePrx> gatewayIterator = gatewayMap.values().iterator();
 		while(gatewayIterator.hasNext())
 		{
-			RenderingEngineGateway gateway = gatewayIterator.next();
-			gateway.keepAlive();
+			RenderingEnginePrx gateway = gatewayIterator.next();
+			gatewayFactory.keepAlive(gateway);
 		}
 	}
 

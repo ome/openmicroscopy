@@ -22,29 +22,15 @@
  */
 package ome.services.blitz.gateway;
 
-
-//Java imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RType;
+import omero.api.IQueryPrx;
 import omero.api.IScriptPrx;
 import omero.model.Format;
 import omero.model.OriginalFile;
-
-
-
-
-
-
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
 
 /** 
  * 
@@ -63,15 +49,15 @@ class FileServiceImpl
 	implements FileService
 {	
 	
-	IScriptGateway			scriptService;
-	RawFileStoreService 	rawFileStore;
-	IQueryGateway			iQuery;
+	IScriptPrx scriptService;
+	RawFileStoreService rawFileStore;
+	IQueryPrx iQuery;
 	
 	/**
 	 * Create the FileService passing the gateway.
 	 * @param gateway
 	 */
-	FileServiceImpl(RawFileStoreService fileStore, IScriptGateway script, IQueryGateway query)
+	FileServiceImpl(RawFileStoreService fileStore, IScriptPrx script, IQueryPrx query)
 	{
 		rawFileStore = fileStore;
 		scriptService = script;
@@ -81,28 +67,28 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#fileExists(java.lang.String)
 	 */
-	public boolean fileExists(long id) throws DSAccessException,
-			DSOutOfServiceException
+	public boolean fileExists(long id) throws 
+			omero.ServerError
 	{
 		return rawFileStore.exists(id);
 	}
 
-	public OriginalFile getOriginalFile(long id) throws DSAccessException, 
-			DSOutOfServiceException
+	public OriginalFile getOriginalFile(long id) throws  
+			omero.ServerError
 	{
 		return (OriginalFile)iQuery.findByQuery("from OriginalFile as o left outer " +
-			"join fetch o.format as f where o.id = "+id);
+			"join fetch o.format as f where o.id = "+id, null);
 	}
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#findFile(java.lang.String, omero.model.Format)
 	 */
 	public List<Long> findFile(String fileName, Format fmt)
-			throws DSAccessException, DSOutOfServiceException
+			throws  omero.ServerError
 	{
 		String queryStr = "from OriginalFile as o left outer join fetch " +
 				"o.format as f where f.value = " + fmt.value.val;
 		List<OriginalFile> list = ServiceUtilities.
-		collectionCast(OriginalFile.class, iQuery.findAllByQuery(queryStr));
+		collectionCast(OriginalFile.class, iQuery.findAllByQuery(queryStr, null));
 		List<Long> lList = new ArrayList<Long>();
 		for(OriginalFile file : list)
 			lList.add(new Long(file.id.val));
@@ -112,19 +98,19 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getAllFormats()
 	 */
-	public List<Format> getAllFormats() throws DSAccessException,
-			DSOutOfServiceException
+	public List<Format> getAllFormats() throws 
+			omero.ServerError
 	{
 		return (List<Format>)
 			ServiceUtilities.collectionCast(
-				Format.class, iQuery.findAllByQuery("from Format as format"));
+				Format.class, iQuery.findAllByQuery("from Format as format", null));
 	}
 
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getFileAsString(long)
 	 */
-	public String getFileAsString(long id) throws DSAccessException,
-			DSOutOfServiceException
+	public String getFileAsString(long id) throws 
+			omero.ServerError
 	{
 		byte[] data = getRawFile(id);
 		return new String(data);
@@ -133,8 +119,8 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getFileFormat(long)
 	 */
-	public Format getFileFormat(long id) throws DSAccessException,
-			DSOutOfServiceException
+	public Format getFileFormat(long id) throws 
+			omero.ServerError
 	{
 		OriginalFile file = getOriginalFile(id);
 		return file.format;
@@ -143,8 +129,8 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getFormat(java.lang.String)
 	 */
-	public Format getFormat(String fmt) throws DSAccessException,
-			DSOutOfServiceException
+	public Format getFormat(String fmt) throws 
+			omero.ServerError
 	{
 		return (Format)iQuery.findByString("Format", "value", fmt);
 	}
@@ -152,8 +138,8 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getRawFile(long)
 	 */
-	public byte[] getRawFile(long id) throws DSAccessException,
-			DSOutOfServiceException
+	public byte[] getRawFile(long id) throws 
+			omero.ServerError
 	{
 		OriginalFile file = getOriginalFile(id);
 		return rawFileStore.read(id, 0, (int)file.size.val);
@@ -162,8 +148,8 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#fileExists(java.lang.Long)
 	 */
-	public boolean fileExists(Long id) throws DSAccessException,
-			DSOutOfServiceException
+	public boolean fileExists(Long id) throws 
+			omero.ServerError
 	{
 		return rawFileStore.exists(id);
 	}
@@ -171,8 +157,7 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#deleteScript(long)
 	 */
-	public void deleteScript(long id) throws DSOutOfServiceException,
-			DSAccessException
+	public void deleteScript(long id) throws omero.ServerError
 	{
 		scriptService.deleteScript(id);
 	}
@@ -181,7 +166,7 @@ class FileServiceImpl
 	 * @see blitzgateway.service.FileService#getParams(long)
 	 */
 	public Map<String, RType> getParams(long id)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		return scriptService.getParams(id);
 	}
@@ -189,8 +174,7 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getScript(long)
 	 */
-	public String getScript(long id) throws DSOutOfServiceException,
-			DSAccessException
+	public String getScript(long id) throws omero.ServerError
 	{
 		return scriptService.getScript(id);
 	}
@@ -198,8 +182,7 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getScriptID(java.lang.String)
 	 */
-	public long getScriptID(String name) throws DSOutOfServiceException,
-			DSAccessException
+	public long getScriptID(String name) throws omero.ServerError
 	{
 		return scriptService.getScriptID(name);
 	}
@@ -207,8 +190,7 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#getScripts()
 	 */
-	public Map<Long, String> getScripts() throws DSOutOfServiceException,
-			DSAccessException
+	public Map<Long, String> getScripts() throws omero.ServerError
 	{
 		return scriptService.getScripts();
 	}
@@ -217,7 +199,7 @@ class FileServiceImpl
 	 * @see blitzgateway.service.FileService#runScript(long, java.util.Map)
 	 */
 	public Map<String, RType> runScript(long id, Map<String, RType> map)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		return scriptService.runScript(id, map);
 	}
@@ -225,8 +207,7 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#uploadScript(java.lang.String)
 	 */
-	public long uploadScript(String script) throws DSOutOfServiceException,
-			DSAccessException
+	public long uploadScript(String script) throws omero.ServerError
 	{
 		return scriptService.uploadScript(script);
 	}
@@ -234,7 +215,7 @@ class FileServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.FileService#keepAlive()
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	public void keepAlive() throws omero.ServerError
 	{
 		rawFileStore.keepAlive();
 	}

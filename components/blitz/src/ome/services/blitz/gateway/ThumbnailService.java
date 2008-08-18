@@ -25,16 +25,6 @@ package ome.services.blitz.gateway;
 import java.util.List;
 import java.util.Map;
 
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * 
  *
@@ -53,18 +43,18 @@ public interface ThumbnailService
 	/**
 	 * Keep service alive.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	public void keepAlive() throws omero.ServerError;
 
 	/**
 	 * Set the rendering def from the default to another.
 	 * @param pixelsId for pixelsId 
 	 * @param renderingDefId see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	void setRenderingDefId(long pixelsId, long renderingDefId) throws  DSOutOfServiceException, DSAccessException;
+	void setRenderingDefId(long pixelsId, long renderingDefId) throws omero.ServerError;
 	
 	/**
 	 * Get the thumbnail of the image.
@@ -73,9 +63,9 @@ public interface ThumbnailService
 	 * @param sizeY size of thumbnail.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY) throws  DSOutOfServiceException, DSAccessException;
+	byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY) throws omero.ServerError;
 	
 	/**
 	 * Get a set of thumbnails.
@@ -84,9 +74,9 @@ public interface ThumbnailService
 	 * @param pixelsIds list of ids.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException;
+	Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds) throws omero.ServerError;
 	
 	/**
 	 * Get a set of thumbnails, maintaining aspect ratio.
@@ -94,9 +84,9 @@ public interface ThumbnailService
 	 * @param pixelsIds list of ids.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	Map<Long, byte[]>getThumbnailByLongestSideSet(omero.RInt size, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException;
+	Map<Long, byte[]>getThumbnailByLongestSideSet(omero.RInt size, List<Long> pixelsIds) throws omero.ServerError;
 	
 	/**
 	 * Get the thumbnail of the image, maintain aspect ratio.
@@ -104,9 +94,9 @@ public interface ThumbnailService
 	 * @param size size of thumbnail.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	byte[] getThumbnailByLongestSide(long pixelsId, omero.RInt size) throws  DSOutOfServiceException, DSAccessException;
+	byte[] getThumbnailByLongestSide(long pixelsId, omero.RInt size) throws omero.ServerError;
 	
 }
 

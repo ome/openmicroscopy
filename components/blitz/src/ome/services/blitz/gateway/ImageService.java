@@ -22,17 +22,13 @@
  */
 package ome.services.blitz.gateway;
 
-//Java imports
-
 import java.util.List;
 import java.util.Map;
 
-import omero.gateways.BufferedImage;
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
+import omero.ServerError;
+import omero.api.BufferedImage;
 import omero.model.Image;
 import omero.model.Pixels;
-
 
 /** 
  * 
@@ -54,7 +50,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	public void keepAlive() throws ServerError;
 
 	/**
 	 * Get the raw plane from the server with id pixelsId, and channels, c, timepoint
@@ -69,7 +65,7 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public byte[] getRawPlane(long pixelsId, int z, int c, int t) 
-		throws DSOutOfServiceException, DSAccessException;
+		throws ServerError;
 	
 	/**
 	 * Get the zSection stack from the pixels at timepoint t
@@ -81,7 +77,7 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public double[][][] getPlaneStack(long pixelsId, int c, int t)
-			throws DSOutOfServiceException, DSAccessException;
+			throws ServerError;
 	
 	/**
 	 * Get the plane from the server with id pixelsId, and channels, c, timepoint
@@ -96,7 +92,7 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public double[][] getPlane(long pixelsId, int z, int c, int t) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws ServerError;
 	
 	/**
 	 * Get the pixels information for an image.
@@ -106,7 +102,7 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public Pixels getPixels(long imageID)
-		throws DSOutOfServiceException, DSAccessException;
+		throws ServerError;
 	
 	/**
 	 * Get the image information for an image.
@@ -116,7 +112,7 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public Image getImage(long imageID)
-		throws DSOutOfServiceException, DSAccessException;
+		throws ServerError;
 	
 	/**
 	 * Copy the pixels set from pixels to a new set.
@@ -133,7 +129,7 @@ public interface ImageService
 	 */
 	public Long copyPixels(long pixelsID, int x, int y, int t, int z, 
 			List<Integer> channelList, String methodology) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws ServerError;
 	
 	
 	/**
@@ -147,7 +143,7 @@ public interface ImageService
 	 */
 	public Long copyPixels(long pixelsID,
 			List<Integer> channelList, String methodology) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws ServerError;
 	
 	/**
 	 * Copy the image and pixels from image.
@@ -164,7 +160,7 @@ public interface ImageService
 	 */
 	public Long copyImage(long imageId, int x, int y, int t, int z, 
 			List<Integer> channelList, String methodology) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws ServerError;
 	
 	 /**
 	  * Create a new image of specified X,Y, Z, T and channels plus pixelsType
@@ -185,7 +181,7 @@ public interface ImageService
 	 Long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
             List<Integer> channelList, 
             omero.model.PixelsType pixelsType,
-            String name, String description) 	throws  DSOutOfServiceException, DSAccessException;
+            String name, String description) 	throws  ServerError;
 
 	/**
 	 * Test method to make sure the client converts it's data to the server data
@@ -198,7 +194,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException */
 	public double[][] testVal(long pixelsId, int z, int c, int t) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws ServerError;
 	
 	/**
 	 * convert the client data pixels to server byte array, also sets the data
@@ -223,7 +219,7 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public void uploadPlane(long pixelsId, int z, int c, int t, 
-			double [][] data) throws DSOutOfServiceException, DSAccessException;
+			double [][] data) throws ServerError;
 	
 	/**
 	 * Update the pixels object in the server.
@@ -233,7 +229,7 @@ public interface ImageService
 	 * @throws DSAccessException
 	 */
 	public Pixels updatePixels(Pixels object) 
-	throws DSOutOfServiceException, DSAccessException;
+	throws ServerError;
 	
 	/**
 	 * Render image as Buffered image. 
@@ -244,7 +240,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public BufferedImage getRenderedImage(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException;
+	public BufferedImage getRenderedImage(long pixelsId, int z, int t)	throws ServerError;
 
 	/**
 	 * Render image as 3d matrix. 
@@ -255,7 +251,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException;
+	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)	throws ServerError;
 
 	
 	/**
@@ -267,7 +263,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int[] renderAsPackedInt(Long pixelsId, int z, int t) throws DSOutOfServiceException, DSAccessException;
+	public int[] renderAsPackedInt(Long pixelsId, int z, int t) throws ServerError;
 	
 	/**
 	 * Set the active channels in the pixels.
@@ -277,7 +273,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setActive(Long pixelsId, int w, boolean active) throws  DSOutOfServiceException, DSAccessException;
+	void setActive(Long pixelsId, int w, boolean active) throws  ServerError;
 
 	/**
 	 * Is the channel active.
@@ -287,7 +283,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	boolean isActive(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException;
+	boolean isActive(Long pixelsId, int w) throws  ServerError;
 
 	/**
 	 * Get the default Z section of the image
@@ -296,7 +292,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	int getDefaultZ(Long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getDefaultZ(Long pixelsId) throws  ServerError;
 	
 	/**
 	 * Get the default T point of the image
@@ -305,7 +301,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	int getDefaultT(Long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getDefaultT(Long pixelsId) throws  ServerError;
 	
 	/**
 	 * Set the default Z section of the image.
@@ -314,7 +310,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setDefaultZ(Long pixelsId, int z) throws  DSOutOfServiceException, DSAccessException;
+	void setDefaultZ(Long pixelsId, int z) throws  ServerError;
 	
 	/**
 	 * Set the default timepoint of the image.
@@ -323,7 +319,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setDefaultT(Long pixelsId, int t) throws  DSOutOfServiceException, DSAccessException;
+	void setDefaultT(Long pixelsId, int t) throws  ServerError;
 	
 	/**
 	 * Get the pixels of the Rendering engine.
@@ -332,7 +328,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Pixels getPixels(Long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	Pixels getPixels(Long pixelsId) throws  ServerError;
 	
 	/**
 	 * Set the channel min, max.
@@ -343,7 +339,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setChannelWindow(Long pixelsId, int w, double start, double end) throws  DSOutOfServiceException, DSAccessException;
+	void setChannelWindow(Long pixelsId, int w, double start, double end) throws  ServerError;
 	
 	/**
 	 * Get the channel min.
@@ -353,7 +349,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	double getChannelWindowStart(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException;
+	double getChannelWindowStart(Long pixelsId, int w) throws  ServerError;
 	
 	/**
 	 * Get the channel max.
@@ -363,7 +359,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	double getChannelWindowEnd(Long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException;
+	double getChannelWindowEnd(Long pixelsId, int w) throws  ServerError;
 	
 	/**
 	 * Set the rendering def from the default to another.
@@ -372,7 +368,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	void setRenderingDefId(long pixelsId, long renderingDefId) throws  DSOutOfServiceException, DSAccessException;
+	void setRenderingDefId(long pixelsId, long renderingDefId) throws  ServerError;
 	
 	/**
 	 * Get the thumbnail of the image.
@@ -383,7 +379,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY) throws  DSOutOfServiceException, DSAccessException;
+	byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY) throws  ServerError;
 	
 	/**
 	 * Get a set of thumbnails.
@@ -394,7 +390,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException;
+	Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds) throws  ServerError;
 	
 	/**
 	 * Get a set of thumbnails, maintaining aspect ratio.
@@ -404,7 +400,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Map<Long, byte[]>getThumbnailByLongestSideSet(omero.RInt size, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException;
+	Map<Long, byte[]>getThumbnailByLongestSideSet(omero.RInt size, List<Long> pixelsIds) throws  ServerError;
 	
 	/**
 	 * Get the thumbnail of the image, maintain aspect ratio.
@@ -414,7 +410,7 @@ public interface ImageService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	byte[] getThumbnailByLongestSide(long pixelsId, omero.RInt size) throws  DSOutOfServiceException, DSAccessException;
+	byte[] getThumbnailByLongestSide(long pixelsId, omero.RInt size) throws  ServerError;
 	
 
 }

@@ -22,18 +22,10 @@
  */
 package ome.services.blitz.gateway;
 
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.List;
 import java.util.Map;
 
 import omero.RType;
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
 import omero.model.Format;
 import omero.model.OriginalFile;
 
@@ -56,19 +48,19 @@ interface FileService
 	/**
 	 * Keep service alive.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	public void keepAlive() throws omero.ServerError;
 	
 	/**
 	 * Does the file with id exist in the OMERO original file store.
 	 * @param id id of the file.
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException 
 	 */
 	public boolean fileExists(Long id) 
-							throws DSAccessException, DSOutOfServiceException;
+							throws omero.ServerError;
 	
 	/**
 	 * find the file with fileName in the database and format and return the 
@@ -76,119 +68,117 @@ interface FileService
 	 * @param fileName name of the file.
 	 * @param fmt The format of the file. 
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException 
 	 */
 	public List<Long> findFile(String fileName, Format fmt)
-						throws DSAccessException, DSOutOfServiceException;
+						throws omero.ServerError;
 	
 	/**
 	 * Get the rawfile from the database with the id
 	 * @param id the id of the file to retrieve.
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException
 	 */
 	public byte[] getRawFile(long id)
-						throws DSAccessException, DSOutOfServiceException;
+						throws omero.ServerError;
 	
 	/**
 	 * Get the file with the id as a string.
 	 * @param id The id of the file.
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException
 	 */
 	public String getFileAsString(long id)
-						throws DSAccessException, DSOutOfServiceException;
+						throws omero.ServerError;
 	
 	/**
 	 * Get the format of the file with id.
 	 * @param id The file id.
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException
 	 */
 	public Format getFileFormat(long id)
-					throws DSAccessException, DSOutOfServiceException;
+					throws omero.ServerError;
 
 	/**
 	 * Get the format object for string map.
 	 * @param fmt String of the format.
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException
 	 */
 	public Format getFormat(String fmt) 
-			throws DSAccessException, DSOutOfServiceException;
+			throws omero.ServerError;
 	
 	
 	/**
 	 * Get all the file formats in the system.
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException
 	 */
 	public List<Format> getAllFormats()
-				throws DSAccessException, DSOutOfServiceException;
+				throws omero.ServerError;
 	/**
 	 * Get the original file with id.
 	 * @param id see above.
 	 * @return see above.
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 * @throws DSOutOfServiceException
 	 */
-	public OriginalFile getOriginalFile(long id) throws DSAccessException, 
-	DSOutOfServiceException;
+	public OriginalFile getOriginalFile(long id) throws omero.ServerError;
 	
 	/**
 	 * Get the scripts from the iScript Service.
 	 * @return all the available scripts, mapped by id, name
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	Map<Long, String> getScripts() throws   DSOutOfServiceException, 
-											DSAccessException;
+	Map<Long, String> getScripts() throws   
+											omero.ServerError;
 	
 	/**
 	 * Get the id of the script with name 
 	 * @param name name of the script.
 	 * @return the id of the script.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	long getScriptID(String name) throws DSOutOfServiceException, 
-										 DSAccessException;
+	long getScriptID(String name) throws 
+										 omero.ServerError;
 	
 	/**
 	 * Upload the script to the server.
 	 * @param script script to upload
 	 * @return id of the new script.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	long uploadScript(String script) throws DSOutOfServiceException, 
-											DSAccessException;
+	long uploadScript(String script) throws 
+											omero.ServerError;
 	
 	/**
 	 * Get the script with id, this returns the actual script as a string.
 	 * @param id id of the script to retrieve.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	String getScript(long id) throws DSOutOfServiceException, 
-									 DSAccessException;
+	String getScript(long id) throws 
+									 omero.ServerError;
 	
 	/**
 	 * Get the params the script takes, this is the name and type. 
 	 * @param id id of the script.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	Map<String, RType> getParams(long id) throws DSOutOfServiceException, 
-												 DSAccessException;
+	Map<String, RType> getParams(long id) throws omero.ServerError;
 	
 	/**
 	 * Run the script and get the results returned as a name , value map.
@@ -196,19 +186,19 @@ interface FileService
 	 * @param map the map of params, values for inputs.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	Map<String, RType> runScript(long id, Map<String, RType> map) 
-						throws DSOutOfServiceException, DSAccessException;
+						throws omero.ServerError;
 	
 	/**
 	 * Delete the script from the server.
 	 * @param id id of the script to delete.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	void deleteScript(long id) throws 	DSOutOfServiceException, 
-										DSAccessException;
+	void deleteScript(long id) throws 	
+										omero.ServerError;
 	
 }
 

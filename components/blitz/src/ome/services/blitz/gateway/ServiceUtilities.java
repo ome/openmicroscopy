@@ -32,9 +32,7 @@ import java.util.List;
 
 import omero.ApiUsageException;
 import omero.ValidationException;
-import omero.gateways.ContainerClass;
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
+import omero.api.ContainerClass;
 import omero.model.IObject;
 import Glacier2.PermissionDeniedException;
 
@@ -93,23 +91,18 @@ public class ServiceUtilities
 	 * @throws DSAccessException    A server-side error.
 	 */
 	public static void handleException(Throwable t, String message) 
-		throws DSOutOfServiceException, DSAccessException
+		throws omero.ServerError
 	{
 		Throwable cause = t.getCause();
-		if (cause instanceof PermissionDeniedException) {
-			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message, cause(t));
-		} else if (cause instanceof PermissionDeniedException) {
-			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message, cause(t));
-		} else if (cause instanceof ApiUsageException) {
-			String s = "Cannot access data, specified parameters not valid \n"; 
-			throw new DSAccessException(s+message, cause(t));
-		} else if (cause instanceof ValidationException) {
-			String s = "Cannot access data, specified parameters not valid \n"; 
-			throw new DSAccessException(s+message, cause(t));
-		} else 
-			throw new DSOutOfServiceException(message, cause(t));
+		if (cause instanceof omero.ServerError) {
+		    throw (omero.ServerError) cause;
+		} else {
+		    omero.InternalException ie = new omero.InternalException();
+		    ie.message = message;
+		    ie.serverStackTrace = cause(cause);
+		    ie.serverExceptionClass = cause.getClass().getName();
+		    throw ie;
+		}
 	}
 	
 	public static String cause(Throwable t) {

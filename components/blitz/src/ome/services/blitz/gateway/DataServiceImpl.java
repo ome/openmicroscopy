@@ -22,7 +22,6 @@
  */
 package ome.services.blitz.gateway;
 
-//Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,11 +29,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RBool;
 import omero.RType;
+import omero.api.ContainerClass;
+import omero.api.IPojosPrx;
+import omero.api.IQueryPrx;
+import omero.api.ITypesPrx;
+import omero.api.IUpdatePrx;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
@@ -46,18 +47,6 @@ import omero.model.PixelsType;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectI;
-
-
-
-
-
-
-
-
-import omero.gateways.ContainerClass;
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
 
 /** 
  * 
@@ -75,26 +64,26 @@ import omero.gateways.DSOutOfServiceException;
 class DataServiceImpl
 	implements DataService
 {	
-	/** The IPojoGateway */
-	IPojoGateway 	pojoGateway;
+	/** The IPojosPrx */
+    IPojosPrx pojoGateway;
 	
 	/** The IQuerygateway. */
-	IQueryGateway 	iQueryGateway;
+	IQueryPrx iQueryGateway;
 
 	/** The ITypegateway. */
-	ITypeGateway 	iTypeGateway;
+	ITypesPrx iTypeGateway;
 	
 	/** The IUpdate. */
-	IUpdateGateway iUpdateGateway;
+	IUpdatePrx iUpdateGateway;
 	
 	/**
 	 * Constructor for the DataService Implementation.
 	 * @param pojo IPojo gateway object.
-	 * @param gateway IQueryGateway gateway object.
-	 * @param gateway ITypeGateway gateway object.
+	 * @param gateway IQueryPrx gateway object.
+	 * @param gateway ITypesPrx gateway object.
 	 * @param gateway IPojo gateway object.
 	 */
-	DataServiceImpl(IPojoGateway pojo, IQueryGateway query, ITypeGateway type, IUpdateGateway update)
+	DataServiceImpl(IPojosPrx pojo, IQueryPrx query, ITypesPrx type, IUpdatePrx update)
 	{
 		pojoGateway = pojo;
 		iQueryGateway = query;
@@ -107,11 +96,11 @@ class DataServiceImpl
 	 * {@link DataService#getImages(List, boolean).
 	 */
 	public List<Image> getImages(ContainerClass nodeType, List<Long> nodeIds)
-		throws DSOutOfServiceException, DSAccessException
+		throws omero.ServerError
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
-		return ServiceUtilities.collectionCast(Image.class,
-			pojoGateway.getImages(convertPojos(nodeType), nodeIds, map));
+		return 
+			pojoGateway.getImages(convertPojos(nodeType), nodeIds, map);
 	}
 	
 	/**
@@ -119,7 +108,7 @@ class DataServiceImpl
 	 * {@link DataService#getDatasets(List, boolean).
 	 */
 	public List<Dataset> getDatasets(List<Long> ids, boolean getLeaves)
-		throws DSOutOfServiceException, DSAccessException
+		throws omero.ServerError
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		if(getLeaves)
@@ -134,7 +123,7 @@ class DataServiceImpl
 	 * {@link DataService#getProjects(boolean).
 	 */
 	public List<Project> getProjects(List<Long> ids, boolean getLeaves) 
-	throws DSOutOfServiceException, DSAccessException
+	throws omero.ServerError
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
 		if(getLeaves)
@@ -159,21 +148,21 @@ class DataServiceImpl
 	 * @see blitzgateway.service.DataService#getPixelsFromImage(java.util.List)
 	 */
 	public List<Pixels> getPixelsFromImage(long imageId) 
-				throws DSOutOfServiceException, DSAccessException
+				throws omero.ServerError
 	{
 		
 		String queryStr = new String("select p from Pixels as p left outer " +
 			"join fetch p.pixelsType as pt left outer join fetch " +
 			"p.pixelsDimensions where p.image = " + imageId + " order by relatedto");
 		return ServiceUtilities.collectionCast(Pixels.class, 
-			iQueryGateway.findAllByQuery(queryStr));
+			iQueryGateway.findAllByQuery(queryStr, null));
 	}
 	
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#getPixelTypes(String)
 	 */
 	public List<PixelsType> getPixelTypes() 
-	throws DSOutOfServiceException, DSAccessException
+	throws omero.ServerError
 	{
 		List<IObject> list = iTypeGateway.allEnumerations("PixelsType"); 
 		return ServiceUtilities.collectionCast(PixelsType.class, list);
@@ -182,8 +171,8 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#getPixelType(java.lang.String)
 	 */
-	public PixelsType getPixelType(String type) throws DSOutOfServiceException,
-			DSAccessException
+	public PixelsType getPixelType(String type) throws 
+			omero.ServerError
 	{
 		return (PixelsType)iQueryGateway.findByString("PixelsType", "value",
 			type);
@@ -192,26 +181,26 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#findAllByQuery(java.lang.String)
 	 */
-	public List<IObject> findAllByQuery(String myQuery) throws DSOutOfServiceException,
-			DSAccessException
+	public List<IObject> findAllByQuery(String myQuery) throws 
+			omero.ServerError
 	{
-		return iQueryGateway.findAllByQuery(myQuery);
+		return iQueryGateway.findAllByQuery(myQuery, null);
 	}
 	
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#findByQuery(java.lang.String)
 	 */
-	public IObject findByQuery(String myQuery) throws DSOutOfServiceException,
-			DSAccessException
+	public IObject findByQuery(String myQuery) throws 
+			omero.ServerError
 	{
-		return iQueryGateway.findByQuery(myQuery);
+		return iQueryGateway.findByQuery(myQuery, null);
 	}
 
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#attachImageToDataset(omero.model.Dataset, omero.model.Image)
 	 */
 	public void attachImageToDataset(Dataset dataset, Image image)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		DatasetImageLink link = new DatasetImageLinkI();
 		link.parent = dataset;
@@ -225,7 +214,7 @@ class DataServiceImpl
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Image> getImageFromDatasetByName(Long datasetId,
-			String imageName) throws DSOutOfServiceException, DSAccessException
+			String imageName) throws omero.ServerError
 	{
 		String datasetQuery = "select i from Image i left outer join fetch i.datasetLinks" +  
 		                " dil left outer join fetch dil.parent d where d.id=" + datasetId +
@@ -238,7 +227,7 @@ class DataServiceImpl
 	 * @see blitzgateway.service.DataService#getImagesFromDataset(long)
 	 */
 	public List<Image> getImagesFromDataset(Dataset dataset)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		List<Image> images = new ArrayList<Image>();
 		Iterator<DatasetImageLink> iterator = ((DatasetI)dataset).iterateImageLinks(); 
@@ -251,7 +240,7 @@ class DataServiceImpl
 	 * @see blitzgateway.service.DataService#getDatasetsFromProject(long)
 	 */
 	public List<Dataset> getDatasetsFromProject(Project project)
-	throws DSOutOfServiceException, DSAccessException
+	throws omero.ServerError
 	{
 		List<Dataset> datasets = new ArrayList<Dataset>();
 		Iterator<ProjectDatasetLink> iterator = ((ProjectI)project).iterateDatasetLinks();
@@ -265,7 +254,7 @@ class DataServiceImpl
 	 * @see blitzgateway.service.DataService#getImagesFromProject(long)
 	 */
 	public List<Image> getImagesFromProject(Project project)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		List<Image> images = new ArrayList<Image>();
 		List<Dataset> datasets = getDatasetsFromProject(project);
@@ -306,7 +295,7 @@ class DataServiceImpl
 	 * @see blitzgateway.service.DataService#getPixelsFromDataset(omero.model.Dataset)
 	 */
 	public List<Pixels> getPixelsFromDataset(Dataset dataset)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		List<Image> images = getImagesFromDataset(dataset);
 		return getPixelsFromImageList(images);
@@ -316,7 +305,7 @@ class DataServiceImpl
 	 * @see blitzgateway.service.DataService#getPixelsFromProject(omero.model.Project)
 	 */
 	public List<Pixels> getPixelsFromProject(Project project)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		List<Image> images = getImagesFromProject(project);
 		return getPixelsFromImageList(images);
@@ -327,7 +316,7 @@ class DataServiceImpl
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Image> getImageByName(String imageName)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		String datasetQuery = "select i from Image i left outer join fetch i.datasetLinks" +  
         " dil left outer join fetch dil.parent d where i.name like '%"+ 
@@ -339,8 +328,8 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#deleteObject(omero.model.IObject)
 	 */
-	public void deleteObject(IObject row) throws DSOutOfServiceException,
-			DSAccessException
+	public void deleteObject(IObject row) throws 
+			omero.ServerError
 	{
 		iUpdateGateway.deleteObject(row);
 	}
@@ -348,17 +337,19 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#saveAndReturnArray(java.util.List)
 	 */
+	@SuppressWarnings("unchecked")
 	public <T extends IObject> List<T> saveAndReturnArray(List<IObject> graph)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
-		return iUpdateGateway.saveAndReturnArray(graph);
+	    List rv = iUpdateGateway.saveAndReturnArray(graph); 
+		return rv;
 	}
 
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#saveAndReturnObject(omero.model.IObject)
 	 */
 	public IObject saveAndReturnObject(IObject obj)
-			throws DSOutOfServiceException, DSAccessException
+			throws omero.ServerError
 	{
 		return iUpdateGateway.saveAndReturnObject(obj);
 	}
@@ -366,8 +357,8 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#saveArray(java.util.List)
 	 */
-	public void saveArray(List<IObject> graph) throws DSOutOfServiceException,
-			DSAccessException
+	public void saveArray(List<IObject> graph) throws 
+			omero.ServerError
 	{
 		iUpdateGateway.saveArray(graph);
 	}
@@ -375,8 +366,8 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#saveObject(omero.model.IObject)
 	 */
-	public void saveObject(IObject obj) throws DSOutOfServiceException,
-			DSAccessException
+	public void saveObject(IObject obj) throws 
+			omero.ServerError
 	{
 		iUpdateGateway.saveObject(obj);
 	}
@@ -384,7 +375,7 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#keepAlive()
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	public void keepAlive() throws omero.ServerError
 	{
 		
 	}

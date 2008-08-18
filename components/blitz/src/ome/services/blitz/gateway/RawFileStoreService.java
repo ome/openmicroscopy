@@ -22,15 +22,6 @@
  */
 package ome.services.blitz.gateway;
 
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * 
  *
@@ -49,9 +40,9 @@ public interface RawFileStoreService
 	/**
 	 * Keep service alive.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	public void keepAlive() throws omero.ServerError;
 	
 	/**
 	 * Read from the file in the rawFileStore.
@@ -60,10 +51,10 @@ public interface RawFileStoreService
 	 * @param length 
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	byte[] read(long fileId, long position, int length) 
-							throws DSOutOfServiceException, DSAccessException;
+							throws omero.ServerError;
 	
 	/**
 	 * Write the contents of the buffer to the the file starting from position
@@ -73,20 +64,20 @@ public interface RawFileStoreService
 	 * @param position see above.
 	 * @param length see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	void write(long fileId, byte[] buf, long position, int length) 
-							throws DSOutOfServiceException, DSAccessException;
+							throws omero.ServerError;
 	
 	/**
 	 * Does the file exist in the RawFileStore.
 	 * @param fileId id of the file to work on, 
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws omero.ServerError
 	 */
 	boolean exists(long fileId) 
-							throws DSOutOfServiceException, DSAccessException;
+							throws omero.ServerError;
 }
 
 

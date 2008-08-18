@@ -22,15 +22,6 @@
  */
 package ome.services.blitz.gateway;
 
-import omero.gateways.DSAccessException;
-import omero.gateways.DSOutOfServiceException;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
  * 
  *
@@ -49,54 +40,54 @@ public interface RawPixelsStoreService
 	/**
 	 * Keep service alive.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException;
+	public void keepAlive() throws omero.ServerError;
 
 	/**
 	 * Get the plane size of the current image.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	int getPlaneSize(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getPlaneSize(long pixelsId) throws omero.ServerError;
 
 	/**
 	 * Get the total size of the current image.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	int getTotalSize(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getTotalSize(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Get the plane size of the current image.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	int getRowSize(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getRowSize(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Get the stack size of the current image.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	int getStackSize(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getStackSize(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Get the timepoint size of the current image.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	int getTimepointSize(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getTimepointSize(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * get bytes to the plane c, t, z
@@ -106,10 +97,10 @@ public interface RawPixelsStoreService
 	 * @param t the bytes.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
 	public byte[] getPlane(long pixelsId, int z, int c, int t) 
-			throws DSOutOfServiceException, DSAccessException;
+			throws omero.ServerError;
 	
 	/**
 	 * set the plane at z, c, t to the bytes of buf.
@@ -119,36 +110,36 @@ public interface RawPixelsStoreService
 	 * @param c channel
 	 * @param t timepoint
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	void setPlane(long pixelsId, byte[] buf, int z, int c, int t) throws  DSOutOfServiceException, DSAccessException;
+	void setPlane(long pixelsId, byte[] buf, int z, int c, int t) throws omero.ServerError;
 	
 	/**
 	 * Get the bytewidth of the image
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	int getByteWidth(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	int getByteWidth(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Are the bytes in the image signed.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	boolean isSigned(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	boolean isSigned(long pixelsId) throws omero.ServerError;
 	
 	/**
 	 * Are the bytes in the image floats.
 	 * @param pixelsId the pixelsId of the image.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throwsomero.ServerError
 	 */
-	boolean isFloat(long pixelsId) throws  DSOutOfServiceException, DSAccessException;
+	boolean isFloat(long pixelsId) throws omero.ServerError;
 
 	
 }
