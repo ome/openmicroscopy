@@ -39,10 +39,10 @@ import Ice.Current;
 
 /**
  * Implementation of the IRenderingSettings service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.IRenderingSettings
  */
 public class RenderingSettingsI extends AbstractAmdServant implements
         _IRenderingSettingsOperations {

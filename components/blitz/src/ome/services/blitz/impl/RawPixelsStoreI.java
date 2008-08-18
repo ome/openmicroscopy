@@ -42,10 +42,10 @@ import Ice.Current;
 
 /**
  * Implementation of the RawPixelsStore service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.RawPixelsStore
  */
 public class RawPixelsStoreI extends AbstractAmdServant implements
         _RawPixelsStoreOperations {

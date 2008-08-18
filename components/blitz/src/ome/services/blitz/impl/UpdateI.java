@@ -25,10 +25,10 @@ import Ice.Current;
 
 /**
  * Implementation of the IUpdate service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.IUpdate
  */
 public class UpdateI extends AbstractAmdServant implements _IUpdateOperations {
 

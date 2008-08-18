@@ -42,7 +42,7 @@ import Ice.Current;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.IPojos
  */
 public class PojosI extends AbstractAmdServant implements _IPojosOperations {
 

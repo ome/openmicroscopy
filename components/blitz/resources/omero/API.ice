@@ -242,7 +242,7 @@ module omero {
 	["ami", "amd"] interface IShare extends ServiceInterface
 	{
 	    void activate(long shareId);
-	    omero::model::Session getShare(long sessionId);
+	    omero::model::Share getShare(long shareId);
 	    SessionList getAllShares(bool active);
 	    SessionList getOwnShares(bool active);
 	    SessionList getMemberShares(bool active);

@@ -34,10 +34,10 @@ import Ice.Current;
 
 /**
  * Implementation of the ThumbnailStore service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.ThumbnailStore
  */
 public class ThumbnailStoreI extends AbstractAmdServant implements
         _ThumbnailStoreOperations {

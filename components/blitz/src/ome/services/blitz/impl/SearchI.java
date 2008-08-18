@@ -70,10 +70,10 @@ import Ice.Current;
 
 /**
  * Implementation of the Search service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.Search
  */
 public class SearchI extends AbstractAmdServant implements _SearchOperations {
 

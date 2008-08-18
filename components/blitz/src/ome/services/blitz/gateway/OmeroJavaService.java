@@ -35,10 +35,8 @@ import Ice.Current;
 
 import omero.RType;
 import omero.ServerError;
-import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
-import omero.api.AMD_StatefulServiceInterface_passivate;
 import omero.api.ServiceFactoryPrx;
 import omero.api._GatewayDisp;
 import omero.api.BufferedImage;
@@ -1073,11 +1071,6 @@ public class OmeroJavaService extends _GatewayDisp
 	// StatefulServiceInterface
 	// =========================================================================
 	
-    public void activate_async(AMD_StatefulServiceInterface_activate __cb,
-            Current __current) {
-        throw new UnsupportedOperationException();
-    }
-    
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
         throw new UnsupportedOperationException();    
@@ -1086,11 +1079,6 @@ public class OmeroJavaService extends _GatewayDisp
     public void getCurrentEventContext_async(
             AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             Current __current) throws ServerError {
-        throw new UnsupportedOperationException();
-    }
-
-    public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
-            Current __current) {
         throw new UnsupportedOperationException();
     }
 

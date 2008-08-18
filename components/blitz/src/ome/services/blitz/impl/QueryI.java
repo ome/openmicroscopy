@@ -33,7 +33,7 @@ import Ice.Current;
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.IQuery
  */
 public class QueryI extends AbstractAmdServant implements _IQueryOperations {
 

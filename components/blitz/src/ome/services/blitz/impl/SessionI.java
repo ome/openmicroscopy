@@ -29,10 +29,10 @@ import Ice.Current;
 
 /**
  * Implementation of the ISession service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.ISession
  */
 public class SessionI extends AbstractAmdServant implements _ISessionOperations {
 

@@ -29,10 +29,10 @@ import Ice.Current;
 
 /**
  * Implementation of the ITypes service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.ITypes
  */
 public class TypesI extends AbstractAmdServant implements _ITypesOperations {
 

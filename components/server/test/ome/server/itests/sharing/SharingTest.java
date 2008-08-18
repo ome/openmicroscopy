@@ -314,6 +314,11 @@ public class SharingTest extends AbstractManagedContextTest {
         fail("NYI");
     }
 
+    @Test
+    public void testIsTheUUIDProtected() {
+        fail("NYI");
+    }
+
     // Assertions
     // =========================================================================
 

@@ -21,10 +21,10 @@ import Ice.Current;
 
 /**
  * Implementation of the IRepositoryInfo service.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
- * @see ome.api.IDelete
+ * @see ome.api.IRepositoryInfo
  */
 public class RepositoryInfoI extends AbstractAmdServant implements
         _IRepositoryInfoOperations {
