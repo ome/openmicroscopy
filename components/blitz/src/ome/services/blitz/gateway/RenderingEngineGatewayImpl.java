@@ -30,8 +30,8 @@ package ome.services.blitz.gateway;
 
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 import omero.model.Pixels;
 import omero.romio.PlaneDef;
 

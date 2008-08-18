@@ -32,9 +32,9 @@ import java.util.List;
 
 import omero.ApiUsageException;
 import omero.ValidationException;
-import omero.gateway.ContainerClass;
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.ContainerClass;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 import omero.model.IObject;
 import Glacier2.PermissionDeniedException;
 

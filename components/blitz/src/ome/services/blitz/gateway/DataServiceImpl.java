@@ -54,9 +54,9 @@ import omero.model.ProjectI;
 
 
 
-import omero.gateway.ContainerClass;
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.ContainerClass;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 
 /** 

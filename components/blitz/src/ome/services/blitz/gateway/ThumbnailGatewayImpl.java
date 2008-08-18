@@ -32,8 +32,8 @@ import omero.api.ThumbnailStorePrx;
 import omero.model.ThumbnailPrx;
 
 
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 
 //Java imports

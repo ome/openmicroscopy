@@ -40,8 +40,8 @@ import omero.model.Pixels;
 import omero.model.PixelsType;
 
 
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 
 /** 

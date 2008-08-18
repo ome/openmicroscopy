@@ -34,8 +34,8 @@ import omero.api.IUpdatePrx;
 import omero.model.IObject;
 
 
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 
 

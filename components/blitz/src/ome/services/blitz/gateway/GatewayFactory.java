@@ -23,8 +23,8 @@
 package ome.services.blitz.gateway;
 
 import omero.api.ServiceFactoryPrx;
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 
 //Java imports

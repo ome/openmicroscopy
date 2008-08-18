@@ -36,12 +36,12 @@ import Ice.Current;
 
 import omero.RType;
 import omero.api.ServiceFactoryPrx;
-import omero.gateway.BufferedImage;
-import omero.gateway.ContainerClass;
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
-import omero.gateway.HeartBeatPrx;
-import omero.gateway._GatewayServiceDisp;
+import omero.gateways.BufferedImage;
+import omero.gateways.ContainerClass;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
+import omero.gateways.HeartBeatPrx;
+import omero.gateways._GatewayServiceDisp;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -104,8 +104,6 @@ public class OmeroJavaService extends _GatewayServiceDisp
 	
 	private HeartBeatService heartbeatService;
 	
-	private HeartBeatPrx heartBeatProxy;
-
 	/**
 	 * Create the service factory which creates the gateway and services
 	 * and links the different services together.  

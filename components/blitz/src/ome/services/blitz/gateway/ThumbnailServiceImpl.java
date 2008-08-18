@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 import omero.RInt;
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 
 

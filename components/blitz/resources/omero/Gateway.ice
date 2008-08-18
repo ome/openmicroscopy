@@ -16,11 +16,11 @@ module omero {
 
     module constants {
 
-        const string GATEWAY = "omero.gateway.GatewayService";
+        const string GATEWAY = "omero.gateways.PrimaryGateway";
 
     };
 
-    module gateway {
+    module gateways {
 
         // Exceptions
         // =====================================================================
@@ -97,17 +97,7 @@ module omero {
         // Services
         // =====================================================================
 
-	/*
-	 * Rather than calling keepAlive(), it is possible to set a HeartBeat
-	 * proxy on the gateway which will be used to test aliveness.
-	 */
-	interface HeartBeat {
-
-	    bool ping();
-
-	};
-
-        ["ami"] interface GatewayService {
+        ["ami"] interface PrimaryGateway {
 
             /*
              * Get the projects, and datasets in the OMERO.Blitz server in the user
@@ -119,7 +109,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            ProjectList getProjects(LongList ids, bool withLeaves)
+            idempotent ProjectList getProjects(LongList ids, bool withLeaves)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -130,7 +120,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            DatasetList getDatasets(LongList ids, bool withLeaves)
+            idempotent DatasetList getDatasets(LongList ids, bool withLeaves)
                 throws DSOutOfServiceException, DSAccessException;
 
 
@@ -142,7 +132,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            omero::model::Dataset getDataset(long datasetId, bool leaves)
+            idempotent omero::model::Dataset getDataset(long datasetId, bool leaves)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -153,7 +143,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            PixelsList getPixelsFromImage(long imageId)
+            idempotent PixelsList getPixelsFromImage(long imageId)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -163,7 +153,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            omero::model::Image getImage(long id)
+            idempotent omero::model::Image getImage(long id)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -175,7 +165,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            ImageList getImages(ContainerClass parentType, LongList ids )
+            idempotent ImageList getImages(ContainerClass parentType, LongList ids )
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -186,7 +176,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            IObjectList findAllByQuery(string myQuery)
+            idempotent IObjectList findAllByQuery(string myQuery)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -198,7 +188,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            omero::model::IObject findByQuery(string myQuery)
+            idempotent omero::model::IObject findByQuery(string myQuery)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -212,7 +202,7 @@ module omero {
              * @throws DSAccessException
              * @throws DSOutOfServiceException
              */
-            DoubleArrayArray getPlane(long pixelsId, int z, int c, int t)
+            idempotent DoubleArrayArray getPlane(long pixelsId, int z, int c, int t)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -225,7 +215,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            omero::model::Pixels getPixels(long pixelsId)
+            idempotent omero::model::Pixels getPixels(long pixelsId)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -294,7 +284,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            void uploadPlane(long pixelsId, int z, int c, int t, DoubleArrayArray data)
+            idempotent void uploadPlane(long pixelsId, int z, int c, int t, DoubleArrayArray data)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -305,7 +295,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            omero::model::Pixels updatePixels(omero::model::Pixels pixels)
+            idempotent omero::model::Pixels updatePixels(omero::model::Pixels pixels)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -314,7 +304,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            PixelsTypeList getPixelTypes()
+            idempotent PixelsTypeList getPixelTypes()
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -324,7 +314,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            omero::model::PixelsType getPixelType(string type)
+            idempotent omero::model::PixelsType getPixelType(string type)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -333,7 +323,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            LongStringMap getScripts()
+            idempotent LongStringMap getScripts()
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -343,7 +333,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            long getScriptID(string name) 
+            idempotent long getScriptID(string name)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -353,7 +343,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            long uploadScript(string script) 
+            long uploadScript(string script)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -363,7 +353,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            string getScript(long id)
+            idempotent string getScript(long id)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -373,7 +363,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            StringRTypeMap getParams(long id)
+            idempotent StringRTypeMap getParams(long id)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -405,7 +395,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            DoubleArrayArrayArray getPlaneStack(long pixelId, int c, int t)
+            idempotent DoubleArrayArrayArray getPlaneStack(long pixelId, int c, int t)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -417,7 +407,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            BufferedImage getRenderedImage(long pixelsId, int z, int t) 
+            idempotent BufferedImage getRenderedImage(long pixelsId, int z, int t)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -430,7 +420,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            IntegerArrayArrayArray getRenderedImageMatrix(long pixelsId, int z, int t)
+            idempotent IntegerArrayArrayArray getRenderedImageMatrix(long pixelsId, int z, int t)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -443,7 +433,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            IntegerArray renderAsPackedInt(long pixelsId, int z, int t)
+            idempotent IntegerArray renderAsPackedInt(long pixelsId, int z, int t)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -466,7 +456,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            bool isActive(long pixelsId, int w)
+            idempotent bool isActive(long pixelsId, int w)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -477,7 +467,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            int getDefaultZ(long pixelsId)
+            idempotent int getDefaultZ(long pixelsId)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -488,7 +478,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            int getDefaultT(long pixelsId)
+            idempotent int getDefaultT(long pixelsId)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -535,7 +525,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            double getChannelWindowStart(long pixelsId, int w)
+            idempotent double getChannelWindowStart(long pixelsId, int w)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -547,7 +537,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            double getChannelWindowEnd(long pixelsId, int w)
+            idempotent double getChannelWindowEnd(long pixelsId, int w)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -571,7 +561,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            ByteArray getThumbnail(long pixelsId, omero::RInt sizeX, omero::RInt sizeY)
+            idempotent ByteArray getThumbnail(long pixelsId, omero::RInt sizeX, omero::RInt sizeY)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -584,7 +574,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            LongByteArrayMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, LongList pixelsIds)
+            idempotent LongByteArrayMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, LongList pixelsIds)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -596,7 +586,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            LongByteArrayMap getThumbnailBylongestSideSet(omero::RInt size, LongList pixelsIds)
+            idempotent LongByteArrayMap getThumbnailBylongestSideSet(omero::RInt size, LongList pixelsIds)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -607,7 +597,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            ByteArray getThumbnailBylongestSide(long pixelsId, omero::RInt size)
+            idempotent ByteArray getThumbnailBylongestSide(long pixelsId, omero::RInt size)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -647,7 +637,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            ImageList getImagesFromDataset(omero::model::Dataset dataset)
+            idempotent ImageList getImagesFromDataset(omero::model::Dataset dataset)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -660,7 +650,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            DoubleArrayArray getPlaneFromImage(long imageId, int z, int c, int t)
+            idempotent DoubleArrayArray getPlaneFromImage(long imageId, int z, int c, int t)
 		throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -673,7 +663,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            DatasetList getDatasetsFromProject(omero::model::Project project)
+            idempotent DatasetList getDatasetsFromProject(omero::model::Project project)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -687,7 +677,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            PixelsList getPixelsFromDataset(omero::model::Dataset dataset)
+            idempotent PixelsList getPixelsFromDataset(omero::model::Dataset dataset)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -701,7 +691,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            PixelsList getPixelsFromProject(omero::model::Project project)
+            idempotent PixelsList getPixelsFromProject(omero::model::Project project)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -714,7 +704,7 @@ module omero {
              * @param images see above.
              * @return map of the pixels-->imageId.
              */
-            LongPixelsMap getPixelsImageMap(ImageList images)
+            idempotent LongPixelsMap getPixelsImageMap(ImageList images)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -727,7 +717,7 @@ module omero {
              * @param images see above.
              * @return list of the pixels.
              */
-            PixelsList getPixelsFromImageList(ImageList images)
+            idempotent PixelsList getPixelsFromImageList(ImageList images)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -738,7 +728,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            ImageList getImageFromDatasetByName(long datasetId, string imageName)
+            idempotent ImageList getImageFromDatasetByName(long datasetId, string imageName)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -748,7 +738,7 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            ImageList getImageByName(string imageName)
+            idempotent ImageList getImageByName(string imageName)
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -802,7 +792,7 @@ module omero {
              * Get the username.
              * @return see above.
              */
-            string getUsername()
+            idempotent string getUsername()
                 throws DSOutOfServiceException, DSAccessException;
 
             /*
@@ -810,14 +800,8 @@ module omero {
              * @throws DSOutOfServiceException
              * @throws DSAccessException
              */
-            void keepAlive()
+            idempotent void keepAlive()
                 throws DSOutOfServiceException, DSAccessException;
-
-	    /*
-	     * Sets a HeartBeat callback which will be called
-	     * before any gateway timeout would occur.
-	     */
-	    void setHeartBeat(HeartBeat* hb);
 
         };
 

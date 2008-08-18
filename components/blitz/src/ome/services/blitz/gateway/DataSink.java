@@ -31,8 +31,8 @@ package ome.services.blitz.gateway;
 //Application-internal dependencies
 import omero.model.Pixels;
 
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 

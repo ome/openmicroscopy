@@ -25,7 +25,7 @@ package ome.services.blitz.gateway;
 
 //Java imports
 import java.awt.Color;
-import omero.gateway.BufferedImage;
+import omero.gateways.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
@@ -47,8 +47,8 @@ import omero.model.PixelsType;
 
 
 
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 
 

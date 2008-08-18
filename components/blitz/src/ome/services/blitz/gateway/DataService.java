@@ -27,9 +27,9 @@ package ome.services.blitz.gateway;
 import java.util.List;
 import java.util.Map;
 
-import omero.gateway.ContainerClass;
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.ContainerClass;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;

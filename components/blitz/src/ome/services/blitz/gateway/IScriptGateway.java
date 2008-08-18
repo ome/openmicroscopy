@@ -29,8 +29,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
+import omero.gateways.DSAccessException;
+import omero.gateways.DSOutOfServiceException;
 
 import omero.RType;
 
