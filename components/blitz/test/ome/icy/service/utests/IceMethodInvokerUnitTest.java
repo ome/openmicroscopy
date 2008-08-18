@@ -35,7 +35,7 @@ import ome.model.meta.ExperimenterGroup;
 import ome.parameters.QueryParameter;
 import ome.services.blitz.util.ConvertToBlitzExceptionMessage;
 import ome.services.blitz.util.IceMethodInvoker;
-import ome.services.blitz.util.ServantHelper;
+import ome.services.messages.GlobalMulticaster;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Roles;
@@ -71,17 +71,6 @@ import org.springframework.context.ApplicationListener;
 import org.testng.annotations.Configuration;
 import org.testng.annotations.Test;
 
-class ListenerAddableOmeroContext extends OmeroContext {
-    ListenerAddableOmeroContext(String file) {
-        super(file);
-    }
-
-    @Override
-    public void addListener(ApplicationListener listener) {
-        super.addListener(listener);
-    }
-}
-
 @Test
 public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
@@ -90,13 +79,16 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     Destroyable tb;
     IceMapper mapper;
     Ice.Current current;
-    ListenerAddableOmeroContext ctx;
+    OmeroContext ctx;
+    GlobalMulticaster multicaster;
 
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
         tb = new Destroyable();
-        ctx = new ListenerAddableOmeroContext("classpath:ome/testing/empty.xml");
+        ctx = new OmeroContext("classpath:ome/services/messaging.xml");
+        multicaster = (GlobalMulticaster) ctx
+                .getBean("applicationEventMulticaster");
         invoker = new IceMethodInvoker(ThumbnailStore.class, ctx);
         mapper = new IceMapper();
         current = new Ice.Current();
@@ -109,7 +101,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         ome.model.core.Image i = new ome.model.core.Image();
         assertNotNull(i.getDetails());
         Object o = mapper.handleOutput(ome.model.core.Image.class, i);
-        ServantHelper.throwIfNecessary(o);
         Image rv = (Image) o;
         assertNotNull(rv.details);
     }
@@ -119,15 +110,18 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         Image i = new ImageI();
         i.details = new DetailsI();
         Object o = mapper.handleInput(ome.model.core.Image.class, i);
-        ServantHelper.throwIfNecessary(o);
         ome.model.core.Image rv = (ome.model.core.Image) o;
         assertNotNull(rv.getDetails());
     }
 
+    /**
+     * See the note in {#link {@link IceMethodInvoker#callorClose(...)} for info
+     * on why tb.closed == 0.
+     */
     @Test
     void testAllCallsOnCloseAlsoCallDestroy() throws Exception {
         invoker.invoke(tb, current, mapper);
-        assertTrue(tb.toString(), tb.closed == 1);
+        assertTrue(tb.toString(), tb.closed == 0);
         assertTrue(tb.toString(), tb.destroyed == 1);
     }
 
@@ -223,7 +217,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     ServiceInterface srv = null;
     Mock mock;
 
-    protected Object invoke(Object... args) throws omero.ServerError {
+    protected Object invoke(Object... args) throws Ice.UserException {
         Object rv = invoker.invoke(srv, current, mapper, args);
         return rv;
     }
@@ -270,7 +264,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method();
 
         Object rv = invoke("foo");
-        ServantHelper.throwIfNecessary(rv);
 
     }
 
@@ -284,7 +277,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         current.operation = "XXXXXXXXXXXXXXXXXXXXXXXX";
         IceMethodInvoker imi = new IceMethodInvoker(c, ctx);
-        imi.invoke(prx, current, new IceMapper());
+        imi.invoke(prx, current, new IceMapper(), null);
 
     }
 
@@ -302,7 +295,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
     }
 
-    @Test
+    @Test(expectedExceptions = omero.SecurityViolation.class)
     public void testInvokeHandlesExceptionMapping() throws Exception {
         c = IAdmin.class;
 
@@ -342,8 +335,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         });
         Object rv = invoker.invoke(srv, current, mapper, i);
-
-        ServantHelper.throwIfNecessary(rv);
         assertNull(rv);
     }
 
@@ -357,23 +348,50 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(ISession.class, "getInput");
         method().will(returnValue(new omero.RInt()));
         Object rv = invoke("a", "a");
-        ServantHelper.throwIfNecessary(rv);
         assertNotNull(rv);
 
         init(ISession.class, "setInput");
         method();
         rv = invoke("a", "a", new omero.RInt());
-        ServantHelper.throwIfNecessary(rv);
 
         init(ISession.class, "getOutput");
         method().will(returnValue(new omero.Point()));
         rv = invoke("a", "a");
-        ServantHelper.throwIfNecessary(rv);
 
         init(ISession.class, "setOutput");
         method();
         rv = invoke("a", "a", new omero.RInternal(new omero.grid.JobParams()));
-        ServantHelper.throwIfNecessary(rv);
+
+    }
+
+    @Test(groups = "ticket:1036")
+    public void testSessionsGetInputString() throws Exception {
+
+        ISession s;
+
+        String sess = new String("sess");
+        String key = new String("key");
+        RString value = new RString("value");
+
+        init(ISession.class, "setInput");
+        method();
+        Object rv = invoke(sess, key, value);
+
+        init(ISession.class, "getInput");
+        method().will(returnValue("value"));
+        rv = invoke(sess, key);
+        assertNotNull(rv);
+        // This is how the invoker previously broke. Should be true.
+        assertFalse(rv instanceof RString);
+
+        // Now using the #mapReturnValue method
+        init(ISession.class, "getInput");
+        method().will(returnValue("value"));
+        // Convert string to rstring
+        mapper = new IceMapper(IceMapper.STRING_TO_RSTRING);
+        rv = invoke(sess, key);
+        assertNotNull(rv);
+        assertTrue(rv instanceof RString);
 
     }
 
@@ -401,7 +419,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(IShare.class, "createShare");
         method().will(returnValue(1L));
         Object rv = invoke("d", null, null, null, null, true);
-        ServantHelper.throwIfNecessary(rv);
         assertNotNull(rv);
     }
 
@@ -416,7 +433,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method().will(returnValue(new Roles()));
 
         Object rv = invoke();
-        ServantHelper.throwIfNecessary(rv);
         assertNotNull(rv);
         assertEquals(new Roles().getRootName(), ((omero.sys.Roles) rv).rootName);
 
@@ -481,7 +497,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         }));
 
         rv = invoke();
-        ServantHelper.throwIfNecessary(rv);
         omero.sys.EventContext ec = (omero.sys.EventContext) rv;
         assertTrue(ec.eventType.equals("type"));
         assertTrue(ec.groupName.equals("group"));
@@ -499,7 +514,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
                         returnValue(new ExperimenterGroup[] { new ExperimenterGroup() }));
 
         Object rv = invoke(1L);
-        ServantHelper.throwIfNecessary(rv);
         assertNotNull(rv);
         assertTrue("is list", List.class.isAssignableFrom(rv.getClass()));
         List l = (List) rv;
@@ -516,12 +530,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         method().will(returnValue(null));
         Object rv = invoke(1L);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue("is null", rv == null);
 
         method().will(returnValue(new ExperimenterGroup[] {}));
         rv = invoke(1L);
-        ServantHelper.throwIfNecessary(rv);
         List l = (List) rv;
         assertTrue("is empty", l.size() == 0);
 
@@ -535,19 +547,16 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         method().will(returnValue(null));
         Object rv = invoke(new Object[] { null });
-        ServantHelper.throwIfNecessary(rv);
         assertTrue("is null", rv == null);
 
         method().will(returnValue(new boolean[] {}));
         rv = invoke(Collections.EMPTY_LIST);
-        ServantHelper.throwIfNecessary(rv);
         boolean[] l = (boolean[]) rv;
         assertTrue("is empty", l.length == 0);
 
         method().will(returnValue(new boolean[] { true, false }));
         rv = invoke(Arrays.asList(new omero.model.ImageI(),
                 new omero.model.ImageI()));
-        ServantHelper.throwIfNecessary(rv);
         l = (boolean[]) rv;
         assertTrue("is 2", l.length == 2);
 
@@ -564,14 +573,12 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method().will(returnValue(Arrays.asList(new ome.model.core.Image())));
 
         Object rv = invoke("my query", new omero.sys.Parameters());
-        ServantHelper.throwIfNecessary(rv);
         assertNotNull(rv);
 
         init(IQuery.class, "findAll");
         method().will(
                 returnValue(Arrays.asList(new ome.model.meta.Experimenter())));
         rv = invoke("Experimenter", new omero.sys.Filter());
-        ServantHelper.throwIfNecessary(rv);
         List l = (List) rv;
         rv = l.get(0);
         assertTrue(rv.getClass().getName(),
@@ -623,7 +630,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         // p.map.put("Array",new JArray(new JString("A")));
         // FIXME: Not supported. Array class needed for query parameters.
         Object rv = invoke("my query", p);
-        ServantHelper.throwIfNecessary(rv);
         assertNotNull(rv);
     }
 
@@ -636,14 +642,12 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method(); // void
 
         Object rv = invoke(Arrays.asList(new omero.model.ImageI()));
-        ServantHelper.throwIfNecessary(rv);
 
         init(IUpdate.class, "saveAndReturnArray");
         method()
                 .will(
                         returnValue(new ome.model.core.Image[] { new ome.model.core.Image() }));
         rv = invoke(Arrays.asList(new omero.model.ImageI()));
-        ServantHelper.throwIfNecessary(rv);
         List l = (List) rv;
         assertTrue(l.size() == 1);
     }
@@ -659,7 +663,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method();
 
         Object rv = invoke(new byte[] { 1, 2, 3 }, 1L, 1);
-        ServantHelper.throwIfNecessary(rv);
         assertNull(rv);
 
     }
@@ -675,14 +678,12 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method().will(returnValue(new byte[] { 1, 2, 3 }));
 
         Object rv = invoke(1, 1L);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(1 == ((byte[]) rv)[0]);
 
         init(RawPixelsStore.class, "getTimepointSize");
         method().will(returnValue(Integer.valueOf(1)));
 
         rv = invoke();
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(1 == (Integer) rv);
 
     }
@@ -701,19 +702,16 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(RenderingEngine.class, "getAvailableFamilies");
         mock.expects(once()).method(current.operation).will(returnValue(l));
         Object rv = invoke();
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(((List) rv).size() == 2);
 
         init(RenderingEngine.class, "getChannelFamily");
         mock.expects(once()).method(current.operation).will(returnValue(m1));
         rv = invoke(1);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(rv instanceof omero.model.Family);
 
         init(RenderingEngine.class, "setActive");
         method();
         rv = invoke(1, true);
-        ServantHelper.throwIfNecessary(rv);
 
         RGBBuffer buffer = new RGBBuffer(10, 10);
         omero.romio.PlaneDef def = new omero.romio.PlaneDef();
@@ -724,12 +722,10 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(RenderingEngine.class, "render");
         method().will(returnValue(buffer));
         rv = invoke(def);
-        ServantHelper.throwIfNecessary(rv);
 
         init(RenderingEngine.class, "renderAsPackedInt");
         method().will(returnValue(new int[] { 1, 2, 3, 4 }));
         rv = invoke(def);
-        ServantHelper.throwIfNecessary(rv);
 
     }
 
@@ -754,7 +750,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method().will(returnValue(map));
 
         Object rv = invoke(32, 32, Collections.singleton(1L));
-        ServantHelper.throwIfNecessary(rv);
         byte[] results = ((Map<Long, byte[]>) rv).get(1L);
         assertNotNull(results);
         assertTrue(Arrays.equals(b, results));
@@ -771,7 +766,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(IConfig.class, "getServerTime");
         method().will(returnValue(new Timestamp(System.currentTimeMillis())));
         Object rv = invoke();
-        ServantHelper.throwIfNecessary(rv);
         assertNotNull(rv);
 
     }
@@ -789,14 +783,12 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(IPojos.class, "getUserDetails");
         method().will(returnValue(new HashMap()));
         Object rv = invoke(Arrays.asList("u1", "u2"), paramMap);
-        ServantHelper.throwIfNecessary(rv);
         Map map = (Map) rv;
         assertNotNull(map);
 
         init(IPojos.class, "loadContainerHierarchy");
         method().will(returnValue(new HashSet()));
         rv = invoke("Project", Arrays.asList(1L), paramMap);
-        ServantHelper.throwIfNecessary(rv);
 
     }
 
@@ -813,7 +805,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         method().will(returnValue(retVal));
         Object rv = invoke("Image", Arrays.asList(1L, 2L), Arrays
                 .asList(1L, 2L), paramMap);
-        ServantHelper.throwIfNecessary(rv);
         Map map = (Map) rv;
         assertNotNull(map);
 
@@ -852,7 +843,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
             }
         }).will(returnValue(new HashSet()));
         Object rv = invoke("Image", Arrays.asList(1L, 2L), paramMap);
-        ServantHelper.throwIfNecessary(rv);
     }
 
     @Test
@@ -862,38 +852,32 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
 
         method().will(returnValue(null));
         Object rv = invoke(null, null);
-        ServantHelper.throwIfNecessary(rv);
         assertNull(rv);
 
         method().will(returnValue(new ome.model.core.Image[] {}));
         rv = invoke(Collections.EMPTY_LIST, null);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(((List) rv).size() == 0);
 
         method()
                 .will(
                         returnValue(new ome.model.core.Image[] { new ome.model.core.Image() }));
         rv = invoke(Collections.EMPTY_LIST, null);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(((List) rv).size() == 1);
 
         init(IPojos.class, "updateDataObjects");
 
         method().will(returnValue(null));
         rv = invoke(null, null);
-        ServantHelper.throwIfNecessary(rv);
         assertNull(rv);
 
         method().will(returnValue(new ome.model.IObject[] {}));
         rv = invoke(Collections.EMPTY_LIST, null);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(((List) rv).size() == 0);
 
         method()
                 .will(
                         returnValue(new ome.model.core.Image[] { new ome.model.core.Image() }));
         rv = invoke(Collections.EMPTY_LIST, null);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(((List) rv).size() == 1);
 
         init(IPojos.class, "link");
@@ -902,7 +886,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
                 .will(
                         returnValue(new ome.model.containers.ProjectDatasetLink[] { new ome.model.containers.ProjectDatasetLink() }));
         rv = invoke(Arrays.asList(new omero.model.ProjectDatasetLinkI()), null);
-        ServantHelper.throwIfNecessary(rv);
         assertTrue(((List) rv).size() == 1);
 
     }
@@ -926,7 +909,6 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(Search.class, "next");
         method().will(returnValue(new ome.model.core.Image()));
         Object rv = invoke();
-        ServantHelper.throwIfNecessary(rv);
         Image img = (Image) rv;
 
         assertNotNull(img);
@@ -934,37 +916,30 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         init(Search.class, "onlyOwnedBy");
         method();
         rv = invoke(new omero.model.DetailsI());
-        ServantHelper.throwIfNecessary(rv);
 
         init(Search.class, "onlyIds");
         method();
         rv = invoke((Object) new Long[] { 1L, 2L });
-        ServantHelper.throwIfNecessary(rv);
 
         init(Search.class, "onlyIds");
         method();
         rv = invoke((Object) new Long[] { 1L });
-        ServantHelper.throwIfNecessary(rv);
 
         init(Search.class, "byAnnotatedWith");
         method();
         rv = invoke(Arrays.asList(new TagAnnotationI()));
-        ServantHelper.throwIfNecessary(rv);
 
         init(Search.class, "fetchAlso");
         method();
         rv = invoke(Arrays.asList("a", "b"));
-        ServantHelper.throwIfNecessary(rv);
 
         init(Search.class, "fetchAnnotations");
         method();
         rv = invoke(Arrays.asList("Image", "Project"));
-        ServantHelper.throwIfNecessary(rv);
 
         init(Search.class, "currentMetadataList");
         method().will(returnValue(Collections.singletonList(new HashMap())));
         rv = invoke();
-        ServantHelper.throwIfNecessary(rv);
 
     }
 
@@ -985,7 +960,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         // addApplicationListener currently does not work
         // instead we've subclassed OmeroContext to make
         // addListener public
-        ctx.addListener(new ApplicationListener() {
+        multicaster.addApplicationListener(new ApplicationListener() {
             public void onApplicationEvent(ApplicationEvent arg0) {
                 int i = 0;
                 i++;
@@ -999,7 +974,8 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         });
 
         Throwable t = invoker.handleException(new NullPointerException());
-        assertTrue(t instanceof omero.ApiUsageException);
+        assertTrue(t.getClass().toString(),
+                t instanceof omero.InternalException);
     }
 
     public void testByteArraysAsMaValues() {

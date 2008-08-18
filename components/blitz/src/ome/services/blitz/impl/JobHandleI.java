@@ -44,68 +44,68 @@ public class JobHandleI extends AbstractAmdServant implements
 
     public void attach_async(AMD_JobHandle_attach __cb, long jobId,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, jobId);
+        callInvokerOnRawArgs(__cb, __current, jobId);
 
     }
 
     public void cancelJob_async(AMD_JobHandle_cancelJob __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getJob_async(AMD_JobHandle_getJob __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void jobError_async(AMD_JobHandle_jobError __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void jobFinished_async(AMD_JobHandle_jobFinished __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void jobMessage_async(AMD_JobHandle_jobMessage __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void jobRunning_async(AMD_JobHandle_jobRunning __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void jobStatus_async(AMD_JobHandle_jobStatus __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void submit_async(AMD_JobHandle_submit __cb, Job j, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, j);
+        callInvokerOnRawArgs(__cb, __current, j);
 
     }
 
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getCurrentEventContext_async(
             AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

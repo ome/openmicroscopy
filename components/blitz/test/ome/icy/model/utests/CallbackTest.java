@@ -10,10 +10,10 @@ import java.util.List;
 
 import ome.api.IQuery;
 import ome.services.blitz.util.IceMethodInvoker;
-import ome.services.blitz.util.ServantHelper;
 import ome.services.throttling.Callback;
 import omero.api.AMD_IQuery_findAllByQuery;
 import omero.model.IObject;
+import omero.util.IceMapper;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -25,7 +25,6 @@ public class CallbackTest extends MockObjectTestCase {
     Mock mock;
     IQuery query;
     IceMethodInvoker invoker;
-    ServantHelper helper;
     Ice.Current current;
 
     @BeforeMethod
@@ -33,7 +32,6 @@ public class CallbackTest extends MockObjectTestCase {
         mock = mock(IQuery.class);
         query = (IQuery) mock.proxy();
         invoker = new IceMethodInvoker(IQuery.class, null);
-        helper = new ServantHelper();
         current = new Ice.Current();
         current.operation = "findAllByQuery";
     }
@@ -41,8 +39,8 @@ public class CallbackTest extends MockObjectTestCase {
     @Test
     public void testVisibilityOfCalbackMethods() throws Exception {
         _AMD_IQuery_findAllByQuery_expectResponse amd = new _AMD_IQuery_findAllByQuery_expectResponse();
-        Callback cb = new Callback(query, invoker, helper, amd, current,
-                "query", null);
+        Callback cb = new Callback(query, invoker, new IceMapper(), amd,
+                current, "query", null);
         mock.expects(once()).method("findAllByQuery");
         cb.run();
         assertTrue(amd.response);

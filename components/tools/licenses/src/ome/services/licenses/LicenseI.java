@@ -38,39 +38,39 @@ public class LicenseI extends AbstractAmdServant implements _ILicenseOperations 
 
     public void acquireLicense_async(AMD_ILicense_acquireLicense __cb,
             Current __current) throws ServerError, NoAvailableLicenseException {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getAvailableLicenseCount_async(
             AMD_ILicense_getAvailableLicenseCount __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getLicenseTimeout_async(AMD_ILicense_getLicenseTimeout __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getTotalLicenseCount_async(
             AMD_ILicense_getTotalLicenseCount __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void releaseLicense_async(AMD_ILicense_releaseLicense __cb,
             byte[] token, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, token);
+        callInvokerOnRawArgs(__cb, __current, token);
 
     }
 
     public void resetLicenses_async(AMD_ILicense_resetLicenses __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 }

@@ -39,35 +39,35 @@ public class RepositoryInfoI extends AbstractAmdServant implements
     public void getFreeSpaceInKilobytes_async(
             AMD_IRepositoryInfo_getFreeSpaceInKilobytes __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getUsageFraction_async(
             AMD_IRepositoryInfo_getUsageFraction __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getUsedSpaceInKilobytes_async(
             AMD_IRepositoryInfo_getUsedSpaceInKilobytes __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void removeUnusedFiles_async(
             AMD_IRepositoryInfo_removeUnusedFiles __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void sanityCheckRepository_async(
             AMD_IRepositoryInfo_sanityCheckRepository __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

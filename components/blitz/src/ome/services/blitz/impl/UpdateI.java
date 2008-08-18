@@ -41,43 +41,43 @@ public class UpdateI extends AbstractAmdServant implements _IUpdateOperations {
 
     public void deleteObject_async(AMD_IUpdate_deleteObject __cb, IObject row,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, row);
+        callInvokerOnRawArgs(__cb, __current, row);
 
     }
 
     public void indexObject_async(AMD_IUpdate_indexObject __cb, IObject row,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, row);
+        callInvokerOnRawArgs(__cb, __current, row);
 
     }
 
     public void saveAndReturnArray_async(AMD_IUpdate_saveAndReturnArray __cb,
             List<IObject> graph, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, graph);
+        callInvokerOnRawArgs(__cb, __current, graph);
 
     }
 
     public void saveAndReturnObject_async(AMD_IUpdate_saveAndReturnObject __cb,
             IObject obj, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, obj);
+        callInvokerOnRawArgs(__cb, __current, obj);
 
     }
 
     public void saveArray_async(AMD_IUpdate_saveArray __cb,
             List<IObject> graph, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, graph);
+        callInvokerOnRawArgs(__cb, __current, graph);
 
     }
 
     public void saveCollection_async(AMD_IUpdate_saveCollection __cb,
             List<IObject> objs, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, objs);
+        callInvokerOnRawArgs(__cb, __current, objs);
 
     }
 
     public void saveObject_async(AMD_IUpdate_saveObject __cb, IObject obj,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, obj);
+        callInvokerOnRawArgs(__cb, __current, obj);
 
     }
 

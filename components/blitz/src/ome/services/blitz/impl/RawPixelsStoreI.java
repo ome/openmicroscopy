@@ -60,167 +60,167 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
     public void calculateMessageDigest_async(
             AMD_RawPixelsStore_calculateMessageDigest __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getByteWidth_async(AMD_RawPixelsStore_getByteWidth __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getPlaneOffset_async(AMD_RawPixelsStore_getPlaneOffset __cb,
             int z, int c, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, z, c, t);
+        callInvokerOnRawArgs(__cb, __current, z, c, t);
 
     }
 
     public void getPlaneRegion_async(AMD_RawPixelsStore_getPlaneRegion __cb,
             int z, int c, int t, int size, int offset, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, z, c, t, size, offset);
+        callInvokerOnRawArgs(__cb, __current, z, c, t, size, offset);
 
     }
 
     public void getPlaneSize_async(AMD_RawPixelsStore_getPlaneSize __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getPlane_async(AMD_RawPixelsStore_getPlane __cb, int z, int c,
             int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, z, c, t);
+        callInvokerOnRawArgs(__cb, __current, z, c, t);
 
     }
 
     public void getRegion_async(AMD_RawPixelsStore_getRegion __cb, int size,
             long offset, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, size, offset);
+        callInvokerOnRawArgs(__cb, __current, size, offset);
 
     }
 
     public void getRowOffset_async(AMD_RawPixelsStore_getRowOffset __cb, int y,
             int z, int c, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, y, z, c, t);
+        callInvokerOnRawArgs(__cb, __current, y, z, c, t);
 
     }
 
     public void getRowSize_async(AMD_RawPixelsStore_getRowSize __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getRow_async(AMD_RawPixelsStore_getRow __cb, int y, int z,
             int c, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, y, z, c, t);
+        callInvokerOnRawArgs(__cb, __current, y, z, c, t);
 
     }
 
     public void getStackOffset_async(AMD_RawPixelsStore_getStackOffset __cb,
             int c, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, c, t);
+        callInvokerOnRawArgs(__cb, __current, c, t);
 
     }
 
     public void getStackSize_async(AMD_RawPixelsStore_getStackSize __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getStack_async(AMD_RawPixelsStore_getStack __cb, int c, int t,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, c, t);
+        callInvokerOnRawArgs(__cb, __current, c, t);
 
     }
 
     public void getTimepointOffset_async(
             AMD_RawPixelsStore_getTimepointOffset __cb, int t, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, t);
+        callInvokerOnRawArgs(__cb, __current, t);
 
     }
 
     public void getTimepointSize_async(
             AMD_RawPixelsStore_getTimepointSize __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getTimepoint_async(AMD_RawPixelsStore_getTimepoint __cb, int t,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, t);
+        callInvokerOnRawArgs(__cb, __current, t);
 
     }
 
     public void getTotalSize_async(AMD_RawPixelsStore_getTotalSize __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void isFloat_async(AMD_RawPixelsStore_isFloat __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void isSigned_async(AMD_RawPixelsStore_isSigned __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void setPixelsId_async(AMD_RawPixelsStore_setPixelsId __cb,
             long pixelsId, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, pixelsId);
+        callInvokerOnRawArgs(__cb, __current, pixelsId);
 
     }
 
     public void setPlane_async(AMD_RawPixelsStore_setPlane __cb, byte[] buf,
             int z, int c, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, buf, z, c, t);
+        callInvokerOnRawArgs(__cb, __current, buf, z, c, t);
 
     }
 
     public void setRegion_async(AMD_RawPixelsStore_setRegion __cb, int size,
             long offset, byte[] buffer, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, size, offset, buffer);
+        callInvokerOnRawArgs(__cb, __current, size, offset, buffer);
 
     }
 
     public void setRow_async(AMD_RawPixelsStore_setRow __cb, byte[] buf, int y,
             int z, int c, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, buf, y, z, c, t);
+        callInvokerOnRawArgs(__cb, __current, buf, y, z, c, t);
 
     }
 
     public void setStack_async(AMD_RawPixelsStore_setStack __cb, byte[] buf,
             int z, int c, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, buf, z, c, t);
+        callInvokerOnRawArgs(__cb, __current, buf, z, c, t);
 
     }
 
     public void setTimepoint_async(AMD_RawPixelsStore_setTimepoint __cb,
             byte[] buf, int t, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, buf, t);
+        callInvokerOnRawArgs(__cb, __current, buf, t);
 
     }
 
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getCurrentEventContext_async(
             AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

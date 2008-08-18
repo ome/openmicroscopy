@@ -9,7 +9,7 @@ package ome.services.throttling;
 
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.IceMethodInvoker;
-import ome.services.blitz.util.ServantHelper;
+import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,12 +28,21 @@ public class InThreadThrottlingStrategy implements ThrottlingStrategy {
     public InThreadThrottlingStrategy() {
     }
 
-    public void serviceInterfaceCall(ServiceInterface service,
-            IceMethodInvoker invoker, ServantHelper helper, Object __cb,
-            Ice.Current __current, Object... args) {
-        Callback cb = new Callback(service, invoker, helper, __cb, __current,
+    public void callInvokerOnRawArgs(ServiceInterface service,
+            IceMethodInvoker invoker, Object __cb, Ice.Current __current,
+            Object... args) {
+        IceMapper mapper = new IceMapper();
+        Callback cb = new Callback(service, invoker, mapper, __cb, __current,
                 args);
         cb.run();
+
+    }
+
+    public void callInvokerWithMappedArgs(ServiceInterface service,
+            IceMethodInvoker invoker, IceMapper mapper, Object __cb,
+            Current __current, Object... args) {
+        Callback cb = new Callback(service, invoker, mapper, __cb, __current,
+                args);
     }
 
     public void runnableCall(Current __current, Task task) {

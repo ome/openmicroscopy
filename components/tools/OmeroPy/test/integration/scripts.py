@@ -20,5 +20,11 @@ class TestScripts(lib.ITest):
         proc = self.client.sf.acquireProcessor(job, 20)
         #proc.
 
+    def testTicket1036(self):
+        print "set"
+        self.client.setInput("a", omero.RString("a"));
+        print "get"
+        self.client.getInput("a");
+
 if __name__ == '__main__':
     unittest.main()

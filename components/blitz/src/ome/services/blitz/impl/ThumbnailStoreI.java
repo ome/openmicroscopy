@@ -51,42 +51,42 @@ public class ThumbnailStoreI extends AbstractAmdServant implements
 
     public void createThumbnail_async(AMD_ThumbnailStore_createThumbnail __cb,
             RInt sizeX, RInt sizeY, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sizeX, sizeY);
+        callInvokerOnRawArgs(__cb, __current, sizeX, sizeY);
 
     }
 
     public void createThumbnails_async(
             AMD_ThumbnailStore_createThumbnails __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getThumbnailByLongestSideDirect_async(
             AMD_ThumbnailStore_getThumbnailByLongestSideDirect __cb, RInt size,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, size);
+        callInvokerOnRawArgs(__cb, __current, size);
 
     }
 
     public void getThumbnailByLongestSideSet_async(
             AMD_ThumbnailStore_getThumbnailByLongestSideSet __cb, RInt size,
             List<Long> pixelsIds, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, size, pixelsIds);
+        callInvokerOnRawArgs(__cb, __current, size, pixelsIds);
 
     }
 
     public void getThumbnailByLongestSide_async(
             AMD_ThumbnailStore_getThumbnailByLongestSide __cb, RInt size,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, size);
+        callInvokerOnRawArgs(__cb, __current, size);
 
     }
 
     public void getThumbnailDirect_async(
             AMD_ThumbnailStore_getThumbnailDirect __cb, RInt sizeX, RInt sizeY,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sizeX, sizeY);
+        callInvokerOnRawArgs(__cb, __current, sizeX, sizeY);
 
     }
 
@@ -94,7 +94,7 @@ public class ThumbnailStoreI extends AbstractAmdServant implements
             AMD_ThumbnailStore_getThumbnailForSectionByLongestSideDirect __cb,
             int theZ, int theT, RInt size, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, theZ, theT, size);
+        callInvokerOnRawArgs(__cb, __current, theZ, theT, size);
 
     }
 
@@ -102,58 +102,58 @@ public class ThumbnailStoreI extends AbstractAmdServant implements
             AMD_ThumbnailStore_getThumbnailForSectionDirect __cb, int theZ,
             int theT, RInt sizeX, RInt sizeY, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, theZ, theT, sizeX, sizeY);
+        callInvokerOnRawArgs(__cb, __current, theZ, theT, sizeX, sizeY);
 
     }
 
     public void getThumbnailSet_async(AMD_ThumbnailStore_getThumbnailSet __cb,
             RInt sizeX, RInt sizeY, List<Long> pixelsIds, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, sizeX, sizeY, pixelsIds);
+        callInvokerOnRawArgs(__cb, __current, sizeX, sizeY, pixelsIds);
 
     }
 
     public void getThumbnail_async(AMD_ThumbnailStore_getThumbnail __cb,
             RInt sizeX, RInt sizeY, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sizeX, sizeY);
+        callInvokerOnRawArgs(__cb, __current, sizeX, sizeY);
 
     }
 
     public void resetDefaults_async(AMD_ThumbnailStore_resetDefaults __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void setPixelsId_async(AMD_ThumbnailStore_setPixelsId __cb,
             long pixelsId, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, pixelsId);
+        callInvokerOnRawArgs(__cb, __current, pixelsId);
 
     }
 
     public void setRenderingDefId_async(
             AMD_ThumbnailStore_setRenderingDefId __cb, long renderingDefId,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, renderingDefId);
+        callInvokerOnRawArgs(__cb, __current, renderingDefId);
 
     }
 
     public void thumbnailExists_async(AMD_ThumbnailStore_thumbnailExists __cb,
             RInt sizeX, RInt sizeY, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sizeX, sizeY);
+        callInvokerOnRawArgs(__cb, __current, sizeX, sizeY);
 
     }
 
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getCurrentEventContext_async(
             AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 

@@ -20,6 +20,7 @@ import omero.util.IceMapper;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.util.Assert;
 
 /**
  * {@link Method}-cache primed either with an {@link ServiceInterface} instance
@@ -27,7 +28,9 @@ import org.apache.commons.logging.LogFactory;
  * invocation happens via
  * {@link #invoke(Object, Ice.Current, IceMapper, Object[])}
  * 
- * No reference is held to the initial priming argument.
+ * No reference is held to the initial priming argument in
+ * {@link IceMethodInvoker#IceMethodInvoker(ServiceInterface, OmeroContext)}
+ * just the class.
  * 
  * MAPPING RULES:
  * <ul>
@@ -36,6 +39,9 @@ import org.apache.commons.logging.LogFactory;
  * <li>Primitivies use Ice primitives (long, int, bool,...)</li>
  * <li>Primitive wrapeprs all use RTypes (RLong, RInt, RBool,...)</li>
  * </ul>
+ * 
+ * It is also possible to have this class not handle mapping arguments and
+ * return values by passing a return value mapper.
  * 
  * Future:
  * <ul>
@@ -54,14 +60,16 @@ public class IceMethodInvoker {
     static class Info {
         Method method;
 
-        Class[] params;
+        Class<?>[] params;
 
-        Class retType;
+        Class<?> retType;
 
         int[] switches;
     }
 
-    private final Map<String, Info> map = new HashMap<String, Info>();
+    private final static Map<Class<?>, Map<String, Info>> staticmap = new HashMap<Class<?>, Map<String, Info>>();
+
+    private final Class<?> serviceClass;
 
     private OmeroContext ctx;
 
@@ -81,7 +89,9 @@ public class IceMethodInvoker {
 
     /**
      * Creates an {@link IceMethodInvoker} instance by using reflection on the
-     * {@link Class} argument. All information is cached internally.
+     * {@link Class} argument. All information is cached internally in a static
+     * {@link #staticmap map} if the given service class argument has not
+     * already been cached.
      * 
      * @param <S>
      *            A type which subclasses {@link ServiceInterface}
@@ -90,15 +100,31 @@ public class IceMethodInvoker {
      */
     public <S extends ServiceInterface> IceMethodInvoker(Class<S> c,
             OmeroContext context) {
-        Method[] ms = c.getMethods();
-        for (Method m : ms) {
-            Info i = new Info();
-            i.method = m;
-            i.params = m.getParameterTypes();
-            i.retType = m.getReturnType();
-            map.put(m.getName(), i);
-        }
+
+        this.serviceClass = c;
         this.ctx = context;
+
+        if (!staticmap.containsKey(c)) {
+            synchronized (staticmap) {
+                // Re-check in case already added
+                if (!staticmap.containsKey(c)) {
+                    Map<String, Info> map = new HashMap<String, Info>();
+                    Method[] ms = c.getMethods();
+                    for (Method m : ms) {
+                        Info i = new Info();
+                        i.method = m;
+                        i.params = m.getParameterTypes();
+                        i.retType = m.getReturnType();
+                        map.put(m.getName(), i);
+                    }
+                    staticmap.put(c, map);
+                }
+            }
+        }
+    }
+
+    Map<String, Info> map() {
+        return staticmap.get(serviceClass);
     }
 
     /**
@@ -106,7 +132,7 @@ public class IceMethodInvoker {
      * ice_response() method to invoke.
      */
     public boolean isVoid(Ice.Current current) {
-        Info info = map.get(current.operation);
+        Info info = map().get(current.operation);
         return info.retType.equals(void.class);
     }
 
@@ -134,16 +160,56 @@ public class IceMethodInvoker {
      *         one was thrown.
      */
     public Object invoke(Object obj, Ice.Current current, IceMapper mapper,
-            Object... args) throws ServerError {
+            Object... args) throws Ice.UserException {
 
-        Info info = map.get(current.operation);
+        Assert.notNull(mapper, "IceMapper cannot be null");
+        Assert.notNull(current, "Ice.Current cannot be null");
+
+        final Info info = map().get(current.operation);
         if (info == null) {
             throw new IllegalArgumentException("Unknown method:"
                     + current.operation);
         }
 
+        final Object[] objs = arguments(current, mapper, info, args);
+
+        Object retVal = null;
+        try {
+            retVal = callOrClose(obj, current, info, objs);
+        } catch (Throwable t) {
+            throw handleException(t);
+        }
+
+        // Handling case of generics (.e.g Search.next())
+        // in which case we cannot properly handle the mapping.
+        Class<?> retType = info.retType;
+        if (retType == Object.class && retVal != null) {
+            retType = retVal.getClass();
+        }
+
+        // If we have a returnValueMapper then it's that objects responsibility
+        // to convert the return value, otherwise this class must do it.
+        if (mapper.canMapReturnValue()) {
+            return mapper.mapReturnValue(retVal);
+        } else {
+            return mapper.handleOutput(retType, retVal);
+        }
+    }
+
+    /**
+     * Maps input parameters from omero.* to ome.* types if the
+     * returnValueMapper is non-null. If it is null, then it is assumed that the
+     * responsibility falls to this class.
+     */
+    private Object[] arguments(Ice.Current current, IceMapper mapper,
+            Info info, Object... args) throws ServerError {
+
+        if (mapper.canMapReturnValue()) {
+            return args; // EARLY EXIT!
+        }
+
         // Alias
-        Class[] params = info.params;
+        Class<?>[] params = info.params;
 
         if (params.length != args.length) {
             throw new IllegalArgumentException("Must provide " + params.length
@@ -156,70 +222,70 @@ public class IceMethodInvoker {
 
         // be sure to use our own types
         for (int i = 0; i < params.length; i++) {
-            Class p = params[i];
+            Class<?> p = params[i];
             Object arg = args[i];
             objs[i] = mapper.handleInput(p, arg);
             // This check duplicates what should be in handleInput
-            // if (null != objs[i] && !isPrimitive(p) && // FIXME need way to
-            // check autoboxing.
+            // if (null != objs[i] && !isPrimitive(p) && // FIXME need way
+            // to check autoboxing.
             // !p.isAssignableFrom(objs[i].getClass())) {
             // throw new IllegalStateException(String.format(
             // "Cannot assign %s to %s",objs[i],p));
             // }
         }
+        return objs;
 
-        Class retType = info.retType;
+    }
+
+    /**
+     * Call the method as given unless it is named "close" in which case special
+     * logic must be performed, including calling destroy and <em>not</em>
+     * calling "close".
+     * 
+     * To replicate the lifecycle logic of the application server, it's
+     * necessary to catch all calls to "close()" (which is also done within the
+     * Hibernate SessionHandler), and ALSO call the "destroy()" method if
+     * present. TODO This could be much better placed, but this location is
+     * sufficient, since no call will be made on the delegation targets without
+     * going through this method.
+     * 
+     * Unfortunately, however, the destroy method is not on the interface and so
+     * must be checked directly.
+     */
+    private Object callOrClose(Object obj, Ice.Current current, Info info,
+            Object[] objs) throws Throwable, IllegalAccessException,
+            InvocationTargetException {
+
         Object retVal = null;
-        try {
-
-            // To replicate the lifecycle logic of the application server,
-            // it's necessary to catch all calls to "close()" (which is also
-            // done within the Hibernate SessionHandler), and ALSO call the
-            // "destroy()" method if present. TODO This could be much better
-            // placed, but this location is sufficient, since no call will
-            // be made on the delegation targets without going through this
-            // method.
-            //
-            // Unfortunately, however, the destroy method is not on the
-            // interface and so must be checked directly.
-            if ("close".equals(info.method.getName())) {
-                Method destroy = null;
-                try {
-                    destroy = obj.getClass().getMethod("destroy");
-                } catch (Exception e) {
-                    // No problems. Can't call method then.
-                }
-                if (destroy != null) {
-                    try {
-                        destroy.invoke(obj);
-                    } catch (Exception ex) {
-                        log.error("Exception on service.destroy()", ex);
-                    }
-                }
-                UnregisterServantMessage usm = new UnregisterServantMessage(
-                        this, Ice.Util.identityToString(current.id), current);
-                ctx.publishMessage(usm);
-            } else {
-                // Here we are skipping the close() since there is currently
-                // no logic in any of them. This is also essentially a HACK
-                // and should be re
-                retVal = info.method.invoke(obj, objs);
+        if ("close".equals(info.method.getName())) {
+            Method destroy = null;
+            try {
+                destroy = obj.getClass().getMethod("destroy");
+            } catch (Exception e) {
+                log.warn("Could not call destroy:", e);
             }
-        } catch (Throwable t) {
-            return handleException(t);
+            if (destroy != null) {
+                try {
+                    destroy.invoke(obj);
+                } catch (Exception ex) {
+                    log.error("Exception on service.destroy()", ex);
+                }
+            }
+            UnregisterServantMessage usm = new UnregisterServantMessage(this,
+                    Ice.Util.identityToString(current.id), current);
+            ctx.publishMessage(usm);
+        } else {
+            // Here we are skipping the close() since there is currently
+            // no logic in any of them. This is also essentially a HACK
+            // and should be reworked.
+            retVal = info.method.invoke(obj, objs);
         }
-
-        // Handling case of generics (.e.g Search.next())
-        // in which case we cannot properly handle the mapping.
-        if (retType == Object.class && retVal != null) {
-            retType = retVal.getClass();
-        }
-        return mapper.handleOutput(retType, retVal);
+        return retVal;
     }
 
     /** For testing the cached method. */
     public Method getMethod(String name) {
-        return map.get(name).method;
+        return map().get(name).method;
     }
 
     // ~ Helpers

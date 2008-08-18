@@ -8,7 +8,6 @@
 
 package omero.util;
 
-// Java imports
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
@@ -79,13 +78,53 @@ import org.apache.commons.logging.LogFactory;
  * Responsible for the mapping of ome.* types to omero.* types and back again.
  * Not all types are bidirectional, rather only those mappings are needed that
  * actually appear in the blitz API.
+ * 
+ * As of Beta3.1, an {@link IceMapper} instance can also be configured to handle
+ * return value mapping, though by default an exception will be thrown if
+ * {@link #mapReturnValue(Object)} is called.
  */
 public class IceMapper extends ome.util.ModelMapper implements
         ReverseModelMapper {
 
     private static Log log = LogFactory.getLog(IceMapper.class);
 
+    // Return value mapping
+    // =========================================================================
+
+    private final ReturnMapping mapping;
+
+    public IceMapper() {
+        this.mapping = null;
+    }
+
+    public IceMapper(ReturnMapping mapping) {
+        this.mapping = mapping;
+    }
+
+    public interface ReturnMapping {
+
+        public Object mapReturnValue(Object value);
+
+    }
+
+    public final static ReturnMapping STRING_TO_RSTRING = new ReturnMapping() {
+
+        public Object mapReturnValue(Object value) {
+            String str = (String) value;
+            return new omero.RString(str);
+        }
+    };
+
+    public boolean canMapReturnValue() {
+        return mapping != null;
+    }
+
+    public Object mapReturnValue(Object value) {
+        return mapping.mapReturnValue(value);
+    }
+
     // Exception handling
+    // =========================================================================
 
     public static ServerError fillServerError(ServerError se, Throwable t) {
         se.message = t.getMessage();
@@ -109,6 +148,9 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         return sw.getBuffer().toString();
     }
+
+    // Classes
+    // =========================================================================
 
     private static Class<? extends IObject> _class(String className) {
         Class k = null;
@@ -151,6 +193,9 @@ public class IceMapper extends ome.util.ModelMapper implements
         // Return, even null.
         return k;
     }
+
+    // Conversions
+    // =========================================================================
 
     public RType toRType(Object o) throws omero.ApiUsageException {
         if (o == null) {

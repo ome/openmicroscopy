@@ -45,69 +45,69 @@ public class TypesI extends AbstractAmdServant implements _ITypesOperations {
 
     public void allEnumerations_async(AMD_ITypes_allEnumerations __cb,
             String type, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, type);
+        callInvokerOnRawArgs(__cb, __current, type);
 
     }
 
     public void createEnumeration_async(AMD_ITypes_createEnumeration __cb,
             IObject newEnum, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, newEnum);
+        callInvokerOnRawArgs(__cb, __current, newEnum);
 
     }
 
     public void deleteEnumeration_async(AMD_ITypes_deleteEnumeration __cb,
             IObject oldEnum, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, oldEnum);
+        callInvokerOnRawArgs(__cb, __current, oldEnum);
 
     }
 
     public void getAnnotationTypes_async(AMD_ITypes_getAnnotationTypes __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getEnumerationTypes_async(AMD_ITypes_getEnumerationTypes __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getEnumeration_async(AMD_ITypes_getEnumeration __cb,
             String type, String value, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, type, value);
+        callInvokerOnRawArgs(__cb, __current, type, value);
 
     }
 
     public void getEnumerationsWithEntries_async(
             AMD_ITypes_getEnumerationsWithEntries __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void getOriginalEnumerations_async(
             AMD_ITypes_getOriginalEnumerations __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
 
     }
 
     public void resetEnumerations_async(AMD_ITypes_resetEnumerations __cb,
             String enumClass, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, enumClass);
+        callInvokerOnRawArgs(__cb, __current, enumClass);
 
     }
 
     public void updateEnumeration_async(AMD_ITypes_updateEnumeration __cb,
             IObject oldEnum, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, oldEnum);
+        callInvokerOnRawArgs(__cb, __current, oldEnum);
 
     }
 
     public void updateEnumerations_async(AMD_ITypes_updateEnumerations __cb,
             List<IObject> oldEnums, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, oldEnums);
+        callInvokerOnRawArgs(__cb, __current, oldEnums);
 
     }
 

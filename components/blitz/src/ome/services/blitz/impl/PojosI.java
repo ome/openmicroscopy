@@ -56,35 +56,35 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
     public void createDataObject_async(AMD_IPojos_createDataObject __cb,
             IObject obj, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, obj, options);
+        callInvokerOnRawArgs(__cb, __current, obj, options);
 
     }
 
     public void createDataObjects_async(AMD_IPojos_createDataObjects __cb,
             List<IObject> dataObjects, Map<String, RType> options,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, dataObjects, options);
+        callInvokerOnRawArgs(__cb, __current, dataObjects, options);
 
     }
 
     public void deleteDataObject_async(AMD_IPojos_deleteDataObject __cb,
             IObject obj, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, obj, options);
+        callInvokerOnRawArgs(__cb, __current, obj, options);
 
     }
 
     public void deleteDataObjects_async(AMD_IPojos_deleteDataObjects __cb,
             List<IObject> objs, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, objs, options);
+        callInvokerOnRawArgs(__cb, __current, objs, options);
 
     }
 
     public void findAnnotations_async(AMD_IPojos_findAnnotations __cb,
             String rootType, List<Long> rootIds, List<Long> annotatorIds,
             Map<String, RType> options, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, rootType, rootIds, annotatorIds,
+        callInvokerOnRawArgs(__cb, __current, rootType, rootIds, annotatorIds,
                 options);
 
     }
@@ -92,7 +92,7 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
     public void findCGCPaths_async(AMD_IPojos_findCGCPaths __cb,
             List<Long> imageIds, String algo, Map<String, RType> options,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, imageIds, algo, options);
+        callInvokerOnRawArgs(__cb, __current, imageIds, algo, options);
 
     }
 
@@ -100,46 +100,46 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
             AMD_IPojos_findContainerHierarchies __cb, String rootType,
             List<Long> imageIds, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, rootType, imageIds, options);
+        callInvokerOnRawArgs(__cb, __current, rootType, imageIds, options);
 
     }
 
     public void getCollectionCount_async(AMD_IPojos_getCollectionCount __cb,
             String type, String property, List<Long> ids,
             Map<String, RType> options, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, type, property, ids, options);
+        callInvokerOnRawArgs(__cb, __current, type, property, ids, options);
 
     }
 
     public void getImagesByOptions_async(AMD_IPojos_getImagesByOptions __cb,
             Map<String, RType> options, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, options);
+        callInvokerOnRawArgs(__cb, __current, options);
 
     }
 
     public void getImages_async(AMD_IPojos_getImages __cb, String rootType,
             List<Long> rootIds, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, rootType, rootIds, options);
+        callInvokerOnRawArgs(__cb, __current, rootType, rootIds, options);
 
     }
 
     public void getUserDetails_async(AMD_IPojos_getUserDetails __cb,
             List<String> names, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, names, options);
+        callInvokerOnRawArgs(__cb, __current, names, options);
 
     }
 
     public void getUserImages_async(AMD_IPojos_getUserImages __cb,
             Map<String, RType> options, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, options);
+        callInvokerOnRawArgs(__cb, __current, options);
 
     }
 
     public void link_async(AMD_IPojos_link __cb, List<IObject> links,
             Map<String, RType> options, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, links, options);
+        callInvokerOnRawArgs(__cb, __current, links, options);
 
     }
 
@@ -147,34 +147,34 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
             AMD_IPojos_loadContainerHierarchy __cb, String rootType,
             List<Long> rootIds, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, rootType, rootIds, options);
+        callInvokerOnRawArgs(__cb, __current, rootType, rootIds, options);
 
     }
 
     public void retrieveCollection_async(AMD_IPojos_retrieveCollection __cb,
             IObject obj, String collectionName, Map<String, RType> options,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, obj, collectionName, options);
+        callInvokerOnRawArgs(__cb, __current, obj, collectionName, options);
 
     }
 
     public void unlink_async(AMD_IPojos_unlink __cb, List<IObject> links,
             Map<String, RType> options, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, links, options);
+        callInvokerOnRawArgs(__cb, __current, links, options);
 
     }
 
     public void updateDataObject_async(AMD_IPojos_updateDataObject __cb,
             IObject obj, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, obj, options);
+        callInvokerOnRawArgs(__cb, __current, obj, options);
 
     }
 
     public void updateDataObjects_async(AMD_IPojos_updateDataObjects __cb,
             List<IObject> objs, Map<String, RType> options, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, objs, options);
+        callInvokerOnRawArgs(__cb, __current, objs, options);
 
     }
 

@@ -47,71 +47,71 @@ public class QueryI extends AbstractAmdServant implements _IQueryOperations {
     public void findAllByExample_async(AMD_IQuery_findAllByExample __cb,
             IObject example, Filter filter, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, example, filter);
+        callInvokerOnRawArgs(__cb, __current, example, filter);
 
     }
 
     public void findAllByFullText_async(AMD_IQuery_findAllByFullText __cb,
             String klass, String query, Parameters params, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, klass, query, params);
+        callInvokerOnRawArgs(__cb, __current, klass, query, params);
 
     }
 
     public void findAllByQuery_async(AMD_IQuery_findAllByQuery __cb,
             String query, Parameters params, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, query, params);
+        callInvokerOnRawArgs(__cb, __current, query, params);
 
     }
 
     public void findAllByString_async(AMD_IQuery_findAllByString __cb,
             String klass, String field, String value, boolean caseSensitive,
             Filter filter, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, klass, field, value,
+        callInvokerOnRawArgs(__cb, __current, klass, field, value,
                 caseSensitive, filter);
 
     }
 
     public void findAll_async(AMD_IQuery_findAll __cb, String klass,
             Filter filter, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, klass, filter);
+        callInvokerOnRawArgs(__cb, __current, klass, filter);
 
     }
 
     public void findByExample_async(AMD_IQuery_findByExample __cb,
             IObject example, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, example);
+        callInvokerOnRawArgs(__cb, __current, example);
 
     }
 
     public void findByQuery_async(AMD_IQuery_findByQuery __cb, String query,
             Parameters params, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, query, params);
+        callInvokerOnRawArgs(__cb, __current, query, params);
 
     }
 
     public void findByString_async(AMD_IQuery_findByString __cb, String klass,
             String field, String value, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, klass, field, value);
+        callInvokerOnRawArgs(__cb, __current, klass, field, value);
 
     }
 
     public void find_async(AMD_IQuery_find __cb, String klass, long id,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, klass, id);
+        callInvokerOnRawArgs(__cb, __current, klass, id);
 
     }
 
     public void get_async(AMD_IQuery_get __cb, String klass, long id,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, klass, id);
+        callInvokerOnRawArgs(__cb, __current, klass, id);
 
     }
 
     public void refresh_async(AMD_IQuery_refresh __cb, IObject object,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, object);
+        callInvokerOnRawArgs(__cb, __current, object);
 
     }
 

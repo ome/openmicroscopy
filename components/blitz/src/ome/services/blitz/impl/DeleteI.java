@@ -38,18 +38,18 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations {
 
     public void checkImageDelete_async(AMD_IDelete_checkImageDelete __cb,
             long id, boolean force, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, id, force);
+        callInvokerOnRawArgs(__cb, __current, id, force);
     }
 
     public void deleteImage_async(AMD_IDelete_deleteImage __cb, long id,
             boolean force, Current __current) throws ApiUsageException,
             SecurityViolation, ServerError, ValidationException {
-        serviceInterfaceCall(__cb, __current, id, force);
+        callInvokerOnRawArgs(__cb, __current, id, force);
     }
 
     public void previewImageDelete_async(AMD_IDelete_previewImageDelete __cb,
             long id, boolean force, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, id, force);
+        callInvokerOnRawArgs(__cb, __current, id, force);
     }
 
 }

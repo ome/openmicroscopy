@@ -57,35 +57,35 @@ public class RenderingSettingsI extends AbstractAmdServant implements
     public void applySettingsToCategory_async(
             AMD_IRenderingSettings_applySettingsToCategory __cb, long from,
             long to, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, from, to);
+        callInvokerOnRawArgs(__cb, __current, from, to);
 
     }
 
     public void applySettingsToDataset_async(
             AMD_IRenderingSettings_applySettingsToDataset __cb, long from,
             long to, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, from, to);
+        callInvokerOnRawArgs(__cb, __current, from, to);
 
     }
 
     public void applySettingsToImage_async(
             AMD_IRenderingSettings_applySettingsToImage __cb, long from,
             long to, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, from, to);
+        callInvokerOnRawArgs(__cb, __current, from, to);
 
     }
 
     public void applySettingsToPixels_async(
             AMD_IRenderingSettings_applySettingsToPixels __cb, long from,
             long to, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, from, to);
+        callInvokerOnRawArgs(__cb, __current, from, to);
 
     }
 
     public void applySettingsToProject_async(
             AMD_IRenderingSettings_applySettingsToProject __cb, long from,
             long to, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, from, to);
+        callInvokerOnRawArgs(__cb, __current, from, to);
 
     }
 
@@ -93,91 +93,91 @@ public class RenderingSettingsI extends AbstractAmdServant implements
             AMD_IRenderingSettings_applySettingsToSet __cb, long from,
             String toType, List<IObject> to, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, from, toType, to);
+        callInvokerOnRawArgs(__cb, __current, from, toType, to);
 
     }
 
     public void createNewRenderingDef_async(
             AMD_IRenderingSettings_createNewRenderingDef __cb, Pixels pixels,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, pixels);
+        callInvokerOnRawArgs(__cb, __current, pixels);
 
     }
 
     public void getRenderingSettings_async(
             AMD_IRenderingSettings_getRenderingSettings __cb, long pixelsId,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, pixelsId);
+        callInvokerOnRawArgs(__cb, __current, pixelsId);
 
     }
 
     public void resetDefaultsInCategory_async(
             AMD_IRenderingSettings_resetDefaultsInCategory __cb,
             long categoryId, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, categoryId);
+        callInvokerOnRawArgs(__cb, __current, categoryId);
 
     }
 
     public void resetDefaultsInDataset_async(
             AMD_IRenderingSettings_resetDefaultsInDataset __cb, long dataSetId,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, dataSetId);
+        callInvokerOnRawArgs(__cb, __current, dataSetId);
 
     }
 
     public void resetDefaultsInImage_async(
             AMD_IRenderingSettings_resetDefaultsInImage __cb, long imageId,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, imageId);
+        callInvokerOnRawArgs(__cb, __current, imageId);
 
     }
 
     public void resetDefaultsInSet_async(
             AMD_IRenderingSettings_resetDefaultsInSet __cb, String type,
             List<Long> noteIds, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, type, noteIds);
+        callInvokerOnRawArgs(__cb, __current, type, noteIds);
 
     }
 
     public void resetDefaultsNoSave_async(
             AMD_IRenderingSettings_resetDefaultsNoSave __cb, RenderingDef def,
             Pixels pixels, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, def, pixels);
+        callInvokerOnRawArgs(__cb, __current, def, pixels);
 
     }
 
     public void resetDefaults_async(AMD_IRenderingSettings_resetDefaults __cb,
             RenderingDef def, Pixels pixels, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, def, pixels);
+        callInvokerOnRawArgs(__cb, __current, def, pixels);
 
     }
 
     public void sanityCheckPixels_async(
             AMD_IRenderingSettings_sanityCheckPixels __cb, Pixels from,
             Pixels to, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, from, to);
+        callInvokerOnRawArgs(__cb, __current, from, to);
 
     }
 
     public void setOriginalSettingsInDataset_async(
             AMD_IRenderingSettings_setOriginalSettingsInDataset __cb,
             long dataSetId, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, dataSetId);
+        callInvokerOnRawArgs(__cb, __current, dataSetId);
 
     }
 
     public void setOriginalSettingsInImage_async(
             AMD_IRenderingSettings_setOriginalSettingsInImage __cb,
             long imageId, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, imageId);
+        callInvokerOnRawArgs(__cb, __current, imageId);
 
     }
 
     public void setOriginalSettingsInSet_async(
             AMD_IRenderingSettings_setOriginalSettingsInSet __cb, String type,
             List<Long> noteIds, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, type, noteIds);
+        callInvokerOnRawArgs(__cb, __current, type, noteIds);
 
     }
 

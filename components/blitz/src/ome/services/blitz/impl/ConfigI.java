@@ -37,27 +37,27 @@ public class ConfigI extends AbstractAmdServant implements _IConfigOperations {
 
     public void getConfigValue_async(AMD_IConfig_getConfigValue __cb,
             String key, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, key);
+        callInvokerOnRawArgs(__cb, __current, key);
     }
 
     public void getDatabaseTime_async(AMD_IConfig_getDatabaseTime __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
     }
 
     public void getServerTime_async(AMD_IConfig_getServerTime __cb,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
     }
 
     public void getVersion_async(AMD_IConfig_getVersion __cb, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current);
+        callInvokerOnRawArgs(__cb, __current);
     }
 
     public void setConfigValue_async(AMD_IConfig_setConfigValue __cb,
             String key, String value, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, key, value);
+        callInvokerOnRawArgs(__cb, __current, key, value);
     }
 
 }

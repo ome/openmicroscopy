@@ -9,6 +9,7 @@
 package ome.services.blitz.util;
 
 import ome.api.ServiceInterface;
+import omero.util.IceMapper;
 
 /**
  * Single-point of execution for all AMD blitz calls.
@@ -22,8 +23,23 @@ public interface BlitzExecutor {
         void run();
     }
 
-    void serviceInterfaceCall(ServiceInterface service,
-            IceMethodInvoker invoker, ServantHelper helper, Object __cb,
+    /**
+     * Uses the given {@link IceMethodInvoker} to make the method call. All
+     * arguments are passed directly into the invoker, and the return value from
+     * the invoker is passed to the user.
+     */
+    void callInvokerOnRawArgs(ServiceInterface service,
+            IceMethodInvoker invoker, Object __cb, Ice.Current __current,
+            Object... args);
+
+    /**
+     * Passes the given arguments to {@link IceMethodInvoker} with the
+     * assumption that all conversion from omero.* to ome.* has taken place.
+     * Similarly, the {@link ReturnMapper} instance will be used to map the
+     * return value from ome.* to omero.*.
+     */
+    void callInvokerWithMappedArgs(ServiceInterface service,
+            IceMethodInvoker invoker, IceMapper mapper, Object __cb,
             Ice.Current __current, Object... args);
 
     void runnableCall(Ice.Current __current, Task task);

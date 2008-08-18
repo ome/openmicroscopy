@@ -22,7 +22,6 @@ import ome.api.ServiceInterface;
 import ome.api.StatefulServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
-import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.sessions.SessionManager;
@@ -168,8 +167,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     final OmeroContext context;
 
-    final ServantHelper helper;
-
     final AopContextInitializer initializer;
 
     // ~ Initialization and context methods
@@ -182,7 +179,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         this.context = context;
         this.sessionManager = manager;
         this.executor = executor;
-        this.helper = new ServantHelper();
         this.principal = p;
         this.cptors = interceptors;
         initializer = new AopContextInitializer(

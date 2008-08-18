@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.IceMethodInvoker;
-import ome.services.blitz.util.ServantHelper;
 import omero.InternalException;
 import omero.util.IceMapper;
 
@@ -27,19 +26,18 @@ public class Callback {
     private final Boolean db;
     private final IceMethodInvoker invoker;
     private final ServiceInterface service;
-    private final ServantHelper helper;
     private final Object cb;
     private final Object[] args;
     private final Ice.Current current;
+    private final IceMapper mapper;
 
     private final Method response;
     private final Method exception;
 
     public Callback(Boolean io, Boolean db, ServiceInterface service,
-            IceMethodInvoker invoker, ServantHelper helper, Object cb,
+            IceMethodInvoker invoker, Object cb, IceMapper mapper,
             Ice.Current current, Object... args) {
 
-        Assert.notNull(helper, "Null servant helper");
         Assert.notNull(invoker, "Null invoker");
         Assert.notNull(service, "Null service");
         Assert.notNull(current, "Null current");
@@ -49,11 +47,11 @@ public class Callback {
         this.io = io;
         this.db = db;
         this.cb = cb;
-        this.helper = helper;
         this.service = service;
         this.invoker = invoker;
         this.current = current;
         this.args = args;
+        this.mapper = mapper;
 
         response = getMethod(cb, "ice_response");
         exception = getMethod(cb, "ice_exception");
@@ -61,16 +59,13 @@ public class Callback {
     }
 
     public Callback(ServiceInterface service, IceMethodInvoker invoker,
-            ServantHelper helper, Object cb, Ice.Current current,
-            Object... args) {
-        this(null, null, service, invoker, helper, cb, current, args);
+            IceMapper mapper, Object cb, Ice.Current current, Object... args) {
+        this(null, null, service, invoker, cb, mapper, current, args);
     }
 
     public void run() {
-        IceMapper mapper = new IceMapper();
         try {
             Object retVal = invoker.invoke(service, current, mapper, args);
-            helper.throwIfNecessary(retVal);
             response(retVal);
         } catch (Ice.UserException e) {
             exception(e);

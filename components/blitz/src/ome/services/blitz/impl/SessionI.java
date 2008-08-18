@@ -25,11 +25,12 @@ import omero.api.AMD_ISession_updateSession;
 import omero.api._ISessionOperations;
 import omero.model.Session;
 import omero.sys.Principal;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /**
  * Implementation of the ISession service.
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  * @see ome.api.ISession
@@ -45,69 +46,70 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void closeSession_async(AMD_ISession_closeSession __cb,
             Session sess, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess);
+        callInvokerOnRawArgs(__cb, __current, sess);
 
     }
 
     public void createSessionWithTimeout_async(
             AMD_ISession_createSessionWithTimeout __cb, Principal p,
             long seconds, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, p, seconds);
+        callInvokerOnRawArgs(__cb, __current, p, seconds);
 
     }
 
     public void createSession_async(AMD_ISession_createSession __cb,
             Principal p, String credentials, Current __current)
             throws ServerError {
-        serviceInterfaceCall(__cb, __current, p, credentials);
+        callInvokerOnRawArgs(__cb, __current, p, credentials);
 
     }
 
     public void getInputKeys_async(AMD_ISession_getInputKeys __cb, String sess,
             Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess);
+        callInvokerOnRawArgs(__cb, __current, sess);
 
     }
 
     public void getInput_async(AMD_ISession_getInput __cb, String sess,
             String key, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess, key);
+        IceMapper mapper = new IceMapper(IceMapper.STRING_TO_RSTRING);
+        callInvokerOnMappedArgs(mapper, __cb, __current, sess, key);
 
     }
 
     public void getOutputKeys_async(AMD_ISession_getOutputKeys __cb,
             String sess, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess);
+        callInvokerOnRawArgs(__cb, __current, sess);
 
     }
 
     public void getOutput_async(AMD_ISession_getOutput __cb, String sess,
             String key, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess, key);
-
+        IceMapper mapper = new IceMapper(IceMapper.STRING_TO_RSTRING);
+        callInvokerOnMappedArgs(mapper, __cb, __current, sess, key);
     }
 
     public void getSession_async(AMD_ISession_getSession __cb,
             String sessionUuid, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sessionUuid);
+        callInvokerOnRawArgs(__cb, __current, sessionUuid);
 
     }
 
     public void setInput_async(AMD_ISession_setInput __cb, String sess,
             String key, RType value, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess, key, value);
+        callInvokerOnRawArgs(__cb, __current, sess, key, value);
 
     }
 
     public void setOutput_async(AMD_ISession_setOutput __cb, String sess,
             String key, RType value, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess, key, value);
+        callInvokerOnRawArgs(__cb, __current, sess, key, value);
 
     }
 
     public void updateSession_async(AMD_ISession_updateSession __cb,
             Session sess, Current __current) throws ServerError {
-        serviceInterfaceCall(__cb, __current, sess);
+        callInvokerOnRawArgs(__cb, __current, sess);
 
     }
 
