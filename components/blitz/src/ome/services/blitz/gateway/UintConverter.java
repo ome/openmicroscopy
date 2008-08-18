@@ -22,7 +22,6 @@
  */
 package ome.services.blitz.gateway;
 
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 //Java imports
 

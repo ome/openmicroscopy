@@ -120,19 +120,6 @@ module omero {
 	    idempotent omero::sys::EventContext getEventContext() throws ServerError;
 	};
 
-
-	["ami","amd"] interface IScript extends ServiceInterface
-	{
-	    idempotent ScriptIDNameMap getScripts() throws ServerError;
-	    idempotent long getScriptID(string name) throws  ServerError;
-	    long uploadScript(string script) throws ServerError;
-	    idempotent string getScript(long id) throws ServerError;
-	    idempotent RTypeDict getScriptWithDetails(long id) throws ServerError;
-	    idempotent RTypeDict getParams(long id) throws ServerError;
-	    RTypeDict runScript(long id, RTypeDict map) throws ServerError;
-	    void deleteScript(long id) throws ServerError;
-	};
-
 	["ami", "amd"] interface IConfig extends ServiceInterface
 	{
 	    idempotent string getVersion() throws ServerError;
@@ -231,6 +218,8 @@ module omero {
 	    idempotent IObjectList           findAllByFullText(string klass, string query, omero::sys::Parameters params) throws ServerError;
 	    idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
 	};
+
+        interface IScript; // Forward definition; see omero/IScript.ice
 
 	["ami", "amd"] interface ISession extends ServiceInterface
 	{

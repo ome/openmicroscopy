@@ -24,7 +24,6 @@ package ome.services.blitz.gateway;
 
 import omero.model.Pixels;
 
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 
 

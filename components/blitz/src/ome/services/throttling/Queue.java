@@ -15,17 +15,8 @@ import org.apache.commons.logging.LogFactory;
 
 /** * Manages AMD-based method dispatches from blitz. * */
 public class Queue {
+
     private final static Log log = LogFactory.getLog(Queue.class);
-
-    interface Callback {
-        void response(Object rv);
-
-        void exception(Exception ex);
-
-        Boolean ioIntensive();
-
-        Boolean dbIntensive();
-    }
 
     class CancelledException extends Exception {
     }

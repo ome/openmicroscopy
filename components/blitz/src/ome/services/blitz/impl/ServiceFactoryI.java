@@ -7,7 +7,6 @@
 
 package ome.services.blitz.impl;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,7 +23,6 @@ import ome.api.ServiceInterface;
 import ome.api.StatefulServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
-import ome.services.blitz.util.ServantDefinition;
 import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.sessions.SessionManager;
@@ -33,6 +31,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.ApiUsageException;
+import omero.InternalException;
 import omero.ServerError;
 import omero.api.ClientCallbackPrx;
 import omero.api.GatewayPrx;
@@ -77,6 +76,7 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
+import omero.api._IScriptTie;
 import omero.api._ServiceFactoryDisp;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
@@ -115,7 +115,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
-import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.transaction.TransactionStatus;
 
 import Ice.Current;
@@ -223,8 +222,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         Ice.Identity id = getIdentity(current, SCRIPTSERVICE.value);
         Ice.Object servant = current.adapter.find(id);
         if (servant == null) {
-            servant = new ScriptI(this);
-            registerServant(current, id, servant);
+            // This is hard-coding what the servant manager should later be
+            // doing. It's unclear exactly how we should know that we are
+            // getting a tie, and what subclass the delegate should be.
+            _IScriptTie tie = (_IScriptTie) this.context
+                    .getBean(SCRIPTSERVICE.value);
+            ScriptI scriptI = (ScriptI) tie.ice_delegate();
+            scriptI.setServiceFactory(this);
+            registerServant(current, id, tie);
+            servant = tie;
         }
         Ice.ObjectPrx prx = current.adapter.createProxy(id);
         return IScriptPrxHelper.uncheckedCast(prx);
@@ -675,11 +681,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * {@link Advised#getAdvisors()}.
      */
     protected <O extends ServiceInterface> Ice.Object createServantDelegate(
-            String name) throws ApiUsageException {
+            String name) throws ServerError {
 
-        ServantDefinition sd;
+        Ice.Object servant = null;
         try {
-            sd = (ServantDefinition) context.getBean(name);
+            servant = (Ice.Object) context.getBean(name);
+        } catch (ClassCastException cce) {
+            throw new InternalException(null, null,
+                    "Could not cast to Ice.Object:[" + name + "]");
         } catch (Exception e) {
             ApiUsageException aue = new ApiUsageException();
             aue.message = name
@@ -687,46 +696,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             throw aue;
         }
 
-        Object srv = null;
-        try {
-            srv = context.getBean("managed-" + sd.getServiceClass().getName());
-        } catch (Exception e) {
-            ApiUsageException aue = new ApiUsageException();
-            aue.message = "No managed service of given type found:"
-                    + sd.getServiceClass().getName();
-            throw aue;
-        }
-
-        ProxyFactory managedService = new ProxyFactory();
-        managedService.setInterfaces(new Class[] { sd.getServiceClass() });
-
-        List<HardWiredInterceptor> reversed = new ArrayList<HardWiredInterceptor>(
-                cptors);
-        Collections.reverse(reversed);
-        for (HardWiredInterceptor hwi : reversed) {
-            managedService.addAdvice(0, hwi);
-        }
-        managedService.addAdvice(0, initializer);
-        managedService.setTarget(srv);
-        ServiceInterface srvIface = (ServiceInterface) managedService
-                .getProxy();
-
-        ProxyFactory factory = new ProxyFactory();
-        factory.setInterfaces(new Class[] { sd.getOperationsClass() });
-        factory.addAdvice(new Interceptor(sd.getServiceClass(), srvIface,
-                helper, context));
-        Object ops = factory.getProxy();
-
-        Ice.Object servant = null;
-        try {
-            Constructor<Ice.Object> ctor = sd.getTieClass().getConstructor(
-                    sd.getOperationsClass());
-            servant = ctor.newInstance(ops);
-        } catch (Exception e) {
-            omero.InternalException ie = new omero.InternalException();
-            ie.message = "Failed while trying to create servant.";
-            ie.serverExceptionClass = e.getClass().getName();
-        }
         return servant;
     }
 

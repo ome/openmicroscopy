@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2008 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+
+<beans>
+
+  <description>
+  Defines various strategies for restricting concurrent method invocations. Also
+  handles memory usage semantics.  
+  </description>
+
+  <alias name="serialThrottlingStrategy" alias="throttlingStrategy"/>
+
+  <bean id="serialThrottlingStrategy" class="ome.services.throttling.SerialThrottlingStrategy"/>
+
+  <!-- Servants =============================================================-->
+
+  <bean id="omero.api.IConfig" class="ome.services.blitz.impl.ThrottledConfigI">
+    <constructor-arg ref="managed:ome.api.IConfig"/>
+    <constructor-arg ref="throttlingStrategy"/>
+  </bean>
+  
+</beans>

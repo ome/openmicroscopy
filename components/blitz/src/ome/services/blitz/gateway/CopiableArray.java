@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package org.openmicroscopy.shoola.util.mem;
+ package ome.services.blitz.gateway;
 
 
 //Java imports

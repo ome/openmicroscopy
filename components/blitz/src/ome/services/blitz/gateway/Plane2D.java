@@ -28,7 +28,6 @@ package ome.services.blitz.gateway;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 /** 
  * Holds structure used to mapped the raw pixels data.

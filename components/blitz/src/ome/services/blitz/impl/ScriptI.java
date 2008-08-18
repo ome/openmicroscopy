@@ -1,32 +1,15 @@
 /*
- * $Id$
+ *   $Id$
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
- *
- *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ *   Copyright 2008 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
 
 package ome.services.blitz.impl;
 
 // Java imports
-import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,18 +18,14 @@ import ome.api.IUpdate;
 import ome.api.RawFileStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ValidationException;
-import ome.model.IObject;
 import ome.model.core.OriginalFile;
 import ome.model.enums.Format;
-import ome.model.jobs.JobStatus;
 import ome.model.jobs.JobOriginalFileLink;
-import ome.model.jobs.ScriptJob;
 import ome.parameters.Parameters;
+import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
-import omero.RLong;
-import omero.RObject;
-import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IScript_deleteScript;
@@ -57,13 +36,12 @@ import omero.api.AMD_IScript_getScriptWithDetails;
 import omero.api.AMD_IScript_getScripts;
 import omero.api.AMD_IScript_runScript;
 import omero.api.AMD_IScript_uploadScript;
-import omero.api._IScriptDisp;
+import omero.api._IScriptOperations;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.JobParams;
 import omero.grid.Param;
 import omero.model.OriginalFileI;
 import omero.model.ScriptJobI;
-import omero.model.TagAnnotationI;
 
 import org.hibernate.Session;
 import org.springframework.transaction.TransactionStatus;
@@ -74,12 +52,12 @@ import Ice.Current;
  * implementation of the IScript service interface.
  * 
  * @author Donald MacDonald, donald@lifesci.dundee.ac.uk
- * @version $Revision: 1949 $, $Date: 2007-12-03 11:54:46 +0000 (Mon, 03 Dec
- *          2007) $
- * @since 3.0-M3
- * @see IScript
+ * @author Josh Moore, josh at glencoesoftware.com
+ * @since 3.0-Beta3
+ * @see ome.api.IScript
  */
-public class ScriptI extends _IScriptDisp {
+public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
+        ServiceFactoryAware {
 
     /** The text representation of the format in a python script. */
     private final static String PYTHONSCRIPT = "text/x-python";
@@ -87,10 +65,14 @@ public class ScriptI extends _IScriptDisp {
     /** Message used in jobs which are only being parsed */
     private final static String PARSING = "ScriptI.parsing_only";
 
-    protected final ServiceFactoryI factory;
+    protected ServiceFactoryI factory;
 
-    public ScriptI(ServiceFactoryI factory) {
-        this.factory = factory;
+    public ScriptI(BlitzExecutor be) {
+        super(null, be);
+    }
+
+    public void setServiceFactory(ServiceFactoryI sf) {
+        this.factory = sf;
     }
 
     // ~ Service methods
@@ -106,14 +88,20 @@ public class ScriptI extends _IScriptDisp {
      * @return The id of the script, -1 if no script found, or more than one
      *         script with that name.
      */
-    public void getScriptID_async(AMD_IScript_getScriptID cb,
-            String scriptName, Current __current) throws ServerError {
-        OriginalFile file = getOriginalFile(scriptName);
-        if (file == null) {
-            cb.ice_response(-1L);
-        } else {
-            cb.ice_response(file.getId());
-        }
+    public void getScriptID_async(final AMD_IScript_getScriptID cb,
+            final String scriptName, final Current __current)
+            throws ServerError {
+        runnableCall(__current, new BlitzExecutor.Task() {
+            public void run() {
+                OriginalFile file = getOriginalFile(scriptName);
+                if (file == null) {
+                    cb.ice_response(-1L);
+                } else {
+                    cb.ice_response(file.getId());
+                }
+            }
+
+        });
     }
 
     /**
@@ -124,28 +112,34 @@ public class ScriptI extends _IScriptDisp {
      *            ice context.
      * @return id of the script.
      */
-    public void uploadScript_async(AMD_IScript_uploadScript cb,
-            final String script, Current __current) throws ServerError {
-        if (!validateScript(script)) {
-            cb.ice_exception(new ApiUsageException("Invalid script"));
-        }
-        final OriginalFile tempFile = makeFile(script);
-        writeContent(tempFile, script);
-        JobParams params = getScriptParams(tempFile, __current);
-        if (originalFileExists(params.name)) {
-            deleteOriginalFile(tempFile);
-            cb.ice_exception(new ApiUsageException("A script with name "
-                    + params.name + " already exists on server."));
-        }
-        if (params == null) {
-            cb.ice_exception(new ApiUsageException(
-                    "Script error: no params found."));
-        }
-        tempFile.setName(params.name);
-        tempFile.setPath(params.name);
-        writeContent(tempFile, script);
-        OriginalFile scriptFile = updateFile(tempFile);
-        cb.ice_response(scriptFile.getId());
+    public void uploadScript_async(final AMD_IScript_uploadScript cb,
+            final String script, final Current __current) throws ServerError {
+        runnableCall(__current, new BlitzExecutor.Task() {
+            public void run() throws omero.ServerError {
+                if (!validateScript(script)) {
+                    cb.ice_exception(new ApiUsageException("Invalid script"));
+                }
+                final OriginalFile tempFile = makeFile(script);
+                writeContent(tempFile, script);
+                JobParams params = getScriptParams(tempFile, __current);
+                if (originalFileExists(params.name)) {
+                    deleteOriginalFile(tempFile);
+                    cb.ice_exception(new ApiUsageException(
+                            "A script with name " + params.name
+                                    + " already exists on server."));
+                }
+                if (params == null) {
+                    cb.ice_exception(new ApiUsageException(
+                            "Script error: no params found."));
+                }
+                tempFile.setName(params.name);
+                tempFile.setPath(params.name);
+                writeContent(tempFile, script);
+                OriginalFile scriptFile = updateFile(tempFile);
+                cb.ice_response(scriptFile.getId());
+            }
+
+        });
     }
 
     /**
@@ -159,87 +153,98 @@ public class ScriptI extends _IScriptDisp {
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getScriptWithDetails_async(AMD_IScript_getScriptWithDetails cb,
-            long id, Current __current) throws ServerError {
-
-        final OriginalFile file = getOriginalFile(id);
-        if (file == null) {
-            cb.ice_response(null);
-        }
-
-        final long size = file.getSize();
-        if (size > Integer.MAX_VALUE || size < 0) {
-            cb
-                    .ice_exception(new ome.conditions.ValidationException(
-                            "Script size : " + size
-                                    + " invalid on Blitz.OMERO server."));
-        }
-
-        Map<String, RType> scr = new HashMap<String, RType>();
-        scr.put((String) factory.executor.execute(factory.principal,
-                new Executor.Work() {
-
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                        RawFileStore rawFileStore = sf.createRawFileStore();
-                        try {
-                            rawFileStore.setFileId(file.getId());
-                            String script = new String(rawFileStore.read(0L,
-                                    (int) size));
-
-                            return script;
-                        } finally {
-                            rawFileStore.close();
-                        }
-                    }
-                }), new omero.util.IceMapper().toRType(file));
-        cb.ice_response(scr);
-    }
-
-    /**
-     * Return the script with the name to the user.
-     * 
-     * @param name
-     *            see above.
-     * @param __current
-     *            ice context.
-     * @return see above.
-     * @throws ServerError
-     *             validation, api usage.
-     */
-    public void getScript_async(AMD_IScript_getScript cb, long id,
+    public void getScriptWithDetails_async(
+            final AMD_IScript_getScriptWithDetails cb, final long id,
             Current __current) throws ServerError {
 
-        final OriginalFile file = getOriginalFile(id);
-        if (file == null) {
-            cb.ice_response(null);
-        }
+        runnableCall(__current, new BlitzExecutor.Task() {
 
-        final long size = file.getSize();
-        if (size > Integer.MAX_VALUE || size < 0) {
-            cb
-                    .ice_exception(new ome.conditions.ValidationException(
+            public void run() throws ServerError {
+                final OriginalFile file = getOriginalFile(id);
+                if (file == null) {
+                    cb.ice_response(null);
+                }
+
+                final long size = file.getSize();
+                if (size > Integer.MAX_VALUE || size < 0) {
+                    cb.ice_exception(new ome.conditions.ValidationException(
                             "Script size : " + size
                                     + " invalid on Blitz.OMERO server."));
-        }
+                }
 
-        cb.ice_response((String) factory.executor.execute(factory.principal,
-                new Executor.Work() {
+                Map<String, RType> scr = new HashMap<String, RType>();
+                scr.put((String) factory.executor.execute(factory.principal,
+                        new Executor.Work() {
 
-                    public Object doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
-                        RawFileStore rawFileStore = sf.createRawFileStore();
-                        try {
-                            rawFileStore.setFileId(file.getId());
-                            String script = new String(rawFileStore.read(0L,
-                                    (int) size));
+                            public Object doWork(TransactionStatus status,
+                                    Session session, ServiceFactory sf) {
+                                RawFileStore rawFileStore = sf
+                                        .createRawFileStore();
+                                try {
+                                    rawFileStore.setFileId(file.getId());
+                                    String script = new String(rawFileStore
+                                            .read(0L, (int) size));
 
-                            return script;
-                        } finally {
-                            rawFileStore.close();
-                        }
-                    }
-                }));
+                                    return script;
+                                } finally {
+                                    rawFileStore.close();
+                                }
+                            }
+                        }), new omero.util.IceMapper().toRType(file));
+                cb.ice_response(scr);
+            }
+        });
+    }
+
+    /**
+     * Return the script with the name to the user.
+     * 
+     * @param name
+     *            see above.
+     * @param __current
+     *            ice context.
+     * @return see above.
+     * @throws ServerError
+     *             validation, api usage.
+     */
+    public void getScript_async(final AMD_IScript_getScript cb, final long id,
+            Current __current) throws ServerError {
+
+        runnableCall(__current, new BlitzExecutor.Task() {
+            public void run() throws ServerError {
+
+                final OriginalFile file = getOriginalFile(id);
+                if (file == null) {
+                    cb.ice_response(null);
+                }
+
+                final long size = file.getSize();
+                if (size > Integer.MAX_VALUE || size < 0) {
+                    cb.ice_exception(new ome.conditions.ValidationException(
+                            "Script size : " + size
+                                    + " invalid on Blitz.OMERO server."));
+                }
+
+                cb.ice_response((String) factory.executor.execute(
+                        factory.principal, new Executor.Work() {
+
+                            public Object doWork(TransactionStatus status,
+                                    Session session, ServiceFactory sf) {
+                                RawFileStore rawFileStore = sf
+                                        .createRawFileStore();
+                                try {
+                                    rawFileStore.setFileId(file.getId());
+                                    String script = new String(rawFileStore
+                                            .read(0L, (int) size));
+
+                                    return script;
+                                } finally {
+                                    rawFileStore.close();
+                                }
+                            }
+                        }));
+            }
+        });
     }
 
     /**
@@ -253,9 +258,14 @@ public class ScriptI extends _IScriptDisp {
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getParams_async(AMD_IScript_getParams cb, long id,
-            Current __current) throws ServerError {
-        cb.ice_response(getParams(id, __current));
+    public void getParams_async(final AMD_IScript_getParams cb, final long id,
+            final Current __current) throws ServerError {
+        runnableCall(__current, new BlitzExecutor.Task() {
+
+            public void run() throws ServerError {
+                cb.ice_response(getParams(id, __current));
+            }
+        });
     }
 
     private Map<String, RType> getParams(long id, Ice.Current __current)
@@ -286,36 +296,45 @@ public class ScriptI extends _IScriptDisp {
      * @throws ServerError
      *             validation, api usage.
      */
-    public void runScript_async(AMD_IScript_runScript cb, long id,
-            Map<String, RType> map, Current __current) throws ServerError {
-        Map<String, RType> params = getParams(id, __current);
-        Iterator<String> paramIterator = params.keySet().iterator();
-        while (paramIterator.hasNext()) {
-            String paramName = paramIterator.next();
-            RType scriptParamType = params.get(paramName);
-            if (!map.containsKey(paramName)) {
-                cb
-                        .ice_exception(new ApiUsageException(
-                                "Script takes parameter "
-                                        + paramName
-                                        + " which has not supplied input params to runScript."));
+    public void runScript_async(final AMD_IScript_runScript cb, final long id,
+            final Map<String, RType> map, final Current __current)
+            throws ServerError {
+
+        runnableCall(__current, new BlitzExecutor.Task() {
+
+            public void run() throws ServerError {
+
+                Map<String, RType> params = getParams(id, __current);
+                Iterator<String> paramIterator = params.keySet().iterator();
+                while (paramIterator.hasNext()) {
+                    String paramName = paramIterator.next();
+                    RType scriptParamType = params.get(paramName);
+                    if (!map.containsKey(paramName)) {
+                        cb
+                                .ice_exception(new ApiUsageException(
+                                        "Script takes parameter "
+                                                + paramName
+                                                + " which has not supplied input params to runScript."));
+                    }
+                    RType inputParamType = map.get(paramName);
+                    if (!scriptParamType.getClass().equals(
+                            inputParamType.getClass())) {
+                        cb.ice_exception(new ApiUsageException(
+                                "Script takes parameter " + paramName
+                                        + " of type " + scriptParamType
+                                        + " runScript was passed parameter "
+                                        + paramName + " of type "
+                                        + inputParamType + "."));
+                    }
+                }
+                ScriptJobI job = buildJob(id);
+                InteractiveProcessorPrx proc = factory.acquireProcessor(job,
+                        10, __current);
+                omero.grid.ProcessPrx prx = proc.execute(new omero.RMap(map));
+                prx._wait();
+                cb.ice_response(proc.getResults(prx).val);
             }
-            RType inputParamType = map.get(paramName);
-            if (!scriptParamType.getClass().equals(inputParamType.getClass())) {
-                cb.ice_exception(new ApiUsageException(
-                        "Script takes parameter " + paramName + " of type "
-                                + scriptParamType
-                                + " runScript was passed parameter "
-                                + paramName + " of type " + inputParamType
-                                + "."));
-            }
-        }
-        ScriptJobI job = buildJob(id);
-        InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10,
-                __current);
-        omero.grid.ProcessPrx prx = proc.execute(new omero.RMap(map));
-        prx._wait();
-        cb.ice_response(proc.getResults(prx).val);
+        });
     }
 
     /**
@@ -328,25 +347,33 @@ public class ScriptI extends _IScriptDisp {
      * @throws ServerError
      *             validation, api usage.
      */
-    public void getScripts_async(AMD_IScript_getScripts cb, Current __current)
-            throws ServerError {
-        final Map<Long, String> scriptMap = new HashMap<Long, String>();
-        final long fmt = getFormat(PYTHONSCRIPT).getId();
-        final String queryString = "from OriginalFile as o where o.format.id = "
-                + fmt;
-        factory.executor.execute(factory.principal, new Executor.Work() {
+    public void getScripts_async(final AMD_IScript_getScripts cb,
+            Current __current) throws ServerError {
 
-            public Object doWork(TransactionStatus status, Session session,
-                    ServiceFactory sf) {
-                List<OriginalFile> fileList = sf.getQueryService()
-                        .findAllByQuery(queryString, null);
-                for (OriginalFile file : fileList) {
-                    scriptMap.put(new Long(file.getId()), file.getName());
-                }
-                return null;
+        runnableCall(__current, new BlitzExecutor.Task() {
+            public void run() throws ServerError {
+                final Map<Long, String> scriptMap = new HashMap<Long, String>();
+                final long fmt = getFormat(PYTHONSCRIPT).getId();
+                final String queryString = "from OriginalFile as o where o.format.id = "
+                        + fmt;
+                factory.executor.execute(factory.principal,
+                        new Executor.Work() {
+
+                            public Object doWork(TransactionStatus status,
+                                    Session session, ServiceFactory sf) {
+                                List<OriginalFile> fileList = sf
+                                        .getQueryService().findAllByQuery(
+                                                queryString, null);
+                                for (OriginalFile file : fileList) {
+                                    scriptMap.put(new Long(file.getId()), file
+                                            .getName());
+                                }
+                                return null;
+                            }
+                        });
+                cb.ice_response(scriptMap);
             }
         });
-        cb.ice_response(scriptMap);
     }
 
     /**
@@ -356,15 +383,19 @@ public class ScriptI extends _IScriptDisp {
      *            the id of the script to delete.
      * 
      */
-    public void deleteScript_async(AMD_IScript_deleteScript cb, long id,
-            Current __current) throws ServerError {
-        OriginalFile file = getOriginalFile(id);
-        if (file == null) {
-            cb.ice_exception(new ApiUsageException("No script with id " + id
-                    + " on server."));
-        }
-        deleteOriginalFile(file);
-        cb.ice_response();
+    public void deleteScript_async(final AMD_IScript_deleteScript cb,
+            final long id, Current __current) throws ServerError {
+        runnableCall(__current, new BlitzExecutor.Task() {
+            public void run() throws ServerError {
+                OriginalFile file = getOriginalFile(id);
+                if (file == null) {
+                    cb.ice_exception(new ApiUsageException("No script with id "
+                            + id + " on server."));
+                }
+                deleteOriginalFile(file);
+                cb.ice_response();
+            }
+        });
     }
 
     // Non-public-methods

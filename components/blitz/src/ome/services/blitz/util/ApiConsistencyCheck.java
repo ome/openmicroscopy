@@ -29,8 +29,10 @@ import omero.RString;
 import omero.RTime;
 import omero.RType;
 import omero.ServerError;
+import omero.api._ServiceInterfaceOperations;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
 /**
@@ -50,31 +52,27 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object arg0, String arg1)
             throws BeansException {
 
-        if (arg0 instanceof ServantDefinition) {
+        if (arg0 instanceof _ServiceInterfaceOperations) {
+            final _ServiceInterfaceOperations sio = (_ServiceInterfaceOperations) arg0;
+            final Class ops = si(sio.getClass());
+            String opsName = ops.getName();
+            String apiName = opsName.replaceAll("omero", "ome").replaceFirst(
+                    "_", "").replace("Operations", "");
+            Class api;
+            try {
+                api = Class.forName(apiName);
+            } catch (ClassNotFoundException e) {
+                throw new FatalBeanException("No known API interface: "
+                        + apiName);
+            }
 
             final List<String> differences = new ArrayList<String>();
-
-            final ServantDefinition sd = (ServantDefinition) arg0;
-            final Class ops = sd.getOperationsClass();
-            final Class api = sd.getServiceClass();
-
             final Method[] opsMethods = ops.getDeclaredMethods();
             final Method[] apiMethods = api.getDeclaredMethods();
 
             final Map<String, Method> opsMap = map(opsMethods);
             final Map<String, Method> apiMap = map(apiMethods);
-
-            for (String name : opsMap.keySet()) {
-                if (!apiMap.containsKey(name)) {
-                    differences.add("Extra method: " + name);
-                }
-                Method opsMethod = opsMap.get(name);
-                List<Class<?>> excs = Arrays.asList(opsMethod
-                        .getExceptionTypes());
-                if (!excs.contains(ServerError.class)) {
-                    differences.add("Missing ServerError: " + name);
-                }
-            }
+            compareMethodNames(opsMap, apiMap, differences);
 
             for (final String name : apiMap.keySet()) {
 
@@ -90,7 +88,7 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 final Class[] apiParams = apiMethod.getParameterTypes();
 
                 // Blitz always has one more for the Ice.Current
-                if (opsParams.length - 1 != apiParams.length) {
+                if (opsParams.length - 2 != apiParams.length) {
                     differences.add(String.format(
                             "Native Java method has %d parameters "
                                     + "while Blitz method has %d",
@@ -101,7 +99,7 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 // Check actual values
                 for (int i = 0; i < apiParams.length; i++) {
                     Class apiType = apiParams[i];
-                    Class opsType = opsParams[i];
+                    Class opsType = opsParams[i + 1];
                     if (!matches(apiType, opsType)) {
                         differences.add(String.format(
                                 "Parameter type mismatch in %s: %s <> %s",
@@ -113,9 +111,14 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 // Now check the return type
 
                 Class opsReturn = opsMethod.getReturnType();
+                if (!void.class.equals(opsReturn)) {
+                    differences.add("Async calls must return void: "
+                            + opsMethod);
+                }
                 Class apiReturn = apiMethod.getReturnType();
+                Class amdReturn = amdResponse(opsMethod);
 
-                if (!matches(apiReturn, opsReturn)) {
+                if (!matches(apiReturn, amdReturn)) {
                     differences.add(String.format(
                             "Return type mismatch in %s: %s <> %s", apiMethod,
                             apiReturn, opsReturn));
@@ -130,9 +133,24 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
                 }
                 throw new ApiConsistencyException(sb.toString(), apiMap, opsMap);
             }
+
         }
 
         return arg0;
+    }
+
+    private void compareMethodNames(final Map<String, Method> opsMap,
+            final Map<String, Method> apiMap, final List<String> differences) {
+        for (String name : opsMap.keySet()) {
+            if (!apiMap.containsKey(name)) {
+                differences.add("Extra method: " + name);
+            }
+            Method opsMethod = opsMap.get(name);
+            List<Class<?>> excs = Arrays.asList(opsMethod.getExceptionTypes());
+            if (!excs.contains(ServerError.class)) {
+                differences.add("Missing ServerError: " + name);
+            }
+        }
     }
 
     /**
@@ -222,6 +240,7 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
         Map<String, Method> map = new HashMap<String, Method>();
         for (Method method : methods) {
             String name = method.getName();
+            name = name.replaceFirst("_async", "");
             if (map.containsKey(name)) {
                 throw new RuntimeException("Method " + name
                         + " contained multiple times in API.");
@@ -229,6 +248,72 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
             map.put(name, method);
         }
         return map;
+    }
+
+    /**
+     * Find the direct descendent of
+     * {@link omero.api._ServiceInterfaceOperations}
+     */
+    private Class si(Class k) {
+
+        if (!_ServiceInterfaceOperations.class.isAssignableFrom(k)) {
+            return null;
+        } else {
+
+            Class sc = k.getSuperclass();
+            if (sc != null) {
+                sc = si(sc);
+                if (sc != null) {
+                    return sc;
+                }
+            }
+
+            for (Class iface : k.getInterfaces()) {
+                if (iface.equals(_ServiceInterfaceOperations.class)) {
+                    return k;
+                } else {
+                    Class rv = si(iface);
+                    if (rv != null) {
+                        return rv;
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * Checks the parameter type of the ice_response() method of the AMD
+     * callback.
+     */
+    Class amdResponse(Method m) {
+        // The first parameter is always the AMD class
+        Class amd = m.getParameterTypes()[0];
+        Method[] methods = amd.getMethods();
+        Method response = null;
+        for (Method method : methods) {
+            if (method.getName().equals("ice_response")) {
+                if (response != null) {
+                    throw new RuntimeException(
+                            "2 ice_response() methods found: " + m);
+                } else {
+                    response = method;
+                }
+            }
+        }
+        if (response == null) {
+            throw new RuntimeException("No ice_response() method found: " + m);
+        }
+        Class[] responseTypes = response.getParameterTypes();
+        if (responseTypes.length > 1) {
+            throw new RuntimeException("More than one response type for " + m);
+        } else if (responseTypes.length == 1) {
+            return responseTypes[0];
+        } else {
+            return void.class;
+        }
+
     }
 }
 

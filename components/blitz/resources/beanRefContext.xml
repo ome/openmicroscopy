@@ -24,6 +24,7 @@
 	<constructor-arg index="0">
       <list>
         <value>classpath:ome/services/messaging.xml</value>
+        <value>classpath:ome/services/throttling/throttling.xml</value>
         <value>classpath:omero/server.xml</value>
         <value>classpath:omero/constants.xml</value>
         <value>classpath:ome/services/config-local.xml</value>
@@ -56,6 +57,7 @@
 	<constructor-arg index="0">
       <list>
         <value>classpath:ome/services/messaging.xml</value>
+        <value>classpath:ome/services/throttling/throttling.xml</value>
         <value>classpath:omero/server.xml</value>
         <value>classpath:omero/constants.xml</value>
         <value>classpath:omero/test.xml</value>
