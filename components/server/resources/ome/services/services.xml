@@ -211,6 +211,4 @@
   	<property name="securitySystem" ref="securitySystem"/>
   </bean>
 
-  <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
-
 </beans>

@@ -66,6 +66,10 @@
     <property name="debugAll" value="false"/>
   </bean>
 
+  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
+    <property name="cacheManager"  ref="cacheManager"/>
+  </bean>
+
   <bean name="sessionManager" class="ome.services.sessions.SessionManagerImpl"
     init-method="init"><!-- Init called to add root login method. -->
     <property name="sessionCache"  ref="sessionCache"/>

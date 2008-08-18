@@ -102,6 +102,15 @@ public class IceMethodInvoker {
     }
 
     /**
+     * Checks for a void return type, which is needed to know what type of
+     * ice_response() method to invoke.
+     */
+    public boolean isVoid(Ice.Current current) {
+        Info info = map.get(current.operation);
+        return info.retType.equals(void.class);
+    }
+
+    /**
      * Calls the method named in {@link Ice.Current#operation} with the
      * arguments provided mapped via the {@link IceMapper} instance. The return
      * value or any method which is thrown is equally mapped and returned.
@@ -262,22 +271,28 @@ public class IceMethodInvoker {
         } else if (ome.conditions.ResourceError.class.isAssignableFrom(c)) {
             omero.ResourceError re = new omero.ResourceError();
             return IceMapper.fillServerError(re, t);
-        } else if (ome.conditions.RemovedSessionException.class.isAssignableFrom(c)) {
+        } else if (ome.conditions.RemovedSessionException.class
+                .isAssignableFrom(c)) {
             omero.RemovedSessionException rse = new omero.RemovedSessionException();
             return IceMapper.fillServerError(rse, t);
-        } else if (ome.conditions.SessionTimeoutException.class.isAssignableFrom(c)) {
+        } else if (ome.conditions.SessionTimeoutException.class
+                .isAssignableFrom(c)) {
             omero.SessionTimeoutException ste = new omero.SessionTimeoutException();
             return IceMapper.fillServerError(ste, t);
         } else if (ome.conditions.InternalException.class.isAssignableFrom(c)) {
             omero.InternalException ie = new omero.InternalException();
             return IceMapper.fillServerError(ie, t);
-        } else if (ome.conditions.AuthenticationException.class.isAssignableFrom(c)) {
+        } else if (ome.conditions.AuthenticationException.class
+                .isAssignableFrom(c)) {
             // not an omero.ServerError()
-            omero.AuthenticationException ae = new omero.AuthenticationException(t.getMessage());
+            omero.AuthenticationException ae = new omero.AuthenticationException(
+                    t.getMessage());
             return ae;
-        } else if (ome.conditions.ExpiredCredentialException.class.isAssignableFrom(c)) {
+        } else if (ome.conditions.ExpiredCredentialException.class
+                .isAssignableFrom(c)) {
             // not an omero.ServerError()
-            omero.ExpiredCredentialException ece = new omero.ExpiredCredentialException(t.getMessage());
+            omero.ExpiredCredentialException ece = new omero.ExpiredCredentialException(
+                    t.getMessage());
             return ece;
         } else if (ome.conditions.RootException.class.isAssignableFrom(c)) {
             // Not returning but logging error message.

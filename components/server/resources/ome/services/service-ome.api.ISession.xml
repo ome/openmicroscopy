@@ -36,10 +36,6 @@
     <property name="target" ref="internal-ome.api.ISession"/>
   </bean>  
 
-  <bean name="sessionCache" class="ome.services.sessions.state.SessionCache">  
-    <property name="cacheManager"  ref="cacheManager"/>
-  </bean>
-
   <bean id="updateCache" class="ome.services.sessions.state.UpdateCacheThread">
     <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="executor"/>

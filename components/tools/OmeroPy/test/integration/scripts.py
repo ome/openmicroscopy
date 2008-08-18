@@ -8,6 +8,7 @@
 
 """
 
+import unittest
 import test.integration.library as lib
 import omero
 from omero_model_ScriptJobI import ScriptJobI

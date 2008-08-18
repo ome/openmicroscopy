@@ -64,8 +64,8 @@
  <!-- Here it is necessary to specify the HardWiredInterceptors instances
  even if they are *not* specified in Spring -->
  <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring">
-   <property name="securitySystem" ref="securitySystem"/>
-   <property name="methodSecurity" ref="methodSecurity"/>
+   <property name="principalHolder" ref="principalHolder"/>
+   <property name="methodSecurity"  ref="methodSecurity"/>
  </bean>
 
  <bean id="mock:ome.api.IAdmin" class="org.jmock.Mock">
@@ -133,5 +133,7 @@
   </bean>
 
   <bean id="executorMock" class="ome.icy.fixtures.ExecutorMockFactory"/>
+
+  <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
 </beans>

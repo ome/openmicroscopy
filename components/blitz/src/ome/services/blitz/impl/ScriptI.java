@@ -23,6 +23,7 @@ import ome.model.enums.Format;
 import ome.model.jobs.JobOriginalFileLink;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -57,7 +58,7 @@ import Ice.Current;
  * @see ome.api.IScript
  */
 public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
-        ServiceFactoryAware {
+        ServiceFactoryAware, BlitzOnly {
 
     /** The text representation of the format in a python script. */
     private final static String PYTHONSCRIPT = "text/x-python";

@@ -25,9 +25,14 @@
     Configuration for standalone properties and general database access.
     The beans in this configuration file should NOT be generally accessed.
     In general, this entire file should be considered to have a "private" scope.
+    
+    Note: As other forms of data access (caching esp. distributed, Freeze, etc.
+    are added, they should also be configured at this level)
   </description>
 
   <!--  Scope: private -->
+
+  <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
   <bean id="transactionManager" lazy-init="true"
         class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

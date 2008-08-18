@@ -21,6 +21,10 @@ from omero_model_DatasetImageLinkI import DatasetImageLinkI
 
 class TestApi(lib.ITest):
 
+    def testAdmin(self):
+        a = self.client.sf.getAdminService()
+        self.assert_(a.getEventContext() != None)
+
     def testThumbnail(self):
         q = self.client.sf.getQueryService()
 
@@ -31,9 +35,11 @@ class TestApi(lib.ITest):
         p = omero.sys.Parameters()
         p.theFilter = f
 
-        pixel = q.findByQuery("select p from Thumbnail t join fetch t.pixels p", p)
+        pixel = q.findByQuery("select p from Pixels p join fetch p.thumbnails t", p)
         tstore = self.client.sf.createThumbnailStore()
-        tstore.setPixelsId(pixel.id.val)
+        if not tstore.setPixelsId(pixel.id.val):
+            tstore.resetDefaults()
+            tstore.setPixelsId(pixel.id.val)
         tstore.getThumbnail(omero.RInt(16), omero.RInt(16))
 
 if __name__ == '__main__':

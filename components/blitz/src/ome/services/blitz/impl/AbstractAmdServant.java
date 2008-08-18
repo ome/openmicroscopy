@@ -50,7 +50,9 @@ public class AbstractAmdServant implements ApplicationContextAware {
 
     public final void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
-        this.invoker = new IceMethodInvoker(service, (OmeroContext) ctx);
+        if (service != null) {
+            this.invoker = new IceMethodInvoker(service, (OmeroContext) ctx);
+        }
     }
 
     /**

@@ -88,12 +88,18 @@ public class CurrentDetails implements PrincipalHolder {
      * existing {@link BasicEventContext}.
      */
     public void login(BasicEventContext bec) {
+        if (log.isDebugEnabled()) {
+            log.debug("Logging in :" + bec);
+        }
         list().add(bec);
     }
 
     public int logout() {
         LinkedList<BasicEventContext> list = list();
-        BasicEventContext c = list.removeLast();
+        BasicEventContext bec = list.removeLast();
+        if (log.isDebugEnabled()) {
+            log.debug("Logged out: " + bec);
+        }
         return list.size();
     }
 
@@ -167,6 +173,9 @@ public class CurrentDetails implements PrincipalHolder {
     public void invalidateCurrentEventContext() {
         BasicEventContext c = current();
         c.invalidate();
+        if (log.isDebugEnabled()) {
+            log.debug("Invalidated login: " + c);
+        }
     }
 
     // ~ Events and Details

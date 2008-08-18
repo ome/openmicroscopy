@@ -58,13 +58,8 @@ def run(args,\
     # Add the actual arguments now
     java += args
 
-    print use_exec
-    print java
-    print xargs
-    print debug
     if use_exec:
         env = os.environ
-        print java[2]
         os.execvpe(java[0], java, env)
     else:
         env = ['env']
@@ -72,7 +67,6 @@ def run(args,\
         LIBS = makeVar("LIBS")
         LIBM = makeVar("LIBM")
         command  = env+PATH+LIBS+LIBM+java
-        print command
 
         import subprocess
         output = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()[0]

@@ -24,7 +24,7 @@ module omero {
 
     };
 
-    interface ILicense
+    ["ami","amd"] interface ILicense
     {
       Ice::ByteSeq acquireLicense() throws NoAvailableLicenseException, ServerError;
       long getAvailableLicenseCount() throws ServerError;

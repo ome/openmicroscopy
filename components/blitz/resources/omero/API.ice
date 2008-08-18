@@ -64,7 +64,7 @@ module omero {
 	 */
 	["ami", "amd"] interface StatefulServiceInterface extends ServiceInterface
 	{
-            void close();
+            void close() throws ServerError;
 	    idempotent omero::sys::EventContext getCurrentEventContext() throws ServerError;
 	};
 
@@ -560,7 +560,7 @@ module omero {
 	{
 
 	    /*
-	     * Heartbeat-check made by the server to guarantee that the server
+	     * Heartbeat-check made by the server to guarantee that the client
 	     * is alive.
 	     */
 	    bool ping();

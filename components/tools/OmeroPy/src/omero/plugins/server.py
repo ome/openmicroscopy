@@ -35,9 +35,13 @@ class ServerControl(BaseControl):
 
         data = self.ctx.initData({})
         xargs = self._prop(data, "blitz.xargs")
+        if len(xargs) == 0:
+            xargs = "-Xmx400M"
         debug = self._prop(data, "blitz.debug")
         if debug == "true":
             debug = True
+        else:
+            debug = False
 
         # Run java -jar blitz/blitz.jar replacing the current process
         omero.java.run(["-jar","blitz/blitz.jar",first], debug=debug, xargs=xargs, use_exec = True)

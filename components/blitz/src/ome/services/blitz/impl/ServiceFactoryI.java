@@ -23,6 +23,7 @@ import ome.api.StatefulServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.ServantHelper;
+import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -75,7 +76,6 @@ import omero.api.StatefulServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
-import omero.api._IScriptTie;
 import omero.api._ServiceFactoryDisp;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
@@ -114,6 +114,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.transaction.TransactionStatus;
 
 import Ice.Current;
@@ -225,15 +226,18 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             // doing. It's unclear exactly how we should know that we are
             // getting a tie, and what subclass the delegate should be.
             // See #createServantDelegate
-            _IScriptTie tie = (_IScriptTie) this.context
-                    .getBean(SCRIPTSERVICE.value);
-            ScriptI scriptI = (ScriptI) tie.ice_delegate();
-            scriptI.setServiceFactory(this);
-            registerServant(current, id, tie);
-            servant = tie;
+            servant = (Ice.Object) this.context.getBean(SCRIPTSERVICE.value);
+            if (servant instanceof Ice.TieBase) {
+                Ice.TieBase tie = (Ice.TieBase) servant;
+                Object obj = tie.ice_delegate();
+                if (obj instanceof ServiceFactoryAware) {
+                    ((ServiceFactoryAware) obj).setServiceFactory(this);
+                }
+            }
+            registerServant(current, id, servant);
         }
         Ice.ObjectPrx prx = current.adapter.createProxy(id);
-        return IScriptPrxHelper.uncheckedCast(prx);
+        return IScriptPrxHelper.checkedCast(prx);
     }
 
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {
@@ -696,17 +700,20 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     amd.applyHardWiredInterceptors(cptors, initializer);
                 }
             }
+            return servant;
         } catch (ClassCastException cce) {
             throw new InternalException(null, null,
                     "Could not cast to Ice.Object:[" + name + "]");
-        } catch (Exception e) {
+        } catch (NoSuchBeanDefinitionException nosuch) {
             ApiUsageException aue = new ApiUsageException();
             aue.message = name
                     + " is an unknown service. Please check Constants.ice or the documentation for valid strings.";
             throw aue;
+        } catch (Exception e) {
+            log.warn("Uncaught exception in createServantDelegate. ", e);
+            throw new InternalException(null, e.getClass().getName(), e
+                    .getMessage());
         }
-
-        return servant;
     }
 
     protected void registerServant(Current current, Ice.Identity id,
@@ -732,7 +739,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         } catch (Exception e) {
             // FIXME
             omero.InternalException ie = new omero.InternalException();
-            ie.message = e.getMessage();
+            IceMapper.fillServerError(ie, e);
             throw ie;
         }
     }

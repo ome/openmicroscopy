@@ -52,6 +52,17 @@ public class ApiConsistencyCheck implements BeanPostProcessor {
     public Object postProcessAfterInitialization(Object arg0, String arg1)
             throws BeansException {
 
+        if (arg0 instanceof BlitzOnly) {
+            return arg0; // EARLY EXIT!
+        }
+
+        if (arg0 instanceof Ice.TieBase) {
+            Ice.TieBase tie = (Ice.TieBase) arg0;
+            if (tie.ice_delegate() instanceof BlitzOnly) {
+                return arg0; // EARLY EXIT!
+            }
+        }
+
         if (arg0 instanceof _ServiceInterfaceOperations) {
             final _ServiceInterfaceOperations sio = (_ServiceInterfaceOperations) arg0;
             final Class ops = si(sio.getClass());
