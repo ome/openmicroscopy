@@ -48,6 +48,10 @@ module omero {
 
     module api {
 
+	/*
+	 * Dictionary and sequences used by the following API calls.
+	 */
+
 	["java:type:java.util.ArrayList"]
 	    sequence<omero::model::Experimenter> ExperimenterList;
 
@@ -79,6 +83,14 @@ module omero {
 	    sequence<string> StringSet;
 
 	dictionary<long, string> ScriptIDNameMap;
+
+	dictionary<long, IObjectList> AnnotationMap;
+
+	dictionary<string, omero::model::Experimenter> UserMap;
+
+	dictionary<int, int> CountMap;
+
+	dictionary<bool, omero::sys::LongList> BooleanIdListMap;
 
 	/*
 	 * Service marker similar to ome.api.ServiceInterface
@@ -222,10 +234,6 @@ module omero {
 	    void setChannelGlobalMinMax(long pixelsId, int channelIndex, double min, double max) throws ServerError;
 	};
 
-	dictionary<long, IObjectList> AnnotationMap;
-	dictionary<string, omero::model::Experimenter> UserMap;
-	dictionary<int, int> CountMap;
-
 	interface IPojos extends ServiceInterface
 	{
 	    idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
@@ -358,7 +366,6 @@ module omero {
 	    void indexObject(omero::model::IObject row) throws ServerError;
 	};
 
-	dictionary<bool, omero::sys::LongList> BooleanIdListMap;
 	interface IRenderingSettings extends ServiceInterface
 	{
 	    bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
