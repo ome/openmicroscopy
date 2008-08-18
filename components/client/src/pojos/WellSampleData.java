@@ -24,17 +24,12 @@ package pojos;
 
 
 //Java imports
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.IObject;
-import ome.model.core.Image;
 import ome.model.screen.WellSample;
-import ome.util.CBlock;
 
 /** 
  * The data that makes up an <i>OME</i> WellSample along with links to its
@@ -55,12 +50,12 @@ public class WellSampleData
 {
 
     /**
-     * All the images that are linked to this well sample.
-     * The elements of this set are {@link ImageData} objects. 
+     * The image that is linked to this well sample.
+     * The element is a {@link ImageData} object. 
      * If this well sample is not linked to any Image, 
-     * then this set will be empty &#151; but never <code>null</code>.
+     * then this object will be <code>null</code>.
      */
-    private Set<ImageData> images;
+    private ImageData image;
     
 	/** Creates a new instance. */
     public WellSampleData()
@@ -91,65 +86,20 @@ public class WellSampleData
      */
     public ImageData getImage()
     {
-    	Set img = getImages();
-    	if (img == null) return null;
-    	//Should have only one.
-    	Iterator i = img.iterator();
-    	while (i.hasNext()) 
-			return (ImageData) i.next();
-		return null;
+    	if (image == null) image = new ImageData(asWellSample().getImage());	
+    	return image;
     }
     
-//  Lazy loaded links
-
     /**
-     * Returns a set of images linked to this well sample
+     * Sets the image linked to this well sample.
      * 
-     * @return See above.
+     * @param newValue The image to set.
      */
-    public Set getImages()
-    {
-    	/*
-        if (images == null && asWellSample().sizeOfImageLinks() >= 0) {
-            images = new HashSet<ImageData>(
-            		asWellSample().eachLinkedImage(new CBlock() {
-                public ImageData call(IObject object) {
-                    return new ImageData((Image) object);
-                }
-            }));
-        }
-        return images == null ? null : new HashSet<ImageData>(images);
-        */
-    	return null;
-    }
-    
-//  Link mutations
-
-    /**
-     * Sets the images linked to this well sample
-     * 
-     * @param newValue
-     *            The set of images.
-     */
-    public void setImages(Set<ImageData> newValue)
+    public void setImage(ImageData newValue)
    	{
-    	/*
-        Set<ImageData> currentValue = getImages();
-        SetMutator<ImageData> 
-        	m = new SetMutator<ImageData>(currentValue, newValue);
-
-        while (m.moreDeletions()) {
-            setDirty(true);
-            asWellSample().unlinkImage(m.nextDeletion().asImage());
-        }
-
-        while (m.moreAdditions()) {
-            setDirty(true);
-            asWellSample().linkImage(m.nextAddition().asImage());
-        }
-
-        images = new HashSet<ImageData>(m.result());
-        */
+    	if (newValue == null) return;
+    	setDirty(true);
+    	asWellSample().setImage(newValue.asImage());
     }
     
 }

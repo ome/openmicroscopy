@@ -31,7 +31,10 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.IObject;
 import ome.model.screen.Well;
+import ome.model.screen.WellSample;
+import ome.util.CBlock;
 
 /** 
  * The data that makes up an <i>OME</i> Well 
@@ -164,21 +167,6 @@ public class WellData
     	return plate;
     }
     
-    public WellSampleData getPrimaryWellSample()
-    {
-    	List<WellSampleData> l = getWellSamples();
-    	if (l == null || l.size() == 0) return null;
-    	return l.get(0);
-    }
-    
-    public void setPrimaryWellSample(WellSampleData primarySample)
-    {
-    	if (getPrimaryWellSample() == primarySample) return;
-        setDirty(true);
-        wellSamples = null; // Invalidated
-        //asWell().addWellSample(primarySample.asPixels());
-    }
-    
 //  Lazy loaded Links
     /**
      * Returns the well samples linked to the well.
@@ -187,17 +175,15 @@ public class WellData
      */
     public List<WellSampleData> getWellSamples()
     {
-    	/*
-        if (wellSamples == null && asWell().sizeOfWellSample() >= 0) {
+        if (wellSamples == null && asWell().sizeOfWellSamples() >= 0) {
         	wellSamples = new ArrayList<WellSampleData>(
-        			asWell().collectWellSample(
+        			asWell().collectWellSamples(
         			new CBlock<WellSampleData>() {
                 public WellSampleData call(IObject object) {
                     return new WellSampleData((WellSample) object);
                 }
             }));
         }
-        */
         return wellSamples == null ? null : 
         	new ArrayList<WellSampleData>(wellSamples);
     }
@@ -211,7 +197,6 @@ public class WellData
      */
     public void setWellSamples(List<WellSampleData> value)
     {
-    	/*
         List<WellSampleData> currentValue = getWellSamples();
         SetMutator<WellSampleData> 
         	m = new SetMutator<WellSampleData>(currentValue, value);
@@ -226,9 +211,6 @@ public class WellData
             asWell().addWellSample(m.nextAddition().asWellSample());
         }
         wellSamples = m.result();
-        */
-    	//TMP
-    	wellSamples = value;
     }
     
 }
