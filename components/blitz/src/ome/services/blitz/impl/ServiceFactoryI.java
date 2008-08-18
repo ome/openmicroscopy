@@ -9,7 +9,6 @@ package ome.services.blitz.impl;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,6 +224,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             // This is hard-coding what the servant manager should later be
             // doing. It's unclear exactly how we should know that we are
             // getting a tie, and what subclass the delegate should be.
+            // See #createServantDelegate
             _IScriptTie tie = (_IScriptTie) this.context
                     .getBean(SCRIPTSERVICE.value);
             ScriptI scriptI = (ScriptI) tie.ice_delegate();
@@ -686,6 +686,16 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         Ice.Object servant = null;
         try {
             servant = (Ice.Object) context.getBean(name);
+            // As with getScriptService, the servant manager should be the one
+            // to take this section into account.
+            if (servant instanceof Ice.TieBase) {
+                Ice.TieBase tie = (Ice.TieBase) servant;
+                Object obj = tie.ice_delegate();
+                if (obj instanceof AbstractAmdServant) {
+                    AbstractAmdServant amd = (AbstractAmdServant) obj;
+                    amd.applyHardWiredInterceptors(cptors, initializer);
+                }
+            }
         } catch (ClassCastException cce) {
             throw new InternalException(null, null,
                     "Could not cast to Ice.Object:[" + name + "]");

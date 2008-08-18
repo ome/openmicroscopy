@@ -31,7 +31,7 @@ class TestApi(lib.ITest):
         p = omero.sys.Parameters()
         p.theFilter = f
 
-        pixel = q.findByQuery("select p from Thumbnail t join fetch Pixels p", p)
+        pixel = q.findByQuery("select p from Thumbnail t join fetch t.pixels p", p)
         tstore = self.client.sf.createThumbnailStore()
         tstore.setPixelsId(pixel.id.val)
         tstore.getThumbnail(omero.RInt(16), omero.RInt(16))
