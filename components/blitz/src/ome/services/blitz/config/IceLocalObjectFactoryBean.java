@@ -30,7 +30,7 @@ public abstract class IceLocalObjectFactoryBean implements FactoryBean,
 
     protected final Log logger = LogFactory.getLog(getClass());
 
-    protected Ice.LocalObject obj;
+    protected Object obj;
 
     protected String beanName;
 
@@ -46,7 +46,7 @@ public abstract class IceLocalObjectFactoryBean implements FactoryBean,
     }
 
     public Class getObjectType() {
-        return (this.obj != null ? this.obj.getClass() : Ice.LocalObject.class);
+        return (this.obj != null ? this.obj.getClass() : Object.class);
     }
 
     public final boolean isSingleton() {

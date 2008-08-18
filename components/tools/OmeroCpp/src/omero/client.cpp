@@ -112,13 +112,9 @@ namespace omero {
 	      } // TODO what about SNEE
 	  }
 
-          try {
-              ic->destroy();
-          } catch (const Ice::Exception& ex) {
-              cerr << "Caught Ice exception while destroying communicator." << endl;
-              cerr << ex << endl;
-          }
+          Ice::ComunicatorPtr copy(ic);
           ic = Ice::CommunicatorPtr();
+          copy->destroy();
       }
 
   }

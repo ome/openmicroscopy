@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-// Ice version 3.2.1
+// Ice version 3.3.0
 
 package ome.services.sharing.data;
 
@@ -111,9 +111,16 @@ public final class ObjPrxHelper extends Ice.ObjectPrxHelperBase implements ObjPr
         ObjPrx __d = null;
         if(__obj != null)
         {
-            ObjPrxHelper __h = new ObjPrxHelper();
-            __h.__copyFrom(__obj);
-            __d = __h;
+            try
+            {
+                __d = (ObjPrx)__obj;
+            }
+            catch(ClassCastException ex)
+            {
+                ObjPrxHelper __h = new ObjPrxHelper();
+                __h.__copyFrom(__obj);
+                __d = __h;
+            }
         }
         return __d;
     }

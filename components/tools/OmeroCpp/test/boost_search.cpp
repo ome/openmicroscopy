@@ -9,6 +9,7 @@
 #include <Glacier2/Glacier2.h>
 #include <boost_fixture.h>
 #include <time.h>
+#include <omero/Collections.h>
 
 using namespace std;
 using namespace omero;
@@ -21,13 +22,13 @@ void byAnnotatedWith(SearchPrx search, AnnotationPtr a) {
     list.push_back(a);
     search->byAnnotatedWith(list);
 }
-LongList ids(long id){
-    LongList ll;
+omero::sys::LongList ids(long id){
+    omero::sys::LongList ll;
     ll.push_back(id);
     return ll;
 }
-LongList ids(long id, long id2){
-    LongList ll = ids(id);
+omero::sys::LongList ids(long id, long id2){
+    omero::sys::LongList ll = ids(id);
     ll.push_back(id2);
     return ll;
 }
@@ -206,7 +207,7 @@ BOOST_AUTO_TEST_CASE( Filtering )
         assertResults(1, search);
 
         // Add id filter
-        LongList ids;
+        omero::sys::LongList ids;
         ids.push_back(obj->id->val);
         search->onlyIds(ids);
         search->byFullText(uuid);
@@ -723,7 +724,7 @@ BOOST_AUTO_TEST_CASE( testOnlyIds ) {
     assertResults(0, search);
 
     // unrestrict
-    search->onlyIds(LongList()); // ERROR
+    search->onlyIds(omero::sys::LongList()); // ERROR
     // full text
     search->byFullText(uuid);
     assertResults(2, search);

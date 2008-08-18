@@ -11,8 +11,11 @@
 
 #include <omero/API.h>
 #include <omero/ClientErrors.h>
+#include <omero/Collections.h>
 #include <omero/Constants.h>
 #include <omero/CTypes.h>
+#include <omero/Gateway.h>
+#include <omero/IScript.h>
 #include <omero/ModelI.h>
 #include <omero/ObjectFactoryRegistrar.h>
 #include <omero/ServerErrors.h>

@@ -11,6 +11,7 @@
 
 import test.integration.library as lib
 import omero, tempfile, unittest, os, sys
+import omero_IScript_ice
 
 PINGFILE = """
 #!/usr/bin/env python

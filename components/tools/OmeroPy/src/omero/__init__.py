@@ -250,13 +250,10 @@ class client(object):
                     # calling destroySession(). CLE happens since
                     # we are disconnecting
 
-            try:
-                self.getCommunicator().destroy()
-            except (), msg:
-                pysys.stderr.write("Ice exception while destroying communicator:")
-                pysys.stderr.write(msg)
         finally:
+            ic = self.ic
             self.ic = None
+            ic.destroy()
 
     def _env(self, method, *args):
         """ Helper method to access session environment"""

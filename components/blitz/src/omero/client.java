@@ -235,7 +235,9 @@ public class client {
         } catch (Ice.ConnectionLostException cle) {
             // ok. Exception will always be thrown
         } finally {
+            Ice.Communicator copy = ic;
             ic = null;
+            copy.destroy();
         }
     }
 

@@ -1,25 +1,31 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-// Ice version 3.2.1
+// Ice version 3.3.0
 
 package ome.services.sharing.data;
 
 public class ShareItems extends Freeze.Map
 {
-    public
-    ShareItems(Freeze.Connection __connection, String __dbName, boolean __createDb, java.util.Comparator __comparator, java.util.Map __indexComparators)
+    private
+    ShareItems(Freeze.Connection __connection, String __dbName, java.util.Comparator __comparator)
     {
         super(__connection, __dbName, __comparator);
         _indices = new Freeze.Map.Index[2];
         _indices[0] = new TypeIndex("type");
         _indices[1] = new ShareIndex("share");
+    }
+
+    public
+    ShareItems(Freeze.Connection __connection, String __dbName, boolean __createDb, java.util.Comparator __comparator, java.util.Map __indexComparators)
+    {
+        this(__connection, __dbName, __comparator);
         init(_indices, __dbName, "long", "::ome::services::sharing::data::ShareItem", __createDb, __indexComparators);
     }
 
@@ -39,6 +45,19 @@ public class ShareItems extends Freeze.Map
     ShareItems(Freeze.Connection __connection, String __dbName)
     {
         this(__connection, __dbName, true);
+    }
+
+    public static void
+    recreate(Freeze.Connection __connection, String __dbName, java.util.Comparator __comparator, java.util.Map __indexComparators)
+    {
+        ShareItems __tmpMap = new ShareItems(__connection, __dbName, __comparator);
+        recreate(__tmpMap, __dbName, "long", "::ome::services::sharing::data::ShareItem", __tmpMap._indices, __indexComparators);
+    }
+
+    public static void
+    recreate(Freeze.Connection __connection, String __dbName, java.util.Comparator __comparator)
+    {
+        recreate(__connection, __dbName, __comparator, null);
     }
 
     public Freeze.Map.EntryIterator
@@ -83,9 +102,9 @@ public class ShareItems extends Freeze.Map
         assert(o instanceof java.lang.Long);
         IceInternal.BasicStream __os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         __os.writeLong(((java.lang.Long)o).longValue());
-        java.nio.ByteBuffer __buf = __os.prepareWrite();
-        byte[] __r = new byte[__buf.limit()];
-        __buf.get(__r);
+        IceInternal.Buffer __buf = __os.prepareWrite();
+        byte[] __r = new byte[__buf.size()];
+        __buf.b.get(__r);
         return __r;
     }
 
@@ -94,10 +113,10 @@ public class ShareItems extends Freeze.Map
     {
         IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         __is.resize(b.length, true);
-        java.nio.ByteBuffer __buf = __is.prepareRead();
-        __buf.position(0);
-        __buf.put(b);
-        __buf.position(0);
+        IceInternal.Buffer __buf = __is.getBuffer();
+        __buf.b.position(0);
+        __buf.b.put(b);
+        __buf.b.position(0);
         java.lang.Long __r;
         __r = new java.lang.Long(__is.readLong());
         return __r;
@@ -112,9 +131,9 @@ public class ShareItems extends Freeze.Map
         __os.writeObject(((ome.services.sharing.data.ShareItem)o));
         __os.writePendingObjects();
         __os.endWriteEncaps();
-        java.nio.ByteBuffer __buf = __os.prepareWrite();
-        byte[] __r = new byte[__buf.limit()];
-        __buf.get(__r);
+        IceInternal.Buffer __buf = __os.prepareWrite();
+        byte[] __r = new byte[__buf.size()];
+        __buf.b.get(__r);
         return __r;
     }
 
@@ -124,10 +143,10 @@ public class ShareItems extends Freeze.Map
         IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         __is.sliceObjects(false);
         __is.resize(b.length, true);
-        java.nio.ByteBuffer __buf = __is.prepareRead();
-        __buf.position(0);
-        __buf.put(b);
-        __buf.position(0);
+        IceInternal.Buffer __buf = __is.getBuffer();
+        __buf.b.position(0);
+        __buf.b.put(b);
+        __buf.b.position(0);
         __is.startReadEncaps();
         Patcher __p = new Patcher();
         __is.readObject(__p);
@@ -143,9 +162,9 @@ public class ShareItems extends Freeze.Map
         {
             IceInternal.BasicStream __os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
             __os.writeString(((String)key));
-            java.nio.ByteBuffer buf = __os.prepareWrite();
-            byte[] r = new byte[buf.limit()];
-            buf.get(r);
+            IceInternal.Buffer buf = __os.prepareWrite();
+            byte[] r = new byte[buf.size()];
+            buf.b.get(r);
             return r;
         }
 
@@ -154,10 +173,10 @@ public class ShareItems extends Freeze.Map
         {
             IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
             __is.resize(bytes.length, true);
-            java.nio.ByteBuffer buf = __is.prepareRead();
-            buf.position(0);
-            buf.put(bytes);
-            buf.position(0);
+            IceInternal.Buffer buf = __is.getBuffer();
+            buf.b.position(0);
+            buf.b.put(bytes);
+            buf.b.position(0);
             java.lang.String r;
             r = __is.readString();
             return r;
@@ -195,9 +214,9 @@ public class ShareItems extends Freeze.Map
         {
             IceInternal.BasicStream __os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
             __os.writeLong(((java.lang.Long)key).longValue());
-            java.nio.ByteBuffer buf = __os.prepareWrite();
-            byte[] r = new byte[buf.limit()];
-            buf.get(r);
+            IceInternal.Buffer buf = __os.prepareWrite();
+            byte[] r = new byte[buf.size()];
+            buf.b.get(r);
             return r;
         }
 
@@ -206,10 +225,10 @@ public class ShareItems extends Freeze.Map
         {
             IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
             __is.resize(bytes.length, true);
-            java.nio.ByteBuffer buf = __is.prepareRead();
-            buf.position(0);
-            buf.put(bytes);
-            buf.position(0);
+            IceInternal.Buffer buf = __is.getBuffer();
+            buf.b.position(0);
+            buf.b.put(bytes);
+            buf.b.position(0);
             java.lang.Long r;
             r = new java.lang.Long(__is.readLong());
             return r;

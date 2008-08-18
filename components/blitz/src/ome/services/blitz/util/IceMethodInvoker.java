@@ -232,8 +232,8 @@ public class IceMethodInvoker {
             t = t.getCause();
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Handling:", t);
+        if (log.isDebugEnabled()) {
+            log.debug("Handling:", t);
         }
 
         // First we give registered handlers a chance to convert the message,

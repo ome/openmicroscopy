@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-// Ice version 3.2.1
+// Ice version 3.3.0
 
 package ome.services.sharing.data;
 
@@ -41,7 +41,7 @@ public final class ObjSeqHelper
         for(int __i0 = 0; __i0 < __len0; __i0++)
         {
             __v.add(null);
-            __is.readObject(new IceInternal.ListPatcher(__v, Obj.class, __type0, __i0));
+            __is.readObject(new IceInternal.ListPatcher<Obj>(__v, Obj.class, __type0, __i0));
             __is.checkSeq();
             __is.endElement();
         }

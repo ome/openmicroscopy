@@ -379,7 +379,7 @@ class Server(Ice.Application):
         self.p = ProcessorI(self.communicator().getLogger())
         self.p.serverid = self.communicator().getProperties().getProperty("Ice.ServerId")
 
-        self.adapter.add(self.p, Ice.stringToIdentity("Processor"))
+        self.adapter.add(self.p, Ice.Identity("Processor",""))
         self.adapter.activate()
         self.communicator().waitForShutdown()
         self.cleanup()

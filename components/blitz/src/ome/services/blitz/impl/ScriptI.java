@@ -116,28 +116,32 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void uploadScript_async(final AMD_IScript_uploadScript cb,
             final String script, final Current __current) throws ServerError {
         runnableCall(__current, new BlitzExecutor.Task() {
-            public void run() throws omero.ServerError {
+            public void run() {
                 if (!validateScript(script)) {
                     cb.ice_exception(new ApiUsageException("Invalid script"));
                 }
-                final OriginalFile tempFile = makeFile(script);
-                writeContent(tempFile, script);
-                JobParams params = getScriptParams(tempFile, __current);
-                if (originalFileExists(params.name)) {
-                    deleteOriginalFile(tempFile);
-                    cb.ice_exception(new ApiUsageException(
-                            "A script with name " + params.name
-                                    + " already exists on server."));
+                try {
+                    final OriginalFile tempFile = makeFile(script);
+                    writeContent(tempFile, script);
+                    JobParams params = getScriptParams(tempFile, __current);
+                    if (originalFileExists(params.name)) {
+                        deleteOriginalFile(tempFile);
+                        cb.ice_exception(new ApiUsageException(
+                                "A script with name " + params.name
+                                        + " already exists on server."));
+                    }
+                    if (params == null) {
+                        cb.ice_exception(new ApiUsageException(
+                                "Script error: no params found."));
+                    }
+                    tempFile.setName(params.name);
+                    tempFile.setPath(params.name);
+                    writeContent(tempFile, script);
+                    OriginalFile scriptFile = updateFile(tempFile);
+                    cb.ice_response(scriptFile.getId());
+                } catch (ServerError e) {
+                    cb.ice_exception(e);
                 }
-                if (params == null) {
-                    cb.ice_exception(new ApiUsageException(
-                            "Script error: no params found."));
-                }
-                tempFile.setName(params.name);
-                tempFile.setPath(params.name);
-                writeContent(tempFile, script);
-                OriginalFile scriptFile = updateFile(tempFile);
-                cb.ice_response(scriptFile.getId());
             }
 
         });
@@ -160,7 +164,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         runnableCall(__current, new BlitzExecutor.Task() {
 
-            public void run() throws ServerError {
+            public void run() {
                 final OriginalFile file = getOriginalFile(id);
                 if (file == null) {
                     cb.ice_response(null);
@@ -174,24 +178,28 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 }
 
                 Map<String, RType> scr = new HashMap<String, RType>();
-                scr.put((String) factory.executor.execute(factory.principal,
-                        new Executor.Work() {
+                try {
+                    scr.put((String) factory.executor.execute(
+                            factory.principal, new Executor.Work() {
 
-                            public Object doWork(TransactionStatus status,
-                                    Session session, ServiceFactory sf) {
-                                RawFileStore rawFileStore = sf
-                                        .createRawFileStore();
-                                try {
-                                    rawFileStore.setFileId(file.getId());
-                                    String script = new String(rawFileStore
-                                            .read(0L, (int) size));
+                                public Object doWork(TransactionStatus status,
+                                        Session session, ServiceFactory sf) {
+                                    RawFileStore rawFileStore = sf
+                                            .createRawFileStore();
+                                    try {
+                                        rawFileStore.setFileId(file.getId());
+                                        String script = new String(rawFileStore
+                                                .read(0L, (int) size));
 
-                                    return script;
-                                } finally {
-                                    rawFileStore.close();
+                                        return script;
+                                    } finally {
+                                        rawFileStore.close();
+                                    }
                                 }
-                            }
-                        }), new omero.util.IceMapper().toRType(file));
+                            }), new omero.util.IceMapper().toRType(file));
+                } catch (omero.ApiUsageException e) {
+                    cb.ice_exception(e);
+                }
                 cb.ice_response(scr);
             }
         });
@@ -212,7 +220,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             Current __current) throws ServerError {
 
         runnableCall(__current, new BlitzExecutor.Task() {
-            public void run() throws ServerError {
+            public void run() {
 
                 final OriginalFile file = getOriginalFile(id);
                 if (file == null) {
@@ -263,8 +271,12 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final Current __current) throws ServerError {
         runnableCall(__current, new BlitzExecutor.Task() {
 
-            public void run() throws ServerError {
-                cb.ice_response(getParams(id, __current));
+            public void run() {
+                try {
+                    cb.ice_response(getParams(id, __current));
+                } catch (ServerError e) {
+                    cb.ice_exception(e);
+                }
             }
         });
     }
@@ -303,37 +315,45 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
 
         runnableCall(__current, new BlitzExecutor.Task() {
 
-            public void run() throws ServerError {
+            public void run() {
+                try {
 
-                Map<String, RType> params = getParams(id, __current);
-                Iterator<String> paramIterator = params.keySet().iterator();
-                while (paramIterator.hasNext()) {
-                    String paramName = paramIterator.next();
-                    RType scriptParamType = params.get(paramName);
-                    if (!map.containsKey(paramName)) {
-                        cb
-                                .ice_exception(new ApiUsageException(
-                                        "Script takes parameter "
-                                                + paramName
-                                                + " which has not supplied input params to runScript."));
+                    Map<String, RType> params = getParams(id, __current);
+                    Iterator<String> paramIterator = params.keySet().iterator();
+                    while (paramIterator.hasNext()) {
+                        String paramName = paramIterator.next();
+                        RType scriptParamType = params.get(paramName);
+                        if (!map.containsKey(paramName)) {
+                            cb
+                                    .ice_exception(new ApiUsageException(
+                                            "Script takes parameter "
+                                                    + paramName
+                                                    + " which has not supplied input params to runScript."));
+                        }
+                        RType inputParamType = map.get(paramName);
+                        if (!scriptParamType.getClass().equals(
+                                inputParamType.getClass())) {
+                            cb
+                                    .ice_exception(new ApiUsageException(
+                                            "Script takes parameter "
+                                                    + paramName
+                                                    + " of type "
+                                                    + scriptParamType
+                                                    + " runScript was passed parameter "
+                                                    + paramName + " of type "
+                                                    + inputParamType + "."));
+                        }
                     }
-                    RType inputParamType = map.get(paramName);
-                    if (!scriptParamType.getClass().equals(
-                            inputParamType.getClass())) {
-                        cb.ice_exception(new ApiUsageException(
-                                "Script takes parameter " + paramName
-                                        + " of type " + scriptParamType
-                                        + " runScript was passed parameter "
-                                        + paramName + " of type "
-                                        + inputParamType + "."));
-                    }
+                    ScriptJobI job = buildJob(id);
+                    InteractiveProcessorPrx proc = factory.acquireProcessor(
+                            job, 10, __current);
+                    omero.grid.ProcessPrx prx = proc
+                            .execute(new omero.RMap(map));
+                    prx._wait();
+                    cb.ice_response(proc.getResults(prx).val);
+                } catch (ServerError e) {
+                    cb.ice_exception(e);
                 }
-                ScriptJobI job = buildJob(id);
-                InteractiveProcessorPrx proc = factory.acquireProcessor(job,
-                        10, __current);
-                omero.grid.ProcessPrx prx = proc.execute(new omero.RMap(map));
-                prx._wait();
-                cb.ice_response(proc.getResults(prx).val);
             }
         });
     }
@@ -352,7 +372,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             Current __current) throws ServerError {
 
         runnableCall(__current, new BlitzExecutor.Task() {
-            public void run() throws ServerError {
+            public void run() {
                 final Map<Long, String> scriptMap = new HashMap<Long, String>();
                 final long fmt = getFormat(PYTHONSCRIPT).getId();
                 final String queryString = "from OriginalFile as o where o.format.id = "
@@ -387,13 +407,17 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void deleteScript_async(final AMD_IScript_deleteScript cb,
             final long id, Current __current) throws ServerError {
         runnableCall(__current, new BlitzExecutor.Task() {
-            public void run() throws ServerError {
+            public void run() {
                 OriginalFile file = getOriginalFile(id);
                 if (file == null) {
                     cb.ice_exception(new ApiUsageException("No script with id "
                             + id + " on server."));
                 }
-                deleteOriginalFile(file);
+                try {
+                    deleteOriginalFile(file);
+                } catch (ServerError e) {
+                    cb.ice_exception(e);
+                }
                 cb.ice_response();
             }
         });

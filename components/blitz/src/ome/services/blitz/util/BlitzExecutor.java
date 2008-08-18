@@ -19,7 +19,7 @@ import ome.api.ServiceInterface;
 public interface BlitzExecutor {
 
     public interface Task {
-        void run() throws omero.ServerError;
+        void run();
     }
 
     void serviceInterfaceCall(ServiceInterface service,

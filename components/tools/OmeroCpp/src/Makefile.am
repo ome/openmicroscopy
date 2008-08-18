@@ -50,9 +50,17 @@ libOMERO_client_la_LIBADD  = libOMERO_common.la
 libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
 	./omero/model/DetailsI.cpp\
 	./omero/model/PermissionsI.cpp\
+        slice_generated//omero/fwd.cpp\
         slice_generated//omero/API.cpp\
         slice_generated//omero/Constants.cpp\
-        slice_generated//omero/fwd.cpp\
+        slice_generated/omero/Collections.cpp\
+        slice_generated/omero/Gateway.cpp\
+        slice_generated/omero/IScript.cpp\
+        slice_generated/omero/ROMIO.cpp\
+        slice_generated/omero/RTypes.cpp\
+        slice_generated/omero/Scripts.cpp\
+        slice_generated/omero/ServerErrors.cpp\
+        slice_generated/omero/System.cpp\
         slice_generated//omero/IObject.cpp\
         slice_generated//omero/model/AberrationCorrection.cpp\
         slice_generated//omero/model/AcquisitionMode.cpp\
@@ -104,6 +112,7 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
         slice_generated//omero/model/Experimenter.cpp\
         slice_generated//omero/model/ExperimenterAnnotationLink.cpp\
         slice_generated//omero/model/ExperimenterGroup.cpp\
+        slice_generated//omero/model/ExperimenterGroupAnnotationLink.cpp\
         slice_generated//omero/model/ExperimentType.cpp\
         slice_generated//omero/model/ExternalInfo.cpp\
         slice_generated//omero/model/Family.cpp\
@@ -189,6 +198,8 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
         slice_generated//omero/model/ScreenPlateLink.cpp\
         slice_generated//omero/model/ScriptJob.cpp\
         slice_generated//omero/model/Session.cpp\
+        slice_generated//omero/model/SessionAnnotationLink.cpp\
+        slice_generated//omero/model/Share.cpp\
         slice_generated//omero/model/StageLabel.cpp\
         slice_generated//omero/model/StatsInfo.cpp\
         slice_generated//omero/model/TagAnnotation.cpp\
@@ -205,11 +216,6 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
         slice_generated//omero/model/WellSample.cpp\
         slice_generated//omero/model/WellSampleAnnotationLink.cpp\
         slice_generated//omero/model/XmlAnnotation.cpp\
-        slice_generated//omero/ROMIO.cpp\
-        slice_generated//omero/RTypes.cpp\
-        slice_generated//omero/Scripts.cpp\
-        slice_generated//omero/ServerErrors.cpp\
-        slice_generated//omero/System.cpp\
         ../target//temp/omero/model/AberrationCorrectionI.cpp\
         ../target//temp/omero/model/AcquisitionModeI.cpp\
         ../target//temp/omero/model/AnnotationAnnotationLinkI.cpp\
@@ -257,6 +263,7 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
         ../target//temp/omero/model/ExcitationFilterI.cpp\
         ../target//temp/omero/model/ExperimenterAnnotationLinkI.cpp\
         ../target//temp/omero/model/ExperimenterGroupI.cpp\
+        ../target//temp/omero/model/ExperimenterGroupAnnotationLinkI.cpp\
         ../target//temp/omero/model/ExperimenterI.cpp\
         ../target//temp/omero/model/ExperimentI.cpp\
         ../target//temp/omero/model/ExperimentTypeI.cpp\
@@ -343,6 +350,8 @@ libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
         ../target//temp/omero/model/ScreenPlateLinkI.cpp\
         ../target//temp/omero/model/ScriptJobI.cpp\
         ../target//temp/omero/model/SessionI.cpp\
+        ../target//temp/omero/model/SessionAnnotationLinkI.cpp\
+        ../target//temp/omero/model/ShareI.cpp\
         ../target//temp/omero/model/StageLabelI.cpp\
         ../target//temp/omero/model/StatsInfoI.cpp\
         ../target//temp/omero/model/TagAnnotationI.cpp\

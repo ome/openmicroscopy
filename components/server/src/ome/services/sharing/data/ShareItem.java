@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2008 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-// Ice version 3.2.1
+// Ice version 3.3.0
 
 package ome.services.sharing.data;
 
@@ -26,7 +26,7 @@ public class ShareItem extends Ice.ObjectImpl
         this.guests = guests;
     }
 
-    private static class __F extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    private static class __F implements Ice.ObjectFactory
     {
         public Ice.Object
         create(String type)
