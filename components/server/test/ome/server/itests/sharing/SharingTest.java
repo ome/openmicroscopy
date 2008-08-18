@@ -118,6 +118,31 @@ public class SharingTest extends AbstractManagedContextTest {
     }
 
     @Test
+    public void testRetrieval() {
+        loginRoot();
+
+        long id = share.createShare("disabled", null, null, null, null, false);
+
+        Set<Session> shares = share.getAllShares(true);
+        assertShareNotReturned(id, shares);
+
+        shares = share.getAllShares(false);
+        boolean found = false;
+        for (Session session : shares) {
+            found |= session.getId().longValue() == id;
+        }
+        assertTrue(found);
+
+        shares = share.getOwnShares(false);
+    }
+
+    private void assertShareNotReturned(long id, Set<Session> shares) {
+        for (Session session : shares) {
+            assertFalse(id + "==" + session, id == session.getId());
+        }
+    }
+
+    @Test
     public void testMembershipFunctions() {
 
         Experimenter nonMember = loginNewUser();
