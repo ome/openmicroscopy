@@ -124,7 +124,7 @@
 		<split-combined prefix="pyc">
 			<regexpmapper from="target/generated/resources/omero/util/FactoryMap.combined" to="target/generated/src/omero/util/FactoryMap.py"/>
 		</split-combined>
-		
+
 		<!--
 		    By deleting from the target directory what already exists under
 		    src/ or resources/ it is possible to override code generation.

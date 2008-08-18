@@ -63,7 +63,8 @@ build-* targets.
         </delete>
     </target>
 
-    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="ivy-init">
+    <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="ivy">
+        <property name="env.NOMAKE" value="1"/>
         <property name="test.skip" value="true"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="app.buildpath" target="dist"/>
@@ -72,7 +73,7 @@ build-* targets.
         <iterate buildpathref="WebAdmin.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
-        <iterate buildpathref="licenses.buildpath" target="prepare"/><!-- Makes eclipse happy -->
+        <iterate buildpathref="licenses.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
     </target>
 

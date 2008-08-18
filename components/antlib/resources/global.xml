@@ -79,6 +79,9 @@
                         <!-- Defaults set in dependencies.xml -->
                         <property name="ivy.buildlist.ivyfilepath" value="${ivy.buildlist.ivyfilepath}"/>
                         <property name="ivy.dep.file" value="${ivy.dep.file}"/>
+                        <propertyset>
+                            <propertyref prefix="env"/>
+                        </propertyset>
                 </subant>
                 </sequential>
         </macrodef>
