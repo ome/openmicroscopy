@@ -43,6 +43,7 @@ public class InThreadThrottlingStrategy implements ThrottlingStrategy {
             Current __current, Object... args) {
         Callback cb = new Callback(service, invoker, mapper, __cb, __current,
                 args);
+        cb.run();
     }
 
     public void runnableCall(Current __current, Task task) {

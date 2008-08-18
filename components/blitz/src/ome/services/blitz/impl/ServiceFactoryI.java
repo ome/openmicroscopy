@@ -7,13 +7,8 @@
 
 package ome.services.blitz.impl;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -22,6 +17,7 @@ import ome.api.ServiceInterface;
 import ome.api.StatefulServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.util.ServantHolder;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.UnregisterServantMessage;
 import ome.services.sessions.SessionManager;
@@ -32,6 +28,7 @@ import ome.system.ServiceFactory;
 import omero.ApiUsageException;
 import omero.InternalException;
 import omero.ServerError;
+import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.ClientCallbackPrx;
 import omero.api.GatewayPrx;
 import omero.api.GatewayPrxHelper;
@@ -153,13 +150,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      */
     final Executor executor;
 
-    /**
-     * Stored by {@link String} since {@link Ice.Identity} does not behave
-     * properly as a key.
-     */
-    final Map<String, Ice.Object> activeServants;
-
-    final Map<String, Ice.Object> interactiveSlots;
+    final ServantHolder holder;
 
     final Principal principal;
 
@@ -186,24 +177,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
         // Setting up in memory store.
         Ehcache cache = manager.inMemoryCache(p.getName());
-        // TODO the getMap() method could be put in our own Cache class
-        activeServants = getMap(ACTIVE_SERVANTS, cache);
-        interactiveSlots = getMap(INTERACTIVE_SLOTS, cache);
-    }
-
-    static String ACTIVE_SERVANTS = "activeServants";
-    static String INTERACTIVE_SLOTS = "interactiveSlots";
-
-    @SuppressWarnings("unchecked")
-    private <T> Map<String, T> getMap(String key, Ehcache cache) {
-        Map<String, T> ids;
+        ServantHolder local;
+        String key = "servantHolder";
         if (!cache.isKeyInCache(key)) {
-            ids = new ConcurrentHashMap<String, T>();
-            cache.put(new Element(key, ids));
+            local = new ServantHolder();
+            cache.put(new Element(key, local));
         } else {
-            ids = (Map<String, T>) cache.get(key).getObjectValue();
+            local = (ServantHolder) cache.get(key).getObjectValue();
         }
-        return ids;
+        holder = local; // Set the final value
     }
 
     // ~ Stateless
@@ -215,25 +197,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public IScriptPrx getScriptService(Ice.Current current) throws ServerError {
-        Ice.Identity id = getIdentity(current, SCRIPTSERVICE.value);
-        Ice.Object servant = current.adapter.find(id);
-        if (servant == null) {
-            // This is hard-coding what the servant manager should later be
-            // doing. It's unclear exactly how we should know that we are
-            // getting a tie, and what subclass the delegate should be.
-            // See #createServantDelegate
-            servant = (Ice.Object) this.context.getBean(SCRIPTSERVICE.value);
-            if (servant instanceof Ice.TieBase) {
-                Ice.TieBase tie = (Ice.TieBase) servant;
-                Object obj = tie.ice_delegate();
-                if (obj instanceof ServiceFactoryAware) {
-                    ((ServiceFactoryAware) obj).setServiceFactory(this);
-                }
-            }
-            registerServant(current, id, servant);
-        }
-        Ice.ObjectPrx prx = current.adapter.createProxy(id);
-        return IScriptPrxHelper.checkedCast(prx);
+        Ice.ObjectPrx prx = getByName(SCRIPTSERVICE.value, current);
+        return IScriptPrxHelper.uncheckedCast(prx);
     }
 
     public IConfigPrx getConfigService(Ice.Current current) throws ServerError {
@@ -342,10 +307,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public ServiceInterfacePrx getByName(String name, Current current)
             throws ServerError {
 
-        Ice.Identity id = getIdentity(current, name);
+        Ice.Identity id = getIdentity(name);
 
-        synchronized (activeServants) {
-            Ice.Object servant = activeServants.get(id);
+        holder.acquireLock(name);
+        try {
+            Ice.ObjectPrx prx;
+            Ice.Object servant = holder.get(name);
             if (servant == null) {
                 servant = createServantDelegate(name);
 
@@ -358,27 +325,27 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     throw aue;
                 }
 
-                registerServant(current, id, servant);
+                prx = registerServant(current, id, servant);
+            } else {
+                prx = current.adapter.createProxy(id);
             }
+            return ServiceInterfacePrxHelper.uncheckedCast(prx);
+        } finally {
+            holder.releaseLock(name);
         }
-
-        Ice.ObjectPrx prx = current.adapter.createProxy(id);
-        return ServiceInterfacePrxHelper.uncheckedCast(prx);
     }
 
     public StatefulServiceInterfacePrx createByName(String name, Current current)
             throws ServerError {
 
-        Ice.Identity id = getIdentity(current, Ice.Util.generateUUID() + name);
-
+        Ice.Identity id = getIdentity(Ice.Util.generateUUID() + name);
         if (null != current.adapter.find(id)) {
             omero.InternalException ie = new omero.InternalException();
             ie.message = name + " already registered for this adapter.";
         }
 
         Ice.Object servant = createServantDelegate(name);
-        registerServant(current, id, servant);
-        Ice.ObjectPrx prx = current.adapter.createProxy(id);
+        Ice.ObjectPrx prx = registerServant(current, id, servant);
         return StatefulServiceInterfacePrxHelper.uncheckedCast(prx);
     }
 
@@ -474,8 +441,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                         Ice.Identity id = new Ice.Identity();
                         id.category = current.id.name;
                         id.name = Ice.Util.generateUUID();
-                        Ice.ObjectPrx rv = current.adapter.add(ip, id);
-                        interactiveSlots.put(Ice.Util.identityToString(id), ip);
+                        Ice.ObjectPrx rv = registerServant(current, id, ip);
                         return InteractiveProcessorPrxHelper.uncheckedCast(rv);
                     }
                     try {
@@ -567,59 +533,75 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         }
 
         // Cleaning up resources
+        // =================================================
+        List<String> servants = holder.getServantList();
+        for (final String key : servants) {
+            final Ice.Object servant = holder.get(key);
+            final Ice.Identity id = getIdentity(key);
 
-        // INTERACTIVE
-        Set<String> ipIds = interactiveSlots.keySet();
-        for (String id : ipIds) {
-            InteractiveProcessorI ip = null;
+            // All errors are ignored within the loop.
             try {
-                ip = (InteractiveProcessorI) interactiveSlots.get(id);
-                ip.stop();
-            } catch (Exception e) {
-                log.error("Error stopping interactive processor: " + ip);
-            } finally {
-                adapter.remove(Ice.Util.stringToIdentity(id));
-                interactiveSlots.remove(id);
-            }
-        }
 
-        // SERVANTS
-        // Here we call the "close()" method on all methods which require
-        // that
-        // logic allowing the IceMethodInvoker to raise the
-        // UnregisterServantEvent, otherwise there is a recursive call back
-        // to close.
-        List<String> ids = activeServices();
-        for (String idString : ids) {
-            Ice.Identity id = Ice.Util.stringToIdentity(idString);
-            Ice.Object obj = adapter.find(id);
-            try {
-                if (obj instanceof StatefulServiceInterface) {
-                    Method m = obj.getClass().getMethod("close",
-                            Ice.Current.class);
-                    Ice.Current __curr = new Ice.Current();
+                if (servant instanceof InteractiveProcessorI) {
+                    // Cleanup interactive processors
+                    // ------------------------------
+                    InteractiveProcessorI ip = (InteractiveProcessorI) servant;
+                    ip.stop();
+                } else if (servant instanceof StatefulServiceInterface) {
+
+                    // Cleanup stateful
+                    // ----------------
+                    // Here we call the "close()" method on all methods which
+                    // require that logic, allowing the IceMethodInvoker to
+                    // raise the UnregisterServantEvent, otherwise there is a
+                    // recursive call back to close
+                    final omero.api.StatefulServiceInterface stateful = (omero.api.StatefulServiceInterface) servant;
+                    final Ice.Current __curr = new Ice.Current();
                     __curr.id = id;
                     __curr.adapter = adapter;
                     __curr.operation = "close";
                     __curr.ctx = new HashMap<String, String>();
                     __curr.ctx.put(CLIENTUUID.value, clientId);
-                    m.invoke(obj, __curr);
-                } else {
+                    // We have to be more intelligent about this. The call
+                    // should really happen in the same thread so that it's
+                    // complete before the service factory is removed.
+                    stateful.close_async(
+                            new AMD_StatefulServiceInterface_close() {
+                                public void ice_exception(Exception ex) {
+                                    log.error("Error on close callback: " + key
+                                            + "=" + stateful);
+                                }
+
+                                public void ice_response() {
+                                    // Ok.
+                                }
+
+                            }, __curr);
+
+                } else if (servant instanceof ServiceInterface) {
+
+                    // Cleanup stateless
+                    // -----------------
                     unregisterServant(id, adapter);
+                } else {
+                    throw new ome.conditions.InternalException(
+                            "Unknown servant type: " + servant);
                 }
             } catch (Exception e) {
-                log.error("Failure to close: " + idString + "=" + obj, e);
+                log
+                        .error("Error destroying servant: " + key + "="
+                                + servant, e);
+            } finally {
+                holder.remove(key);
+                adapter.remove(id);
+                log.info("Removed servant from adapter: " + key);
             }
         }
 
     }
 
     public List<String> activeServices(Current __current) {
-        List<String> active = new ArrayList<String>();
-        for (String id : activeServants.keySet()) {
-            active.add(id);
-        }
-        return active;
+        return holder.getServantList();
     }
 
     public long keepAllAlive(ServiceInterfacePrx[] proxies, Current __current) {
@@ -647,7 +629,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         Ice.Identity id = proxy.ice_getIdentity();
         // This will keep the session alive.
         sessionManager.getEventContext(this.principal);
-        return null != activeServants.get(Ice.Util.identityToString(id));
+        return null != holder.get(id);
     }
 
     // ~ Helpers
@@ -659,9 +641,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * stateless services are defined by the instance fields {@link #adminKey},
      * {@link #configKey}, etc. and for stateful services are UUIDs.
      */
-    protected Ice.Identity getIdentity(Ice.Current curr, String key) {
+    protected Ice.Identity getIdentity(String key) {
         Ice.Identity id = new Ice.Identity();
-        id.category = curr.id.name;
+        id.category = this.principal.getName();
         id.name = key;
         return id;
     }
@@ -712,32 +694,58 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         }
     }
 
-    protected void registerServant(Current current, Ice.Identity id,
+    /**
+     * Registers the servant with the adapter (or throws an exception if one is
+     * already registered) as well as configures the servant in any post-Spring
+     * way necessary, based on the type of the servant.
+     */
+    protected Ice.ObjectPrx registerServant(Current current, Ice.Identity id,
             Ice.Object servant) throws omero.InternalException {
 
-        activeServants.put(Ice.Util.identityToString(id), servant);
+        Ice.ObjectPrx prx = null;
         try {
             Ice.Object already = current.adapter.find(id);
             if (null == already) {
-                current.adapter.add(servant, id);
+                prx = current.adapter.add(servant, id);
                 if (log.isInfoEnabled()) {
-                    log.info("Created servant:" + servantString(id, servant));
+                    log.info("Added servant to adapter: "
+                            + servantString(id, servant));
                 }
             } else {
-                current.adapter.remove(id);
-                current.adapter.add(servant, id);
-                if (already.hashCode() != servant.hashCode()) {
-                    log.info(String.format("Replacing %s with %s",
-                            servantString(id, already), servantString(id,
-                                    servant)));
-                }
+                throw new omero.InternalException(null, null,
+                        "Servant already registered: "
+                                + servantString(id, servant));
             }
         } catch (Exception e) {
-            // FIXME
-            omero.InternalException ie = new omero.InternalException();
-            IceMapper.fillServerError(ie, e);
-            throw ie;
+            if (e instanceof omero.InternalException) {
+                throw (omero.InternalException) e;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, e);
+                throw ie;
+            }
         }
+
+        // Alright to register this servant now.
+        // Using just the name because the category essentially == this
+        // holder
+        holder.put(id.name, servant);
+
+        // Now setup the servant
+        // ---------------------------------------------------------------------
+        // This is hard-coding what the servant manager should later be
+        // doing. It's unclear exactly how we should know that we are
+        // getting a tie, and what subclass the delegate should be.
+        if (servant instanceof Ice.TieBase) {
+            Ice.TieBase tie = (Ice.TieBase) servant;
+            Object obj = tie.ice_delegate();
+            if (obj instanceof ServiceFactoryAware) {
+                ((ServiceFactoryAware) obj).setServiceFactory(this);
+            }
+        }
+
+        return prx;
+
     }
 
     /**
@@ -755,7 +763,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // onApplicationEvent().
         // Otherwise, it is being called directly by SF.close().
         Ice.Object obj = adapter.remove(id);
-        Object removed = activeServants.remove(Ice.Util.identityToString(id));
+        Object removed = holder.remove(id);
         if (removed == null) {
             log.error("Adapter and active servants out of sync.");
         }
