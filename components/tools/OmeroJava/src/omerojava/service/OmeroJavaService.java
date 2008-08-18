@@ -23,19 +23,24 @@
 package omerojava.service;
 
 //Java imports
-import java.awt.image.BufferedImage;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import static java.util.concurrent.TimeUnit.SECONDS;
-//Third-party libraries
 
-//Application-internal dependencies
+import Ice.Current;
 
 import omero.RType;
+import omero.gateway.BufferedImage;
+import omero.gateway.ContainerClass;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
+import omero.gateway.HeartBeatPrx;
+import omero.gateway._GatewayServiceDisp;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -53,8 +58,6 @@ import omerojava.service.stateful.ThumbnailService;
 import omerojava.service.stateful.ThumbnailServiceImpl;
 import omerojava.util.OMEROClass;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 
 /** 
@@ -70,7 +73,7 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
  * </small>
  * @since OME3.0
  */
-public class OmeroJavaService
+public class OmeroJavaService extends _GatewayServiceDisp
 {		
 	/** The gateway factory to create make connection, create and access 
 	 *  services .
@@ -99,6 +102,8 @@ public class OmeroJavaService
 	private ThumbnailService 	thumbnailService;
 	
 	private HeartBeatService heartbeatService;
+	
+	private HeartBeatPrx heartBeatProxy;
 	
 	/**
 	 * Create the service factory which creates the gateway and services
@@ -247,7 +252,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Project> getProjects(List<Long> ids, boolean withLeaves) 
+	public List<Project> getProjects(List<Long> ids, boolean withLeaves, Ice.Current current) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getProjects(ids, withLeaves);
@@ -261,7 +266,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Dataset> getDatasets(List<Long> ids, boolean withLeaves) 
+	public List<Dataset> getDatasets(List<Long> ids, boolean withLeaves, Ice.Current current) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getDatasets(ids, withLeaves);
@@ -275,7 +280,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Pixels> getPixelsFromImage(long imageId) 
+	public List<Pixels> getPixelsFromImage(long imageId, Ice.Current current) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getPixelsFromImage(imageId);
@@ -289,7 +294,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Image getImage(long id) 
+	public Image getImage(long id, Ice.Current current) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getImage(id);
@@ -304,7 +309,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Image> getImages(OMEROClass parentType, List<Long> ids ) 
+	public List<Image> getImages(ContainerClass parentType, List<Long> ids, Ice.Current current) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getImages(parentType, ids);
@@ -318,7 +323,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Object findAllByQuery(String myQuery) 
+	public List<IObject> findAllByQuery(String myQuery, Ice.Current current) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.findAllByQuery(myQuery);
@@ -333,7 +338,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Object findByQuery(String myQuery) 
+	public IObject findByQuery(String myQuery, Ice.Current current) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.findByQuery(myQuery);
@@ -350,7 +355,7 @@ public class OmeroJavaService
 	 * @throws DSAccessException 
 	 * @throws DSOutOfServiceException 
 	 */
-	public double[][] getPlane(long pixelsId, int z, int c, int t) 
+	public double[][] getPlane(long pixelsId, int z, int c, int t, Ice.Current current) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getPlane(pixelsId, z, c, t);
@@ -367,7 +372,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Pixels getPixels(long pixelsId) 
+	public Pixels getPixels(long pixelsId, Ice.Current current) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getPixels(pixelsId);
@@ -390,8 +395,8 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public long copyPixels(long pixelsID, int x, int y,
-		int t, int z, List<Integer> channelList, String methodology) throws 
+	public long copyPixelsXYTZ(long pixelsID, int x, int y,
+		int t, int z, List<Integer> channelList, String methodology, Ice.Current current) throws 
 		DSOutOfServiceException, DSAccessException
 	{
 		return imageService.copyPixels(pixelsID, x, y, t, z, channelList, methodology);
@@ -411,7 +416,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public long copyPixels(long pixelsID, List<Integer> channelList, String methodology) throws 
+	public long copyPixels(long pixelsID, List<Integer> channelList, String methodology, Ice.Current current) throws 
 		DSOutOfServiceException, DSAccessException
 	{
 		return imageService.copyPixels(pixelsID, channelList, methodology);
@@ -433,7 +438,7 @@ public class OmeroJavaService
 	 * @throws DSAccessException
 	 */
 	public long copyImage(long imageId, int x, int y,
-		int t, int z, List<Integer> channelList, String imageName) throws 
+		int t, int z, List<Integer> channelList, String imageName, Ice.Current current) throws 
 		DSOutOfServiceException, DSAccessException
 	{
 		return imageService.copyImage(imageId, x, y, t, z, channelList, imageName);
@@ -452,7 +457,7 @@ public class OmeroJavaService
 	 * @throws DSAccessException
 	 */
 	public void uploadPlane(long pixelsId, int z, int c, int t, 
-			double [][] data) throws DSOutOfServiceException, DSAccessException
+			double [][] data, Ice.Current current) throws DSOutOfServiceException, DSAccessException
 	{
 		imageService.uploadPlane(pixelsId, z, c, t, data);
 	}
@@ -465,7 +470,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Pixels updatePixels(Pixels object) 
+	public Pixels updatePixels(Pixels object, Ice.Current current) 
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.updatePixels(object);
@@ -477,7 +482,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<PixelsType> getPixelTypes() 
+	public List<PixelsType> getPixelTypes(Ice.Current current) 
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getPixelTypes();
@@ -490,7 +495,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public PixelsType getPixelType(String type) 
+	public PixelsType getPixelType(String type, Ice.Current current) 
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getPixelType(type);
@@ -502,7 +507,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Map<Long, String> getScripts() throws   DSOutOfServiceException, 
+	public Map<Long, String> getScripts(Ice.Current current) throws   DSOutOfServiceException, 
 											DSAccessException
 	{
 		return fileService.getScripts();
@@ -515,7 +520,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public long getScriptID(String name) throws DSOutOfServiceException, 
+	public long getScriptID(String name, Ice.Current current) throws DSOutOfServiceException, 
 										 DSAccessException
 	{
 		return fileService.getScriptID(name);
@@ -528,7 +533,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public long uploadScript(String script) throws DSOutOfServiceException, 
+	public long uploadScript(String script, Ice.Current current) throws DSOutOfServiceException, 
 											DSAccessException	
 	{
 		return fileService.uploadScript(script);
@@ -541,7 +546,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public String getScript(long id) throws DSOutOfServiceException, 
+	public String getScript(long id, Ice.Current current) throws DSOutOfServiceException, 
 									 DSAccessException
 	{
 		return fileService.getScript(id);
@@ -554,7 +559,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Map<String, RType> getParams(long id) throws DSOutOfServiceException, 
+	public Map<String, RType> getParams(long id, Ice.Current current) throws DSOutOfServiceException, 
 												 DSAccessException
 	{
 		return fileService.getParams(id);
@@ -568,7 +573,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Map<String, RType> runScript(long id, Map<String, RType> map) 
+	public Map<String, RType> runScript(long id, Map<String, RType> map, Ice.Current current) 
 						throws DSOutOfServiceException, DSAccessException
 	{
 		return fileService.runScript(id, map);
@@ -580,7 +585,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void deleteScript(long id) throws 	DSOutOfServiceException, 
+	public void deleteScript(long id, Ice.Current current) throws 	DSOutOfServiceException, 
 										DSAccessException
 	{
 		fileService.deleteScript(id);
@@ -595,7 +600,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public double[][][] getPlaneStack(long pixelId, int c, int t) 
+	public double[][][] getPlaneStack(long pixelId, int c, int t, Ice.Current current) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getPlaneStack(pixelId, c, t);
@@ -610,7 +615,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public BufferedImage getRenderedImage(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException
+	public BufferedImage getRenderedImage(long pixelsId, int z, int t, Ice.Current current)	throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getRenderedImage(pixelsId, z, t);
 	}
@@ -625,7 +630,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t)	throws DSOutOfServiceException, DSAccessException
+	public int[][][] getRenderedImageMatrix(long pixelsId, int z, int t, Ice.Current current)	throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getRenderedImageMatrix(pixelsId, z, t);
 	}
@@ -640,7 +645,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int[] renderAsPackedInt(long pixelsId, int z, int t) throws DSOutOfServiceException, DSAccessException
+	public int[] renderAsPackedInt(long pixelsId, int z, int t, Ice.Current current) throws DSOutOfServiceException, DSAccessException
 	{
 		return imageService.renderAsPackedInt(pixelsId, z, t);
 	}
@@ -654,7 +659,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void setActive(long pixelsId, int w, boolean active) throws  DSOutOfServiceException, DSAccessException
+	public void setActive(long pixelsId, int w, boolean active, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		imageService.setActive(pixelsId, w, active);
 	}
@@ -667,7 +672,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public boolean isActive(long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException
+	public boolean isActive(long pixelsId, int w, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.isActive(pixelsId, w);
 	}
@@ -680,7 +685,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int getDefaultZ(long pixelsId) throws  DSOutOfServiceException, DSAccessException
+	public int getDefaultZ(long pixelsId, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getDefaultZ(pixelsId);
 	}
@@ -693,7 +698,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public int getDefaultT(long pixelsId) throws  DSOutOfServiceException, DSAccessException
+	public int getDefaultT(long pixelsId, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getDefaultT(pixelsId);
 	}
@@ -706,7 +711,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void setDefaultZ(long pixelsId, int z) throws  DSOutOfServiceException, DSAccessException
+	public void setDefaultZ(long pixelsId, int z, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		imageService.setDefaultZ(pixelsId, z);
 	}
@@ -719,7 +724,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void setDefaultT(long pixelsId, int t) throws  DSOutOfServiceException, DSAccessException
+	public void setDefaultT(long pixelsId, int t, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		imageService.setDefaultT(pixelsId, t);
 	}
@@ -734,7 +739,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void setChannelWindow(long pixelsId, int w, double start, double end) throws  DSOutOfServiceException, DSAccessException
+	public void setChannelWindow(long pixelsId, int w, double start, double end, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		imageService.setChannelWindow(pixelsId, w, start, end);
 	}
@@ -748,7 +753,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public double getChannelWindowStart(long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException
+	public double getChannelWindowStart(long pixelsId, int w, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getChannelWindowStart(pixelsId, w);
 	}
@@ -762,7 +767,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public double getChannelWindowEnd(long pixelsId, int w) throws  DSOutOfServiceException, DSAccessException
+	public double getChannelWindowEnd(long pixelsId, int w, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getChannelWindowEnd(pixelsId, w);
 	}
@@ -776,7 +781,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void setRenderingDefId(long pixelsId, long renderingDefId) throws  DSOutOfServiceException, DSAccessException
+	public void setRenderingDefId(long pixelsId, long renderingDefId, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		imageService.setRenderingDefId(pixelsId, renderingDefId);
 	}
@@ -790,7 +795,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY) throws  DSOutOfServiceException, DSAccessException
+	public byte[] getThumbnail(long pixelsId, omero.RInt sizeX, omero.RInt sizeY, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getThumbnail(pixelsId, sizeX, sizeY);
 	}
@@ -805,7 +810,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException
+	public Map<Long, byte[]>getThumbnailSet(omero.RInt sizeX, omero.RInt sizeY, List<Long> pixelsIds, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getThumbnailSet(sizeX, sizeY, pixelsIds);
 	}
@@ -819,7 +824,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Map<Long, byte[]>getThumbnailBylongestSideSet(omero.RInt size, List<Long> pixelsIds) throws  DSOutOfServiceException, DSAccessException
+	public Map<Long, byte[]>getThumbnailBylongestSideSet(omero.RInt size, List<Long> pixelsIds, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getThumbnailByLongestSideSet(size, pixelsIds);
 	}
@@ -832,7 +837,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public byte[] getThumbnailBylongestSide(long pixelsId, omero.RInt size) throws  DSOutOfServiceException, DSAccessException
+	public byte[] getThumbnailBylongestSide(long pixelsId, omero.RInt size, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		return imageService.getThumbnailByLongestSide(pixelsId, size);
 	}
@@ -845,7 +850,7 @@ public class OmeroJavaService
 	 * @throws DSAccessException 
 	 * 
 	 */
-	public void attachImageToDataset(Dataset dataset, Image image) throws  DSOutOfServiceException, DSAccessException
+	public void attachImageToDataset(Dataset dataset, Image image, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		dataService.attachImageToDataset(dataset, image);
 	}
@@ -867,7 +872,7 @@ public class OmeroJavaService
 	 */
 	public long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
 			List<Integer> channelList, PixelsType pixelsType, String name,
-			String description) throws DSOutOfServiceException,
+			String description, Ice.Current current) throws DSOutOfServiceException,
 			DSAccessException
 	{
 		return imageService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, name, description);
@@ -880,7 +885,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Image> getImagesFromDataset(Dataset dataset)
+	public List<Image> getImagesFromDataset(Dataset dataset, Ice.Current current)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getImagesFromDataset(dataset);
@@ -896,7 +901,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public double[][] getPlaneFromImage(long imageId, int z, int c, int t) throws  DSOutOfServiceException, DSAccessException
+	public double[][] getPlaneFromImage(long imageId, int z, int c, int t, Ice.Current current) throws  DSOutOfServiceException, DSAccessException
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId);
 		Pixels firstPixels = pixels.get(0);
@@ -913,7 +918,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Dataset> getDatasetsFromProject(Project project)
+	public List<Dataset> getDatasetsFromProject(Project project, Ice.Current current)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getDatasetsFromProject(project);
@@ -930,7 +935,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Pixels> getPixelsFromDataset(Dataset dataset)
+	public List<Pixels> getPixelsFromDataset(Dataset dataset, Ice.Current current)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getPixelsFromDataset(dataset);
@@ -947,7 +952,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Pixels> getPixelsFromProject(Project project)
+	public List<Pixels> getPixelsFromProject(Project project, Ice.Current current)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getPixelsFromProject(project);
@@ -963,7 +968,7 @@ public class OmeroJavaService
 	 * @param images see above.
 	 * @return map of the pixels-->imageId.
 	 */
-	public Map<Long, Pixels> getPixelsImageMap(List<Image> images)
+	public Map<Long, Pixels> getPixelsImageMap(List<Image> images, Ice.Current current)
 	{
 		return dataService.getPixelsImageMap(images);
 	}
@@ -979,9 +984,10 @@ public class OmeroJavaService
 	 * @param images see above.
 	 * @return list of the pixels.
 	 */
-	public List<Pixels> getPixelsFromImageList(List<Image> images)
+	public List<Pixels> getPixelsFromImageList(List<Image> images, Ice.Current current)
 	{
-		return getPixelsFromImageList(images);
+		// Recursive call? return getPixelsFromImageList(images);
+	    throw new UnsupportedOperationException();
 	}
 	
 	/**
@@ -992,7 +998,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Image> getImageFromDatasetByName(long datasetId, String imageName)
+	public List<Image> getImageFromDatasetByName(long datasetId, String imageName, Ice.Current current)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getImageFromDatasetByName(datasetId, imageName);
@@ -1005,7 +1011,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public List<Image> getImageByName(String imageName)
+	public List<Image> getImageByName(String imageName, Ice.Current current)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		return dataService.getImageByName(imageName);
@@ -1016,7 +1022,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void saveObject(IObject obj) 
+	public void saveObject(IObject obj, Ice.Current current) 
 							throws  DSOutOfServiceException, DSAccessException
 	{
 		dataService.saveObject(obj);
@@ -1029,7 +1035,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public IObject saveAndReturnObject(IObject obj) 
+	public IObject saveAndReturnObject(IObject obj, Ice.Current current) 
 							throws  DSOutOfServiceException, DSAccessException
 	{
 		return dataService.saveAndReturnObject(obj);
@@ -1040,7 +1046,7 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public void saveArray(List<IObject> graph) 
+	public void saveArray(List<IObject> graph, Ice.Current current) 
 							throws  DSOutOfServiceException, DSAccessException
 	{
 		dataService.saveArray(graph);
@@ -1054,8 +1060,8 @@ public class OmeroJavaService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	 public <T extends omero.model.IObject>List<T> 
-	 			saveAndReturnArray(List<IObject> graph)
+	 public List<IObject> 
+	 			saveAndReturnArray(List<IObject> graph, Ice.Current current)
 	 						throws  DSOutOfServiceException, DSAccessException
 	 {
 		 return dataService.saveAndReturnArray(graph);
@@ -1067,7 +1073,7 @@ public class OmeroJavaService
 	  * @throws DSOutOfServiceException
 	  * @throws DSAccessException
 	  */
-	 public void deleteObject(IObject row) 
+	 public void deleteObject(IObject row, Ice.Current current) 
 							throws  DSOutOfServiceException, DSAccessException
 	{
 		dataService.deleteObject(row);
@@ -1079,7 +1085,7 @@ public class OmeroJavaService
 	 * @throws DSAccessException
 	 */
 	
-	public void keepAlive() throws DSOutOfServiceException, DSAccessException
+	public void keepAlive(Ice.Current current) throws DSOutOfServiceException, DSAccessException
 	{
 		gatewayFactory.keepAlive();
 		dataService.keepAlive();
@@ -1091,12 +1097,12 @@ public class OmeroJavaService
 	 * Get the username. 
 	 * @return see above.
 	 */
-	public String getUsername()
+	public String getUsername(Ice.Current current)
 	{
 		return gatewayFactory.getUsername();
 	}
 	
-	public Dataset getDataset(long datasetId, boolean leaves) 
+	public Dataset getDataset(long datasetId, boolean leaves, Ice.Current current) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<Long> datasetIdList = new ArrayList();
@@ -1105,6 +1111,10 @@ public class OmeroJavaService
 		if(datasets.size()==1)
 			return datasets.get(0);
 		return null;
+	}
+	
+	public void setHeartBeat(HeartBeatPrx hb, Current __current) {
+	    this.heartBeatProxy = hb;
 	}
 }
 

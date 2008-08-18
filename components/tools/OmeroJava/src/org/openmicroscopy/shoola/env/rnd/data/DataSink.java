@@ -31,8 +31,8 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Application-internal dependencies
 import omero.model.Pixels;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
 
 import omerojava.service.ImageService;

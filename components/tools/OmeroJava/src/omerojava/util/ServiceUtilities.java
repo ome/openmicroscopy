@@ -30,17 +30,12 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-
-import Glacier2.PermissionDeniedException;
-
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.ApiUsageException;
 import omero.ValidationException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import omero.model.IObject;
+import Glacier2.PermissionDeniedException;
 
 /** 
  * 
@@ -102,20 +97,27 @@ public class ServiceUtilities
 		Throwable cause = t.getCause();
 		if (cause instanceof PermissionDeniedException) {
 			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message, t);
+			throw new DSAccessException(s+message, cause(t));
 		} else if (cause instanceof PermissionDeniedException) {
 			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message, t);
+			throw new DSAccessException(s+message, cause(t));
 		} else if (cause instanceof ApiUsageException) {
 			String s = "Cannot access data, specified parameters not valid \n"; 
-			throw new DSAccessException(s+message, t);
+			throw new DSAccessException(s+message, cause(t));
 		} else if (cause instanceof ValidationException) {
 			String s = "Cannot access data, specified parameters not valid \n"; 
-			throw new DSAccessException(s+message, t);
+			throw new DSAccessException(s+message, cause(t));
 		} else 
-			throw new DSOutOfServiceException(message, t);
+			throw new DSOutOfServiceException(message, cause(t));
 	}
 	
+	public static String cause(Throwable t) {
+	    StringWriter sw = new StringWriter();
+	    PrintWriter pw = new PrintWriter(sw);
+	    t.printStackTrace(pw);
+	    pw.close();
+	    return sw.toString();
+	}
 	/**
 	 * Utility method to print the error message
 	 * 

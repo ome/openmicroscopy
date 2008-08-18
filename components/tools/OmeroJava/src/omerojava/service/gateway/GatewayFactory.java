@@ -22,6 +22,9 @@
  */
 package omerojava.service.gateway;
 
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
+
 
 //Java imports
 
@@ -29,8 +32,6 @@ package omerojava.service.gateway;
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 

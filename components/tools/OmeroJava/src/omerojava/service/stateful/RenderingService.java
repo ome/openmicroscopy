@@ -22,12 +22,12 @@
  */
 package omerojava.service.stateful;
 
-import java.awt.image.BufferedImage;
+import omero.gateway.BufferedImage;
 
 import omero.model.Pixels;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 //Java imports
 

@@ -34,8 +34,8 @@ import java.util.Map;
 //Application-internal dependencies
 import omero.RType;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 /** 
  * 

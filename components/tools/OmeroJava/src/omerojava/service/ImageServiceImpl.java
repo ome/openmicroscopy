@@ -25,7 +25,7 @@ package omerojava.service;
 
 //Java imports
 import java.awt.Color;
-import java.awt.image.BufferedImage;
+import omero.gateway.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.nio.ByteBuffer;
@@ -47,8 +47,8 @@ import omerojava.service.stateful.RenderingService;
 import omerojava.service.stateful.ThumbnailService;
 import omerojava.util.PixelTypes;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.data.Plane2D;
 

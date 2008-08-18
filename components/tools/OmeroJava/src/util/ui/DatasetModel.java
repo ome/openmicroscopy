@@ -27,8 +27,8 @@ import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 
 import omero.model.Dataset;

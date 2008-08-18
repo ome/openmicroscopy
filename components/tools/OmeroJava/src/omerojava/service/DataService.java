@@ -27,9 +27,9 @@ package omerojava.service;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import omero.gateway.ContainerClass;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -38,8 +38,7 @@ import omero.model.PixelsType;
 import omero.model.Project;
 import omerojava.util.OMEROClass;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+
 
 
 
@@ -77,7 +76,7 @@ interface DataService
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public List<Image> getImages(OMEROClass nodeType, List<Long> nodeIds)
+	public List<Image> getImages(ContainerClass nodeType, List<Long> nodeIds)
 	throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -138,7 +137,7 @@ interface DataService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Object findAllByQuery(String myQuery)
+	public List<IObject> findAllByQuery(String myQuery)
 	throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -148,7 +147,7 @@ interface DataService
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public Object findByQuery(String myQuery)
+	public IObject findByQuery(String myQuery)
 	throws DSOutOfServiceException, DSAccessException;
 
 	/**

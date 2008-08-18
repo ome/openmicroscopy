@@ -36,8 +36,8 @@ import omerojava.service.gateway.GatewayFactory;
 import omerojava.service.gateway.RawFileStoreGateway;
 import omerojava.service.gateway.RawPixelsStoreGateway;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 
 /** 

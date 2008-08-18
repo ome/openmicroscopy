@@ -26,7 +26,7 @@ package omerojava.service.stateful;
 
 //Java imports
 import java.awt.Color;
-import java.awt.image.BufferedImage;
+import omero.gateway.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -40,8 +40,8 @@ import omerojava.service.gateway.GatewayFactory;
 import omerojava.service.gateway.RawFileStoreGateway;
 import omerojava.service.gateway.RenderingEngineGateway;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 
 /** 
@@ -304,8 +304,8 @@ public class RenderingServiceImpl
 	{
 		Pixels pixels = getPixels(pixelsId);
 		int[] buff = renderAsPackedInt(pixelsId, z, t);
-		return ome.util.ImageUtil.createBufferedImage(buff, pixels.sizeX.val, 
-			pixels.sizeY.val);
+		BufferedImage image = new BufferedImage(buff);
+		return image;
 	}
 
 

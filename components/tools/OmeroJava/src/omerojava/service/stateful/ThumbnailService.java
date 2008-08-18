@@ -25,8 +25,9 @@ package omerojava.service.stateful;
 import java.util.List;
 import java.util.Map;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
+
 
 //Java imports
 

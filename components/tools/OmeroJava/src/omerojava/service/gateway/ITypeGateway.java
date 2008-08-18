@@ -32,8 +32,8 @@ import java.util.List;
 //Application-internal dependencies
 import omero.model.IObject;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 /** 
  * 

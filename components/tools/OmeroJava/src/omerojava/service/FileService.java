@@ -32,11 +32,11 @@ import java.util.List;
 import java.util.Map;
 
 import omero.RType;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import omero.model.Format;
 import omero.model.OriginalFile;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 

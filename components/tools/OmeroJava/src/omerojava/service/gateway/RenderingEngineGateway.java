@@ -28,10 +28,10 @@ package omerojava.service.gateway;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import omero.model.Pixels;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 

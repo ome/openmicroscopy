@@ -23,18 +23,16 @@
 package omerojava.service;
 
 //Java imports
-import java.awt.image.BufferedImage;
+
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
+import omero.gateway.BufferedImage;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import omero.model.Image;
 import omero.model.Pixels;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 

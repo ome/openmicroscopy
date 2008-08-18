@@ -59,10 +59,10 @@ import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ThumbnailStore;
 import omero.api.ThumbnailStorePrx;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import omerojava.util.ServiceUtilities;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 /** 
  * 

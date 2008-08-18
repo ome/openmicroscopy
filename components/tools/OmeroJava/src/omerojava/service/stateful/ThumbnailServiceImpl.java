@@ -30,17 +30,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-//Third-party libraries
-
-//Application-internal dependencies
 import omero.RInt;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 import omerojava.service.gateway.GatewayFactory;
-import omerojava.service.gateway.RawFileStoreGateway;
-import omerojava.service.gateway.RenderingEngineGateway;
 import omerojava.service.gateway.ThumbnailGateway;
-
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 
 
 /** 

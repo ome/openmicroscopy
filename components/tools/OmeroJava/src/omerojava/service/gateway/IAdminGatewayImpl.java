@@ -29,8 +29,8 @@ import omero.api.IPixelsPrx;
 import omero.model.Experimenter;
 import omerojava.util.ServiceUtilities;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 
 //Java imports

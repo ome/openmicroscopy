@@ -54,8 +54,9 @@ import omerojava.service.gateway.IUpdateGateway;
 import omerojava.util.OMEROClass;
 import omerojava.util.ServiceUtilities;
 
-import org.openmicroscopy.shoola.env.data.DSAccessException;
-import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import omero.gateway.ContainerClass;
+import omero.gateway.DSAccessException;
+import omero.gateway.DSOutOfServiceException;
 
 
 /** 
@@ -105,7 +106,7 @@ class DataServiceImpl
 	 * implementation of the dataservice getImages method 
 	 * {@link DataService#getImages(List, boolean).
 	 */
-	public List<Image> getImages(OMEROClass nodeType, List<Long> nodeIds)
+	public List<Image> getImages(ContainerClass nodeType, List<Long> nodeIds)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		HashMap<String, RType> map = new HashMap<String, RType>();
@@ -125,7 +126,7 @@ class DataServiceImpl
 			map.put(omero.constants.POJOLEAVES.value, new RBool(true));
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			pojoGateway.loadContainerHierarchy(
-				convertPojos(OMEROClass.Dataset), ids,	map));
+				convertPojos(ContainerClass.Dataset), ids,	map));
 	}
 
 	/**
@@ -140,7 +141,7 @@ class DataServiceImpl
 			map.put(omero.constants.POJOLEAVES.value, new RBool(true));
 		return ServiceUtilities.collectionCast(Project.class, 
 			pojoGateway.loadContainerHierarchy(
-				convertPojos(OMEROClass.Project), ids, map));
+				convertPojos(ContainerClass.Project), ids, map));
 	}
 
 	/**
@@ -149,9 +150,9 @@ class DataServiceImpl
 	 * @param nodeType The POJO class.
 	 * @return The corresponding class.
 	 */
-	private String convertPojos(OMEROClass nodeType)
+	private String convertPojos(ContainerClass nodeType)
 	{
-		return nodeType.toString();
+		return nodeType.name();
 	}
 
 	/* (non-Javadoc)
@@ -191,7 +192,7 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#findAllByQuery(java.lang.String)
 	 */
-	public Object findAllByQuery(String myQuery) throws DSOutOfServiceException,
+	public List<IObject> findAllByQuery(String myQuery) throws DSOutOfServiceException,
 			DSAccessException
 	{
 		return iQueryGateway.findAllByQuery(myQuery);
@@ -200,7 +201,7 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#findByQuery(java.lang.String)
 	 */
-	public Object findByQuery(String myQuery) throws DSOutOfServiceException,
+	public IObject findByQuery(String myQuery) throws DSOutOfServiceException,
 			DSAccessException
 	{
 		return iQueryGateway.findByQuery(myQuery);
@@ -222,13 +223,14 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#getImageFromDatasetByName(java.lang.Long, java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Image> getImageFromDatasetByName(Long datasetId,
 			String imageName) throws DSOutOfServiceException, DSAccessException
 	{
 		String datasetQuery = "select i from Image i left outer join fetch i.datasetLinks" +  
 		                " dil left outer join fetch dil.parent d where d.id=" + datasetId +
 		                " and  i.name like '%"+ imageName+ "%' order by i.name";	
-		List<Image> imageList = (List<Image>) findAllByQuery(datasetQuery);
+		List imageList = findAllByQuery(datasetQuery);
 		return imageList;
 	}
 
@@ -323,13 +325,14 @@ class DataServiceImpl
 	/* (non-Javadoc)
 	 * @see blitzgateway.service.DataService#getImageByName(java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Image> getImageByName(String imageName)
 			throws DSOutOfServiceException, DSAccessException
 	{
 		String datasetQuery = "select i from Image i left outer join fetch i.datasetLinks" +  
         " dil left outer join fetch dil.parent d where i.name like '%"+ 
         imageName+ "%' order by i.name";	
-		List<Image> imageList = (List<Image>) findAllByQuery(datasetQuery);
+		List imageList = findAllByQuery(datasetQuery);
 		return imageList;
 	}
 
