@@ -66,11 +66,12 @@ import omero.api._SearchOperations;
 import omero.model.Annotation;
 import omero.model.Details;
 import omero.sys.Parameters;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /**
  * Implementation of the Search service.
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  * @see ome.api.Search
@@ -275,7 +276,13 @@ public class SearchI extends AbstractAmdServant implements _SearchOperations {
 
     public void onlyIds_async(AMD_Search_onlyIds __cb, List<Long> ids,
             Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, ids);
+
+        IceMapper mapper = new IceMapper(IceMapper.VOID);
+        Long[] array = new Long[0];
+        if (ids != null) {
+            array = ids.toArray(array);
+        }
+        callInvokerOnMappedArgs(mapper, __cb, __current, (Object) array);
 
     }
 

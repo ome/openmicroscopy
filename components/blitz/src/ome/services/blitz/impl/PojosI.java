@@ -35,6 +35,7 @@ import omero.api.AMD_IPojos_updateDataObject;
 import omero.api.AMD_IPojos_updateDataObjects;
 import omero.api._IPojosOperations;
 import omero.model.IObject;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /**
@@ -139,8 +140,19 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
 
     public void link_async(AMD_IPojos_link __cb, List<IObject> links,
             Map<String, RType> options, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, links, options);
 
+        IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_ARRAY);
+        ome.model.ILink[] array;
+        if (links != null) {
+            array = new ome.model.ILink[0];
+        } else {
+            array = new ome.model.ILink[links.size()];
+            for (int i = 0; i < array.length; i++) {
+                array[i] = (ome.model.ILink) mapper.reverse(links.get(i));
+            }
+        }
+        Object map = mapper.reverse(options);
+        callInvokerOnMappedArgs(mapper, __cb, __current, array, map);
     }
 
     public void loadContainerHierarchy_async(
@@ -160,8 +172,18 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
 
     public void unlink_async(AMD_IPojos_unlink __cb, List<IObject> links,
             Map<String, RType> options, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, links, options);
-
+        IceMapper mapper = new IceMapper(IceMapper.VOID);
+        ome.model.ILink[] array;
+        if (links != null) {
+            array = new ome.model.ILink[0];
+        } else {
+            array = new ome.model.ILink[links.size()];
+            for (int i = 0; i < array.length; i++) {
+                array[i] = (ome.model.ILink) mapper.reverse(links.get(i));
+            }
+        }
+        Object map = mapper.reverse(options);
+        callInvokerOnMappedArgs(mapper, __cb, __current, array, map);
     }
 
     public void updateDataObject_async(AMD_IPojos_updateDataObject __cb,

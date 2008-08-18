@@ -32,6 +32,7 @@ import ome.system.Roles;
 import ome.util.Filterable;
 import ome.util.ModelMapper;
 import ome.util.ReverseModelMapper;
+import ome.util.Utils;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
 import omero.ApiUsageException;
@@ -74,6 +75,8 @@ import omero.sys.Parameters;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import Ice.UserException;
+
 /**
  * Responsible for the mapping of ome.* types to omero.* types and back again.
  * Not all types are bidirectional, rather only those mappings are needed that
@@ -107,6 +110,45 @@ public class IceMapper extends ome.util.ModelMapper implements
                 throws Ice.UserException;
 
     }
+
+    public final static ReturnMapping VOID = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws UserException {
+            if (value != null) {
+                throw new IllegalArgumentException("Method is void");
+            }
+            return null;
+        }
+
+    };
+
+    public final static ReturnMapping FILTERABLE = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws UserException {
+            return mapper.filter("FILTERABLE", (Filterable) value);
+        }
+
+    };
+
+    public final static ReturnMapping FILTERABLE_ARRAY = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws UserException {
+            Filterable[] array = (Filterable[]) value;
+            if (array == null) {
+                return null;
+            } else {
+                Object[] rv = new Object[array.length];
+                for (int i = 0; i < rv.length; i++) {
+                    rv[i] = mapper.filter("FILTERABLE", (Filterable) value);
+                }
+                return rv;
+            }
+        }
+
+    };
 
     public final static ReturnMapping OBJECT_TO_RTYPE = new ReturnMapping() {
         public Object mapReturnValue(IceMapper mapper, Object value)
@@ -522,6 +564,13 @@ public class IceMapper extends ome.util.ModelMapper implements
     // =========================================================================
 
     protected Map target2model = new IdentityHashMap();
+
+    public ome.model.internal.Permissions convert(omero.model.Permissions p) {
+        if (p == null) {
+            return null;
+        }
+        return Utils.toPermissions(p.perm1);
+    }
 
     // TODO copied with ModelMapper
     public boolean isImmutable(Object obj) {

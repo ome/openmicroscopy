@@ -19,43 +19,35 @@
 
 <beans>
 
- <alias name="internal-ome.api.IAdmin" alias="managed-ome.api.IAdmin"/>
- <bean id="internal-ome.api.IAdmin" factory-bean="mock:ome.api.IAdmin" factory-method="proxy"/>
-
- <alias name="internal:ome.api.IConfig" alias="managed-ome.api.IConfig"/>
- <bean id="internal-ome.api.IConfig" factory-bean="mock:ome.api.IConfig" factory-method="proxy"/>
-
- <alias name="internal-ome.api.IDelete" alias="managed-ome.api.IDelete"/>
- <bean id="internal-ome.api.IDelete" factory-bean="mock:ome.api.IDelete" factory-method="proxy"/>
-
- <alias name="internal-ome.api.IPixels" alias="managed-ome.api.IPixels"/>
- <bean id="internal-ome.api.IPixels" factory-bean="mock:ome.api.IPixels" factory-method="proxy"/>
-
- <alias name="internal-ome.api.IPojos" alias="managed-ome.api.IPojos"/>
- <bean id="internal-ome.api.IPojos" factory-bean="mock:ome.api.IPojos" factory-method="proxy"/>
-
- <alias name="internal-ome.api.IQuery" alias="managed-ome.api.IQuery"/>
- <bean id="internal-ome.api.IQuery" factory-bean="mock:ome.api.IQuery" factory-method="proxy"/>
-
- <alias name="internal-ome.api.IRenderingSettings" alias="managed-ome.api.IRenderingSettings"/>
- <bean id="internal-ome.api.IRenderingSettings" factory-bean="mock:ome.api.IRenderingSettings" factory-method="proxy"/>
-
- <alias name="internal-ome.api.IRepositoryInfo" alias="managed-ome.api.IRepositoryInfo"/>
- <bean id="internal-ome.api.IRepositoryInfo" factory-bean="mock:ome.api.IRepositoryInfo" factory-method="proxy"/>
-
- <alias name="internal-ome.api.ISession" alias="managed-ome.api.ISession"/>
- <bean id="internal-ome.api.ISession" factory-bean="mock:ome.api.ISession" factory-method="proxy"/>
-
- <alias name="internal-ome.api.ITypes" alias="managed-ome.api.ITypes"/>
- <bean id="internal-ome.api.ITypes" factory-bean="mock:ome.api.ITypes" factory-method="proxy"/>
-
- <alias name="internal-ome.api.IUpdate" alias="managed-ome.api.IUpdate"/>
- <bean id="internal-ome.api.IUpdate" factory-bean="mock:ome.api.IUpdate" factory-method="proxy"/>
-
- <alias name="internal-ome.api.RawPixelsStore" alias="managed-ome.api.RawPixelsStore"/>
- <bean id="internal-ome.api.RawPixelsStore" factory-bean="mock:ome.api.RawPixelsStore" factory-method="proxy"/>
-
- <bean id="managed-omeis.providers.re.RenderingEngine" factory-bean="mock:omeis.providers.re.RenderingEngine" factory-method="proxy"/>
+ <bean id="mockDeclarer" class="ome.services.blitz.test.MockDeclarer">
+   <constructor-arg>
+     <map>
+       <entry key="ome.api.IAdmin" value="ome.api.local.LocalAdmin"/>
+       <entry key="ome.api.IConfig" value=""/>
+       <entry key="ome.api.IDelete" value=""/>
+       <entry key="ome.api.IPixels" value=""/>
+       <entry key="ome.api.IPojos" value=""/>
+       <entry key="ome.api.IQuery" value="ome.api.local.LocalQuery"/>
+       <entry key="ome.api.IRenderingSettings" value=""/>
+       <entry key="ome.api.IRepositoryInfo" value=""/>
+       <entry key="ome.api.ISession" value=""/>
+       <entry key="ome.api.IShare" value=""/>
+       <entry key="ome.api.ITypes" value=""/>
+       <entry key="ome.api.IUpdate" value="ome.api.local.LocalUpdate"/>
+       <!-- Stateful -->
+       <entry key="ome.api.JobHandle" value=""/>
+       <entry key="ome.api.RawFileStore" value=""/>
+       <entry key="ome.api.RawPixelsStore" value=""/>
+       <entry key="omeis.providers.re.RenderingEngine" value=""/>
+       <entry key="ome.api.Search" value=""/>
+       <entry key="ome.api.ThumbnailStore" value=""/>
+       <!-- Blitz only
+       <entry key="ome.api.Gateway" value=""/>
+       <entry key="ome.api.IScript" value=""/>
+       -->
+     </map>
+   </constructor-arg>
+ </bean>
 
  <bean id="securitySystem" factory-bean="securityMock" factory-method="proxy"/>
  <bean id="methodSecurity" factory-bean="methodMock" factory-method="proxy"/>
@@ -66,58 +58,6 @@
  <bean id="securityWiring" class="ome.security.basic.BasicSecurityWiring">
    <property name="principalHolder" ref="principalHolder"/>
    <property name="methodSecurity"  ref="methodSecurity"/>
- </bean>
-
- <bean id="mock:ome.api.IAdmin" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.local.LocalAdmin" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.IConfig" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.IConfig" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.IDelete" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.IDelete" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.IPixels" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.IPixels" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.IPojos" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.IPojos" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.IQuery" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.local.LocalQuery" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.IRenderingSettings" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.IRenderingSettings" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.IRepositoryInfo" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.IRepositoryInfo" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.ISession" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.ISession" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.ITypes" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.ITypes" type="java.lang.Class"/>
- </bean>
-
-  <bean id="mock:ome.api.IUpdate" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.local.LocalUpdate" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:ome.api.RawPixelsStore" class="org.jmock.Mock">
-   <constructor-arg value="ome.api.RawPixelsStore" type="java.lang.Class"/>
- </bean>
-
- <bean id="mock:omeis.providers.re.RenderingEngine" class="org.jmock.Mock">
-   <constructor-arg value="omeis.providers.re.RenderingEngine" type="java.lang.Class"/>
  </bean>
 
  <bean id="securityMock" class="org.jmock.Mock">
@@ -136,4 +76,5 @@
 
   <bean id="cacheManager" class="ome.tools.spring.ShutdownSafeEhcacheManagerFactoryBean"/>
 
+  <bean id="principalHolder" class="ome.security.basic.CurrentDetails"/>
 </beans>

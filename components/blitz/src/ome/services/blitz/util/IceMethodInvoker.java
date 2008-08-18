@@ -98,18 +98,18 @@ public class IceMethodInvoker {
      * @param c
      *            A non-null {@link ServiceInterface} {@link Class}
      */
-    public <S extends ServiceInterface> IceMethodInvoker(Class<S> c,
+    public <S extends ServiceInterface> IceMethodInvoker(Class<S> k,
             OmeroContext context) {
 
-        this.serviceClass = c;
+        this.serviceClass = k;
         this.ctx = context;
 
-        if (!staticmap.containsKey(c)) {
+        if (!staticmap.containsKey(this.serviceClass)) {
             synchronized (staticmap) {
                 // Re-check in case already added
-                if (!staticmap.containsKey(c)) {
+                if (!staticmap.containsKey(this.serviceClass)) {
                     Map<String, Info> map = new HashMap<String, Info>();
-                    Method[] ms = c.getMethods();
+                    Method[] ms = this.serviceClass.getMethods();
                     for (Method m : ms) {
                         Info i = new Info();
                         i.method = m;
@@ -117,7 +117,7 @@ public class IceMethodInvoker {
                         i.retType = m.getReturnType();
                         map.put(m.getName(), i);
                     }
-                    staticmap.put(c, map);
+                    staticmap.put(this.serviceClass, map);
                 }
             }
         }
@@ -213,7 +213,8 @@ public class IceMethodInvoker {
 
         if (params.length != args.length) {
             throw new IllegalArgumentException("Must provide " + params.length
-                    + " arguments for " + current.operation);
+                    + " arguments for " + current.operation + " not "
+                    + args.length);
         }
 
         // The Mapped argument parameters to be passed to the

@@ -155,6 +155,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             }
 
             // FIXME this copying should be a part of ome.conditions.*
+            log.error("Error while creating ServiceFactoryI", t);
             InternalException ie = new InternalException(t.getMessage());
             ie.setStackTrace(t.getStackTrace());
             throw ie;

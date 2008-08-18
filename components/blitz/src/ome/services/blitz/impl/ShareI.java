@@ -270,7 +270,7 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
 
     public void addGuests_async(AMD_IShare_addGuests __cb, long shareId,
             List<String> emailAddresses, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, emailAddresses);
+        callInvokerOnRawArgs(__cb, __current, shareId, emailAddresses);
 
     }
 

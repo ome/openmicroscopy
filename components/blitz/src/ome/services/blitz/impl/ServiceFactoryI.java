@@ -713,14 +713,17 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         Ice.Object servant = null;
         try {
             servant = (Ice.Object) context.getBean(name);
-            // As with getScriptService, the servant manager should be the one
-            // to take this section into account.
+            // Now setup the servant
+            // ---------------------------------------------------------------------
             if (servant instanceof Ice.TieBase) {
                 Ice.TieBase tie = (Ice.TieBase) servant;
                 Object obj = tie.ice_delegate();
                 if (obj instanceof AbstractAmdServant) {
                     AbstractAmdServant amd = (AbstractAmdServant) obj;
                     amd.applyHardWiredInterceptors(cptors, initializer);
+                }
+                if (obj instanceof ServiceFactoryAware) {
+                    ((ServiceFactoryAware) obj).setServiceFactory(this);
                 }
             }
             return servant;
@@ -775,19 +778,6 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // Using just the name because the category essentially == this
         // holder
         holder.put(id.name, servant);
-
-        // Now setup the servant
-        // ---------------------------------------------------------------------
-        // This is hard-coding what the servant manager should later be
-        // doing. It's unclear exactly how we should know that we are
-        // getting a tie, and what subclass the delegate should be.
-        if (servant instanceof Ice.TieBase) {
-            Ice.TieBase tie = (Ice.TieBase) servant;
-            Object obj = tie.ice_delegate();
-            if (obj instanceof ServiceFactoryAware) {
-                ((ServiceFactoryAware) obj).setServiceFactory(this);
-            }
-        }
 
         return prx;
 

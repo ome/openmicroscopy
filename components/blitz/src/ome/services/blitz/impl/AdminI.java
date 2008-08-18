@@ -53,6 +53,7 @@ import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.IObject;
 import omero.model.Permissions;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /**
@@ -72,8 +73,21 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     // =========================================================================
 
     public void addGroups_async(AMD_IAdmin_addGroups __cb, Experimenter user,
-            List<Experimenter> groups, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, user, groups);
+            List<ExperimenterGroup> groups, Current __current)
+            throws ServerError {
+        IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_ARRAY);
+        Object u = mapper.reverse(user);
+        ome.model.meta.ExperimenterGroup[] array;
+        if (groups != null) {
+            array = new ome.model.meta.ExperimenterGroup[0];
+        } else {
+            array = new ome.model.meta.ExperimenterGroup[groups.size()];
+            for (int i = 0; i < array.length; i++) {
+                array[i] = (ome.model.meta.ExperimenterGroup) mapper
+                        .reverse(groups.get(i));
+            }
+        }
+        callInvokerOnMappedArgs(mapper, __cb, __current, u, array);
     }
 
     public void changeExpiredCredentials_async(
@@ -101,7 +115,10 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void changePermissions_async(AMD_IAdmin_changePermissions __cb,
             IObject obj, Permissions perms, Current __current)
             throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, obj, perms);
+        IceMapper mapper = new IceMapper(IceMapper.VOID);
+        Object o = mapper.reverse(obj);
+        Object p = mapper.convert(perms);
+        callInvokerOnMappedArgs(mapper, __cb, __current, o, p);
     }
 
     public void changeUserPassword_async(AMD_IAdmin_changeUserPassword __cb,
