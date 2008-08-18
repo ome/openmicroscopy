@@ -10,17 +10,10 @@
 
     <server-template id="BlitzTemplate">
       <parameter name="index"/>
-      <parameter name="exe"  default="java"/>
-      <parameter name="mx"   default="256"/>
-      <parameter name="port" default="8787"/>
-      <server id="Blitz-${index}" exe="${exe}" activation="always">
-        <target name="debug">
-          <option>-Xdebug</option>
-          <option>-Xrunjdwp:server=y,transport=dt_socket,address=${port},suspend=n</option>
-        </target>
-        <option>-Xmx${mx}m</option>
-        <option>-jar</option>
-        <option>blitz/blitz.jar</option>
+      <server id="Blitz-${index}" exe="omero" activation="always">
+        <option>server</option>
+        <option>blitz</option>
+        <env>PYTHONPATH=lib:$PYTHONPATH</env>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" register-process="true" endpoints="tcp"/>
         <properties>
           <property name="Ice.ThreadPool.Client.Size" value="2"/>

@@ -660,19 +660,11 @@ class CLI(cmd.Cmd, Context):
             raise NonZeroReturnCode(rv, "%s => %d" % (" ".join(args), rv))
         return rv
 
-    def conn(self, properties={}, profile=None):
+    def initData(self, properties={}):
         """
-        Either creates or returns the exiting omero.client instance.
-
-        Usess "omero prefs" to property configure the client.
+        Uses "omero prefs" to create an Ice.InitializationData()
         """
-
-        if self._client:
-            return self._client
-
         import omero.java
-        if profile:
-            omero.java.run(["prefs","def","profile"])
         output = omero.java.run(["prefs","get"])
 
         import Ice
@@ -685,9 +677,21 @@ class CLI(cmd.Cmd, Context):
            else:
                if DEBUG:
                    self.err("Bad property:"+str(parts))
+        return data
+
+
+    def conn(self, properties={}, profile=None):
+        """
+        Either creates or returns the exiting omero.client instance.
+        Uses the comm() method with the same signature.
+        """
+
+        if self._client:
+            return self._client
 
         import omero
         try:
+            data = self.initData(properties, profile)
             self._client = omero.client(pysys.argv, id = data)
             self._client.createSession()
             return self._client
