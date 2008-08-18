@@ -18,9 +18,11 @@ import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceFactoryPrxHelper;
+import omero.api._ClientCallbackDisp;
 import omero.util.ObjectFactoryRegistrar;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
+import Ice.Current;
 
 /**
  * Central client-side blitz entry point. This class uses solely Ice
@@ -113,6 +115,12 @@ public class client {
         // Define our unique identifer (used during close/detach)
         ic.getImplicitContext().put(omero.constants.CLIENTUUID.value,
                 UUID.randomUUID().toString());
+        // Register the default client callback.
+        CallbackI cb = new CallbackI();
+        Ice.ObjectAdapter oa = ic.createObjectAdapter("omero.client");
+        oa.add(cb, Ice.Util.stringToIdentity("ClientCallback"));
+        oa.activate();
+        // Store this instance for cleanup on shutdown.
         CLIENTS.add(this);
     }
 
@@ -293,5 +301,17 @@ public class client {
         IAdminPrx a = sf.getAdminService();
         String u = a.getEventContext().sessionUuid;
         return u;
+    }
+
+    private static class CallbackI extends _ClientCallbackDisp {
+
+        public boolean ping(Current __current) {
+            return true;
+        }
+
+        public void shutdownIn(long milliseconds, Current __current) {
+            // no-op
+        }
+
     }
 }

@@ -9,6 +9,7 @@ package ome.services.blitz.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.rmi.ServerError;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,9 +22,9 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
+import ome.api.StatefulServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
-import ome.services.blitz.gateway.OmeroJavaService;
 import ome.services.blitz.util.ServantDefinition;
 import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.UnregisterServantMessage;
@@ -33,7 +34,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.ApiUsageException;
-import omero.ServerError;
+import omero.api.ClientCallbackPrx;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
 import omero.api.IConfigPrx;
@@ -68,12 +69,8 @@ import omero.api.RenderingEnginePrx;
 import omero.api.RenderingEnginePrxHelper;
 import omero.api.SearchPrx;
 import omero.api.SearchPrxHelper;
-import omero.api.ServiceFactoryPrx;
-import omero.api.ServiceFactoryPrxHelper;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ServiceInterfacePrxHelper;
-import omero.api.SimpleCallbackPrx;
-import omero.api.StatefulServiceInterface;
 import omero.api.StatefulServiceInterfacePrx;
 import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
@@ -99,14 +96,11 @@ import omero.constants.SHARESERVICE;
 import omero.constants.THUMBNAILSTORE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
-import omero.gateway.GatewayServicePrx;
-import omero.gateway.GatewayServicePrxHelper;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
-import omero.model.Job;
 import omero.model.JobStatusI;
 import omero.util.IceMapper;
 
@@ -115,6 +109,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.quartz.Job;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
@@ -144,7 +139,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public final String clientId;
 
-    private GatewayServicePrx gateway;
+    private ClientCallbackPrx callback;
 
     // SHARED STATE
 
@@ -488,23 +483,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return null;
     }
 
-    public GatewayServicePrx getGateway(Current current) throws ServerError {
-        Ice.ObjectAdapter adapter = current.adapter;
-        if (gateway == null) {
-            Ice.ObjectPrx prx = adapter.createProxy(sessionId(principal
-                    .getName()));
-            ServiceFactoryPrx sf = ServiceFactoryPrxHelper.checkedCast(prx);
-            gateway = new OmeroJavaService(sf);
-            Ice.Identity id;
-            prx = adapter.add(gateway, id);
-            gateway = GatewayServicePrxHelper.uncheckedCast(prx);
-        }
-        return gateway;
-
-    }
-
-    public void setCallback(SimpleCallbackPrx callback, Ice.Current current) {
-        throw new UnsupportedOperationException();
+    public void setCallback(ClientCallbackPrx callback, Ice.Current current) {
+        this.callback = callback;
     }
 
     public void detachOnDestroy(Ice.Current current) {

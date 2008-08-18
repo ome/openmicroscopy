@@ -160,8 +160,8 @@ module omero {
 	    idempotent omero::sys::Roles getSecurityRoles() throws ServerError;
 	    idempotent omero::sys::EventContext getEventContext() throws ServerError;
 	};
-	
-	
+
+
 	["ami","amd"] interface IScript extends ServiceInterface
 	{
 	    idempotent ScriptIDNameMap getScripts() throws ServerError;
@@ -595,12 +595,24 @@ module omero {
 	};
 
 	/*
-	 * Unused, and unsupported. Similar callbacks can be added
-	 * as specific needs arise.
+	 * Primary callback interface for interaction between client and
+	 * server session ("ServiceFactory"). 
 	 */
-	interface SimpleCallback
+	interface ClientCallback
 	{
-	    void call();
+
+	    /*
+	     * Heartbeat-check made by the server to guarantee that the server
+	     * is alive.
+	     */
+	    bool ping();
+
+	    /*
+	     * Message that the server will be shutting down in the
+	     * given number of milliseconds, after which all new and
+	     * running method invocations will recieve a CancelledException.
+	     */
+	    void shutdownIn(long milliseconds);
 	};
 
 	/*
@@ -654,15 +666,16 @@ module omero {
 		acquireProcessor(omero::model::Job job, int seconds)
 		throws ServerError;
 
-	    omero::gateway::GatewayService*
-		getGateway()
-		throws ServerError;
-
 	    /*
-	     * Example for what a server callback would look like.
-	     * Unsupported.
+	     * Sets the single callback used by the ServiceFactory
+	     * to communicate with the client application. A default
+	     * callback is set by the omero::client object on
+	     * session creation which should suffice for most usage.
+	     *
+	     * See the client object's documentation in each language
+	     * mapping for ways to use the callback.
 	     */
-	    void setCallback(SimpleCallback* callback);
+	    void setCallback(ClientCallback* callback);
 
 	    /*
 	     * Deprecated misnomer.
