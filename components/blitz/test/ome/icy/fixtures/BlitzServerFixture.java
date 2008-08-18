@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import net.sf.ehcache.Ehcache;
 import ome.api.IAdmin;
@@ -93,7 +94,7 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
         // Set property before the OmeroContext is created
         try {
-            File ice_config = ResourceUtils.getFile("classpath:ice.config");
+            File ice_config = ResourceUtils.getFile("classpath:manual.config");
             System.setProperty("ICE_CONFIG", ice_config.getAbsolutePath());
         } catch (Exception e) {
             e.printStackTrace();
@@ -187,9 +188,14 @@ public class BlitzServerFixture extends MockObjectTestCase {
 
     public ServiceFactoryPrx createSession() throws Exception {
         prepareLogin();
-        File f1 = ResourceUtils.getFile("classpath:ice.config");
-        File f2 = ResourceUtils.getFile("classpath:local.properties");
-        ice = new omero.client(f1, f2);
+        Properties p = new Properties();
+        p.setProperty("omero.client.Endpoints", "tcp -p 10000");
+        p.setProperty("omero.user", "user");
+        p.setProperty("omero.pass", "pass");
+        p.setProperty("Ice.Default.Router",
+                "OMERO.Glacier2/router:tcp -p 4063 -h 127.0.0.1");
+        p.setProperty("Ice.ImplicitContext", "Shared");
+        ice = new omero.client(p);
         ServiceFactoryPrx session = ice.createSession(null, null);
         return session;
     }

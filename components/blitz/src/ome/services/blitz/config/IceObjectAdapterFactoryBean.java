@@ -7,6 +7,8 @@ package ome.services.blitz.config;
 
 import java.util.Map;
 
+import org.springframework.beans.FatalBeanException;
+
 /**
  * FactoryBean that creates an {@lik Ice.ObjectAdapter} instance (or a decorator
  * that implements that interface).
@@ -29,13 +31,20 @@ public class IceObjectAdapterFactoryBean extends IceLocalObjectFactoryBean {
     }
 
     public void afterPropertiesSet() throws Exception {
-        // We can do nothing here. We have to wait for the 
+        // We can do nothing here. We have to wait for the
         // Communicator to be created.
     }
-    
+
     public void initialize(Ice.Communicator communicator) throws Exception {
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter(beanName);
+        Ice.ObjectAdapter adapter;
+        try {
+            adapter = communicator.createObjectAdapter(beanName);
+        } catch (Exception e) {
+            throw new FatalBeanException(
+                    "Could not find Ice config for object adapter [" + beanName
+                            + "]");
+        }
 
         if (locators == null && servants == null) {
             if (logger.isWarnEnabled()) {
@@ -43,25 +52,25 @@ public class IceObjectAdapterFactoryBean extends IceLocalObjectFactoryBean {
                         + "ObjectAdapter %s (%s)", beanName, this));
             }
         }
-        
+
         if (locators != null) {
             for (String category : locators.keySet()) {
                 Ice.ServantLocator locator = locators.get(category);
                 adapter.addServantLocator(locator, category);
             }
         }
-   
-        
+
         if (servants != null) {
             for (String s : servants.keySet()) {
                 adapter.add(servants.get(s), Ice.Util.stringToIdentity(s));
             }
         }
-        
+
         adapter.activate();
         obj = adapter;
     }
 
+    @Override
     public Class getObjectType() {
         return (this.obj != null ? this.obj.getClass()
                 : Ice.ObjectAdapter.class);

@@ -85,6 +85,8 @@ public class IceCommunicatorFactoryBean extends IceLocalObjectFactoryBean {
 
         Ice.Communicator ic;
         Ice.InitializationData id = new Ice.InitializationData();
+        id.properties = Ice.Util.createProperties();
+
         if (this.iceLogger != null) {
             id.logger = this.iceLogger;
         }
@@ -95,7 +97,8 @@ public class IceCommunicatorFactoryBean extends IceLocalObjectFactoryBean {
             // it is complicated and needs to be reduced. This works in tandem
             // with the code in Main.main() which takes command line arguments.
 
-            ic = Ice.Util.initialize(new String[] { ICE_CONFIG }, id);
+            id.properties.load(ICE_CONFIG);
+            ic = Ice.Util.initialize(id);
 
         } else {
 

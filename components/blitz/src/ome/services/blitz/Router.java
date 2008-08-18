@@ -33,15 +33,15 @@ public class Router {
 
     private final Map<String, String> map = new HashMap<String, String>();
     {
-        map.put("Glacier2.InstanceName", "OMEROGlacier2");
-        setClientEndpoints(LOCALHOST, 9998);
+        map.put("Glacier2.InstanceName", "OMERO.Glacier2");
+        setClientEndpoints(LOCALHOST, 4063);
         setSessionManager(LOCALHOST, 9999);
         setPermissionsVerifier(LOCALHOST, 9999);
         setTimeout(600);
     }
 
     public void allowAdministration() {
-        map.put("Glacier2.Admin.Endpoints", "tcp -p 9997 -h 127.0.0.1");
+        map.put("Glacier2.Admin.Endpoints", "tcp -p 4064 -h 127.0.0.1");
     }
 
     public void setClientEndpoints(String host, int port) {
@@ -53,12 +53,12 @@ public class Router {
     }
 
     public void setSessionManager(String host, int port) {
-        map.put("Glacier2.SessionManager", "Manager:tcp -h " + host + " -p "
-                + port);
+        map.put("Glacier2.SessionManager", "BlitzManager:tcp -h " + host
+                + " -p " + port);
     }
 
     public void setPermissionsVerifier(String host, int port) {
-        map.put("Glacier2.PermissionsVerifier", "Verifier:tcp -h " + host
+        map.put("Glacier2.PermissionsVerifier", "BlitzVerifier:tcp -h " + host
                 + " -p " + port);
     }
 
@@ -93,7 +93,7 @@ public class Router {
      */
     public boolean shutdown(Ice.Communicator ic) {
         Ice.ObjectPrx prx = ic.stringToProxy(map.get("Glacier2.InstanceName")
-                + "/admin:tcp -p 9997 -h 127.0.0.1");
+                + "/admin:tcp -p 4064 -h 127.0.0.1");
         try {
             Glacier2.AdminPrx rtr = Glacier2.AdminPrxHelper.checkedCast(prx);
             rtr.shutdown();
