@@ -35,6 +35,7 @@ import java.util.concurrent.ScheduledFuture;
 import Ice.Current;
 
 import omero.RType;
+import omero.api.ServiceFactoryPrx;
 import omero.gateway.BufferedImage;
 import omero.gateway.ContainerClass;
 import omero.gateway.DSAccessException;
@@ -104,21 +105,7 @@ public class OmeroJavaService extends _GatewayServiceDisp
 	private HeartBeatService heartbeatService;
 	
 	private HeartBeatPrx heartBeatProxy;
-	
-	/**
-	 * Create the service factory which creates the gateway and services
-	 * and links the different services together.  
-	 * 
-	 * @param iceConfig path to the ice config file.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public OmeroJavaService(String iceConfig) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		gatewayFactory = new GatewayFactory(iceConfig);
-	}
-	
+
 	/**
 	 * Create the service factory which creates the gateway and services
 	 * and links the different services together.  
@@ -127,10 +114,10 @@ public class OmeroJavaService extends _GatewayServiceDisp
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public OmeroJavaService(omero.client client) 
+	public OmeroJavaService(ServiceFactoryPrx prx) 
 	throws DSOutOfServiceException, DSAccessException
 	{
-		gatewayFactory = new GatewayFactory(client);
+		gatewayFactory = new GatewayFactory(prx);
 		startServices();
 	}
 	/**
@@ -223,23 +210,6 @@ public class OmeroJavaService extends _GatewayServiceDisp
 			gatewayFactory.getIQueryGateway());
 		heartbeatService = new HeartBeatService();
 		heartbeatService.start();
-	}
-	 
-	/**
-	 * Open a session to the server with username and password.
-	 * 
-	 * @param username
-	 *            see above.
-	 * @param password
-	 *            see above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public void createSession(String username, String password) 
-				throws DSOutOfServiceException, DSAccessException
-	{
-		gatewayFactory.createSession(username, password);
-		startServices();
 	}
 	
 	/**
@@ -1097,7 +1067,7 @@ public class OmeroJavaService extends _GatewayServiceDisp
 	 * Get the username. 
 	 * @return see above.
 	 */
-	public String getUsername(Ice.Current current)
+	public String getUsername(Ice.Current current) throws DSOutOfServiceException, DSAccessException
 	{
 		return gatewayFactory.getUsername();
 	}

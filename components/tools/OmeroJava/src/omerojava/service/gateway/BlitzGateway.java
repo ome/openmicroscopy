@@ -85,14 +85,8 @@ class BlitzGateway
 	/** Start of the exception message for the stateful service access exception. */
 	private static final String statefulServiceAccessException = "Unable to create ";
 	
-	/** The Blitz client object, this is the entry point to the OMERO.Blitz Server. */
-	private client blitzClient;
-	
 	/** The proxy to the session object. */
-	private volatile ServiceFactoryPrx session;
-
-	/** The user name. */
-	private String userName;
+	private final ServiceFactoryPrx session;
 	
 	/** Session closed variable, determining if session closed. */
 	private volatile boolean sessionClosed = true;
@@ -115,27 +109,13 @@ class BlitzGateway
 	
 	/**
 	 * Instantiate the BlitzGateway object.
-	 * @param iceConfig passing the iceConfig file location.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	BlitzGateway(String iceConfig) throws DSOutOfServiceException, DSAccessException
+	BlitzGateway(ServiceFactoryPrx prx) throws DSOutOfServiceException, DSAccessException
 	{
-		blitzClient = new omero.client(iceConfig);
-		sessionClosed = true;
-		serviceMap = new HashMap<String, ServiceInterfacePrx>();
-	}
-	
-	/**
-	 * Instantiate the BlitzGateway object.
-	 * @param client  passing the omero.client object.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	BlitzGateway(omero.client client) throws DSOutOfServiceException, DSAccessException
-	{
-		blitzClient = client;
-		sessionClosed = true;
+		session = prx;
+		sessionClosed = false;
 		serviceMap = new HashMap<String, ServiceInterfacePrx>();
 		createServices();
 	}
@@ -178,39 +158,12 @@ class BlitzGateway
 		session.keepAlive(prx);
 	}
 	
-	/**
-	 * Create a session using the current client object.
-	 * @param user Username.
-	 * @param password Password of the user.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public void createSession(String user, String password) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		synchronized(serviceMap)
-		{
-			try
-			{
-				session = blitzClient.createSession(user, password);
-				userName = user;
-				sessionClosed = false;
-				createServices();
-			}
-			catch(Exception e)
-			{
-				ServiceUtilities.handleException(e, "Cannot create session");
-			}
-		}
-	}
-	
 	/** Close the connection to the blitz server. */
 	public void close()
 	{
 		synchronized(serviceMap)
 		{
-			blitzClient.closeSession();
-			blitzClient.close();
+		    session.destroy();
 			sessionClosed = true;
 		}
 	}
@@ -629,8 +582,14 @@ class BlitzGateway
 	 * @return see above.
 	 */
 	public String getUserName()
+	throws DSOutOfServiceException, DSAccessException 
 	{
-		return userName;
+	    try {
+	        return getAdminService().getEventContext().userName;
+	    } catch (ServerError e) {
+	        ServiceUtilities.handleException(e, "Failed to get username");
+	    }
+	    return null; 
 	}
 }
 

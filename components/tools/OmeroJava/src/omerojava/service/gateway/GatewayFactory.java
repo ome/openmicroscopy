@@ -22,6 +22,7 @@
  */
 package omerojava.service.gateway;
 
+import omero.api.ServiceFactoryPrx;
 import omero.gateway.DSAccessException;
 import omero.gateway.DSOutOfServiceException;
 
@@ -76,33 +77,17 @@ public class GatewayFactory
 	 * later?*/
 	private String statefulServiceLock;
 	
-	/** User name of the session. */
-	private volatile String			username;
-	
-	/**
-	 * Create the blitzGateway object and instantiate the service gateways.
-	 * @param iceConfig ice config.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public GatewayFactory(String iceConfig) 
-			throws DSOutOfServiceException, DSAccessException 
-	{
-		statefulServiceLock = new String("RenderingEngine/Thumbnail ServiceLock");
-		blitzGateway = new BlitzGateway(iceConfig);
-	}
-
 	/**
 	 * Create the blitzGateway object and instantiate the service gateways.
 	 * @param client the already existing client object.
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	public GatewayFactory(omero.client client) 
+	public GatewayFactory(ServiceFactoryPrx prx) 
 			throws DSOutOfServiceException, DSAccessException 
 	{
 		statefulServiceLock = new String("RenderingEngine/Thumbnail ServiceLock");
-		blitzGateway = new BlitzGateway(client);
+		blitzGateway = new BlitzGateway(prx);
 		startServices();
 	}
 
@@ -117,21 +102,6 @@ public class GatewayFactory
 		iQueryGateway = new IQueryGatewayImpl(blitzGateway);
 		iUpdateGateway = new IUpdateGatewayImpl(blitzGateway);
 		iTypeGateway = new ITypeGatewayImpl(blitzGateway);
-	}
-	
-	/**
-	 * create session for user and password.
-	 * @param user the username
-	 * @param password password of the user.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public void createSession(String user, String password) 
-						throws DSOutOfServiceException, DSAccessException
-	{
-		username = user;
-		blitzGateway.createSession(user, password);
-		startServices();
 	}
 	
 	/** Close the connection to the blitz server. */
@@ -153,7 +123,7 @@ public class GatewayFactory
 	 * Get the username.
 	 * @return see above.
 	 */
-	public String getUsername()
+	public String getUsername() throws DSOutOfServiceException, DSAccessException
 	{
 		return blitzGateway.getUserName();
 	}
