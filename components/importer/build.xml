@@ -7,5 +7,12 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 
+    <target name="package" depends="lifecycle.package">
+        <jar update="true"
+             destfile="${target.dir}/${ivy.module}.jar">
+            <fileset dir="${src.dir}" includes="ome/formats/importer/importer_readers.txt"/>
+        </jar>
+    </target>
+
 </project>
 
