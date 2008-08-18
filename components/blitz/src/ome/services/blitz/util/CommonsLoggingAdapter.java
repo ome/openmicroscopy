@@ -11,28 +11,23 @@ import org.apache.commons.logging.Log;
 
 import Ice.Logger;
 
-/** 
+/**
  * A simple Adapter to have the <i>ICE</i> runtime log to our log file.
- *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author  <br>Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:a.falconi@dundee.ac.uk">
- * 					a.falconi@dundee.ac.uk</a>
- * @version 2.2
- * <small>
- * (<b>Internal version:</b> $Revision: 1.1 $ $Date: 2005/06/20 09:46:34 $)
- * </small>
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision: 1.1 $ $Date:
+ *          2005/06/20 09:46:34 $) </small>
  * @since OME2.2
  */
-public class CommonsLoggingAdapter extends Ice.LocalObjectImpl
-    implements Logger
-{
-    
-    private Log log;
-    
-    public CommonsLoggingAdapter(Log logger)
-    {
+public class CommonsLoggingAdapter implements Logger {
+
+    private final Log log;
+
+    public CommonsLoggingAdapter(Log logger) {
         this.log = logger;
     }
 

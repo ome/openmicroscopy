@@ -15,7 +15,7 @@
 /*
  * The omero::system module combines the ome.system and ome.parameters
  * packages from OMERO.server, and represent API arguments which are
- * neither model objects (omero/model/*.ice) nor RTypes (RTypes.ice).
+ * neither model objects (omero.model.*.ice) nor RTypes (RTypes.ice).
  */
 module omero {
   module sys {

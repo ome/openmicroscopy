@@ -21,7 +21,7 @@ package omero.util;
 
 public abstract class ObjectFactoryRegistrar {
 
-  public static class Instance extends Ice.LocalObjectImpl implements Ice.ObjectFactory {
+  public static class Instance implements Ice.ObjectFactory {
 
     public Ice.Object create(String type) {
       return ObjectFactoryRegistrar.create(type);
