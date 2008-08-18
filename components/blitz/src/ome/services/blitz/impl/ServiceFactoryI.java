@@ -23,6 +23,7 @@ import ome.api.JobHandle;
 import ome.api.ServiceInterface;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
+import ome.services.blitz.gateway.OmeroJavaService;
 import ome.services.blitz.util.ServantDefinition;
 import ome.services.blitz.util.ServantHelper;
 import ome.services.blitz.util.UnregisterServantMessage;
@@ -67,6 +68,8 @@ import omero.api.RenderingEnginePrx;
 import omero.api.RenderingEnginePrxHelper;
 import omero.api.SearchPrx;
 import omero.api.SearchPrxHelper;
+import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceFactoryPrxHelper;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ServiceInterfacePrxHelper;
 import omero.api.SimpleCallbackPrx;
@@ -96,6 +99,8 @@ import omero.constants.SHARESERVICE;
 import omero.constants.THUMBNAILSTORE;
 import omero.constants.TYPESSERVICE;
 import omero.constants.UPDATESERVICE;
+import omero.gateway.GatewayServicePrx;
+import omero.gateway.GatewayServicePrxHelper;
 import omero.grid.InteractiveProcessorI;
 import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
@@ -138,6 +143,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     boolean doClose = false;
 
     public final String clientId;
+
+    private GatewayServicePrx gateway;
 
     // SHARED STATE
 
@@ -479,6 +486,21 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             }
         } while (stop < System.currentTimeMillis());
         return null;
+    }
+
+    public GatewayServicePrx getGateway(Current current) throws ServerError {
+        Ice.ObjectAdapter adapter = current.adapter;
+        if (gateway == null) {
+            Ice.ObjectPrx prx = adapter.createProxy(sessionId(principal
+                    .getName()));
+            ServiceFactoryPrx sf = ServiceFactoryPrxHelper.checkedCast(prx);
+            gateway = new OmeroJavaService(sf);
+            Ice.Identity id;
+            prx = adapter.add(gateway, id);
+            gateway = GatewayServicePrxHelper.uncheckedCast(prx);
+        }
+        return gateway;
+
     }
 
     public void setCallback(SimpleCallbackPrx callback, Ice.Current current) {

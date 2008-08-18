@@ -10,6 +10,7 @@
 #define omero_API
 
 #include <omero/fwd.ice>
+#include <omero/Gateway.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
@@ -646,11 +647,15 @@ module omero {
 
 	    StatefulServiceInterface* createByName(string name) throws ServerError;
 
-	    // Shared resources. Here an acquisition framework is^M
-	    // in place such that it is not guaranteed that^M
+	    // Shared resources. Here an acquisition framework is
+	    // in place such that it is not guaranteed that
 
 	    omero::grid::InteractiveProcessor*
 		acquireProcessor(omero::model::Job job, int seconds)
+		throws ServerError;
+
+	    omero::gateway::GatewayService*
+		getGateway()
 		throws ServerError;
 
 	    /*
