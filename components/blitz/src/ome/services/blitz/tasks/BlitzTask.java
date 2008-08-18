@@ -16,7 +16,7 @@ import ome.util.tasks.SimpleTask;
 
 /**
  * Extends {@link SimpleTask} in order to allow calling tasks on blitz servers
- * as well as application servers. 
+ * as well as application servers.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @see SimpleTask
@@ -26,26 +26,26 @@ import ome.util.tasks.SimpleTask;
 @RevisionNumber("$Revision: 1208 $")
 public abstract class BlitzTask extends SimpleTask {
 
-    
     final private omero.client client;
 
-    /** 
-     * Defines whether or not this task was initialized for blitz or for
-     * an application server.
+    /**
+     * Defines whether or not this task was initialized for blitz or for an
+     * application server.
      */
     final public boolean useBlitz;
-    
+
     /**
-     * Delegates to super constructor. 
+     * Delegates to super constructor.
      */
     public BlitzTask(ServiceFactory serviceFactory, Properties properties) {
         super(serviceFactory, properties);
         client = null;
         useBlitz = false;
     }
+
     /**
-     * Requires a non-null {@link IceServiceFactory}. If a null
-     * {@link Properties} instance is provided, the
+     * Requires a non-null {@link omero.client}. If a null {@link Properties}
+     * instance is provided, the
      * {@link System#getProperties() System properties} will be used.
      * 
      * @param serviceFactory
@@ -54,7 +54,7 @@ public abstract class BlitzTask extends SimpleTask {
      *            Context variables for the task. Optional (can be null).
      */
     public BlitzTask(omero.client client, Properties properties) {
-        super(new ServiceFactory(),properties);
+        super(new ServiceFactory(), properties);
         if (client == null) {
             throw new IllegalArgumentException("ServiceFactory cannot be null.");
         }
