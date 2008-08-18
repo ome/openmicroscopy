@@ -9,7 +9,6 @@ package ome.services.blitz.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.rmi.ServerError;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +33,10 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import omero.ApiUsageException;
+import omero.ServerError;
 import omero.api.ClientCallbackPrx;
+import omero.api.GatewayPrx;
+import omero.api.GatewayPrxHelper;
 import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
 import omero.api.IConfigPrx;
@@ -79,6 +81,7 @@ import omero.api._ServiceFactoryDisp;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
 import omero.constants.CONFIGSERVICE;
+import omero.constants.GATEWAYSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
 import omero.constants.PIXELSSERVICE;
@@ -101,6 +104,7 @@ import omero.grid.InteractiveProcessorPrx;
 import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
+import omero.model.Job;
 import omero.model.JobStatusI;
 import omero.util.IceMapper;
 
@@ -109,7 +113,6 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.quartz.Job;
 import org.springframework.aop.Advisor;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.framework.ProxyFactory;
@@ -286,6 +289,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     // ~ Stateful
     // =========================================================================
+
+    public GatewayPrx createGateway(Ice.Current current) throws ServerError {
+        return GatewayPrxHelper.uncheckedCast(createByName(
+                GATEWAYSERVICE.value, current));
+    }
 
     public JobHandlePrx createJobHandle(Ice.Current current) throws ServerError {
         return JobHandlePrxHelper.uncheckedCast(createByName(JOBHANDLE.value,

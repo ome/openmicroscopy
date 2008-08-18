@@ -255,6 +255,11 @@ public class ScriptI extends _IScriptDisp {
      */
     public void getParams_async(AMD_IScript_getParams cb, long id,
             Current __current) throws ServerError {
+        cb.ice_response(getParams(id, __current));
+    }
+
+    private Map<String, RType> getParams(long id, Ice.Current __current)
+            throws ServerError {
         OriginalFile file = getOriginalFile(id);
         JobParams params = getScriptParams(file, __current);
         Map<String, RType> temporary = new HashMap<String, RType>();
@@ -262,7 +267,7 @@ public class ScriptI extends _IScriptDisp {
             Param p = params.inputs.get(key);
             temporary.put(key, p.prototype);
         }
-        cb.ice_response(temporary);
+        return temporary;
     }
 
     /**
@@ -458,12 +463,13 @@ public class ScriptI extends _IScriptDisp {
     /**
      * Build a job from a script name
      * 
-     * @param script
+     * @param scriptName
      * @return job.
      * @throws ServerError
      */
-    private ScriptJobI buildJob(String script) throws ServerError {
-        long id = getScriptID(script);
+    private ScriptJobI buildJob(String scriptName) throws ServerError {
+        OriginalFile file = getOriginalFile(scriptName);
+        long id = file.getId();
         return buildJob(id);
     }
 
