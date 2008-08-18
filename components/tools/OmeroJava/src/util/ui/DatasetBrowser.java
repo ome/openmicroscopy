@@ -16,14 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
-
+import omero.api.GatewayPrx;
 import omero.model.Dataset;
-import omerojava.service.OmeroJavaService;
-
-
-
 
 /*
  * .DatasetWindow 
@@ -70,7 +64,7 @@ public class DatasetBrowser
 	DatasetTree datasetTree; 
 	long value;
 	
-	public DatasetBrowser(OmeroJavaService sf) throws DSOutOfServiceException, DSAccessException
+	public DatasetBrowser(GatewayPrx sf) throws omero.ServerError
 	{
 		super();
 		this.setName("Select Dataset");
@@ -80,7 +74,7 @@ public class DatasetBrowser
 		this.setSize(300,400);
 	}
 	
-	private void buildUI(OmeroJavaService sf) throws DSOutOfServiceException, DSAccessException
+	private void buildUI(GatewayPrx sf) throws omero.ServerError
 	{
 		JPanel panel = new JPanel();
 		JScrollPane scrollPane = new JScrollPane(panel);

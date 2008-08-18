@@ -25,21 +25,9 @@ package util.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
-
-
+import omero.api.GatewayPrx;
 import omero.model.Dataset;
 import omero.model.Project;
-import omerojava.service.OmeroJavaService;
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * 
@@ -56,11 +44,11 @@ import omerojava.service.OmeroJavaService;
  */
 public class DatasetModel
 {	
-	OmeroJavaService service;
+	GatewayPrx service;
 	UserNode 	userNode;
 	
-	public DatasetModel(OmeroJavaService service) 
-			throws DSOutOfServiceException, DSAccessException
+	public DatasetModel(GatewayPrx service) 
+			throws omero.ServerError
 	{
 		this.service = service;
 		populateDataModel();
@@ -68,12 +56,12 @@ public class DatasetModel
 	
 	/**
 	 * Populate the Datamodel with the project->dataset list.
-	 * @throws DSAccessException 
+	 * @throws omero.ServerError 
 	 * @throws DSOutOfServiceException 
 	 *
 	 */
 	private void populateDataModel() 
-		throws DSOutOfServiceException, DSAccessException
+		throws omero.ServerError
 	{
 		userNode = new UserNode(service.getUsername());
 		List<Project> projects = service.getProjects(null, false);

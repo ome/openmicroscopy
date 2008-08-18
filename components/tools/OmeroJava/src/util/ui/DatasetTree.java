@@ -31,14 +31,7 @@ import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import omerojava.service.OmeroJavaService;
-
-import omero.gateway.DSAccessException;
-import omero.gateway.DSOutOfServiceException;
-
-//Third-party libraries
-
-//Application-internal dependencies
+import omero.api.GatewayPrx;
 
 
 /** 
@@ -57,7 +50,7 @@ import omero.gateway.DSOutOfServiceException;
 public class DatasetTree
 {
 	/** Link to the data service which is part of the ServiceFactory. */
-	OmeroJavaService	service;
+	GatewayPrx service;
 	
 	DatasetModel model;
 	DatasetView view;
@@ -65,11 +58,11 @@ public class DatasetTree
 	/** 
 	 * Create the DatasetTree which accesses the datasets in the DataService
 	 * @param dataService see above.
-	 * @throws DSAccessException 
+	 * @throws omero.ServerError 
 	 * @throws DSOutOfServiceException 
 	 */
-	public DatasetTree(OmeroJavaService service) 
-		throws DSOutOfServiceException, DSAccessException
+	public DatasetTree(GatewayPrx service) 
+		throws omero.ServerError
 	{
 		this.service = service;
 		model = new DatasetModel(service);
