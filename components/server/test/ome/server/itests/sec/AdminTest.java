@@ -542,4 +542,19 @@ public class AdminTest extends AbstractManagedContextTest {
         assertNotNull(r.getUserGroupName());
     }
 
+    // ~ Bugs
+    // =========================================================================
+
+    public void testSetDefaultGroupCanNotUpateRows() throws Exception {
+
+        Experimenter e1 = loginNewUser();
+        Experimenter e2 = loginNewUser();
+        loginRoot();
+
+        ExperimenterGroup eg = iAdmin.getDefaultGroup(e1.getId());
+        iAdmin.addGroups(e2, eg);
+        iAdmin.setDefaultGroup(e2, eg);
+
+    }
+
 }
