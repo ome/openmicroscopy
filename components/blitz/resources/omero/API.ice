@@ -105,15 +105,15 @@ module omero {
 	 * Service marker for stateful services which permits the closing
 	 * of a particular service before the destruction of the session.
 	 */
-	interface StatefulServiceInterface extends ServiceInterface
+	["ami", "amd"] interface StatefulServiceInterface extends ServiceInterface
 	{
 	    void close();
 	    idempotent omero::sys::EventContext getCurrentEventContext() throws ServerError;
 	};
-	
-	interface IAdmin extends ServiceInterface
+
+	["ami", "amd"] interface IAdmin extends ServiceInterface
 	{
-	    
+
 	    // Getters
 	    idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
 	    idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
@@ -159,8 +159,9 @@ module omero {
 	    idempotent omero::sys::Roles getSecurityRoles() throws ServerError;
 	    idempotent omero::sys::EventContext getEventContext() throws ServerError;
 	};
-
-	interface IScript extends ServiceInterface
+	
+	
+	["ami","amd"] interface IScript extends ServiceInterface
 	{
 	    idempotent ScriptIDNameMap getScripts() throws ServerError;
 	    idempotent long getScriptID(string name) throws  ServerError;
@@ -172,7 +173,7 @@ module omero {
 	    void deleteScript(long id) throws ServerError;
 	};
 
-	interface IConfig extends ServiceInterface
+	["ami", "amd"] interface IConfig extends ServiceInterface
 	{
 	    idempotent string getVersion() throws ServerError;
 	    idempotent string getConfigValue(string key) throws ServerError;
@@ -181,14 +182,14 @@ module omero {
 	    idempotent omero::RTime getServerTime() throws ServerError;
 	};
 
-	interface IDelete extends omero::api::ServiceInterface
+	["ami", "amd"] interface IDelete extends omero::api::ServiceInterface
 	{
 	    omero::api::IObjectList checkImageDelete(long id, bool force) throws ServerError;
 	    omero::api::IObjectList previewImageDelete(long id, bool force) throws ServerError;
 	    void deleteImage(long id, bool force) throws ApiUsageException, ValidationException, SecurityViolation, ServerError;
 	};
 
-	interface ILdap extends ServiceInterface
+	["ami", "amd"] interface ILdap extends ServiceInterface
 	{
 	    idempotent ExperimenterList searchAll() throws ServerError;
 	    idempotent StringSet searchDnInGroups(string attr, string value) throws ServerError;
@@ -202,7 +203,7 @@ module omero {
 	};
 
 
-	interface IPixels extends ServiceInterface
+	["ami", "amd"] interface IPixels extends ServiceInterface
 	{
 	    idempotent omero::model::Pixels retrievePixDescription(long pixId) throws ServerError;
 	    idempotent omero::model::RenderingDef retrieveRndSettings(long pixId) throws ServerError;
@@ -234,7 +235,7 @@ module omero {
 	    void setChannelGlobalMinMax(long pixelsId, int channelIndex, double min, double max) throws ServerError;
 	};
 
-	interface IPojos extends ServiceInterface
+	["ami", "amd"] interface IPojos extends ServiceInterface
 	{
 	    idempotent IObjectList loadContainerHierarchy(string rootType, omero::sys::LongList rootIds, omero::sys::ParamMap options) throws ServerError;
 	    idempotent IObjectList findContainerHierarchies(string rootType, omero::sys::LongList imageIds, omero::sys::ParamMap options) throws ServerError;
@@ -256,7 +257,7 @@ module omero {
 	    void deleteDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
 	};
 
-	interface IQuery extends ServiceInterface
+	["ami", "amd"] interface IQuery extends ServiceInterface
 	{
 	    idempotent omero::model::IObject get(string klass, long id) throws ServerError;
 	    idempotent omero::model::IObject find(string klass, long id) throws ServerError;
@@ -271,7 +272,7 @@ module omero {
 	    idempotent omero::model::IObject refresh(omero::model::IObject iObject) throws ServerError;
 	};
 
-	interface ISession extends ServiceInterface
+	["ami", "amd"] interface ISession extends ServiceInterface
 	{
 	    omero::model::Session createSession(omero::sys::Principal p, string credentials) throws ServerError;
 	    omero::model::Session getSession(string sessionUuid) throws ServerError;
@@ -289,7 +290,7 @@ module omero {
 	    StringSet getOutputKeys(string sess) throws ServerError;
 	};
 
-	interface IShare extends ServiceInterface
+	["ami", "amd"] interface IShare extends ServiceInterface
 	{
 	    void activate(long shareId);
 	    omero::model::Session getShare(long sessionId);
@@ -340,7 +341,7 @@ module omero {
 
 	};
 
-	interface ITypes extends ServiceInterface
+	["ami", "amd"] interface ITypes extends ServiceInterface
 	{
 	    omero::model::IObject createEnumeration(omero::model::IObject newEnum) throws ServerError;
 	    idempotent omero::model::IObject getEnumeration(string type, string value) throws ServerError;
@@ -355,7 +356,7 @@ module omero {
 	    void resetEnumerations(string enumClass) throws ServerError;
 	};
 
-	interface IUpdate extends ServiceInterface
+	["ami", "amd"] interface IUpdate extends ServiceInterface
 	{
 	    void saveObject(omero::model::IObject obj) throws ServerError;
 	    void saveCollection(IObjectList objs) throws ServerError;
@@ -366,7 +367,7 @@ module omero {
 	    void indexObject(omero::model::IObject row) throws ServerError;
 	};
 
-	interface IRenderingSettings extends ServiceInterface
+	["ami", "amd"] interface IRenderingSettings extends ServiceInterface
 	{
 	    bool sanityCheckPixels(omero::model::Pixels pFrom, omero::model::Pixels pTo) throws ServerError;
 	    omero::model::RenderingDef getRenderingSettings(long pixelsId) throws ServerError;
@@ -388,7 +389,7 @@ module omero {
 	    omero::sys::LongList setOriginalSettingsInSet(string type, omero::sys::LongList noteIds) throws ServerError;
 	};
 
-	interface IRepositoryInfo extends ServiceInterface
+	["ami", "amd"] interface IRepositoryInfo extends ServiceInterface
 	{
 	    idempotent long getUsedSpaceInKilobytes() throws ServerError;
 	    idempotent long getFreeSpaceInKilobytes() throws ServerError;
@@ -397,7 +398,7 @@ module omero {
 	    void removeUnusedFiles() throws ServerError;
 	};
 
-	interface JobHandle extends StatefulServiceInterface
+	["ami", "amd"] interface JobHandle extends StatefulServiceInterface
 	{
 	    long submit(omero::model::Job j) throws ServerError;
 	    omero::model::JobStatus attach(long jobId) throws ServerError;
@@ -410,7 +411,7 @@ module omero {
 	    void cancelJob()  throws ServerError;
 	};
 
-	interface RawFileStore extends StatefulServiceInterface
+	["ami", "amd"] interface RawFileStore extends StatefulServiceInterface
 	{
 	    void setFileId(long fileId) throws ServerError;
 	    idempotent Ice::ByteSeq read(long position, int length) throws ServerError;
@@ -418,7 +419,7 @@ module omero {
 	    idempotent bool exists() throws ServerError;
 	};
 
-	interface RawPixelsStore extends StatefulServiceInterface
+	["ami", "amd"] interface RawPixelsStore extends StatefulServiceInterface
 	{
 	    void setPixelsId(long pixelsId) throws ServerError;
 	    idempotent int getPlaneSize() throws ServerError;
@@ -447,7 +448,7 @@ module omero {
 	    idempotent Ice::ByteSeq calculateMessageDigest() throws ServerError;
 	};
 
-	interface RenderingEngine extends StatefulServiceInterface
+	["ami", "amd"] interface RenderingEngine extends StatefulServiceInterface
 	{
 	    omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
 	    Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
@@ -495,7 +496,7 @@ module omero {
 	    double getPixelsTypeLowerBound(int w) throws ServerError;
 	};
 
-	interface Search extends StatefulServiceInterface
+	["ami", "amd"] interface Search extends StatefulServiceInterface
 	{
 
 	    // Non-query state ~~~~~~~~~~~~~~~~~~~~~~
@@ -574,7 +575,7 @@ module omero {
 	    void remove() throws ServerError;
 	};
 
-	interface ThumbnailStore extends StatefulServiceInterface
+	["ami", "amd"] interface ThumbnailStore extends StatefulServiceInterface
 	{
 	    bool setPixelsId(long pixelsId) throws ServerError;
 	    void setRenderingDefId(long renderingDefId) throws ServerError;
