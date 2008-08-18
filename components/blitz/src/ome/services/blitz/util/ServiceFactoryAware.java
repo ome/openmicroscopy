@@ -9,6 +9,7 @@
 package ome.services.blitz.util;
 
 import ome.services.blitz.impl.ServiceFactoryI;
+import omero.ServerError;
 
 /**
  * Servant which is aware of the {@link ServiceFactoryI}-instance which it
@@ -21,6 +22,6 @@ import ome.services.blitz.impl.ServiceFactoryI;
  */
 public interface ServiceFactoryAware {
 
-    void setServiceFactory(ServiceFactoryI sf);
+    void setServiceFactory(ServiceFactoryI sf) throws ServerError;
 
 }

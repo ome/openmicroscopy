@@ -15,6 +15,7 @@ import net.sf.ehcache.Element;
 import ome.api.JobHandle;
 import ome.api.ServiceInterface;
 import ome.api.StatefulServiceInterface;
+import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
 import ome.services.blitz.util.ServantHolder;
@@ -118,9 +119,8 @@ import Ice.Current;
 /**
  * Responsible for maintaining all servants for a single session.
  * 
- * In general, this implementation stores all services (ome.api.*) under the
- * {@link String} representation of the {@link Ice.Identity} and the actual
- * servants are only maintained by the {@link Ice.ObjectAdapter}.
+ * In general, try to reduce access to the {@link Ice.Current} and
+ * {@link Ice.Util} objects.
  * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
@@ -128,10 +128,14 @@ import Ice.Current;
 public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     // STATIC
+    // ===========
 
     private final static Log log = LogFactory.getLog(ServiceFactoryI.class);
 
     // PRIVATE STATE
+    // =================
+    // These fields are special for this instance of SF alone. It represents
+    // a single clients use of a session.
 
     boolean doClose = false;
 
@@ -140,6 +144,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     private ClientCallbackPrx callback;
 
     // SHARED STATE
+    // ===================
+    // The following elements will all be the same or at least equivalent
+    // in different instances of SF attached to the same session.
+
+    final Ice.ObjectAdapter adapter;
 
     final SessionManager sessionManager;
 
@@ -166,6 +175,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public ServiceFactoryI(Ice.Current current, OmeroContext context,
             SessionManager manager, Executor executor, Principal p,
             List<HardWiredInterceptor> interceptors) throws ApiUsageException {
+        this.adapter = current.adapter;
         this.clientId = clientId(current);
         this.context = context;
         this.sessionManager = manager;
@@ -186,6 +196,10 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             local = (ServantHolder) cache.get(key).getObjectValue();
         }
         holder = local; // Set the final value
+    }
+
+    public Ice.ObjectAdapter getAdapter() {
+        return this.adapter;
     }
 
     // ~ Stateless
@@ -327,7 +341,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
                 prx = registerServant(current, id, servant);
             } else {
-                prx = current.adapter.createProxy(id);
+                prx = adapter.createProxy(id);
             }
             return ServiceInterfacePrxHelper.uncheckedCast(prx);
         } finally {
@@ -339,7 +353,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             throws ServerError {
 
         Ice.Identity id = getIdentity(Ice.Util.generateUUID() + name);
-        if (null != current.adapter.find(id)) {
+        if (null != adapter.find(id)) {
             omero.InternalException ie = new omero.InternalException();
             ie.message = name + " already registered for this adapter.";
         }
@@ -406,8 +420,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         long stop = seconds < 0 ? start : (start + (seconds * 1000));
         do {
 
-            Ice.ObjectPrx objectPrx = current.adapter.getCommunicator()
-                    .stringToProxy("IceGrid/Query");
+            Ice.ObjectPrx objectPrx = adapter.getCommunicator().stringToProxy(
+                    "IceGrid/Query");
             IceGrid.QueryPrx query = IceGrid.QueryPrxHelper
                     .checkedCast(objectPrx);
             Ice.ObjectPrx[] candidates = query
@@ -427,8 +441,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 }
             }
 
-            Ice.ObjectPrx prx = current.adapter.getCommunicator()
-                    .stringToProxy("Processor");
+            Ice.ObjectPrx prx = adapter.getCommunicator().stringToProxy(
+                    "Processor");
             if (prx != null) {
                 ProcessorPrx processor;
                 try {
@@ -484,18 +498,45 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * Destruction simply decrements the reference count for a session to allow
      * reconnecting to it. This means that the Glacier timeout property is
      * fairly unimportant. If a Glacier connection times out or is otherwise
-     * destroyed, a client can attempt to reconnect
+     * destroyed, a client can attempt to reconnect.
+     * 
+     * However, in the case of only one reference to the session, if the
+     * Glacier2 timeout is greater than the session timeout, exceptions can be
+     * thrown when this method tries to clean up the session. Therefore all
+     * session access must be guarded by a try/finally block.
      */
     public void destroy(Ice.Current current) {
 
-        // First detach and get the reference count.
-        int ref = sessionManager.detach(this.principal.getName());
+        int ref;
+        try {
+            // First detach and get the reference count.
+            ref = sessionManager.detach(this.principal.getName());
+        } catch (SessionException rse) {
+            // If the session has already been removed or has timed out,
+            // then we should do everything we can to clean up.
+            String msg = "Session already removed. Most likely session timed out\n"
+                    + "before router session was destroyed. This can happen on  \n"
+                    + "laptop hibernation or if \"session-timeout\" in the      \n"
+                    + "application descriptor is greater than the OMERO config  \n"
+                    + "\"omero.sessions.timeout\".";
+            log.warn(msg);
+            ref = 0;
+            doClose = true;
+        }
 
         // If we are supposed to close, do only so if the ref count
         // is < 1.
         if (doClose && ref < 1) {
 
-            ref = sessionManager.close(this.principal.getName());
+            try {
+                ref = sessionManager.close(this.principal.getName());
+            } catch (SessionException se) {
+                // An exception could still theoretically be closed here
+                // if the timeout/removal happened since the last call.
+                // Therefore, we'll just let another exception be thrown
+                // since the time for shutdown is not overly critical.
+                ref = 0; // Should still be zero, but just in case.
+            }
 
             // If someone has attached since we called detach() above, do not
             // destroy this session.
@@ -503,7 +544,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 return;
             }
 
-            doDestroy(current.adapter);
+            // Must check all session access in this method too.
+            doDestroy();
 
         }
 
@@ -511,7 +553,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // Now we can remove the current session. If an exception if thrown,
         // there's not much we can do.
         try {
-            current.adapter.remove(sessionId(principal.getName()));
+            adapter.remove(sessionId());
         } catch (Throwable t) {
             // FIXME
             log.error("Possible memory leak: can't remove service factory", t);
@@ -525,8 +567,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * {@link Session}. Since {@link #destroy()} is called regardless by the
      * router, even when a client has just died, we have this internal method
      * for handling the actual closing of resources.
+     * 
+     * This method must take precautions to not throw a {@link SessionException}.
+     * See {@link #destroy(Current)} for more information.
      */
-    public void doDestroy(Ice.ObjectAdapter adapter) {
+    public void doDestroy() {
 
         if (log.isInfoEnabled()) {
             log.info(String.format("Closing %s session", this));
@@ -582,7 +627,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
                     // Cleanup stateless
                     // -----------------
-                    unregisterServant(id, adapter);
+                    unregisterServant(id);
                 } else {
                     throw new ome.conditions.InternalException(
                             "Unknown servant type: " + servant);
@@ -700,13 +745,13 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * way necessary, based on the type of the servant.
      */
     protected Ice.ObjectPrx registerServant(Current current, Ice.Identity id,
-            Ice.Object servant) throws omero.InternalException {
+            Ice.Object servant) throws ServerError {
 
         Ice.ObjectPrx prx = null;
         try {
-            Ice.Object already = current.adapter.find(id);
+            Ice.Object already = adapter.find(id);
             if (null == already) {
-                prx = current.adapter.add(servant, id);
+                prx = adapter.add(servant, id);
                 if (log.isInfoEnabled()) {
                     log.info("Added servant to adapter: "
                             + servantString(id, servant));
@@ -755,7 +800,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * Now called by {@link ome.services.blitz.fire.SessionManagerI} in response
      * to an {@link UnregisterServantMessage}
      */
-    public void unregisterServant(Ice.Identity id, Ice.ObjectAdapter adapter) {
+    public void unregisterServant(Ice.Identity id) {
 
         // Here we assume that if the "close()" call is required, that it has
         // already been made, either by a user or by the SF.close() method in
@@ -785,12 +830,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     // Used for naming service factory instances and creating Ice.Identities
     // from Ice.Currents, etc.
 
-    public static Ice.Identity sessionId(Ice.Current current, String uuid)
-            throws ApiUsageException {
-        String clientId = clientId(current);
-        return sessionId(clientId, uuid);
-    }
-
+    /**
+     * Definition of session ids: "session-<CLIENTID>/<UUID>"
+     */
     public static Ice.Identity sessionId(String clientId, String uuid) {
         Ice.Identity id = new Ice.Identity();
         id.category = "session-" + clientId;
@@ -799,10 +841,23 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     }
 
-    public Ice.Identity sessionId(String uuid) {
-        return sessionId(clientId, uuid);
+    /**
+     * Returns the {@link Ice.Identity} for this instance as defined by
+     * {@link #sessionId(String, String)}
+     * 
+     * @return
+     */
+    public Ice.Identity sessionId() {
+        return sessionId(clientId, principal.getName());
     }
 
+    /**
+     * Helpers method to extract the {@link CLIENTUUID} out of the given
+     * Ice.Current. Throws an {@link ApiUsageException} if none is present,
+     * since it is each client's responsibility to set this value.
+     * 
+     * (Typically done in our SDKs)
+     */
     public static String clientId(Ice.Current current) throws ApiUsageException {
         String clientId = null;
         if (current.ctx != null) {

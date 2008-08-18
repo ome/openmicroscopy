@@ -103,13 +103,22 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     public interface ReturnMapping {
 
-        public Object mapReturnValue(Object value);
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException;
 
     }
 
+    public final static ReturnMapping OBJECT_TO_RTYPE = new ReturnMapping() {
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
+            return mapper.toRType(value);
+        }
+    };
+
     public final static ReturnMapping STRING_TO_RSTRING = new ReturnMapping() {
 
-        public Object mapReturnValue(Object value) {
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
             String str = (String) value;
             return new omero.RString(str);
         }
@@ -119,8 +128,8 @@ public class IceMapper extends ome.util.ModelMapper implements
         return mapping != null;
     }
 
-    public Object mapReturnValue(Object value) {
-        return mapping.mapReturnValue(value);
+    public Object mapReturnValue(Object value) throws Ice.UserException {
+        return mapping.mapReturnValue(this, value);
     }
 
     // Exception handling

@@ -67,7 +67,7 @@ public class Callback {
         try {
             Object retVal = invoker.invoke(service, current, mapper, args);
             response(retVal);
-        } catch (Ice.UserException e) {
+        } catch (Exception e) {
             exception(e);
         }
     }

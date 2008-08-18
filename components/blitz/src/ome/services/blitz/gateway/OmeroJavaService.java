@@ -33,14 +33,19 @@ import java.util.concurrent.ScheduledFuture;
 
 import Ice.Current;
 
+import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.util.BlitzOnly;
+import ome.services.blitz.util.ServiceFactoryAware;
 import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceFactoryPrxHelper;
 import omero.api._GatewayDisp;
 import omero.api.BufferedImage;
 import omero.api.ContainerClass;
+import omero.api._GatewayOperations;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -61,8 +66,8 @@ import omero.model.Project;
  * </small>
  * @since OME3.0
  */
-public class OmeroJavaService extends _GatewayDisp
-{		
+public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations, BlitzOnly
+{       
 
     private boolean closed;
     
@@ -89,20 +94,18 @@ public class OmeroJavaService extends _GatewayDisp
 	/** The thumbnail service. */
 	private ThumbnailService 	thumbnailService;
 	
-	private HeartBeatService heartbeatService;
-	
 	/**
-	 * Create the service factory which creates the gateway and services
+	 * Initialize the service factory which creates the gateway and services
 	 * and links the different services together.  
 	 * 
 	 * @param client an already existing client object.
 	 * @throws DSOutOfServiceException
 	 * @throws omero.ServerError
 	 */
-	public OmeroJavaService(ServiceFactoryPrx prx) 
-	throws omero.ServerError
+	public void setServiceFactory(ServiceFactoryI sf) throws ServerError
 	{
-		gatewayFactory = prx;
+	    Ice.Identity id = sf.sessionId();
+	    gatewayFactory = ServiceFactoryPrxHelper.checkedCast(sf.getAdapter().createProxy(id));
 		startServices();
 	}
 	/**
@@ -119,8 +122,6 @@ public class OmeroJavaService extends _GatewayDisp
 	 */
 	public void close()
 	{
-	    
-		heartbeatService.scheduler.shutdown();
 		dataService = null;
 		imageService = null;
 		fileService = null;
@@ -131,43 +132,6 @@ public class OmeroJavaService extends _GatewayDisp
 		closed = true;
 	}
 	
-	/**
-	 * Inner class which starts the heartbeat service, this keeps all services
-	 * alive in the session.
-	 */
-	class HeartBeatService
-	{
-		/**
-		 * We only need one thread. 
-		 */
-		private final ScheduledExecutorService	scheduler	=
-										Executors.newScheduledThreadPool(1);
-		/**
-		 * This starts the service.
-		 */
-		public void start()
-		{
-			final Runnable beat=new Runnable()
-			{
-				public void run() 
-				{
-					try{
-						keepAlive();
-					}catch(Exception e)
-					{
-					}
-				}
-			};
-			
-			/** 
-			 * handle to the service.
-			 */
-			final ScheduledFuture<?> beatHandle=
-					scheduler.scheduleAtFixedRate(beat, 10, 10, SECONDS);
-						
-		}
-	}
-	 
 	/**
 	 * Start all the services from the gatewayFactory.
 	 * @throws DSOutOfServiceException
@@ -194,8 +158,6 @@ public class OmeroJavaService extends _GatewayDisp
 		fileService = new FileServiceImpl(rawFileStoreService, 
 			gatewayFactory.getScriptService(), 
 			gatewayFactory.getQueryService());
-		heartbeatService = new HeartBeatService();
-		heartbeatService.start();
 	}
 	
 	/**
@@ -859,9 +821,9 @@ public class OmeroJavaService extends _GatewayDisp
 	 */
 	public double[][] getPlaneFromImage(long imageId, int z, int c, int t, Ice.Current current) throws  omero.ServerError
 	{
-		List<Pixels> pixels = getPixelsFromImage(imageId);
+		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlane(firstPixels.id.val, z, c, t);
+		return getPlane(firstPixels.id.val, z, c, t, current);
 	}
 	
 	/**
@@ -1062,7 +1024,7 @@ public class OmeroJavaService extends _GatewayDisp
 	{
 		List<Long> datasetIdList = new ArrayList();
 		datasetIdList.add(datasetId);
-		List<Dataset> datasets = getDatasets(datasetIdList, leaves);
+		List<Dataset> datasets = getDatasets(datasetIdList, leaves, current);
 		if(datasets.size()==1)
 			return datasets.get(0);
 		return null;
@@ -1073,13 +1035,14 @@ public class OmeroJavaService extends _GatewayDisp
 	
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) {
-        throw new UnsupportedOperationException();    
+        close();
+        __cb.ice_response();
     }
 
     public void getCurrentEventContext_async(
             AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             Current __current) throws ServerError {
-        throw new UnsupportedOperationException();
+        __cb.ice_exception(new omero.InternalException(null,null,"NYI"));
     }
 
 }

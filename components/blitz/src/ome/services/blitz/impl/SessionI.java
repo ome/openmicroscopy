@@ -72,7 +72,7 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void getInput_async(AMD_ISession_getInput __cb, String sess,
             String key, Current __current) throws ServerError {
-        IceMapper mapper = new IceMapper(IceMapper.STRING_TO_RSTRING);
+        IceMapper mapper = new IceMapper(IceMapper.OBJECT_TO_RTYPE);
         callInvokerOnMappedArgs(mapper, __cb, __current, sess, key);
 
     }
@@ -85,7 +85,7 @@ public class SessionI extends AbstractAmdServant implements _ISessionOperations 
 
     public void getOutput_async(AMD_ISession_getOutput __cb, String sess,
             String key, Current __current) throws ServerError {
-        IceMapper mapper = new IceMapper(IceMapper.STRING_TO_RSTRING);
+        IceMapper mapper = new IceMapper(IceMapper.OBJECT_TO_RTYPE);
         callInvokerOnMappedArgs(mapper, __cb, __current, sess, key);
     }
 

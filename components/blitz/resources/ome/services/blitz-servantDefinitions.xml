@@ -147,6 +147,12 @@
 
   <!-- Stateful ome.api service-based -->
 
+  <bean id="omero.api.Gateway" class="omero.api._GatewayTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.gateway.OmeroJavaService"/>
+    </constructor-arg>
+  </bean>
+
   <bean id="omero.api.JobHandle" class="omero.api._JobHandleTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.JobHandleI">
@@ -177,7 +183,7 @@
   <bean id="omero.api.RenderingEngine" class="omero.api._RenderingEngineTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RenderingEngineI">
-            <constructor-arg ref="managed-ome.api.RenderingEngine"/>
+            <constructor-arg ref="managed-omeis.providers.re.RenderingEngine"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -187,6 +193,15 @@
     <constructor-arg>
         <bean class="ome.services.blitz.impl.SearchI">
             <constructor-arg ref="managed-ome.api.Search"/>
+            <constructor-arg ref="throttlingStrategy"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
+  <bean id="omero.api.ThumbnailStore" class="omero.api._ThumbnailStoreTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.ThumbnailStoreI">
+            <constructor-arg ref="managed-ome.api.ThumbnailStore"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>

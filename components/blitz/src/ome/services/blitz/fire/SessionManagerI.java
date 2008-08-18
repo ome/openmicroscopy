@@ -7,7 +7,6 @@
 
 package ome.services.blitz.fire;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -65,13 +64,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
 
     protected OmeroContext context;
 
+    protected final Ice.ObjectAdapter adapter;
+
     protected final SecuritySystem securitySystem;
 
     protected final SessionManager sessionManager;
 
     protected final Executor executor;
-
-    protected final Set<String> sessionsForReaping = new HashSet<String>();
 
     /**
      * An internal mapping to all {@link ServiceFactoryI} instances for a given
@@ -80,8 +79,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      */
     protected final Map<String, Set<String>> sessionToClientIds = new ConcurrentHashMap<String, Set<String>>();
 
-    public SessionManagerI(SecuritySystem secSys,
+    public SessionManagerI(Ice.ObjectAdapter adapter, SecuritySystem secSys,
             SessionManager sessionManager, Executor executor) {
+        this.adapter = adapter;
         this.securitySystem = secSys;
         this.sessionManager = sessionManager;
         this.executor = executor;
@@ -96,8 +96,6 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     public Glacier2.SessionPrx create(String userId,
             Glacier2.SessionControlPrx control, Ice.Current current)
             throws CannotCreateSessionException {
-
-        reapSessions(current);
 
         Roles roles = securitySystem.getSecurityRoles();
 
@@ -121,7 +119,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             ServiceFactoryI session = new ServiceFactoryI(current, context,
                     sessionManager, executor, sp, CPTORS);
 
-            Ice.Identity id = session.sessionId(s.getUuid());
+            Ice.Identity id = session.sessionId();
             Ice.ObjectPrx _prx = current.adapter.add(session, id);
             if (!sessionToClientIds.containsKey(s.getUuid())) {
                 sessionToClientIds.put(s.getUuid(), new HashSet<String>());
@@ -175,7 +173,8 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             // And unregister the service if possible
             Ice.Identity id;
             try {
-                id = ServiceFactoryI.sessionId(curr, curr.id.category);
+                String clientId = ServiceFactoryI.clientId(curr);
+                id = ServiceFactoryI.sessionId(clientId, curr.id.category);
             } catch (ApiUsageException e) {
                 throw new RuntimeException(
                         "Could not unregister servant: could not create session id");
@@ -183,16 +182,13 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             Ice.Object obj = curr.adapter.find(id);
             if (obj instanceof ServiceFactoryI) {
                 ServiceFactoryI sf = (ServiceFactoryI) obj;
-                sf.unregisterServant(Ice.Util.stringToIdentity(key),
-                        curr.adapter);
+                sf.unregisterServant(Ice.Util.stringToIdentity(key));
+            } else {
+                log.warn("Not a ServiceFactory: " + obj);
             }
         } else if (event instanceof DestroySessionMessage) {
-            // Cannot destroy here without an ObjectAdapter instance.
-            // Instead, registering for later reaping.
             DestroySessionMessage msg = (DestroySessionMessage) event;
-            synchronized (sessionsForReaping) {
-                sessionsForReaping.add(msg.getSessionId());
-            }
+            reapSession(msg.getSessionId());
         }
     }
 
@@ -208,33 +204,26 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
      *            for reaping the given sessions except to get the current
      *            {@link Ice.ObjectAdapter}
      */
-    public void reapSessions(Ice.Current cantUseThisCurrent) {
-        Ice.ObjectAdapter adapter = cantUseThisCurrent.adapter;
-        synchronized (sessionsForReaping) {
-            List<String> sessionIds = new ArrayList<String>(sessionsForReaping);
-            for (String sessionId : sessionIds) {
-                Set<String> clientIds = sessionToClientIds.keySet();
-                for (String clientId : clientIds) {
-                    try {
-                        Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
-                                sessionId);
-                        Ice.Object obj = adapter.find(iid);
-                        if (obj == null) {
-                            log.debug(Ice.Util.identityToString(iid)
-                                    + " already removed.");
-                        } else {
-                            ServiceFactoryI sf = (ServiceFactoryI) obj;
-                            sf.doDestroy(adapter);
-                        }
-                    } catch (Exception e) {
-                        log.error("Error reaping session " + sessionId
-                                + " from client " + clientId, e);
-                    }
+    public void reapSession(String sessionId) {
+        Set<String> clientIds = sessionToClientIds.keySet();
+        for (String clientId : clientIds) {
+            try {
+                Ice.Identity iid = ServiceFactoryI.sessionId(clientId,
+                        sessionId);
+                Ice.Object obj = adapter.find(iid);
+                if (obj == null) {
+                    log.debug(Ice.Util.identityToString(iid)
+                            + " already removed.");
+                } else {
+                    ServiceFactoryI sf = (ServiceFactoryI) obj;
+                    sf.doDestroy();
                 }
-                sessionToClientIds.remove(sessionId);
-                sessionsForReaping.remove(sessionId);
+            } catch (Exception e) {
+                log.error("Error reaping session " + sessionId
+                        + " from client " + clientId, e);
             }
         }
+        sessionToClientIds.remove(sessionId);
     }
 
     // Helpers

@@ -70,18 +70,20 @@ public class AbstractAmdServant implements ApplicationContextAware {
     public final void applyHardWiredInterceptors(
             List<HardWiredInterceptor> cptors, AopContextInitializer initializer) {
 
-        ProxyFactory wiredService = new ProxyFactory();
-        wiredService.setInterfaces(service.getClass().getInterfaces());
-        wiredService.setTarget(service);
+        if (service != null) {
+            ProxyFactory wiredService = new ProxyFactory();
+            wiredService.setInterfaces(service.getClass().getInterfaces());
+            wiredService.setTarget(service);
 
-        List<HardWiredInterceptor> reversed = new ArrayList<HardWiredInterceptor>(
-                cptors);
-        Collections.reverse(reversed);
-        for (HardWiredInterceptor hwi : reversed) {
-            wiredService.addAdvice(0, hwi);
+            List<HardWiredInterceptor> reversed = new ArrayList<HardWiredInterceptor>(
+                    cptors);
+            Collections.reverse(reversed);
+            for (HardWiredInterceptor hwi : reversed) {
+                wiredService.addAdvice(0, hwi);
+            }
+            wiredService.addAdvice(0, initializer);
+            service = (ServiceInterface) wiredService.getProxy();
         }
-        wiredService.addAdvice(0, initializer);
-        service = (ServiceInterface) wiredService.getProxy();
     }
 
     public final void callInvokerOnRawArgs(Object __cb, Ice.Current __current,

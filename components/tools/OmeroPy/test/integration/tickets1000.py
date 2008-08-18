@@ -11,6 +11,12 @@
 import test.integration.library as lib
 import omero, tempfile, unittest
 
+# Reused bits
+params = omero.sys.Parameters()
+params.theFilter = omero.sys.Filter()
+params.theFilter.limit = omero.RInt(1)
+params.theFilter.offset = omero.RInt(1)
+
 class TestTicket1000(lib.ITest):
 
     def test711(self):
@@ -27,7 +33,7 @@ class TestTicket1000(lib.ITest):
             pass
 
     def test880(self):
-        i = self.client.sf.getQueryService().findAll("Image",None)[0]
+        i = self.client.sf.getQueryService().findAll("Image", params.theFilter)[0]
         self.assert_(i != None)
         self.assert_(i.id != None)
         self.assert_(i.details != None)
@@ -35,7 +41,7 @@ class TestTicket1000(lib.ITest):
     def test883WithoutClose(self):
         s = self.client.sf.createSearchService()
         s.onlyType("Image")
-        s.byFullText("root")
+        s.byHqlQuery("select i from Image i", params)
         if s.hasNext():
             s.results()
         #s.close()
@@ -43,18 +49,21 @@ class TestTicket1000(lib.ITest):
     def test883WithClose(self):
         s = self.client.sf.createSearchService()
         s.onlyType("Dataset")
-        s.byFullText("root")
+        s.byHqlQuery("select d from Dataset d", params)
         if s.hasNext():
             s.results()
         s.close()
 
     def test883Upload(self):
-        
+
         search = self.client.getSession().createSearchService()
         search.onlyType("OriginalFile")
-        search.byFullText("stderr")
-        ofile = search.next()
-        
+        search.byHqlQuery("select o from OriginalFile o where o.name = 'stderr'", params.theFilter)
+        if search.hasNext():
+            ofile = search.next()
+        else:
+            self.fail(""" "stderr" not found in index """)
+
         tmpfile = self.tmpfile()
         self.client.download(ofile, tmpfile.name)
         search.close()
@@ -73,7 +82,7 @@ class TestTicket1000(lib.ITest):
     def test989(self):
 
         try:
-           d = self.client.sf.getQueryService().findAllByQuery("select d from Dataset d where name = 'ticket989'",None)[0] 
+           d = self.client.sf.getQueryService().findAllByQuery("select d from Dataset d where name = 'ticket989'",None)[0]
         except:
             self.fail("No dataset named ticket989 found")
 
