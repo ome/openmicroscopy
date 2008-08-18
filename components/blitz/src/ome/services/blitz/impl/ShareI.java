@@ -12,6 +12,7 @@ import java.util.List;
 import ome.api.IShare;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.RTime;
+import omero.ServerError;
 import omero.ValidationException;
 import omero.api.AMD_IShare_activate;
 import omero.api.AMD_IShare_addComment;
@@ -25,6 +26,7 @@ import omero.api.AMD_IShare_addUsers;
 import omero.api.AMD_IShare_closeShare;
 import omero.api.AMD_IShare_createShare;
 import omero.api.AMD_IShare_deleteComment;
+import omero.api.AMD_IShare_getActiveConnections;
 import omero.api.AMD_IShare_getAllGuests;
 import omero.api.AMD_IShare_getAllMembers;
 import omero.api.AMD_IShare_getAllShares;
@@ -34,11 +36,14 @@ import omero.api.AMD_IShare_getContentMap;
 import omero.api.AMD_IShare_getContentSize;
 import omero.api.AMD_IShare_getContentSubList;
 import omero.api.AMD_IShare_getContents;
+import omero.api.AMD_IShare_getEvents;
 import omero.api.AMD_IShare_getMemberShares;
 import omero.api.AMD_IShare_getMemberSharesFor;
 import omero.api.AMD_IShare_getOwnShares;
+import omero.api.AMD_IShare_getPastConnections;
 import omero.api.AMD_IShare_getShare;
 import omero.api.AMD_IShare_getSharesOwnedBy;
+import omero.api.AMD_IShare_invalidateConnection;
 import omero.api.AMD_IShare_removeGuest;
 import omero.api.AMD_IShare_removeGuests;
 import omero.api.AMD_IShare_removeObject;
@@ -89,12 +94,6 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
 
     }
 
-    public void addGuests_async(AMD_IShare_addGuests __cb, long shareId,
-            String[] emailAddresses, Current __current) {
-        serviceInterfaceCall(__cb, __current, shareId, emailAddresses);
-
-    }
-
     public void addObject_async(AMD_IShare_addObject __cb, long shareId,
             IObject iobject, Current __current) {
         serviceInterfaceCall(__cb, __current, shareId, iobject);
@@ -128,15 +127,6 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
     public void closeShare_async(AMD_IShare_closeShare __cb, long shareId,
             Current __current) {
         serviceInterfaceCall(__cb, __current, shareId);
-
-    }
-
-    public void createShare_async(AMD_IShare_createShare __cb,
-            String description, RTime expiration, List<IObject> items,
-            List<Experimenter> exps, String[] guests, boolean enabled,
-            Current __current) {
-        serviceInterfaceCall(__cb, __current, description, expiration, items,
-                exps, guests, enabled);
 
     }
 
@@ -236,12 +226,6 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
 
     }
 
-    public void removeGuests_async(AMD_IShare_removeGuests __cb, long shareId,
-            String[] emailAddresses, Current __current) {
-        serviceInterfaceCall(__cb, __current, shareId, emailAddresses);
-
-    }
-
     public void removeObject_async(AMD_IShare_removeObject __cb, long shareId,
             IObject iobject, Current __current) {
         serviceInterfaceCall(__cb, __current, shareId, iobject);
@@ -282,6 +266,48 @@ public class ShareI extends AbstractAmdServant implements _IShareOperations {
             long shareId, RTime expiration, Current __current) {
         serviceInterfaceCall(__cb, __current, shareId, expiration);
 
+    }
+
+    public void addGuests_async(AMD_IShare_addGuests __cb, long shareId,
+            List<String> emailAddresses, Current __current) throws ServerError {
+        serviceInterfaceCall(__cb, __current, emailAddresses);
+
+    }
+
+    public void createShare_async(AMD_IShare_createShare __cb,
+            String description, RTime expiration, List<IObject> items,
+            List<Experimenter> exps, List<String> guests, boolean enabled,
+            Current __current) throws ServerError {
+        serviceInterfaceCall(__cb, __current, description, expiration, items,
+                exps, guests, enabled);
+    }
+
+    public void getActiveConnections_async(
+            AMD_IShare_getActiveConnections __cb, long shareId,
+            Current __current) throws ServerError {
+        serviceInterfaceCall(__cb, __current, shareId);
+    }
+
+    public void getEvents_async(AMD_IShare_getEvents __cb, long shareId,
+            Experimenter exp, RTime from, RTime to, Current __current)
+            throws ServerError {
+        serviceInterfaceCall(__cb, __current, shareId, exp, from, to);
+    }
+
+    public void getPastConnections_async(AMD_IShare_getPastConnections __cb,
+            long shareId, Current __current) throws ServerError {
+        serviceInterfaceCall(__cb, __current, shareId);
+    }
+
+    public void invalidateConnection_async(
+            AMD_IShare_invalidateConnection __cb, long shareId,
+            Experimenter exp, Current __current) throws ServerError {
+        serviceInterfaceCall(__cb, __current, shareId, exp);
+    }
+
+    public void removeGuests_async(AMD_IShare_removeGuests __cb, long shareId,
+            List<String> emailAddresses, Current __current) throws ServerError {
+        serviceInterfaceCall(__cb, __current, shareId, emailAddresses);
     }
 
 }

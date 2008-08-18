@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """
-   Simple integration test which makes various calls on the
-   a running server.
+   Attempt to write a full api test.
 
    Copyright 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -20,12 +19,22 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 
-class TestSimple(lib.ITest):
+class TestApi(lib.ITest):
 
-    def testCurrentUser(self):
-        admin = self.client.sf.getAdminService()
-        ec = admin.getEventContext()
-        self.assert_(ec)
+    def testThumbnail(self):
+        q = self.client.sf.getQueryService()
+
+        # Filter to only get one possible pixels
+        f = omero.sys.Filter()
+        f.offset = omero.RInt(0)
+        f.limit  = omero.RInt(1)
+        p = omero.sys.Parameters()
+        p.theFilter = f
+
+        pixel = q.findByQuery("select p from Thumbnail t join fetch Pixels p", p)
+        tstore = self.client.sf.createThumbnailStore()
+        tstore.setPixelsId(pixel.id.val)
+        tstore.getThumbnail(omero.RInt(16), omero.RInt(16))
 
 if __name__ == '__main__':
     unittest.main()

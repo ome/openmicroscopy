@@ -241,53 +241,58 @@ module omero {
 
 	["ami", "amd"] interface IShare extends ServiceInterface
 	{
-	    void activate(long shareId);
-	    omero::model::Share getShare(long shareId);
-	    SessionList getAllShares(bool active);
-	    SessionList getOwnShares(bool active);
-	    SessionList getMemberShares(bool active);
-	    SessionList getSharesOwnedBy(omero::model::Experimenter user, bool active);
-	    SessionList getMemberSharesFor(omero::model::Experimenter user, bool active);
-	    IObjectList getContents(long shareId);
-	    IObjectList getContentSubList(long shareId, int start, int finish);
-	    int getContentSize(long shareId);
-	    IdListMap getContentMap(long shareId);
+	    void activate(long shareId) throws ServerError;
+	    omero::model::Share getShare(long shareId) throws ServerError;
+	    SessionList getAllShares(bool active) throws ServerError;
+	    SessionList getOwnShares(bool active) throws ServerError;
+	    SessionList getMemberShares(bool active) throws ServerError;
+	    SessionList getSharesOwnedBy(omero::model::Experimenter user, bool active) throws ServerError;
+	    SessionList getMemberSharesFor(omero::model::Experimenter user, bool active) throws ServerError;
+	    IObjectList getContents(long shareId) throws ServerError;
+	    IObjectList getContentSubList(long shareId, int start, int finish) throws ServerError;
+	    int getContentSize(long shareId) throws ServerError;
+	    IdListMap getContentMap(long shareId) throws ServerError;
 
 	    long createShare(string description,
 			     omero::RTime expiration,
 			     IObjectList items,
 			     ExperimenterList exps,
-			     Ice::StringSeq guests,
-			     bool enabled);
-	    void setDescription(long shareId, string description);
-	    void setExpiration(long shareId, omero::RTime expiration);
-	    void setActive(long shareId, bool active);
-	    void closeShare(long shareId);
+			     StringSet guests,
+			     bool enabled) throws ServerError;
+	    void setDescription(long shareId, string description) throws ServerError;
+	    void setExpiration(long shareId, omero::RTime expiration) throws ServerError;
+	    void setActive(long shareId, bool active) throws ServerError;
+	    void closeShare(long shareId) throws ServerError;
 
-	    void addObjects(long shareId, IObjectList iobjects);
-	    void addObject(long shareId, omero::model::IObject iobject);
-	    void removeObjects(long shareId, IObjectList iobjects);
-	    void removeObject(long shareId, omero::model::IObject iobject);
+	    void addObjects(long shareId, IObjectList iobjects) throws ServerError;
+	    void addObject(long shareId, omero::model::IObject iobject) throws ServerError;
+	    void removeObjects(long shareId, IObjectList iobjects) throws ServerError;
+	    void removeObject(long shareId, omero::model::IObject iobject) throws ServerError;
 
-	    AnnotationList getComments(long shareId);
-	    omero::model::TextAnnotation addComment(long shareId, string comment);
+	    AnnotationList getComments(long shareId) throws ServerError;
+	    omero::model::TextAnnotation addComment(long shareId, string comment) throws ServerError;
 	    omero::model::TextAnnotation addReply(long shareId,
 						  string comment,
-						  omero::model::TextAnnotation replyTo);
-	    void deleteComment(omero::model::Annotation comment);
+						  omero::model::TextAnnotation replyTo) throws ServerError;
+	    void deleteComment(omero::model::Annotation comment) throws ServerError;
 
-	    ExperimenterList getAllMembers(long shareId);
-	    Ice::StringSeq getAllGuests(long shareId);
-	    Ice::StringSeq getAllUsers(long shareId) throws ValidationException;
-	    void addUsers(long shareId, ExperimenterList exps);
-	    void addGuests(long shareId, Ice::StringSeq emailAddresses);
-	    void removeUsers(long shareId, ExperimenterList exps);
-	    void removeGuests(long shareId, Ice::StringSeq emailAddresses);
-	    void addUser(long shareId, omero::model::Experimenter exp);
-	    void addGuest(long shareId, string emailAddress);
-	    void removeUser(long shareId, omero::model::Experimenter exp);
-	    void removeGuest(long shareId, string emailAddress);
+	    ExperimenterList getAllUsers(long shareId) throws ServerError;
+	    StringSet getAllGuests(long shareId) throws ServerError;
+	    StringSet getAllMembers(long shareId) throws ValidationException, ServerError;
+	    void addUsers(long shareId, ExperimenterList exps) throws ServerError;
+	    void addGuests(long shareId, StringSet emailAddresses) throws ServerError;
+	    void removeUsers(long shareId, ExperimenterList exps) throws ServerError;
+	    void removeGuests(long shareId, StringSet emailAddresses) throws ServerError;
+	    void addUser(long shareId, omero::model::Experimenter exp) throws ServerError;
+	    void addGuest(long shareId, string emailAddress) throws ServerError;
+	    void removeUser(long shareId, omero::model::Experimenter exp) throws ServerError;
+	    void removeGuest(long shareId, string emailAddress) throws ServerError;
 
+            // Under construction
+            UserMap getActiveConnections(long shareId) throws ServerError;
+            UserMap getPastConnections(long shareId) throws ServerError;
+            void invalidateConnection(long shareId, omero::model::Experimenter exp) throws ServerError;
+            IObjectList getEvents(long shareId, omero::model::Experimenter exp, omero::RTime from, omero::RTime to) throws ServerError;
 	};
 
 	["ami", "amd"] interface ITypes extends ServiceInterface

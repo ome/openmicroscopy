@@ -33,7 +33,12 @@ def run(args,\
     Debugging can more simply be turned on by passing True for the debug argument.
     If more control over the debugging configuration is needed, pass debug_string.
     """
-    java = [java] # Convert string to an array for appending
+
+    # Convert strings to an array for appending
+    if isinstance(java,str):
+        java = [java]
+    if isinstance(xargs,str):
+        xargs = [xargs]
 
     # Preapre arguments
     if xargs == None:
@@ -53,6 +58,10 @@ def run(args,\
     # Add the actual arguments now
     java += args
 
+    print use_exec
+    print java
+    print xargs
+    print debug
     if use_exec:
         env = os.environ
         print java[2]
@@ -62,7 +71,8 @@ def run(args,\
         PATH = makeVar("PATH")
         LIBS = makeVar("LIBS")
         LIBM = makeVar("LIBM")
-        command  = env+PATH+LIBS+LIBM+java+args
+        command  = env+PATH+LIBS+LIBM+java
+        print command
 
         import subprocess
         output = subprocess.Popen(command, stdout=subprocess.PIPE).communicate()[0]

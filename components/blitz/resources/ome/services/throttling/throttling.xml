@@ -23,15 +23,10 @@
   handles memory usage semantics.  
   </description>
 
-  <alias name="serialThrottlingStrategy" alias="throttlingStrategy"/>
+  <alias name="inThreadThrottlingStrategy" alias="throttlingStrategy"/>
+
+  <bean id="inThreadThrottlingStrategy" class="ome.services.throttling.InThreadThrottlingStrategy"/>
 
   <bean id="serialThrottlingStrategy" class="ome.services.throttling.SerialThrottlingStrategy"/>
-
-  <!-- Servants =============================================================-->
-
-  <bean id="omero.api.IConfig" class="ome.services.blitz.impl.ThrottledConfigI">
-    <constructor-arg ref="managed:ome.api.IConfig"/>
-    <constructor-arg ref="throttlingStrategy"/>
-  </bean>
   
 </beans>

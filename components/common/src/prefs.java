@@ -129,7 +129,7 @@ public class prefs {
                 "  keys                  :  list all keys for the current profile",
                 "  load [FILE...]        :  read into current profile from a file or standard in (error on conflict)",
                 "  load_nowarn [FILE...] :  read current profile from a file or standard in",
-                "  set KEY=VALUE         :  set value on current profile",
+                "  set KEY VALUE         :  set value on current profile",
                 "  sys COMMANDS          :  applies commands as above to system preferences",
                 "                                                                  ",
                 "Note: profiles are created on demand. Later properties override earlier ones." };

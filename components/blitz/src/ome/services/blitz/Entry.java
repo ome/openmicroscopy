@@ -74,7 +74,7 @@ public class Entry {
             // seen by the Ice.Communicator.
             for (String string : args) {
                 if (string.startsWith("--Ice.Config")) {
-                    System.setProperty("ICE_CONFIG", string);
+                    System.setProperty("ICE_CONFIG", string.substring(13));
                 } else {
                     name = string;
                 }

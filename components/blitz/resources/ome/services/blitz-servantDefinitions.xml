@@ -36,7 +36,7 @@
   <bean id="omero.api.IAdmin" class="omero.api._IAdminTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.AdminI">
-            <constructor-arg ref="internal:ome.api.IAdmin"/>
+            <constructor-arg ref="internal-ome.api.IAdmin"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -45,7 +45,7 @@
   <bean id="omero.api.IConfig" class="omero.api._IConfigTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ConfigI">
-            <constructor-arg ref="internal:ome.api.IConfig"/>
+            <constructor-arg ref="internal-ome.api.IConfig"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -54,7 +54,7 @@
   <bean id="omero.api.IDelete" class="omero.api._IDeleteTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.DeleteI">
-            <constructor-arg ref="internal:ome.api.IDelete"/>
+            <constructor-arg ref="internal-ome.api.IDelete"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -63,7 +63,7 @@
   <bean id="omero.api.IPixels" class="omero.api._IPixelsTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.PixelsI">
-            <constructor-arg ref="internal:ome.api.IPixels"/>
+            <constructor-arg ref="internal-ome.api.IPixels"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -72,7 +72,7 @@
   <bean id="omero.api.IPojos" class="omero.api._IPojosTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.PojosI">
-            <constructor-arg ref="internal:ome.api.IPojos"/>
+            <constructor-arg ref="internal-ome.api.IPojos"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -81,7 +81,7 @@
   <bean id="omero.api.IQuery" class="omero.api._IQueryTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.QueryI">
-            <constructor-arg ref="internal:ome.api.IQuery"/>
+            <constructor-arg ref="internal-ome.api.IQuery"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -90,7 +90,7 @@
   <bean id="omero.api.IRenderingSettings" class="omero.api._IRenderingSettingsTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RenderingSettingsI">
-            <constructor-arg ref="internal:ome.api.IRenderingSettings"/>
+            <constructor-arg ref="internal-ome.api.IRenderingSettings"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -99,7 +99,7 @@
   <bean id="omero.api.IRepositoryInfo" class="omero.api._IRepositoryInfoTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RepositoryInfoI">
-            <constructor-arg ref="internal:ome.api.IRepositoryInfo"/>
+            <constructor-arg ref="internal-ome.api.IRepositoryInfo"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -108,7 +108,7 @@
   <bean id="omero.api.ISession" class="omero.api._ISessionTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.SessionI">
-            <constructor-arg ref="internal:ome.api.ISession"/>
+            <constructor-arg ref="internal-ome.api.ISession"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -117,7 +117,7 @@
   <bean id="omero.api.IShare" class="omero.api._IShareTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ShareI">
-            <constructor-arg ref="internal:ome.api.IShare"/>
+            <constructor-arg ref="internal-ome.api.IShare"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -126,7 +126,7 @@
   <bean id="omero.api.ITypes" class="omero.api._ITypesTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.TypesI">
-            <constructor-arg ref="internal:ome.api.ITypes"/>
+            <constructor-arg ref="internal-ome.api.ITypes"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -135,7 +135,7 @@
   <bean id="omero.api.IUpdate" class="omero.api._IUpdateTie">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.UpdateI">
-            <constructor-arg ref="internal:ome.api.IUpdate"/>
+            <constructor-arg ref="internal-ome.api.IUpdate"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -146,7 +146,7 @@
   <bean id="omero.api.JobHandle" class="omero.api._JobHandleTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.JobHandleI">
-            <constructor-arg ref="internal:ome.api.JobHandle"/>
+            <constructor-arg ref="internal-ome.api.JobHandle"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -155,7 +155,7 @@
   <bean id="omero.api.RawFileStore" class="omero.api._RawFileStoreTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RawFileStoreI">
-            <constructor-arg ref="internal:ome.api.RawFileStore"/>
+            <constructor-arg ref="internal-ome.api.RawFileStore"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -164,7 +164,7 @@
   <bean id="omero.api.RawPixelsStore" class="omero.api._RawPixelsStoreTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RawPixelsStoreI">
-            <constructor-arg ref="internal:ome.api.RawPixelsStore"/>
+            <constructor-arg ref="internal-ome.api.RawPixelsStore"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -173,7 +173,7 @@
   <bean id="omero.api.RenderingEngine" class="omero.api._RenderingEngineTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RenderingEngineI">
-            <constructor-arg ref="internal:ome.api.RenderingEngine"/>
+            <constructor-arg ref="internal-ome.api.RenderingEngine"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -182,7 +182,7 @@
   <bean id="omero.api.Search" class="omero.api._SearchTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.SearchI">
-            <constructor-arg ref="internal:ome.api.Search"/>
+            <constructor-arg ref="internal-ome.api.Search"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
@@ -191,7 +191,7 @@
   <bean id="omero.api.ThumbnailStore" class="omero.api._ThumbnailStoreTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.ThumbnailStoreI">
-            <constructor-arg ref="internal:ome.api.ThumbnailStore"/>
+            <constructor-arg ref="internal-ome.api.ThumbnailStore"/>
             <constructor-arg ref="throttlingStrategy"/>
         </bean>
     </constructor-arg>
