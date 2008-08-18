@@ -6,80 +6,24 @@
  *
  */
 
-#ifndef omero_Gateway
-#define omero_Gateway
+#ifndef OMERO_GATEWAY_ICE
+#define OMERO_GATEWAY_ICE
 
-#include <omero/fwd.ice>
-#include <omero/RTypes.ice>
+#include <omero/API.ice>
+#include <omero/ServerErrors.ice>
 
 module omero {
 
-    module constants {
-
-        const string GATEWAY = "omero.gateways.PrimaryGateway";
-
-    };
-
-    module gateways {
-
-        // Exceptions
-        // =====================================================================
-
-        exception DSOutOfServiceException
-        {
-	    string message;
-	    string cause;
-        };
-
-        exception DSAccessException
-        {
-	    string message;
-	    string cause;
-        };
-
-        // Collections
-        // =====================================================================
-
-        ["java:type:java.util.ArrayList<omero.model.IObject>:java.util.List<omero.model.IObject>"]
-            sequence<omero::model::IObject> IObjectList;
-
-        ["java:type:java.util.ArrayList<omero.model.Project>:java.util.List<omero.model.Project>"]
-            sequence<omero::model::Project> ProjectList;
-
-        ["java:type:java.util.ArrayList<omero.model.Dataset>:java.util.List<omero.model.Dataset>"]
-            sequence<omero::model::Dataset> DatasetList;
-
-        ["java:type:java.util.ArrayList<omero.model.Image>:java.util.List<omero.model.Image>"]
-            sequence<omero::model::Image> ImageList;
-
-        ["java:type:java.util.ArrayList<omero.model.Pixels>:java.util.List<omero.model.Pixels>"]
-            sequence<omero::model::Pixels> PixelsList;
-
-        ["java:type:java.util.ArrayList<omero.model.PixelsType>:java.util.List<omero.model.PixelsType>"]
-            sequence<omero::model::PixelsType> PixelsTypeList;
-
-        ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
-            sequence<long> LongList;
-
-        ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
-            sequence<int> IntegerList;
-
-        sequence<byte> ByteArray;
-        sequence<int> IntegerArray;
-        sequence<double> DoubleArray;
-        sequence<IntegerArray> IntegerArrayArray;
-        sequence<IntegerArrayArray> IntegerArrayArrayArray;
-        sequence<DoubleArray> DoubleArrayArray;
-        sequence<DoubleArrayArray> DoubleArrayArrayArray;
-
-        dictionary<long, string> LongStringMap;
-        dictionary<long, ByteArray> LongByteArrayMap;
-        dictionary<long, omero::model::Pixels> LongPixelsMap;
-        dictionary<string, omero::RType> StringRTypeMap;
+    module api {
 
         // Data objects
         // =====================================================================
 
+	/*
+	 * Simple wrapper around an array of packed ints. Individual language
+	 * mappings may want to add a subclass to the ObjectFactory for working
+	 * with a visual representation of the ints.
+	 */
         class BufferedImage
         {
             IntegerArray packedInts;
@@ -94,10 +38,17 @@ module omero {
             Image
         };
 
-        // Services
+        // Gateway Service
         // =====================================================================
 
-        ["ami"] interface PrimaryGateway {
+	/*
+	 * High-level service which provides a single interface for most client
+	 * activities. Each stateful Gateway instance internally manages multiple
+	 * other stateful instances (RenderingEngine, ThumbnailStore, etc.) significantly
+	 * simplyifing usage.
+	 */
+        ["ami"] interface Gateway extends StatefulServiceInterface
+	{
 
             /*
              * Get the projects, and datasets in the OMERO.Blitz server in the user
@@ -106,22 +57,20 @@ module omero {
              * projects from the users account.
              * @param withLeaves get the projects, images and pixels too.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent ProjectList getProjects(LongList ids, bool withLeaves)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the datasets in the OMERO.Blitz server in the projects ids.
              * @param ids of the datasets to retrieve, if null get all users datasets.
              * @param withLeaves get the images and pixels too.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent DatasetList getDatasets(LongList ids, bool withLeaves)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
 
             /*
@@ -129,32 +78,29 @@ module omero {
              * @param id of the dataset to retrieve
              * @param withLeaves get the images and pixels too.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent omero::model::Dataset getDataset(long datasetId, bool leaves)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the pixels associated with the image, this is normally one pixels per
              * image, but can be more.
              * @param imageId
              * @return the list of pixels.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent PixelsList getPixelsFromImage(long imageId)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the image with id
              * @param id see above
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent omero::model::Image getImage(long id)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the images in the OMERO.Blitz server from the object parentType with
@@ -162,22 +108,20 @@ module omero {
              * @param parentType see above.
              * @param ids see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent ImageList getImages(ContainerClass parentType, LongList ids )
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Run the query passed as a string in the iQuery interface. This method will
              * return list of objects.
              * @param myQuery string containing the query.
              * @return the result.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent IObjectList findAllByQuery(string myQuery)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Run the query passed as a string in the iQuery interface.
@@ -185,11 +129,10 @@ module omero {
              * one result is to be returned the method will throw an exception.
              * @param myQuery string containing the query.
              * @return the result.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent omero::model::IObject findByQuery(string myQuery)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the raw plane for the pixels pixelsId, this returns a 2d array
@@ -199,24 +142,20 @@ module omero {
              * @param t the time point to retrieve.
              * @param z the z section to retrieve.
              * @return The raw plane in 2-d array of doubles.
-             * @throws DSAccessException
-             * @throws DSOutOfServiceException
+             * @throws omero::ServerError
              */
             idempotent DoubleArrayArray getPlane(long pixelsId, int z, int c, int t)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the pixels information for an image, this method will also
              * attach the logical channels, channels, and other metadata in the pixels.
              * @param pixelsId image id relating to the pixels.
              * @return see above.
-             * @throws DSAccessException
-             * @throws DSOutOfServiceException
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent omero::model::Pixels getPixels(long pixelsId)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Copy the pixels to a new pixels, this is only the data object
@@ -232,11 +171,10 @@ module omero {
              * @param methodology user supplied text, describing the methods that
              * created the pixels.
              * @return new id.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             long copyPixelsXYTZ(long pixelsID, int x, int y, int t, int z, IntegerList channelList, string methodology)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Copy the pixels to a new pixels, this is only the data object
@@ -248,11 +186,10 @@ module omero {
              * @param methodology user supplied text, describing the methods that
              * created the pixels.
              * @return new id.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             long copyPixels(long pixelsID, IntegerList channelList, string methodology)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Copy the image and it's attached pixels and
@@ -266,11 +203,10 @@ module omero {
              * @param channelList the list of channels to copy, [0-(sizeC-1)].
              * @param imageName The new imageName.
              * @return new id.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             long copyImage(long imageId, int x, int y, int t, int z, IntegerList channelList, string imageName)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Upload the plane to the server, on pixels id with channel and the
@@ -281,110 +217,99 @@ module omero {
              * @param c channel.
              * @param t time point.
              * @param data plane data.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent void uploadPlane(long pixelsId, int z, int c, int t, DoubleArrayArray data)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Update the pixels object on the server, updating appropriate tables in the
              * database and returning a new copy of the pixels.
              * @param object see above.
              * @return the new updated pixels.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent omero::model::Pixels updatePixels(omero::model::Pixels pixels)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get a list of all the possible pixelsTypes in the server.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent PixelsTypeList getPixelTypes()
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the pixelsType for type of name type.
              * @param type see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent omero::model::PixelsType getPixelType(string type)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the scripts from the iScript Service.
              * @return All the available scripts in a map by id and name.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent LongStringMap getScripts()
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the id of the script with name
              * @param name name of the script.
              * @return the id of the script.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent long getScriptID(string name)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Upload the script to the server.
              * @param script script to upload
              * @return id of the new script.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             long uploadScript(string script)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the script with id, this returns the actual script as a string.
              * @param id id of the script to retrieve.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent string getScript(long id)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the parameters the script takes, this is a map of the parameter name and type.
              * @param id id of the script.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent StringRTypeMap getParams(long id)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Run the script and get the results returned as a name , value map.
              * @param id id of the script to run.
              * @param map the map of parameters, values for inputs.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             StringRTypeMap runScript(long id, StringRTypeMap map)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Delete the script with id from the server.
              * @param id id of the script to delete.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void deleteScript(long id)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the zSection stack from the pixels at timepoint t
@@ -392,11 +317,10 @@ module omero {
              * @param c The channel.
              * @param t The time-point.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent DoubleArrayArrayArray getPlaneStack(long pixelId, int c, int t)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Render the pixels for the zSection z and timePoint t.
@@ -404,11 +328,10 @@ module omero {
              * @param z z section to render
              * @param t timepoint to render
              * @return The image as a buffered image.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent BufferedImage getRenderedImage(long pixelsId, int z, int t)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Render the pixels for the zSection z and timePoint t.
@@ -417,11 +340,10 @@ module omero {
              * @param t timepoint to render
              * @return The image as a 3d array where it represents the image as
              * [x][y][channel]
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent IntegerArrayArrayArray getRenderedImageMatrix(long pixelsId, int z, int t)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Render the pixels for the zSection z and timePoint t.
@@ -430,11 +352,10 @@ module omero {
              * @param t timepoint to render
              * @return The pixels are returned as 4 bytes representing the r,g,b,a of
              * image.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent IntegerArray renderAsPackedInt(long pixelsId, int z, int t)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Set the active channels to be on or off in the rendering engine for
@@ -442,66 +363,60 @@ module omero {
              * @param pixelsId the pixels id.
              * @param w the channel
              * @param active set active?
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void setActive(long pixelsId, int w, bool active)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Is the channel active, turned on in the rendering engine.
              * @param pixelsId the pixels id.
              * @param w channel
              * @return true if the channel active.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent bool isActive(long pixelsId, int w)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Get the default zSection of the image, this is the zSection the image
              * should open on when an image viewer is loaded.
              * @param pixelsId the pixelsId of the image.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent int getDefaultZ(long pixelsId)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Get the default time-point of the image, this is the time-point the image
              * should open on when an image viewer is loaded.
              * @param pixelsId the pixelsId of the image.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent int getDefaultT(long pixelsId)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Set the default zSection of the image, this is the zSection the image
              * should open on when an image viewer is loaded.
              * @param pixelsId the pixelsId of the image.
              * @param z see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void setDefaultZ(long pixelsId, int z)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Set the default timepoint of the image, this is the timepoint the image
              * should open on when an image viewer is loaded.
              * @param pixelsId the pixelsId of the image.
              * @param t see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void setDefaultT(long pixelsId, int t)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Set the channel Minimum, Maximum values, that map from image space to
@@ -510,11 +425,10 @@ module omero {
              * @param w channel of the pixels.
              * @param start The minimum value to map from.
              * @param end The maximum value to map to.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void setChannelWindow(long pixelsId, int w, double start, double end)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Get the channel Minimum value, that maps from image space to
@@ -522,11 +436,10 @@ module omero {
              * @param pixelsId the pixelsId of the image the mapping applied to.
              * @param w channel of the pixels.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent double getChannelWindowStart(long pixelsId, int w)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Get the channel Maximum value, that maps from image space to
@@ -534,11 +447,10 @@ module omero {
              * @param pixelsId the pixelsId of the image the mapping applied to.
              * @param w channel of the pixels.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent double getChannelWindowEnd(long pixelsId, int w)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Set the rendering definition of the rendering engine from the default
@@ -546,11 +458,10 @@ module omero {
              * mapping per pixels.
              * @param pixelsId for pixelsId
              * @param renderingDefId see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void setRenderingDefId(long pixelsId, long renderingDefId)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Get the thumbnail of the image.
@@ -558,11 +469,10 @@ module omero {
              * @param sizeX size of thumbnail.
              * @param sizeY size of thumbnail.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent ByteArray getThumbnail(long pixelsId, omero::RInt sizeX, omero::RInt sizeY)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get a set of thumbnails, of size X, Y from the list of pixelId's supplied
@@ -571,11 +481,10 @@ module omero {
              * @param sizeY size of thumbnail.
              * @param pixelsIds list of ids.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent LongByteArrayMap getThumbnailSet(omero::RInt sizeX, omero::RInt sizeY, LongList pixelsIds)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * Get a set of thumbnails from the pixelsId's in the list,
@@ -583,33 +492,30 @@ module omero {
              * @param size size of thumbnail.
              * @param pixelsIds list of ids.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent LongByteArrayMap getThumbnailBylongestSideSet(omero::RInt size, LongList pixelsIds)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the thumbnail of the image, maintain aspect ratio.
              * @param pixelsId for pixelsId
              * @param size size of thumbnail.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent ByteArray getThumbnailBylongestSide(long pixelsId, omero::RInt size)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Attach an image to a dataset.
              * @param dataset see above.
              * @param image see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              *
              */
             void attachImageToDataset(omero::model::Dataset dataset, omero::model::Image image)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Create a new Image of X,Y, and zSections+time-points. The channelList is
@@ -623,22 +529,20 @@ module omero {
              * @param name the image name.
              * @param description the description of the image.
              * @return new id.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             long createImage(int sizeX, int sizeY, int sizeZ, int sizeT,
                              IntegerList channelList, omero::model::PixelsType pixelsType, string name,
                              string description)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
             /*
              * Get the images from as dataset.
              * @param dataset see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent ImageList getImagesFromDataset(omero::model::Dataset dataset)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the plane from the image with imageId.
@@ -647,11 +551,10 @@ module omero {
              * @param c channel of the plane.
              * @param t timepoint of the plane.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent DoubleArrayArray getPlaneFromImage(long imageId, int z, int c, int t)
-		throws DSOutOfServiceException, DSAccessException;
+		throws omero::ServerError;
 
             /*
              * This is a helper method and makes no calls to the server. It
@@ -660,11 +563,10 @@ module omero {
              * or fetched via HQL in {@link #findAllByQuery(string)}, {@link #findByQuery(string)}
              * @param project see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent DatasetList getDatasetsFromProject(omero::model::Project project)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * This is a helper method and makes no calls to the server. It
@@ -674,11 +576,10 @@ module omero {
              * {@link #findAllByQuery(string)}, {@link #findByQuery(string)}
              * @param dataset see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent PixelsList getPixelsFromDataset(omero::model::Dataset dataset)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * This is a helper method and makes no calls to the server. It
@@ -688,11 +589,10 @@ module omero {
              * {@link #findByQuery(string)}
              * @param project see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent PixelsList getPixelsFromProject(omero::model::Project project)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * This is a helper methods, which makes no calls to the server. It get all
@@ -705,7 +605,7 @@ module omero {
              * @return map of the pixels-->imageId.
              */
             idempotent LongPixelsMap getPixelsImageMap(ImageList images)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * This is a helper methods, which makes no calls to the server. It get all
@@ -718,90 +618,82 @@ module omero {
              * @return list of the pixels.
              */
             idempotent PixelsList getPixelsFromImageList(ImageList images)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the images from the dataset with name, this can use wild cards.
              * @param datasetId see above.
              * @param imageName see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent ImageList getImageFromDatasetByName(long datasetId, string imageName)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the list of images with name containing imageName.
              * @param imageName see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent ImageList getImageByName(string imageName)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Save the object to the db .
              * @param obj see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void saveObject(omero::model::IObject obj)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Save and return the Object.
              * @param obj see above.
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             omero::model::IObject saveAndReturnObject(omero::model::IObject obj)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Save the array.
              * @param graph see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void saveArray(IObjectList graph)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Save and return the array.
              * @param <T> The Type to return.
              * @param graph the object
              * @return see above.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             IObjectList saveAndReturnArray(IObjectList graph)
-                 throws DSOutOfServiceException, DSAccessException;
+                 throws omero::ServerError;
             /*
              * Delete the object.
              * @param row the object.(commonly a row in db)
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             void deleteObject(omero::model::IObject row)
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Get the username.
              * @return see above.
              */
             idempotent string getUsername()
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
             /*
              * Keep service alive.
-             * @throws DSOutOfServiceException
-             * @throws DSAccessException
+             * @throws omero::ServerError
              */
             idempotent void keepAlive()
-                throws DSOutOfServiceException, DSAccessException;
+                throws omero::ServerError;
 
         };
 

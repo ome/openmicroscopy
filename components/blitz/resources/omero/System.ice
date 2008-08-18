@@ -1,6 +1,6 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -10,8 +10,7 @@
 #define OMERO_SYSTEM_ICE
 
 #include <omero/fwd.ice>
-#include <omero/RTypes.ice>
-#include <Ice/BuiltinSequences.ice>
+#include <omero/Collections.ice>
 
 /*
  * The omero::system module combines the ome.system and ome.parameters
@@ -20,16 +19,6 @@
  */
 module omero {
   module sys {
-
-    // Defined in order to control the mapping.
-    ["java:type:java.util.ArrayList<Long>:java.util.List<Long>"]
-    sequence<long> LongList;
-
-    ["java:type:java.util.ArrayList<Integer>:java.util.List<Integer>"]
-    sequence<int> IntList;
-
-    ["java:type:java.util.HashMap<Long,Long>:java.util.Map<Long,Long>"]
-    dictionary<long, long> CountMap;
 
     /*
      * Maps the ome.system.EventContext interface. Represents the
@@ -55,7 +44,7 @@ module omero {
     };
 
     /*
-     * 
+     *
      */
     class Filter
     {
@@ -65,20 +54,6 @@ module omero {
       omero::RInt   offset;
       omero::RInt   limit;
     };
-
-    /*
-     * ParamMap replaces the ome.parameters.QueryParam
-     * type, since the use of varargs is not possible.
-     */
-    ["java:type:java.util.HashMap"]
-    dictionary<string,omero::RType> ParamMap;
-
-    /*
-     * IdByteMap is used by the ThumbnailService for the multiple thumbnail
-     * retrieval methods.
-     */
-    ["java:type:java.util.HashMap"]
-    dictionary<long,Ice::ByteSeq> IdByteMap;
 
     /*
      * Holder for all the parameters which can be taken to a query.

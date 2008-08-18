@@ -30,10 +30,10 @@ module omero {
      * Server-side names used for each of the services
      * defined in API.ice
      */
-    const string SCRIPTSERVICE     = "omero.api.IScript";
     const string ADMINSERVICE     = "omero.api.IAdmin";
     const string ANALYSISSERVICE  = "omero.api.IAnalysis";
     const string CONFIGSERVICE    = "omero.api.IConfig";
+    const string GATEWAYSERVICE   = "omero.api.Gateway";
     const string DELETESERVICE    = "omero.api.IDelete";
     const string LDAPSERVICE      = "omero.api.ILdap";
     const string PIXELSSERVICE    = "omero.api.IPixels";
@@ -47,6 +47,7 @@ module omero {
     const string RAWFILESTORE     = "omero.api.RawFileStore";
     const string RAWPIXELSSTORE   = "omero.api.RawPixelsStore";
     const string RENDERINGENGINE  = "omero.api.RenderingEngine";
+    const string SCRIPTSERVICE    = "omero.api.IScript";
     const string SEARCH           = "omero.api.Search";
     const string THUMBNAILSTORE   = "omero.api.ThumbnailStore";
     const string REPOSITORYINFO   = "omero.api.IRepositoryInfo";

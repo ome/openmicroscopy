@@ -6,11 +6,11 @@
  *
  */
 
-#ifndef omero_API
-#define omero_API
+#ifndef OMERO_API_ICE
+#define OMERO_API_ICE
 
 #include <omero/fwd.ice>
-#include <omero/Gateway.ice>
+#include <omero/Collections.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
@@ -50,50 +50,6 @@ module omero {
     module api {
 
 	/*
-	 * Dictionary and sequences used by the following API calls.
-	 */
-
-	["java:type:java.util.ArrayList"]
-	    sequence<omero::model::Experimenter> ExperimenterList;
-
-	["java:type:java.util.ArrayList"]
-	    sequence<omero::model::ExperimenterGroup> ExperimenterGroupList;
-
-	["java:type:java.util.ArrayList"]
-	    sequence<omero::model::Annotation> AnnotationList;
-
-	dictionary<string, omero::model::Annotation> SearchMetadata;
-
-	["java:type:java.util.ArrayList"]
-	    sequence<SearchMetadata> SearchMetadataList;
-
-	["java:type:java.util.ArrayList<omero.model.IObject>:java.util.List<omero.model.IObject>"]
-	    sequence<omero::model::IObject> IObjectList;
-
-	dictionary<string, IObjectList> IObjectListMap;
-
-	dictionary<string, Ice::LongSeq> IdListMap;
-
-	["java:type:java.util.ArrayList"]
-	    sequence<omero::model::Image> ImageList;
-
-	["java:type:java.util.ArrayList"]
-	    sequence<omero::model::Session> SessionList;
-
-	["java:type:java.util.ArrayList<String>:java.util.List<String>"]
-	    sequence<string> StringSet;
-
-	dictionary<long, string> ScriptIDNameMap;
-
-	dictionary<long, IObjectList> AnnotationMap;
-
-	dictionary<string, omero::model::Experimenter> UserMap;
-
-	dictionary<int, int> CountMap;
-
-	dictionary<bool, omero::sys::LongList> BooleanIdListMap;
-
-	/*
 	 * Service marker similar to ome.api.ServiceInterface
 	 */
 	interface ServiceInterface
@@ -108,9 +64,12 @@ module omero {
 	 */
 	["ami", "amd"] interface StatefulServiceInterface extends ServiceInterface
 	{
-	    void close();
+            void close();
 	    idempotent omero::sys::EventContext getCurrentEventContext() throws ServerError;
 	};
+
+	// Stateless service
+	// ===================================================================================
 
 	["ami", "amd"] interface IAdmin extends ServiceInterface
 	{
@@ -399,6 +358,11 @@ module omero {
 	    void removeUnusedFiles() throws ServerError;
 	};
 
+	// Stateful services
+	// ===================================================================================
+
+	interface Gateway; // Forward definition. See omero/Gateway.ice
+
 	["ami", "amd"] interface JobHandle extends StatefulServiceInterface
 	{
 	    long submit(omero::model::Job j) throws ServerError;
@@ -596,7 +560,7 @@ module omero {
 
 	/*
 	 * Primary callback interface for interaction between client and
-	 * server session ("ServiceFactory"). 
+	 * server session ("ServiceFactory").
 	 */
 	interface ClientCallback
 	{
@@ -641,6 +605,7 @@ module omero {
 	    IUpdate*   getUpdateService() throws ServerError;
 
 	    // Central OMERO.blitz stateful services.
+	    Gateway* createGateway() throws ServerError;
 	    JobHandle* createJobHandle() throws ServerError;
 	    RawFileStore* createRawFileStore() throws ServerError;
 	    RawPixelsStore* createRawPixelsStore() throws ServerError;
