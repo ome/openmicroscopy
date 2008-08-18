@@ -16,7 +16,7 @@
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
 	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring-mock.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity-tools-generic.jar"/>

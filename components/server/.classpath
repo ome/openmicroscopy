@@ -68,7 +68,7 @@
 	<classpathentry kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring-mock.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry kind="lib" path="target/libs/testing.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry kind="lib" path="target/libs/velocity.jar"/>

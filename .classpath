@@ -99,7 +99,6 @@
 	<classpathentry exported="true" kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring.jar" sourcepath="/Users/josh/lib/spring-framework-2.5"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/spring-ldap.jar"/>
-	<classpathentry exported="true" kind="lib" path="target/libs/spring-mock.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testing.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/testng.jar"/>
 	<classpathentry exported="true" kind="lib" path="target/libs/velocity.jar"/>
@@ -111,5 +110,6 @@
 	<classpathentry kind="lib" path="target/libs/mail.jar"/>
 	<classpathentry kind="lib" path="target/libs/PDFBox.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-validator.jar"/>
+	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry kind="output" path="target/eclipse-bin"/>
 </classpath>
