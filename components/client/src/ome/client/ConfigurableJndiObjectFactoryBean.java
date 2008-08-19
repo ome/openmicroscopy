@@ -19,7 +19,6 @@ import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.jndi.JndiLookupFailureException;
 import org.springframework.jndi.JndiObjectFactoryBean;
 import org.springframework.jndi.JndiObjectTargetSource;
-import org.springframework.jndi.JndiTemplate;
 
 /**
  * allows prototype-like lookup of stateful session beans. This is achieved by
@@ -67,7 +66,6 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
     @Override
     public Object getObject() {
         try {
-            JndiTemplate jt = getJndiTemplate();
             Principal principal = null;
             Properties p = new Properties();
             p.putAll(getJndiEnvironment());
@@ -75,10 +73,12 @@ public class ConfigurableJndiObjectFactoryBean extends JndiObjectFactoryBean {
                 principal = init.createPrincipal();
                 p.put("java.naming.security.principal", principal);
                 p.put("java.naming.security.credentials", "hidden");
-                setJndiTemplate(new JndiTemplate(p));
             } else {
                 principal = (Principal) p.get("java.naming.security.principal");
             }
+
+            // Now set the template to be used to our workaround JndiTemplate
+            setJndiTemplate(new ome.client.JndiTemplate(p));
 
             Object object;
             try {

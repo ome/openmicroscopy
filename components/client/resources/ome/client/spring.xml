@@ -44,10 +44,7 @@
 
   <!-- property placeholder post-processor -->
 	<bean id="placeholderConfig"
-              class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
-		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_FALLBACK"/>
-		<property name="ignoreResourceNotFound" value="true"/>
-		<property name="localOverride" value="true"/>
+              class="ome.system.PreferenceContext">
 		<property name="properties" ref="properties"/>
 		<property name="locations">
 		<list>
