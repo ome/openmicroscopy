@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +36,9 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
@@ -63,8 +66,20 @@ public class ThumbnailSetLoader
 	extends BatchCallTree
 {
 
-	/** The maximum number of images per call. */
-	private static final int			MAX_PER_CALL = 10;
+	/** Maximum number of thumbnails retrieved asynchronously. */
+	private static final int		FETCH_SIZE = 10;
+	
+	/** 
+	 * Factor by which the maximum number of thumbnails to fetch
+	 * is multiplied with when the connection's speed is <code>Low</code>.
+	 */
+	private static final double		FETCH_LOW_SPEED = 0.25;
+	
+	/** 
+	 * Factor by which the maximum number of thumbnails to fetch
+	 * is multiplied with when the connection's speed is <code>Medium</code>.
+	 */
+	private static final double		FETCH_MEDIUM_SPEED = 0.5;
 	
     /** Helper reference to the image service. */
     private OmeroImageService		service;
@@ -84,6 +99,9 @@ public class ThumbnailSetLoader
     /** Collection of current {@link ThumbnailData}s. */
     private Object				 	currentThumbs;
     
+    /** The maximum number of the tumbnails fetched. */
+    private int						fetchSize;
+    
     /**
      * Creates a default thumbnail for the passed image.
      * 
@@ -98,14 +116,46 @@ public class ThumbnailSetLoader
 		} catch (Exception e) {} //something went wrong during import
         if (pxd == null)
         	return Factory.createDefaultImageThumbnail();
-        
+        /*
         int sizeX = maxLength, sizeY = maxLength;
+        
+        
         double pixSizeX = pxd.getSizeX();
     	double pixSizeY = pxd.getSizeY();
         double ratio = pixSizeX/pixSizeY;
         if (ratio < 1) sizeX *= ratio;
         else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+        Dimension d = Factory.computeThumbnailSize(maxLength, maxLength, 
+        		pxd.getSizeX(), pxd.getSizeY());
+        
+        
 		return Factory.createDefaultImageThumbnail(sizeX, sizeY);
+		*/
+        Dimension d = Factory.computeThumbnailSize(maxLength, maxLength, 
+        		pxd.getSizeX(), pxd.getSizeY());
+        return Factory.createDefaultImageThumbnail(d.width, d.height);
+    }
+    
+    /** 
+     * Computes the maximum number of thumbnails fetched 
+     * depending on the initial value and the speed of the connection.
+     */
+    private void computeFetchSize()
+    {
+    	int value = (Integer) context.lookup(LookupNames.THUMBNAIL_FETCH_SZ);
+    	if (value <= 0) value = FETCH_SIZE;
+    	UserCredentials uc = 
+			(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
+    	switch (uc.getSpeedLevel()) {
+			case UserCredentials.MEDIUM:
+				fetchSize = (int) (value*FETCH_MEDIUM_SPEED);
+				break;
+			case UserCredentials.LOW:
+				fetchSize = (int) (value*FETCH_LOW_SPEED);
+				break;
+			default:
+				fetchSize = value;
+		}
     }
     
     /**
@@ -133,7 +183,6 @@ public class ThumbnailSetLoader
         	currentThumbs = result;
         	
         } catch (RenderingServiceException e) {
-        	e.printStackTrace();
         	context.getLogger().error(this, 
         			"Cannot retrieve thumbnail: "+e.getExtendedMessage());
         }
@@ -180,7 +229,7 @@ public class ThumbnailSetLoader
      * Creates a new instance.
      * 
      * @param images    The collection of images to load thumbnails for.
-     * @param maxLength The maximum length of a thumbail.
+     * @param maxLength The maximum length of a thumbnail.
      */
     public ThumbnailSetLoader(Collection<ImageData> images, int maxLength)
     {
@@ -188,6 +237,7 @@ public class ThumbnailSetLoader
     	if (maxLength <= 0)
     		throw new IllegalArgumentException(
     				"Non-positive height: "+maxLength+".");
+    	computeFetchSize();
     	this.maxLength = maxLength;
     	service = context.getImageService();
     	toHandle = new ArrayList<List>();
@@ -205,10 +255,10 @@ public class ThumbnailSetLoader
             	pxd = img.getDefaultPixels();
             	input.put(pxd.getId(), img);
     			if (index == 0) l = new ArrayList<Long>();
-    			if (index < MAX_PER_CALL) {
+    			if (index < fetchSize) {
     				l.add(pxd.getId());
     				index++;
-    				if (index == MAX_PER_CALL) {
+    				if (index == fetchSize) {
     					toHandle.add(l);
     					index = 0;
     				}

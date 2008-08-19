@@ -95,10 +95,10 @@ class ServerDialog
 	/** ID identifying the apply action. */
 	private static final int			APPLY = 1;
 	
-	/** ID identifying the selection of an high speed connection. */
+	/** ID identifying the selection of a high speed connection. */
 	private static final int			HIGH_SPEED = 2;
 	
-	/** ID identifying the selection of an medium speed connection. */
+	/** ID identifying the selection of a medium speed connection. */
 	private static final int			MEDIUM_SPEED = 3;
 	
 	/** ID identifying the selection of a low speed connection. */

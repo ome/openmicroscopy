@@ -104,6 +104,14 @@ public class LookupNames
     /** Field to access the <code>Log file</code> information. */
 	public static final String LOG_FILE = "/services/LOG/file";
 	
+	/** 
+	 * Field to access the maximum number of thumbnails retrieved 
+	 * asynchronously.
+	 */
+	public static final String THUMBNAIL_FETCH_SZ = 
+										"/services/Thumbnailing/fetchSz";
+	
+	
     /** Field to access the <code>Size</code> of the cache. */
     public static final String RE_CACHE_SZ = "/services/RE/cacheSz";
     

@@ -133,6 +133,10 @@ public class ThumbnailProvider
     private void computeDims()
     {
         PixelsData pxd = null;
+        width = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
+        height = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+        originalWidth = THUMB_MAX_WIDTH;
+        originalHeight = THUMB_MAX_HEIGHT;
         try {
         	pxd = imgInfo.getDefaultPixels();
 		} catch (Exception e) { //no pixels linked to it.
@@ -143,19 +147,14 @@ public class ThumbnailProvider
 	        return;
 		}
         
-        int w = THUMB_MAX_WIDTH;
-        int h = THUMB_MAX_HEIGHT;
+        //int w = THUMB_MAX_WIDTH;
+        //int h = THUMB_MAX_HEIGHT;
         double pixSizeX = pxd.getSizeX();
         double pixSizeY = pxd.getSizeY();
-        //if (pixSizeX < THUMB_MAX_WIDTH) w = (int) pixSizeX;
-       // if (pixSizeY < THUMB_MAX_HEIGHT) h = (int) pixSizeY;
-        int sizeX = (int) (w*SCALING_FACTOR);
-        int sizeY = (int) (h*SCALING_FACTOR);
-        originalWidth = w;
-        originalHeight = h;
-        double ratio = 1;
-        if (pxd != null) 
-            ratio = pixSizeX/pixSizeY;
+        /*
+        int sizeX = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+        int sizeY = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+        double ratio = pixSizeX/pixSizeY;
         if (ratio < 1) {
             sizeX *= ratio;
             originalWidth *= ratio;
@@ -163,8 +162,15 @@ public class ThumbnailProvider
             sizeY *= 1/ratio;
             originalHeight *= 1/ratio;
         }
-        width = sizeX;
-        height = sizeY;
+        */
+        Dimension size = Factory.computeThumbnailSize(width, height, pixSizeX, 
+        		pixSizeY);
+        width = size.width;//sizeX;
+        height = size.height;//sizeY;
+        size = Factory.computeThumbnailSize(originalWidth, originalHeight, 
+        		pixSizeX, pixSizeY);
+        originalWidth = size.width;//sizeX;
+        originalHeight = size.height;//sizeY;
     }
 
     /** 

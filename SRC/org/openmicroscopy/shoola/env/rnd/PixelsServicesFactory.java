@@ -45,8 +45,6 @@ import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.DataServicesFactory;
-import org.openmicroscopy.shoola.env.data.views.DataServicesView;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 
 
@@ -334,6 +332,22 @@ public class PixelsServicesFactory
 		return null;
 	}
 
+	/**
+	 * Renders the prejected images.
+	 * 
+	 * @param context	Reference to the registry. To ensure that agents cannot
+	 *                  call the method. It must be a reference to the
+	 *                  container's registry.
+	 * @param pixelsID  The id of the pixels set.
+	 * @param startZ	The first optical section.
+     * @param endZ     	The last optical section.
+     * @param stepping 	Stepping value to use while calculating the projection.
+     * @param type 	   	One of the projection type defined by this class.
+     * @return See above.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
 	public static BufferedImage renderProjected(Registry context, Long pixelsID, 
 			int startZ, int endZ, int type, int stepping)
 		throws RenderingServiceException, DSOutOfServiceException

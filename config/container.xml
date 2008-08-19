@@ -67,6 +67,9 @@
     <!-- The name of the log file -->
     <entry name="/services/LOG/file">omeroinsight.log</entry>       
     
+    <!-- Maximum number of thumbnails retrieved asynchronously. -->
+    <entry name="/services/Thumbnailing/fetchSz" type="integer">50</entry>
+    
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will
      		be removed as soon as we move the engine to the server. 

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.util.image.geom;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
@@ -59,8 +60,8 @@ import sun.awt.image.IntegerInterleavedRaster;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 
 /** 
- * Utility class. Applies some basic filtering methods and affine transformations
- * to a {@link BufferedImage}.
+ * Utility class. Applies some basic filtering methods and affine 
+ * transformations to a {@link BufferedImage}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,6 +82,7 @@ public class Factory
     
     /** The default width of a thumbnail. */
     public static final int     THUMB_DEFAULT_HEIGHT = 96;
+    
 	/** The red mask. */
 	public static final int		RED_MASK = 0x00ff0000;
 	
@@ -496,6 +498,31 @@ public class Factory
     {
     	DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
 		return createImage(j2DBuf, bits, masks, sizeX, sizeY);
+    }
+ 
+    /**
+     * Determines the size of the thumbnail.
+     * 
+     * @param sizeX     The thumbnail's size along the X-axis.
+     * @param sizeY     The thumbnail's size along the X-axis.
+     * @param realSizeX	The real size along the X-axis.
+     * @param realSizeY	The real size along the Y-axis.
+     * @return See above.
+     */
+    public static Dimension computeThumbnailSize(int sizeX, int sizeY, 
+    		double realSizeX, double realSizeY)
+    {
+    	double ratio = realSizeX/realSizeY;
+    	if (sizeX <= 0 && sizeY <= 0)
+    		return new Dimension(THUMB_DEFAULT_WIDTH, THUMB_DEFAULT_HEIGHT);
+    	else if (sizeX <= 0 && sizeY > 0)
+    		return new Dimension(THUMB_DEFAULT_WIDTH, sizeY);
+    	else if (sizeX > 0 && sizeY <= 0)
+    		return new Dimension(sizeX, THUMB_DEFAULT_HEIGHT);
+    	if (ratio < 1) return new Dimension((int) (sizeX*ratio), sizeY);
+    	else if (ratio > 1 && ratio != 0) 
+    		return new Dimension(sizeX, (int) (sizeY*1/ratio));
+    	return new Dimension(sizeX, sizeY);
     }
     
 }

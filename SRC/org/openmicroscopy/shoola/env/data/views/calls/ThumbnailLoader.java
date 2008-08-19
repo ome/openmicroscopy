@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashSet;
@@ -118,11 +119,17 @@ public class ThumbnailLoader
         		sizeX = pxd.getSizeX();
         		sizeY = pxd.getSizeY();
         	} else {
+        		/*
             	double pixSizeX = pxd.getSizeX();
             	double pixSizeY = pxd.getSizeY();
                 double ratio = pixSizeX/pixSizeY;
                 if (ratio < 1) sizeX *= ratio;
                 else if (ratio > 1 && ratio != 0) sizeY *= 1/ratio;
+                */
+        		Dimension d = Factory.computeThumbnailSize(sizeX, sizeY, 
+        				pxd.getSizeX(), pxd.getSizeY());
+        		sizeX = d.width;
+        		sizeY = d.height;
         	}
         	try {
             	thumbPix = service.getThumbnail(pxd.getId(), sizeX, sizeY, 

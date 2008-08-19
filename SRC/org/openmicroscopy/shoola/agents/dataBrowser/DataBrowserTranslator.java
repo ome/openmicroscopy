@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -308,7 +307,16 @@ public class DataBrowserTranslator
         return results;
     }
  
-    
+    /**
+     * Transforms the specified <code>Well</code> object into its corresponding
+     * visualisation object.
+     *  
+     * @param data		The <code>Well</code> to transform
+     * @param userID	The id of the current user.
+     * @param groupID   The id of the group the current user selects when 
+     *                  retrieving the data.  
+     * @return See above.
+     */
     private static ImageDisplay transformWell(WellData data, long userID,  
     		                                long groupID)
     {
@@ -316,35 +324,25 @@ public class DataBrowserTranslator
             throw new IllegalArgumentException("No tag.");
         if (!isReadable(data, userID, groupID)) return null;
         WellSampleData wsd;
-        ImageData child;
+        ImageData img;
         WellImageNode node = null;
         List<WellSampleData> samples = data.getWellSamples();
         if (samples == null || samples.size() == 0) {
-        	child = new ImageData();
-        	child.setId(-1);
-        	node = createWellImage(child);
+        	img = new ImageData();
+        	img.setId(-1);
+        	node = createWellImage(img);
         	node.setWellData(data);
         } else {
-        	List images = new ArrayList();
         	Iterator<WellSampleData> i = samples.iterator();
-        	Set imgs;
-        	int j = 0;
-        	Iterator k;
+        	
         	while (i.hasNext()) {
 				wsd = i.next();
-				imgs = wsd.getImages();
-				if (imgs.size() > 0) 
-					images.addAll(imgs);
-				if (j == 0 && imgs.size() > 0) {
-					k = imgs.iterator();
-					while (k.hasNext()) {
-						child = (ImageData) k.next();
-						if (isReadable(child, userID, groupID)) {
-		                	node = createWellImage(child);
-		                	node.setWellData(data);
-		                }
-					}
+				img = wsd.getImage();
+				if (img != null && isReadable(img, userID, groupID)) {
+					node = createWellImage(img);
+                	node.setWellData(data);
 				}
+				
 			}
         }
         return node;

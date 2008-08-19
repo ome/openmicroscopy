@@ -187,10 +187,7 @@ class OMEROGateway
 
 	/** The raw file store. */
 	private RawFileStore			fileStore;
-
-	/** The raw pixels store. */
-	private RawPixelsStore			pixelsStore;
-
+	
 	/** The search stateful service. */
 	private Search					searchService;
 	
@@ -3836,40 +3833,56 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			List results;
+			List results = null;
 			IQuery service = getQueryService();
 			StringBuilder sb = new StringBuilder();
 			Parameters param = new Parameters();
 			param.addLong("plateID", plateID);
 			
-			sb.append("select well from Well well ");
-			/*
-			sb.append("left outer join fetch well.wellSample ws ");
-			sb.append("left outer join fetch ws.imageLinks wsil ");
-			//sb.append("left outer join fetch wsil.child img ");
-			 */
-			sb.append("where well.plate.id = :plateID");
-			results = service.findAllByQuery(sb.toString(), param);
-			Iterator i = results.iterator();
+			sb.append("select well from Well as well ");
+			sb.append("left outer join fetch well.wellSamples as ws ");
+			sb.append("left outer join fetch ws.image as img ");
 			
+			sb.append("left outer join fetch img.pixels as pix ");
+            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+			
+            sb.append("where well.plate.id = :plateID");
+            results = service.findAllByQuery(sb.toString(), param);
+			Iterator i;
 			Well well;
+			/*
+			results = service.findAllByQuery(sb.toString(), param);
+			i = results.iterator();
+			
+			
 			List<Long> ids = new ArrayList<Long>();
 			while (i.hasNext()) {
 				well = (Well) i.next();
 				ids.add(well.getId());
 			}
+			*/
+			/*
 			sb = new StringBuilder();
 			param = new Parameters();
-			param.addList("wellIDs", ids);
+			//param.addLong("plateID", plateID);
+			//param.addList("wellIDs", ids);
 			sb.append("select ws from WellSample ws ");
 			sb.append("left outer join fetch ws.well well ");
-			sb.append("left outer join fetch well.wellSample ");
-			sb.append("left outer join fetch ws.imageLinks wsil ");
-			sb.append("left outer join fetch wsil.child img ");
+			sb.append("left outer join fetch ws.image img ");
+			//sb.append("left outer join fetch well.plate plate ");
+			//sb.append("left outer join fetch well.wellSamples ");
+			
+			//sb.append("left outer join fetch ws.imageLinks wsil ");
+			//sb.append("left outer join fetch wsil.child img ");
+			/*
+			sb.append("left outer join fetch ws.image img ");
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("left outer join fetch pix.pixelsDimensions as pd ");
-			sb.append("where ws.well.id in (:wellIDs)");
+            sb.append("where ws.well.id in (:wellIDs)");
+            */
+			/*
 			List samples = service.findAllByQuery(sb.toString(), param);
 			i = samples.iterator();
 			WellSample ws;
@@ -3888,21 +3901,36 @@ class OMEROGateway
 				}
 				list.add(data);
 			}
+			*/
 			Set<DataObject> wells = new HashSet<DataObject>();
 			i = results.iterator();
 			WellData wellData;
+			List<WellSampleData> list;
+			Map<Long, List<WellSampleData>> 
+				map = new HashMap<Long, List<WellSampleData>>();
+			Iterator<WellSample> j;
+			WellSample ws;
+			
 			while (i.hasNext()) {
 				well = (Well) i.next();
 				wellData = (WellData) PojoMapper.asDataObject(well);
-				list = map.get(well.getId());
-				if (list != null)
-					wellData.setWellSamples(list);
+				/*
+				list = new ArrayList<WellSampleData>();
+				j = well.iterateWellSamples();
+				while (j.hasNext()) {
+					ws = j.next();
+					list.add((WellSampleData) PojoMapper.asDataObject(ws));
+				}
+				wellData.setWellSamples(list);
+				*/
 				wells.add(wellData);
 			}
+
+			
 			return wells;
 		} catch (Exception e) {
 			e.printStackTrace();
-			handleException(e, "Cannot load screen");
+			handleException(e, "Cannot load plate");
 		}
 		return new HashSet();
 	}
