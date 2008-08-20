@@ -129,6 +129,7 @@ build-* targets.
     </target>
 
     <target name="build-schema" description="Build new DB schema and copy to sql/" depends="ivy-init">
+        <iterate buildpathref="model.buildpath" target="clean"/>
         <iterate buildpathref="dsl.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="publish-schema"/>
