@@ -2052,8 +2052,6 @@ class OMEROGateway
 		throws DSAccessException
 	{
 		isSessionAlive();
-		return file;
-		/*
 		RawFileStore store = getRawFileService();
 		store.setFileId(fileID);
 		String path = file.getAbsolutePath();
@@ -2081,7 +2079,6 @@ class OMEROGateway
 		}
 		//store.close();
 		return file;
-		*/
 	}
 	
 	/**
