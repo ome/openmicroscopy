@@ -170,6 +170,11 @@
         <class>org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent</class>
         <config>dataBrowser.xml</config>
     </agent>
+    <agent>
+        <name>Editor</name>
+        <class>org.openmicroscopy.shoola.agents.editor.EditorAgent</class>
+        <config>editor.xml</config>
+    </agent>
     </structuredEntry>
   </agents>
   

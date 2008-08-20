@@ -492,11 +492,14 @@ class ImViewerControl
 	 */
 	private void createWindowsMenuItems(JMenu menu)
 	{
+		ImViewerFactory.register(menu);
+		/*
 		Set viewers = ImViewerFactory.getViewers();
 		Iterator i = viewers.iterator();
 		menu.removeAll();
 		while (i.hasNext()) 
 			menu.add(new JMenuItem(new ActivationAction((ImViewer) i.next())));
+			*/
 	}
 
 	/**

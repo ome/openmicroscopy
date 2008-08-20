@@ -435,11 +435,13 @@ class TaskBarView
 		return bar;
 	}
 	
+	/** Reference to the manager. */
 	private TaskBarManager manager;
 	
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param manager Reference to the manager.
 	 * @param im	The {@link IconManager} singleton that we use to retrieve
 	 * 				the various icons.
 	 */

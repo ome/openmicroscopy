@@ -35,6 +35,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -44,6 +45,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
+import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.env.data.events.SaveEventRequest;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
@@ -81,12 +83,20 @@ public class ImViewerFactory
 	private static final ImViewerFactory  singleton = new ImViewerFactory();
 
 	/** 
-	 * Returns all the {@link ImViewer} components that this factory is
-	 * currently tracking.
+	 * Adds all the {@link ImViewer} components that this factory is
+	 * currently tracking to the passed menu.
 	 * 
-	 * @return The set of currently tracked viewers. 
+	 * @param menu The menu to add the components to. 
 	 */
-	static Set getViewers() { return singleton.viewers; }
+	static void register(JMenu menu)
+	{ 
+		//return singleton.viewers; 
+		if (menu == null) return;
+		Iterator i = singleton.viewers.iterator();
+		menu.removeAll();
+		while (i.hasNext()) 
+			menu.add(new JMenuItem(new ActivationAction((ImViewer) i.next())));
+	}
 
 	/** 
 	 * Returns the <code>window</code> menu. 
@@ -95,21 +105,10 @@ public class ImViewerFactory
 	 */
 	static JMenu getWindowMenu() { return singleton.windowMenu; }
 
-	/**
-	 * Returns <code>true</code> is the {@link #windowMenu} is attached 
-	 * to the <code>TaskBar</code>, <code>false</code> otherwise.
-	 *
-	 * @return See above.
-	 */
-	static boolean isWindowMenuAttachedToTaskBar()
-	{
-		return singleton.isAttached;
-	}
-
 	/** Attaches the {@link #windowMenu} to the <code>TaskBar</code>. */
 	static void attachWindowMenuToTaskBar()
 	{
-		if (isWindowMenuAttachedToTaskBar()) return;
+		if (singleton.isAttached) return;
 		TaskBar tb = ImViewerAgent.getRegistry().getTaskBar();
 		tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
 		singleton.isAttached = true;

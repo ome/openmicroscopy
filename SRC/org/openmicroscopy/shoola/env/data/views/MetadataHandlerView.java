@@ -352,4 +352,5 @@ public interface MetadataHandlerView
 	
 	public CallHandle loadExistingTags(int level, long userID, 
 			                  AgentEventListener observer);
+	
 }
