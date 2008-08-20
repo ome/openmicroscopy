@@ -112,7 +112,7 @@ namespace omero {
 	      } // TODO what about SNEE
 	  }
 
-          Ice::ComunicatorPtr copy(ic);
+          Ice::CommunicatorPtr copy(ic);
           ic = Ice::CommunicatorPtr();
           copy->destroy();
       }
