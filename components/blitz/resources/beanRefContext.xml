@@ -3,8 +3,8 @@
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <description>
-	Defines the contexts for the OMERO.blitz server. Other beanRefFactory.xmls may define
-  other contexts.  
+  Defines the contexts for the OMERO.blitz server. Other beanRefFactory.xmls may define
+  other contexts.
   </description>
 
 	<bean id="placeholderConfig"
@@ -25,30 +25,12 @@
       <list>
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/throttling/throttling.xml</value>
-        <value>classpath:omero/server.xml</value>
-        <value>classpath:omero/constants.xml</value>
         <value>classpath:ome/services/config-local.xml</value>
         <value>classpath*:ome/services/blitz-*.xml</value>   
       </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>
     <constructor-arg index="2" ref="ome.server"/>
-  </bean>
-
-  <bean    id="OMERO.client"
-    	  class="ome.system.OmeroContext"
-    	  lazy-init="true">
-	<constructor-arg index="0">
-      <list>
-        <!-- Initialization issues with having ome.client as a parent;
-        instead we're copying it's configuration file and it's parent. -->
-        <value>classpath:ome/client/spring.xml</value>
-        <value>classpath:omero/client.xml</value>
-        <value>classpath:omero/constants.xml</value>
-      </list>
-    </constructor-arg>
-    <constructor-arg index="1" value="false"/>
-    <constructor-arg index="2" ref="ome.client.internal"/>
   </bean>
 
   <bean    id="OMERO.blitz.test"
@@ -58,8 +40,6 @@
       <list>
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/throttling/throttling.xml</value>
-        <value>classpath:omero/server.xml</value>
-        <value>classpath:omero/constants.xml</value>
         <value>classpath:omero/test.xml</value>
         <value>classpath:ome/services/config-local.xml</value>
         <value>classpath:ome/services/sec-primitives.xml</value>

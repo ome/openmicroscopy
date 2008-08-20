@@ -19,16 +19,23 @@
 	<target name="compile" depends="generate" unless="skip.compile">
 		<hard-wire file="ome/services/blitz/fire/SessionManagerI.java"
 		    token="&quot;ome.security.basic.BasicSecurityWiring&quot;"/>
+
+                <!-- WORKAROUND: Attempting to compile mutually dependent directories
+                     via javac is quite complicated. Moving the difficult file out of the way -->
+                <property name="file.real.sessionmanager" value="${src.dest}/ome/services/blitz/fire/SessionManagerI.java"/>
+                <property name="file.fake.sessionmanager" value="${src.dest}/ome/services/blitz/fire/SessionManagerI.fake"/>
+                <move file="${file.real.sessionmanager}" tofile="${file.fake.sessionmanager}"/>
 		<myjavac>
-		    <exclude name="**/SessionManagerI.java"/>
-		    <src path="${src.dest}"/>
 		    <src path="${src.dir}"/>
+		    <src path="${src.dest}"/>
 		</myjavac>
+                <move file="${file.fake.sessionmanager}" tofile="${file.real.sessionmanager}"/>
 		<myjavac>
 		    <include name="**/SessionManagerI.java"/>
 		    <src path="${src.dest}"/>
 		</myjavac>
-	<delete file="${src.dest}/ome/services/blitz/fire/SessionManagerI.java"/>
+                <delete file="${file.real.sessionmanager}"/>
+                <delete file="${file.fake.sessionmanager}"/><!-- Just in case -->
 	</target>
 
 	<target name="install" depends="lifecycle.install">

@@ -19,14 +19,6 @@ module omero {
     const string CLIENTUUID = "omero.client.uuid";
 
     /*
-     * The names of the OmeroContext instances
-     * defined in beanRefContext.xml files. Only useful
-     * in the Java mappings.
-     */
-    const string SERVERCONTEXT = "OMERO.server";
-    const string CLIENTCONTEXT = "OMERO.client";
-
-    /*
      * Server-side names used for each of the services
      * defined in API.ice
      */
