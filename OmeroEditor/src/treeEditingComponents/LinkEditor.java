@@ -47,6 +47,7 @@ import javax.swing.JPanel;
 //Application-internal dependencies
 
 import tree.DataFieldConstants;
+import treeModel.TreeEditorFactory;
 import treeModel.fields.FieldPanel;
 import treeModel.fields.IParam;
 import treeModel.fields.LinkParam;
@@ -441,7 +442,9 @@ public class LinkEditor
 		public void actionPerformed(ActionEvent e) {
 
 			if (linkType==LOCAL_EDITOR_LINK || linkType==RELATIVE_EDITOR_LINK) {
-				// TODO   OPEN FILE FROM HERE!!
+				
+				File f = new File(URLlink);
+				TreeEditorFactory.createTreeEditor(f);
 			}
 			else
 				/*

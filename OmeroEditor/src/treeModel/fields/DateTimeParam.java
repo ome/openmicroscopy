@@ -46,6 +46,11 @@ import tree.DataFieldConstants;
 public class DateTimeParam extends AbstractParam {
 
 	/**
+	 * A string to define the DateTimeParam type. 
+	 */
+	public static final String DATE_TIME_PARAM = "dateTimeParam";
+	
+	/**
 	 * A property of this parameter. 
 	 * This stores a Date (not time) in UTC milliseconds.
 	 * Used by the Date-Picker to pick a date. 

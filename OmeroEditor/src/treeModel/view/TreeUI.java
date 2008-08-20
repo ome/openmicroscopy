@@ -73,6 +73,11 @@ public class TreeUI
 			JTree t = new NonEditableTree(model, controller);
 			return new TreeUI(t);
 		}
+		case TreeEditorUI.TEXT_ONLY_TREE: {
+			JTree t = new JTree(model);
+			t.setCellRenderer(new TreeOutlineCellRenderer());
+			return new TreeUI(t);
+		}
 		}
 		return new TreeUI(new JTree(model));
 	}

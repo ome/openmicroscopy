@@ -64,6 +64,8 @@ public class TreeEditorUI {
 	
 	public static final int NON_EDITABLE_TREE = 1;
 	
+	public static final int TEXT_ONLY_TREE = 2;
+	
 	private TreeUI treeUI;
 	
 	
@@ -84,6 +86,7 @@ public class TreeEditorUI {
 		fullUI.add(treeUI, BorderLayout.CENTER);
 		fullUI.add(getFieldEditor(tree), BorderLayout.EAST);
 		fullUI.add(getToolBar(tree), BorderLayout.NORTH);
+		fullUI.add(getTreeUI(TEXT_ONLY_TREE), BorderLayout.WEST);
 		
 		return fullUI;
 	}
@@ -93,7 +96,7 @@ public class TreeEditorUI {
 	}
 	
 	public JComponent getFieldEditor(JTree tree) {
-		return new FieldEditorDisplay(tree);
+		return new FieldEditorDisplay(tree, controller);
 	}
 	
 	public JComponent getToolBar(JTree tree) {

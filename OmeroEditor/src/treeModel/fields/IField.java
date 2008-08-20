@@ -80,9 +80,9 @@ public interface IField
 	 * Removes a parameter object from the field
 	 * 
 	 * @param param		The object to remove
-	 * @return		True if the object was found and removed.
+	 * @return		The index of the parameter before removal (or -1 if not found)
 	 */
-	public boolean removeParam(IParam param);
+	public int removeParam(IParam param);
 	
 	/**
 	 * Indicates whether all parameters have been filled out. 

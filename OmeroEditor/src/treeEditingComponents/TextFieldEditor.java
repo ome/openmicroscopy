@@ -97,7 +97,7 @@ public class TextFieldEditor
 	private void initialise() {
 		String value = getParameter().getAttribute(attributeName);
 		
-		textField = new CustomTextField(200);
+		textField = new CustomTextField(150);
 		AttributeEditListeners.addListeners(textField, this, attributeName);
 		
 		textField.setText(value);

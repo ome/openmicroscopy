@@ -40,6 +40,7 @@ import javax.swing.JOptionPane;
 
 import tree.DataFieldConstants;
 import treeModel.fields.FieldPanel;
+import treeModel.fields.IAttributes;
 import treeModel.fields.IParam;
 import treeModel.fields.TimeParam;
 import ui.components.TimeEditor;
@@ -257,7 +258,7 @@ public class TimerField
 	 */
 	private void convertTimeStringToInts() {
 		
-		IParam param = getParameter();
+		IAttributes param = getParameter();
 		// this is the new way of storing time value (seconds)
 		String timeValue = param.getAttribute(TimeParam.SECONDS);
 

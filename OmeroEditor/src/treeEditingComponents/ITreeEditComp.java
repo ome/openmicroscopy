@@ -28,6 +28,7 @@ package treeEditingComponents;
 
 //Application-internal dependencies
 
+import treeModel.fields.IAttributes;
 import treeModel.fields.IParam;
 
 
@@ -75,7 +76,7 @@ public interface ITreeEditComp {
 	/**
 	 * Gets the parameter object that this UI component is editing. 
 	 */
-	public IParam getParameter();
+	public IAttributes getParameter();
 	
 	/**
 	 * Gets the name of the last-edited attribute.

@@ -123,6 +123,20 @@ public class ImageFactory {
 	public static final String TIMER_START_ICON = ICONS_FILE + "timerStart.png";
 	public static final String TIMER_STOP_ICON = ICONS_FILE + "timerStop.png";
 	
+	/*
+	 * Icons for the JTree rendering of text-only outline. 
+	 */
+	public static final String TEXT_LINE_ICON = ICONS_FILE + "textLine.png";
+	public static final String ADD_TEXT_LINE_ICON = ICONS_FILE + "addTextLine.png";
+	public static final String TEXT_BOX_ICON = ICONS_FILE + "textBox.png";
+	public static final String TIMER_ICON = ICONS_FILE + "history.png";
+	public static final String TABLE_ICON = ICONS_FILE + "view_top_bottom.png";
+	public static final String IMAGE_ICON = ICONS_FILE + "thumbnail.png";
+	public static final String CHECK_BOX = ICONS_FILE + "checkBox.png";
+	public static final String ADD_CHECK_BOX = ICONS_FILE + "addCheckBox.png";
+	public static final String DROP_DOWN = ICONS_FILE + "dropDown.png";
+	public static final String NUMBER = ICONS_FILE + "number.png";
+	public static final String ADD_NUMBER = ICONS_FILE + "addNumber.png";
 	
 	public static final String BORDER_TOP_LEFT = ICONS_FILE + "BorderImages/topLeft.gif";
 	public static final String BORDER_TOP = ICONS_FILE + "BorderImages/top.gif";

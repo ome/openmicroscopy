@@ -82,6 +82,39 @@ public class TreeEditorFactory {
         frame.setVisible(true);
 	}
 	
+	/**
+	 * Creates an editor to display an editor file. 
+	 * Displays the editor in a new window. 
+	 * 
+	 * @param editorFile
+	 * @return
+	 */
+	public static ITreeEditor createTreeEditor(File editorFile) {
+		
+		if (editorFile == null) return null;
+		
+		TreeEditorModel model = new TreeEditorModel(
+				TreeModelFactory.getTree(editorFile));
+		
+		TreeEditorComponent comp = new TreeEditorComponent(model);
+		
+		comp.initialise();
+		
+		JFrame frame = new JFrame(editorFile.getName());
+       
+		/*
+		 * display the tree only, with editing turned OFF.
+		 */
+        JComponent view = comp.getTreeView();
+        frame.setContentPane(view);
+
+        //Display the window.
+        frame.pack();
+        frame.setVisible(true);
+		
+		
+		return comp;
+	}
 	
 	
 }

@@ -395,7 +395,7 @@ public class FieldPanel
 	 * 
 	 * @param comp	The component to add.
 	 */
-	public void addFieldComponent(JComponent comp) {
+	private void addFieldComponent(JComponent comp) {
 		if (comp instanceof TableEditor) {
 			/*
 	         * Want to add the table to the SOUTH of contentsPanel (where descriptionLabel is). 
@@ -408,8 +408,10 @@ public class FieldPanel
 	        
 			contentsPanel.add(tableContainer, BorderLayout.SOUTH);
 		}
-		else 
-		horizontalBox.add(comp);
+		else {
+			horizontalBox.add(Box.createHorizontalStrut(5));
+			horizontalBox.add(comp);
+		}
 		
 		comp.addPropertyChangeListener(UPDATE_EDITING_PROPERTY, this);
 		comp.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
@@ -636,7 +638,7 @@ public class FieldPanel
 				if (controller == null) return;
 				
 				ITreeEditComp src = (ITreeEditComp)evt.getSource();
-				IParam param = src.getParameter();
+				IAttributes param = src.getParameter();
 				String attrName = src.getAttributeName();
 				String displayName = src.getEditDisplayName();
 				

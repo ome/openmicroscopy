@@ -10,6 +10,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -22,17 +23,24 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import tree.IAttributeSaver;
+import treeEditingComponents.AbstractParamEditor;
+import treeEditingComponents.ITreeEditComp;
+import treeEditingComponents.editDefaults.FieldEditorPanel;
+import treeModel.fields.IAttributes;
 import treeModel.fields.IField;
 import uiComponents.CustomLabel;
 import util.ImageFactory;
 
-public class AttributeMemoFormatEditor extends JPanel{
+public class AttributeMemoFormatEditor 
+	extends AbstractParamEditor {
 	/**
 	 * 
 	 */
+	ITreeEditComp parent;
 
-	IField dataField;
 	String attributeId;
+	
+	private String displayName;
 
 	boolean textChanged = false;
 	
@@ -44,12 +52,16 @@ public class AttributeMemoFormatEditor extends JPanel{
 	FocusListener focusChangedListener = new FocusChangedListener();
 	
 	// constructor creates a new panel and adds a name and text area to it.
-	public AttributeMemoFormatEditor(IField dataField, String attribute) {
+	public AttributeMemoFormatEditor(IAttributes dataField, 
+			String attribute) {
 		this(dataField, attribute, attribute);
 	}
-	public AttributeMemoFormatEditor(IField dataField, String label, String attribute) {
+	public AttributeMemoFormatEditor(IAttributes dataField, String label, 
+			String attribute) {
 		
-		this.dataField = dataField;
+		super(dataField);
+
+		this.parent = parent;
 		String value = dataField.getAttribute(attribute);
 		
 		this.setBorder(new EmptyBorder(3,3,3,3));
@@ -137,7 +149,9 @@ public class AttributeMemoFormatEditor extends JPanel{
 	
 	// called to update dataField with attribute
 	protected void setDataFieldAttribute(String attributeName, String value) {
-		dataField.setAttribute(attributeName, value);
+		attributeEdited(attributeName, value);
+		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY,
+				null, value);
 	}
 	
 	public class TextChangedListener implements KeyListener {
@@ -166,5 +180,13 @@ public class AttributeMemoFormatEditor extends JPanel{
 	// don't want to save the start and end <html> tags and <body> tags.
 	public String getText() {
 		return editorPane.getTextNoBodyTagOrHtmlTag().trim();
+	}
+	
+	public void setDisplayName(String name) {
+		displayName = name;
+	}
+	
+	public String getEditDisplayName() {
+		return displayName;
 	}
 }

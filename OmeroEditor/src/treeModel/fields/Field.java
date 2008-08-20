@@ -174,7 +174,7 @@ public class Field
 	 * For display etc. Simply returns the name...
 	 */
 	public String toString() {
-		return getAttribute(DataFieldConstants.ELEMENT_NAME);
+		return getAttribute(FIELD_NAME);
 	}
 
 	/**
@@ -239,8 +239,11 @@ public class Field
 	/**
 	 * Removes the specified parameter from the list. 
 	 */
-	public boolean removeParam(IParam param) {
-		return fieldParams.remove(param);
+	public int removeParam(IParam param) {
+		int index = fieldParams.indexOf(param);
+		
+		fieldParams.remove(param);
+		return index;
 	}
 
 	/**

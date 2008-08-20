@@ -263,7 +263,7 @@ public class TreeModelFactory {
 			 
 		 } 
 		 else if (paramType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			 param = new DateTimeParam(DataFieldConstants.DATE_TIME_FIELD);
+			 param = new DateTimeParam(DateTimeParam.DATE_TIME_PARAM);
 			 String millisecs = allAttributes.get(DataFieldConstants.UTC_MILLISECS);
 			 if (millisecs != null) {
 				// create a test calendar (see below).

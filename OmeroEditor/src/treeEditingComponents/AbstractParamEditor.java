@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 
+import treeModel.fields.IAttributes;
 import treeModel.fields.IParam;
 
 /** 
@@ -55,7 +56,7 @@ public abstract class AbstractParamEditor
 	/**
 	 * The Parameter object that this UI component edits. 
 	 */
-	private IParam param;
+	private IAttributes param;
 	
 	/**
 	 * The attribute to be edited by this component.
@@ -64,7 +65,7 @@ public abstract class AbstractParamEditor
 	 */
 	private String lastEditedAttribute;
 
-	public AbstractParamEditor(IParam param) {
+	public AbstractParamEditor(IAttributes param) {
 		
 		this.param = param;
 		
@@ -94,7 +95,7 @@ public abstract class AbstractParamEditor
 		
 		lastEditedAttribute = attributeName;
 		
-		System.out.println("AbstractParamEditor attributeEdited " + attributeName +
+		System.out.println("AbstractParamEditor attributeEdited: " + attributeName +
 				" " + oldValue + " " + newValue);
 		
 		this.firePropertyChange(ITreeEditComp.VALUE_CHANGED_PROPERTY,
@@ -104,7 +105,7 @@ public abstract class AbstractParamEditor
 	/**
 	 * Gets the parameter object that this UI component is editing. 
 	 */
-	public IParam getParameter() {
+	public IAttributes getParameter() {
 		return param;
 	}
 	

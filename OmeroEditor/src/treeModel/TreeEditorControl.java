@@ -41,6 +41,8 @@ import treeModel.editActions.DuplicateFieldsAction;
 import treeModel.editActions.RedoEditAction;
 import treeModel.editActions.UndoEditAction;
 import treeModel.fields.IAttributes;
+import treeModel.fields.IField;
+import treeModel.undoableTreeEdits.AddParamEdit;
 import treeModel.undoableTreeEdits.AttributeEdit;
 import treeModel.undoableTreeEdits.AttributesEdit;
 import treeModel.undoableTreeEdits.ObservableUndoManager;
@@ -117,6 +119,22 @@ public class TreeEditorControl {
 		return actions.get(actionIndex);
 	}
 	
+	
+	/**
+	 * Edits a field by creating and adding a new Parameter.
+	 * 
+	 * @param field		The field to add a new parameter to.
+	 * @param paramType		A string defining the type of parameter to add.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void addParamToField(IField field, String paramType, 
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new AddParamEdit(field, paramType, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
 	/**
 	 * This method adds an attributeEdit to the undo/redo queue and then
 	 * update the JTree UI.
@@ -174,7 +192,7 @@ public class TreeEditorControl {
 	     public void undoableEditHappened (UndoableEditEvent evt) {
 	     	UndoableEdit edit = evt.getEdit();
 	     	undoManager.addEdit( edit );
-	     	//refreshUndoRedo();
 	     }
 	  }
+	
 }

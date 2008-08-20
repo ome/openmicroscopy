@@ -22,6 +22,9 @@
  */
 package treeModel.view;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTree;
@@ -31,6 +34,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import treeEditingComponents.EditingComponentFactory;
 import treeEditingComponents.editDefaults.FieldEditorPanel;
+import treeModel.TreeEditorControl;
 import treeModel.fields.IField;
 
 //Java imports
@@ -53,7 +57,8 @@ import treeModel.fields.IField;
  */
 public class FieldEditorDisplay 
 	extends JPanel 
-	implements TreeSelectionListener { 
+	implements TreeSelectionListener,
+	PropertyChangeListener { 
 	
 	/**
 	 * The JTree to which this panel will listen for selection changes, and
@@ -61,11 +66,13 @@ public class FieldEditorDisplay
 	 */
 	private JTree tree;
 	
+	private TreeEditorControl controller;
+	
 	private JComponent currentDisplay;
 	
-	public FieldEditorDisplay(JTree tree) {
+	public FieldEditorDisplay(JTree tree, TreeEditorControl controller) {
 		
-		
+		this.controller = controller;
 		this.tree = tree;
 		
 		tree.addTreeSelectionListener(this);
@@ -76,11 +83,16 @@ public class FieldEditorDisplay
 
 	public void valueChanged(TreeSelectionEvent e) {
 		
+		refreshEditorDisplay();
+	}
+	
+	public void refreshEditorDisplay() {
 		if (tree.getSelectionCount() == 1) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode)
 				tree.getSelectionPath().getLastPathComponent();
 			IField field = (IField)node.getUserObject();
-			JPanel fe = new FieldEditorPanel(field, tree, node);
+			FieldEditorPanel fe = new FieldEditorPanel(field, tree, node,
+					controller);
 			setPanel(fe);
 		}
 		else {
@@ -98,9 +110,19 @@ public class FieldEditorDisplay
 			this.remove(currentDisplay);
 		
 		currentDisplay = panel;
+		currentDisplay.addPropertyChangeListener(
+				FieldEditorPanel.PANEL_CHANGED_PROPERTY, this);
 		
 		this.add(currentDisplay);
 		this.validate();
 		this.repaint();
+	}
+
+
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (FieldEditorPanel.PANEL_CHANGED_PROPERTY.
+				equals(evt.getPropertyName())) {
+			refreshEditorDisplay();
+		}
 	}
 }

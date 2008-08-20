@@ -28,6 +28,7 @@ import javax.swing.JPanel;
 import tree.DataFieldConstants;
 import treeEditingComponents.editDefaults.DefaultTextField;
 import treeModel.fields.AbstractParam;
+import treeModel.fields.DateTimeParam;
 import treeModel.fields.IParam;
 import treeModel.fields.ImageParam;
 import treeModel.fields.LinkParam;
@@ -88,7 +89,7 @@ public class EditingComponentFactory {
 			return new TextFieldEditor(paramObject);
 		} 
 		
-		if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
+		if (inputType.equals(DateTimeParam.DATE_TIME_PARAM)) {
 			return new DateTimeField(paramObject);
 		} 
 		

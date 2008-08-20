@@ -29,8 +29,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
@@ -45,7 +43,12 @@ import uiComponents.CustomLabel;
 
 
 /** 
- * 
+ * This is a UI component used for editing the "Default" text value of a
+ * parameter. 
+ * It uses an instance of TextFieldEditor to provide a text field that 
+ * fires propertyChangeEvents when edited.
+ * These are forwarded by calling the attributeEdited method of the
+ * DefaultTextField's superclass.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -59,6 +62,11 @@ public class DefaultTextField
 	extends AbstractParamEditor
 	implements PropertyChangeListener {
 	
+	/**
+	 * Creates an instance, and builds the UI. 
+	 * 
+	 * @param param		The parameter you're editing. 
+	 */
 	public DefaultTextField(IParam param) {
 		
 		super(param);
@@ -67,6 +75,11 @@ public class DefaultTextField
 		
 		add(new CustomLabel ("Default: "), BorderLayout.WEST);
 		
+		/*
+		 * Add a text field, and
+		 * listen for changes to the Value property, indicating that the 
+		 * field has been edited.
+		 */
 		JComponent textField = new TextFieldEditor(param, 
 				SingleParam.DEFAULT_VALUE);
 		textField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
@@ -76,13 +89,20 @@ public class DefaultTextField
 		
 	}
 
+	/**
+	 * If the value property of the text field changes, 
+	 * call attributeEdited(attribute, value) to notify listeners.
+	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		
-		if (SingleParam.DEFAULT_VALUE.equals(evt.getPropertyName())) {
+		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
 			attributeEdited(SingleParam.DEFAULT_VALUE, evt.getNewValue());
 		}
 	}
 
+	/**
+	 * A display name for undo/redo
+	 */
 	public String getEditDisplayName() {
 		return "Edit Default Value";
 	}
