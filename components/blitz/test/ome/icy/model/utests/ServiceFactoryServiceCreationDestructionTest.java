@@ -171,7 +171,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
         callsActiveServices(Collections.singletonList(reServiceId));
         String id = sf.activeServices(curr).get(0).toString();
         // Events now called by SessionManagerI
-        sf.unregisterServant(Ice.Util.stringToIdentity(id), adapter);
+        sf.unregisterServant(Ice.Util.stringToIdentity(id));
     }
 
     private void callsActiveServices(List<String> idList) {

@@ -45,7 +45,7 @@
 		<delete dir="${build.dir}" includeEmptyDirs="true" />
 		<delete dir="${basedir}/target" includeEmptyDirs="true" />
 		<delete>
-			<fileset dir="${basedir}/WEB-INF/lib" includes="**/*.jar" />
+			<fileset dir="${basedir}/WEB-INF/" includes="lib/**/*.jar" />
 		</delete>
 	</target>
 
