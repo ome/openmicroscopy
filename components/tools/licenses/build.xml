@@ -73,7 +73,7 @@
         </get-source>
     </target>
 
-    <target name="tools-build" depends="tools-init,install,make-build" description="Creates all artifacts for tools/target">
+    <target name="tools-build" depends="tools-init,install,make-build" description="Creates all artifacts for tools/target" unless="skip.compile">
         <mkdir dir="${basedir}/src/slice_generated"/>
         <slice_py todir="${basedir}/target" include="../../blitz/resources" prefix="omero_">
             <fileset dir="${basedir}/resources/omero" includes="*.ice"/>
