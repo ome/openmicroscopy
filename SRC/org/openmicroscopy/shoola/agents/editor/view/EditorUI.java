@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -37,6 +40,7 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The {@link Editor}'s View.
@@ -154,5 +158,13 @@ class EditorUI
     	System.err.println("Build UI");
     	
     }
+    
+    /** Overrides the {@link #setOnScreen() setOnScreen} method. */
+    public void setOnScreen()
+    {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
+    }
+    
     
 }

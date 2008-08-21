@@ -31,7 +31,7 @@ package org.openmicroscopy.shoola.agents.events.editor;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 
 /** 
- * 
+ * Request to edit the specified <code>file</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,12 +47,22 @@ public class EditFileEvent
 	extends RequestEvent
 {
 
+	/** The name of the file to edit. */
 	private String  fileName;
 	
+	/** The id of the file to edit. */
 	private long	fileID;
 	
+	/** The size of the file to edit. */
 	private long 	fileSize;
 	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param fileName	The name of the file to edit.
+	 * @param fileID	The id of the file to edit.
+	 * @param fileSize	The size of the file to edit.
+	 */
 	public EditFileEvent(String fileName, long fileID, long fileSize)
 	{
 		this.fileName = fileName;
@@ -60,10 +70,25 @@ public class EditFileEvent
 		this.fileSize = fileSize;
 	}
 	
+	/**
+	 * Returns the id of the file to edit.
+	 * 
+	 * @return See above.
+	 */
 	public long getFileID() { return fileID; }
 	
+	/**
+	 * Returns the name of the file to edit.
+	 * 
+	 * @return See above.
+	 */
 	public String getFileName() { return fileName; }
 	
+	/**
+	 * Returns the size of the file to edit.
+	 * 
+	 * @return See above.
+	 */
 	public long getFileSize() { return fileSize; }
 	
 } 

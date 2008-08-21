@@ -108,7 +108,7 @@ class EditorComponent
 			case NEW:
 				model.fireFileLoading();
 				fireStateChange();
-				UIUtilities.centerOnScreen(view);
+				UIUtilities.centerAndShow(view);
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -116,7 +116,6 @@ class EditorComponent
 			default:
 				view.deIconify();
 		}
-		
 	}
 
 	/** 
