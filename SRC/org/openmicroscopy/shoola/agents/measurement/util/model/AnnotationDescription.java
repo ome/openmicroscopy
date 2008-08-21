@@ -50,7 +50,7 @@ public class AnnotationDescription
 {	
 
 	/** Description of the roi id. */
-	public final static String ROIID_STRING = "ID";
+	public final static String ROIID_STRING = "id";
 	
 	/** Description of the time point. */
 	public final static String TIME_STRING = "T";
