@@ -400,6 +400,7 @@ class TextualAnnotationsUI
 	{
 		removeAll();
 		setAreaText("");
+		originalText = null;
 		setComponentTitle();
 		add(buildAreaPane());
 		//Fill area

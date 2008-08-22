@@ -117,6 +117,8 @@ class UserProfile
     /** The user's details. */
     private Map						details;
     
+    private GroupData[] 			groupData;
+    
     /** Modifies the existing password. */
     private void changePassword()
     {
@@ -178,21 +180,21 @@ class UserProfile
 			if (model.isValidGroup(g))
 				validGroups.add(g);
 		}
-		GroupData[] objects = new GroupData[validGroups.size()];
+		groupData = new GroupData[validGroups.size()];
 		int selectedIndex = 0;
 		int index = 0;
 		i = validGroups.iterator();
 		while (i.hasNext()) {
 			g = (GroupData) i.next();
-			objects[index] = g;
+			groupData[index] = g;
 			if (g.getId() == groupID) originalIndex = index;
 			index++;
 		}
 		selectedIndex = originalIndex;
 		//sort by name
-		groups = new JComboBox(objects);
+		groups = new JComboBox(groupData);
 		groups.setRenderer(new GroupsRenderer());
-		if (objects.length != 0)
+		if (groupData.length != 0)
 			groups.setSelectedIndex(selectedIndex);
 		if (isOwner) {
 			groups.addActionListener(this);
@@ -406,6 +408,22 @@ class UserProfile
     	if (v == null) v = "";
     	newOne.setFirstName(v.trim());
     	newOne.setId(original.getId());
+    	//set the groups
+    	if (selectedIndex != originalIndex) {
+    		GroupData g = groupData[selectedIndex];
+    		ExperimenterData user = (ExperimenterData) model.getRefObject();
+    		List userGroups = user.getGroups();
+    		List<GroupData> newGroups = new ArrayList<GroupData>();
+    		newGroups.add(g);
+    		Iterator i = userGroups.iterator();
+    		GroupData group;
+    		while (i.hasNext()) {
+				group = (GroupData) i.next();
+				if (group.getId() != g.getId())
+					newGroups.add(group);
+			}
+    		newOne.setGroups(newGroups);
+    	}
 		return newOne;
 	}
 	

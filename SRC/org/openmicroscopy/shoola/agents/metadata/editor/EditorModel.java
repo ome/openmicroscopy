@@ -609,7 +609,8 @@ class EditorModel
 	 */
 	Map<Long, List> getTextualAnnotationByOwner()
 	{
-		if (textualAnnotationsByUsers != null)
+		if (textualAnnotationsByUsers != null 
+			&& textualAnnotationsByUsers.size() > 0)
 			return textualAnnotationsByUsers;
 		textualAnnotationsByUsers = new HashMap<Long, List>();
 		Collection original = getTextualAnnotations();
