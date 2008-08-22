@@ -310,6 +310,19 @@ public class FileAnnotationData
 	}
 	
 	/**
+	 * Returns the id of the file.
+	 * 
+	 * @return See above.
+	 */
+	public long getFileID()
+	{
+		if (getId() < 0) return -1;
+		OriginalFile f = ((FileAnnotation) asAnnotation()).getFile();
+		if (f == null) return -1;
+		return f.getId();
+	}
+	
+	/**
 	 * Returns the original file.
 	 * @see AnnotationData#getContent()
 	 */
