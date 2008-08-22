@@ -56,6 +56,12 @@ public class LookupNames
 	/** Field to access the <code>About file</code> information. */
 	public static final String ABOUT_FILE = "AboutFile";
 	
+	/** Field to access the <code>Splash screen</code> information. */
+	public static final String SPLASH_SCREEN = "SplashScreen";
+	
+	/** Field to access the <code>Help on line</code> information. */
+	public static final String HELP_ON_LINE = "HelpOnLine";
+	
     /** Field to access the <code>env</code> package. */
 	public static final  String ENV = "/env";
 	
@@ -111,6 +117,8 @@ public class LookupNames
 	public static final String THUMBNAIL_FETCH_SZ = 
 										"/services/Thumbnailing/fetchSz";
 	
+	/** Field to access the <code>Cache on</code> information. */
+	public static final String CACHE_ON = "/services/CACHE/on";
 	
     /** Field to access the <code>Size</code> of the cache. */
     public static final String RE_CACHE_SZ = "/services/RE/cacheSz";

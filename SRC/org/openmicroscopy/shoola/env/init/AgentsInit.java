@@ -70,6 +70,7 @@ public final class AgentsInit
 	private void createAgent(AgentInfo info)
 		throws StartupException
 	{
+		if (!info.isActive()) return;
 		Class agentClass;
 		Object agentInstance;
 		Registry reg;

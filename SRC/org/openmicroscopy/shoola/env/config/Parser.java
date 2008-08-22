@@ -162,9 +162,10 @@ class Parser
             readConfigEntries();
             Iterator i = entriesTags.iterator();
 			Node node;
+			Entry entry;
             while (i.hasNext()) {
                node = (Node) i.next();
-               Entry entry = Entry.createEntryFor(node);
+               entry = Entry.createEntryFor(node);
                registry.addEntry(entry);
             }
         } catch (ConfigException ce) {

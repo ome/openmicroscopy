@@ -65,7 +65,6 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
-import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -75,7 +74,6 @@ import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-import org.openmicroscopy.shoola.env.rnd.events.FreeCacheEvent;
 import org.openmicroscopy.shoola.env.ui.SaveEventBox;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -517,9 +515,6 @@ class ImViewerComponent
 				postViewerState(ViewerState.CLOSE);
 				model.discard();
 				fireStateChange();
-				EventBus bus = MeasurementAgent.getRegistry().getEventBus();
-				bus.post(new FreeCacheEvent(model.getPixelsIDs(), 
-						FreeCacheEvent.ALL_DATA));
 		}
 	}
 

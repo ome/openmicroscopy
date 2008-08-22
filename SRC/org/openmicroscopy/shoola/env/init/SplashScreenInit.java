@@ -64,7 +64,9 @@ public final class SplashScreenInit
 	/** The splash screen component. */
 	private SplashScreen	splashScreen;
 	
-    
+	/** The total number of tasks to execute. */
+	private int 			totalTasks;
+	
 	/** Constructor required by superclass. */
 	SplashScreenInit() {}
 
@@ -83,15 +85,21 @@ public final class SplashScreenInit
 	void configure()
 	{
         initializer.register(this);
-		splashScreen = UIFactory.makeSplashScreen(container);
-		splashScreen.open();
+		//splashScreen = UIFactory.makeSplashScreen(container);
+		//splashScreen.open();
 	}
 
 	/** 
 	 * Does nothing, as this task only requires configuration.
 	 * @see InitializationTask#execute()
 	 */
-	void execute() throws StartupException {}
+	void execute() 
+		throws StartupException
+	{
+		splashScreen = UIFactory.makeSplashScreen(container);
+		splashScreen.open();
+		splashScreen.setTotalTasks(totalTasks);
+	}
 	
 	/** 
 	 * Does nothing.
@@ -107,7 +115,8 @@ public final class SplashScreenInit
 	 */
 	public void onStart(int totalTasks)
 	{
-		splashScreen.setTotalTasks(totalTasks);
+		//splashScreen.setTotalTasks(totalTasks);
+		this.totalTasks = totalTasks;
 	}
 
 	/** 
@@ -118,6 +127,7 @@ public final class SplashScreenInit
 	 */
 	public void onExecute(String taskName)
 	{
+		if (splashScreen != null)
 		splashScreen.updateProgress(taskName);
 		//NOTE: post increment b/c this task hasn't been executed yet.
 	}
@@ -166,25 +176,6 @@ public final class SplashScreenInit
 		         	}
 					
 			}
-            /*
-            if ((loginSvc.login(uc))) {
-                //needed b/c need to retrieve user's details later.
-                reg.bind(LookupNames.USER_CREDENTIALS, uc);
-                break;
-            }
-           
-            if (max != 0) {
-            	
-        		splashScreen.notifyLoginFailure();
-        	} else if (max == 0) {
-        		//Exit if we couldn't manage to log in.
-        		 un.notifyError("Login Failure", 
-        				 "A valid connection to the OMERO \n"+
-                         "server could not be established. \n" +
-                         "The application will exit.");
-                 container.exit();
-         	}
-         	 */
         }
         //Now get rid of the Splash Screen.
         splashScreen.close();

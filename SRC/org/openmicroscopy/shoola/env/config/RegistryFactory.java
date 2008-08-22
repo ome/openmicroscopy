@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -179,5 +180,16 @@ public class RegistryFactory
     {
         ((RegistryImpl) reg).setOS(os);
     }
+	
+    /**
+	 * Adds the {@link CacheService} instance to the specified {@link Registry}.
+	 * 
+	 * @param cache	The {@link CacheService} instance.
+	 * @param reg		The {@link Registry}.
+	 */
+	public static void linkCacheService(CacheService cache, Registry reg)
+	{
+		((RegistryImpl) reg).setCacheService(cache);
+	}
 	
 }

@@ -131,7 +131,6 @@ public class DataServicesFactory
         if (omeroGateway.isUpgradeRequired()) {
         	
         }
-        	
 	}
 	
 	/**

@@ -48,6 +48,18 @@ import org.openmicroscopy.shoola.env.Agent;
  */
 public class AgentInfo 
 {
+
+	/** Identifies the <code>true</code> active value. */
+	private static final String TRUE = "true";
+	
+	/** Identifies the <code>true</code> active value. */
+	private static final String TRUE_SHORT = "t";
+	
+	/** Identifies the <code>false</code> active value. */
+	private static final String FALSE = "false";
+	
+	/** Identifies the <code>false</code> active value. */
+	private static final String FALSE_SHORT = "f";
 	
 	/** The value of the <code>name</code> tag. */																									
     private String				name; 
@@ -57,6 +69,9 @@ public class AgentInfo
 	
 	/** The value of the <code>config</code> tag. */
 	private String				configPath;
+	
+	/** The value of the <code>active</code> tag. */
+	private boolean				active;
 	
 	/** The Agent. */
 	private Agent				agent;
@@ -84,6 +99,13 @@ public class AgentInfo
 	 * @return See above.
 	 */
     public String getConfigPath() { return configPath; }
+    
+    /** 
+	 * Returns the value of the <code>active</code> tag. 
+	 * 
+	 * @return See above.
+	 */
+    public boolean isActive() { return active; }
     
 	/** 
 	 * Returns the {@link Agent}. 
@@ -134,4 +156,20 @@ public class AgentInfo
 	 */
 	void setConfigPath(String configPath) { this.configPath = configPath; }
 
+	/** 
+	 * Sets the {@link #active} field.
+	 * 
+	 * @param active The field to set.
+	 */
+	void setActive(String active)
+	{ 
+		if (active == null) this.active = true; 
+		active = active.toLowerCase();
+		if (TRUE.equals(active) || TRUE_SHORT.equals(active))
+			this.active = true;
+		else if (FALSE.equals(active) || FALSE_SHORT.equals(active))
+			this.active = false;
+		 this.active = true; 
+	}
+	
 }

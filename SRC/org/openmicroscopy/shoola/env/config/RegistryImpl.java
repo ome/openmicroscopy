@@ -29,6 +29,7 @@ import java.util.HashMap;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -85,9 +86,12 @@ class RegistryImpl
     /** Reference to the metadata service. */
     private OmeroMetadataService	ms;
     
-    /** Reference to the Omero service. */
+    /** Reference to the OMERO service. */
     private OmeroDataService		os;
 
+    /** Reference to the Cache service. */
+    private CacheService			cache;
+    
     /** Creates an empty map. */
     RegistryImpl()
     {
@@ -163,6 +167,12 @@ class RegistryImpl
     
     /** 
      * Implemented as specified by {@link Registry}.
+     * @see Registry#getCacheService()
+     */
+    public CacheService getCacheService() { return cache; }
+    
+    /** 
+     * Implemented as specified by {@link Registry}.
      * @see Registry#getDataServicesView(Class)
      */
     public DataServicesView getDataServicesView(Class view)
@@ -202,29 +212,36 @@ class RegistryImpl
 	/**
 	 * Stores a reference to the {@link TaskBar}.
 	 * 
-	 * @param tb	The {@link TaskBar}.
+	 * @param tb The {@link TaskBar}.
 	 */
 	void setTaskBar(TaskBar tb) { this.tb = tb; }
    	
 	/**
 	 * Stores a reference to the {@link Logger}.
 	 * 
-	 * @param logger	The {@link Logger}.
+	 * @param logger The {@link Logger}.
 	 */
 	void setLogger(Logger logger) { this.logger = logger; }
 	
 	/**
 	 * Stores a reference to the {@link UserNotifier}.
 	 * 
-	 * @param un	The {@link UserNotifier}.
+	 * @param un The {@link UserNotifier}.
 	 */
 	void setUserNotifier(UserNotifier un) { this.un = un; }
     
     /**
      * Stores a reference to the {@link OmeroDataService}.
      * 
-     * @param os    The {@link OmeroDataService}.
+     * @param os The {@link OmeroDataService}.
      */
     void setOS(OmeroDataService os) { this.os = os; }
+    
+    /**
+     * Stores a reference to the {@link CacheService}.
+     * 
+     * @param cache The {@link CacheService}.
+     */
+    void setCacheService(CacheService cache) { this.cache = cache; }
     
 }

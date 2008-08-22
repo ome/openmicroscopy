@@ -208,16 +208,6 @@ class UserNotifierManager
 		this.component = component;
 		loaders = new HashMap<String, UserNotifierLoader>();
 	}
-
-	/**
-	 * Returns an instance of the Icon manager.
-	 * 
-	 * @return See above.
-	 */
-	IconManager getIconManager()
-	{ 
-		return IconManager.getInstance(container.getRegistry());
-	}
 	
 	/**
 	 * Sets the loading status.

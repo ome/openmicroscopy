@@ -249,7 +249,7 @@ public class PixelsServicesFactory
 			singleton.rndSvcProxies.remove(new Long(pixelsID));
 		}
 	}
-
+	
 	/** 
 	 * Shuts downs all running rendering services. 
 	 * 
@@ -304,6 +304,23 @@ public class PixelsServicesFactory
 		return singleton.pixelsSource;
 	}
 
+	/**
+	 * Shuts downs the data sink attached to the specified pixels set.
+	 * 
+	 * @param context   Reference to the registry. To ensure that agents cannot
+	 *                  call the method. It must be a reference to the
+	 *                  container's registry.
+	 * @param pixelsID  The ID of the pixels set.
+	 */
+	public static void shutDownDataSink(Registry context, long pixelsID)
+	{
+		if (!(context.equals(registry)))
+			throw new IllegalArgumentException("Not allow to access method.");
+		if (singleton.pixelsSource != null && 
+				singleton.pixelsSource.isSame(pixelsID))
+			singleton.pixelsSource.eraseCache();
+	}
+	
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 

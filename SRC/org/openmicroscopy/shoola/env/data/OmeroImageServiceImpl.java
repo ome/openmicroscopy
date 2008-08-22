@@ -181,6 +181,15 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#shutDownDataSink(long)
+	 */
+	public void shutDownDataSink(long pixelsID)
+	{
+		PixelsServicesFactory.shutDownRenderingControl(context, pixelsID);
+	}
+	
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#getThumbnail(long, int, int, long)
 	 */
 	public BufferedImage getThumbnail(long pixID, int sizeX, int sizeY, 

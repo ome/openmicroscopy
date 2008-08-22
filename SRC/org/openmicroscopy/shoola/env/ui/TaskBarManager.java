@@ -46,6 +46,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.cache.CacheServiceFactory;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -394,11 +395,11 @@ public class TaskBarManager
 								DataServicesFactory.getInstance(container);
 				if (f.isConnected())
 					f.shutdown();
+				CacheServiceFactory.shutdown(container);
 			} catch (Exception e) {}
 			
 			container.exit();
 		}
-		
     }
 
 	/**  Displays information about software. */
@@ -412,7 +413,7 @@ public class TaskBarManager
     	String title = (String) container.getRegistry().lookup(
     			LookupNames.SOFTWARE_NAME);
         suDialog = new SoftwareUpdateDialog(view, message, refFile);
-        suDialog.setTitle(TITLE_ABOUT+title+"...");
+        suDialog.setTitle(TITLE_ABOUT+" "+title+"...");
         suDialog.addPropertyChangeListener(
         		SoftwareUpdateDialog.OPEN_URL_PROPERTY, this);
         UIUtilities.centerAndShow(suDialog);
@@ -421,8 +422,9 @@ public class TaskBarManager
     /** Launches a browser with the documentation. */
     private void help()
     {
-    	//String path = "file://"+container.resolveDocFile(DOC_FILE);
-    	//openURL(path);
+    	String path = (String) container.getRegistry().lookup(
+    						LookupNames.HELP_ON_LINE);
+    	openURL(path);
     }
     
 	/**
@@ -439,14 +441,21 @@ public class TaskBarManager
 		//		new ActionListener() {       
         //    public void actionPerformed(ActionEvent ae) { help(); }
         //});
-		view.getButton(TaskBarView.HELP_MI).addActionListener(noOp);
+		//view.getButton(TaskBarView.HELP_MI).addActionListener(noOp);
+		view.getButton(TaskBarView.HELP_MI).addActionListener(
+				new ActionListener() {       
+            public void actionPerformed(ActionEvent ae) { help(); }
+        });
 		view.getButton(TaskBarView.HOWTO_MI).addActionListener(noOp);
 		view.getButton(TaskBarView.UPDATES_MI).addActionListener(
                 new ActionListener() {       
             public void actionPerformed(ActionEvent ae) { softwareAbout(); }
         });
 		view.getButton(TaskBarView.ABOUT_MI).addActionListener(noOp);
-		view.getButton(TaskBarView.HELP_BTN).addActionListener(noOp);
+		view.getButton(TaskBarView.HELP_BTN).addActionListener(
+				new ActionListener() {       
+            public void actionPerformed(ActionEvent ae) { help(); }
+        });
 		view.getButton(TaskBarView.COMMENT_MI).addActionListener(
                 new ActionListener() {       
             public void actionPerformed(ActionEvent ae) { sendComment(); }

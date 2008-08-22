@@ -367,8 +367,10 @@ class ImViewerModel
 	{
 		state = ImViewer.DISCARDED;
 		//Shut down the service
-		ImViewerAgent.getRegistry().getImageService().shutDown(
-						image.getDefaultPixels().getId());
+		OmeroImageService svr = ImViewerAgent.getRegistry().getImageService();
+		long pixelsID = image.getDefaultPixels().getId();
+		svr.shutDown(pixelsID);
+		svr.shutDownDataSink(pixelsID);
 		Iterator i = loaders.keySet().iterator();
 		Integer index;
 		while (i.hasNext()) {

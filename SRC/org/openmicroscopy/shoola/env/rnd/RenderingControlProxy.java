@@ -50,6 +50,8 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
+
+import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
@@ -97,7 +99,10 @@ class RenderingControlProxy
     private RenderingEngine         servant;
     
     /** The cache containing XY images. */
-    private XYCache                 xyCache;
+    //private XYCache                 xyCache;
+    
+    /** The id of the cache associated to this rpoxy. */
+    private int						cacheID;
     
     /** The channel metadata. */
     private ChannelMetadata[]       metadata;
@@ -162,9 +167,15 @@ class RenderingControlProxy
     private Object getFromCache(PlaneDef pd)
     {
         // We only cache XY images.
+    	/*
         if (pd.getSlice() == PlaneDef.XY && xyCache != null) {  
         	return xyCache.extract(pd);
         }
+        */
+    	if (pd.getSlice() == PlaneDef.XY && cacheID >= 0) {
+    		System.err.println("from Cache");
+    		return context.getCacheService().getElement(cacheID, pd);
+    	}
         return null;
     }
     
@@ -178,23 +189,33 @@ class RenderingControlProxy
     {
         if (pd.getSlice() == PlaneDef.XY) {
             //We only cache XY images.
-            if (xyCache != null) xyCache.add(pd, object);
+            //if (xyCache != null) xyCache.add(pd, object);
+        	if (cacheID >= 0) {
+        		context.getCacheService().addElement(cacheID, pd, object);
+        	}
+        	
         }
     }
     
     /** Clears the cache. */
     private void invalidateCache()
     {
-        if (xyCache != null) xyCache.clear();
+        //if (xyCache != null) xyCache.clear();
+    	if (cacheID >= 0) context.getCacheService().clearCache(cacheID);
     }
     
     /** Clears the cache and releases memory. */
     private void eraseCache()
     {
+    	/*
     	if (xyCache == null) return;
     	invalidateCache();
     	xyCache = null;
     	CachingService.eraseXYCache(pixs.getId()); 
+    	*/
+    	invalidateCache();
+    	context.getCacheService().removeCache(cacheID);
+    	
     }
     
     /**
@@ -205,7 +226,9 @@ class RenderingControlProxy
      */
     private void initializeCache(PlaneDef pDef, int length)
     {
-    	if (xyCache != null) return;
+    	//if (xyCache != null) return;
+    	if (cacheID >= 0) return;
+    	/*
     	if (pDef.getSlice() == PlaneDef.XY && xyCache == null) {
     		//    		Okay, let's see if we can activate the xyCache. 
             //In order to 
@@ -220,6 +243,10 @@ class RenderingControlProxy
             xyCache = CachingService.createXYCache(pixs.getId(), length, 
             				getPixelsDimensionsZ(), getPixelsDimensionsT());
     	}
+    	*/
+    	if (pDef.getSlice() == PlaneDef.XY) 
+    		cacheID = context.getCacheService().createCache(
+    							CacheService.IN_MEMORY_ONLY);
     }
   
     /**
@@ -479,7 +506,7 @@ class RenderingControlProxy
         this.pixDims = pixels.getPixelsDimensions();
         families = servant.getAvailableFamilies(); 
         models = servant.getAvailableModels();
-       
+        cacheID = -1;
         
         this.compression = compression;
         if (rndDef == null) {
@@ -587,7 +614,7 @@ class RenderingControlProxy
      */
     void resetCacheSize(int size)
     {
-        if (xyCache != null) xyCache.resetCacheSize(size);
+        //if (xyCache != null) xyCache.resetCacheSize(size);
     }
         
     /** Shuts down the service. */
@@ -595,6 +622,8 @@ class RenderingControlProxy
     { 
     	try {
     		servant.close();
+    		//remove the cache.
+    		context.getCacheService().removeCache(cacheID);
 		} catch (Exception e) {} 
     }
     

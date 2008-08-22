@@ -228,4 +228,10 @@ public class NullRenderingService
 		return null;
 	}
 
+	/**
+     * No-op implementation
+     * @see OmeroImageService#shutDownDataSink(long)
+     */
+	public void shutDownDataSink(long pixelsID) {}
+
 }

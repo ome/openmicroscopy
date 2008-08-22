@@ -33,6 +33,7 @@ import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.Icon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -178,8 +179,13 @@ class SplashScreenManager
 		container = c;
 		this.component = component;
 		Image img = IconManager.getOMEImageIcon();
+		String n = (String) c.getRegistry().lookup(LookupNames.SPLASH_SCREEN);
+		IconManager im = IconManager.getInstance(c.getRegistry());
+		Icon splashScreen = im.getIcon(n);
+		if (splashScreen == null)
+			splashScreen = IconManager.getSplashScreen();
     	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img);
-		viewTop = new ScreenLogo(TITLE, IconManager.getSplashScreen(), img);
+		viewTop = new ScreenLogo(TITLE, splashScreen, img);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();
@@ -232,7 +238,7 @@ class SplashScreenManager
 	void open()
 	{
 		//close() has already been called.
-		if (viewTop == null) return;  
+		if (viewTop == null) return;
 		//view.setVisible(true);
 		viewTop.setVisible(true);
 		isOpen = true;	

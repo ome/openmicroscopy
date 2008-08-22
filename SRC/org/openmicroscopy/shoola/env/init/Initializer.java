@@ -78,12 +78,16 @@ public class Initializer
     static {
         //This must be the first task to run b/c it will bring up
         //the splash screen.
-        initList.add(SplashScreenInit.class);
+        //initList.add(SplashScreenInit.class);
         
         //NB: All tasks require this one to be run first 
         //(b/c it creates and fills up the container's config).
+    	
         initList.add(ContainerConfigInit.class);
-        initList.add(LoggerInit.class);
+
+        initList.add(SplashScreenInit.class);
+        initList.add(LoggerInit.class);        
+        initList.add(CacheInit.class);
         initList.add(EventBusInit.class);
         initList.add(CmdProcessorInit.class);
         initList.add(DataServicesInit.class);
@@ -159,7 +163,7 @@ public class Initializer
      */
     private void notifyStart()
     {
-        int size = processingQueue.size();
+        int size = processingQueue.size()-2;
         Iterator i = initListeners.iterator();
         InitializationListener subscriber;
         while (i.hasNext()) {

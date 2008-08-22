@@ -31,7 +31,6 @@
    * 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <services>
- 
    <!-- OMERO Data Server (OMERO) configuration.
          This entry specifies the hostname and the port to use to connect to 
          OMERO.
@@ -66,6 +65,9 @@
     <entry name="/services/LOG/dir">log</entry>
     <!-- The name of the log file -->
     <entry name="/services/LOG/file">omeroinsight.log</entry>       
+    
+    <!-- Enables/disables the Caching Service. -->
+    <entry name="/services/CACHE/on" type="boolean">true</entry>
     
     <!-- Maximum number of thumbnails retrieved asynchronously. -->
     <entry name="/services/Thumbnailing/fetchSz" type="integer">50</entry>
@@ -136,42 +138,51 @@
       <!-- NOTE FOR DEVELOPERS
            Add an agent tag for each of your Agents.
            The name tag specifies the human-readable name of the Agent.
+           The active tag specified if the agent is turn on or off.
+           Set to true to turn the agent on, false otherwise.
            The class tag specifies the FQN of the Agent class.
            The config tag specifies the name of the Agent's configuration file
            within the config directory.
       -->
      <agent>
         <name>ImViewer</name>
+        <active>true</active>
         <class>org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent</class>
         <config>imviewer.xml</config>
       </agent>
       <agent> 
         <name>Hierarchy Viewer</name>
+        <active>false</active>
         <class>org.openmicroscopy.shoola.agents.hiviewer.HiViewerAgent</class>  
         <config>hiviewer.xml</config>
       </agent> 
        <agent>
         <name>Tree Manager</name>
+        <active>true</active>
         <class>org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent</class>
         <config>treeviewer.xml</config>
     </agent>
     <agent>
         <name>Measurement Tool</name>
+        <active>true</active>
         <class>org.openmicroscopy.shoola.agents.measurement.MeasurementAgent</class>
         <config>measurement.xml</config>
     </agent>
     <agent>
         <name>Metadata Browser</name>
+        <active>true</active>
         <class>org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent</class>
         <config>metadataViewer.xml</config>
     </agent>
     	<agent>
         <name>Data Browser</name>
+        <active>true</active>
         <class>org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent</class>
         <config>dataBrowser.xml</config>
     </agent>
     <agent>
         <name>Editor</name>
+        <active>true</active>
         <class>org.openmicroscopy.shoola.agents.editor.EditorAgent</class>
         <config>editor.xml</config>
     </agent>
@@ -247,4 +258,6 @@
     <entry name="Version">Beta3.0.1SPW</entry>
     <entry name="SoftwareName">OMERO.insight</entry>
     <entry name="AboutFile">about.xml</entry>
+    <entry name="SplashScreen">client_splashscreen.png</entry>
+    <entry name="HelpOnLine">http://www.openmicroscopy.org</entry>
 </container>

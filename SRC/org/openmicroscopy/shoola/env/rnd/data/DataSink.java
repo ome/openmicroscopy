@@ -29,11 +29,10 @@ package org.openmicroscopy.shoola.env.rnd.data;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.rnd.CachingService;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
-
 import ome.model.core.Pixels;
 
 /** 
@@ -96,7 +95,7 @@ public class DataSink
 			throw new NullPointerException("No registry.");
 		return new DataSink(source, context);
 	}
-
+	
 	/** The data source. */
 	private Pixels			source;
 
@@ -110,8 +109,11 @@ public class DataSink
 	private BytesConverter	strategy;
 
 	/** Cache the raw data. */
-	private PixelsCache		cache;
+	//private PixelsCache		cache;
 
+	/** The id of the cache. */
+	private int				cacheID;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -124,11 +126,14 @@ public class DataSink
 		this.context = context;
 		String type = source.getPixelsType().getValue();
 		bytesPerPixels = getBytesPerPixels(type);
+		cacheID = context.getCacheService().createCache();
+		/*
 		cache = CachingService.createPixelsCache(source.getId(), 
 				source.getSizeX()*source.getSizeY()*bytesPerPixels);
+				*/
 		strategy = BytesConverter.getConverter(type);
 	}
-
+	
 	/**
 	 * Returns the number of bytes per pixel depending on the pixel type.
 	 * 
@@ -187,7 +192,8 @@ public class DataSink
 	{
 		//Retrieve data
 		Integer planeIndex = linearize(z, w, t);
-		Plane2D plane = cache.extract(planeIndex);
+		CacheService cache = context.getCacheService();
+		Plane2D plane = (Plane2D) cache.getElement(cacheID, planeIndex);//cache.extract(planeIndex);
 		if (plane != null) return plane;
 		byte[] data = null; 
 		try {
@@ -201,7 +207,8 @@ public class DataSink
 		plane = new Plane2D(array, source.getSizeX().intValue(), 
 							source.getSizeY().intValue(), bytesPerPixels, 
 							strategy);
-		cache.add(planeIndex, plane);
+		//cache.add(planeIndex, plane);
+		cache.addElement(cacheID, planeIndex, plane);
 		return plane;
 	}
 
@@ -232,5 +239,11 @@ public class DataSink
 	{
 		return (pixelsID == source.getId().longValue());
 	}
-
+	
+	/** Erases the cache. */
+	public void eraseCache()
+	{
+		context.getCacheService().removeCache(cacheID);
+	}
+	
 }

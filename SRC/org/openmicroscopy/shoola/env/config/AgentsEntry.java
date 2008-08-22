@@ -78,8 +78,17 @@ class AgentsEntry
 	 * The name of the tag, within the {@link #AGENT_TAG}, that is used
 	 * to specify an agent's configuration file.
 	 */
-	private static final String		AGENT_CONFIG_TAG = "config";	
+	private static final String		AGENT_CONFIG_TAG = "config";
+	
+	/** 
+	 * The name of the tag, within the {@link #AGENT_TAG}, that is used
+	 * to specify an agent's active status.
+	 */
+	private static final String		AGENT_ACTIVE_TAG = "active";
 		
+	/** The number of tags for an agent. */
+	private static final int		TAGS_NUMBER = 4;
+	
     /** 
      * The contents of the entry.
      * Each element is an {@link AgentInfo} object that stores the content of
@@ -116,7 +125,7 @@ class AgentsEntry
 					extractAgentTag(child, tags); 
 			}
 		}
-		if (tags.keySet().size() != 3)
+		if (tags.keySet().size() != TAGS_NUMBER)
 			throw new ConfigException("Missing tags within agent tag.");
 		return tags;
 	}
@@ -140,7 +149,8 @@ class AgentsEntry
 				tagValue = tag.getFirstChild().getNodeValue();
 		if (AGENT_NAME_TAG.equals(tagName) || 
 			AGENT_CLASS_TAG.equals(tagName) ||
-			AGENT_CONFIG_TAG.equals(tagName)) {
+			AGENT_CONFIG_TAG.equals(tagName) || 
+			AGENT_ACTIVE_TAG.equals(tagName)) {
 				values.put(tagName, tagValue);
 				return;
 			}
@@ -190,6 +200,8 @@ class AgentsEntry
 							(String) childTags.get(AGENT_CLASS_TAG));
 						info.setConfigPath(
 							(String) childTags.get(AGENT_CONFIG_TAG));
+						info.setActive(
+								(String) childTags.get(AGENT_ACTIVE_TAG));
 						agentsList.add(info);
 					}		 
 				}

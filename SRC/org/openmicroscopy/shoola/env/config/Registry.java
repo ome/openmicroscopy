@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.config;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -140,6 +141,14 @@ public interface Registry
      * @return See above.
      */
     public OmeroMetadataService getMetadataService();
+    
+    /**
+     * Returns a reference to the {@link CacheService}.
+     * 
+     * @return See above.
+     */
+    public CacheService getCacheService();
+    
     
     /**
      * Returns an implementation of the specified <code>view</code>.

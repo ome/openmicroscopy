@@ -90,6 +90,13 @@ public interface OmeroImageService
 	 * @param pixelsID  The ID of the pixels set.
 	 */
 	public void shutDown(long pixelsID);
+	
+	/**
+	 * Shuts downs the data sink attached to the specified pixels set.
+	 *
+	 * @param pixelsID  The ID of the pixels set.
+	 */
+	public void shutDownDataSink(long pixelsID);
 
 	/**
 	 * Returns a thumbnail of the currently selected 2D-plane for the
