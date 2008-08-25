@@ -473,8 +473,10 @@ public class ShareBean extends AbstractLevel2Service implements IShare {
     @RolesAllowed("user")
     public Set<Experimenter> getAllMembers(long shareId) {
         ShareData data = store.get(shareId);
-        List<Experimenter> e = loadMembers(data);
-        return new HashSet<Experimenter>(e);
+        List<Experimenter> e = new ArrayList<Experimenter>();
+        if (data.members.size() > 0)
+            e = loadMembers(data);            
+        return new HashSet<Experimenter>(e);        
     }
 
     @RolesAllowed("user")
