@@ -233,6 +233,8 @@ public class BlitzConfiguration {
 
         SessionManagerI manager = new SessionManagerI(blitzAdapter,
                 securitySystem, sessionManager, executor);
+        this.blitzAdapter.add(manager, Ice.Util
+                .stringToIdentity("BlitzManager"));
         return manager;
     }
 
@@ -242,6 +244,8 @@ public class BlitzConfiguration {
         throwIfInitialized(blitzVerifier);
 
         PermissionsVerifierI verifier = new PermissionsVerifierI(sessionManager);
+        this.blitzAdapter.add(verifier, Ice.Util
+                .stringToIdentity("BlitzVerifier"));
         return verifier;
     }
 
