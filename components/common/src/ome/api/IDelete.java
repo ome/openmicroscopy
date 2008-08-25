@@ -6,14 +6,24 @@
 package ome.api;
 
 import java.util.List;
+import java.util.Set;
 
-import ome.api.ServiceInterface;
+import ome.annotations.NotNull;
+import ome.annotations.Validate;
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
 import ome.conditions.ValidationException;
 import ome.model.IObject;
+import ome.model.annotations.ImageAnnotationLink;
 import ome.model.containers.Dataset;
+import ome.model.containers.DatasetImageLink;
 import ome.model.core.Image;
+import ome.model.core.OriginalFile;
+import ome.model.core.Pixels;
+import ome.model.core.PixelsDimensions;
+import ome.model.core.PlaneInfo;
+import ome.model.display.RenderingDef;
+import ome.model.display.Thumbnail;
 
 /**
  * Provides simplifed methods for deleting instances from the database. Various
@@ -21,7 +31,7 @@ import ome.model.core.Image;
  * implementation documentation to know what types will be deleted by force
  * (using admin privileges) or alternatively throw an exception due to
  * constraint violations.
- *
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -30,12 +40,13 @@ public interface IDelete extends ServiceInterface {
     /**
      * Returns all entities which would prevent the given {@link Image} id from
      * being deleted. The force boolean determines whether or not the user's
-     * other collections should also be removed in order to facilitate the
-     * delete.
-     *
-     * See the documentation of the specific implementation for more
-     * information.
-     *
+     * collections should be removed in order to facilitate the delete.
+     * 
+     * Currently this only includes {@link Dataset datasets}. The force boolean
+     * determines if {@link Dataset} instances from the same user will be
+     * considered as constraints. Regardless of force, datasets from other users
+     * are considered constraints.
+     * 
      * @param id
      *            of the {@link Image} to be deleted.
      * @param force
@@ -47,10 +58,7 @@ public interface IDelete extends ServiceInterface {
     /**
      * Returns all entities which would be deleted by a call to
      * {@link #deleteImage(long, boolean)}.
-     *
-     * See the documentation of the specific implementation for more
-     * information.
-     *
+     * 
      * @param id
      * @param force
      * @return unloaded entity list
@@ -59,12 +67,46 @@ public interface IDelete extends ServiceInterface {
 
     /**
      * Deletes an {@link Image} and all related (subordinate) metadata as
-     * defined by the implementation. This method calls
-     * {@link #checkImageDelete(long, boolean)} and throws a
-     * {@link ConstraintViolation} exception with the results if they are not
-     * empty; then it forcibly deletes all objects returned by
+     * defined below. This method calls {@link #checkImageDelete(long, boolean)}
+     * and throws a {@link ConstraintViolation} exception with the results of
+     * that call are not empty; then it forcibly deletes all objects returned by
      * {@link #previewImageDelete(long, boolean)}
-     *
+     * 
+     * <p>
+     * The deleted metadata includes all of the following types which belong to
+     * the current user:
+     * <ul>
+     * <li>{@link Pixels}</li>
+     * <li>{@link PixelsDimensions}</li>
+     * <li>{@link PlaneInfo}</li>
+     * <li>{@link RenderingDef}</li>
+     * <li>{@link OriginalFile}</li>
+     * <li>{@link ImageAnnotationLink}</li>
+     * </ul>
+     * If any of these types do not belong to the current user, the
+     * {@link Image} data graph will be considered corrupted and a
+     * {@link ValidationException} will be thrown.
+     * </p>
+     * <p>
+     * For the types:
+     * <ul>
+     * <li>{@link Thumbnail}</li>
+     * </ul>
+     * a forced deletion will take place even if the user information does not
+     * match the current user.
+     * </p>
+     * <p>
+     * If the {@link Image} is not owned by the current user, then
+     * {@link SecurityViolation} is thrown, unless the user is root or the group
+     * leader.
+     * </p>
+     * An image will not be deleted if there are if it is contained in a
+     * {@link Dataset} owned by another user. If the {@link Image} is contained
+     * in other {@link Dataset datasets} belonging to the same user, then the
+     * force parameter decides what will happen. A force value of true implies
+     * that the {@link Image} will be removed as well as the related
+     * {@link DatasetImageLink links}.
+     * 
      * @param id
      *            id of the {@link Image} to be deleted
      * @param force
@@ -79,10 +121,51 @@ public interface IDelete extends ServiceInterface {
      *             if the object has constraints. Use
      *             {@link #checkImageDelete(long, boolean)} first in order to
      *             verify that there are no constraints.
-     * @throws ValidationException
+     * @throws SecurityViolation
      *             If the {@link Image} does not belong to the current user.
      */
     public void deleteImage(long id, boolean force) throws SecurityViolation,
             ValidationException, ApiUsageException;
 
+    /**
+     * Deletes several {@link Image} instances within a single transaction via
+     * the {@link #deleteImage(long, boolean)} method.
+     * 
+     * @param id
+     *            As {@link #deleteImage(long, boolean)}
+     * @param force
+     *            As {@link #deleteImage(long, boolean)}
+     * @throws ValidationException
+     *             As {@link #deleteImage(long, boolean)}
+     * @throws ApiUsageException
+     *             As {@link #deleteImage(long, boolean)}
+     * @throws SecurityViolation
+     *             As {@link #deleteImage(long, boolean)}
+     */
+    public void deleteImages(@NotNull
+    @Validate(Long.class)
+    Set<Long> ids, boolean force) throws SecurityViolation,
+            ValidationException, ApiUsageException;
+
+    /**
+     * Deletes the user-visible {@link Image} instances of the given
+     * {@link Dataset} within a single transaction via the
+     * {@link #deleteImage(long, boolean)}. In addition, before {@link Image}
+     * deletion is attempted, the {@link DatasetImageLink links} to the given
+     * {@link Dataset} are first removed, otherwise this method would always
+     * require a "force" argument of true.
+     * 
+     * @param id
+     *            As {@link #deleteImage(long, boolean)}
+     * @param force
+     *            As {@link #deleteImage(long, boolean)}
+     * @throws ValidationException
+     *             As {@link #deleteImage(long, boolean)}
+     * @throws ApiUsageException
+     *             As {@link #deleteImage(long, boolean)}
+     * @throws SecurityVilation
+     *             As {@link #deleteImage(long, boolean)
+     */
+    public void deleteImagesByDataset(long datasetId, boolean force)
+            throws SecurityViolation, ValidationException, ApiUsageException;
 }

@@ -6,7 +6,9 @@
 package ome.services.delete;
 
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Local;
@@ -27,18 +29,13 @@ import ome.logic.SimpleLifecycle;
 import ome.model.IObject;
 import ome.model.annotations.ImageAnnotationLink;
 import ome.model.containers.CategoryImageLink;
-import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.core.Channel;
 import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
-import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import ome.model.core.PlaneInfo;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
-import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.parameters.Parameters;
 import ome.security.AdminAction;
@@ -113,11 +110,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
     // ~ Service Methods
     // =========================================================================
 
-    /**
-     * Currently this only includes {@link Dataset Datasets}. The force boolean
-     * determines if other {@link Dataset} instances from the same user will be
-     * considered as constraints.
-     */
     @RolesAllowed("user")
     public List<IObject> checkImageDelete(final long id, final boolean force) {
 
@@ -131,6 +123,7 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
      * This uses {@link #IMAGE_QUERY} to load all the subordinate metdata of the
      * {@link Image} which will be deleted.
      */
+    @RolesAllowed("user")
     public List<IObject> previewImageDelete(long id, boolean force) {
         final UnloadedCollector delete = new UnloadedCollector(iQuery, admin,
                 false);
@@ -139,42 +132,6 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         return delete.list;
     }
 
-    /**
-     * <p>
-     * The deleted metadata includes all of the following types which belong to
-     * the current user:
-     * <ul>
-     * <li>{@link Pixels}</li>
-     * <li>{@link PixelsDimensions}</li>
-     * <li>{@link PlaneInfo}</li>
-     * <li>{@link RenderingDef}</li>
-     * <li>{@link OriginalFile}</li>
-     * <li>{@link ImageAnnotationLink}</li>
-     * </ul>
-     * If any of these types do not belong to the current user, the
-     * {@link Image} data graph will be considered corrupted and a
-     * {@link ValidationException} will be thrown.
-     * </p>
-     * <p>
-     * For the types:
-     * <ul>
-     * <li>{@link Thumbnail}</li>
-     * </ul>
-     * a forced deletion will take place even if the user information does not
-     * match the current user.
-     * </p>
-     * <p>
-     * If the {@link Image} is not owned by the current user, then
-     * {@link SecurityViolation} is thrown, unless the user is root or the group
-     * leader.
-     * </p>
-     * An image will not be deleted if there are if it is contained in a
-     * {@link Dataset} owned by another user. If the {@link Image} is contained
-     * in other {@link Dataset datasets} belonging to the same user, then the
-     * force parameter decides what will happen. A force value of true implies
-     * that the {@link Image} will be removed as well as the related
-     * {@link DatasetImageLink links}.
-     */
     @RolesAllowed("user")
     public void deleteImage(final long id, final boolean force)
             throws SecurityViolation, ValidationException {
@@ -249,6 +206,47 @@ public class DeleteBean extends AbstractLevel2Service implements IDelete {
         }
 
     }
+
+    @RolesAllowed("user")
+    public void deleteImages(java.util.Set<Long> ids, boolean force)
+            throws SecurityViolation, ValidationException, ApiUsageException {
+
+        if (ids == null || ids.size() == 0) {
+            return; // EARLY EXIT!
+        }
+
+        for (Long id : ids) {
+            try {
+                deleteImage(id, force);
+            } catch (SecurityViolation sv) {
+                throw new SecurityViolation("Error while deleting image " + id
+                        + "\n" + sv.getMessage());
+            } catch (ValidationException ve) {
+                throw new ValidationException("Error while deleting image "
+                        + id + "\n" + ve.getMessage());
+            } catch (ApiUsageException aue) {
+                throw new ApiUsageException("Error while deleting image " + id
+                        + "\n" + aue.getMessage());
+            }
+        }
+
+    };
+
+    @RolesAllowed("user")
+    public void deleteImagesByDataset(long datasetId, boolean force)
+            throws SecurityViolation, ValidationException, ApiUsageException {
+
+        List<DatasetImageLink> links = iQuery.findAllByQuery(
+                "select link from DatasetImageLink link "
+                        + "where link.parent.id = :id", new Parameters()
+                        .addId(datasetId));
+        Set<Long> ids = new HashSet<Long>();
+        for (DatasetImageLink link : links) {
+            ids.add(link.child().getId());
+            iUpdate.deleteObject(link);
+        }
+        deleteImages(ids, force);
+    };
 
     // Implementation
     // =========================================================================

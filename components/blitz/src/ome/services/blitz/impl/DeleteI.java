@@ -8,6 +8,8 @@
 package ome.services.blitz.impl;
 
 // Java imports
+import java.util.List;
+
 import ome.api.IDelete;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.ApiUsageException;
@@ -16,6 +18,8 @@ import omero.ServerError;
 import omero.ValidationException;
 import omero.api.AMD_IDelete_checkImageDelete;
 import omero.api.AMD_IDelete_deleteImage;
+import omero.api.AMD_IDelete_deleteImageByDataset;
+import omero.api.AMD_IDelete_deleteImages;
 import omero.api.AMD_IDelete_previewImageDelete;
 import omero.api._IDeleteOperations;
 import Ice.Current;
@@ -52,4 +56,17 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations {
         callInvokerOnRawArgs(__cb, __current, id, force);
     }
 
+    public void deleteImages_async(AMD_IDelete_deleteImages __cb,
+            List<Long> ids, boolean force, Current __current)
+            throws ApiUsageException, SecurityViolation, ServerError,
+            ValidationException {
+        callInvokerOnRawArgs(__cb, __current, ids, force);
+    }
+
+    public void deleteImageByDataset_async(
+            AMD_IDelete_deleteImageByDataset __cb, long datasetId,
+            boolean force, Current __current) throws ApiUsageException,
+            SecurityViolation, ServerError, ValidationException {
+        callInvokerOnRawArgs(__cb, __current, datasetId, force);
+    }
 }
