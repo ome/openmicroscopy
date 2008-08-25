@@ -28,6 +28,7 @@ import omero.api.AMD_IAdmin_createGroup;
 import omero.api.AMD_IAdmin_createSystemUser;
 import omero.api.AMD_IAdmin_createUser;
 import omero.api.AMD_IAdmin_deleteExperimenter;
+import omero.api.AMD_IAdmin_deleteGroup;
 import omero.api.AMD_IAdmin_getDefaultGroup;
 import omero.api.AMD_IAdmin_getEventContext;
 import omero.api.AMD_IAdmin_getExperimenter;
@@ -164,6 +165,11 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void deleteExperimenter_async(AMD_IAdmin_deleteExperimenter __cb,
             Experimenter user, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, user);
+    }
+
+    public void deleteGroup_async(AMD_IAdmin_deleteGroup __cb,
+            ExperimenterGroup group, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, group);
     }
 
     public void getDefaultGroup_async(AMD_IAdmin_getDefaultGroup __cb,
