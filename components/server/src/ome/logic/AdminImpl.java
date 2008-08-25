@@ -711,6 +711,14 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         getBeanHelper().getLogger().info("Deleted user: " + e.getOmeName());
     }
 
+    @RolesAllowed("system")
+    public void deleteGroup(ExperimenterGroup group) {
+        ExperimenterGroup g = groupProxy(group.getId());
+
+        iUpdate.deleteObject(g);
+        getBeanHelper().getLogger().info("Deleted group: " + g.getName());
+    }
+
     // ~ chown / chgrp / chmod
     // =========================================================================
 

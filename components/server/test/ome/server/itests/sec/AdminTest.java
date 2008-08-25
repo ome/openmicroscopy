@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import ome.conditions.ApiUsageException;
 import ome.conditions.SecurityViolation;
+import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -540,6 +541,45 @@ public class AdminTest extends AbstractManagedContextTest {
         assertNotNull(r.getRootName());
         assertNotNull(r.getSystemGroupName());
         assertNotNull(r.getUserGroupName());
+    }
+
+    // ~ Deletion
+    // =========================================================================
+
+    public void testDeleteGroup() {
+        ExperimenterGroup g = testGroup();
+        long gid = iAdmin.createGroup(g);
+
+        Experimenter e1 = testExperimenter();
+        iAdmin.createUser(e1, g.getName());
+
+        iAdmin.deleteGroup(new ExperimenterGroup(gid, false));
+    }
+
+    public void testDeleteUser() {
+        ExperimenterGroup g = testGroup();
+        iAdmin.createGroup(g);
+
+        Experimenter e1 = testExperimenter();
+        long uid = iAdmin.createUser(e1, g.getName());
+
+        iAdmin.deleteExperimenter(new Experimenter(uid, false));
+    }
+
+    @Test(expectedExceptions = ValidationException.class)
+    public void testDeleteUserWithObject() {
+        ExperimenterGroup g = testGroup();
+        iAdmin.createGroup(g);
+
+        Experimenter e1 = testExperimenter();
+        long uid = iAdmin.createUser(e1, g.getName());
+
+        // Now make something
+        loginUser(e1.getOmeName());
+        iUpdate.saveObject(new Image("name"));
+
+        loginRoot();
+        iAdmin.deleteExperimenter(new Experimenter(uid, false));
     }
 
     // ~ Bugs

@@ -306,14 +306,24 @@ public interface IAdmin extends ServiceInterface {
     Experimenter owner);
 
     /**
-     * removes a user after removing the password information for that user.
-     * This prevents constraint violations for DB-based login modules.
+     * removes a user by removing the password information for that user as well
+     * as all {@link GroupExperimenterMap} instances.
      * 
      * @param user
      *            Experimenter to be deleted. Not null.
      */
     void deleteExperimenter(@NotNull
     Experimenter user);
+
+    /**
+     * removes a group by first removing all users in the group, and then
+     * deleting the actual {@link ExperimenterGroup} instance.
+     * 
+     * @param group
+     *            {@link ExperimenterGroup} to be deleted. Not null.
+     */
+    void deleteGroup(@NotNull
+    ExperimenterGroup group);
 
     // ~ Permissions and Ownership
     // =========================================================================
