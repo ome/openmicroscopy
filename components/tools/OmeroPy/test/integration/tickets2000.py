@@ -21,15 +21,14 @@ from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 
-class TestTicket1064(lib.ITest):
+class TestTicket2000(lib.ITest):
 
-    def testBasicUsage(self):
+    def test1064(self):
         share = self.client.sf.getShareService()
         update = self.client.sf.getUpdateService()
         admin = self.client.sf.getAdminService()
         
         cx = admin.getEventContext()
-        print cx
         
         self.client.sf.closeOnDestroy()
 
