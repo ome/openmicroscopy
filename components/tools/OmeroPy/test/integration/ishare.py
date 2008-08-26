@@ -83,19 +83,26 @@ class TestISShare(lib.ITest):
         client_guest_read_only = omero.client()
         client_guest_read_only.createSession("share_test_user","ome")
         
-        share = client_guest_read_only.sf.getShareService()
-        share.activate(self.id)
-        content = share.getContents(self.id)
-        self.assert_(share.getContentSize(self.id) == 5)
+        #get dataset - not allowed
+        query = client_guest_read_only.sf.getQueryService()
+        try:
+            query.find("Dataset",d.id.val)
+        except Exception, x:
+            print traceback.format_exc()
+        
+        share_read_only = client_guest_read_only.sf.getShareService()
+        share_read_only.activate(self.id)
+        content = share_read_only.getContents(self.id)
+        self.assert_(share_read_only.getContentSize(self.id) == 5)
         
         #check access by a member to add comments
         client_guest = omero.client()
         client_guest.createSession("share_test_user","ome")
         
-        share = client_guest.sf.getShareService()
-        share.addComment(self.id,"comment for share %i" % self.id)
+        share_guest = client_guest.sf.getShareService()
+        share_guest.addComment(self.id,"comment for share %i" % self.id)
         
-        self.assert_(len(share.getComments(self.id)) == 1)
+        self.assert_(len(share_guest.getComments(self.id)) == 1)
         
         # get share key and join directly
         s = share.getShare(self.id)
