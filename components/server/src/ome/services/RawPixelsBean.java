@@ -150,6 +150,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     @PrePassivate
     @PreDestroy
+    @RolesAllowed("user")
     public void destroy() {
         // id is the only thing passivated.
         dataService = null;

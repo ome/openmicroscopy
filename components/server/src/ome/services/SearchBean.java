@@ -144,6 +144,7 @@ public class SearchBean extends AbstractStatefulBean implements Search {
 
     @PrePassivate
     @PreDestroy
+    @RolesAllowed("user")
     public void destroy() {
         // all state is passivated.
     }

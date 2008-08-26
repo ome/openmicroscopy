@@ -28,7 +28,7 @@
   </bean>
 
   <bean id="managed-ome.api.Search" parent="selfManagingService" singleton="false">
-    <property name="proxyInterfaces" value="ome.api.Search"/>
+    <property name="proxyInterfaces" value="ome.api.Search,ome.api.local.Destroy"/>
     <property name="target" ref="internal-ome.api.Search"/>
   </bean>
 

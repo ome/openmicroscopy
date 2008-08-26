@@ -34,7 +34,7 @@
   </bean>
 
   <bean id="managed-ome.api.RawPixelsStore" parent="managedStatefulService" singleton="false">
-    <property name="proxyInterfaces" value="ome.api.RawPixelsStore"/>
+    <property name="proxyInterfaces" value="ome.api.RawPixelsStore,ome.api.local.Destroy"/>
     <property name="target" ref="internal-ome.api.RawPixelsStore"/>
   </bean>
   

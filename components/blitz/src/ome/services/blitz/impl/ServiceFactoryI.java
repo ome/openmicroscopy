@@ -13,8 +13,6 @@ import java.util.List;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import ome.api.JobHandle;
-import ome.api.ServiceInterface;
-import ome.api.StatefulServiceInterface;
 import ome.conditions.SessionException;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.fire.AopContextInitializer;
@@ -74,6 +72,8 @@ import omero.api.StatefulServiceInterfacePrxHelper;
 import omero.api.ThumbnailStorePrx;
 import omero.api.ThumbnailStorePrxHelper;
 import omero.api._ServiceFactoryDisp;
+import omero.api._ServiceInterfaceOperations;
+import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
 import omero.constants.CONFIGSERVICE;
@@ -329,16 +329,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             Ice.Object servant = holder.get(name);
             if (servant == null) {
                 servant = createServantDelegate(name);
-
-                // Here we disallow stateful services
-                if (StatefulServiceInterface.class.isAssignableFrom(servant
-                        .getClass())) {
-                    ApiUsageException aue = new ApiUsageException();
-                    aue.message = name
-                            + " is a stateful service. Please use createByName() instead.";
-                    throw aue;
-                }
-
+                // Previously we checked for stateful services here,
+                // however the logic is the same so it shouldn't
+                // cause any issues.
                 prx = registerServant(current, id, servant);
             } else {
                 prx = adapter.createProxy(id);
@@ -528,24 +521,17 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // is < 1.
         if (doClose && ref < 1) {
 
+            // Must check all session access in this method too.
+            doDestroy();
+
             try {
                 ref = sessionManager.close(this.principal.getName());
             } catch (SessionException se) {
-                // An exception could still theoretically be closed here
+                // An exception could still theoretically be thrown here
                 // if the timeout/removal happened since the last call.
                 // Therefore, we'll just let another exception be thrown
                 // since the time for shutdown is not overly critical.
-                ref = 0; // Should still be zero, but just in case.
             }
-
-            // If someone has attached since we called detach() above, do not
-            // destroy this session.
-            if (ref > 0) {
-                return;
-            }
-
-            // Must check all session access in this method too.
-            doDestroy();
 
         }
 
@@ -581,18 +567,26 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // =================================================
         List<String> servants = holder.getServantList();
         for (final String key : servants) {
-            final Ice.Object servant = holder.get(key);
+            final Ice.Object servantOrTie = holder.get(key);
             final Ice.Identity id = getIdentity(key);
 
             // All errors are ignored within the loop.
             try {
+                Object servant;
+                if (servantOrTie instanceof Ice.TieBase) {
+                    servant = ((Ice.TieBase) servantOrTie).ice_delegate();
+                } else {
+                    servant = servantOrTie;
+                }
 
-                if (servant instanceof InteractiveProcessorI) {
-                    // Cleanup interactive processors
-                    // ------------------------------
-                    InteractiveProcessorI ip = (InteractiveProcessorI) servant;
-                    ip.stop();
-                } else if (servant instanceof StatefulServiceInterface) {
+                // Now that we have the servant instance, we do what we can
+                // to clean it up. Stateful services must use the callback
+                // mechanism of IceMethodInvoker. InteractiveProcessors must
+                // be stopped and unregistered. Stateless must only be
+                // unregistered.
+                //
+                // TODO: put all of this in the AbstractAmdServant class.
+                if (servant instanceof _StatefulServiceInterfaceOperations) {
 
                     // Cleanup stateful
                     // ----------------
@@ -600,7 +594,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     // require that logic, allowing the IceMethodInvoker to
                     // raise the UnregisterServantEvent, otherwise there is a
                     // recursive call back to close
-                    final omero.api.StatefulServiceInterface stateful = (omero.api.StatefulServiceInterface) servant;
+                    final _StatefulServiceInterfaceOperations stateful = (_StatefulServiceInterfaceOperations) servant;
                     final Ice.Current __curr = new Ice.Current();
                     __curr.id = id;
                     __curr.adapter = adapter;
@@ -623,22 +617,29 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
                             }, __curr);
 
-                } else if (servant instanceof ServiceInterface) {
-
-                    // Cleanup stateless
-                    // -----------------
-                    unregisterServant(id);
                 } else {
-                    throw new ome.conditions.InternalException(
-                            "Unknown servant type: " + servant);
+                    if (servant instanceof InteractiveProcessorI) {
+                        // Cleanup interactive processors
+                        // ------------------------------
+                        InteractiveProcessorI ip = (InteractiveProcessorI) servant;
+                        ip.stop();
+                    } else if (servant instanceof _ServiceInterfaceOperations) {
+                        // Cleanup stateless
+                        // -----------------
+                        // Do nothing.
+                    } else {
+                        throw new ome.conditions.InternalException(
+                                "Unknown servant type: " + servant);
+                    }
                 }
             } catch (Exception e) {
-                log
-                        .error("Error destroying servant: " + key + "="
-                                + servant, e);
+                log.error("Error destroying servant: " + key + "="
+                        + servantOrTie, e);
             } finally {
-                holder.remove(key);
-                adapter.remove(id);
+                // Now we will again try to remove the servant, which may
+                // have already been done, after the method call, though, it
+                // is guaranteed to no longer be active.
+                unregisterServant(id);
                 log.info("Removed servant from adapter: " + key);
             }
         }
@@ -707,8 +708,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * wrapped in {@link Advisor} instances and will be returned by
      * {@link Advised#getAdvisors()}.
      */
-    protected <O extends ServiceInterface> Ice.Object createServantDelegate(
-            String name) throws ServerError {
+    protected Ice.Object createServantDelegate(String name) throws ServerError {
 
         Ice.Object servant = null;
         try {
@@ -791,6 +791,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * to an {@link UnregisterServantMessage}
      */
     public void unregisterServant(Ice.Identity id) {
+
+        // If this is not found ignore.
+        if (null == adapter.find(id)) {
+            return; // EARLY EXIT!
+        }
 
         // Here we assume that if the "close()" call is required, that it has
         // already been made, either by a user or by the SF.close() method in

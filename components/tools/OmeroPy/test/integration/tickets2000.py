@@ -25,11 +25,10 @@ class TestTicket2000(lib.ITest):
 
     def test1064(self):
         share = self.client.sf.getShareService()
+        search = self.client.sf.createSearchService()
         update = self.client.sf.getUpdateService()
         admin = self.client.sf.getAdminService()
-        
         cx = admin.getEventContext()
-        
         self.client.sf.closeOnDestroy()
 
 if __name__ == '__main__':

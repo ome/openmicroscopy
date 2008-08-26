@@ -40,6 +40,7 @@ import ome.api.IRepositoryInfo;
 import ome.api.IScale;
 import ome.api.ServiceInterface;
 import ome.api.ThumbnailStore;
+import ome.api.local.Destroy;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -96,7 +97,7 @@ import org.springframework.transaction.annotation.Transactional;
 @LocalBinding(jndiBinding = "omero/local/ome.api.ThumbnailStore")
 @Interceptors( { OmeroAroundInvoke.class })
 public class ThumbnailBean extends AbstractLevel2Service implements
-        ThumbnailStore, Serializable {
+        ThumbnailStore, Serializable, Destroy {
     /**
      * 
      */
@@ -214,6 +215,7 @@ public class ThumbnailBean extends AbstractLevel2Service implements
     }
     
     @PreDestroy
+    @RolesAllowed("user")
     public void destroy() {
     	// Both the pixels and rendering settings objects are being passivated.
     	if (renderer != null)

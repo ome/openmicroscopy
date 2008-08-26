@@ -33,7 +33,7 @@
   </bean>
 
   <bean id="managed-ome.api.JobHandle" parent="managedStatefulService" singleton="false">
-    <property name="proxyInterfaces" value="ome.api.JobHandle"/>
+    <property name="proxyInterfaces" value="ome.api.JobHandle,ome.api.local.Destroy"/>
     <property name="target" ref="internal-ome.api.JobHandle"/>
   </bean>
   

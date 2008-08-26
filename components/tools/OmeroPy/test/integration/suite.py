@@ -33,4 +33,5 @@ def additional_tests():
     suite.addTest(load("test.integration.ping"))
     suite.addTest(load("test.integration.proj"))
     suite.addTest(load("test.integration.tickets1000"))
+    suite.addTest(load("test.integration.tickets2000"))
     return suite

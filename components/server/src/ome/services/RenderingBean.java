@@ -35,6 +35,7 @@ import ome.api.IPixels;
 import ome.api.IProjection;
 import ome.api.IRenderingSettings;
 import ome.api.ServiceInterface;
+import ome.api.local.Destroy;
 import ome.api.local.LocalCompress;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -116,7 +117,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Interceptors( { OmeroAroundInvoke.class })
 // TODO previously not here. examine the difference.
 public class RenderingBean extends AbstractLevel2Service implements
-        RenderingEngine, Serializable {
+        RenderingEngine, Serializable, Destroy {
 
     private static final long serialVersionUID = -4383698215540637039L;
 
@@ -246,6 +247,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      * {@link ReentrantReadWriteLock write lock}
      */
     @PreDestroy
+    @RolesAllowed("user")
     public void destroy() {
         rwl.writeLock().lock();
 

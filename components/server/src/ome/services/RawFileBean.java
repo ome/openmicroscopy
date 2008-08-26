@@ -145,6 +145,7 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
 
     @PrePassivate
     @PreDestroy
+    @RolesAllowed("user")
     public void destroy() {
         // id is the only thing passivated.
         ioService = null;

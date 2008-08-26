@@ -33,7 +33,7 @@
   </bean>
   
   <bean id="managed-ome.api.ThumbnailStore" parent="managedStatefulService" singleton="false">
-    <property name="proxyInterfaces" value="ome.api.ThumbnailStore"/>
+    <property name="proxyInterfaces" value="ome.api.ThumbnailStore,ome.api.local.Destroy"/>
     <property name="target" ref="internal-ome.api.ThumbnailStore"/>    
   </bean>
 
