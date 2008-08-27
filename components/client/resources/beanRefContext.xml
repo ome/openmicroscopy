@@ -57,6 +57,8 @@
     </constructor-arg>
   </bean>
 
+  <!-- Contexts for testing -->
+
   <bean    id="ome.client.test"
     	  class="ome.system.OmeroContext"
     lazy-init="true">
@@ -65,6 +67,18 @@
         <value>ome/client/spring.xml</value>
         <value>ome/testing/data.xml</value>        
       </list>
+    </constructor-arg>
+    <constructor-arg index="1" value="true"/>
+    <constructor-arg index="2" ref="ome.client.internal"/>      
+  </bean>  
+    
+  <bean    id="ome.client.test2"
+    	  class="ome.system.OmeroContext"
+    lazy-init="true">
+    <constructor-arg>
+    	<list>
+          <value>ome/client/utests/spring.xml</value>        
+        </list>
     </constructor-arg>
     <constructor-arg index="1" value="true"/>
     <constructor-arg index="2" ref="ome.client.internal"/>      

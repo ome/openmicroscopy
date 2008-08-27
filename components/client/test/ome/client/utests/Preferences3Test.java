@@ -6,19 +6,22 @@
  */
 package ome.client.utests;
 
-//Java imports
-import org.testng.annotations.*;
-
+// Java imports
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import junit.framework.TestCase;
+import ome.system.Login;
+import ome.system.OmeroContext;
+import ome.system.Principal;
+import ome.system.Server;
+import ome.system.ServiceFactory;
 
-//Third-party libraries
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -31,12 +34,8 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.core.io.ClassPathResource;
-
-//Application-internal dependencies
-import ome.system.Login;
-import ome.system.OmeroContext;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
+import org.testng.annotations.ExpectedExceptions;
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -230,6 +229,70 @@ public class Preferences3Test extends TestCase {
 
         ac.addBeanFactoryPostProcessor(ppc);
         ac.refresh();
+
+    }
+
+    @Test(groups = "ticket:1058")
+    public void testOmeroUserIsProperlySetWithSpring2_5_5Direct() {
+
+        Server s = new Server("localhost", 1099);
+        Login l = new Login("me", "password");
+        Properties pl = l.asProperties();
+        pl.setProperty("test.system.value",
+                "This is like omero.user without local.properties");
+        Properties ps = s.asProperties();
+        ps.putAll(pl);
+
+        OmeroContext c = OmeroContext.getContext(ps, "ome.client.test2");
+        c.getBean("list");
+    }
+
+    @Test(groups = "ticket:1058")
+    public void testOmeroUserIsProperlySetWithSpring2_5_5Manual() {
+
+        Server s = new Server("localhost", 1099);
+        Login l = new Login("me", "password");
+        Properties p = s.asProperties();
+        p.putAll(l.asProperties());
+
+        // This is copied from OmeroContext. This is the parent context which
+        // should contain the properties;
+        Properties copy = new Properties(p);
+        ConstructorArgumentValues ctorArg1 = new ConstructorArgumentValues();
+        ctorArg1.addGenericArgumentValue(copy);
+        BeanDefinition definition1 = new RootBeanDefinition(Properties.class,
+                ctorArg1, null);
+        StaticApplicationContext staticContext = new StaticApplicationContext();
+        staticContext.registerBeanDefinition("properties", definition1);
+        staticContext.refresh();
+
+        // This is the child context and contains a definition of a
+        // PlaceHolderConfigurer
+        // as well as a user of
+        StaticApplicationContext childContext = new StaticApplicationContext();
+
+        MutablePropertyValues mpv2 = new MutablePropertyValues();
+        mpv2.addPropertyValue("properties", new RuntimeBeanReference(
+                "properties"));
+        mpv2.addPropertyValue("systemPropertiesModeName",
+                "SYSTEM_PROPERTIES_MODE_FALLBACK");
+        mpv2.addPropertyValue("localOverride", "true");
+        BeanDefinition definitionConfigurer = new RootBeanDefinition(
+                PreferencesPlaceholderConfigurer.class, null, mpv2);
+        childContext.registerBeanDefinition("propertiesPlaceholderConfigurer",
+                definitionConfigurer);
+
+        ConstructorArgumentValues cav2 = new ConstructorArgumentValues();
+        cav2.addGenericArgumentValue("${omero.user}");
+        BeanDefinition definitionTest = new RootBeanDefinition(String.class,
+                cav2, null);
+        childContext.registerBeanDefinition("test", definitionTest);
+
+        childContext.setParent(staticContext);
+        childContext.refresh();
+
+        String test = (String) childContext.getBean("test");
+        assertEquals(test, "me");
 
     }
 

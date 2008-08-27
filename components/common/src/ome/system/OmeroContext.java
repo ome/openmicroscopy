@@ -8,6 +8,7 @@
 package ome.system;
 
 // Java imports
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -21,6 +22,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.config.TypedStringValue;
+import org.springframework.beans.factory.config.ConstructorArgumentValues.ValueHolder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -152,9 +155,7 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
         staticContext.registerBeanDefinition("properties", definition);
         staticContext.refresh();
 
-        OmeroContext ctx = new Locator().lookup(context);
-        ctx.setParent(staticContext);
-        ctx.refresh();
+        OmeroContext ctx = new Locator().lookup(context, staticContext);
         return ctx;
     }
 
@@ -336,11 +337,26 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
          * {@link ContextSingletonBeanFactoryLocator#initializeDefinition(org.springframework.beans.factory.BeanFactory)}
          * to create a new context from a given definition.
          */
-        public OmeroContext lookup(String selector) {
-            BeanFactory beanRefContext = createDefinition(BEANS_REFS_XML_NAME,
-                    "manual");
+        public OmeroContext lookup(String selector, ApplicationContext parent) {
+            ConfigurableApplicationContext beanRefContext = (ConfigurableApplicationContext) createDefinition(
+                    BEANS_REFS_XML_NAME, "manual");
             initializeDefinition(beanRefContext);
-            return (OmeroContext) beanRefContext.getBean(selector);
+
+            BeanDefinition definition = beanRefContext.getBeanFactory()
+                    .getBeanDefinition(selector);
+            ValueHolder holder = definition.getConstructorArgumentValues()
+                    .getGenericArgumentValue(List.class);
+            List<TypedStringValue> files = (List<TypedStringValue>) holder
+                    .getValue();
+            List<String> fileStrings = new ArrayList<String>(files.size());
+            for (TypedStringValue tsv : files) {
+                fileStrings.add(tsv.getValue());
+            }
+
+            OmeroContext c = new OmeroContext(fileStrings
+                    .toArray(new String[0]), true, parent);
+
+            return c;
         }
 
     }

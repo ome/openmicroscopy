@@ -40,25 +40,25 @@
   
 -->
 
-<beans>
+<beans default-lazy-init="true">
 
   <!-- property placeholder post-processor -->
-	<bean id="placeholderConfig"
+    <bean id="placeholderConfig" lazy-init="true"
               class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
                 <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_FALLBACK"/>
                 <property name="ignoreResourceNotFound" value="true"/>
                 <property name="localOverride" value="true"/>
-		<property name="properties" ref="properties"/>
-		<property name="locations">
-		<list>
-			<value>classpath:omero.properties</value>
- 			<value>classpath:hibernate.properties</value>      
- 			<value>classpath:jndi.properties</value>
- 			<value>classpath:local.properties</value>
-		</list>
-		</property>
-	</bean>
-	
+        <property name="properties" ref="properties"/>
+        <property name="locations">
+        <list>
+            <value>classpath:omero.properties</value>
+            <value>classpath:hibernate.properties</value>      
+            <value>classpath:jndi.properties</value>
+            <value>classpath:local.properties</value>
+        </list>
+        </property>
+    </bean>
+    
   <!-- properly configured principal for login -->
 	<bean id="principal" class="${omero.principal_class}">
 		<constructor-arg index="0" value="${omero.user}"/>
