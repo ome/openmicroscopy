@@ -1,9 +1,10 @@
 /*
- *   $Id: ICompres.java 1167 2006-12-15 10:39:34Z jmoore $
+ *   $Id$
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
+
 package ome.api;
 
 import java.util.List;

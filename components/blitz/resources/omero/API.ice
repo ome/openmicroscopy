@@ -11,6 +11,7 @@
 
 #include <omero/fwd.ice>
 #include <omero/Collections.ice>
+#include <omero/Constants.ice>
 #include <omero/ROMIO.ice>
 #include <omero/RTypes.ice>
 #include <omero/Scripts.ice>
@@ -211,11 +212,12 @@ module omero {
 	{
 	    Ice::ByteSeq projectStack(long pixelsId,
 	                              omero::model::PixelsType pixelsType,
-                                  int algorithm, int timepoint,
-                                  int channelIndex, int stepping,
+                                  omero::constants::projection::ProjectionType algorithm,
+                                  int timepoint, int channelIndex, int stepping,
                                   int start, int end) throws ServerError;
         long projectPixels(long pixelsId, omero::model::PixelsType pixelsType,
-                           int algorithm, int tStart, int tEnd, 
+                           omero::constants::projection::ProjectionType algorithm,
+                           int tStart, int tEnd,
                            omero::sys::IntList channelList, int stepping, 
                            int zStart, int zEnd, string name)
                            throws ServerError;
@@ -429,9 +431,9 @@ module omero {
 	{
 	    omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
 	    Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
-	    Ice::IntSeq renderProjectedAsPackedInt(int algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+	    Ice::IntSeq renderProjectedAsPackedInt(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
 	    Ice::ByteSeq renderCompressed(omero::romio::PlaneDef def) throws ServerError;
-	    Ice::ByteSeq renderProjectedCompressed(int algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
+	    Ice::ByteSeq renderProjectedCompressed(omero::constants::projection::ProjectionType algorithm, int timepoint, int stepping, int start, int end) throws ServerError;
 	    void lookupPixels(long pixelsId) throws ServerError;
 	    bool lookupRenderingDef(long pixelsId) throws ServerError;
 	    void loadRenderingDef(long renderingDefId) throws ServerError;
@@ -607,6 +609,7 @@ module omero {
 	    IConfig*   getConfigService() throws ServerError;
 	    IPixels*   getPixelsService() throws ServerError;
 	    IPojos*    getPojosService() throws ServerError;
+	    IProjection* getProjectionService() throws ServerError;
 	    IQuery*    getQueryService() throws ServerError;
 	    IRenderingSettings* getRenderingSettingsService() throws ServerError;
 	    IRepositoryInfo* getRepositoryInfoService() throws ServerError;

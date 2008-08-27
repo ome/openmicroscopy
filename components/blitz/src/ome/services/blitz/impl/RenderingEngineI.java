@@ -57,6 +57,7 @@ import omero.api.AMD_RenderingEngine_updateCodomainMap;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._RenderingEngineOperations;
+import omero.constants.projection.ProjectionType;
 import omero.model.Family;
 import omero.model.RenderingModel;
 import omero.romio.CodomainMapContext;
@@ -259,20 +260,20 @@ public class RenderingEngineI extends AbstractAmdServant implements
     }
 
     public void renderProjectedAsPackedInt_async(
-            AMD_RenderingEngine_renderProjectedAsPackedInt __cb, int algorithm,
-            int timepoint, int stepping, int start, int end, Current __current)
-            throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, algorithm, timepoint, stepping,
-                start, end);
+            AMD_RenderingEngine_renderProjectedAsPackedInt __cb, 
+            ProjectionType algorithm, int timepoint, int stepping, int start, 
+            int end, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, algorithm.value(), timepoint, 
+                stepping, start, end);
 
     }
 
     public void renderProjectedCompressed_async(
-            AMD_RenderingEngine_renderProjectedCompressed __cb, int algorithm,
-            int timepoint, int stepping, int start, int end, Current __current)
-            throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, algorithm, timepoint, stepping,
-                start, end);
+            AMD_RenderingEngine_renderProjectedCompressed __cb, 
+            ProjectionType algorithm, int timepoint, int stepping, int start, 
+            int end, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, algorithm.value(), timepoint,
+                stepping, start, end);
 
     }
 
