@@ -194,6 +194,7 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         m.stop();
     }
 
+    @Test(enabled = false)
     public void testComparseDataSources() throws Exception {
         try {
             // check pre-conditions
@@ -228,6 +229,7 @@ public class SqlHibernateDatasourceComparisonTest extends TestCase {
         _callOmero("OP", links_q);
     }
 
+    @Test(enabled = false)
     public void testCompareDirect() throws Exception {
         prime();
 
