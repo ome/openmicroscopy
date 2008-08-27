@@ -14,37 +14,33 @@ set -x
 export JBOSS_HOME=${JBOSS_HOME:-"HOME/root/opt/jboss"}
 export JAVA_OPTS=${JAVA_OPTS:-"-Xmx600M -Djavac.maxmem=600M -Djavadoc.maxmem=600M -XX:MaxPermSize=256m"}
 
+java_omero(){
+    java $JAVA_OPTS -Domero.version=build$BUILD_NUMBER omero "$@"
+}
+
+#
+# Run the default build which most notably omits the C++ bindings.
+# This is primarily due to build time of C++, but it also means that
+# all the resulting build artifacts are platform-independent. Another
+# later build can be used to produce platform-specific bits.
+#
+java_omero
+
 #
 # Various builds for usability
 #
-java $JAVA_OPTS omero clean build-importer
-#  Temporarily removing the following due to
-#  PermGen exceptions
-#java $JAVA_OPTS omero clean build-webadmin
-#java $JAVA_OPTS omero clean build-ear
-#java $JAVA_OPTS omero clean build-blitz
-#java $JAVA_OPTS omero clean build-py
-
-#
-# Real build
-#
-J=7 java $JAVA_OPTS omero build-all
-# integration unfinished
-
 
 #
 # Documentation and build reports
 #
-java $JAVA_OPTS omero javadoc
-java $JAVA_OPTS omero findbugs # separate call to prevent PermGen OOM
-java $JAVA_OPTS omero coverage
-
+java_omero javadoc
+java_omero findbugs
 
 #
 # Prepare a distribution
 #
 rm -f OMERO.server-build*.zip
-java -Domero.version=build$BUILD_NUMBER omero zip
+java_omero zip
 
-# Disabling for the moment
-# java -Domero.version=build$BUILD_NUMBER omero ivy-hudson
+# Install into the hudson repository
+java_omero ivy-hudson
