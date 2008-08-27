@@ -41,7 +41,6 @@ public class UpgradeCheck implements Runnable {
     final String agent;
 
     String upgradeUrl = null;
-    int status = 0;
     Exception exc = null;
 
     /**
@@ -147,6 +146,7 @@ public class UpgradeCheck implements Runnable {
             return;
         }
 
+        BufferedInputStream bufIn = null;
         try {
             URLConnection conn = _url.openConnection();
             conn.setUseCaches(false);
@@ -158,7 +158,7 @@ public class UpgradeCheck implements Runnable {
             log.debug("Attempting to connect to " + query);
 
             InputStream in = conn.getInputStream();
-            BufferedInputStream bufIn = new BufferedInputStream(in);
+            bufIn = new BufferedInputStream(in);
 
             StringBuilder sb = new StringBuilder();
             while (true) {
@@ -187,6 +187,14 @@ public class UpgradeCheck implements Runnable {
         } catch (Exception ex) {
             log.error("Unknown exception thrown on UpgradeCheck", ex);
             set(null, ex);
+        } finally {
+            if (bufIn != null) {
+                try {
+                    bufIn.close();
+                } catch (Exception e) {
+                    // Really not much that can be done, eh?
+                }
+            }
         }
     }
 }

@@ -427,11 +427,14 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     /**
      * Stores the context of a projection operation.
      * 
+     * Class is static to prevent any instances from holding onto
+     * {@link ProjectionBean} instances.
+     *
      * @author Chris Allan &nbsp;&nbsp;&nbsp;&nbsp; <a
      *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
      * @since OMERO-Beta3.1
      */
-    private class ProjectionContext
+    private static class ProjectionContext
     {
         /** The Pixels set we're currently working on. */
         public Pixels pixels;

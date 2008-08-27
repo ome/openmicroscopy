@@ -79,7 +79,7 @@ public class OMEData {
 
     void init() {
         properties = SqlPropertiesParser.parse(files);
-        seed = (new Random()).nextLong();
+        seed = System.currentTimeMillis();
         rnd = new Random(seed);
     }
 

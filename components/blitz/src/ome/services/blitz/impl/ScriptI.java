@@ -9,7 +9,6 @@ package ome.services.blitz.impl;
 
 // Java imports
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -124,16 +123,19 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                     final OriginalFile tempFile = makeFile(script);
                     writeContent(tempFile, script);
                     JobParams params = getScriptParams(tempFile, __current);
+
+                    if (params == null) {
+                        cb.ice_exception(new ApiUsageException(
+                                "Script error: no params found."));
+                    }
+
                     if (originalFileExists(params.name)) {
                         deleteOriginalFile(tempFile);
                         cb.ice_exception(new ApiUsageException(
                                 "A script with name " + params.name
                                         + " already exists on server."));
                     }
-                    if (params == null) {
-                        cb.ice_exception(new ApiUsageException(
-                                "Script error: no params found."));
-                    }
+
                     tempFile.setName(params.name);
                     tempFile.setPath(params.name);
                     writeContent(tempFile, script);
@@ -168,6 +170,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 final OriginalFile file = getOriginalFile(id);
                 if (file == null) {
                     cb.ice_response(null);
+                    return; // EARLY EXIT
                 }
 
                 final long size = file.getSize();
@@ -225,6 +228,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 final OriginalFile file = getOriginalFile(id);
                 if (file == null) {
                     cb.ice_response(null);
+                    return; // EARLY EXIT.
                 }
 
                 final long size = file.getSize();
@@ -319,10 +323,9 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                 try {
 
                     Map<String, RType> params = getParams(id, __current);
-                    Iterator<String> paramIterator = params.keySet().iterator();
-                    while (paramIterator.hasNext()) {
-                        String paramName = paramIterator.next();
-                        RType scriptParamType = params.get(paramName);
+                    for (Map.Entry<String, RType> entry : params.entrySet()) {
+                        String paramName = entry.getKey();
+                        RType scriptParamType = entry.getValue();
                         if (!map.containsKey(paramName)) {
                             cb
                                     .ice_exception(new ApiUsageException(
@@ -386,8 +389,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                                         .getQueryService().findAllByQuery(
                                                 queryString, null);
                                 for (OriginalFile file : fileList) {
-                                    scriptMap.put(new Long(file.getId()), file
-                                            .getName());
+                                    scriptMap.put(file.getId(), file.getName());
                                 }
                                 return null;
                             }

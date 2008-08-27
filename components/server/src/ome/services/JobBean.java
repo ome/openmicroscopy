@@ -314,8 +314,7 @@ public class JobBean extends AbstractStatefulBean implements JobHandle,
 
     @RolesAllowed("user")
     public boolean jobError() {
-        return JobHandle.ERROR.equals(getJob().getStatus().getValue().equals(
-                "Error"));
+        return JobHandle.ERROR.equals(getJob().getStatus().getValue());
     }
 
     @Transactional(readOnly = false)

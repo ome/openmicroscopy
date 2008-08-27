@@ -89,7 +89,7 @@ public class RatingAnnotationData
 			case LEVEL_FIVE:
 				break;
 			default:
-				new IllegalArgumentException("Rating value not supported.");
+				throw new IllegalArgumentException("Rating value not supported.");
 		}
 	}
 	

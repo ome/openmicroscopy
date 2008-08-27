@@ -71,9 +71,8 @@ public class PixelTypes
 	public static final String DOUBLE = "double";
 	
 	/** Set the pixels Map containing the byte size of the map. */
-	public static Map<String,Integer> pixelMap;
+	public static Map<String,Integer> pixelMap = new HashMap<String, Integer>();
 	static {
-		pixelMap = new HashMap<String, Integer>();
 		pixelMap.put(INT_8, 1);
 		pixelMap.put(UINT_8, 1);
 		pixelMap.put(INT_16, 2);

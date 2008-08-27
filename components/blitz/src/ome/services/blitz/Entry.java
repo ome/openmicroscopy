@@ -87,8 +87,16 @@ public class Entry {
             public void handle(Signal sig) {
                 log.info(sig.getName() + ": Shutdown requested.");
                 instance.lock.lock();
-                instance.shutdown();
-                System.exit(sig.getNumber());
+                try {
+                    instance.status = sig.getNumber();
+                    instance.shutdown();
+                } finally {
+                    // As with the try/finally block around shutdown in the
+                    // start method, execution should never reach this point.
+                    // But just in case, future code changes should introduce
+                    // an exception (and to make findbugs happy) we'll add the
+                    // try/finally
+                }
             }
         };
 
@@ -130,7 +138,15 @@ public class Entry {
         System.out.flush();
         System.err.flush();
         lock.lock();
-        shutdown();
+        try {
+            shutdown();
+        } finally {
+            // This will never be called since System.exit is called in
+            // shutdown where no exception can be thrown, but just in case
+            // the code paths are ever changed and the exit doesn't get called
+            // we'll unlock so other threads won't hang the server.
+            lock.unlock();
+        }
     }
 
     /**

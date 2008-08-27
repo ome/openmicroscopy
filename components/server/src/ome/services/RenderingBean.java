@@ -165,8 +165,11 @@ public class RenderingBean extends AbstractLevel2Service implements
     /**
      * read-write lock to prevent READ-calls during WRITE operations. Unneeded
      * for remote invocations (EJB synchronizes).
+     *
+     * It is safe for the lock to be serialized. On deserialization, it will
+     * be in the unlocked state.
      */
-    private transient ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
     /** Notification that the bean has just returned from passivation. */
     private transient boolean wasPassivated = false;
@@ -227,7 +230,6 @@ public class RenderingBean extends AbstractLevel2Service implements
     	log.debug("***** Returning from passivation... ******");
     	create();
     	wasPassivated = true;
-    	rwl = new ReentrantReadWriteLock();
     }
 
     /** lifecycle method -- {@link PrePassivate}. */

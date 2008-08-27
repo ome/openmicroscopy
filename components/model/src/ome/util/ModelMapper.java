@@ -35,7 +35,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public abstract class ModelMapper extends ContextFilter {
 
-    protected static Log log = LogFactory.getLog(ModelMapper.class);
+    protected final static Log log = LogFactory.getLog(ModelMapper.class);
 
     /**
      * TODO identity versus null mappings

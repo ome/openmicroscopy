@@ -54,220 +54,220 @@ public class IconManager
 {
 
     /** The <code>Hierarchy Explorer</code> icon. */
-    public static int           HIERARCHY_EXPLORER = 0;
+    public final static int           HIERARCHY_EXPLORER = 0;
     
     /** The <code>Category Explorer</code> icon. */
-    public static int           CATEGORY_EXPLORER = 1;
+    public final static int           CATEGORY_EXPLORER = 1;
     
     /** The <code>Images Explorer</code> icon. */
-    public static int           IMAGES_EXPLORER = 2;
+    public final static int           IMAGES_EXPLORER = 2;
     
     /** The <code>Manager</code> icon. */
-    public static int           MANAGER = 3;
+    public final static int           MANAGER = 3;
     
     /** The <code>Project</code> icon. */
-    public static int           PROJECT = 4;
+    public final static int           PROJECT = 4;
     
     /** The <code>Dataset</code> icon. */
-    public static int           DATASET = 5;
+    public final static int           DATASET = 5;
     
     /** The <code>Image</code> icon. */
-    public static int           IMAGE = 6;
+    public final static int           IMAGE = 6;
     
     /** The <code>Category</code> icon. */
-    public static int           CATEGORY = 7;
+    public final static int           CATEGORY = 7;
     
     /** The <code>CategoryGroup</code> icon. */
-    public static int           CATEGORY_GROUP = 8;
+    public final static int           CATEGORY_GROUP = 8;
     
     /** The <code>Root</code> icon. */
-    public static int           ROOT = 9;
+    public final static int           ROOT = 9;
     
     /** The <code>Properties</code> icon. */
-    public static int           PROPERTIES = 10;
+    public final static int           PROPERTIES = 10;
     
     /** The <code>Viewer</code> icon. */
-    public static int           VIEWER = 11;
+    public final static int           VIEWER = 11;
     
     /** The <code>Refresh</code> icon. */
-    public static int           REFRESH = 12;
+    public final static int           REFRESH = 12;
     
     /** The <code>Create</code> icon. */
-    public static int           CREATE = 13;
+    public final static int           CREATE = 13;
     
     /** The <code>Close</code> icon. */
-    public static int           CLOSE = 14;
+    public final static int           CLOSE = 14;
     
     /** The <code>Collapse</code> icon. */
-    public static int           COLLAPSE = 15;
+    public final static int           COLLAPSE = 15;
     
     /** The <code>Sort</code> icon. */
-    public static int           SORT = 16;
+    public final static int           SORT = 16;
     
     /** The <code>Sort by Date</code> icon. */
-    public static int           SORT_DATE = 17;
+    public final static int           SORT_DATE = 17;
     
     /** The <code>Filter</code> icon. */
-    public static int           FILTER = 18;
+    public final static int           FILTER = 18;
     
     /** The <code>Filter Menu</code> icon. */
-    public static int           FILTER_MENU = 19;
+    public final static int           FILTER_MENU = 19;
     
     /** The <code>Annotated Dataset</code> icon. */
-    public static int           ANNOTATED_DATASET = 20;
+    public final static int           ANNOTATED_DATASET = 20;
     
     /** The <code>Annotated Image</code> icon. */
-    public static int           ANNOTATED_IMAGE = 21;
+    public final static int           ANNOTATED_IMAGE = 21;
     
     /** A bigger version of the <code>Create</code> icon. */
-    public static int           CREATE_BIG = 22;
+    public final static int           CREATE_BIG = 22;
     
     /** The <code>Error</code> icon. */
-    public static int           ERROR = 23;
+    public final static int           ERROR = 23;
     
     /** A bigger version of the <code>Properties</code> icon. */
-    public static int           PROPERTIES_BIG = 24;
+    public final static int           PROPERTIES_BIG = 24;
     
     /** The <code>Owner</code> icon. */
-    public static int           OWNER = 25;
+    public final static int           OWNER = 25;
     
     /** The <code>Copy</code> icon. */
-    public static int           COPY = 26;
+    public final static int           COPY = 26;
     
     /** The <code>Paste</code> icon. */
-    public static int           PASTE = 27;
+    public final static int           PASTE = 27;
     
     /** The <code>Delete</code> icon. */
-    public static int           DELETE = 28;
+    public final static int           DELETE = 28;
     
     /** The <code>Find Next</code> icon. */
-    public static int           FIND_NEXT = 29;
+    public final static int           FIND_NEXT = 29;
     
     /** The <code>Find Previous</code> icon. */
-    public static int           FIND_PREVIOUS = 30;
+    public final static int           FIND_PREVIOUS = 30;
     
     /** The <code>Highlight</code> icon. */
-    public static int           HIGHLIGHT = 31;
+    public final static int           HIGHLIGHT = 31;
     
     /** The <code>Highlight</code> icon. */
-    public static int           FINDER = 32;
+    public final static int           FINDER = 32;
     
     /** The <code>Warning</code> icon. */
-    public static int           WARNING = 33;
+    public final static int           WARNING = 33;
     
     /** The <code>Blank</code> icon. */
-    public static int           TRANSPARENT = 34;
+    public final static int           TRANSPARENT = 34;
     
     /** The <code>Annotation</code> icon. */
-    public static int           ANNOTATION = 35;
+    public final static int           ANNOTATION = 35;
     
     /** The <code>Classification</code> icon. */
-    public static int           CLASSIFY = 36;
+    public final static int           CLASSIFY = 36;
     
     /** The <code>Classification</code> icon. */
-    public static int           CATEGORY_BIG = 37;
+    public final static int           CATEGORY_BIG = 37;
     
     /** The <code>Classified Image</code> icon. */
-    public static int           CLASSIFIED_IMAGE = 38;
+    public final static int           CLASSIFIED_IMAGE = 38;
     
     /** The <code>Classified and Annotated Image</code> icon. */
-    public static int           ANNOTATED_CLASSIFIED_IMAGE = 39;
+    public final static int           ANNOTATED_CLASSIFIED_IMAGE = 39;
     
     /** The <code>Exit Application</code> icon. */
-    public static int           EXIT_APPLICATION = 40;
+    public final static int           EXIT_APPLICATION = 40;
     
     /** The <code>Filter Big</code> icon. */
-    public static int           FILTER_BIG = 41;
+    public final static int           FILTER_BIG = 41;
     
     /** The <code>Navigation Forward</code> icon. */
-    public static int           FORWARD_NAV = 42;
+    public final static int           FORWARD_NAV = 42;
     
     /** The <code>Navigation Forward</code> icon. */
-    public static int           BACKWARD_NAV = 43;
+    public final static int           BACKWARD_NAV = 43;
     
     /** The <code>Status Info</code> icon. */
-    public static int           STATUS_INFO = 44;
+    public final static int           STATUS_INFO = 44;
     
     /** The <code>Cancel</code> icon. */
-    public static int           CANCEL = 45;
+    public final static int           CANCEL = 45;
     
     /** The <code>Data Manager</code> icon. */
-    public static int           DATA_MANAGER = 46;
+    public final static int           DATA_MANAGER = 46;
     
     /** The <code>Classifier</code> icon. */
-    public static int           CLASSIFIER = 47;
+    public final static int           CLASSIFIER = 47;
     
     /** The <code>Add top container</code> icon. */
-    public static int           ADD_CONTAINER = 48;
+    public final static int           ADD_CONTAINER = 48;
     
     /** The <code>Add existing</code> icon. */
-    public static int           ADD_EXISTING = 49;
+    public final static int           ADD_EXISTING = 49;
     
     /** The <code>Progress</code> icon. */
-    public static int           PROGRESS = 50;
+    public final static int           PROGRESS = 50;
     
     /** The <code>Declassify</code> icon. */
-    public static int           DECLASSIFY = 51;
+    public final static int           DECLASSIFY = 51;
     
     /** The <code>Declassify</code> icon. */
-    public static int           CUT = 52;
+    public final static int           CUT = 52;
     
     /** The <code>Question</code> icon. */
-    public static int           QUESTION = 53;
+    public final static int           QUESTION = 53;
     
     /** The <code>Manager 48</code> icon. */
-    public static int           MANAGER_48 = 54;
+    public final static int           MANAGER_48 = 54;
         
     /** The <code>Partial name</code> icon. */
-    public static int           PARTIAL_NAME = 55;
+    public final static int           PARTIAL_NAME = 55;
     
     /** The <code>Partial name</code> icon. */
-    public static int           IMAGE_48 = 56;
+    public final static int           IMAGE_48 = 56;
     
     /** The <code>User Group</code> icon. */
-    public static int           USER_GROUP = 57;
+    public final static int           USER_GROUP = 57;
     
     /** The <code>Owner 48</code> icon. */
-    public static int           OWNER_48 = 58;
+    public final static int           OWNER_48 = 58;
     
     /** The <code>Server</code> icon. */
-    public static int           SERVER = 59;
+    public final static int           SERVER = 59;
     
     /** The <code>history</code> icon. */
-    public static int           HISTORY = 60;
+    public final static int           HISTORY = 60;
     
     /** The <code>roll over</code> icon. */
-    public static int           ROLL_OVER = 61;
+    public final static int           ROLL_OVER = 61;
     
     /** The <code>browser</code> icon. */
-    public static int           BROWSER = 62;
+    public final static int           BROWSER = 62;
     
     /** The <code>disk space</code> icon. */
-    public static int           DISK_SPACE = 63;
+    public final static int           DISK_SPACE = 63;
     
     /** The <code>disk space</code> icon. */
-    public static int           DATE = 64;
+    public final static int           DATE = 64;
     
     /** The <code>Redo</code> icon. */
-    public static int           REDO = 65;
+    public final static int           REDO = 65;
     
     /** The <code>Search</code> icon. */
-    public static int           SEARCH = 66;
+    public final static int           SEARCH = 66;
     
     /** The <code>remove edit</code> icon. */
-    public static int           EDIT_REMOVE = 67;
+    public final static int           EDIT_REMOVE = 67;
     
     /** The <code>add_12</code> icon. */
-    public static int           ADD_12 = 68;
+    public final static int           ADD_12 = 68;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 68;
+    private final static int          MAX_ID = 68;
     
     /** Paths of the icon files. */
-    private static String[]     relPaths = new String[MAX_ID+1];
+    private final static String[]     relPaths = new String[MAX_ID+1];
     
     static {
         relPaths[HIERARCHY_EXPLORER] = "eclipse_hierarchy_co16.png";

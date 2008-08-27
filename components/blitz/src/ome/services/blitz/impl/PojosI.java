@@ -143,7 +143,7 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
 
         IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_ARRAY);
         ome.model.ILink[] array;
-        if (links != null) {
+        if (links == null) {
             array = new ome.model.ILink[0];
         } else {
             array = new ome.model.ILink[links.size()];
@@ -174,7 +174,7 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
             Map<String, RType> options, Current __current) throws ServerError {
         IceMapper mapper = new IceMapper(IceMapper.VOID);
         ome.model.ILink[] array;
-        if (links != null) {
+        if (links == null) {
             array = new ome.model.ILink[0];
         } else {
             array = new ome.model.ILink[links.size()];

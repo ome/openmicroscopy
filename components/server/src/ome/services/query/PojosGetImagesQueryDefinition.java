@@ -12,7 +12,6 @@ import static ome.parameters.Parameters.OPTIONS;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import ome.conditions.ApiUsageException;
@@ -38,7 +37,6 @@ public class PojosGetImagesQueryDefinition extends AbstractClassIdsOptionsQuery 
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
 
-        Map<String, Object> params = new HashMap<String, Object>();
         Class klass = (Class) value(CLASS);
         Collection ids = (Collection) value(IDS);
         PojoOptions po = new PojoOptions((Map) value(OPTIONS));

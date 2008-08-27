@@ -19,9 +19,8 @@ import ome.util.Utils;
 import org.hibernate.Session;
 
 /**
- * {@link CBlock} implementation which counts the number of locking
- * instances there are for a single {@link IObject} while walking
- * a graph.
+ * {@link CBlock} implementation which counts the number of locking instances
+ * there are for a single {@link IObject} while walking a graph.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
@@ -74,12 +73,13 @@ class UnloadedCollector implements CBlock {
 
         Map<Long, Map<String, Long>> id_class_id = map.get(object.getClass()
                 .getName());
+
         if (id_class_id == null) {
             id_class_id = new HashMap<Long, Map<String, Long>>();
             map.put(object.getClass().getName(), id_class_id);
         }
 
-        if (!map.containsKey(object.getId())) {
+        if (!id_class_id.containsKey(object.getId())) {
             id_class_id.put(object.getId(), admin.getLockingIds(object));
         }
 

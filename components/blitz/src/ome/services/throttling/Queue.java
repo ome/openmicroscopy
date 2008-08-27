@@ -18,7 +18,7 @@ public class Queue {
 
     private final static Log log = LogFactory.getLog(Queue.class);
 
-    class CancelledException extends Exception {
+    static class CancelledException extends Exception {
     }
 
     private final BlockingQueue<Callback> q = new LinkedBlockingQueue<Callback>();

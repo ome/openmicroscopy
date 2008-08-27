@@ -6,22 +6,22 @@
  */
 package ome.services.query;
 
+import static ome.parameters.Parameters.ALGORITHM;
+import static ome.parameters.Parameters.IDS;
+
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
+
+import ome.api.IPojos;
+import ome.model.containers.Category;
+import ome.model.containers.CategoryGroup;
+import ome.parameters.Parameters;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
-import ome.api.IPojos;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.parameters.Parameters;
-import static ome.parameters.Parameters.*;
-import ome.util.builders.PojoOptions;
 
 public class PojosCGCPathsQueryDefinition extends Query {
 
@@ -35,7 +35,6 @@ public class PojosCGCPathsQueryDefinition extends Query {
     @Override
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
-        PojoOptions po = new PojoOptions((Map) value(OPTIONS));
 
         String algo = (String) value(ALGORITHM);
         Collection ids = (Collection) value(IDS);

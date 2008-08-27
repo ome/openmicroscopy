@@ -371,8 +371,8 @@ public abstract class HibernateUtils {
     @SuppressWarnings("unchecked")
     protected static Map copy(Map m) {
         Map newMap = new HashMap();
-        m.putAll(m);
-        return m;
+        newMap.putAll(m);
+        return newMap;
     }
 
     @SuppressWarnings("unchecked")

@@ -8,14 +8,11 @@ package ome.services.query;
 
 import static ome.parameters.Parameters.CLASS;
 import static ome.parameters.Parameters.IDS;
-import static ome.parameters.Parameters.OPTIONS;
 
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Map;
 
 import ome.parameters.Parameters;
-import ome.util.builders.PojoOptions;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -36,7 +33,6 @@ public class PojosFindAnnotationsQueryDefinition extends Query {
     @Override
     protected void buildQuery(Session session) throws HibernateException,
             SQLException {
-        PojoOptions po = new PojoOptions((Map) value(OPTIONS));
 
         Class k = (Class) value(CLASS);
 

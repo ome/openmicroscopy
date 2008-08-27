@@ -238,12 +238,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
-    public IProjectionPrx getProjectionService(Ice.Current current) 
-        throws ServerError {
+    public IProjectionPrx getProjectionService(Ice.Current current)
+            throws ServerError {
         return IProjectionPrxHelper.uncheckedCast(getByName(
                 PROJECTIONSERVICE.value, current));
     }
-    
+
     public IQueryPrx getQueryService(Ice.Current current) throws ServerError {
         return IQueryPrxHelper.uncheckedCast(getByName(QUERYSERVICE.value,
                 current));
@@ -419,7 +419,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         // Setup environment
         // Send off to processor
         long start = System.currentTimeMillis();
-        long stop = seconds < 0 ? start : (start + (seconds * 1000));
+        long stop = seconds < 0 ? start : (start + (seconds * 1000L));
         do {
 
             Ice.ObjectPrx objectPrx = adapter.getCommunicator().stringToProxy(
