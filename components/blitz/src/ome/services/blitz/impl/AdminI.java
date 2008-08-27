@@ -8,11 +8,15 @@
 package ome.services.blitz.impl;
 
 // Java imports
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ome.api.IAdmin;
 import ome.services.blitz.util.BlitzExecutor;
 import omero.RString;
+import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IAdmin_addGroups;
 import omero.api.AMD_IAdmin_changeExpiredCredentials;
@@ -56,6 +60,7 @@ import omero.model.IObject;
 import omero.model.Permissions;
 import omero.util.IceMapper;
 import Ice.Current;
+import Ice.UserException;
 
 /**
  * Implementation of the {@link omero.api.IAdmin} service.
@@ -226,7 +231,33 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void lookupLdapAuthExperimenters_async(
             AMD_IAdmin_lookupLdapAuthExperimenters __cb, Current __current)
             throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
+        IceMapper mapper = new IceMapper(new IceMapper.ReturnMapping() {
+
+            public Object mapReturnValue(IceMapper mapper, Object value)
+                    throws UserException {
+
+                if (value == null) {
+                    return null;
+                }
+
+                List<Map<String, Object>> rv = (List<Map<String, Object>>) value;
+                omero.RList list = new omero.RList();
+                list.val = new ArrayList<omero.RType>();
+                for (Map<String, Object> item : rv) {
+                    if (item == null || item.keySet().size() > 0) {
+                        throw new IllegalArgumentException(value.toString());
+                    }
+                    omero.RMap map = new omero.RMap();
+                    map.val = new HashMap<String, RType>();
+                    String key = item.keySet().iterator().next();
+                    omero.RType val = mapper.toRType(item.get(key));
+                    map.val.put(key, val);
+                    list.val.add(map);
+                }
+                return list;
+            }
+        });
+        callInvokerOnMappedArgs(mapper, __cb, __current);
     }
 
     public void removeGroups_async(AMD_IAdmin_removeGroups __cb,

@@ -73,5 +73,9 @@ class TestTicket2000(lib.ITest):
         
         self.root.sf.closeOnDestroy()
 
+    def test1027(self):
+        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        self.client.sf.getAdminService().lookupLdapAuthExperimenters()
+
 if __name__ == '__main__':
     unittest.main()
