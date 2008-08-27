@@ -19,6 +19,12 @@ java_omero(){
 }
 
 #
+# Cleaning to prevent strange hudson errors about
+# stale tests and general weirdness.
+#
+java_omero clean
+
+#
 # Run the default build which most notably omits the C++ bindings.
 # This is primarily due to build time of C++, but it also means that
 # all the resulting build artifacts are platform-independent. Another
