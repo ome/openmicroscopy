@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="target/libs/acegi-security.jar"/>
 	<classpathentry kind="lib" path="target/libs/activemq-core.jar"/>
 	<classpathentry kind="lib" path="target/libs/ant.jar"/>
-	<classpathentry kind="lib" path="target/libs/ant-launcher.jar"/>
 	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
@@ -26,9 +25,7 @@
 	<classpathentry kind="lib" path="target/libs/commons-lang.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-pool.jar"/>
-	<classpathentry kind="lib" path="target/libs/dbunit.jar"/>
 	<classpathentry kind="lib" path="target/libs/dom4j.jar"/>
-	<classpathentry kind="lib" path="target/libs/drools-all-jdk5.jar"/>
 	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>
@@ -63,14 +60,12 @@
 	<classpathentry kind="lib" path="target/libs/ome-java.jar"/>
 	<classpathentry kind="lib" path="target/libs/persistence-api.jar"/>
 	<classpathentry kind="lib" path="target/libs/postgresql.jar"/>
-	<classpathentry kind="lib" path="target/libs/qdox.jar"/>
 	<classpathentry kind="lib" path="target/libs/quartz.jar"/>
 	<classpathentry kind="lib" path="target/libs/rendering.jar"/>
 	<classpathentry kind="lib" path="target/libs/romio.jar"/>
 	<classpathentry kind="lib" path="target/libs/server.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-ldap.jar"/>
-	<classpathentry kind="lib" path="target/libs/spring-ldap-tiger.jar"/>
 	<classpathentry kind="lib" path="target/libs/spring-test.jar"/>
 	<classpathentry kind="lib" path="target/libs/testing.jar"/>
 	<classpathentry kind="lib" path="target/libs/testng.jar"/>

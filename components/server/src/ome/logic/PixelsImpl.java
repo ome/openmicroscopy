@@ -37,7 +37,6 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
-import ome.model.core.PlaneInfo;
 import ome.model.display.RenderingDef;
 import ome.model.enums.DimensionOrder;
 import ome.model.enums.PixelsType;
@@ -71,12 +70,6 @@ import ome.services.util.OmeroAroundInvoke;
 @Interceptors( { OmeroAroundInvoke.class, SimpleLifecycle.class })
 public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 	
-	/** The pixels set we're currently copying from. */
-	private Pixels from;
-	
-	/** The pixels set we're currently copying to. */
-	private Pixels to;
-
     /**
      * Returns the interface this implementation is for.
      * @see AbstractLevel2Service#getServiceInterface()
@@ -142,12 +135,12 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     }
     
     /** Actually performs the work declared in {@link copyAndResizePixels()}. */
-    private void _copyAndResizePixels(long pixelsId, Integer sizeX, 
+    private Pixels _copyAndResizePixels(long pixelsId, Integer sizeX, 
     		Integer sizeY, Integer sizeZ, Integer sizeT, 
     		List<Integer> channelList, String methodology, boolean copyStats)
     {
-        from = retrievePixDescription(pixelsId);
-        to = new Pixels();
+        Pixels from = retrievePixDescription(pixelsId);
+        Pixels to = new Pixels();
         
         // Ensure we have no values out of bounds
         outOfBoundsCheck(sizeX, "sizeX");
@@ -188,6 +181,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         		copyChannel(channel, from, to, copyStats);
         	}
         }
+        return to;
     }
     
     @RolesAllowed("user")
@@ -196,8 +190,10 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
             Integer sizeZ, Integer sizeT, List<Integer> channelList,
             String methodology, boolean copyStats)
     {
-    	_copyAndResizePixels(pixelsId, sizeX, sizeY, sizeZ, sizeT,
-    			             channelList, methodology, copyStats);
+        Pixels from = retrievePixDescription(pixelsId);
+    	Pixels to =
+    	    _copyAndResizePixels(pixelsId, sizeX, sizeY, sizeZ, sizeT,
+    			                 channelList, methodology, copyStats);
     	
         // Deal with Image linkage
         Image image = from.getImage();
@@ -230,8 +226,9 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     	while (i.hasNext())
     	{
     		Pixels p = i.next();
-        	_copyAndResizePixels(p.getId(), sizeX, sizeY, sizeZ, sizeT,
-		                         channelList, null, copyStats);
+        	Pixels to =
+        	    _copyAndResizePixels(p.getId(), sizeX, sizeY, sizeZ, sizeT,
+		                            channelList, null, copyStats);
         	iTo.addPixels(to);
     	}  	
    	
@@ -248,8 +245,8 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
     {
     	Image image = new Image();
     	Pixels pixels = new Pixels();
-	image.setName(name);
-	image.setDescription(description);
+    	image.setName(name);
+    	image.setDescription(description);
     	image.addPixels(pixels);
         
         // Check that the channels in the list are valid. 
@@ -273,7 +270,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
         pixels.setSizeT(sizeT);
         pixels.setSha1("Pending...");
         pixels.setDimensionOrder(getEnumeration(DimensionOrder.class, "XYZCT")); 
-	pixels.setPixelsDimensions(dims);
+        pixels.setPixelsDimensions(dims);
         // Create channel data.
         List<Channel> channels = createChannels(channelList);
         pixels.addChannelSet(channels);

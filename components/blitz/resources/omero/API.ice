@@ -206,6 +206,21 @@ module omero {
 	    void deleteDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
 	    void deleteDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
 	};
+	
+	["ami", "amd"] interface IProjection extends ServiceInterface
+	{
+	    Ice::ByteSeq projectStack(long pixelsId,
+	                              omero::model::PixelsType pixelsType,
+                                  int algorithm, int timepoint,
+                                  int channelIndex, int stepping,
+                                  int start, int end) throws ServerError;
+        long projectPixels(long pixelsId, omero::model::PixelsType pixelsType,
+                           int algorithm, int tStart, int tEnd, 
+                           omero::sys::IntList channelList, int stepping, 
+                           int zStart, int zEnd, string name)
+                           throws ServerError;
+	};
+	
 
 	["ami", "amd"] interface IQuery extends ServiceInterface
 	{

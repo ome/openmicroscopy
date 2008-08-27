@@ -41,6 +41,8 @@ import omero.api.IPixelsPrx;
 import omero.api.IPixelsPrxHelper;
 import omero.api.IPojosPrx;
 import omero.api.IPojosPrxHelper;
+import omero.api.IProjectionPrx;
+import omero.api.IProjectionPrxHelper;
 import omero.api.IQueryPrx;
 import omero.api.IQueryPrxHelper;
 import omero.api.IRenderingSettingsPrx;
@@ -82,6 +84,7 @@ import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
 import omero.constants.PIXELSSERVICE;
 import omero.constants.POJOSSERVICE;
+import omero.constants.PROJECTIONSERVICE;
 import omero.constants.QUERYSERVICE;
 import omero.constants.RAWFILESTORE;
 import omero.constants.RAWPIXELSSTORE;
@@ -235,6 +238,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                 current));
     }
 
+    public IProjectionPrx getProjectionService(Ice.Current current) 
+        throws ServerError {
+        return IProjectionPrxHelper.uncheckedCast(getByName(
+                PROJECTIONSERVICE.value, current));
+    }
+    
     public IQueryPrx getQueryService(Ice.Current current) throws ServerError {
         return IQueryPrxHelper.uncheckedCast(getByName(QUERYSERVICE.value,
                 current));

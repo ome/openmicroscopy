@@ -9,7 +9,6 @@
 	<classpathentry kind="lib" path="target/libs/acegi-security.jar"/>
 	<classpathentry kind="lib" path="target/libs/activemq-core.jar"/>
 	<classpathentry kind="lib" path="target/libs/ant.jar"/>
-	<classpathentry kind="lib" path="target/libs/ant-launcher.jar"/>
 	<classpathentry kind="lib" path="target/libs/antlr.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm.jar"/>
 	<classpathentry kind="lib" path="target/libs/asm-attrs.jar"/>
@@ -25,9 +24,7 @@
 	<classpathentry kind="lib" path="target/libs/commons-lang.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-logging.jar"/>
 	<classpathentry kind="lib" path="target/libs/commons-pool.jar"/>
-	<classpathentry kind="lib" path="target/libs/dbunit.jar"/>
 	<classpathentry kind="lib" path="target/libs/dom4j.jar"/>
-	<classpathentry kind="lib" path="target/libs/drools-all-jdk5.jar"/>
 	<classpathentry kind="lib" path="target/libs/dsl.jar"/>
 	<classpathentry kind="lib" path="target/libs/ehcache.jar"/>
 	<classpathentry kind="lib" path="target/libs/emma_ant.jar"/>

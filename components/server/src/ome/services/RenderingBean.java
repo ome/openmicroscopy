@@ -42,7 +42,6 @@ import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
 import ome.io.nio.InMemoryPlanarPixelBuffer;
 import ome.logic.AbstractLevel2Service;
@@ -72,8 +71,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.annotation.ejb.LocalBinding;
 import org.jboss.annotation.ejb.RemoteBinding;
 import org.jboss.annotation.ejb.RemoteBindings;
-import org.jboss.annotation.ejb.cache.Cache;
-import org.jboss.ejb3.cache.NoPassivationCache;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -569,7 +566,7 @@ public class RenderingBean extends AbstractLevel2Service implements
                 if (channelBindings[i].getActive())
                 {
                     planes[0][i][0] =
-                        projectionService.projectStack(pixelsId, algorithm,
+                        projectionService.projectStack(pixelsId, null, algorithm,
                                                        timepoint, i, stepping,
                                                        start, end);
                     projectedSizeC += 1;
@@ -605,7 +602,7 @@ public class RenderingBean extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public byte[] renderProjectedCompressed(int algorithm, int timepoint,
-                                           int stepping, int start, int end) {
+                                            int stepping, int start, int end) {
         rwl.writeLock().lock();
         
         int[] buf = renderProjectedAsPackedInt(algorithm, timepoint,

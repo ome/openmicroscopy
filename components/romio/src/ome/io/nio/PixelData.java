@@ -50,11 +50,20 @@ public class PixelData
     /** If the data is signed. */
     protected boolean isSigned;
     
+    /** If the data is floating point. */
+    protected boolean isFloat;
+    
     /** The pixels type as it would be represented in Java. */
     protected int javaType;
     
     /** The number of bytes per pixel. */
     protected int bytesPerPixel;
+    
+    /** The minimum pixel value for the pixels type of the pixel data. */
+    protected double minimum;
+    
+    /** The maximum pixel value for the pixels type of the pixel data. */
+    protected double maximum;
     
 	/**
 	 * Default constructor.
@@ -66,9 +75,60 @@ public class PixelData
 	{
 		this.data = data;
 		this.pixelsType = pixelsType;
-		isSigned = isSigned();
-		javaType = javaType();
 		bytesPerPixel = bytesPerPixel();
+		String value = pixelsType.getValue();
+		if (value.equals("int8")) {
+		    isSigned = true;
+		    isFloat = false;
+		    javaType = BYTE;
+		    minimum = Integer.MIN_VALUE;
+		    maximum = Integer.MAX_VALUE;
+		} else if (value.equals("uint8")) {
+		    isSigned = false;
+		    isFloat = false;
+		    javaType = BYTE;
+		    minimum = 0;
+		    maximum = 255;
+		} else if (value.equals("int16")) {
+		    isSigned = true;
+		    isFloat = false;
+		    javaType = SHORT;
+		    minimum = Short.MIN_VALUE;
+		    maximum = Short.MAX_VALUE;
+		} else if (value.equals("uint16")) {
+		    isSigned = false;
+		    isFloat = false;
+		    javaType = SHORT;
+		    minimum = 0;
+		    maximum = 65535;
+		} else if (value.equals("int32")) {
+		    isSigned = true;
+		    isFloat = false;
+		    javaType = INT;
+		    minimum = Integer.MIN_VALUE;
+		    maximum = Integer.MAX_VALUE;
+		} else if (value.equals("uint32")) {
+		    isSigned = false;
+		    isFloat = false;
+		    javaType = INT;
+		    minimum = 0;
+		    maximum = 4294967295L;
+		} else if (value.equals("float")) {
+		    isSigned = true;
+		    isFloat = true;
+		    javaType = FLOAT;
+		    minimum = Float.MIN_VALUE;
+		    maximum = Float.MAX_VALUE;
+		} else if (value.equals("double")) {
+		    isSigned = true;
+		    isFloat = true;
+		    javaType = DOUBLE;
+		    minimum = Double.MIN_VALUE;
+		    maximum = Double.MAX_VALUE;
+		} else {
+	          throw new IllegalArgumentException(
+	                    "Unknown pixel type: " + pixelsType.getValue());
+		}
 	}
 
     /**
@@ -105,20 +165,7 @@ public class PixelData
      */
     public int javaType()
     {
-        if (in(new String[] { "int8", "uint8" })) {
-            return BYTE;
-        } else if (in(new String[] { "int16", "uint16" })) {
-            return SHORT;
-        } else if (in(new String[] { "int32", "uint32" })) {
-            return INT;
-        } else if (pixelsType.getValue().equals("float")) {
-            return FLOAT;
-        } else if (pixelsType.getValue().equals("double")) {
-            return DOUBLE;
-        } else {
-        	throw new RuntimeException(
-        			"Unknown pixel type: " + pixelsType.getValue());
-        }
+        return javaType;
     }
 
     /**
@@ -128,15 +175,7 @@ public class PixelData
      */
     public boolean isSigned()
     {
-        if (in(new String[] { "uint8", "uint16", "uint32" })) {
-            return false;
-        } else if (in(new String[] { "int8", "int16", "int32", "float",
-                "double" })) {
-            return true;
-        } else {
-        	throw new RuntimeException(
-        			"Unknown pixel type: " + pixelsType.getValue());
-        }
+        return isSigned;
     }
     
     /**
@@ -146,9 +185,28 @@ public class PixelData
      */
     public boolean isFloat()
     {
-        if (in(new String[] { "float", "double" }))
-            return true;
-        return false;
+        return isFloat;
+    }
+    
+    
+    /**
+     * Returns the minimum pixel value this pixel data supports.
+     * 
+     * @return See above.
+     */
+    public double getMinimum()
+    {
+        return minimum;
+    }
+    
+    /**
+     * Returns the minimum pixel value this pixel data supports.
+     * 
+     * @return See above.
+     */
+    public double getMaximum()
+    {
+        return maximum;
     }
     
     /**

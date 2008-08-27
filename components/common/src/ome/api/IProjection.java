@@ -8,6 +8,8 @@ package ome.api;
 
 import java.util.List;
 
+import ome.model.enums.PixelsType;
+
 /**
  * Provides methods for performing projections of Pixels sets.
  * 
@@ -19,20 +21,25 @@ import java.util.List;
 public interface IProjection extends ServiceInterface
 {
     /** Maximum intensity projection (MIP) */
-    public static final int MAXIMUM_INTENSITY = 1;
+    public static final int MAXIMUM_INTENSITY = 0;
     
     /** Mean intensity projection */
-    public static final int MEAN_INTENSITY = 2;
+    public static final int MEAN_INTENSITY = 1;
     
     /** Sum intensity projection */
-    public static final int SUM_INTENSITY = 3;
+    public static final int SUM_INTENSITY = 2;
     
     /**
      * Performs a projection through the optical sections of a particular 
      * wavelength at a given time point of a Pixels set.
      * @param pixelsId The source Pixels set Id.
+     * @param pixelsType The destination Pixels type. If <code>null</code>, the
+     * source Pixels set pixels type will be used.
      * @param algorithm <code>MAXIMUM_INTENSITY</code>,
-     * <code>MEAN_INTENSITY</code> or <code>SUM_INTENSITY</code>
+     * <code>MEAN_INTENSITY</code> or <code>SUM_INTENSITY</code>. <b>NOTE:</b> 
+     * When performing a <code>SUM_INTENSITY</code> projection, pixel values 
+     * will be <i>pinned</i> to the maximum pixel value of the destination 
+     * Pixels type.
      * @param timepoint Timepoint to perform the projection.
      * @param channelIndex Index of the channel to perform the projection.
      * @param stepping Stepping value to use while calculating the projection.
@@ -57,9 +64,9 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectPixels()
      */
-    public byte[] projectStack(long pixelsId, int algorithm, int timepoint,
-                               int channelIndex, int stepping,
-                               int start, int end);
+    public byte[] projectStack(long pixelsId, PixelsType pixelsType,
+                               int algorithm, int timepoint, int channelIndex,
+                               int stepping, int start, int end);
 
     /**
      * Performs a projection through selected optical sections and optical
@@ -67,8 +74,13 @@ public interface IProjection extends ServiceInterface
      * is linked to the Pixels set will be copied using 
      * {@link IPixels.copyAndResizeImage()}.
      * @param pixelsId The source Pixels set Id.
+     * @param pixelsType The destination Pixels type. If <code>null</code>, the
+     * source Pixels set pixels type will be used.
      * @param algorithm <code>MAXIMUM_INTENSITY</code>,
-     * <code>MEAN_INTENSITY</code> or <code>SUM_INTENSITY</code>
+     * <code>MEAN_INTENSITY</code> or <code>SUM_INTENSITY</code>. <b>NOTE:</b> 
+     * When performing a <code>SUM_INTENSITY</code> projection, pixel values 
+     * will be <i>pinned</i> to the maximum pixel value of the destination 
+     * Pixels type.
      * @param tStart Timepoint to start projecting from.
      * @param tEnd Timepoint to finish projecting.
      * @param channels List of the channel indexes to use while calculating the
@@ -100,7 +112,8 @@ public interface IProjection extends ServiceInterface
      * </ul>
      * @see #projectStack()
      */
-    public long projectPixels(long pixelsId, int algorithm, int tStart,
-                              int tEnd, List<Integer> channels, int stepping,
+    public long projectPixels(long pixelsId, PixelsType pixelsType, 
+                              int algorithm, int tStart, int tEnd,
+                              List<Integer> channels, int stepping,
                               int zStart, int zEnd, String name);
 }

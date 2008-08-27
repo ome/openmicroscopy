@@ -30,6 +30,7 @@ module omero {
     const string LDAPSERVICE      = "omero.api.ILdap";
     const string PIXELSSERVICE    = "omero.api.IPixels";
     const string POJOSSERVICE     = "omero.api.IPojos";
+    const string PROJECTIONSERVICE= "omero.api.IProjection";
     const string QUERYSERVICE     = "omero.api.IQuery";
     const string SESSIONSERVICE   = "omero.api.ISession";
     const string SHARESERVICE     = "omero.api.IShare";
@@ -88,6 +89,17 @@ module omero {
       const string FINISHED = "Finished";
       const string CANCELLED = "Cancelled";
 
+    };
+    
+    module projection {
+      /*
+       * Used by the IProjection methods to declare which projection to perform.
+       */
+      enum ProjectionType {
+        MAXIMUMINTENSITY,
+        MEANINTENSITY,
+        SUMINTENSITY
+      };
     };
   };
 };

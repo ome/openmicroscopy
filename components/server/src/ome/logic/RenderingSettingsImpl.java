@@ -110,12 +110,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     /** Reference to the service used to retrieve the pixels metadata. */
     protected transient IPixels pixelsMetadata;
     
-    /** Quantum factory instance for enumeration lookup and verification. */
-    protected transient QuantumFactory quantumFactory;
-    
-    /** An enumerated list of rendering models. */
-    protected transient List<RenderingModel> renderingModels;
-     
     /**
      * Performs the logic specified by {@link #resetDefaultsInImage(long)}.
      * 
@@ -144,9 +138,9 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                                        boolean save, boolean computeStats)
     {
         List<Family> families = pixelsMetadata.getAllEnumerations(Family.class);
-        renderingModels = 
+        List<RenderingModel> renderingModels = 
             pixelsMetadata.getAllEnumerations(RenderingModel.class);
-        quantumFactory = new QuantumFactory(families);
+        QuantumFactory quantumFactory = new QuantumFactory(families);
         try
         {
             PixelBuffer buffer = pixelsData.getPixelBuffer(pixels);
@@ -924,5 +918,4 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     	}
     	return imageIds;
     }
-    
 }
