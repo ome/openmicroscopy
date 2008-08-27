@@ -26,14 +26,21 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.io.File;
 
+import javax.swing.tree.TreeModel;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.EditorLoader;
 import org.openmicroscopy.shoola.agents.editor.FileLoader;
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
+import org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.editor.model.TreeModelFactory;
 
 /** 
  * The Model component in the <code>Editor</code> MVC triad.
+ * It delegates the treeModel to the Browser.
+ * 
  * This class tracks the <code>Editor</code>'s state and knows how to
  * initiate data retrievals. It also knows how to store and manipulate
  * the results. This class  provide  a suitable data loader. 
@@ -69,6 +76,9 @@ class EditorModel
 	/** The file retrieved either from the DB or local machine. */
 	private File			fileToEdit;
 	
+	/**	The browser component */
+	private Browser 		browser;
+	
 	/** 
 	 * Will either be a data loader or <code>null</code> depending on the 
 	 * current state. 
@@ -102,6 +112,8 @@ class EditorModel
 	void initialize(Editor component)
 	{ 
 		this.component = component; 
+		
+		browser = BrowserFactory.createBrowser(Browser.TREE_EDIT);
 	}
 	
 	/**
@@ -172,7 +184,17 @@ class EditorModel
 	void setFileToEdit(File file)
 	{
 		fileToEdit = file;
+		TreeModel treeModel = TreeModelFactory.getTree(file);
+		browser.setTreeModel(treeModel);
 		state = Editor.READY;
 	}
+	
+	
+	/**
+	 * Returns the browser component.
+	 * 
+	 * @return		see above.
+	 */
+	Browser getBrowser() { return browser; }
 	
 }

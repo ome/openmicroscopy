@@ -59,7 +59,7 @@ class EditorToolBar
 		bar.setFloatable(false);
 		bar.setRollover(true);
 		bar.setBorder(null);
-		JButton b = new JButton(controller.getAction(EditorControl.CREATE));
+		JButton b = new JButton(controller.getAction(EditorControl.CLOSE_EDITOR));
 		bar.add(b);
 		return bar;
 	}
@@ -67,12 +67,12 @@ class EditorToolBar
 	/** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	JPanel bars = new JPanel();
-    	bars.setBorder(null);
-        bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
-        bars.add(createBar());
+    	JPanel toolBars = new JPanel();
+    	toolBars.setBorder(null);
+        toolBars.setLayout(new BoxLayout(toolBars, BoxLayout.X_AXIS));
+        toolBars.add(createBar());
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        add(bars);
+        add(toolBars);
     	/*
         JPanel bars = new JPanel(), outerPanel = new JPanel();
         bars.setBorder(null);

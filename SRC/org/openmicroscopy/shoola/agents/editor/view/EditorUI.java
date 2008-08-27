@@ -32,6 +32,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JTree;
 
 //Third-party libraries
 
@@ -71,10 +72,14 @@ class EditorUI
 	/** Reference to the status. */
 	private EditorStatusBar			statusBar;
 	
+	/** A blank panel to display */
+	private JPanel 					blankPanel;
+	
+	
 	private JMenu createMenu()
 	{
-		JMenu menu = new JMenu("Menu 1");
-		EditorAction a = controller.getAction(EditorControl.CREATE);
+		JMenu menu = new JMenu("File");
+		EditorAction a = controller.getAction(EditorControl.CLOSE_EDITOR);
 		JMenuItem item = new JMenuItem(a);
 		item.setText(a.getActionName());
 		menu.add(item);
@@ -103,7 +108,9 @@ class EditorUI
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(toolBar, BorderLayout.NORTH);
-		c.add(new JPanel(), BorderLayout.CENTER);
+		blankPanel = new JPanel();
+		//blankPanel.setPreferredSize(new Dimension (300, 200));
+		//c.add(blankPanel, BorderLayout.CENTER);
 		c.add(statusBar, BorderLayout.SOUTH);
 	}
 	
@@ -153,18 +160,25 @@ class EditorUI
         statusBar.setProgress(hide);
     }
     
-    void editFile()
+    void displayFile()
     {
-    	System.err.println("Build UI");
+    	//model.getBrowser().addChangeListener(controller);
     	
+    	add(model.getBrowser().getUI(), BorderLayout.CENTER);
+    	
+    	validate();
+    	repaint();
     }
     
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
-    {
+    {	
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
+        setSize(6*(screenSize.width/10), 6*(screenSize.height/10));
+
+        this.setLocation(screenSize.width/5, screenSize.height/5);
+		setVisible(true);
+        
     }
-    
     
 }

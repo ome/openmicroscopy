@@ -93,7 +93,7 @@ public class EditorAgent
 		Editor editor = EditorFactory.getEditor(name, 
 								event.getFileID(), event.getFileSize());
 		if (editor != null)
-			editor.activate();
+			editor.activate();		// starts file downloading
 	}
 	
 	 /** Creates a new instance. */

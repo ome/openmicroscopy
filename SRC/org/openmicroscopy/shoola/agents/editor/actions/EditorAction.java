@@ -23,9 +23,7 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 
-
-
-//Java imports
+//Java import
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;

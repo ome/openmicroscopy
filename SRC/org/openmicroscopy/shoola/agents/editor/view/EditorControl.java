@@ -27,6 +27,8 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JMenu;
@@ -41,8 +43,9 @@ import javax.swing.event.MenuListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.editor.actions.CreateAction;
+import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 
 /** 
  * The {@link Editor}'s controller. 
@@ -58,11 +61,11 @@ import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
  * @since 3.0-Beta3
  */
 class EditorControl
-	implements ChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 
 	/** Identifies the <code>Create</code> in the menu. */
-	static final Integer	CREATE = new Integer(1);
+	static final Integer	CLOSE_EDITOR = new Integer(1);
 	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
@@ -79,7 +82,7 @@ class EditorControl
 	/** Helper method to create all the UI actions. */
 	private void createActions()
 	{
-		actionsMap.put(CREATE, new CreateAction(model));
+		actionsMap.put(CLOSE_EDITOR, new CloseEditorAction(model));
 	}
 	
 	/** 
@@ -152,6 +155,7 @@ class EditorControl
 		view.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) { model.discard(); }
 		});
+		model.getBrowser().addPropertyChangeListener(this);
 	}
 	
 	/**
@@ -198,6 +202,7 @@ class EditorControl
 	 */
 	public void stateChanged(ChangeEvent e)
 	{
+		
 		int state = model.getState();
 		switch (state) {
 			case Editor.LOADING:
@@ -207,6 +212,15 @@ class EditorControl
 				model.setStatus("", true);
 				break;
 		}
+	}
+
+	/**
+	 * Listens for changes to the Browser etc. 
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		String name = evt.getPropertyName();
+		
+		
 	}
 
 }

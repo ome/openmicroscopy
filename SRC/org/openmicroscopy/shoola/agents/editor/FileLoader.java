@@ -93,6 +93,7 @@ public class FileLoader
 	 */
 	public void load()
 	{
+		
 		handle = mhView.loadFile(file, fileID, fileSize, this);
 	}
 
@@ -109,7 +110,13 @@ public class FileLoader
 	public void handleResult(Object result)
 	{
 		if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
-		viewer.setFileToEdit((File) result);
+		File file = (File) result;
+		if (file.exists()) {
+			viewer.setFileToEdit(file);
+			// don't need to keep a copy. Delete the local copy after 
+			// opening in viewer. 
+			file.delete();
+		}
 	}
     
 }

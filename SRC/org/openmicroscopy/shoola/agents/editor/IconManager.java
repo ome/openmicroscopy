@@ -29,6 +29,8 @@ package org.openmicroscopy.shoola.agents.editor;
 //Third-party libraries
 
 //Application-internal dependencies
+import javax.swing.Icon;
+
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
 
@@ -65,11 +67,152 @@ public class IconManager
     /** The <code>Create</code> icon. */
     public  static int          EDITOR = 2;
     
+    /*
+     * Icons for the Browser JTree
+     */
+    /** The <code>Text-Line Field</code> icon. */
+    public  static int			TEXT_LINE_ICON = 3;
+    
+    /** The <code>Add Text-Line Parameter</code> icon. */
+    public  static int			ADD_TEXT_LINE_ICON = 4;
+    
+    /** The <code>Text Box Field</code> icon. */
+    public  static int			TEXT_BOX_ICON = 5;
+    
+    /** The <code>Timer Field</code> icon. */
+    public  static int			TIMER_ICON = 6;
+   
+    /** The <code>Table Field</code> icon. */
+    public  static int			TABLE_ICON = 7;
+    
+    /** The <code>Image Link Field</code> icon. */
+    public  static int			IMAGE_ICON = 8;
+    
+    /** The <code>CheckBox Field</code> icon. */
+    public  static int			CHECK_BOX = 9;
+    
+    /** The <code>Add CheckBox Parameter</code> icon. */
+    public  static int			ADD_CHECK_BOX = 10;
+    
+    /** The <code>Drop-down Field</code> icon. */
+    public  static int			DROP_DOWN = 11;
+    
+    /** The <code>Number Field</code> icon. */
+    public  static int			NUMBER = 12;
+    
+    /** The <code>Add Number Parameter</code> icon. */
+    public  static int			ADD_NUMBER = 13;
+    
+    /** The <code>Calendar</code> icon. */
+    public  static int			CALENDAR_ICON = 14;
+    
+    /** The <code>URL (www)</code> icon. */
+    public  static int			WWW_ICON = 15;
+    
+    /** The <code>Open Image</code> icon. */
+    public  static int			OPEN_IMAGE_ICON = 16;
+    
+    /** The <code>Zoom Image</code> icon. */
+    public  static int			ZOOM_ICON = 17;
+    
+    /** The <code>No Image</code> icon. */
+    public  static int			NO_IMAGE_ICON = 18;
+    
+    /** The <code>Link to local file</code> icon. */
+    public  static int			LINK_LOCAL_ICON = 19;
+    
+    /** The <code>Relative link to local file</code> icon. */
+    public  static int			LINK_RELATIVE_ICON = 20;
+    
+    /** The <code>Link to Editor file</code> icon. */
+    public  static int			LINK_SCIENCE_ICON = 21;
+    
+    /** The <code>Relative link to Editor file</code> icon. */
+    public  static int			LINK_SCIENCE_RELATIVE_ICON = 22;
+    
+    /** The <code>Close file</code> icon. */
+    public  static int			FILE_CLOSE_ICON = 23;
+    
+    /** The <code>Wrench / configure</code> icon. */
+    public  static int			WRENCH_ICON = 24;
+    
+    /** The <code>New table row</code> icon. */
+    public  static int			NEW_ROW_ICON = 25;
+    
+    /** The <code>Clear table row</code> icon. */
+    public  static int			CLEAR_ROW_ICON = 26;
+    
+    /** The <code>Start Timer</code> icon. */
+    public  static int			TIMER_START_ICON = 27;
+    
+    /** The <code>Stop Timer</code> icon. */
+    public  static int			TIMER_STOP_ICON = 28;
+    
+    /*
+     * Image Border Icons. 
+     */
+    
+    /** The <code>Image Border top left</code> icon. */
+    public  static int			BORDER_TOP_LEFT = 35;
+    
+    /** The <code>Image Border top</code> icon. */
+    public  static int			BORDER_TOP = 29;
+    
+    /** The <code>Image Border top right</code> icon. */
+    public  static int			BORDER_TOP_RIGHT = 30;
+    
+    /** The <code>Image Border left</code> icon. */
+    public  static int			BORDER_LEFT = 31;
+    
+    /** The <code>Image Border right</code> icon. */
+    public  static int			BORDER_RIGHT= 32;
+    
+    /** The <code>Image Border bottom left</code> icon. */
+    public  static int			BORDER_BOTTOM_LEFT = 33;
+    
+    /** The <code>Image Border bottom</code> icon. */
+    public  static int			BORDER_BOTTOM = 34;
+    
+    /** The <code>Image Border bottom right</code> icon. */
+    public  static int			BORDER_BOTTOM_RIGHT = 36;
+    
+    /** The <code>Image Border top left</code> icon. */
+    public  static int			BORDER_TOP_LEFT_HLT = 37;
+    
+    /** The <code>Image Border top</code> icon. */
+    public  static int			BORDER_TOP_HLT = 38;
+    
+    /** The <code>Image Border top right</code> icon. */
+    public  static int			BORDER_TOP_RIGHT_HLT = 39;
+    
+    /** The <code>Image Border left</code> icon. */
+    public  static int			BORDER_LEFT_HLT = 40;
+    
+    /** The <code>Image Border right</code> icon. */
+    public  static int			BORDER_RIGHT_HLT = 41;
+    
+    /** The <code>Image Border bottom left</code> icon. */
+    public  static int			BORDER_BOTTOM_LEFT_HLT = 42;
+    
+    /** The <code>Image Border bottom</code> icon. */
+    public  static int			BORDER_BOTTOM_HLT = 43;
+    
+    /** The <code>Image Border bottom right</code> icon. */
+    public  static int			BORDER_BOTTOM_RIGHT_HLT = 44;
+    
+    
+    /** The <code>Info</code> icon. */
+    public  static int			INFO_ICON = 45;
+    
+    /** The <code>Close</code> icon. */
+    public  static int			N0 = 46;
+    
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 2;
+    private static int          MAX_ID = 46;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -78,6 +221,56 @@ public class IconManager
         relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
         relPaths[CREATE] = "nuvola_messagebox_info16.png";
         relPaths[EDITOR] = "nuvola_messagebox_info16.png";
+        
+        //Icons for the JTree rendering of text-only outline. 
+        relPaths[TEXT_LINE_ICON] = "eclipse_textLine16.png";
+        relPaths[ADD_TEXT_LINE_ICON] = "eclipse_addTextLine16.png";
+        relPaths[TEXT_BOX_ICON] = "eclipse_textBox16.png";
+        relPaths[TIMER_ICON] = "nuvola_history16.png";
+        relPaths[TABLE_ICON] = "nuvola_view_top_bottom16.png";
+        relPaths[IMAGE_ICON] = "nuvola_thumbnail16.png";
+        relPaths[CHECK_BOX] = "nuvola_checkBox16.png";
+        relPaths[ADD_CHECK_BOX] = "nuvola_addCheckBox16.png";
+        relPaths[DROP_DOWN] = "eclipse_dropDown16.png";
+        relPaths[NUMBER] = "number16.png";
+        relPaths[ADD_NUMBER] = "addNumber16.png";
+        relPaths[CALENDAR_ICON] = "nuvola_date16.png";
+        relPaths[WWW_ICON] = "nuvola_www16.png";
+        
+        //Icons for image-border
+        relPaths[BORDER_TOP_LEFT] = "BorderImages/topLeft.gif";
+        relPaths[BORDER_TOP] = "BorderImages/top.gif";
+        relPaths[BORDER_TOP_RIGHT] = "BorderImages/topRight.gif";
+        relPaths[BORDER_LEFT] = "BorderImages/left.gif";
+        relPaths[BORDER_RIGHT] = "BorderImages/right.gif";
+        relPaths[BORDER_BOTTOM_LEFT] = "BorderImages/bottomLeft.gif";
+        relPaths[BORDER_BOTTOM] = "BorderImages/bottom.gif";
+        relPaths[BORDER_BOTTOM_RIGHT] = "BorderImages/bottomRight.gif";
+        
+        relPaths[BORDER_TOP_LEFT_HLT] = "BorderImages/topLeftHlt.gif";
+        relPaths[BORDER_TOP_HLT] = "BorderImages/topHlt.gif";
+        relPaths[BORDER_TOP_RIGHT_HLT] = "BorderImages/topRightHlt.gif";
+        relPaths[BORDER_LEFT_HLT] = "BorderImages/leftHlt.gif";
+        relPaths[BORDER_RIGHT_HLT] = "BorderImages/rightHlt.gif";
+        relPaths[BORDER_BOTTOM_LEFT_HLT] = "BorderImages/bottomLeftHlt.gif";
+        relPaths[BORDER_BOTTOM_HLT] = "BorderImages/bottomHlt.gif";
+        relPaths[BORDER_BOTTOM_RIGHT_HLT] = "BorderImages/bottomRightHlt.gif";
+                 
+        relPaths[OPEN_IMAGE_ICON] = "nuvola_folder_image16.png";
+        relPaths[ZOOM_ICON] = "zoom16.png";
+        relPaths[NO_IMAGE_ICON] = "nuvola_file_broken32.png";
+        relPaths[LINK_LOCAL_ICON] = "nuvola_link_local16.png";
+        relPaths[LINK_RELATIVE_ICON] = "nuvola_link_relative16.png";
+        relPaths[LINK_SCIENCE_ICON] = "nuvola_link_science16.png";
+        relPaths[LINK_SCIENCE_RELATIVE_ICON] = "nuvola_link_science_relative16.png";
+        relPaths[FILE_CLOSE_ICON] = "nuvola_fileclose16.png";
+        relPaths[WRENCH_ICON] = "nuvola_configure16.png";
+        relPaths[NEW_ROW_ICON] = "nuvola_view_bottom16.png";
+        relPaths[CLEAR_ROW_ICON] = "nuvola_view_clear16.png";
+        relPaths[TIMER_START_ICON] = "nuvola_timerStart16.png";
+        relPaths[TIMER_STOP_ICON] = "nuvola_timerStop16.png";
+        relPaths[INFO_ICON] =  "nuvola_messagebox_info16.png";
+        relPaths[N0] =  "nuvola_no16.png";
     }
     
     /** The sole instance. */

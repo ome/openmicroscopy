@@ -29,6 +29,7 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
@@ -110,5 +111,12 @@ public interface Editor
 	 * @return See above.
 	 */
 	public String getEditorTitle();
+	
+	/**
+	 * Returns the browser component
+	 * 
+	 * @return	See above.
+	 */
+	public Browser getBrowser();
 	
 }

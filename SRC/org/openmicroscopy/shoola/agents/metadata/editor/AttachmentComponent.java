@@ -29,21 +29,34 @@ import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.annotations.FileAnnotation;
+
+import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import com.sun.tools.javac.tree.Tree.If;
+
 import pojos.FileAnnotationData;
 
 /** 
@@ -81,6 +94,8 @@ class AttachmentComponent
 	 * owned the annotation. 
 	 */
 	private boolean				editable;
+	
+	private Timer doubleClickTimer;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -160,6 +175,21 @@ class AttachmentComponent
 	}
 	
 	/**
+	 * Posts an event on the eventBus, with the attachment file's ID, name etc.
+	 */
+	private void postFileClicked() {
+		FileAnnotationData data = getFile();
+		if (data == null) return;
+		Registry reg = MetadataViewerAgent.getRegistry();
+		String fileName = data.getFileName();
+		long fileSize = data.getFileSize();
+				
+		reg.getEventBus().post(new EditFileEvent(fileName, 
+				data.getFileID(), fileSize));
+		
+	}
+
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param view	    Reference to the view. Mustn't be <code>null</code>.
@@ -217,15 +247,27 @@ class AttachmentComponent
 	 */
 	public void mouseReleased(MouseEvent e)
 	{
-		if (e.getClickCount() == 2)
+		if (e.getClickCount() == 2) {
+			/*
+			 * First, stop any potential download of editor file that may
+			 * have been initiated by the first click;
+			 */
+			if (doubleClickTimer != null) {
+				doubleClickTimer.stop();
+			}
 			view.viewFile(this);
-		else if (e.isPopupTrigger())
+		}
+		else if (e.isPopupTrigger()) {
 			view.createManagementMenu().show(e.getComponent(), e.getX(), 
 					e.getY());
+		}
 	}
 	
 	/** 
 	 * Sets the selected label and shows the menu.
+	 * Or, if a single click (no popup trigger) on an Editor file,
+	 * the editor file view is initiated.
+	 * 
 	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
 	public void mousePressed(MouseEvent e)
@@ -234,6 +276,19 @@ class AttachmentComponent
 		if (e.isPopupTrigger())
 			view.createManagementMenu().show(e.getComponent(), e.getX(), 
 									e.getY());
+		else if (e.getClickCount() == 1) {
+			/*
+			 * Create a timer that will call postFileClicked() after
+			 * 0.5 seconds (or canceled by a second click)
+			 */
+			doubleClickTimer = new Timer(500, new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					postFileClicked();
+				}
+			});
+			doubleClickTimer.setRepeats(false);
+			doubleClickTimer.start();
+		}
 	}
 	
 	/**

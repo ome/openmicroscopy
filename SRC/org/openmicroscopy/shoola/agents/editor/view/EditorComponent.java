@@ -28,6 +28,7 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -108,7 +109,8 @@ class EditorComponent
 			case NEW:
 				model.fireFileLoading();
 				fireStateChange();
-				UIUtilities.centerAndShow(view);
+				//UIUtilities.centerAndShow(view);
+				view.setOnScreen();
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -167,7 +169,7 @@ class EditorComponent
 			throw new IllegalStateException("This method should only be " +
 					"invoked in the LOADING state.");
 		model.setFileToEdit(file);
-		view.editFile();
+		view.displayFile();
 		fireStateChange();
 	}
 
@@ -179,6 +181,14 @@ class EditorComponent
 	{
 		if (model.getState() == DISCARDED) return "";
 		return model.getFileName();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#getBrowser()
+	 */
+	public Browser getBrowser() {
+		return model.getBrowser();
 	}
 
 }

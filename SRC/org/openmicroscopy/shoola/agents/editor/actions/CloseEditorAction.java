@@ -1,5 +1,5 @@
-/*
- * org.openmicroscopy.shoola.agents.editor.actions.CreateAction 
+ /*
+ * org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -23,46 +23,46 @@
 package org.openmicroscopy.shoola.agents.editor.actions;
 
 
-
 //Java imports
+
 import java.awt.event.ActionEvent;
+
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * 
+ * An action for closing the Editor window (calls discard()).
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since 3.0-Beta3
+ * @since OME3.0
  */
-public class CreateAction 
+public class CloseEditorAction 
 	extends EditorAction
 {
 
 	/** The description of the action. */
-    private static final String NAME = "create";
+    private static final String NAME = "Close Editor";
     
 	 /** The description of the action. */
-    private static final String DESCRIPTION = "TODO";
+    private static final String DESCRIPTION = "Close the Editor Window";
     
-    /* Creates a new instance.
+    /** Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-   public CreateAction(Editor model)
+   public CloseEditorAction(Editor model)
    {
        super(model);
        setEnabled(true);
@@ -70,13 +70,16 @@ public class CreateAction
        putValue(Action.SHORT_DESCRIPTION, 
                UIUtilities.formatToolTipText(DESCRIPTION));
        IconManager im = IconManager.getInstance();
-       putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
+       putValue(Action.SMALL_ICON, im.getIcon(IconManager.N0));
    }
    
    /**
     * Brings up on screen the {@link TreeViewer}.
     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
     */
-   public void actionPerformed(ActionEvent e) { }
+   public void actionPerformed(ActionEvent e) 
+   {
+	   model.discard();
+   }
    
 }
