@@ -520,7 +520,7 @@ public class TwoKnobsSlider
 	/**
 	 * Resets the default value of the slider.
 	 * 
-	 * @param absoluteMax 	The absolute minimum value of the slider.
+	 * @param absoluteMax 	The absolute maximum value of the slider.
 	 * @param absoluteMin 	The absolute minimum value of the slider.
 	 * @param max       	The maximum value.
 	 * @param min       	The minimum value.

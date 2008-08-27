@@ -173,7 +173,6 @@ class RenderingControlProxy
         }
         */
     	if (pd.getSlice() == PlaneDef.XY && cacheID >= 0) {
-    		System.err.println("from Cache");
     		return context.getCacheService().getElement(cacheID, pd);
     	}
         return null;

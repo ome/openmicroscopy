@@ -50,17 +50,14 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-
 
 //Third-party libraries
 import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
@@ -101,10 +98,10 @@ public class ProjectionDialog
 	private TwoKnobsSlider 		   slider;
 	
 	/** Field to display the first z-stack to project. */
-    private JTextField             startField;
+    private NumericalTextField     startField;
     
     /** Field to display the last z-stack to project. */
-    private JTextField             endField;
+    private NumericalTextField     endField;
     
 	/** The type of projection. */
 	private Map<Integer, Integer>  projectionType;
@@ -174,9 +171,9 @@ public class ProjectionDialog
 		slider.setPaintTicks(false);
 		slider.addPropertyChangeListener(controller);
 		int length = (""+maxZ).length()-2; 
-        startField = new JTextField();
+        startField = new NumericalTextField(startZ, endZ);
         startField.setColumns(length);
-        endField = new JTextField();
+        endField = new NumericalTextField(startZ, endZ);
         endField.setColumns(length);
         startField.setText(""+startZ);
         endField.setText(""+endZ);
@@ -226,9 +223,14 @@ public class ProjectionDialog
 	{
 		int charWidth = getFontMetrics(getFont()).charWidth('m');;
 		JPanel p = new JPanel();
+		
 		Insets insets = endField.getInsets();
 		int length = (""+maxZ).length();
 		int x = insets.left+length*charWidth+insets.left;
+		Dimension d = startField.getPreferredSize();
+		startField.setPreferredSize(new Dimension(x, d.height));
+		d = endField.getPreferredSize();
+		endField.setPreferredSize(new Dimension(x, d.height));
 		GridBagConstraints c = new GridBagConstraints();
 		p.setLayout(new GridBagLayout());
 		c.weightx = 0;        
@@ -340,20 +342,20 @@ public class ProjectionDialog
 	 * @param maxZ        The number of optical sections.
 	 * @param background  The background color of the canvas.
 	 * @param imageName	  The name of the original image.
-	 * @param image       The original image.
+	 * @param imageWidth  The width of the original image.
+	 * @param imageHeight  The width of the original image.
 	 */
 	public ProjectionDialog(JFrame owner, Map<Integer, String> projections, 
 			             int maxZ, Color background, String imageName, 
-			             BufferedImage image)
+			             int imageWidth, int imageHeight)
 	{
 		super(owner);
 		controller = new ProjectionDialogControl(this);
 		this.maxZ = maxZ;
 		this.imageName = imageName;
 		initComponents(projections, background);
-		uiDelegate.setProjectedImage(image);
 		buildGUI();
-		Dimension d = new Dimension(image.getWidth(), image.getHeight());
+		Dimension d = new Dimension(imageWidth, imageHeight);
 		uiDelegate.setPreferredSize(d);
 		uiDelegate.setSize(d);
 		pack();
@@ -369,6 +371,7 @@ public class ProjectionDialog
 		startZ = value;
 		controller.removeFieldListeners(startField);
 		startField.setText(""+value);
+		endField.setMinimum(startZ);
 		controller.attachFieldListeners(startField, 
 							ProjectionDialogControl.START_Z);
 	}
@@ -383,6 +386,7 @@ public class ProjectionDialog
 		endZ = value;
 		controller.removeFieldListeners(endField);
 		endField.setText(""+value);
+		startField.setMaximum(endZ);
 		controller.attachFieldListeners(endField, 
 							ProjectionDialogControl.END_Z);
 	}
@@ -399,12 +403,10 @@ public class ProjectionDialog
         } catch(NumberFormatException nfe) {}
         if (!valid) {
             startField.selectAll();
-            UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid optical section", 
-                "Please enter a value between 1 and "+maxZ);
             return;
         }
         startZ = val;
+        endField.setMinimum(startZ);
         slider.setStartValue(startZ);
 	}
 	
@@ -419,13 +421,12 @@ public class ProjectionDialog
             if (startZ < val && val <= maxZ) valid = true;
         } catch(NumberFormatException nfe) {}
         if (!valid) {
-            startField.selectAll();
-            UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-            un.notifyInfo("Invalid optical section", 
-                "Please enter a value between "+startZ+" and "+maxZ);
+            endField.selectAll();
             return;
+            
         }
         endZ = val;
+        startField.setMaximum(endZ);
         slider.setEndValue(endZ);
 	}
 	

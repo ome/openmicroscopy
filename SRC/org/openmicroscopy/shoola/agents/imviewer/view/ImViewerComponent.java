@@ -2399,7 +2399,6 @@ class ImViewerComponent
 			model.removeLastHistoryItem();
 			reload(ex);
 		}
-		
 	}
 
 	/** 
@@ -2421,13 +2420,18 @@ class ImViewerComponent
 					"Sum Intensity");
 		}
 		if (projection == null) {
+			BufferedImage img = model.getOriginalImage();
+			int w = 0, h = 0;
+			if (img != null) {
+				w = img.getWidth();
+				h = img.getHeight();
+			}
 			projection = new ProjectionDialog(view, projections,
 									model.getMaxZ()+1, 
 									model.getBrowser().getBackgroundColor(),
-									model.getImageName(), 
-									model.getOriginalImage());
+									model.getImageName(), w, h);
 			projection.addPropertyChangeListener(controller);
-			projection.setProjectedImage(model.getOriginalImage());
+			//projection.setProjectedImage(model.getOriginalImage());
 			UIUtilities.incrementRelativeToAndShow(view.getBounds(), 
 					projection);
 		} else {

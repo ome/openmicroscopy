@@ -87,7 +87,7 @@ class AgentsEntry
 	private static final String		AGENT_ACTIVE_TAG = "active";
 		
 	/** The number of tags for an agent. */
-	private static final int		TAGS_NUMBER = 4;
+	private static final int		TAGS_NUMBER = 3;
 	
     /** 
      * The contents of the entry.
@@ -125,7 +125,7 @@ class AgentsEntry
 					extractAgentTag(child, tags); 
 			}
 		}
-		if (tags.keySet().size() != TAGS_NUMBER)
+		if (tags.keySet().size() < TAGS_NUMBER)
 			throw new ConfigException("Missing tags within agent tag.");
 		return tags;
 	}

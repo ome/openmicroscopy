@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionUI 
+ * org.openmicroscopy.shoola.agents.imviewer.util.proj.FieldDocumentListener 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,21 +22,17 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 
+
 //Java imports
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * Component hosting the canvas. 
+ * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,62 +44,59 @@ import javax.swing.JViewport;
  * </small>
  * @since 3.0-Beta3
  */
-class ProjectionUI 
-	extends JScrollPane
+class FieldDocumentListener
+	implements DocumentListener
 {
 
-	/** The canvas displaying the image. */
-	private ProjectionCanvas	   canvas;
-    
+	/** The action command linked to the listener. */
+	private int 				command;
+	
+	/** Reference to the model. */
+	private ProjectionDialog 	model;
+	
+	/** Updates the field corresponding to the command. */
+	private void updateUI()
+	{
+		switch (command) {
+			case ProjectionDialogControl.START_Z:
+				model.setStartZ();
+				break;
+			case ProjectionDialogControl.END_Z:
+				model.setEndZ();
+		}
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param background
+	 * @param command 	The action command to set.
+	 * @param model		Reference to the model.
 	 */
-	ProjectionUI(Color background)
+	FieldDocumentListener(int command, ProjectionDialog model)
 	{
-		canvas = new ProjectionCanvas(background);
-		JViewport port= getViewport();
-		port.setLayout(null);
-		port.setBackground(background);
-		port.add(canvas);
+		if (model == null)
+			throw new IllegalArgumentException("No model specified.");
+		this.model = model;
+		this.command = command;
 	}
 	
 	/**
-	 * Sets the projected image.
-	 * 
-	 * @param image The image to set.
+	 * Updates the field corresponding to the command.
+	 * @see DocumentListener#insertUpdate(DocumentEvent)
 	 */
-	void setProjectedImage(BufferedImage image)
-	{
-		if (image == null) return;
-		canvas.setImage(image);
-		Dimension d = new Dimension(image.getWidth(), image.getHeight());
-        canvas.setPreferredSize(d);
-        canvas.setSize(d);
-	}
-	
+	public void insertUpdate(DocumentEvent e) { updateUI(); }
+
 	/**
-	 * Overridden to center the image.
-	 * @see JComponent#setBounds(Rectangle)
+	 * Updates the field corresponding to the command.
+	 * @see DocumentListener#removeUpdate(DocumentEvent)
 	 */
-	public void setBounds(Rectangle r)
-	{
-		setBounds(r.x, r.y, r.width, r.height);
-	}
-	
+	public void removeUpdate(DocumentEvent e) { updateUI(); }
+
 	/**
-	 * Overridden to center the image.
-	 * @see JComponent#setBounds(int, int, int, int)
+	 * Required by the {@link DocumentListener} but no-op implementation in 
+	 * our case.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
 	 */
-	public void setBounds(int x, int y, int width, int height)
-	{
-		super.setBounds(x, y, width, height);
-		Rectangle r = getViewport().getViewRect();
-		Dimension d = canvas.getPreferredSize();
-		int xLoc = ((r.width-d.width)/2);
-		int yLoc = ((r.height-d.height)/2);
-		canvas.setBounds(xLoc, yLoc, d.width, d.height);
-	}
+	public void changedUpdate(DocumentEvent e) {}
 	
 }

@@ -126,6 +126,21 @@ class GraphicsPane
     /** The equation of the vertical line. */
     private int					verticalLine = -1;
     
+    /**
+     * Resets the text of the passed text field.
+     * 
+     * @param field The field to handle.
+     * @param value The value to set.
+     */
+    private void setTextFieldValue(JTextField field, String value)
+    {
+    	field.removeActionListener(this);
+    	field.removeFocusListener(this);
+    	field.setText(value);
+    	field.addActionListener(this);
+    	field.addFocusListener(this);
+    }
+    
     /** Initializes the domain slider. */
     private void initDomainSlider()
     {
@@ -271,7 +286,7 @@ class GraphicsPane
      * 
      * @return true if startField is in a valid range. 
      */
-    private boolean startFieldValid()
+    private boolean isStartFieldValid()
     {
         double val = 0;
         double e = model.getWindowEnd();
@@ -288,7 +303,7 @@ class GraphicsPane
      * 
      * @return true if endField is in a valid range. 
      */
-    private boolean endFieldValid()
+    private boolean isEndFieldValid()
     {
          double val = 0;
          double s = model.getWindowStart();
@@ -311,17 +326,11 @@ class GraphicsPane
     	double val = -1;
     	try {
     		val = Double.parseDouble(startField.getText());
-    	} catch(NumberFormatException nfe) { 
-    		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    		un.notifyInfo("Invalid pixels intensity interval", 
-    				" The value must be in the interval ["+
-    				(int) model.getLowestValue()+","+(int) e+"]");
-    		return;
-    	}
+    	} catch(NumberFormatException nfe) {}
     	
         if (val == model.getWindowStart()) return;
              
-    	if (startFieldValid()) {
+    	if (isStartFieldValid()) {
     		controller.setInputInterval(val, e, true);
     		onCurveChange();
     	} else {
@@ -329,7 +338,7 @@ class GraphicsPane
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
             				"The value must be in the interval "+
-            				"["+(int) val+","+(int) e+"]");
+            				"["+(int) model.getLowestValue()+","+(int) e+"]");
     	}
     }
     
@@ -345,15 +354,9 @@ class GraphicsPane
     	double val = -1;
     	try {
     		val = Double.parseDouble(endField.getText());
-    	} catch(NumberFormatException nfe) { 
-    		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-    		un.notifyInfo("Invalid pixels intensity interval", 
-    				"The value must be in the interval ["+
-    				(int) s+","+(int) model.getHighestValue()+"]");
-    		return;
-    	}
+    	} catch(NumberFormatException nfe) {}
         if (val == model.getWindowEnd()) return;
-    	if (endFieldValid()) {
+    	if (isEndFieldValid()) {
     		controller.setInputInterval(s, val, true);
     		onCurveChange();
     	} else {
@@ -361,7 +364,7 @@ class GraphicsPane
             UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
             un.notifyInfo("Invalid pixels intensity interval", 
             			"The value must be in the interval "+
-                    	"["+(int) s+","+(int) val+"]");
+                    	"["+(int) s+","+(int) model.getHighestValue()+"]");
     	}
     }
     
@@ -579,7 +582,7 @@ class GraphicsPane
             throw new Error("Invalid Action ID "+index, nfe); 
         }
     }
-
+    
     /** 
      * Handles the lost of focus on the start text field and end
      * text field.
@@ -591,12 +594,14 @@ class GraphicsPane
     public void focusLost(FocusEvent fe)
     {
       if (fe.getSource() == startField) {
-    	  if (startFieldValid()) startSelectionHandler();
-  		  else startField.setText(""+(int) model.getWindowStart());
+    	  //if (isStartFieldValid()) startSelectionHandler();
+  		  //else 
+  			setTextFieldValue(startField, ""+(int) model.getWindowStart());
       }
       if (fe.getSource() == endField) {
-    	  if (endFieldValid()) endSelectionHandler();
-  		  else endField.setText(""+model.getWindowEnd());
+    	  //if (isEndFieldValid()) endSelectionHandler();
+  		  //else 
+  			  setTextFieldValue(endField, ""+(int) model.getWindowEnd());
       }	
     }
     

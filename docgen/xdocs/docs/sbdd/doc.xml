@@ -37,7 +37,7 @@
 	  <section href="design3.html" name="Build Tool"/>
 	  <section href="design4.html" name="Rationale"/>
 	</section>
-	<section href="future.html" name="Future Directions"/>
+	<!-- section href="future.html" name="Future Directions"/ -->
 	<section href="legal.html" name="Legal"/> 
   </toc>
 </xdoc>

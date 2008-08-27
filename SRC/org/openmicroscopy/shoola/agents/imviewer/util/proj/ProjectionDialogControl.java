@@ -33,8 +33,14 @@ import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JTextField;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
@@ -74,6 +80,8 @@ class ProjectionDialogControl
 	/** Reference to the model. */
 	private ProjectionDialog model;
 	
+	private Map<JTextField, FieldDocumentListener> listeners;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -84,6 +92,7 @@ class ProjectionDialogControl
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
+		listeners = new HashMap<JTextField, FieldDocumentListener>();
 	}
 	
 	/**
@@ -97,6 +106,9 @@ class ProjectionDialogControl
 		field.setActionCommand(""+id);  
         field.addActionListener(this);
         field.addFocusListener(this);
+        FieldDocumentListener l = new FieldDocumentListener(id, model);
+        listeners.put(field, l);
+        field.getDocument().addDocumentListener(l);
 	}
 	
 	/**
@@ -108,6 +120,9 @@ class ProjectionDialogControl
 	{
 		field.removeActionListener(this);
 		field.removeFocusListener(this);
+		FieldDocumentListener l = listeners.get(field);
+		//field.getDocument().removeDocumentListener(l);
+		//listeners.remove(l);
 	}
 	
 	/** 
@@ -122,7 +137,7 @@ class ProjectionDialogControl
 	}
 	
 	/**
-	 * Previews or projects the image.
+	 * Previews, projects the image or sets the interval to project/preview.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)

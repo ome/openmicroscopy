@@ -24,29 +24,15 @@
 package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 //Java imports
-import java.awt.Rectangle;
-import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.event.EventBus;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ExperimenterData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
 * Views the selected image or browses the selected container.

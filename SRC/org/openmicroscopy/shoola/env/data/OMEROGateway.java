@@ -1451,6 +1451,7 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			ThumbnailStore service = getThumbService();
+			
 			needDefault(pixelsID, null);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
