@@ -12,6 +12,7 @@ import java.util.List;
 import Ice.Current;
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.BlitzExecutor;
+import ome.services.blitz.util.BlitzOnly;
 import omero.ServerError;
 import omero.api.AMD_IProjection_projectPixels;
 import omero.api.AMD_IProjection_projectStack;
@@ -27,7 +28,7 @@ import omero.model.PixelsType;
  * @see ome.api.IProjection
  */
 public class ProjectionI
-    extends AbstractAmdServant implements _IProjectionOperations
+    extends AbstractAmdServant implements _IProjectionOperations, BlitzOnly
 {
 
     public ProjectionI(ServiceInterface service, BlitzExecutor be)

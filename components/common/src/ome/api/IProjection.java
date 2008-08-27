@@ -9,6 +9,7 @@ package ome.api;
 
 import java.util.List;
 
+import ome.annotations.Validate;
 import ome.model.enums.PixelsType;
 
 /**
@@ -115,6 +116,6 @@ public interface IProjection extends ServiceInterface
      */
     public long projectPixels(long pixelsId, PixelsType pixelsType, 
                               int algorithm, int tStart, int tEnd,
-                              List<Integer> channels, int stepping,
-                              int zStart, int zEnd, String name);
+                              @Validate(Integer.class) List<Integer> channels,
+			      int stepping, int zStart, int zEnd, String name);
 }

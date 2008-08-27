@@ -104,6 +104,15 @@
         </bean>
     </constructor-arg>
   </bean>
+  
+  <bean id="omero.api.IProjection" class="omero.api._IProjectionTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.ProjectionI">
+            <constructor-arg ref="managed-ome.api.IProjection"/>
+            <constructor-arg ref="throttlingStrategy"/>
+        </bean>
+    </constructor-arg>
+  </bean>
 
   <bean id="omero.api.IQuery" class="omero.api._IQueryTie" singleton="false">
     <constructor-arg>
