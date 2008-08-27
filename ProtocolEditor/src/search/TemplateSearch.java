@@ -243,6 +243,12 @@ public class TemplateSearch
 		
 		IndexReader reader = SearchFiles.getIndexReader(IndexFiles.INDEX_PATH);
 		
+		/*
+		 * If no search index found, and user decided not to create one...
+		 */
+		if (reader == null) 
+			return;
+		
 		try {
 			Hits hits = SearchFiles.getHits(searchQuery, reader);
 			
@@ -271,10 +277,8 @@ public class TemplateSearch
 		        if (fieldMatches >= searchFields.size()) {
 		        	results.add(new SearchResultHtml(doc, searchQuery));
 		        }
-		        
-		        this.firePropertyChange(TEMPLATE_SEARCH_DONE, null, results);
-		        
 			}
+			this.firePropertyChange(TEMPLATE_SEARCH_DONE, null, results);
 			
 			Date endTime = new Date();
         	

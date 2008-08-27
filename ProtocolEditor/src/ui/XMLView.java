@@ -729,7 +729,7 @@ public class XMLView
 		
 		if (! okToQuit) {
 			
-			Object[] options = {"Quit Anyway", "Save Files"};
+			Object[] options = {"Quit Anyway", "Cancel"};
 			int n = JOptionPane.showOptionDialog(null,
 					"Some files failed to close because they have unsaved \n" +
 					"changes. Would you like to save changes or Quit?",

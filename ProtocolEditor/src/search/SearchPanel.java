@@ -44,6 +44,12 @@ import util.ExceptionHandler;
 // gets a list of SearchResultHtml objects and builds html from them. Displays in JEditorPane
 public class SearchPanel extends JPanel {
 
+	/**
+	 * Defines how many hits to display on the results pane.
+	 * Currently no functionality for browsing more pages of results.
+	 */
+	public static final int SHOW_HITS_COUNT = 10;
+	
 	boolean raw = false;
 
 	// for opening files
@@ -83,7 +89,7 @@ public class SearchPanel extends JPanel {
 		resultsText = "<html><div style='padding: 5px 5px 5px 5px; width=300;'>";
 		
 		// show the top 10 results
-		for (int i=0; (i<results.size() && i<10); i++) {
+		for (int i=0; (i<results.size() && i<SHOW_HITS_COUNT); i++) {
 			// opens each original document to get context for search string
 			resultsText = resultsText + results.get(i).toString();
 		}
@@ -123,7 +129,6 @@ public class SearchPanel extends JPanel {
 	public void search(String searchString) {
 		// try to search index
 		try {
-			SearchFiles.getIndexReader(IndexFiles.INDEX_PATH);
 			SearchFiles.search(searchString, results);
 		 
 		} catch (Exception ex) {

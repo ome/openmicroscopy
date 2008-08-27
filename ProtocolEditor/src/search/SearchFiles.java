@@ -80,65 +80,38 @@ public class SearchFiles {
 	public static String index = IndexFiles.INDEX_PATH;
 	public static String field = "contents";
 
-  /** Use the norms from one field for all fields.  Norms are read into memory,
-   * using a byte of memory per document per searched field.  This can cause
-   * search of large collections with a large number of fields to run out of
-   * memory.  If all of the fields contain only a single token, then the norms
-   * are all identical, then single norm vector may be shared. */
-  private static class OneNormsReader extends FilterIndexReader {
-    private String field;
-
-    public OneNormsReader(IndexReader in, String field) {
-      super(in);
-      this.field = field;
-    }
-
-    public byte[] norms(String field) throws IOException {
-      return in.norms(this.field);
-    }
-  }
-
-  private SearchFiles() {}
-
   
-  public static Hits getHits(String searchString, IndexReader reader) throws 
-  CorruptIndexException, 
-  ParseException, IOException {
+	/**
+	 * This method searches the Lucene index specified by the IndexReader,
+	 * using the searchString to create a query. 
+	 * NB. This method does not close the reader, so the index can be 
+	 * queried to get the documents for each hit BEFORE closing the
+	 * IndexReader.
+	 * 
+	 * @param searchString		A Lucene search string
+	 * @param reader		An open IndexReader, to read the Lucene search index
+	 * @return		A series of Hits (documents in the Lucene index).
+	 * 
+	 * @throws CorruptIndexException
+	 * @throws ParseException
+	 * @throws IOException
+	 */
+	public static Hits getHits(String searchString, IndexReader reader) throws 
+		CorruptIndexException, 
+		ParseException, IOException {
 	  
-	  String queries = null;
-	    //int repeat = 0;
-	    //boolean raw = false;
-	    String normsField = null;
+		Searcher searcher = new IndexSearcher(reader);
+		Analyzer analyzer = new StandardAnalyzer();
 
+		QueryParser parser = new QueryParser(field, analyzer);
 	
-	    	
-	    	 /*
-		    if (normsField != null)
-		      reader = new OneNormsReader(reader, normsField);
-			*/
-			
-		    Searcher searcher = new IndexSearcher(reader);
-		    Analyzer analyzer = new StandardAnalyzer();
-
-		    BufferedReader in = null;
-		    /*
-		    if (queries != null) {
-		      in = new BufferedReader(new FileReader(queries));
-		    } else {
-		    */
-		      in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-		    
-		      QueryParser parser = new QueryParser(field, analyzer);
-		    
-		      
-		      Query query = parser.parse(searchString);
-		      System.out.println("Searching for: " + query.toString(field));
-
-		      Hits hits =  searcher.search(query);
-		      
-		      return hits;
-	    
-  }
+		Query query = parser.parse(searchString);
+		System.out.println("SearchFiles getHits query: " + query.toString(field));
+	
+		Hits hits =  searcher.search(query);
+	  
+		return hits;
+	}
   
   
   	
@@ -159,62 +132,94 @@ public class SearchFiles {
   	  
   		  return reader;
   		  
-  	  } catch (IOException ioEx) {
+  		} catch (IOException ioEx) {
   	    	
-  		  int result = JOptionPane.showConfirmDialog(null, "Search index not found.\n" +
+  			int result = JOptionPane.showConfirmDialog(null, "Search index not found.\n" +
   					"You need to create an index of all the files you want to search.\n"+
   					"Please choose the root directory containing all your files","Index not found" ,JOptionPane.OK_CANCEL_OPTION);
-  		  if (result == JOptionPane.YES_OPTION) {
-  			  IndexFiles.indexFolderContents();
+  			if (result == JOptionPane.YES_OPTION) {
+  				IndexFiles.indexFolderContents();
     			
-  			  // assuming indexing went OK. Try searching again. 
-  			  try {
+  				// assuming indexing went OK. Try searching again. 
+  				try {
   					return getIndexReader(indexPath);
-  			  } catch (Exception e) {
-  				  // user didn't index, or indexing failed. 
-  				  // show error and give user a chance to submit error
-  				  ExceptionHandler.showErrorDialog("Searching files failed - index not found",
+  				} catch (Exception e) {
+  					// user didn't index, or indexing failed. 
+  					// show error and give user a chance to submit error
+  					ExceptionHandler.showErrorDialog("Searching files failed - index not found",
   	    					"", e);
-  				  e.printStackTrace();
-  				  return null;
-  			  }
-  		  }
-  		  return null;
-  	  }
+  					e.printStackTrace();
+  					return null;
+  				}
+  			}
+  			return null;
+  	  	}
   	}
   	
   	
-  	
+  	/**
+  	 * Performs a Lucene search, using the searchString.
+  	 * The Hits are used to add reuslt objects to the results list.
+  	 * Use the result object's toString() method to get some 
+  	 * html for display in a results panel. 
+  	 * 
+  	 * @param searchString
+  	 * @param results
+  	 * @throws CorruptIndexException
+  	 * @throws IOException
+  	 * @throws ParseException
+  	 */
   	public static void search(String searchString, List<Object> results) 
-  	throws 
-  	CorruptIndexException, 
-  	IOException, 
-  	ParseException {
+  		throws 
+  		CorruptIndexException, 
+  		IOException, 
+  		ParseException {
 	  
 
-		  IndexReader reader = getIndexReader(index);
+  		IndexReader reader = getIndexReader(index);
 	  
-		  Hits hits = getHits(searchString, reader);
-	  
-		  if (hits != null) {
-			  addHitsToList(hits, results, searchString);
-		  }
+  		/*
+  		 * If index couldn't be found and user decided not to index...
+  		 */
+  		if (reader == null)
+  			return;
 		  
-		  /*
-		   * Have to close the reader AFTER reading the contents to hit list.
-		   */
-		  reader.close();
 		  
+  		Hits hits = getHits(searchString, reader);
 	  
-    
+  		if (hits != null) {
+  			addHitsToList(hits, results, searchString);
+  		}
+		  
+  		/*
+  		 * Have to close the reader AFTER reading the contents to hit list.
+  		 */
+  		reader.close();
 	}
   
   
-  
-  	public static void search (File findMoreLikeThis, List<Object> results) throws Exception {
+  	/**
+  	 * Performs a Lucene search, using the File to build a more-like-this query.
+  	 * The Hits are used to add reuslt objects to the results list.
+  	 * Use the result object's toString() method to get some 
+  	 * html for display in a results panel. 
+  	 * 
+  	 * @param findMoreLikeThis
+  	 * @param results
+  	 * @throws Exception
+  	 */
+  	public static void search (File findMoreLikeThis, List<Object> results) 
+  		throws Exception {
   		Hits hits = null;
 	  
-  		IndexReader reader = IndexReader.open(index);
+  		IndexReader reader = getIndexReader(IndexFiles.INDEX_PATH);
+  		
+  		/*
+  		 * If index could not be found, and user decided not to create one...
+  		 */
+  		if (reader == null)
+  			return;
+  
   		Searcher searcher = new IndexSearcher(reader);
 	  
   		MoreLikeThis mlt = new MoreLikeThis(reader);
@@ -237,36 +242,35 @@ public class SearchFiles {
 	  reader.close();
   }
   
-  public static void addHitsToList(Hits hits, List<Object> results, String searchString) {
+  	/**
+  	 * A method used by Lucene searches to convert Hits into Result objects,
+  	 * and add them to the results List. 
+  	 * 
+  	 * @param hits
+  	 * @param results
+  	 * @param searchString
+  	 */
+  	public static void addHitsToList(Hits hits, List<Object> results, String searchString) {
 	  
-	  
-	  for (int start = 0; start < hits.length(); start += HITS_PER_PAGE) {
-	        int end = Math.min(hits.length(), start + HITS_PER_PAGE);
-	        for (int i = start; i < end; i++) {
+  		for (int i = 0; i < hits.length(); i++) {
 
-	  //      	float score = hits.score(i);
-
-	  //      System.out.println("doc="+hits.id(i)+" score="+ score);
-
-
-	        	Document doc = null;
-	        	try {
-	        		doc = hits.doc(i);
-	        	} catch (CorruptIndexException e) {
-	        		// show error and give user a chance to submit error
-	    			ExceptionHandler.showErrorDialog("CorruptIndexException",
-	    					"", e);
-	    			
-	        	} catch (IOException e) {
-	        		// show error and give user a chance to submit error
-	    			ExceptionHandler.showErrorDialog("I/O Exception",
-	    					"", e);
-	        	}
-	          
-	        	results.add(new SearchResultHtml(doc, searchString));
-	        }
-	      
-	      }
-  }
+  			Document doc = null;
+			try {
+				doc = hits.doc(i);
+				results.add(new SearchResultHtml(doc, searchString));
+			} catch (CorruptIndexException e) {
+				// show error and give user a chance to submit error
+				ExceptionHandler.showErrorDialog("CorruptIndexException",
+						"", e);
+				
+			} catch (IOException e) {
+				// show error and give user a chance to submit error
+				ExceptionHandler.showErrorDialog("I/O Exception",
+						"", e);
+			}
+  		}
+  	}
+  	
+  	
 }
 
