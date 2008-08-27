@@ -137,6 +137,11 @@
     <property name="jndiName" value="omero/${server.transport}/ome.api.IPojos"/>
     <property name="proxyInterface" value="ome.api.IPojos"/>
   </bean>
+  
+  <bean id="managed-ome.api.IProjection" parent="jndi">
+    <property name="jndiName" value="omero/${server.transport}/ome.api.IProjection"/>
+    <property name="proxyInterface" value="ome.api.IProjection"/>
+  </bean>
 
   <bean id="managed-ome.api.IQuery" parent="jndi">
     <property name="jndiName" value="omero/${server.transport}/ome.api.IQuery"/>
