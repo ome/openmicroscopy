@@ -31,5 +31,47 @@ class TestTicket2000(lib.ITest):
         cx = admin.getEventContext()
         self.client.sf.closeOnDestroy()
 
+    def test1067(self):
+        admin = self.root.sf.getAdminService()
+        
+        try:
+            test_user = admin.lookupExperimenter("new_test_user")
+        except:
+            new_exp = ExperimenterI()
+            new_exp.omeName = omero.RString("new_test_user")
+            new_exp.firstName = omero.RString("New")
+            new_exp.lastName = omero.RString("Test")
+            new_exp.email = omero.RString("newtest@emaildomain.com")
+            
+            listOfGroups = list()
+            defaultGroup = admin.lookupGroup("default")
+            listOfGroups.append(admin.lookupGroup("user"))
+            
+            admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
+        
+        try:
+            test_group1 = admin.lookupGroup("test_group1")
+        except:
+            new_gr = ExperimenterGroupI()
+            new_gr.name = omero.RString("test_group1")
+            admin.createGroup(new_gr, None)
+        
+        groups = list()
+        gr1 = admin.lookupGroup("test_group1")
+        groups.append(gr1)
+            
+        exp = admin.lookupExperimenter("new_test_user")
+        contained_grs = admin.containedGroups(exp.id.val);
+        # if groupexperimetnermap contains text group should be remove
+        for gr in contained_grs:
+            if gr.id.val == gr1.id.val:
+                admin.removeGroups(exp,groups)
+        
+        admin.addGroups(exp,groups)
+        
+        admin.setDefaultGroup(exp,gr1) # thrown an exception because gr1 is not on the GroupExperimenterMap
+        
+        self.root.sf.closeOnDestroy()
+
 if __name__ == '__main__':
     unittest.main()
