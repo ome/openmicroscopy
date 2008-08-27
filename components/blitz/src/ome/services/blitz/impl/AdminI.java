@@ -79,7 +79,7 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
         IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_ARRAY);
         Object u = mapper.reverse(user);
         ome.model.meta.ExperimenterGroup[] array;
-        if (groups != null) {
+        if (groups == null) {
             array = new ome.model.meta.ExperimenterGroup[0];
         } else {
             array = new ome.model.meta.ExperimenterGroup[groups.size()];
