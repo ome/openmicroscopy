@@ -1062,6 +1062,7 @@ public class UIUtilities
 		JXDatePicker picker = new JXDatePicker();
 		picker.setToolTipText(DATE_TOOLTIP);
 		picker.setFormats(dateFormats);
+		picker.getEditor().setBackground(BACKGROUND);
 		return picker;
 	}
 	

@@ -28,7 +28,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Transparency;
@@ -415,6 +417,21 @@ public class Factory
                 sizeX, sizeY, 3);
         return new BufferedImage(ccm, 
                 Raster.createWritableRaster(csm, buffer, null), false, null);
+    }
+    
+    /**
+     * Creates a {@link BufferedImage} from an Image. 
+     *  
+     * @param img		The Image to convert to a buffered image
+     * @return			The buffered image
+     */
+    public static  BufferedImage createImage(Image img) {
+        BufferedImage buff = new BufferedImage(img.getWidth(null), 
+            img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics gfx = buff.createGraphics();
+        gfx.drawImage(img, 0, 0, null);
+        gfx.dispose();
+        return buff;
     }
     
     /**
