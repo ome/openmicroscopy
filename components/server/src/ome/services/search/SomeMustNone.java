@@ -78,6 +78,7 @@ public class SomeMustNone extends FullText {
                 if (string.length() > 0) {
                     sb.append("-");
                     sb.append(string);
+                    sb.append(" ");
                 }
             }
         }
