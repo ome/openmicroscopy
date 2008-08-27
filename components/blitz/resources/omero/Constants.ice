@@ -93,6 +93,13 @@ module omero {
     
     module projection {
       /*
+       * Methodology strings
+       */
+      const string MAXIMUMINTENSITYMETHODOLOY = "MAXIMUM_INTENSITY_PROJECTION";
+      const string MEANINTENSITYMETHODOLOGY = "MEAN_INTENSITY_PROJECTION";
+      const string SUMINTENSITYMETHODOLOGY = "SUM_INTENSITY_PROJECTION";
+
+      /*
        * Used by the IProjection methods to declare which projection to perform.
        */
       enum ProjectionType {

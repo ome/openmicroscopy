@@ -180,6 +180,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
      * @see ome.api.IProjection#projectPixels(long, ome.model.enums.PixelsType, int, int, int, java.util.List, int, int, int, java.lang.String)
      */
     @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public long projectPixels(long pixelsId, PixelsType pixelsType, 
                               int algorithm, int tStart, int tEnd, 
                               List<Integer> channels, int stepping,
@@ -211,6 +212,11 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         PixelBuffer sourceBuffer = pixelsService.getPixelBuffer(ctx.pixels);
         PixelBuffer destinationBuffer = 
             pixelsService.getPixelBuffer(newPixels);
+        ctx.planeSizeInPixels = ctx.pixels.getSizeX() * ctx.pixels.getSizeY();
+        int planeSize = 
+            ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
+        byte[] buf = new byte[planeSize];
+        ctx.to = new PixelData(pixelsType, ByteBuffer.wrap(buf));
         for (Integer c : channels)
         {
             ctx.minimum = Double.MAX_VALUE;
@@ -220,8 +226,6 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 try
                 {
                     ctx.from = sourceBuffer.getStack(c, t);
-                    ctx.to = destinationBuffer.getPlane(0, c, t);
-                    
                     switch (algorithm)
                     {
                         case IProjection.MAXIMUM_INTENSITY:
@@ -245,6 +249,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                                     "Unknown algorithm: " + algorithm);
                         }
                     }
+                    destinationBuffer.setPlane(buf, 0, c, t);
                 }
                 catch (IOException e)
                 {
@@ -270,9 +275,12 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             si.setGlobalMin(ctx.minimum);
             si.setGlobalMax(ctx.maximum);
             channel.setStatsInfo(si);
+	    // Set our methodology
+	    newPixels.setMethodology(
+                IProjection.METHODOLOGY_STRINGS[algorithm]);
         }
-        image = iUpdate.saveAndReturnObject(image);
-        return image.getId();
+        newImage = iUpdate.saveAndReturnObject(newImage);
+        return newImage.getId();
     }
     
     /**

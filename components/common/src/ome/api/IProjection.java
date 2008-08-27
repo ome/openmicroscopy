@@ -31,6 +31,12 @@ public interface IProjection extends ServiceInterface
     /** Sum intensity projection */
     public static final int SUM_INTENSITY = 2;
     
+    /** Methodology strings */
+    public static final String[] METHODOLOGY_STRINGS = 
+        new String[] { "MAXIMUM_INTENSITY_PROJECTION",
+                       "MEAN_INTENSITY_PROJECTION",
+                       "SUM_INTENSITY_PROJECTION" };
+    
     /**
      * Performs a projection through the optical sections of a particular 
      * wavelength at a given time point of a Pixels set.
