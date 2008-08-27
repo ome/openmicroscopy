@@ -230,3 +230,18 @@
   Artifacts: The jakarta-* file under LIB/
   License: Apache License, Version 2.0
   License File: apache-v2.0.txt
+  
+  Project: ehCache. A Java distributed cache for general purpose caching, 
+  Java EE and light-weight containers.
+  Web Site: http://ehcache.sourceforge.net/
+  Artifacts: The ehcache-* file under LIB/
+  License: Apache License, Version 2.0
+  License File: apache-v2.0.txt
+  
+  Project: The Backport-util-concurrent library. A concurrency library 
+  that works with uncompromised performance on all Java platforms currently in 
+  use, allowing development of fully portable concurrent applications.
+  We don't use this software directly but required by ehCache.
+  Web Site: http://backport-jsr166.sourceforge.net/
+  Artifacts: The backport-util-concurrent-* file under LIB/
+  License: This software is released to the public domain
