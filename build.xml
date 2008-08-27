@@ -65,7 +65,6 @@ build-* targets.
 
     <target name="build-default" description="Build all components except for C++ (testing disabled)" depends="ivy-init">
         <property name="env.NOMAKE" value="1"/>
-        <property name="test.skip" value="true"/>
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <iterate buildpathref="app.buildpath" target="dist"/>
         <antcall target="prepare-dist" inheritRefs="true" inheritAll="true"/>

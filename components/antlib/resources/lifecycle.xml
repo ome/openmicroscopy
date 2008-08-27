@@ -266,7 +266,6 @@
 			classpathref="omero.classpath" >
 			<src path="${test.dir}"/>
 		</javac>
-		<echo> Skipping DBUnit Tests ... </echo>
 		<junit 
 			printsummary="withOutAndErr" 
 			haltonfailure="${test.with.fail}"
@@ -369,7 +368,9 @@
 		</suite>
 	</target>
 
-	<target name="dist" depends="integration">
+	<!-- Previously dependend on integration, but that may need special controls.
+	For the time being, depenending solely on "install" -->
+	<target name="dist" depends="install">
 		<!-- empty by default -->
 	</target>
 
