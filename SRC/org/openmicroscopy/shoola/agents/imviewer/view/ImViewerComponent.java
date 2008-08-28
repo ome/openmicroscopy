@@ -1412,12 +1412,12 @@ class ImViewerComponent
 	public float getPixelsSizeX()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW " +
+						"or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getPixelsSizeX();
 	}
@@ -1429,12 +1429,12 @@ class ImViewerComponent
 	public float getPixelsSizeY()
 	{
 		switch (model.getState()) {
-		case NEW:
-		case LOADING_RENDERING_CONTROL:
-		case DISCARDED:
-			throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED, NEW or" +
-			"LOADING_RENDERING_CONTROL state.");
+			case NEW:
+			case LOADING_RENDERING_CONTROL:
+			case DISCARDED:
+				throw new IllegalStateException(
+						"This method can't be invoked in the DISCARDED, NEW " +
+						"or LOADING_RENDERING_CONTROL state.");
 		}
 		return model.getPixelsSizeY();
 	}

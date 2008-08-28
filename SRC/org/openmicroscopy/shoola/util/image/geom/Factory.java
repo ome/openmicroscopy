@@ -149,7 +149,7 @@ public class Factory
     {
     	IconManager icons = IconManager.getInstance();
     	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE96);
-    	
+    	if (img == null) return createDefaultImageThumbnail(); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();
     	if (h == height && w == width)
@@ -169,6 +169,7 @@ public class Factory
     {
     	IconManager icons = IconManager.getInstance();
     	ImageIcon img = icons.getImageIcon(IconManager.BROKEN_FILE96);
+    	if (img == null) return createDefaultImageThumbnail(); 
     	int h = img.getIconHeight();
     	int w = img.getIconWidth();
         BufferedImage thumbPix = new BufferedImage(w, h, 
@@ -315,6 +316,7 @@ public class Factory
      */
     public static BufferedImage convolveImage(BufferedImage img, float[] filter)
     {
+    	if (img == null) return null;
         int width = img.getWidth(), height = img.getHeight();
         BufferedImage bimg = new BufferedImage(width, height, 
                                                 BufferedImage.TYPE_INT_RGB);
@@ -342,6 +344,7 @@ public class Factory
     public static BufferedImage createImageWithText(BufferedImage img, 
             String text, int indexLocation, Color c)
     {
+    	if (img == null) return null;
         int w = img.getWidth();
         int h = img.getHeight();
         BufferedImage newImage = new BufferedImage(w, h, 
@@ -393,6 +396,7 @@ public class Factory
      */
     public static BufferedImage createImage(BufferedImage img)
     {
+    	if (img == null) return null;
         int sizeY = img.getWidth();
         int sizeX = img.getHeight();
         DataBufferByte buffer = new DataBufferByte(sizeX*sizeY, 3);
@@ -422,10 +426,12 @@ public class Factory
     /**
      * Creates a {@link BufferedImage} from an Image. 
      *  
-     * @param img		The Image to convert to a buffered image
-     * @return			The buffered image
+     * @param img The Image to convert to a buffered image
+     * @return The buffered image
      */
-    public static  BufferedImage createImage(Image img) {
+    public static  BufferedImage createImage(Image img)
+    {
+    	if (img == null) return null;
         BufferedImage buff = new BufferedImage(img.getWidth(null), 
             img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         Graphics gfx = buff.createGraphics();
@@ -494,6 +500,7 @@ public class Factory
     public static BufferedImage createImage(int[] buf, int bits, int sizeX, 
 			int sizeY)
     {
+    	if (buf == null) return null;
     	DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
 		return createImage(j2DBuf, bits, sizeX, sizeY);
     }
@@ -513,6 +520,7 @@ public class Factory
     public static BufferedImage createImage(int[] buf, int bits, int[] masks,
     									int sizeX, int sizeY)
     {
+    	if (buf == null) return null;
     	DataBuffer j2DBuf = new DataBufferInt(buf, sizeX*sizeY); 
 		return createImage(j2DBuf, bits, masks, sizeX, sizeY);
     }
@@ -529,7 +537,8 @@ public class Factory
     public static Dimension computeThumbnailSize(int sizeX, int sizeY, 
     		double realSizeX, double realSizeY)
     {
-    	double ratio = realSizeX/realSizeY;
+    	double ratio = 0;
+    	if (realSizeY != 0) ratio = realSizeX/realSizeY;
     	if (sizeX <= 0 && sizeY <= 0)
     		return new Dimension(THUMB_DEFAULT_WIDTH, THUMB_DEFAULT_HEIGHT);
     	else if (sizeX <= 0 && sizeY > 0)
