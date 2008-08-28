@@ -7,8 +7,8 @@ import org.testng.annotations.Test;
 import junit.framework.TestCase;
 
 import ome.io.nio.DeltaVision;
-import ome.io.nio.utests.Helper;
 import ome.model.core.OriginalFile;
+import ome.util.Utils;
 
 public class EightBitBasicIOUnitTest extends TestCase
 {
@@ -43,7 +43,7 @@ public class EightBitBasicIOUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	ByteBuffer buf = dv.getPlane(0, 0, 0).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("860dc15d50bfa08fe27f84e3a5ed937a", md);
     }
     
@@ -53,7 +53,7 @@ public class EightBitBasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[541696];
     	buf = dv.getPlaneDirect(0, 0, 0, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("c52bc92efc138533fbf9b4f7469ffad0", md);
     }
     
@@ -63,7 +63,7 @@ public class EightBitBasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[8];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 32, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("7dea362b3fac8e00956a4952a3d4f474", md);
     }
     
@@ -73,7 +73,7 @@ public class EightBitBasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[8];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 128, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	// Identical to testFirstPlaneRegionMd5() because of the large number
     	// of padding zeros at the top and bottom of the image.
     	assertEquals("7dea362b3fac8e00956a4952a3d4f474", md);

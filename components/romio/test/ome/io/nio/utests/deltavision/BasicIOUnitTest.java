@@ -1,7 +1,5 @@
 package ome.io.nio.utests.deltavision;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
 import org.testng.annotations.Test;
@@ -9,8 +7,8 @@ import org.testng.annotations.Test;
 import junit.framework.TestCase;
 
 import ome.io.nio.DeltaVision;
-import ome.io.nio.utests.Helper;
 import ome.model.core.OriginalFile;
+import ome.util.Utils;
 
 public class BasicIOUnitTest extends TestCase
 {
@@ -42,7 +40,7 @@ public class BasicIOUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	ByteBuffer buf = dv.getPlane(0, 0, 0).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("1fa547fa11e3defe7057f3c88cf3c049", md);
     }
     
@@ -52,7 +50,7 @@ public class BasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[131072];
     	buf = dv.getPlaneDirect(0, 0, 0, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("011fd6a06763b8c21dd5de0ece65baa7", md);
     }
     
@@ -62,7 +60,7 @@ public class BasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[16];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 32, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("66a6bc285b8354c7fea1fa745a642ecc", md);
     }
     
@@ -72,7 +70,7 @@ public class BasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[16];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 128, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("d5fbe14c0be849f9fc49f5758ba5f35a", md);
     }
 }

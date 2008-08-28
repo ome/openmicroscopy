@@ -7,8 +7,8 @@ import org.testng.annotations.Test;
 import junit.framework.TestCase;
 
 import ome.io.nio.DeltaVision;
-import ome.io.nio.utests.Helper;
 import ome.model.core.OriginalFile;
+import ome.util.Utils;
 
 public class BigEndianEightBitBasicIOUnitTest extends TestCase
 {
@@ -43,7 +43,7 @@ public class BigEndianEightBitBasicIOUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	ByteBuffer buf = dv.getPlane(0, 0, 0).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("b495cb7c7dda3930fbf923cfbcb8c8e2", md);
     }
     
@@ -53,7 +53,7 @@ public class BigEndianEightBitBasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[524288];
     	buf = dv.getPlaneDirect(0, 0, 0, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("acc7c7a4992acd61572cbaca0bbe4d6c", md);
     }
     
@@ -63,7 +63,7 @@ public class BigEndianEightBitBasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[16];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 32, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("6b1145ec4d898da29b36bcd1ea22c702", md);
     }
     
@@ -73,7 +73,7 @@ public class BigEndianEightBitBasicIOUnitTest extends TestCase
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	byte[] buf = new byte[16];
     	buf = dv.getPlaneRegionDirect(0, 0, 0, 8, 128, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("c8aff9dc50866023bed7137b2fdd602d", md);
     }
 }

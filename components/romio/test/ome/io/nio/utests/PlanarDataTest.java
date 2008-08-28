@@ -14,6 +14,7 @@ import junit.framework.TestCase;
 import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
+import ome.util.Utils;
 
 /**
  * This tests planar and sub-planar data retrieval using a known good ROMIO
@@ -56,7 +57,7 @@ public class PlanarDataTest extends TestCase
     {
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	ByteBuffer buf = buffer.getPlane(0, 0, 1).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("2d1c16c02bece26920ff04ff08985f5e", md);
     }
 	
@@ -67,7 +68,7 @@ public class PlanarDataTest extends TestCase
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	byte[] buf = new byte[16];
     	buffer.getPlaneRegionDirect(0, 0, 1, 8, 0, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("505c12f3149129adf250ae96af159ea1", md);
     }
 	
@@ -78,7 +79,7 @@ public class PlanarDataTest extends TestCase
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	byte[] buf = new byte[16];
     	buffer.getPlaneRegionDirect(0, 0, 1, 8, 8, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("ed6a8ba38c61808d5790419c7a33839c", md);
     }
 	
@@ -89,7 +90,7 @@ public class PlanarDataTest extends TestCase
     	RomioPixelBuffer buffer = getRomioPixelBuffer();
     	byte[] buf = new byte[16];
     	buffer.getPlaneRegionDirect(0, 0, 1, 8, 392, buf);
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("ab1786af4395c09f52de23d710e37a7f", md);
     }
 }

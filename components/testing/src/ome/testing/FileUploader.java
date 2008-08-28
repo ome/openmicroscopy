@@ -9,8 +9,6 @@ package ome.testing;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 
 import ome.api.RawFileStore;
@@ -20,6 +18,7 @@ import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.system.ServiceFactory;
+import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,7 +89,7 @@ public class FileUploader implements Runnable {
 
         // Non-configurable
         ofile.setSize(rSize);
-        ofile.setSha1(bufferToSha1(rBuf));
+        ofile.setSha1(Utils.bufferToSha1(rBuf));
 
     }
 
@@ -113,7 +112,7 @@ public class FileUploader implements Runnable {
 
         rSize = buf.length;
         rBuf = buf;
-        rSha1 = bufferToSha1(buf);
+        rSha1 = Utils.bufferToSha1(buf);
 
         assert ofile.getName() != null;
         assert ofile.getPath() != null;
@@ -129,7 +128,7 @@ public class FileUploader implements Runnable {
         rBuf = new byte[(int) rSize];
         FileInputStream fis = new FileInputStream(file);
         assert (int) rSize == fis.read(rBuf) : "read whole file";
-        rSha1 = bufferToSha1(rBuf);
+        rSha1 = Utils.bufferToSha1(rBuf);
 
         if (ofile.getName() == null) {
             ofile.setName(file.getName());
@@ -157,43 +156,6 @@ public class FileUploader implements Runnable {
         if (!admin) {
             throw new ApiUsageException(
                     "Owner and group can only be set by admins.");
-        }
-    }
-
-    // Copied from server/test/ome/io/nio/Helper.java
-    private String bufferToSha1(byte[] buffer) {
-        MessageDigest md;
-
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(
-                    "Required SHA-1 message digest algorithm unavailable.");
-        }
-
-        md.reset();
-        md.update(buffer);
-        byte[] digest = md.digest();
-
-        StringBuffer buf = new StringBuffer();
-        for (int i = 0; i < digest.length; i++) {
-            buf.append(byteToHex(digest[i]));
-        }
-        return buf.toString();
-    }
-
-    private static String byteToHex(byte data) {
-        StringBuffer buf = new StringBuffer();
-        buf.append(toHexChar(data >>> 4 & 0x0F));
-        buf.append(toHexChar(data & 0x0F));
-        return buf.toString();
-    }
-
-    private static char toHexChar(int i) {
-        if (0 <= i && i <= 9) {
-            return (char) ('0' + i);
-        } else {
-            return (char) ('a' + i - 10);
         }
     }
 

@@ -9,6 +9,9 @@ package ome.util;
 
 // Java imports
 import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -155,5 +158,102 @@ public class Utils {
     public static String getThreadIdentifier() {
         return new StringBuilder(32).append(Runtime.getRuntime().hashCode())
                 .append("::").append(Thread.currentThread().getId()).toString();
+    }
+
+    /**
+     * Standard algorithm to convert a byte-array into a SHA1. Throws a
+     * {@link RuntimeException} if {@link MessageDigest#getInstance(String)}
+     * throws {@link NoSuchAlgorithmException}.
+     */
+    public static String bufferToSha1(byte[] buffer) {
+        MessageDigest md;
+
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+
+        md.reset();
+        md.update(buffer);
+        byte[] digest = md.digest();
+
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < digest.length; i++) {
+            buf.append(byteToHex(digest[i]));
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Calculates a MD5 digest for the given {@link ByteBuffer}
+     */
+    public static byte[] calculateMessageDigest(ByteBuffer buffer) {
+        MessageDigest md = newMd5MessageDigest();
+        md.update(buffer);
+        return md.digest();
+    }
+
+    /**
+     * Calculates a MD5 digest for the given {@link byte[]}
+     */
+    public static byte[] calculateMessageDigest(byte[] buffer) {
+        MessageDigest md = newMd5MessageDigest();
+        md.update(buffer);
+        return md.digest();
+    }
+
+    /**
+     * Standard algorithm to convert a byte array to a hex string.
+     * 
+     * @param data
+     *            the byte[] to convert
+     * @return String the converted byte[]
+     */
+    public static String bytesToHex(byte[] data) {
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < data.length; i++) {
+            buf.append(byteToHex(data[i]));
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Standard algorithm to convert a byte into a hex representation.
+     */
+    public static String byteToHex(byte data) {
+        StringBuffer buf = new StringBuffer();
+        buf.append(toHexChar(data >>> 4 & 0x0F));
+        buf.append(toHexChar(data & 0x0F));
+        return buf.toString();
+    }
+
+    /**
+     * Standard algorithm to convert an int into a hex char.
+     */
+    public static char toHexChar(int i) {
+        if (0 <= i && i <= 9) {
+            return (char) ('0' + i);
+        } else {
+            return (char) ('a' + i - 10);
+        }
+    }
+
+    // Helpers
+    // =========================================================================
+
+    private static MessageDigest newMd5MessageDigest() {
+        MessageDigest md;
+
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required MD5 message digest algorithm unavailable.");
+        }
+
+        md.reset();
+        return md;
     }
 }

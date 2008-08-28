@@ -13,8 +13,8 @@ import org.testng.annotations.*;
 import junit.framework.TestCase;
 import ome.io.nio.DeltaVision;
 import ome.io.nio.DeltaVisionHeader;
-import ome.io.nio.utests.Helper;
 import ome.model.core.OriginalFile;
+import ome.util.Utils;
 
 public class DeltaVisionZTWUnitTest extends TestCase
 {
@@ -31,7 +31,7 @@ public class DeltaVisionZTWUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	ByteBuffer buf = dv.getPlane(0, 0, 1).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("a2c8e1551c3a5857c005223a98330842", md);
     }
 
@@ -40,7 +40,7 @@ public class DeltaVisionZTWUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	ByteBuffer buf = dv.getPlane(0, 1, 0).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("317d05abe4b5266562f132faa97e204f", md);
     }
     
@@ -49,7 +49,7 @@ public class DeltaVisionZTWUnitTest extends TestCase
     {
     	DeltaVision dv = getDeltaVisionPixelBuffer();
     	ByteBuffer buf = dv.getPlane(1, 0, 0).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("73ab6431bca5f102882f956162d30d3b", md);
     }
     
@@ -60,7 +60,7 @@ public class DeltaVisionZTWUnitTest extends TestCase
     	ByteBuffer buf = dv.getPlane(dv.getSizeZ() - 1,
     	                             dv.getSizeC() - 1,
     	                             dv.getSizeT() - 1).getData();
-    	String md = Helper.bytesToHex(Helper.calculateMessageDigest(buf));
+    	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("a78c365ab044e179b6cae0b6150df3a4", md);
     }
 }
