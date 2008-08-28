@@ -1,5 +1,6 @@
  /*
- * treeEditingComponents.editDefaults.AddParamActions 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.
+ * 		editTemplate.AddParamActions 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -154,9 +155,7 @@ public class AddParamActions
 	 * 
 	 * @return		the button that launches the pop-up menu. 
 	 */
-	public JButton getButton() {
-		return addParamButton;
-	}
+	public JButton getButton() { return addParamButton; }
 	
 	/**
 	 * Action for adding a Text-Line Parameter

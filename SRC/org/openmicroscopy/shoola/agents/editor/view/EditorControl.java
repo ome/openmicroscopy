@@ -45,6 +45,7 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
+import org.openmicroscopy.shoola.agents.editor.actions.OpenFileAction;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 
 /** 
@@ -64,7 +65,7 @@ class EditorControl
 	implements ChangeListener, PropertyChangeListener
 {
 
-	/** Identifies the <code>Create</code> in the menu. */
+	/** Identifies the <code>Close Editor</code> Action. */
 	static final Integer	CLOSE_EDITOR = new Integer(1);
 	
 	/** 

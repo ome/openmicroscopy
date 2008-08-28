@@ -1,5 +1,6 @@
  /*
- * treeEditingComponents.FieldEditorPanel 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate
+ * .FieldEditorPanel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

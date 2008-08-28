@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.ImageLinkEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ImageLinkEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 //Java imports
 
 import java.awt.BorderLayout;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -35,17 +33,13 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -63,7 +57,6 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomPopupMenu;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.RelativeFileChooser;
-import org.openmicroscopy.shoola.agents.editor.util.FilePathMethods;
 import org.openmicroscopy.shoola.agents.editor.util.PreferencesManager;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 

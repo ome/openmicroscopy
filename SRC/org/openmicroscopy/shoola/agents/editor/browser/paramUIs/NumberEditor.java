@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.NumberEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.NumberEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -28,17 +28,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 /** 
  * This is the UI component for displaying the Number Field (with units label)
@@ -54,30 +51,20 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
  * @since OME3.0
  */
 public class NumberEditor 
-	extends Box 
+	extends AbstractParamEditor 
 	implements ITreeEditComp,
-	PropertyChangeListener {
+	PropertyChangeListener 
+{
 	
 	/**
-	 * The parameter that this UI edits
+	 * Builds the UI.
+	 * Uses a {@link TextFieldEditor} to display the link and adds this class
+	 * as a {@link PropertyChangeListener}.
 	 */
-	private IParam param;
-	
-	/**
-	 * Creates an instance.
-	 * 
-	 * @param param		The Number Parameter that this UI displays and edits. 
-	 */
-	public NumberEditor(IParam param) {
-		super(BoxLayout.X_AXIS);
-		
-		this.param = param;
-		
-		TextFieldEditor numberField = new TextFieldEditor(param, 
+	private void buildUI()
+	{
+		TextFieldEditor numberField = new TextFieldEditor((IParam)getParameter(), 
 				SingleParam.PARAM_VALUE);
-		int minW = UIUtilities.getInstance().
-			getDimension(UIUtilities.NUMB_FIELD_MIN_WIDTH);
-		//numberField.setMinWidth(minW);
 		numberField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				this);
 		
@@ -85,45 +72,35 @@ public class NumberEditor
 		
 		add(Box.createHorizontalStrut(10));
 		
-		String units = param.getAttribute(SingleParam.PARAM_UNITS);
+		String units = getParameter().getAttribute(SingleParam.PARAM_UNITS);
 		add(new CustomLabel(units));
 	}
-
+	
 	/**
-	 * This doesn't need to do anything, since the propertyChangeEvent 
-	 * will come from the number field itself
+	 * Creates an instance.
+	 * 
+	 * @param param		The Number Parameter that this UI displays and edits. 
 	 */
-	public void attributeEdited(String attributeName, Object newValue) {
+	public NumberEditor(IParam param) 
+	{
+		super(param);
 		
+		buildUI();
 	}
 
 	/**
-	 * This is the only attribute that you can modify from this class. 
+	 * Simply pass on the property change event by calling 
+	 * {@link #attributeEdited(String, Object)}
 	 */
-	public String getAttributeName() {
-		return SingleParam.PARAM_VALUE;
-	}
-
-	/**
-	 * Gets the Parameter that this class is editing
-	 */
-	public IParam getParameter() {
-		return param;
-	}
-
-	/**
-	 * Simply pass on the property change event. 
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		this.firePropertyChange(evt.getPropertyName(), 
-				evt.getOldValue(), evt.getNewValue());
+	public void propertyChange(PropertyChangeEvent evt) 
+	{
+		attributeEdited(SingleParam.PARAM_VALUE, evt.getNewValue());
 	}
 	
 	/**
 	 * A display name for undo/redo
+	 * @see ITreeEditComp#getEditDisplayName()
 	 */
-	public String getEditDisplayName() {
-		return "Edit Number";
-	}
+	public String getEditDisplayName() { return "Edit Number"; }
 
 }

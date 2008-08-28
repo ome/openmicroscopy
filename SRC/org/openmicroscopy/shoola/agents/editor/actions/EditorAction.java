@@ -33,7 +33,9 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Top class that each action should extend.
@@ -56,9 +58,6 @@ public class EditorAction
     /** A reference to the Model. */
     protected Editor    model;
     
-    /** The name of the action. */
-    protected String 	name;
-    
     /**
      * Callback to notify that a new browser is selected.
      * Subclasses override the method.
@@ -80,16 +79,39 @@ public class EditorAction
     }
     
     /**
-     * Returns the name of the action.
+     * Sets the name of the Action. 
      * 
-     * @return See above.
+     * @param name	 see above.
      */
-    public String getActionName()
-    { 
-        if (name == null || name.length() == 0)
-            return (String) getValue(Action.NAME);  
-        return name;
+    protected void setName(String name) 
+    {
+    	putValue(Action.NAME, name);
     }
+    
+    /**
+     * Sets the Description of the Action. 
+     * 
+     * @param description	 see above.
+     */
+    protected void setDescription(String description) 
+    {
+    	putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(description));
+    }
+    
+    /**
+     * Sets the Small Icon of the Action. 
+     * 
+     * @param iconID	 The IconManager static ID for the Icon. 
+     * 
+     * @see IconManager.getIcon(int)
+     */
+    protected void setIcon(int iconID) 
+    {
+    	IconManager im = IconManager.getInstance();
+    	putValue(Action.SMALL_ICON, im.getIcon(iconID));
+    }
+
     
     /** 
      * Subclasses implement the method.

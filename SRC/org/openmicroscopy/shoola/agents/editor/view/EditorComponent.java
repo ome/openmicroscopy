@@ -168,6 +168,7 @@ class EditorComponent
 		if (model.getState() != LOADING)
 			throw new IllegalStateException("This method should only be " +
 					"invoked in the LOADING state.");
+					
 		model.setFileToEdit(file);
 		view.displayFile();
 		fireStateChange();
@@ -187,8 +188,11 @@ class EditorComponent
 	 * Implemented as specified by the {@link Editor} interface.
 	 * @see Editor#getBrowser()
 	 */
-	public Browser getBrowser() {
+	public Browser getBrowser() 
+	{
+		if (model.getState() == DISCARDED)
+			throw new IllegalStateException("This method should not be " +
+			"invoked in the DISCARDED state.");
 		return model.getBrowser();
 	}
-
 }

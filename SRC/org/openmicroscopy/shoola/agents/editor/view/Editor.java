@@ -118,5 +118,4 @@ public interface Editor
 	 * @return	See above.
 	 */
 	public Browser getBrowser();
-	
 }

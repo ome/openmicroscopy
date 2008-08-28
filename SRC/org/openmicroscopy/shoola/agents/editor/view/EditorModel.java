@@ -104,6 +104,22 @@ class EditorModel
 	}
 	
 	/**
+	 * Creates a new instance and sets the state to {@link Editor#NEW}.
+	 * {@link #fileSize} and {@link #fileID} are not set.
+	 * 
+	 * @param file		The file to open. Sets the {@link #fileName} to the 
+	 * 					name of this file. 
+	 */
+	EditorModel(File file) 
+	{
+		if (file == null) throw new NullPointerException("No file.");
+		if (! file.exists()) return;
+		
+		state = Editor.NEW;
+		this.fileName = file.getName();
+	}
+	
+	/**
 	 * Called by the <code>Editor</code> after creation to allow this
 	 * object to store a back reference to the embedding component.
 	 * 

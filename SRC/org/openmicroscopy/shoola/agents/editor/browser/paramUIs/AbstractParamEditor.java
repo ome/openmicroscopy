@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.AbstractParamEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -68,6 +68,8 @@ public abstract class AbstractParamEditor
 	 */
 	public AbstractParamEditor(IAttributes param) 
 	{
+		if (param == null) throw new NullPointerException("No param.");
+		
 		this.param = param;
 		
 		// default layout is BoxLayout. Can be changed by subclasses if needed
@@ -89,6 +91,7 @@ public abstract class AbstractParamEditor
 	 */
 	public void attributeEdited(String attributeName, Object newValue) 
 	{
+		if (attributeName == null) return;
 		// Before calling propertyChange, need to make sure that 
 		// getAttributeName() will return the name of the newly edited property
 		

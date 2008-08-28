@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.LinkEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.LinkEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -35,10 +35,8 @@ import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
 //Third-party libraries
@@ -75,7 +73,9 @@ import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
  * @since OME3.0
  */
 public class LinkEditor 
-	extends AbstractParamEditor {
+	extends AbstractParamEditor 
+	implements ActionListener
+{
 	
 	/**
 	 * A link (stored in the VALUE attribute of the dataField) that is the
@@ -84,7 +84,7 @@ public class LinkEditor
 	 * This should open a web page, but also it seems to launch an appropriate application
 	 * for other files. 
 	 */
-	String 						URLlink;
+	private String 				URLlink;
 	
 	/**
 	 * This is the type of link that is currently set for this field. 
@@ -129,44 +129,44 @@ public class LinkEditor
 	/**
 	 * The Icon to indicate that the current link is local
 	 */
-	private Icon linkLocalIcon;
+	private Icon 				linkLocalIcon;
 	
 	/**
 	 * The Icon to indicate that the current link is local and relative
 	 */
-	private Icon linkRelativeIcon;
+	private Icon 				linkRelativeIcon;
 	
 	/**
 	 * The Icon to indicate that the current link is to a local editor file
 	 */
-	private Icon editorLinkIcon;
+	private Icon 				editorLinkIcon;
 	
 	/**
 	 * The Icon to indicate that the current link is a relative link to
 	 * a local editor file
 	 */
-	private Icon editorRelativeLinkIcon;
+	private Icon 				editorRelativeLinkIcon;
 	
 	/**
 	 * This icon is displayed if the link is broken (file not found)
 	 */
-	private Icon brokenLinkIcon;
+	private Icon 				brokenLinkIcon;
 	
 	/**
 	 * The Icon to indicate that the current link is a URL
 	 */
-	private Icon wwwIcon;
+	private Icon 				wwwIcon;
 	
 	/**
 	 * A button that has blue underlined text displaying a link
 	 */
-	private JButton linkButton;
+	private JButton 			linkButton;
 	
 	/**
 	 * The button that users click to choose a link. 
 	 * Provides a pop-up menu with options..
 	 */
-	private JButton getLinkButton;
+	private JButton 			getLinkButton;
 	
 	/**
 	 * Initialises the UI components
@@ -183,7 +183,7 @@ public class LinkEditor
 		wwwIcon = imF.getIcon(IconManager.WWW_ICON);
 		
 		linkButton = new CustomButton();
-		linkButton.addActionListener(new OpenLinkActionListener());
+		linkButton.addActionListener(this);
 		linkButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		linkButton.setForeground(Color.BLUE);
 		
@@ -345,7 +345,7 @@ public class LinkEditor
 			
 			// If the user did not input a valid URL, try adding "http://"
 			try {
-				URL validUrl = new URL(url);
+				new URL(url);
 			} catch (MalformedURLException ex) {
 				// This will make a valid URL. BUT may not be valid link.
 				url = "http://" + url;
@@ -388,6 +388,35 @@ public class LinkEditor
 	}
 
 	/**
+	 * To ensure that only one type of link is saved to the parameter.
+	 * Update several attributes at once, making sure that all apart from 
+	 * one are null.
+	 * Pass a this map of values to {@link #attributeEdited(String, Object)}
+	 * 
+	 * @param name		The name of the attribute to save
+	 * @param value		The value of the attribute
+	 */
+	private void saveLinkToParam(String name, String value) 
+	{	
+		if (name.equals(LinkParam.URL_LINK) || 
+				name.equals(LinkParam.ABSOLUTE_FILE_LINK) ||
+				name.equals(LinkParam.RELATIVE_FILE_LINK)) {
+			
+			// Make a map with all values null, then update one.
+			HashMap<String, String> newValues = new HashMap<String, String>();
+			newValues.put(LinkParam.URL_LINK, null);
+			newValues.put(LinkParam.ABSOLUTE_FILE_LINK, null);
+			newValues.put(LinkParam.RELATIVE_FILE_LINK, null);
+			
+			newValues.put(name, value);
+			
+			// Updates new values, and adds to undo queue as one action. 
+			attributeEdited("Link", newValues);
+		}
+			
+	}
+
+	/**
 	 * Opens a fileChooser, for the user to pick a file.
 	 * Then this file path is saved to dataField. 
 	 * If the user checks "Relative link" then filePath is saved as relative. 
@@ -424,8 +453,8 @@ public class LinkEditor
 	 * 
 	 * @param param		The parameter to edit by this field
 	 */
-	public LinkEditor(IParam param) {
-		
+	public LinkEditor(IParam param) 
+	{	
 		super(param);
 		
 		initialise();
@@ -437,88 +466,59 @@ public class LinkEditor
 	}
 	
 	/**
-	 * To ensure that only one type of link is saved to dataField.
-	 * Update several attributes at once, making sure that all apart from 
-	 * one are null.
-	 * 
-	 * @param name
-	 * @param value
-	 */
-	public void saveLinkToParam(String name, String value) {
-		
-		if (name.equals(LinkParam.URL_LINK) || 
-				name.equals(LinkParam.ABSOLUTE_FILE_LINK) ||
-				name.equals(LinkParam.RELATIVE_FILE_LINK)) {
-			
-			/*
-			 * Make a map with all values null, then update one.
-			 */
-			HashMap<String, String> newValues = new HashMap<String, String>();
-			newValues.put(LinkParam.URL_LINK, null);
-			newValues.put(LinkParam.ABSOLUTE_FILE_LINK, null);
-			newValues.put(LinkParam.RELATIVE_FILE_LINK, null);
-			
-			newValues.put(name, value);
-			
-			// Updates new values, and adds to undo queue as one action. 
-			attributeEdited("Link", newValues);
-		}
-			
-	}
-	
-	/**
 	 * This listener for the linkButton uses BareBonesBrowserLauncher, passing it
 	 * URLlink. 
-	 * @author will
-	 *
+	 * 
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public class OpenLinkActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e) {
 
-			if (linkType==LOCAL_EDITOR_LINK || linkType==RELATIVE_EDITOR_LINK) {
-				
-				/*
-				 * Need a way to open file in Editor. 
-				 * Assume it is a local file, BUT in future, it may be a link
-				 * to another file on the server...
-				File f = new File(URLlink);
-				TreeEditorFactory.createTreeEditor(f);
-				*/
-			}
-			else
-				/*
-				 * If not null, Check that the URLlink is a valid URL...
-				 */
-				if (URLlink != null) {
-					try {
-						URL validUrl = new URL(URLlink);
-						
-						// if not, add the file extension...
-					} catch (MalformedURLException ex) {
-						 if (System.getProperty("os.name").startsWith("Mac OS")) {
-							 URLlink = "file://" + URLlink;
-					     } else {
-					    	 URLlink = "file:///" + URLlink;
-					    }
-					}
-				}
-			BareBonesBrowserLaunch.openURL(URLlink);
+		if (linkType==LOCAL_EDITOR_LINK || linkType==RELATIVE_EDITOR_LINK) {
+			
+			/*
+			 * Need a way to open file in Editor. 
+			 * Assume it is a local file, BUT in future, it may be a link
+			 * to another file on the server...
+			 * 
+			File f = new File(URLlink);
+			EditorAgent.openNewFile(f);
+			*/
 		}
+		else
+			/*
+			 * If not null, Check that the URLlink is a valid URL...
+			 */
+			if (URLlink != null) {
+				try {
+					new URL(URLlink);
+					// if not, add the file extension...
+				} catch (MalformedURLException ex) {
+					 if (System.getProperty("os.name").startsWith("Mac OS")) {
+						 URLlink = "file://" + URLlink;
+				     } else {
+				    	 URLlink = "file:///" + URLlink;
+				    }
+				}
+			}
+		BareBonesBrowserLaunch.openURL(URLlink);
 	}
 
 	/**
 	 * Calls the super.attributeEdited(), then 
 	 * fires propertyChange to refresh link, and size of panel
+	 * 
+	 * @see AbstractParamEditor#attributeEdited(String, Object)
 	 */
-	public void attributeEdited(String attributeName, Object newValue) {
-		 
+	public void attributeEdited(String attributeName, Object newValue) 
+	{	 
 		super.attributeEdited(attributeName, newValue);
 		
-		this.firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);
+		firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);
 	}
 
-	public String getEditDisplayName() {
-		return "Edit Link";
-	}
+	/**
+	 * @see ITreeEditComp#getEditDisplayName()
+	 */
+	public String getEditDisplayName() { return "Edit Link"; }
 
 }

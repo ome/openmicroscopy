@@ -53,27 +53,28 @@ import java.util.HashMap;
  * @since OME3.0
  */
 public abstract class AbstractParam 
-	implements
-	IParam {
+	implements IParam 
+{
 	
 	/**
 	 * A property of a Parameter object that indicates what type of data
 	 * the parameter is. Eg. {link# SingleParam.TEXT_LINE_PARAM}
 	 */
-	public static final String PARAM_TYPE = "paramType";
+	public static final String 		PARAM_TYPE = "paramType";
 	
 	/**
 	 * A property to give a name to this Parameter object. 
 	 * Users will set this and it can be displayed in UI. 
 	 * eg "Temperature"
 	 */
-	public static final String PARAM_NAME = "paramName";
+	public static final String 		PARAM_NAME = "paramName";
 	
 	
 	private HashMap<String, String> valueAttributesMap;
 
 	
-	public AbstractParam(String fieldType) {
+	public AbstractParam(String fieldType) 
+	{
 		valueAttributesMap = new HashMap<String, String>();
 		valueAttributesMap.put(PARAM_TYPE, fieldType);
 	}
@@ -84,7 +85,8 @@ public abstract class AbstractParam
 	 * 	
 	 * @return		A map of all the attributes for this Parameter
 	 */
-	public HashMap<String, String> getAllAttributes() {
+	public HashMap<String, String> getAllAttributes() 
+	{
 		return valueAttributesMap;
 	}
 	
@@ -94,7 +96,8 @@ public abstract class AbstractParam
 	 * 	
 	 * @newAttributes		A map of all the new attributes for this Parameter
 	 */
-	public void setAllAttributes(HashMap<String, String> newAttributes) {
+	public void setAllAttributes(HashMap<String, String> newAttributes) 
+	{
 		valueAttributesMap = newAttributes;
 	}
 	
@@ -115,7 +118,8 @@ public abstract class AbstractParam
 	 * 
 	 * @see getValueAttributes();
 	 */
-	public String[] getDefaultAttributes() {
+	public String[] getDefaultAttributes() 
+	{
 		return new String[] {};
 	}
 	
@@ -128,7 +132,8 @@ public abstract class AbstractParam
 	 * Returns a string to identify the type of field. 
 	 * @return
 	 */
-	public String getFieldType() {
+	public String getFieldType() 
+	{
 		return getAttribute(PARAM_TYPE);
 	}
 	
@@ -142,15 +147,18 @@ public abstract class AbstractParam
 	/**
 	 * @see		IAttributes.isAttributeTrue(String attributeName)
 	 */
-	public boolean isAttributeTrue(String attributeName) {
+	public boolean isAttributeTrue(String attributeName) 
+	{
 		return (Boolean.valueOf(getAttribute(attributeName)));
 	}
 
 	/**
 	 * @see		IAttributes.setAttribute(String name, String value)
 	 */
-	public void setAttribute(String name, String value) {
-		System.out.println("ValueObject setAttribute() " + name + " = " + value);
+	public void setAttribute(String name, String value) 
+	{
+		//System.out.println("AbstractParam setAttribute() " + 
+		//	name + " = " + value);
 		valueAttributesMap.put(name, value);
 	}
 

@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.TableEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TableEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
-
 //Java imports
 
 import java.awt.BorderLayout;
@@ -33,11 +32,15 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableModel;
+
+//Third-party libraries
+
+//Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.browser.FieldPanel;
@@ -45,10 +48,6 @@ import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
-
-//Third-party libraries
-
-//Application-internal dependencies
 
 /** 
  * A UI component for viewing and editing the data in a TableModel.
@@ -67,54 +66,48 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
  */
 public class TableEditor 
 	extends AbstractParamEditor
-	implements ActionListener {
+	implements ActionListener 
+{
 	
 	/**
-	 * The JTable used to dislay the table data.
+	 * The JTable used to display the table data.
 	 */
-	JTable table;
+	private JTable 				table;
 	
 	/**
 	 * The tableModel. Obtained from the Table Parameter object. 
 	 */
-	TableModel tableModel;
+	private TableModel 			tableModel;
 	
 	/**
 	 * Button for adding a row. 
 	 */
-	JButton addRowButton;
+	private JButton 			addRowButton;
 	
 	/**
 	 * Button for removing selected rows. 
 	 */
-	JButton removeRowsButton;
+	private JButton 			removeRowsButton;
 	
 	/**
 	 * Action Command for addRowButton.
 	 */
-	public static final String ADD_ROW = "addRow";
+	public static final String 	ADD_ROW = "addRow";
 	
 	/**
 	 * Action Command for removeRowsButton
 	 */
-	public static final String REMOVE_ROW = "removeRow";
+	public static final String 	REMOVE_ROW = "removeRow";
 	
 	/**
-	 * Creates an instance of this class.
-	 * Gets the tableModel from the parameter object. 
-	 * Builds the UI. 
-	 * 
-	 * @param param		The table parameter this UI component edits
+	 * Initialises the UI components. 
 	 */
-	public TableEditor(IParam param) {
+	private void initialise() 
+	{	
+		IParam param = (IParam)getParameter();
 		
-		super(param);
-		setLayout(new BorderLayout());
-		
-		/*
-		 * Check this is a TableParam. 
-		 * If so, get the table model, and use it to make a new JTable. 
-		 */
+		// Check this is a TableParam. 
+		// If so, get the table model, and use it to make a new JTable.
 		if (param instanceof TableParam) {
 			/* use the table model to instanciate a JTable */
 			tableModel = ((TableParam)param).getTableModel();
@@ -124,20 +117,7 @@ public class TableEditor
 			table = new JTable();
 		}
 		
-		/*
-		 * Put the JTable in a ScrollPane, so that the column names are 
-		 * displayed. 
-		 * Scrollbars are never shown because the scroll port always resizes
-		 * to show the whole table. 
-		 */
-		JScrollPane tableScroller = new JScrollPane(table, 
-        		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-       
-        //table.setSurrendersFocusOnKeystroke(true);
-		
-        /*
-         * Buttons for adding or removing rows.
-         */
+		//Buttons for adding or removing rows.
 		IconManager iM = IconManager.getInstance();
 		Icon addRowIcon = iM.getIcon(IconManager.NEW_ROW_ICON);
         Icon clearRowIcon = iM.getIcon(IconManager.CLEAR_ROW_ICON);
@@ -149,14 +129,27 @@ public class TableEditor
         removeRowsButton.setToolTipText("Remove the highlighted rows");
         removeRowsButton.setActionCommand(REMOVE_ROW);
         removeRowsButton.addActionListener(this);
-        /*
-         * If the tableModel is not mutable, disable the edit buttons. 
-         */
+        
+        // If the tableModel is not mutable, disable the edit buttons.
         if (! (tableModel instanceof MutableTableModel)) {
         	addRowButton.setEnabled(false);
         	removeRowsButton.setEnabled(false);
         }
-        
+	}
+	
+	/**
+	 * Builds the UI.
+	 * Puts the JTable in a ScrollPane, so that the column names are displayed.
+	 * Adds buttons for adding/removing rows. 
+	 */
+	private void buildUI() 
+	{ 
+		// Scrollbars are never shown because the scroll port always resizes
+		// to show the whole table.
+		JScrollPane tableScroller = new JScrollPane(table, 
+        		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+        		JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+       
         Box verticalBox = Box.createVerticalBox();
         verticalBox.add(addRowButton);
         verticalBox.add(removeRowsButton);
@@ -164,9 +157,7 @@ public class TableEditor
         this.add(verticalBox, BorderLayout.WEST);
 		this.add(tableScroller, BorderLayout.CENTER);
 		
-		/*
-		 * Resize the viewport to show the whole table. 
-		 */
+		// Resize the viewport to show the whole table.
 		refreshViewportSize();
 	}
 	
@@ -174,10 +165,38 @@ public class TableEditor
 	 * Sets the size of the scrollPane's view-port, based on the number of
 	 * rows in the table. 
 	 */
-	public void refreshViewportSize() {
+	private void refreshViewportSize() 
+	{
 		int rows = table.getRowCount();
 		int height = rows * table.getRowHeight();
 		table.setPreferredScrollableViewportSize(new Dimension(450, height));
+	}
+
+	/**
+	 * Fires a PropertyChange for FieldPanel.UPDATE_EDITING_PROPERTY
+	 * so that the size of this panel is refreshed, and editing continues...
+	 */
+	private void refreshEditingSize() 
+	{
+		// Need to resize...
+		firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);
+	}
+
+	/**
+	 * Creates an instance of this class.
+	 * Gets the tableModel from the parameter object. 
+	 * Builds the UI. 
+	 * 
+	 * @param param		The table parameter this UI component edits
+	 */
+	public TableEditor(IParam param) 
+	{	
+		super(param);
+		setLayout(new BorderLayout());
+		
+		initialise();
+		
+		buildUI();
 	}
 	
 	/**
@@ -188,9 +207,11 @@ public class TableEditor
 	 * getPreferredSize(). 
 	 * Therefore, if the field is selected, this panel is too big for 
 	 * the field, and overlaps surrounding components. 
+	 * 
+	 * @see JComponent#getPreferredSize()
 	 */
-	public Dimension getPreferredSize() {
-		
+	public Dimension getPreferredSize() 
+	{	
 		Dimension size = super.getPreferredSize();
 		
 		int width = (int)size.getWidth();
@@ -203,8 +224,11 @@ public class TableEditor
 
 	/**
 	 * The handler for the Add-Row and Remove-Rows buttons. 
+	 * 
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent e) 
+	{
 		String com = e.getActionCommand();
 		
 		/*
@@ -255,18 +279,8 @@ public class TableEditor
 	}
 	
 	/**
-	 * Fires a PropertyChange for FieldPanel.UPDATE_EDITING_PROPERTY
-	 * so that the size of this panel is refreshed, and editing continues...
+	 * @see ITreeEditComp#getEditDisplayName()
 	 */
-	public void refreshEditingSize() {
-		/*
-		 * Need to resize...
-		 */
-		this.firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);
-	}
-	
-	public String getEditDisplayName() {
-		return "Edit Table";
-	}
+	public String getEditDisplayName() { return "Edit Table"; }
 
 }

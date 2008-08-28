@@ -72,16 +72,11 @@ class EditorUI
 	/** Reference to the status. */
 	private EditorStatusBar			statusBar;
 	
-	/** A blank panel to display */
-	private JPanel 					blankPanel;
-	
-	
 	private JMenu createMenu()
 	{
 		JMenu menu = new JMenu("File");
 		EditorAction a = controller.getAction(EditorControl.CLOSE_EDITOR);
 		JMenuItem item = new JMenuItem(a);
-		item.setText(a.getActionName());
 		menu.add(item);
 		return menu;
 	}
@@ -108,9 +103,7 @@ class EditorUI
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		c.add(toolBar, BorderLayout.NORTH);
-		blankPanel = new JPanel();
-		//blankPanel.setPreferredSize(new Dimension (300, 200));
-		//c.add(blankPanel, BorderLayout.CENTER);
+		
 		c.add(statusBar, BorderLayout.SOUTH);
 	}
 	

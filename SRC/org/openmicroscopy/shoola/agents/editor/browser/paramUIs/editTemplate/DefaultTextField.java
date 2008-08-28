@@ -1,5 +1,6 @@
  /*
- * treeEditingComponents.editDefaults.DefaultTextField 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate
+ * .DefaultTextField 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

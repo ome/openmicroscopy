@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.TextBoxEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -62,15 +62,17 @@ public class TextBoxEditor
 	/**
 	 * The text box that edits the value of this parameter
 	 */
-	private JTextArea textBox;
+	private JTextArea 			textBox;
 	
-	public TextBoxEditor(IParam param) {
-		
-		super(param);
-		
+	/**
+	 * Initialises the UI components. 
+	 * 
+	 */
+	private void initialise() 
+	{
 		String attributeName = SingleParam.PARAM_VALUE;
 		
-		String text = param.getAttribute(attributeName);
+		String text = getParameter().getAttribute(attributeName);
 		
 		textBox = new JTextArea(text);
 		textBox.setRows(2);
@@ -84,18 +86,27 @@ public class TextBoxEditor
 		textBox.setBorder(compoundBorder);
 		
 		AttributeEditListeners.addListeners(textBox, this, attributeName);
-		
-		//textBox.setPreferredSize(new Dimension(300, 100));
-		this.add(textBox);
-		
 		textBox.getDocument().addDocumentListener(new NewLineListener());
-		
-		// System.out.println(attributeName + " " + value);
 	}
 	
-	public String getEditDisplayName() {
-		return "Edit Text";
+	/**
+	 * Creates an instance, initialises the textBox, and adds it to the UI. 
+	 * 
+	 * @param param		The parameter object that this UI will edit. 
+	 */
+	public TextBoxEditor(IParam param) 
+	{	
+		super(param);
+		
+		initialise();
+		
+		this.add(textBox);
 	}
+	
+	/**
+	 * @see ITreeEditComp#getEditDisplayName()
+	 */
+	public String getEditDisplayName() { return "Edit Text"; }
 	
 	/**
 	 * Need to listen to changes in the number of rows, so as to re-size 
@@ -104,22 +115,30 @@ public class TextBoxEditor
 	 * @author will
 	 *
 	 */
-	public class NewLineListener implements DocumentListener {
-
-		int lineCount = textBox.getLineCount();
+	public class NewLineListener implements DocumentListener 
+	{
+		// keep track of the number of lines. 
+		int lineCount;
 		
-		public void changedUpdate(DocumentEvent e) {
+		public NewLineListener() 
+		{
+			lineCount = textBox.getLineCount();
+		}
+		
+		public void changedUpdate(DocumentEvent e) {}
+
+		public void insertUpdate(DocumentEvent e) { checkLines(); }
+
+		public void removeUpdate(DocumentEvent e) {	checkLines(); }
+		
+		private void checkLines() {
 			int newLineCount = textBox.getLineCount();
 			if (newLineCount != lineCount) {
-			System.out.println("TextBoxEditor oldLines" + lineCount + " " + newLineCount);
+				// TODO need to refresh size of the node in JTree without 
+				// losing unsaved edits! 
+				//firePropertyChange(FieldPanel.UPDATE_EDITING_PROPERTY, null, null);
 				lineCount = newLineCount;
 			}
-		}
-
-		public void insertUpdate(DocumentEvent e) {
-		}
-
-		public void removeUpdate(DocumentEvent e) {	
 		}
 		
 	}

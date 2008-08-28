@@ -29,6 +29,8 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -59,7 +61,9 @@ class EditorToolBar
 		bar.setFloatable(false);
 		bar.setRollover(true);
 		bar.setBorder(null);
-		JButton b = new JButton(controller.getAction(EditorControl.CLOSE_EDITOR));
+		JButton b = new CustomButton(controller.getAction(
+				EditorControl.CLOSE_EDITOR));
+		b.setText("");
 		bar.add(b);
 		return bar;
 	}

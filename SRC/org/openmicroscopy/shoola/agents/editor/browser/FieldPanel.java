@@ -65,8 +65,6 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 import org.openmicroscopy.shoola.agents.editor.util.BareBonesBrowserLaunch;
-import org.openmicroscopy.shoola.util.ui.border.ImageBorder;
-
 
 
 /**
@@ -109,35 +107,32 @@ public class FieldPanel
 	/**
 	 * The source of data that this field is displaying and editing. 
 	 */
-	IField dataField;
+	private IField 					dataField;
 	
 	/**
 	 * The controller for managing undo/redo. Eg manages attribute editing...
 	 */
-	BrowserControl controller;
+	private BrowserControl 			controller;
 	
 	/**
 	 * The JTree that this field is displayed in. 
 	 * Used eg. to notify that this field has been edited (needs refreshing)
 	 */
-	JTree tree;
+	private JTree 					tree;
 	
 	/**
 	 * A reference to the node represented by this field. 
 	 * Used eg. to set the selected field to this node with undo/redo
 	 */
-	DefaultMutableTreeNode treeNode;
+	private DefaultMutableTreeNode 	treeNode;
 	
 	
-	/*
-	 * swing components
-	 */ 
-	JPanel contentsPanel;
+	private JPanel 					contentsPanel;
 	
 	/**
 	 * A label to display the name of the field
 	 */
-	JLabel nameLabel;
+	private JLabel 					nameLabel;
 	
 	/**
 	 * Horizontal Box which contains the (i) descriptionButton, urlButton,
@@ -145,43 +140,45 @@ public class FieldPanel
 	 * Additional components for editing the experimental values are also
 	 * added to this Box. 
 	 */
-	Box horizontalBox;
+	private Box 					horizontalBox;
 	
 	/**
 	 * A button to toggle the display of the field's description
 	 */
-	JButton descriptionButton;
+	private JButton 				descriptionButton;
 	
 	/**
 	 * This button is visible if a "url" value has been set. 
 	 * Clicking it will open a web browser with the url.
 	 */
-	JButton urlButton;
+	private JButton 				urlButton;
 
 	/**
 	 * This button doesn't do anything. Just indicates that field is required. 
 	 */
-	JButton requiredFieldButton;
+	private JButton 				requiredFieldButton;
 	
 	/**
 	 *  Visible if a default value set for this field. 
 	 */
-	JButton defaultButton;
+	private JButton 				defaultButton;
 	
 	/**
 	 * A label used to display the description of the field
 	 * The visibility of this can be toggled
 	 */
-	JLabel descriptionLabel;
+	private JLabel 					descriptionLabel;
 	
 	
-	Icon infoIcon;
-	Icon wwwIcon;
+	private Icon 					infoIcon;
+	
+	private Icon 					wwwIcon;
 	
 	
-	Cursor handCursor;
+	private Cursor				 	handCursor;
 	
-	IconManager iconManager = IconManager.getInstance();
+	
+	private IconManager 			iconManager;
 	
 
 	/**
@@ -226,7 +223,7 @@ public class FieldPanel
 		this.tree = tree;
 		this.treeNode = treeNode;
 		
-		
+		iconManager = IconManager.getInstance();
 		/*
 		 * Build borders and layout
 		 */

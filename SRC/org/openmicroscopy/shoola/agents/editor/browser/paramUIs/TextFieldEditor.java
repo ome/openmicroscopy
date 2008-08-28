@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.textFieldEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.textFieldEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,17 +24,15 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
 //Java imports
 
-import java.awt.Dimension;
-
 import javax.swing.JTextField;
-
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomTextField;
 
 //Third-party libraries
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomTextField;
 
 /** 
  * This is an editing component that edits a text value in a 
@@ -49,25 +47,41 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomTextField;
  * @since OME3.0
  */
 public class TextFieldEditor 
-	extends AbstractParamEditor {
+	extends AbstractParamEditor 
+{
 	
 	/**
 	 * The name of the attribute that you want to edit with this text field
 	 */
-	private String attributeName;
+	private String 				attributeName;
 	
 	/**
 	 * Text field for editing the attribute's value
 	 */
-	private JTextField textField;
+	private JTextField 			textField;
 	
+	/**
+	 * initialises the text field, adds listeners to call attributeEdited()
+	 * when focus lost (if text has been edited), and sets text. 
+	 */
+	private void initialise() 
+	{
+		String value = getParameter().getAttribute(attributeName);
+		
+		textField = new CustomTextField(150);
+		AttributeEditListeners.addListeners(textField, this, attributeName);
+		
+		textField.setText(value);
+		add(textField);
+	}
+
 	/**
 	 * Creates an instance.
 	 * 	
 	 * @param param		The parameter that you are editing
 	 */
-	public TextFieldEditor(IParam param) {
-		
+	public TextFieldEditor(IParam param) 
+	{
 		super(param);
 		attributeName = SingleParam.PARAM_VALUE;
 
@@ -80,29 +94,16 @@ public class TextFieldEditor
 	 * @param param		The parameter that you are editing
 	 * @param attributeName 	Specify the attribute you want to edit
 	 */
-	public TextFieldEditor(IParam param, String attributeName) {
-		
+	public TextFieldEditor(IParam param, String attributeName) 
+	{	
 		super(param);
 		this.attributeName = attributeName;
 		initialise();
 	}
 	
 	/**
-	 * initialises the text field, adds listeners to call attributeEdited()
-	 * when focus lost (if text has been edited), and sets text. 
+	 * @see ITreeEditComp#getEditDisplayName()
 	 */
-	private void initialise() {
-		String value = getParameter().getAttribute(attributeName);
-		
-		textField = new CustomTextField(150);
-		AttributeEditListeners.addListeners(textField, this, attributeName);
-		
-		textField.setText(value);
-		add(textField);
-	}
-	
-	public String getEditDisplayName() {
-		return "Edit Text";
-	}
+	public String getEditDisplayName() { return "Edit Text"; }
 
 }

@@ -1,5 +1,5 @@
  /*
- * treeEditingComponents.BooleanEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.BooleanEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

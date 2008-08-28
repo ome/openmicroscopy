@@ -1,5 +1,6 @@
  /*
- * treeEditingComponents.EditingComponentFactory 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs
+ * .EditingComponentFactory 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,9 +23,16 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
 
+//Java imports
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.ParamTemplateUIFactory;
 import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
@@ -35,21 +43,13 @@ import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
-
-
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * This is a factory that creates UI editing components for IFieldValue objects.
- * Each field in the OMERO.editor may contain one (or more) "value" objects,
+ * This is a factory that creates UI editing components for IParam objects.
+ * Each field in the OMERO.editor may contain one (or more) "parameter" objects,
  * that model the experimental variables in that field. 
  * These variables, are made editable within appropriate UI components created
  * by this Factory, depending on the String getFieldType().
- * Eg, a text value will be edited by a TextField, a checkBox value will be
+ * Eg, a text value will be edited by a TextField, a boolean parameter will be
  * edited by a checkBox etc. 
  * 
  * These components do not observe changes to the data in the Value objects, as
@@ -70,14 +70,23 @@ import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
  * </small>
  * @since OME3.0
  */
-public class ParamUIFactory {
-	
-	public static JComponent getEditingComponent(IParam paramObject) {
+public class ParamUIFactory 
+{
+	/**
+	 * Returns a UI component for editing the values of the parameter data 
+	 * object. 
+	 * NB: This UI component will not edit the "Template" (e.g. default values)
+	 * of the parameter. To get a component for this, see
+	 * {@link ParamTemplateUIFactory#getEditDefaultComponent(IParam)}
+	 * 
+	 * @param paramObject	The parameter data
+	 * @return				A JComponent for editing the value of the data.
+	 */
+	public static JComponent getEditingComponent(IParam paramObject) 
+	{
 		
 		if (paramObject == null) {
-			System.out.println("getEditingComponent: paramObject NOT RECOGNIZED. " +
-					"Return JPanel()");
-			return new JPanel();
+			throw new NullPointerException("No parameter");
 		}
 		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
 		
@@ -131,9 +140,4 @@ public class ParamUIFactory {
 		
 		return null;
 	}
-	
-	
-	
-	
-
 }

@@ -96,7 +96,6 @@ public class FieldRenderer
 			}
 		}
 		
-		System.out.println(value.getClass());
 		return new JLabel(value.toString());
 	}
 	

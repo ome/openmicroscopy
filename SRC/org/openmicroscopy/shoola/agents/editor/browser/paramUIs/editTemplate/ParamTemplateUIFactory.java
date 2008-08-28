@@ -1,5 +1,6 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.ParamTemplateUIFactory 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.
+ * ParamTemplateUIFactory 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

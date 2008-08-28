@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction 
+ * org.openmicroscopy.shoola.agents.editor.actions.OpenFileAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,23 +22,25 @@
  */
 package org.openmicroscopy.shoola.agents.editor.actions;
 
-
-//Java imports
-
 import java.awt.event.ActionEvent;
+import java.io.File;
 
 import javax.swing.Action;
-
-//Third-party libraries
-
-//Application-internal dependencies
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.openmicroscopy.shoola.agents.editor.IconManager;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+//Java imports
+
+//Third-party libraries
+
+//Application-internal dependencies
+
 /** 
- * An action for closing the Editor window (calls discard()).
+ * 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -48,27 +50,57 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since OME3.0
  */
-public class CloseEditorAction 
-	extends EditorAction
-{
+public class OpenFileAction
+	extends EditorAction {
 
+	
 	/** The description of the action. */
-    private static final String NAME = "Close Editor";
+    private static final String NAME = "Open File";
     
 	 /** The description of the action. */
-    private static final String DESCRIPTION = "Close the Editor Window";
+    private static final String DESCRIPTION = "File not found.";
+    
+    /**
+     * The file that this Action opens. 
+     */
+    private File 		file;
+    
     
     /** Creates a new instance.
+     * Action not enabled until {@link #setFile(String)} is called. 
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-   public CloseEditorAction(Editor model)
+   public OpenFileAction(Editor model)
    {
        super(model);
-       setEnabled(true);
+       setEnabled(false);		// not enabled until setFile(File) is called.
        setName(NAME);
        setDescription(DESCRIPTION);
-       setIcon(IconManager.N0);
+       setIcon(IconManager.LINK_LOCAL_ICON);
+   }
+   
+   /**
+    * Sets the file that this Action will open.
+    * This Action is disabled until this method is called and the file is found.
+    * 
+    * @param filePath		The absolute path of the file.
+    */
+   public void setFile(String filePath) 
+   {
+	   if (filePath == null) return;
+	   
+	   file = new File(filePath);
+	   setName(file.getName());
+	   
+	   if (file.exists()) {
+		   setDescription("Open file at " + filePath);
+		   setEnabled(true);
+	   } 
+	   else {
+		   setDescription("File not found at " + filePath);
+		   setEnabled(false);
+	   }
    }
    
    /**
@@ -78,6 +110,15 @@ public class CloseEditorAction
    public void actionPerformed(ActionEvent e) 
    {
 	   model.discard();
+   }
+   
+   /** 
+    * Reacts to state changes in the {@link Editor}. 
+    * @see ChangeListener#stateChanged(ChangeEvent)
+    */
+   public void stateChanged(ChangeEvent e)
+   {
+       onStateChange();
    }
    
 }
