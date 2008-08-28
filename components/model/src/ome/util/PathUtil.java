@@ -7,57 +7,44 @@
 
 package ome.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import java.util.ResourceBundle;
 
-import ome.conditions.InternalException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import org.springframework.util.ResourceUtils;
-
+/**
+ * Used to find the "omero.data.dir" environment variable which points to the
+ * location used by the server for storing data. This is read from the "omero"
+ * {@link ResourceBundle}, or if all else fails is set to "/OMERO". This is
+ * primarily useful for testing.
+ */
 public class PathUtil {
 
-    private final String SPRING_FILE_PATH = "components/romio/resources/beanRefContext.xml";
+    private final static Log log = LogFactory.getLog(PathUtil.class);
 
-    private final String OMERO_PROPS = "classpath:omero.properties";
+    private final static PathUtil instance = new PathUtil();
 
-    private static PathUtil instance = null;
-
-    private static Properties properties;
+    private final String omeroDataDir;
 
     private PathUtil() {
-        properties = new Properties();
-        File f = null;
-        FileInputStream fis = null;
+        String dataDir;
         try {
-            f = ResourceUtils.getFile(OMERO_PROPS);
-            fis = new FileInputStream(f);
-            properties.load(fis);
-        } catch (IOException e) {
-            throw new InternalException("Could not load omero.properties:");
-        } finally {
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (Exception e) {
-                    // ok
-                }
-            }
+            ResourceBundle bundle = ResourceBundle.getBundle("omero");
+            dataDir = bundle.getString("omero.data.dir");
+        } catch (Exception e) {
+            dataDir = "/OMERO";
+            log.error("Could not find \"omero.data.dir\" "
+                    + "in \"omero\" ResourceBundle", e);
         }
+        omeroDataDir = dataDir;
     }
 
     public static PathUtil getInstance() {
-        if (instance == null) {
-            return new PathUtil();
-        } else {
-            return instance;
-        }
+        return instance;
     }
 
     public String getDataFilePath() {
-        String path = properties.getProperty("omero.data.dir");
-        return path;
+        return omeroDataDir;
     }
 
 }

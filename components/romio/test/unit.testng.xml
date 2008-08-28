@@ -12,7 +12,7 @@
       </run>        
     </groups>
     <packages>
-      <package name="ome.*"/>
+      <package name="ome.io.*"/>
     </packages>
   </test>
 

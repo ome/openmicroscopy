@@ -23,7 +23,7 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.testng.annotations.Test;
 
-@Test
+@Test( groups = "integration" )
 public class SearchTest extends TestCase {
 
     private static Log log = LogFactory.getLog(SearchTest.class);
