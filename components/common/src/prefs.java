@@ -29,7 +29,7 @@ import java.util.prefs.Preferences;
  * 
  * A single string value is stored as {@link #DEFAULT} (which by default is the
  * value {@link #DEFAULT}, and points to the name of some node under
- * "omero.prefs". This value can be overriden by the "OMERO" environment
+ * "omero.prefs". This value can be overriden by the "OMERO_CONFIG" environment
  * variable. Almost all commands work on this default node, referred to here as
  * a "profile".
  * 
@@ -51,13 +51,19 @@ public class prefs {
      * "omero.prefs", the value of the root {@link Preferences} node used for
      * all configuration work.
      */
-    public final static String ROOT = "omero.prefs";
+    public final static String ROOT = "/omero/prefs";
 
     /**
      * Key (and default value) of the property under {@link #ROOT} which defines
      * which "profile" (subnode} is in effect.
      */
     public final static String DEFAULT = "default";
+
+    /**
+     * Environment variable which can be set to override the current, active
+     * profile.
+     */
+    public final static String ENV = "OMERO_CONFIG";
 
     /**
      * Static exception created at initialization to prevent our needing to
@@ -256,7 +262,7 @@ public class prefs {
     public static String[] def(String[] args) {
         args = notNull(args);
         if (args.length == 0) {
-            String OMERO = System.getenv("OMERO");
+            String OMERO = System.getenv(ENV);
             if (OMERO == null) {
                 OMERO = prefs.get(DEFAULT, null);
                 if (OMERO == null) {
@@ -321,12 +327,16 @@ public class prefs {
 
         Set<String> availableKeys = new HashSet<String>(Arrays.asList(_node()
                 .keys()));
-        String[] rv = new String[args.length];
-        for (int i = 0; i < rv.length; i++) {
+        Set<String> askedKeys = new HashSet<String>(Arrays.asList(args));
+        availableKeys.retainAll(askedKeys);
+        String[] rv = new String[availableKeys.size()];
+
+        for (int i = 0; i < rv.length;) {
             String key = args[i] == null ? "" : args[i];
             if (availableKeys.contains(key)) {
                 String value = _node().get(key, "");
                 rv[i] = key + "=" + value;
+                i++;
             }
         }
         Arrays.sort(rv);

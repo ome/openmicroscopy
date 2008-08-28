@@ -14,20 +14,20 @@ import java.util.prefs.Preferences;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
 /**
- * Provides static access for the creation of singleton and non-singleton
- * application contexts. Also provides context names as constant fields which
- * can be used for the lookup of particular contexts, through either
- * {@link #getInstance(String)} or
- * {@link ome.system.ServiceFactory#ServiceFactory(String)}.
- * 
- * By passing a {@link java.util.Properties} instance into the
- * {@link #getClientContext(Properties)} method, a non-static version is
- * created. Currently this is only supported for the client context.
- * 
+ * Central configuration for OMERO properties from (in order):
+ * <ul>
+ * <li>Any injected {@link Properties} instances</li>
+ * <li>Java {@link Preferences}</li>
+ * <li>Java {@link System#getProperties()}</li>
+ * <li>Any configured property files</li>
+ * </ul>
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
+ * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/800">#800</a>
  * @DEV.TODO Code duplication with prefs.java
  */
 public class PreferenceContext extends PreferencesPlaceholderConfigurer {
@@ -36,16 +36,22 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
 
     public final static String DEFAULT = "default";
 
-    public final static String ROOT = "omero.prefs";
+    public final static String ROOT = "/omero/prefs";
 
-    public final static String ENV = "OMERO";
+    public final static String ENV = "OMERO_CONFIG";
 
     /**
-     * Automatically sets the {@link #setUserTreePath(String)} value, overriding
-     * any value provided in configuration.
+     * By default, configures this instance for
+     * {@link PropertyPlaceholderConfigurer#SYSTEM_PROPERTIES_MODE_OVERRIDE} as
+     * well as ignoring unfound resources. The {@link #setUserTreePath(String)}
+     * user-tree is set according to a similar logic as in the {@link prefs}
+     * command-line tool, using first {@link #ENV} from the environment if
+     * present, otherwise the value of "omero.prefs.default".
      */
-    @Override
-    public void afterPropertiesSet() {
+    public PreferenceContext() {
+        setSystemPropertiesMode(SYSTEM_PROPERTIES_MODE_OVERRIDE);
+        setIgnoreResourceNotFound(true);
+
         String OMERO = System.getenv(ENV);
         if (OMERO == null) {
             OMERO = Preferences.userRoot().node(ROOT).get(DEFAULT, null);
@@ -56,12 +62,15 @@ public class PreferenceContext extends PreferencesPlaceholderConfigurer {
 
         // Ok, then if we've found something use it.
         if (OMERO != null) {
-            setUserTreePath(ROOT + "." + OMERO);
+            setUserTreePath(ROOT + "/" + OMERO);
         }
 
-        super.afterPropertiesSet();
     }
 
+    /**
+     * Lookup method for getting access to the
+     * {@link #mergeProperties() merged properties} for this instance.
+     */
     public String getProperty(String key) {
         try {
             return resolvePlaceholder(key, this.mergeProperties());
