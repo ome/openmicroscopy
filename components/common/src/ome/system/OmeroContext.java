@@ -294,7 +294,8 @@ public class OmeroContext extends ClassPathXmlApplicationContext {
     }
 
     public String getProperty(String propertyName) {
-        throw new UnsupportedOperationException();
+        PreferenceContext pc = (PreferenceContext) getBean("preferenceContext");
+        return pc.getProperty(propertyName);
     }
 
     /**

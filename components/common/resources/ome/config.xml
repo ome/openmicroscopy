@@ -17,28 +17,44 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-<!--
+<beans>
 
-	Provides a local path to necessary properties and produces
-	a OMEData instance for testing.
- 
--->
+    <description>
+    Provides a central configuration location for all properties, preferences,
+    etc. used within OMERO. These values may be pulled from the environment,
+    the Java runtime, your Java preferences, or from configuration files.
 
-<beans>	
-	<!-- ***** CONFIG ***** -->
-	<!-- property placeholder post-processor -->
-	<bean id="placeholderConfig"
-      class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
-    		<property name="ignoreResourceNotFound" value="true"/>
-		<property name="locations">
-    <!-- Note: later properties overwrite earlier ones -->
-		<list>
-			<value>hibernate.properties</value>
-			<value>omero.properties</value>
-			<value>local.properties</value>
-		</list>
-		</property>
-	</bean>
+    See https://trac.openmicroscopy.org.uk/omero/ticket/800 for more information
+    on how this works.
+    </description>
+
+        <bean id="preferenceContext" class="ome.system.PreferenceContext">
+
+            <description>
+            The PreferencesContext class handles much of the configuration and
+            lookup necessary for the OmeroContext, including settings defaults
+            which on the traditional Spring classes like:
+
+            org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer
+
+            or
+
+            org.springframework.beans.factory.config.PropertyPlaceholderConfigurer
+
+            would be necessary in this file.
+            </description>
+
+                <property name="locations">
+                    <list>
+                            <!-- Note: later properties overwrite earlier ones -->
+                            <value>hibernate.properties</value>
+                            <value>omero.properties</value>
+                            <!-- Once ticket:800 is complete, local.properties
+                            will no longer be used -->
+                            <value>local.properties</value>
+                    </list>
+                </property>
+
+        </bean>
 
 </beans>

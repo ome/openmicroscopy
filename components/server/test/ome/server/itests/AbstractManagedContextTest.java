@@ -200,6 +200,11 @@ public class AbstractManagedContextTest extends
         return UUID.randomUUID().toString().replaceAll("-", "DASH");
     }
 
+    protected String getOmeroDataDir() {
+        return ((OmeroContext) applicationContext)
+                .getProperty("omero.data.dir");
+    }
+
     protected Pixels makePixels() {
         try {
             final File file = ResourceUtils

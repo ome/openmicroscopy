@@ -16,7 +16,6 @@ import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.util.PathUtil;
 
 import org.testng.annotations.Test;
 
@@ -37,7 +36,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
 
     private PixbufIOFixture baseFixture;
 
-    private final String ROOT = PathUtil.getInstance().getDataFilePath();
+    private String ROOT;
 
     private int getDigestOffset(int z, int c, int t) {
         int planeCountT = pixels.getSizeZ().intValue()
@@ -90,6 +89,8 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     @Override
     protected void onSetUp() throws Exception {
         super.onSetUp();
+
+        ROOT = getOmeroDataDir();
 
         // Create set up the base fixture which sets up the database for us
         baseFixture = new PixbufIOFixture(this.iPojos, this.iUpdate);
