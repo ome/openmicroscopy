@@ -15,5 +15,6 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="common" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server;client->client"/>
+    <dependency name="testing" rev="${omero.version}" changing="true" conf="test->test"/>
   </dependencies>
 </ivy-module>

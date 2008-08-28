@@ -107,6 +107,8 @@ public class ExampleUsageTest extends TestCase {
                 assertFalse(p.getBidirectional());
             } else if (p.getName().equals("jobDoohickeyLink")) {
                 assertTrue(p.getBidirectional());
+            } else if (p.getName().equals("details")) {
+                // Ignore this generated property
             } else {
                 fail("Unknown property:" + p);
             }
@@ -122,7 +124,9 @@ public class ExampleUsageTest extends TestCase {
         List<String> order = new LinkedList<String>(Arrays.asList("pixels",
                 "cccccc", "aaaaaa", "bbbbbb", "images"));
         for (Property p : ot.getProperties()) {
-            if (p.getName().equals(order.get(0))) {
+            if (p.getName().equals("details")) {
+                // skip this generated property
+            } else if (p.getName().equals(order.get(0))) {
                 order.remove(0);
             } else {
                 fail(p.getName() + "!=" + order.get(0));

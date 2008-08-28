@@ -7,4 +7,11 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 
+    <target name="package" depends="lifecycle.package">
+        <jar update="true"
+             destfile="${target.dir}/${ivy.module}.jar">
+            <fileset dir="${resrc.dir}" includes="tiny*.dv"/>
+        </jar>
+    </target>
+
 </project>
