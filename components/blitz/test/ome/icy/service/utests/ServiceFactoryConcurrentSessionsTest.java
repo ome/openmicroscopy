@@ -47,9 +47,7 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
     SessionManager manager;
     IAdminPrxHelper admin1, admin2;
     Ice.ObjectAdapter adapter;
-    OmeroContext ctx = new OmeroContext(new String[] {
-            "classpath:omero/test.xml",
-            "classpath:ome/services/blitz-servantDefinitions.xml" });
+    OmeroContext ctx;
     Ice.Current current = new Ice.Current();
     {
         current.ctx = new HashMap<String, String>();
@@ -59,6 +57,10 @@ public class ServiceFactoryConcurrentSessionsTest extends MockObjectTestCase {
     @Override
     @Configuration(beforeTestMethod = true)
     protected void setUp() throws Exception {
+
+        ctx = new OmeroContext(new String[] { "classpath:omero/test.xml",
+                "classpath:ome/services/blitz-servantDefinitions.xml" });
+
         CacheFactory factory1 = new CacheFactory(), factory2 = new CacheFactory();
         factory1.setOverflowToDisk(false);
         factory1.setBeanName(this.getClass().getName() + "1");

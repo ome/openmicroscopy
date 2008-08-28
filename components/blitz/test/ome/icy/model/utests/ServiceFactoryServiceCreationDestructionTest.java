@@ -62,7 +62,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
     // "classpath:ome/icy/model/utests/ServiceFactoryTest.xml",
     // "classpath:ome/services/blitz-servantDefinitions.xml"});
     //    
-    OmeroContext context = OmeroContext.getInstance("OMERO.blitz.test");
+    OmeroContext context;
 
     String adminServiceId = "sessionuuid/omero.api.IAdmin";
     String reServiceId = "sessionuuid/uuid-omero.api.RenderingEngine";
@@ -77,6 +77,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
     @BeforeMethod
     protected void setUp() throws Exception {
 
+        context = OmeroContext.getInstance("OMERO.blitz.test");
         context.refresh(); // Repairing from other methods
 
         map = new HashMap<String, Ice.Object>();
