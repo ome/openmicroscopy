@@ -499,25 +499,6 @@ class AttachmentsUI
 			un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile(),
 								dir);
 		}
-
-		/*
-		FileAnnotationData data = source.getFile();
-		if (data == null) return;
-		Registry reg = MetadataViewerAgent.getRegistry();
-		
-		chooser = new FileChooser(reg.getTaskBar().getFrame(), 
-					FileChooser.FOLDER_CHOOSER, "Directory selection",
-					"Select the folder where to save the files.");
-		
-		chooser.addPropertyChangeListener(
-				FileChooser.APPROVE_SELECTION_PROPERTY, this);
-		if (chooser.showDialog() == JFileChooser.APPROVE_OPTION) {
-			File dir = chooser.getSelectedFile();
-			UserNotifier un = reg.getUserNotifier();
-			un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile(),
-								dir);
-		}
-		*/
 	}
 	
 	/**

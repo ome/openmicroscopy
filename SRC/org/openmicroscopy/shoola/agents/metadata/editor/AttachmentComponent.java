@@ -29,36 +29,27 @@ import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.File;
-
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.annotations.FileAnnotation;
-
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.FileAnnotationData;
 
 /** 
- * 
+ * UI component hosting the attached file.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -92,8 +83,6 @@ class AttachmentComponent
 	 * owned the annotation. 
 	 */
 	private boolean				editable;
-	
-	private Timer doubleClickTimer;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -172,10 +161,11 @@ class AttachmentComponent
 		setBackground(UIUtilities.BACKGROUND);
 	}
 	
-	/**
+	/** 
 	 * Posts an event on the eventBus, with the attachment file's ID, name etc.
 	 */
-	private void postFileClicked() {
+	private void postFileClicked()
+	{
 		FileAnnotationData data = getFile();
 		if (data == null) return;
 		Registry reg = MetadataViewerAgent.getRegistry();
@@ -184,7 +174,6 @@ class AttachmentComponent
 				
 		reg.getEventBus().post(new EditFileEvent(fileName, 
 				data.getFileID(), fileSize));
-		
 	}
 
 	/**
@@ -245,20 +234,10 @@ class AttachmentComponent
 	 */
 	public void mouseReleased(MouseEvent e)
 	{
-		if (e.getClickCount() == 2) {
-			/*
-			 * First, stop any potential download of editor file that may
-			 * have been initiated by the first click;
-			 */
-			if (doubleClickTimer != null) {
-				doubleClickTimer.stop();
-			}
-			view.viewFile(this);
-		}
-		else if (e.isPopupTrigger()) {
+		if (e.getClickCount() == 2) postFileClicked();
+		else if (e.isPopupTrigger())
 			view.createManagementMenu().show(e.getComponent(), e.getX(), 
 					e.getY());
-		}
 	}
 	
 	/** 
@@ -274,19 +253,6 @@ class AttachmentComponent
 		if (e.isPopupTrigger())
 			view.createManagementMenu().show(e.getComponent(), e.getX(), 
 									e.getY());
-		else if (e.getClickCount() == 1) {
-			/*
-			 * Create a timer that will call postFileClicked() after
-			 * 0.5 seconds (or canceled by a second click)
-			 */
-			doubleClickTimer = new Timer(500, new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					postFileClicked();
-				}
-			});
-			doubleClickTimer.setRepeats(false);
-			doubleClickTimer.start();
-		}
 	}
 	
 	/**
