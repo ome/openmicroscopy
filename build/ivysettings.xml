@@ -32,7 +32,7 @@
       </filesystem>
    </chain>
 
-    <chain name="hudson-repository" returnFirst="true">
+    <chain name="hudson-repository" returnFirst="true" latest="latest">
       <filesystem name="dot-hudson-">
         <ivy pattern="${user.home}/.hudson/repository/[organisation]/[module]/ivys/ivy-[revision].xml"/>
         <artifact pattern="${user.home}/.hudson/repository/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>

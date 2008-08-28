@@ -168,7 +168,16 @@
     <ivy:resolve file="${base.build.dir}/ivy.xml" type="zip" log="quiet"/>
     <ivyPub artifactspattern="${dist.dir}/omero.insight-${dist.bundle.version}.zip"/>
   </target>
- 
+
+  <target name="ivy-build">
+  <!-- "Build run by hudson in the omero-insight-integration job" -->
+    <property name="ivy-resolver" value="hudson-repository"/>
+    <antcall target="clean" inheritAll="true" inheritRefs="true"/>
+    <antcall target="ivy-override" inheritAll="true" inheritRefs="true"/>
+    <antcall target="dist" inheritAll="true" inheritRefs="true"/>
+    <antcall target="ivy-publish" inheritAll="true" inheritRefs="true"/>
+  </target>
+
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Build, test, and package the app.
    * We first remove any previous build artifact, then we go through the main 
