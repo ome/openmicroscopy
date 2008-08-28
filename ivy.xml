@@ -19,6 +19,7 @@
     <dependency name="client" rev="${omero.version}" changing="true" conf="*->client"/>
     <dependency name="OmeroJava" rev="${omero.version}" changing="true" conf="*->client"/>
     <dependency name="OmeroImporter" rev="${omero.version}" changing="true" conf="*->client"/>
+    <dependency name="testing" rev="${omero.version}" changing="true" conf="*->test"/>
     <!-- Ant dependencies for the antlib/resources/omero.ivy build -->
     <dependency org="apache" name="ant-launcher" rev="1.6.5"/>
     <dependency org="apache" name="ant-nodeps" rev="1.6.5"/>
