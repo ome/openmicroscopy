@@ -55,8 +55,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
-import com.sun.tools.javac.tree.Tree.If;
-
 import pojos.FileAnnotationData;
 
 /** 

@@ -724,7 +724,7 @@ public class ScreenLogin
 		if (text == null) return;
 		text = text.trim();
 		if (text.length() == 0) return;
-		if (cancel.getText() == text) return;
+		if (text.equals(cancel.getText())) return;
 		cancel.setText(text);
 		char c = text.toUpperCase().charAt(0);
 		setQuitButtonMnemonic(c);
