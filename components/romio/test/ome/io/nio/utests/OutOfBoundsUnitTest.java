@@ -13,7 +13,6 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import ome.util.PathUtil;
 
 /**
  * @author callan

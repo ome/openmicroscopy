@@ -7,4 +7,13 @@
     <import file="${import.dir}/lifecycle.xml"/>
     <import file="${import.dir}/hibernate.xml"/>
 
+    <target name="test" description="Unzips test dependencies and then calls lifecycle.test">
+        <unjar src="${target.dir}/libs/testing.jar" dest="${classes.dir}">
+            <patternset>
+                <include name="tiny*dv"/>
+            </patternset>
+        </unjar>
+        <antcall target="lifecycle.test" inheritAll="true" inheritRefs="true"/>
+    </target>
+
 </project>

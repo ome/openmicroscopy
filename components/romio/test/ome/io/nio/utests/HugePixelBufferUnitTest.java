@@ -14,7 +14,6 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
-import ome.util.PathUtil;
 
 public class HugePixelBufferUnitTest extends TestCase {
     private ome.model.core.Pixels pixels;

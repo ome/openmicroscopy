@@ -30,21 +30,21 @@ public class ConfigHelper {
         return new String[] { "ome/services/aop.xml",
                 "ome/services/services.xml", "ome/services/security.xml",
                 "ome/services/hibernate.xml", "ome/services/dbcp.xml",
-                "ome/services/config-local.xml", "ome/services/test/test.xml" };
+                "ome/config.xml", "ome/services/test/test.xml" };
     }
 
     public static String[] getDaoConfigLocations() {
 
         return new String[] { "ome/services/aop.xml",
                 "ome/services/hibernate.xml", "ome/services/dbcp.xml",
-                "ome/services/config-local.xml", "ome/services/test/test.xml" };
+                "ome/config.xml", "ome/services/test/test.xml" };
     }
 
     public static String[] getDbUnitConfigLocations() {
 
         return new String[] { "ome/services/aop.xml",
                 "ome/services/hibernate.xml", "ome/services/test/dbcp.xml",
-                "ome/services/config-local.xml", "ome/services/test/test.xml" };
+                "ome/config.xml", "ome/services/test/test.xml" };
     }
 
 }

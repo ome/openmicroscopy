@@ -5,18 +5,23 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.util;
+package ome.io.nio.utests;
 
-import java.util.ResourceBundle;
+import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
  * Used to find the "omero.data.dir" environment variable which points to the
- * location used by the server for storing data. This is read from the "omero"
- * {@link ResourceBundle}, or if all else fails is set to "/OMERO". This is
- * primarily useful for testing.
+ * location used by the server for storing data. This is done by creating an
+ * {@link OmeroContext} with "ome/config.xml" (previously
+ * "ome/services/config-local.xml"). Primarily useful for testing.
+ * 
+ * Any other attempt to acquire the omero.data.dir directly may cause issues in
+ * non-standard environments.
+ * 
+ * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/800">ticket:800</a>
  */
 public class PathUtil {
 
@@ -29,12 +34,13 @@ public class PathUtil {
     private PathUtil() {
         String dataDir;
         try {
-            ResourceBundle bundle = ResourceBundle.getBundle("omero");
-            dataDir = bundle.getString("omero.data.dir");
+            OmeroContext c = new OmeroContext(
+                    new String[] { "classpath:ome/config.xml" });
+            dataDir = c.getProperty("omero.data.dir");
         } catch (Exception e) {
             dataDir = "/OMERO";
             log.error("Could not find \"omero.data.dir\" "
-                    + "in \"omero\" ResourceBundle", e);
+                    + "in OmeroContext with ome/config.xml", e);
         }
         omeroDataDir = dataDir;
     }
