@@ -217,6 +217,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
         byte[] buf = new byte[planeSize];
         ctx.to = new PixelData(pixelsType, ByteBuffer.wrap(buf));
+	int newC = 0;
         for (Integer c : channels)
         {
             ctx.minimum = Double.MAX_VALUE;
@@ -249,7 +250,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                                     "Unknown algorithm: " + algorithm);
                         }
                     }
-                    destinationBuffer.setPlane(buf, 0, c, t);
+                    destinationBuffer.setPlane(buf, 0, newC, t);
                 }
                 catch (IOException e)
                 {
@@ -270,7 +271,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             }
             
             // Handle the change of minimum and maximum for this channel.
-            Channel channel = newPixels.getChannel(c);
+            Channel channel = newPixels.getChannel(newC);
             StatsInfo si = new StatsInfo();
             si.setGlobalMin(ctx.minimum);
             si.setGlobalMax(ctx.maximum);
@@ -278,6 +279,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
 	    // Set our methodology
 	    newPixels.setMethodology(
                 IProjection.METHODOLOGY_STRINGS[algorithm]);
+            newC++;
         }
         newImage = iUpdate.saveAndReturnObject(newImage);
         return newImage.getId();
