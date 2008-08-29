@@ -1,7 +1,7 @@
 
-package org.openmicroscopy.shoola.agents.editor.browser;
-
 /*
+ * org.openmicroscopy.shoola.agents.editor.browser.FieldPanel
+ * 
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
@@ -23,6 +23,7 @@ package org.openmicroscopy.shoola.agents.editor.browser;
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
+package org.openmicroscopy.shoola.agents.editor.browser;
 
 // Java Imports
 
@@ -36,7 +37,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -61,11 +61,13 @@ import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 import org.openmicroscopy.shoola.agents.editor.util.BareBonesBrowserLaunch;
 
+import com.sun.org.apache.regexp.internal.recompile;
 
 /**
  * This is the UI component that represents a field in the JTree.
@@ -83,8 +85,10 @@ import org.openmicroscopy.shoola.agents.editor.util.BareBonesBrowserLaunch;
 */
 public class FieldPanel 
 	extends JPanel 
-	implements PropertyChangeListener 
-	{
+	implements 
+	PropertyChangeListener,
+	ActionListener
+{
 	
 	/**
 	 * This Field listens for changes to this property in the parameter
@@ -102,12 +106,27 @@ public class FieldPanel
 	 * Changes in this property indicates that this field needs to 
 	 * call nodeChanged() on this node in the TreeModel.
 	 */
-	public static final String NODE_CHANGED_PROPERTY = "nodeChangedProperty";
+	public static final String 	NODE_CHANGED_PROPERTY = "nodeChangedProperty";
+	
+	/**
+	 * An ActionCommand for the Description button. 
+	 */
+	public static final String 		TOGGLE_DESCRIPTION_CMD = "toggleDesc";
+	
+	/**
+	 * An ActionCommand for the Load defaults button. 
+	 */
+	public static final String 		LOAD_DEFAULTS_CMD = "loadDefaults";
+	
+	/**
+	 * An ActionCommand for the URL-link button. 
+	 */
+	public static final String 		OPEN_URL_CMD = "openUrl";
 	
 	/**
 	 * The source of data that this field is displaying and editing. 
 	 */
-	private IField 					dataField;
+	private IField 					field;
 	
 	/**
 	 * The controller for managing undo/redo. Eg manages attribute editing...
@@ -174,121 +193,67 @@ public class FieldPanel
 	
 	private Icon 					wwwIcon;
 	
-	
-	private Cursor				 	handCursor;
-	
-	
 	private IconManager 			iconManager;
 	
 
 	/**
 	 * A flag to indicate if this field is highlighted. 
 	 */
-	boolean highlighted = false;
+	private boolean 				highlighted;
 	
 	/**
 	 * The background colour of this field.
 	 */
-	Color paintedColour = null;
-	
-	/**
-	 * A default colour for the background of this field. Matches the 
-	 * colour of the default border. 
-	 */
-	public static final Color DEFAULT_BACKGROUND = new Color(237, 239, 246);
+	private Color 					paintedColour;
 	
 	/**
 	 * A border created from images, with drop shadow and rounded corners.
 	 * This is the border for the FormField panel.
 	 */
-	Border imageBorder;
+	private Border 					imageBorder;
 	
 	/**
 	 * An identical border to the image border, except that the colour of 
 	 * the inside of the border matches the blue highlight colour.
 	 */
-	Border imageBorderHighlight;
-	
+	private Border 					imageBorderHighlight;
 	
 	/**
-	 * Creates an instance of this class.
-	 * 
-	 * @param field		The source of data for this display	
-	 * @param tree		The JTree where this panel is displayed
-	 * @param treeNode	The node that this panel represents
+	 * Initialises the UI components. 
 	 */
-	public FieldPanel(IField field, JTree tree, DefaultMutableTreeNode treeNode) {
-		
-		this.dataField = field;
-		this.tree = tree;
-		this.treeNode = treeNode;
-		
+	private void initialise() 
+	{
 		iconManager = IconManager.getInstance();
-		/*
-		 * Build borders and layout
-		 */
-		Border eb = BorderFactory.createEmptyBorder(2, 1, 2, 1);
 		
 		imageBorder = ImageBorderFactory.getImageBorder();
 		imageBorderHighlight = ImageBorderFactory.getImageBorderHighLight();
 		
-		this.setBorder(null);
-		this.setBackground(null);
-		this.setLayout(new BorderLayout());
-		
-		
-		/*
-		 * A label to display the name of the field.
-		 * This is the only component that is always visible (but could be "")
-		 */
+		// A label to display the name of the field.
 		nameLabel = new CustomLabel();
 		nameLabel.setBackground(null);
 		nameLabel.setOpaque(false);
 		
-		
-		/*
-		 * A description label displays description below the field. Visibility false unless 
-		 * descriptionButton is clicked.
-		 */
+		// A description label displays description below the field.
 		descriptionLabel = new CustomLabel();
 		descriptionLabel.setBackground(null);
 		
+		// Description button
 		infoIcon = iconManager.getIcon(IconManager.INFO_ICON);
-		descriptionButton = new JButton(infoIcon);
+		descriptionButton = new CustomButton(infoIcon);
 		descriptionButton.setFocusable(false); // so it is not selected by tabbing
-		descriptionButton.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent event) {
-				boolean visible = 
-					"true".equals(dataField.getDisplayAttribute("descVisible"));
-				visible = ! visible;
-				dataField.setDisplayAttribute("descVisible", visible + "");
-				refreshEditingOfPanel();
-			}
-		});
-		descriptionButton.setBackground(null);
-		descriptionButton.setBorder(eb);
+		descriptionButton.setActionCommand(TOGGLE_DESCRIPTION_CMD);
+		descriptionButton.addActionListener(this);
 		descriptionButton.setVisible(false);	// only made visible if description exists.
 		setDescriptionText(); 	// will update description label
 		
-		
-		/*
-		 * A url-link button, that is only visible if a URL has been set.
-		 */
+		// A url-link button, that is only visible if a URL has been set.
 		wwwIcon = iconManager.getIcon(IconManager.WWW_ICON);
-		urlButton = new JButton(wwwIcon);
+		urlButton = new CustomButton(wwwIcon);
 		urlButton.setFocusable(false); // so it is not selected by tabbing
-		urlButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent event) {
-				BareBonesBrowserLaunch.openURL(
-						dataField.getAttribute(Field.FIELD_URL));
-			}
-		});
-		urlButton.setBackground(null);
-		handCursor = new Cursor(Cursor.HAND_CURSOR);
-		urlButton.setCursor(handCursor);
-		urlButton.setBorder(eb);
+		urlButton.setActionCommand(OPEN_URL_CMD);
+		urlButton.addActionListener(this);
+		urlButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		urlButton.setVisible(false);	// only made visible if url exists.
-		
 		
 		/*
 		 * TODO
@@ -298,26 +263,28 @@ public class FieldPanel
 		 * Disabled if field is fully locked.
 		 */
 		//Icon defaultIcon = iconManager.getIcon(IconManager.DEFAULT_ICON);
-		defaultButton = new JButton("");
+		defaultButton = new CustomButton("");
 		defaultButton.setFocusable(false);
-		defaultButton.setBackground(null);
-		defaultButton.setBorder(eb);
 		defaultButton.setVisible(false);	// only visible if default set. 
-		defaultButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				loadDefaultValue();
-			}
-		});
+		defaultButton.setActionCommand(LOAD_DEFAULTS_CMD);
+		defaultButton.addActionListener(this);
 		
 		/* TODO
 		 * Required field button. Doesn't do anything, just indicates that the field is required.
 		 */
-		requiredFieldButton = new JButton("");
+		requiredFieldButton = new CustomButton("");
 		requiredFieldButton.setFocusable(false);
-		requiredFieldButton.setBackground(null);
-		requiredFieldButton.setBorder(eb);
 		requiredFieldButton.setVisible(false);	// only visible if requiredField = true;
-		
+	}
+	
+	/**
+	 * Builds the UI
+	 */
+	private void buildUI() 
+	{
+		this.setBorder(null);
+		this.setBackground(null);
+		this.setLayout(new BorderLayout());
 		
 		/*
 		 * Horizontal Box holds various buttons. More components can be 
@@ -344,22 +311,6 @@ public class FieldPanel
 		contentsPanel.setBorder(imageBorder);
 		
 		this.add(contentsPanel, BorderLayout.CENTER);
-
-		
-
-		/*
-		 * Update components with the values from dataField
-		 */
-		setNameText(addHtmlTagsForNameLabel(
-				dataField.getAttribute(Field.FIELD_NAME)));
-		setDescriptionText();
-		setURL(dataField.getAttribute(Field.FIELD_URL));
-		
-		refreshBackgroundColour();
-		
-		refreshDefaultValue();
-		
-		buildParamComponents();
 	}
 	
 	/**
@@ -367,20 +318,18 @@ public class FieldPanel
 	 * Use a Factory to create the UI components, depending on the 
 	 * type of each parameter. 
 	 */
-	public void buildParamComponents() {
-
-		int paramCount = dataField.getParamCount();
+	private void buildParamComponents() 
+	{
+		int paramCount = field.getParamCount();
 		
 		for (int i=0; i<paramCount; i++) {
-			IParam param = dataField.getParamAt(i);
+			IParam param = field.getParamAt(i);
 			JComponent edit = ParamUIFactory.getEditingComponent(param);
 			if (edit != null)
 				addFieldComponent(edit);
 		}
-		
 	}
-	
-	
+
 	/**
 	 * Used to add additional components to the field.
 	 * Will be displayed horizontally. 
@@ -388,14 +337,13 @@ public class FieldPanel
 	 * 
 	 * @param comp	The component to add.
 	 */
-	private void addFieldComponent(JComponent comp) {
+	private void addFieldComponent(JComponent comp) 
+	{
+		// Want to add the table to the SOUTH of contentsPanel
+        // (where descriptionLabel is). 
 		if (comp instanceof TableEditor) {
-			/*
-	         * Want to add the table to the SOUTH of contentsPanel
-	         *  (where descriptionLabel is). 
-	         * Create new panel to hold both. 
-	         * !! CURRENT UI DOES NOT DISPLAY MORE THAN ONE TABLE PARAMETER !!*
-	         */
+			// Create new panel to hold both. 
+	        // !! CURRENT UI DOES NOT DISPLAY MORE THAN ONE TABLE PARAMETER !!
 	        JPanel tableContainer = new JPanel(new BorderLayout());
 	        tableContainer.setBackground(null);
 	        tableContainer.add(descriptionLabel, BorderLayout.NORTH);
@@ -412,16 +360,13 @@ public class FieldPanel
 		comp.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		comp.addPropertyChangeListener(NODE_CHANGED_PROPERTY, this);
 	}
-	
-	
-	
-	
+
 	/**
 	 * Checks to see whether a default value exists for this field.
 	 * If so, the default button becomes visible, with tool-tip
 	 * displaying the default value;
 	 */
-	public void refreshDefaultValue() {
+	private void refreshDefaultValue() {
 		/*
 		/TODO
 		String defaultValue = dataField.getAttribute(DataFieldConstants.DEFAULT);
@@ -437,12 +382,20 @@ public class FieldPanel
 			defaultButton.setToolTipText(null);
 			*/
 	}
-	
-	
-	
+
 	// these methods called when user updates the fieldEditor panel
-	public void setNameText(String name) {
-		nameLabel.setText(name);
+	
+	/**
+	 * Sets the value of the name label.
+	 * 
+	 * @param name 		The text to display as the name of the field.
+	 */
+	private void setNameText(String name) 
+	{
+		if (name != null) {
+			name = "<html>" + name + "</html>";
+			nameLabel.setText(name);
+		}
 		
 		/*	 TODO		Refresh locked status...
 		String lockedLevel = dataField.getAttribute(DataFieldConstants.LOCK_LEVEL);
@@ -478,17 +431,17 @@ public class FieldPanel
 			*/
 		
 	}
-	
 
 	/**
 	 * Called when the UI is built. Sets the visibility, text etc of 
 	 * the description box. 
 	 */
-	private void setDescriptionText() {
-		String description = dataField.getAttribute(
+	private void setDescriptionText() 
+	{
+		String description = field.getAttribute(
 				Field.FIELD_DESCRIPTION);
 		boolean showDescription = 
-			"true".equals(dataField.getDisplayAttribute("descVisible"));
+			"true".equals(field.getDisplayAttribute("descVisible"));
 		
 		if ((description != null) && (description.trim().length() > 0)) {
 			String htmlDescription = 
@@ -509,14 +462,15 @@ public class FieldPanel
 			descriptionLabel.setVisible(false);
 		}
 	}
-	
+
 	/**
 	 * Called while building UI. Sets the visibility and tool tip text 
 	 * for the URL button. 
 	 * 
-	 * @param url
+	 * @param url	The new URL
 	 */
-	public void setURL(String url) {
+	private void setURL(String url) 
+	{
 		if (url == null) {
 			urlButton.setVisible(false);
 			return;
@@ -528,36 +482,42 @@ public class FieldPanel
 			urlButton.setVisible(false);
 		}
 	}
-	
-	
+
 	/**
-	 * This causes the field to be Selected, with a blue background etc. 
-	 * 
-	 * @param selected		If true, field is coloured blue. 
+	 * Gets the {@link Field#BACKGROUND_COLOUR} attribute, converts it to 
+	 * a colour and refreshes the background. 
+	 * Then calls {@link #refreshHighlighted()}
 	 */
-	public void setSelected(boolean selected) {
-		// System.out.println("FormField setSelected() " + nameLabel.getText() + " " + selected);
-		highlighted = selected;
+	private void refreshBackgroundColour() 
+	{
+		paintedColour = getColorFromString(field.getAttribute(
+				Field.BACKGROUND_COLOUR));
+		
 		refreshHighlighted();
 	}
-	private void refreshHighlighted() {
+
+	/**
+	 * Sets the background colour and border, depending on the highlighted
+	 * state, and {@link paintedColour}. 
+	 */
+	private void refreshHighlighted() 
+	{
 		if (highlighted) { 
 			contentsPanel.setBackground(paintedColour != null ? paintedColour : 
 				UIUtilities.BLUE_HIGHLIGHT);
 			contentsPanel.setBorder(imageBorderHighlight);
 		}
 		else {
-			contentsPanel.setBackground((paintedColour == null) ? DEFAULT_BACKGROUND : paintedColour);
+			contentsPanel.setBackground((paintedColour == null) ? ImageBorderFactory.DEFAULT_BACKGROUND : paintedColour);
 			contentsPanel.setBorder(imageBorder);
 		}
 	}
-	
+
 	/**
-	 * This method takes the value in the DataFieldConstants.DEFAULT attribute,
-	 * and copies it into the attribute specified by 
-	 * EditCopyDefaultValues.getValueAttributeForLoadingDefault(dataField)
+	 * Load defaults. 
 	 */
-	public void loadDefaultValue() {
+	private void loadDefaultValue() 
+	{
 		// TODO 
 		// Make this action go through the Load Default Action. 
 		
@@ -569,29 +529,87 @@ public class FieldPanel
 		dataField.setAttribute(valueAttribute, defaultValue, true);
 		*/
 	}
+
+	/**
+	 * This method is used to refresh the size of this panel in the JTree.
+	 * It must also remain in the editing mode, otherwise the user who
+	 * is currently editing it will be required to click again to 
+	 * continue editing.
+	 * This can be achieved by calling 
+	 * {@link BasicTreeUI#startEditingAtPath(JTree, TreePath)}
+	 */
+	private void refreshEditingOfPanel() 
+	{
+		if ((tree != null) && (treeNode !=null)) {
+			
+			TreePath path = new TreePath(treeNode.getPath());
+			
+			tree.getUI().startEditingAtPath(tree, path);
+		}
+	}
+
+	/**
+	 * This method is used to refresh the size of this panel in the JTree,
+	 * without selecting this path for editing.
+	 */
+	private void refreshPanel() 
+	{
+		if ((tree != null) && (treeNode !=null)) {
+			
+			DefaultTreeModel mod = (DefaultTreeModel)tree.getModel();
+			
+			mod.nodeChanged(treeNode);
+		}
+	}
+
+	/**
+	 * Creates an instance of this class.
+	 * 
+	 * @param field		The source of data for this display	
+	 * @param tree		The JTree where this panel is displayed
+	 * @param treeNode	The node that this panel represents
+	 */
+	public FieldPanel(IField field, JTree tree, DefaultMutableTreeNode treeNode,
+			BrowserControl controller) 
+	{
+		
+		this.field = field;
+		this.tree = tree;
+		this.treeNode = treeNode;
+		this.controller = controller;
+		
+		initialise();	
+		
+		buildUI();
+
+		// Update components with the values from field
+		setNameText(field.getAttribute(Field.FIELD_NAME));
+		setDescriptionText();
+		setURL(field.getAttribute(Field.FIELD_URL));
+		
+		refreshBackgroundColour();
+		
+		refreshDefaultValue();
+		
+		buildParamComponents();
+	}
 	
 	/**
-	 * Allows the JTree to be set after this class is instantiated. 
-	 * @param tree
+	 * This causes the field to be Selected, with a blue background etc. 
+	 * 
+	 * @param selected		If true, field is coloured blue. 
 	 */
-	public void setTree(JTree tree) {
-		this.tree = tree;
-	}
-	
-	public void setTreeNode (DefaultMutableTreeNode node) {
-		treeNode = node;
-	}
-	
-	
-	private void refreshBackgroundColour() {
-		/* TODO 
-		paintedColour = getColorFromString(dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR));
-		
+	public void setSelected(boolean selected) {
+		highlighted = selected;
 		refreshHighlighted();
-		*/
 	}
 	
-	// used to convert a stored string Colour attribute to a Color
+	/**
+	 * Used to convert a stored string Colour attribute to a Color
+	 * 
+	 * @param colourAttribute	A colour in "red:green:blue" format. 
+	 * @return Color			The colour object.
+	 */
 	public static Color getColorFromString(String colourAttribute) {
 		if (colourAttribute == null) 
 			return null;
@@ -606,13 +624,6 @@ public class FieldPanel
 			return null;
 		}
 	}
-
-	
-	private String addHtmlTagsForNameLabel(String text) {
-		text = "<html>" + text + "</html>";
-		return text;
-	}
-
 
 	/**
 	 * If the size of a sub-component of this panel changes, 
@@ -644,61 +655,44 @@ public class FieldPanel
 				String attrName = src.getAttributeName();
 				String displayName = src.getEditDisplayName();
 				
-				System.out.println("FieldPanel propChanged: "+ attrName + 
-						" " + evt.getNewValue());
+				//System.out.println("FieldPanel propChanged: "+ attrName + 
+				//		" " + evt.getNewValue());
 				
 				String newValue;
 				Object newVal = evt.getNewValue();
 				if ((newVal instanceof String) || (newVal == null)){
 					newValue = (newVal == null ? null : newVal.toString());
-				 	// controller.editAttribute(param, attrName, newValue, 
-				 	//		displayName, tree, treeNode);
+				 	 controller.editAttribute(param, attrName, newValue, 
+				 			displayName, tree, treeNode);
 				}
-				
-				//System.out.println("FieldPanel " + attrName + " " + newValue);
 				
 				else if (newVal instanceof HashMap) {
 					HashMap newVals = (HashMap)newVal;
-					//controller.editAttributes(param, displayName, newVals, 
-					//		tree, treeNode);
+					controller.editAttributes(param, displayName, newVals, 
+							tree, treeNode);
 				}
 				
 			}
 		}
 	}
-
-	public void setController(BrowserControl controller) {
-		this.controller = controller;
-	}
 	
-	/**
-	 * This method is used to refresh the size of this panel in the JTree.
-	 * It must also remain in the editing mode, otherwise the user who
-	 * is currently editing it will be required to click again to 
-	 * continue editing.
-	 * This can be achieved by calling startEditingAtPath(tree, path)
-	 */
-	public void refreshEditingOfPanel() {
-		if ((tree != null) && (treeNode !=null)) {
-			
-			TreePath path = new TreePath(treeNode.getPath());
-			
-			tree.getUI().startEditingAtPath(tree, path);
+	public void actionPerformed(ActionEvent e) {
+		
+		String cmd = e.getActionCommand();
+		if (OPEN_URL_CMD.equals(cmd)) {
+			BareBonesBrowserLaunch.openURL(field.getAttribute(Field.FIELD_URL));
 		}
-	}
-	
-	/**
-	 * This method is used to refresh the size of this panel in the JTree,
-	 * without selecting this path for editing.
-	 */
-	public void refreshPanel() {
-		if ((tree != null) && (treeNode !=null)) {
-			
-			TreePath path = new TreePath(treeNode.getPath());
-			
-			DefaultTreeModel mod = (DefaultTreeModel)tree.getModel();
-			
-			mod.nodeChanged(treeNode);
+		
+		else if (TOGGLE_DESCRIPTION_CMD.equals(cmd)) {
+			boolean visible = 
+				"true".equals(field.getDisplayAttribute("descVisible"));
+			visible = ! visible;
+			field.setDisplayAttribute("descVisible", visible + "");
+			refreshEditingOfPanel();
+		}
+		
+		else if (LOAD_DEFAULTS_CMD.equals(cmd)) {
+			loadDefaultValue();
 		}
 	}
 	

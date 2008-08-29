@@ -258,7 +258,7 @@ public class FieldEditorPanel
 		public void actionPerformed (ActionEvent event) {
 			JComboBox source = (JComboBox)event.getSource();
 			int selectedIndex = source.getSelectedIndex();
-			String newType = FieldParamsFactory.INPUT_TYPES[selectedIndex];
+			String newType = FieldParamsFactory.PARAM_TYPES[selectedIndex];
 			paramTypeChanged(newType);
 		}
 	}	

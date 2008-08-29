@@ -75,41 +75,32 @@ import javax.swing.tree.TreePath;
  * @since OME3.0
  */
 public class MyBasicTreeUI 
-	extends BasicTreeUI {
+	extends BasicTreeUI 
+{
 	
-	
-
 	/**
 	 * This method causes path selection, then editing, to start on a single click,
 	 * instead of requiring two mouse clicks. 
 	 * See the class comments above for more information.
+	 * 
+	 * @see BasicTreeUI#startEditing(TreePath, MouseEvent) 
 	 */
-   protected boolean startEditing(TreePath path, MouseEvent event) {
-	  
-	
-	   /*
-	    * If the event isn't null, 
-	    */
+   protected boolean startEditing(TreePath path, MouseEvent event) 
+   {  
+	   // If the event isn't null, 
 	   if (event != null) {
 		   
-		   /*
-		    * Use the event to change path selection...
-		    */
+		   // Use the event to change path selection...
 		   selectPathForEvent(path, event);
 	   
-		   /*
-		    * ... and stop here if the SHIFT key was used (for multiple selection)
-		    */
+		   //...and stop here if the SHIFT key was used (for multiple selection)
 		   if (((event.getModifiers()) &  (MouseEvent.SHIFT_MASK))==1) {
 			   return false;
 		   }
 	   }
 	   
-	   /*
-	    * Now you want to start editing, by passing the super class method
-	    * a null mouse event.
-	    */
+	   // Now you want to start editing, by passing the super class method
+	   // a null mouse event.
 	   return super.startEditing(path, null);
-	
    }
 }

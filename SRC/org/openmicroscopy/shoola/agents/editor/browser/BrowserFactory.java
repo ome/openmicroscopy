@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory
+ * org.openmicroscopy.shoola.agents.editor.browser.BrowserFactory
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006 University of Dundee. All rights reserved.
@@ -51,13 +51,22 @@ public class BrowserFactory
      * 
      * @return 		A browser component. 
      */
-    public static Browser createBrowser(String viewingMode)
+    public static Browser createBrowser(int viewingState)
     {
-        BrowserModel model = new BrowserModel();
-        BrowserComponent component = new BrowserComponent(model, viewingMode);
+        BrowserModel model = new BrowserModel(viewingState);
+        BrowserComponent component = new BrowserComponent(model);
         model.initialize(component);
         component.initialize();
         return component;
+    }
+    
+    /**
+     * Creates a new {@link Browser}, with a UI either in the Display mode.
+     * 
+     * @return 		A browser component. 
+     */
+    public static Browser createBrowser() {
+    	return createBrowser(Browser.TREE_DISPLAY);
     }
     
 }

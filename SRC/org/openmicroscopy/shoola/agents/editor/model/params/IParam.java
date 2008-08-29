@@ -1,5 +1,5 @@
  /*
- * fields.IValue 
+ * org.openmicroscopy.shoola.agents.editor.model.params.IParam
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,13 +22,15 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
-import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+
+import java.util.HashMap;
+
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 
 /** 
  * This interface specifies the minimum methods needed to save and 
@@ -44,7 +46,8 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
  * @since OME3.0
  */
 public interface IParam 
-	extends IAttributes {
+	extends IAttributes 
+{
 	
 	
 	/**
@@ -73,10 +76,19 @@ public interface IParam
 	
 	/**
 	 * Unless specified by subclasses, parameter has no default values.
-	 * If a list of default values is given, these should be given in the 
-	 * same order as the value attributes to which they apply 
+	 * Default implementation {@see AbstractParam#getDefaultAttributes()}
+	 * returns an empty array. 
 	 * 
-	 * @see getValueAttributes();
+	 * If this is implemented by subclasses, they should also implement 
+	 * {@link #loadDefaultValues()}
 	 */
 	public String[] getDefaultAttributes();
+	
+	/**
+	 * Loads the default values (if any) into the parameter's value.
+	 * If no defaults, or no default values exist, an empty Map is returned.
+	 * 
+	 * @return		A HashMap of the attributes (with Old Values) affected.
+	 */
+	public HashMap<String, String> loadDefaultValues();
 }

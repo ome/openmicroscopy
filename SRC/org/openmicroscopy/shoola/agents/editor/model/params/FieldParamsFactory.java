@@ -23,12 +23,11 @@
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
 //Java imports
+import java.util.HashMap;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
-import java.util.HashMap;
 
 /** 
  * This factory is used to create new Parameter objects (subclasses of
@@ -46,7 +45,7 @@ public class FieldParamsFactory {
 	
 	public static final String NO_PARAMS = "noParams";
 	
-	public static final String[] INPUT_TYPES = 
+	public static final String[] PARAM_TYPES = 
 	{NO_PARAMS, SingleParam.TEXT_LINE_PARAM,
 		SingleParam.TEXT_BOX_PARAM, 
 		SingleParam.ENUM_PARAM, 
@@ -54,12 +53,13 @@ public class FieldParamsFactory {
 		SingleParam.NUMBER_PARAM, 
 		DateTimeParam.DATE_TIME_PARAM,
 		TimeParam.TIME_PARAM, 
-		// LINK_FIELD, 
-		// TABLE, 
-		// IMAGE_FIELD, 
+		LinkParam.LINK_PARAM, 
+		TableParam.TABLE_PARAM, 
+		ImageParam.IMAGE_PARAM, 
 		// OLS_FIELD, 
 		// OBSERVATION_DEFINITION
 	};
+	
 	//	 the names used for the UI - MUST be in SAME ORDER as INPUT_TYPES they correspond to 
 	// this means you can change the UI names without changing INPUT_TYPES.
 	public static final String[] UI_INPUT_TYPES = 	
@@ -71,16 +71,13 @@ public class FieldParamsFactory {
 		"Number", 
 		"Date & Time", 
 		"Time", 
-		// "Link", 
-		// "Table", 
-		// "Image", 
+		"Link", 
+		"Table", 
+		"Image", 
 		// "Ontology Term", 
 		// "Phenote Observation"
 		};
 
-	
-	
-	
 	/**
 	 * This create new Parameter objects (subclasses of
 	 * AbstractParam), according to the String that describes their data type.
@@ -88,8 +85,8 @@ public class FieldParamsFactory {
 	 * @param paramType		A string to describe the data type
 	 * @return		A new parameter object
 	 */
-	public static IParam getFieldParam(String paramType) {
-		
+	public static IParam getFieldParam(String paramType) 
+	{	
 		IParam fieldValue = null;
 		
 		if (paramType.equals(SingleParam.TEXT_LINE_PARAM)) {
@@ -122,62 +119,16 @@ public class FieldParamsFactory {
 					paramType + " " +
 					"NOT RECOGNIZED. Return NULL IParam");
 		return fieldValue;
-		
-		/*
-		else if (inputType.equals(DataFieldConstants.MEMO_ENTRY_STEP)) {
-			fieldEditor = new FieldEditorMemo(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.PROTOCOL_TITLE)) {
-			fieldEditor = new FieldEditorProtocol(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.NUMBER_ENTRY_STEP)) {
-			fieldEditor = new FieldEditorNumber(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.DATE)) {
-			fieldEditor = new FieldEditorDate(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			fieldEditor = new FieldEditorDateTime(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.TIME_FIELD)) {
-			fieldEditor = new FieldEditorTime(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.DROPDOWN_MENU_STEP)) {
-			fieldEditor = new FieldEditorDropDown(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.CUSTOM)) {
-			fieldEditor = new FieldEditorCustom(dataField);
-		} 
-		else if (inputType.equals(DataFieldConstants.TABLE)) {
-			fieldEditor = new FieldEditorTable(dataField);
-		} 
-		else if (inputType.equals(DataFieldConstants.CHECKBOX_STEP)) {
-			fieldEditor = new FieldEditorCheckBox(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
-			fieldEditor = new FieldEditorFixed(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.OLS_FIELD)) {
-			fieldEditor = new FieldEditorOLS(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.OBSERVATION_DEFINITION)) {
-			fieldEditor = new FieldEditorObservation(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.IMAGE_FIELD)) {
-			fieldEditor = new FieldEditorFixed(dataField);
-		}
-		else if (inputType.equals(DataFieldConstants.LINK_FIELD)) {
-			fieldEditor = new FieldEditorFixed(dataField);
-		}
-		else {
-			fieldEditor = new FieldEditorCustom(dataField);
-			dataField.setAttribute(DataFieldConstants.INPUT_TYPE, DataFieldConstants.CUSTOM, false);
-		}
-		*/
 	}
 	
-	public static IParam cloneParam(IParam cloneThis) {
-		
+	/**
+	 * Method for duplicating a parameter 
+	 * 
+	 * @param cloneThis		The parameter to clone
+	 * @return				The new parameter. 
+	 */
+	public static IParam cloneParam(IParam cloneThis) 
+	{
 		String paramType = cloneThis.getAttribute(AbstractParam.PARAM_TYPE);
 		
 		AbstractParam newParam = (AbstractParam)getFieldParam(paramType);

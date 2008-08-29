@@ -1,5 +1,5 @@
  /*
- * editorDynamicTree.ContiguousChildSelectionModel 
+ * org.openmicroscopy.shoola.agents.editor.browser.ContiguousChildSelectionModel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -55,9 +55,15 @@ import javax.swing.tree.TreePath;
  * @since OME3.0
  */
 public class ContiguousChildSelectionModel 
-	extends DefaultTreeSelectionModel {
+	extends DefaultTreeSelectionModel 
+{
 	
-	public ContiguousChildSelectionModel() {
+	/**
+	 * Creates an instance. 
+	 * Sets selectionMode to {@link DISCONTIGUOUS_TREE_SELECTION}
+	 */
+	public ContiguousChildSelectionModel() 
+	{
 		super();
 		setSelectionMode(DISCONTIGUOUS_TREE_SELECTION);
 	}
@@ -76,18 +82,13 @@ public class ContiguousChildSelectionModel
      *
      * @param pPaths new selection
      */
-   public void setSelectionPaths(TreePath[] pPaths) { 
-	   
-	   //System.out.println("ContiguousChildSelectionModel   setSelectionPaths" +
-		//   		"length = " + pPaths.length);
-	   
+   public void setSelectionPaths(TreePath[] pPaths) 
+   { 
 	   if (pPaths.length > 0) {
 		   TreePath firstPathParent = pPaths[0].getParentPath();
 		   
-		   /*
-		    * If parentPath is null, then the first path is the root.
-		    * Simply select this
-		    */
+		   // If parentPath is null, then the first path is the root.
+		   // Simply select this
 		   if (firstPathParent == null) {
 			   TreePath[] paths = new TreePath[1];
 			   paths[0] = pPaths[0];
@@ -95,24 +96,20 @@ public class ContiguousChildSelectionModel
 			   return;
 		   }
 		   
-		   /*
-		    * Check first and last paths in the list, to check they both have the
-		    * same parent. 
-		    * THIS ASSUMES that the paths are "in order" and that the last or
-		    * first element is the one that has just been clicked to select
-		    * the range.
-		    * 
-		    * If these don't have same parent , then simply setSelectionPaths();
-		    */
+		   // Check first and last paths in the list, to check they both have the
+		   // same parent. 
+		   // THIS ASSUMES that the paths are "in order" and that the last or
+		   // first element is the one that has just been clicked to select
+		   // the range. 
+		   // If these don't have same parent , then simply setSelectionPaths();
 		   if (pPaths.length > 1) {
 			   TreePath lastParent = pPaths[pPaths.length-1].getParentPath();
 			   if (! firstPathParent.equals(lastParent)) {
 				   
-				   /*
-				    * In setting a new selection of a single path,
-				    * Need to make sure it is not the same path as 
-				    * is currently selected...
-				    */
+				   // In setting a new selection of a single path,
+				   // Need to make sure it is not the same path as 
+				   // is currently selected...
+				   
 				   // a new single-item array, to hold the new path
 				   TreePath[] paths = new TreePath[1];
 				   
@@ -132,11 +129,9 @@ public class ContiguousChildSelectionModel
 				   return;
 				   
 			   } 
-			   /*
-			    * So, First and last paths DO have the same parent,
-			    * Need to get an array that has all the intervening
-			    * paths that have the same parent! 
-			    */
+			   // So, First and last paths DO have the same parent,
+			   // Need to get an array that has all the intervening
+			   // paths that have the same parent! 
 			   Vector<TreePath> paths = new Vector<TreePath>();
 			   // add the first path
 			   paths.add(pPaths[0]);
@@ -160,10 +155,8 @@ public class ContiguousChildSelectionModel
 		   }
 	   }
 	   
-	   /*
-	    * pPaths.length = 0 or 1?
-	    * Therefore, we can simply setSelectionPaths()
-	    */
+	   // pPaths.length = 0 or 1?
+	   // Therefore, we can simply setSelectionPaths()
 	   super.setSelectionPaths(pPaths);
 	
    }
@@ -180,14 +173,11 @@ public class ContiguousChildSelectionModel
      *
      * @param paths the new path to add to the current selection
      */
-   public void addSelectionPaths(TreePath[] paths) {
+   public void addSelectionPaths(TreePath[] paths) 
+   {
 	
-	   System.out.println("ContiguousChildSelectionModel   addSelectionPaths" +
-	   		"length = " + paths.length);
+	   // Check if any new paths have different parent 
 	   
-	   /*
-	    * Check if any new paths have different parent 
-	    */
 	   TreePath[] currentPaths = this.getSelectionPaths();
 	   // if no selection, simple set the selection paths to the new paths
 	   if ((currentPaths == null) || (currentPaths.length == 0)) {
@@ -196,21 +186,17 @@ public class ContiguousChildSelectionModel
 	   }
 	   TreePath currentParent = currentPaths[0].getParentPath();
 	   
-	   /*
-	    * If the parent of the current path is null, then 
-	    * the current path is the root, so it is OK to 
-	    * simply set the selection paths to the new paths.
-	    */
+	   // If the parent of the current path is null, then 
+	   // the current path is the root, so it is OK to 
+	   // simply set the selection paths to the new paths.
 	   if (currentParent == null) {
 		   setSelectionPaths(paths);
 		   return;
 	   }
 	   
-	   /*
-	    * Check each new path, to make sure that it's parent is the 
-	    * same as current parent.
-	    * If not, then simply setSelectionPaths();
-	    */
+	   // Check each new path, to make sure that it's parent is the 
+	   // same as current parent.
+	   // If not, then simply setSelectionPaths();
 	   for (int i=0; i<paths.length; i++) {
 		   TreePath newParent = paths[i].getParentPath();
 		   if (! currentParent.equals(newParent)) {
@@ -219,12 +205,10 @@ public class ContiguousChildSelectionModel
 		   }
 	   }
 	   
-	   /*
-	    * By this point, we can be sure that the current parent is not 
-	    * null and that all the new paths
-	    * have the same parent as the current path.
-	    * Therefore, simply add them. 
-	    */
+	   // By this point, we can be sure that the current parent is not 
+	   // null and that all the new paths
+	   // have the same parent as the current path.
+	   // Therefore, simply add them. 
 	   super.addSelectionPaths(paths);
    }
 }

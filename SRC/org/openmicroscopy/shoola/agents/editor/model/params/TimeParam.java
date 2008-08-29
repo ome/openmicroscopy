@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 //Java imports
 
@@ -139,6 +140,27 @@ public class TimeParam
 		}
 		
 		return time;
+	}
+	
+	/**
+	 * Implemented as specified by {@link IParam#loadDefaultValues()}
+	 * 
+	 * Copies the value of the {@link #SingleParam.DEFAULT_VALUE} (if not null)
+	 * to the value of the {@link #SECONDS} attribute. 
+	 * 
+	 * @see IParam#loadDefaultValues()
+	 */
+	public HashMap<String, String> loadDefaultValues() 
+	{	
+		HashMap<String,String> oldValues = new HashMap<String, String>();
+		
+		String defValue = getAttribute(SingleParam.DEFAULT_VALUE);
+		if (defValue != null) {
+			oldValues.put(SECONDS, getAttribute(SECONDS));
+			setAttribute(SECONDS, defValue);
+		}
+		
+		return oldValues;
 	}
 }
 

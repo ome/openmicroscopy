@@ -1,5 +1,5 @@
  /*
- * fields.DefaultFieldEditor 
+ * org.openmicroscopy.shoola.agents.editor.browser.DefaultFieldEditor 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.util.EventObject;
 
 import javax.swing.AbstractCellEditor;
+import javax.swing.CellEditor;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreeCellRenderer;
@@ -53,44 +54,46 @@ import javax.swing.tree.TreeCellRenderer;
  */
 public class DefaultFieldEditor 
 	extends AbstractCellEditor 
-	implements TreeCellEditor {
+	implements TreeCellEditor 
+{
 
 	/**
 	 * The TreeCellRenderer used to delegate the call to 
 	 * getTreeCellRendererComponent();
 	 */
-	private TreeCellRenderer fieldRenderer;
+	private TreeCellRenderer 		fieldRenderer;
     
     /**
      * This constructor takes a TreeCellRenderer, which is used to delegate
      * the getTreeCellEditorComponent. 
      */
-    public DefaultFieldEditor(TreeCellRenderer fieldRenderer) {
-    	
+    public DefaultFieldEditor(TreeCellRenderer fieldRenderer) 
+    {
 		this.fieldRenderer = fieldRenderer;
-    	
     }
 	
     /**
      * This method is not used (returns null).
      * Instead, editing of the Fields directly saves new values to the 
      * data objects they represent.
+     * 
+     * @see CellEditor#getCellEditorValue()
      */
-    public Object getCellEditorValue() {
-        return null;
-    }
+    public Object getCellEditorValue() { return null; }
 
     /**
      * This will always return true.
      * Fields are always editable.
+     * 
+     * @see AbstractCellEditor#isCellEditable(EventObject)
      */
-    public boolean isCellEditable(EventObject anEvent) { 
-	return true;
-    }
+    public boolean isCellEditable(EventObject anEvent) { return true; }
     
     /**
      * This always returns true. 
      * Cell selection is always allowed.
+     * 
+     * @see AbstractCellEditor#shouldSelectCell(EventObject)
      */
     public boolean shouldSelectCell(EventObject anEvent) { 
     	return true;
@@ -99,25 +102,29 @@ public class DefaultFieldEditor
     /**
      * This method returns true and has no other effect.
      * The saving of edited values is managed by the editing component itself.
+     * 
+     * @see AbstractCellEditor#stopCellEditing()
      */
-    public boolean stopCellEditing() {
-		return true;
-    }
+    public boolean stopCellEditing() { return true; }
 
     /**
      * This method has no effect.
      * The saving of edited values is managed by the editing component itself.
+     * 
+     * @see AbstractCellEditor#cancelCellEditing(EventObject)
      */
-    public void cancelCellEditing() {
-    }
+    public void cancelCellEditing() {}
 
     
 	/**
 	 * This method delegates to the TreeCellEditor specified in the constructor.
+	 * 
+	 * @see TreeCellEditor#getTreeCellEditorComponent(JTree, 
+	 * 				Object, boolean, boolean, boolean, int)
 	 */
 	public Component getTreeCellEditorComponent(JTree tree, Object value,
-			boolean isSelected, boolean expanded, boolean leaf, int row) {
-
+			boolean isSelected, boolean expanded, boolean leaf, int row) 
+	{
 		return fieldRenderer.getTreeCellRendererComponent(tree, 
 				value, 
 				isSelected, 
@@ -125,7 +132,5 @@ public class DefaultFieldEditor
 				leaf, 
 				row, 
 				true);
-		
 	}	
-
 }

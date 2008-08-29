@@ -1,5 +1,5 @@
  /*
- * editorDynamicTree.FieldRenderer 
+ * org.openmicroscopy.shoola.agents.editor.browser.FieldRenderer 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -32,12 +32,13 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import org.openmicroscopy.shoola.agents.editor.model.Field;
-import org.openmicroscopy.shoola.agents.editor.model.IField;
-
 //Third-party libraries
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.agents.editor.model.Field;
+import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 
 /** 
@@ -58,20 +59,40 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
  * @since OME3.0
  */
 public class FieldRenderer 
-	extends DefaultTreeCellRenderer {
+	extends DefaultTreeCellRenderer 
+{
+	/**
+	 * The controller. This is passed to new tree nodes (fields) so that
+	 * they have access to Actions etc. 
+	 */
+	private BrowserControl 			controller;
 	
-	BrowserControl controller;
-	
-	public FieldRenderer(BrowserControl controller) {
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param controller	The controller that is passed to new tree nodes 
+	 * 						(fields) so that they have access to Actions etc. 
+	 */
+	public FieldRenderer(BrowserControl controller) 
+	{
 		super();
 		
 		this.controller = controller;
 	}
 
+	/**
+	 * Returns a {@link FieldPanel} to display at the node of the JTree.
+	 * This method is also used to provide the CellEditor:
+	 * @see DefaultFieldEditor#getTreeCellEditorComponent(JTree, Object, 
+	 * 			boolean, boolean, boolean, int)
+	 * 
+	 * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+	 * 			boolean, boolean, boolean, int, boolean)
+	 */
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean selected, boolean expanded, boolean leaf, int row,
-			boolean hasFocus) {
-		
+			boolean hasFocus) 
+	{	
 		String toolTipText;
 		if (value instanceof DefaultMutableTreeNode) {
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
@@ -81,14 +102,14 @@ public class FieldRenderer
 				
 				toolTipText = field.getDisplayAttribute(Field.TOOL_TIP_TEXT);
 				
-				FieldPanel fieldPanel = new FieldPanel(field, tree, node);
-				
-				fieldPanel.setController(controller);
+				FieldPanel fieldPanel = new FieldPanel(field, tree, 
+						node, controller);
 				
 				fieldPanel.setSelected(selected);
 				
 				if ((toolTipText != null) && (toolTipText.trim().length() > 0))
 		        { 
+					toolTipText = UIUtilities.formatToolTipText(toolTipText);
 		        	fieldPanel.setToolTipText(toolTipText); 
 		        }
 				
@@ -99,20 +120,32 @@ public class FieldRenderer
 		return new JLabel(value.toString());
 	}
 	
-	public Icon getLeafIcon() {
-		return null;
-	}
+	/**
+	 * Return Null. Don't want any other icons
+	 * 
+	 * @see DefaultTreeCellRenderer#getLeafIcon()
+	 */
+	public Icon getLeafIcon() { return null; }
 	
-	public Icon getOpenIcon() {
-		return null;
-	}
+	/**
+	 * Return Null. Don't want any other icons
+	 * 
+	 * @see DefaultTreeCellRenderer#getOpenIcon()
+	 */
+	public Icon getOpenIcon() { return null; }
 	
-	public Icon getClosedIcon() {
-		return null;
-	}
+	/**
+	 * Return Null. Don't want any other icons
+	 * 
+	 * @see DefaultTreeCellRenderer#getClosedIcon()
+	 */
+	public Icon getClosedIcon() { return null; }
 	
-	public int getIconTextGap() {
-		return 0;
-	}
+	/**
+	 * Return 0. No icons: No gap! 
+	 * 
+	 * @see DefaultTreeCellRenderer#getIconTextGap()
+	 */
+	public int getIconTextGap() { return 0; }
 
 }

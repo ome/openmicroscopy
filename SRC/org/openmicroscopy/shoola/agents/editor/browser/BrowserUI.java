@@ -55,11 +55,6 @@ class BrowserUI
     private JTree           		treeDisplay;
     
     /**
-     * A String that defines the UI model. Either View-only, or Editing. 
-     */
-    private String 					viewingMode;
-    
-    /**
      * An outline view of the Tree, displayed on the left, used
      * to navigate
      */
@@ -79,11 +74,11 @@ class BrowserUI
      */
     private void createTrees() 
     {
-    	if (viewingMode.equals(Browser.TREE_EDIT))
-    		treeDisplay = new EditableTree(controller);
-    		
-    	else
-    		treeDisplay = new NonEditableTree();
+    	treeDisplay = new EditableTree(controller);
+    	
+    	int state = model.getState();
+    	if (state == Browser.TREE_EDIT)
+    		treeDisplay.setEditable(true);
     	
 		treeOutline = new NavTree(treeDisplay);
 		ToolTipManager.sharedInstance().registerComponent(treeDisplay);
@@ -108,6 +103,8 @@ class BrowserUI
         splitPane.setRightComponent(scrollPane);
         
         add(splitPane, BorderLayout.CENTER);
+        
+        add(new ToolBar(controller), BorderLayout.NORTH);
     }
     
     
@@ -116,9 +113,8 @@ class BrowserUI
      * The {@link #initialize(BrowserControl, BrowserModel) initialize} method
      * should be called straight after to link this View to the Controller.
      */
-    BrowserUI(String viewingMode)
+    BrowserUI()
     {
-    	this.viewingMode = viewingMode;
     }
     
     /**
@@ -148,4 +144,12 @@ class BrowserUI
     	treeOutline.setModel(model.getTreeModel());
     }
     
+    /**
+     * The state has changed.
+     * Update the editable status of the main tree display. 
+     */
+    void onStateChanged() {
+    	int state = model.getState();
+    	treeDisplay.setEditable(state == Browser.TREE_EDIT);	
+    }
 }

@@ -129,7 +129,7 @@ class EditorModel
 	{ 
 		this.component = component; 
 		
-		browser = BrowserFactory.createBrowser(Browser.TREE_EDIT);
+		browser = BrowserFactory.createBrowser();
 	}
 	
 	/**

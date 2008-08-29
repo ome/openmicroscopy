@@ -22,20 +22,22 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser;
 
+//Java imports
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeCellEditor;
-import javax.swing.tree.TreeModel;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * This is a JTree that with Custom cellRenderers, Editors and Selection
+ * behaviour. 
+ * Nodes are displayed as Panels, and a single node click will allow editing
+ * of the data via the panel. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -56,50 +58,50 @@ public class EditableTree
 		configureTree(controller);
 	}
 	
-	public void configureTree(BrowserControl controller) {
-		/*
-		 * The default UI (BasicTreeUI) is replaced with a subclass
-		 * to modify the selection and editing behavior.
-		 */
+	/**
+	 * The default UI (BasicTreeUI) is replaced with a subclass
+	 * to modify the selection and editing behavior.
+	 * 
+	 * A custom selection model allows multiple nodes to be selected,
+	 * but ensures that they are contiguous and are all siblings.
+	 * 
+	 * Setting the row height to 0 allows each node to choose it's
+	 * own size. The JTree will call getPreferredSize() for each.
+	 * 
+	 * A custom TreeCellRenderer (extends DefaultTreeCellRenderer)
+	 * renders nodes as JPanels.
+	 * The field renderer will pass a reference of the controller to 
+	 * the fields, so that they can call undo/redo edits etc. 
+	 * 
+	 * A TreeCellEditor for editing fields.
+	 * This merely delegates to the fieldRenderer because the same 
+	 * components are used for display and editing of the tree Cells.
+	 * 
+	 * The DefaultTreeCellEditor (when passed a TreeCellEditor) uses this 
+	 * to switch between editing and display. 
+	 * 
+	 * @param controller		The controller 
+	 */
+	public void configureTree(BrowserControl controller) 
+	{
 		setUI(new MyBasicTreeUI());
 		
-		/*
-		 * A custom selection model allows multiple nodes to be selected,
-		 * but ensures that they are contiguous and are all siblings.
-		 */
 		setSelectionModel(new ContiguousChildSelectionModel());
 		
-		/*
-		 * Setting the row height to 0 allows each node to choose it's
-		 * own size. The JTree will call getPreferredSize() for each.
-		 */
 		setRowHeight(0);
 		
-		/*
-		 * A custom TreeCellRenderer (extends DefaultTreeCellRenderer)
-		 * renders nodes as JPanels.
-		 * The field renderer will pass a reference of the controller to 
-		 * the fields, so that they can call undo/redo edits etc. 
-		 */
+		// Custom renderer.
 		DefaultTreeCellRenderer fieldRenderer = new FieldRenderer(controller);
 		setCellRenderer(fieldRenderer);
 		
-		/*
-		 * A TreeCellEditor for editing fields.
-		 * This merely delegates to the fieldRenderer because the same 
-		 * components are used for display and editing of the tree Cells.
-		 */
+		// Custom editor
 		TreeCellEditor fieldEditor = new DefaultFieldEditor(fieldRenderer);
-		/*
-		 * The DefaultTreeCellEditor (when passed a TreeCellEditor) uses this 
-		 * to switch between editing and display. 
-		 */
+	
 	    TreeCellEditor editor = new DefaultTreeCellEditor(this, 
 	    		fieldRenderer, fieldEditor);
 	    setCellEditor(editor);
 		
-		setEditable(true);
-		
+		setEditable(false);
 	}
 
 }

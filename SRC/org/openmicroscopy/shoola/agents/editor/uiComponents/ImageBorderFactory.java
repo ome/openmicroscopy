@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.editor.uiComponents;
 
 //Java imports
 
+import java.awt.Color;
+
 import javax.swing.border.Border;
 
 //Third-party libraries
@@ -94,5 +96,12 @@ public class ImageBorderFactory
     			iM.getImageIcon(IconManager.BORDER_BOTTOM_HLT).getImage(),
     			iM.getImageIcon(IconManager.BORDER_BOTTOM_RIGHT_HLT).getImage());
     }
+
+
+	/**
+	 * A default colour for the background of this field. Matches the 
+	 * colour of the default border. 
+	 */
+	public static final Color DEFAULT_BACKGROUND = new Color(237, 239, 246);
 
 }

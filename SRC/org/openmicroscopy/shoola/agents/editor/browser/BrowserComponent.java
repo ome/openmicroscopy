@@ -31,11 +31,12 @@ import javax.swing.tree.TreeModel;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /**  
  * Implements the {@link Browser} interface to provide the functionality
- * required of the tree viewer component.
+ * required of the editor browser component.
  * This class is the component hub and embeds the component's MVC triad.
  * It delegates actual functionality to the
  * MVC sub-components.
@@ -51,8 +52,8 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
  */
 public class BrowserComponent 
 	extends AbstractComponent
-	implements Browser{
-	
+	implements Browser
+{
 	
 	/** The Model sub-component. */
     private BrowserModel    	model;
@@ -63,11 +64,19 @@ public class BrowserComponent
     /** The Controller sub-component. */
     private BrowserControl  	controller;
     
-    BrowserComponent(BrowserModel model, String viewingMode) {
+    /**
+     * Creates an instance. 
+     * Also initialises the controller and the view. 
+     * 
+     * @param model				The model of the MVC
+     * @param viewingMode		A string to define the view/ edit mode of the UI
+     */
+    BrowserComponent(BrowserModel model) 
+    {
     	this.model = model;
     	controller = new BrowserControl(this);
     	
-        view = new BrowserUI(viewingMode);
+        view = new BrowserUI();
     }
     
     /** 
@@ -83,6 +92,10 @@ public class BrowserComponent
 	    view.initialize(controller, model);
 	}
 
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#setTreeModel(TreeModel treeModel) 
+     */
 	public void setTreeModel(TreeModel treeModel) 
     {
     	model.setTreeModel(treeModel);
@@ -97,5 +110,21 @@ public class BrowserComponent
 	{ 
 		return view;
 	}
+
+	/**
+     * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getUI()
+     */
+	public void setEditable(boolean editable) 
+	{
+		model.setEditable(editable);
+		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getState()
+	 */
+	public int getState() { return model.getState(); }
 
 }

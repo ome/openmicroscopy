@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
+import java.util.HashMap;
+
 
 //Java imports
 
@@ -160,5 +162,25 @@ public class SingleParam
 		
 		return text;
 	}
-
+	
+	/**
+	 * Implemented as specified by {@link IParam#loadDefaultValues()}
+	 * 
+	 * Copies the value of the {@link #DEFAULT_VALUE} (if not null)
+	 * to the value of the {@link #PARAM_VALUE} attribute. 
+	 * 
+	 * @see IParam#loadDefaultValues()
+	 */
+	public HashMap<String, String> loadDefaultValues() 
+	{	
+		HashMap<String,String> oldValues = new HashMap<String, String>();
+		
+		String defValue = getAttribute(DEFAULT_VALUE);
+		if (defValue != null) {
+			oldValues.put(PARAM_VALUE, getAttribute(PARAM_VALUE));
+			setAttribute(PARAM_VALUE, defValue);
+		}
+		
+		return oldValues;
+	}
 }

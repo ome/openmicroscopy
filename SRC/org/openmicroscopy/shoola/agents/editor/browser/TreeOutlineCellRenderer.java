@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.LinkParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Java imports
 
@@ -122,6 +123,7 @@ public class TreeOutlineCellRenderer
          
         if ((toolTipText != null) && (toolTipText.trim().length() > 0))
         { 
+        	toolTipText = UIUtilities.formatToolTipText(toolTipText);
         	setToolTipText(toolTipText); 
         }
 

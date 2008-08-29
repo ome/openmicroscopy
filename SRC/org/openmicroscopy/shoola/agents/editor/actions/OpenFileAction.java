@@ -22,25 +22,23 @@
  */
 package org.openmicroscopy.shoola.agents.editor.actions;
 
+//Java imports
+
 import java.awt.event.ActionEvent;
 import java.io.File;
 
-import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.IconManager;
+import org.openmicroscopy.shoola.agents.editor.view.Editor;
+
 /** 
- * 
+ * Opens a file.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

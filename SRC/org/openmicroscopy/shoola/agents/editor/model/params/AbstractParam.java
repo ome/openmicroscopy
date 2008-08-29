@@ -1,5 +1,5 @@
  /*
- * fields.AbstractValueObject 
+ * org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -21,7 +21,6 @@
  *------------------------------------------------------------------------------
  */
 package org.openmicroscopy.shoola.agents.editor.model.params;
-
 
 //Java imports
 import java.util.HashMap;
@@ -72,7 +71,12 @@ public abstract class AbstractParam
 	
 	private HashMap<String, String> valueAttributesMap;
 
-	
+	/**
+	 * Creates an instance, storing the field type in the attributes map.
+	 * @see FieldParamsFactory#PARAM_TYPES
+	 * 
+	 * @param fieldType		A String to define the type of parameter.
+	 */
 	public AbstractParam(String fieldType) 
 	{
 		valueAttributesMap = new HashMap<String, String>();
@@ -140,7 +144,8 @@ public abstract class AbstractParam
 	/**
 	 * @see		IAttributes.getAttribute(String name)
 	 */
-	public String getAttribute(String name) {
+	public String getAttribute(String name) 
+	{
 		return valueAttributesMap.get(name);
 	}
 
@@ -160,6 +165,16 @@ public abstract class AbstractParam
 		//System.out.println("AbstractParam setAttribute() " + 
 		//	name + " = " + value);
 		valueAttributesMap.put(name, value);
+	}
+	
+	/**
+	 * Implemented as specified by {@link IParam#loadDefaultValues()}
+	 * 
+	 * @see IParam#loadDefaultValues()
+	 */
+	public HashMap<String, String> loadDefaultValues() 
+	{	
+		return new HashMap<String, String>();
 	}
 
 }

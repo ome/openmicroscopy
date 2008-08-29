@@ -173,7 +173,7 @@ public class TreeModelFactory
 		 String description = allAttributes.get(DataFieldConstants.DESCRIPTION);
 		 String url = allAttributes.get(DataFieldConstants.URL);
 		 
-		
+		 String colour = allAttributes.get(DataFieldConstants.BACKGROUND_COLOUR);
 		
 		 /*
 		  * Need to create a parameter object according to the type of 
@@ -217,6 +217,7 @@ public class TreeModelFactory
 		 field.setAttribute(Field.FIELD_NAME, fieldName);
 		 field.setAttribute(Field.FIELD_DESCRIPTION, description);
 		 field.setAttribute(Field.FIELD_URL, url);
+		 field.setAttribute(Field.BACKGROUND_COLOUR, colour);
 		 
 		 /*
 		  * Field will have 0 or 1 "parameters", depending on type

@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import javax.swing.tree.TreeModel;
 
+import org.openmicroscopy.shoola.agents.editor.view.Editor;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -45,6 +47,9 @@ import javax.swing.tree.TreeModel;
 class BrowserModel
 {
     
+	/** Holds one of the state flags defined by {@link Browser}. */
+	private int					state;
+	
     /** Reference to the component that embeds this model. */
     protected Browser           component;
 
@@ -53,8 +58,13 @@ class BrowserModel
     
     /**
      * Creates an instance. 
+     * 
+     * @param	The editing state of the browser. 
+     * 		One of the flags defined by the {@link Browser} interface.
      */
-    BrowserModel() {
+    BrowserModel(int state) 
+    {
+    	this.state = state;
     }
     
     /**
@@ -80,5 +90,26 @@ class BrowserModel
     void setTreeModel(TreeModel model) 
     {
     	this.treeModel = model;
+    }
+    
+    /**
+	 * Returns the current state.
+	 * 
+	 * @return One of the flags defined by the {@link Browser} interface.  
+	 */
+	int getState() { return state; }  
+	
+	/**
+     * Sets the Editable state of the Browser.
+     * If editable is false, no editing of the data is possible. View only.
+     * 
+     * @param editable		True will allow the data to be edited. 
+     */
+    public void setEditable(boolean editable) {
+    	
+    	if (editable) 
+    		state = Browser.TREE_EDIT;
+    	else 
+    		state = Browser.TREE_DISPLAY;
     }
 }

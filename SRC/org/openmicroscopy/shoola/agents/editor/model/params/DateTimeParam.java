@@ -1,5 +1,5 @@
  /*
- * fields.DateTimeValueObject 
+ * org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,10 +22,10 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
+//Java imports
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-//Java imports
 
 //Third-party libraries
 
@@ -44,12 +44,14 @@ import java.util.Date;
  * </small>
  * @since OME3.0
  */
-public class DateTimeParam extends AbstractParam {
+public class DateTimeParam 
+	extends AbstractParam 
+{
 
 	/**
 	 * A string to define the DateTimeParam type. 
 	 */
-	public static final String DATE_TIME_PARAM = "dateTimeParam";
+	public static final String 		DATE_TIME_PARAM = "dateTimeParam";
 	
 	/**
 	 * A property of this parameter. 
@@ -57,7 +59,7 @@ public class DateTimeParam extends AbstractParam {
 	 * Used by the Date-Picker to pick a date. 
 	 * NB. This attribute and the REL_DATE_ATTRIBUTE are mutually exclusive.
 	 */
-	public static final String DATE_ATTRIBUTE = "UTCMillisecs";
+	public static final String 		DATE_ATTRIBUTE = "UTCMillisecs";
 	
 	/**
 	 * This stores a "Relative Date". Ie a date (in milliseconds) that is
@@ -67,7 +69,7 @@ public class DateTimeParam extends AbstractParam {
 	 * which is in UTC milliseconds.
 	 * NB. This attribute and the DATE_ATTRIBUTE are mutually exclusive. 
 	 */
-	public static final String REL_DATE_ATTRIBUTE = "relativeDate";
+	public static final String 		REL_DATE_ATTRIBUTE = "relativeDate";
 	
 	/**
 	 * This boolean attribute specifies whether the date should be defined
@@ -75,14 +77,13 @@ public class DateTimeParam extends AbstractParam {
 	 * If true, use the REL_DATE_ATTRIBUTE, to fix the date. Otherwise,
 	 * use the DATE_ATTRIBUTE. 
 	 */
-	public static final String IS_RELATIVE_DATE = "isRelativeDate";
-	
+	public static final String 		IS_RELATIVE_DATE = "isRelativeDate";
 	
 	/**
 	 * A property of this parameter. 
 	 * This stores a Time of Day in Seconds. Optional. 
 	 */
-	public static final String TIME_ATTRIBUTE = "timeInSeconds";
+	public static final String 		TIME_ATTRIBUTE = "timeInSeconds";
 	
 	/**
 	 * A property of this parameter. 
@@ -91,7 +92,7 @@ public class DateTimeParam extends AbstractParam {
 	 * This will be a negative number if the alarm is before the event.
 	 * Eg 1 hour before = "-3600"
 	 */
-	public static final String ALARM_SECONDS = "alarmSeconds";	
+	public static final String 		ALARM_SECONDS = "alarmSeconds";	
 	
 	/**
 	 * Creates an instance. 
@@ -102,9 +103,10 @@ public class DateTimeParam extends AbstractParam {
 		super(fieldType);
 	}
 	
-	
 	/**
-	 * This parameter stores its value in 3 attributes. 
+	 * This parameter stores its value in several possible attributes. 
+	 * 
+	 * @see IParam#getValueAttributes()
 	 */
 	public String[] getValueAttributes() {
 		
@@ -116,18 +118,23 @@ public class DateTimeParam extends AbstractParam {
 	 * This field is filled if the DATE value isn't null, and 
 	 * is not an empty string. 
 	 */
-	public boolean isParamFilled() {
+	public boolean isParamFilled() 
+	{
 		String dateValue = getAttribute(DATE_ATTRIBUTE);
+		String relDateVal = getAttribute(REL_DATE_ATTRIBUTE);
 		
-		return (dateValue != null && dateValue.length() > 0);
+		// if date is set by either of these 2 attributes, field is filled.
+		return ((dateValue != null) || (relDateVal != null));
 	}
 	
 	/**
 	 * Returns a formatted string displaying the date (or relative date)
 	 * and time (if set). 
+	 * 
+	 * @see Object#toString()
 	 */
-	public String toString() {
-		
+	public String toString() 
+	{	
 		String text = "";
 		if (isAttributeTrue(IS_RELATIVE_DATE)) {
 			String relMillis = getAttribute(REL_DATE_ATTRIBUTE);
@@ -158,7 +165,6 @@ public class DateTimeParam extends AbstractParam {
 			SimpleDateFormat timeF = new SimpleDateFormat("h:mm a");
 			text = text + " at " + timeF.format(time);
 		}
-		
 		return text;
 	}
 

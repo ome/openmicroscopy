@@ -57,13 +57,15 @@ import javax.swing.tree.TreeSelectionModel;
  */
 public class NavTree 
 	extends JTree
+	implements MouseListener,
+	TreeSelectionListener
 {
 	
 	/**
 	 * This Navigator tree is used to navigate the main Tree.
 	 * mainTree is the main UI display of the Tree. 
 	 */
-	private JTree mainTree;
+	private JTree 			mainTree;
 	
 	/**
 	 * Creates an instance of the Navigation tree, based on the model 
@@ -90,66 +92,83 @@ public class NavTree
         getSelectionModel().setSelectionMode(
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
         
-        addMouseListener(new DoubleClickListener());
-        mainTree.addTreeSelectionListener(new NavSelectionListener());
+        addMouseListener(this);
+        mainTree.addTreeSelectionListener(this);
 	}
 	
 	/**
-	 * A mouse listener that responds to double-clicks on the NavTree.
+	 * Mouse listener that responds to double-clicks on the NavTree.
 	 * 
 	 * If a mouseClicked event comes from the NavTree and clickCount == 2,
 	 * the selection path of the navTree is applied to the main display Tree.
 	 * 
-	 * @author will
-	 *
+	 * Implemented as defined by the {@link MouseListener} interface. 
+	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */
-	private class DoubleClickListener implements MouseListener 
+	public void mouseClicked(MouseEvent e) 
 	{
-		public void mouseClicked(MouseEvent e) 
+		JTree navTree = NavTree.this;
+		
+		if (e.getSource().equals(navTree)) 
 		{
-			JTree navTree = NavTree.this;
-			
-			if (e.getSource().equals(navTree)) 
+			if (e.getClickCount() == 2) 
 			{
-				if (e.getClickCount() == 2) 
-				{
-					TreePath path = navTree.getSelectionPath();
-					
-					mainTree.expandPath(path.getParentPath());
-					mainTree.setSelectionPath(path);
-					mainTree.scrollPathToVisible(path);
-				}
+				TreePath path = navTree.getSelectionPath();
+				
+				mainTree.expandPath(path.getParentPath());
+				mainTree.setSelectionPath(path);
+				mainTree.scrollPathToVisible(path);
 			}
 		}
-
-		public void mouseEntered(MouseEvent e) {}
-		public void mouseExited(MouseEvent e) {}
-		public void mousePressed(MouseEvent e) {}
-		public void mouseReleased(MouseEvent e) {}
 	}
+
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation in
+	 * our case.
+	 * @see MouseListener#mouseEntered(MouseEvent)
+	 */
+	public void mouseEntered(MouseEvent e) {}
 	
 	/**
-	 * A treeSelectionListener, added to the main display tree.
-	 * Every selection of the main Tree is mimicked by the NavTree,
-	 * 
-	 * @author will
-	 *
+	 * Required by the {@link MouseListener} I/F but no-op implementation in
+	 * our case.
+	 * @see MouseListener#mouseExited(MouseEvent)
 	 */
-	private class NavSelectionListener implements TreeSelectionListener 
+	public void mouseExited(MouseEvent e) {}
+	
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation in
+	 * our case.
+	 * @see MouseListener#mousePressed(MouseEvent)
+	 */
+	public void mousePressed(MouseEvent e) {}
+	
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation in
+	 * our case.
+	 * @see MouseListener#mouseReleased(MouseEvent)
+	 */
+	public void mouseReleased(MouseEvent e) {}
+	
+	
+	/**
+	 * Every selection change in the main Tree is mimicked by the NavTree,
+	 * 
+	 * @see	TreeSelectionListener#valueChanged(TreeSelectionEvent)
+	 */
+	public void valueChanged(TreeSelectionEvent e) 
 	{
-		public void valueChanged(TreeSelectionEvent e) 
+		if (e.getSource().equals(mainTree)) 
 		{
-			if (e.getSource().equals(mainTree)) 
-			{
-				if (mainTree.getSelectionCount() == 0) return;
-				
-				TreePath selPath = mainTree.getSelectionPath();
-				
-				/* make sure the node is visible (expand parent) */
-				NavTree.this.expandPath(selPath.getParentPath());
-				NavTree.this.setSelectionPath(selPath);
-				NavTree.this.scrollPathToVisible(selPath);
-			}
+			if (mainTree.getSelectionCount() == 0) return;
+			
+			TreePath selPath = mainTree.getSelectionPath();
+			
+			/* make sure the node is visible (expand parent) */
+			NavTree.this.expandPath(selPath.getParentPath());
+			NavTree.this.setSelectionPath(selPath);
+			NavTree.this.scrollPathToVisible(selPath);
 		}
 	}
+	
 }

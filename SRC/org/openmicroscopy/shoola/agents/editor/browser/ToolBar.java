@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction 
+ * org.openmicroscopy.shoola.agents.editor.browser.ToolBar 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,22 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.actions;
-
+package org.openmicroscopy.shoola.agents.editor.browser;
 
 //Java imports
 
-import java.awt.event.ActionEvent;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 
 /** 
- * An action for closing the Editor window (calls discard()).
+ * A toolBar for the browser. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,36 +45,47 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
  * </small>
  * @since OME3.0
  */
-public class CloseEditorAction 
-	extends EditorAction
-{
+public class ToolBar 
+	extends JPanel {
+	
+	/**
+	 * The controller.
+	 */
+	private BrowserControl 			controller;
 
-	/** The description of the action. */
-    private static final String NAME = "Close Editor";
-    
-	 /** The description of the action. */
-    private static final String DESCRIPTION = "Close the Editor Window";
-    
-    /** Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-   public CloseEditorAction(Editor model)
-   {
-       super(model);
-       setEnabled(true);
-       setName(NAME);
-       setDescription(DESCRIPTION);
-       setIcon(IconManager.N0);
-   }
-   
-   /**
-    * Brings up on screen the {@link TreeViewer}.
-    * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-    */
-   public void actionPerformed(ActionEvent e) 
-   {
-	   model.discard();
-   }
-   
+	/**
+	 * Builds the UI. 
+	 */
+	private void buildUI()
+	{
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		
+		add(createButton(BrowserControl.EDIT));
+	}
+	
+	/**
+	 * Convenience method for creating buttons. 
+	 * 
+	 * @param actionID		The ID of the action, retrieved from controller.
+	 * @return			A button displaying the specified action.
+	 */
+	private JButton createButton(int actionID)
+	{
+		JButton b = new CustomButton(controller.getAction(actionID));
+		b.setText("");
+		return b;
+	}
+	
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param controller		The controller as a source of Actions.
+	 */
+	ToolBar(BrowserControl controller)
+	{
+		if (controller == null) 
+            throw new NullPointerException("No controller.");
+        this.controller = controller;
+        buildUI();
+	}
 }

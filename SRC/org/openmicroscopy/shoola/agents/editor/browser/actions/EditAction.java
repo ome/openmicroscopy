@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction 
+ * org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,22 +20,19 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.actions;
-
+package org.openmicroscopy.shoola.agents.editor.browser.actions;
 
 //Java imports
-
 import java.awt.event.ActionEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
+import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 
 /** 
- * An action for closing the Editor window (calls discard()).
+ * An action that toggles the Editing state of the Browser.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,36 +42,49 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
  * </small>
  * @since OME3.0
  */
-public class CloseEditorAction 
-	extends EditorAction
+public class EditAction 
+	extends BrowserAction
 {
+	
+	/**
+	 * Creates an instance.
+	 * 
+	 * @param model		The Browser
+	 */
+	public EditAction(Browser model)
+	{
+		super (model);
+		
+		setEnabled(true);
+		
+		setName("Edit");
+		setIcon(IconManager.EDITOR);
+		onStateChange(); 	// update description.
+	}
 
-	/** The description of the action. */
-    private static final String NAME = "Close Editor";
-    
-	 /** The description of the action. */
-    private static final String DESCRIPTION = "Close the Editor Window";
-    
-    /** Creates a new instance.
+	/** 
+     * Turns on/off editing of the Browser
      * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-   public CloseEditorAction(Editor model)
-   {
-       super(model);
-       setEnabled(true);
-       setName(NAME);
-       setDescription(DESCRIPTION);
-       setIcon(IconManager.N0);
-   }
-   
-   /**
-    * Brings up on screen the {@link TreeViewer}.
-    * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-    */
-   public void actionPerformed(ActionEvent e) 
-   {
-	   model.discard();
-   }
-   
+    public void actionPerformed(ActionEvent e) 
+    {
+    	int state = model.getState();
+    	model.setEditable(state == Browser.TREE_DISPLAY);
+    }
+    
+    /**
+     * Update the description, based on the state
+     * 
+     */
+    public void onStateChange() 
+    {
+    	int state = model.getState();
+    	
+    	if (state == Browser.TREE_DISPLAY) {
+    		setDescription("Enable editing of the file");
+    	} else {
+    		setDescription("Turn off editing of the file");
+    	}
+    }
 }

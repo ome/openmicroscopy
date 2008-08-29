@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction 
+ * treeModel.undoableTreeEdits.UndoRedoObservable 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,22 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.actions;
-
+package org.openmicroscopy.shoola.agents.editor.browser.undo;
 
 //Java imports
-
-import java.awt.event.ActionEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
-
 /** 
- * An action for closing the Editor window (calls discard()).
+ * This Interface should be implemented by an UndoManager that wants to 
+ * notify listeners of undo() and redo() events. 
+ * Implemented by {#link ObservableUndoManager}.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,36 +41,25 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
  * </small>
  * @since OME3.0
  */
-public class CloseEditorAction 
-	extends EditorAction
-{
+public interface UndoRedoObservable {
+	
+	/**
+	 * Allows UndoRedoListeners to register for undo() or redo() notification
+	 * 
+	 * @param listener	The UndoRedoListener to register
+	 */
+	public void addUndoRedoListener(UndoRedoListener listener);
+	
+	/**
+	 * Allows UndoRedoListeners to un-register for undo() or redo() notification
+	 * 
+	 * @param listener	The UndoRedoListener to un-register
+	 */
+	public void removeUndoRedoListener(UndoRedoListener listener);
+	
+	/**
+	 * Calls the undoRedoPerformed() method of listeners. 
+	 */
+	public void notifyListeners();
 
-	/** The description of the action. */
-    private static final String NAME = "Close Editor";
-    
-	 /** The description of the action. */
-    private static final String DESCRIPTION = "Close the Editor Window";
-    
-    /** Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-   public CloseEditorAction(Editor model)
-   {
-       super(model);
-       setEnabled(true);
-       setName(NAME);
-       setDescription(DESCRIPTION);
-       setIcon(IconManager.N0);
-   }
-   
-   /**
-    * Brings up on screen the {@link TreeViewer}.
-    * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-    */
-   public void actionPerformed(ActionEvent e) 
-   {
-	   model.discard();
-   }
-   
 }

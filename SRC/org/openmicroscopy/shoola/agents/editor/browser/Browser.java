@@ -49,16 +49,18 @@ public interface Browser
 	extends ObservableComponent
 {
 	/**
-	 * A String that specifies that the UI should be for tree display only,
-	 * not for editing. Used by BrowserFactory
+	 * A Flag to denote the <i>Display</i> state.
+	 * Specifies that the UI should be for tree display only,
+	 * not for editing.
 	 */
-	public static final String TREE_DISPLAY = "treeDisplay";
+	public static final int TREE_DISPLAY = 0;
 	
 	/**
-	 * A String that specifies that the UI should be for tree editing, not
-	 * simply display. Used by BrowserFactory
+	 * A Flag to denote the <i>Edit</i> state.
+	 * This specifies that the UI should be for tree editing, not
+	 * simply display.
 	 */
-	public static final String TREE_EDIT = "treeEdit";
+	public static final int TREE_EDIT = 1;
 	
     /**
      * Sets a new treeModel for the browser. 
@@ -74,4 +76,18 @@ public interface Browser
      */
     public JComponent getUI();
    
+    /**
+     * Sets the Editable state of the Browser.
+     * If editable is false, no editing of the data is possible. View only.
+     * 
+     * @param editable		True will allow the data to be edited. 
+     */
+    public void setEditable(boolean editable);
+    
+    /**
+	 * Queries the current state.
+	 * 
+	 * @return One of the state flags defined by this interface.
+	 */
+	public int getState();
 }

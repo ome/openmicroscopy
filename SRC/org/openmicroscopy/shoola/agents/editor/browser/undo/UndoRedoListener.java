@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction 
+ * treeModel.undoableTreeEdits.UndoRedoListener 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -20,22 +20,20 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.actions;
-
+package org.openmicroscopy.shoola.agents.editor.browser.undo;
 
 //Java imports
-
-import java.awt.event.ActionEvent;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.IconManager;
-import org.openmicroscopy.shoola.agents.editor.view.Editor;
-
 /** 
- * An action for closing the Editor window (calls discard()).
+ * A listener interface for undo() or redo() events.
+ * Has a single method, undoRedoPerformed().
+ * Implemented by {#link RedoEditAction} and {#link UndoEditAction}
+ * so that (for example) the Redo Action becomes enabled following
+ * an undo().
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,36 +43,13 @@ import org.openmicroscopy.shoola.agents.editor.view.Editor;
  * </small>
  * @since OME3.0
  */
-public class CloseEditorAction 
-	extends EditorAction
-{
+public interface UndoRedoListener {
+	
+	/**
+	 * Should be called following an undo() or a redo() event. 
+	 * Listeners can therefore update their status based on the new 
+	 * undo/redo queue. 
+	 */
+	public void undoRedoPerformed();
 
-	/** The description of the action. */
-    private static final String NAME = "Close Editor";
-    
-	 /** The description of the action. */
-    private static final String DESCRIPTION = "Close the Editor Window";
-    
-    /** Creates a new instance.
-     * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
-     */
-   public CloseEditorAction(Editor model)
-   {
-       super(model);
-       setEnabled(true);
-       setName(NAME);
-       setDescription(DESCRIPTION);
-       setIcon(IconManager.N0);
-   }
-   
-   /**
-    * Brings up on screen the {@link TreeViewer}.
-    * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-    */
-   public void actionPerformed(ActionEvent e) 
-   {
-	   model.discard();
-   }
-   
 }
