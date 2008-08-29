@@ -222,7 +222,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         {
             ctx.minimum = Double.MAX_VALUE;
             ctx.maximum = Double.MIN_VALUE;
-            for (int t = tStart; t < tEnd; t++)
+            for (int t = tStart; t <= tEnd; t++)
             {
                 try
                 {
@@ -308,7 +308,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         for (int i = 0; i < ctx.planeSizeInPixels; i++)
         {
             projectedValue = 0;
-            for (int z = start; z < end; z += stepping)
+            for (int z = start; z <= end; z += stepping)
             {
                 currentPlaneStart = ctx.planeSizeInPixels * z;
                 stackValue = ctx.from.getPixelValue(currentPlaneStart + i);
