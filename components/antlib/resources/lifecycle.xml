@@ -92,8 +92,9 @@
 				driver="${hibernate.connection.driver_class}"
 				url="${hibernate.connection.url}"
 				userid="${hibernate.connection.username}"
-				password="${hibernate.connection.password}" 
-				print="false" 
+				password="${hibernate.connection.password}"
+				print="false"
+                                delimiter=";;"
 				classpathref="omero.classpath">
 			</sql>
 		</presetdef>
