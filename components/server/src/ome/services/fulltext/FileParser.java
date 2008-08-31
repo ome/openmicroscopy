@@ -87,7 +87,7 @@ public class FileParser implements ApplicationContextAware {
     final public Iterable<Reader> parse(File file) {
 
         if (file == null) {
-            log.warn("Argument null. Returning EMPTY:" + file);
+            log.warn("Argument null. Returning EMPTY:");
             return EMPTY;
         }
 
@@ -275,36 +275,6 @@ public class FileParser implements ApplicationContextAware {
             closeReader();
             return sb.toString();
 
-        }
-
-        /**
-         * Synchronous method which retrieves roughly {@link #size} bytes from
-         * the {@link FileReader}. The last read may of course be shorter.
-         * 
-         * Once the reader has signaled a finish state, the reader will be
-         * nulled and all subsequent calls will return null.
-         * 
-         */
-        private String doRead2() {
-            if (reader == null) {
-                return null;
-            }
-
-            int rv = -1;
-            try {
-                rv = reader.read(buf);
-            } catch (Exception e) {
-                throw new RuntimeException("Error while parsing file:", e);
-            }
-
-            if (rv < 0) {
-                closeReader();
-            } else {
-                next = new String(buf, 0, rv);
-                next.lastIndexOf(linesep);
-            }
-
-            return null; // FIXME
         }
 
         private void closeReader() {
