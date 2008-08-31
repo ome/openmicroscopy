@@ -64,7 +64,7 @@ public class HierarchyTransformations {
                         while (p.hasNext()) {
                             Project prj = (Project) block.call(p.next());
 
-                            if (!cleared.contains(p)) {
+                            if (!cleared.contains(prj)) {
                                 // prj.clearDatasetLinks();
                                 prj.putAt(Project.DATASETLINKS, new HashSet());
                                 cleared.add((T) prj);
