@@ -21,6 +21,7 @@ from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
+from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 
 class TestTicket2000(lib.ITest):
 
@@ -98,5 +99,85 @@ class TestTicket2000(lib.ITest):
         search.bySomeMustNone([unique.val], [], [])
         self.assert_( search.hasNext() )
 
+    def test1071(self):
+        uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
+        ipojo = self.root.sf.getPojosService()
+        query = self.root.sf.getQueryService()
+        update = self.root.sf.getUpdateService()
+        
+        #projects
+        pr1 = ProjectI()
+        pr1.setName(omero.RString('test1071-pr1-%s' % (uuid)))
+        pr1 = update.saveAndReturnObject(pr1)
+
+        pr2 = ProjectI()
+        pr2.setName(omero.RString('test1071-pr2-%s' % (uuid)))
+        pr2 = update.saveAndReturnObject(pr2)
+
+        #datasets
+        ds1 = DatasetI()
+        ds1.setName(omero.RString('test1071-ds1-%s' % (uuid)))
+        ds1 = update.saveAndReturnObject(ds1)
+        
+        ds2 = DatasetI()
+        ds2.setName(omero.RString('test1071-ds2-%s' % (uuid)))
+        ds2 = update.saveAndReturnObject(ds2)
+        
+        ds3 = DatasetI()
+        ds3.setName(omero.RString('test1071-ds3-%s' % (uuid)))
+        ds3 = update.saveAndReturnObject(ds3)
+        
+        im2 = ImageI()
+        im2.setName(omero.RString('test1071-im2-%s' % (uuid)))
+        im2 = update.saveAndReturnObject(im2)
+        
+        #links
+        pdl1 = ProjectDatasetLinkI()
+        pdl1.setParent(pr1)
+        pdl1.setChild(ds1)
+        update.saveObject(pdl1)
+        
+        pdl2 = ProjectDatasetLinkI()
+        pdl2.setParent(pr1)
+        pdl2.setChild(ds2)
+        update.saveObject(pdl2)
+        
+        pdl3 = ProjectDatasetLinkI()
+        pdl3.setParent(pr2)
+        pdl3.setChild(ds2)
+        update.saveObject(pdl3)
+        
+        pdl4 = ProjectDatasetLinkI()
+        pdl4.setParent(ds1)
+        pdl4.setChild(im2)
+        update.saveObject(pdl4)
+        
+        pdl5 = ProjectDatasetLinkI()
+        pdl5.setParent(ds2)
+        pdl5.setChild(im2)
+        update.saveObject(pdl5)
+        
+        pdl6 = ProjectDatasetLinkI()
+        pdl6.setParent(ds3)
+        pdl6.setChild(im2)
+        update.saveObject(pdl6)
+        
+        #test:
+        hier = pojos.findContainerHierarchies("Project", [long(im2.id.val)], None)
+
+        self.assert_(len(hier) == 3)
+        for c in hier:
+            if c.id.val == pr1.id.val:
+                self.assert_(len(c.datasetLinks) == 2)
+                for pdl in c.datasetLinks:
+                    self.assert_(len(pdl.child.imageLinks) == 1)
+                    for dil in pdl.child.imageLinks:
+                        self.assert_(dil.child.id.val = im2.id.val)
+                        
+            elif c.id.val == pr2.id.val:
+                self.assert_(len(c.datasetLinks) == 1)
+            elif c.id.val == ds3.id.val:
+                self.assert_(len(c.imageLinks) == 1)
+        
 if __name__ == '__main__':
     unittest.main()
