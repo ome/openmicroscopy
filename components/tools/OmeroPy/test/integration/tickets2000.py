@@ -191,6 +191,104 @@ class TestTicket2000(lib.ITest):
                 self.assert_(len(c.datasetLinks) == 1)
             elif c.id.val == ds3.id.val and isinstance(c, DatasetI):
                 self.assert_(len(c.imageLinks) == 1)
+
+    def test1072(self):
+        #create two users where both are in the same active group
+        admin = self.root.sf.getAdminService()
+        uuid = admin.getEventContext().sessionUuid
+        
+        try:
+            admin.lookupGroup("test_group_load_hierarchy")
+        except:
+            new_gr = ExperimenterGroupI()
+            new_gr.name = omero.RString("test_group_load_hierarchy")
+            admin.createGroup(new_gr)
+
+        test_user = None
+        try:
+            test_user = admin.lookupExperimenter("test_load_hierarchy_user1")
+        except:
+            new_exp = ExperimenterI()
+            new_exp.omeName = omero.RString("test_load_hierarchy_user1")
+            new_exp.firstName = omero.RString("Test")
+            new_exp.lastName = omero.RString("Test")
+            new_exp.email = omero.RString("test@emaildomain.com")
+            
+            listOfGroups = list()
+            defaultGroup = admin.lookupGroup("test_group_load_hierarchy")
+            listOfGroups.append(admin.lookupGroup("user"))
+            
+            admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
+            admin.changeUserPassword("test_load_hierarchy_user1", "ome")
+            test_user = admin.lookupExperimenter("test_load_hierarchy_user1")
+            
+        test_user2 = None
+        try:
+            test_user2 = admin.lookupExperimenter("test_load_hierarchy_user2")
+        except:
+            new_exp2 = ExperimenterI()
+            new_exp2.omeName = omero.RString("test_load_hierarchy_user2")
+            new_exp2.firstName = omero.RString("Test")
+            new_exp2.lastName = omero.RString("Test")
+            new_exp2.email = omero.RString("test2@emaildomain.com")
+            
+            listOfGroups2 = list()
+            defaultGroup2 = admin.lookupGroup("test_group_load_hierarchy")
+            listOfGroups2.append(admin.lookupGroup("user"))
+            
+            admin.createExperimenter(new_exp2, defaultGroup2, listOfGroups2)
+            admin.changeUserPassword("test_load_hierarchy_user2", "ome")
+            test_user2 = admin.lookupExperimenter("test_load_hierarchy_user2")
+        
+        #login as user1
+        c1 = omero.client()
+        c1.createSession("test_load_hierarchy_user1", "ome")
+        update = c1.sf.getUpdateService()
+        
+        pr1 = ProjectI()
+        pr1.setName(omero.RString('test1072-pr1-%s' % (uuid)))
+        pr1.details.permissions.setUserRead(True)
+        pr1.details.permissions.setUserWrite(True)
+        pr1.details.permissions.setGroupRead(True)
+        pr1.details.permissions.setGroupWrite(False)
+        pr1.details.permissions.setWorldRead(False)
+        pr1.details.permissions.setWorldWrite(False)
+        pr1 = update.saveAndReturnObject(pr1)
+        pr1.unload()
+        
+        
+        #datasets
+        ds1 = DatasetI()
+        ds1.setName(omero.RString('test1072-ds1-%s' % (uuid)))
+        ds1.details.permissions.setUserRead(True)
+        ds1.details.permissions.setUserWrite(True)
+        ds1.details.permissions.setGroupRead(False)
+        ds1.details.permissions.setGroupWrite(False)
+        ds1.details.permissions.setWorldRead(False)
+        ds1.details.permissions.setWorldWrite(False)
+        ds1 = update.saveAndReturnObject(ds1)
+        ds1.unload()
+        
+        pdl1 = ProjectDatasetLinkI()
+        pdl1.setParent(pr1)
+        pdl1.setChild(ds1)
+        update.saveObject(pdl1)
+        
+        c1.sf.closeOnDestroy()
+        #login as user2
+        c2 = omero.client()
+        c2.createSession("test_load_hierarchy_user2", "ome")
+        pojos = c2.sf.getPojosService()
+        
+        print c2.sf.getAdminService().getEventContext()
+        #print c1.sf.getAdminService().getEventContext()
+        
+        p = omero.sys.Parameters()
+        p.map = {} 
+        #p.map[omero.constants.POJOEXPERIMENTER] = omero.RLong(c2.sf.getAdminService().getEventContext().userId)
+        p.map[omero.constants.POJOGROUP] = omero.RLong(c2.sf.getAdminService().getEventContext().groupId)
+        #p.map[omero.constants.POJOLEAVES] = omero.RBool(True)
+        pojos.loadContainerHierarchy("Project",None,  p.map)
         
 if __name__ == '__main__':
     unittest.main()
