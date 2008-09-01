@@ -231,6 +231,17 @@ public class CreateFolderDialog
 	}
 	
 	/**
+	 * Sets the default text of the name area.
+	 * 
+	 * @param text The value to set.
+	 */
+	public void setDefaultName(String text)
+	{
+		if (text == null || text.trim().length() == 0) return;
+		nameField.setText(text);
+	}
+	
+	/**
 	 * Reacts to action fired by buttons.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
@@ -244,6 +255,6 @@ public class CreateFolderDialog
 			case CREATE:
 				create();
 		}
-		
 	}
+	
 }

@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.util.ui.slider;
 
 //Java imports
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;

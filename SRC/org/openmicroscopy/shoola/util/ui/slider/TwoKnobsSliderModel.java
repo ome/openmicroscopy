@@ -49,12 +49,6 @@ import java.util.Map;
 class TwoKnobsSliderModel
 {
 
-	/** The default minimum value. */
-	static final int    				DEFAULT_MIN = 0;
-
-	/** The default maximum value. */
-	static final int    				DEFAULT_MAX = 100;
-
 	/** The absolute minimum. */
 	private int							absoluteMin;
 

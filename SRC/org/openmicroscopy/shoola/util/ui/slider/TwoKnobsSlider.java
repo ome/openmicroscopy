@@ -62,6 +62,12 @@ public class TwoKnobsSlider
   	extends JPanel
 {
   
+	/** The default minimum value. */
+	public static final int    			DEFAULT_MIN = 0;
+
+	/** The default maximum value. */
+	public static final int    			DEFAULT_MAX = 100;
+	
 	/** Bound property name indicating if the dragged knob is released. */
 	public final static String          KNOB_RELEASED_PROPERTY = 
 		"knobReleased";
@@ -392,9 +398,7 @@ public class TwoKnobsSlider
 	 */
 	public TwoKnobsSlider()
 	{
-		this(TwoKnobsSliderModel.DEFAULT_MIN, TwoKnobsSliderModel.DEFAULT_MAX, 
-				TwoKnobsSliderModel.DEFAULT_MIN, 
-				TwoKnobsSliderModel.DEFAULT_MAX);
+		this(DEFAULT_MIN, DEFAULT_MAX, DEFAULT_MIN, DEFAULT_MAX);
 	}
 
 	/**
