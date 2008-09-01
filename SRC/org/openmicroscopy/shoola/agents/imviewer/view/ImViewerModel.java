@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingControlLoader;
+import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
@@ -62,6 +63,7 @@ import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -732,9 +734,9 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	List getActiveChannels()
+	List<Integer> getActiveChannels()
 	{
-		ArrayList<Integer> active = new ArrayList<Integer>();
+		List<Integer> active = new ArrayList<Integer>();
 		for (int i = 0; i < getMaxC(); i++) {
 			if (currentRndControl.isActive(i)) active.add(new Integer(i));
 		}
@@ -1395,8 +1397,11 @@ class ImViewerModel
 	 */
 	void fireRenderProjected(ProjectionRef ref)
 	{
-		ProjectionSaver loader = new ProjectionSaver(component, getPixelsID(), 
-				                  ref, ProjectionSaver.PREVIEW);
+		ProjectionParam param = new ProjectionParam(getPixelsID(), 
+				ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
+				ref.getType());
+		ProjectionSaver loader = new ProjectionSaver(component, param, 
+				                  ProjectionSaver.PREVIEW);
 		loader.load();
 	}
 	
@@ -1407,8 +1412,20 @@ class ImViewerModel
 	 */
 	void fireProjectImage(ProjectionRef ref)
 	{
-		ProjectionSaver loader = new ProjectionSaver(component, getPixelsID(), 
-				ref, ProjectionSaver.PROJECTION);
+		List<Integer> channels = null;
+		if (ref.isAllChannels()) {
+			channels = new ArrayList<Integer>(getMaxC());
+			for (int i = 0; i < getMaxC(); i++) {
+				channels.add(new Integer(i));
+			}
+		} else channels = getActiveChannels();
+		ProjectionParam param = new ProjectionParam(getPixelsID(), 
+				ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
+				ref.getType(), ref.getStartT(), ref.getEndT(), 
+				channels, ref.getImageName());
+		param.setDatasets(ref.getDatasets());
+		ProjectionSaver loader = new ProjectionSaver(component,  param, 
+							ProjectionSaver.PROJECTION);
 		loader.load();
 	}
 	
@@ -1422,4 +1439,26 @@ class ImViewerModel
 		loader.load();
 	}
     
+	/**
+	 * Returns the type of pixels.
+	 * 
+	 * @return See above.
+	 */
+	String getPixelsType() { return image.getDefaultPixels().getPixelType(); }
+
+	/**
+	 * Starts an asynchronous creation of the rendering settings
+	 * for the pixels set.
+	 * 
+	 * @param indexes  The indexes of the projected channels.
+	 * @param pixelsID The id of the pixels set.
+	 */
+	void firePojectedRndSettingsCreation(List<Integer> indexes, long pixelsID)
+	{
+		RndProxyDef def = currentRndControl.getRndSettingsCopy();
+		RenderingSettingsCreator l = new RenderingSettingsCreator(component, 
+				pixelsID, def, indexes);
+		l.load();
+	}
+	
 }

@@ -2412,12 +2412,9 @@ class ImViewerComponent
 					" in the DISCARDED state.");
 		if (projections == null) {
 			projections = new LinkedHashMap<Integer, String>();
-			projections.put(RenderingControl.MAX_INTENSITY, 
-					"Maximum Intensity");
-			projections.put(RenderingControl.MEAN_INTENSITY, 
-					"Mean Intensity");
-			projections.put(RenderingControl.SUM_INTENSITY, 
-					"Sum Intensity");
+			projections.put(MAX_INTENSITY, "Maximum Intensity");
+			projections.put(MEAN_INTENSITY, "Mean Intensity");
+			projections.put(SUM_INTENSITY, "Sum Intensity");
 		}
 		if (projection == null) {
 			BufferedImage img = model.getOriginalImage();
@@ -2427,7 +2424,8 @@ class ImViewerComponent
 				h = img.getHeight();
 			}
 			projection = new ProjectionDialog(view, projections,
-									model.getMaxZ()+1, 
+									model.getMaxZ()+1, model.getMaxT(),
+									model.getPixelsType(),
 									model.getBrowser().getBackgroundColor(),
 									model.getImageName(), w, h);
 			projection.addPropertyChangeListener(controller);
@@ -2450,12 +2448,10 @@ class ImViewerComponent
 					" in the DISCARDED state.");
 		if (projection == null) return;
 		if (!projection.isVisible()) return;
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-		un.notifyInfo("Projection preview", "Not yet implemented");
-		projection.setVisible(false);
-		projection.dispose();
-		projection = null;
-		//model.fireProjectImage(ref);
+		if (ref == null) 
+			throw new IllegalArgumentException("No projection object");
+		model.fireProjectImage(ref);
+		fireStateChange();
 	}
 
 	/** 
@@ -2483,20 +2479,6 @@ class ImViewerComponent
 					" in the DISCARDED state.");
 		if (projection == null) return;
 		if (!projection.isVisible()) return;
-		
-		/*
-		BufferedImage img = null;
-		try {
-			img = model.renderProjected(ref.getStartZ(), ref.getEndZ(), 
-									ref.getStepping(), ref.getType());
-		} catch (Exception e) {
-			projection.setProjectedImage(null);
-			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Projection preview", "An error has occurred " +
-					"while projecting the data.");
-		}
-		projection.setProjectedImage(img);
-		*/
 		model.fireRenderProjected(ref);
 	}
 
@@ -2530,17 +2512,49 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setProjectedImage(ImageData)
+	 * @see ImViewer#setProjectedImage(ImageData, List)
 	 */
-	public void setProjectedImage(ImageData image)
+	public void setProjectedImage(ImageData image, List<Integer> indexes)
 	{
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 		String message;
-		if (image == null) 
+		if (image == null) {
 			message = "An error has occurred while creating the " +
-					"projected image.";
-		else message = "The image, "+image.getName() +" has been successfully "
-		       +"created";
+			"projected image.";
+			un.notifyInfo("Projection", message);
+			projection.setVisible(false);
+			projection.dispose();
+			projection = null;
+			return;
+		}
+		if (projection.isApplySettings()) {
+			projection.setStatus("Applying Rendering settings", false);
+			model.firePojectedRndSettingsCreation(indexes,
+					image.getDefaultPixels().getId());
+			fireStateChange();
+		} else {
+			message = "The projected image has been successfully created.";
+			un.notifyInfo("Projection", message);
+			projection.setVisible(false);
+			projection.dispose();
+			projection = null;
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#setProjectedRenderingSettings(Boolean)
+	 */
+	public void setProjectedRenderingSettings(Boolean result)
+	{
+		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+		String message;
+		if (result)
+			message = "The rendering setting of the projected image have " +
+					"been successfully copied.";
+		else
+			message = "An error has occurred while copying the " +
+			"rendering setting of the projected image.";
 		un.notifyInfo("Projection", message);
 		projection.setVisible(false);
 		projection.dispose();

@@ -220,10 +220,9 @@ class RenderingControlProxy
     /**
      * Initializes the cache for the specified plane.
      * 
-     * @param pDef		The plane of reference.
-     * @param length	The length of the data.
+     * @param pDef The plane of reference.
      */
-    private void initializeCache(PlaneDef pDef, int length)
+    private void initializeCache(PlaneDef pDef)
     {
     	//if (xyCache != null) return;
     	if (cacheID >= 0) return;
@@ -358,7 +357,7 @@ class RenderingControlProxy
 				return ImageIO.read(new ByteArrayInputStream((byte[]) array));
 			
 			byte[] values = servant.renderCompressed(pDef);
-			initializeCache(pDef, values.length);
+			initializeCache(pDef);
 			cache(pDef, values);
 			JPEGImageDecoder decoder = 
 				JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
@@ -403,9 +402,8 @@ class RenderingControlProxy
                     sizeX2 = pixs.getSizeY().intValue();
                     break;
             }
-            initializeCache(pDef, 3*buf.length);
+            initializeCache(pDef);
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
-            //img = createImage(sizeX1, sizeX2, buf);
             cache(pDef, img);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the plane.");
@@ -604,16 +602,6 @@ class RenderingControlProxy
             rgba = cb.getRGBA();
             servant.setRGBA(i, rgba[0], rgba[1], rgba[2], rgba[3]);
         }
-    }
-    
-    /** 
-     * Resets the size of the cache.
-     * 
-     * @param size The new size.
-     */
-    void resetCacheSize(int size)
-    {
-        //if (xyCache != null) xyCache.resetCacheSize(size);
     }
         
     /** Shuts down the service. */
@@ -1351,6 +1339,45 @@ class RenderingControlProxy
         if (isCompressed()) 
         	return renderProjectedCompressed(startZ, endZ, stepping, type);
         return renderProjectedUncompressed(startZ, endZ, stepping, type);
+	}
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#copyRenderingSettings(RndProxyDef, List)
+	 */
+	public void copyRenderingSettings(RndProxyDef rndToCopy,
+							List<Integer> indexes) 
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		DataServicesFactory.isSessionAlive(context);
+		if (rndDef == null)
+			throw new IllegalArgumentException("No rendering settings to " +
+					"set");
+		DataServicesFactory.isSessionAlive(context);
+		setModel(rndToCopy.getColorModel());
+		setCodomainInterval(rndToCopy.getCdStart(), rndToCopy.getCdEnd());
+		setQuantumStrategy(rndToCopy.getBitResolution());
+		int defaultT = rndToCopy.getDefaultT();
+		int maxT = getPixelsDimensionsT();
+		if (defaultT >= 0 && defaultT < maxT) 
+			setDefaultT(rndToCopy.getDefaultT());
+		ChannelBindingsProxy c;
+		Iterator<Integer> j = indexes.iterator();
+		Integer index;
+		int k = 0;
+		while (j.hasNext()) {
+			index = j.next();
+			c = rndToCopy.getChannel(index);
+			if (c != null) {
+				setRGBA(k, c.getRGBA());
+				setChannelWindow(k, c.getInputStart(), c.getInputEnd());
+				setQuantizationMap(k, c.getFamily(), 
+								c.getCurveCoefficient(), 
+									c.isNoiseReduction());
+				setActive(k, c.isActive());
+			}	
+			k++;
+		}
 	}
 
 }

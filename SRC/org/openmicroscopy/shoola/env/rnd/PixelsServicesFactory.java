@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -284,7 +285,7 @@ public class PixelsServicesFactory
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return (RenderingControl) singleton.rndSvcProxies.get(pixelsID);
+		return singleton.rndSvcProxies.get(pixelsID);
 	}
 
 	/**
@@ -403,15 +404,15 @@ public class PixelsServicesFactory
 	}
 	
 	/** Keep track of all the rendering service already initialized. */
-	private HashMap                 rndSvcProxies;
+	private Map<Long, RenderingControl>	rndSvcProxies;
 
 	/** Access to the raw data. */
-	private DataSink				pixelsSource;
+	private DataSink					pixelsSource;
 
 	/** Creates the sole instance. */
 	private PixelsServicesFactory()
 	{
-		rndSvcProxies = new HashMap();
+		rndSvcProxies = new HashMap<Long, RenderingControl>();
 	}
 
 	/**
@@ -434,18 +435,9 @@ public class PixelsServicesFactory
 		Long id = pixels.getId();//re.getPixels().getId();
 		RenderingControl rnd = getRenderingControl(registry, id);
 		if (rnd != null) return rnd;
-		int l = singleton.rndSvcProxies.size();
 		RndProxyDef proxyDef = convert(def);
 		rnd = new RenderingControlProxy(registry, re, pixels, metadata, 
 										compression, proxyDef);
-		//reset the size of the caches.
-		Iterator i = singleton.rndSvcProxies.keySet().iterator();
-		RenderingControlProxy proxy;
-		while (i.hasNext()) {
-			proxy = (RenderingControlProxy) singleton.rndSvcProxies.get(
-					i.next());
-			proxy.resetCacheSize(l);
-		}
 		singleton.rndSvcProxies.put(id, rnd);
 		return rnd;
 	}

@@ -29,9 +29,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,7 +45,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
@@ -57,10 +53,9 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
+import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.DatasetData;
 
 /** 
@@ -94,15 +89,15 @@ public class ProjectionDialog
 	/** The maximum number of z-sections. */
 	private int            		   maxZ;
 	
-	/** Slider to select the z interval. */
-	private TwoKnobsSlider 		   slider;
+	/** The maximum number of timepoints. */
+	private int            		   maxT;
+    
+	/** The pixels type of the original image. */
+	private String				   pixelsType;
 	
-	/** Field to display the first z-stack to project. */
-    private NumericalTextField     startField;
-    
-    /** Field to display the last z-stack to project. */
-    private NumericalTextField     endField;
-    
+	/** Component hosting a two knobs slider and text field. */
+	private TextualTwoKnobsSlider  textualSlider;
+	
 	/** The type of projection. */
 	private Map<Integer, Integer>  projectionType;
 
@@ -130,15 +125,15 @@ public class ProjectionDialog
     /** Sets the stepping for the mapping. */
     private JSpinner			   frequency;
     
-    /** The first optical section. */
-    private int					   startZ;
-    
-    /** The last optical section. */
-    private int					    endZ;
-    
     /** The name of the image. */
     private String 					imageName;
     
+	/** 
+	 * Set to <code>true</code> if the rendering settings of
+	 * the original image are applied to the new one.
+	 */
+	private boolean			  		applySettings;
+	
     /** Reference to the control. */
 	private ProjectionDialogControl	controller;
 	
@@ -146,7 +141,8 @@ public class ProjectionDialog
 	private void fillProjectionRef()
 	{
 		if (ref == null) ref = new ProjectionRef();
-		ref.setZInterval(startZ-1, endZ-1);
+		ref.setZInterval(textualSlider.getStartValue()-1, 
+						textualSlider.getEndValue()-1);
 		int value = (Integer) frequency.getValue();
 		ref.setStepping(value);
 		int index = types.getSelectedIndex();
@@ -163,24 +159,9 @@ public class ProjectionDialog
 			                   Color background)
 	{
 		frequency = new JSpinner(new SpinnerNumberModel(1, 1, maxZ, 1));
-		startZ = 1;
-		endZ = maxZ;
-		slider = new TwoKnobsSlider(startZ, maxZ, startZ, maxZ);
-		slider.setPaintLabels(false);
-		slider.setPaintEndLabels(false);
-		slider.setPaintTicks(false);
-		slider.addPropertyChangeListener(controller);
-		int length = (""+maxZ).length()-2; 
-        startField = new NumericalTextField(startZ, endZ);
-        startField.setColumns(length);
-        endField = new NumericalTextField(startZ, endZ);
-        endField.setColumns(length);
-        startField.setText(""+startZ);
-        endField.setText(""+endZ);
-        controller.attachFieldListeners(startField, 
-        		ProjectionDialogControl.START_Z);
-        controller.attachFieldListeners(endField, 
-        		ProjectionDialogControl.END_Z);
+		textualSlider = new TextualTwoKnobsSlider(1, maxZ);
+		textualSlider.setSliderLabelText("Slice: ");
+		textualSlider.layoutComponents();
 		uiDelegate = new ProjectionUI(background);
 		
 		previewButton = new JButton("Preview");
@@ -221,49 +202,22 @@ public class ProjectionDialog
 	 */
 	private JPanel buildControlComponent()
 	{
-		int charWidth = getFontMetrics(getFont()).charWidth('m');;
-		JPanel p = new JPanel();
-		
-		Insets insets = endField.getInsets();
-		int length = (""+maxZ).length();
-		int x = insets.left+length*charWidth+insets.left;
-		Dimension d = startField.getPreferredSize();
-		startField.setPreferredSize(new Dimension(x, d.height));
-		d = endField.getPreferredSize();
-		endField.setPreferredSize(new Dimension(x, d.height));
-		GridBagConstraints c = new GridBagConstraints();
-		p.setLayout(new GridBagLayout());
-		c.weightx = 0;        
-		c.anchor = GridBagConstraints.WEST;
-		p.add(new JLabel(" Start "), c);
-		c.gridx = 1;
-		c.ipadx = x;
-		c.weightx = 0.5;
-		p.add(UIUtilities.buildComponentPanel(startField), c);
-		c.gridx = 2;
-		c.ipadx = 0;
-		c.weightx = 0;
-		p.add(new JLabel(" End "), c);
-		c.gridx = 3;
-		c.ipadx = x;
-		c.weightx = 0.5;
-		p.add(UIUtilities.buildComponentPanel(endField), c);
-		
 		JPanel content = new JPanel();
 		double size[][] =
-        {{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        	TableLayout.PREFERRED, TableLayout.PREFERRED},  // Columns
+        {{TableLayout.PREFERRED, TableLayout.PREFERRED},  // Columns
          {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
 		content.setLayout(new TableLayout(size));
-		content.add(new JLabel("Slice: "), "0, 0");
-		content.add(UIUtilities.buildComponentPanel(slider), "1, 0");
-		content.add(p, "1, 1");
-		content.add(new JLabel("Projection: "), "3, 0");
-		content.add(types, "4, 0");
-		content.add(new JLabel("Every n-th slice: "), "3, 1");
-		content.add(UIUtilities.buildComponentPanel(frequency), "4, 1, l, c");
-		content.add(new JSeparator(), "0, 2, 5, 2");
-		return content;
+		content.add(new JLabel("Projection: "), "0, 0");
+		content.add(types, "1, 0");
+		content.add(new JLabel("Every n-th slice: "), "0, 1");
+		content.add(UIUtilities.buildComponentPanel(frequency), "1, 1, l, c");
+		
+		JPanel controls = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.X_AXIS));
+		controls.add(textualSlider);
+		controls.add(Box.createHorizontalStrut(5));
+		controls.add(content);
+		return controls;
 	}
 	
 	/** 
@@ -277,7 +231,10 @@ public class ProjectionDialog
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.FILL}};
 		body.setLayout(new TableLayout(tl));
+		TextualTwoKnobsSlider pp = new TextualTwoKnobsSlider();
+		pp.layoutComponents();
 		body.add(buildControlComponent(), "0, 0, 1, 0");
+		body.add(pp, "0, 0, 1, 0");
 		body.add(buildToolBar(), "0, 1");
 		body.add(uiDelegate, "1, 1");
 		return body;
@@ -340,18 +297,23 @@ public class ProjectionDialog
 	 * @param owner       The owner of the dialog.
 	 * @param projections The type of projection.
 	 * @param maxZ        The number of optical sections.
+	 * @param maxT		  The number of timepoints.
+	 * @param pixelsType  The pixels type of the original image.
 	 * @param background  The background color of the canvas.
 	 * @param imageName	  The name of the original image.
 	 * @param imageWidth  The width of the original image.
 	 * @param imageHeight  The width of the original image.
 	 */
 	public ProjectionDialog(JFrame owner, Map<Integer, String> projections, 
-			             int maxZ, Color background, String imageName, 
+			             int maxZ, int maxT, String pixelsType, 
+			             Color background, String imageName, 
 			             int imageWidth, int imageHeight)
 	{
 		super(owner);
 		controller = new ProjectionDialogControl(this);
 		this.maxZ = maxZ;
+		this.maxT = maxT;
+		this.pixelsType = pixelsType;
 		this.imageName = imageName;
 		initComponents(projections, background);
 		buildGUI();
@@ -361,88 +323,30 @@ public class ProjectionDialog
 		pack();
 	}
 	
-	/** 
-	 * Updates the first optical section.
+	/**
+	 * Returns the number of time point.
 	 * 
-	 * @param value The value to set
+	 * @return See above.
 	 */
-	void updateStartField(int value)
-	{
-		startZ = value;
-		controller.removeFieldListeners(startField);
-		startField.setText(""+value);
-		endField.setMinimum(startZ);
-		controller.attachFieldListeners(startField, 
-							ProjectionDialogControl.START_Z);
-	}
+	int getMaxT() { return maxT; }
 	
-	/** 
-	 * Updates the last optical section.
+	/**
+	 * Returns the selected algorithm.
 	 * 
-	 * @param value The value to set
+	 * @return See above.
 	 */
-	void updateEndField(int value)
-	{
-		endZ = value;
-		controller.removeFieldListeners(endField);
-		endField.setText(""+value);
-		startField.setMaximum(endZ);
-		controller.attachFieldListeners(endField, 
-							ProjectionDialogControl.END_Z);
+	int getSelectedAlgorithm()
+	{ 
+		return projectionType.get(types.getSelectedIndex());
 	}
-	
-	/** Sets the first optical section. */
-	void setStartZ()
-	{
-		boolean valid = false;
-		int val = 0;
-		try {
-            val = Integer.parseInt(startField.getText());
-            
-            if (1 <= val && val < endZ) valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (!valid) {
-            startField.selectAll();
-            return;
-        }
-        startZ = val;
-        endField.setMinimum(startZ);
-        slider.setStartValue(startZ);
-	}
-	
-	/** Sets the last optical section. */
-	void setEndZ()
-	{
-		boolean valid = false;
-		int val = 0;
-		try {
-            val = Integer.parseInt(endField.getText());
-            
-            if (startZ < val && val <= maxZ) valid = true;
-        } catch(NumberFormatException nfe) {}
-        if (!valid) {
-            endField.selectAll();
-            return;
-            
-        }
-        endZ = val;
-        startField.setMaximum(endZ);
-        slider.setEndValue(endZ);
-	}
-	
-	/** Invokes when lost of focus on text fields. */
-	void handleFocusLost()
-	{
-		String s = ""+startZ;
-		String e = ""+endZ;
-		String startVal = startField.getText();
-		String endVal = endField.getText();
-		if (startVal == null || !startVal.equals(s))
-			startField.setText(s);        
-		if (endVal == null || !endVal.equals(e)) 
-			endField.setText(e);
-	}
-	
+
+	/** 
+	 * Returns the pixels type of the original image.
+	 * 
+	 * @return See above.
+	 */
+	String getPixelsType() { return pixelsType; }
+
 	/** Projects and previews. */
 	void preview()
 	{
@@ -484,18 +388,28 @@ public class ProjectionDialog
 	/**
 	 * Projects the image.
 	 * 
-	 * @param datasets    The collection of datasets where to store the 
-	 *                    projected image.
-	 * @param name        The name of the projected image.
-	 * @param allChannels Pass <code>true</code> to project all channels,
-	 *                    <code>false</code> to project the active channels.
+	 * @param datasets    	The collection of datasets where to store the 
+	 *                    	projected image.
+	 * @param name        	The name of the projected image.
+	 * @param allChannels 	Pass <code>true</code> to project all channels,
+	 *                    	<code>false</code> to project the active channels.
+	 * @param startT	  	The first timepoint to project.
+	 * @param endT        	The last timepoint to project.
+	 * @param pixelsType  	The pixels type of the destination set.
+	 * @param applySettings Pass <code>true</code> to set the rendering settings
+	 * 						of the original image to the new pixels set,
+	 * 						<code>false</code> otherwise.
 	 */
-	void project(List<DatasetData> datasets, String name, boolean allChannels)
+	void project(List<DatasetData> datasets, String name, boolean allChannels,
+			int startT, int endT, String pixelsType, boolean applySettings)
 	{
 		fillProjectionRef();
 		ref.setAllChannels(allChannels);
 		ref.setDatasets(datasets);
 		ref.setImageName(name);
+		ref.setTInterval(startT, endT);
+		ref.setPixelsType(pixelsType);
+		this.applySettings = applySettings;
 		enableButtons(false);
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		progressBar.setVisible(true);
@@ -530,6 +444,28 @@ public class ProjectionDialog
 		statusLabel.setText("");
 		uiDelegate.setProjectedImage(image);
 		setModal(false);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the settings of the original image are set
+	 * to the new pixels set, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isApplySettings() { return applySettings; }
+	
+	/**
+	 * Callback used by data loaders to provide the viewer with feedback about
+	 * the data retrieval.
+	 * 
+	 * @param description   Textual description of the ongoing operation.
+	 * @param hide          Pass <code>true</code> to hide the progress bar,
+	 * 						<code>false</code> to show it.
+	 */
+	public void setStatus(String description, boolean hide)
+	{
+		statusLabel.setText(description);
+		progressBar.setVisible(!hide);
 	}
 	
 }

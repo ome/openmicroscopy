@@ -33,13 +33,15 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.api.IProjection;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
@@ -58,6 +60,39 @@ import pojos.ImageData;
 public interface OmeroImageService
 {
   
+	/** Identifies the <code>Maximum intensity</code> projection. */
+	public static final int	   MAX_INTENSITY = IProjection.MAXIMUM_INTENSITY;
+	
+	/** Identifies the <code>Mean intensity</code> projection. */
+	public static final int    MEAN_INTENSITY = IProjection.MEAN_INTENSITY;
+	
+	/** Identifies the <code>Sum intensity</code> projection. */
+	public static final int    SUM_INTENSITY = IProjection.SUM_INTENSITY;
+	
+	/** Identifies the type used to store pixel values. */
+	public static final String INT_8 = "int8";
+
+	/** Identifies the type used to store pixel values. */
+	public static final String UINT_8 = "uint8";
+
+	/** Identifies the type used to store pixel values. */
+	public static final String INT_16 = "int16";
+
+	/** Identifies the type used to store pixel values. */
+	public static final String UINT_16 = "uint16";
+
+	/** Identifies the type used to store pixel values. */
+	public static final String INT_32 = "int32";
+
+	/** Identifies the type used to store pixel values. */
+	public static final String UINT_32 = "uint32";
+
+	/** Identifies the type used to store pixel values. */
+	public static final String FLOAT = "float";
+
+	/** Identifies the type used to store pixel values. */
+	public static final String DOUBLE = "double";
+	
 	/**
 	 * Initializes a {@link RenderingControl} proxy for the specified pixels
 	 * set.
@@ -307,23 +342,34 @@ public interface OmeroImageService
 	 * Projects the specified set of pixels according to the projection's 
 	 * parameters. Adds the created image to the passed dataset.
 	 * 
-	 * @param pixelsID The id of the pixels set.
-	 * @param startZ   The first optical section.
-	 * @param endZ     The last optical section.
-	 * @param stepping The stepping used to project. Default is <code>1</code>.
-	 * @param type     The projection's type.
-	 * @param channels The channels to project.
-	 * @param datasets The collection of datasets to add the image to.
-	 * @param name     The name of the projected image.
+	 * @param ref The object hosting the projection's parameters.
 	 * @return The newly created image.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public ImageData projectImage(long pixelsID, int startZ, int endZ, 
-			int stepping, int type, List<Integer> channels, 
-			List<DatasetData> datasets, String name)
+	public ImageData projectImage(ProjectionParam ref)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Creates rendering setting for the specified pixels set and
+     * copies the settings from the passed rendering setting object if
+     * not <code>null</code>. Returns <code>true</code> if the rendering
+     * settings have been successfully created and updated, <code>false</code>
+     * otherwise.
+     * 
+     * @param pixelsID	The id of the pixels set to handle.
+     * @param rndToCopy The rendering settings to copy to the newly created one.
+     * @param indexes	Collection of channel's indexes. 
+     * 					Mustn't be <code>null</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
+			List<Integer> indexes)
+		throws DSOutOfServiceException, DSAccessException;
 }

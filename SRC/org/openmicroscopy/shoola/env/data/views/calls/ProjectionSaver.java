@@ -28,16 +28,15 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
+
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
-import pojos.DatasetData;
-
 /** 
- * 
+ * Command to project an image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -75,7 +74,7 @@ public class ProjectionSaver
     private BatchCall makeRenderProjectedCall(final int startZ, final int endZ, 
     		  final int stepping, final int type)
     {
-    	return new BatchCall("Loading pixels dimensions: ") {
+    	return new BatchCall("Preview the projected image.") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
@@ -88,26 +87,16 @@ public class ProjectionSaver
     /**
      * Creates a {@link BatchCall} to render the projected image
      * 
-     * @param startZ   The first optical section.
-     * @param endZ     The last optical section.
-     * @param stepping Stepping used while projecting. 
-     *                 Default is <code>1</code>
-     * @param type     The type of projection.
-     * @param channels The channels to project.
-     * @param datasets The datasets to add the projected image to.
-     * @param name     The name of the projected image.
+     * @param ref The object hosting the projection's parameters.
      * @return See above.
      */
-    private BatchCall makeProjectionCall(final int startZ, final int endZ, 
-    		  final int stepping, final int type, final List<Integer> channels, 
-      		  final List<DatasetData> datasets, final String name)
+    private BatchCall makeProjectionCall(final ProjectionParam ref)
     {
-    	return new BatchCall("Loading pixels dimensions: ") {
+    	return new BatchCall("Project the image") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
-                result = rds.projectImage(pixelsID, startZ, endZ, stepping, 
-                		                type, channels, datasets, name);
+                result = rds.projectImage(ref);
             }
         };
     }
@@ -146,25 +135,11 @@ public class ProjectionSaver
     /**
      * Creates a new instance.
      * 
-     * @param pixelsID The id of the pixels set.
-     * @param startZ   The first optical section.
-     * @param endZ     The last optical section.
-     * @param stepping Stepping used while projecting. 
-     *                 Default is <code>1</code>
-     * @param type     The type of projection.
-     * @param channels The channels to project.
-     * @param datasets The datasets to add the projected image to.
-     * @param name     The name of the projected image.
+     * @param ref The object hosting the projection's parameters.
      */
-    public ProjectionSaver(long pixelsID, int startZ, int endZ, int stepping, 
-    		              int type, List<Integer> channels, 
-    		      		  List<DatasetData> datasets, String name)
+    public ProjectionSaver(ProjectionParam ref)
     {
-    	if (pixelsID < 0)
-    		throw new IllegalArgumentException("Pixels Id not valid.");
-    	this.pixelsID = pixelsID;
-    	loadCall = makeProjectionCall(startZ, endZ, stepping, type, channels,
-    			                     datasets, name);
+    	loadCall = makeProjectionCall(ref);
     }
     
 }

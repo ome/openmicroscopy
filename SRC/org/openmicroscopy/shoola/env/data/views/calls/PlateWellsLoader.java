@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.Set;
 
 //Third-party libraries
 

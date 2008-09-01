@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImageRenderer;
@@ -40,9 +41,10 @@ import org.openmicroscopy.shoola.env.data.views.calls.PixelsDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ProjectionSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.DatasetData;
 
 /** 
  * Implementation of the {@link ImageDataView} interface.
@@ -170,16 +172,25 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#projectImage(long, int, int, int, int, List, List, 
-     *                               String, AgentEventListener)
+     * @see ImageDataView#projectImage(ProjectionParam, AgentEventListener)
      */
-	public CallHandle projectImage(long pixelsID, int startZ, int endZ, 
-			int stepping, int type, List<Integer> channels, 
-			List<DatasetData> datasets, String name, 
+	public CallHandle projectImage(ProjectionParam ref, 
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new ProjectionSaver(pixelsID, startZ, endZ, 
-                stepping, type, channels, datasets, name);
+		BatchCallTree cmd = new ProjectionSaver(ref);
+        return cmd.exec(observer);
+	}
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#createRndSetting(long, RndProxyDef, List, 
+     * 										AgentEventListener)
+     */
+	public CallHandle createRndSetting(long pixelsID, RndProxyDef rndToCopy, 
+			List<Integer> indexes, AgentEventListener observer)
+	{
+		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, rndToCopy, 
+									indexes);
         return cmd.exec(observer);
 	}
 

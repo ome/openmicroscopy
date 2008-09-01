@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -72,6 +73,16 @@ public interface ImViewer
 	extends ObservableComponent
 {
 
+	/** Identifies the <code>Maximum intensity</code> projection. */
+	public static final int 	MAX_INTENSITY = OmeroImageService.MAX_INTENSITY;
+	
+	/** Identifies the <code>Mean intensity</code> projection. */
+	public static final int 	MEAN_INTENSITY = 
+											OmeroImageService.MEAN_INTENSITY;
+	
+	/** Identifies the <code>Sum intensity</code> projection. */
+	public static final int 	SUM_INTENSITY = OmeroImageService.SUM_INTENSITY;
+	
 	/** The minimum size of an original image. */
 	public static final int		MINIMUM_SIZE = 96;
 	
@@ -876,8 +887,16 @@ public interface ImViewer
 	/**
 	 * Sets the newly created projected image.
 	 * 
-	 * @param image The projected image.
+	 * @param image 	The projected image.
+	 * @param indexes 	The channel's indexes projected.
 	 */
-	public void setProjectedImage(ImageData image);
+	public void setProjectedImage(ImageData image, List<Integer> indexes);
+
+	/**
+	 * Sets the settings created for the projected image.
+	 * 
+	 * @param result The value to set.
+	 */
+	public void setProjectedRenderingSettings(Boolean result);
 	
 }

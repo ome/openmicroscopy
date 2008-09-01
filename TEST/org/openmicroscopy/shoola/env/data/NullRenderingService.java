@@ -38,10 +38,11 @@ import java.util.Set;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
-import pojos.DatasetData;
 import pojos.ImageData;
 
 
@@ -217,12 +218,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#projectImage(long, int, int, int, int, List, 
-     *              List, String)
+     * @see OmeroImageService#projectImage(ProjectionParam)
      */
-	public ImageData projectImage(long pixelsID, int startZ, int endZ, 
-			int stepping, int type, List<Integer> channels, 
-			List<DatasetData> datasets, String name) 
+	public ImageData projectImage(ProjectionParam ref) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -233,5 +231,16 @@ public class NullRenderingService
      * @see OmeroImageService#shutDownDataSink(long)
      */
 	public void shutDownDataSink(long pixelsID) {}
+
+	/**
+     * No-op implementation
+     * @see OmeroImageService#createRenderingSettings(long, RndProxyDef, List)
+     */
+	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
+			List<Integer> indexes) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return Boolean.TRUE;
+	}
 
 }

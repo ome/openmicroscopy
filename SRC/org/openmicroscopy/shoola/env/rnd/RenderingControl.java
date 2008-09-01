@@ -32,7 +32,6 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.api.IProjection;
 import ome.model.core.Pixels;
 import ome.model.display.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
@@ -58,15 +57,6 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
  */
 public interface RenderingControl
 {
-
-	/** Identifies the <code>Maximum intensity</code> projection. */
-	public static final int 	MAX_INTENSITY = IProjection.MAXIMUM_INTENSITY;
-	
-	/** Identifies the <code>Mean intensity</code> projection. */
-	public static final int 	MEAN_INTENSITY = IProjection.MEAN_INTENSITY;
-	
-	/** Identifies the <code>Sum intensity</code> projection. */
-	public static final int 	SUM_INTENSITY = IProjection.SUM_INTENSITY;
 	
 	/** Flag to indicate that the image is not compressed. */
 	public static final int		UNCOMPRESSED = 0;
@@ -681,6 +671,21 @@ public interface RenderingControl
      */
     public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
     									int type)
+    	throws RenderingServiceException, DSOutOfServiceException;
+    
+    /**
+     * Copies rendering settings from the original image to the proejected
+     * one.
+     * 
+     * @param rndToCopy The rendering settings to copy.
+     * @param indexes   Collection of channel's indexes. 
+     * 					Mustn't be <code>null</code>.
+     * @throws RenderingServiceException 	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
+     */
+    public void copyRenderingSettings(RndProxyDef rndToCopy, 
+    									List<Integer> indexes)
     	throws RenderingServiceException, DSOutOfServiceException;
     
 }

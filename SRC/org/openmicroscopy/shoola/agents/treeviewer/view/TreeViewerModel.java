@@ -413,15 +413,14 @@ class TreeViewerModel
 	void fireDataObjectsDeletion(List nodes)
 	{
 		state = TreeViewer.SAVE;
-		DataObject object, po;
+		DataObject object;
 		Iterator i = nodes.iterator();
-		TreeImageDisplay n, parent;
-		Map<DataObject, Set> map = null;
+		TreeImageDisplay n;
+		//Map<DataObject, Set> map = null;
 		Set<DataObject> toRemove = null;  
-		Set<DataObject> l;
 		while (i.hasNext()) {
 			n = (TreeImageDisplay) i.next();
-			parent = n.getParentDisplay();
+			//parent = n.getParentDisplay();
 			if (n.getUserObject() instanceof DataObject) {
 				object = (DataObject) n.getUserObject();
 				if ((object instanceof ProjectData) || 
@@ -445,8 +444,8 @@ class TreeViewerModel
 			currentLoader = new DataObjectRemover(component, toRemove, null);
 			currentLoader.load();
 		} else { 
-			currentLoader = new DataObjectRemover(component, map);
-			currentLoader.load();
+			//currentLoader = new DataObjectRemover(component, map);
+			//currentLoader.load();
 		}
 	}
 

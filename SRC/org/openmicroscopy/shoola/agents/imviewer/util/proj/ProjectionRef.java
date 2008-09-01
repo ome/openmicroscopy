@@ -22,18 +22,18 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 
-import java.util.List;
-
-import pojos.DatasetData;
 
 //Java imports
+import java.util.List;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DatasetData;
 
 /** 
- * Utility class storing the projection parameters.
+ * Utility class storing the projection's parameters.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,6 +48,12 @@ import pojos.DatasetData;
 public class ProjectionRef
 {
 
+	/** The first timepoint to project. */
+	private int               startT;
+	
+	/** The last timepoint to project. */
+	private int               endT;
+	
 	/** The first z-section to project. */
 	private int               startZ;
 	
@@ -59,6 +65,9 @@ public class ProjectionRef
 	
 	/** The type of projection. */
 	private int               type;
+	
+	/** The type of projection. */
+	private String            pixelsType;
 	
 	/** The collection of datasets where to store the projected image. */
 	private List<DatasetData> datasets;
@@ -83,8 +92,6 @@ public class ProjectionRef
 	 * 
 	 * @param startZ 		The first z-section to project.
 	 * @param endZ   		The last z-section to project.
-	 * @param stepping 	The freqence between each step. 
-	 * 						Default is <code>1</code>.
 	 * @param type 			The type of projection.
 	 */
 	ProjectionRef(int startZ, int endZ, int type)
@@ -107,7 +114,7 @@ public class ProjectionRef
 		setStepping(frequence);
 		setType(type);
 	}
-	
+
 	/**
 	 * Sets the stepping.
 	 * 
@@ -132,6 +139,30 @@ public class ProjectionRef
 			throw new IllegalArgumentException("Interval not valid.");
 		this.startZ = startZ;
 		this.endZ = endZ;
+	}
+	
+	/**
+	 * Sets the interval to project.
+	 * 
+	 * @param startT The first timepoint to project.
+	 * @param endT	 The last timepoint to project.
+	 */
+	void setTInterval(int startT, int endT)
+	{
+		if (startT > endT) 
+			throw new IllegalArgumentException("Interval not valid.");
+		this.startT = startT;
+		this.endT = endT;
+	}
+	
+	/**
+	 * Sets the pixels type of the destination set.
+	 * 
+	 * @param pixelsType The value to set.
+	 */
+	void setPixelsType(String pixelsType)
+	{
+		this.pixelsType = pixelsType;
 	}
 	
 	/**
@@ -202,6 +233,20 @@ public class ProjectionRef
 	public int getEndZ() { return endZ; }
 	
 	/**
+	 * Returns the first timepoint to project.
+	 * 
+	 * @return See above.
+	 */
+	public int getStartT() { return startT; }
+	
+	/**
+	 * Returns the last timepoint to project.
+	 * 
+	 * @return See above.
+	 */
+	public int getEndT() { return endT; }
+	
+	/**
 	 * Returns the freqence between each step. Default is <code>1</code>.
 	 * 
 	 * @return See above.
@@ -214,5 +259,12 @@ public class ProjectionRef
 	 * @return See above.
 	 */
 	public int getType() { return type; }
+	
+	/**
+	 * Returns the pixels type.
+	 * 
+	 * @return See above.
+	 */
+	public String getPixelsType() { return pixelsType; }
 	
 }

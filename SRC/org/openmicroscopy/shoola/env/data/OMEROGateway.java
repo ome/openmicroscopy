@@ -53,7 +53,9 @@ import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import ome.api.IAdmin;
 import ome.api.IDelete;
+import ome.api.IPixels;
 import ome.api.IPojos;
+import ome.api.IProjection;
 import ome.api.IQuery;
 import ome.api.IRenderingSettings;
 import ome.api.IRepositoryInfo;
@@ -84,6 +86,7 @@ import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
 import ome.model.enums.Format;
+import ome.model.enums.PixelsType;
 import ome.model.internal.Details;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
@@ -494,6 +497,13 @@ class OMEROGateway
 	}
 
 	/**
+	 * Returns the {@link IPixels} service.
+	 * 
+	 * @return See above.
+	 */
+	private IPixels getPixelsService() { return entry.getPixelsService(); }
+	
+	/**
 	 * Returns the {@link Search} service.
 	 * 
 	 * @return See above.
@@ -504,6 +514,16 @@ class OMEROGateway
 			searchService = entry.createSearchService();
 		//searchService.resetDefaults();
 		return searchService;
+	}
+	
+	/**
+	 * Returns the {@link IProjection} service.
+	 * 
+	 * @return See above.
+	 */
+	private IProjection getProjectionService()
+	{
+		return entry.getProjectionService();
 	}
 	
 	/**
@@ -572,8 +592,6 @@ class OMEROGateway
 		logout();
 		login = new Login(userName, password);
 		entry = new ServiceFactory(server, new Login(userName, password));
-		//if (thumbnailService != null) thumbnailService.close();
-		//thumbnailService = null;
 		thumbRetrieval = 0;
 	}
 	
@@ -649,8 +667,7 @@ class OMEROGateway
 
 		return formattedTerms;
 	}
-	
-	
+
 	/**
 	 * Returns <code>true</code> if the specified value starts with a wild card,
 	 * <code>false</code> otherwise.
@@ -1290,7 +1307,6 @@ class OMEROGateway
 
 			return pixs;
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot retrieve the pixels set of "+
 			"the pixels set.");
 		}
@@ -3302,26 +3318,92 @@ class OMEROGateway
 	 * Projects the specified set of pixels according to the projection's 
 	 * parameters. Adds the created image to the passed dataset.
 	 * 
-	 * @param pixelsID The id of the pixels set.
-	 * @param startZ   The first optical section.
-	 * @param endZ     The last optical section.
-	 * @param stepping The stepping used to project. Default is <code>1</code>.
-	 * @param type     The projection's type.
-	 * @param channels The channels to project.
-	 * @param datasets The collection of datasets to add the image to.
-	 * @param name     The name of the projected image.
+	 * @param pixelsID  The id of the pixels set.
+	 * @param startT	The timepoint to start projecting from.
+	 * @param endT		The timepoint to end projecting.
+	 * @param startZ    The first optical section.
+	 * @param endZ      The last optical section.
+	 * @param stepping  The stepping used to project. Default is <code>1</code>.
+	 * @param algorithm The projection's algorithm.
+	 * @param channels  The channels to project.
+	 * @param datasets  The collection of datasets to add the image to.
+	 * @param name      The name of the projected image.
+	 * @param pixType   The destination Pixels type. If <code>null</code>, the
+     * 					source Pixels set pixels type will be used.
 	 * @return The newly created image.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	ImageData projectImage(long pixelsID, int startZ, int endZ, 
-			int stepping, int type, List<Integer> channels, 
-			List<DatasetData> datasets, String name)
+	ImageData projectImage(long pixelsID, int startT, int endT, int startZ, 
+						int endZ, int stepping, int algorithm, 
+						List<Integer> channels, String name, String pixType)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		
+		try {
+			IProjection service = getProjectionService();
+			PixelsType type = null;
+			if (pixType != null) {
+				IQuery svc = getQueryService();
+				List<PixelsType> l = svc.findAll(PixelsType.class, null);
+				Iterator<PixelsType> i = l.iterator();
+				PixelsType pt;
+				while (i.hasNext()) {
+					pt = i.next();
+					if (pt.getValue().equals(type)) {
+						type = pt;
+						break;
+					}
+				}
+			}
+			long imageID = service.projectPixels(pixelsID, type, algorithm, 
+					startT, endT, channels, stepping, startZ, endZ, name);
+			StringBuilder sb = new StringBuilder();
+			sb.append("select img from Image as img ");
+			/*
+			sb.append("left outer join fetch "
+	                + "img.annotationLinksCountPerOwner img_a_c ");
+			sb.append("left outer join fetch img.annotationLinks ail ");
+			*/
+			sb.append("left outer join fetch img.pixels as pix ");
+	        sb.append("left outer join fetch pix.pixelsType as pt ");
+	        sb.append("left outer join fetch pix.pixelsDimensions as pd ");
+	        sb.append("where img.id = :id");
+	        Parameters param = new Parameters();
+			param.addLong("id", imageID);
+	        ImageData image = (ImageData) PojoMapper.asDataObject(
+	        		getQueryService().findByQuery(sb.toString(), param));
+			return image;
+		} catch (Exception e) {
+			handleException(e, "Cannot project the image.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Creates default rendering setting for the passed pixels set.
+	 * 
+	 * @param pixelsID The id of the pixels set to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	RenderingDef createRenderingDef(long pixelsID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		//TODO: add method to server so that we don't have to make 2 calls.
+		try {
+			IPixels svc = getPixelsService();
+			Pixels pixels = svc.retrievePixDescription(pixelsID);
+			if (pixels == null) return null;
+			IRenderingSettings service = getRenderingSettingsService();
+			return service.createNewRenderingDef(pixels);
+		} catch (Exception e) {
+			handleException(e, "Cannot create settings for: "+pixelsID);
+		}
 		
 		return null;
 	}
@@ -3428,7 +3510,6 @@ class OMEROGateway
 			
 			return wells;
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load plate");
 		}
 		return new HashSet();
@@ -3481,7 +3562,6 @@ class OMEROGateway
 			}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load screen");
 		}
 		return new HashSet();

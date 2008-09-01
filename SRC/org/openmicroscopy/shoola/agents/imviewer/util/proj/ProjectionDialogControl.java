@@ -28,25 +28,12 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.JTextField;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 /** 
  * The projection controller.
@@ -62,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
  * @since 3.0-Beta3
  */
 class ProjectionDialogControl 
-	implements ActionListener, FocusListener, PropertyChangeListener
+	implements ActionListener
 {
 	
 	/** Action id to project the selection and view the result. */
@@ -70,18 +57,10 @@ class ProjectionDialogControl
 	
 	/** Action id to project the whole image. */
 	static final int PROJECT = 2;
-	
-	/** Action id to set the first optical section. */
-	static final int START_Z = 3;
-	
-	/** Action id to set the last optical section. */
-	static final int END_Z = 4;
-	
+
 	/** Reference to the model. */
 	private ProjectionDialog model;
-	
-	private Map<JTextField, FieldDocumentListener> listeners;
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -92,39 +71,8 @@ class ProjectionDialogControl
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
-		listeners = new HashMap<JTextField, FieldDocumentListener>();
 	}
-	
-	/**
-	 * Attaches the listeners to the passed component.
-	 * 
-	 * @param field The component to handle.
-	 * @param id    The action command id.
-	 */
-	void attachFieldListeners(JTextField field, int id)
-	{
-		field.setActionCommand(""+id);  
-        field.addActionListener(this);
-        field.addFocusListener(this);
-        FieldDocumentListener l = new FieldDocumentListener(id, model);
-        listeners.put(field, l);
-        field.getDocument().addDocumentListener(l);
-	}
-	
-	/**
-	 * Removes the listeners to the passed component.
-	 * 
-	 * @param field The component to handle.
-	 */
-	void removeFieldListeners(JTextField field)
-	{
-		field.removeActionListener(this);
-		field.removeFocusListener(this);
-		FieldDocumentListener l = listeners.get(field);
-		//field.getDocument().removeDocumentListener(l);
-		//listeners.remove(l);
-	}
-	
+
 	/** 
 	 * Sets the datasets containing the image to project.
 	 * 
@@ -150,44 +98,7 @@ class ProjectionDialogControl
 			case PROJECT:
 				model.loadDatasets();
 				break;
-			case START_Z:
-				model.setStartZ();
-				break;
-			case END_Z:
-				model.setEndZ();
 		}
 	}
-
-	/**
-	 * Sets the value of the optical sections.
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		String name = evt.getPropertyName();
-		if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)) {
-			Integer value = (Integer) evt.getNewValue();
-			model.updateStartField(value);
-		} else if (TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
-			Integer value = (Integer) evt.getNewValue();
-			model.updateEndField(value);
-		}
-	}
-	
-	/** 
-     * Handles the lost of focus on the various text fields.
-     * If focus is lost while editing, then we don't consider the text 
-     * currently displayed in the text field and we reset it to the current
-     * value.
-     * @see FocusListener#focusLost(FocusEvent)
-     */
-    public void focusLost(FocusEvent e) { model.handleFocusLost(); }
-    
-	/** 
-     * Required by {@link FocusListener} I/F but not actually needed in
-     * our case, no op implementation.
-     * @see FocusListener#focusGained(FocusEvent)
-     */ 
-    public void focusGained(FocusEvent e) {}
     
 }

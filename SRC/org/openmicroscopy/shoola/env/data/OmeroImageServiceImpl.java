@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -37,17 +38,23 @@ import javax.imageio.ImageIO;
 //Third-party libraries
 
 //Application-internal dependencies
+import ome.model.ILink;
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
+import ome.util.builders.PojoOptions;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -395,16 +402,79 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#projectImage(long, int, int, int, int, List, List,
-	 *                                    String)
+	 * @see OmeroImageService#projectImage(ProjectionParam)
 	 */
-	public ImageData projectImage(long pixelsID, int startZ, int endZ, 
-			int stepping, int type, List<Integer> channels, 
-			List<DatasetData> datasets, String name)
+	public ImageData projectImage(ProjectionParam ref)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (ref == null) return null;
 		
-		return null;
+		ImageData image = gateway.projectImage(ref.getPixelsID(), 
+				ref.getStartT(), ref.getEndT(), ref.getStartZ(), 
+				ref.getEndZ(), ref.getStepping(), ref.getAlgorithm(), 
+				ref.getChannels(), ref.getName(), ref.getPixelsType());
+		if (image == null) return null;
+		List<DatasetData> datasets =  ref.getDatasets();
+		if (datasets != null && datasets.size() > 0) {
+			Map map = (new PojoOptions()).map();
+			Iterator<DatasetData> i = datasets.iterator();
+			//Check if we need to create a dataset.
+			List<DatasetData> existing = new ArrayList<DatasetData>();
+			List<DatasetData> toCreate = new ArrayList<DatasetData>();
+			DatasetData dataset;
+			while (i.hasNext()) {
+				dataset = i.next();
+				if (dataset.getId() > 0) existing.add(dataset);
+				else toCreate.add(dataset);
+			}
+			if (toCreate.size() > 0) {
+				i = toCreate.iterator();
+				OmeroDataService svc = context.getDataService();
+				while (i.hasNext()) {
+					existing.add((DatasetData) svc.createDataObject(i.next(), 
+										null, null));
+				} 
+			}
+			ILink[] links = new ILink[datasets.size()];
+			IObject img = image.asIObject();
+			ILink l;
+			int k = 0;
+			i = existing.iterator();
+			while (i.hasNext()) {
+				l = ModelMapper.linkParentToChild(img, i.next().asIObject());
+				links[k] = l;
+				k++;
+			}
+			gateway.createObjects(links, map);
+		}
+		return image;
 	}
-	
+
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroImageService#createRenderingSettings(long, RndProxyDef, List)
+	 */
+	public Boolean createRenderingSettings(long pixelsID, RndProxyDef rndToCopy,
+			List<Integer> indexes) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (rndToCopy == null) {
+			RenderingDef def = gateway.createRenderingDef(pixelsID);
+			return (def != null);
+		}
+		RenderingControl rndControl = loadRenderingControl(pixelsID);
+		try {
+			rndControl.copyRenderingSettings(rndToCopy, indexes);
+			//save them
+			rndControl.saveCurrentSettings();
+			//discard it
+			shutDown(pixelsID);
+		} catch (Exception e) {
+			throw new DSAccessException("Unable to copy the " +
+					"rendering settings.");
+		}
+		
+		return Boolean.TRUE;
+	}
+
 }

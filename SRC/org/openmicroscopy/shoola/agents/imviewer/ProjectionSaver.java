@@ -29,9 +29,9 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.ImageData;
@@ -65,36 +65,46 @@ public class ProjectionSaver
 	public static final int PROJECTION = 1;
 	
 	/** One of the constants defined by this class. */
-	private int 		  index;
+	private int 			index;
 	
-	/** The id of the pixels set. */
-	private long          pixelsID;
-	
-	/** Object containing the projection's parameters. */
-	private ProjectionRef ref;
-	
+	/** The object hosting the projection's parameters. */
+	private ProjectionParam	ref;
+
 	/** Handle to the async call so that we can cancel it. */
-    private CallHandle  handle;
+    private CallHandle  	handle;
+    
+    /**
+     * Controls if the passed index is supported.
+     * 
+     * @param value The value to set.
+     */
+    private void checkIndex(int value)
+    {
+    	switch (value) {
+			case PREVIEW:
+			case PROJECTION:
+				break;
+			default:
+				throw new IllegalArgumentException("Projection index " +
+						"not supported.");
+		}
+    }
     
     /**
      * Creates a new instance.
      * 
-     * @param model    Reference to the model. Mustn't be <code>null</code>.
-     * @param pixelsID The id of the pixels set.
-     * @param ref      Object containing the projection's parameters.
-     * @param index    One of the constants defined by this class. 
+     * @param model    	Reference to the model. Mustn't be <code>null</code>.
+     * @param ref   	The object hosting the projection's parameters.
+     * @param index		One of the constants defined by this class.
      */
-	public ProjectionSaver(ImViewer model, long pixelsID, ProjectionRef ref, 
-			int index)
+	public ProjectionSaver(ImViewer model, ProjectionParam ref, int index)
 	{
 		super(model);
-		if (pixelsID < 0)
-			throw new IllegalArgumentException("Pixels Id not valid.");
 		if (ref == null)
-			throw new IllegalArgumentException("No projection's parameters.");
-		this.ref = ref;
-		this.pixelsID = pixelsID;
+			throw new IllegalArgumentException("Parameters not specified.");
+		checkIndex(index);
 		this.index = index;
+		this.ref = ref;
 	}
 	
 	/**
@@ -105,10 +115,12 @@ public class ProjectionSaver
     {
         switch (index) {
 			case PREVIEW:
-				handle = ivView.renderProjected(pixelsID, ref.getStartZ(), 
-						ref.getEndZ(), ref.getStepping(), ref.getType(), this);
+				handle = ivView.renderProjected(ref.getPixelsID(), 
+						ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
+						ref.getAlgorithm(), this);
 				break;
 			case PROJECTION:
+				handle = ivView.projectImage(ref, this);
 		}
     }
 
@@ -135,7 +147,7 @@ public class ProjectionSaver
 				viewer.setRenderProjected(null);
 				break;
 			case PROJECTION:
-				viewer.setRenderProjected(null);
+				viewer.setProjectedImage(null, null);
 		}
     }
     
@@ -151,7 +163,7 @@ public class ProjectionSaver
 	        	viewer.setRenderProjected((BufferedImage) result);
 	        	break;
 	        case PROJECTION:
-	        	viewer.setProjectedImage((ImageData) result);
+	        	viewer.setProjectedImage((ImageData) result, ref.getChannels());
         }
     }
     

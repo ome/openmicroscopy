@@ -33,9 +33,9 @@ import java.util.List;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import omeis.providers.re.data.PlaneDef;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-
-import pojos.DatasetData;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 
 /** 
  * Provides methods to support image viewing and analysing
@@ -159,21 +159,26 @@ public interface ImageDataView
     /**
      * Projects a section of the stack and returns the projected image.
      * 
-     * @param pixelsID The id of the pixels set.
-     * @param startZ   The first optical section.
-     * @param endZ     The last optical section.
-     * @param stepping Stepping used while projecting. 
-     *                 Default is <code>1</code>
-     * @param type     The type of projection.
-     * @param channels The channels to project.
-     * @param datasets The datasets to add the projected image to.
-     * @param name     The name of the projected image.
-     * @param observer Callback handler.
+     * @param ref 		The object hosting the projection's parameters.
+     * @param observer 	Callback handler.
      * @return See above.
      */
-    public CallHandle projectImage(long pixelsID, int startZ, int endZ,
-    		int stepping, int type, List<Integer> channels, 
-    		List<DatasetData> datasets, String name, 
-    		AgentEventListener observer);
+    public CallHandle projectImage(ProjectionParam ref, 
+    							AgentEventListener observer);
 
+    /**
+     * Creates rendering setting for the specified pixels set and
+     * copies the settings from the passed rendering setting object if
+     * not <code>null</code>.
+     * 
+     * @param pixelsID	The id of the pixels set to handle.
+     * @param rndToCopy The rendering settings to copy to the newly created one.
+     * @param indexes	Collection of channel's indexes. 
+     * 					Mustn't be <code>null</code>.
+     * @param observer 	Callback handler.
+     * @return See above.
+     */
+    public CallHandle createRndSetting(long pixelsID, RndProxyDef rndToCopy,
+    		List<Integer> indexes, AgentEventListener observer);
+    
 }

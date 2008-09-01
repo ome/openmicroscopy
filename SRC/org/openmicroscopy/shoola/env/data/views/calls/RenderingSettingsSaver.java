@@ -40,6 +40,8 @@ import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+
 import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -70,6 +72,9 @@ public class RenderingSettingsSaver
 	
 	/** Indicates to reset the rendering settings. */
 	public static final int SET_ORIGINAL = 2;
+	
+	/** Indicates to create rendering settings. */
+	public static final int CREATE = 3;
 	
 	/** Result of the call. */
 	private Object    	result;
@@ -162,8 +167,8 @@ public class RenderingSettingsSaver
 																ids);
 							break;
 						case SET_ORIGINAL:
-							result = rds.setOriginalRenderingSettings(ImageData.class, 
-									ids);
+							result = rds.setOriginalRenderingSettings(
+												ImageData.class, ids);
 					}
 				}
 
@@ -171,6 +176,29 @@ public class RenderingSettingsSaver
 		};
 	} 
 
+	/**
+	 *  Creates a {@link BatchCall} to create the rendering settings.
+	 * 
+	 * @param pixelsID  The id of the pixels set.
+	 * @param rndToCopy The rendering setting to copy.
+	 * @param indexes	Collection of channel's indexes. 
+     * 					Mustn't be <code>null</code>.
+     * @return The {@link BatchCall}.
+	 */
+	private BatchCall makeCreateBatchCall(final long pixelsID, 
+										final RndProxyDef rndToCopy,
+										final List<Integer> indexes)
+	{
+		return new BatchCall("Paste the rendering settings: ") {
+			public void doCall() throws Exception
+			{
+				OmeroImageService os = context.getImageService();
+				result = os.createRenderingSettings(pixelsID, rndToCopy, indexes);
+
+			}
+		};
+	}
+	
 	/**
 	 * Adds the {@link #loadCall} to the computation tree.
 	 * 
@@ -253,4 +281,20 @@ public class RenderingSettingsSaver
 		loadCall = makeBatchCall(-1, ref, index);
 	}
 
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param pixelsID  The id of the pixels set.
+	 * @param rndToCopy The rendering setting to copy.
+	 * @param indexes	Collection of channel's indexes. 
+     * 					Mustn't be <code>null</code>.
+	 */
+	public RenderingSettingsSaver(long pixelsID, RndProxyDef rndToCopy,
+								List<Integer> indexes)
+	{
+		if (pixelsID < 0)
+			throw new IllegalArgumentException("Pixels ID not valid.");
+		loadCall = makeCreateBatchCall(pixelsID, rndToCopy, indexes);
+	}
+	
 }

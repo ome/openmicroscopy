@@ -45,14 +45,17 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -63,11 +66,13 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.CreateFolderDialog;
+import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import pojos.DatasetData;
 
 /** 
@@ -93,13 +98,13 @@ class ProjectionSavingDialog
 	private static final String DEFAULT_EXTENSION = "_proj";
 	
 	/** Action id to close the dialog. */
-	private static final int CLOSE = 0;
+	private static final int 	CLOSE = 0;
 	
 	/** Action id to close the dialog. */
-	private static final int PROJECT = 1;
+	private static final int 	PROJECT = 1;
 	
 	/** Action id to create a new folder. */
-	private static final int NEWFOLDER = 2;
+	private static final int 	NEWFOLDER = 2;
 	
 	/** The text field hosting the name of the file. */
 	private JTextField 					nameField;
@@ -125,8 +130,17 @@ class ProjectionSavingDialog
 	/** Keep track of the selected dataset. */
 	private Map<JCheckBox, DatasetData> selection;
 	
+	/** Component to select the time interval. */
+	private TextualTwoKnobsSlider		timeSelection;
+	
+	/** The possible pixels Type. */
+	private JComboBox					pixelsType;
+	
+	/** Check box to apply the rendering settings of the original image. */
+	private JCheckBox					rndSettingsBox;
+	
 	/** Reference to the model. */
-	private ProjectionDialog model;
+	private ProjectionDialog 			model;
 	
 	/** Closes and disposes. */
 	private void close()
@@ -149,7 +163,21 @@ class ProjectionSavingDialog
 		}
 		boolean all = true;
 		if (activeChannels.isSelected()) all = false;
-		model.project(datasets, nameField.getText(), all);
+		int maxT = model.getMaxT();
+		int startT = 0, endT = 0;
+		if (maxT > 0) {
+			startT = timeSelection.getStartValue()-1;
+			endT = timeSelection.getEndValue()-1;
+		}
+		String type = null;
+		if (model.getSelectedAlgorithm() == ImViewer.SUM_INTENSITY) {
+			String value = (String) pixelsType.getSelectedItem();
+			type = EditorUtil.PIXELS_TYPE.get(value);
+			if (type.equals(pixelsType)) type = null;
+		}
+		model.project(datasets, nameField.getText(), all, startT, endT, type,
+				rndSettingsBox.isSelected());
+		close();
 	}
 	
 	/** Sets the dialog's properties. */
@@ -166,6 +194,37 @@ class ProjectionSavingDialog
 	 */
 	private void initComponents(Collection datasets)
 	{
+		rndSettingsBox = new JCheckBox("Apply same rendering settings");
+		rndSettingsBox.setToolTipText(
+				UIUtilities.formatToolTipText(
+						"Apply the rendering settings to " +
+						"the projected image."));
+		rndSettingsBox.setSelected(true);
+		
+		int maxT = model.getMaxT();
+		if (maxT > 1) {
+			timeSelection = new TextualTwoKnobsSlider(1, maxT, 1, maxT);
+			timeSelection.setSliderLabelText("Timepoint:");
+			timeSelection.layoutComponents();
+		}
+			
+		if (model.getSelectedAlgorithm() == ImViewer.SUM_INTENSITY) {
+			Map<String, String> map = EditorUtil.PIXELS_TYPE_DESCRIPTION;
+			String[] data = new String[map.size()];
+			Iterator<String> i = map.keySet().iterator();
+			int index = 0;
+			String originalType = model.getPixelsType();
+			String key;
+			int selectedIndex = 0;
+			while (i.hasNext()) {
+				key = i.next();
+				data[index] = map.get(key);
+				if (key.equals(originalType)) selectedIndex = index;
+				index++;
+			}
+			pixelsType = new JComboBox(data);
+			pixelsType.setSelectedIndex(selectedIndex);
+		}
 		selectionPane =  new JPanel();
 		selectionPane.setLayout(new BoxLayout(selectionPane, BoxLayout.Y_AXIS));
     	
@@ -224,6 +283,74 @@ class ProjectionSavingDialog
 	}
 
 	/**
+	 * Builds the various panels used to set the parameters of the
+	 * projection.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildParametersPanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(buildChannelsPanel());
+		p.add(new JSeparator());
+		if (timeSelection != null) {
+			p.add(buildTimeRangePanel());
+			p.add(new JSeparator());
+		}
+		if (pixelsType != null) {
+			p.add(buildPixelsTypePanel());
+			p.add(new JSeparator());
+		}
+		
+		p.add(UIUtilities.buildComponentPanel(rndSettingsBox));
+		JPanel r = UIUtilities.buildComponentPanel(p);
+		r.setBorder(new TitledBorder(""));
+		return r;
+	}
+	
+	/**
+	 * Builds and lays out the channels options.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildChannelsPanel()
+	{
+		JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.add(allChannels);
+        p.add(activeChannels);
+        return UIUtilities.buildComponentPanel(p);
+	}
+	
+	/**
+	 * Builds and lays out the channels options.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildTimeRangePanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(timeSelection);
+        return p;
+	}
+	
+	/**
+	 * Builds and lays out the pixels type options.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildPixelsTypePanel()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(new JLabel("Data Type: "));
+		p.add(UIUtilities.buildComponentPanel(pixelsType));
+        return p;
+	}
+	
+	/**
 	 * Builds the main component.
 	 * 
 	 * @return See above.
@@ -234,10 +361,9 @@ class ProjectionSavingDialog
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, height, 
+        				TableLayout.PREFERRED, height, 5,
         				TableLayout.PREFERRED, TableLayout.FILL} }; //rows
-        TableLayout layout = new TableLayout(tl);
-        content.setLayout(layout);
+        content.setLayout(new TableLayout(tl));
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
        
         content.add(UIUtilities.setTextFont("Name "), "0, 1, l, c");
@@ -247,16 +373,12 @@ class ProjectionSavingDialog
     	content.add(new JScrollPane(selectionPane), "1, 3, 1, 4");
         if (selection != null) {
         	Iterator i = selection.keySet().iterator();
-        	while (i.hasNext()) {
+        	while (i.hasNext()) 
         		selectionPane.add((JComponent) i.next());
-        	}
         }
-        content.add(UIUtilities.setTextFont("Project "), "0, 5, l, c");
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(allChannels);
-        p.add(activeChannels);
-        content.add(p, "1, 5, 1, 6");
+        content.add(new JLabel(), "0, 5, 1, 5");
+        content.add(UIUtilities.setTextFont("Project "), "0, 6, l, c");
+        content.add(buildParametersPanel(), "1, 6, 1, 7");
 		return content;
 	}
 	
@@ -331,7 +453,7 @@ class ProjectionSavingDialog
     	int l = name.length();
     	projectButton.setEnabled(l > 0 && l < 256);
     }
-    
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -347,7 +469,7 @@ class ProjectionSavingDialog
 		setProperties();
 		initComponents(datasets);
 		buildGUI();
-		setSize(350, 400);
+		pack();
 	}
 
 	/**
@@ -367,6 +489,7 @@ class ProjectionSavingDialog
 			case NEWFOLDER:
 				CreateFolderDialog d = new CreateFolderDialog(this, 
 						"New Dataset");
+				d.setDefaultName("untitled dataset");
 				d.addPropertyChangeListener(
 						CreateFolderDialog.CREATE_FOLDER_PROPERTY, this);
 				d.pack();

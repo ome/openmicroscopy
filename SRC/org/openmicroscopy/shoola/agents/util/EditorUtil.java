@@ -30,6 +30,7 @@ package org.openmicroscopy.shoola.agents.util;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,7 @@ import java.util.regex.Pattern;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -148,6 +150,12 @@ public class EditorUtil
     /** Identifies the <code>Name</code> field. */
     private static final String NAME = "Owner";
     
+	/** The map identifying the pixels value and its description. */
+	public static final Map<String, String> PIXELS_TYPE_DESCRIPTION;
+	
+	/** The map identifying the pixels value and its description. */
+	public static final Map<String, String> PIXELS_TYPE;
+	
 	static {
 		LETTERS = new HashMap<Integer, String>();
 		LETTERS.put(1, "A");
@@ -176,8 +184,32 @@ public class EditorUtil
 		LETTERS.put(24, "X");
 		LETTERS.put(25, "Y");
 		LETTERS.put(26, "Z");
+		
+		PIXELS_TYPE_DESCRIPTION = new LinkedHashMap<String, String>();
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_8, 
+					"Signed 8-bit (1byte)");
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_8, 
+					"Unsigned 8-bit (1 byte)");
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_16, 
+					"Signed 16-bit (2byte)");
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_16, 
+					"Unsigned 16-bit(2byte)");
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_32, 
+					"Signed 32-bit(4byte)");
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_32, 
+					"Unsigned 32-bit(4byte)");
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.FLOAT, 
+					"Floating precision");
+		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.DOUBLE, 
+					"Double precision");
+		PIXELS_TYPE = new LinkedHashMap<String, String>();
+		Iterator<String> i = PIXELS_TYPE_DESCRIPTION.keySet().iterator();
+		String key;
+		while (i.hasNext()) {
+			key = i.next();
+			PIXELS_TYPE.put(PIXELS_TYPE_DESCRIPTION.get(key), key);
+		}
 	}
-	
 
     /**
      * Transforms the specified {@link ExperimenterData} object into 
@@ -238,7 +270,8 @@ public class EditorUtil
                 details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
                 details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
                 details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
-                details.put(PIXEL_TYPE, ""+data.getPixelType()); 
+                details.put(PIXEL_TYPE, 
+                		PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType())); 
             } catch (Exception e) {
                 details.put(PIXEL_SIZE_X, "");
                 details.put(PIXEL_SIZE_Y, "");
@@ -295,7 +328,8 @@ public class EditorUtil
                 details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
                 details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
                 details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
-                details.put(PIXEL_TYPE, ""+data.getPixelType()); 
+                details.put(PIXEL_TYPE, 
+                		PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType())); 
             } catch (Exception e) {
                 details.put(PIXEL_SIZE_X, "");
                 details.put(PIXEL_SIZE_Y, "");
