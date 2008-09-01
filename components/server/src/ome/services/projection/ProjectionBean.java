@@ -32,6 +32,7 @@ import ome.api.ServiceInterface;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
 import ome.io.nio.DimensionsOutOfBoundsException;
+import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelData;
 import ome.io.nio.PixelsService;
@@ -42,6 +43,7 @@ import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.model.stats.StatsInfo;
+import ome.services.OmeroOriginalFileMetadataProvider;
 import ome.services.util.OmeroAroundInvoke;
 
 /**
@@ -114,7 +116,10 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
     {
         ProjectionContext ctx = new ProjectionContext();
         ctx.pixels = iQuery.get(Pixels.class, pixelsId);
-        PixelBuffer pixelBuffer = pixelsService.getPixelBuffer(ctx.pixels);
+        OriginalFileMetadataProvider metadataProvider =
+        	new OmeroOriginalFileMetadataProvider(iQuery);
+        PixelBuffer pixelBuffer = 
+        	pixelsService.getPixelBuffer(ctx.pixels, metadataProvider);
         if (pixelsType == null)
         {
             pixelsType = ctx.pixels.getPixelsType();
@@ -209,9 +214,12 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         
         // Project each stack for each channel and each timepoint in the
         // entire image, copying into the pixel buffer the projected pixels.
-        PixelBuffer sourceBuffer = pixelsService.getPixelBuffer(ctx.pixels);
+        OriginalFileMetadataProvider metadataProvider =
+        	new OmeroOriginalFileMetadataProvider(iQuery);
+        PixelBuffer sourceBuffer = 
+        	pixelsService.getPixelBuffer(ctx.pixels, metadataProvider);
         PixelBuffer destinationBuffer = 
-            pixelsService.getPixelBuffer(newPixels);
+            pixelsService.getPixelBuffer(newPixels, metadataProvider);
         ctx.planeSizeInPixels = ctx.pixels.getSizeX() * ctx.pixels.getSizeY();
         int planeSize = 
             ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);

@@ -47,9 +47,6 @@ public interface IPixels extends ServiceInterface {
      * <ul>
      * <li>pixels.pixelsType</li>
      * <li>pixels.pixelsDimensions</li>
-     * <li>pixels.pixelsFileMaps</li>
-     * <li>pixels.pixelsFileMaps.parent</li>
-     * <li>pixels.pixelsFileMaps.parent.format</li>
      * <li>pixels.channels</li>
      * <li>pixels.channnels.statsInfo</li>
      * <li>pixels.channnels.colorComponent</li>

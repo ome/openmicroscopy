@@ -63,8 +63,8 @@ public class OriginalFilesService extends AbstractFileSystemService {
     	File file;
     	boolean success = false;
     	
-    	for (Iterator iter = fileIds.iterator(); iter.hasNext();) {
-			Long id = (Long) iter.next();
+    	for (Iterator<Long> iter = fileIds.iterator(); iter.hasNext();) {
+			Long id = iter.next();
 
 			String filePath = getFilesPath(id);
 			file = new File(filePath);

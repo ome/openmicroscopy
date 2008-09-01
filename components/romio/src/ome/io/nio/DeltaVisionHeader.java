@@ -2,7 +2,6 @@ package ome.io.nio;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.MappedByteBuffer;
 
 import ome.model.enums.PixelsType;
 

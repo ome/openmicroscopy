@@ -41,6 +41,7 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
+import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.InMemoryPlanarPixelBuffer;
@@ -429,7 +430,10 @@ public class RenderingBean extends AbstractLevel2Service implements
              * TODO we could also allow for setting of the buffer! perhaps
              * better caching, etc.
              */
-            PixelBuffer buffer = pixDataSrv.getPixelBuffer(pixelsObj);
+            OriginalFileMetadataProvider metadataProvider = 
+            	new OmeroOriginalFileMetadataProvider(iQuery);
+            PixelBuffer buffer = pixDataSrv.getPixelBuffer(
+            		pixelsObj, metadataProvider);
             closeRenderer();
             List<Family> families = pixMetaSrv.getAllEnumerations(Family.class);
             List<RenderingModel> renderingModels = pixMetaSrv

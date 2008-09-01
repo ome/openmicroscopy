@@ -45,6 +45,7 @@ import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.conditions.ValidationException;
+import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.IObject;
@@ -62,6 +63,7 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
+import ome.services.OmeroOriginalFileMetadataProvider;
 import ome.services.util.OmeroAroundInvoke;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;
@@ -143,7 +145,10 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         QuantumFactory quantumFactory = new QuantumFactory(families);
         try
         {
-            PixelBuffer buffer = pixelsData.getPixelBuffer(pixels);
+            OriginalFileMetadataProvider metadataProvider =
+            	new OmeroOriginalFileMetadataProvider(iQuery);
+            PixelBuffer buffer = 
+            	pixelsData.getPixelBuffer(pixels, metadataProvider);
             resetDefaults(settings, pixels, quantumFactory,
                     renderingModels, buffer, computeStats);
             buffer.close();

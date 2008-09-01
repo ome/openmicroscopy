@@ -15,37 +15,30 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
 /**
- * @author callan
- * 
+ * @author <br>
+ *         Chris Allan&nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:callan@blackcat.ca">callan@blackcat.ca</a>
+ * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @since OMERO-Beta1.0
  */
 public class PixelsService extends AbstractFileSystemService {
 
-	/* The logger for this class. */
+	/** The logger for this class. */
 	private transient static Log log = LogFactory.getLog(PixelsService.class);
 	
 	/** The DeltaVision file format enumeration value */
 	public static final String DV_FORMAT = "DV";
 
-	/**
-	 * Constructor
-	 * 
-	 * @param path
-	 */
-	public PixelsService(String path) {
-		super(path);
-	}
-
-	/* null plane size constant */
+	/** Null plane size constant. */
 	public static final int NULL_PLANE_SIZE = 64;
 
-	/* null plane byte array */
+	/** Null plane byte array. */
 	public static final byte[] nullPlane = new byte[] { -128, 127, -128, 127,
 			-128, 127, -128, 127, -128, 127, // 10
 			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 20
@@ -54,13 +47,24 @@ public class PixelsService extends AbstractFileSystemService {
 			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 50
 			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 60
 			-128, 127, -128, 127 }; // 64
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param path The root of the ROMIO proprietary pixels store. (usually
+	 * <code>/OMERO/Pixels</code>).
+	 */
+	public PixelsService(String path) {
+		super(path);
+	}
 
 	/**
-	 * Creates a PixelBuffer from a Pixels object
+	 * Creates a PixelBuffer for a given pixels set.
 	 * 
-	 * @param pixels
-	 * @return
-	 * @throws IOException
+	 * @param pixels Pixels set to create a pixel buffer for.
+	 * @return Allocated pixel buffer ready to be used.
+	 * @throws IOException If there is an I/O error creating the pixel buffer
+	 * backing file.
 	 */
 	public PixelBuffer createPixelBuffer(Pixels pixels) throws IOException {
 		RomioPixelBuffer pixbuf = new RomioPixelBuffer(getPixelsPath(pixels
@@ -70,70 +74,43 @@ public class PixelsService extends AbstractFileSystemService {
 	}
 
 	/**
-	 * Get method for PixelBuffer
+	 * Returns a pixel buffer for a given set of pixels. Either a proprietary
+	 * ROMIO pixel buffer or a file format specific file buffer if available.
 	 * 
-	 * @param pixels
-	 * @return PixelBuffer
+	 * @param pixels Pixels set to retrieve a pixel buffer for.
+	 * @param provider Original file metadata provider. 
+	 * @return See above.
 	 */
-	public PixelBuffer getPixelBuffer(Pixels pixels) {
-		List<OriginalFile> files = pixels.linkedOriginalFileList();
-		if (files == null)
-			throw new ApiUsageException(
-					"Expecting linked OriginalFiles to be loaded.");
-		if (files.size() > 0 && files.get(0).getFormat() == null)
-			throw new ApiUsageException(
-					"Expecting linked OriginalFile.Format to be loaded.");
-		
-		if (log.isInfoEnabled())
+	public PixelBuffer getPixelBuffer(Pixels pixels,
+			                          OriginalFileMetadataProvider provider)
+	{
+		String pixelsFilePath = getPixelsPath(pixels.getId());
+		if (!(new File(pixelsFilePath).exists()))
 		{
-			long id = pixels.getId();
-			for (OriginalFile file : files)
+			OriginalFile originalFile =
+				provider.getOriginalFileWhereFormatStartsWith(pixels, DV_FORMAT);
+			if (originalFile != null)
 			{
-				long fileId = file.getId();
-				String type = file.getFormat().getValue();
-				log.info("Pixels: " + id + " File: " + fileId + " " + type);
+				String originalFilePath =
+					getFilesPath(originalFile.getId());
+				if (new File(originalFilePath).exists())
+				{
+					log.info(
+						"Non-existant pixel buffer file, using DeltaVision " +
+						"original file: " + originalFilePath);
+					return new DeltaVision(originalFilePath, originalFile);
+				}
 			}
 		}
-		
-		String pixelsPath = getPixelsPath(pixels.getId());
-		OriginalFile originalFile = getDeltaVisionOriginalFile(files);
-		String originalFilePath = null;
-		if (originalFile != null)
-			originalFilePath = getFilesPath(originalFile.getId());
-		createSubpath(pixelsPath);
-		
-		if (!(new File(pixelsPath).exists()) && originalFile != null
-		    && new File(originalFilePath).exists())
-		{
-			log.info("Non-existant pixel buffer file, using original file.");
-			return new DeltaVision(originalFilePath, originalFile);
-		}
 		log.info("Pixel buffer file exists returning ROMIO pixel buffer.");
-		return new RomioPixelBuffer(pixelsPath, pixels);
+		return new RomioPixelBuffer(pixelsFilePath, pixels);
 	}
 	
 	/**
-	 * Finds the first <code>OriginalFile</code> in a list that is of Type
-	 * DeltaVision.
-	 * @param files the list of <code>OriginalFile</code> objects to search.
-	 * @return the first original file object that matches the above criteria or
-	 * <code>null</code>.
-	 */
-	private OriginalFile getDeltaVisionOriginalFile(List<OriginalFile> files)
-	{
-		for (OriginalFile file : files)
-		{
-			if (file.getFormat().getValue().startsWith(DV_FORMAT))
-				return file;
-		}
-		return null;
-	}
-
-	/**
-	 * Initializes the PixelBuffer using a null plane byte array
+	 * Initializes each plane of a PixelBuffer using a null plane byte array.
 	 * 
-	 * @param pixbuf
-	 * @throws IOException
+	 * @param pixbuf Pixel buffer to initialize.
+	 * @throws IOException If there is an I/O error during initialization.
 	 */
 	private void initPixelBuffer(RomioPixelBuffer pixbuf) throws IOException {
 		String path = getPixelsPath(pixbuf.getId());
@@ -180,33 +157,31 @@ public class PixelsService extends AbstractFileSystemService {
 	 * Removes files from data repository based on a parameterized List of Long
 	 * pixels ids
 	 * 
-	 * @param pixelsIds -
-	 *            Long file keys to be deleted
+	 * @param pixelsIds Long file keys to be deleted
 	 * @throws ResourceError If deletion fails.
 	 */
 	public void removePixels(List<Long> pixelIds) {
 		File file;
+		String fileName;
 		boolean success = false;
 
-		for (Iterator iter = pixelIds.iterator(); iter.hasNext();) {
-			Long id = (Long) iter.next();
+		for (Iterator<Long> iter = pixelIds.iterator(); iter.hasNext();) {
+			Long id = iter.next();
 
 			String pixelPath = getPixelsPath(id);
 			file = new File(pixelPath);
+			fileName = file.getName();
 			if (file.exists()) {
 				success = file.delete();
 				if (!success) {
-					throw new ResourceError("Pixels " + file.getName()
-							+ " deletion failed");
+					throw new ResourceError(
+							"Pixels " + fileName + " deletion failed");
 				} else {
 					if (log.isInfoEnabled()) {
-						log
-								.info("INFO: Pixels " + file.getName()
-										+ " deleted.");
+						log.info("INFO: Pixels " + fileName + " deleted.");
 					}
 				}
 			}
 		}
-
 	}
 }

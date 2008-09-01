@@ -665,7 +665,6 @@ public class DeltaVision implements PixelBuffer {
 		throws IOException
 	{
 		int pixelType = header.getPixelType();
-		int bytesPerPixel = header.getBytesPerPixel();
 		int rowSize = getSizeX();
 		int reorderedOffset;
 		int size;

@@ -32,6 +32,7 @@ import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
 import ome.io.nio.DimensionsOutOfBoundsException;
+import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
@@ -90,7 +91,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     /** A copy buffer for the pixel retrieval. */
     private transient byte[] readBuffer;
-
+    
     /**
      * default constructor
      */
@@ -195,7 +196,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             reset = null;
 
             pixelsInstance = metadataService.retrievePixDescription(id);
-            buffer = dataService.getPixelBuffer(pixelsInstance);
+            OriginalFileMetadataProvider metadataProvider =
+            	new OmeroOriginalFileMetadataProvider(iQuery);
+            buffer = dataService.getPixelBuffer(
+            		pixelsInstance, metadataProvider);
         }
     }
 

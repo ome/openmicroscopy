@@ -120,7 +120,6 @@ public interface PixelBuffer
      */
     public Long getStackOffset(Integer c, Integer t)
             throws DimensionsOutOfBoundsException;
-    
 
     /**
      * Retrieves the in memory size of the entire number of optical sections for

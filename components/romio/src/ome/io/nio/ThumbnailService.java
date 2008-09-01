@@ -1,5 +1,5 @@
 /*
- * ome.io.nio.PixelsService
+ * ome.io.nio.ThumbnailService
  *
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
@@ -10,13 +10,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ome.conditions.InternalException;
 import ome.conditions.ResourceError;
 import ome.model.display.Thumbnail;
 
