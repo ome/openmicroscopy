@@ -31,8 +31,6 @@ import java.awt.Toolkit;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JTree;
 
 //Third-party libraries
 
@@ -41,7 +39,6 @@ import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The {@link Editor}'s View.

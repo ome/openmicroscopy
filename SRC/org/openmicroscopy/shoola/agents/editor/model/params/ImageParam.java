@@ -1,5 +1,5 @@
  /*
- * treeModel.fields.ImageParam 
+ * org.openmicroscopy.shoola.agents.editor.model.params.ImageParam 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -29,7 +29,8 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 //Application-internal dependencies
 
 /** 
- * 
+ * This is the data Parameter for a link to an image.
+ * This is a link to a locally saved image.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -45,44 +46,53 @@ public class ImageParam
 	/**
 	 * The value of the parameter type attribute that defines this Parameter. 
 	 */
-	public static final String IMAGE_PARAM = "imageParam";
+	public static final String 			IMAGE_PARAM = "imageParam";
 	
 	/**
 	 * Used by the Image Parameter to store a file path to an image. 
 	 * This is the absolute local file path.
 	 */
-	public static final String ABSOLUTE_IMAGE_PATH = "imagePath";
+	public static final String 			ABSOLUTE_IMAGE_PATH = "imagePath";
 	
 	/**
 	 * Used by the Image Parameter to store a file path to an image. 
 	 * This is a relative file path, FROM the editor file in which this 
 	 * parameter appears TO the image 
 	 */
-	public static final String RELATIVE_IMAGE_PATH = "relativeImagePath";
+	public static final String 			RELATIVE_IMAGE_PATH = "relativeImagePath";
 	
 	/**
 	 * This attribute stores an integer that is the image zoom (percentage) for 
 	 * the Image Parameter. 
 	 * eg imageZoom = "50" would display the image at 50% full size. 
 	 */
-	public static final String IMAGE_ZOOM = "imageZoom";
+	public static final String 			IMAGE_ZOOM = "imageZoom";
 	
 	/**
 	 * Creates an instance. 
 	 * 
 	 * @param fieldType		The String defining the field type
 	 */
-	public ImageParam(String fieldType) {
+	public ImageParam(String fieldType) 
+	{
 		super(fieldType);
 	}
 
 	@Override
-	public String[] getValueAttributes() {
+	/**
+	 * @see AbstractParam#getValueAttributes()
+	 */
+	public String[] getValueAttributes() 
+	{
 		return new String[] {ABSOLUTE_IMAGE_PATH, RELATIVE_IMAGE_PATH};
 	}
 
 	@Override
-	public boolean isParamFilled() {
+	/**
+	 * @see AbstractParam#isFieldFilled()
+	 */
+	public boolean isParamFilled() 
+	{
 		String[] attributes = getValueAttributes();
 		for (int i=0; i<attributes.length; i++) {
 			// if any attribute is not null, then this field is filled. 
@@ -94,8 +104,11 @@ public class ImageParam
 	
 	/**
 	 * Returns the absolute image path, or (if null) the relative image path
+	 * 
+	 * @see Object#toString()
 	 */
-	public String toString() {
+	public String toString() 
+	{
 		String text = "";
 		
 		String path = getAttribute (ABSOLUTE_IMAGE_PATH);

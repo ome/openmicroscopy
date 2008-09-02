@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta3
  */
-public class EditorAction 
+public abstract class EditorAction 
 	extends AbstractAction
 	implements ChangeListener
 {

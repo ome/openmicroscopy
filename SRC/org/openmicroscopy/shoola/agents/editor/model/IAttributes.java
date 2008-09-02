@@ -1,5 +1,5 @@
  /*
- * fields.IAttributes 
+ * org.openmicroscopy.shoola.agents.editor.model.IAttributes 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

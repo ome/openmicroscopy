@@ -42,11 +42,16 @@ import javax.swing.undo.UndoableEditSupport;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.actions.AddFieldAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributeEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributesEdit;
+
 
 /** 
  *	The Controller in the Browser MVC. 
@@ -66,6 +71,18 @@ public class BrowserControl
 
 	/** Identifies the <code>Edit</code> action. */
 	static final Integer    EDIT = new Integer(0);
+	
+	/** Identifies the <code>Undo</code> action. */
+	static final Integer    UNDO_ACTION = new Integer(1);
+	
+	/** Identifies the <code>Redo</code> action. */
+	static final Integer    REDO_ACTION = new Integer(2);
+	
+	/** Identifies the <code>Add Field</code> action. */
+	static final Integer    ADD_FIELD_ACTION = new Integer(3);
+	
+	/** Identifies the <code>Add Field</code> action. */
+	static final Integer    DELETE_FIELD_ACTION = new Integer(4);
 	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,
@@ -95,6 +112,13 @@ public class BrowserControl
     private void createActions()
     {
        actionsMap.put(EDIT, new EditAction(model));
+       actionsMap.put(UNDO_ACTION, new UndoEditAction(
+    		   undoManager, undoSupport, model));
+       actionsMap.put(REDO_ACTION, new RedoEditAction(
+    		   undoManager, undoSupport, model));
+       actionsMap.put(ADD_FIELD_ACTION, new AddFieldAction(undoSupport, model));
+       actionsMap.put(DELETE_FIELD_ACTION, new DeleteFieldsAction
+    		   (undoSupport, model));
     }
     
     /**
@@ -112,12 +136,13 @@ public class BrowserControl
         if (model == null) throw new NullPointerException("No model.");
         this.model = model;
         actionsMap = new HashMap<Integer, Action>();
-        createActions();
         
      // initialize the undo.redo system
 	      undoManager = new ObservableUndoManager();
 	      undoSupport = new UndoableEditSupport();
 	      undoSupport.addUndoableEditListener(new UndoAdapter());
+	      
+	      createActions();
     }
     
     /**

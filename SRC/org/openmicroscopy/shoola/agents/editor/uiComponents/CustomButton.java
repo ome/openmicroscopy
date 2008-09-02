@@ -1,5 +1,5 @@
  /*
- * uiComponents.CustomButton 
+ * org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -77,6 +77,7 @@ public class CustomButton
 	 * set by other classes e.g. if you set a different border, that will be
 	 * respected. This method doesn't seem to get called again to re-set 
 	 * these props. 
+	 * 
 	 * @see JButton#updateUI()
 	 */
 	public void updateUI()

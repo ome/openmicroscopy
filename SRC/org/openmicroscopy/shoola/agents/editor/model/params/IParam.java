@@ -33,9 +33,15 @@ import java.util.HashMap;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 
 /** 
- * This interface specifies the minimum methods needed to save and 
- * retrieve data. 
- * It also has a convenience method for querying boolean attributes.  
+ * This interface specifies the minimum methods needed to 
+ * retrieve data from a Parameter (the data object that models 
+ * experimental variables within a Field). 
+ * A Parameter has one or move experimental values, stored in attributes
+ * defined by {@link #getValueAttributes()} and may also have default values
+ * and other attributes (e.g. drop-down options).   
+ * 
+ * Data is saved and retrieved using methods of the {@link IAttributes}
+ * interface, which the IParam interface extends. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -48,7 +54,6 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 public interface IParam 
 	extends IAttributes 
 {
-	
 	
 	/**
 	 * This method tests to see whether the field has been filled out. 

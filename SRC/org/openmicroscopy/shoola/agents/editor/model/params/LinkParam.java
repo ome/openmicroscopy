@@ -1,5 +1,5 @@
  /*
- * treeModel.fields.LinkParam 
+ * org.openmicroscopy.shoola.agents.editor.model.params.LinkParam 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

@@ -22,16 +22,17 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
-import javax.swing.table.TableModel;
-
 //Java imports
+
+import javax.swing.table.TableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * This is a Parameter that holds table data.
+ * It delegates the table data itself to a {@link TableModel}. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -44,38 +45,56 @@ import javax.swing.table.TableModel;
 public class TableParam 
 	extends AbstractParam {
 	
-	TableModel tableModel;
+	/**
+	 * The table model that holds the data. 
+	 */
+	private TableModel 				tableModel;
 	
-	public static final String TABLE_PARAM = "tableParam";
+	/**
+	 * A String to define the table parameter
+	 */
+	public static final String 		TABLE_PARAM = "tableParam";
 	
 	/**
 	 * Creates an instance. 
+	 * Instantiates the table model.
 	 * 
 	 * @param fieldType		The String defining the field type
 	 */
-	public TableParam(String fieldType) {
+	public TableParam(String fieldType) 
+	{
 		super(fieldType);
 		
 		tableModel = new MutableTableModel();
 	}
 	
-	public TableModel getTableModel() {
-		return tableModel;
-	}
+	/**
+	 * Gets a reference to the table model.
+	 * 
+	 * @return		see above.
+	 */
+	public TableModel getTableModel() { return tableModel; }
 
-	@Override
-	public String[] getValueAttributes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	/**
+	 * Returns an empty array. No value attributes. 
+	 * 
+	 * @see AbstractParam#getValueAttributes()
+	 */
+	public String[] getValueAttributes() { return new String[0]; }
 
-	@Override
+	/**
+	 * Returns true if there is at least one row of table data.
+	 * 
+	 * @see AbstractParam#isParamFilled()
+	 */
 	public boolean isParamFilled() {
 		return tableModel.getRowCount() > 0;
 	}
 	
 	/**
 	 * Returns a comma-delimited list of the column names. 
+	 * 
+	 * @see Object#toString()
 	 */
 	public String toString() 
 	{

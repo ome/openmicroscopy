@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.editor.browser.actions;
 //Java imports
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -40,7 +41,11 @@ import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Top class that each action should extend.
+ * Top abstract class that each action should extend.
+ * Subclasses must implement 
+ * {@link ActionListener#actionPerformed(ActionEvent)}
+ * and {@link #onStateChange()}, called when the status of {@link Browser}
+ * changes.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -62,9 +67,9 @@ public abstract class BrowserAction
     
     /**
      * Callback to notify that a new browser is selected.
-     * Subclasses override the method.
+     * Subclasses implement the method.
      */
-    protected void onStateChange() {};
+    protected abstract void onStateChange();
     
     /**
      * Creates a new instance.

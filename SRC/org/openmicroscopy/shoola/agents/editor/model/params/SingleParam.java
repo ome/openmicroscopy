@@ -1,5 +1,5 @@
  /*
- * fields.TextValue 
+ * org.openmicroscopy.shoola.agents.editor.model.params.SingleParam
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -22,10 +22,9 @@
  */
 package org.openmicroscopy.shoola.agents.editor.model.params;
 
-import java.util.HashMap;
-
-
 //Java imports
+
+import java.util.HashMap;
 
 //Third-party libraries
 
@@ -53,23 +52,17 @@ public class SingleParam
 	
 	public static final String DEFAULT_VALUE = "defaultValue";
 	
-	
-	/*
-	 * The parameter types below use this single parameter 
-	 * because they only have a single "value" and "default"
-	 */
-	
 	/**
 	 * A parameter defined as a short text string. 
 	 * Equivalent to the "TextField" of Beta 3.0
 	 */
-	public static final String TEXT_LINE_PARAM = "textLineParam";
+	public static final String 		TEXT_LINE_PARAM = "textLineParam";
 	
 	/**
 	 * This defines a parameter that is a longer piece of text.
 	 * Equivalent to the "TextBox" of Beta 3.0
 	 */
-	public static final String TEXT_BOX_PARAM = "textBoxParam";
+	public static final String 		TEXT_BOX_PARAM = "textBoxParam";
 	
 	/**
 	 * This defines a parameter that is a number. 
@@ -77,7 +70,7 @@ public class SingleParam
 	 * Additional attributes are "units"
 	 * Equivalent to the "NumberField" of Beta 3.0
 	 */
-	public static final String NUMBER_PARAM = "numberParam";
+	public static final String 		NUMBER_PARAM = "numberParam";
 	
 	/**
 	 * This defines a string parameter that is an enumeration of
@@ -85,38 +78,37 @@ public class SingleParam
 	 * Additional attributes define the possible values.
 	 * Equivalent to the "DropDownMenu" of Beta 3.0
 	 */
-	public static final String ENUM_PARAM = "enumParam";
+	public static final String 		ENUM_PARAM = "enumParam";
 	
 	/**
 	 * This defines a parameter that is a boolean.
 	 * Equivalent to the "CheckBoxField" of Beta 3.0
 	 */
-	public static final String BOOLEAN_PARAM = "booleanParam";
+	public static final String 		BOOLEAN_PARAM = "booleanParam";
 	
 	
-	/*
-	 * Additional attributes required by some of these parameters. 
-	 */
+	// Additional attributes required by some of these parameters. 
 	
 	/**
 	 * An attribute to describe the units of a NUMBER_PARAM.
 	 * eg "%" or "grams"
 	 */
-	public static final String PARAM_UNITS = "paramUnits";
+	public static final String 		PARAM_UNITS = "paramUnits";
 	
 	/**
 	 * An attribute used by the ENUM_PARAM to store a comma-delimited
 	 * set of options. 
 	 * Equivalent to the "dropdownOptions" of Beta 3.0
 	 */
-	public static final String ENUM_OPTIONS = "enumOptions";
+	public static final String 		ENUM_OPTIONS = "enumOptions";
 	
 	/**
 	 * Creates an instance. 
 	 * 
 	 * @param fieldType		The String defining the field type
 	 */
-	public SingleParam(String fieldType) {
+	public SingleParam(String fieldType) 
+	{
 		super(fieldType);
 	}
 	
@@ -125,22 +117,26 @@ public class SingleParam
 	 * The value attribute is a single value.
 	 * If this is filled, then the parameter is filled.
 	 * If the field is cleared, this attribute is cleared etc.
+	 * 
+	 * @see AbstractParam#getValueAttributes()
 	 */
-	public String[] getValueAttributes() {
-		
-		return new String[] {PARAM_VALUE};
-	}
+	public String[] getValueAttributes() { return new String[] {PARAM_VALUE}; }
 	
 	/**
 	 * Returns a single attribute name that identifies the default value
+	 * 
+	 * @see AbstractParam#getDefaultAttributes()
 	 */
-	public String[] getDefaultAttributes() {
+	public String[] getDefaultAttributes() 
+	{
 		return new String [] {DEFAULT_VALUE};
 	}
 
 	/**
 	 * This field is filled if the value isn't null, and 
 	 * is not an empty string. 
+	 * 
+	 * @see AbstractParam#isParamFilled()
 	 */
 	public boolean isParamFilled() {
 		String textValue = getAttribute(PARAM_VALUE);
@@ -150,6 +146,8 @@ public class SingleParam
 	
 	/**
 	 * Returns the value of the parameter (and units, if any). 
+	 * 
+	 * @see Object#toString()
 	 */
 	public String toString() {
 		String text = "";
@@ -180,7 +178,6 @@ public class SingleParam
 			oldValues.put(PARAM_VALUE, getAttribute(PARAM_VALUE));
 			setAttribute(PARAM_VALUE, defValue);
 		}
-		
 		return oldValues;
 	}
 }

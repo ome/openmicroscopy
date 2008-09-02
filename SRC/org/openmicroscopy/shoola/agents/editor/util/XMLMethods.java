@@ -1,4 +1,6 @@
 /*
+ * org.openmicroscopy.shoola.agents.editor.util.XMLMethods
+ * 
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
  *
@@ -22,6 +24,8 @@
 
 package org.openmicroscopy.shoola.agents.editor.util;
 
+// Java imports
+
 import java.io.File;
 import java.io.IOException;
 
@@ -29,17 +33,32 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.openmicroscopy.shoola.agents.editor.EditorAgent;
-import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
+//Third-party libraries
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-// class to hold some useful XML methods
+//Application-internal dependencies
 
-public class XMLMethods {
-	
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
+import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
+
+/** 
+ * A class that contains some useful static XML manipulation methods.
+ * 
+ * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+public class XMLMethods 
+{
 	
 	/**
 	 * Static method to convert an XML file into a DOM Document. 
@@ -49,7 +68,8 @@ public class XMLMethods {
 	 * @throws SAXException
 	 */
 	public static Document readXMLtoDOM(File xmlFile) 
-		throws SAXException {
+		throws ParsingException 
+		{
 		DocumentBuilderFactory factory =
             DocumentBuilderFactory.newInstance();
         //factory.setValidating(true);   
@@ -88,7 +108,7 @@ public class XMLMethods {
            document = builder.parse( xmlFile );
            
         } catch (SAXException sxe) {
-            throw sxe;
+            throw new ParsingException(sxe.getMessage(), sxe);
 
          } catch (ParserConfigurationException pce) {
              // Parser with specified options can't be built
@@ -130,7 +150,7 @@ public class XMLMethods {
 			
 			return (rootName.equals(DataFieldConstants.PROTOCOL_TITLE));
 			
-		} catch (SAXException e) {
+		} catch (ParsingException e) {
 			return false;
 		}
 	}

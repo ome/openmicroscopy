@@ -104,7 +104,7 @@ class BrowserUI
         
         add(splitPane, BorderLayout.CENTER);
         
-        add(new ToolBar(controller), BorderLayout.NORTH);
+        add(new ToolBar(controller, treeDisplay), BorderLayout.NORTH);
     }
     
     

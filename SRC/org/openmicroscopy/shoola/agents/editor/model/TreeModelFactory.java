@@ -35,12 +35,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
+//Third-party libraries
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
+
+//Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
@@ -55,11 +58,8 @@ import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
-//Third-party libraries
 import org.openmicroscopy.shoola.agents.editor.util.XMLMethods;
-
-//Application-internal dependencies
-
+import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 
 /** 
  * A Factory for creating a TreeModel from an XML editor file. 
@@ -77,6 +77,11 @@ public class TreeModelFactory
 	/**
 	 * Takes a (root) XML element and a treeNode and converts the 
 	 * XML rooted at the element into a treeModel, rooted at the treeNode.
+	 * This method operates on the Beta-3.0 XML version, where each XML 
+	 * element represents one Field, and all the nodes
+	 * contained within an Element are child Fields (no child nodes are used to 
+	 * describe attributes of the field).
+	 * 
 	 * New treeNodes are instances of FieldNode, which extends
 	 * DefaultMutableTreeNode. 
 	 * 
@@ -138,10 +143,8 @@ public class TreeModelFactory
 	 */
 	private static IField createField (Element element) {
 		 
-		 /*
-		  * First, make a Map of the element attributes.
-		  * Makes it easier to query (see below) without worrying about nulls.
-		  */
+		 // First, make a Map of the element attributes.
+		 // Makes it easier to query (see below) without worrying about nulls.
 		 NamedNodeMap attributes = element.getAttributes();
 		 Map<String, String> allAttributes = new HashMap<String, String>();
 		 
@@ -157,15 +160,11 @@ public class TreeModelFactory
 			 }
 		 }
 		 
-		 /*
-		  * Get values for the Name, Description and Url...
-		  */
+		 // Get values for the Name, Description and Url...
 		 String fieldName = allAttributes.get(DataFieldConstants.ELEMENT_NAME);
 		 
-		 /*
-		  * if the xml file's elements don't have "elementName" attribute, 
-		  * use the <tagName>
-		  */
+		 // if the xml file's elements don't have "elementName" attribute, 
+		  // use the <tagName>
 		 if (fieldName == null) {
 			 fieldName = element.getNodeName();
 		 }
@@ -175,33 +174,27 @@ public class TreeModelFactory
 		 
 		 String colour = allAttributes.get(DataFieldConstants.BACKGROUND_COLOUR);
 		
-		 /*
-		  * Need to create a parameter object according to the type of 
-		  * element 
-		  */
+		 // Need to create a parameter object according to the type of element 
 		 
-		 /*
-		  * The 'old' version-1 xml used the "inputType" attribute to 
-		  * define the type of field (one field per XML element).
-		  * 
-		  * If this attribute exists, need to convert it to the new type 
-		  * eg. "Fixed Step" becomes "FixedStep", so that it can be
-		  * used as the element tag name (no spaces allowed).
-		  * 
-		  * If it doesn't exist, need to use the NodeName as the inputType
-		  *  (as in the new version)
-		  */
+		 // The 'old' version-1 xml used the "inputType" attribute to 
+		 // define the type of field (one field per XML element).
+		  
+		  // If this attribute exists, need to convert it to the new type 
+		  // eg. "Fixed Step" becomes "FixedStep", so that it can be
+		  // used as the element tag name (no spaces allowed).
+		   
+		  // If it doesn't exist, need to use the NodeName as the inputType
+		  //  (as in the new version)
+		  
 		  String paramType = allAttributes.get(DataFieldConstants.INPUT_TYPE);
 		 
 		 if (paramType != null) {
 			 paramType = DataFieldConstants.getNewInputTypeFromOldInputType
 			 							(paramType);
 		 } else {
-			 /* 
-			  * InputType is null: Therefore this is the newer xml version: 
-			  * (used up until Beta 3.0)
-			  * Use <NodeName> for inputType IF the inputType is recognised.
-			  */
+			 // InputType is null: Therefore this is the newer xml version: 
+			 // (used up until Beta 3.0)
+			 // Use <NodeName> for inputType IF the inputType is recognised.
 			 String elementName = element.getNodeName();
 			 if (DataFieldConstants.isInputTypeRecognised(elementName))
 				 paramType = elementName;
@@ -209,9 +202,7 @@ public class TreeModelFactory
 				 paramType = DataFieldConstants.CUSTOM;
 		 }
 		 
-		 /*
-		  * Create a new field and set it's attributes.
-		  */
+		 // Create a new field and set it's attributes.
 		 IField field = new Field();
 		 
 		 field.setAttribute(Field.FIELD_NAME, fieldName);
@@ -219,9 +210,7 @@ public class TreeModelFactory
 		 field.setAttribute(Field.FIELD_URL, url);
 		 field.setAttribute(Field.BACKGROUND_COLOUR, colour);
 		 
-		 /*
-		  * Field will have 0 or 1 "parameters", depending on type
-		  */
+		 // Field will have 0 or 1 "parameters", depending on type
 		 IParam param = null;
 		 
 		 if (paramType.equals(DataFieldConstants.TEXT_ENTRY_STEP)) {
@@ -378,7 +367,7 @@ public class TreeModelFactory
 		
 		try {
 			document = XMLMethods.readXMLtoDOM(xmlFile); // overwrites document
-		} catch (SAXException e) {
+		} catch (ParsingException e) {
 			
 			// show error and give user a chance to submit error
 			EditorAgent.getRegistry().getUserNotifier().notifyError(

@@ -1,5 +1,5 @@
  /*
- * treeModel.fields.MutableTableModel 
+ * org.openmicroscopy.shoola.agents.editor.model.params.MutableTableModel 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -24,16 +24,16 @@ package org.openmicroscopy.shoola.agents.editor.model.params;
 
 import java.util.ArrayList;
 
-import javax.swing.table.AbstractTableModel;
-
 //Java imports
+
+import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * The data structure for the TableParam to keep the table data. 
+ * The data structure for the TableParam to store the table data. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -43,26 +43,26 @@ import javax.swing.table.AbstractTableModel;
  * </small>
  * @since OME3.0
  */
-public class MutableTableModel extends AbstractTableModel {
+public class MutableTableModel 
+	extends AbstractTableModel 
+{
 
 	/**
 	 * The array to hold a list of column names. 
 	 */
-    protected ArrayList<String> columnNames;
+    protected ArrayList<String> 				columnNames;
     
     /**
      * The 2-dimensional arrayList to hold the data.
      */
-    protected ArrayList<ArrayList<String>> data;
+    protected ArrayList<ArrayList<String>> 		data;
 
     /**
      * Creates an instance of this class.
      * Initialises the data arrays. 
-     * 
-     * @param colNames	Array of column names.
      */
-    public MutableTableModel() {
-    	
+    public MutableTableModel() 
+    {	
     	columnNames = new ArrayList<String>();
     	
     	data = new ArrayList<ArrayList<String>>();
@@ -86,20 +86,26 @@ public class MutableTableModel extends AbstractTableModel {
      * Returns the value in the specified cell. 
      * If the row or column count are out of range, 
      * an empty string is returned. 
+     * 
+     * @see TableModel#getValueAt(int, int)
      */
     public Object getValueAt(int row, int column) {
     	
     	if ((row < getRowCount()) && (column < getColumnCount())) {
     		String value = data.get(row).get(column);
-    		if (value == null) return "";
-    		else return value;
+    		if (value == null) 
+    			return "";
+    		
+    		return value;
     	}
-    	else return "";
+    	return "";
     }
 
     /**
      * Edits the value in the data,
      * then calls fireTableCellUpdated(row, column)
+     * 
+     * @see TableModel#setValueAt(Object, int, int)
      */
     public void setValueAt(Object value, int row, int column) {
         data.get(row).set(column, (String)value);
@@ -108,24 +114,23 @@ public class MutableTableModel extends AbstractTableModel {
 
     /**
      * Returns the number of rows.
+     * 
+     * @see TableModel#getRowCount()
      */
-    public int getRowCount() {
-        return data.size();
-    }
+    public int getRowCount() { return data.size(); }
 
     /**
      * Returns the column count, as defined by the number of column names. 
      */
-    public int getColumnCount() {
-        return columnNames.size();
-    }
+    public int getColumnCount() { return columnNames.size(); }
 
     /**
      * Is the last row empty?
      * 
      * @return	True if the last row has no filled cells.
      */
-    public boolean isLastRowEmpty() {
+    public boolean isLastRowEmpty() 
+    {
         if (getRowCount() == 0) return false;
         int lastRow = getRowCount() -1;
         
@@ -138,7 +143,8 @@ public class MutableTableModel extends AbstractTableModel {
      * @param row
      * @return	True if the row has no filled cells.
      */
-    public boolean isRowEmpty(int row) {
+    public boolean isRowEmpty(int row) 
+    {
     	for (int col=0; col<data.get(row).size(); col++){
     		String value = (String)getValueAt(row, col);
     		if(value.trim().length() > 0) return false;
@@ -149,9 +155,8 @@ public class MutableTableModel extends AbstractTableModel {
     /**
      * Adds a new row to the data model, at the bottom of the table
      */
-    public void addEmptyRow() {
-    	//System.out.println("Adding empty row...");
-    	
+    public void addEmptyRow() 
+    {
     	ArrayList<String> newRow = new ArrayList<String>();
     	for (int i=0; i<getColumnCount(); i++) {
     		newRow.add(" ");
@@ -166,7 +171,8 @@ public class MutableTableModel extends AbstractTableModel {
     /**
      * Adds a new row to the data model, at the specified row of the table
      */
-    public void addEmptyRow(int addAtThisRow) {
+    public void addEmptyRow(int addAtThisRow) 
+    {
     	ArrayList<String> newRow = new ArrayList<String>();
     	for (int i=0; i<getColumnCount(); i++) {
     		newRow.add(" ");
@@ -178,7 +184,6 @@ public class MutableTableModel extends AbstractTableModel {
     	} else {
     		data.add(newRowIndex, newRow);
     	}
-       // fireTableRowsInserted(newRowIndex, newRowIndex);
     	fireTableRowsInserted(newRowIndex, newRowIndex);
     }
     
@@ -187,24 +192,23 @@ public class MutableTableModel extends AbstractTableModel {
      * Adds a new cell to the end of every row.
      * Then calls fireTableStructureChanged()
      */
-    public void addEmptyColumn(String colName) {
-    	
+    public void addEmptyColumn(String colName) 
+    {	
     	columnNames.add(colName);
     	
     	for(ArrayList<String> row: data) {
     		row.add("");
     	}
     	
-    	this.fireTableStructureChanged();
     	// this updates the table, which updates it's own ColumnModel (I think).
+    	fireTableStructureChanged();
     }
     
     /**
      * Removes the last column
      */
-    public void removeLastColumn() {
-    	// System.out.println("Removing last column...");
-    	
+    public void removeLastColumn() 
+    {	
     	columnNames.remove(columnNames.size()-1);
     	
     	// getColumnCount is now one smaller
@@ -212,7 +216,7 @@ public class MutableTableModel extends AbstractTableModel {
     	for(ArrayList<String> row: data) {
     		row.remove(colCount);
     	}
-    	this.fireTableStructureChanged();
+    	fireTableStructureChanged();
     }
     
     /**
@@ -221,13 +225,14 @@ public class MutableTableModel extends AbstractTableModel {
      * 
      * @param rowIndecies
      */
-    public void removeRows(int[] rowIndecies) {
+    public void removeRows(int[] rowIndecies) 
+    {
     	// remove rows, starting at the highest!
     	for (int i=rowIndecies.length-1; i>-1; i--) {
     		int rowToRemove = rowIndecies[i];
     		System.out.println("InteractiveTableModel Removing row " + rowToRemove);
     		data.remove(rowToRemove);
-    		this.fireTableRowsDeleted(rowToRemove, rowToRemove);
+    		fireTableRowsDeleted(rowToRemove, rowToRemove);
     	}
     }
 }

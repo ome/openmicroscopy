@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.editor;
 //Third-party libraries
 
 //Application-internal dependencies
-import javax.swing.Icon;
 
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.ui.AbstractIconManager;
@@ -207,12 +206,26 @@ public class IconManager
     /** The <code>Close</code> icon. */
     public  static int			N0 = 46;
     
+    /** The <code>Undo</code> icon. */
+    public  static int			UNDO_ICON = 47;
+    
+    /** The <code>Redo</code> icon. */
+    public  static int			REDO_ICON = 48;
+    
+    /** The <code>Add Field</code> icon. */
+    public  static int			ADD_ICON = 49;
+    
+    /** The <code>Delete Field</code> icon. */
+    public  static int			DELETE_ICON = 50;
+    
+    /** The <code>Configure</code> icon. */
+    public  static int			CONFIGURE_ICON = 51;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 46;
+    private static int          MAX_ID = 51;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -271,7 +284,13 @@ public class IconManager
         relPaths[TIMER_STOP_ICON] = "nuvola_timerStop16.png";
         relPaths[INFO_ICON] =  "nuvola_messagebox_info16.png";
         relPaths[N0] =  "nuvola_no16.png";
+        relPaths[UNDO_ICON] =  "nuvola_undo16.png";
+        relPaths[REDO_ICON] =  "nuvola_redo16.png";
+        relPaths[ADD_ICON] = "nuvola_edit_add16.png";
+        relPaths[DELETE_ICON] = "nuvola_cancel16.png";
+        relPaths[CONFIGURE_ICON] = "nuvola_package_utilities16.png";
     }
+    
     
     /** The sole instance. */
     private static IconManager  singleton;

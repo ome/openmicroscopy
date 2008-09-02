@@ -31,7 +31,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //Application-internal dependencies
 
 /** 
- * 
+ * This is the {@link DefaultMutableTreeNode} subclass used to model the 
+ * Editor file as a treeModel. 
+ * This node can be used to save attributes that are not part of the
+ * data model, e.g. display attributes.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

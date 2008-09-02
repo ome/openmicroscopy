@@ -1,5 +1,5 @@
  /*
- * fields.FieldValueFactory 
+ * org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

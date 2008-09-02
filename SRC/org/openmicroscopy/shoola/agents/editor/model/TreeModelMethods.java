@@ -64,7 +64,8 @@ public class TreeModelMethods {
 	public static void insertNodesInto(DefaultTreeModel treeModel,
 			List<MutableTreeNode> nodes, 
 			MutableTreeNode parent,
-			int index) {
+			int index) 
+	{
 		
 		// If the index = childCount, nodes will be added after the last child.
 		// Make sure that the index is not greater (will cause Exception)

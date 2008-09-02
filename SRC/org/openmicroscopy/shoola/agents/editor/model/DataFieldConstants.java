@@ -1,5 +1,6 @@
-
 /*
+ * org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants
+ * 
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -21,23 +22,33 @@
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
-
 package org.openmicroscopy.shoola.agents.editor.model;
 
-import java.net.URL;
+// Java imports
 
+//Third-party libraries
+
+//Application-internal dependencies
+
+/**
+ * This class contains static String attributes that are used to read
+ * XML for Beta-3.0 and earlier versions of Editor XML files.
+ * 
+ * After Beta-3.0, these attributes are handled by the {@link Field} and
+ * {@link AbstractParam} subclasses that model the data.
+ * 
+ * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 public class DataFieldConstants {
 
 	/**
 	 * Attribute names.
-	 * These are used to identify attributes in each field.
-	 * Eg. dataField.getAttribute(attributeName).
-	 * 
-	 * They are also used to save the attributes to XML. 
-	 * Each XML element will contain the same attributes as the dataField it represents.
-	 * 
-	 * Any breaking changes to XML format should be given a new XML version number (in XMLModel)
-	 *
 	 */
 	
 	/**

@@ -1,5 +1,6 @@
-
 /*
+ * org.openmicroscopy.shoola.agents.editor.model.Field
+ * 
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
@@ -23,19 +24,23 @@
 
 package org.openmicroscopy.shoola.agents.editor.model;
 
+// Java imports
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//Third-party libraries
+
+//Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 
-
 /**
  * This is the data object that occupies a node of the tree hierarchy. 
- * It has name, description, url, stored in an AttributeMap, and may
- * have 0, 1 or more Parameter objects {link# IParam} to store 
+ * It has name, description, url etc, stored in an AttributeMap, and may
+ * have 0, 1 or more Parameter objects {@link IParam} to store 
  * experimental variables, or parameters. 
  * 
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
@@ -53,54 +58,55 @@ public class Field
 	/**
 	 * A property of this field. The attribute for an (optional) Name.
 	 */
-	public static final String FIELD_NAME = "fieldName";
+	public static final String 		FIELD_NAME = "fieldName";
 	
 	/**
 	 * A property of this field. The attribute for an optional Description.
 	 */
-	public static final String FIELD_DESCRIPTION = "fieldDescription";
+	public static final String 		FIELD_DESCRIPTION = "fieldDescription";
 	
 	/**
 	 * A property of this field. The attribute for an optional Url.
 	 */
-	public static final String FIELD_URL = "fieldUrl";
+	public static final String 		FIELD_URL = "fieldUrl";
 	
 	/**
 	 * A property of this field. 
 	 * Stores a color as a string in the form "r:g:b";
 	 */
-	public static final String BACKGROUND_COLOUR = "backgroundColour";
+	public static final String 		BACKGROUND_COLOUR = "backgroundColour";
 	
 	/**
 	 * A display property of this field.
 	 * getDisplayAttribute(TOOL_TIP_TEXT) should return a string composed
 	 * of field description and parameter values etc. 
 	 */
-	public static final String TOOL_TIP_TEXT = "toolTipText";
+	public static final String 		TOOL_TIP_TEXT = "toolTipText";
 	
 	/**
 	 * The list of Parameters, representing experimental variables for this 
 	 * field.
 	 */
-	private List<IParam> fieldParams;
+	private List<IParam> 			fieldParams;
 
 	/**
 	 * A map of the template attributes for this Field. 
 	 * eg Name, Description etc. 
 	 */
-	HashMap<String, String> templateAttributesMap;
+	private HashMap<String, String> templateAttributesMap;
 	
 	/**
 	 * A map of the display attributes for this Field. 
 	 * eg Description visible, 
 	 * Not saved.  
 	 */
-	HashMap<String, String> displayAttributesMap;
+	private HashMap<String, String> displayAttributesMap;
 	
 	/**
-	 * Default constructor. Sets the name of the field to "untitled"
+	 * Default constructor.
 	 */
-	public Field() {
+	public Field() 
+	{
 		templateAttributesMap = new HashMap<String, String>();
 		displayAttributesMap = new HashMap<String, String>();
 		fieldParams = new ArrayList<IParam>();
@@ -112,7 +118,8 @@ public class Field
 	 * Therefore, any subclasses should also manually override this method to 
 	 * copy any additional attributes they have.  
 	 */
-	public Object clone() {
+	public Object clone() 
+	{
 		
 		//Field newField = (Field)super.clone();
 		
@@ -138,20 +145,22 @@ public class Field
 	 * 
 	 * @param name		A name given to this field. 
 	 */
-	public Field(String name) {
-		
+	public Field(String name) 
+	{	
 		this();
 		
 		setAttribute(FIELD_NAME, name);
-		
 	}
 	
 	/**
 	 * gets an attribute in the templateAttributesMap
+	 * 
+	 * Implemented as specified by the {@link IAttributes} interface
+	 * 
+	 * @see IAttributes#getAttribute(String)
 	 */
-	public String getAttribute(String name) {
-		//System.out.println("Field getAttribute()");
-		
+	public String getAttribute(String name) 
+	{
 		return templateAttributesMap.get(name);
 	}
 	
@@ -173,6 +182,9 @@ public class Field
 	
 	/**
 	 * sets an attribute in the attributesMap
+	 * Implemented as specified by the {@link IAttributes} interface
+	 * 
+	 * @see IAttributes#setAttribute(String, String)
 	 */
 	public void setAttribute(String name, String value) {
 		

@@ -1,5 +1,5 @@
  /*
- * fields.IField 
+ * org.openmicroscopy.shoola.agents.editor.model.IField 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.

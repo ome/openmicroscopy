@@ -31,6 +31,7 @@ import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 
 //Third-party libraries
 
@@ -75,8 +76,8 @@ public class TextBoxEditor
 		String text = getParameter().getAttribute(attributeName);
 		
 		textBox = new JTextArea(text);
-		textBox.setRows(2);
 		textBox.setLineWrap(true);
+		textBox.setColumns(40);
 		textBox.setFont(CustomLabel.CUSTOM_FONT);
 		textBox.setWrapStyleWord(true);
 		//JScrollPane textScroller = new JScrollPane(textInput);
@@ -87,6 +88,29 @@ public class TextBoxEditor
 		
 		AttributeEditListeners.addListeners(textBox, this, attributeName);
 		textBox.getDocument().addDocumentListener(new NewLineListener());
+		
+		// Determine how many rows you need to display the text.
+		int lines = textBox.getLineCount();
+		int extraLines = 0;
+		int lineLength = 0;
+		int lineStartOffset = 0;
+		// For each line of text...
+		for (int l=0; l<lines; l++) {
+			try {
+				lineLength = textBox.getLineEndOffset(l) - lineStartOffset;
+				// ...see how many extra lines you need
+				// (approx 60 chars per line, with 40 columns!)
+				extraLines = extraLines + (lineLength / 60);
+				
+				lineStartOffset = textBox.getLineEndOffset(l) + 1;
+			} catch (BadLocationException e) {
+				// ignore. This exception shouldn't happen anyway!
+			}
+		}
+		// Add the extra lines 
+		lines = lines + extraLines;
+		// Show at least 2 lines.
+		textBox.setRows(Math.max(lines, 2));
 	}
 	
 	/**
@@ -142,20 +166,4 @@ public class TextBoxEditor
 		}
 		
 	}
-	
-	/**
-	 * Returns a preferred size that is a fixed width, but the same 
-	 * height as super.getPreferredSize();
-	 */
-	public Dimension getPreferredSize() {
-		
-		Dimension textBoxSize = textBox.getPreferredSize();
-		
-		int height = (int)textBoxSize.getHeight() + 20;
-		int width = 400;
-		
-		return new Dimension (width, height);
-	}
-	
-
 }

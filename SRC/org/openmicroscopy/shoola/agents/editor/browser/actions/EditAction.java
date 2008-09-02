@@ -33,6 +33,7 @@ import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 
 /** 
  * An action that toggles the Editing state of the Browser.
+ * Turns on/off editing. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -49,7 +50,7 @@ public class EditAction
 	/**
 	 * Creates an instance.
 	 * 
-	 * @param model		The Browser
+	 * @param model		Reference to the Model. Mustn't be <code>null</code>.
 	 */
 	public EditAction(Browser model)
 	{
@@ -58,7 +59,7 @@ public class EditAction
 		setEnabled(true);
 		
 		setName("Edit");
-		setIcon(IconManager.EDITOR);
+		setIcon(IconManager.CONFIGURE_ICON);
 		onStateChange(); 	// update description.
 	}
 
