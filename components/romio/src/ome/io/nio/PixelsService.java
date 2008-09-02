@@ -103,6 +103,7 @@ public class PixelsService extends AbstractFileSystemService {
 			}
 		}
 		log.info("Pixel buffer file exists returning ROMIO pixel buffer.");
+		createSubpath(pixelsFilePath);
 		return new RomioPixelBuffer(pixelsFilePath, pixels);
 	}
 	
