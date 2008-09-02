@@ -78,7 +78,9 @@ class TestISShare(lib.ITest):
         share.addObjects(self.id, ds)
 
         self.assert_(share.getContentSize(self.id) == 5)
-
+        
+        self.assert_(len(share.getAllUsers(self.id)) == 2)
+        
         #check access by a member to see the content
         client_guest_read_only = omero.client()
         client_guest_read_only.createSession("share_test_user","ome")
