@@ -244,6 +244,14 @@ public interface Browser
 	public Collection getSelectedDisplays();
 	
 	/**
+	 * Returns the collection of the <code>DataObject</code>s hosted by
+	 * the selected nodes.
+	 * 
+	 * @return See above.
+	 */
+	public Collection getSelectedDataObjects();
+	
+	/**
 	 * Returns <code>true</code> if the image's title bar is visible,
 	 * <code>false</code> otherwise.
 	 *

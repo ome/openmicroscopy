@@ -247,7 +247,7 @@ public class DeleteAction
         	else {
         		setEnabled(model.isObjectWritable(ho));
         	}
-        }
+        } else setEnabled(false);
         description = (String) getValue(Action.SHORT_DESCRIPTION);
     }
     

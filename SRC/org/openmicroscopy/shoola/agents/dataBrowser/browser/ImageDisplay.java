@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
+
+//Java imports
 import java.awt.Cursor;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,9 +32,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JLabel;
-
-
-//Java imports
 
 //Third-party libraries
 

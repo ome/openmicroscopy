@@ -1687,17 +1687,20 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#copyRndSettings()
+	 * @see TreeViewer#copyRndSettings(ImageData)
 	 */
-	public void copyRndSettings()
+	public void copyRndSettings(ImageData image)
 	{
-		Browser browser = model.getSelectedBrowser();
-		if (browser == null) return;
-		TreeImageDisplay node = browser.getLastSelectedDisplay();
-		Object o = node.getUserObject();
-		if (!(o instanceof ImageData)) return;
-		ImageData img = (ImageData) o;
-		long pixelsID = img.getDefaultPixels().getId();
+		if (image == null) {
+			Browser browser = model.getSelectedBrowser();
+			if (browser == null) return;
+			TreeImageDisplay node = browser.getLastSelectedDisplay();
+			Object o = node.getUserObject();
+			if (!(o instanceof ImageData)) return;
+			image = (ImageData) o;
+		}
+		if (image == null) return;
+		long pixelsID = image.getDefaultPixels().getId();
 		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 		bus.post(new CopyRndSettings(pixelsID));
 	}

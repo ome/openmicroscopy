@@ -30,6 +30,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -100,6 +101,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.ImageData;
 
 
 /** 
@@ -645,19 +647,35 @@ class TreeViewerControl
 									TreeViewer.CREATE_OBJECT);
 			}
 		} else if (DataBrowser.COPY_RND_SETTINGS_PROPERTY.equals(name)) {
-			model.copyRndSettings();
+			Object data = pce.getNewValue();
+			if (data != null) model.copyRndSettings((ImageData) data);
+			else model.copyRndSettings(null);
 		} else if (DataBrowser.PASTE_RND_SETTINGS_PROPERTY.equals(name)) {
-			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
-											PasteRndSettingsCmd.PASTE);
+			Object data = pce.getNewValue();
+			PasteRndSettingsCmd cmd;
+			if (data instanceof Collection) 
+				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.PASTE,
+						(Collection) data);
+			else cmd = new PasteRndSettingsCmd(model, 
+						PasteRndSettingsCmd.PASTE);
 			cmd.execute();
 		} else if (DataBrowser.RESET_RND_SETTINGS_PROPERTY.equals(name)) {
-			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
-					PasteRndSettingsCmd.RESET);
+			Object data = pce.getNewValue();
+			PasteRndSettingsCmd cmd;
+			if (data instanceof Collection) 
+				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.RESET,
+						(Collection) data);
+			else cmd = new PasteRndSettingsCmd(model, 
+						PasteRndSettingsCmd.RESET);
 			cmd.execute();
 		} else if (DataBrowser.SET__ORIGINAL_RND_SETTINGS_PROPERTY.equals(
 				name)) {
-			PasteRndSettingsCmd cmd = new PasteRndSettingsCmd(model, 
-									PasteRndSettingsCmd.SET);
+			Object data = pce.getNewValue();
+			PasteRndSettingsCmd cmd;
+			if (data instanceof Collection) 
+				cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET,
+						(Collection) data);
+			else cmd = new PasteRndSettingsCmd(model, PasteRndSettingsCmd.SET);
 			cmd.execute();
 		} else if (DataBrowser.CUT_ITEMS_PROPERTY.equals(name)) {
 			CutCmd cmd = new CutCmd(model);

@@ -53,6 +53,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
 
@@ -507,8 +508,13 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be " +
 					"invoked in the DISCARDED state.");
-		firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
-							Boolean.TRUE);
+		if (model.getType() == DataBrowserModel.SEARCH) {
+			firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, null, 
+					getBrowser().getSelectedDataObjects());
+		} else {
+			firePropertyChange(PASTE_RND_SETTINGS_PROPERTY, 
+					Boolean.FALSE, Boolean.TRUE);
+		}
 	}
 
 	/**
@@ -520,8 +526,13 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be " +
 					"invoked in the DISCARDED state.");
-		firePropertyChange(RESET_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
-						Boolean.TRUE);
+		if (model.getType() == DataBrowserModel.SEARCH) {
+			firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, 
+					getBrowser().getSelectedDataObjects());
+		} else {
+			firePropertyChange(RESET_RND_SETTINGS_PROPERTY, 
+					Boolean.FALSE, Boolean.TRUE);
+		}
 	}
 
 	/**
@@ -533,8 +544,15 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be " +
 					"invoked in the DISCARDED state.");
-		firePropertyChange(COPY_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
+		if (model.getType() == DataBrowserModel.SEARCH) {
+			ImageDisplay display = getBrowser().getLastSelectedDisplay();
+			Object o = display.getHierarchyObject();
+			if (!(o instanceof ImageData)) return;
+			ImageData img = (ImageData) o;
+			firePropertyChange(COPY_RND_SETTINGS_PROPERTY, null, img);
+		} else {
+			firePropertyChange(RESET_RND_SETTINGS_PROPERTY, null, null);
+		}
 	}
 
 	/**
@@ -641,8 +659,13 @@ class DataBrowserComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be " +
 					"invoked in the DISCARDED state.");
-		firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, Boolean.FALSE, 
-						Boolean.TRUE);
+		if (model.getType() == DataBrowserModel.SEARCH) {
+			firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, null, 
+					getBrowser().getSelectedDataObjects());
+		} else {
+			firePropertyChange(SET__ORIGINAL_RND_SETTINGS_PROPERTY, 
+					Boolean.FALSE, Boolean.TRUE);
+		}
 	}
 
 	/**

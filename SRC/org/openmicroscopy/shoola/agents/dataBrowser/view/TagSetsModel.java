@@ -43,7 +43,7 @@ import pojos.ImageData;
 import pojos.TagAnnotationData;
 
 /** 
- * 
+ * Model for the tags sets.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

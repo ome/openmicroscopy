@@ -705,8 +705,13 @@ public interface TreeViewer
      */
 	public void setUnselectedNode(Object node);
 
-	/** Copies the rendering settings. */
-	public void copyRndSettings();
+	/** 
+	 * Copies the rendering settings. 
+	 * 
+	 * @param image The image to copy the rendering settings from 
+	 * 				or <code>null</code>.
+	 */
+	public void copyRndSettings(ImageData image);
 
 	/**
 	 * Sets the original rendering settings for the images identified by 

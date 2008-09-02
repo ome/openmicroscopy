@@ -119,7 +119,7 @@ public class CopyRndSettingsAction
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		model.copyRndSettings();
+		model.copyRndSettings(null);
 	}
 
 }

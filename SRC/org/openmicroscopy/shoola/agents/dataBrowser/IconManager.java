@@ -202,6 +202,7 @@ public class IconManager
         relPaths[UNDO] = "nuvola_undo16.png";
         relPaths[OWNER_8] = "nuvola_kdmconfig8.png";
         relPaths[IMAGE_ANNOTATED] = "tagged_image16.png";
+        relPaths[SET_ORIGINAL_RND_SETTINGS] = "nuvola_redo16.png";
     }
     
     /** The sole instance. */

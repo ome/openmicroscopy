@@ -44,7 +44,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
@@ -113,18 +112,6 @@ class BrowserModel
 	
 	/** The collection of original images. */
 	private Set<ImageDisplay>	originalNodes;
-	
-	/** 
-	 * Set to <code>true</code> to display the row value as a letter, 
-	 * to <code>false</code> to display it as a number.
-	 */
-	private boolean 			rowAsLetter;
-	
-	/** 
-	 * Set to <code>true</code> to display the column value as a letter, 
-	 * to <code>false</code> to display it as a number.
-	 */
-	private boolean 			columnAsLetter;
 	
 	/**
 	 * Adds the children of the passed node to its internal desktop.
@@ -313,6 +300,26 @@ class BrowserModel
 	 * @see Browser#getSelectedDisplays()
 	 */
 	public Collection getSelectedDisplays() { return selectedDisplays; }
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getSelectedDataObjects()
+	 */
+	public Collection getSelectedDataObjects()
+	{ 
+		if (selectedDisplays == null) return null;
+		Iterator<ImageDisplay> i = selectedDisplays.iterator();
+		List<DataObject> nodes = new ArrayList<DataObject>();
+		ImageDisplay o;
+		Object ho;
+		while (i.hasNext()) {
+			o = i.next();
+			ho = o.getHierarchyObject();
+			if (ho instanceof DataObject)
+				nodes.add((DataObject) ho);
+		}
+		return nodes; 
+	}
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.

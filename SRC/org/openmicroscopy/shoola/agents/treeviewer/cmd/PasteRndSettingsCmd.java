@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -69,10 +70,13 @@ public class PasteRndSettingsCmd
 	public static final int SET = 2;
 	
 	/** Reference to the model. */
-    private TreeViewer	model;
+    private TreeViewer				model;
     
     /** One of the constants defined by this class. */
-    private int			index;
+    private int						index;
+    
+    /** The collection of selected items if specified. */
+    private Collection<DataObject> 	selection;
     
     /**
      * Controls if the passed index is supported.
@@ -105,17 +109,56 @@ public class PasteRndSettingsCmd
         this.model = model;
     }
     
+    /**
+     * Creates a new instance.
+     * 
+     * @param model 	Reference to the model. Mustn't be <code>null</code>.
+     * @param index 	One of the constants defined by this class.
+     * @param selection The collection of data objects to handle.
+     */
+    public PasteRndSettingsCmd(TreeViewer model, int index, 
+    		Collection<DataObject> selection)
+    {
+        if (model == null) throw new IllegalArgumentException("No model.");
+        checkIndex(index);
+        this.index = index;
+        this.model = model;
+        this.selection = selection;
+    }
+    
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-    	//if (!model.hasRndSettings()) return;
+    	Set<Long> ids = new HashSet<Long>();
+    	if (selection != null) {
+    		Iterator<DataObject> o = selection.iterator();
+    		DataObject ho;
+    		Class klass = null;
+    		while (o.hasNext()) {
+				ho = o.next();
+				klass = ho.getClass();
+				ids.add(ho.getId());
+			}
+    		switch (index) {
+				case PASTE:
+					if (model.hasRndSettings()) 
+						model.pasteRndSettings(ids, klass);
+					break;
+				case RESET:
+					model.resetRndSettings(ids, klass);
+					break;
+				case SET:
+					model.setOriginalRndSettings(ids, klass);
+			}
+    		return;
+    	}
     	Browser b = model.getSelectedBrowser();
 		if (b == null) return;
 		TreeImageDisplay[] nodes = b.getSelectedDisplays();
 		if (nodes.length == 0) return; 
 		TreeImageDisplay node;
 		TreeImageTimeSet time;
-		Set<Long> ids = new HashSet<Long>();
+		
 		Class klass = null;
 		Object ho;
 		Iterator j;

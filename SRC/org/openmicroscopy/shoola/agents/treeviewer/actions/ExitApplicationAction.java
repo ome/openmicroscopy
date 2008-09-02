@@ -36,6 +36,7 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.events.ExitApplication;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -61,6 +62,12 @@ public class ExitApplicationAction
     
     /** The description of the action. */
     public static final String DESCRIPTION = "Exit the application.";
+    
+    /** 
+     * Sets the action enabled to <code>true</code>.
+     * @see TreeViewerAction#onBrowserStateChange(Browser)
+     */
+    protected void onDisplayMode() { setEnabled(true); }
     
     /**
      * Creates a new instance.
