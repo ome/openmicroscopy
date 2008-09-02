@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Point;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -61,6 +62,9 @@ class ImageTableView
 	 * Bound property indicating that the nodes in the table have been selected.
 	 */
 	static final String	TABLE_NODES_SELECTION_PROPERTY = "tableNodesSelection";
+	
+	/** Bound property indicating to display a popup menu. */
+	static final String TABLE_SELECTION_MENU_PROPERTY = "tableSelectionMenu";
 	
 	/** Reference to the table displaying the nodes. */
 	private ImageTable 			table;
@@ -100,6 +104,18 @@ class ImageTableView
 	}
 	
 	/**
+     * Brings up the popup menu on top of the specified component at the
+     * specified point.
+     * 
+     * @param location 	The point at which to display the menu, relative to the 
+     *          		<code>component</code>'s coordinates.         
+     */
+	void showMenu(Point location)
+	{
+		firePropertyChange(TABLE_SELECTION_MENU_PROPERTY, null, location);
+	}
+	
+	/**
      * Returns the {@link ViewerSorter}.
      * 
      * @return See above.
@@ -130,5 +146,4 @@ class ImageTableView
 		table.setSelectedNodes(objects);
 	}
 
-	
 }

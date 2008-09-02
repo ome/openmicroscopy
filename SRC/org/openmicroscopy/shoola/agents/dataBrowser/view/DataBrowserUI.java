@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -405,8 +406,15 @@ class DataBrowserUI
     void showPopup(Point p)
     { 
     	if (popupMenu == null) popupMenu = new PopupMenu(controller, model);
-    	ImageDisplay c = model.getBrowser().getLastSelectedDisplay();
-    	if (c != null) popupMenu.show(c, p.x, p.y); 
+    	Component comp = null;
+    	switch (selectedView) {
+			case THUMB_VIEW:
+				comp = model.getBrowser().getLastSelectedDisplay();
+				break;
+			case COLUMNS_VIEW:
+				comp = model.getTableView();
+		}
+    	if (comp != null) popupMenu.show(comp, p.x, p.y); 
     }
     
     /**

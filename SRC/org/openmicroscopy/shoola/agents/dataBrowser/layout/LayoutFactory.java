@@ -28,10 +28,6 @@ package org.openmicroscopy.shoola.agents.dataBrowser.layout;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Map;
-import java.util.Set;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 
 /** 

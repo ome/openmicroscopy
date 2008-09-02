@@ -292,8 +292,7 @@ public class OMETreeTable
 		Iterator<Class<?>> classIterator = DEFAULT_EDITORS.keySet().iterator();
 		Class<?> classType;
 		DefaultCellEditor editorType;
-		while(classIterator.hasNext())
-		{
+		while(classIterator.hasNext()) {
 			classType = classIterator.next();
 			editorType = DEFAULT_EDITORS.get(classType);
 			this.setDefaultEditor(classType, editorType);
@@ -311,11 +310,10 @@ public class OMETreeTable
 			classIterator = DEFAULT_RENDERERS.keySet().iterator();
 		Class<?> classType;
 		TableCellRenderer rendererType;
-		while (classIterator.hasNext())
-		{
+		while (classIterator.hasNext()) {
 			classType = classIterator.next();
 			rendererType = DEFAULT_RENDERERS.get(classType);
-			this.setDefaultRenderer(classType, rendererType);
+			setDefaultRenderer(classType, rendererType);
 		}
 	}
 	
@@ -324,14 +322,20 @@ public class OMETreeTable
 	 * 
 	 * @param node The node to handle.
 	 */
-	public void expandNode(OMETreeNode node) { expandPath(node.getPath()); }
+	public void expandNode(OMETreeNode node)
+	{ 
+		if (node != null) expandPath(node.getPath());
+	}
 	
 	/**
 	 * Collapses the row with the node in it.
 	 * 
 	 * @param node  The node to handle.
 	 */
-	public void collapseNode(OMETreeNode node) { collapsePath(node.getPath()); }
+	public void collapseNode(OMETreeNode node)
+	{ 
+		if (node != null) collapsePath(node.getPath());
+	}
 	
 	/**
 	 * Overrides the {@link JXTreeTable#expandPath(TreePath)}
@@ -341,8 +345,9 @@ public class OMETreeTable
 	public void expandPath(TreePath path)
 	{
 		super.expandPath(path);
-		OMETreeNode node = (OMETreeNode)path.getLastPathComponent();
-		node.setExpanded(true);
+		if (path == null) return;
+		OMETreeNode node = (OMETreeNode) path.getLastPathComponent();
+		if (node != null) node.setExpanded(true);
 	}
 	
 	/**
@@ -354,7 +359,7 @@ public class OMETreeTable
 	{
 		super.expandRow(row);
 		OMETreeNode node = getNodeAtRow(row);
-		node.setExpanded(true);
+		if (node != null) node.setExpanded(true);
 	}
 	
 	/**
@@ -380,7 +385,9 @@ public class OMETreeTable
 	 */
 	public OMETreeNode getNodeAtRow(int row)
 	{
-		return (OMETreeNode) getPathForRow(row).getLastPathComponent();
+		TreePath path = getPathForRow(row);
+		if (path == null) return null;
+		return (OMETreeNode) path.getLastPathComponent();
 	}
 	
 	/**
@@ -391,6 +398,7 @@ public class OMETreeTable
 	 */
 	public int getRow(OMETreeNode node)
 	{
+		if (node == null) return -1;
 		return getRowForPath(node.getPath());
 	}
 	
@@ -428,7 +436,7 @@ public class OMETreeTable
 		super.collapsePath(path);
 		if (path == null) return;
 		OMETreeNode node = (OMETreeNode) path.getLastPathComponent();
-		node.setExpanded(false);
+		if (node != null) node.setExpanded(false);
 	}
 	
 	/**
@@ -440,8 +448,7 @@ public class OMETreeTable
 	{
 		super.collapseRow(row);
 		OMETreeNode node = getNodeAtRow(row);
-		if (node == null) return;
-		node.setExpanded(false);
+		if (node != null) node.setExpanded(false);
 	}
 	
 	/**

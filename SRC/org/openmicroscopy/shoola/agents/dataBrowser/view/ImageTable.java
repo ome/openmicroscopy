@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.Component;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -33,26 +34,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import javax.swing.Icon;
-import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import pojos.DataObject;
-import pojos.DatasetData;
-import pojos.ImageData;
-import pojos.ProjectData;
 
 /** 
  * Tree table displaying the hierarchy.
@@ -218,7 +213,7 @@ class ImageTable
             }
         }
     }
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -272,52 +267,24 @@ class ImageTable
 		repaint();
         addTreeSelectionListener(selectionListener);
 	}
-	
-	
-	/** Helper class to render that table. */
-	private class ImageTableRenderer
-		extends DefaultTreeCellRenderer
+
+	/**
+	 * Overridden to pop up a menu when the user righ-clicks on a selected item.
+	 * @see OMETreeTable#onMousePressed(MouseEvent)
+	 */
+	protected void onMousePressed(MouseEvent e)
 	{
-		
-		/** Helper reference to the {@link IconManager}. */
-		private IconManager icons;
-		
-		/** Creates a new instance. */
-		ImageTableRenderer()
-		{
-			setOpaque(true);
-			icons = IconManager.getInstance();
-		}
-
-		/**
-		 * Sets the icon associated to the data object.
-		 * @see DefaultTreeCellRenderer#getTreeCellRendererComponent(JTree, 
-		 * 								Object, boolean, boolean, boolean, 
-		 * 								int, boolean)
-		 */
-		public Component getTreeCellRendererComponent(JTree tree, 
-				Object value, boolean selected, boolean expanded, 
-				boolean leaf, int row, boolean hasFocus)
-		{
-			if (selected) setBackground(getBackgroundSelectionColor());
-			else setBackground(getBackgroundNonSelectionColor());
-			if (!(value instanceof ImageTableNode)) return this;
-			ImageTableNode node = (ImageTableNode) value;
-			Object v = node.getHierarchyObject();
-			if (v instanceof ImageData) {
-				if (EditorUtil.isAnnotated(v))
-					setIcon(icons.getIcon(IconManager.IMAGE_ANNOTATED));
-			    else setIcon(icons.getIcon(IconManager.IMAGE));
-				setText(node.getUserObject().toString());
-			} else if (v instanceof DatasetData) {
-				setIcon(icons.getIcon(IconManager.DATASET));
-				setText(node.getUserObject().toString());
-			} else if (v instanceof ProjectData) {
-				setIcon(icons.getIcon(IconManager.PROJECT));
-				setText(node.getUserObject().toString());
-			}
-			return this;
-		}
+		if (e.isPopupTrigger()) view.showMenu(e.getPoint());
 	}
-
+	
+	/**
+	 * Overridden to pop up a menu when the user righ-clicks on a selected item.
+	 * @see OMETreeTable#onMouseReleased(MouseEvent)
+	 */
+	protected void onMouseReleased(MouseEvent e)
+	{
+		if (e.isPopupTrigger()) view.showMenu(e.getPoint());
+	}
+	
 }
+

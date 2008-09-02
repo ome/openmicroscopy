@@ -214,15 +214,16 @@ abstract class DataBrowserModel
      * 
      * @param refresh 	Pass <code>false</code> if we retrieve the data for
      * 					the first time, <code>true</code> otherwise.
+     * @param ids		The collection of image's ids or <code>null</code>.
      */
     void loadData(boolean refresh, Collection ids)
     {
-    	if (refresh) {
+    	if (refresh) 
     		browser.accept(new ResetThumbnailVisitor(ids), 
     				ImageDisplayVisitor.IMAGE_NODE_ONLY);
-    	}
     	loader = createDataLoader(refresh, ids);
     	if (loader == null) {
+    		state = DataBrowser.READY;
     		return;
     	}
     	state = DataBrowser.LOADING;

@@ -292,10 +292,13 @@ class DataBrowserControl
         } else if (ImageTableView.TABLE_NODES_SELECTION_PROPERTY.equals(name)) {
         	List<ImageDisplay> selected = (List) evt.getNewValue();
         	model.setTableNodesSelected(selected);
+        } else if (ImageTableView.TABLE_SELECTION_MENU_PROPERTY.equals(name)) {
+        	Point location = (Point) evt.getNewValue();
+        	if (location != null) view.showPopup(location);
         } else if (Browser.POPUP_POINT_PROPERTY.equals(name)) {
 			Point p = (Point) evt.getNewValue();
             if (p != null) view.showPopup(p);
-		}
+		} 
 	}
 	
 }
