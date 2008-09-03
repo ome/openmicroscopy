@@ -116,7 +116,7 @@ public class TreeOutlineCellRenderer
 		}
 		
 		String text = getText();
-		text = "<html>" + text + "<html>";
+		//text = "<html>" + text + "<html>";
 		setText(text);
 		
         setIcon(paramIcon);

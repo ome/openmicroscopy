@@ -26,15 +26,16 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 //Java imports
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -42,9 +43,10 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
+import javax.swing.Scrollable;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -55,11 +57,15 @@ import javax.swing.tree.TreePath;
 
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor;
+import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 
 /** 
  * The Panel for editing the "Template" of each field.
@@ -77,7 +83,8 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
  */
 public class FieldEditorPanel 
 	extends JPanel 
-	implements PropertyChangeListener 
+	implements PropertyChangeListener,
+	Scrollable
 {
 	/**
 	 * Defines a minimum size for this Panel. 
@@ -116,32 +123,75 @@ public class FieldEditorPanel
 	 */
 	private JComboBox 			inputTypeSelector;
 	
-	/**
-	 * A pop-up menu for choosing a background colour for the field
-	 */
-	private JPopupMenu 			colourPopupMenu;
 
 	/**
-	 * Builds the UI. 
+	 * Initialises the UI components
 	 */
-	private void buildPanel() {
+	private void initialise() {
 		
 		// Panel to hold all components, vertically 
 		attributeFieldsPanel = new JPanel();
 		attributeFieldsPanel.setLayout(new BoxLayout
 				(attributeFieldsPanel, BoxLayout.Y_AXIS));
-		attributeFieldsPanel.setBorder(new EmptyBorder(5, 5, 5,5));
+		// set border and background
+		Border emptyBorder = new EmptyBorder(5, 5, 15,5);
+		Border lineBorder = BorderFactory.createMatteBorder(
+                0, 0, 1, 0, new Color(200,200,200));
+		Border compoundBorder = BorderFactory.createCompoundBorder
+			(lineBorder, emptyBorder);
+		attributeFieldsPanel.setBorder(compoundBorder);
+		attributeFieldsPanel.setBackground(ImageBorderFactory.DEFAULT_BACKGROUND);
+	}
+	
+	/**
+	 * Builds the UI. 
+	 */
+	private void buildPanel() {
 		
+		// Name: Label and text box
+		JPanel nameContainer = new JPanel(new BorderLayout());
+		nameContainer.setBackground(null);
+		nameContainer.add(new CustomLabel("Field Name:"), BorderLayout.WEST);
+		attributeFieldsPanel.add(nameContainer);
+		AttributeEditor nameEditor = new AttributeEditor(field, Field.FIELD_NAME);
+		nameEditor.addPropertyChangeListener
+				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		attributeFieldsPanel.add(nameEditor);
+		
+		// Description: Label and text box
+		JPanel descContainer = new JPanel(new BorderLayout());
+		descContainer.setBackground(null);
+		descContainer.add(new CustomLabel("Description:"), BorderLayout.WEST);
+		attributeFieldsPanel.add(descContainer);
+		AttributeEditor descriptionEditor = new AttributeEditor
+				(field, Field.FIELD_DESCRIPTION);
+		descriptionEditor.addPropertyChangeListener
+				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		attributeFieldsPanel.add(descriptionEditor);
+		
+		// Parameters: Label and "Add" button
+		attributeFieldsPanel.add(Box.createVerticalStrut(10));
+		JLabel paramLabel = new CustomLabel("Parameters:");
+		JPanel paramHeader = new JPanel(new BorderLayout());
+		paramHeader.setBackground(null);
+		paramHeader.add(paramLabel, BorderLayout.WEST);
+		
+		JButton addParamsButton = new AddParamActions(field, tree, 
+				treeNode, controller).getButton();
+		addParamsButton.addPropertyChangeListener(
+				AddParamActions.PARAM_ADDED_PROPERTY, this);
+		paramHeader.add(addParamsButton, BorderLayout.EAST);
+		
+		attributeFieldsPanel.add(paramHeader);
 		
 		// For each parameter of this field, add the components for
 		// editing their default or template values. 
 		buildParamComponents();
 		
 		this.setLayout(new BorderLayout());
-		this.add(attributeFieldsPanel, BorderLayout.NORTH);
-		
-		//this.setPreferredSize(MINIMUM_SIZE);
-		//this.setMinimumSize(MINIMUM_SIZE);
+		add(attributeFieldsPanel, BorderLayout.NORTH);
+		setBackground(null);
+
 		this.validate();
 	}
 
@@ -168,20 +218,6 @@ public class FieldEditorPanel
 	{
 		int paramCount = field.getParamCount();
 		
-		attributeFieldsPanel.add(new JSeparator());
-		attributeFieldsPanel.add(Box.createVerticalStrut(5));
-		JLabel paramLabel = new CustomLabel("Parameters:");
-		JPanel paramHeader = new JPanel(new BorderLayout());
-		paramHeader.add(paramLabel, BorderLayout.WEST);
-		
-		JButton addParamsButton = new AddParamActions(field, tree, 
-				treeNode, controller).getButton();
-		addParamsButton.addPropertyChangeListener(
-				AddParamActions.PARAM_ADDED_PROPERTY, this);
-		paramHeader.add(addParamsButton, BorderLayout.EAST);
-		
-		attributeFieldsPanel.add(paramHeader);
-		
 		for (int i=0; i<paramCount; i++) {
 			IParam param = field.getParamAt(i);
 			JComponent edit = ParamTemplateUIFactory.
@@ -189,24 +225,6 @@ public class FieldEditorPanel
 			if (edit != null)
 				addFieldComponent(edit);
 		}
-	}
-
-	/**
-	 * A MouseAdapter to display the colour chooser pop-up menu.
-	 * 
-	 * @author will
-	 */
-	private class PopupListener extends MouseAdapter {
-	    public void mousePressed(MouseEvent e) {
-	        showPopUp(e);
-	    }
-	    public void mouseReleased(MouseEvent e) {
-	        showPopUp(e);
-	    }
-	    private void showPopUp(MouseEvent e) {
-	    	colourPopupMenu.show(e.getComponent(),
-	                       e.getX(), e.getY());
-	    }
 	}
 
 	/**
@@ -219,16 +237,8 @@ public class FieldEditorPanel
 	 * A change in this property indicates that this panel should be rebuilt
 	 * from the data model. 
 	 */
-	public static final String PANEL_CHANGED_PROPERTY = "panelChangedProperty";
+	//public static final String PANEL_CHANGED_PROPERTY = "panelChangedProperty";
 	
-	/**
-	 * Creates a blank panel. Displayed when more than one field is selected
-	 * (also when no fields selected eg when application starts)
-	 */
-	public FieldEditorPanel() {	// a blank 
-		this.setPreferredSize(MINIMUM_SIZE);
-		//this.setMinimumSize(MINIMUM_SIZE);
-	}
 	
 	/**
 	 * Creates an instance of this class for editing the field.
@@ -246,6 +256,7 @@ public class FieldEditorPanel
 		this.treeNode = treeNode;
 		this.controller = controller;
 		
+		initialise();
 		buildPanel();
 	}
 	
@@ -303,14 +314,14 @@ public class FieldEditorPanel
 
 		if ((newVal instanceof String) || (newVal == null)){
 			String newValue = (newVal == null ? null : newVal.toString());
-		 	//controller.editAttribute(field, attrName, newValue, 
-		 	//		displayName, tree, treeNode);
+		 	controller.editAttribute(field, attrName, newValue, 
+		 			displayName, tree, treeNode);
 		}
 		
 		else if (newVal instanceof HashMap) {
 			HashMap newVals = (HashMap)newVal;
-			//controller.editAttributes(field, displayName, newVals, 
-			//		tree, treeNode);
+			controller.editAttributes(field, displayName, newVals, 
+					tree, treeNode);
 		}
 	}
 	
@@ -344,14 +355,14 @@ public class FieldEditorPanel
 				
 				if ((newVal instanceof String) || (newVal == null)){
 					newValue = (newVal == null ? null : newVal.toString());
-				 	// controller.editAttribute(param, attrName, newValue, 
-				 	//		displayName, tree, treeNode);
+				 	 controller.editAttribute(param, attrName, newValue, 
+				 			displayName, tree, treeNode);
 				}
 				
 				else if (newVal instanceof HashMap) {
 					HashMap newVals = (HashMap)newVal;
-					// controller.editAttributes(param, displayName, newVals, 
-						//	tree, treeNode);
+					 controller.editAttributes(param, displayName, newVals, 
+							tree, treeNode);
 				}
 				
 				updateEditingOfTreeNode();
@@ -382,6 +393,61 @@ public class FieldEditorPanel
 	}
 	
 	public void rebuildEditorPanel() {
-		this.firePropertyChange(PANEL_CHANGED_PROPERTY, null, "refresh");
+		validate();
+		repaint();
+		//this.firePropertyChange(PANEL_CHANGED_PROPERTY, null, "refresh");
+	}
+
+	
+	/**
+	 * Implemented as specified by the {@link Scrollable} interface.
+	 * Returns {@link #getPreferredSize()}
+	 * 
+	 * @see Scrollable#getPreferredScrollableViewportSize();
+	 */
+	public Dimension getPreferredScrollableViewportSize() {
+		return getPreferredSize();
+	}
+
+	/**
+	 * Implemented as specified by the {@link Scrollable} interface.
+	 * Returns 1
+	 * 
+	 * @see Scrollable#getScrollableBlockIncrement(Rectangle, int, int)
+	 */
+	public int getScrollableBlockIncrement(Rectangle visibleRect,
+			int orientation, int direction) {
+		return 1;
+	}
+
+	/**
+	 * Implemented as specified by the {@link Scrollable} interface.
+	 * Returns false, since this panel does not fill the entire 
+	 * height of the scroll pane.
+	 * 
+	 * @see Scrollable#getPreferredScrollableViewportSize();
+	 */
+	public boolean getScrollableTracksViewportHeight() {
+		return false;
+	}
+
+	/**
+	 * Implemented as specified by the {@link Scrollable} interface.
+	 * Returns true, so that this panel fills the width of the scroll pane.
+	 * 
+	 * @see Scrollable#getScrollableTracksViewportWidth()
+	 */
+	public boolean getScrollableTracksViewportWidth() {
+		return true;
+	}
+
+	/**
+	 * Implemented as specified by the {@link Scrollable} interface.
+	 * 
+	 * @see Scrollable#getScrollableUnitIncrement(Rectangle, int, int)
+	 */
+	public int getScrollableUnitIncrement(Rectangle visibleRect,
+			int orientation, int direction) {
+		return 1;
 	}
 }

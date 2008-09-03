@@ -20,10 +20,11 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.editor.browser.paramUIs;
+package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
 //Java imports
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
@@ -38,6 +39,8 @@ import javax.swing.text.BadLocationException;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AttributeEditListeners;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
@@ -60,7 +63,7 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
  * </small>
  * @since OME3.0
  */
-public class TextBoxEditor 
+public class AttributeEditor 
 	extends AbstractParamEditor {
 	
 	/**
@@ -84,37 +87,14 @@ public class TextBoxEditor
 		
 		textBox = new JTextArea(text);
 		textBox.setLineWrap(true);
-		textBox.setColumns(40);
 		textBox.setFont(CustomLabel.CUSTOM_FONT);
 		textBox.setWrapStyleWord(true);
 		
 		Border bevelBorder = BorderFactory.createLoweredBevelBorder();
 		Border emptyBorder = BorderFactory.createEmptyBorder(3, 3, 3, 3);
-		Border compoundBorder = BorderFactory.createCompoundBorder(bevelBorder, emptyBorder);
+		Border compoundBorder = BorderFactory.createCompoundBorder
+			(bevelBorder, emptyBorder);
 		textBox.setBorder(compoundBorder);
-	
-		// Determine how many rows you need to display the text.
-		int lines = textBox.getLineCount();
-		int extraLines = 0;
-		int lineLength = 0;
-		int lineStartOffset = 0;
-		// For each line of text...
-		for (int l=0; l<lines; l++) {
-			try {
-				lineLength = textBox.getLineEndOffset(l) - lineStartOffset;
-				// ...see how many extra lines you need
-				// (approx 60 chars per line, with 40 columns!)
-				extraLines = extraLines + (lineLength / 60);
-				
-				lineStartOffset = textBox.getLineEndOffset(l) + 1;
-			} catch (BadLocationException e) {
-				// ignore. This exception shouldn't happen anyway!
-			}
-		}
-		// Add the extra lines 
-		lines = lines + extraLines;
-		// Show at least 2 lines.
-		textBox.setRows(Math.max(lines, 2));
 		
 		AttributeEditListeners.addListeners(textBox, this, attributeName);
 		textBox.getDocument().addDocumentListener(new NewLineListener());
@@ -125,14 +105,9 @@ public class TextBoxEditor
 	 */
 	private void buildUI() {
 		
-		JScrollPane scrollPane = new JScrollPane(textBox);
-		//scrollPane.getViewport().setPreferredSize(preferredSize)
-		Dimension textBoxSize = textBox.getPreferredSize();
-		int w = (int)textBoxSize.getWidth();
-		int h = (int)textBoxSize.getHeight();
+		setLayout(new BorderLayout());
 		
-		scrollPane.setPreferredSize(new Dimension(w + 10, h + 10));
-		this.add(scrollPane);
+		this.add(textBox);
 	}
 	
 	/**
@@ -142,7 +117,7 @@ public class TextBoxEditor
 	 * @param param		The parameter object that this UI will edit.
 	 * @param attributeName		The name of the attribute to edit 
 	 */
-	public TextBoxEditor(IAttributes param, String attributeName) 
+	public AttributeEditor(IAttributes param, String attributeName) 
 	{	
 		super(param);
 		
@@ -160,7 +135,7 @@ public class TextBoxEditor
 	 * 
 	 * @param param		The parameter object that this UI will edit. 
 	 */
-	public TextBoxEditor(IAttributes param) 
+	public AttributeEditor(IAttributes param) 
 	{	
 		super(param);
 		
@@ -169,6 +144,11 @@ public class TextBoxEditor
 		initialise();
 		
 		buildUI();
+	}
+	
+	public void setCols(int cols) 
+	{
+		textBox.setColumns(cols);
 	}
 	
 	

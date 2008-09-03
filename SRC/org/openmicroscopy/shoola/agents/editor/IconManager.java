@@ -246,7 +246,7 @@ public class IconManager
         relPaths[ADD_CHECK_BOX] = "nuvola_addCheckBox16.png";
         relPaths[DROP_DOWN] = "eclipse_dropDown16.png";
         relPaths[NUMBER] = "number16.png";
-        relPaths[ADD_NUMBER] = "addNumber16.png";
+        relPaths[ADD_NUMBER] = "nuvola_addNumber16.png";
         relPaths[CALENDAR_ICON] = "nuvola_date16.png";
         relPaths[WWW_ICON] = "nuvola_www16.png";
         

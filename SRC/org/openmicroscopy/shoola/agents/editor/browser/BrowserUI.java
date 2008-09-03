@@ -60,14 +60,29 @@ class BrowserUI
      */
     private JTree					treeOutline;
     
+    /**
+     * This UI component displays the {@link FieldEditorPanel}.
+     * The {@link FieldEditorDisplay} listens to selection changes to the
+     * {@link #treeDisplay} and creates a new {@link FieldEditorPanel} for
+     * the selected field. 
+     * The {@link #editorPanel} is not visible if Editing of the tree is
+     * disabled (ie. if the {@link Browser} is in the 
+     * {@link Browser#TREE_DISPLAY} state.
+     */
+    private FieldEditorDisplay 		editorPanel;
+    
+    /**
+     * The split pane on the right of the UI, which holds the 
+     * {@link #treeDisplay} display in the left, and the
+     *  {@link #editorPanel} in the right.
+     */
+    private JSplitPane 				rightSplitPane;
+    
     /** The Controller. */
     private BrowserControl  		controller;
     
     /** The model. */
     private BrowserModel    		model;
-    
-    /** The component hosting the tree. */
-    private JScrollPane             scrollPane;
     
     /**
      * Initialises the JTrees for this UI.
@@ -92,19 +107,41 @@ class BrowserUI
     {
     	setLayout(new BorderLayout(0, 0));
 
-    	JSplitPane splitPane = new JSplitPane();
-    	splitPane.setOneTouchExpandable(true);
-    	splitPane.setDividerLocation(250);
-    	splitPane.setBorder(null);
-    	
-        splitPane.setLeftComponent(new JScrollPane(treeOutline));
+    	JSplitPane leftSplitPane = new JSplitPane();
+    	leftSplitPane.setOneTouchExpandable(true);
+    	leftSplitPane.setDividerLocation(200);
+    	leftSplitPane.setBorder(null);
+        leftSplitPane.setLeftComponent(new JScrollPane(treeOutline));
         
-        scrollPane = new JScrollPane(treeDisplay);
-        splitPane.setRightComponent(scrollPane);
+        rightSplitPane = new JSplitPane();
+        rightSplitPane.setOneTouchExpandable(true);
+        //rightSplitPane.setDividerLocation(500);
+        rightSplitPane.setBorder(null);
+        rightSplitPane.setResizeWeight(0.7);
         
-        add(splitPane, BorderLayout.CENTER);
+        rightSplitPane.setLeftComponent(new JScrollPane(treeDisplay));
+        
+        editorPanel = new FieldEditorDisplay(treeDisplay, controller);
+        rightSplitPane.setRightComponent(editorPanel);
+        
+        leftSplitPane.setRightComponent(rightSplitPane);
+        
+        add(leftSplitPane, BorderLayout.CENTER);
         
         add(new ToolBar(controller, treeDisplay), BorderLayout.NORTH);
+    }
+    
+    /**
+     * Sets the visibility of the {@link #editorPanel} and the properties of
+     * the {@link rightSplitPane}, in which it is displayed. 
+     * 
+     * @param visible		True if the editorPanel should be visible.
+     */
+    private void showFieldEditor(boolean visible) 
+    {
+    	editorPanel.setVisible(visible);
+    	rightSplitPane.setDividerSize(visible ? 7 : 0);
+    	rightSplitPane.setDividerLocation(visible ? 0.7 : 1.0);
     }
     
     
@@ -134,6 +171,8 @@ class BrowserUI
         this.model = model;
         createTrees();
         buildUI();
+        
+        onStateChanged(); 	// update editing state etc.
     }
     
     /**
@@ -151,5 +190,6 @@ class BrowserUI
     void onStateChanged() {
     	int state = model.getState();
     	treeDisplay.setEditable(state == Browser.TREE_EDIT);	
+    	showFieldEditor(state == Browser.TREE_EDIT);
     }
 }

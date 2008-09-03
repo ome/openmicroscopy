@@ -163,10 +163,15 @@ class EditorUI
     /** Overrides the {@link #setOnScreen() setOnScreen} method. */
     public void setOnScreen()
     {	
+    	/*
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         setSize(6*(screenSize.width/10), 6*(screenSize.height/10));
 
         this.setLocation(screenSize.width/5, screenSize.height/5);
+        */
+    	setSize(1000, 600);
+    	setLocation(200, 100);
+    	
 		setVisible(true);
         
     }

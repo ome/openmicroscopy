@@ -162,6 +162,7 @@ public class TreeModelFactory
 		 
 		 // Get values for the Name, Description and Url...
 		 String fieldName = allAttributes.get(DataFieldConstants.ELEMENT_NAME);
+		 fieldName = removeHtmlTags(fieldName);
 		 
 		 // if the xml file's elements don't have "elementName" attribute, 
 		  // use the <tagName>
@@ -170,6 +171,7 @@ public class TreeModelFactory
 		 }
 		 
 		 String description = allAttributes.get(DataFieldConstants.DESCRIPTION);
+		 description = removeHtmlTags(description);
 		 String url = allAttributes.get(DataFieldConstants.URL);
 		 
 		 String colour = allAttributes.get(DataFieldConstants.BACKGROUND_COLOUR);
@@ -390,6 +392,32 @@ public class TreeModelFactory
 		buildTreeFromDOM(rootElement, rootNode);
 		
 		return new DefaultTreeModel(rootNode);
+	}
+	
+	/**
+	 * Convenience method for converting html-formatted strings to tag-free
+	 * strings.
+	 * Beta-3.0 used HTML for formatting the text of Field name, and
+	 * description.
+	 * Beta-4.0 does not support HTML formatting of these (or any other)
+	 * attributes. So, these tags must be removed when importing 
+	 * Beta-3.0 XML documents. 
+	 * 
+	 * @param withTags		A string containing br, u and b tags. 
+	 * @return			The same string, without the br, u and b tags. 
+	 */
+	public static String removeHtmlTags(String withTags) 
+	{
+		if (withTags == null) return null;
+		
+		String noTags = withTags.replace("<br>", "\n");
+		noTags = noTags.replace("<br />", "");
+		noTags = noTags.replace("<u>", "");
+		noTags = noTags.replace("</u>", "");
+		noTags = noTags.replace("<b>", "");
+		noTags = noTags.replace("</b>", "");
+		
+		return noTags;
 	}
 
 }

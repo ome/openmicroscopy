@@ -45,7 +45,6 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
-import org.openmicroscopy.shoola.agents.editor.actions.OpenFileAction;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 
 /** 

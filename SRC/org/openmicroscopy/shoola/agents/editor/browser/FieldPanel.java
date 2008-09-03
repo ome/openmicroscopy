@@ -392,10 +392,7 @@ public class FieldPanel
 	 */
 	private void setNameText(String name) 
 	{
-		if (name != null) {
-			name = "<html>" + name + "</html>";
-			nameLabel.setText(name);
-		}
+		nameLabel.setText(name);
 		
 		/*	 TODO		Refresh locked status...
 		String lockedLevel = dataField.getAttribute(DataFieldConstants.LOCK_LEVEL);
