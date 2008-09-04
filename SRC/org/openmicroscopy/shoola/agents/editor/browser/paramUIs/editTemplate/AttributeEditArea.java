@@ -63,18 +63,26 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
  * </small>
  * @since OME3.0
  */
-public class AttributeEditor 
-	extends AbstractParamEditor {
+public class AttributeEditArea 
+	extends AbstractParamEditor 
+{
+	
+	/**
+	 * This is the name of the attribute being edited by this UI
+	 */
+	private String 			attributeName;
+	
+	/**
+	 * A string for the label beside the text field. e.g. "Name".
+	 * This is also used for the {@link #getEditDisplayName()} to provide 
+	 * an undo/redo display name. 
+	 */
+	private String 			labelText;
 	
 	/**
 	 * The text box that edits the value of this parameter
 	 */
 	private JTextArea 			textBox;
-	
-	/**
-	 * The name of the attribute that this text box is editing
-	 */
-	private String	 			attributeName;
 	
 	/**
 	 * Initialises the UI components. 
@@ -107,7 +115,8 @@ public class AttributeEditor
 		
 		setLayout(new BorderLayout());
 		
-		this.add(textBox);
+		add(new CustomLabel (labelText + ": "), BorderLayout.NORTH);
+		this.add(textBox, BorderLayout.CENTER);
 	}
 	
 	/**
@@ -117,11 +126,13 @@ public class AttributeEditor
 	 * @param param		The parameter object that this UI will edit.
 	 * @param attributeName		The name of the attribute to edit 
 	 */
-	public AttributeEditor(IAttributes param, String attributeName) 
+	public AttributeEditArea(IAttributes param, 
+			String attributeName, String label) 
 	{	
 		super(param);
 		
 		this.attributeName = attributeName;
+		this.labelText = label;
 		
 		initialise();
 		
@@ -135,7 +146,7 @@ public class AttributeEditor
 	 * 
 	 * @param param		The parameter object that this UI will edit. 
 	 */
-	public AttributeEditor(IAttributes param) 
+	public AttributeEditArea(IAttributes param) 
 	{	
 		super(param);
 		
@@ -155,7 +166,7 @@ public class AttributeEditor
 	/**
 	 * @see ITreeEditComp#getEditDisplayName()
 	 */
-	public String getEditDisplayName() { return "Edit Text"; }
+	public String getEditDisplayName() { return "Edit " + labelText; }
 	
 	/**
 	 * Need to listen to changes in the number of rows, so as to re-size 

@@ -30,6 +30,7 @@ import javax.swing.JTextField;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomTextField;
@@ -94,7 +95,7 @@ public class TextFieldEditor
 	 * @param param		The parameter that you are editing
 	 * @param attributeName 	Specify the attribute you want to edit
 	 */
-	public TextFieldEditor(IParam param, String attributeName) 
+	public TextFieldEditor(IAttributes param, String attributeName) 
 	{	
 		super(param);
 		this.attributeName = attributeName;

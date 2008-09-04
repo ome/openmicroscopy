@@ -64,28 +64,26 @@ public class ParamTemplateUIFactory {
 	{
 		
 		if (paramObject == null) {
-			return new JPanel();
+			return null;
 		}
 		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
 		
 		if (inputType == null) {
-			return new JPanel();
+			return null;
 		}
 		
 		if (inputType.equals(SingleParam.TEXT_LINE_PARAM)) {
-			return new DefaultTextField(paramObject);
+			return new AttributeEditLine(paramObject, 
+					SingleParam.DEFAULT_VALUE, "Default Text");
 		} 
 		
 		if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
-			return new DateTimeField(paramObject);
+			return null;
 		} 
 		
 		if (inputType.equals(SingleParam.TEXT_BOX_PARAM)) {
-			return new TextBoxEditor(paramObject);
-		}
-		
-		if (inputType.equals(DataFieldConstants.FIXED_PROTOCOL_STEP)) {
-			return new JPanel();
+			return new AttributeEditArea(paramObject,
+					SingleParam.DEFAULT_VALUE, "Text-box Default");
 		}
 		
 		return null;

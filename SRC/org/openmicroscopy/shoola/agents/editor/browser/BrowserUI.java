@@ -140,7 +140,7 @@ class BrowserUI
     private void showFieldEditor(boolean visible) 
     {
     	editorPanel.setVisible(visible);
-    	rightSplitPane.setDividerSize(visible ? 7 : 0);
+    	rightSplitPane.setDividerSize(visible ? 9 : 0);
     	rightSplitPane.setDividerLocation(visible ? 0.7 : 1.0);
     }
     

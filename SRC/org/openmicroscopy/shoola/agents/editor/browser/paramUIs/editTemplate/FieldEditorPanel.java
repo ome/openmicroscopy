@@ -134,7 +134,7 @@ public class FieldEditorPanel
 		attributeFieldsPanel.setLayout(new BoxLayout
 				(attributeFieldsPanel, BoxLayout.Y_AXIS));
 		// set border and background
-		Border emptyBorder = new EmptyBorder(5, 5, 15,5);
+		Border emptyBorder = new EmptyBorder(10, 5, 15,5);
 		Border lineBorder = BorderFactory.createMatteBorder(
                 0, 0, 1, 0, new Color(200,200,200));
 		Border compoundBorder = BorderFactory.createCompoundBorder
@@ -149,22 +149,16 @@ public class FieldEditorPanel
 	private void buildPanel() {
 		
 		// Name: Label and text box
-		JPanel nameContainer = new JPanel(new BorderLayout());
-		nameContainer.setBackground(null);
-		nameContainer.add(new CustomLabel("Field Name:"), BorderLayout.WEST);
-		attributeFieldsPanel.add(nameContainer);
-		AttributeEditor nameEditor = new AttributeEditor(field, Field.FIELD_NAME);
+		AttributeEditLine nameEditor = new AttributeEditLine
+			(field, Field.FIELD_NAME, "Field Name");
 		nameEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		attributeFieldsPanel.add(nameEditor);
+		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		
 		// Description: Label and text box
-		JPanel descContainer = new JPanel(new BorderLayout());
-		descContainer.setBackground(null);
-		descContainer.add(new CustomLabel("Description:"), BorderLayout.WEST);
-		attributeFieldsPanel.add(descContainer);
-		AttributeEditor descriptionEditor = new AttributeEditor
-				(field, Field.FIELD_DESCRIPTION);
+		AttributeEditArea descriptionEditor = new AttributeEditArea
+				(field, Field.FIELD_DESCRIPTION, "Description");
 		descriptionEditor.addPropertyChangeListener
 				(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		attributeFieldsPanel.add(descriptionEditor);

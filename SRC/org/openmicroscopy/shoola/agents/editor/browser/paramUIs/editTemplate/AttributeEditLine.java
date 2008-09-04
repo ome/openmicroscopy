@@ -39,13 +39,14 @@ import javax.swing.JComponent;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextFieldEditor;
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 /** 
- * This is a UI component used for editing the "Default" text value of a
- * parameter. 
+ * This is a UI component with a {@link TextFieldEditor}
+ *  used for editing a named attribute.
  * It uses an instance of TextFieldEditor to provide a text field that 
  * fires propertyChangeEvents when edited.
  * These are forwarded by calling the attributeEdited method of the
@@ -59,10 +60,22 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
  * </small>
  * @since OME3.0
  */
-public class DefaultTextField 
+public class AttributeEditLine 
 	extends AbstractParamEditor
 	implements PropertyChangeListener 
 {
+	/**
+	 * This is the name of the attribute being edited by this UI
+	 */
+	private String 			attributeName;
+	
+	/**
+	 * A string for the label beside the text field. e.g. "Name".
+	 * This is also used for the {@link #getEditDisplayName()} to provide 
+	 * an undo/redo display name. 
+	 */
+	private String 			labelText;
+	
 	/**
 	 * Builds the UI. 
 	 */
@@ -70,11 +83,11 @@ public class DefaultTextField
 	{
 		setLayout(new BorderLayout());
 		
-		add(new CustomLabel ("Default: "), BorderLayout.WEST);
+		add(new CustomLabel (labelText + ": "), BorderLayout.NORTH);
 		
 		// Add a text field
-		JComponent textField = new TextFieldEditor((IParam)getParameter(), 
-				SingleParam.DEFAULT_VALUE);
+		JComponent textField = new TextFieldEditor(getParameter(), 
+				attributeName);
 		// listen for changes to the Value property, indicating that the 
 		// field has been edited.
 		textField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
@@ -88,9 +101,12 @@ public class DefaultTextField
 	 * 
 	 * @param param		The parameter you're editing. 
 	 */
-	public DefaultTextField(IParam param) 
+	public AttributeEditLine(IAttributes param, String attributeName, String label) 
 	{	
 		super(param);
+		
+		this.attributeName = attributeName;
+		this.labelText = label;
 		
 		buildUI();
 	}
@@ -104,7 +120,7 @@ public class DefaultTextField
 	public void propertyChange(PropertyChangeEvent evt) 
 	{	
 		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-			attributeEdited(SingleParam.DEFAULT_VALUE, evt.getNewValue());
+			attributeEdited(attributeName, evt.getNewValue());
 		}
 	}
 
@@ -114,7 +130,7 @@ public class DefaultTextField
 	 * @return String 	see above.
 	 */
 	public String getEditDisplayName() {
-		return "Edit Default Value";
+		return "Edit " + labelText;
 	}
 
 }
