@@ -77,6 +77,10 @@ public class ParamTemplateUIFactory {
 					SingleParam.DEFAULT_VALUE, "Default Text");
 		} 
 		
+		if (inputType.equals(SingleParam.ENUM_PARAM)) {
+			return new EnumTemplate(paramObject);
+		}
+		
 		if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {
 			return null;
 		} 

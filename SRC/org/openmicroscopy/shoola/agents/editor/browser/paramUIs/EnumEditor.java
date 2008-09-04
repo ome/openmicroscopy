@@ -34,6 +34,7 @@ import javax.swing.JComboBox;
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
@@ -66,6 +67,12 @@ public class EnumEditor
 	private JComboBox 			comboBox;
 	
 	/**
+	 * The name of the attribute that is edited by this UI.
+	 * The new value of the comboBox will be mapped to this attribute.
+	 */
+	private String 				attributeName;
+	
+	/**
 	 * The comboBox index for a "blank" (no option chosen)
 	 */
 	public static final int NULL_INDEX = 0;
@@ -83,6 +90,8 @@ public class EnumEditor
 	 * @param options	A list of options, separated by commas. 
 	 */
 	private void setDropDownOptions(String options) {
+		
+		comboBox.removeAllItems();
 		if (options != null) {
 			String dropDownOptions = options;
 			String[] optionsSplit = dropDownOptions.split(",");
@@ -95,52 +104,25 @@ public class EnumEditor
 				ddOptions[i] = optionsSplit[i-1].trim();
 			}
 		
-			comboBox.removeAllItems();
 			for(int i=0; i<ddOptions.length; i++) {
 				comboBox.addItem(ddOptions[i]);
 			}
 			
 			// Set it to the current value, (if it exists in the new ddOptions)
-			String value = getParameter().getAttribute(SingleParam.PARAM_VALUE);
-			boolean newValNotFound = true;
+			String value = getParameter().getAttribute(attributeName);
+
 			if (value != null) {
 				// start at index 1, since 0 is blank / null
 				for (int i=1; i<ddOptions.length; i++) {
 					if (value.equals(ddOptions[i])) {
 						comboBox.setSelectedIndex(i);
-						newValNotFound = false;
 						continue;
 					}
 				}
 			} else {	// value == null
 				comboBox.setSelectedIndex(NULL_INDEX);
-				newValNotFound = false;		// always have a null!
 			}
-			
-			//need to update value (if the old value isn't in the new options)
-			if (newValNotFound)
-				updateParam();
-		} else {
-			// options == null, remove all
-			comboBox.removeAllItems();
 		}
-	}
-	
-	/**
-	 * Called after the drop-down options have changed, to update the 
-	 * dataField, in case the new options didn't contain the old value. 
-	 * NB. This change will not be included in Undo/Redo, and therefore should
-	 * really be avoided by checking that the value is in the new options 
-	 * when they are set. If not, include the VALUE in the same undo/redo
-	 * as the options. 
-	 */
-	private void updateParam() {
-
-		String value = comboBox.getSelectedItem().toString();
-		if(comboBox.getSelectedIndex() == NULL_INDEX) {
-			value = null;
-		}
-		getParameter().setAttribute(SingleParam.PARAM_VALUE, value);	
 	}
 
 	/**
@@ -173,14 +155,32 @@ public class EnumEditor
 	 * 
 	 * @param param		The parameter this field is editing.
 	 */
-	public EnumEditor(IParam param) 
+	public EnumEditor(IAttributes param) 
 	{	
 		super(param);
 		
+		attributeName = SingleParam.PARAM_VALUE;
 		initialise();
 		
 		buildUI();
 	}
+	
+	/**
+	 * Creates an instance. Builds the UI. 
+	 * 
+	 * @param param		The parameter this field is editing.
+	 * @param attributeName		The attribute edited by the comboBox.
+	 */
+	public EnumEditor(IAttributes param, String attributeName) 
+	{	
+		super(param);
+		
+		this.attributeName = attributeName;
+		initialise();
+		
+		buildUI();
+	}
+	
 	
 	/**
 	 * ActionPerformed for the comboBox. 
@@ -195,7 +195,7 @@ public class EnumEditor
 		if(comboBox.getSelectedIndex() == NULL_INDEX) {
 			newValue = null;
 		}
-		attributeEdited(SingleParam.PARAM_VALUE, newValue);
+		attributeEdited(attributeName, newValue);
 	}
 	
 	/**

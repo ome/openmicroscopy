@@ -41,14 +41,13 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
 import javax.swing.JTree;
 import javax.swing.Scrollable;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
@@ -57,14 +56,13 @@ import javax.swing.tree.TreePath;
 
 import org.openmicroscopy.shoola.agents.editor.browser.BrowserControl;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 
 /** 
@@ -84,12 +82,20 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 public class FieldEditorPanel 
 	extends JPanel 
 	implements PropertyChangeListener,
-	Scrollable
+	Scrollable,
+	ActionListener
 {
 	/**
 	 * Defines a minimum size for this Panel. 
 	 */
 	public static final Dimension MINIMUM_SIZE = new Dimension(290,300);
+	
+	/**
+	 * A bound property of this panel. 
+	 * Changes in this property indicate that the panel needs to be rebuilt
+	 * from the data model. 
+	 */
+	public static final String PANEL_CHANGED_PROPERTY = "panelChanged";
 	
 	/**
 	 * The field that this UI component edits.
@@ -121,8 +127,14 @@ public class FieldEditorPanel
 	/**
 	 * A comboBox for changing the type of parameter
 	 */
-	private JComboBox 			inputTypeSelector;
+	private JComboBox 			paramTypeChooser;
 	
+
+	/**
+	 * Launches the colour pop-up menu
+	 */
+	protected JButton colourSelectButton;
+
 
 	/**
 	 * Initialises the UI components
@@ -141,6 +153,24 @@ public class FieldEditorPanel
 			(lineBorder, emptyBorder);
 		attributeFieldsPanel.setBorder(compoundBorder);
 		attributeFieldsPanel.setBackground(ImageBorderFactory.DEFAULT_BACKGROUND);
+		
+		
+		// Combo-box for choosing parameter type
+		paramTypeChooser = new CustomComboBox(FieldParamsFactory.UI_INPUT_TYPES);
+		paramTypeChooser.setMaximumRowCount(
+				FieldParamsFactory.UI_INPUT_TYPES.length);
+		// Set it to the current input type
+		String inputType = FieldParamsFactory.NO_PARAMS;
+		if (field.getParamCount() > 0) {
+			IParam param1 =  field.getParamAt(0);
+			inputType = param1.getAttribute(AbstractParam.PARAM_TYPE);
+		}
+		if (inputType != null) {
+			for (int i=0; i<FieldParamsFactory.UI_INPUT_TYPES.length; i++)
+				if (inputType.equals(FieldParamsFactory.PARAM_TYPES[i]))
+					paramTypeChooser.setSelectedIndex(i);
+		}
+		paramTypeChooser.addActionListener(this);
 	}
 	
 	/**
@@ -165,10 +195,12 @@ public class FieldEditorPanel
 		
 		// Parameters: Label and "Add" button
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
-		JLabel paramLabel = new CustomLabel("Parameters:");
+		//JLabel paramLabel = new CustomLabel("Parameters:");
 		JPanel paramHeader = new JPanel(new BorderLayout());
 		paramHeader.setBackground(null);
-		paramHeader.add(paramLabel, BorderLayout.WEST);
+		
+		// Add the JComboBox for changing parameter type
+		paramHeader.add(paramTypeChooser, BorderLayout.WEST);
 		
 		JButton addParamsButton = new AddParamActions(field, tree, 
 				treeNode, controller).getButton();
@@ -222,18 +254,26 @@ public class FieldEditorPanel
 	}
 
 	/**
-	 * Launches the colour pop-up menu
+	 * Changes the Parameter type of the first parameter of this field.
+	 * In future, it may be preferable to allow users to change the type
+	 * of other parameters of this field, depending on selection etc. 
+	 * 
+	 * @param newType	A String that defines the type of parameter selected
 	 */
-	protected JButton 			colourSelectButton;
-	
-	/**
-	 * A bound property of this panel.
-	 * A change in this property indicates that this panel should be rebuilt
-	 * from the data model. 
-	 */
-	//public static final String PANEL_CHANGED_PROPERTY = "panelChangedProperty";
-	
-	
+	private void paramTypeChanged(String newType) {
+		
+		if (field.getParamCount() > 0) {
+			IParam oldParam = field.getParamAt(0);
+			field.removeParam(oldParam);
+		}
+		IParam newParam = FieldParamsFactory.getFieldParam(newType);
+		field.addParam(0, newParam);
+		
+		/* refresh this node in the JTree, and rebuild this panel*/
+		updateEditingOfTreeNode();
+		rebuildEditorPanel();
+	}
+
 	/**
 	 * Creates an instance of this class for editing the field.
 	 * 
@@ -267,57 +307,6 @@ public class FieldEditorPanel
 			paramTypeChanged(newType);
 		}
 	}	
-	
-	/**
-	 * Changes the Parameter type of the first parameter of this field.
-	 * In future, it may be preferable to allow users to change the type
-	 * of other parameters of this field, depending on selection etc. 
-	 * 
-	 * @param newType	A String that defines the type of parameter selected
-	 */
-	public void paramTypeChanged(String newType) {
-		
-		if (field.getParamCount() > 0) {
-			IParam oldParam = field.getParamAt(0);
-			field.removeParam(oldParam);
-		}
-		IParam newParam = FieldParamsFactory.getFieldParam(newType);
-		field.addParam(0, newParam);
-		
-		/* refresh this node in the JTree, and rebuild this panel*/
-		updateEditingOfTreeNode();
-		rebuildEditorPanel();
-	}
-	
-	/**
-	 * Called by components of this panel when they want to perform an edit
-	 * that is added to the undo/redo queue. 
-	 * 
-	 * @param attrName		The name of the attribute (can be null if more than
-	 * 		one attribute is being edited)
-	 * @param newVal		The new value of the attribute. Could be a string
-	 *  	(if one attribute edited) or a Map, if more than one value edited. 	
-	 * @param displayName	A display name for undo/redo
-	 */
-	public void fieldEdited(String attrName, Object newVal, String displayName) {
-		
-		/* Need controller to pass on the edit  */
-		if (controller == null) return;
-		
-		System.out.println("FieldEditorPanel fieldEdited " + attrName + " " + newVal);
-
-		if ((newVal instanceof String) || (newVal == null)){
-			String newValue = (newVal == null ? null : newVal.toString());
-		 	controller.editAttribute(field, attrName, newValue, 
-		 			displayName, tree, treeNode);
-		}
-		
-		else if (newVal instanceof HashMap) {
-			HashMap newVals = (HashMap)newVal;
-			controller.editAttributes(field, displayName, newVals, 
-					tree, treeNode);
-		}
-	}
 	
 	/**
 	 * If the size of a sub-component of this panel changes, 
@@ -381,17 +370,40 @@ public class FieldEditorPanel
 		if ((tree != null) && (treeNode !=null)) {
 			
 			TreePath path = new TreePath(treeNode.getPath());
-			
 			tree.getUI().startEditingAtPath(tree, path);
 		}
 	}
 	
+	
 	public void rebuildEditorPanel() {
-		validate();
-		repaint();
-		//this.firePropertyChange(PANEL_CHANGED_PROPERTY, null, "refresh");
-	}
 
+		if ((tree != null) && (treeNode != null)) {
+			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+			treeModel.nodeChanged(treeNode);
+		}
+
+		/*validate();
+		repaint();
+		this.firePropertyChange(PANEL_CHANGED_PROPERTY, null, "refresh");
+		*/
+	}
+	
+	/**
+	 * Called from the {@link #paramTypeChooser}.
+	 * Calls {@link #paramTypeChanged(String)}.
+	 * 
+	 * Implemented as specified by the {@link ActionListener} interface.
+	 * 
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed (ActionEvent event) 
+	{
+		if (event.getSource().equals(paramTypeChooser)) {
+			int selectedIndex = paramTypeChooser.getSelectedIndex();
+			String newType = FieldParamsFactory.PARAM_TYPES[selectedIndex];
+			paramTypeChanged(newType);
+		}
+	}
 	
 	/**
 	 * Implemented as specified by the {@link Scrollable} interface.

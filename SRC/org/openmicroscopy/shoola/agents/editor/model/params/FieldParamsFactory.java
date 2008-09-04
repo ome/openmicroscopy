@@ -113,6 +113,12 @@ public class FieldParamsFactory {
 		else if (paramType.equals(ImageParam.IMAGE_PARAM)) {
 			fieldValue = new ImageParam(ImageParam.IMAGE_PARAM);
 		}
+		else if (paramType.equals(LinkParam.LINK_PARAM)) {
+			fieldValue = new LinkParam(LinkParam.LINK_PARAM);
+		}
+		else if (paramType.equals(TableParam.TABLE_PARAM)) {
+			fieldValue = new TableParam(TableParam.TABLE_PARAM);
+		}
 		
 		else 
 			System.err.println("FieldParamsFactory: PARAM_TYPE " + 

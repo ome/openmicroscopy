@@ -26,11 +26,15 @@ package org.openmicroscopy.shoola.agents.editor.browser;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -56,7 +60,9 @@ import org.openmicroscopy.shoola.agents.editor.model.IField;
  */
 public class FieldEditorDisplay 
 	extends JPanel 
-	implements TreeSelectionListener 
+	implements TreeSelectionListener,
+	TreeModelListener,
+	PropertyChangeListener
 { 
 	
 	/**
@@ -75,6 +81,13 @@ public class FieldEditorDisplay
 	 * A scroll pane to hold the {@link FieldEditorPanel}
 	 */
 	private JScrollPane 				scrollPane;
+	
+	/**
+	 * The currently displayed panel. Keep a reference to this so that
+	 * when it disappears, this class can be removed as a 
+	 * {@link PropertyChangeListener}
+	 */
+	private JComponent 					currentDisplay;
 	
 	/**
 	 * Refreshes the content of this panel, based on the currently selected
@@ -113,7 +126,16 @@ public class FieldEditorDisplay
 	 */
 	private void setPanel(JComponent panel) 
 	{	
-		scrollPane.setViewportView(panel);
+		if (currentDisplay != null) {
+			currentDisplay.removePropertyChangeListener
+				(FieldEditorPanel.PANEL_CHANGED_PROPERTY, this);
+		}
+		
+		currentDisplay = panel;
+		currentDisplay.addPropertyChangeListener
+		(FieldEditorPanel.PANEL_CHANGED_PROPERTY, this);
+		
+		scrollPane.setViewportView(currentDisplay);
 		validate();
 		repaint();
 	}
@@ -161,4 +183,57 @@ public class FieldEditorDisplay
 	{	
 		refreshEditorDisplay();
 	}
+
+	/**
+	 * Listens for changes in the displayed {@link FieldEditorPanel}.
+	 * If the {@link FieldEditorPanel#PANEL_CHANGED_PROPERTY} property
+	 * changes, the panel needs to be refreshed and
+	 * {@link #refreshEditorDisplay()} is called.
+	 * 
+	 * Implemented as specified by the {@link PropertyChangeListener} interface
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (FieldEditorPanel.PANEL_CHANGED_PROPERTY
+				.equals(evt.getPropertyName())) {
+			refreshEditorDisplay();
+		}
+	}
+
+	/**
+	 * Implemented as specified by the {@link TreeModelListener} interface.
+	 * Calls {@link #refreshEditorDisplay()} to update the node, even if 
+	 * there is no change in node selection.
+	 * 
+	 * @see TreeModelListener#treeNodesChanged(TreeModelEvent)
+	 */
+	public void treeNodesChanged(TreeModelEvent e) 
+	{
+		refreshEditorDisplay();
+	}
+
+	/**
+	 * Implemented as required by the {@link TreeModelListener} interface.
+	 * No operation implementation in this case
+	 * 
+	 * @see TreeModelListener#treeNodesInserted(TreeModelEvent)
+	 */
+	public void treeNodesInserted(TreeModelEvent e) {}
+
+	/**
+	 * Implemented as required by the {@link TreeModelListener} interface.
+	 * No operation implementation in this case
+	 * 
+	 * @see TreeModelListener#treeNodesRemoved(TreeModelEvent)
+	 */
+	public void treeNodesRemoved(TreeModelEvent e) {}
+
+	/**
+	 * Implemented as required by the {@link TreeModelListener} interface.
+	 * No operation implementation in this case
+	 * 
+	 * @see TreeModelListener#treeStructureChanged(TreeModelEvent)
+	 */
+	public void treeStructureChanged(TreeModelEvent e) {}
 }

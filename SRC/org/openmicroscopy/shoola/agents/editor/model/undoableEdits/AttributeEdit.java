@@ -144,6 +144,9 @@ public class AttributeEdit
 		if (canDo()) {
 			oldValue = attributes.getAttribute(attributeName);
 			attributes.setAttribute(attributeName, newValue);
+			
+			// if node changed (eg template edited), need to notify
+			notifyNodeChanged();
 		}
 	}
 
