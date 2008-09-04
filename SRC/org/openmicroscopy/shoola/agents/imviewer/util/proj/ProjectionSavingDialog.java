@@ -202,13 +202,14 @@ class ProjectionSavingDialog
 		rndSettingsBox.setSelected(true);
 		
 		int maxT = model.getMaxT();
-		if (maxT > 1) {
+		//if (maxT > 1) {
 			timeSelection = new TextualTwoKnobsSlider(1, maxT, 1, maxT);
 			timeSelection.setSliderLabelText("Timepoint:");
 			timeSelection.layoutComponents();
-		}
+			timeSelection.setEnabled(maxT > 1);
+		//}
 			
-		if (model.getSelectedAlgorithm() == ImViewer.SUM_INTENSITY) {
+		//if (model.getSelectedAlgorithm() == ImViewer.SUM_INTENSITY) {
 			Map<String, String> map = EditorUtil.PIXELS_TYPE_DESCRIPTION;
 			String[] data = new String[map.size()];
 			Iterator<String> i = map.keySet().iterator();
@@ -224,7 +225,9 @@ class ProjectionSavingDialog
 			}
 			pixelsType = new JComboBox(data);
 			pixelsType.setSelectedIndex(selectedIndex);
-		}
+			pixelsType.setEnabled(
+					model.getSelectedAlgorithm() == ImViewer.SUM_INTENSITY);
+		//}
 		selectionPane =  new JPanel();
 		selectionPane.setLayout(new BoxLayout(selectionPane, BoxLayout.Y_AXIS));
     	
@@ -262,12 +265,12 @@ class ProjectionSavingDialog
 			
 			ViewerSorter sorter = new ViewerSorter();
 			List l = sorter.sort(datasets);
-			Iterator i = l.iterator();
+			Iterator j = l.iterator();
 			JCheckBox box;
 			DatasetData d;
-			int index = 0;
-			while (i.hasNext()) {
-				d = (DatasetData) i.next();
+			index = 0;
+			while (j.hasNext()) {
+				d = (DatasetData) j.next();
 				box = new JCheckBox(d.getName());
 				selection.put(box, d);
 				if (index == 0) box.setSelected(true);

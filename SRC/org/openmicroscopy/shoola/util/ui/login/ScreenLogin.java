@@ -29,6 +29,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -57,7 +59,6 @@ import javax.swing.JTextPane;
 
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -127,6 +128,9 @@ public class ScreenLogin
 	/** The password text. */
 	private static final String		PASSWORD_TEXT = "Password: ";
 
+	/** The number of column of the text field. */
+	private static final int		TEXT_COLUMN = 12;
+	
 	/** Text field to enter the login user name. */
 	private JTextField          user;
 
@@ -147,6 +151,9 @@ public class ScreenLogin
 
 	/** Field hosting the server text. */
 	private JTextPane 			serverText;
+	
+	/** The UI component hosting the server text. */
+	private JPanel 				serverTextPane;
 
 	/** Field hosting the server text. */
 	private JLabel 				connectionSpeedText;
@@ -309,8 +316,10 @@ public class ScreenLogin
 		user = new JTextField();
 		user.setText(userName);
 		user.setToolTipText("Enter your username.");
+		user.setColumns(TEXT_COLUMN);
 		pass = new JPasswordField();
 		pass.setToolTipText("Enter your password.");
+		pass.setColumns(TEXT_COLUMN);
 		List<String> servers = editor.getServers();
 		if (servers == null || servers.size() == 0) serverName = DEFAULT_SERVER;
 		else serverName = servers.get(servers.size()-1);
@@ -319,6 +328,7 @@ public class ScreenLogin
 		
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
 		//serverText.setFont(serverText.getFont().deriveFont(Font.BOLD));
+		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, false);
 	}
 
 	/**
@@ -331,22 +341,17 @@ public class ScreenLogin
 	 */
 	private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
 	{
-		double[][] size = new double[][]{{TableLayout.PREFERRED, 170}, 
-						{TableLayout.PREFERRED}};
-
 		JPanel panel = new JPanel();
 		panel.setOpaque(false);
-		TableLayout layout = new TableLayout(size);
-		panel.setLayout(layout);       
-
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		JLabel label = UIUtilities.setTextFont(s);
 		label.setForeground(TEXT_COLOR);
 		label.setDisplayedMnemonic(mnemonic);
 
 		label.setLabelFor(field);
 		label.setOpaque(false);
-		panel.add(label, "0, 0, r, c");        
-		panel.add(field, "1, 0, f, c");
+		panel.add(label);        
+		panel.add(field);
 		return panel;
 	}
 
@@ -357,6 +362,7 @@ public class ScreenLogin
 	 */
 	private JPanel buildTopPanel()
 	{
+		/*
 		double topTable[][] =  {{TableLayout.FILL, 5, TableLayout.FILL, 
 								TableLayout.FILL, TableLayout.PREFERRED}, // columns
 				{TableLayout.PREFERRED, 5, TableLayout.FILL}}; // rows
@@ -388,12 +394,52 @@ public class ScreenLogin
 		namePanel.add(buildTextPanel(user, 'U', USER_TEXT));
 		namePanel.add(Box.createHorizontalStrut(20));
 		namePanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT));
-		//topPanel.add(buildTextPanel(user, 'U', USER_TEXT), "0, 1, 2, 1");
-		//topPanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT), "3, 1, 4, 1");
 		topPanel.add(namePanel, "0, 2, 4, 2");
 		return topPanel;
+		*/
+		JPanel topPanel = new JPanel();
+		topPanel.setOpaque(false);
+		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
+				TEXT_COLOR);
+		Font f = pleaseLogIn.getFont();
+		Font newFont = f.deriveFont(Font.BOLD, TEXT_FONT_SIZE);
+		pleaseLogIn.setFont(newFont);
+		JPanel p = new JPanel();
+		p.setOpaque(false);
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(serverTextPane);
+		p.add(connectionSpeedText);
+		
+		JPanel namePanel = new JPanel();
+		namePanel.setOpaque(false);
+		namePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		namePanel.add(buildTextPanel(user, 'U', USER_TEXT));
+		namePanel.add(Box.createHorizontalStrut(20));
+		namePanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT));
+		
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		topPanel.setLayout(new GridBagLayout());
+		topPanel.add(pleaseLogIn, c); //Add to panel.
+		c.gridx++;
+		c.weightx = 0.5;
+		topPanel.add(p, c);
+		c.gridx++;
+		c.weightx = 0;
+		topPanel.add(configButton, c);
+		c.gridx = 0;
+		c.gridy++;
+		c.gridwidth = 3;
+		topPanel.add(Box.createVerticalStrut(5), c);
+		c.gridy++;
+		topPanel.add(namePanel, c);
+		return topPanel;
 	}
-
+	
 	/**
 	 * Builds the UI component hosting the buttons.
 	 * 
@@ -402,6 +448,7 @@ public class ScreenLogin
 	 */
 	private JPanel buildMainPanel(String version)
 	{
+		/*
 		double mainTable[][] =
 		{{TableLayout.FILL, 100, 5, 100}, // columns
 				{TableLayout.FILL, TableLayout.PREFERRED}}; // rows
@@ -409,8 +456,8 @@ public class ScreenLogin
 		mainPanel.setLayout(new TableLayout(mainTable));       
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 		mainPanel.setOpaque(false);
-		mainPanel.add(login, "1, 1, f, c");
-		mainPanel.add(cancel, "3, 1, f, c");
+		//mainPanel.add(login, "1, 1, f, c");
+		//mainPanel.add(cancel, "3, 1, f, c");
 
 		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
 		Font f = versionInfo.getFont();
@@ -418,6 +465,43 @@ public class ScreenLogin
 		versionInfo.setFont(newFont);
 		mainPanel.add(versionInfo, "0, 1, l, b");
 		mainPanel.add(buildTopPanel(), "0, 0, 3, 0");
+		return mainPanel;
+		*/
+		JPanel mainPanel = new JPanel();
+		mainPanel.setOpaque(false);
+		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
+		Font f = versionInfo.getFont();
+		Font newFont = f.deriveFont(VERSION_FONT_STYLE, VERSION_FONT_SIZE);
+		versionInfo.setFont(newFont);
+		
+		JPanel controls = new JPanel();
+		controls.setOpaque(false);
+		controls.add(login);
+		controls.add(cancel);
+	
+		JPanel p = new JPanel();
+		p.setOpaque(false);
+		p.add(versionInfo);
+		mainPanel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = 2;
+		mainPanel.add(buildTopPanel(), c);
+		c.gridy++;
+		mainPanel.add(Box.createVerticalStrut(5), c);
+		c.gridy++;
+		c.gridwidth = 1;
+		
+		c.gridx++;
+		mainPanel.add(UIUtilities.buildComponentPanelRight(controls, 0, 0, 
+					false), c);
+		c.gridx = 0;
+		c.anchor = GridBagConstraints.LAST_LINE_START;
+		mainPanel.add(UIUtilities.buildComponentPanel(versionInfo, 0, 5, false), 
+						c);
 		return mainPanel;
 	}
 
@@ -473,7 +557,7 @@ public class ScreenLogin
 	}
 	
 	/** 
-	 * Sets the value of the new server
+	 * Sets the value of the new server.
 	 * 
 	 * @param s The value to set.
 	 */
@@ -481,8 +565,10 @@ public class ScreenLogin
 	{
 		if (s == null || s.length() == 0) s = DEFAULT_SERVER;
 		serverText.setText(s);
-		serverText.validate();
-		serverText.repaint();
+		//serverText.validate();
+		//serverText.repaint();
+		serverTextPane.validate();
+		serverTextPane.repaint();
 	}
 
 	/**

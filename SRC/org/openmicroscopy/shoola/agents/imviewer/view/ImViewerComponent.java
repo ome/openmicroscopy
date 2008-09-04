@@ -2424,7 +2424,7 @@ class ImViewerComponent
 				h = img.getHeight();
 			}
 			projection = new ProjectionDialog(view, projections,
-									model.getMaxZ()+1, model.getMaxT(),
+									model.getMaxZ()+1, model.getMaxT()+1,
 									model.getPixelsType(),
 									model.getBrowser().getBackgroundColor(),
 									model.getImageName(), w, h);

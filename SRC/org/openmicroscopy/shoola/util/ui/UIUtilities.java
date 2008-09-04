@@ -204,8 +204,8 @@ public class UIUtilities
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
     
     /** The default mac L&F. */
-    private static final String				MAC_L_AND_F = 
-    											"apple.laf.AquaLookAndFeel";
+   //private static final String				MAC_L_AND_F = 
+    //											"apple.laf.AquaLookAndFeel";
     
     /** The pattern to format date. */
     private static final String				WDMY_FORMAT = 
@@ -572,8 +572,24 @@ public class UIUtilities
      */
     public static JPanel buildComponentPanel(JComponent component)
     {
-    	return buildComponentPanel(component, 5, 5);
+    	return buildComponentPanel(component, 5, 5, true);
     }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a left flowlayout.
+     * 
+     * @param component The component to add.
+     * @param isOpaque  Pass <code>true</code> if this component should be 
+     * 					opaque, <code>false</code> otherwise.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanel(JComponent component, 
+    					boolean isOpaque)
+    {
+    	return buildComponentPanel(component, 5, 5, isOpaque);
+    }
+    
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
@@ -591,9 +607,31 @@ public class UIUtilities
     public static JPanel buildComponentPanel(JComponent component, 
     										int hgap, int vgap)
     {
+    	return buildComponentPanel(component, hgap, vgap, true);
+    }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a left flowlayout.
+     * 
+     * @param component The component to add.
+     * @param hgap    	The horizontal gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @param vgap    	The vertical gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @param isOpaque  Pass <code>true</code> if this component should be 
+     * 					opaque, <code>false</code> otherwise.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanel(JComponent component, 
+    									int hgap, int vgap, boolean isOpaque)
+    {
         JPanel p = new JPanel();
         p.setLayout(new FlowLayout(FlowLayout.LEFT, hgap, vgap));
         p.add(component);
+        p.setOpaque(isOpaque);
         return p;
     }
     
@@ -606,11 +644,49 @@ public class UIUtilities
      */
     public static JPanel buildComponentPanelRight(JComponent component)
     {
+       return buildComponentPanelRight(component, true);
+    }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a right flowlayout.
+     * 
+     * @param component The component to add.
+     * @param hgap    	The horizontal gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @param vgap    	The vertical gap between components and between the 
+     * 					components and the borders of the 
+     * 					<code>Container</code>.
+     * @param isOpaque  Pass <code>true</code> if this component should be 
+     * 					opaque, <code>false</code> otherwise.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanelRight(JComponent component, 
+    							int hgap, int vgap, boolean isOpaque)
+    {
         JPanel p = new JPanel();
-        p.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        p.setLayout(new FlowLayout(FlowLayout.RIGHT, hgap, vgap));
         p.add(component);
+        p.setOpaque(isOpaque);
         return p;
     }
+    
+    /**
+     * Adds the specified {@link JComponent} to a {@link JPanel} 
+     * with a right flowlayout.
+     * 
+     * @param component The component to add.
+     * @param isOpaque  Pass <code>true</code> if this component should be 
+     * 					opaque, <code>false</code> otherwise.
+     * @return See below.
+     */
+    public static JPanel buildComponentPanelRight(JComponent component, 
+    											boolean isOpaque)
+    {
+        return buildComponentPanelRight(component, 5, 5, isOpaque);
+    }
+    
     
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
