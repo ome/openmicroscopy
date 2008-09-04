@@ -31,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.tree.TreeModel;
 
 //Third-party libraries
 
@@ -128,7 +129,7 @@ class BrowserUI
         
         add(leftSplitPane, BorderLayout.CENTER);
         
-        add(new ToolBar(controller, treeDisplay), BorderLayout.NORTH);
+        //add(new ToolBar(controller, treeDisplay), BorderLayout.NORTH);
     }
     
     /**
@@ -179,8 +180,10 @@ class BrowserUI
      * Sets the model of the JTrees with the treeModel from the BrowserModel. 
      */
     void displayTree() {
-    	treeDisplay.setModel(model.getTreeModel());
-    	treeOutline.setModel(model.getTreeModel());
+    	TreeModel tm = model.getTreeModel();
+    	treeDisplay.setModel(tm);
+    	treeOutline.setModel(tm);
+    	tm.addTreeModelListener(editorPanel);
     }
     
     /**
