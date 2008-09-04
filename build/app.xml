@@ -57,13 +57,15 @@
   <path id="app.compile.classpath">
     <fileset dir="${app.lib.dir}" includes="*.jar"/> 
   </path> 
+	
   <path id="app.run.classpath">
     <path refid="app.compile.classpath"/>
     <pathelement location="${app.compiled.dir}"/>
   </path>
   <property name="app.mainclass" value="org.openmicroscopy.shoola.Main"/>
  
-
+<property name="app.compiled.util.dir" location="${app.dir}/compiled/util"/> 
+<fileset id="app.resources.util" dir="${base.src.util.dir}" excludes="**/*.java"/>
  
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -85,6 +87,9 @@
     <copy todir="${app.lib.dir}">
       <fileset refid="app.libs"/>
     </copy> 
+  	<copy todir="${app.compiled.util.dir}">
+  	 <fileset refid="app.resources.util"/>
+  	</copy> 
   </target>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -104,8 +109,17 @@
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac> 
+  	<javac srcdir="${base.src.util.dir}"
+  	           destdir="${app.compiled.util.dir}"
+  	           includeantruntime="no"  
+  	           deprecation="yes"
+  	           debug="yes"
+  	           debuglevel="lines,vars,source">
+  	      <classpath refid="app.compile.classpath"/>
+  	      <patternset refid="app.sources"/>
+  	    </javac> 
   </target> 
-  
+	
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Run the app in its own JVM. 
    * The location of the home directory is passed to the app via the command

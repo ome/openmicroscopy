@@ -159,13 +159,12 @@ public class OSMenuAdapter
 	 * @throws InvocationTargetException
 	 * @throws IllegalAccessException
 	 */
-	public boolean callTarget(Object event) 
+	private boolean callTarget(Object event) 
 		throws InvocationTargetException, IllegalAccessException 
 	{
 		Object result = targetMethod.invoke(targetObject, (Object[]) null);
 		if (result == null) {
-			if (proxySignature.equals("handleQuit"))
-				return false;
+			if (proxySignature.equals("handleQuit")) return false;
 			return true;
 		}
 		return Boolean.valueOf(result.toString()).booleanValue();
