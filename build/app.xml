@@ -118,6 +118,15 @@
   	      <classpath refid="app.compile.classpath"/>
   	      <patternset refid="app.sources"/>
   	    </javac> 
+  	<javac srcdir="${base.src.svc.dir}"
+  	  	           destdir="${app.compiled.util.dir}"
+  	  	           includeantruntime="no"  
+  	  	           deprecation="yes"
+  	  	           debug="yes"
+  	  	           debuglevel="lines,vars,source">
+  	  	      <classpath refid="app.compile.classpath"/>
+  	  	      <patternset refid="app.sources"/>
+  	  	    </javac> 
   </target> 
 	
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

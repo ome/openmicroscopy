@@ -50,7 +50,7 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Component hosting a two knobs slider and the text field displaying the 
+ * Component hosting a two knobs slider and the text fields displaying the 
  * values. The synchronisation between the components is handled by this class.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;

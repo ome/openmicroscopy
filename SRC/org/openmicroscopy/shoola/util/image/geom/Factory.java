@@ -160,6 +160,7 @@ public class Factory
         g.drawImage(img.getImage(), 0, 0, width, height, null);
         return thumbPix;
     }
+    
     /**
      * Creates a default thumbnail image.
      * 
