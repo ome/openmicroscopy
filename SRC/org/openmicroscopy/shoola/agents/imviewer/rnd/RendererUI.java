@@ -217,7 +217,7 @@ class RendererUI
 				pane.getPaneIndex());
 				*/
 		cp.setBorder(new TitledLineBorder(cp.getPaneName()));
-		pane.addToTree(cp, UIUtilities.buildCollapsePanel(cp.getPaneName()));
+		//pane.addToTree(cp, UIUtilities.buildCollapsePanel(cp.getPaneName()));
 		setLayout(new BorderLayout());
 		add(tabs, BorderLayout.CENTER);
 		//add(createButtonsPanel(), BorderLayout.SOUTH);

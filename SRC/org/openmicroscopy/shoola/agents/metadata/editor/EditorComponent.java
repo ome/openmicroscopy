@@ -283,7 +283,6 @@ class EditorComponent
 		if (attachments == null) return;
 		model.setExistingAttachments(attachments);
 		view.setExistingAttachements();
-		
 	}
 	
 	/** 

@@ -168,7 +168,6 @@ class OmeroMetadataServiceImpl
 				}
 				annotations.add(ann);
 			}
-
 		}
 
 		if (toCreate.size() > 0) {
@@ -280,7 +279,6 @@ class OmeroMetadataServiceImpl
 					gateway.createObject(link, (new PojoOptions()).map());
 			//}
 		}
-		
 	}
 	
 	/**
@@ -475,8 +473,8 @@ class OmeroMetadataServiceImpl
 			results.setAttachments(attachments);
 		}
 		OmeroDataService os = context.getDataService();
-		//results.setParents(os.findContainerPaths(object.getClass(),
-		//		object.getId(), userID));
+		results.setParents(os.findContainerPaths(object.getClass(),
+				object.getId(), userID));
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
 			try {

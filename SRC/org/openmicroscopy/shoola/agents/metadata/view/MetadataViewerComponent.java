@@ -183,8 +183,8 @@ class MetadataViewerComponent
 		if (refObject == userObject) {
 			Browser browser = model.getBrowser();
 			if (result instanceof StructuredDataResults) {
-				//browser.setStructuredDataResults(node, 
-					//							(StructuredDataResults) result);
+				browser.setStructuredDataResults(node, 
+												(StructuredDataResults) result);
 				model.getEditor().setStructuredDataResults( 
 									(StructuredDataResults) result);
 				model.setStructuredDataResults((StructuredDataResults) result);
