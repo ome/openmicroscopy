@@ -146,12 +146,20 @@ public class ThumbnailSetLoader
     	if (value <= 0) value = FETCH_SIZE;
     	UserCredentials uc = 
 			(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
+    	double f = 0;
     	switch (uc.getSpeedLevel()) {
 			case UserCredentials.MEDIUM:
-				fetchSize = (int) (value*FETCH_MEDIUM_SPEED);
+				f = (Double) context.lookup(
+						LookupNames.THUMBNAIL_FETCH_MEDIUM_SPEED);
+				
+				if (f <= 0 || f > 1) f = FETCH_MEDIUM_SPEED;
+				fetchSize = (int) (value*f);
 				break;
 			case UserCredentials.LOW:
-				fetchSize = (int) (value*FETCH_LOW_SPEED);
+				f = (Double) context.lookup(
+						LookupNames.THUMBNAIL_FETCH_LOW_SPEED);
+				if (f <= 0 || f > 1) f = FETCH_LOW_SPEED;
+				fetchSize = (int) (value*f);
 				break;
 			default:
 				fetchSize = value;

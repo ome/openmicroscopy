@@ -72,6 +72,17 @@
     <!-- Maximum number of thumbnails retrieved asynchronously. -->
     <entry name="/services/Thumbnailing/fetchSz" type="integer">50</entry>
     
+     <!-- Factor by which the maximum number of thumbnails to fetch
+	 is multiplied by when the connection's speed is Low. 
+	 -->
+    <entry name="/services/Thumbnailing/fetchLowSpeed" type="double">0.25</entry>
+    
+    <!-- Factor by which the maximum number of thumbnails to fetch
+	 is multiplied by when the connection's speed is Medium. 
+	 -->
+    <entry name="/services/Thumbnailing/fetchMediumSpeed" type="double">0.5</entry>
+    
+    
     <!-- Rendering Engine configuration.
          NOTE: All the following entries for the Rendering Engine will
      		be removed as soon as we move the engine to the server. 

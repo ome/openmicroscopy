@@ -117,6 +117,22 @@ public class LookupNames
 	public static final String THUMBNAIL_FETCH_SZ = 
 										"/services/Thumbnailing/fetchSz";
 	
+	/** 
+	 * Field to access the Factor by which the maximum number of thumbnails 
+	 * to fetch is multiplied by when the connection's speed is 
+	 * <code>Low</code>.
+	 */
+	public static final String THUMBNAIL_FETCH_LOW_SPEED = 
+										"/services/Thumbnailing/fetchSz";
+	
+	/** 
+	 * Field to access the Factor by which the maximum number of thumbnails 
+	 * to fetch is multiplied by when the connection's speed is 
+	 * <code>Medium</code>.
+	 */
+	public static final String THUMBNAIL_FETCH_MEDIUM_SPEED = 
+									"/services/Thumbnailing/fetchMediumSpeed";
+	
 	/** Field to access the <code>Cache on</code> information. */
 	public static final String CACHE_ON = "/services/CACHE/on";
 	
