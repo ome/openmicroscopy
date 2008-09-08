@@ -192,6 +192,132 @@ class TestTicket2000(lib.ITest):
             elif c.id.val == ds3.id.val and isinstance(c, DatasetI):
                 self.assert_(len(c.imageLinks) == 1)
 
+    def test1071_1(self):
+        admin = self.root.sf.getAdminService()
+        
+        #new user1
+        try:
+            test_user = admin.lookupExperimenter("new_test_user1")
+        except:
+            new_exp = ExperimenterI()
+            new_exp.omeName = omero.RString("new_test_user1")
+            new_exp.firstName = omero.RString("New1")
+            new_exp.lastName = omero.RString("Test1")
+            new_exp.email = omero.RString("newtest1@emaildomain.com")
+
+            listOfGroups = list()
+            defaultGroup = admin.lookupGroup("default")
+            listOfGroups.append(admin.lookupGroup("user"))
+
+            admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
+
+        #new user2
+        try:
+            test_user = admin.lookupExperimenter("new_test_user2")
+        except:
+            new_exp = ExperimenterI()
+            new_exp.omeName = omero.RString("new_test_user2")
+            new_exp.firstName = omero.RString("New2")
+            new_exp.lastName = omero.RString("Test2")
+            new_exp.email = omero.RString("newtest2@emaildomain.com")
+
+            listOfGroups = list()
+            defaultGroup = admin.lookupGroup("default")
+            listOfGroups.append(admin.lookupGroup("user"))
+
+            admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
+        
+        
+        #test
+        c1 = omero.client()
+        c1.createSession("new_test_user1", "ome")
+        c1_pojos = c1.sf.getPojosService()
+        c1_query = c1.sf.getQueryService()
+        c1_update = c1.sf.getUpdateService()
+        c1_uuid = c1.sf.getAdminService().getEventContext().sessionUuid
+        
+        c2 = omero.client()
+        c2.createSession("new_test_user2", "ome")
+        c2_pojos = c2.sf.getPojosService()
+        c2_query = c2.sf.getQueryService()
+        c2_update = c2.sf.getUpdateService()
+        c2_uuid = c2.sf.getAdminService().getEventContext().sessionUuid
+        
+        #projects
+        pr1 = ProjectI()
+        pr1.setName(omero.RString('test1071-pr1-%s' % (c1_uuid)))
+        pr1 = c1_update.saveAndReturnObject(pr1)
+        pr1.unload()
+
+        pr2 = ProjectI()
+        pr2.setName(omero.RString('test1071-pr2-%s' % (c2_uuid)))
+        pr2 = c2_update.saveAndReturnObject(pr2)
+        pr2.unload()
+
+        #datasets
+        ds1 = DatasetI()
+        ds1.setName(omero.RString('test1071-ds1-%s' % (c1_uuid)))
+        ds1 = c1.update.saveAndReturnObject(ds1)
+        ds1.unload()
+        
+        ds2 = DatasetI()
+        ds2.setName(omero.RString('test1071-ds2-%s' % (c2_uuid)))
+        ds2 = c2.update.saveAndReturnObject(ds2)
+        ds2.unload()
+        
+        #images
+        im2 = ImageI()
+        im2.setName(omero.RString('test1071-im2-%s' % (c2_uuid)))
+        im2 = c2.update.saveAndReturnObject(im2)
+        im2.unload()
+        
+        #links
+        #
+        # im2 -> ds3
+        #    +-> ds2 --> pr2
+        #    |       \
+        #    \-> ds1 --> pr1
+        #
+        pdl1 = ProjectDatasetLinkI()
+        pdl1.setParent(pr1)
+        pdl1.setChild(ds1)
+        c1_update.saveObject(pdl1)
+        
+        pdl2 = ProjectDatasetLinkI()
+        pdl2.setParent(pr1)
+        pdl2.setChild(ds2)
+        c2_update.saveObject(pdl2)
+        
+        dil2 = DatasetImageLinkI()
+        dil2.setParent(ds2)
+        dil2.setChild(im2)
+        c2_update.saveObject(dil2)
+        
+        dil1 = DatasetImageLinkI()
+        dil1.setParent(ds1)
+        dil1.setChild(im2)
+        c1_update.saveObject(dil1)
+        
+        #test:
+        hier = c2_pojos.findContainerHierarchies("Project", [long(im2.id.val)], None)
+
+        self.assert_(len(hier) == 2)
+        for c in hier:
+            if c.id.val == pr1.id.val and isinstance(c, ProjectI):
+                self.assert_(len(c.datasetLinks) == 1)
+                for pdl in c.datasetLinks:
+                    self.assert_(len(pdl.child.imageLinks) == 1)
+                    for dil in pdl.child.imageLinks:
+                        self.assert_(dil.child.id.val == im2.id.val)
+                        
+            elif c.id.val == pr2.id.val and isinstance(c, ProjectI):
+                self.assert_(len(c.datasetLinks) == 1)
+            elif c.id.val == ds3.id.val and isinstance(c, DatasetI):
+                self.assert_(len(c.imageLinks) == 1)
+        
+        c1.sf.closeOnDestroy()
+        c2.sf.closeOnDestroy()
+
     def test1072(self):
         #create two users where both are in the same active group
         admin = self.root.sf.getAdminService()
