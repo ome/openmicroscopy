@@ -272,11 +272,11 @@ class TestTicket2000(lib.ITest):
         im2.unload()
         
         #links
-        #
-        # im2 -> ds3
-        #    +-> ds2 --> pr2
-        #    |       \
-        #    \-> ds1 --> pr1
+        # im2 owned by u2
+        # 
+        # im2   -> ds2 --> pr2 (owned by u2)
+        #      |       
+        #      \-> ds1 --> pr1 (owned by u1)
         #
         pdl1 = ProjectDatasetLinkI()
         pdl1.setParent(pr1)
