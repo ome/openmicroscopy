@@ -400,4 +400,6 @@ public interface Browser
 	 */
 	public void setComponentTitle(String title);
 	
+	public void refresh(Collection<ImageDisplay> nodes);
+	
 }

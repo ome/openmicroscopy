@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -61,9 +62,6 @@ class DatasetsModel
 	extends DataBrowserModel
 {
 
-	/** The collection of objects this model is for. */
-	private Set<DatasetData> datasets;
-
 	/**
 	 * Creates a new instance.
 	 * 
@@ -75,7 +73,6 @@ class DatasetsModel
 		super();
 		if (datasets  == null) 
 			throw new IllegalArgumentException("No datasets.");
-		this.datasets = datasets;
 		this.parent = parent;
 		long userID = DataBrowserAgent.getUserDetails().getId();
 		Set visTrees = DataBrowserTranslator.transformHierarchy(datasets, 
@@ -159,5 +156,11 @@ class DatasetsModel
 	 * @see DataBrowserModel#getType()
 	 */
 	protected int getType() { return DataBrowserModel.DATASETS; }
+
+	/**
+	 * No-op implementation in our case.
+	 * @see DataBrowserModel#getNodes()
+	 */
+	protected Set<ImageDisplay> getNodes() { return null; }
 	
 }

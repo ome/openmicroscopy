@@ -225,8 +225,8 @@ class BrowserModel
 	    		if (type == CellDisplay.TYPE_HORIZONTAL)
 	    			title = "column: "+parent.getTitle();
 	    		else title = "row: "+parent.getTitle();
-	    	} else if (parent instanceof WellImageNode) {
-	    		WellImageNode wiNode = (WellImageNode) parent;
+	    	} else if (parent instanceof WellImageSet) {
+	    		WellImageSet wiNode = (WellImageSet) parent;
 	    		title = "Well: "+wiNode.getRowDisplay();
 	    		title += "-"+wiNode.getColumnDisplay();
 
@@ -678,6 +678,19 @@ class BrowserModel
 	public void setComponentTitle(String title)
 	{
 		rootDisplay.setTitle(title);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#refresh(Collection)
+	 */
+	public void refresh(Collection<ImageDisplay> nodes)
+	{
+		rootDisplay.removeAllChildrenDisplay();
+		if (nodes == null) return;
+		Iterator<ImageDisplay> i = nodes.iterator();
+		while (i.hasNext()) 
+			rootDisplay.addChildDisplay(i.next());
 	}
 	
 }

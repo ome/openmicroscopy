@@ -37,6 +37,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserTranslator;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.BrowserFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import pojos.ImageData;
 
@@ -128,5 +129,11 @@ class ImagesModel
 	 * @see DataBrowserModel#getType()
 	 */
 	protected int getType() { return DataBrowserModel.IMAGES; }
+	
+	/**
+	 * No-op implementation in our case.
+	 * @see DataBrowserModel#getNodes()
+	 */
+	protected Set<ImageDisplay> getNodes() { return null; }
 	
 }

@@ -137,8 +137,11 @@ class DataBrowserUI
 			throw new IllegalArgumentException("No control.");
 		this.model = model;
 		this.controller = controller;
-		toolBar = new DataBrowserToolBar(this, controller);
-		wellToolBar = new DataBrowserWellToolBar(this, controller);
+		//if (model.getType() == DataBrowserModel.WELLS)
+			wellToolBar = new DataBrowserWellToolBar(this, controller);
+		//else
+			toolBar = new DataBrowserToolBar(this, controller);
+
 		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;
 		setNumberOfImages(-1);
@@ -452,5 +455,17 @@ class DataBrowserUI
 	 * @param value The value to set.
 	 */
 	void setFilterLabel(String value) { toolBar.setFilterLabel(value); }
+	
+	/**
+	 * Returns the number of fields per well.
+	 * 
+	 * @return See above.
+	 */
+	int getFieldsNumber()
+	{
+		if (model instanceof WellsModel)
+			return ((WellsModel) model).getFieldsNumber();
+		return -1;
+	}
 	
 }

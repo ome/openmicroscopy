@@ -37,7 +37,8 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -321,47 +322,52 @@ public class DataBrowserTranslator
     		                                long groupID)
     {
     	if (data == null) 
-            throw new IllegalArgumentException("No tag.");
+            throw new IllegalArgumentException("No well.");
         if (!isReadable(data, userID, groupID)) return null;
         WellSampleData wsd;
         ImageData img;
-        WellImageNode node = null;
+        WellImageSet node = new WellImageSet(data);
         List<WellSampleData> samples = data.getWellSamples();
+        WellSampleNode child;
+        int index = 0;
         if (samples == null || samples.size() == 0) {
         	img = new ImageData();
         	img.setId(-1);
-        	node = createWellImage(img);
-        	node.setWellData(data);
+        	wsd = new WellSampleData();
+        	wsd.setId(-1);
+        	wsd.setImage(img);
+        	child = createWellImage(wsd, index, node);
+        	node.addWellSample(child);
         } else {
         	Iterator<WellSampleData> i = samples.iterator();
-        	
         	while (i.hasNext()) {
 				wsd = i.next();
 				img = wsd.getImage();
-				if (img != null && isReadable(img, userID, groupID)) {
-					node = createWellImage(img);
-                	node.setWellData(data);
-				}
-				
+				child = createWellImage(wsd, index, node);
+				node.addWellSample(child);
+				index++;
 			}
         }
         return node;
     }
     
     /**
-     * Creates a well image node.
+     * Creates node hosting the well sample.
      * 
-     * @param is The image data to host.
+     * @param wsd 	The image data to host.
+     * @param index
+     * @param parent
      * @return See above.
      */
-    private static WellImageNode createWellImage(ImageData is)
+    private static WellSampleNode createWellImage(WellSampleData wsd, int index, 
+    				WellImageSet parent)
     {
-    	long id = is.getId();
     	String name = "";
-    	if (id >= 0) name = is.getName();
+    	ImageData is = wsd.getImage();
+    	if (is != null && is.getId() >= 0) name = is.getName();
         ThumbnailProvider provider = new ThumbnailProvider(is);
-        WellImageNode node = new WellImageNode(name, is, provider);
-        //formatToolTipFor(node);  
+        WellSampleNode node = new WellSampleNode(name, wsd, provider, index, 
+        									parent);
         provider.setImageNode(node);
         return node;
     }

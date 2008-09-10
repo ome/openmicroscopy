@@ -38,9 +38,8 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageNode;
-
-import pojos.ImageData;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
+import pojos.WellSampleData;
 
 
 /** 
@@ -89,34 +88,18 @@ public class PlateLayout
      */
     public void visit(ImageSet node)
     {
-    	/*
-    	if (root == null) {
-    		if (!(node.getHierarchyObject() instanceof DataObject) && 
-                    node.getParentDisplay() == null) {
-            	root = node;
-            	Iterator<ImageDisplay> i = columns.iterator();
-            	while (i.hasNext())
-            		root.getInternalDesktop().add(i.next());
-            	i = rows.iterator();
-            	while (i.hasNext())
-            		root.getInternalDesktop().add(i.next());
-            }
-    	}
-    	if (node.getHierarchyObject() instanceof WellData) {
-    		wells.add((WellImageSet) node);
-    	}
-    	*/
-    	if (oldNodes == null || oldNodes.size() == 0) {
+    	if (node.getParentDisplay() != null) return;
+		if (oldNodes == null || oldNodes.size() == 0) {
         	
     		Set nodes = node.getChildrenDisplay();
     		Iterator i = nodes.iterator();
-    		ImageNode n;
-    		List<ImageNode> l = new ArrayList<ImageNode>();
-    		List<ImageNode> col = new ArrayList<ImageNode>();
-    		List<ImageNode> row = new ArrayList<ImageNode>();
+    		ImageDisplay n;
+    		List<ImageDisplay> l = new ArrayList<ImageDisplay>();
+    		List<ImageDisplay> col = new ArrayList<ImageDisplay>();
+    		List<ImageDisplay> row = new ArrayList<ImageDisplay>();
     		CellDisplay cell;
     		while (i.hasNext()) {
-				n = (ImageNode) i.next();
+				n = (ImageDisplay) i.next();
 				if (n instanceof CellDisplay) {
 					cell = (CellDisplay) n;
 					if (cell.getType() == CellDisplay.TYPE_HORIZONTAL)
@@ -125,17 +108,16 @@ public class PlateLayout
 				} else {
 					l.add(n);
 				}
-					
 			}
-    		//Dimension maxDim = LayoutUtils.maxChildDim(l);
     		Dimension maxDim = new Dimension(0, 0);
             Iterator children = l.iterator();
             ImageDisplay child;
-            ImageData img;
+           // ImageData img;
+            WellSampleData wsd;
             while (children.hasNext()) {
-                child = (ImageDisplay) children.next();
-                img = (ImageData) child.getHierarchyObject();
-                if (img.getId() >= 0)
+            	child = (ImageDisplay) children.next();
+                wsd = (WellSampleData) child.getHierarchyObject();
+                if (wsd.getId() >= 0)
                 	maxDim = LayoutUtils.max(maxDim, child.getPreferredSize());
             }
     		 //First need to set width and height
@@ -158,17 +140,97 @@ public class PlateLayout
     					width, maxDim.height);
     		}
     		i = l.iterator();
-    		WellImageNode wiNode;
+    		WellSampleNode wsNode;
     		int r, c;
     		while (i.hasNext()) {
-    			wiNode = (WellImageNode) i.next();
-    			r = wiNode.getRow();
-    			c = wiNode.getColumn();
-    			d = wiNode.getPreferredSize();
-    			wiNode.setBounds(width+c*maxDim.width, height+r*maxDim.height, 
- 					   		d.width, d.height);
+    			wsNode = (WellSampleNode) i.next();
+    			r = wsNode.getRow();
+    			c = wsNode.getColumn();
+    			//d = wiNode.getPreferredSize();
+    			d = wsNode.getPreferredSize();
+    			wsNode.setBounds(width+c*maxDim.width, height+r*maxDim.height, 
+					   		d.width, d.height);
 			}
         }
+    	/*
+    	if (oldNodes == null || oldNodes.size() == 0) {
+        	
+    		Set nodes = node.getChildrenDisplay();
+    		Iterator i = nodes.iterator();
+    		ImageDisplay n;
+    		List<ImageDisplay> l = new ArrayList<ImageDisplay>();
+    		List<ImageDisplay> col = new ArrayList<ImageDisplay>();
+    		List<ImageDisplay> row = new ArrayList<ImageDisplay>();
+    		CellDisplay cell;
+    		while (i.hasNext()) {
+				n = (ImageDisplay) i.next();
+				if (n instanceof CellDisplay) {
+					cell = (CellDisplay) n;
+					if (cell.getType() == CellDisplay.TYPE_HORIZONTAL)
+						col.add(cell);
+					else row.add(cell);
+				} else {
+					l.add(n);
+				}
+			}
+    		Dimension maxDim = new Dimension(0, 0);
+            Iterator children = l.iterator();
+            ImageDisplay child;
+           // ImageData img;
+            WellSampleData wsd;
+            WellImageSet wis;
+            while (children.hasNext()) {
+            	wis = (WellImageSet) children.next();
+                child = wis.getSelectedWellSample();
+                wsd = (WellSampleData) child.getHierarchyObject();
+                if (wsd.getId() >= 0)
+                	maxDim = LayoutUtils.max(maxDim, child.getPreferredSize());
+            }
+    		 //First need to set width and height
+    		Dimension d = col.get(0).getPreferredSize();
+    		int height = d.height;
+    		d = row.get(0).getPreferredSize();
+    		int width = d.width+15;
+    		i = col.iterator();
+    		while (i.hasNext()) {
+    			cell = (CellDisplay) i.next();
+    			d = cell.getPreferredSize();
+    			cell.setBounds(width+cell.getIndex()*maxDim.width, 0, 
+    					maxDim.width, d.height);
+    		}
+    		i = row.iterator();
+    		while (i.hasNext()) {
+    			cell = (CellDisplay) i.next();
+    			d = cell.getPreferredSize();
+    			cell.setBounds(0, height+cell.getIndex()*maxDim.height, 
+    					width, maxDim.height);
+    		}
+    		i = l.iterator();
+    		WellImageSet wiNode;
+    		int r, c;
+    		while (i.hasNext()) {
+    			wiNode = (WellImageSet) i.next();
+    			n = wiNode.getSelectedWellSample();
+    			r = wiNode.getRow();
+    			c = wiNode.getColumn();
+    			//d = wiNode.getPreferredSize();
+    			d = n.getPreferredSize();
+    			
+    			n.setBounds(0, 0, d.width, d.height);
+    			
+    			wiNode.getInternalDesktop().setSize(d);
+    			wiNode.getInternalDesktop().setPreferredSize(d);
+    			Rectangle rec = wiNode.getContentsBounds();
+    			d = new Dimension(rec.width, rec.height);
+    			//wiNode.setLocation(width+c*maxDim.width, height+r*maxDim.height);
+    			wiNode.setBounds(width+c*maxDim.width, height+r*maxDim.height, 
+					   		d.width, d.height);
+    			//wiNode.setLocation(width+c*maxDim.width, height+r*maxDim.height);
+    			//wiNode.pack();
+    			//wiNode.setSize(50, 50);
+			}
+        }
+        */
     }
     
     /**

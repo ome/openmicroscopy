@@ -448,4 +448,6 @@ public interface DataBrowser
 	 */
 	public void setComponentTitle(String title);
 	
+	public void viewField(int selectedIndex);
+	
 }

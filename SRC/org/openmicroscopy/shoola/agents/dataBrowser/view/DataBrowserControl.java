@@ -251,6 +251,12 @@ class DataBrowserControl
 	 */
 	Action getAction(Integer id) { return actionsMap.get(id); }
 	
+	void viewField(int selectedIndex)
+	{
+		model.viewField(selectedIndex);
+		
+	}
+	
 	/**
 	 * Loads data, filters nodes or sets the selected node.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -300,5 +306,7 @@ class DataBrowserControl
             if (p != null) view.showPopup(p);
 		} 
 	}
+
+
 	
 }

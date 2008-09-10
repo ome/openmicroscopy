@@ -733,4 +733,16 @@ class DataBrowserComponent
 		if (browser != null) browser.setComponentTitle(title);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#viewField(int)
+	 */
+	public void viewField(int selectedIndex)
+	{
+		if (!(model instanceof WellsModel));
+		((WellsModel) model).viewField(selectedIndex);
+		view.repaint();
+		model.loadData(false, null); 
+	}
+	
 }

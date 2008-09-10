@@ -87,16 +87,6 @@ public class ImageNode
     {
     	firePropertyChange(PIN_THUMBNAIL_PROPERTY, null, this);
     }
-
-    /**
-     * Sets the tool tip of the {@link #canvas}.
-     * 
-     * @param text The value to set.
-     */
-    void setCanvasToolTip(String text)
-    {
-    	if (canvas != null) canvas.setToolTipText(text);
-    }
     
     /**
      * Creates a new leaf node.
@@ -125,7 +115,7 @@ public class ImageNode
         	canvas = new ThumbnailCanvas(this);
             getInternalDesktop().add(canvas, new Integer(0));
             setCanvasSize(t.getWidth(), t.getHeight());
-            canvas.setToolTipText(getNodeName());
+            setCanvasToolTip(getNodeName());
         }
     }
     
@@ -218,17 +208,7 @@ public class ImageNode
     {
         return DateFormat.getDateInstance().format(getAcquisitionTime()); 
     }
-    
-    /** 
-     * Overrides the <code>setSize(int, int)</code> method, otherwise
-     * after collapsing the node, we can resize the node.
-     * @see ImageDisplay#setSize(int, int)
-     */
-    public void setSize(int w, int h)
-    {
-        super.setSize(w, h);
-        setResizable(false);
-    }
+
     
     /** 
      * Sets the size of the {@link ThumbnailCanvas} and the preferred size of
@@ -243,6 +223,16 @@ public class ImageNode
         getInternalDesktop().setSize(w, h);
         getInternalDesktop().setPreferredSize(new Dimension(w, h));
     }
+
+    /**
+     * Sets the tool tip of the {@link #canvas}.
+     * 
+     * @param text The value to set.
+     */
+    public void setCanvasToolTip(String text)
+    {
+    	if (canvas != null) canvas.setToolTipText(text);
+    }
     
     /**
      * Makes a copy of the node.
@@ -256,6 +246,17 @@ public class ImageNode
     	if (canvas != null) 
     		img.setCanvasSize(canvas.getWidth(), canvas.getHeight());
     	return img;
+    }
+
+    /** 
+     * Overrides the <code>setSize(int, int)</code> method, otherwise
+     * after collapsing the node, we can resize the node.
+     * @see ImageDisplay#setSize(int, int)
+     */
+    public void setSize(int w, int h)
+    {
+        super.setSize(w, h);
+        setResizable(false);
     }
     
 }

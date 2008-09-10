@@ -110,6 +110,7 @@ abstract class DataBrowserModel
     /** Used to sort the nodes by date or alphabetically. */
     protected ViewerSorter      sorter;
     
+    /** The current data loader. */
     private DataBrowserLoader	loader;
     
     /** The collection of existing tags. */
@@ -275,10 +276,15 @@ abstract class DataBrowserModel
      */
     void setThumbnail(long imageID, BufferedImage thumb, int maxEntries)
     {
-        if (thumbsManager == null) 
-            thumbsManager = new ThumbnailsManager(
-            		          browser.getVisibleImageNodes(), maxEntries);
-       
+        if (thumbsManager == null) {
+        	if (getType() == WELLS) {
+        		thumbsManager = new ThumbnailsManager(getNodes());
+        	} else {
+        		thumbsManager = new ThumbnailsManager(
+        		          browser.getVisibleImageNodes(), maxEntries);
+        	}
+        }
+
         thumbsManager.setThumbnail(imageID, thumb);
         if (thumbsManager.isDone()) {
             state = DataBrowser.READY;
@@ -499,5 +505,7 @@ abstract class DataBrowserModel
      * @return See above.
      */
     protected abstract int getType(); 
+    
+    protected abstract Set<ImageDisplay> getNodes();
     
 }

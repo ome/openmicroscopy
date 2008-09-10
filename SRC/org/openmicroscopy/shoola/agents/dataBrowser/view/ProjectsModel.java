@@ -32,6 +32,7 @@ import java.util.Set;
 
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 
 //Third-party libraries
@@ -71,5 +72,11 @@ class ProjectsModel
 	 * @see DataBrowserModel#getType()
 	 */
 	protected int getType() { return DataBrowserModel.PROJECTS; }
+	
+	/**
+	 * No-op implementation in our case.
+	 * @see DataBrowserModel#getNodes()
+	 */
+	protected Set<ImageDisplay> getNodes() { return null; }
 	
 }

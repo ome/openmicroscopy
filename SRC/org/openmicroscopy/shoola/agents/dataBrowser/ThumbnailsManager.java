@@ -35,8 +35,10 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import pojos.ImageData;
 
 /** 
@@ -79,6 +81,33 @@ public class ThumbnailsManager
      */
     private Map<Long, Set>     	thumbProviders;
 
+    public ThumbnailsManager(Collection<ImageDisplay> wells)
+    {
+    	if (wells == null) 
+            throw new NullPointerException("No wells.");
+    	this.totalIDs = wells.size();
+    	processedIDs = new HashSet<Long>();
+    	thumbProviders = new HashMap<Long, Set>();
+    	Iterator i = wells.iterator();
+    	WellImageSet node;
+    	ImageData is;
+    	Long id;
+    	Set<Thumbnail> providers;
+    	int t = 0;
+    	while (i.hasNext()) {
+    		node = (WellImageSet) i.next();
+    		is = node.getSelectedImage();
+    		id = new Long(is.getId());
+    		providers = thumbProviders.get(id);
+    		if (providers == null) {
+    			t++;
+    			providers = new HashSet<Thumbnail>();
+    			thumbProviders.put(id, providers);
+    		}
+    		providers.add(node.getSelectedWellSample().getThumbnail());
+    	}
+    }
+    
     /**
      * Creates a new instance.
      * 

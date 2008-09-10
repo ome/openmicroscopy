@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageNode 
+ * org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -25,18 +25,20 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 
 
 //Java imports
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.WellData;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
+import pojos.WellData;
+import pojos.WellSampleData;
 
 /** 
- * Display the primary image associated to the well.
- * This class will probably more responsabilities as the system 
- * evolves.
+ * Handles the well samples related to the well.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -48,18 +50,21 @@ import pojos.WellData;
  * </small>
  * @since 3.0-Beta3
  */
-public class WellImageNode
-	extends ImageNode
+public class WellImageSet
+	extends ImageSet
 {
 
-	/** The well of reference. */
-	private WellData well;
-	
 	/** The String indicating how to display the value of the row. */
-	private String	 rowDisplay;
+	private String	 				rowDisplay;
 	
 	/** The String indicating how to display the value of the column. */
-	private String	 columnDisplay;
+	private String					columnDisplay;
+	
+	/** The selected well sample data. */
+	private ImageNode 				selectedWellSample;
+	
+	/** Collection of well samples. */
+	private List<WellSampleNode> 	samples;
 	
 	/** 
 	 * Sets the default value for the row and column display.
@@ -71,44 +76,87 @@ public class WellImageNode
 		if (columnDisplay == null) setColumnDisplay(""+getColumn());
 		String txt = 
 			UIUtilities.formatToolTipText(rowDisplay+"-"+columnDisplay);
-		getTitleBar().setToolTipText(txt);
-		setCanvasToolTip(txt);
-		setToolTipText(txt);
+		Iterator i = samples.iterator();
+		ImageNode n;
+		while (i.hasNext()) {
+			n = (ImageNode) i.next();
+			n.setToolTipText(txt);
+			n.setCanvasToolTip(txt);
+		}
 	}
 	
 	/**
 	 * Creates a new leaf node.
 	 * 
-	 * @param title             The frame's title.
-	 * @param hierarchyObject   The original object in the image hierarchy which
-	 *                          is visualized by this node. It has to be an 
-	 *                          image object in this case. 
-	 *                          Never pass <code>null</code>.
-	 * @param t                 The thumbnail this node is going to display. 
-	 *                          This is obviously a thumbnail for the image
-	 *                          object this node represents.
+	 * @param well	The original object in the image hierarchy which
+	 *              is visualized by this node.  Never pass <code>null</code>.
 	 */
-	public WellImageNode(String title, Object hierarchyObject, Thumbnail t)
+	public WellImageSet(WellData well)
 	{
-		super(title, hierarchyObject, t);
-		setTitleBarType(ImageNode.NO_BAR);
+		super("", well);
+		if (well == null) 
+			throw new IllegalArgumentException("Well cannot be null.");
+		samples = new ArrayList<WellSampleNode>();
+		setDefault();
 		rowDisplay = null;
 		columnDisplay = null;
 	}
+
+	/**
+	 * Adds the passed well samples.
+	 * 
+	 * @param node The value to add.
+	 */
+	public void addWellSample(WellSampleNode node)
+	{
+		if (node != null) samples.add(node);
+		setSelectedWellSample(0);
+	}
 	
 	/**
-	 * Sets the well of reference.
+	 * Sets the selected well sample.
 	 * 
-	 * @param well The value to set. Mustn't be <code>null</code>.
+	 * @param index The index of the well samples.
 	 */
-	public void setWellData(WellData well)
+	public void setSelectedWellSample(int index)
 	{
-		if (well == null) 
-			throw new IllegalArgumentException("Well cannot be null.");
-		this.well = well;
-		setDefault();
+		WellSampleNode node;
+		Iterator i = samples.iterator();
+		while (i.hasNext()) {
+			node = (WellSampleNode) i.next();
+			if (node.getIndex() == index)
+				selectedWellSample = node;
+		}
 	}
-
+	
+	/**
+	 * Returns the selected well sample.
+	 * 
+	 * @return See above.
+	 */
+	public ImageNode getSelectedWellSample() { return selectedWellSample; }
+	
+	/**
+	 * Returns the image corresponding to the currently selected wellSample.
+	 * 
+	 * @return See above.
+	 */
+	public ImageData getSelectedImage()
+	{
+		if (selectedWellSample == null) return null;
+		WellSampleData 
+			wsd = (WellSampleData) selectedWellSample.getHierarchyObject();
+		if (wsd == null) return null;
+		return wsd.getImage();
+	}
+	
+	/** 
+	 * Returns the number of well samples.
+	 * 
+	 * @return See above.
+	 */
+	public int getNumberOfSamples() { return samples.size(); }
+	
 	/**
 	 * Returns the position of the well within the plate.
 	 * 
@@ -116,8 +164,8 @@ public class WellImageNode
 	 */
 	public int getRow()
 	{ 
-		if (well == null) return -1;
-		return well.getRow(); 
+		if (getHierarchyObject() == null) return -1;
+		return ((WellData) getHierarchyObject()).getRow(); 
 	}
 	
 	/**
@@ -127,8 +175,8 @@ public class WellImageNode
 	 */
 	public int getColumn()
 	{
-		if (well == null) return -1;
-		return well.getColumn();
+		if (getHierarchyObject() == null) return -1;
+		return ((WellData) getHierarchyObject()).getColumn();
 	}
 	
 	/**
@@ -149,6 +197,19 @@ public class WellImageNode
 	 */
 	public void setColumnDisplay(String columnDisplay)
 	{ 
+		this.columnDisplay = columnDisplay;
+		setDefault();
+	}
+	
+	/**
+	 * Sets the value indicating how to display the cell.
+	 * 
+	 * @param columnDisplay The value to set.
+	 * @param rowDisplay 	The value to set.
+	 */
+	public void setCellDisplay(String columnDisplay, String rowDisplay)
+	{
+		this.rowDisplay = rowDisplay;
 		this.columnDisplay = columnDisplay;
 		setDefault();
 	}

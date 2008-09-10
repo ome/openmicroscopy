@@ -25,8 +25,12 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
@@ -52,14 +56,19 @@ class DataBrowserWellToolBar
 	extends JPanel
 {
 
-	/** Button to refresh the display. */
-	private JButton				refreshButton;
-	
+
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
 	
+	
 	/** Reference to the view. */
 	private DataBrowserUI		view;
+	
+	/** Button to refresh the display. */
+	private JButton				refreshButton;
+	
+	/** Displays the possible fields per well. */
+	private JComboBox			fields;
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -67,6 +76,22 @@ class DataBrowserWellToolBar
 		refreshButton = new JButton(controller.getAction(
 				DataBrowserControl.REFRESH));
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
+		int f = view.getFieldsNumber();
+		if (f > 1) { 
+			String[] values = new String[f];
+ 			for (int i = 0; i < f; i++) 
+				values[i] = "Field "+i;
+ 			fields = new JComboBox(values);
+ 			fields.setSelectedIndex(0);
+ 			fields.addActionListener(new ActionListener() {
+			
+				public void actionPerformed(ActionEvent e) {
+					controller.viewField(fields.getSelectedIndex());
+			
+				}
+			
+			});
+		}
 	}
 	
 	/**
@@ -81,6 +106,7 @@ class DataBrowserWellToolBar
 		bar.setBorder(null);
 		bar.setRollover(true);
 		bar.add(refreshButton);
+		if (fields != null) bar.add(fields);
 		return bar;
 	}
 	
