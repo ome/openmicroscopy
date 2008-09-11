@@ -296,9 +296,9 @@ module omero {
 						  omero::model::TextAnnotation replyTo) throws ServerError;
 	    void deleteComment(omero::model::Annotation comment) throws ServerError;
 
-	    ExperimenterList getAllUsers(long shareId) throws ServerError;
+	    ExperimenterList getAllMembers(long shareId) throws ServerError;
 	    StringSet getAllGuests(long shareId) throws ServerError;
-	    StringSet getAllMembers(long shareId) throws ValidationException, ServerError;
+	    StringSet getAllUsers(long shareId) throws ValidationException, ServerError;
 	    void addUsers(long shareId, ExperimenterList exps) throws ServerError;
 	    void addGuests(long shareId, StringSet emailAddresses) throws ServerError;
 	    void removeUsers(long shareId, ExperimenterList exps) throws ServerError;
