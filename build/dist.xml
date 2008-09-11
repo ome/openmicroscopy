@@ -137,7 +137,7 @@
    *   + The license file, ${base.licensefile}. 
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <target name="dist"
-          depends="jar"
+          depends="jar, jar-util"
           description="Build and package the app for distribution."> 
     <zip destfile="${dist.dir}/${dist.bundle.name}-${dist.bundle.version}.zip">
       <zipfileset refid="app.config" prefix="${dist.app.config.dir.name}"/>
