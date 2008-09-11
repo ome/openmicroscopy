@@ -415,6 +415,23 @@ class TestTicket2000(lib.ITest):
         p.map[omero.constants.POJOGROUP] = omero.RLong(c2.sf.getAdminService().getEventContext().groupId)
         #p.map[omero.constants.POJOLEAVES] = omero.RBool(True)
         pojos.loadContainerHierarchy("Project",None,  p.map)
+    
+    def test1088(self):
+        admin = self.root.sf.getAdminService()
+        q = self.root.sf.getQueryService()
+        cx = admin.getEventContext()
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["uid"] = omero.RLong(cx.userId)
+        p.map['start'] = start = omero.RTime(1218529874000)
+        p.map['end'] = end = omero.RTime(1221121874000)
+
+        sql = "select el from EventLog el left outer join fetch el.event ev " \
+              "where el.entityType in ('ome.model.core.Pixels', 'ome.model.core.Image', " \
+              "'ome.model.containers.Dataset', el.entityType='ome.model.containers.Project') " \
+              "and ev.experimenter.id=:uid and ev.time > :start and ev.time < :end"
+        print len(q.findAllByQuery(sql, p))
         
 if __name__ == '__main__':
     unittest.main()
