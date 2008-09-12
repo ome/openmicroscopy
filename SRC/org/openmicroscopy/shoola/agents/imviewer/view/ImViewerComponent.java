@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BoxLayout;
@@ -545,8 +544,16 @@ class ImViewerComponent
 			throw new IllegalArgumentException("The zoom factor is value " +
 					"between "+ZoomAction.MIN_ZOOM_FACTOR+" and "+
 					ZoomAction.MAX_ZOOM_FACTOR);
+		double oldFactor = model.getZoomFactor();
+		if (oldFactor == factor) return;
+		try {
+			model.setZoomFactor(factor, false);
+		} catch (Exception e) {
+			Logger logger = ImViewerAgent.getRegistry().getLogger();
+			logger.debug(this, "Cannot zoom image. Magnification: "+factor);
+			model.setZoomFactor(factor, true);
+		}
 		model.setZoomFitToWindow(factor == -1);
-		model.setZoomFactor(factor);
 		view.setZoomFactor(factor, zoomIndex);
 		if (view.isLensVisible() && 
 				model.getTabbedIndex() == ImViewer.VIEW_INDEX) {
@@ -2410,12 +2417,6 @@ class ImViewerComponent
 		if (model.getState() == DISCARDED)
 			throw new IllegalArgumentException("This method cannot be invoked" +
 					" in the DISCARDED state.");
-		if (projections == null) {
-			projections = new LinkedHashMap<Integer, String>();
-			projections.put(MAX_INTENSITY, "Maximum Intensity");
-			projections.put(MEAN_INTENSITY, "Mean Intensity");
-			projections.put(SUM_INTENSITY, "Sum Intensity");
-		}
 		if (projection == null) {
 			BufferedImage img = model.getOriginalImage();
 			int w = 0, h = 0;
@@ -2423,9 +2424,8 @@ class ImViewerComponent
 				w = img.getWidth();
 				h = img.getHeight();
 			}
-			projection = new ProjectionDialog(view, projections,
-									model.getMaxZ()+1, model.getMaxT()+1,
-									model.getPixelsType(),
+			projection = new ProjectionDialog(view, model.getMaxZ()+1, 
+									model.getMaxT()+1, model.getPixelsType(),
 									model.getBrowser().getBackgroundColor(),
 									model.getImageName(), w, h);
 			projection.addPropertyChangeListener(controller);

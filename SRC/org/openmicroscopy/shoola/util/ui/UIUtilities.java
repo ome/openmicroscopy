@@ -54,6 +54,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -61,6 +62,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
@@ -686,8 +688,7 @@ public class UIUtilities
     {
         return buildComponentPanelRight(component, 5, 5, isOpaque);
     }
-    
-    
+
     /**
      * Adds the specified {@link JComponent} to a {@link JPanel} 
      * with a right flowlayout.
@@ -1129,9 +1130,12 @@ public class UIUtilities
 	/**
 	 * Creates a date picker.
 	 * 
+	 * @param editable Pass <code>true</code> to allow users to modify the date
+	 * 				   from the editor, <code>false</code> otherwise. The
+	 *				   default value is <code>true</code>.
 	 * @return See above.
 	 */
-	public static JXDatePicker createDatePicker()
+	public static JXDatePicker createDatePicker(boolean editable)
 	{
 		String[] dateFormats = new String[1];
 		dateFormats[0] = UIUtilities.DATE_FORMAT;
@@ -1139,7 +1143,19 @@ public class UIUtilities
 		picker.setToolTipText(DATE_TOOLTIP);
 		picker.setFormats(dateFormats);
 		picker.getEditor().setBackground(BACKGROUND);
+		picker.getEditor().setColumns(6);
+		picker.getEditor().setEditable(editable);
 		return picker;
+	}
+	
+	/**
+	 * Creates a date picker.
+	 * 
+	 * @return See above.
+	 */
+	public static JXDatePicker createDatePicker()
+	{
+		return createDatePicker(true);
 	}
 	
 	/**

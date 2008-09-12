@@ -448,6 +448,11 @@ public interface DataBrowser
 	 */
 	public void setComponentTitle(String title);
 	
-	public void viewField(int selectedIndex);
+	/**
+	 * Views the selected well sample field while browsing a plate.
+	 * 
+	 * @param field The index of the field.
+	 */
+	public void viewField(int field);
 	
 }

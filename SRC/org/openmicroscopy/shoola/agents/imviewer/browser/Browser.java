@@ -58,11 +58,6 @@ import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 public interface Browser
     extends ObservableComponent
 {
-	/** 
-	 * Factor use to determine the size of the annotate image
-	 * w.r.t the rendered image.
-	 */
-	//public static final int	MAX_RATIO = 10;
 	
     /**
      * Returns the widget that displays the image.
@@ -117,9 +112,11 @@ public interface Browser
     /**
      * Sets the zoom factor.
      * 
-     * @param factor    The zoom factor to set.
+     * @param factor The zoom factor to set.
+     * @param reset	 Pass <code>true</code> to reset the magnification factor.
+     * 				 <code>false</code> to set it.
      */
-    public void setZoomFactor(double factor);
+    public void setZoomFactor(double factor, boolean reset);
     
     /**
      * Gets the zoom factor.

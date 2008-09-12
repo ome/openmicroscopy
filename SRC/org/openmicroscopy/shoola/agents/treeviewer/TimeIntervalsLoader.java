@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 //Java imports
-import java.util.HashSet;
 import java.util.Set;
 
 //Third-party libraries

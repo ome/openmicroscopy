@@ -197,9 +197,9 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setZoomFactor(double)
+     * @see Browser#setZoomFactor(double, boolean)
      */
-    public void setZoomFactor(double factor)
+    public void setZoomFactor(double factor, boolean reset)
     {
     	if (factor != -1) {
 	        if (factor > ZoomAction.MAX_ZOOM_FACTOR ||
@@ -221,7 +221,7 @@ class BrowserComponent
     		}
     	}
         model.setZoomFactor(factor);
-        view.zoomImage();  
+        if (!reset) view.zoomImage();  
     }
 
     /** 

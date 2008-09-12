@@ -62,7 +62,7 @@ public class LayoutUtils
 {
 
 	/** The default number of items per row. */
-	private static final int	DEFAULT_PER_ROW = 10;
+	public static final int	DEFAULT_PER_ROW = 10;
 	
 	/**
 	 * Scales the thumbnail of the specified new node.
@@ -217,8 +217,7 @@ public class LayoutUtils
 				l.add(comps[i]);
 		
         l = sorter.sort(l);
-        if (itemsPerRow > 1) n = itemsPerRow;
-        
+        if (itemsPerRow >= 1) n = itemsPerRow; 
         else {
         	n = l.size();
         	if (n > DEFAULT_PER_ROW)

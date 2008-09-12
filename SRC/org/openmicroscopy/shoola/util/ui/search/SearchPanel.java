@@ -288,9 +288,9 @@ class SearchPanel
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
- 		fromDate = UIUtilities.createDatePicker();
-		toDate = UIUtilities.createDatePicker();
-
+ 		fromDate = UIUtilities.createDatePicker(false);
+		toDate = UIUtilities.createDatePicker(false);
+		
 		fullTextArea = new JTextField(AREA_COLUMNS+2);
 		fullTextArea.addKeyListener(new KeyAdapter() {
 
@@ -475,30 +475,6 @@ class SearchPanel
 	 */
 	private void setUserString(String name, JTextField field)
 	{
-		/*
-		String text = field.getText();
-		String[] values = text.split(SearchUtil.COMMA_SEPARATOR);
-		String n;
-		String v = "";
-		boolean exist = false;
-		int l = values.length;
-		for (int i = 0; i < l; i++) {
-			n = values[i].trim();
-			if (n.length() > 0) {
-				v += n;
-				if (name.equals(n)) {
-					if (i != (l-1))
-						v += SearchUtil.COMMA_SEPARATOR
-								+SearchUtil.SPACE_SEPARATOR;
-					exist = true;
-				} else v += SearchUtil.COMMA_SEPARATOR
-							+SearchUtil.SPACE_SEPARATOR;
-			}
-		}
-		if (!exist) v += name;
-		else v = v.substring(0, text.length()-1);
-		field.setText(v);
-		*/
 		List<String> values = SearchUtil.splitTerms(field.getText(), 
 											SearchUtil.QUOTE_SEPARATOR);
 		String v = "";
@@ -513,8 +489,8 @@ class SearchPanel
 			while (i.hasNext()) {
 				value = (String) i.next();
 				if (!value.equals(name)) {
-					v += SearchUtil.QUOTE_SEPARATOR+value
-					+SearchUtil.QUOTE_SEPARATOR;
+					v += SearchUtil.QUOTE_SEPARATOR+value;
+					v += SearchUtil.QUOTE_SEPARATOR;
 					if (index < n)
 						v += SearchUtil.SPACE_SEPARATOR;
 				}

@@ -277,6 +277,9 @@ public class Factory
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 
                             RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.drawImage(bimg, biop, 0, 0);
+        g.dispose();
+        bimg.flush();
+        rescaleBuff.flush();
         return rescaleBuff;
     }   
     
@@ -302,9 +305,14 @@ public class Factory
         int scaleWidth = (int) (width*f);
         int scaleHeight = (int) (height*f);
         if (scaleWidth <= 0 || scaleHeight <= 0) return null;
-        BufferedImage rescaleBuff = new BufferedImage(scaleWidth, 
-        							scaleHeight, type); //img.getType()
-        biop.filter(img, rescaleBuff);
+        BufferedImage rescaleBuff = img;//
+        //try {
+        	rescaleBuff = new BufferedImage(scaleWidth, 
+						scaleHeight, type); //img.getType()
+        	biop.filter(img, rescaleBuff);
+        	rescaleBuff.flush();
+		//} catch (Exception e) {}
+       
         return rescaleBuff;
     }
 

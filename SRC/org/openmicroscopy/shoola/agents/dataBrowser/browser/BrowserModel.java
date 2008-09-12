@@ -125,6 +125,7 @@ class BrowserModel
 	    JComponent desktop = node.getInternalDesktop();
 	    Set children = node.getChildrenDisplay();
 	    if (children == null) return;
+	    //desktop.removeAll();
 	    Iterator i = children.iterator();
 	    ImageDisplay child;
 	    while (i.hasNext()) {
@@ -151,9 +152,8 @@ class BrowserModel
 	    titleBarVisible = true;
 	    Set nodes = rootDisplay.getChildrenDisplay();
 	    Iterator i = nodes.iterator();
-	    while (i.hasNext()) {
+	    while (i.hasNext()) 
 			originalNodes.add((ImageDisplay) i.next());
-		}
 	}
 	
     /**

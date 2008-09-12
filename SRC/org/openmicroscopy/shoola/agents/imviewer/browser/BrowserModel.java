@@ -526,7 +526,8 @@ class BrowserModel
     {
         if (renderedImage == null) return;
         if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) 
-            displayedImage = Factory.magnifyImage(renderedImage, zoomFactor, 0);
+            displayedImage = Factory.magnifyImage(renderedImage, zoomFactor, 0);//Factory.magnifyImage(zoomFactor, renderedImage);
+        //Factory.magnifyImage(renderedImage, zoomFactor, 0);
         else displayedImage = renderedImage;
     }
    

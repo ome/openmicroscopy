@@ -208,7 +208,6 @@ class SquaryLayout
     		}
     	}
     	Object object = n.getHierarchyObject();
-    	
     	DataObject ho = (DataObject) object;
     	Class klass = object.getClass();
     	long id = ho.getId();

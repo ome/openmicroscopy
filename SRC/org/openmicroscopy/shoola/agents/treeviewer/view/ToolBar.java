@@ -76,14 +76,10 @@ class ToolBar
      */
     private JComponent createManagementBar()
     {
-    	/*
         JToolBar bar = new JToolBar();
     	bar.setFloatable(false);
         bar.setRollover(true);
         bar.setBorder(null);
-        */
-    	//Test to see how it looks on linux
-    	Box bar = Box.createHorizontalBox();
         JButton b = new JButton(controller.getAction(TreeViewerControl.VIEW));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);

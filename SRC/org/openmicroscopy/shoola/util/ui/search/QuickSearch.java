@@ -163,6 +163,7 @@ public class QuickSearch
 	/** The node to show all the objects. */
 	private SearchObject		showAll;
 	
+	/** Toolbar hosting the clear functionalities. */
 	private JToolBar 			cleanBar;
 	
 	/** 

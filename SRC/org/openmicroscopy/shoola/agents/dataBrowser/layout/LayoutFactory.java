@@ -78,7 +78,6 @@ public class LayoutFactory
                 return new FlatLayout(sorter);
             case PLATE_LAYOUT:
             	return new PlateLayout();
-            	
             default:
                 throw new IllegalArgumentException("Unsupported layout type: "+
                                                     +type+".");
@@ -90,10 +89,7 @@ public class LayoutFactory
      * 
      * @return See above.
      */
-    public static Layout createPlateLayout()
-    {
-    	return new PlateLayout(); 
-    }
+    public static Layout createPlateLayout() { return new PlateLayout(); }
     
     /**
      * Returns the default layout.
@@ -106,6 +102,20 @@ public class LayoutFactory
     public static Layout getDefaultLayout(ViewerSorter sorter, int itemsPerRow)
     { 
         return createLayout(getDefaultLayoutIndex(), sorter, itemsPerRow); 
+    }
+    
+    /**
+     * Returns the default layout.
+     * 
+     * @param sorter 		Class used to sort the nodes by date or 
+     * 						alphabetically.
+     * @param itemsPerRow 	The number of images per row. 
+     * @return See above.
+     */
+    public static Layout getDefaultLayout(ViewerSorter sorter)
+    { 
+        return createLayout(getDefaultLayoutIndex(), sorter, 
+        				LayoutUtils.DEFAULT_PER_ROW); 
     }
     
     /**

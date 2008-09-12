@@ -412,6 +412,22 @@ class ControlPane
     }
     
     /**
+     * Builds a tool bar hosting the passed button.
+     * 
+     * @param button The button to add.
+     * @return See above
+     */
+    private JToolBar createMovieButtonBar(JButton button)
+    {
+    	JToolBar bar = new JToolBar();
+    	bar.setFloatable(false);
+    	bar.setRollover(true);
+    	bar.setBorder(null);
+    	bar.add(button);
+    	return bar;
+    }
+    
+    /**
      * Helper method to create a panel hosting the passed slider.
      * 
      * @return See above.
@@ -423,7 +439,8 @@ class ControlPane
 				{TableLayout.FILL, TableLayout.PREFERRED}};
     	pane.setLayout(new TableLayout(tl));
     	pane.add(zSlider, "0, 0");
-    	pane.add(playZMovie, "0, 1");
+    	
+    	pane.add(createMovieButtonBar(playZMovie), "0, 1");
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(pane);
@@ -442,7 +459,7 @@ class ControlPane
 				{TableLayout.FILL, TableLayout.PREFERRED}};
     	pane.setLayout(new TableLayout(tl));
     	pane.add(zSliderGrid, "0, 0");
-    	pane.add(playZMovieGrid, "0, 1");
+    	pane.add(createMovieButtonBar(playZMovieGrid), "0, 1");
         JPanel p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(pane);
@@ -865,14 +882,14 @@ class ControlPane
 			case ImViewer.GRID_INDEX:
 				JPanel p = new JPanel();
 	        	p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-	        	p.add(playTMovieGrid);
+	        	p.add(createMovieButtonBar(playTMovieGrid));
 	        	p.add(tSliderGrid);
 	        	return p;
 			case ImViewer.VIEW_INDEX:
 			default:
 				JPanel pane = new JPanel();
 	        	pane.setLayout(new BoxLayout(pane, BoxLayout.X_AXIS));
-	        	pane.add(playTMovie);
+	        	pane.add(createMovieButtonBar(playTMovie));
 	        	pane.add(tSlider);
 	        	return pane;
 		}

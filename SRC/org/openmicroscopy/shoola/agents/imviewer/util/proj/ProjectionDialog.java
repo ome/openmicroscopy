@@ -33,6 +33,7 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
@@ -53,6 +54,7 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
@@ -86,44 +88,46 @@ public class ProjectionDialog
 	/** Bound property indicating to load the datasets containing the image. */
 	public static final String 		LOAD_DATASETS_PROPERTY = "loadDatasets";
 	
+	private static final Map<Integer, String>	PROJECTIONS;
+	
 	/** The maximum number of z-sections. */
-	private int            		   maxZ;
+	private int            		  	maxZ;
 	
 	/** The maximum number of timepoints. */
-	private int            		   maxT;
+	private int            		  	maxT;
     
 	/** The pixels type of the original image. */
-	private String				   pixelsType;
+	private String				  	pixelsType;
 	
 	/** Component hosting a two knobs slider and text field. */
-	private TextualTwoKnobsSlider  textualSlider;
+	private TextualTwoKnobsSlider 	textualSlider;
 	
 	/** The type of projection. */
-	private Map<Integer, Integer>  projectionType;
+	private Map<Integer, Integer> 	projectionType;
 
 	/** Project the selected z-sections for the currently selected timepoint. */
-	private JButton				   previewButton;
+	private JButton				  	previewButton;
 	
 	/** Project the selected z-sections of the whole image. */
-	private JButton				   projectionButton;
+	private JButton				   	projectionButton;
 	
 	 /** The bar notifying the user for the data retrieval progress. */
-    private JProgressBar           progressBar;
+    private JProgressBar           	progressBar;
     
     /** The reference object hosting the parameters used to project. */
-    private ProjectionRef		   ref;
+    private ProjectionRef		   	ref;
     
     /** The label displaying the status. */
-    private JLabel				   statusLabel;
+    private JLabel				   	statusLabel;
     
     /** The type of supported projections. */
-    private JComboBox			   types;
+    private JComboBox			   	types;
     
     /** The UI delegate. */
-    private ProjectionUI           uiDelegate;
+    private ProjectionUI           	uiDelegate;
     
     /** Sets the stepping for the mapping. */
-    private JSpinner			   frequency;
+    private JSpinner			   	frequency;
     
     /** The name of the image. */
     private String 					imageName;
@@ -137,6 +141,13 @@ public class ProjectionDialog
     /** Reference to the control. */
 	private ProjectionDialogControl	controller;
 	
+	static {
+		PROJECTIONS = new LinkedHashMap<Integer, String>();
+		PROJECTIONS.put(ImViewer.MAX_INTENSITY, "Maximum Intensity");
+		PROJECTIONS.put(ImViewer.MEAN_INTENSITY, "Mean Intensity");
+		PROJECTIONS.put(ImViewer.SUM_INTENSITY, "Sum Intensity");
+	}
+
 	/** Collects and stores the parameters used for projection. */
 	private void fillProjectionRef()
 	{
@@ -152,11 +163,9 @@ public class ProjectionDialog
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
-	 * @param projections The projection supported.
 	 * @param background  The background color.
 	 */
-	private void initComponents(Map<Integer, String> projections, 
-			                   Color background)
+	private void initComponents(Color background)
 	{
 		frequency = new JSpinner(new SpinnerNumberModel(1, 1, maxZ, 1));
 		textualSlider = new TextualTwoKnobsSlider(1, maxZ);
@@ -180,15 +189,15 @@ public class ProjectionDialog
         progressBar.setVisible(false);
         statusLabel = new JLabel();
         
-        String[] names = new String[projections.size()];
+        String[] names = new String[PROJECTIONS.size()];
         int index = 0;
-        Iterator<Integer> i = projections.keySet().iterator();
+        Iterator<Integer> i = PROJECTIONS.keySet().iterator();
         projectionType = new HashMap<Integer, Integer>();
         int j;
         while (i.hasNext()) {
 			j = i.next();
 			projectionType.put(index, j);
-			names[index] = projections.get(j);
+			names[index] = PROJECTIONS.get(j);
 			index++;
 		}
         types = new JComboBox(names);
@@ -295,7 +304,6 @@ public class ProjectionDialog
 	 * Creates a new instance.
 	 * 
 	 * @param owner       The owner of the dialog.
-	 * @param projections The type of projection.
 	 * @param maxZ        The number of optical sections.
 	 * @param maxT		  The number of timepoints.
 	 * @param pixelsType  The pixels type of the original image.
@@ -304,8 +312,7 @@ public class ProjectionDialog
 	 * @param imageWidth  The width of the original image.
 	 * @param imageHeight  The width of the original image.
 	 */
-	public ProjectionDialog(JFrame owner, Map<Integer, String> projections, 
-			             int maxZ, int maxT, String pixelsType, 
+	public ProjectionDialog(JFrame owner, int maxZ, int maxT, String pixelsType, 
 			             Color background, String imageName, 
 			             int imageWidth, int imageHeight)
 	{
@@ -315,7 +322,7 @@ public class ProjectionDialog
 		this.maxT = maxT;
 		this.pixelsType = pixelsType;
 		this.imageName = imageName;
-		initComponents(projections, background);
+		initComponents(background);
 		buildGUI();
 		Dimension d = new Dimension(imageWidth, imageHeight);
 		uiDelegate.setPreferredSize(d);
@@ -404,6 +411,8 @@ public class ProjectionDialog
 			int startT, int endT, String pixelsType, boolean applySettings)
 	{
 		fillProjectionRef();
+		ref.setImageDescription("Projection type: "+
+				PROJECTIONS.get(ref.getType()));
 		ref.setAllChannels(allChannels);
 		ref.setDatasets(datasets);
 		ref.setImageName(name);

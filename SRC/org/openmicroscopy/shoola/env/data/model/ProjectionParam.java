@@ -109,6 +109,9 @@ public class ProjectionParam
 	/** The name of the projected image. */
 	private String           	name;
 	
+	/** The description of the projected image. */
+	private String           	description;
+	
 	/** The type of pixels. */
 	private String				pixelsType;
 	
@@ -156,6 +159,8 @@ public class ProjectionParam
 			throw new IllegalArgumentException("Pixels ID not valid.");
 		if (startZ > endZ) 
 			throw new IllegalArgumentException("Optical Interval not valid.");
+		if (name == null)
+			throw new IllegalArgumentException("Image name cannot be null.");
 		checkAlgorithm(algorithm);
 		this.algorithm = algorithm;
 		if (stepping < 1) stepping = 1;
@@ -184,6 +189,16 @@ public class ProjectionParam
 			int algorithm)
 	{
 		this(pixelsID, startZ, endZ, stepping, algorithm, -1, -1, null, "");
+	}
+	
+	/**
+	 * Sets the description of the projected image.
+	 * 
+	 * @param description The value to set.
+	 */
+	public void setDescription(String description)
+	{
+		this.description = description;
 	}
 	
 	/**
@@ -274,5 +289,12 @@ public class ProjectionParam
 	{ 
 		this.datasets = datasets;
 	}
+	
+	/**
+	 * Returns the description of the image.
+	 * 
+	 * @return See above.
+	 */
+	public String getDescription() { return description; }
 	
 }

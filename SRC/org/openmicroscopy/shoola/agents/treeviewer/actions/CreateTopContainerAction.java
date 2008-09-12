@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-
 import javax.swing.Action;
 
 //Third-party libraries
@@ -74,12 +73,7 @@ public class CreateTopContainerAction
     
     /** The name of the action for the creation of a <code>Project</code>. */
     private static final String NAME_PROJECT = "New Project...";
-    
-    /** 
-     * The name of the action for the creation of a <code>CategoryGroup</code>.
-     */
-    private static final String NAME_CATEGORY_GROUP = "New Tag Set...";
-    
+
     /** The name of the action for the creation of a <code>Dataset</code>. */
     private static final String NAME_DATASET = "New Dataset...";
     
@@ -98,10 +92,6 @@ public class CreateTopContainerAction
     /** Description of the action for a <code>Project</code> . */
     private static final String DESCRIPTION_PROJECT = "Create a new Project.";
     
-    /** Description of the action for a <code>CategoryGroup</code> . */
-    private static final String DESCRIPTION_CATEGORY_GROUP = 
-                                "Create a new Tag Set.";
-    
     /** The name of the action for the creation of a <code>Screen</code>. */
     private static final String DESCRIPTION_SCREEN = "Create a new Screen.";
     
@@ -118,7 +108,7 @@ public class CreateTopContainerAction
         IconManager icons = IconManager.getInstance();
     	switch (value) {
 			case PROJECT:
-				name = NAME;
+				name = NAME_PROJECT;
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECT));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_PROJECT));
@@ -136,7 +126,7 @@ public class CreateTopContainerAction
 		                UIUtilities.formatToolTipText(DESCRIPTION_TAG));
 				break;
 			case SCREEN:
-				name = NAME;
+				name = NAME_SCREEN;
 				putValue(Action.SMALL_ICON, icons.getIcon(IconManager.SCREEN));
 				putValue(Action.SHORT_DESCRIPTION, 
 		                UIUtilities.formatToolTipText(DESCRIPTION_SCREEN));

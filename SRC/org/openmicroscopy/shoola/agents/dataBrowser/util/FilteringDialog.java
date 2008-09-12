@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -269,8 +270,8 @@ public class FilteringDialog
 		tagsBox = new JCheckBox("Tags");
 		ratingOptions = new JComboBox(RATING);
 		rating = new RatingComponent(5, RatingComponent.HIGH_SIZE);
-		fromDate = UIUtilities.createDatePicker();
-		toDate = UIUtilities.createDatePicker();
+		fromDate = UIUtilities.createDatePicker(false);
+		toDate = UIUtilities.createDatePicker(false);
 		tagsArea = new JTextField();
 		tagsArea.setColumns(15);
 		tagsArea.getDocument().addDocumentListener(this);
@@ -382,12 +383,15 @@ public class FilteringDialog
 	 */
 	private JPanel buildCalendarPane()
 	{
+		JPanel date = new JPanel();
+		date.add(UIUtilities.setTextFont("From: "));
+		date.add(fromDate);
+		date.add(UIUtilities.setTextFont("To: "));
+		date.add(toDate);
 		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
 		p.add(calendarBox);
-		p.add(UIUtilities.setTextFont("From: "));
-		p.add(fromDate);
-		p.add(UIUtilities.setTextFont("To: "));
-		p.add(toDate);
+		p.add(date);
 		return UIUtilities.buildComponentPanel(p, 0, 0);
 	}
 	

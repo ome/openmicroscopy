@@ -40,6 +40,7 @@ import javax.imageio.ImageIO;
 //Application-internal dependencies
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
 import ome.model.display.RenderingDef;
@@ -51,6 +52,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
+import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
@@ -408,12 +410,16 @@ class OmeroImageServiceImpl
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (ref == null) return null;
-		
 		ImageData image = gateway.projectImage(ref.getPixelsID(), 
 				ref.getStartT(), ref.getEndT(), ref.getStartZ(), 
 				ref.getEndZ(), ref.getStepping(), ref.getAlgorithm(), 
 				ref.getChannels(), ref.getName(), ref.getPixelsType());
 		if (image == null) return null;
+		Image img = image.asImage();
+		img.setDescription(ref.getDescription());
+		image = (ImageData) 
+			PojoMapper.asDataObject(
+					gateway.updateObject(img, new PojoOptions().map()));
 		List<DatasetData> datasets =  ref.getDatasets();
 		if (datasets != null && datasets.size() > 0) {
 			Map map = (new PojoOptions()).map();
@@ -436,7 +442,7 @@ class OmeroImageServiceImpl
 				} 
 			}
 			ILink[] links = new ILink[datasets.size()];
-			IObject img = image.asIObject();
+			img = image.asImage();
 			ILink l;
 			int k = 0;
 			i = existing.iterator();

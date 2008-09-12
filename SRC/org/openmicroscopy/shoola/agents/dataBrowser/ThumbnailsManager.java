@@ -81,6 +81,11 @@ public class ThumbnailsManager
      */
     private Map<Long, Set>     	thumbProviders;
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param wells The nodes hosting the wells to display.
+     */
     public ThumbnailsManager(Collection<ImageDisplay> wells)
     {
     	if (wells == null) 

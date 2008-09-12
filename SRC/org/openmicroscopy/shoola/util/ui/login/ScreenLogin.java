@@ -362,41 +362,6 @@ public class ScreenLogin
 	 */
 	private JPanel buildTopPanel()
 	{
-		/*
-		double topTable[][] =  {{TableLayout.FILL, 5, TableLayout.FILL, 
-								TableLayout.FILL, TableLayout.PREFERRED}, // columns
-				{TableLayout.PREFERRED, 5, TableLayout.FILL}}; // rows
-		JPanel topPanel = new JPanel();
-		topPanel.setOpaque(false);
-		TableLayout layout = new TableLayout(topTable);
-		topPanel.setLayout(layout);   
-		topPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
-				TEXT_COLOR);
-		Font f = pleaseLogIn.getFont();
-		Font newFont = f.deriveFont(Font.BOLD, TEXT_FONT_SIZE);
-		pleaseLogIn.setFont(newFont);
-		topPanel.add(pleaseLogIn, "0, 0, l, c"); //Add to panel.
-		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(serverText);
-		p.add(connectionSpeedText);
-		JPanel panel = UIUtilities.buildComponentPanelRight(p);
-		panel.setOpaque(false);
-		topPanel.add(panel, "1, 0, 3, 0");
-		topPanel.add(configButton, "4, 0, c, c");
-		
-		JPanel namePanel = new JPanel();
-		namePanel.setOpaque(false);
-		namePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		namePanel.add(buildTextPanel(user, 'U', USER_TEXT));
-		namePanel.add(Box.createHorizontalStrut(20));
-		namePanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT));
-		topPanel.add(namePanel, "0, 2, 4, 2");
-		return topPanel;
-		*/
 		JPanel topPanel = new JPanel();
 		topPanel.setOpaque(false);
 		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
@@ -434,8 +399,8 @@ public class ScreenLogin
 		c.gridx = 0;
 		c.gridy++;
 		c.gridwidth = 3;
-		topPanel.add(Box.createVerticalStrut(5), c);
-		c.gridy++;
+		//topPanel.add(Box.createVerticalStrut(5), c);
+		//c.gridy++;
 		topPanel.add(namePanel, c);
 		return topPanel;
 	}
@@ -448,25 +413,6 @@ public class ScreenLogin
 	 */
 	private JPanel buildMainPanel(String version)
 	{
-		/*
-		double mainTable[][] =
-		{{TableLayout.FILL, 100, 5, 100}, // columns
-				{TableLayout.FILL, TableLayout.PREFERRED}}; // rows
-		JPanel mainPanel = new JPanel();
-		mainPanel.setLayout(new TableLayout(mainTable));       
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-		mainPanel.setOpaque(false);
-		//mainPanel.add(login, "1, 1, f, c");
-		//mainPanel.add(cancel, "3, 1, f, c");
-
-		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
-		Font f = versionInfo.getFont();
-		Font newFont = f.deriveFont(VERSION_FONT_STYLE, VERSION_FONT_SIZE);
-		versionInfo.setFont(newFont);
-		mainPanel.add(versionInfo, "0, 1, l, b");
-		mainPanel.add(buildTopPanel(), "0, 0, 3, 0");
-		return mainPanel;
-		*/
 		JPanel mainPanel = new JPanel();
 		mainPanel.setOpaque(false);
 		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
@@ -486,15 +432,15 @@ public class ScreenLogin
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.FIRST_LINE_START;
 		c.fill = GridBagConstraints.HORIZONTAL;
+		//c.weightx = 0.2;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.gridwidth = 2;
 		mainPanel.add(buildTopPanel(), c);
 		c.gridy++;
-		mainPanel.add(Box.createVerticalStrut(5), c);
-		c.gridy++;
+		//mainPanel.add(Box.createVerticalStrut(5), c);
+		//c.gridy++;
 		c.gridwidth = 1;
-		
 		c.gridx++;
 		mainPanel.add(UIUtilities.buildComponentPanelRight(controls, 0, 0, 
 					false), c);

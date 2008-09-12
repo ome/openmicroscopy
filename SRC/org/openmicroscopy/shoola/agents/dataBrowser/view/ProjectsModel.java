@@ -24,21 +24,16 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
-import org.openmicroscopy.shoola.agents.dataBrowser.ThumbnailLoader;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.ImageData;
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import pojos.ProjectData;
 
 /** 

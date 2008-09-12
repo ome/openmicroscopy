@@ -75,6 +75,9 @@ public class ProjectionRef
 	/** The name of the projected image. */
 	private String            name;
 	
+	/** The description of the projected image. */
+	private String			  description;
+	
 	/** 
 	 * Project all channels if <code>true</code>, project the active channels
 	 * if <code>false</code>
@@ -180,6 +183,16 @@ public class ProjectionRef
 	void setImageName(String name) { this.name = name; }
 	
 	/**
+	 * Sets the description of the projected image.
+	 * 
+	 * @param description The value to set.
+	 */
+	void setImageDescription(String description)
+	{ 
+		this.description = description;
+	}
+	
+	/**
 	 * Sets the collection of datasets to add the image to.
 	 * 
 	 * @param datasets The collection to set.
@@ -202,6 +215,13 @@ public class ProjectionRef
 	 * @return See above.
 	 */
 	public String getImageName() { return name; }
+	
+	/**
+	 * Returns the description of the projected image.
+	 * 
+	 * @return See above.
+	 */
+	public String getImageDescription() { return description; }
 	
 	/**
 	 * Returns the collection of datasets to add the image to.

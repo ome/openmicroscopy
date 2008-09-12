@@ -228,17 +228,6 @@ class ToolBar
     {
     	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(UIUtilities.buildComponentPanel(bar));
-        /*
-        JButton button = new JButton(
-        			controller.getAction(ImViewerControl.SEARCH));
-        UIUtilities.unifiedButtonLookAndFeel(button);
-        JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        bar.add(button);
-        */
-        //add(UIUtilities.buildComponentPanelRight(bar));
     }
     
     /**

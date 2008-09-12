@@ -51,6 +51,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplayVisitor;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetThumbnailVisitor;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -184,7 +185,8 @@ abstract class DataBrowserModel
     	if (browser == null) return;
 		//Do initial layout and set the icons.
     	if (browser.getSelectedLayout() == null) {
-    		Layout layout = LayoutFactory.createLayout(type, sorter, 1);
+    		Layout layout = LayoutFactory.createLayout(type, sorter, 
+    				LayoutUtils.DEFAULT_PER_ROW);
             browser.setSelectedLayout(layout);
     	}
         browser.accept(browser.getSelectedLayout(), 

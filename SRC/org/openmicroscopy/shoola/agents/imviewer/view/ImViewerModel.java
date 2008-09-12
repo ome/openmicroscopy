@@ -592,8 +592,13 @@ class ImViewerModel
 	 * Sets the zoom factor.
 	 * 
 	 * @param factor The factor to set.
+	 * @param reset	 Pass <code>true</code> to reset the magnification factor.
+     * 				 <code>false</code> to set it.
 	 */
-	void setZoomFactor(double factor) { browser.setZoomFactor(factor); }
+	void setZoomFactor(double factor, boolean reset)
+	{ 
+		browser.setZoomFactor(factor, reset);
+	}
 
 	/**
 	 * Returns the zoom factor.
@@ -1423,6 +1428,7 @@ class ImViewerModel
 				ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
 				ref.getType(), ref.getStartT(), ref.getEndT(), 
 				channels, ref.getImageName());
+		param.setDescription(ref.getImageDescription());
 		param.setDatasets(ref.getDatasets());
 		ProjectionSaver loader = new ProjectionSaver(component,  param, 
 							ProjectionSaver.PROJECTION);

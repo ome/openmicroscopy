@@ -3414,6 +3414,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			System.err.println(plateID);
 			List results = null;
 			IQuery service = getQueryService();
 			StringBuilder sb = new StringBuilder();
