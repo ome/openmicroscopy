@@ -29,13 +29,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JCheckBox;
 
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
-
 //Third-party libraries
 
 //Application-internal dependencies
 
+import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 
 /** 
  * A UI Component for editing a Boolean Parameter. 
@@ -58,13 +57,13 @@ public class BooleanEditor
 	/**
 	 * A JCheckBox for editing the boolean value 
 	 */
-	private JCheckBox checkBox;
+	private JCheckBox 		checkBox;
 	
 	/**
 	 * The value attribute. This is the attribute that holds the
 	 * value of the boolean parameter we're editing.
 	 */
-	private String valueAttribute = SingleParam.PARAM_VALUE;
+	private String 			attributeName;
 	
 	/**
 	 * Initialises the UI components. 
@@ -78,7 +77,7 @@ public class BooleanEditor
 		checkBox.setBackground(null);
 		checkBox.setBorderPaintedFlat(true);
 		
-		boolean checked = getParameter().isAttributeTrue(valueAttribute);
+		boolean checked = getParameter().isAttributeTrue(attributeName);
 		
 		checkBox.setSelected(checked);
 	}
@@ -86,12 +85,32 @@ public class BooleanEditor
 	/**
 	 * Creates an instance.
 	 * 
-	 * @param param
+	 * @param param				The IAttributes collection we're editing
+	 * @param attributeName		The name of the attribute we're editing
 	 */
-	public BooleanEditor(IParam param) {
+	public BooleanEditor(IAttributes param, String attributeName) {
 		
 		super(param);
 		
+		this.attributeName = attributeName;
+		
+		initialise();
+		
+		this.add(checkBox);
+	}
+	
+	/**
+	 * Creates an instance, which will edit the 
+	 * {@link SingleParam#PARAM_VALUE} attribute of the 
+	 * {@link IAttributes} parameter. 
+	 * 
+	 * @param param		The IAttributes collection we're editing
+	 */
+	public BooleanEditor(IAttributes param) {
+		
+		super(param);
+		
+		attributeName = SingleParam.PARAM_VALUE;
 		initialise();
 		
 		this.add(checkBox);
@@ -103,7 +122,7 @@ public class BooleanEditor
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
-		attributeEdited(valueAttribute, checkBox.isSelected() + "");
+		attributeEdited(attributeName, checkBox.isSelected() + "");
 	}
 	
 	/**

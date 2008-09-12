@@ -22,6 +22,7 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -93,10 +94,10 @@ public class EnumTemplate
 	 */
 	private void buildUI()
 	{
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-		add(optionsFieldEditor);
-		add(new CustomLabel("Default Value: "));
-		add(defaultValueComboBox);
+		setLayout(new BorderLayout());
+		add(optionsFieldEditor, BorderLayout.NORTH);
+		add(new CustomLabel("Default Value: "), BorderLayout.WEST);
+		add(defaultValueComboBox, BorderLayout.CENTER);
 		
 	}
 	
@@ -122,13 +123,19 @@ public class EnumTemplate
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (ITreeEditComp.VALUE_CHANGED_PROPERTY.equals(evt.getPropertyName())){
 			if (evt.getSource().equals(defaultValueComboBox)) {
-				String newDefault = evt.getNewValue().toString();
+				String newDefault = null;
+				if (evt.getNewValue() != null)
+					newDefault = evt.getNewValue().toString();
 				// simply change the new value of default attribute
 				attributeEdited(SingleParam.DEFAULT_VALUE, newDefault);
 			}
 			
+			// if the drop-down options have changed, need to check that
+			// the value and default value are in the new options. 
 			if (evt.getSource().equals(optionsFieldEditor)) {
-				String newOptions = evt.getNewValue().toString();
+				String newOptions = null;
+				if(evt.getNewValue() != null) 
+					newOptions = evt.getNewValue().toString();
 				
 				String defaultValue = getParameter().getAttribute
 						(SingleParam.DEFAULT_VALUE);

@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.FieldParamsFactory;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImageBorderFactory;
 
 /** 
@@ -197,22 +198,33 @@ public class FieldEditorPanel
 		attributeFieldsPanel.add(Box.createVerticalStrut(10));
 		//JLabel paramLabel = new CustomLabel("Parameters:");
 		JPanel paramHeader = new JPanel(new BorderLayout());
-		paramHeader.setBackground(null);
+		Border emptyB = new EmptyBorder(4, 4, 4,4);
+		Border lineB = BorderFactory.createMatteBorder(
+                1, 1, 1, 1, new Color(200,200,200));
+		Border compoundBorder = BorderFactory.createCompoundBorder
+			(lineB, emptyB);
+		paramHeader.setBorder(compoundBorder);
+		paramHeader.setBackground(Color.white);
 		
-		// Add the JComboBox for changing parameter type
-		paramHeader.add(paramTypeChooser, BorderLayout.WEST);
-		
-		JButton addParamsButton = new AddParamActions(field, tree, 
-				treeNode, controller).getButton();
-		addParamsButton.addPropertyChangeListener(
-				AddParamActions.PARAM_ADDED_PROPERTY, this);
-		paramHeader.add(addParamsButton, BorderLayout.EAST);
-		
+		// Add the JComboBox for changing type of FIRST parameter
+		paramHeader.add(paramTypeChooser, BorderLayout.CENTER);
+		paramHeader.add(new CustomLabel("Parameter type: "), BorderLayout.WEST);		
 		attributeFieldsPanel.add(paramHeader);
+		
+		if (field.getParamCount() > 0) {
+			IParam param = field.getParamAt(0);
+			JComponent edit = ParamTemplateUIFactory.
+								getEditDefaultComponent(param);
+			if (edit != null) {
+				edit.addPropertyChangeListener( 
+						ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+				paramHeader.add(edit, BorderLayout.SOUTH);
+			}
+		}
 		
 		// For each parameter of this field, add the components for
 		// editing their default or template values. 
-		buildParamComponents();
+		addAdditionalParams();
 		
 		this.setLayout(new BorderLayout());
 		add(attributeFieldsPanel, BorderLayout.NORTH);
@@ -238,19 +250,41 @@ public class FieldEditorPanel
 
 	/**
 	 * Add additional UI components for editing the value of this field.
-	 * Use a Factory to create the UI components, depending on the value type
+	 * This deals with "Additional" parameters, not the first one, which
+	 * is a special case (added earlier). 
+	 * Uses the {@link ParamTemplateUIFactory} to create the UI components,
+	 * depending on the value type
 	 */
-	private void buildParamComponents() 
+	private void addAdditionalParams() 
 	{
-		int paramCount = field.getParamCount();
+		addFieldComponent(createAdditionalParamsHeader());
 		
-		for (int i=0; i<paramCount; i++) {
+		int paramCount = field.getParamCount();
+		if (paramCount < 2) { return; }
+		
+		for (int i=1; i<paramCount; i++) {
 			IParam param = field.getParamAt(i);
 			JComponent edit = ParamTemplateUIFactory.
 									getEditDefaultComponent(param);
-			if (edit != null)
+			if (edit != null) {
 				addFieldComponent(edit);
+			}
 		}
+	}
+	
+	private JComponent createAdditionalParamsHeader() {
+		JPanel addParamsHeader = new JPanel(new BorderLayout());
+		addParamsHeader.setBackground(null);
+		JButton addParamsButton = new AddParamActions(field, tree, 
+				treeNode, controller).getButton();
+		addParamsButton.addPropertyChangeListener(
+				AddParamActions.PARAM_ADDED_PROPERTY, this);
+		addParamsHeader.add(addParamsButton, BorderLayout.EAST);
+		
+		addParamsHeader.add(
+				new CustomLabel("Additional Parameters:"), BorderLayout.WEST);
+		
+		return addParamsHeader;
 	}
 
 	/**

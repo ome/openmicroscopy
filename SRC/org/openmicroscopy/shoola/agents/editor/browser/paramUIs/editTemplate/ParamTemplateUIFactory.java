@@ -67,7 +67,7 @@ public class ParamTemplateUIFactory {
 			return null;
 		}
 		String inputType = paramObject.getAttribute(AbstractParam.PARAM_TYPE);
-		
+
 		if (inputType == null) {
 			return null;
 		}
@@ -79,6 +79,14 @@ public class ParamTemplateUIFactory {
 		
 		if (inputType.equals(SingleParam.ENUM_PARAM)) {
 			return new EnumTemplate(paramObject);
+		}
+		
+		if (inputType.equals(SingleParam.BOOLEAN_PARAM)) {
+			return new BooleanTemplate(paramObject);
+		}
+		
+		if (inputType.equals(SingleParam.NUMBER_PARAM)) {
+			return new NumberTemplate(paramObject);
 		}
 		
 		if (inputType.equals(DataFieldConstants.DATE_TIME_FIELD)) {

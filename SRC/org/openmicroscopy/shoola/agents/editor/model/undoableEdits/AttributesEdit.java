@@ -147,8 +147,6 @@ public class AttributesEdit
 				String key = (String)iterator.next();
 				oldValues.put(key, attributes.getAttribute(key));
 				attributes.setAttribute(key, newValues.get(key));
-				System.out.println("AttributesEdit " + key + " " + 
-						attributes.getAttribute(key) + " " + newValues.get(key));
 			}
 			// if node changed (eg template edited), need to notify
 			notifyNodeChanged();

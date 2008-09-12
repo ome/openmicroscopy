@@ -49,8 +49,11 @@ import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
+import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AddParamEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributeEdit;
 import org.openmicroscopy.shoola.agents.editor.model.undoableEdits.AttributesEdit;
+
 
 
 /** 
@@ -221,6 +224,21 @@ public class BrowserControl
 	{	
 		UndoableEdit edit = new AttributesEdit(attributes, displayName, 
 				newValues, tree, node);
+		undoSupport.postEdit(edit);
+	}
+	
+	/**
+	 * Edits a field by creating and adding a new Parameter.
+	 * 
+	 * @param field		The field to add a new parameter to.
+	 * @param paramType		A string defining the type of parameter to add.
+	 * @param tree			The JTree to refresh with undo/redo
+	 * @param node		The node to highlight / refresh with undo/redo. 
+	 */
+	public void addParamToField(IField field, String paramType, 
+			JTree tree, TreeNode node) {
+		
+		UndoableEdit edit = new AddParamEdit(field, paramType, tree, node);
 		undoSupport.postEdit(edit);
 	}
 	
