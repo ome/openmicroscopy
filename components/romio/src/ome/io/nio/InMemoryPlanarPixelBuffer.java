@@ -172,8 +172,24 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
         throw new UnsupportedOperationException(
             "Not supported with in memory planar buffers.");
     }
+    
+    public PixelData getCol(Integer x, Integer z, Integer c, Integer t)
+    throws IOException, DimensionsOutOfBoundsException
+    {
+        // TODO: This could be supported, we're just not going to right now.
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
 
     public byte[] getRowDirect(Integer y, Integer z, Integer c, Integer t,
+            byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+    {
+        // TODO: This could be supported, we're just not going to right now.
+        throw new UnsupportedOperationException(
+            "Not supported with in memory planar buffers.");
+    }
+    
+    public byte[] getColDirect(Integer x, Integer z, Integer c, Integer t,
             byte[] buffer) throws IOException, DimensionsOutOfBoundsException
     {
         // TODO: This could be supported, we're just not going to right now.
@@ -191,6 +207,11 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
     public Integer getRowSize()
     {
         return getSizeX() * getByteWidth();
+    }
+    
+    public Integer getColSize()
+    {
+        return getSizeY() * getByteWidth();
     }
 
     public int getSizeC()

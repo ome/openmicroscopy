@@ -47,8 +47,10 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public long getTimepointOffset(int t);
 
     public byte[] getRegion(int size, long offset);
-
+    
     public byte[] getRow(int y, int z, int c, int t);
+    
+    public byte[] getCol(int x, int z, int c, int t);
 
     public byte[] getPlaneRegion(int z, int c, int t, int count, int offset);
 

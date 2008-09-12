@@ -40,6 +40,8 @@ public class DeltaVision implements PixelBuffer {
 	private FileChannel channel;
 
 	private Integer rowSize;
+	
+	private Integer colSize;
 
 	private Integer planeSize;
 
@@ -219,6 +221,16 @@ public class DeltaVision implements PixelBuffer {
 		return getRegion(size, offset);
 	}
 	
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getCol(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getCol(Integer x, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException {
+        // TODO: This could be supported, we're just not going to right now.
+        throw new UnsupportedOperationException(
+            "Not supported with DeltaVision pixel buffers.");
+    }
+	
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getRowDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
 	 */
@@ -232,6 +244,19 @@ public class DeltaVision implements PixelBuffer {
 		return buffer;
 	}
 
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getColDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getColDirect(Integer y, Integer z, Integer c, Integer t,
+            byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+    {
+        if (buffer.length != getRowSize())
+            throw new ApiUsageException("Buffer size incorrect.");
+        ByteBuffer b = getRow(y, z, c, t).getData();
+        swapAndReorderIfRequired(b, ByteBuffer.wrap(buffer), 0, getSizeX());
+        return buffer;
+    }
+    
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getRowOffset(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
 	 */
@@ -255,6 +280,14 @@ public class DeltaVision implements PixelBuffer {
 
 		return rowSize;
 	}
+	
+    public Integer getColSize() {
+        if (colSize == null) {
+            colSize = getSizeY() * getByteWidth();
+        }
+
+        return colSize;
+    }
 
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getSizeC()

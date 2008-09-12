@@ -10,7 +10,6 @@ package ome.services;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -308,6 +307,23 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         try {
             readBuffer = buffer
                     .getRowDirect(arg0, arg1, arg2, arg3, readBuffer);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return readBuffer;
+    }
+    
+    @RolesAllowed("user")
+    public byte[] getCol(int arg0, int arg1, int arg2, int arg3) {
+        errorIfNotLoaded();
+
+        int size = buffer.getColSize();
+        if (readBuffer == null || readBuffer.length != size) {
+            readBuffer = new byte[size];
+        }
+        try {
+            readBuffer = buffer
+                    .getColDirect(arg0, arg1, arg2, arg3, readBuffer);
         } catch (Exception e) {
             handleException(e);
         }

@@ -43,6 +43,8 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     private FileChannel channel;
 
     private Integer rowSize;
+    
+    private Integer colSize;
 
     private Integer planeSize;
 
@@ -123,6 +125,14 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         return rowSize;
     }
 
+    public Integer getColSize() {
+        if (colSize == null) {
+            colSize = getSizeY() * getByteWidth();
+        }
+
+        return colSize;
+    }
+    
     public Integer getStackSize() {
         if (stackSize == null) {
             stackSize = getPlaneSize() * getSizeZ();
@@ -222,6 +232,22 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         return getRegion(size, offset);
     }
     
+    public PixelData getCol(Integer x, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException {
+        PixelData plane = getPlane(z, c, t);
+        Integer sizeY = getSizeY();
+        Integer colSize = getColSize();
+        ByteBuffer buf = ByteBuffer.wrap(new byte[colSize]);
+        PixelData column = new PixelData(pixels.getPixelsType(), buf);
+        for (int i = 0; i < sizeY; i++) {
+            int offset = (i * sizeY) + x;
+            double value = plane.getPixelValue(offset);
+            column.setPixelValue(i, value);
+        }
+        
+        return column;
+    }
+    
     public byte[] getRowDirect(Integer y, Integer z, Integer c, Integer t,
     		byte[] buffer) throws IOException, DimensionsOutOfBoundsException
     {
@@ -230,6 +256,22 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 		ByteBuffer b = getRow(y, z, c, t).getData();
 		b.get(buffer);
 		return buffer;
+    }
+    
+    public byte[] getColDirect(Integer x, Integer z, Integer c, Integer t, 
+            byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+    {
+        PixelData plane = getPlane(z, c, t);
+        Integer sizeY = getSizeY();
+        ByteBuffer buf = ByteBuffer.wrap(buffer);
+        PixelData column = new PixelData(pixels.getPixelsType(), buf);
+        for (int i = 0; i < sizeY; i++) {
+            int offset = (i * sizeY) + x;
+            double value = plane.getPixelValue(offset);
+            column.setPixelValue(i, value);
+        }
+
+        return buffer;
     }
     
 	public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
