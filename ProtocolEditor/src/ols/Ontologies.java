@@ -177,7 +177,7 @@ public class Ontologies {
 		
 		int colonIndex = termId.indexOf(":");
 		if (colonIndex < 1) {
-			throw new RuntimeException("Ontology term Id didn't contain : ");
+			return null;
 		} 
 		return termId.substring(0, colonIndex);
 	}
