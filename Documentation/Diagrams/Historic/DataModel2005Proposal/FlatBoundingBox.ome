@@ -1,0 +1,281 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2003 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josiah Johnston <siah@nih.gov>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<OME
+  xmlns=
+    "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd"
+  xmlns:xsi=
+    "http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:STD=
+    "http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd"
+  xsi:schemaLocation = "
+    http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd
+      http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd
+    http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd
+      http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd">
+
+	<SemanticTypeDefinitions xmlns="http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd" xsi:schemaLocation="http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd">
+		<SemanticType
+			Name= "RegionUnion"
+			AppliesTo = "F">
+			<Description>A set of BoundingBox's that may be discontinuous. Can be
+			used to track a cell's progeny over time and space.</Description>
+			<Element
+				Name= "Name"
+				DBLocation = "RegionUnion.Name"
+				DataType = "string"/>
+		</SemanticType>
+		<SemanticType
+			Name = "RegionUnionComments"
+			AppliesTo = "F">
+			<Description>Comments about a RegionUnion.</Description>
+			<Element
+				Name= "Title"
+				DBLocation = "RegionUnionComments.Title"
+				DataType = "string"/>
+			<Element
+				Name= "Comments"
+				DBLocation = "RegionUnionComments.Comments"
+				DataType = "string"/>
+			<Element
+				Name = "RegionUnion"
+				DBLocation = "RegionUnionComments.RegionUnion"
+				DataType = "reference"
+				RefersTo = "RegionUnion"/>
+		</SemanticType>
+		
+		<SemanticType
+			Name = "RegionUnionBoundingBox"
+			AppliesTo = "F">
+			<Description>A mapping class between RegionUnion's and BoundingBox's.</Description>
+			<Element
+				Name = "RegionUnion"
+				DBLocation = "RegionUnionBoundingBox.RegionUnion"
+				DataType = "reference"
+				RefersTo = "RegionUnion"/>
+			<Element
+				Name = "BoundingBox"
+				DBLocation = "RegionUnionBoundingBox.BoundingBox"
+				DataType = "reference"
+				RefersTo = "BoundingBox"/>
+		</SemanticType>
+		
+
+		<SemanticType
+			Name = "BoundingBox"
+			AppliesTo = "F">
+			<Description>A bounded region that has dimensionality of two or 
+				greater. The 5-D bounding box is stored here, and the 
+				particulars of a shape that fit within the box are stored 
+				separately. A null entry in the extent of any dimension 
+				means that this BoundedRegion exists across every point 
+				in that dimension.</Description>
+			<Element
+				Name = "StartX"
+				DBLocation = "BoundingBox.StartX"
+				DataType = "integer"/>
+			<Element
+				Name = "EndX"
+				DBLocation = "BoundingBox.EndX"
+				DataType = "integer"/>
+			<Element
+				Name = "StartY"
+				DBLocation = "BoundingBox.StartY"
+				DataType = "integer"/>
+			<Element
+				Name = "EndY"
+				DBLocation = "BoundingBox.EndY"
+				DataType = "integer"/>
+			<Element
+				Name = "StartZ"
+				DBLocation = "BoundingBox.StartZ"
+				DataType = "integer"/>
+			<Element
+				Name = "EndZ"
+				DBLocation = "BoundingBox.EndZ"
+				DataType = "integer"/>
+			<Element
+				Name = "StartT"
+				DBLocation = "BoundingBox.StartT"
+				DataType = "integer"/>
+			<Element
+				Name = "EndT"
+				DBLocation = "BoundingBox.EndT"
+				DataType = "integer"/>
+			<Element
+				Name = "StartC"
+				DBLocation = "BoundingBox.StartC"
+				DataType = "integer"/>
+			<Element
+				Name = "EndC"
+				DBLocation = "BoundingBox.EndC"
+				DataType = "integer"/>
+			<!-- Really, this ShapeType should reference OME::SemanticType -->
+			<Element
+				Name = "ShapeType"
+				DBLocation = "BoundingBox.ShapeType"
+				DataType = "string"/>
+			<Element
+				Name = "ShapeID"
+				DBLocation = "BoundingBox.ShapeID"
+				DataType = "integer"/>
+		</SemanticType>
+
+		<SemanticType
+			Name = "BoundingBoxComments"
+			AppliesTo = "F">
+			<Description>Comments about a BoundingBox.</Description>
+			<Element
+				Name= "Title"
+				DBLocation = "BoundingBoxComments.Title"
+				DataType = "string"/>
+			<Element
+				Name= "Comments"
+				DBLocation = "BoundingBoxComments.Comments"
+				DataType = "string"/>
+			<Element
+				Name = "BoundingBox"
+				DBLocation = "BoundingBoxComments.BoundingBox"
+				DataType = "reference"
+				RefersTo = "BoundingBox"/>
+		</SemanticType>
+
+		<SemanticType
+			Name = "BoundingBoxSubsampleTime"
+			AppliesTo = "F">
+			<Description>A member of a set of sub-sampled timepoints.</Description>
+			<Element
+				Name = "TheT"
+				DBLocation = "BoundingBoxSubsampleTime.TheT"
+				DataType = "integer"/>
+			<Element
+				Name = "BoundingBox"
+				DBLocation = "BoundingBoxSubsampleTime.BoundingBox"
+				DataType = "reference"
+				RefersTo = "BoundingBox"/>
+		</SemanticType>
+		
+		<SemanticType
+			Name = "BoundingBoxSubsampleChannel"
+			AppliesTo = "F">
+			<Description>A member of a set of sub-sampled Channels.</Description>
+			<Element
+				Name = "TheC"
+				DBLocation = "BoundingBoxSubsampleChannel.TheC"
+				DataType = "integer"/>
+			<Element
+				Name = "BoundingBox"
+				DBLocation = "BoundingBoxSubsampleChannel.BoundingBox"
+				DataType = "reference"
+				RefersTo = "BoundingBox"/>
+		</SemanticType>
+		
+		<SemanticType
+			Name = "Circle"
+			AppliesTo = "F">
+			<Description>A Shape ST to accompany a BoundedRegion.</Description>
+			<Element
+				Name= "CenterX"
+				DBLocation = "BoundingBoxCircle.CenterX"
+				DataType = "integer"/>
+			<Element
+				Name= "CenterY"
+				DBLocation = "BoundingBoxCircle.CenterY"
+				DataType = "integer"/>
+			<Element
+				Name= "Radius"
+				DBLocation = "BoundingBoxCircle.Radius"
+				DataType = "float"/>
+		</SemanticType>
+
+		<!-- NOTE: This ST needs to be merged with the existing BinaryMask.
+			The existing BinaryMask needs to be placed in its own table,
+			and its description needs to be generalized. -->
+		<SemanticType
+			Name = "BoundingBoxBinaryMask"
+			AppliesTo = "F">
+			<Description>A mask that matches the dimensionality of the 
+				accompanying Bounded Region.</Description>
+			<Element 
+				Name="Parent"
+				DBLocation="BoundingBoxBinaryMask.Parent"
+				DataType="reference"
+				RefersTo="Pixels"/>
+		</SemanticType>
+		
+		<SemanticType
+			Name = "Polygon"
+			AppliesTo = "F">
+			<Description>A Shape ST to accompany a BoundingRegion.</Description>
+			<Element
+				Name = "NumPoints"
+				DBLocation = "BoundingBoxPolygon.NumPoints"
+				DataType = "integer"/>
+		</SemanticType>
+		<SemanticType
+			Name = "PolygonPoint"
+			AppliesTo = "F">
+			<Description>A spacial point existing independently of channels.
+				Coordinates are in absolute units.</Description>
+			<Element
+				Name = "Order"
+				DBLocation = "PolygonPoint.PolygonOrder"
+				DataType = "integer"/>
+			<Element
+				Name = "TheX"
+				DBLocation = "PolygonPoint.TheX"
+				DataType = "integer"/>
+			<Element
+				Name = "TheY"
+				DBLocation = "PolygonPoint.TheY"
+				DataType = "integer"/>
+			<Element
+				Name = "TheZ"
+				DBLocation = "PolygonPoint.TheZ"
+				DataType = "integer"/>
+			<Element
+				Name = "TheT"
+				DBLocation = "PolygonPoint.TheT"
+				DataType = "integer"/>
+			<Element
+				Name = "Polygon"
+				DBLocation = "PolygonPoint.Polygon"
+				DataType = "reference"
+				RefersTo = "Polygon"/>
+		</SemanticType>
+		
+
+		
+	</SemanticTypeDefinitions>
+</OME>
