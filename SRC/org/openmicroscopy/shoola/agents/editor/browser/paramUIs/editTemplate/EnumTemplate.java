@@ -109,9 +109,12 @@ public class EnumTemplate
 		buildUI();
 	}
 
-	public String getEditDisplayName() {
-		return "Drop-down options";
-	}
+	/**
+	 * Implemented as specified by the {@link ITreeEditComp} interface. 
+	 * 
+	 * @see {@link ITreeEditComp#getEditDisplayName()
+	 */
+	public String getEditDisplayName() { return "Drop-down options"; }
 
 	/**
 	 * May be called from {@link #optionsFieldEditor} when options have changed.

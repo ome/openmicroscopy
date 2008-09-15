@@ -165,9 +165,9 @@ class EditorComponent
 	 */
 	public void setFileToEdit(File file)
 	{
-		if (model.getState() != LOADING)
+		if ((model.getState() != LOADING) && (model.getState() != NEW))
 			throw new IllegalStateException("This method should only be " +
-					"invoked in the LOADING state.");
+					"invoked in the LOADING or NEW states.");
 					
 		model.setFileToEdit(file);
 		view.displayFile();

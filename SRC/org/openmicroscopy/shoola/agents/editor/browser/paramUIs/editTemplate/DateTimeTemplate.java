@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.BooleanTemplate 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.DateTimeTemplate 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -37,14 +37,12 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.BooleanEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 /** 
- * A UI for editing the "template" (default value) of a boolean 
- * parameter. 
- * Uses a {@link BooleanEditor} to do the editing of the 
- * {@link SingleParam#DEFAULT_VALUE} attribute. 
+ * A UI for editing the template attributes of the DateTime Parameter. 
+ * Can choose whether this is an "Relative" Date or an absolute date. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -54,47 +52,38 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
  * </small>
  * @since OME3.0
  */
-public class BooleanTemplate 
+public class DateTimeTemplate 
 	extends AbstractParamEditor
 	implements PropertyChangeListener
 {
 
-	private void buildUI()
+	/**
+	 * Builds the UI.
+	 */
+	private void buildUI() 
 	{
-		BooleanEditor checkBox = new BooleanEditor(getParameter(), 
-				SingleParam.DEFAULT_VALUE);
-		checkBox.addPropertyChangeListener
+		BooleanEditor relativeDate = new BooleanEditor(getParameter(), 
+				DateTimeParam.IS_RELATIVE_DATE);
+		relativeDate.addPropertyChangeListener
 			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
 		
-		add(new CustomLabel("Default: "));
-		add(checkBox);
+		add(new CustomLabel("Relative Date: "));
+		add(relativeDate);
 		add(Box.createHorizontalGlue());
-		//JPanel spacer = new JPanel();
-		//spacer.setBackground(null);
 	}
 	
 	/**
 	 * Creates an instance.
 	 * 
-	 * @param param		The parameter in which to edit the default boolean value
+	 * @param param		The paramter to edit.
 	 */
-	public BooleanTemplate(IAttributes param) 
+	public DateTimeTemplate(IAttributes param) 
 	{
 		super(param);
 		
 		buildUI();
 	}
 	
-	/**
-	 * Implemented as specified by the {@link ITreeEditComp} interface. 
-	 * 
-	 * @see {@link ITreeEditComp#getEditDisplayName()
-	 */
-	public String getEditDisplayName() {
-		return "Checkbox default";
-	}
-
-
 	/**
 	 * This method is implemented as specified by the 
 	 * {@link PropertyChangeListener} interface.
@@ -121,5 +110,12 @@ public class BooleanTemplate
 			}
 		}
 	}
+
+	/**
+	 * Implemented as specified by the {@link ITreeEditComp} interface. 
+	 * 
+	 * @see {@link ITreeEditComp#getEditDisplayName()
+	 */
+	public String getEditDisplayName() { return "Date-Time template"; }
 
 }

@@ -296,16 +296,15 @@ public class FieldEditorPanel
 	 */
 	private void paramTypeChanged(String newType) {
 		
-		if (field.getParamCount() > 0) {
-			IParam oldParam = field.getParamAt(0);
-			field.removeParam(oldParam);
-		}
-		IParam newParam = FieldParamsFactory.getFieldParam(newType);
-		field.addParam(0, newParam);
+		int paramIndex = 0;
 		
-		/* refresh this node in the JTree, and rebuild this panel*/
-		updateEditingOfTreeNode();
-		rebuildEditorPanel();
+		IParam newParam = null;
+		if (newType != null) 
+			newParam = FieldParamsFactory.getFieldParam(newType);
+		
+		// if newParam is null, this will simply remove first parameter
+		controller.changeParam(field, newParam, paramIndex,
+				 tree, treeNode);
 	}
 
 	/**

@@ -1,5 +1,5 @@
  /*
- * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.BooleanTemplate 
+ * org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.TimerTemplate 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -34,17 +34,17 @@ import javax.swing.Box;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.BooleanEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
+import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TimerField;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
+import org.openmicroscopy.shoola.agents.editor.uiComponents.HrsMinsSecsField;
 
 /** 
- * A UI for editing the "template" (default value) of a boolean 
- * parameter. 
- * Uses a {@link BooleanEditor} to do the editing of the 
- * {@link SingleParam#DEFAULT_VALUE} attribute. 
+ * The UI component for editing the "Template" of the timer parameter
+ * (edits the timer default value, in the {@link SingleParam#DEFAULT_VALUE}
+ * attribute.
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -54,72 +54,66 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
  * </small>
  * @since OME3.0
  */
-public class BooleanTemplate 
+public class TimerTemplate 
 	extends AbstractParamEditor
 	implements PropertyChangeListener
 {
-
-	private void buildUI()
+	/**
+	 * The attribute for storing the default time. 
+	 */
+	private String 			attributeName = SingleParam.DEFAULT_VALUE;
+	
+	/**
+	 * Builds the UI.
+	 */
+	private void buildUI() 
 	{
-		BooleanEditor checkBox = new BooleanEditor(getParameter(), 
-				SingleParam.DEFAULT_VALUE);
-		checkBox.addPropertyChangeListener
-			(ITreeEditComp.VALUE_CHANGED_PROPERTY, this);
+		HrsMinsSecsField hrsMinsSecs = new HrsMinsSecsField();
+		hrsMinsSecs.addPropertyChangeListener(
+				HrsMinsSecsField.TIME_IN_SECONDS, this);
 		
-		add(new CustomLabel("Default: "));
-		add(checkBox);
+		String defaultValue = getParameter().getAttribute(attributeName);
+		int defaultSecs = TimerField.getSecondsFromTimeValue(defaultValue);
+		hrsMinsSecs.setTimeInSecs(defaultSecs);
+		
+		add(new CustomLabel("Default time: "));
+		add(hrsMinsSecs);
 		add(Box.createHorizontalGlue());
-		//JPanel spacer = new JPanel();
-		//spacer.setBackground(null);
 	}
 	
 	/**
 	 * Creates an instance.
 	 * 
-	 * @param param		The parameter in which to edit the default boolean value
+	 * @param param		The paramter to edit.
 	 */
-	public BooleanTemplate(IAttributes param) 
+	public TimerTemplate(IAttributes param) 
 	{
 		super(param);
 		
 		buildUI();
 	}
-	
+
+	/**
+	 * Listens for changes to the HrsMinsSecsField.TIME_IN_SECONDS property.
+	 * Updates the timeInSeconds value, and calls attributeEdited() to 
+	 * save the new value to the parameter.
+	 * 
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt) 
+	{	
+		if (HrsMinsSecsField.TIME_IN_SECONDS.equals(evt.getPropertyName())) {
+			int timeInSeconds = Integer.parseInt(evt.getNewValue().toString());
+			//timer.setCurrentSecs(timeInSeconds);
+			attributeEdited(attributeName, timeInSeconds + "");
+		}
+	}
+
 	/**
 	 * Implemented as specified by the {@link ITreeEditComp} interface. 
 	 * 
 	 * @see {@link ITreeEditComp#getEditDisplayName()
 	 */
-	public String getEditDisplayName() {
-		return "Checkbox default";
-	}
-
-
-	/**
-	 * This method is implemented as specified by the 
-	 * {@link PropertyChangeListener} interface.
-	 * 
-	 * This class listens for changes in the
-	 * {@link AbstractParamEditor#VALUE_CHANGED_PROPERTY} in the 
-	 * {@link BooleanEditor} that makes up the UI. 
-	 * Any change events are passed on by calling 
-	 * {@link #attributeEdited(String, Object)}.
-	 * 
-	 * @see AbstractParamEditor#attributeEdited(String, Object)
-	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt) 
-	{	
-		if (AbstractParamEditor.VALUE_CHANGED_PROPERTY.
-				equals(evt.getPropertyName())) {
-		
-			if (evt.getSource() instanceof ITreeEditComp) {
-				ITreeEditComp source = (ITreeEditComp)evt.getSource();
-				String attributeName = source.getAttributeName();
-				Object newValue = evt.getNewValue();
-				attributeEdited(attributeName, newValue);
-			}
-		}
-	}
+	public String getEditDisplayName() { return "Default Time"; }
 
 }

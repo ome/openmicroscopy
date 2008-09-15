@@ -154,4 +154,25 @@ public class EditorAgent
        if (e instanceof EditFileEvent)
     	   handleFileEdition((EditFileEvent) e);
     }
+    
+    /**
+     * This was an attempted shortcut to directly start OMERO.editor
+     * without Insight and a server connection.
+     * However, I get a NPE becuase there is no Registry! 
+     * 
+     * @param args
+     */
+    public static void main(String[] args) {
+    	
+    	File testFile = new File
+    		("/Users/will/xmlProtocols/demoForRelease/AllFields.pro.xml");
+		/*
+    	Editor editor = EditorFactory.getEditor(testFile);
+    	
+    	if (editor != null) {
+    		editor.setFileToEdit(testFile);
+    	}
+    	*/
+
+    }
 }

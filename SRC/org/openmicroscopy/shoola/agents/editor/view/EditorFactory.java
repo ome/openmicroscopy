@@ -77,6 +77,18 @@ public class EditorFactory
 		return singleton.getEditor(model);
 	}
 	
+	/**
+	 * Returns the {@link Editor}.
+	 * 
+	 * @param file 		The file to open in Editor. 
+	 * @return See above.
+	 */
+	public static Editor getEditor(File file)
+	{
+		EditorModel model = new EditorModel(file);
+		return singleton.getEditor(model);
+	}
+	
 	/** 
 	 * Adds all the {@link Editor} components that this factory is
 	 * currently tracking to the passed menu.

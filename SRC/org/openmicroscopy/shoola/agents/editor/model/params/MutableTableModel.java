@@ -74,6 +74,26 @@ public class MutableTableModel
     public String getColumnName(int column) {
         return columnNames.get(column);
     }
+    
+    /**
+     * Sets the name of the column at the specified index. 
+     * If the column index is too high (too few columns) then
+     * a new column is created. 
+     * Either way, {@link #fireTableStructureChanged()} is called
+     * to notify the Table that the model has changed.
+     * 
+     * @param columnIndex		The index of the column		
+     * @param name			The new name for the column
+     */
+    public void setColumnName(int columnIndex, String name)
+    {
+    	if (columnIndex >= getColumnCount()) {
+    		addEmptyColumn(name);
+    	} else {
+    		columnNames.remove(columnIndex);
+    		columnNames.add(columnIndex, name);
+    	}
+    }
 
     /**
      * All cells are editable. Returns true.
@@ -230,7 +250,6 @@ public class MutableTableModel
     	// remove rows, starting at the highest!
     	for (int i=rowIndecies.length-1; i>-1; i--) {
     		int rowToRemove = rowIndecies[i];
-    		System.out.println("InteractiveTableModel Removing row " + rowToRemove);
     		data.remove(rowToRemove);
     		fireTableRowsDeleted(rowToRemove, rowToRemove);
     	}

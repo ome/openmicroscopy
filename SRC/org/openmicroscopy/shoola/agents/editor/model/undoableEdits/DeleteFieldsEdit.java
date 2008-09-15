@@ -31,11 +31,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
-
 //Third-party libraries
 
 //Application-internal dependencies
+
+import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 
 /** 
  * This is the UndoableEdit for deleting fields from a JTree.
@@ -50,7 +50,8 @@ import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
  * @since OME3.0
  */
 public class DeleteFieldsEdit 
-	extends UndoableTreeEdit {
+	extends UndoableTreeEdit 
+{
 
 	/**
 	 * A list of the fields that are deleted.

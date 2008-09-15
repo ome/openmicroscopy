@@ -162,6 +162,13 @@ public class AttributeEditArea
 		textBox.setColumns(cols);
 	}
 	
+	/**
+	 * This allows other classes to manipulate the text box, to set cols or
+	 * set Text etc. 
+	 * 
+	 * @return		The Text Area used by this UI for editing text
+	 */
+	public JTextArea getTextArea() { return textBox; }
 	
 	/**
 	 * @see ITreeEditComp#getEditDisplayName()

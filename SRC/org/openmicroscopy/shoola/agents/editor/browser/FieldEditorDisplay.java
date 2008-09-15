@@ -47,8 +47,8 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate.Fie
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 
 /** 
- * A container to display a FieldEditorPanel for the currently highlighted 
- * field of the JTree. 
+ * A container to display a {@link FieldEditorPanel} for the currently 
+ * highlighted field of the JTree. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>

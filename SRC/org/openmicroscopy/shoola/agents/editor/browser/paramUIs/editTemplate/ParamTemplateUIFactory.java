@@ -36,8 +36,11 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.DateTimeField;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor;
 import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TableParam;
+import org.openmicroscopy.shoola.agents.editor.model.params.TimeParam;
 
 /** 
  * A Factory for creating the UI components for editing the Template part
@@ -83,6 +86,18 @@ public class ParamTemplateUIFactory {
 		
 		if (inputType.equals(SingleParam.BOOLEAN_PARAM)) {
 			return new BooleanTemplate(paramObject);
+		}
+		
+		if (inputType.equals(DateTimeParam.DATE_TIME_PARAM)) {
+			return new DateTimeTemplate(paramObject);
+		}
+		
+		if (inputType.equals(TableParam.TABLE_PARAM)) {
+			return new TableTemplate(paramObject);
+		}
+		
+		if (inputType.equals(TimeParam.TIME_PARAM)) {
+			return new TimerTemplate(paramObject);
 		}
 		
 		if (inputType.equals(SingleParam.NUMBER_PARAM)) {

@@ -127,8 +127,6 @@ public class AttributeEdit
 	{
 		if ((tree != null) && (node != null)) {
 			
-			DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
-			
 			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
 			treeModel.nodeChanged(node);
 		}
