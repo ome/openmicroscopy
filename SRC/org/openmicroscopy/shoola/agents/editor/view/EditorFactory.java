@@ -154,11 +154,12 @@ public class EditorFactory
 		EditorComponent comp;
 		while (v.hasNext()) {
 			comp = (EditorComponent) v.next();
-			if (comp.getModel().getFileID() == model.getFileID())  
+			if ((comp.getModel().getFileID() == model.getFileID()) && 
+					(comp.getModel().getFileName().equals(model.getFileName())))
 				return comp;
 		}
-		comp = new EditorComponent(model);
-		comp.initialize();
+		comp = new EditorComponent(model);	// creates View and Controller
+		comp.initialize();		// initialises MVC
 		comp.addChangeListener(this);
 		editors.add(comp);
 		return comp;

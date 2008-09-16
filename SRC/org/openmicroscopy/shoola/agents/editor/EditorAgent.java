@@ -34,6 +34,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.editor.view.Editor;
 import org.openmicroscopy.shoola.agents.editor.view.EditorFactory;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
+import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -97,6 +98,14 @@ public class EditorAgent
 			editor.activate();		// starts file downloading
 	}
 	
+	/**
+	 * Creates or recycles an editor.
+	 * @param event The event to handle.
+	 */
+	private void handleShowEditor(ShowEditorEvent event)
+	{
+	}
+	
 	 /** Creates a new instance. */
     public EditorAgent() {}
     
@@ -121,6 +130,7 @@ public class EditorAgent
         registry = ctx;
         EventBus bus = registry.getEventBus();
         bus.register(this, EditFileEvent.class);
+        bus.register(this, ShowEditorEvent.class);
     }
 
     /**
@@ -153,6 +163,9 @@ public class EditorAgent
     {
        if (e instanceof EditFileEvent)
     	   handleFileEdition((EditFileEvent) e);
+       
+       if (e instanceof ShowEditorEvent)
+    	   handleShowEditor((ShowEditorEvent) e);
     }
     
     /**

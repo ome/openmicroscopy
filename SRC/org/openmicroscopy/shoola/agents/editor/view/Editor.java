@@ -118,4 +118,12 @@ public interface Editor
 	 * @return	See above.
 	 */
 	public Browser getBrowser();
+	
+	/**
+	 * Opens a file that exists on the local machine.
+	 * (The file is "in hand", not on the server)
+	 * 
+	 * @param file		The file to open in a new Editor window. 
+	 */
+	public void openLocalFile(File file);
 }

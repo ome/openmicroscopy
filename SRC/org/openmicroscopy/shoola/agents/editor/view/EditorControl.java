@@ -45,6 +45,7 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
+import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
 import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 
 /** 
@@ -67,6 +68,9 @@ class EditorControl
 	/** Identifies the <code>Close Editor</code> Action. */
 	static final Integer	CLOSE_EDITOR = new Integer(1);
 	
+	/** Identifies the <code>Open Local File</code> Action. */
+	static final Integer	OPEN_LOCAL_FILE = new Integer(2);
+	
 	/** 
 	 * Reference to the {@link Editor} component, which, in this context,
 	 * is regarded as the Model.
@@ -83,6 +87,7 @@ class EditorControl
 	private void createActions()
 	{
 		actionsMap.put(CLOSE_EDITOR, new CloseEditorAction(model));
+		actionsMap.put(OPEN_LOCAL_FILE, new OpenLocalFileAction(model));
 	}
 	
 	/** 

@@ -221,11 +221,14 @@ public class IconManager
     /** The <code>Configure</code> icon. */
     public  static int			CONFIGURE_ICON = 51;
     
+    /** The <code>Open Folder</code> icon. */
+    public  static int			OPEN_FOLDER = 52;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 51;
+    private static int          MAX_ID = 52;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -289,6 +292,7 @@ public class IconManager
         relPaths[ADD_ICON] = "nuvola_edit_add16.png";
         relPaths[DELETE_ICON] = "nuvola_cancel16.png";
         relPaths[CONFIGURE_ICON] = "nuvola_package_utilities16.png";
+        relPaths[OPEN_FOLDER] = "nuvola_folder_open16.png";
     }
     
     

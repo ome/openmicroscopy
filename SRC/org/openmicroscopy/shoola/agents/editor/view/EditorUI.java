@@ -135,6 +135,7 @@ class EditorUI
 		statusBar = new EditorStatusBar();
 		setJMenuBar(createMenuBar());
 		buildGUI();
+		setOnScreen();
 	}
     
 	/** 
@@ -173,7 +174,6 @@ class EditorUI
     	setLocation(200, 100);
     	
 		setVisible(true);
-        
     }
     
 }

@@ -62,7 +62,7 @@ class EditorToolBar
 		bar.setRollover(true);
 		bar.setBorder(null);
 		JButton b = new CustomButton(controller.getAction(
-				EditorControl.CLOSE_EDITOR));
+				EditorControl.OPEN_LOCAL_FILE));
 		b.setText("");
 		bar.add(b);
 		return bar;
