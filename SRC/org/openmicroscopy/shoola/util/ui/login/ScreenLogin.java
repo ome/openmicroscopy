@@ -27,10 +27,7 @@ package org.openmicroscopy.shoola.util.ui.login;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -45,7 +42,6 @@ import java.beans.PropertyChangeListener;
 import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -57,8 +53,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
-
 //Third-party libraries
+import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -117,10 +113,10 @@ public class ScreenLogin
 	private static final int		VERSION_FONT_STYLE = Font.BOLD;
 
 	/** The size of the font for the text. */
-	private static final int      	TEXT_FONT_SIZE = 18;
+	private static final int      	TEXT_FONT_SIZE = 16;
 
 	/** The login text. */
-	private static final String		TEXT_LOGIN = "Please Log In";
+	private static final String		TEXT_LOGIN = "Log In";
 
 	/** The username text. */
 	private static final String		USER_TEXT = "Username: ";
@@ -297,7 +293,7 @@ public class ScreenLogin
 		configButton.setToolTipText("Config Server");
 		configButton.setBorderPainted(false);
 		configButton.setBorder(null);
-		configButton.setMargin(new Insets(0, 0, 0, 0));
+		configButton.setMargin(new Insets(1, 1, 1, 1));
 		configButton.setFocusPainted(false);
 		configButton.setContentAreaFilled(false);
 		IconManager icons = IconManager.getInstance();
@@ -343,13 +339,14 @@ public class ScreenLogin
 	{
 		JPanel panel = new JPanel();
 		panel.setOpaque(false);
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		//panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		
 		JLabel label = UIUtilities.setTextFont(s);
 		label.setForeground(TEXT_COLOR);
 		label.setDisplayedMnemonic(mnemonic);
-
-		label.setLabelFor(field);
 		label.setOpaque(false);
+		//label.setLabelFor(field);
+		
 		panel.add(label);        
 		panel.add(field);
 		return panel;
@@ -364,6 +361,7 @@ public class ScreenLogin
 	{
 		JPanel topPanel = new JPanel();
 		topPanel.setOpaque(false);
+		/*
 		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
 				TEXT_COLOR);
 		Font f = pleaseLogIn.getFont();
@@ -402,6 +400,7 @@ public class ScreenLogin
 		//topPanel.add(Box.createVerticalStrut(5), c);
 		//c.gridy++;
 		topPanel.add(namePanel, c);
+		*/
 		return topPanel;
 	}
 	
@@ -414,40 +413,55 @@ public class ScreenLogin
 	private JPanel buildMainPanel(String version)
 	{
 		JPanel mainPanel = new JPanel();
+		int g = 3;
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(g, g, g, g));
 		mainPanel.setOpaque(false);
-		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
-		Font f = versionInfo.getFont();
-		Font newFont = f.deriveFont(VERSION_FONT_STYLE, VERSION_FONT_SIZE);
-		versionInfo.setFont(newFont);
+		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL, 
+			TableLayout.PREFERRED, 
+			TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		TableLayout layout = new TableLayout(size);
 		
-		JPanel controls = new JPanel();
-		controls.setOpaque(false);
-		controls.add(login);
-		controls.add(cancel);
-	
+		mainPanel.setLayout(layout);
+		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
+				TEXT_COLOR);
+		Font f = pleaseLogIn.getFont();
+		pleaseLogIn.setFont(f.deriveFont(Font.BOLD, TEXT_FONT_SIZE));
+		
+		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
+		f = versionInfo.getFont();
+		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, VERSION_FONT_SIZE));
+		
 		JPanel p = new JPanel();
 		p.setOpaque(false);
-		p.add(versionInfo);
-		mainPanel.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		//c.weightx = 0.2;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.gridwidth = 2;
-		mainPanel.add(buildTopPanel(), c);
-		c.gridy++;
-		//mainPanel.add(Box.createVerticalStrut(5), c);
-		//c.gridy++;
-		c.gridwidth = 1;
-		c.gridx++;
-		mainPanel.add(UIUtilities.buildComponentPanelRight(controls, 0, 0, 
-					false), c);
-		c.gridx = 0;
-		c.anchor = GridBagConstraints.LAST_LINE_START;
-		mainPanel.add(UIUtilities.buildComponentPanel(versionInfo, 0, 5, false), 
-						c);
+		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
+		p.add(serverTextPane);
+		p.add(connectionSpeedText);
+		mainPanel.add(pleaseLogIn, "0, 0, l, c");
+		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
+				"0, 1, 4, 1");
+		mainPanel.add(configButton, "5, 1, c, c");
+		
+		//second row
+		JTextPane l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
+		
+		mainPanel.add(l, "0, 2, l, c");
+		mainPanel.add(user,
+						"1, 2, 2, 2");
+		l = UIUtilities.buildTextPane(" "+PASSWORD_TEXT, TEXT_COLOR);
+		mainPanel.add(l, "3, 2, r, c");
+		mainPanel.add(pass, "4, 2, 5, 2");
+		//third row
+		mainPanel.add(versionInfo, "0, 3, l, c");
+		
+		JPanel cPanel = new JPanel();
+		cPanel.setOpaque(false);
+		cPanel.add(login);
+		cPanel.add(cancel);
+		
+		mainPanel.add(UIUtilities.buildComponentPanelRight(cPanel, 0, 0, false),
+				"2, 3, 5, 3");
 		return mainPanel;
 	}
 

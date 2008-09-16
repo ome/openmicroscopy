@@ -269,6 +269,7 @@ public class ThumbnailSetLoader
     				if (index == fetchSize) {
     					toHandle.add(l);
     					index = 0;
+    					l = null;
     				}
     			}
     		} catch (Exception e) {
