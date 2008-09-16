@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.editor.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -99,7 +97,7 @@ class EditorUI
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
-		// c.add(toolBar, BorderLayout.NORTH);
+		//c.add(toolBar, BorderLayout.NORTH);
 		
 		c.add(statusBar, BorderLayout.SOUTH);
 	}

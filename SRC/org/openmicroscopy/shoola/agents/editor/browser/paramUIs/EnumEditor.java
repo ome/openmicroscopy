@@ -35,7 +35,6 @@ import javax.swing.JComboBox;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 

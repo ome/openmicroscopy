@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.editor.view;
 
-
-
 //Java imports
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -46,7 +44,6 @@ import javax.swing.event.MenuListener;
 import org.openmicroscopy.shoola.agents.editor.actions.CloseEditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.EditorAction;
 import org.openmicroscopy.shoola.agents.editor.actions.OpenLocalFileAction;
-import org.openmicroscopy.shoola.agents.editor.browser.Browser;
 
 /** 
  * The {@link Editor}'s controller. 
@@ -223,7 +220,7 @@ class EditorControl
 	 * Listens for changes to the Browser etc. 
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
-		String name = evt.getPropertyName();
+		//String name = evt.getPropertyName();
 		
 		
 	}

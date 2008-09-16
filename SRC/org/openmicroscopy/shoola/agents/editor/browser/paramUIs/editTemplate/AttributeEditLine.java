@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEdi
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextFieldEditor;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
-import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
 /** 

@@ -22,32 +22,29 @@
  */
 package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 
+//Java imports
+
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
+//Third-party libraries
+
+//Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.EnumEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
-import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomComboBox;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * This is the UI component for editing the "Template" of an Enumeration 
+ * Parameter. 
+ * It includes a text box for entering a comma-delimited list of options, and
+ * a comboBox for choosing the default option. 
  *
  * @author  William Moore &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:will@lifesci.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -62,8 +59,14 @@ public class EnumTemplate
 	implements PropertyChangeListener 
 {
 
+	/**
+	 * The text box for entering a list of comma-delimited options.
+	 */
 	private AttributeEditArea 			optionsFieldEditor;
 	
+	/**
+	 * A comboBox for selecting the default option.
+	 */
 	private AbstractParamEditor			defaultValueComboBox;
 	
 	/**

@@ -376,7 +376,7 @@ public class FieldEditorPanel
 				}
 				
 				else if (newVal instanceof HashMap) {
-					HashMap newVals = (HashMap)newVal;
+					HashMap<String,String> newVals = (HashMap)newVal;
 					 controller.editAttributes(param, displayName, newVals, 
 							tree, treeNode);
 				}

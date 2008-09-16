@@ -39,7 +39,6 @@ import javax.swing.text.BadLocationException;
 //Application-internal dependencies
 
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 

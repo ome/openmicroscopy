@@ -26,14 +26,11 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 //Java imports
 
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.DateTimeField;
-import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TextBoxEditor;
 import org.openmicroscopy.shoola.agents.editor.model.DataFieldConstants;
 import org.openmicroscopy.shoola.agents.editor.model.params.AbstractParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.DateTimeParam;

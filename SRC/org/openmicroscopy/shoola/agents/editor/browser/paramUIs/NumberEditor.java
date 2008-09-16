@@ -63,7 +63,7 @@ public class NumberEditor
 	 */
 	private void buildUI()
 	{
-		TextFieldEditor numberField = new TextFieldEditor((IParam)getParameter(), 
+		TextFieldEditor numberField = new TextFieldEditor(getParameter(), 
 				SingleParam.PARAM_VALUE);
 		numberField.addPropertyChangeListener(ITreeEditComp.VALUE_CHANGED_PROPERTY, 
 				this);

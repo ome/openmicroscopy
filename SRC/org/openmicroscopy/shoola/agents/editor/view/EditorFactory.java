@@ -22,8 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.editor.view;
 
-
-
 //Java imports
 import java.io.File;
 import java.util.HashSet;
@@ -86,7 +84,31 @@ public class EditorFactory
 	public static Editor getEditor(File file)
 	{
 		EditorModel model = new EditorModel(file);
+		
 		return singleton.getEditor(model);
+	}
+	
+	/**
+	 * If no editors exist, this returns a new {@link Editor}, 
+	 * with an {@link EditorModel} that has no file.
+	 * Otherwise, it simply returns the first editor in the {@link #editors} list. 
+	 * 
+	 * @return See above.
+	 */
+	public static Editor getEditor()
+	{
+		EditorModel model;
+		Editor editor;
+		if (singleton.editors.isEmpty()) {
+			model = new EditorModel();
+			editor = singleton.getEditor(model);
+			editor.setStatus("", true);
+		} else {
+			Editor e = singleton.editors.iterator().next();
+			model = ((EditorComponent)e).getModel();
+			editor = singleton.getEditor(model);
+		}
+		return editor;
 	}
 	
 	/** 
@@ -157,6 +179,9 @@ public class EditorFactory
 			if ((comp.getModel().getFileID() == model.getFileID()) && 
 					(comp.getModel().getFileName().equals(model.getFileName())))
 				return comp;
+			if (comp.getModel().getFileName().equals("")) {
+				return comp;
+			}
 		}
 		comp = new EditorComponent(model);	// creates View and Controller
 		comp.initialize();		// initialises MVC

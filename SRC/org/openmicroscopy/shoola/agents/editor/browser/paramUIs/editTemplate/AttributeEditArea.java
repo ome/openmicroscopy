@@ -25,15 +25,12 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 //Java imports
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
-import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
 
 //Third-party libraries
 
@@ -42,7 +39,6 @@ import javax.swing.text.BadLocationException;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AbstractParamEditor;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.AttributeEditListeners;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
-import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.model.params.SingleParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
 

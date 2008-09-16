@@ -106,17 +106,28 @@ class EditorModel
 	/**
 	 * Creates a new instance and sets the state to {@link Editor#NEW}.
 	 * {@link #fileSize} and {@link #fileID} are not set.
+	 * File is not opened. To do this, call {@link Editor#setFileToEdit(File)}
 	 * 
 	 * @param file		The file to open. Sets the {@link #fileName} to the 
-	 * 					name of this file. 
+	 * 					name of this file but does not open file. 
 	 */
 	EditorModel(File file) 
 	{
 		if (file == null) throw new NullPointerException("No file.");
-		if (! file.exists()) return;
 		
 		state = Editor.NEW;
 		this.fileName = file.getName();
+	}
+	
+	/**
+	 * Creates a new instance and sets the state to {@link Editor#NEW}.
+	 * {@link #fileSize} and {@link #fileID} are not set.
+	 *  
+	 */
+	EditorModel() 
+	{
+		state = Editor.NEW;
+		this.fileName = "";
 	}
 	
 	/**
@@ -200,6 +211,7 @@ class EditorModel
 	void setFileToEdit(File file)
 	{
 		fileToEdit = file;
+		fileName = file.getName();
 		TreeModel treeModel = TreeModelFactory.getTree(file);
 		browser.setTreeModel(treeModel);
 		state = Editor.READY;

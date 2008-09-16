@@ -106,9 +106,14 @@ class EditorComponent
 		int state = model.getState();
 		switch (state) {
 			case NEW:
-				model.fireFileLoading();
-				fireStateChange();
-				//view.setOnScreen();	// called by EditorUI initialize()
+				if (model.getFileID() != 0) {
+					model.fireFileLoading();
+					fireStateChange();
+					//view.setOnScreen();	// called by EditorUI initialize()
+				}
+				else {
+					view.deIconify();
+				}
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(

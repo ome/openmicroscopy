@@ -99,11 +99,14 @@ public class EditorAgent
 	}
 	
 	/**
-	 * Creates or recycles an editor.
-	 * @param event The event to handle.
+	 * Creates a {@link Editor#NEW} editor with no file, or recycles an editor.
 	 */
-	private void handleShowEditor(ShowEditorEvent event)
+	private void handleShowEditor()
 	{
+		Editor editor = EditorFactory.getEditor();
+		if (editor != null) {
+			editor.activate();
+		}
 	}
 	
 	 /** Creates a new instance. */
@@ -165,7 +168,7 @@ public class EditorAgent
     	   handleFileEdition((EditFileEvent) e);
        
        if (e instanceof ShowEditorEvent)
-    	   handleShowEditor((ShowEditorEvent) e);
+    	   handleShowEditor();
     }
     
     /**
