@@ -573,6 +573,7 @@ class BrowserModel
 				break;
 			case Browser.TAGS_EXPLORER:
 				klass = TagAnnotationData.class;
+				break;
 			case Browser.SCREENS_EXPLORER:
 				klass = ScreenData.class;
 		}
