@@ -1103,12 +1103,12 @@ class BrowserComponent
 			if (browserType == IMAGES_EXPLORER) {
 				results = TreeViewerTranslator.refreshImageHierarchy(
 							node.getResults(), exp.getId(), 
-							exp.getDefaultGroup().getId());
+							-1);
 				view.refreshTimeFolder(expNode, results);
 			} else {
 				convertedNodes = TreeViewerTranslator.refreshHierarchy(
 						node.getResults(), node.getExpandedTopNodes(), 
-						exp.getId(), exp.getDefaultGroup().getId());
+						exp.getId(), -1);
 				view.setExperimenterData(convertedNodes, expNode);
 			}
 		}

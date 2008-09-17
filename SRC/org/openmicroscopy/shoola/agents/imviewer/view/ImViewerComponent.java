@@ -50,6 +50,7 @@ import javax.swing.JPanel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
+import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
@@ -146,9 +147,6 @@ class ImViewerComponent
 	 * before copying the 
 	 */
 	private boolean							saveBeforeCopy;
-
-	/** The possible projections options. */
-	private Map<Integer, String>			projections;
 	
 	/** The projection dialog. */
 	private ProjectionDialog				projection;
@@ -719,8 +717,14 @@ class ImViewerComponent
 		view.setStatus(getStatusText());
 		if (model.isPlayingChannelMovie())
 			model.setState(ImViewer.CHANNEL_MOVIE);
-		if (!model.isPlayingMovie())
-			view.setIconImage(model.getImageIcon());
+		if (!model.isPlayingMovie()) {
+			//Post an event
+			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+			BufferedImage icon = model.getImageIcon();
+			bus.post(new ImageRendered(model.getPixelsID(), icon));
+			view.setIconImage(icon);
+		}
+			
 		if (view.isLensVisible()) view.setLensPlaneImage();
 		List history = model.getHistory();
 		if (history == null || history.size() == 0) {
@@ -1970,6 +1974,7 @@ class ImViewerComponent
 				model.getDefaultZ(), model.getDefaultT(),
 				model.getActiveChannelsMap(), model.getZoomFactor(), 
 				view.getBounds());
+		request.setThumbnail(model.getImageIcon());
 		bus.post(request);
 		view.selectTabbedPane(ImViewer.VIEW_INDEX);
 	}

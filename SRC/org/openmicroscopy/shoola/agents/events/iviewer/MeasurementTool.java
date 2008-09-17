@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 //Java imports
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
 //Third-party libraries
@@ -50,29 +51,32 @@ public class MeasurementTool
 {
 
     /** The ID of the pixels set. */
-    private long        pixelsID;
+    private long        	pixelsID;
     
     /** The ID of the image. */
-    private long        imageID;
+    private long        	imageID;
     
     /** The name of the image. */
-    private String      name;
+    private String      	name;
     
     /** The currently selected z-section. */
-    private int			defaultZ;
+    private int				defaultZ;
     
     /** The currently selected timepoint. */
-    private int			defaultT;
+    private int				defaultT;
     
     /** Collection of pairs (channel's index, channel's color). */
-    private Map			activeChannels;
+    private Map				activeChannels;
     
     /** The image's magnification factor. */
-    private double		magnification;
+    private double			magnification;
     
     /** The bounds of the component posting the event. */
-    private Rectangle   requesterBounds;
+    private Rectangle   	requesterBounds;
 
+    /** Thumbnail of the rendered image. */
+    private BufferedImage	thumbnail;
+    
     /**
      * Creates a new instance.
      * 
@@ -103,6 +107,23 @@ public class MeasurementTool
         this.magnification = magnification;
         requesterBounds = bounds;
     }
+    
+    /**
+     * Sets the icon of the window.
+     * 
+     * @param thumbnail The icon to set.
+     */
+    public void setThumbnail(BufferedImage thumbnail)
+    {
+    	this.thumbnail = thumbnail;
+    }
+    
+    /**
+     * Returns the thumbnail.
+     * 
+     * @return See above. 
+     */
+    public BufferedImage getThumbnail() { return thumbnail; }
     
     /**
      * Returns the image ID.

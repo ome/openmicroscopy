@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -264,11 +265,13 @@ public class ServerEditor
         p.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         p.add(new JScrollPane(table));
         
-        JPanel bar = new JPanel();
-        bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+		JToolBar bar = new JToolBar();
+    	bar.setFloatable(false);
+        bar.setRollover(true);
+        bar.setBorder(null);
         bar.add(addButton);
-		//p.add(Box.createRigidArea(V_SPACER_SIZE));
         bar.add(removeButton);
+        
         p.add(UIUtilities.buildComponentPanel(bar));
         
         add(UIUtilities.buildComponentPanel(labels)); 

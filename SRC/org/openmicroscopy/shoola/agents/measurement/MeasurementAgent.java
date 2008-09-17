@@ -33,6 +33,7 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
+import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
@@ -82,6 +83,7 @@ public class MeasurementAgent
         			evt.getActiveChannels());
     	}
     	if (viewer != null) {
+    		viewer.setIconImage(evt.getThumbnail());
     		MeasurementViewerFactory.addRequest(evt);
     		viewer.activate();
     	}
@@ -178,6 +180,19 @@ public class MeasurementAgent
     }
     
     /**
+     * Reacts to the passed event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleImageRenderedEvent(ImageRendered evt)
+    {
+    	MeasurementViewer viewer = MeasurementViewerFactory.getViewer(
+    									evt.getPixelsID());
+    	if (viewer != null)
+    		viewer.setIconImage(evt.getThumbnail());
+    }
+    
+    /**
      * Helper method. 
      * 
      * @return A reference to the {@link Registry}.
@@ -210,6 +225,7 @@ public class MeasurementAgent
 		bus.register(this, ChannelSelection.class);
 		bus.register(this, SaveData.class);
 		bus.register(this, FocusGainedEvent.class);
+		bus.register(this, ImageRendered.class);
 	}
 
 	/**
@@ -245,6 +261,8 @@ public class MeasurementAgent
 			handleSaveData((SaveData) e);
 		else if (e instanceof FocusGainedEvent)
 			handleFocusGainedEvent((FocusGainedEvent) e);
+		else if (e instanceof ImageRendered)
+			handleImageRenderedEvent((ImageRendered) e);
 	}
 	
 }

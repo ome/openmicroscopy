@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 
 //Java imports
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -283,7 +284,12 @@ public interface MeasurementViewer
 	
 	/** Moves the window to the front. */
     public void toFront();
-    
-    public Boolean isPixelDataAvailable();
+
+    /**
+     * Sets the icon of the window.
+     * 
+     * @param thumbnail The icon to set.
+     */
+	public void setIconImage(BufferedImage thumbnail);
 	
 }

@@ -85,37 +85,42 @@ class ToolBar
 {
 
 	/** The defaults attributes of the line connection figure. */
-	private final static HashMap<AttributeKey, Object>	defaultConnecionAttributes;
+	private final static HashMap<AttributeKey, Object>	
+	defaultConnectionAttributes;
 	
 	static
 	{
-		defaultConnecionAttributes=new HashMap<AttributeKey, Object>();
-		defaultConnecionAttributes.put(MeasurementAttributes.FILL_COLOR,
+		defaultConnectionAttributes=new HashMap<AttributeKey, Object>();
+		defaultConnectionAttributes.put(MeasurementAttributes.FILL_COLOR,
 						IOConstants.DEFAULT_FILL_COLOUR);
-		defaultConnecionAttributes.put(MeasurementAttributes.STROKE_COLOR,
+		defaultConnectionAttributes.put(MeasurementAttributes.STROKE_COLOR,
 						IOConstants.DEFAULT_STROKE_COLOUR);
-		defaultConnecionAttributes.put(MeasurementAttributes.TEXT_COLOR,
+		defaultConnectionAttributes.put(MeasurementAttributes.TEXT_COLOR,
 						IOConstants.DEFAULT_TEXT_COLOUR);
-		defaultConnecionAttributes.put(MeasurementAttributes.FONT_SIZE, new Double(10));
-		defaultConnecionAttributes.put(MeasurementAttributes.FONT_BOLD, false);
-		defaultConnecionAttributes.put(MeasurementAttributes.STROKE_WIDTH, new Double(1.0));
-		defaultConnecionAttributes.put(MeasurementAttributes.TEXT, "Text");
-		defaultConnecionAttributes.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
+		defaultConnectionAttributes.put(MeasurementAttributes.FONT_SIZE, 
+				new Double(10));
+		defaultConnectionAttributes.put(MeasurementAttributes.FONT_BOLD, false);
+		defaultConnectionAttributes.put(MeasurementAttributes.STROKE_WIDTH, 
+				new Double(1.0));
+		defaultConnectionAttributes.put(MeasurementAttributes.TEXT, "Text");
+		defaultConnectionAttributes.put(
+				MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
 			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
-		defaultConnecionAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
+		defaultConnectionAttributes.put(MeasurementAttributes.SHOWMEASUREMENT, 
 							Boolean.FALSE);
-		defaultConnecionAttributes.put(DrawingAttributes.SHOWTEXT, Boolean.FALSE);
+		defaultConnectionAttributes.put(DrawingAttributes.SHOWTEXT, 
+				Boolean.FALSE);
 	}
-	
-	/** The properties figure for a line connection object. */
-	private FigureProperties 			lineConnectionProperties;
-		
+
 	/** The default string added to the type of Figure to create. */
 	private static final String			CREATE_KEY = "create";
 	
 	/** Size of the horizontal box. */
     private static final Dimension 		HGLUE = new Dimension(5, 5);
     
+    /** The properties figure for a line connection object. */
+	private FigureProperties 			lineConnectionProperties;
+	
 	/** Tool bar hosting the control defined by <code>JHotDraw</code>. */
 	private JToolBar					toolBar;
 
@@ -158,7 +163,8 @@ class ToolBar
     /** Initializes the component composing the display. */
 	private void initComponents()
 	{
-		lineConnectionProperties = new FigureProperties(defaultConnecionAttributes);
+		lineConnectionProperties = new FigureProperties(
+				defaultConnectionAttributes);
 		ellipseTool = new DrawingObjectCreationTool(new MeasureEllipseFigure());
 		rectTool = new DrawingObjectCreationTool(new MeasureRectangleFigure());
 		textTool = new DrawingObjectCreationTool(new MeasureTextFigure());
@@ -232,7 +238,6 @@ class ToolBar
 		 if (component instanceof JToggleButton)
 		 {
 			 JToggleButton button = (JToggleButton) component;
-			 IconManager icons = IconManager.getInstance();
 			 button.setToolTipText("Connector");
 			 button.setAction(new DrawingAction(measurementcomponent, button));	
 		 }
@@ -263,7 +268,6 @@ class ToolBar
 			button.setAction(new DrawingAction(measurementcomponent, button));	
 			button.addMouseListener(this);
 		}
-
 	}
 	
 	/**
@@ -367,57 +371,49 @@ class ToolBar
 	    polylineTool.setResetToSelect(option); 
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+	/**
+	 * Sets the selected flag of the source of the event to 
+	 * <code>true</code> when a right click event occurs.
+	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent e)
 	{
-		if(rightClick(e))
+		if (rightClick(e))
 		{
-			this.createSingleFigure(false);
+			createSingleFigure(false);
 			JToggleButton button = (JToggleButton)e.getSource();
 			button.setSelected(true);
 		}
 		else
-		{
-			this.createSingleFigure(view.isCreateSingleFigure());
-		}
-		
+			createSingleFigure(view.isCreateSingleFigure());
 	}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mouseEntered(MouseEvent)
 	 */
-	public void mouseEntered(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseEntered(MouseEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mouseExited(MouseEvent)
 	 */
-	public void mouseExited(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseExited(MouseEvent e) {}
 
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
-	public void mousePressed(MouseEvent e)
-	{
+	public void mousePressed(MouseEvent e) {}
 
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+	/**
+	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * in our case.
+	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */
-	public void mouseReleased(MouseEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseReleased(MouseEvent e) {}
 	
 }

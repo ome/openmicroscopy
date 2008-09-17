@@ -323,85 +323,8 @@ public class ScreenLogin
 		connectionSpeedText.setForeground(TEXT_COLOR);
 		
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
-		//serverText.setFont(serverText.getFont().deriveFont(Font.BOLD));
-		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, false);
-	}
-
-	/**
-	 * Builds and lays out the specified text field.
-	 * 
-	 * @param field		The field to lay out.
-	 * @param mnemonic	The mnemonic value.
-	 * @param s			The value to display in front of the field.
-	 * @return See above.
-	 */
-	private JPanel buildTextPanel(JTextField field, int mnemonic, String s)
-	{
-		JPanel panel = new JPanel();
-		panel.setOpaque(false);
-		//panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		
-		JLabel label = UIUtilities.setTextFont(s);
-		label.setForeground(TEXT_COLOR);
-		label.setDisplayedMnemonic(mnemonic);
-		label.setOpaque(false);
-		//label.setLabelFor(field);
-		
-		panel.add(label);        
-		panel.add(field);
-		return panel;
-	}
-
-	/**
-	 * Builds and lays out the panel hosting the login information.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildTopPanel()
-	{
-		JPanel topPanel = new JPanel();
-		topPanel.setOpaque(false);
-		/*
-		JTextPane pleaseLogIn = UIUtilities.buildTextPane(TEXT_LOGIN, 
-				TEXT_COLOR);
-		Font f = pleaseLogIn.getFont();
-		Font newFont = f.deriveFont(Font.BOLD, TEXT_FONT_SIZE);
-		pleaseLogIn.setFont(newFont);
-		JPanel p = new JPanel();
-		p.setOpaque(false);
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(serverTextPane);
-		p.add(connectionSpeedText);
-		
-		JPanel namePanel = new JPanel();
-		namePanel.setOpaque(false);
-		namePanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		namePanel.add(buildTextPanel(user, 'U', USER_TEXT));
-		namePanel.add(Box.createHorizontalStrut(20));
-		namePanel.add(buildTextPanel(pass, 'P', PASSWORD_TEXT));
-		
-		
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
-		topPanel.setLayout(new GridBagLayout());
-		topPanel.add(pleaseLogIn, c); //Add to panel.
-		c.gridx++;
-		c.weightx = 0.5;
-		topPanel.add(p, c);
-		c.gridx++;
-		c.weightx = 0;
-		topPanel.add(configButton, c);
-		c.gridx = 0;
-		c.gridy++;
-		c.gridwidth = 3;
-		//topPanel.add(Box.createVerticalStrut(5), c);
-		//c.gridy++;
-		topPanel.add(namePanel, c);
-		*/
-		return topPanel;
+		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
+				false);
 	}
 	
 	/**
@@ -419,7 +342,7 @@ public class ScreenLogin
 		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL, 
 			TableLayout.PREFERRED, 
 			TableLayout.FILL, TableLayout.FILL, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
+				{TableLayout.PREFERRED, 
 				TableLayout.PREFERRED, TableLayout.PREFERRED}};
 		TableLayout layout = new TableLayout(size);
 		
@@ -431,7 +354,8 @@ public class ScreenLogin
 		
 		versionInfo = UIUtilities.buildTextPane(version, TEXT_COLOR);
 		f = versionInfo.getFont();
-		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, VERSION_FONT_SIZE));
+		versionInfo.setFont(f.deriveFont(VERSION_FONT_STYLE, 
+				VERSION_FONT_SIZE));
 		
 		JPanel p = new JPanel();
 		p.setOpaque(false);
@@ -440,20 +364,19 @@ public class ScreenLogin
 		p.add(connectionSpeedText);
 		mainPanel.add(pleaseLogIn, "0, 0, l, c");
 		mainPanel.add(UIUtilities.buildComponentPanelRight(p, 0, 0, false), 
-				"0, 1, 4, 1");
-		mainPanel.add(configButton, "5, 1, c, c");
+				"0, 0, 4, 0");
+		mainPanel.add(configButton, "5, 0, c, c");
 		
 		//second row
 		JTextPane l = UIUtilities.buildTextPane(USER_TEXT, TEXT_COLOR);
 		
-		mainPanel.add(l, "0, 2, l, c");
-		mainPanel.add(user,
-						"1, 2, 2, 2");
+		mainPanel.add(l, "0, 1, l, c");
+		mainPanel.add(user, "1, 1, 2, 1");
 		l = UIUtilities.buildTextPane(" "+PASSWORD_TEXT, TEXT_COLOR);
-		mainPanel.add(l, "3, 2, r, c");
-		mainPanel.add(pass, "4, 2, 5, 2");
+		mainPanel.add(l, "3, 1, r, c");
+		mainPanel.add(pass, "4, 1, 5, 1");
 		//third row
-		mainPanel.add(versionInfo, "0, 3, l, c");
+		mainPanel.add(versionInfo, "0, 2, l, c");
 		
 		JPanel cPanel = new JPanel();
 		cPanel.setOpaque(false);
@@ -461,7 +384,7 @@ public class ScreenLogin
 		cPanel.add(cancel);
 		
 		mainPanel.add(UIUtilities.buildComponentPanelRight(cPanel, 0, 0, false),
-				"2, 3, 5, 3");
+				"2, 2, 5, 2");
 		return mainPanel;
 	}
 

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileFilter;
@@ -45,7 +45,6 @@ import org.jhotdraw.draw.Drawing;
 //Application-internal dependencies
 import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -769,7 +768,7 @@ class MeasurementViewerComponent
 					view, FileChooser.SAVE, "Save the ROI File",
 					"Save the ROI data in the file associate with this image.",
 					filterList);
-		File f=UIUtilities.getDefaultFolder();
+		File f = UIUtilities.getDefaultFolder();
 	    if (f != null) chooser.setCurrentDirectory(f);
 		try
 		{
@@ -817,17 +816,22 @@ class MeasurementViewerComponent
 	
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see ImViewer#saveRndSettings()
+     * @see MeasurementViewer#saveRndSettings()
      */
     public void toFront()
     {
     	if (model.getState() == DISCARDED) return;
     	controller.toFront();
     }
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setIconImage(BufferedImage)
+     */
+	public void setIconImage(BufferedImage thumbnail)
+	{
+		if (model.getState() == DISCARDED) return;
+		view.setIconImage(thumbnail);
+	}
     
-    
-    public Boolean isPixelDataAvailable()
-    {
-    	return model.isPixelDataAvailable();
-    }
 }

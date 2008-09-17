@@ -634,7 +634,7 @@ class MeasurementViewerUI
 		if (inDataView())
 		{
 			un.notifyInfo("ROI Assistant", "ROI Assistant cannot be used" +
-					" in graph pane or intensity view");
+					" in graph pane or intensity view.");
 			return;
 		}
 		

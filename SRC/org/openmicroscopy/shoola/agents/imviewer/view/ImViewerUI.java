@@ -597,7 +597,7 @@ class ImViewerUI
 		action = controller.getAction(ImViewerControl.PREFERENCES);
 		item = new JMenuItem(action);
 		item.setText(action.getName());
-		menu.add(item);
+		//menu.add(item);
 		return menu;
 	}
 
