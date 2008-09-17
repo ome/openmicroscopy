@@ -70,7 +70,7 @@
 			<annotationconfiguration configurationfile="${resrc.dest}/hibernate.cfg.xml" propertyfile="${resrc.dest}/local.properties">
 				<fileset dir="${resrc.dir}" includes="*.hbm.xml"/>
 			</annotationconfiguration>
-			<hbm2ddl destdir="${resrc.dest}" outputfilename="ddl.sql" drop="false" console="false" format="true" export="false" />
+			<hbm2ddl destdir="${resrc.dest}" outputfilename="ddl.sql" drop="false" console="false" format="true" export="false" delimiter=";;"/>
 		</hibernatetool>
 		<taskdef name="schemavalidator" classname="org.hibernate.tool.hbm2ddl.SchemaValidatorTask" classpathref="omero.classpath"/>
 		<!-- Disabled -->
