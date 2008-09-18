@@ -33,12 +33,15 @@ def run(args,\
     Debugging can more simply be turned on by passing True for the debug argument.
     If more control over the debugging configuration is needed, pass debug_string.
     """
-
     # Convert strings to an array for appending
     if isinstance(java,str):
         java = [java]
     if isinstance(xargs,str):
         xargs = [xargs]
+
+    # Add our logging configuration early
+    # so that it can be overwritten by xargs
+    java += [ "-Dlog4j.configuration=file:etc/log4j.xml" ]
 
     # Preapre arguments
     if xargs == None:

@@ -83,9 +83,9 @@
 		<copyResource file="${root.dir}/etc/local.properties"/>
 		<copyResource file="${root.dir}/etc/omero.properties"/>
 		<copyResource file="${root.dir}/etc/hibernate.properties"/>
-		<copyResource file="${root.dir}/etc/log4j.properties"/>
 		<copyResource file="${root.dir}/etc/jndi.properties"/>
 		<copyResource file="${root.dir}/etc/c3p0.properties"/>
+		<copyResource file="${root.dir}/etc/log4j.xml"/>
 		<!-- Used (at least) by server.xml and omero.xml -->
 		<presetdef name="sql_run">
 			<sql
@@ -309,7 +309,7 @@
 				<exclude name="omero.properties"/>
 				<exclude name="hibernate.properties"/>
 				<exclude name="jndi.properties"/>
-				<exclude name="log4j.properties"/>
+				<exclude name="log4j.xml"/>
 				<exclude name="**/*.cpp"/>
 				<exclude name="**/*.h"/>
 			</fileset>

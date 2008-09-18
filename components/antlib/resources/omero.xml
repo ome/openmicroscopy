@@ -46,8 +46,8 @@
 		<include name="local.properties.example"/>
 		<include name="omero.properties"/>
 		<include name="hibernate.properties"/>
-		<include name="log4j.properties"/>
 		<include name="c3p0.properties"/>
+		<include name="log4j.xml"/>
 	</patternset>
 
 	<target name="usage"
