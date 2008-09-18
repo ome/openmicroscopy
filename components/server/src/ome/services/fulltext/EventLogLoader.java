@@ -7,7 +7,6 @@
 
 package ome.services.fulltext;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -15,10 +14,18 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import ome.api.IQuery;
+import ome.model.IObject;
 import ome.model.meta.EventLog;
 import ome.parameters.Filter;
 import ome.parameters.Parameters;
+import ome.services.messages.ReindexMessage;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.Utils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 /**
  * Data access object for the {@link FullTextIndexer} which provides an
@@ -31,7 +38,9 @@ import ome.tools.hibernate.QueryBuilder;
  * @since 3.0-Beta3
  */
 public abstract class EventLogLoader implements Iterator<EventLog>,
-        Iterable<EventLog> {
+        Iterable<EventLog>, ApplicationListener {
+
+    private final static Log log = LogFactory.getLog(EventLogLoader.class);
 
     /**
      * Currently 100.
@@ -63,10 +72,9 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      * making use of the {@link #query()} method. Used to implement the default
      * {@link #rollback(EventLog)} mechanism.
      */
-    protected final List<EventLog> backlog = Collections
-            .synchronizedList(new ArrayList<EventLog>());
+    private final EventBacklog backlog = new EventBacklog();
 
-    private EventLog log;
+    private EventLog eventLog;
 
     /**
      * Array of class types which will get excluded from indexing.
@@ -91,21 +99,28 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
 
     /**
      * Tests for available objects. If {@link #count} is 0, calls
-     * {@link #query()} to load a new {@link #log}. Otherwise, just tests that
-     * field for null.
+     * {@link #query()} to load a new {@link #eventLog}. Otherwise, just tests
+     * that field for null.
      */
     public boolean hasNext() {
         if (count == -1) {
             count = 0;
             return false;
         }
-        if (backlog.size() > 0) {
-            return true;
+
+        // Do what we can to load an event log
+        if (eventLog == null) {
+            eventLog = backlog.remove();
+            if (eventLog == null) {
+                eventLog = query();
+                if (eventLog == null) {
+                    // Can't do anything
+                    return false;
+                }
+            }
         }
-        if (log == null) {
-            log = query();
-        }
-        return log != null;
+
+        return true;
     }
 
     /**
@@ -128,15 +143,14 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
             count = -1;
         }
 
-        synchronized (backlog) {
-            if (backlog.size() > 0) {
-                return backlog.remove(0);
-            }
+        EventLog rv = backlog.remove();
+        if (rv != null) {
+            return rv; // EARLY EXIT !!
         }
 
         // already loaded by call to hasNext() above
-        EventLog rv = log;
-        log = null;
+        rv = eventLog;
+        eventLog = null;
         return rv;
 
     }
@@ -145,8 +159,8 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
         throw new UnsupportedOperationException("Cannot remove EventLogs");
     }
 
-    public void rollback(EventLog log) {
-        backlog.add(log);
+    public void rollback(EventLog el) {
+        backlog.add(el);
     }
 
     protected abstract EventLog query();
@@ -192,5 +206,34 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
         return queryService.findByQuery(
                 "select el from EventLog el order by id desc", new Parameters(
                         new Filter().page(0, 1)));
+    }
+
+    // Re-Indexing
+    // =========================================================================
+
+    /**
+     * Adds an {@link EventLog} for the given {@link Class} and id to the
+     * backlog.
+     */
+    public boolean addEventLog(Class<? extends IObject> cls, long id) {
+        EventLog el = new EventLog();
+        el.setEntityId(id);
+        el.setEntityType(cls.getName());
+        el.setAction("INSERT");
+        return backlog.add(el);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void onApplicationEvent(ApplicationEvent arg0) {
+        if (arg0 instanceof ReindexMessage) {
+            ReindexMessage<? extends IObject> rm = (ReindexMessage<? extends IObject>) arg0;
+            for (IObject obj : rm.objects) {
+                Class trueClass = Utils.trueClass(obj.getClass());
+                addEventLog(trueClass, obj.getId());
+                if (log.isInfoEnabled()) {
+                    log.info("Added to backlog:" + obj);
+                }
+            }
+        }
     }
 }

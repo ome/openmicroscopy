@@ -176,6 +176,8 @@ public class FullTextTest extends AbstractTest {
                 + "left outer join fetch l2.child a2 where i.id = :id",
                 new Parameters().addId(i.getId()));
         iUpdate.indexObject(i);
+        // Forcing a link to be indexed for backlog testing, ticket:1102
+        iUpdate.indexObject(i.unmodifiableAnnotationLinks().iterator().next());
 
         Annotation a = i.linkedAnnotationList().get(0);
         assertEquals(1, a.sizeOfAnnotationLinks());

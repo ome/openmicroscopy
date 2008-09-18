@@ -10,15 +10,10 @@ package ome.services.fulltext;
 import ome.api.ITypes;
 import ome.conditions.InternalException;
 import ome.model.IEnum;
-import ome.model.IObject;
 import ome.model.meta.EventLog;
-import ome.services.messages.ReindexMessage;
-import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -31,8 +26,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class PersistentEventLogLoader extends EventLogLoader implements
-        ApplicationListener {
+public class PersistentEventLogLoader extends EventLogLoader {
 
     private final static Log log = LogFactory
             .getLog(PersistentEventLogLoader.class);
@@ -99,12 +93,6 @@ public class PersistentEventLogLoader extends EventLogLoader implements
 
         long current_id = getCurrentId();
 
-        synchronized (backlog) {
-            if (backlog.size() > 0) {
-                return backlog.remove(0); // EARLY EXIT.
-            }
-        }
-
         EventLog el = nextEventLog(current_id);
         if (el != null) {
             setCurrentId(el.getId());
@@ -166,28 +154,4 @@ public class PersistentEventLogLoader extends EventLogLoader implements
         return diff < 0 ? 0 : diff;
     }
 
-    @SuppressWarnings("unchecked")
-    public void onApplicationEvent(ApplicationEvent arg0) {
-        if (arg0 instanceof ReindexMessage) {
-            ReindexMessage<? extends IObject> rm = (ReindexMessage<? extends IObject>) arg0;
-            for (IObject obj : rm.objects) {
-                Class trueClass = Utils.trueClass(obj.getClass());
-                addEventLog(trueClass, obj.getId());
-                if (log.isInfoEnabled()) {
-                    log.info("Added to backlog:" + obj);
-                }
-            }
-        }
-    }
-
-    /**
-     * Adds a fake {@link EventLog} for the given {@link Class} and id.
-     */
-    protected void addEventLog(Class<? extends IObject> cls, long id) {
-        EventLog el = new EventLog();
-        el.setEntityId(id);
-        el.setEntityType(cls.getName());
-        el.setAction("INSERT");
-        backlog.add(el);
-    }
 }

@@ -7,6 +7,9 @@
 
 package ome.services.fulltext;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import ome.api.IQuery;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
@@ -43,7 +46,7 @@ public class Main {
 
     public static void usage() {
         StringBuilder sb = new StringBuilder();
-        sb.append("usage: ome.service.fulltext.Main [events|full|help]\n");
+        sb.append("usage: ome.service.fulltext.Main [help|events|full|reindex class1 class2 class3 ...]\n");
         System.out.println(sb.toString());
         System.exit(-2);
     }
@@ -55,6 +58,15 @@ public class Main {
             indexAllEvents();
         } else if ("full".equals(args[0])) {
             indexFullDb();
+        } else if ("reindex".equals(args[0])) {
+            if (args.length < 2) {
+                usage(); // EARLY EXIT
+            }
+            Set<String> set = new HashSet<String>();
+            for (int i = 1; i < args.length; i++) {
+                set.add(args[i]);
+            }
+            indexByClass(set);
         } else {
             usage();
         }
@@ -67,6 +79,17 @@ public class Main {
         final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
         loader.setQueryService(rawQuery);
         loader.setClasses(factory.getAllClassMetadata().keySet());
+        final FullTextThread ftt = createFullTextThread(loader);
+        while (loader.more() > 0) {
+            ftt.run();
+        }
+    }
+
+    public static void indexByClass(Set<String> set) {
+        init();
+        final AllEntitiesPseudoLogLoader loader = new AllEntitiesPseudoLogLoader();
+        loader.setQueryService(rawQuery);
+        loader.setClasses(set);
         final FullTextThread ftt = createFullTextThread(loader);
         while (loader.more() > 0) {
             ftt.run();

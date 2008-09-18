@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 import ome.api.IQuery;
+import ome.model.core.Image;
 import ome.model.meta.EventLog;
 import ome.services.fulltext.AllEntitiesPseudoLogLoader;
 import ome.services.fulltext.AllEventsLogLoader;
@@ -53,7 +54,7 @@ public class EventLogLoadersTest extends MockObjectTestCase {
             // ok
         }
 
-        assertTrue(ell.more() > 0); // always true
+        assertTrue(ell.more() == 0); // always true
     }
 
     public void testAllEntitiesLoader() throws Exception {
@@ -149,14 +150,47 @@ public class EventLogLoadersTest extends MockObjectTestCase {
             count++;
             assertEquals(test, el);
         }
-        assertEquals(count, 10);
+        assertEquals(EventLogLoader.DEFAULT_BATCH_SIZE, count);
 
         count = 0;
         for (EventLog test : ell) {
             count++;
             assertEquals(test, el);
         }
-        assertEquals(count, 10);
+        assertEquals(EventLogLoader.DEFAULT_BATCH_SIZE, count);
+
+    }
+
+    @Test(groups = "ticket:1102")
+    public void testBacklog() {
+        el = null;
+        ell = new EventLogLoader() {
+            @Override
+            protected EventLog query() {
+                return el;
+            }
+
+            @Override
+            public long more() {
+                return 0;
+            }
+        };
+        assertFalse(ell.hasNext());
+        assertTrue(ell.addEventLog(Image.class, 1L));
+        assertTrue(ell.addEventLog(Image.class, 2L));
+        // Adding twice should not work
+        assertFalse(ell.addEventLog(Image.class, 2L));
+        assertTrue(ell.hasNext());
+        // Once we start calling hasNext, next we can't add anymore
+        assertFalse(ell.addEventLog(Image.class, 2L));
+
+        // Now we consume both added logs
+        assertNotNull(ell.next());
+        assertNotNull(ell.next());
+        assertFalse(ell.hasNext());
+
+        // And now we should be able to add more logs
+        assertTrue(ell.addEventLog(Image.class, 2L));
 
     }
 
