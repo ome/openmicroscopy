@@ -33,11 +33,17 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
   -->
 
   <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
-    <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
-    <param name="Target" value="System.out"/>
 
-    <!-- FOR JBOSS: If using a file, this might should be lower -->
+    <!-- FOR JBOSS:
+    <errorHandler class="org.jboss.logging.util.OnlyOnceErrorHandler"/>
+    --><!-- ELSE -->
+    <errorHandler class="org.apache.log4j.helpers.OnlyOnceErrorHandler"/>
+
+
+    <!-- FOR JBOSS: If using a file, this might should be lower like WARN -->
     <param name="Threshold" value="INFO"/>
+
+    <param name="Target" value="System.out"/>
 
     <!-- NOT FOR JBOSS: When logging under blitz, it is necessary
     to follow changes to System.out otherwise the logs end up in
@@ -131,6 +137,15 @@ Log configuration which can be used in JBoss with minor modifications. (See "FOR
   <!-- Quieting build -->
   <category name="org.hibernate.tool.hbm2x.POJOExporter">
     <priority value="ERROR"/>
+  </category>
+  <category name="velocity">
+    <priority value="FATAL"/>
+  </category>
+  <category name="ome.dsl.utests">
+    <priority value="WARN"/>
+  </category>
+  <category name="ome.util.utests.PojoOptionsTest">
+    <priority value="WARN"/>
   </category>
 
   <!-- Suppressing "Warning missing properties files" -->
