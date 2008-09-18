@@ -257,18 +257,18 @@ class TestTicket2000(lib.ITest):
         #datasets
         ds1 = DatasetI()
         ds1.setName(omero.RString('test1071-ds1-%s' % (c1_uuid)))
-        ds1 = c1.update.saveAndReturnObject(ds1)
+        ds1 = c1_update.saveAndReturnObject(ds1)
         ds1.unload()
         
         ds2 = DatasetI()
         ds2.setName(omero.RString('test1071-ds2-%s' % (c2_uuid)))
-        ds2 = c2.update.saveAndReturnObject(ds2)
+        ds2 = c2_update.saveAndReturnObject(ds2)
         ds2.unload()
         
         #images
         im2 = ImageI()
         im2.setName(omero.RString('test1071-im2-%s' % (c2_uuid)))
-        im2 = c2.update.saveAndReturnObject(im2)
+        im2 = c2_update.saveAndReturnObject(im2)
         im2.unload()
         
         #links
@@ -345,7 +345,7 @@ class TestTicket2000(lib.ITest):
             listOfGroups.append(admin.lookupGroup("user"))
             
             admin.createExperimenter(new_exp, defaultGroup, listOfGroups)
-            admin.changeUserPassword("test_load_hierarchy_user1", "ome")
+            admin.changeUserPassword("test_load_hierarchy_user1", omero.RString("ome"))
             test_user = admin.lookupExperimenter("test_load_hierarchy_user1")
             
         test_user2 = None
@@ -363,7 +363,7 @@ class TestTicket2000(lib.ITest):
             listOfGroups2.append(admin.lookupGroup("user"))
             
             admin.createExperimenter(new_exp2, defaultGroup2, listOfGroups2)
-            admin.changeUserPassword("test_load_hierarchy_user2", "ome")
+            admin.changeUserPassword("test_load_hierarchy_user2", omero.RString("ome"))
             test_user2 = admin.lookupExperimenter("test_load_hierarchy_user2")
         
         #login as user1
@@ -406,7 +406,7 @@ class TestTicket2000(lib.ITest):
         c2.createSession("test_load_hierarchy_user2", "ome")
         pojos = c2.sf.getPojosService()
         
-        print c2.sf.getAdminService().getEventContext()
+        self.assert_( c2.sf.getAdminService().getEventContext() )
         #print c1.sf.getAdminService().getEventContext()
         
         p = omero.sys.Parameters()
@@ -427,11 +427,27 @@ class TestTicket2000(lib.ITest):
         p.map['start'] = start = omero.RTime(1218529874000)
         p.map['end'] = end = omero.RTime(1221121874000)
 
-        sql = "select el from EventLog el left outer join fetch el.event ev " \
-              "where el.entityType in ('ome.model.core.Pixels', 'ome.model.core.Image', " \
-              "'ome.model.containers.Dataset', el.entityType='ome.model.containers.Project') " \
-              "and ev.experimenter.id=:uid and ev.time > :start and ev.time < :end"
-        print len(q.findAllByQuery(sql, p))
-        
+        sql1 = "select el from EventLog el left outer join fetch el.event ev " \
+               "where el.entityType in ('ome.model.core.Pixels', 'ome.model.core.Image', " \
+               "'ome.model.containers.Dataset', 'ome.model.containers.Project') " \
+               "and ev.id in (select id from Event where experimenter.id=:uid and time > :start and time < :end)"
+
+
+        sql2 = "select el from EventLog el left outer join fetch el.event ev " \
+               "where el.entityType in ('ome.model.core.Pixels', 'ome.model.core.Image', " \
+               "'ome.model.containers.Dataset', 'ome.model.containers.Project') " \
+               "and ev.experimenter.id=:uid and ev.time > :start and ev.time < :end"
+
+        import time
+        sql1_start = time.time()
+        l = q.findAllByQuery(sql1, p)
+        sql1_stop = time.time()
+        print "\nSQL1: %s objects in %s seconds" % (str(len(l)), str(sql1_stop - sql1_start))
+
+        sql2_start = time.time()
+        l = q.findAllByQuery(sql2, p)
+        sql2_stop = time.time()
+        print "SQL2: %s objects in %s seconds\n" % (str(len(l)), str(sql2_stop - sql2_start))
+
 if __name__ == '__main__':
     unittest.main()
