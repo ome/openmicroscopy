@@ -36,6 +36,7 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.ColourIcon;
 
 /** 
  * ColourListRenderer will render the colour icons and colour names in the list
@@ -57,15 +58,20 @@ public class ColourListRenderer
 	implements ListCellRenderer  
 {
 	
-	/** Create the colouricon which will hold the colours. */
-	private static ColourIcon icon = new ColourIcon(15, 15);
+	/** The gap between the icon and the text. */
+	private static final int  GAP = 20;
+	
+	/** Create the icon which will hold the colours. */
+	private static ColourIcon icon;// = new ColourIcon(15, 15);
 	
 	/** Border colour of the cell when the icon is selected. */
-	private Border lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
+	private Border lineBorder;
 	
 	/** Border colour of the cell when the icon is not selected. */
-	private Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
+	private Border emptyBorder;
 		
+	
+	
 	/**
 	 * Creates a new instance.
      * Sets the background to opaque.
@@ -75,18 +81,18 @@ public class ColourListRenderer
 		setOpaque(true);
         setHorizontalAlignment(CENTER);
         setVerticalAlignment(CENTER);
+        icon = new ColourIcon(12, 12);
+        lineBorder = BorderFactory.createLineBorder(Color.gray, 1);
+        emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
     }
 	
 	/** 
-     * Overridden method
+     * Overridden method to set the color icon.
 	 * @see ListCellRenderer#getListCellRendererComponent(JList, Object, int, 
      *                                                  boolean, boolean)
 	 */
-	public Component getListCellRendererComponent(JList list,
-            Object value,
-            int index,
-            boolean isSelected,
-            boolean hasFocus) 
+	public Component getListCellRendererComponent(JList list, Object value,
+            int index, boolean isSelected, boolean hasFocus) 
 	{
 		Object [] array = (Object[]) value;
 		Color c = (Color) array[0];
@@ -94,8 +100,8 @@ public class ColourListRenderer
 			icon.setColour(new Color(c.getRed(), c.getGreen(), c.getBlue()));
 		
 		setIcon(icon);
-		this.setVerticalAlignment(SwingConstants.CENTER);
-		this.setIconTextGap(40);
+		setVerticalAlignment(SwingConstants.CENTER);
+		setIconTextGap(GAP);
 		setText((String) array[1]);
 		if (isSelected)
 		{

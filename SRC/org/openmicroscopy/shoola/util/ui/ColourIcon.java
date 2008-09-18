@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.util.agents.measurement.util.ui.ColourIcon
+ * org.openmicroscopy.shoola.util.ui.ColourIcon 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,9 @@
  *
  *------------------------------------------------------------------------------
  */
+package org.openmicroscopy.shoola.util.ui;
 
-package org.openmicroscopy.shoola.agents.measurement.util.ui;
+
 
 //Java imports
 import java.awt.Color;
@@ -35,42 +36,55 @@ import javax.swing.Icon;
 //Application-internal dependencies
 
 /** 
- * ColourIcon used in the {@link ColourListRenderer} to paint the colours next
- * to the colour names.
+ * Used to color items as icons.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
- * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
- * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision: $ $Date: $)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME2.2
+ * @since 3.0-Beta3
  */
-class ColourIcon
-    implements Icon
+public class ColourIcon 
+	implements Icon
 {
+	
+	/** The default width of the icon. */
+	public static final int DEFAULT_WIDTH = 16;
+	
+	/** The default height of the icon. */
+	public static final int DEFAULT_HEIGHT = 16;
 	
     /** Colour of the icon */
     private static  Color   colour;
     
-	/** Height of the icon. */
-	private int            h;
+	/** The height of the icon. */
+	private int            height;
 	
-	/** Width of the icon. */	
-	private int            w;
+	/** The width of the icon. */	
+	private int            width;
 
+	/** Creates a default icon. */
+	public ColourIcon()
+	{
+		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
+	
 	/**
 	 * Creates a new intance. 
 	 * 
-	 * @param width    The width of the icon.
-	 * @param height   The height of the icon.
+	 * @param width		The width of the icon.
+	 * @param height	The height of the icon.
 	 */
-	ColourIcon(int width, int height)
+	public ColourIcon(int width, int height)
 	{
-		w = width;
-		h = height;
+		if (width <= 0) width = DEFAULT_WIDTH;
+		if (height <= 0) height = DEFAULT_HEIGHT;
+		this.width = width;
+		this.height = height;
 	}
 
 	/**
@@ -84,25 +98,25 @@ class ColourIcon
      * Overridden to return the set height of the icon.
 	 * @see Icon#getIconHeight()
 	 */
-	public int getIconHeight() { return h; }
+	public int getIconHeight() { return height; }
 
     /** 
      * Overridden to return the set width of the icon.
      * @see Icon#getIconWidth()
      */
-	public int getIconWidth() { return w; }
+	public int getIconWidth() { return width; }
 	
 	/**
      * Overridden to paint filled colour icon.
 	 * @see Icon#paintIcon(Component, Graphics, int, int)
 	 */
-	public void paintIcon(Component arg0, Graphics og, int arg2, int arg3) 
+	public void paintIcon(Component c, Graphics g, int x, int y) 
 	{
-		Graphics2D g = (Graphics2D) og;
-		g.setColor(colour);
-		g.fillRect(4, 4, w-3, h-3);
-		g.setColor(colour.darker());
-		g.drawRect(4, 4, w-3, h-3);
+		Graphics2D g2D = (Graphics2D) g;
+		g2D.setColor(colour);
+		g2D.fillRect(4, 4, width-3, height-3);
+		g2D.setColor(colour.darker());
+		g2D.drawRect(4, 4, width-3, height-3);
 	}
 
 }
