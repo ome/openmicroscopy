@@ -30,6 +30,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,11 +42,13 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
@@ -54,6 +57,7 @@ import layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -88,6 +92,11 @@ public class ProjectionDialog
 	/** Bound property indicating to load the datasets containing the image. */
 	public static final String 		LOAD_DATASETS_PROPERTY = "loadDatasets";
 	
+    /** Dimension of the box between the channel buttons. */
+    private static final Dimension	VBOX = new Dimension(1, 10);
+   
+    
+	/** The type of projections supported. */
 	private static final Map<Integer, String>	PROJECTIONS;
 	
 	/** The maximum number of z-sections. */
@@ -138,6 +147,12 @@ public class ProjectionDialog
 	 */
 	private boolean			  		applySettings;
 	
+    /** One  {@link ChannelButton} per channel. */
+    private List<ChannelButton>		channelButtons;
+    
+    /** Flag indicating that a preview has been done. */
+    private boolean					preview;
+    
     /** Reference to the control. */
 	private ProjectionDialogControl	controller;
 	
@@ -158,6 +173,15 @@ public class ProjectionDialog
 		ref.setStepping(value);
 		int index = types.getSelectedIndex();
 		ref.setType(projectionType.get(index));
+		Iterator<ChannelButton> i = channelButtons.iterator();
+		ChannelButton button;
+		List<Integer> channels = new ArrayList<Integer>();
+		while (i.hasNext()) {
+			button = i.next();
+			if (button.isSelected()) 
+				channels.add(button.getChannelIndex());
+		}
+		ref.setChannels(channels);
 	}
 	
 	/** 
@@ -167,6 +191,7 @@ public class ProjectionDialog
 	 */
 	private void initComponents(Color background)
 	{
+		channelButtons = new ArrayList<ChannelButton>();
 		frequency = new JSpinner(new SpinnerNumberModel(1, 1, maxZ, 1));
 		textualSlider = new TextualTwoKnobsSlider(1, maxZ);
 		textualSlider.setSliderLabelText("Slice: ");
@@ -229,6 +254,28 @@ public class ProjectionDialog
 		return controls;
 	}
 	
+    /**
+     * Creates a UI component hosting the {@link ChannelButton}s.
+     * 
+     * @return See above.
+     */
+    private JComponent buildChannelsPane()
+    {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        ChannelButton button;
+        Iterator<ChannelButton> i = channelButtons.iterator();
+        while (i.hasNext()) {
+			button = i.next();
+			button.addPropertyChangeListener(controller);
+			p.add(button);
+            p.add(Box.createRigidArea(VBOX));
+		}
+        if (channelButtons.size() > 10) 
+        	return UIUtilities.buildComponentPanelCenter(new JScrollPane(p));
+        return UIUtilities.buildComponentPanelCenter(p);
+    }
+    
 	/** 
 	 * Builds and lays out the main component of the dialog.
 	 * 
@@ -262,7 +309,15 @@ public class ProjectionDialog
     	bar.add(previewButton);
     	bar.add(Box.createVerticalStrut(10));
     	bar.add(projectionButton);
-    	return bar;
+    	//bar.add(buildChannelsPane());
+    	
+    	JPanel content = new JPanel();
+    	double[][] tl = {{TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.FILL}};
+		content.setLayout(new TableLayout(tl));
+		content.add(bar, "0, 0");
+		content.add(buildChannelsPane(), "0, 1");
+    	return content;
 	}
 	
 	/**
@@ -310,11 +365,10 @@ public class ProjectionDialog
 	 * @param background  The background color of the canvas.
 	 * @param imageName	  The name of the original image.
 	 * @param imageWidth  The width of the original image.
-	 * @param imageHeight  The width of the original image.
+	 * @param imageHeight The width of the original image.
 	 */
 	public ProjectionDialog(JFrame owner, int maxZ, int maxT, String pixelsType, 
-			             Color background, String imageName, 
-			             int imageWidth, int imageHeight)
+			             Color background, String imageName)
 	{
 		super(owner);
 		controller = new ProjectionDialogControl(this);
@@ -323,6 +377,19 @@ public class ProjectionDialog
 		this.pixelsType = pixelsType;
 		this.imageName = imageName;
 		initComponents(background);
+	}
+	
+	/**
+	 * 
+	 * @param imageWidth     The width of the original image.
+	 * @param imageHeight    The width of the original image.
+	 * @param channelButtons
+	 */
+	public void initialize(int imageWidth, int imageHeight, 
+							List<ChannelButton> channelButtons)
+	{
+		if (channelButtons != null) 
+			this.channelButtons = channelButtons;
 		buildGUI();
 		Dimension d = new Dimension(imageWidth, imageHeight);
 		uiDelegate.setPreferredSize(d);
@@ -353,17 +420,37 @@ public class ProjectionDialog
 	 * @return See above.
 	 */
 	String getPixelsType() { return pixelsType; }
-
+	
 	/** Projects and previews. */
 	void preview()
 	{
+		preview = true;
 		enableButtons(false);
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		fillProjectionRef();
 		progressBar.setVisible(true);
 		statusLabel.setText("Projecting...");
 		firePropertyChange(PROJECTION_PREVIEW_PROPERTY, null, ref);
-		setModal(true);
+		//setModal(true);
+	}
+	
+	/**
+	 * Updates the controls when a new channel is selected or deselected.
+	 * 
+	 * @param index The index of the channel.
+	 * @param value Pass <code>true</code> to select the channel, 
+	 * 				<code>false</code> otherwise.
+	 */
+	void selectChannel(int index, boolean value)
+	{
+		Iterator<ChannelButton> i = channelButtons.iterator();
+		ChannelButton button;
+		while (i.hasNext()) {
+			button = i.next();
+			if (button.getChannelIndex() == index)
+				button.setSelected(value);
+		}
+		if (preview) preview();
 	}
 	
 	/**
@@ -407,13 +494,12 @@ public class ProjectionDialog
 	 * 						of the original image to the new pixels set,
 	 * 						<code>false</code> otherwise.
 	 */
-	void project(List<DatasetData> datasets, String name, boolean allChannels,
-			int startT, int endT, String pixelsType, boolean applySettings)
+	void project(List<DatasetData> datasets, String name, int startT, int endT, 
+			String pixelsType, boolean applySettings)
 	{
 		fillProjectionRef();
 		ref.setImageDescription("Projection type: "+
 				PROJECTIONS.get(ref.getType()));
-		ref.setAllChannels(allChannels);
 		ref.setDatasets(datasets);
 		ref.setImageName(name);
 		ref.setTInterval(startT, endT);

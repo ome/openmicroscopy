@@ -28,11 +28,16 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -49,7 +54,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * @since 3.0-Beta3
  */
 class ProjectionDialogControl 
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 	
 	/** Action id to project the selection and view the result. */
@@ -98,6 +103,27 @@ class ProjectionDialogControl
 			case PROJECT:
 				model.loadDatasets();
 				break;
+		}
+	}
+
+	/**
+	 * Resets the preview image if a preview has already been done.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
+			Map map = (Map) evt.getNewValue();
+			if (map == null) return;
+			if (map.size() != 1) return;
+			Iterator i = map.keySet().iterator();
+			Integer index;
+			while (i.hasNext()) {
+				index = (Integer) i.next();
+				model.selectChannel(index.intValue(), 
+						((Boolean) map.get(index)).booleanValue());
+			}
 		}
 	}
     

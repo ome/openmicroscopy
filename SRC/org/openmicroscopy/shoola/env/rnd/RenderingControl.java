@@ -664,13 +664,14 @@ public interface RenderingControl
      * @param endZ     The last optical section.
      * @param stepping Stepping value to use while calculating the projection.
      * @param type 	   One of the projection type defined by this class.
+     * @param channels The collection of channels to project.
      * @return See above.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
     public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
-    									int type)
+    									int type, List<Integer> channels)
     	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
@@ -687,5 +688,12 @@ public interface RenderingControl
     public void copyRenderingSettings(RndProxyDef rndToCopy, 
     									List<Integer> indexes)
     	throws RenderingServiceException, DSOutOfServiceException;
+    
+    /**
+	 * Returns a list of active channels.
+	 * 
+	 * @return See above.
+	 */
+    public List<Integer> getActiveChannels();
     
 }

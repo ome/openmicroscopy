@@ -150,11 +150,13 @@ public interface ImageDataView
      * @param stepping Stepping used while projecting. 
      *                 Default is <code>1</code>
      * @param type     The type of projection.
+     * @param channels The collection of channels to project.
      * @param observer Callback handler.
      * @return See above.
      */
     public CallHandle renderProjected(long pixelsID, int startZ, int endZ,
-    		int stepping, int type, AgentEventListener observer);
+    		int stepping, int type, List<Integer> channels,
+    		AgentEventListener observer);
     
     /**
      * Projects a section of the stack and returns the projected image.

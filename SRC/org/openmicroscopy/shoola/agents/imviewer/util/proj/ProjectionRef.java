@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.imviewer.util.proj;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -76,18 +77,16 @@ public class ProjectionRef
 	private String            name;
 	
 	/** The description of the projected image. */
-	private String			  description;
+	private String			  	description;
 	
-	/** 
-	 * Project all channels if <code>true</code>, project the active channels
-	 * if <code>false</code>
-	 */
-	private boolean           allChannels;
+	/** The collection of channels to project.*/
+	private List<Integer>		channels;
 	
 	/** Creates a new instance.  */
 	ProjectionRef()
 	{
 		setStepping(1);
+		channels = new ArrayList<Integer>();
 	}
 	
 	/**
@@ -116,6 +115,7 @@ public class ProjectionRef
 		setZInterval(startZ, endZ);
 		setStepping(frequence);
 		setType(type);
+		channels = new ArrayList<Integer>();
 	}
 
 	/**
@@ -200,14 +200,11 @@ public class ProjectionRef
 	void setDatasets(List<DatasetData> datasets) { this.datasets = datasets; }
 	
 	/**
-	 * Sets to <code>true</code> to project all channels, to <code>false</code>
-	 * to projet the active channels.
+	 * Sets the collection of channels to project.
 	 * 
-	 * @param allChannels Pass code>true</code> to project all channels,
-	 *                    <code>false</code> to projet the active channels.
-	 * 					  
+	 * @param channels The value to set. 					  
 	 */
-	void setAllChannels(boolean allChannels) { this.allChannels = allChannels; }
+	void setChannels(List<Integer> channels) { this.channels = channels; }
 	
 	/**
 	 * Returns the name of the projected image.
@@ -231,12 +228,11 @@ public class ProjectionRef
 	public List<DatasetData> getDatasets() { return datasets; }
 	
 	/**
-	 * Returns <code>true</code> to project all channels,  <code>false</code>
-	 * to projet the active channels.
+	 * Returns the collection of channels to project/preview.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isAllChannels() { return allChannels; }
+	public List<Integer> getChannels() { return channels; }
 	
 	/**
 	 * Returns the first z-section to project.

@@ -39,7 +39,6 @@ import javax.imageio.ImageIO;
 
 //Application-internal dependencies
 import ome.model.ILink;
-import ome.model.IObject;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.core.PixelsDimensions;
@@ -392,14 +391,14 @@ class OmeroImageServiceImpl
 
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#renderProjected(long, int, int, int, int)
+	 * @see OmeroImageService#renderProjected(long, int, int, int, int, List)
 	 */
 	public BufferedImage renderProjected(long pixelsID, int startZ, int endZ, 
-			 int stepping, int type)
+			 int stepping, int type, List<Integer> channels)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		return PixelsServicesFactory.renderProjected(context, pixelsID, startZ,
-				endZ, type, stepping);
+				endZ, type, stepping, channels);
 	}
 	
 	/** 

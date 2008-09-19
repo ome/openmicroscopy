@@ -28,7 +28,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Third-party libraries
 
 //Application-internal dependencies
-
+import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -69,17 +69,18 @@ public class ProjectionSaver
      * @param stepping Stepping used while projecting. 
      *                 Default is <code>1</code>
      * @param type     The type of projection.
+     * @param channels The collection of channels to project.
      * @return See above.
      */
     private BatchCall makeRenderProjectedCall(final int startZ, final int endZ, 
-    		  final int stepping, final int type)
+    		  final int stepping, final int type, final List<Integer> channels)
     {
     	return new BatchCall("Preview the projected image.") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
                 result = rds.renderProjected(pixelsID, startZ, endZ, stepping, 
-                		                    type);
+                		                    type, channels);
             }
         };
     }
@@ -122,14 +123,16 @@ public class ProjectionSaver
      * @param stepping Stepping used while projecting. 
      *                 Default is <code>1</code>
      * @param type     The type of projection.
+     * @param channels The collection of channels to project.
      */
     public ProjectionSaver(long pixelsID, int startZ, int endZ, int stepping, 
-    		              int type)
+    		              int type, List<Integer> channels)
     {
     	if (pixelsID < 0)
     		throw new IllegalArgumentException("Pixels Id not valid.");
     	this.pixelsID = pixelsID;
-    	loadCall = makeRenderProjectedCall(startZ, endZ, stepping, type);
+    	loadCall = makeRenderProjectedCall(startZ, endZ, stepping, type, 
+    			channels);
     }
     
     /**

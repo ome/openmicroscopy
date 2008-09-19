@@ -117,7 +117,8 @@ public class ProjectionSaver
 			case PREVIEW:
 				handle = ivView.renderProjected(ref.getPixelsID(), 
 						ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
-						ref.getAlgorithm(), this);
+						ref.getAlgorithm(), ref.getChannels(), 
+						this);
 				break;
 			case PROJECTION:
 				handle = ivView.projectImage(ref, this);

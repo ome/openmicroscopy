@@ -2432,9 +2432,9 @@ class ImViewerComponent
 			projection = new ProjectionDialog(view, model.getMaxZ()+1, 
 									model.getMaxT()+1, model.getPixelsType(),
 									model.getBrowser().getBackgroundColor(),
-									model.getImageName(), w, h);
+									model.getImageName());
+			projection.initialize(w, h, view.createChannelButtons());
 			projection.addPropertyChangeListener(controller);
-			//projection.setProjectedImage(model.getOriginalImage());
 			UIUtilities.incrementRelativeToAndShow(view.getBounds(), 
 					projection);
 		} else {

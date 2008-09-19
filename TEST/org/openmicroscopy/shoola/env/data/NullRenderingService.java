@@ -207,10 +207,10 @@ public class NullRenderingService
 	
 	/**
      * No-op implementation
-     * @see OmeroImageService#renderProjected(long, int, int, int, int)
+     * @see OmeroImageService#renderProjected(long, int, int, int, int, List)
      */
 	public BufferedImage renderProjected(long pixelsID, int startZ, int endZ, 
-			int stepping, int type) 
+			int stepping, int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		return null;

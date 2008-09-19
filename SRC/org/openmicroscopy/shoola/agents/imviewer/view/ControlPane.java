@@ -31,11 +31,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -148,10 +145,10 @@ class ControlPane
     private OneKnobSlider			ratioSlider;
     
     /** One  {@link ChannelButton} per channel. */
-    private Set<ChannelButton>		channelButtons;
+    private List<ChannelButton>		channelButtons;
 
     /** One  {@link ChannelButton} per channel. */
-    private Set<ChannelButton>		channelButtonsGrid;
+    private List<ChannelButton>		channelButtonsGrid;
    
     /** Button to play movie across channel. */
     private JButton         		channelMovieButton;
@@ -268,8 +265,8 @@ class ControlPane
     /** Initializes the components composing the display. */
     private void initComponents()
     {
-    	channelButtons = new HashSet<ChannelButton>();
-    	channelButtonsGrid = new HashSet<ChannelButton>();
+    	channelButtons = new ArrayList<ChannelButton>();
+    	channelButtonsGrid = new ArrayList<ChannelButton>();
 
         zSlider = new OneKnobSlider(OneKnobSlider.VERTICAL, 0, 1, 0);
         zSlider.setEnabled(false);
@@ -513,21 +510,16 @@ class ControlPane
         p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
         ChannelMetadata[] data = model.getChannelData();
         ChannelButton button;
-        ChannelMetadata d;
         p.add(Box.createRigidArea(VBOX));
-        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
-        for (int k = 0; k < data.length; k++) {
-            d = data[k];
-            button = new ChannelButton(""+d.getEmissionWavelength(), 
-                    model.getChannelColor(k), k, model.isChannelActive(k));
-            if (gs) button.setGrayedOut(gs);
-            button.addPropertyChangeListener(controller);
-            button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
-            channelButtons.add(button);
-            p.add(button);
+        channelButtons = createChannelButtons();
+        Iterator<ChannelButton> i = channelButtons.iterator();
+        while (i.hasNext()) {
+			button = i.next();
+			button.addPropertyChangeListener(controller);
+			p.add(button);
             p.add(Box.createRigidArea(VBOX));
-        }
-        
+		}
+       
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,
@@ -563,6 +555,12 @@ class ControlPane
         slider.addChangeListener(this);
     }
   
+    /**
+     * Sets the maximum value of the slider.
+     * 
+     * @param slider The slider to handle.
+     * @param max	 The maximum value to set.
+     */
     private void setSliderMax(JSlider slider, int max)
     {
     	slider.removeChangeListener(this);
@@ -591,6 +589,29 @@ class ControlPane
         this.view = view;
         icons = IconManager.getInstance();
         initComponents();
+    }
+    
+    /**
+     * Creates a collection of <code>ChannelButton</code>s.
+     * 
+     * @return See above.
+     */
+    List<ChannelButton> createChannelButtons()
+    {
+    	List<ChannelButton> channelButtons = new ArrayList<ChannelButton>();
+    	ChannelMetadata[] data = model.getChannelData();
+    	boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
+    	ChannelButton button;
+        ChannelMetadata d;
+        for (int k = 0; k < data.length; k++) {
+            d = data[k];
+            button = new ChannelButton(""+d.getEmissionWavelength(), 
+                    model.getChannelColor(k), k, model.isChannelActive(k));
+            if (gs) button.setGrayedOut(gs);
+            button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
+            channelButtons.add(button);
+        }
+        return channelButtons;
     }
     
     /** 
@@ -623,23 +644,15 @@ class ControlPane
     	JPanel p = createZGridSliderPane();
         JPanel buttons = new JPanel();
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
-        ChannelMetadata[] data = model.getChannelData();
         ChannelButton button;
-        ChannelMetadata d;
         buttons.add(Box.createRigidArea(VBOX));
-        boolean gs = model.getColorModel().equals(ImViewer.GREY_SCALE_MODEL);
-        for (int k = 0; k < data.length; k++) {
-            d = data[k];
-            button = new ChannelButton(""+d.getEmissionWavelength(), 
-                    model.getChannelColor(k), k, model.isChannelActive(k));
-            if (gs) button.setGrayedOut(gs);
-            button.addPropertyChangeListener(controller);
-            button.setPreferredSize(ChannelButton.DEFAULT_MIN_SIZE);
-            channelButtonsGrid.add(button);
-            buttons.add(button);
+        channelButtonsGrid = createChannelButtons();
+        Iterator<ChannelButton> i = channelButtonsGrid.iterator();
+        while (i.hasNext()) {
+        	button = i.next();
+        	buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
-        }
-        
+		}
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
         				{TableLayout.PREFERRED, TableLayout.PREFERRED,

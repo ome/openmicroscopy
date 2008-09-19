@@ -1332,13 +1332,29 @@ class RenderingControlProxy
 	 * @see RenderingControl#renderProjected(int, int, int, int)
 	 */
 	public BufferedImage renderProjected(int startZ, int endZ, int stepping, 
-			                           int type) 
+			                           int type, List<Integer> channels) 
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		DataServicesFactory.isSessionAlive(context);
+		List<Integer> active = getActiveChannels();
+		for (int i = 0; i < getPixelsDimensionsC(); i++) 
+			setActive(i, false);
+	
+		Iterator<Integer> j = channels.iterator();
+		while (j.hasNext()) 
+			setActive(j.next(), true);
+		BufferedImage img;
+		
+		
+		
         if (isCompressed()) 
-        	return renderProjectedCompressed(startZ, endZ, stepping, type);
-        return renderProjectedUncompressed(startZ, endZ, stepping, type);
+        	img = renderProjectedCompressed(startZ, endZ, stepping, type);
+        else img = renderProjectedUncompressed(startZ, endZ, stepping, type);
+        //reset
+        j = active.iterator();
+        while (j.hasNext()) 
+			setActive(j.next(), true);
+        return img;
 	}
 
 	/** 
@@ -1380,4 +1396,17 @@ class RenderingControlProxy
 		}
 	}
 
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getActiveChannels()
+	 */
+	public List<Integer> getActiveChannels()
+	{
+		List<Integer> active = new ArrayList<Integer>();
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			if (isActive(i)) active.add(new Integer(i));
+		}
+		return active;
+	}
+	
 }

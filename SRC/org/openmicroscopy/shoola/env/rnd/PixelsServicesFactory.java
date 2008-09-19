@@ -361,13 +361,15 @@ public class PixelsServicesFactory
      * @param endZ     	The last optical section.
      * @param stepping 	Stepping value to use while calculating the projection.
      * @param type 	   	One of the projection type defined by this class.
+     * @param channels The collection of channels to project.
      * @return See above.
      * @throws RenderingServiceException 	If an error occured while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static BufferedImage renderProjected(Registry context, Long pixelsID, 
-			int startZ, int endZ, int type, int stepping)
+			int startZ, int endZ, int type, int stepping, 
+			List<Integer> channels)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(context.equals(registry)))
@@ -377,7 +379,7 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
-		return proxy.renderProjected(startZ, endZ, stepping, type);
+		return proxy.renderProjected(startZ, endZ, stepping, type, channels);
 	}
 	
 	/**

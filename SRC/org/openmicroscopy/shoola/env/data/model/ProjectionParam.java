@@ -297,4 +297,14 @@ public class ProjectionParam
 	 */
 	public String getDescription() { return description; }
 	
+	/**
+	 * Sets the channels to project.
+	 * 
+	 * @param channels The value to set.
+	 */
+	public void setChannels(List<Integer> channels)
+	{ 
+		this.channels = channels;
+	}
+	
 }

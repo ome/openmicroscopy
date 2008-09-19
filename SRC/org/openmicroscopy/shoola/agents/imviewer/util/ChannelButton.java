@@ -158,8 +158,6 @@ public class ChannelButton
             public void mouseReleased(MouseEvent e) { onReleased(e); }
         });
         setToolTipText(DESCRIPTION);
-        //timer = new Timer(DOUBLE_CLICK_THRESHOLD, this);
-        //timer.setCoalesce(true);
     }
     
     /**

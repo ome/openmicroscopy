@@ -161,8 +161,6 @@ class ProjectionSavingDialog
 			if (box.isSelected())
 				datasets.add(selection.get(box));
 		}
-		boolean all = true;
-		if (activeChannels.isSelected()) all = false;
 		int maxT = model.getMaxT();
 		int startT = 0, endT = 0;
 		if (maxT > 0) {
@@ -175,7 +173,7 @@ class ProjectionSavingDialog
 			type = EditorUtil.PIXELS_TYPE.get(value);
 			if (type.equals(pixelsType)) type = null;
 		}
-		model.project(datasets, nameField.getText(), all, startT, endT, type,
+		model.project(datasets, nameField.getText(), startT, endT, type,
 				rndSettingsBox.isSelected());
 		close();
 	}
@@ -295,8 +293,8 @@ class ProjectionSavingDialog
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(buildChannelsPanel());
-		p.add(new JSeparator());
+		//p.add(buildChannelsPanel());
+		//p.add(new JSeparator());
 		if (timeSelection != null) {
 			p.add(buildTimeRangePanel());
 			p.add(new JSeparator());

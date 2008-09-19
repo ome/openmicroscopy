@@ -159,14 +159,15 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#renderProjected(long, int, int, int, int, 
+     * @see ImageDataView#renderProjected(long, int, int, int, int, List, 
      *                       AgentEventListener)
      */
 	public CallHandle renderProjected(long pixelsID, int startZ, int endZ, 
-			int stepping, int type, AgentEventListener observer)
+			int stepping, int type, List<Integer> channels, 
+			AgentEventListener observer)
     {
 		BatchCallTree cmd = new ProjectionSaver(pixelsID, startZ, endZ, 
-				                  stepping, type);
+				                  stepping, type, channels);
 		return cmd.exec(observer);
 	}
 

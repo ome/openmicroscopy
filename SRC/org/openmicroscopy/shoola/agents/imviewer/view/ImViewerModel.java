@@ -725,14 +725,7 @@ class ImViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getActiveChannelsCount()
-	{
-		int active = 0;
-		for (int i = 0; i < getMaxC(); i++) {
-			if (currentRndControl.isActive(i)) active++;
-		}
-		return active;
-	}
+	int getActiveChannelsCount() { return getActiveChannels().size(); }
 
 	/**
 	 * Returns a list of active channels.
@@ -741,11 +734,7 @@ class ImViewerModel
 	 */
 	List<Integer> getActiveChannels()
 	{
-		List<Integer> active = new ArrayList<Integer>();
-		for (int i = 0; i < getMaxC(); i++) {
-			if (currentRndControl.isActive(i)) active.add(new Integer(i));
-		}
-		return active;
+		return currentRndControl.getActiveChannels();
 	}
 
 	/** 
@@ -952,10 +941,8 @@ class ImViewerModel
 		if (currentRndControl != null) {
 			RndProxyDef def = currentRndControl.saveCurrentSettings(); 
 			if (def != null) {
-				if (renderingSettings != null) {
-					ExperimenterData exp = ImViewerAgent.getUserDetails();
-					renderingSettings.put(exp, def);
-				}
+				if (renderingSettings != null) 
+					renderingSettings.put(ImViewerAgent.getUserDetails(), def);
 			}
 		}
 	}
@@ -1377,25 +1364,6 @@ class ImViewerModel
 	void resetHistory() { historyItems = null; }
 
 	/**
-     * Projects the selected optical sections for the currently selected 
-     * timepoint and the active channels and returned a projected image.
-     * 
-     * @param startZ   The first optical section.
-     * @param endZ     The last optical section.
-     * @param stepping Stepping value to use while calculating the projection.
-     * @param type 	   One of the projection type defined by this class.
-     * @return See above.
-     * @throws RenderingServiceException 	If an error occured while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-     */
-	BufferedImage renderProjected(int startZ, int endZ, int stepping, int type) 
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		return currentRndControl.renderProjected(startZ, endZ, stepping, type);
-	}
-
-	/**
 	 * Starts an asynchronous call to render a preview of the projected image.
 	 * 
 	 * @param ref Object with the projection's parameters.
@@ -1405,6 +1373,7 @@ class ImViewerModel
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
 				ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
 				ref.getType());
+		param.setChannels(ref.getChannels());
 		ProjectionSaver loader = new ProjectionSaver(component, param, 
 				                  ProjectionSaver.PREVIEW);
 		loader.load();
@@ -1417,13 +1386,7 @@ class ImViewerModel
 	 */
 	void fireProjectImage(ProjectionRef ref)
 	{
-		List<Integer> channels = null;
-		if (ref.isAllChannels()) {
-			channels = new ArrayList<Integer>(getMaxC());
-			for (int i = 0; i < getMaxC(); i++) {
-				channels.add(new Integer(i));
-			}
-		} else channels = getActiveChannels();
+		List<Integer> channels = ref.getChannels();
 		ProjectionParam param = new ProjectionParam(getPixelsID(), 
 				ref.getStartZ(), ref.getEndZ(), ref.getStepping(), 
 				ref.getType(), ref.getStartT(), ref.getEndT(), 
