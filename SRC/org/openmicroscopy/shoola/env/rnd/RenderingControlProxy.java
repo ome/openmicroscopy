@@ -50,7 +50,6 @@ import ome.model.enums.Family;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.data.PlaneDef;
-
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -206,12 +205,6 @@ class RenderingControlProxy
     /** Clears the cache and releases memory. */
     private void eraseCache()
     {
-    	/*
-    	if (xyCache == null) return;
-    	invalidateCache();
-    	xyCache = null;
-    	CachingService.eraseXYCache(pixs.getId()); 
-    	*/
     	invalidateCache();
     	context.getCacheService().removeCache(cacheID);
     	
@@ -270,6 +263,48 @@ class RenderingControlProxy
         }
     }
     
+	/**
+	 * Returns if <code>true</code> if one of the channels is of the specified
+	 * color, <code>false</code> otherwise.
+	 * 
+	 * @param red   The red component in the range [0, 255] in the default sRGB
+	 * 				space.
+	 * @param green The green component in the range [0, 255] in the default 
+	 * 				sRGB space.
+	 * @param blue  The blue component in the range [0, 255] in the default sRGB
+	 * 				space.
+	 * @return See above.
+	 */
+	private boolean isRightColor(int red, int green, int blue)
+	{
+		for (int i = 0; i < getPixelsDimensionsC(); i++) {
+			if (isActive(i)) {
+				if (isRightChannelColor(i, red, green, blue))
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns if <code>true</code> if the channel is of the specified
+	 * color, <code>false</code> otherwise.
+	 * 
+	 * @param index The index of the channel.
+	 * @param red   The red component in the range [0, 255] in the default sRGB
+	 * 				space.
+	 * @param green The green component in the range [0, 255] in the default 
+	 * 				sRGB space.
+	 * @param blue  The blue component in the range [0, 255] in the default sRGB
+	 * 				space.
+	 * @return See above.
+	 */
+	private boolean isRightChannelColor(int index, int red, int green, int blue)
+	{
+		int[] rgba = rndDef.getChannel(index).getRGBA();
+		return (rgba[0] == red && rgba[1] == green && rgba[2] == blue);
+	}
+	
     /** Initializes the cached rendering settings to speed up process. */
     private void initialize()
     {
@@ -1063,52 +1098,19 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#hasActiveChannelBlue()
      */
-	public boolean hasActiveChannelBlue()
-	{
-		int[] rgba;
-		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			if (isActive(i)) {
-				rgba = rndDef.getChannel(i).getRGBA();
-				if (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 255)
-					return true;
-			}
-		}
-		return false;
-	}
+	public boolean hasActiveChannelBlue() { return isRightColor(0, 0, 255); }
 
 	/** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#hasActiveChannelGreen()
      */
-	public boolean hasActiveChannelGreen()
-	{
-		int[] rgba;
-		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			if (isActive(i)) {
-				rgba = rndDef.getChannel(i).getRGBA();
-				if (rgba[0] == 0 && rgba[1] == 255 && rgba[2] == 0)
-					return true;
-			}
-		}
-		return false;
-	}
-
+	public boolean hasActiveChannelGreen() { return isRightColor(0, 255, 0); }
+	
 	/** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#hasActiveChannelRed()
      */
-	public boolean hasActiveChannelRed()
-	{
-		int[] rgba;
-		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			if (isActive(i)) {
-				rgba = rndDef.getChannel(i).getRGBA();
-				if (rgba[0] == 255 && rgba[1] == 0 && rgba[2] == 0)
-					return true;
-			}
-		}
-		return false;
-	}
+	public boolean hasActiveChannelRed() { return isRightColor(255, 0, 0); }
 	
 	/** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -1117,8 +1119,7 @@ class RenderingControlProxy
 	public boolean isChannelRed(int index)
 	{
 		if (index < 0 || index > getPixelsDimensionsC()) return false;
-		int[] rgba = rndDef.getChannel(index).getRGBA();
-		return (rgba[0] == 255 && rgba[1] == 0 && rgba[2] == 0);
+		return isRightChannelColor(index, 255, 0, 0);
 	}
 	
 	/** 
@@ -1128,8 +1129,7 @@ class RenderingControlProxy
 	public boolean isChannelBlue(int index)
 	{
 		if (index < 0 || index > getPixelsDimensionsC()) return false;
-		int[] rgba = rndDef.getChannel(index).getRGBA();
-		return (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 255);
+		return isRightChannelColor(index, 0, 0, 255);
 	}
 	
 	/** 
@@ -1139,8 +1139,7 @@ class RenderingControlProxy
 	public boolean isChannelGreen(int index)
 	{
 		if (index < 0 || index > getPixelsDimensionsC()) return false;
-		int[] rgba = rndDef.getChannel(index).getRGBA();
-		return (rgba[0] == 0 && rgba[1] == 255 && rgba[2] == 0);
+		return isRightChannelColor(index, 0, 255, 0);
 	}
 
 	/** 
@@ -1237,6 +1236,7 @@ class RenderingControlProxy
 	public boolean validatePixels(Pixels pixels)
 	{
 		if (pixels == null) return false;
+		DataServicesFactory.isSessionAlive(context);
 		if (getPixelsDimensionsC() != pixels.getSizeC().intValue())
 			return false;
 		if (getPixelsDimensionsY() != pixels.getSizeY().intValue())
@@ -1344,9 +1344,7 @@ class RenderingControlProxy
 		while (j.hasNext()) 
 			setActive(j.next(), true);
 		BufferedImage img;
-		
-		
-		
+
         if (isCompressed()) 
         	img = renderProjectedCompressed(startZ, endZ, stepping, type);
         else img = renderProjectedUncompressed(startZ, endZ, stepping, type);
