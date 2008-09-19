@@ -17,13 +17,21 @@ import ome.model.core.Image;
 import ome.model.meta.EventLog;
 import ome.services.fulltext.AllEntitiesPseudoLogLoader;
 import ome.services.fulltext.AllEventsLogLoader;
+import ome.services.fulltext.EventBacklog;
 import ome.services.fulltext.EventLogLoader;
+import ome.services.fulltext.FullTextIndexer;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Tests how the {@link EventLogLoader} and the {@link EventBacklog} work
+ * together. The tests below may look somewhat strange. This is due to the fact
+ * that the {@link FullTextIndexer} first consumes all the {@link EventLog}'s
+ * from the {@link EventLogLoader} before processing them.
+ */
 @Test(groups = { "query", "fulltext" })
 public class EventLogLoadersTest extends MockObjectTestCase {
 
@@ -178,30 +186,36 @@ public class EventLogLoadersTest extends MockObjectTestCase {
                 return 0;
             }
         };
+
+        // BATCH:1
+        // LOADING
         assertFalse(ell.hasNext());
+        // FLUSHING
         assertTrue(ell.addEventLog(Image.class, 1L));
         assertTrue(ell.addEventLog(Image.class, 2L));
         // Adding twice should not work
         assertFalse(ell.addEventLog(Image.class, 2L));
-        assertTrue(ell.hasNext());
-        // Once we start calling hasNext, next we can't add anymore
-        assertFalse(ell.addEventLog(Image.class, 2L));
 
-        // Now we consume both added logs
+        // BATCH:2
+        // Load the two from backlog
         assertNotNull(ell.next());
         assertNotNull(ell.next());
         assertFalse(ell.hasNext());
+        // Now the backlog is empty
+        // During flushing of the backlog,
+        // nothing should be addable.
+        assertFalse(ell.addEventLog(Image.class, 2L));
 
-        // And now we should be able to add more logs
-        assertTrue(ell.addEventLog(Image.class, 2L));
-
+        // Now we should be finished
+        assertFalse(ell.hasNext());
     }
 
-    /**
-     * Testing the structure:
-     * 
-     * p1 --> d2 --> i4 \___> d3 --> i5
-     */
+    //
+    // Testing the structure:
+    //
+    // . p1 --> d2 --> i4
+    // . \___> d3 --> i5
+    //
     @Test(groups = "ticket:1102")
     public void testBacklogAdvanced() {
         list = new ArrayList<EventLog>();
@@ -224,122 +238,67 @@ public class EventLogLoadersTest extends MockObjectTestCase {
 
         EventLog current;
 
-        // Get the first event log
+        //
+        // LOAD : up to batch size things get loaded
+        //
         assertTrue(ell.hasNext());
         current = ell.next();
         assertEquals(new Long(1L), current.getEntityId());
-
-        // While processing, it adds 4 to the backlog
-        assertTrue(ell.addEventLog(Dataset.class, 2L));
-        assertTrue(ell.addEventLog(Dataset.class, 3L));
-        assertTrue(ell.addEventLog(Image.class, 4L));
-        assertTrue(ell.addEventLog(Image.class, 5L));
-
-        // Get each from the backlog,
-        // 2
         current = ell.next();
         assertEquals(new Long(2L), current.getEntityId());
-        assertFalse(ell.addEventLog(Project.class, 1L));
-        assertFalse(ell.addEventLog(Image.class, 4L));
-        // 3
         current = ell.next();
         assertEquals(new Long(3L), current.getEntityId());
-        assertFalse(ell.addEventLog(Project.class, 1L));
-        assertFalse(ell.addEventLog(Image.class, 4L));
-        // 4
         current = ell.next();
         assertEquals(new Long(4L), current.getEntityId());
-        assertFalse(ell.addEventLog(Project.class, 1L));
-        assertFalse(ell.addEventLog(Dataset.class, 2L));
-        // 5
         current = ell.next();
         assertEquals(new Long(5L), current.getEntityId());
-        assertFalse(ell.addEventLog(Project.class, 1L));
-        assertFalse(ell.addEventLog(Dataset.class, 3L));
-
-        // The next item should be from the regular list
-        // And it will add it's own objects
-        current = ell.next();
-        assertEquals(new Long(2L), current.getEntityId());
-        assertTrue(ell.addEventLog(Project.class, 1L));
-        assertTrue(ell.addEventLog(Image.class, 4L));
-
-        // Which then get called from the backlog
-        // 1
-        current = ell.next();
-        assertEquals(new Long(1L), current.getEntityId());
-        assertFalse(ell.addEventLog(Dataset.class, 2L));
-        assertFalse(ell.addEventLog(Dataset.class, 3L));
-        assertFalse(ell.addEventLog(Image.class, 4L));
-        assertFalse(ell.addEventLog(Image.class, 5L));
-        // 4
-        current = ell.next();
-        assertEquals(new Long(4L), current.getEntityId());
-        assertFalse(ell.addEventLog(Dataset.class, 2L));
-        assertFalse(ell.addEventLog(Project.class, 4L));
-
-        // Backlog is empty again, time for 3
-        current = ell.next();
-        assertEquals(new Long(3L), current.getEntityId());
-        assertTrue(ell.addEventLog(Project.class, 1L));
-        assertTrue(ell.addEventLog(Image.class, 5L));
-
-        // Which then also get called from the backlog
-        // 1
-        current = ell.next();
-        assertEquals(new Long(1L), current.getEntityId());
-        assertFalse(ell.addEventLog(Dataset.class, 2L));
-        assertFalse(ell.addEventLog(Dataset.class, 3L));
-        assertFalse(ell.addEventLog(Image.class, 4L));
-        assertFalse(ell.addEventLog(Image.class, 5L));
-        // 4
-        current = ell.next();
-        assertEquals(new Long(5L), current.getEntityId());
-        assertFalse(ell.addEventLog(Dataset.class, 3L));
-        assertFalse(ell.addEventLog(Project.class, 1L));
-
-        // Continue with the main list (empty backlog)
-        current = ell.next();
-        assertEquals(new Long(4L), current.getEntityId());
-        assertTrue(ell.addEventLog(Project.class, 1L));
-        assertTrue(ell.addEventLog(Dataset.class, 2L));
-
-        // Processing backlog
-        // 1
-        current = ell.next();
-        assertEquals(new Long(1L), current.getEntityId());
-        assertFalse(ell.addEventLog(Dataset.class, 2L));
-        assertFalse(ell.addEventLog(Dataset.class, 3L));
-        assertFalse(ell.addEventLog(Image.class, 4L));
-        assertFalse(ell.addEventLog(Image.class, 5L));
-        // 2
-        current = ell.next();
-        assertEquals(new Long(2L), current.getEntityId());
-        assertFalse(ell.addEventLog(Image.class, 4L));
-        assertFalse(ell.addEventLog(Project.class, 1L));
-
-        // Back to main list (last item)
-        current = ell.next();
-        assertEquals(new Long(5L), current.getEntityId());
-        assertTrue(ell.addEventLog(Project.class, 1L));
-        assertTrue(ell.addEventLog(Dataset.class, 3L));
-
-        // Processing backlog
-        // 1
-        current = ell.next();
-        assertEquals(new Long(1L), current.getEntityId());
-        assertFalse(ell.addEventLog(Dataset.class, 2L));
-        assertFalse(ell.addEventLog(Dataset.class, 3L));
-        assertFalse(ell.addEventLog(Image.class, 4L));
-        assertFalse(ell.addEventLog(Image.class, 5L));
-        // 3
-        current = ell.next();
-        assertEquals(new Long(3L), current.getEntityId());
-        assertFalse(ell.addEventLog(Image.class, 5L));
-        assertFalse(ell.addEventLog(Project.class, 1L));
-
-        // Now we should be finished
+        // end loop
         assertFalse(ell.hasNext());
+
+        //
+        // FLUSH : lots of things get added (only once)
+        //
+        assertTrue(ell.addEventLog(Project.class, 1L));
+        assertTrue(ell.addEventLog(Dataset.class, 2L));
+        assertTrue(ell.addEventLog(Dataset.class, 3L));
+        assertTrue(ell.addEventLog(Image.class, 4L));
+        assertTrue(ell.addEventLog(Image.class, 5L));
+        assertFalse(ell.addEventLog(Project.class, 1L));
+        assertFalse(ell.addEventLog(Dataset.class, 2L));
+        assertFalse(ell.addEventLog(Dataset.class, 3L));
+        assertFalse(ell.addEventLog(Image.class, 4L));
+        assertFalse(ell.addEventLog(Image.class, 5L));
+
+        //
+        // BACKLOG
+        //
+        assertTrue(ell.hasNext());
+        current = ell.next();
+        assertEquals(new Long(1L), current.getEntityId());
+        current = ell.next();
+        assertEquals(new Long(2L), current.getEntityId());
+        current = ell.next();
+        assertEquals(new Long(3L), current.getEntityId());
+        current = ell.next();
+        assertEquals(new Long(4L), current.getEntityId());
+        current = ell.next();
+        assertEquals(new Long(5L), current.getEntityId());
+        // end loop
+        assertFalse(ell.hasNext());
+
+        //
+        // FLUSH BACKLOG : nothing can be added
+        //
+        assertFalse(ell.addEventLog(Project.class, 1L));
+        assertFalse(ell.addEventLog(Dataset.class, 2L));
+        assertFalse(ell.addEventLog(Dataset.class, 3L));
+        assertFalse(ell.addEventLog(Image.class, 4L));
+        assertFalse(ell.addEventLog(Image.class, 5L));
+
+        assertFalse(ell.hasNext());
+        assertFalse(ell.hasNext());
+        assertFalse(ell.hasNext());
+
     }
 
     // ======================================================

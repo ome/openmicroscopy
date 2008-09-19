@@ -85,6 +85,7 @@ public class EventBacklogTest extends MockObjectTestCase {
 
         // Once it is emptied, we should be able to fill it up again.
         assertNull(b.remove());
+        b.flipState();
         assertTrue(b.add(currentIndex));
         assertTrue(b.add(reindexed1));
         assertTrue(b.add(reindexed2));
@@ -97,6 +98,7 @@ public class EventBacklogTest extends MockObjectTestCase {
         assertNotNull(b.remove());
         assertFalse(b.add(currentIndex));
         assertNull(b.remove());
+        b.flipState();
         assertTrue(b.add(currentIndex));
     }
 }

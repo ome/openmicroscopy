@@ -98,29 +98,46 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
     }
 
     /**
-     * Tests for available objects. If {@link #count} is 0, calls
-     * {@link #query()} to load a new {@link #eventLog}. Otherwise, just tests
-     * that field for null.
+     * Tests for available objects. If {@link #count} is -1, then this batch has
+     * ended (set in {@link #next()}) and false will be returned,
+     * {@link EventBacklog} will be ready to be switched over to an "adding"
+     * state if empty, and{@link #count} is also reset so further calls can
+     * finish normally; otherwise {@link #query()} is called to load a new
+     * {@link #eventLog}. Otherwise, just tests that field for null.
      */
     public boolean hasNext() {
-        if (count == -1) {
+
+        // If we have an event log, we always return true so that we always
+        // have a clean slate. (And it's simply being honest)
+        if (eventLog != null) {
+            return true;
+        }
+
+        // If this is the first call in a batch, give the backlog a chance
+        // to make this a backlog (removing-only) batch;
+        if (count == 0) {
+            backlog.flipState();
+        }
+
+        // If we've done this enough, then bail out.
+        if (count == batchSize) {
             count = 0;
             return false;
         }
+        count++;
 
         // Do what we can to load an event log
-        if (eventLog == null) {
+        if (backlog.removingOnly()) {
             eventLog = backlog.remove();
-            if (eventLog == null) {
-                eventLog = query();
-                if (eventLog == null) {
-                    // Can't do anything
-                    return false;
-                }
-            }
+        } else {
+            eventLog = query();
         }
 
-        return true;
+        boolean endBatch = eventLog == null;
+        if (endBatch) {
+            count = 0;
+        }
+        return !endBatch;
     }
 
     /**
@@ -133,14 +150,6 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
         // Consumer should have checked with hasNext
         if (!hasNext()) {
             throw new NoSuchElementException();
-        }
-
-        // Here we increment the number of times that this method has
-        // successfully been entered. If we've reached batchSize, then set
-        // to -1 to signal to {@link #hasNext()} that a batch is over.
-        count++;
-        if (count == batchSize) {
-            count = -1;
         }
 
         // already loaded by call to hasNext() above

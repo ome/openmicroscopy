@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
  * state. A newly created {@link EventBacklog} is in the adding state. The
  * popping state is entered the first time that {@link #remove()} is called. And
  * the adding state will only be re-entered, once {@link #remove()} has returned
- * null.
+ * null and {@link #flipIfEmpty()} has been invoked at the end of a batch.
  * 
  * All calls to {@link #add(EventLog)} while in the popping state will return
  * false.
@@ -115,7 +115,6 @@ public class EventBacklog {
 
         if (logs.size() == 0) {
             contained.clear();
-            adding = true;
             return null; // EARLY EXIT
         }
 
@@ -137,4 +136,25 @@ public class EventBacklog {
         return log;
     }
 
+    /**
+     * Flips the {@link EventBacklog} to the "adding" state if it is empty,
+     * otherwise to the "removing" state. This is necessary since the indexing
+     * happens only at flush time in the {@link FullTextIndexer}. This
+     * restriction means in any one batch only either backlog or new event logs
+     * will be processed.
+     * 
+     * @see EventLogLoader#hasNext()
+     */
+    public synchronized void flipState() {
+        adding = (logs.size() == 0);
+    }
+
+    /**
+     * Check the current state of the {@link EventBacklog}. If in the
+     * "removingOnly" state, then any calls to {@link #add(EventLog)} will
+     * return false.
+     */
+    public synchronized boolean removingOnly() {
+        return !adding;
+    }
 }
