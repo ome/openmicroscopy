@@ -143,13 +143,8 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
             count = -1;
         }
 
-        EventLog rv = backlog.remove();
-        if (rv != null) {
-            return rv; // EARLY EXIT !!
-        }
-
         // already loaded by call to hasNext() above
-        rv = eventLog;
+        EventLog rv = eventLog;
         eventLog = null;
         return rv;
 

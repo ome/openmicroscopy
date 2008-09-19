@@ -122,7 +122,7 @@ public class EventBacklog {
         adding = false;
         EventLog log = logs.remove(0);
 
-        // None of these can be null as long as the log is stil contained
+        // None of these can be null as long as the log is still contained
         Map<String, Set<String>> class2action = contained
                 .get(log.getEntityId());
         Set<String> actions = class2action.get(log.getEntityType());
