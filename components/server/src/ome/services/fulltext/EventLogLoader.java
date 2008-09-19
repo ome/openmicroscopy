@@ -230,9 +230,6 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
             for (IObject obj : rm.objects) {
                 Class trueClass = Utils.trueClass(obj.getClass());
                 addEventLog(trueClass, obj.getId());
-                if (log.isInfoEnabled()) {
-                    log.info("Added to backlog:" + obj);
-                }
             }
         }
     }

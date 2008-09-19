@@ -16,6 +16,9 @@ import java.util.Set;
 
 import ome.model.meta.EventLog;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Thread-safe java.util-like Container for storing {@link EventLog} instances
  * for later parsing. This container, however, will not add more than two
@@ -34,6 +37,8 @@ import ome.model.meta.EventLog;
  * @since 3.0-Beta3.1
  */
 public class EventBacklog {
+
+    final private static Log logger = LogFactory.getLog(EventBacklog.class);
 
     final Map<Long, Map<String, Set<String>>> contained = new HashMap<Long, Map<String, Set<String>>>();
 
@@ -54,6 +59,10 @@ public class EventBacklog {
     public synchronized boolean add(EventLog log) {
 
         if (!adding) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Backlog locked:" + log.getEntityType() + ":Id_"
+                        + log.getEntityId());
+            }
             return false;
         }
 
@@ -79,10 +88,18 @@ public class EventBacklog {
 
         boolean contained = actions.contains(log.getAction());
         if (contained) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Already in backlog:" + log.getEntityType()
+                        + ":Id_" + log.getEntityId());
+            }
             return false;
         } else {
             actions.add(log.getAction());
             logs.add(log);
+            if (logger.isInfoEnabled()) {
+                logger.info("Added to backlog:" + log.getEntityType() + ":Id_"
+                        + log.getEntityId());
+            }
             return true;
         }
     }

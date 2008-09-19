@@ -10,6 +10,7 @@ package ome.services.fulltext;
 import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -204,15 +205,7 @@ public abstract class BridgeHelper implements FieldBridge,
      * asynchronously.
      */
     protected <T extends IObject> void reindex(T object) {
-        if (publisher == null) {
-            throw new ApiUsageException(
-                    "Bridge is not configured for sending messages.");
-        }
-        if (object == null || object.getId() == null) {
-            throw new ApiUsageException("Object cannot be null");
-        }
-        final ReindexMessage<T> rm = new ReindexMessage<T>(this, object);
-        publisher.publishEvent(rm);
+        reindexAll(Collections.singletonList(object));
     }
 
     /**
@@ -223,6 +216,11 @@ public abstract class BridgeHelper implements FieldBridge,
         if (publisher == null) {
             throw new ApiUsageException(
                     "Bridge is not configured for sending messages.");
+        }
+        for (T object : list) {
+            if (object == null || object.getId() == null) {
+                throw new ApiUsageException("Object cannot be null");
+            }
         }
         final ReindexMessage<T> rm = new ReindexMessage<T>(this, list);
         publisher.publishEvent(rm);

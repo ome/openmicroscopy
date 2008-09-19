@@ -26,11 +26,6 @@ public class ReindexMessage<T extends IObject> extends InternalMessage {
 
     final public List<T> objects = new ArrayList<T>();
 
-    public ReindexMessage(Object source, T object) {
-        super(source);
-        objects.add(object);
-    }
-
     public ReindexMessage(Object source, List<T> list) {
         super(source);
         objects.addAll(list);
