@@ -74,10 +74,16 @@ public interface MetadataViewer
 	public static final String	EXPERIMENTER_UPDATED_PROPERTY = 
 		                                                "experimenterUpdated";
 	
-	/** Inidicates to layout all the components vertically. */
+	/**
+	 * Bound property indicating that parents of the currently edited objects
+	 * are loaded.
+	 */
+	public static final String	LOADING_PARENTS_PROPERTY = "loadingParents";
+	
+	/** Indicates to layout all the components vertically. */
 	public static final int		VERTICAL_LAYOUT = 0;
 	
-	/** Inidicates to layout all the components vertically. */
+	/** Indicates to layout all the components vertically. */
 	public static final int		GRID_LAYOUT = 1;
 	
 	/** 
@@ -264,8 +270,17 @@ public interface MetadataViewer
 	 */
 	public void onExperimenterUpdated(ExperimenterData data);
 
-	public void loadParents(StructuredDataResults data);
+	/**
+	 * Loads the containers hosting the currently edited object.
+	 */
+	public void loadParents();
 	
-	public void setParents(StructuredDataResults data);
+	/**
+	 * Returns the metadata linked to the currently edited object
+	 * or <code>null</code> if not loaded.
+	 * 
+	 * @return See above.
+	 */
+	public StructuredDataResults getStructuredData();
 	
 }

@@ -42,6 +42,7 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -98,9 +99,6 @@ class EditorModel
 	
 	/** Reference to the component that embeds this model. */
 	private Editor					component;
-
-	/** The object hosting the various annotations linked to an object. */
-	private StructuredDataResults	data;
 	
 	/** The object this editor later. */
 	private Object					refObject;
@@ -426,6 +424,7 @@ class EditorModel
 	 */
 	Collection getUrls()
 	{ 
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		return data.getUrls(); 
 	}
@@ -449,6 +448,7 @@ class EditorModel
 	 */
 	Collection getTags()
 	{ 
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		Collection tags = data.getTags();
 		if (tags == null || tags.size() == 0) return tags;
@@ -474,6 +474,7 @@ class EditorModel
 	 */
 	Collection getAttachments()
 	{ 
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		return data.getAttachments(); 
 	}
@@ -497,6 +498,7 @@ class EditorModel
 	 */
 	Collection getViewedBy()
 	{ 
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		Collection l = data.getViewedBy(); 
 		if (l == null) return null;
@@ -519,6 +521,7 @@ class EditorModel
 	 */
 	int getRatingCount()
 	{
+		StructuredDataResults data = parent.getStructuredData();
 		Collection ratings = data.getRatings();
 		if (ratings == null) return 0;
 		return ratings.size();
@@ -531,6 +534,7 @@ class EditorModel
 	 */
 	int getUserRating()
 	{
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return 0;
 		Collection ratings = data.getRatings();
 		if (ratings == null || ratings.size() == 0) return 0;
@@ -552,6 +556,7 @@ class EditorModel
 	 */
 	int getRatingAverage() 
 	{
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return 0;
 		Collection ratings = data.getRatings();
 		if (ratings == null || ratings.size() == 0) return 0;
@@ -584,6 +589,7 @@ class EditorModel
 	 */
 	Collection getTextualAnnotations()
 	{
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
 		return data.getTextualAnnotations();
 	}
@@ -662,16 +668,6 @@ class EditorModel
 		*/
         return textualAnnotationsByUsers;
 	}
-	
-	/**
-	 * Sets the structured data.
-	 * 
-	 * @param data The value to set.
-	 */
-	void setStructuredDataResults(StructuredDataResults data)
-	{
-		this.data = data;
-	}
 
 	/** 
 	 * Sets the object of reference.
@@ -685,7 +681,6 @@ class EditorModel
 		existingTags = null;
 		textualAnnotationsByUsers = null;
 		textualAnnotationsByDate = null;
-		data = null;
 	    existingAttachments = null;
 	    existingURLs = null;
 	    emissionsWavelengths = null;
@@ -1044,6 +1039,7 @@ class EditorModel
 	 */
 	boolean isArchived()
 	{ 
+		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return false;
 		return data.isArchived(); 
 	}
@@ -1126,11 +1122,13 @@ class EditorModel
 		return MetadataViewerAgent.getExperimenter(id);
 	}
 
-	void loadParents()
-	{
-		if (data == null) return;
-		if (data.getParents() != null) return;
-		parent.loadParents(data);
-	}
+	/**
+	 * Fires an asynchronous retrieval of containers hosting the currently
+	 * edited object. 
+	 */
+	void loadParents() { parent.loadParents(); }
+	
+	/** Cancels any ongoing parents retrieval. */
+	void cancelParentsLoading() {  }
 	
 }

@@ -124,15 +124,5 @@ public interface Browser
 	 * @param parents	Collection of parents to display.
 	 */
 	public void setParents(TreeBrowserDisplay node, Collection parents);
-
-	/**
-	 * Converts the results into the corresponding UI components.
-	 * and adds them to the display.
-	 * 
-	 * @param node		The node to handle. Mustn't be <code>null</code>.
-	 * @param results	The results to handle.
-	 */
-	public void setStructuredDataResults(TreeBrowserDisplay node,
-										StructuredDataResults results);
 	
 }

@@ -264,9 +264,7 @@ class MetadataViewerModel
 		Object uo = refNode.getUserObject();
 		if (!(uo instanceof DataObject)) return;
 		
-		if (uo instanceof ExperimenterData) {
-			return;
-		}
+		if (uo instanceof ExperimenterData) return;
 		cancel(refNode);
 		StructuredDataLoader loader = new StructuredDataLoader(component, 
 								refNode, (DataObject) uo);
@@ -351,6 +349,13 @@ class MetadataViewerModel
 	}
 	
 	/**
+	 * Returns the structured data.
+	 * 
+	 * @return See above.
+	 */
+	StructuredDataResults getStructuredData() { return data; }
+	
+	/**
 	 * Returns <code>true</code> if the imported set of pixels has been 
 	 * archived, <code>false</code> otherwise.
 	 * 
@@ -423,9 +428,17 @@ class MetadataViewerModel
 	 */
 	void setState(int state) { this.state = state; }
 
-	void loadParents(StructuredDataResults data2) {
-		// TODO Auto-generated method stub
-		
+	/**
+	 * Starts an asynchronous retrieval of the containers hosting the 
+	 * currently edited object.
+	 * 
+	 * @param type  The type of the edited object.
+	 * @param id 	The id of the currently edited oject.
+	 */
+	void loadParents(Class type, long id)
+	{
+		ContainersLoader loader = new ContainersLoader(component, type, id);
+		loader.load();
 	}
 	
 }

@@ -59,7 +59,7 @@ public class BrowserFactory
     	BrowserModel model = new BrowserModel(refObject, parent);
     	BrowserComponent component = new BrowserComponent(model);
     	model.initialize(component);
-    	component.initialize();
+    	component.initialize(parent);
     	return component;
     }
     

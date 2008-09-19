@@ -183,11 +183,10 @@ class MetadataViewerComponent
 		if (refObject == userObject) {
 			Browser browser = model.getBrowser();
 			if (result instanceof StructuredDataResults) {
-				browser.setStructuredDataResults(node, 
-												(StructuredDataResults) result);
-				model.getEditor().setStructuredDataResults( 
-									(StructuredDataResults) result);
 				model.setStructuredDataResults((StructuredDataResults) result);
+				browser.setParents(node, 
+						model.getStructuredData().getParents());
+				model.getEditor().setStructuredDataResults();
 				view.setOnScreen();
 				return;
 			}
@@ -269,7 +268,11 @@ class MetadataViewerComponent
 	public void setContainers(TreeBrowserDisplay node, Object result)
 	{
 		Browser browser = model.getBrowser();
-		browser.setParents((TreeBrowserSet) node, (Collection) result);
+		if (node == null) {
+			model.getStructuredData().setParents((Collection) result);
+			browser.setParents(null, (Collection) result);
+		} else
+			browser.setParents((TreeBrowserSet) node, (Collection) result);
 	}
 
 	/** 
@@ -529,17 +532,25 @@ class MetadataViewerComponent
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#loadParents(StructuredDataResults)
 	 */
-	public void loadParents(StructuredDataResults data)
+	public void loadParents()
 	{
+		StructuredDataResults data = model.getStructuredData();
 		if (data == null) return;
 		if (data.getParents() != null) return;
-		model.loadParents(data);
+		Object ho = data.getRelatedObject();
+		model.loadParents(ho.getClass(), ((DataObject) ho).getId());
+		firePropertyChange(LOADING_PARENTS_PROPERTY, Boolean.FALSE, 
+				Boolean.TRUE);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link MetadataViewer} interface.
+	 * @see MetadataViewer#getStructuredData()
+	 */
+	public StructuredDataResults getStructuredData()
+	{
+		//TODO: Check state
+		return model.getStructuredData();
 	}
 	
-	public void setParents(StructuredDataResults data) 
-	{
-		if (data == null) return;
-		Browser browser = model.getBrowser();
-		//browser.setStructuredDataResults(data);
-	}
 }

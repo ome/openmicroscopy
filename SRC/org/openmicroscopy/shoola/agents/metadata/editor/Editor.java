@@ -60,12 +60,8 @@ public interface Editor
 	/** Inidicates to layout all the components vertically. */
 	public static final int	GRID_LAYOUT = MetadataViewer.GRID_LAYOUT;;
 	
-	/**
-	 * Feeds the metadata back to the editor.
-	 * 
-	 * @param result	The result to feed back.
-	 */
-	public void setStructuredDataResults(StructuredDataResults result);
+	/** Feeds the metadata back to the editor. */
+	public void setStructuredDataResults();
 	
 	/**
 	 * Returns the View.
@@ -180,5 +176,8 @@ public interface Editor
 	 * 					<code>false</code> otherwise.
 	 */
 	public void setSelectionMode(boolean single);
+
+	/** Loads the container hosting the currently edited object. */
+	public void loadParents();
 	
 }

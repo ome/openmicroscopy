@@ -57,12 +57,11 @@ public class ContainersLoader
 {
 
 	/** Either <code>DatasetData</code> or <code>ProjectData</code>. */
-	private Class		type;
+	private Class					type;
 	
 	/** The ID of the parent of the {@link #refNode}. */
-	private long 		id;
-	
-	private StructuredDataResults data;
+	private long 					id;
+
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -89,16 +88,16 @@ public class ContainersLoader
 	 * 
 	 * @param viewer The viewer this data loader is for.
 	 * 				 Mustn't be <code>null</code>.
-	 * @param data	
+	 * @param type   The data type of the edited object.
+	 * @param id     The id of the currently edited object.	
 	 */
-	public ContainersLoader(MetadataViewer viewer, StructuredDataResults data)
+	public ContainersLoader(MetadataViewer viewer, Class type, long id)
 	{
 		super(viewer, null);
-		if (data == null)
-			throw new IllegalArgumentException("No element to handle.");
-		this.data = data;
-		type = data.getRelatedObject().getClass();
-		id = ((DataObject) data.getRelatedObject()).getId();
+		this.type = type;
+		this.id = id;
+		//type = data.getRelatedObject().getClass();
+		//id = ((DataObject) data.getRelatedObject()).getId();
 	}
 	
 	/** 
@@ -123,11 +122,7 @@ public class ContainersLoader
     public void handleResult(Object result) 
     {
     	if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	if (data == null) 
-    		viewer.setContainers(refNode, result);
-    	else {
-    		data.setParents((Collection) result);
-    	}
+    	viewer.setContainers(refNode, result);
     }
     
 }

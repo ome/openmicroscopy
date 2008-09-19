@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 
 //Java imports
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -43,6 +45,7 @@ import org.openmicroscopy.shoola.agents.events.hiviewer.Browse;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.actions.BrowserAction;
 import org.openmicroscopy.shoola.agents.metadata.actions.CollapseAction;
+import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.DataObject;
@@ -63,6 +66,7 @@ import pojos.ProjectData;
  * @since OME3.0
  */
 class BrowserControl
+	implements PropertyChangeListener
 {
 	
 	/** Identifies the <code>Collapse</code> action. */
@@ -228,6 +232,18 @@ class BrowserControl
     						null);
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
+	}
+
+	/**
+	 * Adds a dummy node to the view when the parents are loaded.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (MetadataViewer.LOADING_PARENTS_PROPERTY.equals(name)) {
+			view.addDefaultNode(BrowserUI.LOADING_MSG);
+		}
 	}
 	
 }

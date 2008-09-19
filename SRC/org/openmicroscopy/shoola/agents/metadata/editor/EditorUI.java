@@ -217,6 +217,18 @@ public class EditorUI
 		}
 		viewedByUI.buildUI();
 	}
+
+	/**
+	 * Loads or cancels any on-going loading of containers hosting
+	 * the edited object.
+	 * 
+	 * @param b Pass <code>true</code> to load, <code>false</code> to cancel.
+	 */
+	private void loadParents(boolean b)
+	{
+		if (b) controller.loadParents();
+		else model.cancelParentsLoading();
+	}
 	
 	/** Initializes the UI components. */
 	private void initComponents()
@@ -231,9 +243,8 @@ public class EditorUI
 			
 				public void propertyChange(PropertyChangeEvent evt) {
 					String name = evt.getPropertyName();
-					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
-						model.loadParents();
-					}
+					if (TreeComponent.EXPANDED_PROPERTY.equals(name)) 
+						loadParents((Boolean) evt.getNewValue());
 				}
 			
 			});

@@ -347,8 +347,18 @@ class BrowserUI
         */
 	}
 	
+	/**
+	 * Creates a dummy loading node whose parent is the specified node.
+	 * 
+	 * @param message	The value of the default node.
+	 */
+    void addDefaultNode(String message)
+    {
+        addDefaultNode(model.getRoot(), message);
+    }
+    
     /**
-     * Creates a dummy loading node whose parent is the specified node.
+     * Creates a dummy loading node to the specified node.
      * 
      * @param node 		The parent of the default node.
      * @param message	The value of the default node.

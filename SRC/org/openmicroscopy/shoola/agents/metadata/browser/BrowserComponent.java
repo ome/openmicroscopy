@@ -33,9 +33,8 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
+import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -86,10 +85,15 @@ class BrowserComponent
 		controller = new BrowserControl();
 	}
 	
-	/** Links up the MVC triad. */
-	void initialize()
+	/** 
+	 * Links up the MVC triad. 
+	 * 
+	 * @param comp The component to register.
+	 */
+	void initialize(ObservableComponent comp)
 	{
 		controller.initialize(this, view);
+		comp.addPropertyChangeListener(controller);
 		view.initialize(model, controller);
 	}
 	
@@ -170,8 +174,8 @@ class BrowserComponent
 	 */
 	public void setParents(TreeBrowserDisplay node, Collection parents)
 	{
-		if (node == null) 
-			throw new IllegalArgumentException("No node to handle.");
+		if (node == null) node = model.getRoot();
+		//	throw new IllegalArgumentException("No node to handle.");
 		if (parents == null || parents.size() == 0) {
 			view.addDefaultNode(node, BrowserUI.NO_PARENTS_MSG);
 			return;
@@ -188,25 +192,6 @@ class BrowserComponent
 			else nodes.add(new TreeBrowserSet(uo));
 		}
 		view.setNodes(node, nodes);
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#setStructuredDataResults(TreeBrowserDisplay, 
-	 * 										StructuredDataResults)
-	 */
-	public void setStructuredDataResults(TreeBrowserDisplay node, 
-				StructuredDataResults results)
-	{
-		if (node == null) 
-			throw new IllegalArgumentException("No node to handle.");
-		Object userObject = node.getUserObject();
-		if (userObject != results.getRelatedObject()) return;
-		if (results == null) {
-			return;
-		}
-		//parents
-		setParents(node, results.getParents());
 	}
 	
 }

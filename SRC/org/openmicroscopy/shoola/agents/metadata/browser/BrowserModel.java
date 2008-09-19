@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 //Java imports
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
+import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 
 
 /** 
@@ -60,6 +62,9 @@ class BrowserModel
 	
 	/** The parent of this browser. */
 	private  MetadataViewer 			parent;
+	
+	/** The UI object hosting the edited root object. */
+	private TreeBrowserSet				root;
 	
 	/** Reference to the component that embeds this model. */
 	private Browser 					component;
@@ -137,9 +142,9 @@ class BrowserModel
 	void setRootObject(Object refObject)
 	{
 		selectedNodes.clear();
-		TreeBrowserSet node = new TreeBrowserSet(refObject);
-		selectedNodes.add(node);
-		parent.loadMetadata(node);
+		root = new TreeBrowserSet(refObject);
+		selectedNodes.add(root);
+		parent.loadMetadata(root);
 	}
 
 	/**
@@ -158,5 +163,12 @@ class BrowserModel
 	{
 		parent.loadContainers(node);
 	}
-	
+
+	/**
+	 * Returns the UI object hosting the edited object.
+	 * 
+	 * @return See above.
+	 */
+	TreeBrowserSet getRoot() { return root; }
+
 }

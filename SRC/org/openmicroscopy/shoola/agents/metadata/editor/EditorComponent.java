@@ -110,12 +110,10 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Editor#setStructuredDataResults(StructuredDataResults)
+	 * @see Editor#setStructuredDataResults()
 	 */
-	public void setStructuredDataResults(StructuredDataResults result)
+	public void setStructuredDataResults()
 	{
-		if (result == null) return;
-		model.setStructuredDataResults(result);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.layoutUI();
 	}
@@ -303,6 +301,15 @@ class EditorComponent
 	public void setSelectionMode(boolean single)
 	{
 		view.setSelectionMode(single);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Editor#loadParents()
+	 */
+	public void loadParents()
+	{
+		model.loadParents();
 	}
 	
 }

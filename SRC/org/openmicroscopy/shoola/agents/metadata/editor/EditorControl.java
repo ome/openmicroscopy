@@ -80,6 +80,12 @@ class EditorControl
 	/** Displays the image info. */
 	void showImageInfo() { model.showImageInfo(); }
 	
+	/** 
+	 * Loads the container hosting the currently edited object,
+	 * forwards call to the model. 
+	 */
+	void loadParents() { model.loadParents(); }
+	
 	/**
 	 * Reacts to property change.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
