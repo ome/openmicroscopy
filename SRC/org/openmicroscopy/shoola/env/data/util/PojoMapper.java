@@ -40,6 +40,7 @@ import ome.model.annotations.FileAnnotation;
 import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.annotations.TextAnnotation;
+import ome.model.annotations.TimestampAnnotation;
 import ome.model.annotations.UrlAnnotation;
 import ome.model.containers.Category;
 import ome.model.containers.CategoryGroup;
@@ -71,6 +72,7 @@ import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.TimeAnnotationData;
 import pojos.URLAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -146,7 +148,9 @@ public class PojoMapper
         	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ann.getNs()))
         		return new ArchivedAnnotationData(ann);
         	return new BooleanAnnotationData(ann);
-        } else if (object instanceof Pixels) 
+        }  else if (object instanceof TimestampAnnotation) 
+        	return new TimeAnnotationData((TimestampAnnotation) object);
+        else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
         else if (object instanceof Experimenter) 
         	return new ExperimenterData((Experimenter) object); 
