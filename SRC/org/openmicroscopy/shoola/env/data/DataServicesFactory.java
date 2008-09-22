@@ -121,7 +121,6 @@ public class DataServicesFactory
 		container = c;
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
         omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
-        //System.err.println(omeroGateway.isUpgradeRequired());
 		//Create the adapters.
         ds = new OmeroDataServiceImpl(omeroGateway, registry);
         is = new OmeroImageServiceImpl(omeroGateway, registry);

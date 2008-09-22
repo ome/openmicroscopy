@@ -1381,9 +1381,9 @@ class ImViewerComponent
 
 		try {
 
-			for (int k = 0; k < model.getMaxC(); k++) {
+			for (int k = 0; k < model.getMaxC(); k++) 
 				model.setChannelActive(k, k == index);
-			}
+			
 			image = model.getSplitComponentImage();
 			List active = model.getActiveChannels();
 			Iterator i = active.iterator();
@@ -1391,7 +1391,6 @@ class ImViewerComponent
 				index = ((Integer) i.next()).intValue();
 				model.setChannelActive(index, true);
 			}
-
 
 		} catch (Exception ex) {
 			reload(ex);
@@ -1716,9 +1715,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#reload(Exception)
+	 * @see ImViewer#reload(Throwable)
 	 */
-	public void reload(Exception e)
+	public void reload(Throwable e)
 	{
 		Logger logger = ImViewerAgent.getRegistry().getLogger();
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();

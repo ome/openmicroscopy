@@ -544,14 +544,11 @@ class ImViewerModel
 		pDef.setZ(getDefaultZ());
 		//state = ImViewer.LOADING_IMAGE;
 		try {
-			//component.setImage(os.renderImage(pixelsID, pDef));
 			return currentRndControl.renderPlane(pDef);
 		} catch (Exception e) {
 			component.reload(e);
 		}
 		return null;
-		//OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
-		//return os.renderImage(pixelsID, pDef);
 	}
 
 	/**
