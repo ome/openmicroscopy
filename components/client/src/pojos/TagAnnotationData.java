@@ -40,7 +40,7 @@ import ome.model.core.Image;
 import ome.util.CBlock;
 
 /** 
- * A tag annotaion can either be related to an image or a tag
+ * A tag annotation can either be related to an image or a tag
  * but not to both at the same time.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
