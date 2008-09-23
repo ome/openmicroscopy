@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import ome.api.IAdmin;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
@@ -59,25 +60,66 @@ public class ManagedContextFixture {
         setCurrentUser(user);
     }
 
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         managedSf = null;
         ctx.close();
     }
+
+    // UTILITIES
+    // =========================================================================
 
     public String uuid() {
         return UUID.randomUUID().toString();
     }
 
+    // LOGIN / PERMISSIONS
+    // =========================================================================
+
+    /**
+     * Create a new user in the "default" group
+     */
     public String newUser() {
+        return newUser("default");
+    }
+
+    /**
+     * Create a new user in the given group
+     */
+    public String newUser(String group) {
+        IAdmin admin = managedSf.getAdminService();
         Experimenter e = new Experimenter();
         String uuid = uuid();
         e.setOmeName(uuid);
         e.setFirstName("managed");
         e.setMiddleName("context");
         e.setLastName("test");
-        IAdmin admin = managedSf.getAdminService();
-        admin.createUser(e, "default");
+        admin.createUser(e, group);
         return uuid;
+    }
+
+    /**
+     * Create a new user in the "default" group and login.
+     */
+    public String loginNewUserDefaultGroup() {
+        String user = newUser();
+        setCurrentUser(user);
+        return user;
+    }
+
+    /**
+     * Login a new user into a new group and return
+     * 
+     * @return
+     */
+    public String loginNewUserNewGroup() {
+        IAdmin admin = managedSf.getAdminService();
+        String groupName = uuid();
+        ExperimenterGroup g = new ExperimenterGroup();
+        g.setName(groupName);
+        admin.createGroup(g);
+        String name = newUser(groupName);
+        setCurrentUser(name);
+        return name;
     }
 
     public String getCurrentUser() {
@@ -90,5 +132,9 @@ public class ManagedContextFixture {
         Session s = mgr.create(p);
         p = new Principal(s.getUuid(), "user", "Test");
         login.p = p;
+    }
+
+    public Principal getPrincipal() {
+        return login.p;
     }
 }

@@ -205,6 +205,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return this.adapter;
     }
 
+    public Principal getPrincipal() {
+        return this.principal;
+    }
+
+    public Executor getExecutor() {
+        return this.executor;
+    }
+
     // ~ Stateless
     // =========================================================================
 
