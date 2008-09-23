@@ -62,7 +62,7 @@ public class ConfigConstants {
 	 * "splash-screen" is displayed, to check that this is the "current" version.
 	 * 
 	 */
-	public static final String EDITOR_VERSION_NUMBER = "3.0-3.0.1";
+	public static final String EDITOR_VERSION_NUMBER = "3.0-3.1";
 	/**
 	 * This is an identifier, eg. for Exception handler's bug reporter.
 	 * It consists of the EDITOR_VERSION_NUMBER, as well as any release candidate id,
@@ -70,6 +70,6 @@ public class ConfigConstants {
 	 * For the Milestone releases, the editor release Id will be the same as 
 	 * the EDITOR_VERSION_NUMBER.
 	 */
-	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "";
+	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "rc1";
 
 }
