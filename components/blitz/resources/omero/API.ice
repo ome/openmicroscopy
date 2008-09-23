@@ -412,6 +412,7 @@ module omero {
 	    idempotent long getTimepointOffset(int t) throws ServerError;
 	    idempotent Ice::ByteSeq getRegion(int size, long offset) throws ServerError;
 	    idempotent Ice::ByteSeq getRow(int y, int z, int c, int t) throws ServerError;
+	    idempotent Ice::ByteSeq getCol(int x, int z, int c, int t) throws ServerError;
 	    idempotent Ice::ByteSeq getPlane(int z, int c, int t) throws ServerError;
 	    idempotent Ice::ByteSeq getPlaneRegion(int z, int c, int t, int size, int offset) throws ServerError;
 	    idempotent Ice::ByteSeq getStack(int c, int t) throws ServerError;

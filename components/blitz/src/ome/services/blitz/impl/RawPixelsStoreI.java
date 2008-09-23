@@ -12,6 +12,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
+import omero.api.AMD_RawPixelsStore_getCol;
 import omero.api.AMD_RawPixelsStore_getPlane;
 import omero.api.AMD_RawPixelsStore_getPlaneOffset;
 import omero.api.AMD_RawPixelsStore_getPlaneRegion;
@@ -221,6 +222,13 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
             AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current);
+
+    }
+
+    public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,
+            int c, int t, Current __current) throws ServerError
+    {
+        callInvokerOnRawArgs(__cb, __current, x, z, c, t);
 
     }
 
