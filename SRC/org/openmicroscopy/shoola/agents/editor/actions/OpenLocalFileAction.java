@@ -93,7 +93,7 @@ public class OpenLocalFileAction
    public void actionPerformed(ActionEvent e) 
    {
 	   FileChooser chooser = new FileChooser(null, FileChooser.LOAD, 
-				"Browse File", "Attach a file to the selected element", 
+				"Open File", "Choose a file to open in the Editor", 
 				filters);
 		chooser.addPropertyChangeListener(
 				FileChooser.APPROVE_SELECTION_PROPERTY, this);

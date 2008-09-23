@@ -125,6 +125,21 @@ public class TreeModelMethods {
 		}
 	}
 	
+	/**
+	 * Sets the selected nodes in the tree.
+	 * Delegates to {@link #selectNodes(List, JTree)}
+	 * 
+	 * @param nodes		The List of nodes to select	
+	 * @param tree		The JTree in which these nodes exist
+	 */
+	public static void selectDNodes(List<DefaultMutableTreeNode> nodes, JTree tree) 
+	{
+		ArrayList<MutableTreeNode> mtNodes = new ArrayList<MutableTreeNode>();
+		for (MutableTreeNode node : nodes) {
+			mtNodes.add(node);
+		}
+		selectNodes(mtNodes, tree);
+	}
 	
 	/**
 	 * Set the selected node in the JTree, and scroll to visible.
@@ -171,6 +186,107 @@ public class TreeModelMethods {
 			
 			duplicateNode(child, newChild);
 		}
+	}
+	
+	/**
+	 * This method 'indents' the nodes to the right, by
+	 * making them all children of the first node's previous sibling. 
+	 * It is intended that all the nodes
+	 * in the list are contiguous siblings. 
+	 * If the first node has no previous sibling, nothing happens. 
+	 * 
+	 * @param nodes		The list of nodes to move.
+	 * @param treeModel		The treeModel being edited. Will notify JTree of update
+	 * 
+	 */
+	public static void indentNodesRight(List<DefaultMutableTreeNode> nodes,
+			DefaultTreeModel treeModel)
+	{
+		if (nodes == null)		return;
+		if (nodes.isEmpty())	return;
+		
+		DefaultMutableTreeNode firstNode = nodes.get(0);
+		
+		// fields need to become children of their preceding sibling 
+		DefaultMutableTreeNode previousSibling = firstNode.getPreviousSibling();
+		
+		// if no previous sibling, can't indent
+		if (previousSibling == null) return;
+		
+		// move each node to be a child of the previous sibling
+		for (DefaultMutableTreeNode node: nodes) {
+			previousSibling.add(node);
+		}
+		treeModel.nodeStructureChanged(previousSibling.getParent());
+	}
+	
+	/**
+	 * Indents nodes to the left in the tree structure (move to a higher level).
+	 * Nodes become siblings of their parent.
+	 * Siblings of the nodes stay at the same level in the tree:
+	 *  - Previous siblings are not moved
+	 *  - Subsequent siblings become children of the last node before it is 
+	 *  	promoted (indented left)
+	 * 
+	 * @param nodes		The list of nodes to indent left (move to a higher 
+	 * 					level in the tree hierarchy). 
+	 * @param treeModel		The treeModel being edited. Will notify JTree of update
+	 */
+	public static void indentNodesLeft(List<DefaultMutableTreeNode> nodes,
+			DefaultTreeModel treeModel) 
+	{
+		if (nodes == null)		return;
+		if (nodes.isEmpty())	return;
+		
+		DefaultMutableTreeNode firstNode = nodes.get(0);
+		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)
+													firstNode.getParent();
+		if (parentNode == null)	return;
+		DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode)
+													parentNode.getParent();
+
+		// if parent is root (grandparent null) then can't promote
+		if (grandParentNode == null)	return;
+		
+		// any fields that are subsequent siblings of the last to be promoted, 
+		// must first become children of that node. 
+		DefaultMutableTreeNode lastNode = nodes.get(nodes.size()-1);
+		DefaultMutableTreeNode lastNodeSibling = lastNode.getNextSibling();
+		while (lastNodeSibling != null) {
+			lastNode.add(lastNodeSibling);
+			lastNodeSibling = lastNode.getNextSibling();
+		}
+		
+		// now you can indent nodes left
+		for (DefaultMutableTreeNode node: nodes) {
+			indentNodeLeft(node);
+		}
+		treeModel.nodeStructureChanged(grandParentNode);
+	}
+	
+	/**
+	 * Indents a single node to the left (one level higher in the tree 
+	 * hierarchy). 
+	 * The node will become the next sibling of it's parent.
+	 * If the node has no grandparent, nothing happens.
+	 * 
+	 * @param node		The node to indent (promote to sibling of it's parent)
+	 * @param treeModel		The treeModel being edited. Will notify JTree of update
+	 */
+	public static void indentNodeLeft(DefaultMutableTreeNode node)
+	{
+		if (node == null)  	return;
+		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)
+												node.getParent();
+		if (parentNode == null)		return;
+		DefaultMutableTreeNode grandParentNode = (DefaultMutableTreeNode)
+													parentNode.getParent();
+		if (grandParentNode == null)		return;
+		
+		int indexOfParent = grandParentNode.getIndex(parentNode);
+		
+		// adds after parent
+		grandParentNode.insert(node, indexOfParent + 1);
 	}
 	
 }

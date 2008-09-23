@@ -45,6 +45,8 @@ import javax.swing.undo.UndoableEditSupport;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.AddFieldAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.DeleteFieldsAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.EditAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentLeftAction;
+import org.openmicroscopy.shoola.agents.editor.browser.actions.IndentRightAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.RedoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.actions.UndoEditAction;
 import org.openmicroscopy.shoola.agents.editor.browser.undo.ObservableUndoManager;
@@ -89,6 +91,12 @@ public class BrowserControl
 	/** Identifies the <code>Add Field</code> action. */
 	static final Integer    DELETE_FIELD_ACTION = new Integer(4);
 	
+	/** Identifies the <code>Indent Right</code> action. */
+	static final Integer    INDENT_RIGHT_ACTION = new Integer(5);
+	
+	/** Identifies the <code>Indent Left</code> action. */
+	static final Integer    INDENT_LEFT_ACTION = new Integer(6);
+	
 	/** 
      * Reference to the {@link Browser} component, which, in this context,
      * is regarded as the Model.
@@ -123,6 +131,10 @@ public class BrowserControl
     		   undoManager, undoSupport, model));
        actionsMap.put(ADD_FIELD_ACTION, new AddFieldAction(undoSupport, model));
        actionsMap.put(DELETE_FIELD_ACTION, new DeleteFieldsAction
+    		   (undoSupport, model));
+       actionsMap.put(INDENT_RIGHT_ACTION, new IndentRightAction
+    		   (undoSupport, model));
+       actionsMap.put(INDENT_LEFT_ACTION, new IndentLeftAction
     		   (undoSupport, model));
     }
     

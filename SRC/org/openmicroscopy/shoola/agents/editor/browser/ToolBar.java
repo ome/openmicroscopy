@@ -78,6 +78,8 @@ public class ToolBar
 		add(createButton(BrowserControl.REDO_ACTION));
 		add(createButton(BrowserControl.ADD_FIELD_ACTION));
 		add(createButton(BrowserControl.DELETE_FIELD_ACTION));
+		add(createButton(BrowserControl.INDENT_LEFT_ACTION));
+		add(createButton(BrowserControl.INDENT_RIGHT_ACTION));
 	}
 	
 	/**

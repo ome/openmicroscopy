@@ -130,10 +130,12 @@ public class DeleteFieldsEdit
 			/*
 			 * Keep a list of references to the Nodes to be deleted
 			 */
+			DefaultMutableTreeNode currentNode;
+			MutableTreeNode parent;
 			for (int i=0; i<selectedPaths.length; i++) {
-				DefaultMutableTreeNode currentNode = (DefaultMutableTreeNode)
+				currentNode = (DefaultMutableTreeNode)
 						selectedPaths[i].getLastPathComponent();
-				MutableTreeNode parent = (MutableTreeNode)(currentNode.getParent());
+				parent = (MutableTreeNode)(currentNode.getParent());
 	            if (parent != null) {
 	                treeModel.removeNodeFromParent(currentNode);
 	            }

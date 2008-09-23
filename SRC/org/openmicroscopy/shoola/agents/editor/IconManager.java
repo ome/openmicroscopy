@@ -223,12 +223,19 @@ public class IconManager
     
     /** The <code>Open Folder</code> icon. */
     public  static int			OPEN_FOLDER = 52;
+
+    /** The <code>Open Folder</code> icon. */
+    public  static int			INDENT_RIGHT = 53;
+    
+    /** The <code>Open Folder</code> icon. */
+    public  static int			INDENT_LEFT = 54;
+    
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 52;
+    private static int          MAX_ID = 54;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -293,6 +300,8 @@ public class IconManager
         relPaths[DELETE_ICON] = "nuvola_cancel16.png";
         relPaths[CONFIGURE_ICON] = "nuvola_package_utilities16.png";
         relPaths[OPEN_FOLDER] = "nuvola_folder_open16.png";
+        relPaths[INDENT_RIGHT] = "nuvola_indent_right16.png";
+        relPaths[INDENT_LEFT] = "nuvola_indent_left16.png";
     }
     
     

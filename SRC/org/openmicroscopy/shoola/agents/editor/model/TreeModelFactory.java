@@ -353,6 +353,9 @@ public class TreeModelFactory
 		param.setAttribute(SingleParam.DEFAULT_VALUE, defaultValue);
 	}
 
+	public static void saveTreeToFile(File file, TreeModel treeModel) {
+		
+	}
 
 	/**
 	 * Creates a TreeModel from a Beta-3.0 OMERO.editor XML document.
