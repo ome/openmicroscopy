@@ -82,7 +82,7 @@ public class TreeOutlineCellRenderer
 			Object object = node.getUserObject();
 			if (object instanceof IField) {
 				IField field = (IField)object;
-				toolTipText = field.getDisplayAttribute(Field.TOOL_TIP_TEXT);
+				toolTipText = field.getToolTipText();
 				
 				if (field.getParamCount() < 1) {
 					//paramIcon = imF.getIcon(ImageFactory.)

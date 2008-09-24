@@ -205,12 +205,32 @@ public class TreeModelFactory
 		 }
 		 
 		 // Create a new field and set it's attributes.
-		 IField field = new Field();
+		 Field field = new Field();
 		 
 		 field.setAttribute(Field.FIELD_NAME, fieldName);
 		 field.setAttribute(Field.FIELD_DESCRIPTION, description);
 		 field.setAttribute(Field.FIELD_URL, url);
 		 field.setAttribute(Field.BACKGROUND_COLOUR, colour);
+		 
+		 // Field lock
+		 String lockLevel = allAttributes.get(DataFieldConstants.LOCK_LEVEL);
+		 if (lockLevel != null) {
+			 String userName = allAttributes.get
+			 		(DataFieldConstants.LOCKED_FIELD_USER_NAME);
+			 int locking;
+			 if (lockLevel.equals(DataFieldConstants.LOCKED_TEMPLATE)) {
+				 locking = Lock.TEMPLATE_LOCKED;
+			 } else {
+				 locking = Lock.FULLY_LOCKED;
+			 }
+			 Lock lock = new Lock(locking, userName);
+			 
+			 String utc = allAttributes.get(DataFieldConstants.LOCKED_FIELD_UTC);
+			 lock.setTimeStamp(utc);
+			 
+			 field.setLock(lock);
+		 }
+		 
 		 
 		 // Field will have 0 or 1 "parameters", depending on type
 		 IParam param = null;

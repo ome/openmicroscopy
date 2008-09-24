@@ -58,8 +58,10 @@ import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ITreeEditComp;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.ParamUIFactory;
 import org.openmicroscopy.shoola.agents.editor.browser.paramUIs.TableEditor;
 import org.openmicroscopy.shoola.agents.editor.model.Field;
+import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
+import org.openmicroscopy.shoola.agents.editor.model.Lock;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
@@ -143,7 +145,7 @@ public class FieldPanel
 	 * A reference to the node represented by this field. 
 	 * Used eg. to set the selected field to this node with undo/redo
 	 */
-	private DefaultMutableTreeNode 	treeNode;
+	private FieldNode			 	treeNode;
 	
 	
 	private JPanel 					contentsPanel;
@@ -232,6 +234,21 @@ public class FieldPanel
 		nameLabel = new CustomLabel();
 		nameLabel.setBackground(null);
 		nameLabel.setOpaque(false);
+		
+		if (field.isFieldLocked()) {
+			Icon lockIcon = null;
+			Lock lock = field.getLock();
+			switch (lock.getLockLevel()) {
+			case Lock.FULLY_LOCKED:
+				lockIcon = iconManager.getIcon(IconManager.FULL_LOCK);
+				break;
+			case Lock.TEMPLATE_LOCKED:
+				lockIcon = iconManager.getIcon(IconManager.TEMPLATE_LOCK);
+				break;
+			}
+			nameLabel.setIcon(lockIcon);
+			nameLabel.setToolTipText(lock.toString());
+		}
 		
 		// A description label displays description below the field.
 		descriptionLabel = new CustomLabel();
@@ -437,8 +454,7 @@ public class FieldPanel
 	{
 		String description = field.getAttribute(
 				Field.FIELD_DESCRIPTION);
-		boolean showDescription = 
-			"true".equals(field.getDisplayAttribute("descVisible"));
+		boolean showDescription = treeNode.getDescriptionVisisibility();
 		
 		if ((description != null) && (description.trim().length() > 0)) {
 			String htmlDescription = 
@@ -572,7 +588,7 @@ public class FieldPanel
 		
 		this.field = field;
 		this.tree = tree;
-		this.treeNode = treeNode;
+		this.treeNode = (FieldNode)treeNode;
 		this.controller = controller;
 		
 		initialise();	
@@ -673,6 +689,12 @@ public class FieldPanel
 		}
 	}
 	
+	/**
+	 * Handles the actions of several buttons that could appear in 
+	 * this panel. 
+	 * 
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e) {
 		
 		String cmd = e.getActionCommand();
@@ -681,10 +703,7 @@ public class FieldPanel
 		}
 		
 		else if (TOGGLE_DESCRIPTION_CMD.equals(cmd)) {
-			boolean visible = 
-				"true".equals(field.getDisplayAttribute("descVisible"));
-			visible = ! visible;
-			field.setDisplayAttribute("descVisible", visible + "");
+			treeNode.toggleDescriptionVisibility();
 			refreshEditingOfPanel();
 		}
 		

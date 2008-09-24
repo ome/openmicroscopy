@@ -88,6 +88,12 @@ public class Field
 	 * field.
 	 */
 	private List<IParam> 			fieldParams;
+	
+	/**
+	 * A reference to a lock that may be applied to this field to prevent
+	 * editing of some attributes or parameters. 
+	 */
+	private Lock 					fieldLock;
 
 	/**
 	 * A map of the template attributes for this Field. 
@@ -291,7 +297,7 @@ public class Field
 	 * 
 	 * @return		see above.
 	 */
-	private String getToolTipText() 
+	public String getToolTipText() 
 	{
 		String desc = getAttribute(FIELD_DESCRIPTION);
 		String toolTipText = "";
@@ -311,5 +317,34 @@ public class Field
 		}
 		
 		return toolTipText;
+	}
+	
+	/**
+	 * Sets a lock on this field to prevent editing. 
+	 * @see #fieldLock
+	 * 
+	 * @param lock
+	 */
+	public void setLock(Lock lock)
+	{
+		fieldLock = lock;
+	}
+	
+	/**
+	 * Returns this field's lock (or null if no lock).
+	 * 
+	 * @return		see above
+	 */
+	public Lock getLock() { return fieldLock; }
+
+	/**
+	 * Implemented as specified by the {@link IField} interface.
+	 * 
+	 * @see IField#isFieldLocked()
+	 */
+	public boolean isFieldLocked() {
+		if (fieldLock == null)	return false;
+	
+		return (! (fieldLock.getLockLevel() == Lock.NOT_LOCKED));
 	}
 }

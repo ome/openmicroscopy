@@ -100,7 +100,7 @@ public class FieldRenderer
 			if (object instanceof IField) {
 				IField field = (IField)object;
 				
-				toolTipText = field.getDisplayAttribute(Field.TOOL_TIP_TEXT);
+				toolTipText = field.getToolTipText();
 				
 				FieldPanel fieldPanel = new FieldPanel(field, tree, 
 						node, controller);

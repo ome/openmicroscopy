@@ -94,24 +94,26 @@ public interface IField
 	 * @return		True if all the parameters have been filled. 
 	 */
 	public boolean isFieldFilled();
-
-	/**
-	 * UI classes may want to set display attributes that do not affect
-	 * the data (eg collapsed state, description visible). 
-	 * 
-	 * @param name	The name of the display attribute. 
-	 * @param value		The new value of the attribute
-	 */
-	public void setDisplayAttribute(String name, String value);
-	
 	
 	/**
-	 * UI classes may want to get display attributes that do not affect
-	 * the data (eg collapsed state, description visible). 
+	 * Returns a String containing the field description, plus the 
+	 * tool-tip-text from it's parameters. 
 	 * 
-	 * @param name		The named attribute
-	 * @return 			The value of the attribute
+	 * @return		see above.
 	 */
-	public String getDisplayAttribute(String name);
+	public String getToolTipText();
 	
+	/**
+	 * Returns true if the is a lock on this field.
+	 * 
+	 * @return		see above
+	 */
+	public boolean isFieldLocked();
+	
+	/**
+	 * Returns this field's lock (or null if no lock).
+	 * 
+	 * @return		see above
+	 */
+	public Lock getLock();
 }

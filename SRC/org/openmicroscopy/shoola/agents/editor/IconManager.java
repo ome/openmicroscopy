@@ -230,12 +230,18 @@ public class IconManager
     /** The <code>Open Folder</code> icon. */
     public  static int			INDENT_LEFT = 54;
     
+    /** The <code>Template locked</code> icon. */
+    public  static int			TEMPLATE_LOCK = 55;
+    
+    /** The <code>Fully locked</code> icon. */
+    public  static int			FULL_LOCK = 56;
+    
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 54;
+    private static int          MAX_ID = 56;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -302,6 +308,8 @@ public class IconManager
         relPaths[OPEN_FOLDER] = "nuvola_folder_open16.png";
         relPaths[INDENT_RIGHT] = "nuvola_indent_right16.png";
         relPaths[INDENT_LEFT] = "nuvola_indent_left16.png";
+        relPaths[TEMPLATE_LOCK] = "nuvola_encrypted16.png";
+        relPaths[FULL_LOCK] = "nuvola_encrypted_red16.png";
     }
     
     

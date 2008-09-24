@@ -45,16 +45,45 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @since OME3.0
  */
 public class FieldNode 
-	extends DefaultMutableTreeNode {
+	extends DefaultMutableTreeNode 
+{
 
-	private boolean nodeExpanded;
+	private boolean 		descriptionVisible;
 	
 	public FieldNode(IField newField) {
 		super(newField);
 	}
 
-	public void setExpanded(boolean expanded) {
-		nodeExpanded = expanded;
+	/**
+	 * Sets the visibility of the the description. 
+	 * 
+	 * @param visible
+	 */
+	public void setDescriptionVisible(boolean visible)
+	{
+		descriptionVisible = visible;
 	}
 	
+	/**
+	 * Toggles the boolean {@link #descriptionVisible} and returns
+	 * the new value.
+	 * 	
+	 * @return		The new (toggled) value of {@link #descriptionVisible}
+	 */
+	public boolean toggleDescriptionVisibility() 
+	{
+		descriptionVisible = !descriptionVisible;
+		
+		return descriptionVisible;
+	}
+	
+	/**
+	 * Gets the boolean {@link #descriptionVisible}
+	 * 	
+	 * @return		The value of {@link #descriptionVisible}
+	 */
+	public boolean getDescriptionVisisibility()
+	{
+		return descriptionVisible;
+	}
 }
