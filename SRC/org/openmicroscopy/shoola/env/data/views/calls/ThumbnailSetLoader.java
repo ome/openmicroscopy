@@ -129,10 +129,10 @@ public class ThumbnailSetLoader
     {
     	int value = -1;
     	Object fSize = context.lookup(LookupNames.THUMBNAIL_FETCH_SZ);
-    	if (fSize == null || !(fSize instanceof Integer)) {
-    		context.getLogger().warn(this, "Thumbnail fetching size not set");
+
+    	if (fSize != null && (fSize instanceof Integer)) 
     		value = (Integer) fSize;
-    	}
+    	else context.getLogger().warn(this, "Thumbnail fetching size not set");
     	if (value <= 0) value = FETCH_SIZE;
     	UserCredentials uc = 
 			(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
@@ -142,22 +142,22 @@ public class ThumbnailSetLoader
 			case UserCredentials.MEDIUM:
 				fSpeed = context.lookup(
 						LookupNames.THUMBNAIL_FETCH_MEDIUM_SPEED);
-				if (fSpeed == null || !(fSpeed instanceof Double)) {
+				if (fSpeed != null && (fSpeed instanceof Double)) 
+					f = (Double) fSpeed;
+		    	else 
 		    		context.getLogger().warn(this, "Thumbnail " +
 		    				"fetching factor not set");
-		    		f = (Double) fSpeed;
-		    	}
 				if (f <= 0 || f > 1) f = FETCH_MEDIUM_SPEED;
 				fetchSize = (int) (value*f);
 				break;
 			case UserCredentials.LOW:
 				fSpeed = context.lookup(
 						LookupNames.THUMBNAIL_FETCH_LOW_SPEED);
-				if (fSpeed == null || !(fSpeed instanceof Double)) {
+				if (fSpeed != null && (fSpeed instanceof Double)) 
+					f = (Double) fSpeed;
+		    	else 
 		    		context.getLogger().warn(this, "Thumbnail " +
 		    				"fetching factor not set");
-		    		f = (Double) fSpeed;
-		    	}
 				if (f <= 0 || f > 1) f = FETCH_LOW_SPEED;
 				fetchSize = (int) (value*f);
 				break;

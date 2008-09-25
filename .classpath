@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="LIB/looks-2.0.1.jar"/>
 	<classpathentry kind="lib" path="LIB/JHotDraw-7.0.9.jar"/>
 	<classpathentry kind="lib" path="LIB/persistence-api-1.0.jar"/>
-	<classpathentry kind="lib" path="LIB/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-validator.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-digester.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-beanutils.jar"/>
@@ -34,5 +33,6 @@
 	<classpathentry kind="lib" path="LIB/jbossall-client-4.2.3.GA.jar"/>
 	<classpathentry kind="lib" path="LIB/hibernate-search-3.0.1.GA.jar"/>
 	<classpathentry kind="lib" path="LIB/hibernate-annotations-3.3.1.GA.jar"/>
+	<classpathentry kind="lib" path="LIB/jakarta-oro-2.0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

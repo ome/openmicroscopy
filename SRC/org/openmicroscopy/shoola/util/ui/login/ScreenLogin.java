@@ -337,7 +337,8 @@ public class ScreenLogin
 	{
 		JPanel mainPanel = new JPanel();
 		int g = 5;
-		mainPanel.setBorder(BorderFactory.createEmptyBorder(g, g, g, g));
+		int t = 10;
+		mainPanel.setBorder(BorderFactory.createEmptyBorder(t, g, t, g));
 		mainPanel.setOpaque(false);
 		double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL, 
 			TableLayout.PREFERRED, 

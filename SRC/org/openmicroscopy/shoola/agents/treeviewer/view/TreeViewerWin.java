@@ -157,9 +157,9 @@ class TreeViewerWin
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
         //browser = (Browser) browsers.get(new Integer(
         //                                    Browser.CATEGORY_EXPLORER));
-        browser = (Browser) browsers.get(new Integer(Browser.SCREENS_EXPLORER));
-        if (browser.isDisplayed())
-            tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
+        //browser = (Browser) browsers.get(new Integer(Browser.SCREENS_EXPLORER));
+        //if (browser.isDisplayed())
+        //    tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
         browser = (Browser) browsers.get(new Integer(Browser.TAGS_EXPLORER));
         if (browser.isDisplayed())
             tabs.addTab(browser.getTitle(), browser.getIcon(), browser.getUI());
@@ -216,7 +216,7 @@ class TreeViewerWin
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(
         		TreeViewerControl.SCREENS_EXPLORER));
-        menu.add(item);
+        //menu.add(item);
         item = new JCheckBoxMenuItem();
         browser = (Browser) browsers.get(new Integer(Browser.TAGS_EXPLORER));
         item.setSelected(browser.isDisplayed());
@@ -248,7 +248,7 @@ class TreeViewerWin
         //Screen
         a = controller.getAction(TreeViewerControl.CREATE_TOP_SCREEN);
         item = new JMenuItem(a);
-        menu.add(item);
+        //menu.add(item);
         item.setText(a.getActionName());
         a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
         item = new JMenuItem(a);

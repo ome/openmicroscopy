@@ -34,10 +34,12 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.ExperimenterData;
+
 
 /** 
- * 
+ * Loads the plate/wells.
+ * This class calls the <code>loadPlateWells</code> method in the
+ * <code>DataManagerView</code>. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

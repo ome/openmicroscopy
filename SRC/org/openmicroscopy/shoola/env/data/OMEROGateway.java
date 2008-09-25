@@ -2653,29 +2653,30 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Formats the elements of the passed array, the field to use.
+	 * Formats the elements of the passed array. Adds the 
+	 * passed field in front of each term.
 	 * 
-	 * @param terms
-	 * @param field
+	 * @param terms	The terms to format.
+	 * @param field	The string to add in front of the terms.
 	 * @return See above.
 	 */
 	private String[] formatText(String[] terms, String field)
 	{
 		if (terms == null || terms.length == 0) return null;
 		String[] formatted = new String[terms.length];
-		for (int i = 0; i < terms.length; i++) {
+		for (int i = 0; i < terms.length; i++) 
 			formatted[i] = field+":"+terms[i];
-		}
 		return formatted;
 	}
 	
 	/**
-	 * 
-	 * @param terms
-	 * @param firstField
-	 * @param sep
-	 * @param secondField
-	 * @return
+	 * Formats the elements of the passed array. Adds the 
+	 * passed field in front of each term.
+	 * @param terms			The terms to format.
+	 * @param firstField	The string to add in front of the terms.
+	 * @param sep			Separator used to join, exclude etc.
+	 * @param secondField	The string to add in front of the terms.
+	 * @return See above.
 	 */
 	private String[] formatText(String[] terms, String firstField, String sep,
 			String secondField)
@@ -2685,7 +2686,6 @@ class OMEROGateway
 		for (int i = 0; i < terms.length; i++) {
 			formatted[i] = firstField+":"+terms[i]+" "+sep+" ";
 			formatted[i] += secondField+":"+terms[i];
-			System.err.println(formatted[i]);
 		}
 		return formatted;
 	}
@@ -2725,9 +2725,7 @@ class OMEROGateway
 					service.onlyModifiedBetween(start, end);
 					break;
 				case SearchDataContext.ANNOTATION_TIME:
-					service.onlyAnnotatedBetween(start, end);
-					break;
-						
+					service.onlyAnnotatedBetween(start, end);	
 			}
 		}
 		List<ExperimenterData> users = context.getOwners();
@@ -2814,7 +2812,7 @@ class OMEROGateway
 					service.onlyOwnedBy(d);
 					service.bySomeMustNone(fSome, fMust, fNone);
 					size = handleSearchResult(Image.class, rType, service);
-					if (size instanceof Integer) 
+					if (size instanceof Integer)
 						results.put(key, size);
 					service.clearQueries();
 					if (!(size instanceof Integer) && fSomeSec != null) {
