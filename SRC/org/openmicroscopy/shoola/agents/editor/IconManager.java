@@ -236,12 +236,15 @@ public class IconManager
     /** The <code>Fully locked</code> icon. */
     public  static int			FULL_LOCK = 56;
     
+    /** The <code>OMERO.editor 16</code> icon. */
+    public  static int			OMERO_EDITOR = 57;
+    
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int          MAX_ID = 56;
+    private static int          MAX_ID = 57;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -310,6 +313,7 @@ public class IconManager
         relPaths[INDENT_LEFT] = "nuvola_indent_left16.png";
         relPaths[TEMPLATE_LOCK] = "nuvola_encrypted16.png";
         relPaths[FULL_LOCK] = "nuvola_encrypted_red16.png";
+        relPaths[OMERO_EDITOR] = "omeroEditor16.png";
     }
     
     

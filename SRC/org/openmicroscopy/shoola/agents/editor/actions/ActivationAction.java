@@ -66,11 +66,9 @@ public class ActivationAction
     {
         super(model);
         setEnabled(true);
-        putValue(Action.NAME, model.getEditorTitle());
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
-        IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getImageIcon(IconManager.EDITOR));
+        setName(model.getEditorTitle());
+        setDescription(DESCRIPTION);
+        setIcon(IconManager.OMERO_EDITOR);
     }
 
     /** 
