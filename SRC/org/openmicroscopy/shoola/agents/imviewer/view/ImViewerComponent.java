@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -363,6 +364,27 @@ class ImViewerComponent
 			return true;
 		} else if (option == MessageBox.CANCEL) return false;
 		return true;
+	}
+	
+
+	/**
+	 * Notifies that the projected image has been created an asks if the 
+	 * user wants to launch a viewer with the projected image.
+	 * 
+	 * @param message 	The message to display.
+	 * @param image		The projected image.
+	 */
+	private void notifyProjection(String message, ImageData image)
+	{
+		String text = message;
+		text += "\n Do you want to launch a viewer with the projected image.";
+		
+		MessageBox msg = new MessageBox(view, "Projection", text);
+		int option = msg.centerMsgBox();
+		if (option == MessageBox.YES_OPTION) {
+			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+			bus.post(new ViewImage(image, null));
+		}
 	}
 	
 	/**
@@ -2513,7 +2535,7 @@ class ImViewerComponent
 		if (!projection.isVisible()) return;
 		model.fireContainersLoading();
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#setProjectedImage(ImageData, List)
@@ -2533,12 +2555,11 @@ class ImViewerComponent
 		}
 		if (projection.isApplySettings()) {
 			projection.setStatus("Applying Rendering settings", false);
-			model.firePojectedRndSettingsCreation(indexes,
-					image.getDefaultPixels().getId());
+			model.firePojectedRndSettingsCreation(indexes, image);
 			fireStateChange();
 		} else {
-			message = "The projected image has been successfully created.";
-			un.notifyInfo("Projection", message);
+			notifyProjection("The projected image has been " +
+					"successfully created.", image);
 			projection.setVisible(false);
 			projection.dispose();
 			projection = null;
@@ -2547,19 +2568,18 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setProjectedRenderingSettings(Boolean)
+	 * @see ImViewer#setProjectedRenderingSettings(Boolean, ImageData)
 	 */
-	public void setProjectedRenderingSettings(Boolean result)
+	public void setProjectedRenderingSettings(Boolean result, ImageData image)
 	{
-		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 		String message;
 		if (result)
-			message = "The rendering setting of the projected image have " +
-					"been successfully copied.";
+			message = "The projected image and the rendering settings \n have" +
+					" been successfully created.";
 		else
 			message = "An error has occurred while copying the " +
-			"rendering setting of the projected image.";
-		un.notifyInfo("Projection", message);
+			"rendering settings of the projected image.";
+		notifyProjection(message, image);
 		projection.setVisible(false);
 		projection.dispose();
 		projection = null;

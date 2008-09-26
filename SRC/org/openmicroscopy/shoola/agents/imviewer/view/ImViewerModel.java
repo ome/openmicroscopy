@@ -1416,14 +1416,14 @@ class ImViewerModel
 	 * Starts an asynchronous creation of the rendering settings
 	 * for the pixels set.
 	 * 
-	 * @param indexes  The indexes of the projected channels.
-	 * @param pixelsID The id of the pixels set.
+	 * @param indexes	The indexes of the projected channels.
+	 * @param image 	The projected image.
 	 */
-	void firePojectedRndSettingsCreation(List<Integer> indexes, long pixelsID)
+	void firePojectedRndSettingsCreation(List<Integer> indexes, ImageData image)
 	{
 		RndProxyDef def = currentRndControl.getRndSettingsCopy();
 		RenderingSettingsCreator l = new RenderingSettingsCreator(component, 
-				pixelsID, def, indexes);
+				image, def, indexes);
 		l.load();
 	}
 	

@@ -895,8 +895,9 @@ public interface ImViewer
 	/**
 	 * Sets the settings created for the projected image.
 	 * 
-	 * @param result The value to set.
+	 * @param result	The value to set.
+	 * @param image 	The projected image.
 	 */
-	public void setProjectedRenderingSettings(Boolean result);
+	public void setProjectedRenderingSettings(Boolean result, ImageData image);
 	
 }

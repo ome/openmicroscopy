@@ -35,7 +35,12 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import pojos.ImageData;
+
 /** 
+ * Creates rendering settings for the passed projected image.
+ * This class calls <code>createRndSetting</code> method in the
+ * <code>ImViewerView</code>.
  * 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -52,11 +57,11 @@ public class RenderingSettingsCreator
 	extends DataLoader
 {
 	
-	/** The ID of the projected pixels set. */
-    private long        	pixelsID;
+	/** The projected image. */
+    private ImageData      	image;
     
     /** The rendering settings to copy i.e. setting of the original image. */
-    private RndProxyDef 	rndToCopy;
+    private RndProxyDef		rndToCopy;
     
     /** Collection of channel's indexes. */
     private List<Integer> 	indexes;
@@ -69,17 +74,19 @@ public class RenderingSettingsCreator
      * 
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
-     * @param pixelsID  The id of the pixels set.
+     * @param image  	The projected image.
      * @param rndToCopy The rendering settings of the original image.
      * @param indexes   Collection of channel's indexes. 
      * 					Mustn't be <code>null</code>.
      */
-    public RenderingSettingsCreator(ImViewer viewer, long pixelsID, 
+    public RenderingSettingsCreator(ImViewer viewer, ImageData image, 
     								RndProxyDef rndToCopy, 
     								List<Integer> indexes)
     {
         super(viewer);
-        this.pixelsID = pixelsID;
+        if (image == null)
+        	throw new IllegalArgumentException("No image specified.");
+        this.image = image;
         this.rndToCopy = rndToCopy;
         this.indexes = indexes;
     }
@@ -90,7 +97,8 @@ public class RenderingSettingsCreator
      */
     public void load()
     {
-       handle = ivView.createRndSetting(pixelsID, rndToCopy, indexes, this);
+       handle = ivView.createRndSetting(image.getDefaultPixels().getId(), 
+    		   rndToCopy, indexes, this);
     }
 
     /**
@@ -106,7 +114,7 @@ public class RenderingSettingsCreator
     public void handleResult(Object result)
     {
     	if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setProjectedRenderingSettings((Boolean) result);
+    	viewer.setProjectedRenderingSettings((Boolean) result, image);
     }
     
 }
