@@ -26,6 +26,10 @@ package ui.components;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -205,6 +209,30 @@ public class TextImporter
 		clearButton.setBorder(tb);
 		clearButton.setBackground(null);
 		toolbarBox.add(clearButton);
+		
+		// Paste button 
+		JButton pasteButton = new JButton("Paste Text");
+		pasteButton.setBorder(tb);
+		pasteButton.setBackground(null);
+		pasteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Transferable t = Toolkit.getDefaultToolkit().
+		        	getSystemClipboard().getContents(null);
+		        try {
+		            if (t != null && t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+		                String text = (String)t.getTransferData(DataFlavor.stringFlavor);
+		                int offset = textArea.getCaretPosition();
+		                textArea.getDocument().insertString(offset, text, null);
+		            }
+		        } catch (UnsupportedFlavorException ex) {
+		        } catch (IOException ex) {
+		        } catch (BadLocationException ex) {
+					// TODO Auto-generated catch block
+					ex.printStackTrace();
+				}    
+			}
+		});
+		toolbarBox.add(pasteButton);
 		
 		toolbarBox.add(new JPanel());	// so to align buttons to left.
 		

@@ -435,8 +435,9 @@ public class XMLModel
 			 * then update the version number with the current software version number. 
 			 */
 			String fileVersionNumber = getCurrentTree().getVersionNumber();
-			if (! VersionControlMethods.isFileVersionFromFuture(fileVersionNumber))
+			if (! VersionControlMethods.isFileVersionFromFuture(fileVersionNumber)) {
 				getCurrentTree().setVersionNumber(ConfigConstants.EDITOR_VERSION_NUMBER);
+			}
 			
 			getRootNode().getDataField().setAttribute(DataFieldConstants.PROTOCOL_FILE_NAME, outputFile.getName(), false);
 			// don't add the protocolFileName change to undo/redo, but still want UI to update...

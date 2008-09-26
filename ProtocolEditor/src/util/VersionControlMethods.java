@@ -67,14 +67,23 @@ public class VersionControlMethods {
 		 */
 		while (fileTokenizer.hasMoreTokens()) {
 			
-			if (! softwareTokenizer.hasMoreTokens())
+			if (! softwareTokenizer.hasMoreTokens()) {
 				return true;
+			}
+			try {
+				
+				int softwareNo = Integer.parseInt(softwareTokenizer.nextToken());
+				int fileNo = Integer.parseInt(fileTokenizer.nextToken());
 			
-			int softwareNo = Integer.parseInt(softwareTokenizer.nextToken());
-			int fileNo = Integer.parseInt(fileTokenizer.nextToken());
-			
-			if (fileNo > softwareNo)
-				return true;
+				if (fileNo > softwareNo) {
+					return true;
+				} else if (fileNo < softwareNo) {
+					return false;
+				}
+				
+			} catch (NumberFormatException ex) {
+				return false;
+			}
 		}
 		
 		return false;
