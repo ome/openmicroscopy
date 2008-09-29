@@ -24,12 +24,11 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import java.io.File;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.io.File;
-
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.ConfigException;

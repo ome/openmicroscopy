@@ -179,7 +179,7 @@ class SplashScreenManager
 		container = c;
 		this.component = component;
 		Image img = IconManager.getOMEImageIcon();
-		String n = (String) c.getRegistry().lookup(LookupNames.SPLASH_SCREEN);
+		String n = (String) c.getRegistry().lookup(LookupNames.SPLASH_SCREEN_LOGO);
 		IconManager im = IconManager.getInstance(c.getRegistry());
 		Icon splashScreen = im.getIcon(n);
 		if (splashScreen == null)

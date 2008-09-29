@@ -57,7 +57,7 @@ public class LookupNames
 	public static final String ABOUT_FILE = "AboutFile";
 	
 	/** Field to access the <code>Splash screen</code> information. */
-	public static final String SPLASH_SCREEN = "SplashScreen";
+	public static final String SPLASH_SCREEN_LOGO = "SplashScreenLogo";
 	
 	/** Field to access the <code>Help on line</code> information. */
 	public static final String HELP_ON_LINE = "HelpOnLine";

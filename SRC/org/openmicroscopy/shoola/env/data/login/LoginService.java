@@ -195,12 +195,14 @@ public interface LoginService
      */
     public static final int     ATTEMPTING_LOGIN = 1;
     
+    /** Flag indicating that the client is connected to the server. */
     public static final int		CONNECTED = 1;
     
+    /** Flag indicating that the client is not connected to the server. */
     public static final int		NOT_CONNECTED = 0;
     
+    /** Flag indicating that the connection's attempt's has time out. */
     public static final int		TIMEOUT = 2;
-    
     
     /**
      * Reuturns the current state of the Login Service.

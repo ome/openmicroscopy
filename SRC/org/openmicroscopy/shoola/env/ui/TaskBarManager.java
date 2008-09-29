@@ -86,7 +86,7 @@ public class TaskBarManager
 {
 
 	/** The window's title. */
-	static final String		TITLE_ABOUT = "About";
+	static final String				TITLE_ABOUT = "About";
 	
 	/** The value of the tag to find. */
 	private static final String		A_TAG = "a";
