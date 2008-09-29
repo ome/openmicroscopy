@@ -48,6 +48,37 @@ public abstract class CustomizedFileFilter
 {
 
 	/**
+	 * Returns <code>true</code> if the file identified by the passed name 
+	 * ends with one of the specified extensions, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param name			The name of the file.
+	 * @param extensions	The supported extensions.
+	 * @return See above.
+	 */
+	protected boolean isSupported(String name, String[] extensions)
+	{
+		if (name == null || extensions == null) return false;
+		String extension = null;
+		int i = name.lastIndexOf('.');
+		if (i > 0 && i < name.length()-1)
+			extension = name.substring(i+1).toLowerCase();
+		if (extension == null) return false;
+		for (int j = 0; j < extensions.length; j++)
+			if (extension.equals(extensions[j])) return true;
+		return false;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the file identified by its name 
+	 * is supported by the filter, <code>false</code> otherwise.
+	 * 
+	 * @param fileName The name of the file.
+	 * @return See above.
+	 */
+	public abstract boolean accept(String fileName);
+	
+	/**
 	 * Returns the default extension of the file format.
 	 * 
 	 * @return See above.

@@ -53,6 +53,14 @@ public class TEXTFilter
     /** Possible file extension. */
     public static final String  TEXT = "txt";
 
+	/** The possible extensions. */
+	private static final String[] extensions;
+	
+	static {
+		extensions = new String[1];
+		extensions[0] = TEXT;
+	}
+	
     /**
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
@@ -71,16 +79,19 @@ public class TEXTFilter
      */
     public boolean accept(File f)
     {
-        if (f.isDirectory()) return true;
-        String s = f.getName();
-        String extension = null;
-        int i = s.lastIndexOf('.');
-        if (i > 0 && i < s.length()-1)
-            extension = s.substring(i+1).toLowerCase();
-        if (extension != null)
-            return (extension.equals(TEXT));
-        return false;
+    	if (f == null) return false;
+		if (f.isDirectory()) return true;
+		return isSupported(f.getName(), extensions);
     }
     
+    /**
+	 * Overridden to accept the file identified by its name.
+	 * @see CustomizedFileFilter#accept(String)
+	 */
+	public boolean accept(String fileName)
+	{
+		return isSupported(fileName, extensions);
+	}
+	
 }
 

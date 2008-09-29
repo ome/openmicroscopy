@@ -54,6 +54,16 @@ public class HTMLFilter
     /** Possible file extension. */
     public static final String  HTM = "htm";
     
+	
+	/** The possible extensions. */
+	private static final String[] extensions;
+	
+	static {
+		extensions = new String[2];
+		extensions[0] = HTML;
+		extensions[1] = HTM;
+	}
+	
     /**
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
@@ -72,15 +82,18 @@ public class HTMLFilter
      */
     public boolean accept(File f)
     {
-        if (f.isDirectory()) return true;
-        String s = f.getName();
-        String extension = null;
-        int i = s.lastIndexOf('.');
-        if (i > 0 && i < s.length()-1)
-            extension = s.substring(i+1).toLowerCase();
-        if (extension != null)
-            return (extension.equals(HTML) || extension.equals(HTM));
-        return false;
+    	if (f == null) return false;
+		if (f.isDirectory()) return true;
+		return isSupported(f.getName(), extensions);
     }
     
+    /**
+	 * Overridden to accept the file identified by its name.
+	 * @see CustomizedFileFilter#accept(String)
+	 */
+	public boolean accept(String fileName)
+	{
+		return isSupported(fileName, extensions);
+	}
+	
 }

@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.util.filter.file;
 //Java imports
 import java.io.File;
 import java.util.regex.Pattern;
-
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -34,7 +33,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 
 /** 
- * 
+ * A file filter for regular expressions.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,9 +45,6 @@ import javax.swing.filechooser.FileFilter;
  * </small>
  * @since OME3.0
  */
-/**
- * This is a regular expression file filter. 
- */
 public class RegExFileFilter 
 	extends CustomizedFileFilter 
 {
@@ -58,15 +54,16 @@ public class RegExFileFilter
 
     /** The regular expression used to match files, this could be a converted
      * version if user using wildCards */
-	String regEx;
+	private String regEx;
 	
 	/** The original expression entered before conversion for wildCards. */
-	String originalEx; 
+	private String originalEx; 
     
 	/**
-	 * Parse the wildCard expresison into regular expression. 
-	 * @param ex see above.
-	 * @return see above.
+	 * Parse the wildCard expression into regular expression. 
+	 * 
+	 * @param ex The expression to parse.
+	 * @return See above.
 	 */
     private String parse(String ex)
     {
@@ -74,7 +71,7 @@ public class RegExFileFilter
     	
     	for (int i = 0 ; i < ex.length(); i++)	
     	{
-    		if (ex.charAt(i) == '*')
+    		if (ex.charAt(i) == '*') 
     			newString = newString + ".*";
     		else if(ex.charAt(i) == '.')
     			newString = newString +"[.]";
@@ -101,27 +98,26 @@ public class RegExFileFilter
     }
     
     /**
-     * Instantiate the Regular expression file filter. 
+     * Instantiates the Regular expression file filter. 
      * 
-     * @param regEx the expression
-     * @param wildCardFilter is this a wildCard expression to be converted
-     * to RegEx by filter.
+     * @param regEx 			The expression. Mustn't be <code>null</code>.
+     * @param wildCardFilter	The wildCard expression to be converted
+     * 							to RegEx by filter.
      */
     public RegExFileFilter(String regEx, boolean wildCardFilter) 
     {
     	if (regEx == null)
     		throw new IllegalArgumentException("RegEx cannot be null.");
     	originalEx = regEx;
-    	if (wildCardFilter)
-    		this.regEx = parse(regEx.toLowerCase());
-    	else
-    		this.regEx = regEx;
-        this.pattern = Pattern.compile(this.regEx);
+    	if (wildCardFilter) this.regEx = parse(regEx.toLowerCase());
+    	else this.regEx = regEx;
+        pattern = Pattern.compile(this.regEx);
     }
     
     /**
-     * Instantiate the Regular expression file filter. 
-     * @param regEx the expression
+     * Instantiates the Regular expression file filter. 
+     * 
+     * @param regEx The expression
      */
     public RegExFileFilter(String regEx) 
     {
@@ -129,13 +125,13 @@ public class RegExFileFilter
     }
 
     /**
-     * Overridden 
+     * Overridden to control is the file is supported.
      * @see CustomizedFileFilter#accept(File)
      */
-    public boolean accept(File fileName) 
+    public boolean accept(File file) 
     {
-        String name = fileName.getName();
-        return this.pattern.matcher(name.toLowerCase()).matches();
+    	if (file == null) return false;
+    	return accept(file.getName());
     }
 
     /**
@@ -151,29 +147,37 @@ public class RegExFileFilter
 	public String getDescription() { return originalEx; }
 		
 	/**
-	 * Return the regular expression of the method.
+	 * Returns the regular expression of the method.
 	 * @return see above.
 	 */
-	public String getRegExpression() 
-	{
-		return this.pattern.pattern();
-	}
+	public String getRegExpression() { return pattern.pattern(); }
 	
 	/**
-	 * Set the file filter of the regEx to the new RegEx. 
-	 * @param filter see above.
-	 * @param wildCardFilter convert to wildcard.
+	 * Sets the file filter of the regEx to the new RegEx. 
+	 * 
+	 * @param filter 			The value to set. Mustn't be <code>null</code>.
+	 * @param wildCardFilter 	Pass <code>true</code> to parser the filter, 
+	 * 							<code>false</code> otherwise.
 	 */
 	public void setFilter(String filter, boolean wildCardFilter)
 	{
 	 	if (regEx == null)
     		throw new IllegalArgumentException("RegEx cannot be null.");
     	originalEx = filter;
-    	if (wildCardFilter)
-    		this.regEx = parse(filter);
-    	else
-    		this.regEx = filter;
-        this.pattern = Pattern.compile(this.regEx);
+    	if (wildCardFilter) this.regEx = parse(filter);
+    	else this.regEx = filter;
+        pattern = Pattern.compile(this.regEx);
 	}
+	
+	/**
+	 * Overridden to accept the file identified by its name.
+	 * @see CustomizedFileFilter#accept(String)
+	 */
+	public boolean accept(String name)
+	{
+		if (name == null) return false;
+		return pattern.matcher(name.toLowerCase()).matches();
+	}
+	
 }
 

@@ -22,11 +22,10 @@
  */
 package org.openmicroscopy.shoola.util.filter.file;
 
-import java.io.File;
-
-import javax.swing.filechooser.FileFilter;
 
 //Java imports
+import java.io.File;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -51,7 +50,15 @@ public class EditorFileFilter
 	
 	/** Possible file extensions. */
 	public static final String 	PRO_XML = "pro.xml";
-
+	
+	/** The possible extensions. */
+	private static final String[] extensions;
+	
+	static {
+		extensions = new String[1];
+		extensions[0] = PRO_XML;
+	}
+	
 	/**
 	 * 	Overriden to return the extension of the filter.
 	 * 	@see CustomizedFileFilter#getExtension()
@@ -65,20 +72,23 @@ public class EditorFileFilter
 	public String getDescription() { return "Editor images"; }
 		
     /**
-     * Overriden to accept file with the declared file extensions.
+     * Overridden to accept file with the declared file extensions.
      * @see FileFilter#accept(File)
      */
 	public boolean accept(File f)
 	{
+		if (f == null) return false;
 		if (f.isDirectory()) return true;
-		String s = f.getName();
-		String extension = null;
-		int i = s.lastIndexOf('.');
-		if (i > 0 && i < s.length()-1)
-			extension = s.substring(i+1).toLowerCase();
-		if (extension != null)
-			return ((extension.equals(PRO_XML)));
-		return false;
+		return isSupported(f.getName(), extensions);
+	}
+
+	/**
+	 * Overridden to accept the file identified by its name.
+	 * @see CustomizedFileFilter#accept(String)
+	 */
+	public boolean accept(String fileName)
+	{
+		return isSupported(fileName, extensions);
 	}
 	
 }
