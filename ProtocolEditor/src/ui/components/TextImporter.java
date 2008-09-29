@@ -210,6 +210,10 @@ public class TextImporter
 		clearButton.setBackground(null);
 		toolbarBox.add(clearButton);
 		
+		toolbarBox.add(Box.createHorizontalStrut(BUTTON_SPACING));
+		toolbarBox.add(new JSeparator(SwingConstants.VERTICAL));
+		toolbarBox.add(Box.createHorizontalStrut(BUTTON_SPACING));
+		
 		// Paste button 
 		JButton pasteButton = new JButton("Paste Text");
 		pasteButton.setBorder(tb);

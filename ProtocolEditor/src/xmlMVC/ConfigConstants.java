@@ -70,6 +70,6 @@ public class ConfigConstants {
 	 * For the Milestone releases, the editor release Id will be the same as 
 	 * the EDITOR_VERSION_NUMBER.
 	 */
-	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "rc1";
+	public static final String EDITOR_RELEASE_ID = EDITOR_VERSION_NUMBER + "";
 
 }

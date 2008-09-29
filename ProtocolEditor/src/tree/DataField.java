@@ -142,7 +142,7 @@ public class DataField
 	 * @return 
 	 */
 	public Map<String, String> setAttributes(String title, Map<String, String> keyValuePairs, boolean rememberUndo) {
-		System.out.println("DataField.setAttributeS (notifyObservers="+ rememberUndo +"): " + title);
+		//System.out.println("DataField.setAttributeS (notifyObservers="+ rememberUndo +"): " + title);
 		
 		/*
 		 * Make a map of the old values, while setting the new ones
@@ -169,7 +169,7 @@ public class DataField
 	}
 	
 	public void setAttribute(String name, String value) {
-		System.out.println("      setAttribute: " + name + "=" + value);
+		//System.out.println("      setAttribute: " + name + "=" + value);
 		allAttributesMap.put(name, value);
 	}
 	
