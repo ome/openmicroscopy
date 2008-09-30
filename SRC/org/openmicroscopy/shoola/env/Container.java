@@ -223,7 +223,7 @@ public final class Container
 	 */
 	public String resolveConfigFile(String fileName)
 	{
-		if (fileName == null)	throw new NullPointerException();
+		//if (fileName == null)	throw new NullPointerException();
 		StringBuffer relPath = new StringBuffer(CONFIG_DIR);
 		relPath.append(File.separatorChar);
 		relPath.append(fileName);

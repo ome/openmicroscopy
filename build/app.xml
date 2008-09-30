@@ -65,7 +65,14 @@
   <property name="app.mainclass" value="org.openmicroscopy.shoola.Main"/>
  
 <property name="app.compiled.util.dir" location="${app.dir}/compiled/util"/> 
-<fileset id="app.resources.util" dir="${base.src.util.dir}" excludes="**/*.java"/>
+<fileset id="app.resources.util" dir="${base.src.dir}">
+	<include name="org/openmicroscopy/shoola/util/**" />
+	<exclude name="**/*.java" />
+</fileset>
+<fileset id="app.resources.svc" dir="${base.src.dir}">
+		<include name="org/openmicroscopy/shoola/svc/**" />
+		<exclude name="**/*.java" />
+	</fileset>
  
   
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -90,6 +97,9 @@
   	<copy todir="${app.compiled.util.dir}">
   	 <fileset refid="app.resources.util"/>
   	</copy> 
+  	<copy todir="${app.compiled.svc.dir}">
+  	  	 <fileset refid="app.resources.svc"/>
+  	  	</copy>
   </target>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

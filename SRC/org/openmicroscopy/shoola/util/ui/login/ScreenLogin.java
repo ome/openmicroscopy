@@ -321,7 +321,6 @@ public class ScreenLogin
 		else serverName = servers.get(servers.size()-1);
 		connectionSpeedText = new JLabel(getConnectionSpeed());
 		connectionSpeedText.setForeground(TEXT_COLOR);
-		
 		serverText = UIUtilities.buildTextPane(serverName, TEXT_COLOR);
 		serverTextPane = UIUtilities.buildComponentPanelRight(serverText, 
 				false);

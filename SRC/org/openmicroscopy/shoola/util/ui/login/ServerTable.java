@@ -66,6 +66,9 @@ class ServerTable
 	/** The height and width added to the icon. */
 	private static final int	INDENT = 4;
 	
+	/** The default size of an icon. */
+	private static final int	DEFAULT_ICON_SIZE = 22;
+	
 	/** Index of the previously selected row. */
 	private int				previousRow;
 	
@@ -94,7 +97,7 @@ class ServerTable
 	 * 
 	 * @param parent	Reference to the model. Mustn't be <code>null</code>.
 	 * @param servers 	Collection of servers.
-	 * @param icon		The icon to display netx to the server's name.
+	 * @param icon		The icon to display next to the server's name.
 	 */
 	ServerTable(ServerEditor parent, List servers, Icon icon)
 	{	
@@ -121,12 +124,18 @@ class ServerTable
 				j++;
 			}
 		}
+		int w = DEFAULT_ICON_SIZE;
+		int h = DEFAULT_ICON_SIZE;
+		if (icon != null) {
+			w = icon.getIconWidth();
+			h = icon.getIconHeight();
+		}
 		focus = Boolean.FALSE;
 		putClientProperty("terminateEditOnFocusLost", focus);
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		setModel(new ServerTableModel(objects, columnNames));
 		setDefaultRenderer(Object.class, new ServerListRenderer());
-		setRowHeight(icon.getIconHeight()+INDENT);
+		setRowHeight(h+INDENT);
 		setShowHorizontalLines(true);
 		setShowVerticalLines(false);
 		setTableHeader(null);
@@ -134,7 +143,7 @@ class ServerTable
 		Dimension d = getIntercellSpacing();
 		setIntercellSpacing(new Dimension(0, d.height));
 		TableColumn column = getColumnModel().getColumn(0);
-		int n = icon.getIconWidth()+INDENT;
+		int n = w+INDENT;
 		column.setMaxWidth(n);
 		column.setMinWidth(n);
 		TableColumn col = getColumnModel().getColumn(1);

@@ -120,6 +120,9 @@
 	    </pathconvert>      
 	    <jar destfile="${dist.dir}/${dist.util.name}.jar">
 	      <fileset dir="${app.compiled.util.dir}"/>
+	    	<manifest>
+	    	        <attribute name="Created-By" value="OMERO Development Team"/>
+	    	      </manifest> 
 	    </jar>
 	  </target> 
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

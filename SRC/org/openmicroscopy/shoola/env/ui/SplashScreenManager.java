@@ -33,7 +33,9 @@ import java.awt.event.WindowFocusListener;
 import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -41,6 +43,7 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -105,6 +108,9 @@ class SplashScreenManager
 	/** Reference to the component. */
 	private SplashScreen		component;
     
+	/** The splash login. */
+	private Icon 				splashLogin;
+	
 	/**
 	 * Attempts to log onto <code>OMERO</code>.
 	 * 
@@ -155,8 +161,10 @@ class SplashScreenManager
     	if (view != null) return;	
     	Image img = IconManager.getOMEImageIcon();
     	Object version = container.getRegistry().lookup(LookupNames.VERSION);
-    	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img,
-				(String) version);
+    	String v = "";
+    	if (version != null && version instanceof String)
+    		v = (String) version;
+    	view = new ScreenLogin(TITLE, splashLogin, img, v);
 		view.showConnectionSpeed(true);
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();
@@ -165,6 +173,35 @@ class SplashScreenManager
 		view.addPropertyChangeListener(this);
 		view.addWindowStateListener(this);
 		view.addWindowFocusListener(this);
+    }
+    
+    /**
+     * Creates the splash screen logo and login
+     * 
+     * @param name The name of the image.
+     * @param path The path to the config file.
+     * @return See above.
+     */
+    private Icon createIcon(String name, String path)
+    {
+    	StringBuffer buf;
+    	if (name == null) return null;
+    	buf = new StringBuffer(path);
+		buf.append(File.separatorChar);
+		buf.append(name);
+    	try {
+    		Image img = Toolkit.getDefaultToolkit().getImage(buf.toString());
+    		if (img == null) return null;
+    		Icon icon = new ImageIcon(img);
+    		if (icon.getIconHeight() <= 0 || icon.getIconWidth() <= 0)
+    			return null;
+    		return icon;
+    	} catch (Exception e) {
+    		//log the exception
+    		container.getRegistry().getLogger().error(this, "Cannot create " +
+    				"the icon.");
+    	}
+    	return null;
     }
     
 	/**
@@ -179,12 +216,20 @@ class SplashScreenManager
 		container = c;
 		this.component = component;
 		Image img = IconManager.getOMEImageIcon();
-		String n = (String) c.getRegistry().lookup(LookupNames.SPLASH_SCREEN_LOGO);
-		IconManager im = IconManager.getInstance(c.getRegistry());
-		Icon splashScreen = im.getIcon(n);
+		Registry reg = c.getRegistry();
+		String n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGO);
+		
+		String f = container.resolveConfigFile(null);
+		Icon splashScreen = createIcon(n, f);
 		if (splashScreen == null)
 			splashScreen = IconManager.getSplashScreen();
-    	view = new ScreenLogin(TITLE, IconManager.getLoginBackground(), img);
+		n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGIN);
+		
+		splashLogin = createIcon(n, f);
+		if (splashLogin == null)
+			splashLogin = IconManager.getLoginBackground();
+		
+    	view = new ScreenLogin(TITLE, splashLogin, img);
 		viewTop = new ScreenLogo(TITLE, splashScreen, img);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Dimension d = viewTop.getExtendedSize();

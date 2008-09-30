@@ -55,7 +55,7 @@ class IconFactory
      * Points to the directory specified by the <i>location</i> tag.
      * The path is relative to the application classpath.
      */
-    private String  location = "graphx";
+    private String  location = "/org/openmicroscopy/shoola/util/ui/graphx/";
     
     /**
      * Returns the pathname of the specified file.
@@ -66,7 +66,7 @@ class IconFactory
      */
     String getResourcePathname(String iconFileName)
     {
-        return location+"/"+iconFileName;
+        return location+iconFileName;
     }
     
     /** 

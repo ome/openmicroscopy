@@ -91,8 +91,9 @@
   <property name="base.docgen.xdocs.navig.dir" location="docgen/xdocs/navig"/> 
  
  <property name="base.src.util.dir" location="SRC/org/openmicroscopy/shoola/util"/>
-	<property name="base.src.svc.dir" location="SRC/org/openmicroscopy/shoola/svc"/>
-	  
+ <property name="base.src.svc.dir" location="SRC/org/openmicroscopy/shoola/svc"/> 
+ 
+	
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
    * Include the tasks lib and all children. 
    * The inclusion order is important because some child files depend on 
