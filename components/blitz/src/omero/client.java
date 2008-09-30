@@ -67,6 +67,17 @@ public class client {
     // Creation
     // =========================================================================
 
+    private static Properties defaultRouter(String host, int port) {
+        Properties p = new Properties();
+        p.setProperty("Ice.Default.Router", String.format(
+                "OMERO.Glacier2/router:tcp -p %s -h %s", port, host));
+        return p;
+    }
+
+    public client(String host, int port) {
+        this(defaultRouter(host, port));
+    }
+
     public client(String[] args) {
         ic = Ice.Util.initialize(args);
         if (null == ic) {

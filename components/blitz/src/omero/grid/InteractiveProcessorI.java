@@ -252,8 +252,8 @@ public class InteractiveProcessorI extends _InteractiveProcessorDisp {
 
                 OriginalFile file = sf.getQueryService().findByQuery(
                         stdfile_query,
-                        new Parameters().addId(job.id.val).addString("name",
-                                name));
+                        new Parameters().addId(job.getId().val).addString(
+                                "name", name));
                 if (file != null) {
                     val.put(name, new RObject(new OriginalFileI(file.getId(),
                             false)));

@@ -15,7 +15,6 @@
   <dependencies>
     <!-- Internal -->
     <dependency name="server" rev="${omero.version}" changing="true" conf="build->build;test->test;server->server"/>
-    <dependency name="client" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
     <!-- Public -->
     <dependency org="omero" name="ice" rev="${versions.ice}" conf="build,test,client,server->default"/>
   </dependencies>

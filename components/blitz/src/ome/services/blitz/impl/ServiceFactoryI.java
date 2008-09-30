@@ -35,6 +35,8 @@ import omero.api.IAdminPrx;
 import omero.api.IAdminPrxHelper;
 import omero.api.IConfigPrx;
 import omero.api.IConfigPrxHelper;
+import omero.api.IDeletePrx;
+import omero.api.IDeletePrxHelper;
 import omero.api.ILdapPrx;
 import omero.api.ILdapPrxHelper;
 import omero.api.IPixelsPrx;
@@ -79,6 +81,7 @@ import omero.api._StatefulServiceInterfaceOperations;
 import omero.constants.ADMINSERVICE;
 import omero.constants.CLIENTUUID;
 import omero.constants.CONFIGSERVICE;
+import omero.constants.DELETESERVICE;
 import omero.constants.GATEWAYSERVICE;
 import omero.constants.JOBHANDLE;
 import omero.constants.LDAPSERVICE;
@@ -104,6 +107,7 @@ import omero.grid.InteractiveProcessorPrxHelper;
 import omero.grid.ProcessorPrx;
 import omero.grid.ProcessorPrxHelper;
 import omero.model.Job;
+import omero.model.JobStatus;
 import omero.model.JobStatusI;
 import omero.util.IceMapper;
 
@@ -218,6 +222,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public IAdminPrx getAdminService(Ice.Current current) throws ServerError {
         return IAdminPrxHelper.uncheckedCast(getByName(ADMINSERVICE.value,
+                current));
+    }
+
+    public IDeletePrx getDeleteService(Ice.Current current) throws ServerError {
+        return IDeletePrxHelper.uncheckedCast(getByName(DELETESERVICE.value,
                 current));
     }
 
@@ -389,16 +398,19 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) this.executor
                 .execute(this.principal, new Executor.Work() {
 
-                    public ome.model.jobs.Job doWork(TransactionStatus status,
-                            Session session, ServiceFactory sf) {
+                    public ome.model.jobs.Job doWork(
+                            TransactionStatus txStatus, Session session,
+                            ServiceFactory sf) {
 
                         final JobHandle handle = sf.createJobHandle();
                         try {
-                            submittedJob.status = new JobStatusI();
-                            submittedJob.status.value = new omero.RString(
-                                    JobHandle.WAITING);
-                            submittedJob.message = new omero.RString(
-                                    "Interactive job. Waiting.");
+                            JobStatus status = new JobStatusI();
+                            status
+                                    .setValue(new omero.RString(
+                                            JobHandle.WAITING));
+                            submittedJob.setStatus(status);
+                            submittedJob.setMessage(new omero.RString(
+                                    "Interactive job. Waiting."));
 
                             handle.submit((ome.model.jobs.Job) mapper
                                     .reverse(submittedJob));

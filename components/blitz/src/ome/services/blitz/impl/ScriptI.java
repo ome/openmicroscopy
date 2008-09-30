@@ -485,7 +485,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
         InteractiveProcessorPrx proc = this.factory.acquireProcessor(job, 10,
                 __current);
         JobParams rv = proc.params();
-        deleteTempJob(proc.getJob().id.val);
+        deleteTempJob(proc.getJob().getId().val);
         return rv;
     }
 

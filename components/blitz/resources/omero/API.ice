@@ -608,6 +608,7 @@ module omero {
 	    // Central OMERO.blitz stateless services.
 	    IAdmin*    getAdminService() throws ServerError;
 	    IConfig*   getConfigService() throws ServerError;
+            IDelete*   getDeleteService() throws ServerError;
 	    IPixels*   getPixelsService() throws ServerError;
 	    IPojos*    getPojosService() throws ServerError;
 	    IProjection* getProjectionService() throws ServerError;

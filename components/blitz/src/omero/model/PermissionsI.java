@@ -22,6 +22,7 @@ import ome.util.Utils;
  * 
  */
 public class PermissionsI extends Permissions implements ome.model.ModelBased {
+
     public PermissionsI() {
         Long l = (Long) Utils
                 .internalForm(ome.model.internal.Permissions.DEFAULT);
@@ -39,15 +40,7 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
 
     public void copyObject(ome.util.Filterable model,
             ome.util.ModelMapper _mapper) {
-        omero.util.IceMapper mapper = (omero.util.IceMapper) _mapper;
-        if (model instanceof ome.model.internal.Permissions) {
-            ome.model.internal.Permissions source = (ome.model.internal.Permissions) model;
-            this.setPerm1((Long) mapper.findTarget(ome.util.Utils
-                    .internalForm(source)));
-        } else {
-            throw new IllegalArgumentException("Permissions cannot copy from "
-                    + (model == null ? "null" : model.getClass().getName()));
-        }
+        throw new UnsupportedOperationException();
     }
 
     public ome.util.Filterable fillObject(ome.util.ReverseModelMapper _mapper) {

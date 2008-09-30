@@ -1,6 +1,6 @@
 /*
  *   $Id$
- * 
+ *
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
@@ -12,20 +12,20 @@
 #include <omero/fwd.ice>
 #include <omero/RTypes.ice>
 
-module omero { 
-  module model {     
+module omero {
+  module model {
 
     /*
      * Base class of all model types. On the
-     * server, the interface ome.model.IObject 
+     * server, the interface ome.model.IObject
      * unifies the model. In Ice, interfaces have
      * a more remote connotation.
      */
-    class IObject
+    ["protected"] class IObject
     {
       /*
        * The database id for this entity. Of RLong value
-       * so that transient entities can have a null id. 
+       * so that transient entities can have a null id.
        */
       omero::RLong          id;
 
@@ -62,6 +62,56 @@ module omero {
        * less costly.
        */
       void unload();
+
+      /*
+       * Tests for unloadedness. If this value is false, then
+       * any method call on this instance other than getId
+       * or setId will result in an exception.
+       */
+      bool isLoaded();
+
+      // INTERFACE METHODS
+      // =====================================================
+      // The following methods are a replacement for interfaces
+      // so that all language bindings have access to the type
+      // safety available in Java. Making these into IObject
+      // subclasses would not work, since slice does not support
+      // multiple inheritance.
+
+      /*
+       * Marker interface which means that special rules apply
+       * for both reading and writing these instances.
+       */
+      bool isGlobal();
+
+      /*
+       * A link between two other types.
+       * Methods provided:
+       *
+       *   - getParent()
+       *   - getChild()
+       */
+      bool isLink();
+
+      /*
+       * The server will persist changes made to these types.
+       * Methods provided:
+       *
+       *   - getVersion()
+       *   - setVersion()
+       *
+       */
+      bool isMutable();
+
+      /*
+       * Allows for the attachment of any omero.model.Annotation
+       * subclasses. Methods provided are:
+       *
+       *   - linkAnnotation(Annotation)
+       *   -
+       */
+      bool isAnnotated();
+
 
     };
   };
