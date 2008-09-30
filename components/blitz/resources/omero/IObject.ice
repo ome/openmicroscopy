@@ -45,8 +45,19 @@ module omero {
        */
       bool loaded;
 
+      // METHODS
+      // =====================================================
+
+      // Accessors
+
+      omero::RLong getId();
+
+      void setId(omero::RLong id);
+
+      omero::model::Details getDetails();
+
       /*
-       * Sets the loaded boolean to false and empties all state 
+       * Sets the loaded boolean to false and empties all state
        * from this entity to make sending it over the network
        * less costly.
        */
@@ -55,4 +66,4 @@ module omero {
     };
   };
 };
-#endif 
+#endif

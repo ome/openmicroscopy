@@ -307,29 +307,41 @@ UNLOAD BLOCK:
 SPECIAL METHODS:
 Id acccesors copied from other accessors below.
 
-[$jav]       public Long getId() {
-[$jav]           return id == null ? null : id.val;
+[$jav]       public omero.model.Details getDetails(Ice.Current current) {
+[$jav]           return details;
 [$jav]       }
 [$jav]
-[$jav]       public void setId( Long id ) {
-[$jav]           this.id = (id == null) ? null : new omero.RLong(id);
+[$jav]       public omero.RLong getId(Ice.Current current) {
+[$jav]           return id;
+[$jav]       }
+[$jav]
+[$jav]       public void setId( omero.RLong id, Ice.Current current ) {
+[$jav]           this.id = id;
 [$jav]       }
 
-[$hdr]       virtual omero::RLongPtr getId();
-[$hdr]       virtual void setId( omero::RLongPtr id );
+[$hdr]       virtual omero::model::DetailsPtr getDetails(const Ice::Current& current = Ice::Current());
+[$hdr]       virtual omero::RLongPtr getId(const Ice::Current& current = Ice::Current());
+[$hdr]       virtual void setId( omero::RLongPtr id, const Ice::Current& current = Ice::Current() );
 
-[$cpp]       omero::RLongPtr ${PojoI}::getId() {
+[$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails(const Ice::Current& current) {
+[$cpp]           return details;
+[$cpp]       }
+[$cpp]
+[$cpp]       omero::RLongPtr ${PojoI}::getId(const Ice::Current& current) {
 [$cpp]           return id;
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::setId(omero::RLongPtr _id) {
+[$cpp]       void ${PojoI}::setId(omero::RLongPtr _id, const Ice::Current& current) {
 [$cpp]           id = _id;
 [$cpp]       }
 
-[$pyc]       def getId(self):
+[$pyc]       def getDetails(self, current = Ice.Current()):
+[$pyc]           return self.details
+[$pyc]
+[$pyc]       def getId(self, current = Ice.Current()):
 [$pyc]           return self.id
 [$pyc]
-[$pyc]       def setId(self, _id):
+[$pyc]       def setId(self, _id, current = Ice.Current()):
 [$pyc]           self.id = _id
 [$pyc]
 Doing unloadedPython as a method because of the multi-line restriction. See below.
@@ -546,6 +558,14 @@ Unload
 Original accessors: will have their visibility reduced if
 the special set methods are added.
 
+#
+# SPECIAL EXCEPTION:
+# With the addition of "interface" methods to omero::model::IObject
+# it's necessary to temporarily filter all regular accessors here
+# which are defined in the special block above. Eventually those
+# should also be handled by this block.
+#
+#if ($PropertyName != "Details" )
 [$jav]       $access $javaType get${property.nameCapped}() throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           return $getter;
@@ -586,6 +606,8 @@ the special set methods are added.
 [$pyc]           self.${property.Name} = _${property.name}
 [$pyc]           $unloadedPython
 [$pyc]
+#end
+## END SPECIAL EXCEPTION
 One-to-many extras:
 
 #if( $hasSet || $hasLink )
@@ -1126,7 +1148,8 @@ COPYOBJECT BLOCK:
 [$jav]            if (model instanceof ${type.id}) {
 [$jav]                ${type.id} source = (${type.id}) model;
 [$jav]                this.loaded = source.isLoaded();
-[$jav]                this.setId( (Long) mapper.findTarget( source.getId() ));
+[$jav]                Long id = (Long) mapper.findTarget( source.getId() );
+[$jav]                this.setId( id == null ? new omero.RLong() : new omero.RLong(id) );
 ## Properties not in foreach
 ## [$jav]                if (this.loaded) this.setDetails( (omero.model.Details) mapper.findTarget( source.getDetails() ));
 #foreach($property in $type.propertyClosure)
