@@ -1,6 +1,6 @@
 <ivy-module version="1.0">
   <info
-      organisation="omero"
+      organisation="omero-tools"
       module="OmeroImporter"
       status="integration"/>
   <configurations>
@@ -13,8 +13,8 @@
   </publications>
   <dependencies defaultconfmapping="build,test,client->default">
     <!-- Internal -->
-    <dependency name="importer" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
-    <dependency name="client" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
+    <dependency org="omero" name="importer" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
+    <dependency org="omero" name="client" rev="${omero.version}" changing="true" conf="build->build;test->test;client->client"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="unknown"/>
     <dependency org="gui" name="hsqldb" rev="1.8.0.9"/>
