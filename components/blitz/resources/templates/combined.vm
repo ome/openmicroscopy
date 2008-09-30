@@ -1,7 +1,7 @@
 #*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2007,2008 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  *
  *#
@@ -1036,6 +1036,8 @@ COUNTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#set( $ADD2METHOD = "add${property.shortType}2")
+
 [$Ice]       void link${property.shortTarget}(${property.shortTarget} addition);
 [$jav]       public void link${property.shortTarget}(${property.shortTarget} addition, Ice.Current current) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
@@ -1062,35 +1064,35 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TODO: do we need to do link.parent = ...;
 
-[$Ice]       void add${property.shortType}(omero::model::${property.shortType} link, bool bothSides);
-[$jav]       public void add${property.shortType}(${property.shortType} link, boolean bothSides, Ice.Current current) throws omero.UnloadedEntityException {
+[$Ice]       void $ADD2METHOD(omero::model::${property.shortType} link, bool bothSides);
+[$jav]       public void $ADD2METHOD(${property.shortType} link, boolean bothSides, Ice.Current current) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
 [$jav]           ${property.name}.add( link );
 #if($bidir)
 TODO: Should we check for nulls in other?
 [$jav]           if (bothSides && link.${other}.loaded ) {
-[$jav]               ((${property.shortTarget})link.${other}).add${property.shortType}( link, false );
+[$jav]               ((${property.shortTarget})link.${other}).$ADD2METHOD( link, false );
 [$jav]           }
 #end
 [$jav]       }
-[$pyc]       def add${property.shortType}(self, link, bothSides):
+[$pyc]       def $ADD2METHOD(self, link, bothSides):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${property.name}")
 [$pyc]           self.${property.name}.append( link )
 #if($bidir) 
 [$pyc]           if bothSides and link.${other}.loaded:
-[$pyc]               link.${other}.add${property.shortType}( link, False )
+[$pyc]               link.${other}.$ADD2METHOD( link, False )
 #end
 [$pyc]
-[$hdr]       virtual void add${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current = Ice::Current());
-[$cpp]       void ${PojoI}::add${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current) {
+[$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current = Ice::Current());
+[$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${property.name}");
 [$cpp]           ${property.name}.push_back( link );
 #if($bidir)
 [$cpp]           if (bothSides && link->${other}->loaded ) {
-[$cpp]               ${property.shortTarget}Ptr::dynamicCast(link->${other})->add${property.shortType}( link, false );
+[$cpp]               ${property.shortTarget}Ptr::dynamicCast(link->${other})->$ADD2METHOD( link, false );
 [$cpp]           }
 #end
 [$cpp]       }  
