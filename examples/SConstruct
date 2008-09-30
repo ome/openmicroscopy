@@ -1,0 +1,198 @@
+#
+#   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+#   Use is subject to license terms supplied in LICENSE.txt
+#
+
+# www.scons.org based build file which builds and optionally runs
+# all the examples in this directory. Each directory is its own
+# context, but should contain no sub-directories.
+
+# Instructions:
+#
+#   Environment Variables:
+#
+#     ICE_CONFIG=dist/etc/local.properties
+#     CPPPATH=<locations for headers to be added>
+#     LIBPATH=<location of libraries to be added>
+#     PYTHONPATH=<location of modules to be added>
+#
+#     On Windows, use ";" to separate your paths, otherwise ":"
+#
+#   Command-line arguments:
+#
+#     run=1      # Causes all the files to be executed
+#
+#
+import glob, os
+
+#
+# Reusable code
+#
+def env_path(key):
+    """
+    Reads a path from the environment and splits it into
+    a list
+    """
+    value = os.environ.has_key(key) and os.environ[key] or None
+    value = value and value.split(os.path.pathsep) or []
+    return value
+
+
+#
+# Setup
+#
+platform = ARGUMENTS.get('OS', Platform())
+mode = ARGUMENTS.get('mode', "debug")
+link = ARGUMENTS.get("link","OMERO_common OMERO_client").split()
+builddir = os.path.abspath(os.path.join(os.pardir,"dist"))
+builddir = ARGUMENTS.get("builddir",builddir)
+cpppath = env_path("CPPPATH")
+libpath = env_path("LIBPATH")
+pypath  = env_path("PYTHONPATH")
+
+#
+# Options
+#
+opts = Options()
+opts.Add(BoolOption('run', 'Execute build artifacts', 0))
+
+#
+# ENVIRONMENT: ===================================================
+#
+#env = Environment(JAVACFLAGS="-Xmx400M")
+map = { "options" : opts,
+        "CPPPATH" : cpppath + [os.path.join(builddir,"include"), os.path.curdir],
+        "LIBPATH" : libpath + [os.path.join(builddir,"lib")],
+        "PYTHONPATH" : pypath + [os.path.join(builddir,"lib")],
+        "CXXFLAGS" : [],
+        "CPPDEFINES" : [],
+        "LINKFLAGS" : [],
+        "JAVACFLAGS" : []}
+
+if platform.name == "darwin":
+    map["CPPPATH"].append( '/opt/local/include/' )
+
+if platform.name == "linux" or platform.name == "darwin":
+    #
+    map["CPPPATH"].append(os.path.join(builddir, 'include'))
+    #
+    map["LIBPATH"].append('/opt/local/lib')
+    map["LIBPATH"].append(os.path.join(builddir, 'lib'))
+    #
+    map["ENV"] = {
+        "PATH": os.environ["PATH"],
+        "PYTHONPATH": map["PYTHONPATH"],
+        "DYLD_LIBRARY_PATH": map["LIBPATH"],
+        "ICE_CONFIG":",".join((
+            os.path.join(builddir, 'etc', 'ice.config'),
+            os.path.join(builddir, 'etc', 'local.properties')))
+    }
+
+    if mode == "debug":
+        map["CXXFLAGS"] = ["-g","-O0"]
+
+# Windows
+else:
+    if mode == "debug":
+        map["CXXFLAGS"]   = ['-W1', '-GX', '-EHsc', '-D_DEBUG', '/MDd', '/Zi']
+        map["LIBPATH"]    = ["bin/windows/debug"]
+        map["CPPDEFINES"] = ["WIN32", "_DEBUG", "_WINDOWS"],
+        map["LINKFLAGS"]  = '/DEBUG'
+
+    else:
+        map["CXXFLAGS"]   = ['-O2', '-EHsc', '-DNDEBUG', '/MD']
+        map["LIBPATH"]    = ["bin/windows/release"]
+        map["CPPDEFINES"] = ["WIN32", "NDEBUG", "_WINDOWS"]
+
+
+env = Environment(**map)
+# env.Decider('MD5-timestamp')
+
+# CONFIGURATION: ==============================================
+#
+# Check C++ libraries
+#
+conf = Configure(env)
+if not conf.CheckCXXHeader('Ice/Ice.h'):
+    print 'Ice must be installed!'
+    Exit(1)
+
+if platform.name == "linux":
+    if not conf.CheckLib('Ice'):
+        print 'Ice library must be in path'
+        Exit(1)
+
+#
+# Use C++ libraries
+#
+if platform.name == "linux" or platform.name == "darwin":
+    libs = Split("Ice IceUtil Glacier2")+link
+else:
+    libs = Split("Ice.lib")
+
+
+# TARGETS / EXECUTION: ==========================================
+#
+# Classpath
+#
+import glob, os
+classpath = glob.glob(os.path.join(builddir,"client","*.jar"))
+classpath.append(os.path.join(builddir,"etc"))
+env['ENV']['CLASSPATH']=os.path.pathsep.join(classpath)
+
+#
+# Targets on a per-directory basis
+#
+targets = []
+
+for src_dir in glob.glob("*"):
+    if os.path.isdir(src_dir):
+
+        #
+        # Java
+        #
+        javac = env.Java(src_dir, src_dir)
+        targets.append(javac)
+
+        if env["run"]:
+            java_files = glob.glob(os.path.join(src_dir, "*.java"))
+            for file in java_files:
+                base = os.path.basename(file)
+                base = os.path.splitext(base)[0]
+                # Cloning environment, so that CLASSPATH doesn't have all the subdirectories included
+                clone = env.Clone()
+                clone['ENV']['CLASSPATH'] = os.path.pathsep.join([ clone['ENV']['CLASSPATH'], src_dir ])
+                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea" + base)
+                Depends(run, javac)
+                clone.AlwaysBuild(run)
+                targets.append(run)
+
+        #
+        # Python
+        #
+        if env["run"]:
+            python_files = glob.glob(os.path.join(src_dir, "*.py"))
+            for file in python_files:
+                run = env.Alias(file, [], "python " + file)
+                env.AlwaysBuild(run)
+                targets.append(run)
+
+        #
+        # C++
+        #
+        cpp_files = glob.glob(os.path.join(src_dir,"*.cpp"))
+        for file in cpp_files:
+            base = os.path.splitext(file)[0]
+            make = env.Program(base+".exe", file, LIBS=libs)
+            targets.append(make)
+            if env["run"]:
+                run = env.Command(base+".out", base+".exe", "./$SOURCE")
+                env.Depends(run, make)
+                env.AlwaysBuild(run)
+                targets.append(run)
+
+
+# PREPARING SCONS EXECUTION: =================================
+#
+Default(targets)
+Help(opts.GenerateHelpText(env))
