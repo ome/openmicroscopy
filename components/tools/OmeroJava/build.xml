@@ -36,10 +36,33 @@
     </target>
 
     <target name="compile" depends="generate" unless="skip.ice">
-        <myjavac>
-            <src path="${src.dest}"/>
-            <src path="${src.dir}"/>
-        </myjavac>
+    </target>
+
+    <target name="package" depends="generate" unless="skip.ice">
+        <unjar src="${target.dir}/libs/ice.jar" dest="${target.dir}/ice-classes"/>
+        <jar destfile="${target.dir}/${ivy.module}.jar">
+            <fileset dir="${target.dir}/ice-classes">
+                <exclude name="META-INF/**/*"/>
+            </fileset>
+            <fileset dir="${blitz.comp}/target/classes">
+                <include name="omero/**/*.class"/>
+            </fileset>
+            <fileset dir="${client.comp}/target/classes">
+                <include name="pojos/*.class"/>
+            </fileset>
+            <fileset dir="${common.comp}/target/classes">
+                <include name="ome/system/UpgradeCheck.class"/>
+            </fileset>
+            <fileset dir="${model.comp}/target/classes">
+                <include name="ome/model/IObject.class"/>
+                <include name="ome/model/ModelBased.class"/>
+                <include name="ome/model/internal/*.class"/>
+                <include name="ome/util/Filterable.class"/>
+                <include name="ome/util/Filter.class"/>
+                <include name="ome/util/ModelMapper.class"/>
+                <include name="ome/util/ReverseModelMapper.class"/>
+            </fileset>
+        </jar>
     </target>
 
     <target name="tools-init" unless="skip.ice"/>
