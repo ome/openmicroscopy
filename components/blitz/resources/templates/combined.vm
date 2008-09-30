@@ -1311,6 +1311,7 @@ FIND
 [$cpp]       }  
 
 REMOVE
+#set( $REMOVE2METHOD = "remove${property.shortType}2")
 
 #set( $removeLinkPredicate = "testRemove${property.shortTarget}From${PojoI}" )
 [$cpp]
@@ -1323,7 +1324,7 @@ REMOVE
 [$cpp]            if (o == t) {
 #if($bidir)
 [$cpp]                if (bothSides && t->${other}->loaded){
-[$cpp]                    ${property.shortTarget}Ptr::dynamicCast(o->${other})->remove${property.shortType}(t,false);
+[$cpp]                    ${property.shortTarget}Ptr::dynamicCast(o->${other})->$REMOVE2METHOD(t,false);
 [$cpp]                }
 #end
 [$cpp]                return true;
@@ -1340,18 +1341,18 @@ REMOVE
 [$jav]           List<$property.shortType> toRemove = find${property.shortType}(removal);
 [$jav]           Iterator<$property.shortType> it = toRemove.iterator();
 [$jav]           while( it.hasNext() ){
-[$jav]               remove${property.shortType}( it.next(), true );
+[$jav]               $REMOVE2METHOD( it.next(), true );
 [$jav]           }
 [$jav]       }
 
-[$Ice]       void remove${property.shortType}(omero::model::${property.shortType} link, bool bothSides);
-[$jav]       public void remove${property.shortType}(${property.shortType} link, boolean bothSides, Ice.Current current  ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
+[$Ice]       void $REMOVE2METHOD(omero::model::${property.shortType} link, bool bothSides);
+[$jav]       public void $REMOVE2METHOD(${property.shortType} link, boolean bothSides, Ice.Current current  ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.remove( link );
 #if($bidir)
 [$jav]           if (bothSides && link.${other}.loaded) {
-[$jav]               ((${property.shortTarget})link.${other}).remove${property.shortType}(link, false );
+[$jav]               ((${property.shortTarget})link.${other}).$REMOVE2METHOD(link, false );
 [$jav]           }
 #end
 [$jav]       }
@@ -1360,15 +1361,15 @@ REMOVE
 [$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           toRemove = self.find${property.shortType}(removal)
 [$pyc]           for next in toRemove:
-[$pyc]               self.remove${property.shortType}( next, True )
+[$pyc]               self.$REMOVE2METHOD( next, True )
 [$pyc]
-[$pyc]       def remove${property.shortType}(self, link, bothSides, $PYC_CURRENT):
+[$pyc]       def $REMOVE2METHOD(self, link, bothSides, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self.${fieldName}.remove( link )
 #if($bidir)
 [$pyc]           if bothSides and link.${other}.loaded:
-[$pyc]               link.${other}.remove${property.shortType}(link, False)
+[$pyc]               link.${other}.$REMOVE2METHOD(link, False)
 #end
 [$pyc]
 [$hdr]       virtual void unlink${property.shortTarget}(const ${property.shortTarget}Ptr& removal, $HDR_CURRENT);
@@ -1379,12 +1380,12 @@ REMOVE
 [$cpp]           $cppType::iterator beg = toRemove.begin();
 [$cpp]           $cppType::iterator end = toRemove.end();
 [$cpp]           while (beg != end) {
-[$cpp]             remove${property.shortType}( *beg, true );
+[$cpp]             $REMOVE2METHOD( *beg, true );
 [$cpp]             ++beg;
 [$cpp]           }
 [$cpp]       }
-[$hdr]       virtual void remove${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::remove${property.shortType}(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT) {
+[$hdr]       virtual void $REMOVE2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::$REMOVE2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           // predicate may do reverse side
