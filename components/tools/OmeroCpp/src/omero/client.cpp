@@ -152,10 +152,10 @@ ostream& operator<<(ostream& os, const omero::model::IObjectPtr ptr) {
     os << "null";
   } else {
     os << ptr->ice_staticId() << ":";
-    if (!ptr->id) {
+    if (!ptr->getId()) {
       os << "null_id";
     } else {
-      os << ptr->id;
+      os << ptr->getId();
     }
   }
   return os;
