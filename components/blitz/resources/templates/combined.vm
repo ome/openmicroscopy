@@ -307,10 +307,10 @@ See single Python constructor above.
 LOADNESS BLOCK:
 =====================================================================================================
 
-[$jav]       public void unload(Ice.Current current) {
-[$hdr]       virtual void unload(const Ice::Current& current = Ice::Current());
-[$cpp]       void ${PojoI}::unload(const Ice::Current& current) {
-[$pyc]       def unload(self, current = Ice.Current()):
+[$jav]       public void unload($JAV_CURRENT) {
+[$hdr]       virtual void unload($HDR_CURRENT);
+[$cpp]       void ${PojoI}::unload($CPP_CURRENT) {
+[$pyc]       def unload(self, $PYC_CURRENT):
 [$pyc]           self.loaded = False
 [$jav]           loaded = false;
 [$cpp]           loaded = false;
@@ -326,10 +326,10 @@ LOADNESS BLOCK:
 [$jav]    }
 [$cpp]    }
 
-[$jav]       public boolean isLoaded(Ice.Current current) {
-[$hdr]       virtual bool isLoaded(const Ice::Current& current = Ice::Current());
-[$cpp]       bool ${PojoI}::isLoaded(const Ice::Current& current) {
-[$pyc]       def isLoaded(self, current = Ice.Current()):
+[$jav]       public boolean isLoaded($JAV_CURRENT) {
+[$hdr]       virtual bool isLoaded($HDR_CURRENT);
+[$cpp]       bool ${PojoI}::isLoaded($CPP_CURRENT) {
+[$pyc]       def isLoaded(self, $PYC_CURRENT):
 [$pyc]           return self.loaded
 [$jav]           return loaded;
 [$cpp]           return loaded;
@@ -343,44 +343,44 @@ the IObject abstract base class declares several methods that all concrete
 implementations must define.
 
 [$jav]       public boolean isGlobal($JAV_CURRENT) {
-[$cpp]           return #if($type.global)true#elsefalse#end;
+[$jav]           return #if($type.global) true #else false #end;
 [$jav]       }
 [$hdr]       virtual bool isGlobal($HDR_CURRENT);
 [$cpp]       bool ${PojoI}::isGlobal($CPP_CURRENT) {
-[$cpp]           return #if($type.global)true#elsefalse#end;
+[$cpp]           return #if($type.global) true #else false #end;
 [$cpp]       }
 [$pyc]       def isGlobal(self, $PYC_CURRENT):
-[$pyc]           return #if($type.global)True#elseFalse#end;
+[$pyc]           return #if($type.global) True #else False #end;
 
 [$jav]       public boolean isMutable($JAV_CURRENT) {
-[$cpp]           return #if($type.immutable)false#elsetrue#end;
+[$jav]           return #if($type.immutable) false #else true #end;
 [$jav]       }
 [$hdr]       virtual bool isMutable($HDR_CURRENT);
 [$cpp]       bool ${PojoI}::isMutable($CPP_CURRENT) {
-[$cpp]           return #if($type.immutable)false#elsetrue#end;
+[$cpp]           return #if($type.immutable) false #else true #end;
 [$cpp]       }
 [$pyc]       def isMutable(self, $PYC_CURRENT):
-[$pyc]           return #if($type.immutable)False#elseTrue#end;
+[$pyc]           return #if($type.immutable) False #else True #end;
 
 [$jav]       public boolean isAnnotated($JAV_CURRENT) {
-[$cpp]           return #if($type.annotated)true#elsefalse#end;
+[$jav]           return #if($type.annotated) true #else false #end;
 [$jav]       }
 [$hdr]       virtual bool isAnnotated($HDR_CURRENT);
 [$cpp]       bool ${PojoI}::isAnnotated($CPP_CURRENT) {
-[$cpp]           return #if($type.annotated)true#elsefalse#end;
+[$cpp]           return #if($type.annotated) true #else false #end;
 [$cpp]       }
 [$pyc]       def isAnnotated(self, $PYC_CURRENT):
-[$pyc]           return #if($type.annotated)True#elseFalse#end;
+[$pyc]           return #if($type.annotated) True #else False #end;
 
 [$jav]       public boolean isLink($JAV_CURRENT) {
-[$cpp]           return #if($type.isLink)true#elsefalse#end;
+[$jav]           return #if($type.isLink) true #else false #end;
 [$jav]       }
 [$hdr]       virtual bool isLink($HDR_CURRENT);
 [$cpp]       bool ${PojoI}::isLink($CPP_CURRENT) {
-[$cpp]           return #if($type.isLink)true#elsefalse#end;
+[$cpp]           return #if($type.isLink) true #else false #end;
 [$cpp]       }
 [$pyc]       def isLink(self, $PYC_CURRENT):
-[$pyc]           return #if($type.isLink)True#elseFalse#end;
+[$pyc]           return #if($type.isLink) True #else False #end;
 
 
 SPECIAL METHODS:
@@ -390,15 +390,15 @@ since id and details (like the loadedness methods above) are defined in IObject.
 and cannot appear in every concrete <>I class. Therefore, we define them here
 and protect later FOREACH blocks with "if (name == 'id' || name == 'details') skip;"
 
-[$jav]       public omero.RLong getId(Ice.Current current) {
+[$jav]       public omero.RLong getId($JAV_CURRENT) {
 [$jav]           return id;
 [$jav]       }
 [$jav]
-[$jav]       public void setId( omero.RLong id, Ice.Current current ) {
+[$jav]       public void setId( omero.RLong id, $JAV_CURRENT ) {
 [$jav]           this.id = id;
 [$jav]       }
 [$jav]
-[$jav]       public omero.model.Details getDetails(Ice.Current current) {
+[$jav]       public omero.model.Details getDetails($JAV_CURRENT) {
 [$jav]           return this.details;
 [$jav]       }
 [$jav]
@@ -447,16 +447,16 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$cpp]           id = _id;
 [$cpp]       }
 
-[$pyc]       def getDetails(self, current = Ice.Current()):
+[$pyc]       def getDetails(self, $PYC_CURRENT):
 [$pyc]           return self.details
 [$pyc]
 [$pyc]       def unloadDetails(self):
 [$pyc]           self.details = None
 [$pyc]
-[$pyc]       def getId(self, current = Ice.Current()):
+[$pyc]       def getId(self, $PYC_CURRENT):
 [$pyc]           return self.id
 [$pyc]
-[$pyc]       def setId(self, _id, current = Ice.Current()):
+[$pyc]       def setId(self, _id, $PYC_CURRENT):
 [$pyc]           self.id = _id
 [$pyc]
 Doing unloadedPython as a method because of the multi-line restriction. See below.
@@ -705,12 +705,12 @@ Unload
 Original accessors: will have their visibility reduced if
 the special set methods are added.
 
-[$jav]       $access $javaType get${property.nameCapped}(Ice.Current current) throws omero.UnloadedEntityException {
+[$jav]       $access $javaType get${property.nameCapped}($JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           return $getter;
 [$jav]       }
 [$jav]
-[$jav]       $access void set${PropertyName}($javaType $property.name, Ice.Current current) throws omero.UnloadedEntityException {
+[$jav]       $access void set${PropertyName}($javaType $property.name, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           this.$fieldName = $setter;
 [$jav]           $unloadedJava
@@ -759,28 +759,28 @@ ticket:684 This is necessary to map back and forth from sets.
 #if($access == "protected" )
 [$hdr]     protected:
 #end
-[$hdr]       virtual $cppType get${property.nameCapped}(const Ice::Current& current = Ice::Current());
-[$hdr]       virtual void set${PropertyName}($cppType _$property.name, const Ice::Current& current = Ice::Current());
+[$hdr]       virtual $cppType get${property.nameCapped}($HDR_CURRENT);
+[$hdr]       virtual void set${PropertyName}($cppType _$property.name, $HDR_CURRENT);
 #if($access == "protected" )
 [$hdr]     public:
 #end
 
-[$cpp]       $cppType ${PojoI}::get${property.nameCapped}(const Ice::Current& current) {
+[$cpp]       $cppType ${PojoI}::get${property.nameCapped}($CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           return ${open}${fieldName}${close};
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::set${PropertyName}($cppType _$property.name, const Ice::Current& current) {
+[$cpp]       void ${PojoI}::set${PropertyName}($cppType _$property.name, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           $fieldName = $!{prefix}_${property.name}$!{suffix};
 [$cpp]           $unloadedCpp
 [$cpp]       }
 
-[$pyc]       def get${property.nameCapped}(self, current = Ice.Current()):
+[$pyc]       def get${property.nameCapped}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           return self.${fieldName}
 [$pyc]
-[$pyc]       def set${PropertyName}(self, _${property.name}, current = Ice.Current()):
+[$pyc]       def set${PropertyName}(self, _${property.name}, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           self.${fieldName} = _${property.name}
 [$pyc]           $unloadedPython
@@ -835,8 +835,8 @@ sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$jav]           if (!${propLoaded}) return -1;
 [$jav]           return ${fieldName}.size();
 [$jav]       }
-[$hdr]       virtual Ice::Integer sizeOf${PropertyName}($HDR_CURRENT);
-[$cpp]       Ice::Integer ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT) {
+[$hdr]       virtual Ice::Int sizeOf${PropertyName}($HDR_CURRENT);
+[$cpp]       Ice::Int ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) return -1;
 [$cpp]           return ${fieldName}.size();
@@ -930,8 +930,8 @@ add single
 [$pyc]           self.${fieldName}.append( target );
 [$pyc]           target.$inverse = self;
 [$pyc]
-[$hdr]       virtual void add${property.shortType}(${property.shortType}Ptr target, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::add${property.shortType}(${property.shortType}Ptr target, $CPP_CURRENT) {
+[$hdr]       virtual void add${property.shortType}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::add${property.shortType}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.push_back( target );
@@ -994,8 +994,8 @@ remove single
 [$pyc]           self.${fieldName}.remove( target )
 [$pyc]           target.$inverse = None
 [$pyc]
-[$hdr]       virtual void remove${property.shortType}(${property.shortType}Ptr target, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::remove${property.shortType}(${property.shortType}Ptr target, $CPP_CURRENT) {
+[$hdr]       virtual void remove${property.shortType}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::remove${property.shortType}(const ${property.shortType}Ptr& target, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator it = std::remove_if(
@@ -1117,33 +1117,34 @@ clear
 [$jav]       }
 [$jav]
 
-[$hdr]       ${cppType} get${property.shortType}(int index, $HDR_CURRENT);
-[$cpp]       ${cppType} ${PojoI}::get${property.shortType}(int index, $CPP_CURRENT);
+#set( $CPPRETURNTYPE = "${property.shortType}Ptr")
+[$hdr]       virtual $CPPRETURNTYPE get${property.shortType}(int index, $HDR_CURRENT);
+[$cpp]       $CPPRETURNTYPE ${PojoI}::get${property.shortType}(int index, $CPP_CURRENT);
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           return ${fieldName}.get(index);
 [$cpp]       }
 [$cpp]
-[$hdr]       void set${property.shortType}(int index, ${property.shortType} element, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::set${property.shortType}(int index, ${property.shortType} element, $CPP_CURRENT);
+[$hdr]       virtual void set${property.shortType}(int index, const ${property.shortType}& element, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::set${property.shortType}(int index, const ${property.shortType}& element, $CPP_CURRENT);
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.set(index, element);
 [$cpp]       }
 [$cpp]
-[$hdr]       ${cppType} getPrimary${property.shortType}($HDR_CURRENT);
-[$cpp]       ${cppType} ${PojoI}::getPrimary${property.shortType}($CPP_CURRENT);
+[$hdr]       virtual $CPPRETURNTYPE getPrimary${property.shortType}($HDR_CURRENT);
+[$cpp]       $CPPRETURNTYPE ${PojoI}::getPrimary${property.shortType}($CPP_CURRENT);
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           return ${fieldName}.get(0);
 [$cpp]       }
 [$cpp]    
-[$hdr]       ${cppType} setPrimary${property.shortType}(${property.shortType} element, $HDR_CURRENT);
-[$cpp]       ${cppType} setPrimary${property.shortType}(${property.shortType} element, $CPP_CURRENT) {
+[$hdr]       virtual $CPPRETURNTYPE setPrimary${property.shortType}(const ${property.shortType}& element, $HDR_CURRENT);
+[$cpp]       $CPPRETURNTYPE setPrimary${property.shortType}(${property.shortType} element, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           int index = ${fieldName}.indexOf(element);
-[$cpp]           ${property.shortType} old = ${fieldName}.get(0);
+[$cpp]           $CPPRETURNTYPE old = ${fieldName}.get(0);
 [$cpp]           ${fieldName}.set(index, old);
 [$cpp]           ${fieldName}.set(0, element);
 [$cpp]           return old;
@@ -1219,14 +1220,14 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #set( $ADD2METHOD = "add${property.shortType}2")
 
 [$Ice]       void link${property.shortTarget}(${property.shortTarget} addition);
-[$jav]       public void link${property.shortTarget}(${property.shortTarget} addition, Ice.Current current) throws omero.UnloadedEntityException {
+[$jav]       public void link${property.shortTarget}(${property.shortTarget} addition, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${property.shortType}I link = new ${property.shortType}I();
 [$jav]           link.link( ${order} );
 [$jav]           $ADD2METHOD( link, true );
 [$jav]       }
-[$pyc]       def link${property.shortTarget}(self, addition, current = Ice.Current()):
+[$pyc]       def link${property.shortTarget}(self, addition, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           link = _omero_model.${property.shortType}I()
@@ -1245,7 +1246,7 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 TODO: do we need to do link.parent = ...;
 
 [$Ice]       void $ADD2METHOD(omero::model::${property.shortType} link, bool bothSides);
-[$jav]       public void $ADD2METHOD(${property.shortType} link, boolean bothSides, Ice.Current current) throws omero.UnloadedEntityException {
+[$jav]       public void $ADD2METHOD(${property.shortType} link, boolean bothSides, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.add( link );
@@ -1265,8 +1266,8 @@ TODO: Should we check for nulls in other?
 [$pyc]               link.${other}.$ADD2METHOD( link, False )
 #end
 [$pyc]
-[$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current = Ice::Current());
-[$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, const Ice::Current& current) {
+[$hdr]       virtual void $ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::$ADD2METHOD(const ${property.shortType}Ptr& link, bool bothSides, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${fieldName}.push_back( link );
@@ -1346,7 +1347,7 @@ REMOVE
 [$jav]       }
 
 [$Ice]       void $REMOVE2METHOD(omero::model::${property.shortType} link, bool bothSides);
-[$jav]       public void $REMOVE2METHOD(${property.shortType} link, boolean bothSides, Ice.Current current  ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
+[$jav]       public void $REMOVE2METHOD(${property.shortType} link, boolean bothSides, $JAV_CURRENT  ) throws omero.UnloadedEntityException, omero.UnloadedCollectionException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.remove( link );
@@ -1433,7 +1434,8 @@ CLASS-LEVEL EXTRA METHODS BLOCK:
 #end
 #end##FOREACH
 
-[$jav]       public void link(${parent} _parent, ${child} _child) throws omero.UnloadedEntityException {
+[$Ice]       void link(${parent} theParent, ${child} theChild);
+[$jav]       public void link(${parent} _parent, ${child} _child, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           setParent( _parent );
 [$jav]           setChild( _child );
@@ -1446,7 +1448,7 @@ CLASS-LEVEL EXTRA METHODS BLOCK:
 [$jav]           errorIfUnloaded();
 [$jav]           return (${child}) child;
 [$jav]       }
-[$pyc]       def link(self, _parent, _child):
+[$pyc]       def link(self, _parent, _child, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           self.setParent( _parent )
 [$pyc]           self.setChild( _child )
@@ -1459,10 +1461,10 @@ CLASS-LEVEL EXTRA METHODS BLOCK:
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           return self.child
 [$pyc]
-[$hdr]       virtual void link(${parent}Ptr parent, ${child}Ptr child);
+[$hdr]       virtual void link(const ${parent}Ptr& parent, const ${child}Ptr& child, $HDR_CURRENT);
 [$hdr]       virtual ${parent}Ptr castParent();
 [$hdr]       virtual ${child}Ptr castChild();
-[$cpp]       void ${PojoI}::link(${parent}Ptr _parent, ${child}Ptr _child) {
+[$cpp]       void ${PojoI}::link(const ${parent}Ptr& _parent, const ${child}Ptr& _child, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           setParent( _parent );
 [$cpp]           setChild(  _child  );
