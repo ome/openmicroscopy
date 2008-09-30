@@ -1,0 +1,56 @@
+<html>
+<head>
+<title>Weblitz Interface</title>
+</head>
+<body>
+
+<div align="center">
+<p><b>Setting up the Weblitz Interface</b></p>
+</div>
+
+<p><b>The Weblitz Interface Dependancies</b></p>
+
+<p>To actually use weblitz you'll need django and pysqlite, for which has 
+a small script that grabs and compiles both for inplace usage 
+(i.e. not system wide).</p> 
+
+Just run <code>python weblitz_prepare.sh</code>
+
+<p>Currently weblitz has prerequisites for</p>
+<ol>
+<li>
+	pysqlite-2.3.5
+</li>
+<li>
+	django SVN revision 6652+
+</li>
+</ol>
+
+<p>If you don't want, can't compile and install django and, or 
+pysqlite this way, just grab them and install system wide by whatever means 
+you have available. Weblitz currently targeting pysqlite-2.3.5 and django's 
+trunk from svn at revision 6652, but newer versions will almost certainly work.</p>
+
+<p><b>The Weblitz Interface in Detail</b></p>
+
+<p>A few other dependencies need to be satisfied to run the weblitz app,
+ but if you don't want to actually use weblitz but just see how it connects 
+ and talks to the blitz server, you can check 
+ <code>weblitz/blitzcon/blitz_connector.py</code> that has all the logic in.</p>
+
+<p><b>Running the Server</b></p>
+
+<p>When all is done, run <code>python manage.py runserver</code></p>
+<p> Visit <code>localhost:8000/admin</code> to set up at least one Stored Connection. 
+The base path will be the url you need to use to access that particular 
+connection.</p>
+
+<div class="noteFrame">
+	<div class="noteLabel">Note</div>
+  	<div class="noteContent">
+		Default username/password for administrator is admin:omero
+  	</div>
+</div> 
+
+</body>
+</html>

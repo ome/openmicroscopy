@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>OMERO.Blitz API Documentation - Python Bindings</title>
+  <author name="Donald MacDonald" email="sendcomments@openmicroscopy.org.uk" />
+
+  <version number="Final"/>
+  <last-modified date="2008-02-8"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+	<section href="section_1.html" name="Overview of the OMERO.Blitz API"/>
+	<section href="section_2.html" name="OMERO.Blitz Types">
+		<section href="section_2_1.html" name="Simple Types"/>
+		<section href="section_2_2.html" name="Abstract Data Types"/>
+		<section href="section_2_3.html" name="List of RTypes"/>
+	</section>	
+	<section href="section_3.html" name="Creating a Connection to the Server"/>
+	<section href="section_4.html" name="OMERO.Blitz API">
+		<section href="section_4_1.html" name="Slice and OMERO.Blitz"/>
+		<section href="section_4_2.html" name="OMERO.Blitz Services">
+			<section href="section_4_2_1.html" name="Admin Service"/>
+			<section href="section_4_2_2.html" name="Config Service"/>
+			<section href="section_4_2_3.html" name="Pixels Service"/>
+			<section href="section_4_2_4.html" name="Pojos Service"/>
+			<section href="section_4_2_5.html" name="Query Service"/>
+			<section href="section_4_2_6.html" name="Repository Info Service"/>
+			<section href="section_4_2_7.html" name="Types Service"/>
+			<section href="section_4_2_8.html" name="Update Service"/>
+			<section href="section_4_2_9.html" name="Raw File Store"/>
+			<section href="section_4_2_10.html" name="Raw Pixels Store"/>
+			<section href="section_4_2_11.html" name="Rendering Engine"/>
+			<section href="section_4_2_12.html" name="Thumbnail Store"/>
+		</section>
+	</section>
+</toc>
+</xdoc>
