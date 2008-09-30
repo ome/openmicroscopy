@@ -96,10 +96,8 @@
     </copy> 
   	<copy todir="${app.compiled.util.dir}">
   	 <fileset refid="app.resources.util"/>
+  	 <fileset refid="app.resources.svc"/>
   	</copy> 
-  	<copy todir="${app.compiled.svc.dir}">
-  	  	 <fileset refid="app.resources.svc"/>
-  	  	</copy>
   </target>
  
   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 

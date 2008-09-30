@@ -728,6 +728,7 @@ class OMEROGateway
 		else if (nodeType.equals(ScreenData.class)) return Screen.class;
 		else if (nodeType.equals(PlateData.class)) return Plate.class;
 		else if (nodeType.equals(WellData.class)) return Well.class;
+		else if (nodeType.equals(WellSampleData.class)) return WellSample.class;
 		else throw new IllegalArgumentException("NodeType not supported");
 	}
 	
