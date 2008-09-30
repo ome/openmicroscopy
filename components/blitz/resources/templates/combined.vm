@@ -336,6 +336,53 @@ LOADNESS BLOCK:
 [$jav]    }
 [$cpp]    }
 
+INTERFACE METHODS:
+=====================================================================================================
+Since all the language bindings don't support the concept of interfaces,
+the IObject abstract base class declares several methods that all concrete
+implementations must define.
+
+[$jav]       public boolean isGlobal($JAV_CURRENT) {
+[$cpp]           return #if($type.global)true#elsefalse#end;
+[$jav]       }
+[$hdr]       virtual bool isGlobal($HDR_CURRENT);
+[$cpp]       bool ${PojoI}::isGlobal($CPP_CURRENT) {
+[$cpp]           return #if($type.global)true#elsefalse#end;
+[$cpp]       }
+[$pyc]       def isGlobal(self, $PYC_CURRENT):
+[$pyc]           return #if($type.global)True#elseFalse#end;
+
+[$jav]       public boolean isMutable($JAV_CURRENT) {
+[$cpp]           return #if($type.immutable)false#elsetrue#end;
+[$jav]       }
+[$hdr]       virtual bool isMutable($HDR_CURRENT);
+[$cpp]       bool ${PojoI}::isMutable($CPP_CURRENT) {
+[$cpp]           return #if($type.immutable)false#elsetrue#end;
+[$cpp]       }
+[$pyc]       def isMutable(self, $PYC_CURRENT):
+[$pyc]           return #if($type.immutable)False#elseTrue#end;
+
+[$jav]       public boolean isAnnotated($JAV_CURRENT) {
+[$cpp]           return #if($type.annotated)true#elsefalse#end;
+[$jav]       }
+[$hdr]       virtual bool isAnnotated($HDR_CURRENT);
+[$cpp]       bool ${PojoI}::isAnnotated($CPP_CURRENT) {
+[$cpp]           return #if($type.annotated)true#elsefalse#end;
+[$cpp]       }
+[$pyc]       def isAnnotated(self, $PYC_CURRENT):
+[$pyc]           return #if($type.annotated)True#elseFalse#end;
+
+[$jav]       public boolean isLink($JAV_CURRENT) {
+[$cpp]           return #if($type.isLink)true#elsefalse#end;
+[$jav]       }
+[$hdr]       virtual bool isLink($HDR_CURRENT);
+[$cpp]       bool ${PojoI}::isLink($CPP_CURRENT) {
+[$cpp]           return #if($type.isLink)true#elsefalse#end;
+[$cpp]       }
+[$pyc]       def isLink(self, $PYC_CURRENT):
+[$pyc]           return #if($type.isLink)True#elseFalse#end;
+
+
 SPECIAL METHODS:
 =====================================================================================================
 Id and Details acccesors defined like accessors below. This is necessary here
@@ -379,12 +426,12 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]       }
 [$jav]
 
-[$hdr]       virtual omero::model::DetailsPtr getDetails(const Ice::Current& current = Ice::Current());
+[$hdr]       virtual omero::model::DetailsPtr getDetails($HDR_CURRENT);
 [$hdr]       virtual void unloadDetails();
-[$hdr]       virtual omero::RLongPtr getId(const Ice::Current& current = Ice::Current());
-[$hdr]       virtual void setId( omero::RLongPtr id, const Ice::Current& current = Ice::Current() );
+[$hdr]       virtual omero::RLongPtr getId($HDR_CURRENT);
+[$hdr]       virtual void setId( omero::RLongPtr id, $HDR_CURRENT );
 
-[$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails(const Ice::Current& current) {
+[$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails($CPP_CURRENT) {
 [$cpp]           return details;
 [$cpp]       }
 [$cpp]
@@ -392,11 +439,11 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$cpp]           details = new omero::model::DetailsPtr();
 [$cpp]       }
 [$cpp]
-[$cpp]       omero::RLongPtr ${PojoI}::getId(const Ice::Current& current) {
+[$cpp]       omero::RLongPtr ${PojoI}::getId($CPP_CURRENT) {
 [$cpp]           return id;
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::setId(omero::RLongPtr _id, const Ice::Current& current) {
+[$cpp]       void ${PojoI}::setId(omero::RLongPtr _id, $CPP_CURRENT) {
 [$cpp]           id = _id;
 [$cpp]       }
 
@@ -756,16 +803,16 @@ One-to-many extras:
 
 sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-[$Ice]       long sizeOf${PropertyName}();
-[$jav]       public long sizeOf${PropertyName}($JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       int sizeOf${PropertyName}();
+[$jav]       public int sizeOf${PropertyName}($JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
-[$jav]           if (!${propLoaded}) return -1l;
+[$jav]           if (!${propLoaded}) return -1;
 [$jav]           return ${fieldName}.size();
 [$jav]       }
-[$hdr]       virtual Ice::Long sizeOf${PropertyName}($HDR_CURRENT);
-[$cpp]       Ice::Long ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT) {
+[$hdr]       virtual Ice::Integer sizeOf${PropertyName}($HDR_CURRENT);
+[$cpp]       Ice::Integer ${PojoI}::sizeOf${PropertyName}($CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) return -1l;
+[$cpp]           if (!${propLoaded}) return -1;
 [$cpp]           return ${fieldName}.size();
 [$cpp]       }
 [$pyc]       def sizeOf${PropertyName}(self, $PYC_CURRENT):
@@ -777,7 +824,7 @@ sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Copy ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 [$Ice]       $iceType copy${PropertyName}();
-[$jav]       public List<$javaType> copy${PropertyName}($JAV_CURRENT) throws omero.UnloadedEntityException{
+[$jav]       public $javaType copy${PropertyName}($JAV_CURRENT) throws omero.UnloadedEntityException{
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           List<$javaType> result = new ArrayList(${fieldName});
@@ -1049,14 +1096,14 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${property.shortType}I link = new ${property.shortType}I();
 [$jav]           link.link( ${order} );
-[$jav]           add${property.shortType}( link, true );
+[$jav]           $ADD2METHOD( link, true );
 [$jav]       }
 [$pyc]       def link${property.shortTarget}(self, addition, current = Ice.Current()):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           link = _omero_model.${property.shortType}I()
 [$pyc]           link.link( ${pyorder} );
-[$pyc]           self.add${property.shortType}( link, True )
+[$pyc]           self.$ADD2METHOD( link, True )
 [$pyc]
 [$hdr]       virtual void link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
 [$cpp]       void ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
@@ -1064,7 +1111,7 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${property.shortType}IPtr link = new ${property.shortType}I();
 [$cpp]           link->link( ${order} );
-[$cpp]           add${property.shortType}( link, true );
+[$cpp]           $ADD2METHOD( link, true );
 [$cpp]       }
 
 TODO: do we need to do link.parent = ...;
