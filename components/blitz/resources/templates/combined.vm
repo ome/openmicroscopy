@@ -296,10 +296,6 @@ UNLOAD BLOCK:
 [$pyc]           self.loaded = False
 [$jav]           loaded = false;
 [$cpp]           loaded = false;
-## Properties not in foreach
-## [$jav]           unloadDetails( );
-## [$cpp]           unloadDetails( );
-## [$pyc]           self.unloadDetails( )
 #foreach($property in $type.propertyClosure)
 #if(!$clazz.identifierProperty.equals($property))
 #set( $PropertyName = $property.nameCapped )
@@ -328,6 +324,10 @@ Id acccesors copied from other accessors below.
 [$jav]           return this.details;
 [$jav]       }
 [$jav]
+[$jav]       public void unloadDetails() {
+[$jav]           this.details = null;
+[$jav]       }
+[$jav]
 [$jav]       private void copyDetails(ome.model.IObject source, omero.util.IceMapper mapper) {
 [$jav]           this.details = (omero.model.Details) mapper.findTarget( source.getDetails() );
 [$jav]       }
@@ -341,11 +341,16 @@ Id acccesors copied from other accessors below.
 [$jav]
 
 [$hdr]       virtual omero::model::DetailsPtr getDetails(const Ice::Current& current = Ice::Current());
+[$hdr]       virtual void unloadDetails();
 [$hdr]       virtual omero::RLongPtr getId(const Ice::Current& current = Ice::Current());
 [$hdr]       virtual void setId( omero::RLongPtr id, const Ice::Current& current = Ice::Current() );
 
 [$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails(const Ice::Current& current) {
 [$cpp]           return details;
+[$cpp]       }
+[$cpp]
+[$cpp]       void ${PojoI}:unload:tDetails() {
+[$cpp]           details = new omero::model::DetailsPtr();
 [$cpp]       }
 [$cpp]
 [$cpp]       omero::RLongPtr ${PojoI}::getId(const Ice::Current& current) {
@@ -358,6 +363,9 @@ Id acccesors copied from other accessors below.
 
 [$pyc]       def getDetails(self, current = Ice.Current()):
 [$pyc]           return self.details
+[$pyc]
+[$pyc]       def unloadDetails(self):
+[$pyc]           self.details = None
 [$pyc]
 [$pyc]       def getId(self, current = Ice.Current()):
 [$pyc]           return self.id
@@ -390,6 +398,18 @@ However, because of Ice's inheritance structure, we are here using
 propertyClosure which gives us superclass fields. These must be filtered
 in the [Ice] sections below, but not for all others.
 
+#if( $property.name.equals("id") || $property.name.equals("details"))## SPECIAL EXCEPTIONS
+
+Skip. These are defined in omero.IObject.ice
+
+#elsif($property.name.equals("version"))
+#if($extendsDeclaration.equals($base))
+             // Version in superclass
+[$Ice]       omero::RInt version;
+#end
+
+#else## All other properties are treated normally
+
 [$hdr]
 [$hdr]       //
 [$hdr]       //  ${Pojo}.${property.name}
@@ -407,13 +427,12 @@ in the [Ice] sections below, but not for all others.
 #set($Ice = "NOT" )
 #end
 
-##
-## Properties used throughout the accessor generation
-##
+
+Properties used throughout the accessor generation
+
 ## TODO: UNIFY THESE
-#set( $field = $property.name )
 #set( $PropertyName = $property.nameCapped)
-#set( $FIELD = "${type.id}.${PropertyName.toUpperCase()}" )
+#set( $STATICFIELDNAME = "${type.id}.${PropertyName.toUpperCase()}" )
 #set( $javaType = $property.type )
 #set( $iceType = "ERROR" )
 #set( $cppType = "ERROR" )
@@ -425,8 +444,10 @@ in the [Ice] sections below, but not for all others.
 #set( $unloadedJava=" " )
 #set( $unloadedCpp=" " )
 #set( $unloadedPython="pass" )
-#set( $copymethod = "source.get$PropertyName()" )
+#set( $copyMethod = "source.get$PropertyName()" )
 #set( $findMethod = "Target" )
+#set( $getter = "this.${property.name}" )
+#set( $setter = "${property.name}" )
 
  TODO: Currently the findTarget methods have separate names.
  Instead there should be a cast to guarantee that the right
@@ -456,50 +477,57 @@ in the [Ice] sections below, but not for all others.
 ## If this is the case, we can't use the accessor and have to use a generated method
 #set( $copyMethod = "(Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()})" )
 #set( $findMethod = "Collection")
+[$Ice]       $seqName ${property.name};
+[$Ice]       bool ${property.name}Loaded;
+#if( $property.isLink )
+[$Ice]       omero::sys::CountMap ${property.name}CountPerOwner;
+#end
 
-#elseif( $javaType.startsWith("ome"))
+#elseif( $javaType.startsWith("ome"))## Had to be moved before "*Map" rule
 #set( $javaType = "omero.model.${shortType}" )
 #set( $getter = "(omero.model.${shortType}) this.$property.name" )
 #set( $setter = "${property.name}")
 #set( $iceType = "omero::model::${shortType}" )
 #set( $cppType = "${iceType}Ptr" )
+[$Ice]       omero::model::${shortType} ${property.name};
 
-#elseif( $javaType.startsWith("IObject"))
+#elseif( $javaType.startsWith("IObject"))## Special case of the previous
 #set( $javaType = "omero.model.IObject")
 #set( $getter = "(omero.model.IObject) this.$property.name" )
 #set( $setter = "${property.name}")
 #set( $iceType = "omero::model::IObject")
 #set( $cppType = "${iceType}Ptr")
+[$Ice]       omero::model::IObject ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Boolean"))
-#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? null : new omero.RBool(${property.name}) ")
+#set( $javaType = "omero.RBool");
 #set( $iceType   = "omero::RBool" )
 #set( $cppType   = "${iceType}Ptr" )
+[$Ice]       omero::RBool ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Integer"))
-#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? null : new omero.RInt(${property.name}) ")
+#set( $javaType = "omero.RInt");
 #set( $iceType   = "omero::RInt" )
 #set( $cppType   = "${iceType}Ptr" )
+[$Ice]       omero::RInt ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Long"))
-#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? null : new omero.RLong(${property.name}) ")
+#set( $javaType = "omero.RLong");
 #set( $iceType   = "omero::RLong" )
 #set( $cppType   = "${iceType}Ptr" )
+[$Ice]       omero::RLong ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Double"))
-#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? null : new omero.RDouble(${property.name}) ")
+#set( $javaType = "omero.RDouble");
 #set( $iceType   = "omero::RDouble" )
 #set( $cppType   = "${iceType}Ptr" )
+[$Ice]       omero::RDouble ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Float"))
-#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? null : new omero.RFloat(${property.name}) ")
+#set( $javaType = "omero.RFloat");
 #set( $iceType   = "omero::RFloat" )
 #set( $cppType   = "${iceType}Ptr" )
+[$Ice]       omero::RFloat ${property.name};
 
 #elseif( $javaType.equals("byte[]"))
 #set( $javaType = "byte[]")
@@ -507,6 +535,7 @@ in the [Ice] sections below, but not for all others.
 #set( $setter = "${property.name}")
 #set( $iceType = "Ice::ByteSeq")
 #set( $cppType = "Ice::ByteSeq")
+[$Ice]       Ice::ByteSeq ${property.name};
 
 #elseif( $javaType.startsWith("long")) ## for Permissions
 #set( $javaType = "Long" )
@@ -515,75 +544,36 @@ in the [Ice] sections below, but not for all others.
 #set( $iceType = "long" )
 #set( $cppType = "long" )
 #set( $copyMethod = "ome.util.Utils.internalForm(source)" )
+[$Ice]       long ${property.name};
 
 #elseif( $javaType.startsWith("java.util.Map") )
 #set( $findMethod = "Map" )
+[$Ice]       dictionary ${property.name};
 
 #elseif( $javaType.startsWith("java.sql.Timestamp")) ## for Event
-#set( $getter = "${property.name} == null ? null : new java.sql.Timestamp( ${property.name}.val )" )
-#set( $setter = "${property.name} == null ? null : new omero.RTime(${property.name}.getTime())");
+#set( $javaType = "omero.RTime");
 #set( $iceType = "omero::RTime" )
 #set( $cppType = "${iceType}Ptr" )
+[$Ice]       omero::RTime ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
-#set( $getter = "${property.name} == null ? null : ${property.name}.val" )
-#set( $setter = "${property.name} == null ? null : new omero.RString(${property.name}) ")
+#set( $javaType = "omero.RString");
 #set( $iceType = "omero::RString" )
 #set( $cppType = "${iceType}Ptr" )
+[$Ice]       omero::RString ${property.name};
 
 #else
 [$all]...ERROR...$javaType unknown.
 
 #end##JAVA_TYPE
 
-ICE BLOCK:
-=====================================================================================================
+Here we only add the getters and setters to Ice, if this is not a collection.
+Otherwise the special collection methods below will be used for access.
 
-// $property
-## SPECIAL EXCEPTION
-#if(! $field.equals("id") && ! $field.equals("details"))
-## skip!
-#if($field.equals("version"))
-#if($extendsDeclaration.equals($base))
-             // Version in superclass
-[$Ice]       omero::RInt version;
-#end
-#elseif( ${shortType} == "String")
-[$Ice]       omero::RString ${property.name};
-#elseif( ${shortType} == "Boolean" )
-[$Ice]       omero::RBool ${property.name};
-#elseif ( ${shortType} == "Double" )
-[$Ice]       omero::RDouble ${property.name};
-#elseif ( ${shortType} == "Float" )
-[$Ice]       omero::RFloat ${property.name};
-#elseif( ${shortType} == "Integer")
-[$Ice]       omero::RInt ${property.name};
-#elseif ( ${shortType} == "Long" )
-[$Ice]       omero::RLong ${property.name};
-#elseif( $shortType.equals("byte[]"))
-[$Ice]       Ice::ByteSeq ${property.name};
-#elseif( $property.one2Many )
-[$Ice]       $seqName ${property.name};
-[$Ice]       bool ${property.name}Loaded;
-#if( $property.isLink )
-[$Ice]       omero::sys::CountMap ${property.name}CountPerOwner;
-#end
-#elseif ($javaType.startsWith("ome") )## Had to be moved before "*Map" rule
-[$Ice]       omero::model::${shortType} ${property.name};
-#elseif ($javaType.equals("IObject"))## Special case of the previous
-[$Ice]       omero::model::IObject ${property.name};
-#elseif ($shortType.endsWith("Map") )
-[$Ice]       dictionary ${property.name};
-#elseif ($javaType.equals("java.sql.Timestamp"))
-[$Ice]       omero::RTime ${property.name};
-#elseif ($javaType.equals("long")) ## From Permissions
-[$Ice]       long ${field};
-#else
-[$Ice]       ERROR ===========> Unknown type (${javaType})
-#end // End type
+#if( ! $property.one2Many )
 [$Ice]       $iceType get${PropertyName}();
 [$Ice]       void set${PropertyName}($iceType the${PropertyName});
-#end ## SPECIAL EXCEPTION
+#end
 
 ASSOCIATION TYPES BLOCK:
 =====================================================================================================
@@ -623,14 +613,6 @@ Unload
 Original accessors: will have their visibility reduced if
 the special set methods are added.
 
-#
-# SPECIAL EXCEPTION:
-# With the addition of "interface" methods to omero::model::IObject
-# it's necessary to temporarily filter all regular accessors here
-# which are defined in the special block above. Eventually those
-# should also be handled by this block.
-#
-#if ($PropertyName != "Details" )
 [$jav]       $access $javaType get${property.nameCapped}(Ice.Current current) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           return $getter;
@@ -643,9 +625,9 @@ the special set methods are added.
 [$jav]       }
 [$jav]
 [$jav]       private void copy${PropertyName}($type.id source, omero.util.IceMapper mapper) {
-[$jav]           this.set${PropertyName}(($javaType) mapper.find${findMethod}($copyMethod));
+[$jav]           this.${property.name} = ($javaType) mapper.find${findMethod}($copyMethod);
 #if ($property.one2Many && $property.isLink)
-[$jav]              this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
+[$jav]           this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
 #end
 [$jav]       }
 [$jav]
@@ -662,13 +644,13 @@ the special set methods are added.
 
 ticket:684 This is necessary to map back and forth from sets.
 #set( $fieldType = $property.fieldType.replaceAll("[<].*[>]",""))
-[$jav]               target.putAt( $FIELD, mapper.reverse( this.get${PropertyName}(), ${fieldType}.class ));
+[$jav]               target.putAt( $STATICFIELDNAME, mapper.reverse( this.${property.name}, ${fieldType}.class ));
 [$jav]             } else {
-[$jav]               target.putAt( $FIELD, null );
+[$jav]               target.putAt( $STATICFIELDNAME, null );
 [$jav]             }
 
 #elseif( $javaType.startsWith("ome") )
-[$jav]             target.putAt($FIELD, ($javaType) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+[$jav]             target.putAt($STATICFIELDNAME, ($javaType) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
 
 #elseif( $javaType.startsWith("IObject") )
 [$jav]             target.set${PropertyName}( (ome.model.IObject) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
@@ -711,9 +693,9 @@ ticket:684 This is necessary to map back and forth from sets.
 [$pyc]           self.${property.Name} = _${property.name}
 [$pyc]           $unloadedPython
 [$pyc]
-#end
-## END SPECIAL EXCEPTION
+
 One-to-many extras:
+======================================================================================
 
 #if( $hasSet || $hasLink )
 
@@ -1181,6 +1163,7 @@ REMOVE
 
 #end##End hasLink
 #end##End hasSet
+#end##End SPECIAL EXCEPTIONS
 
 ##################################################################
 #end##FOREACH#####################################################
