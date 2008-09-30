@@ -33,8 +33,8 @@ public class ApiArrayHandlingTest extends MockedBlitzTest {
         List<omero.model.Experimenter> l = admin.containedExperimenters(1l);
 
         assertTrue(l.size() == 2);
-        assertTrue(l.get(0).id.val == 1l);
-        assertTrue(l.get(1).id.val == 2l);
+        assertTrue(l.get(0).getId().val == 1l);
+        assertTrue(l.get(1).getId().val == 2l);
 
         session.close();
     }

@@ -109,7 +109,7 @@ public class AdapterTest extends TestCase {
         IceMapper mapper = new IceMapper();
         ProjectI p_remote = (ProjectI) mapper.map(p);
         Project p_test = (Project) mapper.reverse(p_remote);
-        assertTrue(p_remote.datasetLinks.size() == 1);
+        assertTrue(p_remote.copyDatasetLinks().size() == 1);
         assertTrue(p_test.sizeOfDatasetLinks() == 1);
     }
 
@@ -121,23 +121,24 @@ public class AdapterTest extends TestCase {
         IceMapper mapper = new IceMapper();
         ProjectI p_remote = (ProjectI) mapper.map(p);
         Project p_test = (Project) mapper.reverse(p_remote);
-        assertTrue(p_remote.datasetLinks.size() == 1);
+        assertTrue(p_remote.copyDatasetLinks().size() == 1);
         assertTrue(p_test.sizeOfDatasetLinks() == 1);
-        ProjectDatasetLinkI pdl_remote = (ProjectDatasetLinkI) p_remote.datasetLinks
-                .get(0);
+        ProjectDatasetLinkI pdl_remote = (ProjectDatasetLinkI) p_remote
+                .copyDatasetLinks().get(0);
         ProjectDatasetLink pdl_test = (ProjectDatasetLink) mapper
                 .reverse(pdl_remote);
-        assertTrue(pdl_remote.parent == p_remote);
+        assertTrue(pdl_remote.getParent() == p_remote);
         assertTrue(pdl_test.parent() != p.collectDatasetLinks(null).get(0));
 
-        omero.model.Dataset d_remote = pdl_remote.child;
-        assertTrue(d_remote.imageLinks.size() == 1);
-        omero.model.DatasetImageLink dil_remote = d_remote.imageLinks.get(0);
-        assertTrue(dil_remote.parent == d_remote);
-        omero.model.Image i_remote = dil_remote.child;
-        assertTrue(i_remote.pixels.size() == 1);
-        omero.model.Pixels pix_remote = i_remote.pixels.get(0);
-        assertTrue(pix_remote.image == i_remote);
+        omero.model.Dataset d_remote = pdl_remote.getChild();
+        assertTrue(d_remote.sizeOfImageLinks() == 1);
+        omero.model.DatasetImageLink dil_remote = d_remote.copyImageLinks()
+                .get(0);
+        assertTrue(dil_remote.getParent() == d_remote);
+        omero.model.Image i_remote = dil_remote.getChild();
+        assertTrue(i_remote.sizeOfPixels() == 1);
+        omero.model.Pixels pix_remote = i_remote.copyPixels().get(0);
+        assertTrue(pix_remote.getImage() == i_remote);
     }
 
     @Test
@@ -165,7 +166,7 @@ public class AdapterTest extends TestCase {
         assertTrue(p.sizeOfDatasetLinks() < 0);
 
         ProjectI p_remote = (ProjectI) mapper.map(p);
-        assert (p_remote.datasetLinks != null);
+        assert (p_remote.sizeOfDatasetLinks() > 0);
     }
 
     @Test
@@ -174,7 +175,7 @@ public class AdapterTest extends TestCase {
         IceMapper mapper = new IceMapper();
 
         ProjectI p_remote = new ProjectI();
-        p_remote.datasetLinksLoaded = false;
+        p_remote.unloadDatasetLinks();
 
         Project p = (Project) mapper.reverse(p_remote);
 
@@ -191,7 +192,7 @@ public class AdapterTest extends TestCase {
         pa.addAnnotationAnnotationLink(new AnnotationAnnotationLink(1L, false));
 
         TextAnnotationI pa_remote = (TextAnnotationI) mapper.map(pa);
-        assertFalse(pa_remote.annotationLinks.iterator().next().loaded);
+        assertFalse(pa_remote.copyAnnotationLinks().get(0).isLoaded());
 
     }
 
@@ -229,24 +230,15 @@ public class AdapterTest extends TestCase {
         assertTrue(p.sizeOfDatasetLinks() < 0);
         IceMapper mapper = new IceMapper();
         ProjectI p_remote = (ProjectI) mapper.map(p);
-        assertFalse(p_remote.datasetLinksLoaded);
+        assertFalse(p_remote.sizeOfDatasetLinks() > 0);
 
         // reverse
         p_remote = new ProjectI();
         p_remote.unloadDatasetLinks();
-        assertFalse(p_remote.datasetLinksLoaded);
+        assertFalse(p_remote.sizeOfDatasetLinks() > 0);
         mapper = new IceMapper();
         p = (Project) mapper.reverse(p_remote);
         assertTrue(p.sizeOfDatasetLinks() < 0);
-
-        // and if we just forget to set unload?
-        p_remote = new ProjectI();
-        p_remote.datasetLinks = null;
-        assertTrue(p_remote.datasetLinksLoaded);
-        mapper = new IceMapper();
-        p = (Project) mapper.reverse(p_remote);
-        // This is why you should use the accessors!
-        // assertTrue(p.sizeOfDatasetLinks()<0);
 
     }
 
@@ -307,7 +299,7 @@ public class AdapterTest extends TestCase {
         assertEquals(Image.class, mapper.fromRType(new JClass("Image")));
         IObject obj = new ImageI(1L, false);
         Image img = (Image) mapper.fromRType(new JObject(obj));
-        assertEquals(img.getId(), Long.valueOf(obj.id.val));
+        assertEquals(img.getId(), Long.valueOf(obj.getId().val));
         JTime time = new JTime(1L);
         Timestamp ts = mapper.convert(time);
         assertEquals(ts.getTime(), time.val);

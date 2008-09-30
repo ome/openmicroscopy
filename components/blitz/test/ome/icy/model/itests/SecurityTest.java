@@ -32,12 +32,12 @@ public class SecurityTest extends IceTest {
     private omero.client createUser() throws ServerError,
             CannotCreateSessionException, PermissionDeniedException {
         omero.model.Experimenter e = new omero.model.ExperimenterI();
-        e.omeName = new JString(Ice.Util.generateUUID());
-        e.firstName = new JString("ticket");
-        e.lastName = new JString("645");
+        e.setOmeName(new JString(Ice.Util.generateUUID()));
+        e.setFirstName(new JString("ticket"));
+        e.setLastName(new JString("645"));
         root.getServiceFactory().getAdminService().createUser(e, "default");
 
-        omero.client user = new omero.client(e.omeName.val, "");
+        omero.client user = new omero.client(e.getOmeName().val, "");
         user.createSession(null, null); // FIXME weird two times?
         return user;
     }

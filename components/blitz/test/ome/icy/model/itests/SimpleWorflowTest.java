@@ -42,9 +42,9 @@ public class SimpleWorflowTest extends IceTest {
         IUpdatePrx prx = ice.getServiceFactory().getUpdateService();
 
         Image i = new ImageI();
-        i.name = new RString("simpleworkflowtest");
+        i.setName(new RString("simpleworkflowtest"));
         i = (Image) prx.saveAndReturnObject(i, null);
-        imageId = i.id.val;
+        imageId = i.getId().val;
     }
 
     @Test(dependsOnGroups = "first")
@@ -52,6 +52,6 @@ public class SimpleWorflowTest extends IceTest {
         IQueryPrx prx = ice.getServiceFactory().getQueryService();
 
         Image i = (Image) prx.get(Image.class.getName(), imageId);
-        assertTrue("simpleworkflowtest".equals(i.name.val));
+        assertTrue("simpleworkflowtest".equals(i.getName().val));
     }
 }

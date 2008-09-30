@@ -27,12 +27,18 @@ public class ParametersI extends omero.sys.Parameters {
         this.map = map;
     }
 
-    public void add(String name, RType r) {
+    public ParametersI add(String name, RType r) {
         this.map.put(name, r);
+        return this;
     }
 
     public ParametersI addId(long id) {
         add("id", new RLong(id));
+        return this;
+    }
+
+    public ParametersI addId(RLong id) {
+        add("id", id);
         return this;
     }
 
@@ -43,6 +49,11 @@ public class ParametersI extends omero.sys.Parameters {
 
     public ParametersI addLong(String name, long l) {
         add(name, new RLong(l));
+        return this;
+    }
+
+    public ParametersI addLong(String name, RLong l) {
+        add(name, l);
         return this;
     }
 

@@ -26,7 +26,19 @@ public class PermissionsI extends Permissions implements ome.model.ModelBased {
     public PermissionsI() {
         Long l = (Long) Utils
                 .internalForm(ome.model.internal.Permissions.DEFAULT);
-        this.perm1 = l == null ? -1L : l.longValue();
+        if (l == null) {
+            throw new IllegalStateException("Permissions.DEFAULT is null");
+        }
+        this.perm1 = l.longValue();
+    }
+
+    public PermissionsI(String representation) {
+        Long l = (Long) Utils.internalForm(ome.model.internal.Permissions
+                .parseString(representation));
+        if (l == null) {
+            throw new IllegalStateException(representation + " produced null");
+        }
+        this.perm1 = l.longValue();
     }
 
     public Long getPerm1() {

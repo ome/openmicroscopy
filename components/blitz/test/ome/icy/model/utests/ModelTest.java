@@ -7,7 +7,7 @@
 package ome.icy.model.utests;
 
 import junit.framework.TestCase;
-
+import omero.RFloat;
 import omero.model.ArcI;
 
 import org.testng.annotations.Test;
@@ -18,7 +18,7 @@ public class ModelTest extends TestCase {
     public void testInheritanceInConcreteClasses() throws Exception {
         ArcI arcI = new ArcI();
         // arcI.unload();
-        arcI.setPower(1.0f);
+        arcI.setPower(new RFloat(1.0f));
     }
-    
+
 }

@@ -32,18 +32,18 @@ public class QueryTest extends IceTest {
         IQueryPrx qu = ice.getServiceFactory().getQueryService();
 
         ImageI i = new ImageI();
-        i.name = new RString("foo");
+        i.setName(new RString("foo"));
 
         i = (ImageI) up.saveAndReturnObject(i);
 
         ImageI t;
 
-        t = (ImageI) qu.get("Image", i.id.val);
-        t = (ImageI) qu.get("ImageI", i.id.val);
-        t = (ImageI) qu.get("omero.model.Image", i.id.val);
-        t = (ImageI) qu.get("omero.model.ImageI", i.id.val);
+        t = (ImageI) qu.get("Image", i.getId().val);
+        t = (ImageI) qu.get("ImageI", i.getId().val);
+        t = (ImageI) qu.get("omero.model.Image", i.getId().val);
+        t = (ImageI) qu.get("omero.model.ImageI", i.getId().val);
         try {
-            t = (ImageI) qu.get("ome.model.core.Image", i.id.val);
+            t = (ImageI) qu.get("ome.model.core.Image", i.getId().val);
             fail("shouldn't work.");
         } catch (ApiUsageException e) {
             // ok
@@ -57,13 +57,13 @@ public class QueryTest extends IceTest {
         IQueryPrx qu = ice.getServiceFactory().getQueryService();
 
         ImageI i = new ImageI();
-        i.name = new RString("foo");
+        i.setName(new RString("foo"));
 
         i = (ImageI) up.saveAndReturnObject(i);
 
         ImageI t;
 
-        t = (ImageI) qu.find("Image", i.id.val);
+        t = (ImageI) qu.find("Image", i.getId().val);
         assertNotNull(t);
         t = (ImageI) qu.find("Image", -1);
         assertNull(t);
@@ -78,7 +78,7 @@ public class QueryTest extends IceTest {
         List<ExperimenterI> l = ExperimenterI.cast(qu
                 .findAll("Experimenter", f));
         assertTrue(l.size() == 1);
-        assertNotNull(l.get(0).omeName);
+        assertNotNull(l.get(0).getOmeName());
 
     }
 
@@ -92,12 +92,12 @@ public class QueryTest extends IceTest {
 
         IQueryPrx qu = ice.getServiceFactory().getQueryService();
         ExperimenterI ex = new ExperimenterI();
-        ex.omeName = new JString("root");
+        ex.setOmeName(new JString("root"));
         List<ExperimenterI> l = ExperimenterI.cast(qu
                 .findAllByExample(ex, null));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).omeName.val.equals("root"));
-        assertTrue(l.get(0).id.val == 0L);
+        assertTrue(l.get(0).getOmeName().val.equals("root"));
+        assertTrue(l.get(0).getId().val == 0L);
 
     }
 
@@ -113,8 +113,8 @@ public class QueryTest extends IceTest {
         p.map.put("name", new JString("root"));
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByQuery(str, p));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).omeName.val.equals("root"));
-        assertTrue(l.get(0).id.val == 0L);
+        assertTrue(l.get(0).getOmeName().val.equals("root"));
+        assertTrue(l.get(0).getId().val == 0L);
 
     }
 
@@ -125,8 +125,8 @@ public class QueryTest extends IceTest {
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
                 "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).omeName.val.equals("root"));
-        assertTrue(l.get(0).id.val == 0L);
+        assertTrue(l.get(0).getOmeName().val.equals("root"));
+        assertTrue(l.get(0).getId().val == 0L);
 
     }
 
@@ -137,8 +137,8 @@ public class QueryTest extends IceTest {
         List<ExperimenterI> l = ExperimenterI.cast(qu.findAllByString(
                 "Experimenter", "omeName", "root", true, null));
         assertTrue(l.size() == 1);
-        assertTrue(l.get(0).omeName.val.equals("root"));
-        assertTrue(l.get(0).id.val == 0L);
+        assertTrue(l.get(0).getOmeName().val.equals("root"));
+        assertTrue(l.get(0).getId().val == 0L);
 
     }
 }

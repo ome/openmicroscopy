@@ -23,10 +23,10 @@ public class PojosTest extends IceTest {
     public void testFindAnnotations() throws Exception {
 
         ImageI i = new ImageI();
-        i.setName("findAnnotationsTest");
+        i.setName(new omero.RString("findAnnotationsTest"));
 
         TextAnnotationI a = new TextAnnotationI();
-        a.setTextValue("an annotation");
+        a.setTextValue(new omero.RString("an annotation"));
         i.linkAnnotation(a);
 
         i = (ImageI) ice.getServiceFactory().getUpdateService()
@@ -35,6 +35,6 @@ public class PojosTest extends IceTest {
 
         Map<Long, List<IObject>> retVal = ice.getServiceFactory()
                 .getPojosService().findAnnotations("Image",
-                        Arrays.asList(i.id.val), null, null);
+                        Arrays.asList(i.getId().val), null, null);
     }
 }

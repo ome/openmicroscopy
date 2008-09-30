@@ -20,24 +20,24 @@ public class UpdateTest extends IceTest {
         assertNotNull(prx);
 
         omero.model.ImageI obj = new omero.model.ImageI();
-        obj.name = new JString("foo");
+        obj.setName(new JString("foo"));
 
         omero.model.CategoryImageLinkI link = new omero.model.CategoryImageLinkI();
         omero.model.CategoryI cat = new omero.model.CategoryI();
-        cat.name = new JString("bar");
-        link.parent = cat;
-        link.child = obj;
-        obj.categoryLinks.add(link);
+        cat.setName(new JString("bar"));
+        link.setParent(cat);
+        link.setChild(obj);
+        obj.addCategoryImageLink(link);
 
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
-        link = (omero.model.CategoryImageLinkI) obj.categoryLinks.get(0);
-        cat = (omero.model.CategoryI) link.parent;
+        link = (omero.model.CategoryImageLinkI) obj.copyCategoryLinks().get(0);
+        cat = (omero.model.CategoryI) link.getParent();
 
-        assertTrue("foo".equals(obj.name.val));
+        assertTrue("foo".equals(obj.getName().val));
         if (cat == null) {
             fail("Cat is null");
         } else {
-            assertTrue("bar".equals(cat.name.val));
+            assertTrue("bar".equals(cat.getName().val));
         }
     }
 
@@ -48,7 +48,7 @@ public class UpdateTest extends IceTest {
 
         String uuid = Ice.Util.generateUUID();
         omero.model.ImageI obj = new omero.model.ImageI();
-        obj.name = new JString(uuid);
+        obj.setName(new JString(uuid));
         obj = (omero.model.ImageI) prx.saveAndReturnObject(obj);
 
         prx.deleteObject(obj);

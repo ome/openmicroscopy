@@ -51,7 +51,6 @@ import omero.RString;
 import omero.RType;
 import omero.constants.POJOEXPERIMENTER;
 import omero.constants.POJOLEAVES;
-import omero.model.DetailsI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterI;
 import omero.model.Image;
@@ -102,13 +101,12 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
         assertNotNull(i.getDetails());
         Object o = mapper.handleOutput(ome.model.core.Image.class, i);
         Image rv = (Image) o;
-        assertNotNull(rv.details);
+        assertNotNull(rv.getDetails());
     }
 
     @Test(groups = "ticket:880")
     void testDetailsAreMappedFromOmero() throws Exception {
         Image i = new ImageI();
-        i.details = new DetailsI();
         Object o = mapper.handleInput(ome.model.core.Image.class, i);
         ome.model.core.Image rv = (ome.model.core.Image) o;
         assertNotNull(rv.getDetails());
@@ -316,7 +314,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     public void testInvokeProperlyMapsIObject() throws Exception {
 
         Image i = new ImageI();
-        i.name = new RString("foo");
+        i.setName(new RString("foo"));
 
         init(IUpdate.class, "saveObject");
         mock.expects(once()).method(current.operation).with(new Constraint() {

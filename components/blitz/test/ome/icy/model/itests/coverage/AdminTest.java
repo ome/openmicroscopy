@@ -30,7 +30,7 @@ public class AdminTest extends IceTest {
         assertNotNull(prx);
         long id = newUser(prx);
         Experimenter e = prx.getExperimenter(id);
-        prx.changeUserPassword(e.omeName.val, new JString("foo"));
+        prx.changeUserPassword(e.getOmeName().val, new JString("foo"));
     }
 
     // ~ Helpers
@@ -38,9 +38,9 @@ public class AdminTest extends IceTest {
 
     private long newUser(IAdminPrx prx) throws ServerError {
         Experimenter e = new ExperimenterI();
-        e.firstName = new JString("admin");
-        e.lastName = new JString("test");
-        e.omeName = new JString(Ice.Util.generateUUID());
+        e.setFirstName(new JString("admin"));
+        e.setLastName(new JString("test"));
+        e.setOmeName(new JString(Ice.Util.generateUUID()));
         long id = prx.createUser(e, "default");
         return id;
     }
