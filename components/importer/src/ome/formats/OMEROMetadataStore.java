@@ -191,31 +191,31 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     public OMEROMetadataStore(String username, String password, String host,
             String port) throws Exception
+        {
+            // Mask the password information for display in the debug window
+            String maskedPswd = "";
+            if (password == null) password = new String("");
+            if (password.length() > 0) maskedPswd = "<" +password.length() + "chars>";
+            else maskedPswd = "<empty>";
+            log.debug(String.format("Initializing store: %s/%s %s:%s", 
+                    username, maskedPswd, host, port));
+    
+            // Attempt to log in
+            try
             {
-        // Mask the password information for display in the debug window
-        String maskedPswd = "";
-        if (password == null) password = new String("");
-        if (password.length() > 0) maskedPswd = "<" +password.length() + "chars>";
-        else maskedPswd = "<empty>";
-        log.debug(String.format("Initializing store: %s/%s %s:%s", 
-                username, maskedPswd, host, port));
-
-        // Attempt to log in
-        try
-        {
-            server = new Server(host, Integer.parseInt(port));
-            login = new Login(username, password);
-            // Instantiate our service factory
-            sf = new ServiceFactory(server, login);
-
-            InitializeServices(sf);
-
-            exp = iQuery.findByString(Experimenter.class, "omeName", username);
-        } catch (Throwable t)
-        {
-            throw new Exception(t);
-        }
+                server = new Server(host, Integer.parseInt(port));
+                login = new Login(username, password);
+                // Instantiate our service factory
+                sf = new ServiceFactory(server, login);
+    
+                InitializeServices(sf);
+    
+                exp = iQuery.findByString(Experimenter.class, "omeName", username);
+            } catch (Throwable t)
+            {
+                throw new Exception(t);
             }
+        }
 
     /* Makes sure SF is still alive */
     public void checkSF()
@@ -530,6 +530,27 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     }
     
     /**
+     * Create a new project, adding it to the mentioned project
+     * @param name
+     * @param description
+     * @return
+     */
+    public Project addProject(String name, String description)
+    {
+        Project project = new Project();
+        if (name.length() != 0)
+            project.setName(name);
+        if (description.length() != 0)
+            project.setDescription(description);
+        
+        Project storedProject = null;
+
+        IUpdate iUpdate = getIUpdate();
+        storedProject = iUpdate.saveAndReturnObject(project);
+        return storedProject;
+    }
+    
+    /**
      * Retrieves dataset names of the current user from the active OMERO
      * instance.
      * @param project the project to retireve datasets from. 
@@ -539,9 +560,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         checkSF();
         List<Dataset> l = iQuery.findAllByQuery(
-                "from Dataset where id in " +
+                "from Dataset d where id in " +
                 "(select link.child.id from ProjectDatasetLink link where " +
-                "link.parent.id = :id)", new Parameters().addId(project.getId()));
+                "link.parent.id = :id) order by d.name", new Parameters().addId(project.getId()));
         return (List<Dataset>) l;
 
         // Use this for M3 build till it gets fixed if this is needed.
@@ -573,7 +594,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         checkSF();
         List<Project> l = iQuery.findAllByQuery(
                 "from Project as p left join fetch p.datasetLinks " +
-                "where p.details.owner.id = :id", 
+                "where p.details.owner.id = :id order by name", 
                 new Parameters().addId(exp.getId()));
         return (List<Project>) l;
     }
@@ -629,7 +650,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             Image[] subImageArray = new Image[end - i];
             System.arraycopy(imageArray, i, subImageArray, 0, end - i);
             IObject[] o = update.saveAndReturnArray(subImageArray);
-            log.debug("Saving images: " + (i + 1) + " to " + end);
+            log.debug("Saving images: " + (i + 1) + " to " + end + " of " + imageArray.length);
 
             for (int j = 0; j < o.length; j++)
             {
@@ -770,7 +791,12 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         p.setSha1(byteArrayToHexString(md.digest()));
         iUpdate.saveObject(p);
     }
-
+    
+    public String getSHA1(Long id)
+    {
+        Pixels p = iQuery.get(Pixels.class, id);
+        return p.getSha1();
+    }
 
     static String byteArrayToHexString(byte in[]) {
 
@@ -2846,7 +2872,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         setWellSampleID(null, plateIndex, wellIndex, wellSampleIndex);
        
         WellSample ws = null;
-        
+                
         if ((well.sizeOfWellSamples() -1) < wellSampleIndex)
         {
             ws = new WellSample();

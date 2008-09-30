@@ -16,11 +16,13 @@ package ome.formats.importer;
 
 // Java imports
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -81,6 +83,8 @@ public class ImportLibrary implements IObservable
         public abstract void step(int series, int step);
     }
 
+    private boolean dumpPixels = false;
+    
     private static Log         log = LogFactory.getLog(ImportLibrary.class);
 
     private Dataset            dataset;
@@ -474,6 +478,16 @@ public class ImportLibrary implements IObservable
         
         store.setPixelsId(pixId);
         
+        FileChannel wChannel = null;
+        File f;
+        
+        if (dumpPixels)
+        {
+            f = new File("pixeldump");
+            boolean append = true;
+            wChannel = new FileOutputStream(f, append).getChannel();   
+        }
+        
         for (int t = 0; t < sizeT; t++)
         {
             for (int c = 0; c < sizeC; c++)
@@ -493,10 +507,14 @@ public class ImportLibrary implements IObservable
                     }
                     step.step(series, i);
                     store.setPlane(pixId, arrayBuf, z, c, t);
+                    if (dumpPixels)
+                        wChannel.write(buf);
                     i++;
                 }
             }
         }
+        if (dumpPixels)
+            wChannel.close();
         reader.populateSHA1(pixId, md);
         reader.populateMinMax(pixId, series);
     }
