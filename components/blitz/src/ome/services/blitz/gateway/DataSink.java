@@ -117,7 +117,7 @@ public class DataSink
 		this.source = source;
 		this.service = service;
 		this.source = source;
-		String type = source.pixelsType.value.val;
+		String type = source.getPixelsType().getValue().val;
 		bytesPerPixels = getBytesPerPixels(type);
 //		cache = CachingService.createPixelsCache(source.id.val, 
 //				source.sizeX.val*source.sizeY.val*bytesPerPixels);
@@ -152,17 +152,17 @@ public class DataSink
 	 */
 	private Integer linearize(int z, int w, int t)
 	{
-		int sizeZ = source.sizeZ.val;
-		int sizeC = source.sizeC.val;
+		int sizeZ = source.getSizeZ().val;
+		int sizeC = source.getSizeC().val;
 		if (z < 0 || sizeZ <= z) 
 			throw new IllegalArgumentException(
 					"z out of range [0, "+sizeZ+"): "+z+".");
 		if (w < 0 || sizeC <= w) 
 			throw new IllegalArgumentException(
 					"w out of range [0, "+sizeC+"): "+w+".");
-		if (t < 0 || source.sizeT.val <= t) 
+		if (t < 0 || source.getSizeT().val <= t) 
 			throw new IllegalArgumentException(
-					"t out of range [0, "+source.sizeT.val+"): "+t+".");
+					"t out of range [0, "+source.getSizeT().val+"): "+t+".");
 		return new Integer(sizeZ*sizeC*t + sizeZ*w + z);
 	}
 
@@ -187,10 +187,10 @@ public class DataSink
 		Plane2D plane = null;
 		if (plane != null) return plane;
 		byte[] data = null; 
-		data = service.getRawPlane(source.id.val, z, w, t);
+		data = service.getRawPlane(source.getId().val, z, w, t);
 		ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
-		plane = new Plane2D(array, source.sizeX.val, 
-							source.sizeY.val, bytesPerPixels, 
+		plane = new Plane2D(array, source.getSizeX().val, 
+							source.getSizeY().val, bytesPerPixels, 
 							strategy);
 		return plane;
 	}
@@ -220,7 +220,7 @@ public class DataSink
 	 */
 	public boolean isSame(long pixelsID)
 	{
-		return (pixelsID == source.id.val);
+		return (pixelsID == source.getId().val);
 	}
 	
 	static public double[][] mapServerToClient(byte[] data, int x, int y, String pixelType)

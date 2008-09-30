@@ -203,9 +203,9 @@ class DataServiceImpl
 			throws omero.ServerError
 	{
 		DatasetImageLink link = new DatasetImageLinkI();
-		link.parent = dataset;
-		link.child = image;
-		dataset.addDatasetImageLink(link, true);
+		link.setParent( dataset );
+		link.setChild( image );
+		dataset.addDatasetImageLink2(link, true);
 		iUpdateGateway.saveObject(link);
 	}
 
@@ -232,7 +232,7 @@ class DataServiceImpl
 		List<Image> images = new ArrayList<Image>();
 		Iterator<DatasetImageLink> iterator = ((DatasetI)dataset).iterateImageLinks(); 
 		while(iterator.hasNext())
-		    images.add(iterator.next().child);
+		    images.add(iterator.next().getChild());
 		return images;
 	}
 
@@ -245,7 +245,7 @@ class DataServiceImpl
 		List<Dataset> datasets = new ArrayList<Dataset>();
 		Iterator<ProjectDatasetLink> iterator = ((ProjectI)project).iterateDatasetLinks();
 		while(iterator.hasNext())
-			datasets.add(iterator.next().child);
+			datasets.add(iterator.next().getChild());
 		return datasets;
 	}
 
@@ -274,7 +274,7 @@ class DataServiceImpl
 	{
 		List<Pixels> pixelsList = new ArrayList<Pixels>();
 		for(Image image : images)
-			for(Pixels pixels : image.pixels)
+			for(Pixels pixels : image.copyPixels())
 				pixelsList.add(pixels);
 		return pixelsList;
 	}
@@ -286,8 +286,8 @@ class DataServiceImpl
 	{
 		Map<Long, Pixels> pixelsList = new TreeMap<Long, Pixels>();
 		for(Image image : images)
-			for(Pixels pixels : image.pixels)
-				pixelsList.put(image.id.val, pixels);
+			for(Pixels pixels : image.copyPixels())
+				pixelsList.put(image.getId().val, pixels);
 		return pixelsList;
 	}
 

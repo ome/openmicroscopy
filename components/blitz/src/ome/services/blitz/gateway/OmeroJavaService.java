@@ -823,7 +823,7 @@ public class OmeroJavaService implements ServiceFactoryAware, _GatewayOperations
 	{
 		List<Pixels> pixels = getPixelsFromImage(imageId, current);
 		Pixels firstPixels = pixels.get(0);
-		return getPlane(firstPixels.id.val, z, c, t, current);
+		return getPlane(firstPixels.getId().val, z, c, t, current);
 	}
 	
 	/**
