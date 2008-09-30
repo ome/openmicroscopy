@@ -147,7 +147,7 @@ public class StatusBar extends JPanel
     {
         progressBar.setValue(val);
     }
-    
+     
     public JPanel buildComponentPanelRight(JComponent component)
     {
         JPanel p = new JPanel();

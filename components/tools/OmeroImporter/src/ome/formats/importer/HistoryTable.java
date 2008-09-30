@@ -1,26 +1,3 @@
-/*
- * $Id$
- *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
- *
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
- */
-
 package ome.formats.importer;
 
 import java.awt.Color;
@@ -317,16 +294,23 @@ public class HistoryTable
             ref = new HistoryTable();
         } catch (Exception e)
         {
+            if (HistoryDB.alertOnce == false)
+            {
             JOptionPane.showMessageDialog(null,
                     "We were not able to connect to the history DB.\n" +
                     "Make sure you do not have a second importer\n" +
                     "running and try again.\n\n" +
-                    "Click OK to exit.",
+                    "In the meantime, you will still be able to use \n" +
+                    "the importer, but the history feature will be disable.",
                     "Warning",
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();    // could not start db
-            System.exit(0);
-
+            }
+            ref = null;
+            
+            HistoryDB.alertOnce = true;
+            e.printStackTrace();    // could not start db
+            //System.exit(0);
         }
         return ref;
     }

@@ -43,6 +43,8 @@ import java.util.Date;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
+import ome.formats.importer.util.IniFileLoader;
+
 /**
  * @author Brian W. Loranger
  *
@@ -50,6 +52,8 @@ import javax.swing.JOptionPane;
 public class HistoryDB implements IObservable
 {
     private static int DB_VERSION = 300;
+    
+    IniFileLoader ini = IniFileLoader.getIniFileLoader();
     
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
@@ -59,6 +63,7 @@ public class HistoryDB implements IObservable
     private SimpleDateFormat sqlDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     private Connection conn;
+    public static boolean alertOnce = false;
     
     public Connection getConnection()
     {
@@ -78,7 +83,7 @@ public class HistoryDB implements IObservable
         
         // Connect to the database
         conn = DriverManager.getConnection(
-                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history" + Main.versionNumber,  // filenames
+                "jdbc:hsqldb:file:" + saveDirectory + File.separator + "history" + Main.dbVersion,  // filenames
                 "sa",                   // username
                 "");                    // password
         try 
@@ -124,26 +129,27 @@ public class HistoryDB implements IObservable
             ref = new HistoryDB();
         } catch (Exception e)
         {
+            if (alertOnce == false)
+            {
             JOptionPane.showMessageDialog(null,
                     "We were not able to connect to the history DB.\n" +
                     "Make sure you do not have a second importer\n" +
                     "running and try again.\n\n" +
-                    "Click OK to exit.",
+                    "In the meantime, you will still be able to use \n" +
+                    "the importer, but the history feature will be disable.",
                     "Warning",
                     JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();    // could not start db
-            System.exit(0);
+            }
+            alertOnce = true;
+            ref = null;
+            //System.exit(0);
 
         }
         return ref;
     }
     
     private static HistoryDB ref;
-    
-    private void checkFor300Update()
-    {
-        
-    }
     
     public void shutdown() throws SQLException {
 

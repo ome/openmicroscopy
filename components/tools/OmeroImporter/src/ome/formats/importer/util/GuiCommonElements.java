@@ -24,9 +24,11 @@
 package ome.formats.importer.util;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.text.NumberFormat;
@@ -41,6 +43,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
@@ -79,6 +82,9 @@ public class GuiCommonElements
     public boolean offsetButtons = false; //Another hack for macness
     public boolean motif = false;
     
+    static IniFileLoader    ini = IniFileLoader.getIniFileLoader();
+    public Rectangle       bounds = ini.getUIBounds();
+    
     public GuiCommonElements()
     {
         String laf = UIManager.getLookAndFeel().getClass().getName();
@@ -94,6 +100,12 @@ public class GuiCommonElements
         }
     }
 
+    // return main frame bound info
+    public Rectangle getUIBounds()
+    {
+        return bounds;
+    }
+    
     public JPanel addMainPanel(Container container, double tableSize[][], 
             int margin_top, int margin_left, int margin_bottom, int margin_right,
             boolean debug)
@@ -433,7 +445,7 @@ public class GuiCommonElements
         textPane.setOpaque(false);
 
         // Create one of each type of tab stop
-        java.util.List list = new ArrayList();
+        java.util.List<TabStop> list = new ArrayList<TabStop>();
         
         // Create a left-aligned tab stop at 100 pixels from the left margin
         float pos = 15;
@@ -649,8 +661,32 @@ public class GuiCommonElements
         return null;
     }
 
+    public boolean quitConfirmed(Component frame) {
+        String s1 = "Quit";
+        String s2 = "Don't Quit";
+        Object[] options = {s1, s2};
+        int n = JOptionPane.showOptionDialog(frame,
+                "Do you really want to quit?\n" +
+                "Doing so will cancel any running imports.",
+                "Quit Confirmation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                s1);
+        if (n == JOptionPane.YES_OPTION) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     public class WholeNumberField extends JTextField {
 
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
         private Toolkit toolkit;
         private NumberFormat integerFormatter;
 
@@ -684,6 +720,11 @@ public class GuiCommonElements
 
         protected class WholeNumberDocument extends PlainDocument {
 
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 1L;
+
             public void insertString(int offs, String str, AttributeSet a) 
             throws BadLocationException {
 
@@ -712,6 +753,10 @@ public class GuiCommonElements
     
     public class DecimalNumberField extends JTextField {
 
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
         private Toolkit toolkit;
         private NumberFormat floatFormatter;
 
@@ -744,6 +789,11 @@ public class GuiCommonElements
         }
 
         protected class DecimalNumberDocument extends PlainDocument {
+
+            /**
+             * 
+             */
+            private static final long serialVersionUID = 1L;
 
             public void insertString(int offs, String str, AttributeSet a) 
             throws BadLocationException {

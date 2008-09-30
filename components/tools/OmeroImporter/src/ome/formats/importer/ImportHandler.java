@@ -14,6 +14,7 @@
 
 package ome.formats.importer;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -130,8 +131,11 @@ public class ImportHandler
         
         try
         {
-            db.insertImportHistory(store.getExperimenterID(), "pending");
-            importKey = db.getLastKey();
+            if (db != null)
+            {
+                db.insertImportHistory(store.getExperimenterID(), "pending");
+                importKey = db.getLastKey();
+            }
         } catch (SQLException e) {  
             e.printStackTrace();
         }
@@ -142,7 +146,8 @@ public class ImportHandler
            	{
                 numOfPendings++;
                	try {
-               	    db.insertFileHistory(importKey, store.getExperimenterID(), i, importContainer[i].imageName, 
+               	    if (db != null)
+               	        db.insertFileHistory(importKey, store.getExperimenterID(), i, importContainer[i].imageName, 
                	         importContainer[i].projectID, importContainer[i].getDatasetId(), "pending", importContainer[i].file);
                	} catch (Exception e) { 
                	    e.printStackTrace();
@@ -150,7 +155,8 @@ public class ImportHandler
            	}
         }
         
-        db.notifyObservers("QUICKBAR_UPDATE", null);
+        if (db != null)
+            db.notifyObservers("QUICKBAR_UPDATE", null);
         viewer.statusBar.setProgressMaximum(numOfPendings);
         
         numOfDone = 0;
@@ -176,7 +182,8 @@ public class ImportHandler
                 	store.createRoot();
                     try
                     {
-                        db.updateFileStatus(importKey, j, "done");
+                        if (db != null)
+                            db.updateFileStatus(importKey, j, "done");
                     } catch (SQLException e)
                     {
                         e.printStackTrace();
@@ -201,8 +208,7 @@ public class ImportHandler
                                 "http://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG for " +
                                 "details on this error.");
                                 */
-                        JOptionPane
-                        .showMessageDialog(
+                        JOptionPane.showMessageDialog(
                                 viewer,
                                 "\nThe importer cannot import the lossless JPEG images used by the file" +
                                 "\n" + importContainer[j].imageName + "");
@@ -211,15 +217,45 @@ public class ImportHandler
                                 "\nthat will support this format. For details on this error, check:" +
                                 "\nhttp://trac.openmicroscopy.org.uk/omero/wiki/LosslessJPEG");
                                 */
-                    }
+                    } 
                     
                     try
                     {
-                        db.updateImportStatus(importKey, "incomplete");
-                        db.updateFileStatus(importKey, j, "failed");
+                        if (db != null)
+                        {
+                            db.updateImportStatus(importKey, "incomplete");
+                            db.updateFileStatus(importKey, j, "failed");
+                        }
                     } catch (SQLException e)
                     {
                         e.printStackTrace();
+                    }
+                }
+                catch (IOException ioe)
+                {
+                    ioe.printStackTrace();
+                    qTable.setProgressUnknown(j);
+                    viewer.appendToOutputLn("> [" + j + "] Failure importing.");
+                    if (importStatus < 0)   importStatus = -3;
+                    else                    importStatus = -1;
+                    
+                    JOptionPane.showMessageDialog(
+                            viewer,
+                            "\nThe importer has encountered an error while attempting\n" +
+                            "to read data from the hard drive. This could indicate a\n" +
+                            "problem with a remote drive being inaccessable.\n\n" +
+                            " The file in question is: " +
+                            "\n" + importContainer[j].imageName + "");
+                    try
+                    {
+                        if (db != null)
+                        {
+                            db.updateImportStatus(importKey, "incomplete");
+                            db.updateFileStatus(importKey, j, "failed");
+                        }
+                    } catch (SQLException e1)
+                    {
+                        e1.printStackTrace();
                     }
                 }
                 catch (Exception e)
@@ -232,8 +268,11 @@ public class ImportHandler
                     
                     try
                     {
-                        db.updateImportStatus(importKey, "incomplete");
-                        db.updateFileStatus(importKey, j, "failed");
+                        if (db != null)
+                        {
+                            db.updateImportStatus(importKey, "incomplete");
+                            db.updateFileStatus(importKey, j, "failed");
+                        }
                     } catch (SQLException e1)
                     {
                         e1.printStackTrace();
@@ -251,12 +290,14 @@ public class ImportHandler
             qTable.clearDoneBtn.setEnabled(true);
         qTable.importing = false;
         qTable.cancel = false;
+        qTable.abort = false;
         
         viewer.statusBar.setProgress(false, 0, "");
         viewer.statusBar.setStatusIcon("gfx/import_done_16.png", "Import complete.");
         if (importStatus >= 0) try
         {
-            db.updateImportStatus(importKey, "complete");
+            if (db != null)
+                db.updateImportStatus(importKey, "complete");
         } catch (SQLException e)
         {
             e.printStackTrace();

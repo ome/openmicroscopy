@@ -62,9 +62,16 @@ public class FileQueueTable
     private int row;
     private int maxPlanes;
     public boolean cancel = false;
+    public boolean abort = false;
     public boolean importing = false;
     public boolean failedFiles;
     public boolean doneFiles;
+    
+    private MyTableHeaderRenderer headerCellRenderer;
+    private LeftDotRenderer fileCellRenderer;
+    private CenterTextRenderer dpCellRenderer;
+    private CenterTextRenderer statusCellRenderer;
+    private int series;
     
     FileQueueTable() {
             
@@ -144,15 +151,18 @@ public class FileQueueTable
         
         TableColumnModel cModel =  queue.getColumnModel();
         
-        MyTableHeaderRenderer myHeader = new MyTableHeaderRenderer();
+        headerCellRenderer = new MyTableHeaderRenderer();
+        fileCellRenderer = new LeftDotRenderer();
+        dpCellRenderer = new CenterTextRenderer();
+        statusCellRenderer = new CenterTextRenderer();
               
         // Create a custom header for the table
-        cModel.getColumn(0).setHeaderRenderer(myHeader);
-        cModel.getColumn(1).setHeaderRenderer(myHeader);
-        cModel.getColumn(2).setHeaderRenderer(myHeader);
-        cModel.getColumn(0).setCellRenderer(new LeftDotRenderer());
-        cModel.getColumn(1).setCellRenderer(new TextCellCenter());
-        cModel.getColumn(2).setCellRenderer(new TextCellCenter());            
+        cModel.getColumn(0).setHeaderRenderer(headerCellRenderer);
+        cModel.getColumn(1).setHeaderRenderer(headerCellRenderer);
+        cModel.getColumn(2).setHeaderRenderer(headerCellRenderer);
+        cModel.getColumn(0).setCellRenderer(fileCellRenderer);
+        cModel.getColumn(1).setCellRenderer(dpCellRenderer);
+        cModel.getColumn(2).setCellRenderer(statusCellRenderer);            
         
         // Set the width of the status column
         TableColumn statusColumn = queue.getColumnModel().getColumn(2);
@@ -207,6 +217,12 @@ public class FileQueueTable
         add(queuePanel);
     }
     
+    
+    public void setSeriesCount(int series)
+    {
+        this.series = series;
+    }
+    
     public void setProgressInfo(int row, int maxPlanes)
     {
         this.row = row;
@@ -230,7 +246,7 @@ public class FileQueueTable
             table.setValueAt("invalid format", row, 2);    
     }
     
-        public void setImportProgress(int count, int series, int step)
+    public void setImportProgress(int count, int series, int step)
     {
         String text;
         if (count > 1)
@@ -340,7 +356,7 @@ public class FileQueueTable
         if (src == importBtn)
         {
             queue.clearSelection();
-            firePropertyChange(Actions.IMPORT, false, true); 
+            firePropertyChange(Actions.IMPORT, false, true);
         }
     }
     
@@ -405,7 +421,7 @@ public class FileQueueTable
             setOpaque(true);
                 
             // Set tool tip if desired
-            setToolTipText((String)value);
+            //setToolTipText((String)value);
             
             setEnabled(table == null || table.isEnabled());
                         
@@ -425,10 +441,10 @@ public class FileQueueTable
     @SuppressWarnings("serial")
     class LeftDotRenderer 
         extends DefaultTableCellRenderer
-    {
+    {       
         public Component getTableCellRendererComponent(
             JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int column)
+            boolean hasFocus, int row, int column)        
         {
             super.getTableCellRendererComponent(
                     table, value, isSelected, hasFocus, row, column);
@@ -469,7 +485,7 @@ public class FileQueueTable
         }
     }
     
-    public class TextCellCenter
+    public class CenterTextRenderer
         extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
@@ -484,8 +500,9 @@ public class FileQueueTable
 
             setFont(UIManager.getFont("TableCell.font"));
             setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+            
             // Set tool tip if desired
-            setToolTipText((String)value);
+            //setToolTipText((String)value);
             
             if (queue.getValueAt(row, 2).equals("done") || 
                     queue.getValueAt(row, 2).equals("failed"))
@@ -589,4 +606,41 @@ public class FileQueueTable
             setProgressDone((Integer)args[1]);
         }
     }
+    
+    /**
+     * Get the renderer used for rendering header cells
+     * @return
+     */
+    public MyTableHeaderRenderer getHeaderCellRenderer()
+    {
+        return headerCellRenderer;
+    }
+
+    /**
+     * Get the renderer used for rendering the file column cells
+     * @return
+     */
+    public LeftDotRenderer getFileCellRenderer()
+    {
+        return fileCellRenderer;
+    }
+
+    /**
+     * Get the renderer used for rendering the dataset/project column cells
+     * @return
+     */
+    public CenterTextRenderer getDpCellRenderer()
+    {
+        return dpCellRenderer;
+    }
+
+    /**
+     * Get the renderer used for rendering the status line column cells
+     * @return
+     */
+    public CenterTextRenderer getStatusCellRenderer()
+    {
+        return statusCellRenderer;
+    }
+
 }

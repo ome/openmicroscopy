@@ -46,6 +46,7 @@ import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.HtmlMessenger;
+import ome.formats.importer.util.IniFileLoader;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -60,6 +61,8 @@ public class DebugMessenger extends JDialog implements ActionListener
 {
     private static final long serialVersionUID = -1026712513033611084L;
 
+    IniFileLoader ini = IniFileLoader.getIniFileLoader();
+    
     private Preferences    userPrefs = 
         Preferences.userNodeForPackage(Main.class);
 
@@ -76,7 +79,9 @@ public class DebugMessenger extends JDialog implements ActionListener
     JPanel                  mainPanel;
     JPanel                  commentPanel;
     JPanel                  debugPanel;
-    
+
+    JButton                 quitBtn;
+    JButton                 cancelBtn;
     JButton                 sendBtn;
     JButton                 ignoreBtn;
     JButton                 copyBtn;
@@ -113,18 +118,22 @@ public class DebugMessenger extends JDialog implements ActionListener
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =
-                {{TableLayout.FILL, 100, 5, 100, 10}, // columns
+                {{10, 150, TableLayout.FILL, 100, 5, 100, 10}, // columns
                 {TableLayout.FILL, 40}}; // rows
         
         mainPanel = gui.addMainPanel(this, mainTable, 10, 10, 10, 10, debug);
         
-        // Add the quit and send buttons to the main panel
-        ignoreBtn = gui.addButton(mainPanel, "Ignore", 'I',
-                "Ignore the error message", "1, 1, f, c", debug);
-        ignoreBtn.addActionListener(this);
+        // Add the quit, cancel and send buttons to the main panel
+        quitBtn = gui.addButton(mainPanel, "Quit Application", 'Q',
+                "Quit the application", "1, 1, f, c", debug);
+        quitBtn.addActionListener(this);
+
+        cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
+                "Cancel your message", "3, 1, f, c", debug);
+        cancelBtn.addActionListener(this);
 
         sendBtn = gui.addButton(mainPanel, "Send", 'S',
-                "Send debug information to the development team", "3, 1, f, c", debug);
+                "Send your comment to the development team", "5, 1, f, c", debug);
         sendBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(sendBtn);
@@ -201,7 +210,7 @@ public class DebugMessenger extends JDialog implements ActionListener
         "The Exception Message.");
 
         // Add the tab panel to the main panel
-        mainPanel.add(tPane, "0, 0, 4, 0");
+        mainPanel.add(tPane, "0, 0, 6, 0");
         
         add(mainPanel, BorderLayout.CENTER);
         
@@ -212,6 +221,20 @@ public class DebugMessenger extends JDialog implements ActionListener
     public void actionPerformed(ActionEvent e)
     {
         Object source = e.getSource();
+        
+        
+        if (source == quitBtn)
+        {
+            if (gui.quitConfirmed(this) == true)
+            {
+                System.exit(0);
+            }
+        }
+        
+        if (source == cancelBtn)
+        {
+            dispose();
+        }
         
         if (source == sendBtn)
         {           
@@ -239,7 +262,7 @@ public class DebugMessenger extends JDialog implements ActionListener
     private void sendRequest(String email, String comment, String error, String extra)
     {
         Map <String, String>map = new HashMap<String, String>();
-        extra = "(" + Main.versionText + ") " + extra;
+        extra = "(" + ini.getVersionNumber() + ") " + extra;
         
         map.put("email",email);
         map.put("comment", comment);

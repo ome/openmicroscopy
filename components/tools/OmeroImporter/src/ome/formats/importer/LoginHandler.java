@@ -34,6 +34,7 @@ import javax.swing.JOptionPane;
 
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
+import ome.formats.importer.util.GuiCommonElements;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,6 +91,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private boolean modal, displayTop;
     
     private HistoryTable historyTable = null;
+    
+    private GuiCommonElements   gui;
 
     LoginHandler(Main viewer, boolean modal, boolean center)
     {
@@ -97,8 +100,11 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         this.center = center;
         this.modal = modal;
         
+        gui = new GuiCommonElements();
+        
         historyTable = HistoryTable.getHistoryTable();
-        addObserver(historyTable);
+        if (historyTable != null)
+            addObserver(historyTable);
         
         viewer.enableMenus(false);
         
@@ -114,9 +120,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         } catch (Exception e)
         {
             JOptionPane.showMessageDialog(null,
-                    "We were not able to connect to the history DB.\n" +
-                    "Make sure you do not have a second importer\n" +
-                    "running and try again.\n\n" +
+                    "Unknown exception.\n\n" +
+                    "We were not able to connect to the server.\n" +
                     "Click OK to exit.",
                     "Warning",
                     JOptionPane.ERROR_MESSAGE);
@@ -367,7 +372,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
             } else if (ScreenLogin.QUIT_PROPERTY.equals(prop)) {
                 if (displayTop)
                 {
-                    if (viewer.quitConfirmed(viewer) == true)
+                    if (gui.quitConfirmed(viewer) == true)
                     {
                         System.exit(0);
                     }    

@@ -36,6 +36,7 @@ import javax.swing.UIManager;
 
 import ome.formats.importer.util.GuiCommonElements;
 import ome.formats.importer.util.HtmlMessenger;
+import ome.formats.importer.util.IniFileLoader;
 
 import layout.TableLayout;
 
@@ -46,6 +47,8 @@ import layout.TableLayout;
 public class CommentMessenger extends JDialog implements ActionListener
 {
     private static final long serialVersionUID = -894653530593047377L;
+    
+    IniFileLoader ini = IniFileLoader.getIniFileLoader();
     
     private Preferences    userPrefs = 
         Preferences.userNodeForPackage(Main.class);
@@ -63,7 +66,8 @@ public class CommentMessenger extends JDialog implements ActionListener
     JPanel                  mainPanel;
     JPanel                  commentPanel;
     JPanel                  debugPanel;
-    
+
+    JButton                 quitBtn;
     JButton                 sendBtn;
     JButton                 cancelBtn;
     JButton                 copyBtn;
@@ -89,18 +93,22 @@ public class CommentMessenger extends JDialog implements ActionListener
         
         // Set up the main panel for tPane, quit, and send buttons
         double mainTable[][] =
-                {{TableLayout.FILL, 100, 5, 100, 10}, // columns
+                {{10, 150, TableLayout.FILL, 100, 5, 100, 10}, // columns
                 {TableLayout.FILL, 40}}; // rows
 
         mainPanel = gui.addMainPanel(this, mainTable, 10,10,10,10, debug);
-        
-        // Add the quit and send buttons to the main panel
+
+        // Add the quit, cancel and send buttons to the main panel
+        //quitBtn = gui.addButton(mainPanel, "Quit Application", 'Q',
+        //        "Quit the application", "1, 1, f, c", debug);
+        //quitBtn.addActionListener(this);
+
         cancelBtn = gui.addButton(mainPanel, "Cancel", 'C',
-                "Cancel your message", "1, 1, f, c", debug);
+                "Cancel your message", "3, 1, f, c", debug);
         cancelBtn.addActionListener(this);
 
         sendBtn = gui.addButton(mainPanel, "Send", 'S',
-                "Send your comment to the development team", "3, 1, f, c", debug);
+                "Send your comment to the development team", "5, 1, f, c", debug);
         sendBtn.addActionListener(this);
 
         this.getRootPane().setDefaultButton(sendBtn);
@@ -139,7 +147,7 @@ public class CommentMessenger extends JDialog implements ActionListener
                 "", 'W', "0, 2, 2, 2", debug);
         
         // Add the tab panel to the main panel
-        mainPanel.add(commentPanel, "0, 0, 4, 0");
+        mainPanel.add(commentPanel, "0, 0, 6, 0");
         
         add(mainPanel, BorderLayout.CENTER);
         
@@ -151,6 +159,19 @@ public class CommentMessenger extends JDialog implements ActionListener
     {
         Object source = e.getSource();
         
+        if (source == quitBtn)
+        {
+            if (gui.quitConfirmed(this) == true)
+            {
+                System.exit(0);
+            }
+        }
+        
+        if (source == cancelBtn)
+        {
+            dispose();
+        }
+        
         if (source == sendBtn)
         {           
             emailText = emailTextField.getText();
@@ -160,17 +181,12 @@ public class CommentMessenger extends JDialog implements ActionListener
             
             sendRequest(emailText, commentText, "Extra data goes here.");
         }
-        
-        if (source == cancelBtn)
-        {
-            dispose();
-        }
     }
 
     private void sendRequest(String email, String comment, String extra)
     {
         Map <String, String>map = new HashMap<String, String>();
-        extra = "(" + Main.versionText + ") " + extra;
+        extra = "(" + ini.getVersionNumber() + ") " + extra;
         
         map.put("email",email);
         map.put("comment", comment);

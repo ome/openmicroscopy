@@ -18,6 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.Collections;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -343,7 +344,7 @@ public class ImportDialog extends JDialog implements ActionListener
             {
 
 
-                Long pId = projectItems[i].getId();
+                Long pId = projectItems[i].getProject().getId();
 
                 if (pId != null && pId.equals(savedProject))
                 {
@@ -364,7 +365,7 @@ public class ImportDialog extends JDialog implements ActionListener
                     } else {
                         for (int k = 0; k < datasetItems.length; k++ )
                         {
-                            Long dId = datasetItems[k].getId();
+                            Long dId = datasetItems[k].getDataset().getId();
                             dbox.setEnabled(true);
                             addDatasetBtn.setEnabled(true);
                             importBtn.setEnabled(true);
@@ -390,10 +391,10 @@ public class ImportDialog extends JDialog implements ActionListener
             savedProject = userPrefs.getLong("savedProject", 0);
             for (int k = 0; k < projectItems.length; k++ )
             {
-                Long pId = projectItems[k].getId();                
+                Long pId = projectItems[k].getProject().getId();                
                 if (pId != null && pId.equals(savedProject))
                 {
-                    pbox.addItem(projectItems[k]);
+                    pbox.insertItemAt(projectItems[k], k);
                     pbox.setSelectedIndex(k);
                 }                        
             }
@@ -411,11 +412,11 @@ public class ImportDialog extends JDialog implements ActionListener
         dbox.removeAllItems();
         for (int k = 0; k < datasetItems.length; k++ )
         {
-            Long dId = datasetItems[k].getId();
+            Long dId = datasetItems[k].getDataset().getId();
             dbox.setEnabled(true);
             addDatasetBtn.setEnabled(true);
             importBtn.setEnabled(true);
-            dbox.addItem(datasetItems[k]);
+            dbox.insertItemAt(datasetItems[k], k);
             if (dId != null && dId.equals(savedDataset))
             {
                 dbox.setSelectedIndex(k);
@@ -459,7 +460,7 @@ public class ImportDialog extends JDialog implements ActionListener
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
             userPrefs.putLong("savedProject", 
-                    ((ProjectItem) pbox.getSelectedItem()).getId());
+                    ((ProjectItem) pbox.getSelectedItem()).getProject().getId());
             userPrefs.putLong("savedDataset", dataset.getId());
             if (fullPathButton.isSelected() == true)
                 userPrefs.putBoolean("savedFileNaming", true);

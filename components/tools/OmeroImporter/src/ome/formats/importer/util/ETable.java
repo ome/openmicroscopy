@@ -1,28 +1,5 @@
-/*
- * $Id$
- *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
- *
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
- */
-
 /** ETable.java is a part of the salma-heyek java repository of classes 
- * (found athttp://software.jessies.org/salma-hayek/) and is covered by the GNU 
+ * (found at http://software.jessies.org/salma-hayek/) and is covered by the GNU 
  * lesser general license.
  */
 
@@ -34,11 +11,14 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 
+import ome.model.containers.Dataset;
+
 /**
  * A better-looking table than JTable. In particular, on Mac OS this looks
  * more like a Cocoa table than the default Aqua LAF manages.
- *
+ * 
  * @author Elliott Hughes
+ * @author Some additions added by Brian W. Loranger
  */
 public class ETable extends JTable {
     /**
@@ -291,6 +271,7 @@ public class ETable extends JTable {
      * Places tool tips over the cell they correspond to. MS Outlook does this, and it works rather well.
      * Swing will automatically override our suggested location if it would cause the tool tip to go off the display.
      */
+    /*
     @Override
     public Point getToolTipLocation(MouseEvent e) {
         // After a tool tip has been displayed for a cell that has a tool tip, cells without tool tips will show an empty tool tip until the tool tip mode times out (or the table has a global default tool tip).
@@ -304,6 +285,78 @@ public class ETable extends JTable {
             return null;
         }
         return getCellRect(row, column, false).getLocation();
+    }
+    */
+    
+    /* Overridden getToolTipText which returns additional information about the import
+     * @see javax.swing.JTable#getToolTipText(java.awt.event.MouseEvent)
+     * @author Brian W. Loranger
+     */
+    public String getToolTipText(MouseEvent event) {
+        Point p = event.getPoint();
+
+        // Locate the renderer under the event location
+        int colIndex = columnAtPoint(p);
+        int rowIndex = rowAtPoint(p);
+
+        // ignore rows that don't really exist
+        if (rowIndex == -1)
+            return null;
+
+        String tooltip = null;
+        if (colIndex == 0)
+        {
+            tooltip = this.getModel().getValueAt(rowIndex, 4).toString();
+        } else if (colIndex == 1) {
+            String[] pd = (getValueAt(rowIndex, colIndex).toString()).split("/");
+            
+            tooltip = "<html>Project: " + pd[0] + ", id: " + getModel().getValueAt(rowIndex, 6).toString() + "<br>" +
+                "Dataset: " + pd[1] + ", id: " + ((Dataset) getModel().getValueAt(rowIndex, 3)).getId() + "</html>";
+        } else if (colIndex == 2)
+        {
+            String status = getValueAt(rowIndex, colIndex).toString();
+            if (status == "added")
+                tooltip = "<html>This file has yet to be imported.</html>";
+            if (status == "pending")
+                tooltip = "<html>This file has been queued for import.</html>";
+            if (status == "done")
+                tooltip = "<html>This file has successfully been imported.</html>";
+            if (status == "invalid format")
+                tooltip = "<html>This file is of an unknown file type.</html>";
+            if (status == "failed")
+                tooltip = "<html>For some reason this file could not import. <br>" +
+                	"The debug window may provide you with more information.</html>";
+            if (status == "prepping")
+                tooltip = "<html>Collecting file metadata for analysis. <br>" +
+                    "This process may take several minutes during which <br>" +
+                    "time the application may appear to be stalled.</html>";
+            if (status == "analyzing")
+                tooltip = "<html>Analysing and saving your meta data. <br>" +
+                		"This process may take some time.</html>";
+            if (status == "archiving")
+                tooltip = "<html>Backing up your original file. <br>" +
+                		"This process may take some time.</html>";
+            if (status.contains(":"))
+            {
+                String[] splitString = (getValueAt(rowIndex, colIndex).toString()).split(":");
+                String[] series = splitString[0].split("/");
+                String[] plane = splitString[1].split("/");
+                
+                tooltip = "<html>This entry contains a series of images:<br>" +
+                		"&nbsp;&nbsp;Importing Series Image: " + series[0] + " of " + series[1] + "<br>" +
+                		"&nbsp;&nbsp;Importing Image Plane: " + plane[0] + " of " + plane[1] + 
+                		"</html>";
+            } else if (status.contains("/"))
+            {
+                String[] plane = (getValueAt(rowIndex, colIndex).toString()).split("/");
+                tooltip = "<html>Importing Image Plane: " + plane[0] + " of " + plane[1];
+            }
+                
+        } else {
+            tooltip = getValueAt(rowIndex, colIndex).toString();
+        }
+
+        return tooltip;
     }
     
     /**

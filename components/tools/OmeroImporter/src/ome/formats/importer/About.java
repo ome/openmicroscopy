@@ -35,6 +35,8 @@ import java.io.InputStreamReader;
 
 import javax.swing.JOptionPane;
 
+import ome.formats.importer.util.IniFileLoader;
+
 /**
  * About is a small program for displaying version information in a dialog box.
  * It is intended to be used as a main class for JAR libraries to easily
@@ -43,6 +45,8 @@ import javax.swing.JOptionPane;
 public abstract class About
 {
 
+    static IniFileLoader ini;
+    
     private static String title;
 
     private static String msg;
@@ -50,6 +54,8 @@ public abstract class About
     public static void show(Component c, boolean useSplashScreen)
     {
 
+        ini = IniFileLoader.getIniFileLoader();
+        
         if (useSplashScreen == true)
         {
             //SplashWindow.splash(Splasher.class.getResource(Main.splash));
@@ -81,7 +87,7 @@ public abstract class About
                         }
                         in.close();
                         msg = sb.toString();
-                        msg = msg + "\n\n Version: " + Main.versionText;
+                        msg = msg + "\n\n Version: " + ini.getVersionNumber();
                     }
                 } catch (IOException exc)
                 {
@@ -89,8 +95,8 @@ public abstract class About
                     msg = "Error: could not read version information";
                 }
             }
-            if (Main.TITLE != null)
-                title = "About " + Main.TITLE;
+            if (ini.getAppTitle() != null)
+                title = "About " + ini.getAppTitle();
             JOptionPane.showMessageDialog(c, msg, title,
                     JOptionPane.INFORMATION_MESSAGE);    
         }

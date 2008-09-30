@@ -14,11 +14,13 @@
 package ome.formats.importer;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.Serializable;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
@@ -79,8 +81,11 @@ public class FileQueueHandler
         
         // Functionality to allows the reimport button to work
         historyTable = HistoryTable.getHistoryTable();
-        historyTable.addObserver(this);
-        addPropertyChangeListener(historyTable);
+        if (historyTable != null)
+        {
+            historyTable.addObserver(this);
+            addPropertyChangeListener(historyTable);
+        }
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 fileChooser, qTable);
@@ -126,7 +131,6 @@ public class FileQueueHandler
         }
     }
 
-    
     private void mustSelectFile()
     {
         JOptionPane.showMessageDialog(viewer, 
@@ -262,15 +266,22 @@ public class FileQueueHandler
                     qTable.queue.setRowSelectionAllowed(false);
                     qTable.removeBtn.setEnabled(false);
                 } else {
-                    qTable.cancel = true;
-                    qTable.importing = false;
                     qTable.importBtn.setText("Wait...");
                     qTable.importBtn.setEnabled(false);
                     viewer.statusBar.setStatusIcon("gfx/import_cancelling_16.png",
                     "Cancelling import... please wait.");
-                    JOptionPane.showMessageDialog(viewer, 
-                            "You import will be cancelled after the " +
-                            "current file has finished importing.");
+                    //JOptionPane.showMessageDialog(viewer, 
+                    //        "You import will be cancelled after the " +
+                    //        "current file has finished importing.");
+                    if (cancelImportDialog(viewer) == true)
+                    {
+                        qTable.cancel = true;
+                        qTable.abort = true;
+                        qTable.importing = false;
+                    } else {
+                        qTable.cancel = true;
+                        qTable.importing = false;
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -290,7 +301,31 @@ public class FileQueueHandler
         }
     }
     
-   
+    
+    private boolean cancelImportDialog(Component frame) {
+        String s1 = "OK";
+        String s2 = "Force Quit Now";
+        Object[] options = {s1, s2};
+        int n = JOptionPane.showOptionDialog(frame,
+                "Click 'OK' to cancel after the current file has\n" +
+                "finished importing, or click 'Force Quit Now' to\n" +
+                "force the importer to quit importing immediately.\n\n" +
+                "You should only force quit the importer if there\n" +
+                "has been an import problem, as this leaves partial\n" +
+                "files in your server dataset.\n\n",
+                "Cancel Import",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                s1);
+        if (n == JOptionPane.NO_OPTION) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     private void addFileToQueue(File file, Dataset dataset, String dName, 
             String project, Boolean useFullPath, 
@@ -312,6 +347,14 @@ public class FileQueueHandler
             qTable.importBtn.setEnabled(true);
     }
     
+    /**
+     * Return a stipped down string containing the file name and X number of directories above it.
+     * Used for display purposes.
+     * @param file
+     * @param useFullPath
+     * @param numOfDirectories
+     * @return
+     */
     private String getImageName(File file, Boolean useFullPath, int numOfDirectories)
     {
        // standardize the format of files from window '\' to unix '/' 
@@ -406,7 +449,6 @@ public class FileQueueHandler
         f.pack();
     }
 
-
     public void update(IObservable observable, Object message, Object[] args)
     {
         if (message == "REIMPORT")
@@ -418,11 +460,15 @@ public class FileQueueHandler
             File file = null;
             Integer finalCount = 0;
             
-            int count = historyTable.table.getRowCount();
+            int count = 0;
+            
+            if (historyTable != null)
+                count = historyTable.table.getRowCount();
+
             //System.err.println(count);
             for (int r = 0; r < count; r++)
             {
-                Vector row = new Vector();
+                Vector<Serializable> row = new Vector<Serializable>();
                 
                 datasetID = (Long) historyTable.table.getValueAt(r, 5);
                 projectID = (Long) historyTable.table.getValueAt(r, 6);

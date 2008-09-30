@@ -25,6 +25,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
@@ -52,6 +54,7 @@ import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
+import ome.formats.importer.util.IniFileLoader;
 import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
@@ -65,13 +68,17 @@ import org.openmicroscopy.shoola.util.ui.login.ScreenLogo;
  * @author Brian W. Loranger
  */
 
-public class Main extends JFrame implements ActionListener, WindowListener, IObserver, PropertyChangeListener, WindowStateListener, WindowFocusListener
+public class Main extends JFrame 
+    implements  ActionListener, WindowListener, IObserver, PropertyChangeListener, 
+                WindowStateListener, WindowFocusListener
 {
     private static final long   serialVersionUID = 1228000122345370913L;
-
-    public static String        versionText = "Pre-3.0.2";
     
-    public static String        versionNumber = "300";
+    IniFileLoader   ini;
+    
+    public static String        dbVersion = "300";
+    
+    public static String versionNumber = "3.1";
     
     /** The data of the last release date. */
     public static String        releaseDate      
@@ -93,12 +100,9 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     private static boolean USE_QUAQUA = true;
     
     
-    public final static String TITLE            = "OMERO.importer";
+    //public final static String TITLE            = "OMERO.importer";
+    
     public final static String splash           = "gfx/importer_splash.png";
-     
-    private final static int width = 980;
-    private final static int height = 580;
-
     public static final String ICON = "gfx/icon.png";
     public static final String QUIT_ICON = "gfx/nuvola_exit16.png";
     public static final String LOGIN_ICON = "gfx/nuvola_login16.png";
@@ -110,12 +114,13 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     public static final String BUG_ICON = "gfx/nuvola_bug16.png";
     
     public LoginHandler         loginHandler;
-    
     public FileQueueHandler     fileQueueHandler;
-    
     public static HistoryDB     db;
-
     public StatusBar            statusBar;
+    private GuiCommonElements   gui;
+    
+    public ScreenLogin         view;
+    public ScreenLogo          viewTop;
 
     private JMenuBar            menubar;
     private JMenu               fileMenu;
@@ -128,50 +133,66 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     public Boolean              loggedIn;
 
     private JTextPane           outputTextPane;
-
     private JTextPane           debugTextPane;
+    private JPanel              historyPanel;
+    
+    private JTabbedPane         tPane;
 
     @SuppressWarnings("unused")
     private String              username;
-
     @SuppressWarnings("unused")
     private String              password;
-
     @SuppressWarnings("unused")
     private String              server;
-
     @SuppressWarnings("unused")
     private String              port;
-
-    ScreenLogin view;
-    
-    GuiCommonElements   gui;
-
-    ScreenLogo viewTop;
+  
     
     /**
      * Main entry class for the application
      */
-    public Main()
+    public Main(String[] args)
     {
-        super(TITLE);
+        //super(TITLE);
         
         isUpgradeRequired();
         
         gui = new GuiCommonElements();
-         
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        //JPanel pane = new JPanel();
-        //pane.setLayout(new BorderLayout());
-        //setContentPane(pane);
-        setPreferredSize(new Dimension(width, height)); // default size
-        pack();
-        setLocationRelativeTo(null);
-        addWindowListener(this);
         
-        setTitle(TITLE);
+        // Load up the main ini file
+        ini = IniFileLoader.getIniFileLoader(args);
+        
+        // Add a shutdown hook for when app closes
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() { shutdown(); }
+        });
+        
+        // Set app defaults
+        setTitle(ini.getAppTitle());
         setIconImage(gui.getImageIcon(Main.ICON).getImage());
+        setPreferredSize(new Dimension(gui.bounds.width, gui.bounds.height));
+        setSize(gui.bounds.width, gui.bounds.height);
+        setLocation(gui.bounds.x, gui.bounds.y);      
+        setLayout(new BorderLayout());
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        pack();
 
+        addWindowListener(this);
+
+        // capture move info
+        addComponentListener(new ComponentAdapter() {
+            public void componentMoved(ComponentEvent evt) {
+                gui.bounds = getBounds();
+            }
+        });
+
+        // capture resize info
+        addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent evt) {
+                gui.bounds = getBounds();               
+            }
+        });
+        
         // menu bar
         menubar = new JMenuBar();
         fileMenu = new JMenu("File");
@@ -195,10 +216,9 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         helpMenu.add(helpComment);
         helpMenu.add(helpAbout);
         setJMenuBar(menubar);
-
-
+      
         // tabbed panes
-        JTabbedPane tPane = new JTabbedPane();
+        tPane = new JTabbedPane();
         tPane.setOpaque(false); // content panes must be opaque
 
         // file chooser pane
@@ -214,14 +234,13 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         tPane.setMnemonicAt(0, KeyEvent.VK_1);
 
         // history pane
-        JPanel historyPanel = new JPanel();
+        historyPanel = new JPanel();
         historyPanel.setOpaque(false);
         historyPanel.setLayout(new BorderLayout());
         
         tPane.addTab("Import History", gui.getImageIcon(HISTORY_ICON), historyPanel,
                 "Import history is displayed here.");
         tPane.setMnemonicAt(0, KeyEvent.VK_4);
-
        
         // output text pane
         JPanel outputPanel = new JPanel();
@@ -307,6 +326,25 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         //displayLoginDialog(this, true);
     }
 
+    // Check online to see if this is the current version
+    boolean isUpgradeRequired()
+    {
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        String version = bundle.getString("omero.version");
+        String url = bundle.getString("omero.upgrades.url");
+        UpgradeCheck check = new UpgradeCheck(url, version, "importer"); 
+        check.run();
+        return check.isUpgradeNeeded();
+    }
+    
+    // save ini file and gui settings on exist
+    protected void shutdown()
+    {
+        // Get and save the UI window placement      
+        ini.setUIBounds(gui.getUIBounds());
+        ini.flushPreferences();
+    }
+    
     /* Fixes menu issues with the about this app quit functions on mac */
     private void macMenuFix()
     {
@@ -321,23 +359,13 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         } catch (Throwable e) {}
     }
     
-    boolean isUpgradeRequired()
-    {
-        ResourceBundle bundle = ResourceBundle.getBundle("omero");
-        String version = bundle.getString("omero.version");
-        String url = bundle.getString("omero.upgrades.url");
-        UpgradeCheck check = new UpgradeCheck(url, version, "importer"); 
-        check.run();
-        return check.isUpgradeNeeded();
-    }
-    
     public boolean displayLoginDialog(Object viewer, boolean modal, boolean displayTop)
     {   
         Image img = Toolkit.getDefaultToolkit().createImage(ICON);
-        view = new ScreenLogin(TITLE, gui.getImageIcon("gfx/login_background.png"), img,
-                versionText);
+        view = new ScreenLogin(ini.getAppTitle(), gui.getImageIcon("gfx/login_background.png"), img,
+                ini.getVersionNumber());
         view.showConnectionSpeed(false);
-        viewTop = new ScreenLogo(TITLE, gui.getImageIcon(splash), img);
+        viewTop = new ScreenLogo(ini.getAppTitle(), gui.getImageIcon(splash), img);
         viewTop.setStatusVisible(false);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension d = viewTop.getExtendedSize();
@@ -366,6 +394,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         view.addPropertyChangeListener((PropertyChangeListener) viewer);
         view.addWindowStateListener((WindowStateListener) viewer);
         view.addWindowFocusListener((WindowFocusListener) viewer);
+        view.setAlwaysOnTop(false);
         
         
         viewTop.setVisible(displayTop);
@@ -468,7 +497,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
                 db = HistoryDB.getHistoryDB();
             }
         } else if ("quit".equals(cmd)) {
-            if (quitConfirmed(this) == true)
+            if (gui.quitConfirmed(this) == true)
             {
                 System.exit(0);
             }
@@ -553,29 +582,9 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         this.username = username;
     }
 
-    boolean quitConfirmed(JFrame frame) {
-        String s1 = "Quit";
-        String s2 = "Don't Quit";
-        Object[] options = {s1, s2};
-        int n = JOptionPane.showOptionDialog(frame,
-                "Do you really want to quit?\n" +
-                "Doing so will cancel any running imports.",
-                "Quit Confirmation",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                s1);
-        if (n == JOptionPane.YES_OPTION) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public void windowClosing(WindowEvent e)  
     {
-        if (quitConfirmed(this) == true)
+        if (gui.quitConfirmed(this) == true)
         {
             System.exit(0);
         }
@@ -617,7 +626,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
            { System.err.println(laf + " not supported."); }
         }
         
-        new Main();
+        new Main(args);
     }
 
     public static Point getSplashLocation()
@@ -630,23 +639,28 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
     {
         if (message == Actions.LOADING_IMAGE)
         {
+            statusBar.setProgress(true, -1, "Loading file " + args[2] + " of " + args[3]);
             appendToOutput("> [" + args[1] + "] Loading image \"" + args[0] + "\"...\n");
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + args[0] + "\"");
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Prepping file \"" + 
+                    args[0] + "\" (file " + args[2] + " of " + args[3] + " imports)");
         }
         if (message == Actions.LOADED_IMAGE)
         {
+            statusBar.setProgress(true, -1, "Analyzing file " + args[2] + " of " + args[3]);
             appendToOutput(" Succesfully loaded.\n");
-            statusBar.setProgress(true, 0, "Importing file " + args[2] + " of " + args[3]);
-            statusBar.setProgressValue((Integer)args[2] - 1);
             appendToOutput("> [" + args[1] + "] Importing metadata for " + "image \"" + args[0] + "\"... ");
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + args[0] + "\"");
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Analyzing the metadata for file \"" + 
+                    args[0] + "\" (file " + args[2] + " of " + args[3] + " imports)");            
         }
         
         if (message == Actions.DATASET_STORED)
         {
             appendToOutputLn("Successfully stored to dataset \"" + args[4] + "\" with id \"" + args[5] + "\".");
             appendToOutputLn("> [" + args[1] + "] Importing pixel data for " + "image \"" + args[0] + "\"... ");
-            statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" + args[0] + "\"");
+            statusBar.setProgress(true, 0, "Importing file " + args[2] + " of " + args[3]);
+            statusBar.setProgressValue((Integer)args[2] - 1);
+            statusBar.setStatusIcon("gfx/import_icon_16.png", "Importing the plane data for file \"" +
+                    args[0] + "\" (file " + args[2] + " of " + args[3] + " imports)");
             appendToOutput("> Importing plane: ");
         }
         
@@ -683,7 +697,7 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
             LoginCredentials lc = (LoginCredentials) evt.getNewValue();
             if (lc != null) login(lc);
         } else if (ScreenLogin.QUIT_PROPERTY.equals(name) || name.equals("quitpplication")) {
-            if (quitConfirmed(this) == true)
+            if (gui.quitConfirmed(this) == true)
             {
                 System.exit(0);
             }
@@ -700,20 +714,8 @@ public class Main extends JFrame implements ActionListener, WindowListener, IObs
         
     }
 
-    public void login(LoginCredentials lc)
-    {
-        
-    }
-
-    public void windowStateChanged(WindowEvent arg0)
-    {
-    }
-
-    public void windowGainedFocus(WindowEvent arg0)
-    {
-    }
-
-    public void windowLostFocus(WindowEvent arg0)
-    {
-    }
+    public void login(LoginCredentials lc) {}
+    public void windowStateChanged(WindowEvent arg0) {}
+    public void windowGainedFocus(WindowEvent arg0) {}
+    public void windowLostFocus(WindowEvent arg0) {}
 }
