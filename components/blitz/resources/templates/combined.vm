@@ -8,7 +8,7 @@
 
 Note: lines not prefixed with [...] will be omitted in the final product.
 The other prefixes are used by blitz/build.xml to determine how this file
-will be split. This is done because the individual velocity if/elseif's
+wil be split. This is done because the individual velocity if/elseif's
 and sets are nearly identical.
 
 Here we turn off all prefixes except for ice.  Since <>I files are
@@ -55,6 +55,7 @@ VARIABLES:
 
 
 DECLARATION BLOCK:
+=====================================================================================================
 
 [$ice] #ifndef ${POJO}_ICE
 [$ice] #define ${POJO}_ICE
@@ -164,7 +165,9 @@ INTERNAL METHODS:
 [$pyc]           "that this collection was unloaded. Please refresh this object\n"+
 [$pyc]           "in order to update this collection.\n")
 [$pyc]
+
 DESTRUCTOR BLOCK:
+=====================================================================================================
 
 [$hdr]       virtual ~${PojoI}();
 [$cpp]     ${PojoI}::~${PojoI}() {}
@@ -173,6 +176,7 @@ DESTRUCTOR BLOCK:
 
 
 DEFAULT CONSTRUCTOR BLOCK:
+=====================================================================================================
 
 
 [$hdr]       ${PojoI}();
@@ -196,6 +200,7 @@ Python combines the two constructors. See below for a comparison.
 [$pyc]              self.details = _omero_model.DetailsI()
 [$pyc]              self.toggleCollectionsLoaded(True)
 [$pyc]
+
 TOGGLE COLLECTIONS:
 
 [$jav]       public void toggleCollectionsLoaded(boolean load) {
@@ -249,7 +254,8 @@ since all collections are lists in ice.
 [$pyc]           pass
 [$pyc]
 
-ICE CLASS:
+ICE CLASS BLOCK:
+=====================================================================================================
 
 Calculate inheritance. This is done here because sequences must first be defined.
 
@@ -264,6 +270,7 @@ Calculate inheritance. This is done here because sequences must first be defined
 [$ice]     {
 
 UNLOADED CONSTRUCTOR BLOCK:
+=====================================================================================================
 
 [$hdr]       ${PojoI}(omero::RLongPtr idPtr, bool isLoaded = false);
 [$cpp]    ${PojoI}::${PojoI}(omero::RLongPtr idPtr, bool isLoaded) : ${Pojo}() {
@@ -280,6 +287,7 @@ UNLOADED CONSTRUCTOR BLOCK:
 See single Python constructor above.
 
 UNLOAD BLOCK:
+=====================================================================================================
 
 [$jav]       public void unload(Ice.Current current) {
 [$hdr]       virtual void unload(const Ice::Current& current = Ice::Current());
@@ -305,12 +313,9 @@ UNLOAD BLOCK:
 [$cpp]    }
 
 SPECIAL METHODS:
+=====================================================================================================
 Id acccesors copied from other accessors below.
 
-[$jav]       public omero.model.Details getDetails(Ice.Current current) {
-[$jav]           return details;
-[$jav]       }
-[$jav]
 [$jav]       public omero.RLong getId(Ice.Current current) {
 [$jav]           return id;
 [$jav]       }
@@ -318,6 +323,22 @@ Id acccesors copied from other accessors below.
 [$jav]       public void setId( omero.RLong id, Ice.Current current ) {
 [$jav]           this.id = id;
 [$jav]       }
+[$jav]
+[$jav]       public omero.model.Details getDetails(Ice.Current current) {
+[$jav]           return this.details;
+[$jav]       }
+[$jav]
+[$jav]       private void copyDetails(ome.model.IObject source, omero.util.IceMapper mapper) {
+[$jav]           this.details = (omero.model.Details) mapper.findTarget( source.getDetails() );
+[$jav]       }
+[$jav]
+[$jav]       private void fillDetails(ome.model.IObject target, omero.util.IceMapper mapper) {
+[$jav]           ome.model.internal.Details details = (ome.model.internal.Details) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() );
+[$jav]           if (details != null) {
+[$jav]               target.getDetails().copy( details );
+[$jav]           }
+[$jav]       }
+[$jav]
 
 [$hdr]       virtual omero::model::DetailsPtr getDetails(const Ice::Current& current = Ice::Current());
 [$hdr]       virtual omero::RLongPtr getId(const Ice::Current& current = Ice::Current());
@@ -351,11 +372,16 @@ Doing unloadedPython as a method because of the multi-line restriction. See belo
 [$pyc]           else:
 [$pyc]               self.__dict__[loadedField] = True
 [$pyc]
+
 ###########################################################################
 #foreach($property in $type.propertyClosure)#############
 ###########################################################################
 
+This is the main loop through all of the properties. Where possible, methods
+should be created here which simplify the other sections of code generation.
+
 ACCESSORS BLOCK:
+=====================================================================================================
 
 These mappings are from HibernateTypes-->IceTypes
 
@@ -371,10 +397,6 @@ in the [Ice] sections below, but not for all others.
 
 #set( $definedIn = "nothere" )
 #foreach( $p2 in $type.classProperties )
-## Unset values
-#set( $javaType = "JAVATYPEUNDEFIED")
-#set( $iceType = "ICETYPEUNDEFINED")
-#set( $cppType = "CPPUNDEFINED")
 ##
 #if( $p2.name.equals($property.name) )
 #set( $definedIn = "here" )
@@ -385,11 +407,16 @@ in the [Ice] sections below, but not for all others.
 #set($Ice = "NOT" )
 #end
 
-## UNIFY THESE
+##
+## Properties used throughout the accessor generation
+##
+## TODO: UNIFY THESE
 #set( $field = $property.name )
 #set( $PropertyName = $property.nameCapped)
-#set( $FIELD = ${field.toUpperCase()} )
+#set( $FIELD = "${type.id}.${PropertyName.toUpperCase()}" )
 #set( $javaType = $property.type )
+#set( $iceType = "ERROR" )
+#set( $cppType = "ERROR" )
 #set( $shortType = $type.unqualify($javaType) )
 #set( $open = " " )
 #set( $close= " " )
@@ -398,6 +425,15 @@ in the [Ice] sections below, but not for all others.
 #set( $unloadedJava=" " )
 #set( $unloadedCpp=" " )
 #set( $unloadedPython="pass" )
+#set( $copymethod = "source.get$PropertyName()" )
+#set( $findMethod = "Target" )
+
+ TODO: Currently the findTarget methods have separate names.
+ Instead there should be a cast to guarantee that the right
+ method is invoked.
+
+##
+##
 ## Here we are taking the pojo name from the ST of the property, rather than the
 ## current ST in order to handle subclasses wrt. links. This may need to be done for
 ## every property right after the foreach.
@@ -416,6 +452,10 @@ in the [Ice] sections below, but not for all others.
 #set( $iceType = "$seqName" )
 #set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
 #set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
+## See ticket:684
+## If this is the case, we can't use the accessor and have to use a generated method
+#set( $copyMethod = "(Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()})" )
+#set( $findMethod = "Collection")
 
 #elseif( $javaType.startsWith("ome"))
 #set( $javaType = "omero.model.${shortType}" )
@@ -474,6 +514,10 @@ in the [Ice] sections below, but not for all others.
 #set( $setter = "(${property.name} == null) ? 0 : this.$property.name == ${property.name}.longValue()")
 #set( $iceType = "long" )
 #set( $cppType = "long" )
+#set( $copyMethod = "ome.util.Utils.internalForm(source)" )
+
+#elseif( $javaType.startsWith("java.util.Map") )
+#set( $findMethod = "Map" )
 
 #elseif( $javaType.startsWith("java.sql.Timestamp")) ## for Event
 #set( $getter = "${property.name} == null ? null : new java.sql.Timestamp( ${property.name}.val )" )
@@ -493,10 +537,12 @@ in the [Ice] sections below, but not for all others.
 #end##JAVA_TYPE
 
 ICE BLOCK:
+=====================================================================================================
 
 // $property
 ## SPECIAL EXCEPTION
 #if(! $field.equals("id") && ! $field.equals("details"))
+## skip!
 #if($field.equals("version"))
 #if($extendsDeclaration.equals($base))
              // Version in superclass
@@ -540,6 +586,7 @@ ICE BLOCK:
 #end ## SPECIAL EXCEPTION
 
 ASSOCIATION TYPES BLOCK:
+=====================================================================================================
 
 #set( $hasSet  = false )
 #set( $hasLink = false )
@@ -558,6 +605,7 @@ ASSOCIATION TYPES BLOCK:
 #end
 
 Unload
+------
 
 [$jav]       public void unload${PropertyName}() {
 [$jav]           ${unloadIfIsSet}
@@ -593,6 +641,46 @@ the special set methods are added.
 [$jav]           this.$property.Name = $setter;
 [$jav]           $unloadedJava
 [$jav]       }
+[$jav]
+[$jav]       private void copy${PropertyName}($type.id source, omero.util.IceMapper mapper) {
+[$jav]           this.set${PropertyName}(($javaType) mapper.find${findMethod}($copyMethod));
+#if ($property.one2Many && $property.isLink)
+[$jav]              this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
+#end
+[$jav]       }
+[$jav]
+[$jav]       private void fill${PropertyName}($type.id target, omero.util.IceMapper mapper) {
+#if( $type.id.equals("ome.model.internal.Permissions") )
+[$jav]             ome.model.internal.Permissions p = ome.util.Utils.toPermissions((Long)this.getPerm1());
+[$jav]             target.revokeAll(ome.model.internal.Permissions.EMPTY); // AND
+[$jav]             target.grantAll(p); // OR
+
+#elseif( $property.one2Many )
+## If this is the case, we can't use the accessor and have to use a generated method
+
+[$jav]             if (this.${propLoaded}) {
+
+ticket:684 This is necessary to map back and forth from sets.
+#set( $fieldType = $property.fieldType.replaceAll("[<].*[>]",""))
+[$jav]               target.putAt( $FIELD, mapper.reverse( this.get${PropertyName}(), ${fieldType}.class ));
+[$jav]             } else {
+[$jav]               target.putAt( $FIELD, null );
+[$jav]             }
+
+#elseif( $javaType.startsWith("ome") )
+[$jav]             target.putAt($FIELD, ($javaType) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+
+#elseif( $javaType.startsWith("IObject") )
+[$jav]             target.set${PropertyName}( (ome.model.IObject) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+
+#elseif( $javaType.startsWith("long"))
+ ----------------> ERROR
+#else
+[$jav]             target.set${PropertyName}( this.get${PropertyName}() );
+#end
+[$jav]       }
+[$jav]
+
 
 #if($access == "protected" )
 [$hdr]     protected:
@@ -1098,7 +1186,8 @@ REMOVE
 #end##FOREACH#####################################################
 ##################################################################
 
-CLASS-LEVEL EXTRA METHODS:
+CLASS-LEVEL EXTRA METHODS BLOCK:
+=====================================================================================================
 
 #if($type.class.name.equals("ome.dsl.LinkType"))
 #foreach( $prop in $type.classProperties)
@@ -1155,6 +1244,7 @@ CLASS-LEVEL EXTRA METHODS:
 
 
 COPYOBJECT BLOCK:
+=====================================================================================================
 
 [$jav]       /**
 [$jav]        * Used by {@link omero.util.IceMapper} to inject an "ome.model" object into this
@@ -1167,68 +1257,24 @@ COPYOBJECT BLOCK:
 [$jav]                this.loaded = source.isLoaded();
 [$jav]                Long id = (Long) mapper.findTarget( source.getId() );
 [$jav]                this.setId( id == null ? new omero.RLong() : new omero.RLong(id) );
-## Properties not in foreach
-## [$jav]                if (this.loaded) this.setDetails( (omero.model.Details) mapper.findTarget( source.getDetails() ));
+[$jav]                // Following also copy counts, etc. if necessary
+[$jav]                if (!source.isLoaded()) {
+[$jav]                    this.unload();
+[$jav]                } else {
 #foreach($property in $type.propertyClosure)
-##
-## SPECIAL EXCEPTIONS : See exaplanation above
-##
 #set( $PropertyName = $property.nameCapped )
-#set( $javaType = $property.type )
-#set( $shortType = $type.unqualify($javaType) )
-#set( $method = "source.get$PropertyName()" )
-
- TODO: Currently the findTarget methods have separate names.
- Instead there should be a cast to guarantee that the right
- method is invoked.
-
-#set( $findMethod = "Target" )
-
- All properties other than id must be "guarded" to prevent
- UnloadedEntityExceptions.
-
-#set( $guard  = "if (this.loaded) " )
-#if($clazz.identifierProperty.equals($property))
-#set( $guard  = "" )
-#end
-
-#if( $type.id.equals("ome.model.internal.Permissions") )
-#set( $javaType = "Long" )
-#set( $method = "ome.util.Utils.internalForm(source)" )
-#elseif( $property.one2Many )
-## See ticket:684
-## If this is the case, we can't use the accessor and have to use a generated method
-#set( $javaType = "java.util.List" )
-#set( $method = "(Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()})" )
-#set( $findMethod = "Collection")
-#elseif( $javaType.startsWith("ome") )
-#set( $javaType = "omero.model.${shortType}" )
-#elseif( $javaType.startsWith("IObject") )
-#set( $javaType = "omero.model.IObject" )
-#elseif( $javaType.startsWith("long"))
-#set( $javaType = "Long")
-#elseif( $javaType.startsWith("java.util.Map") )
-#set( $findMethod = "Map" )
-#end
-
-#if(  $property.name == "details" )
-[$jav]              $guard this.details = ($javaType) mapper.find${findMethod}($method);
-#else
-[$jav]              $guard this.set${PropertyName}(($javaType) mapper.find${findMethod}($method));
-#if ($property.one2Many && $property.isLink)
-[$jav]              this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
-#end
-#end##SPECIAL PROPERTIES IF
+[$jav]                    this.copy${PropertyName}( source, mapper );
 #end##FOREACH
-
-[$jav]       } else {
+[$jav]               }
+[$jav]             } else {
 [$jav]                throw new IllegalArgumentException(
 [$jav]                  "${type.shortname} cannot copy from " +
 [$jav]                  (model==null ? "null" : model.getClass().getName()));
-[$jav]       }
+[$jav]             }
 [$jav]       }
 
 FILLOBJECT BLOCK:
+=====================================================================================================
 
 [$jav]       /**
 [$jav]        * Used by {@link omero.util.IceMapper} produce an "ome.model" object from this
@@ -1244,63 +1290,28 @@ FILLOBJECT BLOCK:
 [$jav]           } else {
 [$jav]             omero.RLong id = this.getId();
 [$jav]             target.setId( id == null ? null : Long.valueOf(id.val) ); // special property
-## Properties not in foreach
-## [$jav]             target.setDetails( (ome.model.internal.Details) mapper.reverse( (ome.model.ModelBased) this.getDetails() ) );
+[$jav]                // Following also copy counts, etc. if necessary
 #foreach($property in $type.propertyClosure)
 #set( $PropertyName = $property.nameCapped )
-#set( $fieldType = $property.fieldType.replaceAll("[<].*[>]",""))
-#set( $javaType = $property.type )
-#set( $shortType = $type.unqualify($javaType) )
-#set( $FIELD = "${type.id}.${PropertyName.toUpperCase()}" )
-#set( $propLoaded = "${property.Name}Loaded" )
-
-#if( $property.name.equals("details"))
-[$jav]             ${property.type} details = (${property.type}) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() );
-[$jav]             if (details != null) {
-[$jav]               target.getDetails().copy( details );
-[$jav]             }
-#elseif( $type.id.equals("ome.model.internal.Permissions") )
-[$jav]             target = ome.util.Utils.toPermissions((Long)this.getPerm1());
-
-#elseif( $property.one2Many )
-## If this is the case, we can't use the accessor and have to use a generated method
-
-[$jav]             if (this.${propLoaded}) {
-
-ticket:684 This is necessary to map back and forth from sets.
-[$jav]               target.putAt( $FIELD, mapper.reverse( this.get${PropertyName}(), ${fieldType}.class ));
-[$jav]             } else {
-[$jav]               target.putAt( $FIELD, null );
-[$jav]             }
-
-#elseif( $javaType.startsWith("ome") )
-[$jav]             target.putAt($FIELD, ($javaType) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
-
-#elseif( $javaType.startsWith("IObject") )
-[$jav]             target.set${PropertyName}( (ome.model.IObject) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
-
-#elseif( $javaType.startsWith("long"))
- ----------------> ERROR
-#else
-[$jav]             target.set${PropertyName}( this.get${PropertyName}() );
-#end
+[$jav]                this.fill${PropertyName}( target, mapper );
 #end##FOREACH
-
 [$jav]           }
 [$jav]           return target;
 [$jav]         }
 
-MISCELLANEOUS METHODS:
+MISCELLANEOUS METHODS BLOCK:
+=====================================================================================================
 
 [$jav]     /**
 [$jav]      * Casts (without warning) the given list to a list of
-[$jav]      * the current type. 
+[$jav]      * the current type.
 [$jav]      * @throws ClassCastException
 [$jav]      */
 [$jav]     @SuppressWarnings("unchecked") public static List<${PojoI}> cast(List list) { return list; }
 
 
 END DECLARATION BLOCK:
+=====================================================================================================
 
 [$jav] }
 [$hdr]  };
