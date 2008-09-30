@@ -259,7 +259,7 @@ Calculate inheritance. This is done here because sequences must first be defined
 #set( $extendsDeclaration = $type.superclass.replaceFirst("ome.model..+?[.]","omero::model::" ) )
 #end
 
-[$ice]     class ${type.shortname}
+[$ice]     ["protected"] class ${type.shortname}
 [$ice]     extends $extendsDeclaration
 [$ice]     {
 
@@ -371,6 +371,11 @@ in the [Ice] sections below, but not for all others.
 
 #set( $definedIn = "nothere" )
 #foreach( $p2 in $type.classProperties )
+## Unset values
+#set( $javaType = "JAVATYPEUNDEFIED")
+#set( $iceType = "ICETYPEUNDEFINED")
+#set( $cppType = "CPPUNDEFINED")
+##
 #if( $p2.name.equals($property.name) )
 #set( $definedIn = "here" )
 #end
@@ -408,6 +413,7 @@ in the [Ice] sections below, but not for all others.
 #set( $setter = "${property.name} == null ? new java.util.ArrayList() : new java.util.ArrayList( $property.name )" )
 #set( $unloadedJava = "if (${property.name} == null) { this.${propLoaded} = false; } else { this.${propLoaded} = true; }" )
 #set( $cppType = "$seqName" )
+#set( $iceType = "$seqName" )
 #set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
 #set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
 
@@ -415,60 +421,71 @@ in the [Ice] sections below, but not for all others.
 #set( $javaType = "omero.model.${shortType}" )
 #set( $getter = "(omero.model.${shortType}) this.$property.name" )
 #set( $setter = "${property.name}")
-#set( $cppType = "omero::model::${shortType}Ptr" )
+#set( $iceType = "omero::model::${shortType}" )
+#set( $cppType = "${iceType}Ptr" )
 
 #elseif( $javaType.startsWith("IObject"))
 #set( $javaType = "omero.model.IObject")
 #set( $getter = "(omero.model.IObject) this.$property.name" )
 #set( $setter = "${property.name}")
-#set( $cppType = "omero::model::IObjectPtr")
+#set( $iceType = "omero::model::IObject")
+#set( $cppType = "${iceType}Ptr")
 
 #elseif( $javaType.startsWith("java.lang.Boolean"))
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
 #set( $setter = "${property.name} == null ? null : new omero.RBool(${property.name}) ")
-#set( $cppType   = "omero::RBoolPtr" )
+#set( $iceType   = "omero::RBool" )
+#set( $cppType   = "${iceType}Ptr" )
 
 #elseif( $javaType.startsWith("java.lang.Integer"))
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
 #set( $setter = "${property.name} == null ? null : new omero.RInt(${property.name}) ")
-#set( $cppType   = "omero::RIntPtr" )
+#set( $iceType   = "omero::RInt" )
+#set( $cppType   = "${iceType}Ptr" )
 
 #elseif( $javaType.startsWith("java.lang.Long"))
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
 #set( $setter = "${property.name} == null ? null : new omero.RLong(${property.name}) ")
-#set( $cppType   = "omero::RLongPtr" )
+#set( $iceType   = "omero::RLong" )
+#set( $cppType   = "${iceType}Ptr" )
 
 #elseif( $javaType.startsWith("java.lang.Double"))
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
 #set( $setter = "${property.name} == null ? null : new omero.RDouble(${property.name}) ")
-#set( $cppType   = "omero::RDoublePtr" )
+#set( $iceType   = "omero::RDouble" )
+#set( $cppType   = "${iceType}Ptr" )
 
 #elseif( $javaType.startsWith("java.lang.Float"))
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
 #set( $setter = "${property.name} == null ? null : new omero.RFloat(${property.name}) ")
-#set( $cppType   = "omero::RFloatPtr" )
+#set( $iceType   = "omero::RFloat" )
+#set( $cppType   = "${iceType}Ptr" )
 
 #elseif( $javaType.equals("byte[]"))
 #set( $javaType = "byte[]")
 #set( $getter = "this.$property.name" )
 #set( $setter = "${property.name}")
+#set( $iceType = "Ice::ByteSeq")
 #set( $cppType = "Ice::ByteSeq")
 
 #elseif( $javaType.startsWith("long")) ## for Permissions
 #set( $javaType = "Long" )
 #set( $getter   = "new Long(this.$property.name)" )
 #set( $setter = "(${property.name} == null) ? 0 : this.$property.name == ${property.name}.longValue()")
+#set( $iceType = "long" )
 #set( $cppType = "long" )
 
 #elseif( $javaType.startsWith("java.sql.Timestamp")) ## for Event
 #set( $getter = "${property.name} == null ? null : new java.sql.Timestamp( ${property.name}.val )" )
 #set( $setter = "${property.name} == null ? null : new omero.RTime(${property.name}.getTime())");
-#set( $cppType = "omero::RTimePtr" )
+#set( $iceType = "omero::RTime" )
+#set( $cppType = "${iceType}Ptr" )
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $getter = "${property.name} == null ? null : ${property.name}.val" )
 #set( $setter = "${property.name} == null ? null : new omero.RString(${property.name}) ")
-#set( $cppType = "omero::RStringPtr" )
+#set( $iceType = "omero::RString" )
+#set( $cppType = "${iceType}Ptr" )
 
 #else
 [$all]...ERROR...$javaType unknown.
@@ -478,11 +495,9 @@ in the [Ice] sections below, but not for all others.
 ICE BLOCK:
 
 // $property
-#if($field.equals("id"))
-             // Id in IObject
-#elseif($field.equals("details"))
-             // Details in IObject
-#elseif($field.equals("version"))
+## SPECIAL EXCEPTION
+#if(! $field.equals("id") && ! $field.equals("details"))
+#if($field.equals("version"))
 #if($extendsDeclaration.equals($base))
              // Version in superclass
 [$Ice]       omero::RInt version;
@@ -520,7 +535,9 @@ ICE BLOCK:
 #else
 [$Ice]       ERROR ===========> Unknown type (${javaType})
 #end // End type
-
+[$Ice]       $iceType get${PropertyName}();
+[$Ice]       void set${PropertyName}($iceType the${PropertyName});
+#end ## SPECIAL EXCEPTION
 
 ASSOCIATION TYPES BLOCK:
 
@@ -566,12 +583,12 @@ the special set methods are added.
 # should also be handled by this block.
 #
 #if ($PropertyName != "Details" )
-[$jav]       $access $javaType get${property.nameCapped}() throws omero.UnloadedEntityException {
+[$jav]       $access $javaType get${property.nameCapped}(Ice.Current current) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           return $getter;
 [$jav]       }
 [$jav]
-[$jav]       $access void set${PropertyName}($javaType $property.Name) throws omero.UnloadedEntityException {
+[$jav]       $access void set${PropertyName}($javaType $property.Name, Ice.Current current) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           this.$property.Name = $setter;
 [$jav]           $unloadedJava
@@ -580,28 +597,28 @@ the special set methods are added.
 #if($access == "protected" )
 [$hdr]     protected:
 #end
-[$hdr]       virtual $cppType get${property.nameCapped}();
-[$hdr]       virtual void set${PropertyName}($cppType _$property.Name);
+[$hdr]       virtual $cppType get${property.nameCapped}(const Ice::Current& current = Ice::Current());
+[$hdr]       virtual void set${PropertyName}($cppType _$property.Name, const Ice::Current& current = Ice::Current());
 #if($access == "protected" )
 [$hdr]     public:
 #end
 
-[$cpp]       $cppType ${PojoI}::get${property.nameCapped}() {
+[$cpp]       $cppType ${PojoI}::get${property.nameCapped}(const Ice::Current& current) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           return ${open}${property.name}${close};
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::set${PropertyName}($cppType _$property.Name) {
+[$cpp]       void ${PojoI}::set${PropertyName}($cppType _$property.Name, const Ice::Current& current) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           $property.Name = $!{prefix}_${property.Name}$!{suffix};
 [$cpp]           $unloadedCpp
 [$cpp]       }
 
-[$pyc]       def get${property.nameCapped}(self):
+[$pyc]       def get${property.nameCapped}(self, current = Ice.Current()):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           return self.${property.name}
 [$pyc]
-[$pyc]       def set${PropertyName}(self, _${property.name}):
+[$pyc]       def set${PropertyName}(self, _${property.name}, current = Ice.Current()):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           self.${property.Name} = _${property.name}
 [$pyc]           $unloadedPython
@@ -1153,6 +1170,9 @@ COPYOBJECT BLOCK:
 ## Properties not in foreach
 ## [$jav]                if (this.loaded) this.setDetails( (omero.model.Details) mapper.findTarget( source.getDetails() ));
 #foreach($property in $type.propertyClosure)
+##
+## SPECIAL EXCEPTIONS : See exaplanation above
+##
 #set( $PropertyName = $property.nameCapped )
 #set( $javaType = $property.type )
 #set( $shortType = $type.unqualify($javaType) )
@@ -1191,10 +1211,14 @@ COPYOBJECT BLOCK:
 #set( $findMethod = "Map" )
 #end
 
+#if(  $property.name == "details" )
+[$jav]              $guard this.details = ($javaType) mapper.find${findMethod}($method);
+#else
 [$jav]              $guard this.set${PropertyName}(($javaType) mapper.find${findMethod}($method));
 #if ($property.one2Many && $property.isLink)
 [$jav]              this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
 #end
+#end##SPECIAL PROPERTIES IF
 #end##FOREACH
 
 [$jav]       } else {
@@ -1218,7 +1242,8 @@ FILLOBJECT BLOCK:
 [$jav]             target.setId( id == null ? null : id.val );
 [$jav]             target.unload();
 [$jav]           } else {
-[$jav]             target.setId( this.getId() ); // special property
+[$jav]             omero.RLong id = this.getId();
+[$jav]             target.setId( id == null ? null : Long.valueOf(id.val) ); // special property
 ## Properties not in foreach
 ## [$jav]             target.setDetails( (ome.model.internal.Details) mapper.reverse( (ome.model.ModelBased) this.getDetails() ) );
 #foreach($property in $type.propertyClosure)
