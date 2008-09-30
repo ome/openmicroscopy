@@ -115,7 +115,7 @@ STATIC FIELDS:
 #foreach( $property in $type.propertyClosure )
 [$jav]       public final static String ${property.nameUpper} = "${type.id}_${property.name}";
 [$pyc]       ${property.nameUpper} =  "${type.id}_${property.name}"
-[$hdr]       static const string ${property.nameUpper};
+[$hdr]       static const std::string ${property.nameUpper};
 [$cpp]       const ${PojoI}::${property.nameUpper} =  "${type.id}_${property.name}";
 #end
 
@@ -474,7 +474,7 @@ Doing unloadedPython as a method because of the multi-line restriction. See belo
 This is the main loop through all of the properties. Where possible, methods
 should be created here which simplify the other sections of code generation.
 
-ACCESSORS BLOCK:
+FIELD & ACCESSORS BLOCK:
 =====================================================================================================
 
 These mappings are from HibernateTypes-->IceTypes
@@ -658,8 +658,9 @@ Properties used throughout the accessor generation
 
 #end##JAVA_TYPE
 
-Here we only add the getters and setters to Ice, if this is not a collection.
-Otherwise the special collection methods below will be used for access.
+Here we only add the getters and setters to Ice if this is not a collection,
+since slice has no concept of visibility. Instead, the special collection
+methods below will be used for access.
 
 #if( ! $property.one2Many )
 [$Ice]       $iceType get${PropertyName}();
@@ -785,10 +786,35 @@ ticket:684 This is necessary to map back and forth from sets.
 [$pyc]           $unloadedPython
 [$pyc]
 
+
 One-to-many extras:
 ======================================================================================
+##  (copied from dsl/resources/ome/dsl/object.vm):
+##  A one-to-many property represents a set that is contained by this entity.
+##  These methods represent our handling of Hibernate's "inverse" sets
+##  which do not act as expected with regards to getters & setters.
+##
+##  To prevent users from making mistakes like not properly setting both 
+##  sides of a relationship, these fields are hidden, and only accessible via
+##  the following methods. Methods fall into several categories: 
+##    (A) general   
+##    (B) list-only
+##    (C) link-based
+##
+##  (A) General one-to-many code
+##  ----------------------------
+##
 
 #if( $hasSet || $hasLink )
+
+isXLoaded ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The isXLoaded checks are not present in the ome.model classses
+since we can use the nullness of the Java reference to check for
+that. In Ice, we'd have to use an RCollection to use nullness,
+which would take away our type safety. Instead, we add a boolean
+field for every sequence. NOTE: These methods may not be needed
+and instead sizeOf would suffice.
 
 [$jav]       public boolean is${PropertyName}Loaded() {
 [$jav]           return ${propLoaded};
@@ -850,6 +876,7 @@ Iterators ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Iterators are language-specific since there's no slice concept
 for them. Therefore, to use these, developers must down-cast.
 
+[$Ice]       // See language-specific iterator methods
 [$jav]       public Iterator iterate${PropertyName}() throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
@@ -954,20 +981,21 @@ remove single
 [$cpp]           }
 [$cpp]       };
 
-[$jav]       public void remove${property.shortType}(${property.shortType} target) throws omero.UnloadedEntityException {
+[$Ice]       void remove${property.shortType}(${property.shortType} theTarget);
+[$jav]       public void remove${property.shortType}(${property.shortType} target, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${fieldName}.remove( target );
 [$jav]           target.$inverse = null;
 [$jav]       }
-[$pyc]       def remove${property.shortType}(self, target):
+[$pyc]       def remove${property.shortType}(self, target, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           self.${fieldName}.remove( target )
 [$pyc]           target.$inverse = None
 [$pyc]
-[$hdr]       virtual void remove${property.shortType}(${property.shortType}Ptr target);
-[$cpp]       void ${PojoI}::remove${property.shortType}(${property.shortType}Ptr target) {
+[$hdr]       virtual void remove${property.shortType}(${property.shortType}Ptr target, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::remove${property.shortType}(${property.shortType}Ptr target, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           $cppType::iterator it = std::remove_if(
@@ -1050,7 +1078,107 @@ clear
 [$cpp]           ${fieldName}.clear();
 [$cpp]       }
 
-Link Modifications
+
+(B) List Modifications
+===============================================================
+
+#if( ${property.ordered} )
+[$Ice]       ${property.shortType} get${property.shortType}(int index);
+[$Ice]       void set${property.shortType}(int index, ${property.shortType} theElement);
+[$Ice]       ${property.shortType} getPrimary${property.shortType}();
+[$Ice]       ${property.shortType} setPrimary${property.shortType}(${property.shortType} theElement);
+
+[$jav]       public ${property.shortType} get${property.shortType}(int index, $JAV_CURRENT) throws IndexOutOfBoundsException {
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$jav]           return ${fieldName}.get(index);
+[$jav]       }
+[$jav]
+[$jav]       public void set${property.shortType}(int index, ${property.shortType} element, $JAV_CURRENT) throws IndexOutOfBoundsException {
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$jav]           ${fieldName}.set(index, element);
+[$jav]       }
+[$jav]
+[$jav]       public ${property.shortType} getPrimary${property.shortType}($JAV_CURRENT) throws IndexOutOfBoundsException {
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$jav]           return ${fieldName}.get(0);
+[$jav]       }
+[$jav]    
+[$jav]       public ${property.shortType} setPrimary${property.shortType}(${property.shortType} element, $JAV_CURRENT) throws IndexOutOfBoundsException {
+[$jav]           errorIfUnloaded();
+[$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$jav]           int index = ${fieldName}.indexOf(element);
+[$jav]           ${property.shortType} old = ${fieldName}.get(0);
+[$jav]           ${fieldName}.set(index, old);
+[$jav]           ${fieldName}.set(0, element);
+[$jav]           return old;
+[$jav]       }
+[$jav]
+
+[$hdr]       ${cppType} get${property.shortType}(int index, $HDR_CURRENT);
+[$cpp]       ${cppType} ${PojoI}::get${property.shortType}(int index, $CPP_CURRENT);
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$cpp]           return ${fieldName}.get(index);
+[$cpp]       }
+[$cpp]
+[$hdr]       void set${property.shortType}(int index, ${property.shortType} element, $HDR_CURRENT);
+[$cpp]       void ${PojoI}::set${property.shortType}(int index, ${property.shortType} element, $CPP_CURRENT);
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$cpp]           ${fieldName}.set(index, element);
+[$cpp]       }
+[$cpp]
+[$hdr]       ${cppType} getPrimary${property.shortType}($HDR_CURRENT);
+[$cpp]       ${cppType} ${PojoI}::getPrimary${property.shortType}($CPP_CURRENT);
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$cpp]           return ${fieldName}.get(0);
+[$cpp]       }
+[$cpp]    
+[$hdr]       ${cppType} setPrimary${property.shortType}(${property.shortType} element, $HDR_CURRENT);
+[$cpp]       ${cppType} setPrimary${property.shortType}(${property.shortType} element, $CPP_CURRENT) {
+[$cpp]           errorIfUnloaded();
+[$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
+[$cpp]           int index = ${fieldName}.indexOf(element);
+[$cpp]           ${property.shortType} old = ${fieldName}.get(0);
+[$cpp]           ${fieldName}.set(index, old);
+[$cpp]           ${fieldName}.set(0, element);
+[$cpp]           return old;
+[$cpp]       }
+[$cpp]
+
+[$pyc]        def get${property.shortType}(self, int index, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           return self.${fieldName}.get(index)
+[$pyc]
+[$pyc]       def set${property.shortType}(self, int index, element, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           ${fieldName}.set(index, element)
+[$pyc]
+[$pyc]       def getPrimary${property.shortType}(self, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           return ${fieldName}.get(0)
+[$pyc]    
+[$pyc]       def setPrimary${property.shortType}(self, element, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           int index = self.${fieldName}.indexOf(element)
+[$pyc]           old = self.${fieldName}.get(0)
+[$pyc]           self.${fieldName}.set(index, old);
+[$pyc]           self.${fieldName}.set(0, element)
+[$pyc]           return old
+[$pyc]
+#end##property.ordered
+
+
+(C) Link Modifications
+===============================================================
 
 #if( $hasLink )
 
@@ -1267,6 +1395,9 @@ REMOVE
 [$cpp]           ${fieldName}.erase(it,${fieldName}.end());
 [$cpp]       } 
 
+[TODO]      <some return> linked${property.shortTarget}List();
+This will probably require a new sequence type.
+
 ##[$jav]    public Iterator<${property.shortTarget}> linked${property.shortTarget}Iterator() throws omero.UnloadedEntityException {
 ##[$jav]        errorIfUnloaded();
 ##[$jav]        if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
@@ -1277,7 +1408,6 @@ REMOVE
 ##[$cpp]        errorIfUnloaded();
 ##[$cpp]        std::vector<${property.shortTarget}Ptr>::iterator result;
 ##[$cpp]        return result;
-##TODO------------
 ##[$cpp]    }
 
 
