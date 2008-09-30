@@ -335,7 +335,7 @@ public class ScreenLogin
 	private JPanel buildMainPanel(String version)
 	{
 		JPanel mainPanel = new JPanel();
-		int g = 5;
+		int g = 10;
 		int t = 10;
 		mainPanel.setBorder(BorderFactory.createEmptyBorder(t, g, t, g));
 		mainPanel.setOpaque(false);
