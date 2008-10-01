@@ -30,51 +30,61 @@ class TestModel(unittest.TestCase):
 
     def testToggle(self):
         pix = PixelsI()
-        self.assert_( pix.settingsLoaded )
+        self.assert_( pix.sizeOfSettings() >= 0 )
         pix.toggleCollectionsLoaded( False )
-        self.assert_( not pix.settingsLoaded )
+        self.assert_( pix.sizeOfSettings() < 0 )
         pix.toggleCollectionsLoaded( True )
-        self.assert_( pix.settingsLoaded )
+        self.assert_( pix.sizeOfSettings() >= 0 )
 
     def testSimpleCtor(self):
         img = ImageI()
-        self.assert_( img.loaded )
-        self.assert_( img.pixelsLoaded )
+        self.assert_( img.isLoaded() )
+        self.assert_( img.sizeOfPixels() >= 0 )
 
     def testUnloadedCtor(self):
         img = ImageI(omero.RLong(1),False)
-        self.assert_( not img.loaded )
-        self.assert_( not img.datasetLinksLoaded )
+        self.assert_( not img.isLoaded() )
+        try:
+            self.assert_( img.sizeOfDatasetLinks() < 0 )
+            self.fail("Should throw")
+        except:
+            # Is true, but can't test it.
+            pass
 
     def testUnloadCheckPtr(self):
         img = ImageI()
-        self.assert_( img.loaded )
-        self.assert_( img.details ) # details are auto instantiated
-        self.assert_( not img.name ) # no other single-valued field is
+        self.assert_( img.isLoaded() )
+        self.assert_( img.getDetails() ) # details are auto instantiated
+        self.assert_( not img.getName() ) # no other single-valued field is
         img.unload()
-        self.assert_( not img.loaded )
-        self.assert_( not img.details )
+        self.assert_( not img.isLoaded() )
+        self.assert_( not img.getDetails() )
 
     def testUnloadField(self):
         img = ImageI()
-        self.assert_( img.details )
+        self.assert_( img.getDetails() )
         img.unloadDetails()
-        self.assert_( not img.details )
+        self.assert_( not img.getDetails() )
 
     def testSequences(self):
         img = ImageI()
-        self.assert_( img.annotationLinksLoaded )
-        img.annotationLinks.append(None)
+        self.assert_( img.sizeOfAnnotationLinks() >= 0 )
+        img.linkAnnotation(None)
         img.unload()
-        self.assert_( not img.annotationLinksLoaded )
-        self.assert_( img.annotationLinks == None )
+        try:
+            self.assert_( not img.sizeOfAnnotationLinks() >= 0 )
+            self.assert_( len(img.copyAnnotationLinks()) == 0 )
+            self.fail("can't reach here")
+        except:
+            # These are true, but can't be tested
+            pass
 
     def testAccessors(self):
         name = omero.RString("name")
         img = ImageI()
-        self.assert_( not img.name )
-        img.name = name
-        self.assert_( img.name )
+        self.assert_( not img.getName() )
+        img.setName( name )
+        self.assert_( img.getName() )
         name = img.getName()
         self.assert_( name.val == "name" )
         self.assert_( name == name )
@@ -84,8 +94,8 @@ class TestModel(unittest.TestCase):
         self.assert_( img.getName() )
 
         img.unload()
-        self.assert_( not img.name )
-        
+        self.assert_( not img.getName() )
+
     def testUnloadedAccessThrows(self):
         unloaded = ImageI(omero.RLong(1),False)
         self.assertRaises( omero.UnloadedEntityException, unloaded.getName )
@@ -103,31 +113,31 @@ class TestModel(unittest.TestCase):
 
     def testClearSet(self):
         img = ImageI()
-        self.assert_( img.pixelsLoaded )
+        self.assert_( img.sizeOfPixels() >= 0 )
         img.addPixels( PixelsI() )
         self.assert_( 1==img.sizeOfPixels() )
         img.clearPixels()
-        self.assert_( img.pixelsLoaded )
+        self.assert_( img.sizeOfPixels() >= 0 )
         self.assert_( 0==img.sizeOfPixels() )
 
     def testUnloadSet(self):
         img = ImageI()
-        self.assert_( img.pixelsLoaded )
+        self.assert_( img.sizeOfPixels() >= 0 )
         img.addPixels( PixelsI() )
         self.assert_( 1==img.sizeOfPixels() )
         img.unloadPixels()
-        self.assert_( not img.pixelsLoaded )
+        self.assert_( not img.sizeOfPixels() < 0 )
         # Can't check size self.assert_( 0==img.sizeOfPixels() )
 
 
     def testRemoveFromSet(self):
         pix = PixelsI()
         img = ImageI()
-        self.assert_( img.pixelsLoaded ) 
-        
+        self.assert_( img.sizeOfPixels() >= 0 )
+
         img.addPixels( pix )
         self.assert_( 1==img.sizeOfPixels() )
-        
+
         img.removePixels( pix )
         self.assert_( 0==img.sizeOfPixels() )
 
@@ -135,16 +145,16 @@ class TestModel(unittest.TestCase):
         user = ExperimenterI()
         group = ExperimenterGroupI()
         link = GroupExperimenterMapI()
-        
+
         link.id = omero.RLong(1)
         link.link(group,user)
         user.addGroupExperimenterMap( link, False )
         group.addGroupExperimenterMap( link, False )
-        
-        count = 0 
+
+        count = 0
         for i in user.iterateGroupExperimenterMap():
             count += 1
-        
+
         self.assert_( count == 1 )
 
     def testLinkViaLink(self):
@@ -188,7 +198,7 @@ class TestModel(unittest.TestCase):
 
     def testScriptJobHasLoadedCollections(self):
         s = ScriptJobI()
-        self.assert_( s.originalFileLinksLoaded )
+        self.assert_( s.sizeOfOriginalFileLinks() >= 0 )
 
 if __name__ == '__main__':
     unittest.main()

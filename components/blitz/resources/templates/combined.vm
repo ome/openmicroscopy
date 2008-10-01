@@ -152,7 +152,7 @@ INTERNAL METHODS:
 [$jav]         if ( ! loaded ) throw new omero.UnloadedEntityException("Object unloaded:"+this);
 [$jav]       }
 [$pyc]       def errorIfUnloaded(self):
-[$pyc]           if not self.loaded:
+[$pyc]           if not self._loaded:
 [$pyc]               raise _omero.UnloadedEntityException("Object unloaded:"+str(self))
 [$pyc]
 [$hdr]       void throwNullCollectionException(std::string propertyName);
@@ -211,11 +211,11 @@ DEFAULT CONSTRUCTOR BLOCK:
 [$cpp]       }
 
 Python combines the two constructors. See below for a comparison.
-[$pyc]       def __init__(self,id = None,loaded = True):
+[$pyc]       def __init__(self,id = None, loaded = True):
 [$pyc]           super(${Pojo}I, self).__init__()
 [$pyc]           self.id = id
-[$pyc]           self.loaded = loaded
-[$pyc]           if self.loaded:
+[$pyc]           self._loaded = loaded
+[$pyc]           if self._loaded:
 [$pyc]              self.details = _omero_model.DetailsI()
 [$pyc]              self.toggleCollectionsLoaded(True)
 [$pyc]
@@ -260,11 +260,11 @@ since all collections are lists in ice.
 [$cpp]               ${property.name}Loaded = false;
 [$cpp]           }
 [$pyc]           if load:
-[$pyc]               self.${property.name}Seq = []
-[$pyc]               self.${property.name}Loaded = True;
+[$pyc]               self._${property.name}Seq = []
+[$pyc]               self._${property.name}Loaded = True;
 [$pyc]           else:
-[$pyc]               self.${property.name}Seq = []
-[$pyc]               self.${property.name}Loaded = False;
+[$pyc]               self._${property.name}Seq = []
+[$pyc]               self._${property.name}Loaded = False;
 [$pyc]
 #end##byte[]
 #end##FOREACH
@@ -313,7 +313,7 @@ LOADNESS BLOCK:
 [$hdr]       virtual void unload($HDR_CURRENT);
 [$cpp]       void ${PojoI}::unload($CPP_CURRENT) {
 [$pyc]       def unload(self, $PYC_CURRENT):
-[$pyc]           self.loaded = False
+[$pyc]           self._loaded = False
 [$jav]           loaded = false;
 [$cpp]           loaded = false;
 #foreach($property in $type.propertyClosure)
@@ -332,7 +332,7 @@ LOADNESS BLOCK:
 [$hdr]       virtual bool isLoaded($HDR_CURRENT);
 [$cpp]       bool ${PojoI}::isLoaded($CPP_CURRENT) {
 [$pyc]       def isLoaded(self, $PYC_CURRENT):
-[$pyc]           return self.loaded
+[$pyc]           return self._loaded
 [$jav]           return loaded;
 [$cpp]           return loaded;
 [$jav]    }
@@ -701,8 +701,8 @@ Unload
 [$cpp]           ${fieldName} = ($cppType) 0;
 [$cpp]       }
 [$pyc]       def unload${PropertyName}(self):
-[$pyc]           self.${property.name}Loaded = False
-[$pyc]           self.${fieldName} = None;
+[$pyc]           self._${property.name}Loaded = False
+[$pyc]           self._${fieldName} = None;
 [$pyc]
 Original accessors: will have their visibility reduced if
 the special set methods are added.
@@ -780,11 +780,11 @@ ticket:684 This is necessary to map back and forth from sets.
 
 [$pyc]       def get${property.nameCapped}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           return self.${fieldName}
+[$pyc]           return self._${fieldName}
 [$pyc]
 [$pyc]       def set${PropertyName}(self, _${property.name}, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           self.${fieldName} = _${property.name}
+[$pyc]           self._${fieldName} = _${property.name}
 [$pyc]           $unloadedPython
 [$pyc]
 
@@ -826,7 +826,7 @@ and instead sizeOf would suffice.
 [$cpp]           return ${propLoaded};
 [$cpp]       }
 [$pyc]       def is${PropertyName}Loaded(self):
-[$pyc]           return self.${propLoaded}
+[$pyc]           return self._${propLoaded}
 [$pyc]
 
 sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -845,8 +845,8 @@ sizeOf ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$cpp]       }
 [$pyc]       def sizeOf${PropertyName}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: return -1
-[$pyc]           return len(self.${fieldName})
+[$pyc]           if not self._${propLoaded}: return -1
+[$pyc]           return len(self._${fieldName})
 [$pyc]
 
 Copy ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -860,8 +860,8 @@ Copy ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$jav]       }
 [$pyc]       def copy${PropertyName}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           return list(self.${fieldName})
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           return list(self._${fieldName})
 [$pyc]
              Here we don't have a vector<$cppType> since the type is typedef'd
 [$hdr]       virtual $cppType copy${PropertyName}($HDR_CURRENT);
@@ -898,8 +898,8 @@ for them. Therefore, to use these, developers must down-cast.
 [$cpp]       }
 [$pyc]       def iterate${PropertyName}(self):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           return iter(self.${fieldName})
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           return iter(self._${fieldName})
 [$pyc]
 
 #end
@@ -928,8 +928,8 @@ add single
 [$jav]       }
 [$pyc]       def add${property.shortType}(self, target, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           self.${fieldName}.append( target );
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           self._${fieldName}.append( target );
 [$pyc]           target.set$Inverse( self )
 [$pyc]
 [$hdr]       virtual void add${property.shortType}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
@@ -952,8 +952,8 @@ add set
 [$jav]       }
 [$pyc]       def add${property.shortType}Set(self, targets):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if  not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           self.${fieldName}.extend( targets )
+[$pyc]           if  not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           self._${fieldName}.extend( targets )
 [$pyc]           for target in targets:
 [$pyc]               target.set$Inverse( self )
 [$pyc]
@@ -982,8 +982,8 @@ remove single
 [$jav]       }
 [$pyc]       def remove${property.shortType}(self, target, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           self.${fieldName}.remove( target )
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           self._${fieldName}.remove( target )
 [$pyc]           target.set$Inverse( None )
 [$pyc]
 [$hdr]       virtual void remove${property.shortType}(const ${property.shortType}Ptr& target, $HDR_CURRENT);
@@ -1010,10 +1010,10 @@ remove multiple
 [$jav]       }
 [$pyc]       def remove${property.shortType}Set(self, targets):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           for elt in targets:
 [$pyc]               elt.set$Inverse( None )
-[$pyc]               self.${fieldName}.remove( elt )
+[$pyc]               self._${fieldName}.remove( elt )
 [$pyc]
 [$hdr]       virtual void remove${property.shortType}Set($cppType targets);
 [$cpp]       void ${PojoI}::remove${property.shortType}Set($cppType targets) {
@@ -1043,10 +1043,10 @@ clear
 [$jav]       }
 [$pyc]       def clear${PropertyName}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           for elt in self.${fieldName}:
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           for elt in self._${fieldName}:
 [$pyc]               elt.set$Inverse( None )
-[$pyc]           self.${fieldName} = list()
+[$pyc]           self._${fieldName} = list()
 [$pyc]
 [$hdr]       virtual void clear${PropertyName}($HDR_CURRENT);
 [$cpp]       void ${PojoI}::clear${PropertyName}($CPP_CURRENT) {
@@ -1087,7 +1087,7 @@ clear
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           return ${fieldName}.get(0);
 [$jav]       }
-[$jav]    
+[$jav]
 [$jav]       public ${property.shortType} setPrimary${property.shortType}(${property.shortType} element, $JAV_CURRENT) throws IndexOutOfBoundsException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
@@ -1120,7 +1120,7 @@ clear
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           return ${fieldName}[0];
 [$cpp]       }
-[$cpp]    
+[$cpp]
 [$hdr]       virtual $CPPRETURNTYPE setPrimary${property.shortType}(const ${property.shortType}Ptr& element, $HDR_CURRENT);
 [$cpp]       $CPPRETURNTYPE ${PojoI}::setPrimary${property.shortType}(const ${property.shortType}Ptr& element, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
@@ -1133,28 +1133,28 @@ clear
 [$cpp]       }
 [$cpp]
 
-[$pyc]        def get${property.shortType}(self, int index, $PYC_CURRENT):
+[$pyc]       def get${property.shortType}(self, index, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           return self.${fieldName}.get(index)
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           return self._${fieldName}.get(index)
 [$pyc]
-[$pyc]       def set${property.shortType}(self, int index, element, $PYC_CURRENT):
+[$pyc]       def set${property.shortType}(self, index, element, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           ${fieldName}.set(index, element)
+[$pyc]           if not self. _${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           self._${fieldName}.set(index, element)
 [$pyc]
 [$pyc]       def getPrimary${property.shortType}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           return ${fieldName}.get(0)
-[$pyc]    
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           return self._${fieldName}[0]
+[$pyc]
 [$pyc]       def setPrimary${property.shortType}(self, element, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not ${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           int index = self.${fieldName}.index(element)
-[$pyc]           old = self.${fieldName}.get(0)
-[$pyc]           self.${fieldName}.set(index, old);
-[$pyc]           self.${fieldName}.set(0, element)
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           index = self._${fieldName}.index(element)
+[$pyc]           old = self._${fieldName}[0]
+[$pyc]           self._${fieldName}[index] = old
+[$pyc]           self._${fieldName}[0] = element
 [$pyc]           return old
 [$pyc]
 #end##property.ordered
@@ -1193,7 +1193,7 @@ COUNTS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$cpp]       omero::sys::CountMap ${PojoI}::$GETCOUNTMETHOD($CPP_CURRENT) {
 [$cpp]           return $GETCOUNTVALUE;
 [$cpp]       }
-[$pyc]       def $GETCOUNTPEROWNER(self, $PYC_CURRENT):
+[$pyc]       def $GETCOUNTMETHOD(self, $PYC_CURRENT):
 [$pyc]           return $GETCOUNTVALUE
 
 
@@ -1211,7 +1211,7 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$jav]       }
 [$pyc]       def link${property.shortTarget}(self, addition, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           link = _omero_model.${property.shortType}I()
 [$pyc]           link.link( ${pyorder} );
 [$pyc]           self.$ADD2METHOD( link, True )
@@ -1241,8 +1241,8 @@ TODO: Should we check for nulls in other?
 [$jav]       }
 [$pyc]       def $ADD2METHOD(self, link, bothSides):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           self.${fieldName}.append( link )
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           self._${fieldName}.append( link )
 #if($bidir) 
 [$pyc]           if bothSides and link.${other}.isLoaded():
 [$pyc]               link.${other}.$ADD2METHOD( link, False )
@@ -1273,9 +1273,9 @@ FIND
 [$jav]       }
 [$pyc]       def find${property.shortType}(self, removal):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           result = list()
-[$pyc]           for link in self.${fieldName}:
+[$pyc]           for link in self._${fieldName}:
 [$pyc]               if link.${other} == removal: result.append(link)
 [$pyc]           return result
 [$pyc]
@@ -1341,15 +1341,15 @@ REMOVE
 [$jav]       }
 [$pyc]       def unlink${property.shortTarget}(self, removal, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
 [$pyc]           toRemove = self.find${property.shortType}(removal)
 [$pyc]           for next in toRemove:
 [$pyc]               self.$REMOVE2METHOD( next, True )
 [$pyc]
 [$pyc]       def $REMOVE2METHOD(self, link, bothSides, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self.${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           self.${fieldName}.remove( link )
+[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
+[$pyc]           self._${fieldName}.remove( link )
 #if($bidir)
 [$pyc]           if bothSides and link.${other}.isLoaded():
 [$pyc]               link.${other}.$REMOVE2METHOD(link, False)
