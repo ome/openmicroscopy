@@ -22,6 +22,7 @@
     <dependency org="gui" name="swingx" rev="2007_09_16"/>
     <dependency org="gui" name="libquaqua" rev="unknown"/>
     <dependency org="gui" name="omero-client-utils" rev="unknown"/>
+    <dependency org="gui" name="ini4j" rev="0.3.2"/>"
     <dependency org="gui" name="commons-httpclient" rev="${versions.commons-httpclient}"/>
   </dependencies>
 </ivy-module>
