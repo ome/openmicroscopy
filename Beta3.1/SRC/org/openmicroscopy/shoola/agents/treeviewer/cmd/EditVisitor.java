@@ -59,6 +59,7 @@ public class EditVisitor
     /** The original node. */
     private Object              	originalNode;
     
+    /** The parent's data object. */
     private DataObject				parent;
     
     /** The collection of found {@link TreeImageDisplay nodes}. */
@@ -147,8 +148,8 @@ public class EditVisitor
     	if (parent != null) {
     		Object n = node.getUserObject();
     		if (n instanceof DataObject) {
-    			if (((DataObject) n).getId() == parent.getId()) {
-    				System.err.println("node: "+node);
+    			if (((DataObject) n).getId() == parent.getId() && 
+    					n.getClass().equals(parent.getClass())) {
     				parentNodes.add(node);
     			}
     		}
