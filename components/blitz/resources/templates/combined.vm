@@ -216,7 +216,7 @@ Python combines the two constructors. See below for a comparison.
 [$pyc]           self.id = id
 [$pyc]           self._loaded = loaded
 [$pyc]           if self._loaded:
-[$pyc]              self.details = _omero_model.DetailsI()
+[$pyc]              self._details = _omero_model.DetailsI()
 [$pyc]              self.toggleCollectionsLoaded(True)
 [$pyc]
 
@@ -1533,6 +1533,33 @@ MISCELLANEOUS METHODS BLOCK:
 [$jav]      */
 [$jav]     @SuppressWarnings("unchecked") public static List<${PojoI}> cast(List list) { return list; }
 
+[$pyc]
+[$pyc]       def __getattr__(self, name):
+[$pyc]           """
+[$pyc]           Reroutes all access to object.field through object.getField()
+[$pyc]           """
+[$pyc]           getter = "get" + name.capitalize()
+[$pyc]           if hasattr(self, getter):
+[$pyc]               method = getattr(self, getter)
+[$pyc]               return method()
+[$pyc]           else:
+[$pyc]               raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, getter))
+[$pyc]
+[$pyc]       def __setattr__(self, name, value):
+[$pyc]           """
+[$pyc]           Reroutes all access to object.field through object.getField(), with the caveat
+[$pyc]           that all sets on variables starting with "_" are permitted directly.
+[$pyc]           """
+[$pyc]           if name.startswith("_"):
+[$pyc]               self.__dict__[name] = value
+[$pyc]           else:
+[$pyc]               setter = "set" + name.capitalize()
+[$pyc]               if hasattr(self, setter):
+[$pyc]                   method = getattr(self, setter)
+[$pyc]                   method(value)
+[$pyc]               else:
+[$pyc]                   raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, setter))
+[$pyc]
 
 END DECLARATION BLOCK:
 =====================================================================================================
