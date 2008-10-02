@@ -532,8 +532,7 @@ Properties used throughout the accessor generation
 #set( $unloadedJava=" " )
 #set( $unloadedCpp=" " )
 #set( $unloadedPython="pass" )
-#set( $copyMethod = "source.get$PropertyName()" )
-#set( $findMethod = "Target" )
+#set( $copyMethod = "ERROR" )
 #set( $fieldName = "${property.name}") ## Changed for sequences to nameSeq
 #set( $getter = "this.${fieldName}" )
 #set( $setter = "${fieldName}" )
@@ -561,14 +560,12 @@ Properties used throughout the accessor generation
 #set( $iceType = "$seqName" )
 #set( $unloadedCpp = "if (_${property.name} != ($cppType) 0) { ${propLoaded} = true; } else { ${propLoaded} = false; }" )
 #set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
-## See ticket:684
-## If this is the case, we can't use the accessor and have to use a generated method
-#set( $copyMethod = "(Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()})" )
-#set( $findMethod = "Collection")
 #set( $fieldName = "${property.name}Seq")
 #set( $getter = "this.${fieldName}" )
 #set( $setter = "${fieldName}" )
-
+## See ticket:684
+## If this is the case, we can't use the accessor and have to use a generated method
+#set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findCollection( (Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()}));" );
 
 [$Ice]       $seqName ${fieldName};
 [$Ice]       bool ${property.name}Loaded;
@@ -582,6 +579,7 @@ Properties used throughout the accessor generation
 #set( $setter = "${property.name}")
 #set( $iceType = "omero::model::${shortType}" )
 #set( $cppType = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findTarget(source.get${PropertyName}());" );
 [$Ice]       omero::model::${shortType} ${property.name};
 
 #elseif( $javaType.startsWith("IObject"))## Special case of the previous------------
@@ -590,36 +588,42 @@ Properties used throughout the accessor generation
 #set( $setter = "${property.name}")
 #set( $iceType = "omero::model::IObject")
 #set( $cppType = "${iceType}Ptr")
+#set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findTarget(source.get${PropertyName}());" );
 [$Ice]       omero::model::IObject ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Boolean"))## -------------------------------
 #set( $javaType = "omero.RBool");
 #set( $iceType   = "omero::RBool" )
 #set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
 [$Ice]       omero::RBool ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Integer"))
 #set( $javaType = "omero.RInt");
 #set( $iceType   = "omero::RInt" )
 #set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
 [$Ice]       omero::RInt ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Long"))
 #set( $javaType = "omero.RLong");
 #set( $iceType   = "omero::RLong" )
 #set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
 [$Ice]       omero::RLong ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Double"))
 #set( $javaType = "omero.RDouble");
 #set( $iceType   = "omero::RDouble" )
 #set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
 [$Ice]       omero::RDouble ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.Float"))
 #set( $javaType = "omero.RFloat");
 #set( $iceType   = "omero::RFloat" )
 #set( $cppType   = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}());" );
 [$Ice]       omero::RFloat ${property.name};
 
 #elseif( $javaType.equals("byte[]"))
@@ -628,6 +632,7 @@ Properties used throughout the accessor generation
 #set( $setter = "${property.name}")
 #set( $iceType = "Ice::ByteSeq")
 #set( $cppType = "Ice::ByteSeq")
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}();")
 [$Ice]       Ice::ByteSeq ${property.name};
 
 #elseif( $javaType.startsWith("long")) ## for Permissions
@@ -640,19 +645,21 @@ Properties used throughout the accessor generation
 [$Ice]       long ${property.name};
 
 #elseif( $javaType.startsWith("java.util.Map") )
-#set( $findMethod = "Map" )
+#set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findMap(source.get${PropertyName}());" );
 [$Ice]       dictionary ${property.name};
 
 #elseif( $javaType.startsWith("java.sql.Timestamp")) ## for Event
 #set( $javaType = "omero.RTime");
 #set( $iceType = "omero::RTime" )
 #set( $cppType = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}().getTime() );" );
 [$Ice]       omero::RTime ${property.name};
 
 #elseif( $javaType.startsWith("java.lang.String")) ## for Event
 #set( $javaType = "omero.RString");
 #set( $iceType = "omero::RString" )
 #set( $cppType = "${iceType}Ptr" )
+#set( $copyMethod = "this.${fieldName} = source.get${PropertyName}() == null ? null : new ${javaType}(source.get${PropertyName}() );" );
 [$Ice]       omero::RString ${property.name};
 
 #else
@@ -719,7 +726,7 @@ the special set methods are added.
 [$jav]       }
 [$jav]
 [$jav]       private void copy${PropertyName}($type.id source, omero.util.IceMapper mapper) {
-[$jav]           this.${fieldName} = ($javaType) mapper.find${findMethod}($copyMethod);
+[$jav]           $copyMethod
 #if ($property.one2Many && $property.isLink)
 [$jav]           this.${property.name}CountPerOwner = source.get${property.nameCapped}CountPerOwner();
 #end

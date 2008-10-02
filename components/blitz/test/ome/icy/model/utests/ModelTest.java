@@ -7,8 +7,11 @@
 package ome.icy.model.utests;
 
 import junit.framework.TestCase;
+import ome.model.meta.Experimenter;
 import omero.RFloat;
 import omero.model.ArcI;
+import omero.model.ExperimenterI;
+import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
 
@@ -21,4 +24,10 @@ public class ModelTest extends TestCase {
         arcI.setPower(new RFloat(1.0f));
     }
 
+    @Test
+    public void testCopyObject() throws Exception {
+        Experimenter e = new Experimenter();
+        e.setOmeName("hi");
+        new ExperimenterI().copyObject(e, new IceMapper());
+    }
 }
