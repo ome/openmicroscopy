@@ -248,7 +248,7 @@ module omero {
 	    omero::model::Session updateSession(omero::model::Session sess) throws ServerError;
 	    void closeSession(omero::model::Session sess) throws ServerError;
 	    // System users
-	    omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long seconds) throws ServerError;
+	    omero::model::Session createSessionWithTimeout(omero::sys::Principal p, long milliSeconds) throws ServerError;
 
 	    // Environment
 	    omero::RType getInput(string sess, string key) throws ServerError;
