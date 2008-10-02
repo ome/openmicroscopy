@@ -15,7 +15,7 @@
 
 -->
   <info
-      organisation="omero"
+      organisation="omero-tools"
       module="OmeroJava"
       status="integration"/>
   <configurations>
