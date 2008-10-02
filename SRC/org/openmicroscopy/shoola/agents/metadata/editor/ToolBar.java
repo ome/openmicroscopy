@@ -130,12 +130,12 @@ class ToolBar
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.setEnabled(false);
 		downloadButton = new JButton(icons.getIcon(IconManager.DOWNLOAD));
-		downloadButton.setToolTipText("Download the archived files.");
+		downloadButton.setToolTipText("Download the Archived File(s).");
 		downloadButton.addActionListener(this);
 		downloadButton.setActionCommand(""+DOWNLOAD);
 		downloadButton.setEnabled(false);
 		infoButton = new JButton(icons.getIcon(IconManager.INFO));
-		infoButton.setToolTipText("View image's info.");
+		infoButton.setToolTipText("View Image's info.");
 		infoButton.addActionListener(this);
 		infoButton.setActionCommand(""+INFO);
 		

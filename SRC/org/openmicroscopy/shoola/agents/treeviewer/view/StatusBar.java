@@ -98,7 +98,7 @@ class StatusBar
     private void initComponents()
     {
         icons = IconManager.getInstance();
-        progressLabel = new JLabel(icons.getIcon(IconManager.PROGRESS));
+        progressLabel = new JLabel(icons.getIcon(IconManager.TRANSPARENT));
         progressBar = new JProgressBar();
         progressBar.setIndeterminate(true);
         status = new JLabel();
@@ -185,6 +185,8 @@ class StatusBar
     {
     	progressBar.setVisible(!hide);
         progressLabel.setEnabled(!hide);
+        if (hide) progressLabel.setIcon(icons.getIcon(IconManager.TRANSPARENT));
+        else progressLabel.setIcon(icons.getIcon(IconManager.PROGRESS));
     }
     
 }

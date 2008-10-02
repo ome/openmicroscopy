@@ -641,31 +641,14 @@ class OMEROGateway
 	private String[] prepareTextSearch(Collection<String> terms, Search service) 
 	{
 		if (terms == null || terms.size() == 0) return null;
-		String value;
-		int n;
-		char[] arr;
-		String v;
-		String[] formattedTerms = new String[terms.size()];
-		Iterator<String> j = terms.iterator();
-		int k = 0;
-		while (j.hasNext()) {
-			value = j.next();
-			if (startWithWildCard(value)) 
-				service.setAllowLeadingWildcard(true);
-			//format string
-			n = value.length();
-			arr = new char[n];
-			v = "";
-			value.getChars(0, n, arr, 0);  
-			for (int i = 0; i < arr.length; i++) {
-				if (SUPPORTED_SPECIAL_CHAR.contains(arr[i])) 
-					v += "\\"+arr[i];
-				else v += arr[i];
-			}
-			formattedTerms[k] = v.toLowerCase() ;
+		String[] values = new String[terms.size()];
+		Iterator<String> i = terms.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			values[index] = i.next();
+			index++;
 		}
-
-		return formattedTerms;
+		return prepareTextSearch(values, service);
 	}
 
 	/**
@@ -2805,7 +2788,6 @@ class OMEROGateway
 				fMust = formatText(must, "url");
 				fNone = formatText(none, "url");
 			}
-			
 			owner = owners.iterator();
 			if (fSome != null) {
 				while (owner.hasNext()) {

@@ -110,7 +110,10 @@ public class SearchUtil
 			if (value != null) {
 				value = value.trim();
 				if (value.length() != 0 && !value.equals(ALL) && 
-						!value.equals(COMMA_SEPARATOR)) l.add(value);
+						!value.equals(COMMA_SEPARATOR)) {
+					if (value.contains(",")) value = value.replace(",", "");
+					l.add(value);
+				}
 			}
 		}
 		return l;

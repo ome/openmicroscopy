@@ -119,11 +119,11 @@ class ViewedByUI
 		layoutIndex = LIST_VIEW;
 		IconManager icons = IconManager.getInstance();
 		listView = new JToggleButton(icons.getIcon(IconManager.LIST_VIEW));
-		listView.setToolTipText("List View");
+		listView.setToolTipText("View as List.");
 		listView.setActionCommand(""+LIST_VIEW);
 		listView.addActionListener(this);
 		gridView = new JToggleButton(icons.getIcon(IconManager.GRID_VIEW));
-		gridView.setToolTipText("Grid View");
+		gridView.setToolTipText("View as Grid.");
 		gridView.setActionCommand(""+GRID_VIEW);
 		gridView.addActionListener(this);
 		listView.setSelected(true);

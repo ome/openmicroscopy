@@ -828,6 +828,8 @@ class ImViewerControl
 			model.projectImage((ProjectionRef) pce.getNewValue());
 		} else if (ProjectionDialog.LOAD_DATASETS_PROPERTY.equals(pName)) {
 			model.loadContainers();
+		} else if (ProjectionDialog.CLOSE_DIALOG_PROPERTY.equals(pName)) {
+			view.requestFocus();
 		}
 	}
 

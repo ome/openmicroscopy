@@ -315,6 +315,8 @@ class MetadataViewerComponent
 			}
 			dialog = new MessageBox(view, "Save Annotations", 
 						         "Do you want to attach the annotations to: ");
+			dialog.setNoText("Cancel");
+			dialog.setYesText("OK");
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();
@@ -344,6 +346,8 @@ class MetadataViewerComponent
 			}
 			dialog = new MessageBox(view, "Save Annotations", 
 						         "Do you want to attach the annotations to: ");
+			dialog.setNoText("Cancel");
+			dialog.setYesText("OK");
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();
@@ -389,6 +393,8 @@ class MetadataViewerComponent
 			}
 			dialog = new MessageBox(view, "Save Annotations", 
 	         		     "Do you want to attach the annotations to: ");
+			dialog.setNoText("Cancel");
+			dialog.setYesText("OK");
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();

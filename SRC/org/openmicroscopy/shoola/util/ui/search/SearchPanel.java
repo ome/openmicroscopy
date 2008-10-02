@@ -1040,6 +1040,7 @@ class SearchPanel
 	{
 		String text = allTermsArea.getText();
 		List l = SearchUtil.splitTerms(text);
+		System.err.println(l);
 		if (l.size() > 0) 
 			return (String[]) l.toArray(new String[] {});
 			
