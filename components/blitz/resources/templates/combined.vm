@@ -1538,7 +1538,7 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]           """
 [$pyc]           Reroutes all access to object.field through object.getField()
 [$pyc]           """
-[$pyc]           getter = "get" + name.capitalize()
+[$pyc]           getter = "get" + name[0].capitalize() + name[1:]  
 [$pyc]           if hasattr(self, getter):
 [$pyc]               method = getattr(self, getter)
 [$pyc]               return method()
@@ -1553,7 +1553,7 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]           if name.startswith("_"):
 [$pyc]               self.__dict__[name] = value
 [$pyc]           else:
-[$pyc]               setter = "set" + name.capitalize()
+[$pyc]               setter = "set" + name[0].capitalize() + name[1:] 
 [$pyc]               if hasattr(self, setter):
 [$pyc]                   method = getattr(self, setter)
 [$pyc]                   method(value)
