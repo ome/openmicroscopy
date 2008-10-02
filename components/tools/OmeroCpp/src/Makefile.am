@@ -50,6 +50,7 @@ libOMERO_client_la_LIBADD  = libOMERO_common.la
 libOMERO_client_la_SOURCES = ./omero/client.cpp ./omero/CTypes.cpp \
 	./omero/model/DetailsI.cpp\
 	./omero/model/PermissionsI.cpp\
+	./omero/sys/ParametersI.cpp\
         slice_generated//omero/fwd.cpp\
         slice_generated//omero/API.cpp\
         slice_generated//omero/Constants.cpp\

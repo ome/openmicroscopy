@@ -10,7 +10,7 @@ our_libs = -lOMERO_common -lOMERO_client -lstdc++ -lIce -lIceUtil -lSlice -lGlac
 our_incl = -I../src -I../src/slice_generated -I../target/temp
 
 if BOOST_TEST
-unit_SOURCES = boost_main.cpp boost_fixture.cpp boost_model.cpp boost_perms.cpp boost_client.cpp boost_operators.cpp
+unit_SOURCES = boost_main.cpp boost_fixture.cpp boost_model.cpp boost_perms.cpp boost_client.cpp boost_operators.cpp boost_parameters.cpp
 unit_CXXFLAGS = -g -O0 $(our_incl)
 unit_LDFLAGS = $(our_libp) -dl -lboost_unit_test_framework-mt-d $(our_libs)
 else

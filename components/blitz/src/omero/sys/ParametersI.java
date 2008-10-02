@@ -6,7 +6,7 @@
  *
  */
 
-package omero.util;
+package omero.sys;
 
 import java.util.ArrayList;
 import java.util.Collection;
