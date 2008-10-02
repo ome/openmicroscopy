@@ -63,7 +63,7 @@ public class SomeMustNone extends FullText {
         if (must != null && must.length > 0) {
             for (String string : must) {
                 if (string.length() > 0) {
-                    sb.append("+");
+                    sb.append(" +");
                     sb.append(string);
                 }
             }
@@ -76,9 +76,8 @@ public class SomeMustNone extends FullText {
         if (none != null && none.length > 0) {
             for (String string : none) {
                 if (string.length() > 0) {
-                    sb.append("-");
+                    sb.append(" -");
                     sb.append(string);
-                    sb.append(" ");
                 }
             }
         }

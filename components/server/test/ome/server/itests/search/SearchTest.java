@@ -2400,6 +2400,45 @@ public class SearchTest extends AbstractTest {
         assertResults(search, 1);
 
     }
+    
+    
+    @Test(groups = "shoola:ticket:663")
+    public void testParseException() throws Exception {
+        
+        String query = "(tag:100x, OR tag:aurora) +tag:eg5,+tag:jj99 -tag:ph3";
+        
+        String name = uuid();
+        String tag = "aurora";
+        Image i = new Image(name);
+        TagAnnotation aurora = new TagAnnotation();
+        aurora.setTextValue("aurora");
+        TagAnnotation jj99 = new TagAnnotation();
+        jj99.setTextValue("jj99");
+        TagAnnotation eg5 = new TagAnnotation();
+        eg5.setTextValue("eg5");
+        i.linkAnnotation(aurora);
+        i.linkAnnotation(jj99);
+        i.linkAnnotation(eg5);
+        
+        i = iUpdate.saveAndReturnObject(i);
+        iUpdate.indexObject(i);
+
+        Search search = this.factory.createSearchService();
+        search.onlyType(Image.class);
+
+        // This string is corrupt, but it came from someMustNone
+        try {
+            search.byFullText(query);
+        } catch (Exception e) {
+            // Known problem.
+        }
+        
+        search.bySomeMustNone(
+                new String[]{"tag:100x","tag:aurora"},
+                new String[]{"tag:eg5","tag:jj99"},
+                new String[]{"tag:ph3"});
+        assertAtLeastResults(search, 1);
+    }
 
     // Implementation specifics
     // =========================================================================
@@ -2432,6 +2471,7 @@ public class SearchTest extends AbstractTest {
         assertAtLeastResults(search, 1);
     }
 
+    
     // Helpers
     // =========================================================================
 
