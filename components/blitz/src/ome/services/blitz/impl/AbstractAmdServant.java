@@ -24,6 +24,7 @@ import omero.util.IceMapper;
 
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -35,7 +36,7 @@ import org.springframework.context.ApplicationContextAware;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  */
-public class AbstractAmdServant implements ApplicationContextAware {
+public abstract class AbstractAmdServant implements ApplicationContextAware {
 
     final protected BlitzExecutor be;
 
@@ -55,11 +56,29 @@ public class AbstractAmdServant implements ApplicationContextAware {
         this.service = service;
     }
 
+    /**
+     * Creates an {@link IceMethodInvoker} for this instance if {@link #service}
+     * is non-null. Otherwise gives subclasses a chance to use the {@link OmeroContext}
+     * via {@link #onSetContext(OmeroContext)}
+     */
     public final void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
+        OmeroContext oc = (OmeroContext) ctx;
         if (service != null) {
-            this.invoker = new IceMethodInvoker(service, (OmeroContext) ctx);
+            this.invoker = new IceMethodInvoker(service, oc);
         }
+        try {
+            setOmeroContext(oc);
+        } catch (Exception e) {
+            throw new FatalBeanException("Error on setOmeroContext", e);
+        }
+    }
+    
+    /**
+     * To be overridden by subclasses.
+     */
+    public void setOmeroContext(OmeroContext context) throws Exception {
+        //no-op
     }
 
     /**

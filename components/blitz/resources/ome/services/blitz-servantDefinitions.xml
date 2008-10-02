@@ -194,6 +194,14 @@
     </constructor-arg>
   </bean>
 
+  <bean id="omero.api.MetadataStore" class="omero.api._MetadataStoreTie" singleton="false">
+    <constructor-arg>
+        <bean class="ome.services.blitz.impl.MetadataStoreI">
+            <constructor-arg ref="throttlingStrategy"/>
+        </bean>
+    </constructor-arg>
+  </bean>
+
   <bean id="omero.api.RawFileStore" class="omero.api._RawFileStoreTie" singleton="false">
     <constructor-arg>
         <bean class="ome.services.blitz.impl.RawFileStoreI">

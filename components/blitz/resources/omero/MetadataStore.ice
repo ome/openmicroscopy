@@ -29,7 +29,6 @@ module omero {
 		void createRoot() throws ServerError;
 		void setRoot(RType root) throws ServerError;
 		RType getRoot() throws ServerError;
-		omero::model::IObject getEnumeration(RString klass, RString value) throws ServerError;
 		long getExperimenterID() throws ServerError;
 		void setChannelGlobalMinMax(int channelIdx, RDouble globalMin, RDouble globalMax, RInt pixelsIndex) throws ServerError;
 		void setPlane(RLong id, Ice::ByteSeq pixels, int theZ, int theC, int theT) throws ServerError;
