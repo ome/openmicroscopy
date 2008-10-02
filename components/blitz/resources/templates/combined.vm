@@ -450,16 +450,16 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$cpp]       }
 
 [$pyc]       def getDetails(self, $PYC_CURRENT):
-[$pyc]           return self.details
+[$pyc]           return self._details
 [$pyc]
 [$pyc]       def unloadDetails(self):
-[$pyc]           self.details = None
+[$pyc]           self._details = None
 [$pyc]
 [$pyc]       def getId(self, $PYC_CURRENT):
-[$pyc]           return self.id
+[$pyc]           return self._id
 [$pyc]
 [$pyc]       def setId(self, _id, $PYC_CURRENT):
-[$pyc]           self.id = _id
+[$pyc]           self._id = _id
 [$pyc]
 Doing unloadedPython as a method because of the multi-line restriction. See below.
 [$pyc]       def checkUnloadedProperty(self, value, loadedField):
