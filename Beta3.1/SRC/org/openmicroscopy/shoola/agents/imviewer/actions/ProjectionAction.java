@@ -57,7 +57,7 @@ public class ProjectionAction
     private static final String NAME = "Projection";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Projection.";
+    private static final String DESCRIPTION = "Open Projection Tool.";
     
     /** 
      * Overriden to make sure that the movie player is not enabled when 

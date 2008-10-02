@@ -42,7 +42,6 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -50,7 +49,6 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -108,12 +106,6 @@ class ProjectionSavingDialog
 	
 	/** The text field hosting the name of the file. */
 	private JTextField 					nameField;
-	
-	/** Button to project the active channels. */
-	private JRadioButton 				activeChannels;
-	
-	/** Button to projec the whole image. */
-	private JRadioButton 				allChannels;
 
 	/** Closes the window. */
 	private JButton		 				closeButton;
@@ -228,15 +220,7 @@ class ProjectionSavingDialog
 		//}
 		selectionPane =  new JPanel();
 		selectionPane.setLayout(new BoxLayout(selectionPane, BoxLayout.Y_AXIS));
-    	
-		activeChannels = new JRadioButton("Active channels");
-		allChannels = new JRadioButton("All channels");
-		allChannels.setSelected(true);
-		ButtonGroup group = new ButtonGroup();
-		group.add(allChannels);
-		group.add(activeChannels);
-
-		closeButton = new JButton("Close");
+		closeButton = new JButton("Cancel");
 		closeButton.setToolTipText(UIUtilities.formatToolTipText(
 				"Close the window."));
 		closeButton.setActionCommand(""+CLOSE);
@@ -315,20 +299,6 @@ class ProjectionSavingDialog
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildChannelsPanel()
-	{
-		JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.add(allChannels);
-        p.add(activeChannels);
-        return UIUtilities.buildComponentPanel(p);
-	}
-	
-	/**
-	 * Builds and lays out the channels options.
-	 * 
-	 * @return See above.
-	 */
 	private JPanel buildTimeRangePanel()
 	{
 		JPanel p = new JPanel();
@@ -362,7 +332,7 @@ class ProjectionSavingDialog
         int height = 80;
         double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, //columns
         				{TableLayout.PREFERRED, TableLayout.PREFERRED, 5, 
-        				TableLayout.PREFERRED, height, 5,
+        				TableLayout.PREFERRED, TableLayout.PREFERRED, height, 5,
         				TableLayout.PREFERRED, TableLayout.FILL} }; //rows
         content.setLayout(new TableLayout(tl));
         content.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -371,15 +341,16 @@ class ProjectionSavingDialog
         content.add(nameField, "1, 1, f, c");
         content.add(new JLabel(), "0, 2, 1, 2");
         content.add(UIUtilities.setTextFont("Save in "), "0, 3, l, c");
-    	content.add(new JScrollPane(selectionPane), "1, 3, 1, 4");
+        content.add(UIUtilities.setTextFont("datasets "), "0, 4, l, c");
+    	content.add(new JScrollPane(selectionPane), "1, 3, 1, 5");
         if (selection != null) {
         	Iterator i = selection.keySet().iterator();
         	while (i.hasNext()) 
         		selectionPane.add((JComponent) i.next());
         }
-        content.add(new JLabel(), "0, 5, 1, 5");
-        content.add(UIUtilities.setTextFont("Project "), "0, 6, l, c");
-        content.add(buildParametersPanel(), "1, 6, 1, 7");
+        content.add(new JLabel(), "0, 6, 1, 6");
+        content.add(UIUtilities.setTextFont("Project "), "0, 7, l, c");
+        content.add(buildParametersPanel(), "1, 7, 1, 8");
 		return content;
 	}
 	
