@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import ome.conditions.InternalException;
+import ome.conditions.SecurityViolation;
 import ome.logic.HardWiredInterceptor;
 import ome.security.SecuritySystem;
 import ome.services.blitz.impl.ServiceFactoryI;
@@ -139,6 +140,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             if (t instanceof ApiUsageException) {
                 ApiUsageException aue = (ApiUsageException) t;
                 throw new CannotCreateSessionException(aue.message);
+            } else if (t instanceof SecurityViolation) {
+                SecurityViolation sv = (SecurityViolation) t;
+                throw new CannotCreateSessionException(sv.getMessage());
             }
 
             ConvertToBlitzExceptionMessage convert = new ConvertToBlitzExceptionMessage(
