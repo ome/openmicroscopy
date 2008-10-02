@@ -20,7 +20,11 @@ namespace omero {
     ObjectFactoryPtr of = new ObjectFactory();
     of->registerObjectFactory(ic);
     // Define our unique identifier (used during close/detach)
-    ic->getImplicitContext()->put(omero::constants::CLIENTUUID, IceUtil::generateUUID());
+    Ice::ImplicitContextPtr ctx = ic->getImplicitContext();
+    if (!ctx) {
+    	throw omero::ClientError(__FILE__,__LINE__,"Ice.ImplicitContext not set to Shared");
+    }
+    ctx->put(omero::constants::CLIENTUUID, IceUtil::generateUUID());
   }
 
   client::client(const Ice::InitializationData& id) {
