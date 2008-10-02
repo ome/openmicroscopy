@@ -195,6 +195,19 @@ public interface IAdmin extends ServiceInterface {
     Experimenter experimenter);
 
     /**
+     * Updates an experimenter as admin. All aspects of the passed object are
+     * taken into account including omeName, groups, and default group.
+     * 
+     * @param experimenter
+     *            the Experimenter to update.
+     * @param password
+     *            Not-null. Must pass validation in the security sub-system.           
+     */
+    void updateExperimenterWithPassword(@NotNull
+    Experimenter experimenter, @Hidden
+    String password);
+    
+    /**
      * Updates a group. All aspects of the passed object are taken into account
      * including group name and the included users.
      * 
@@ -247,6 +260,26 @@ public interface IAdmin extends ServiceInterface {
     Experimenter experimenter, @NotNull
     ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);
 
+    /**
+     * create and return a new user in the given groups with password.
+     * 
+     * @param experimenter
+     *            A new {@link Experimenter} instance. Not null.
+     * @param password
+     *            Not-null. Must pass validation in the security sub-system.
+     * @param defaultGroup
+     *            Instance of {@link ExperimenterGroup}. Not null.
+     * @param otherGroups
+     *            Array of {@link ExperimenterGroup} instances. Can be null.
+     * @return id of the newly created {@link Experimenter} Not null.
+     * @throws ome.conditions.SecurityViolation
+     *             if the new password is too weak.
+     */
+    long createExperimenterWithPassword(@NotNull
+    Experimenter experimenter, @Hidden
+    String password, @NotNull
+    ExperimenterGroup defaultGroup, ExperimenterGroup... otherGroups);    
+    
     /**
      * create and return a new group.
      * 

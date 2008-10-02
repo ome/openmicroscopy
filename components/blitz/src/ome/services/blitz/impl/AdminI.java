@@ -28,6 +28,7 @@ import omero.api.AMD_IAdmin_changeUserPassword;
 import omero.api.AMD_IAdmin_containedExperimenters;
 import omero.api.AMD_IAdmin_containedGroups;
 import omero.api.AMD_IAdmin_createExperimenter;
+import omero.api.AMD_IAdmin_createExperimenterWithPassword;
 import omero.api.AMD_IAdmin_createGroup;
 import omero.api.AMD_IAdmin_createSystemUser;
 import omero.api.AMD_IAdmin_createUser;
@@ -51,6 +52,7 @@ import omero.api.AMD_IAdmin_setGroupOwner;
 import omero.api.AMD_IAdmin_synchronizeLoginCache;
 import omero.api.AMD_IAdmin_unlock;
 import omero.api.AMD_IAdmin_updateExperimenter;
+import omero.api.AMD_IAdmin_updateExperimenterWithPassword;
 import omero.api.AMD_IAdmin_updateGroup;
 import omero.api.AMD_IAdmin_updateSelf;
 import omero.api._IAdminOperations;
@@ -151,6 +153,15 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
         callInvokerOnRawArgs(__cb, __current, user, defaultGroup, groups);
     }
 
+    public void createExperimenterWithPassword_async(
+            AMD_IAdmin_createExperimenterWithPassword __cb, Experimenter user,
+            RString password, ExperimenterGroup defaultGroup,
+            List<ExperimenterGroup> groups, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, user, password, defaultGroup,
+                groups);
+    }
+    
     public void createGroup_async(AMD_IAdmin_createGroup __cb,
             ExperimenterGroup group, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, group);
@@ -298,6 +309,13 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void updateExperimenter_async(AMD_IAdmin_updateExperimenter __cb,
             Experimenter experimenter, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, experimenter);
+    }
+    
+    public void updateExperimenterWithPassword_async(
+            AMD_IAdmin_updateExperimenterWithPassword __cb,
+            Experimenter experimenter, RString password, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, experimenter, password);
     }
 
     public void updateGroup_async(AMD_IAdmin_updateGroup __cb,

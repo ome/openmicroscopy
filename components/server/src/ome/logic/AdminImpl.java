@@ -10,6 +10,7 @@ package ome.logic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -447,6 +448,16 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         iUpdate.saveObject(experimenter);
         getBeanHelper().getLogger().info("Updated user info for " + name);
     }
+    
+    @RolesAllowed("system")
+    public void updateExperimenterWithPassword(@NotNull
+    Experimenter experimenter, String password) {
+        String name = experimenter.getOmeName();
+        iUpdate.saveObject(experimenter);
+        changeUserPassword(name, password);
+        getBeanHelper().getLogger().info(
+                "Updated user info and password for " + name);
+    }
 
     @RolesAllowed("system")
     public void updateGroup(@NotNull
@@ -492,6 +503,33 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
         getBeanHelper().getLogger().info(
                 "Created user with blank password: " + e.getOmeName());
+        return e.getId();
+    }
+    
+    @RolesAllowed("system")
+    @SuppressWarnings("unchecked")
+    public long createExperimenterWithPassword(Experimenter experimenter, 
+            String password, ExperimenterGroup defaultGroup, 
+            ExperimenterGroup... otherGroups) {
+
+        SecureAction action = new SecureUpdate(iUpdate);
+
+        Experimenter e = copyUser(experimenter);
+        e.getDetails().copy(getSecuritySystem().newTransientDetails(e));
+        e = getSecuritySystem().doAction(action, e);
+        iUpdate.flush();
+
+        GroupExperimenterMap link = linkGroupAndUser(defaultGroup, e);
+        if (null != otherGroups) {
+            for (ExperimenterGroup group : otherGroups) {
+                linkGroupAndUser(group, e);
+            }
+        }
+
+        changeUserPassword(e.getOmeName(), password);
+
+        getBeanHelper().getLogger().info(
+                "Created user with password: " + e.getOmeName());
         return e.getId();
     }
 
