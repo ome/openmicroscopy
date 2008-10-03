@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -107,7 +108,7 @@ public class RenderingSettingsSaver
 	 * @return The {@link BatchCall}.
 	 */
 	private BatchCall makeBatchCall(final long pixelsID, final Class rootType,
-			final Set<Long> ids, final int index)
+			final List<Long> ids, final int index)
 	{
 		return new BatchCall("Paste the rendering settings: ") {
 			public void doCall() throws Exception
@@ -151,7 +152,7 @@ public class RenderingSettingsSaver
 				if (l != null) {
 					Iterator i = l.iterator();
 					IObject element;
-					Set<Long> ids = new HashSet<Long>(l.size());
+					List<Long> ids = new ArrayList<Long>(l.size());
 					while (i.hasNext()) {
 						element = (IObject) i.next();
 						ids.add(element.getId());
@@ -223,7 +224,7 @@ public class RenderingSettingsSaver
 	 * 						Mustn't be <code>null</code>.
 	 * @param index			One of the constants defined by this class.
 	 */
-	public RenderingSettingsSaver(Class rootNodeType, Set<Long> ids, int index)
+	public RenderingSettingsSaver(Class rootNodeType, List<Long> ids, int index)
 	{
 		checkRootType(rootNodeType);
 		if (ids == null || ids.size() == 0)
@@ -242,7 +243,7 @@ public class RenderingSettingsSaver
 	 * 						Mustn't be <code>null</code>.
 	 */
 	public RenderingSettingsSaver(long pixelsID, Class rootNodeType, 
-			Set<Long> ids)
+			List<Long> ids)
 	{
 		checkRootType(rootNodeType);
 		if (ids == null || ids.size() == 0)

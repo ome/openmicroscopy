@@ -40,21 +40,21 @@ import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
 
 //Application-internal dependencies
-import ome.conditions.RemovedSessionException;
-import ome.conditions.SessionTimeoutException;
-import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import ome.model.display.CodomainMapContext;
-import ome.model.display.QuantumDef;
-import ome.model.enums.Family;
-import ome.model.enums.RenderingModel;
-import omeis.providers.re.RenderingEngine;
-import omeis.providers.re.data.PlaneDef;
+import omero.ServerError;
+import omero.api.RenderingEnginePrx;
+import omero.constants.projection.ProjectionType;
+import omero.model.Family;
+import omero.model.Pixels;
+import omero.model.PixelsDimensions;
+import omero.model.QuantumDef;
+import omero.model.RenderingModel;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.DataServicesFactory;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
+import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 
@@ -86,16 +86,16 @@ class RenderingControlProxy
     private final PixelsDimensions  pixDims;
     
     /** List of supported families. */
-    private final List              families;
+    private List              		families;
     
     /** List of supported models. */
-    private final List              models;
+    private List              		models;
     
     /** The pixels set to render. */
-    private final Pixels            pixs;
+    private Pixels            		pixs;
     
     /** Reference to service to render pixels set. */
-    private RenderingEngine         servant;
+    private RenderingEnginePrx      servant;
     
     /** The cache containing XY images. */
     //private XYCache                 xyCache;
@@ -130,8 +130,7 @@ class RenderingControlProxy
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	//Throwable cause = e.getCause();
-    	if (e instanceof RemovedSessionException || 
-    			e instanceof SessionTimeoutException) {
+    	if (e instanceof ServerError) {
     		shutDown();
     		throw new DSOutOfServiceException(message+"\n\n"+
 					printErrorText(e), e);
@@ -171,7 +170,7 @@ class RenderingControlProxy
         	return xyCache.extract(pd);
         }
         */
-    	if (pd.getSlice() == PlaneDef.XY && cacheID >= 0) {
+    	if (pd.slice == omero.romio.XY.value && cacheID >= 0) {
     		return context.getCacheService().getElement(cacheID, pd);
     	}
         return null;
@@ -185,7 +184,7 @@ class RenderingControlProxy
      */
     private void cache(PlaneDef pd, Object object)
     {
-        if (pd.getSlice() == PlaneDef.XY) {
+        if (pd.slice == omero.romio.XY.value) {
             //We only cache XY images.
             //if (xyCache != null) xyCache.add(pd, object);
         	if (cacheID >= 0) {
@@ -235,7 +234,7 @@ class RenderingControlProxy
             				getPixelsDimensionsZ(), getPixelsDimensionsT());
     	}
     	*/
-    	if (pDef.getSlice() == PlaneDef.XY) 
+    	if (pDef.slice == omero.romio.XY.value) 
     		cacheID = context.getCacheService().createCache(
     							CacheService.IN_MEMORY_ONLY);
     }
@@ -308,32 +307,36 @@ class RenderingControlProxy
     /** Initializes the cached rendering settings to speed up process. */
     private void initialize()
     {
-    	rndDef.setTypeSigned(servant.isPixelsTypeSigned());
-        rndDef.setDefaultZ(servant.getDefaultZ());
-        rndDef.setDefaultT(servant.getDefaultT());
-        QuantumDef qDef = servant.getQuantumDef();
-        rndDef.setBitResolution(qDef.getBitResolution().intValue());
-        rndDef.setColorModel(servant.getModel().getValue());
-        rndDef.setCodomain(qDef.getCdStart().intValue(), 
-                            qDef.getCdEnd().intValue());
-        
-        ChannelBindingsProxy cb;
-        for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
-            cb = rndDef.getChannel(i);
-            if (cb == null) {
-                cb = new ChannelBindingsProxy();
-                rndDef.setChannel(i, cb);
+    	try {
+    		rndDef.setTypeSigned(servant.isPixelsTypeSigned());
+            rndDef.setDefaultZ(servant.getDefaultZ());
+            rndDef.setDefaultT(servant.getDefaultT());
+            QuantumDef qDef = servant.getQuantumDef();
+            rndDef.setBitResolution(qDef.getBitResolution().val);
+            rndDef.setColorModel(servant.getModel().getValue().val);
+            rndDef.setCodomain(qDef.getCdStart().val, qDef.getCdEnd().val);
+            
+            ChannelBindingsProxy cb;
+            for (int i = 0; i < pixs.getSizeC().val; i++) {
+                cb = rndDef.getChannel(i);
+                if (cb == null) {
+                    cb = new ChannelBindingsProxy();
+                    rndDef.setChannel(i, cb);
+                }
+                cb.setActive(servant.isActive(i));
+                cb.setInterval(servant.getChannelWindowStart(i), 
+                                servant.getChannelWindowEnd(i));
+                cb.setQuantization(servant.getChannelFamily(i).getValue().val, 
+                        servant.getChannelCurveCoefficient(i), 
+                        servant.getChannelNoiseReduction(i));
+                cb.setRGBA(servant.getRGBA(i));
+                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
             }
-            cb.setActive(servant.isActive(i));
-            cb.setInterval(servant.getChannelWindowStart(i), 
-                            servant.getChannelWindowEnd(i));
-            cb.setQuantization(servant.getChannelFamily(i).getValue(), 
-                    servant.getChannelCurveCoefficient(i), 
-                    servant.getChannelNoiseReduction(i));
-            cb.setRGBA(servant.getRGBA(i));
-            cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
-            cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
-        }
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    	
     }
     
     
@@ -341,7 +344,7 @@ class RenderingControlProxy
     {
     	 //DOES NOTHING TMP SOLUTION.
         try {
-        	for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+        	for (int i = 0; i < pixs.getSizeC().val; i++) {
     			setQuantizationMap(i, getChannelFamily(i), 
     					getChannelCurveCoefficient(i), false);
     		}
@@ -422,19 +425,19 @@ class RenderingControlProxy
         try {
             int[] buf = servant.renderAsPackedInt(pDef);
             int sizeX1, sizeX2;
-            switch (pDef.getSlice()) {
-                case PlaneDef.XZ:
-                    sizeX1 = pixs.getSizeX().intValue();
-                    sizeX2 = pixs.getSizeZ().intValue();
+            switch (pDef.slice) {
+                case omero.romio.XZ.value:
+                    sizeX1 = pixs.getSizeX().val;
+                    sizeX2 = pixs.getSizeZ().val;
                     break;
-                case PlaneDef.ZY:
-                    sizeX1 = pixs.getSizeZ().intValue();
-                    sizeX2 = pixs.getSizeY().intValue();
+                case omero.romio.ZY.value:
+                    sizeX1 = pixs.getSizeZ().val;
+                    sizeX2 = pixs.getSizeY().val;
                     break;
-                case PlaneDef.XY:
+                case omero.romio.XY.value:
                 default:
-                    sizeX1 = pixs.getSizeX().intValue();
-                    sizeX2 = pixs.getSizeY().intValue();
+                    sizeX1 = pixs.getSizeX().val;
+                    sizeX2 = pixs.getSizeY().val;
                     break;
             }
             initializeCache(pDef);
@@ -466,7 +469,8 @@ class RenderingControlProxy
 	{
 		try {
 			
-			byte[] values = servant.renderProjectedCompressed(type, 
+			byte[] values = servant.renderProjectedCompressed(
+					ProjectionParam.convertType(type), 
 					getDefaultT(), stepping, startZ, endZ);
 			
 			JPEGImageDecoder decoder = 
@@ -497,10 +501,11 @@ class RenderingControlProxy
 	{
         BufferedImage img = null;
         try {
-            int[] buf = servant.renderProjectedAsPackedInt(type, 
+            int[] buf = servant.renderProjectedAsPackedInt(
+            		ProjectionParam.convertType(type), 
 					getDefaultT(), stepping, startZ, endZ);
-            int sizeX1 = pixs.getSizeX().intValue();
-            int sizeX2 = pixs.getSizeY().intValue();
+            int sizeX1 = pixs.getSizeX().val;
+            int sizeX2 = pixs.getSizeY().val;
             img = Factory.createImage(buf, 32, sizeX1, sizeX2);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render projected selection.");
@@ -523,7 +528,7 @@ class RenderingControlProxy
 	 * @param rndDef		Local copy of the rendering settings used to 
 	 * 						speed-up the client.
      */
-    RenderingControlProxy(Registry context, RenderingEngine re, Pixels pixels,
+    RenderingControlProxy(Registry context, RenderingEnginePrx re, Pixels pixels,
     					List m, int compression, RndProxyDef rndDef)
     {
         if (re == null)
@@ -536,32 +541,38 @@ class RenderingControlProxy
         servant = re;
         pixs = pixels;//servant.getPixels();
         this.pixDims = pixels.getPixelsDimensions();
-        families = servant.getAvailableFamilies(); 
-        models = servant.getAvailableModels();
-        cacheID = -1;
-        
-        this.compression = compression;
-        if (rndDef == null) {
-        	this.rndDef = new RndProxyDef();
-        	initialize();
-        } else {
-        	this.rndDef = rndDef;
-        	ChannelBindingsProxy cb;
-        	for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
-                cb = rndDef.getChannel(i);
-                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
-                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+        families = null;
+        models = null;
+        try {
+        	families = servant.getAvailableFamilies(); 
+            models = servant.getAvailableModels();
+            cacheID = -1;
+            
+            this.compression = compression;
+            if (rndDef == null) {
+            	this.rndDef = new RndProxyDef();
+            	initialize();
+            } else {
+            	this.rndDef = rndDef;
+            	ChannelBindingsProxy cb;
+            	for (int i = 0; i < pixs.getSizeC().val; i++) {
+                    cb = rndDef.getChannel(i);
+                    cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+                    cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+                }
             }
-        }
-       
-        //tmpSolutionForNoiseReduction();
-        metadata = new ChannelMetadata[m.size()];
-        Iterator i = m.iterator();
-        ChannelMetadata cm;
-        while (i.hasNext()) {
-        	cm = (ChannelMetadata) i.next();
-            metadata[cm.getIndex()] = cm;
-        }
+           
+            //tmpSolutionForNoiseReduction();
+            metadata = new ChannelMetadata[m.size()];
+            Iterator i = m.iterator();
+            ChannelMetadata cm;
+            while (i.hasNext()) {
+            	cm = (ChannelMetadata) i.next();
+                metadata[cm.getIndex()] = cm;
+            }
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     }
 
     /**
@@ -570,32 +581,45 @@ class RenderingControlProxy
      * @param servant	The value to set.
      * @param rndDef	Local copy of the rendering settings used to 
 	 * 					speed-up the client.
+	 * @throws RenderingServiceException	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    void resetRenderingEngine(RenderingEngine servant, RndProxyDef rndDef)
+    void resetRenderingEngine(RenderingEnginePrx servant, RndProxyDef rndDef)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
     	if (servant == null) return;
     	DataServicesFactory.isSessionAlive(context);
     	invalidateCache();
     	this.servant = servant;
-    	if (rndDef == null) {
-        	initialize();
-        } else {
-        	this.rndDef = rndDef;
-        	ChannelBindingsProxy cb;
-        	for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
-                cb = rndDef.getChannel(i);
-                cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
-                cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+    	try {
+    		if (rndDef == null) {
+            	initialize();
+            } else {
+            	this.rndDef = rndDef;
+            	ChannelBindingsProxy cb;
+            	for (int i = 0; i < pixs.getSizeC().val; i++) {
+                    cb = rndDef.getChannel(i);
+                    cb.setLowerBound(servant.getPixelsTypeLowerBound(i));
+                    cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
+                }
             }
-        }
+		} catch (Exception e) {
+			handleException(e, "Cannot reset the rendering engine.");
+		}
+    	
     }
     
     /**
      * Reloads the rendering engine.
      * 
      * @param servant The value to set.
+     * @throws RenderingServiceException	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    void setRenderingEngine(RenderingEngine servant)
+    void setRenderingEngine(RenderingEnginePrx servant)
+    	throws RenderingServiceException, DSOutOfServiceException
     {
     	if (servant == null) return;
     	DataServicesFactory.isSessionAlive(context);
@@ -603,40 +627,46 @@ class RenderingControlProxy
     	
     	// reset default of the rendering engine.
     	if (rndDef == null) return;
-    	servant.setDefaultZ(rndDef.getDefaultZ());
-    	servant.setDefaultT(rndDef.getDefaultT());
-    	servant.setQuantumStrategy(rndDef.getBitResolution());
-    	Iterator k = models.iterator();
-        RenderingModel model;
-        String value = rndDef.getColorModel();
-        while (k.hasNext()) {
-            model= (RenderingModel) k.next();
-            if (model.getValue().equals(value)) 
-                servant.setModel(model); 
-        }
-    	servant.setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
-    	
-        ChannelBindingsProxy cb;
-        
-        Family family;
-        int[] rgba;
-        for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
-            cb = rndDef.getChannel(i);
-            servant.setActive(i, cb.isActive());
-            servant.setChannelWindow(i, cb.getInputStart(), cb.getInputEnd());
-            k = families.iterator();
-            value = cb.getFamily();
+    	try {
+    		servant.setDefaultZ(rndDef.getDefaultZ());
+        	servant.setDefaultT(rndDef.getDefaultT());
+        	servant.setQuantumStrategy(rndDef.getBitResolution());
+        	Iterator k = models.iterator();
+            RenderingModel model;
+            String value = rndDef.getColorModel();
             while (k.hasNext()) {
-                family= (Family) k.next();
-                if (family.getValue().equals(value)) {
-                	servant.setQuantizationMap(i, family, 
-                			cb.getCurveCoefficient(), cb.isNoiseReduction());
-                  
-                }
+                model= (RenderingModel) k.next();
+                if (model.getValue().equals(value)) 
+                    servant.setModel(model); 
             }
-            rgba = cb.getRGBA();
-            servant.setRGBA(i, rgba[0], rgba[1], rgba[2], rgba[3]);
-        }
+        	servant.setCodomainInterval(rndDef.getCdStart(), rndDef.getCdEnd());
+        	
+            ChannelBindingsProxy cb;
+            
+            Family family;
+            int[] rgba;
+            for (int i = 0; i < pixs.getSizeC().val; i++) {
+                cb = rndDef.getChannel(i);
+                servant.setActive(i, cb.isActive());
+                servant.setChannelWindow(i, cb.getInputStart(), 
+                		cb.getInputEnd());
+                k = families.iterator();
+                value = cb.getFamily();
+                while (k.hasNext()) {
+                    family= (Family) k.next();
+                    if (family.getValue().equals(value)) {
+                    	servant.setQuantizationMap(i, family, 
+                    			cb.getCurveCoefficient(), 
+                    			cb.isNoiseReduction());
+                      
+                    }
+                }
+                rgba = cb.getRGBA();
+                servant.setRGBA(i, rgba[0], rgba[1], rgba[2], rgba[3]);
+            }
+		} catch (Exception e) {
+			handleException(e, "Cannot reset the rendering engine.");
+		}
     }
         
     /** Shuts down the service. */
@@ -662,7 +692,7 @@ class RenderingControlProxy
             RenderingModel model;
             while (i.hasNext()) {
                 model= (RenderingModel) i.next();
-                if (model.getValue().equals(value)) {
+                if (model.getValue().val.equals(value)) {
                     servant.setModel(model); 
                     rndDef.setColorModel(value);
                     invalidateCache();
@@ -916,34 +946,40 @@ class RenderingControlProxy
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#addCodomainMap(CodomainMapContext)
      */
+    /*
     public void addCodomainMap(CodomainMapContext mapCtx)
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	//servant.addCodomainMap(mapCtx);
         invalidateCache();
     }
-
+*/
+    
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#updateCodomainMap(CodomainMapContext)
      */
+    /*
     public void updateCodomainMap(CodomainMapContext mapCtx)
     	throws RenderingServiceException, DSOutOfServiceException
     {
         //servant.updateCodomainMap(mapCtx);
         invalidateCache();
     }
+    */
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#removeCodomainMap(CodomainMapContext)
      */
+    /*
     public void removeCodomainMap(CodomainMapContext mapCtx)
     	throws RenderingServiceException, DSOutOfServiceException
     {
         //servant.removeCodomainMap(mapCtx);
         invalidateCache();
     }
+    */
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -998,7 +1034,7 @@ class RenderingControlProxy
     public float getPixelsSizeX()
     {
         if (pixDims.getSizeX() == null) return 1;
-        return pixDims.getSizeX().floatValue();
+        return pixDims.getSizeX().val;
     }
 
     /** 
@@ -1008,7 +1044,7 @@ class RenderingControlProxy
     public float getPixelsSizeY()
     {
         if (pixDims.getSizeY() == null) return 1;
-        return pixDims.getSizeY().floatValue();
+        return pixDims.getSizeY().val;
     }
 
     /** 
@@ -1018,38 +1054,38 @@ class RenderingControlProxy
     public float getPixelsSizeZ()
     {
         if (pixDims.getSizeY() == null) return 1;
-        return pixDims.getSizeZ().floatValue();
+        return pixDims.getSizeZ().val;
     }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsX()
      */
-    public int getPixelsDimensionsX() { return pixs.getSizeX().intValue(); }
+    public int getPixelsDimensionsX() { return pixs.getSizeX().val; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsY()
      */
-    public int getPixelsDimensionsY() { return pixs.getSizeY().intValue(); }
+    public int getPixelsDimensionsY() { return pixs.getSizeY().val; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsZ()
      */
-    public int getPixelsDimensionsZ() { return pixs.getSizeZ().intValue(); }
+    public int getPixelsDimensionsZ() { return pixs.getSizeZ().val; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsT()
      */
-    public int getPixelsDimensionsT() { return pixs.getSizeT().intValue(); }
+    public int getPixelsDimensionsT() { return pixs.getSizeT().val; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
      * @see RenderingControl#getPixelsDimensionsC()
      */
-    public int getPixelsDimensionsC() { return pixs.getSizeC().intValue(); }
+    public int getPixelsDimensionsC() { return pixs.getSizeC().val; }
 
     /** 
      * Implemented as specified by {@link RenderingControl}. 
@@ -1060,7 +1096,7 @@ class RenderingControlProxy
         List<String> l = new ArrayList<String>(families.size());
         Iterator i= families.iterator();
         while (i.hasNext())
-            l.add(((Family) i.next()).getValue());
+            l.add(((Family) i.next()).getValue().val);
         return l;
     }
     
@@ -1237,14 +1273,14 @@ class RenderingControlProxy
 	{
 		if (pixels == null) return false;
 		DataServicesFactory.isSessionAlive(context);
-		if (getPixelsDimensionsC() != pixels.getSizeC().intValue())
+		if (getPixelsDimensionsC() != pixels.getSizeC().val)
 			return false;
-		if (getPixelsDimensionsY() != pixels.getSizeY().intValue())
+		if (getPixelsDimensionsY() != pixels.getSizeY().val)
 			return false;
-		if (getPixelsDimensionsX() != pixels.getSizeX().intValue())
+		if (getPixelsDimensionsX() != pixels.getSizeX().val)
 			return false;
-		String s = pixels.getPixelsType().getValue();
-		String value = pixs.getPixelsType().getValue();
+		String s = pixels.getPixelsType().getValue().val;
+		String value = pixs.getPixelsType().getValue().val;
 		if (!value.equals(s)) return false;
 		return true;
 	}
@@ -1270,10 +1306,16 @@ class RenderingControlProxy
 	public void setCompression(int compression)
 	{
 		DataServicesFactory.isSessionAlive(context);
-		this.compression = compression;
-		float f = PixelsServicesFactory.getCompressionQuality(compression);
-		servant.setCompressionLevel(f);
-		eraseCache();
+		try {
+			float f = PixelsServicesFactory.getCompressionQuality(compression);
+			servant.setCompressionLevel(f);
+			this.compression = compression;
+			eraseCache();
+		} catch (Exception e) {
+			//handleException(e, "Cannot set the compression level.");
+		}
+		
+		
 	}
 
 	/** 
@@ -1306,7 +1348,7 @@ class RenderingControlProxy
     		 ChannelMetadata m;
     		 Iterator j;
     		 Family family;
-    		 for (int i = 0; i < pixs.getSizeC().intValue(); i++) {
+    		 for (int i = 0; i < pixs.getSizeC().val; i++) {
     			 j = list.iterator();
     			 while (j.hasNext()) {
     				 family= (Family) j.next();

@@ -116,12 +116,12 @@ public class ClassificationsLoader
 		switch (mode) {
 			case Classifier.CLASSIFY_MODE:
 			case Classifier.BULK_CLASSIFY_MODE:
-				handle = dhView.loadClassificationPaths(images, rootID, 
-						DataHandlerView.CLASSIFICATION_NME, this);
+				//handle = dhView.loadClassificationPaths(images, rootID, 
+				//		DataHandlerView.CLASSIFICATION_NME, this);
 				break;
 			case Classifier.DECLASSIFY_MODE:	
-				handle = dhView.loadClassificationPaths(images, rootID, 
-						DataHandlerView.DECLASSIFICATION, this);
+				//handle = dhView.loadClassificationPaths(images, rootID, 
+				//		DataHandlerView.DECLASSIFICATION, this);
 		}
 	}
 	

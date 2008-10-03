@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -34,15 +35,12 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
  * Command to find the data trees of a given <i>OME</i> hierarchy type 
- * i.e. Project/Dataset/(Image), Dataset/(Image),
- * CategoryGroup/Category/(Image), Category/(Image).
+ * i.e. Project/Dataset/(Image), Dataset/(Image)..
  * Note that the images are not always retrieved depending on the specified
  * flag.
  *
@@ -76,7 +74,7 @@ public class DMLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class rootNodeType,
-                                    final Set rootNodeIDs,
+                                    final List rootNodeIDs,
                                     final boolean withLeaves,
                                     final long userID)
     {
@@ -113,8 +111,7 @@ public class DMLoader
 	 * exception so to fail early and in the caller's thread.
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData} or {@link CategoryData}.
+     *                      {@link ProjectData}, {@link DatasetData}.
      * @param rootNodeIDs   A set of the IDs of top-most containers. Passed
      *                      <code>null</code> to retrieve all the top-most
      *                      container specified by the rootNodeType.
@@ -122,7 +119,7 @@ public class DMLoader
      *                      <code>false</code> otherwise.
      * @param userID		The Id of the user. 
      */
-    public DMLoader(Class rootNodeType, Set<Long> rootNodeIDs, 
+    public DMLoader(Class rootNodeType, List<Long> rootNodeIDs, 
     				boolean withLeaves, long userID)
     {
         if (rootNodeType == null) 
@@ -130,9 +127,7 @@ public class DMLoader
         if (userID < 0) 
             throw new IllegalArgumentException("No root ID not valid.");
         if (rootNodeType.equals(ProjectData.class) ||
-                rootNodeType.equals(DatasetData.class) ||
-                rootNodeType.equals(CategoryGroupData.class) ||
-                rootNodeType.equals(CategoryData.class))
+                rootNodeType.equals(DatasetData.class))
                 loadCall = makeBatchCall(rootNodeType, rootNodeIDs, withLeaves,
                         				userID);
         else 

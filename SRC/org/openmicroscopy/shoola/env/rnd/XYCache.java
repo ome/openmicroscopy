@@ -39,7 +39,7 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import omeis.providers.re.data.PlaneDef;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 
@@ -236,17 +236,16 @@ public class XYCache
         //Sanity checks.
         if (pd == null)
             throw new NullPointerException("No plane def.");
-        if (pd.getSlice() != PlaneDef.XY)
+        if (pd.slice != omero.romio.XY.value)
             throw new IllegalArgumentException(
-                    "Can only accept XY planes: "+pd.getSlice()+".");
+                    "Can only accept XY planes: "+pd.slice+".");
         if (object == null)
             throw new NullPointerException("No image.");
         
         //Will the next entry fit into the cache?
-        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
+        PlanePoint key = new PlanePoint(pd.z, pd.t);
         if (max_entries <= cache.size())  //Nope, make room for it.
             ensureCapacity(key);
-        
         //Once we're here we have enough room for the new element.
         cache.put(key, object);
     }
@@ -264,10 +263,10 @@ public class XYCache
     {
         if (pd == null)
             throw new NullPointerException("No plane def.");
-        if (pd.getSlice() != PlaneDef.XY)
+        if (pd.slice != omero.romio.XY.value)
             throw new IllegalArgumentException(
-                    "Can only accept XY planes: "+pd.getSlice()+".");
-        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
+                    "Can only accept XY planes: "+pd.slice+".");
+        PlanePoint key = new PlanePoint(pd.z, pd.t);
         return cache.get(key);
     }
     
@@ -283,7 +282,7 @@ public class XYCache
     boolean contains(PlaneDef pd)
     {
         if (pd == null) return false;
-        PlanePoint key = new PlanePoint(pd.getZ(), pd.getT());
+        PlanePoint key = new PlanePoint(pd.z, pd.t);
         return (cache.get(key) != null);
     }
     

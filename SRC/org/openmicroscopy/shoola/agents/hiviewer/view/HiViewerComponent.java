@@ -943,7 +943,7 @@ class HiViewerComponent
 		Iterator i = nodes.iterator();
 		ImageDisplay node;
 		Object ho;
-		Set<Long> ids = new HashSet<Long>();
+		List<Long> ids = new ArrayList<Long>();
 		Class klass = null;
 		while (i.hasNext()) {
 			node = (ImageDisplay) i.next();
@@ -971,7 +971,7 @@ class HiViewerComponent
 		Iterator i = nodes.iterator();
 		ImageDisplay node;
 		Object ho;
-		Set<Long> ids = new HashSet<Long>();
+		List<Long> ids = new ArrayList<Long>();
 		Class klass = null;
 		while (i.hasNext()) {
 			node = (ImageDisplay) i.next();

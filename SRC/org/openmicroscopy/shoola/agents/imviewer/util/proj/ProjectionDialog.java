@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,10 +94,12 @@ public class ProjectionDialog
 	/** Bound property indicating to load the datasets containing the image. */
 	public static final String 		LOAD_DATASETS_PROPERTY = "loadDatasets";
 	
+	/** Bound property indicating to close the window. */
+	public static final String 		CLOSE_DIALOG_PROPERTY = "closeDialog";
+
     /** Dimension of the box between the channel buttons. */
     private static final Dimension	VBOX = new Dimension(1, 10);
-   
-    
+
 	/** The type of projections supported. */
 	private static final Map<Integer, String>	PROJECTIONS;
 	
@@ -227,6 +231,14 @@ public class ProjectionDialog
 		}
         types = new JComboBox(names);
         getRootPane().setDefaultButton(previewButton);
+        
+        addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) { 
+				super.windowClosing(e);
+				firePropertyChange(CLOSE_DIALOG_PROPERTY, Boolean.FALSE, 
+						Boolean.TRUE);
+			}
+		});
 	}
 	
 	/** 
@@ -287,10 +299,7 @@ public class ProjectionDialog
 		double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.FILL}};
 		body.setLayout(new TableLayout(tl));
-		TextualTwoKnobsSlider pp = new TextualTwoKnobsSlider();
-		pp.layoutComponents();
 		body.add(buildControlComponent(), "0, 0, 1, 0");
-		body.add(pp, "0, 0, 1, 0");
 		body.add(buildToolBar(), "0, 1");
 		body.add(uiDelegate, "1, 1");
 		return body;

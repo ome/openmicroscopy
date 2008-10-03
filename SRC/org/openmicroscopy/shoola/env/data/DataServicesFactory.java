@@ -24,10 +24,12 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 //Third-party libraries
@@ -63,6 +65,9 @@ import pojos.GroupData;
  */
 public class DataServicesFactory
 {
+	
+	/** The name of the Ice configuration file in the config directory. */
+	private static final String		ICE_CONFIG_FILE = "ice.config";
 	
     /** The sole instance. */
 	private static DataServicesFactory		singleton;
@@ -108,6 +113,25 @@ public class DataServicesFactory
 	private OmeroMetadataService 	ms;
     
 	/**
+	 * Reads in the specified file as a property object.
+	 * 
+	 * @param file	Absolute pathname to the file.
+	 * @return	The content of the file as a property object or
+	 * 			<code>null</code> if an error occured.
+	 */
+	private Properties loadConfig(String file)
+	{
+		Properties config = new Properties();
+		try { 
+			FileInputStream fis = new FileInputStream(file);
+			config.load(fis);
+		} catch (Exception e) {
+			return null;
+		}
+		return config;
+	}
+	
+	/**
 	 * Attempts to create a new instance.
      * 
 	 * @param c	Reference to the container.
@@ -120,7 +144,14 @@ public class DataServicesFactory
 		registry = c.getRegistry();
 		container = c;
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
-        omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
+        
+		//Try and read the Ice config file.
+		Properties config = loadConfig(c.resolveConfigFile(ICE_CONFIG_FILE));
+		
+		//Check what to do if null.
+		omeroGateway = new OMEROGateway(config, this);
+		
+        //omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
 		//Create the adapters.
         ds = new OmeroDataServiceImpl(omeroGateway, registry);
         is = new OmeroImageServiceImpl(omeroGateway, registry);
@@ -175,7 +206,9 @@ public class DataServicesFactory
     		container.exit();
         } else {
         	try {
-        		omeroGateway.reconnect();
+        		UserCredentials uc = (UserCredentials) 
+        			container.getRegistry().lookup(LookupNames.USER_CREDENTIALS);
+        		omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
 			} catch (Exception e) {
 				UserNotifier un = registry.getUserNotifier();
 				un.notifyInfo("Reconnect", "An error while trying to " +

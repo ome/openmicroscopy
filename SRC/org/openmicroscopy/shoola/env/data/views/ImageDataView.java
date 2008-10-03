@@ -31,11 +31,11 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-import omeis.providers.re.data.PlaneDef;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import pojos.PixelsData;
 
 /** 
  * Provides methods to support image viewing and analysing
@@ -128,8 +128,8 @@ public interface ImageDataView
      * @param observer	Callback handler.
      * @return See above.
      */
-    public CallHandle analyseShapes(Pixels pixels, List channels, List shapes, 
-    								AgentEventListener observer);
+    public CallHandle analyseShapes(PixelsData pixels, List channels, 
+    							List shapes, AgentEventListener observer);
     
     /**
      * Retrieves all the rendering settings associated to a given set of pixels.
@@ -144,18 +144,18 @@ public interface ImageDataView
     /**
      * Projects a section of the stack and returns the projected image.
      * 
-     * @param pixelsID The id of the pixels set.
-     * @param startZ   The first optical section.
-     * @param endZ     The last optical section.
-     * @param stepping Stepping used while projecting. 
-     *                 Default is <code>1</code>
-     * @param type     The type of projection.
-     * @param channels The collection of channels to project.
-     * @param observer Callback handler.
+     * @param pixelsID  The id of the pixels set.
+     * @param startZ    The first optical section.
+     * @param endZ      The last optical section.
+     * @param stepping  Stepping used while projecting. 
+     *                  Default value is <code>1</code>
+     * @param algorithm The type of projection.
+     * @param channels 	The collection of channels to project.
+     * @param observer 	Callback handler.
      * @return See above.
      */
     public CallHandle renderProjected(long pixelsID, int startZ, int endZ,
-    		int stepping, int type, List<Integer> channels,
+    		int stepping, int algorithm, List<Integer> channels,
     		AgentEventListener observer);
     
     /**

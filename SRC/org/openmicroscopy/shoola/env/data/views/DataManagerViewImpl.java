@@ -34,8 +34,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ContainerCounterLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.DMRefreshLoader;
@@ -52,7 +50,6 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
-import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
 /** 
@@ -75,13 +72,11 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadContainerHierarchy(Class, Set, boolean, 
+	 * @see DataManagerView#loadContainerHierarchy(Class, List, boolean, 
 	 * 						AgentEventListener)
 	 */
 	public CallHandle loadContainerHierarchy(Class rootNodeType,
-			Set<Long> rootNodeIDs,
-			boolean withLeaves,
-			long userID,
+			List<Long> rootNodeIDs, boolean withLeaves, long userID,
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DMLoader(rootNodeType, rootNodeIDs, withLeaves,
@@ -101,10 +96,9 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#getImages(Class, Set, long,
-	 *                              AgentEventListener)
+	 * @see DataManagerView#getImages(Class, List, long, AgentEventListener)
 	 */
-	public CallHandle getImages(Class nodeType, Set nodeIDs, long userID, 
+	public CallHandle getImages(Class nodeType, List nodeIDs, long userID, 
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ImagesLoader(nodeType, nodeIDs, userID);
@@ -186,45 +180,10 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadClassificationPaths(Set, int, long,
-	 *                                              AgentEventListener)
-	 */
-	public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
-			long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
-				userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#classify(Set, Set, AgentEventListener)
-	 */
-	public CallHandle classify(Set images, Set categories, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationSaver(images, categories, true);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#declassify(Set, Set, AgentEventListener)
-	 */
-	public CallHandle declassify(Set images, Set categories, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationSaver(images, categories, false);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadExistingObjects(Class, Set, long, 
+	 * @see DataManagerView#loadExistingObjects(Class, List, long, 
 	 *                                          AgentEventListener)
 	 */
-	public CallHandle loadExistingObjects(Class nodeType, Set nodeIDs, 
+	public CallHandle loadExistingObjects(Class nodeType, List nodeIDs, 
 			long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ExistingObjectsLoader(nodeType, nodeIDs, 
@@ -366,10 +325,10 @@ class DataManagerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataManagerView#loadScreenPlates(Class, Set, long, 
-	 *                                     AgentEventListener)
+	 * @see DataManagerView#loadScreenPlates(Class, List, long, 
+	 * 										AgentEventListener)
 	 */
-	public CallHandle loadScreenPlates(Class rootType, Set rootIDs, long userID, 
+	public CallHandle loadScreenPlates(Class rootType, List rootIDs, long userID, 
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ScreenPlatesLoader(rootType, rootIDs, userID);

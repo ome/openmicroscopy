@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,8 +41,6 @@ import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -76,7 +75,7 @@ public class DMRefreshLoader
      * Project or CategoryGroup.
      * 
      * @param rootNodeType 	The type of the root node. Can either:
-     *                      {@link ProjectData} or {@link CategoryGroupData}.
+     *                      {@link ProjectData}.
      * @param nodes   		The nodes to handle.
      * @return The {@link BatchCall}.
      */
@@ -92,8 +91,8 @@ public class DMRefreshLoader
                 List containers;
                 results = new HashMap<Long, Object>(nodes.size());
                 Object result;
-                Set set, children, newChildren, cIds, r;
-                Set<Long> ids;
+                Set set, children, newChildren, r;
+                List<Long> ids, cIds;
                 Iterator i, j, c, k;
                 Long id;
                 Class klass;
@@ -109,7 +108,7 @@ public class DMRefreshLoader
                 		set = os.loadContainerHierarchy(rootNodeType, null, 
                                 false, userID);
                         i = containers.iterator();
-                        ids = new HashSet<Long>(containers.size());
+                        ids = new ArrayList<Long>(containers.size());
                         while (i.hasNext()) {
                             ids.add(new Long(((DataObject) i.next()).getId()));
                         }
@@ -125,26 +124,18 @@ public class DMRefreshLoader
                             if (parent instanceof ProjectData) {
                                 children = ((ProjectData) parent).getDatasets();
                                 klass = DatasetData.class;
-                            } else if (parent instanceof CategoryGroupData) {
-                                klass = CategoryData.class;
-                                children = 
-                                	((CategoryGroupData) parent).getCategories();
                             } else if (parent instanceof DatasetData) {
                             	children = new HashSet(1);
                             	children.add(parent);
                             	klass = DatasetData.class;
-                            } else if (parent instanceof CategoryData) {
-                            	children = new HashSet(1);
-                            	children.add(parent);
-                            	klass = CategoryData.class;
-                            }
+                            } 
                             topNodes.put(parent, newChildren);
                             c = children.iterator();
                             while (c.hasNext()) {
                                 child = (DataObject) c.next();
                                 id = new Long(child.getId());
                                 if (ids.contains(id)) {
-                                    cIds = new HashSet(1);
+                                    cIds = new ArrayList(1);
                                     cIds.add(id);
                                     r = os.loadContainerHierarchy(klass, cIds, 
                                             true, userID);
@@ -227,8 +218,7 @@ public class DMRefreshLoader
             throw new IllegalArgumentException("No container with images.");
         if (ImageData.class.equals(rootNodeType)) 
         	loadCall = makeImagesBatchCall(nodes);
-        else if (ProjectData.class.equals(rootNodeType) || 
-        		CategoryGroupData.class.equals(rootNodeType) ||
+        else if (ProjectData.class.equals(rootNodeType) ||
         		ScreenData.class.equals(rootNodeType))
         	loadCall = makeBatchCall(rootNodeType,  nodes);
     }

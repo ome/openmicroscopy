@@ -25,7 +25,8 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -34,8 +35,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
@@ -48,9 +47,6 @@ import pojos.ProjectData;
  * <p>A Project tree will be represented by <code>ProjectData, 
  * DatasetData, and ImageData</code> objects. A Dataset tree
  * will only have objects of the latter two types.</p>
- * <p>A Category Group tree will be represented by <code>CategoryGroupData, 
- * CategoryData</code>, and <code>ImageData</code> objects. A Category 
- * tree will only have objects of the latter two types.</p>
  * <p>So the object returned in the <code>DSCallOutcomeEvent</code> will be
  * a <code>ProjectData, DatasetData, CategoryGroupData</code> or
  * <code>CategoryData</code> depending on whether you asked for a Project, 
@@ -84,28 +80,18 @@ public class HierarchyLoader
      * Creates {@link BatchCall} if the type is supported.
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData}, {@link CategoryData}.
+     *                      {@link ProjectData}, {@link DatasetData}.
      * @param rootNodeIDs   Collection of root node ids.
      */
-    private void validate(Class rootNodeType, Set<Long> rootNodeIDs)
+    private void validate(Class rootNodeType, List<Long> rootNodeIDs)
     {
         if (rootNodeType == null) 
             throw new IllegalArgumentException("No root node type.");
         if (rootNodeIDs == null && rootNodeIDs.size() == 0)
             throw new IllegalArgumentException("No root node ids.");
-        /*
-        try {
-            rootNodeIDs.toArray(new Long[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("rootNodeIDs only contain " +
-                                                "Long.");
-        }  
-        */
+
         if (rootNodeType.equals(ProjectData.class) ||
-            rootNodeType.equals(DatasetData.class) ||
-            rootNodeType.equals(CategoryGroupData.class) ||
-            rootNodeType.equals(CategoryData.class))
+            rootNodeType.equals(DatasetData.class))
             loadCall = makeBatchCall(rootNodeType, rootNodeIDs);
         else
             throw new IllegalArgumentException("Unsupported type: "+
@@ -121,7 +107,7 @@ public class HierarchyLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class rootNodeType, 
-                                    final Set rootNodeIDs)
+                                    final List rootNodeIDs)
     {
         return new BatchCall("Loading container tree: ") {
             public void doCall() throws Exception
@@ -154,15 +140,14 @@ public class HierarchyLoader
      * early and in the caller's thread.
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData} or {@link CategoryData}.
+     *                      {@link ProjectData}, {@link DatasetData}.
      * @param rootNodeID    The id of the root node.
      * @param userID   		The id of the user.
      */
     public HierarchyLoader(Class rootNodeType, long rootNodeID, long userID)
     {
         this.userID = userID;
-        HashSet<Long> set = new HashSet<Long>(1);
+        List<Long> set = new ArrayList<Long>(1);
         set.add(new Long(rootNodeID));
         validate(rootNodeType, set);
     }
@@ -174,12 +159,11 @@ public class HierarchyLoader
      * early and in the caller's thread.
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      {@link ProjectData}, {@link DatasetData},
-     *                      {@link CategoryGroupData}, {@link CategoryData}.
+     *                      {@link ProjectData}, {@link DatasetData}.
      * @param rootNodeIDs   The ids of the root nodes.
      * @param userID   		The id of the user.
      */
-    public HierarchyLoader(Class rootNodeType, Set<Long> rootNodeIDs, 
+    public HierarchyLoader(Class rootNodeType, List<Long> rootNodeIDs, 
     						long userID)
     {
     	this.userID = userID;

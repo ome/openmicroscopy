@@ -34,11 +34,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.views.calls.AdminLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.AnnotationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
@@ -157,58 +154,12 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadClassificationPaths(Set, long, int,
-	 * 												AgentEventListener)
-	 */
-	public CallHandle loadClassificationPaths(Set imageIDs, 
-			long userID, int algorithm, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
-				userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#classify(Set, Set, AgentEventListener)
-	 */
-	public CallHandle classify(Set images, Set categories, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationSaver(images, categories, true);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#declassify(Set, Set, AgentEventListener)
-	 */
-	public CallHandle declassify(Set images, Set categories, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationSaver(images, categories, false);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#loadArchivedFiles(String, long, AgentEventListener)
 	 */
 	public CallHandle loadArchivedFiles(String location, long pixelsID, 
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ArchivedFilesLoader(location, pixelsID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#classifyChildren(Set, Set, AgentEventListener)
-	 */
-	public CallHandle classifyChildren(Set containers, Set categories, 
-			AgentEventListener observer) 
-	{
-		BatchCallTree cmd = new ClassificationSaver(containers, categories);
 		return cmd.exec(observer);
 	}
 
@@ -224,31 +175,6 @@ public class DataHandlerViewImpl
 		return cmd.exec(observer);
 	}
 
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#findCategoryPaths(long, boolean, long, 
-	 * 											AgentEventListener)
-	 */
-	public CallHandle findCategoryPaths(long imageID, boolean leaves, 
-			long userID, AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationLoader(imageID,
-				leaves, userID);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#findCategoryPaths(Set, boolean, long,
-	 * 										AgentEventListener)
-	 */
-	public CallHandle findCategoryPaths(Set<Long> imagesID,  boolean leaves,
-			long userID, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationLoader(imagesID, leaves, userID);
-		return cmd.exec(observer);
-	}
 
 	/**
 	 * Implemented as specified by the view interface.
@@ -264,11 +190,11 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#pasteRndSettings(long, Class, Set, 
+	 * @see DataHandlerView#pasteRndSettings(long, Class, List, 
 	 * 										AgentEventListener)
 	 */
 	public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType, 
-			Set<Long> ids, AgentEventListener observer)
+			List<Long> ids, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(pixelsID, rootNodeType, 
 								ids);
@@ -289,9 +215,9 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#resetRndSettings(Class, Set, AgentEventListener)
+	 * @see DataHandlerView#resetRndSettings(Class, List, AgentEventListener)
 	 */
-	public CallHandle resetRndSettings(Class rootNodeType, Set<Long> ids, 
+	public CallHandle resetRndSettings(Class rootNodeType, List<Long> ids, 
 										AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
@@ -313,9 +239,9 @@ public class DataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#setRndSettings(Class, Set, AgentEventListener)
+	 * @see DataHandlerView#setRndSettings(Class, List, AgentEventListener)
 	 */
-	public CallHandle setRndSettings(Class rootNodeType, Set<Long> ids, 
+	public CallHandle setRndSettings(Class rootNodeType, List<Long> ids, 
 										AgentEventListener observer)
 	{
 		BatchCallTree cmd = new RenderingSettingsSaver(rootNodeType, ids, 
@@ -349,18 +275,6 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#classifyChildren(TimeRefObject, Set, 
-	 * 										AgentEventListener)
-	 */
-	public CallHandle classifyChildren(TimeRefObject timeRef, Set categories, 
-			AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationSaver(timeRef, categories);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
 	 * @see DataHandlerView#advancedSearchFor(List, List, List, Timestamp, 
 	 * 									Timestamp, String, boolean,
 	 * 									AgentEventListener)
@@ -382,18 +296,6 @@ public class DataHandlerViewImpl
 										AgentEventListener observer)
 	{
 		BatchCallTree cmd = new ObjectFinder(context);
-		return cmd.exec(observer);
-	}
-
-	/**
-	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#loadUnlinkedTags(Set, long, AgentEventListener)
-	 */
-	public CallHandle loadUnlinkedTags(Set<Long> imageIDs, long userID, 
-						AgentEventListener observer)
-	{
-		BatchCallTree cmd = new ClassificationLoader(imageIDs,
-				ClassificationLoader.TAGS_AVAILABLE, userID);
 		return cmd.exec(observer);
 	}
 

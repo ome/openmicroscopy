@@ -35,14 +35,13 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import omeis.providers.re.data.PlaneDef;
+import omero.model.Pixels;
+import omero.model.PixelsDimensions;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.ImageData;
 
 
@@ -123,10 +122,10 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#pasteRenderingSettings(long, Class, Set)
+     * @see OmeroImageService#pasteRenderingSettings(long, Class, List)
      */
 	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType, 
-			Set<Long> nodeIDs)
+			List<Long> nodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -146,7 +145,7 @@ public class NullRenderingService
      * No-op implementation
      * @see OmeroImageService#resetRenderingSettings(Class, Set)
      */
-	public Map resetRenderingSettings(Class rootNodeType, Set<Long> nodeIDs) 
+	public Map resetRenderingSettings(Class rootNodeType, List<Long> nodeIDs) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
@@ -185,10 +184,10 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#setOriginalRenderingSettings(Class, Set)
+     * @see OmeroImageService#setOriginalRenderingSettings(Class, List)
      */
 	public Map setOriginalRenderingSettings(Class rootNodeType, 
-											Set<Long> nodeIDs) 
+											List<Long> nodeIDs) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;

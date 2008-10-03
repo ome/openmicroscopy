@@ -31,8 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-import omeis.providers.re.data.PlaneDef;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.calls.Analyser;
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
@@ -44,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import pojos.PixelsData;
 
 
 /** 
@@ -136,11 +136,11 @@ class ImageDataViewImpl
 
 	/**
      * Implemented as specified by the view interface.
-     * @see ImageDataView#analyseShapes(Pixels, List, List, 
+     * @see ImageDataView#analyseShapes(PixelsData, List, List, 
      * 									AgentEventListener)
      */
-	public CallHandle analyseShapes(Pixels pixels, List channels, List shapes, 
-									AgentEventListener observer)
+	public CallHandle analyseShapes(PixelsData pixels, List channels, 
+			List shapes, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new Analyser(pixels, channels, shapes);
 		return cmd.exec(observer);
@@ -163,11 +163,11 @@ class ImageDataViewImpl
      *                       AgentEventListener)
      */
 	public CallHandle renderProjected(long pixelsID, int startZ, int endZ, 
-			int stepping, int type, List<Integer> channels, 
+			int stepping, int algorithm, List<Integer> channels, 
 			AgentEventListener observer)
     {
 		BatchCallTree cmd = new ProjectionSaver(pixelsID, startZ, endZ, 
-				                  stepping, type, channels);
+				                  stepping, algorithm, channels);
 		return cmd.exec(observer);
 	}
 

@@ -197,4 +197,9 @@ public class LookupNames
     
     public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
     
+    
+    //For blitz
+    
+    public static final String ICE_HOSTNAME = "HOSTNAME";
+    
 }

@@ -44,9 +44,6 @@ import org.jhotdraw.draw.DrawingEditor;
 import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-
 import org.openmicroscopy.shoola.agents.events.SaveData;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.measurement.Analyser;
@@ -72,6 +69,8 @@ import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.drawingtools.DrawingComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+
+import pojos.PixelsData;
 
 /** 
  * The Model component in the <code>MeasurementViewer</code> MVC triad.
@@ -121,11 +120,8 @@ class MeasurementViewerModel
 	/** The currently selected plane. */
 	private Coord3D					currentPlane;
 	
-	/** The dimensions of the pixels set. */
-	private PixelsDimensions 		pixelsDims;
-	
 	/** The pixels set. */
-	private Pixels 					pixels;
+	private PixelsData 				pixels;
 	
     /** The image's magnification factor. */
     private double					magnification;
@@ -416,21 +412,21 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	float getPixelSizeX() { return pixelsDims.getSizeX().floatValue(); }
+	double getPixelSizeX() { return pixels.getPixelSizeX(); }
 	
 	/**
 	 * Returns the size in microns of a pixel along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelSizeY() { return pixelsDims.getSizeY().floatValue(); }
+	double getPixelSizeY() { return pixels.getPixelSizeY(); }
 	
 	/**
 	 * Returns the size in microns of a pixel along the Z-axis.
 	 * 
 	 * @return See above.
 	 */
-	float getPixelSizeZ() { return pixelsDims.getSizeZ().floatValue(); }
+	double getPixelSizeZ() { return pixels.getPixelSizeZ(); }
 	
 	/**
 	 * Returns the number of z sections in an image.
@@ -451,14 +447,14 @@ class MeasurementViewerModel
 	 * 
 	 * @return See above.
 	 */
-	int getSizeX() { return pixels.getSizeX().intValue(); }
+	int getSizeX() { return pixels.getSizeX(); }
 	
 	/**
 	 * Returns the number of pixels along the Y-axis.
 	 * 
 	 * @return See above.
 	 */
-	int getSizeY() { return pixels.getSizeY().intValue(); }
+	int getSizeY() { return pixels.getSizeY(); }
 	
 	/**
 	 * Returns the {@link DrawingCanvasView}.
@@ -641,10 +637,9 @@ class MeasurementViewerModel
 	 * 
 	 * @param pixels The value to set.
 	 */
-	void setPixels(Pixels pixels)
+	void setPixels(PixelsData pixels)
 	{ 
 		this.pixels = pixels;
-		pixelsDims = pixels.getPixelsDimensions(); 
 		roiComponent.setMicronsPixelX(getPixelSizeX());
 		roiComponent.setMicronsPixelY(getPixelSizeY());
 		roiComponent.setMicronsPixelZ(getPixelSizeZ());

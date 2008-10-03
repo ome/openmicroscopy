@@ -33,7 +33,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -56,32 +55,13 @@ import pojos.ImageData;
 public interface DataManagerView
   extends DataServicesView
 {
-
-	/** Identifies the <code>Declassification</code> algorithm. */
-	public static final int DECLASSIFICATION = 
-		ClassificationLoader.DECLASSIFICATION;
-
-	/**
-	 * Identifies the <code>Classification</code> algorithm with
-	 * mutually exclusive rule.
-	 */
-	public static final int CLASSIFICATION_ME = 
-		ClassificationLoader.CLASSIFICATION_ME;
-
-	/**
-	 * Identifies the <code>Classification</code> algorithm without
-	 * mutually exclusive rule.
-	 */
-	public static final int CLASSIFICATION_NME = 
-		ClassificationLoader.CLASSIFICATION_NME;
-
+	
 	/**
 	 * Retrieves the hierarchies specified by the 
 	 * parameters.
 	 * 
 	 * @param rootNodeType  The type of the root node. Can only be one out of:
-	 *                      <code>ProjectData, DatasetData, 
-	 *                      CategoryGroupData, CategoryData</code>.
+	 *                      <code>ProjectData, DatasetData</code>.
 	 * @param rootNodeIDs   A set of the IDs of top-most containers. Passed
 	 *                      <code>null</code> to retrieve all the top-most
 	 *                      container specified by the rootNodeType.
@@ -92,9 +72,7 @@ public interface DataManagerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadContainerHierarchy(Class rootNodeType,
-			Set<Long> rootNodeIDs, 
-			boolean withLeaves,
-			long userID,
+			List<Long> rootNodeIDs, boolean withLeaves, long userID,
 			AgentEventListener observer);
 
 	/**
@@ -110,13 +88,13 @@ public interface DataManagerView
 	 * Retrieves the images container in the specified root nodes.
 	 * 
 	 * @param nodeType 		The type of the node. Can only be one out of:
-	 *                      <code>DatasetData, CategoryData</code>.       
+	 *                      <code>DatasetData</code>.       
 	 * @param nodeIDs 		The id of the node.
 	 * @param userID		The Id of the user.
 	 * @param observer      Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle getImages(Class nodeType, Set nodeIDs, long userID, 
+	public CallHandle getImages(Class nodeType, List nodeIDs, long userID, 
 			AgentEventListener observer);
 
 	/**
@@ -197,80 +175,16 @@ public interface DataManagerView
 			int maxHeight, long userID, AgentEventListener observer);
 
 	/**
-	 * Loads all Category Group/Category paths that end or don't end with the 
-	 * specified Image, depending on the value of the <code>classified</code>
-	 * argument.
-	 * <p>If the <code>classified</code> argument is <code>true</code>, this 
-	 * method loads all the Category nodes under which was classified the Image
-	 * whose id is <code>imageID</code>, and then all the Category Group nodes
-	 * that contain those Categories.  If <code>false</code>, then it does the
-	 * opposite: it loads all the Categories the given Image doesn't belong in,
-	 * and then all the Category Groups that contain those Categories.
-	 * This method returns all the matching Category Groups (as <code>
-	 * CategoryGroupData</code> objects) in a <code>Set</code>, which is the
-	 * result object of the <code>DSCallOutcomeEvent</code>.
-	 * Those objects will also be linked to the matching Categories (represented
-	 * by <code>CategoryData</code> objects).  For example, assume the CG/C/I 
-	 * hierarchy in the DB looks like this:</p>
-	 * <pre>        
-	 *           cg1       cg2
-	 *             \      /   \    
-	 *             c1    c2    c3      
-	 *               \  /  \    \
-	 *                i1    i2   i3    
-	 * </pre>
-	 * <p>Then if you specify the id of Image <code>i1</code> and pass 
-	 * <code>true</code> for <code>classified</code> to this method, the 
-	 * returned set will contain <code>cg1, cg2</code>.  Moreover, <code>cg1
-	 * </code> will be linked to <code>c1</code> and <code>cg2</code> to <code>
-	 * c2</code>.  If you specify <code>false</code> for <code>classified</code>
-	 * (and again the id of Image <code>i1</code>), then you will get <code>
-	 * cg2</code> and it will be linked to <code>c3</code>.</p> 
-	 * 
-	 * @param imageIDs      The id of the images.
-	 * @param algorithm     One of the constants defined by this class.
-	 * @param userID		The Id of the user.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadClassificationPaths(Set imageIDs, int algorithm, 
-			long userID, AgentEventListener observer);
-
-	/**
-	 * Adds the images to the specified categories.
-	 * 
-	 * @param images        The images to classify.      
-	 * @param categories    Collection of <code>CategoryData</code>.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle classify(Set images, Set categories, 
-			AgentEventListener observer);
-
-	/**
-	 * Removes the images from the categories.
-	 * 
-	 * @param images        The images to declassify.      
-	 * @param categories    Collection of <code>CategoryData</code>.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle declassify(Set images, Set categories, 
-			AgentEventListener observer);
-
-	/**
 	 * Loads existing objects not contained in the specifed containers.
 	 * @param nodeType      The type of the node. One out of the following 
 	 *                      types:
-	 *                      <code>DatasetData</code>, <code>ProjectData</code>,
-	 *                      <code>CategoryData</code> or 
-	 *                      <code>CategoryGroupData</code>.      
+	 *                      <code>DatasetData</code>, <code>ProjectData</code>.      
 	 * @param nodeIDs       The id of the nodes.
 	 * @param userID		The Id of the user.
 	 * @param observer      Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadExistingObjects(Class nodeType, Set nodeIDs, 
+	public CallHandle loadExistingObjects(Class nodeType, List nodeIDs, 
 			long userID, AgentEventListener observer);
 
 	/**
@@ -396,7 +310,7 @@ public interface DataManagerView
 			AgentEventListener observer);
   
 	
-	public CallHandle loadScreenPlates(Class rootType, Set rootIDs, long userID, 
+	public CallHandle loadScreenPlates(Class rootType, List rootIDs, long userID, 
 			AgentEventListener observer);
 	
 	public CallHandle loadPlateWells(long plateID, long userID, 

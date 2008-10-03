@@ -31,8 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import omeis.providers.re.data.PlaneDef;
-
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.util.math.geom2D.Line;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 
@@ -184,8 +183,8 @@ class NavigationHistory
     {
         //First check pd is a good one.
         if (pd == null) throw new NullPointerException("No plane def.");
-        int slice = pd.getSlice(), z = pd.getZ(), t = pd.getT();
-        if (slice != PlaneDef.XY)
+        int slice = pd.slice, z = pd.z, t = pd.t;
+        if (slice != omero.romio.XY.value)
             throw new IllegalArgumentException(
                     "Can only accept XY planes: "+slice+".");
         if (SIZE_Z <= z)  //PlaneDef already checks 0 <= z.
@@ -200,8 +199,10 @@ class NavigationHistory
         if (pd.equals(curMove())) return;  //curMove can be null, but pd is not.
         
         //Now make a copy to avoid caller changing entry after we added.
-        pd = new PlaneDef(PlaneDef.XY, t);
-        pd.setZ(z);
+        pd = new PlaneDef();
+        pd.slice = omero.romio.XY.value;
+        pd.t = t;
+        pd.z = z;
         
         //Make room for pd if we reached MAX_ENTRIES and finally add.
         ensureCapacity();  
@@ -231,8 +232,8 @@ class NavigationHistory
         //addMove doesn't add the same move twice in a row.  So we can build
         //a line.
         PlaneDef curMove = curMove(), lastMove = lastMove();
-        PlanePoint L = new PlanePoint(lastMove.getZ(), lastMove.getT()),
-                C = new PlanePoint(curMove.getZ(), curMove.getT());
+        PlanePoint L = new PlanePoint(lastMove.z, lastMove.t),
+                C = new PlanePoint(curMove.z, curMove.t);
         return new Line(L, C, C);  //Direction LC and origin C.
     }
     
@@ -269,8 +270,10 @@ class NavigationHistory
             p = dir.getPoint(k);  //See note.
             if (p.x1 < 0 || SIZE_Z <= p.x1  || 
                     p.x2 < 0 || SIZE_T <= p.x2) break;
-            pd = new PlaneDef(PlaneDef.XY, (int) p.x2);
-            pd.setZ((int) p.x1);
+            pd = new PlaneDef();
+            pd.slice = omero.romio.XY.value;
+            pd.t = (int) p.x2;
+            pd.y = (int) p.x1;
             
             //Even though dir.getPoint is monotonic, we could be getting a pd
             //equal to the previous one b/c of the above casts to int.  However,

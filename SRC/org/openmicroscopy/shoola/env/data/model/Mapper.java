@@ -23,14 +23,19 @@
 package org.openmicroscopy.shoola.env.data.model;
 
 
+
+
 //Java imports
-import ome.model.core.Channel;
-import ome.model.core.LogicalChannel;
-import ome.model.stats.StatsInfo;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.RDouble;
+import omero.RFloat;
+import omero.RInt;
+import omero.model.Channel;
+import omero.model.LogicalChannel;
+import omero.model.StatsInfo;
 
 /** 
  * Helper class used to map core object to 
@@ -62,19 +67,21 @@ public class Mapper
 		double min = 0;
 		double max = 1;
 		if (stats != null) {
-			min = stats.getGlobalMin().doubleValue();
-			max = stats.getGlobalMax().doubleValue();
+			RDouble object = stats.getGlobalMin();
+			if (object != null) min = object.val;
+			object = stats.getGlobalMax();
+			if (object != null) max = object.val;
 		}
 		ChannelMetadata cm = new ChannelMetadata(index, min, max);
 		LogicalChannel lc = channel.getLogicalChannel();
-		Integer w = lc.getEmissionWave();
-		if (w != null) cm.setEmissionWavelength(w.intValue());
-		w = lc.getExcitationWave();
-		if (w != null) cm.setExcitationWavelength(w.intValue());
-		w = lc.getPinHoleSize();
-		if (w != null) cm.setPinHoleSize(w.intValue());
-		Float nd = lc.getNdFilter();
-		if (nd != null) cm.setNDFilter(nd.floatValue());
+		RInt value  = lc.getEmissionWave();
+		if (value != null) cm.setEmissionWavelength(value.val);
+		value = lc.getExcitationWave();
+		if (value != null) cm.setExcitationWavelength(value.val);
+		value = lc.getPinHoleSize();
+		if (value != null) cm.setPinHoleSize(value.val);
+		RFloat f = lc.getNdFilter();
+		if (f != null) cm.setNDFilter(f.val);
 		return cm;
 	}
 	

@@ -23,7 +23,7 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-
+//http://users.openmicroscopy.org.uk/~jmoore/shoola.patch
 //Java imports
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,72 +40,79 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
-import javax.ejb.EJBAccessException;
-import javax.ejb.EJBException;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-import ome.api.IAdmin;
-import ome.api.IDelete;
-import ome.api.IPixels;
-import ome.api.IPojos;
-import ome.api.IProjection;
-import ome.api.IQuery;
-import ome.api.IRenderingSettings;
-import ome.api.IRepositoryInfo;
-import ome.api.ISession;
-import ome.api.IUpdate;
-import ome.api.RawFileStore;
-import ome.api.RawPixelsStore;
-import ome.api.Search;
-import ome.api.ThumbnailStore;
-import ome.conditions.ApiUsageException;
-import ome.conditions.InternalException;
-import ome.conditions.ValidationException;
-import ome.model.ILink;
-import ome.model.IObject;
-import ome.model.annotations.Annotation;
-import ome.model.annotations.BooleanAnnotation;
-import ome.model.annotations.FileAnnotation;
-import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.UrlAnnotation;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Image;
-import ome.model.core.OriginalFile;
-import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import ome.model.display.RenderingDef;
-import ome.model.enums.Format;
-import ome.model.enums.PixelsType;
-import ome.model.internal.Details;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.model.screen.Plate;
-import ome.model.screen.Screen;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
-import ome.parameters.Parameters;
-import ome.parameters.QueryParameter;
-import ome.system.EventContext;
-import ome.system.Login;
-import ome.system.Server;
-import ome.system.ServiceFactory;
+
 import ome.system.UpgradeCheck;
-import ome.util.builders.PojoOptions;
-import omeis.providers.re.RenderingEngine;
+import omero.InternalException;
+import omero.RInt;
+import omero.RLong;
+import omero.RString;
+import omero.RTime;
+import omero.RType;
+import omero.ServerError;
+import omero.client;
+import omero.api.IAdminPrx;
+import omero.api.IDeletePrx;
+import omero.api.IPixelsPrx;
+import omero.api.IPojosPrx;
+import omero.api.IProjectionPrx;
+import omero.api.IQueryPrx;
+import omero.api.IRenderingSettingsPrx;
+import omero.api.IRepositoryInfoPrx;
+import omero.api.ISessionPrx;
+import omero.api.IUpdatePrx;
+import omero.api.RawFileStorePrx;
+import omero.api.RawPixelsStorePrx;
+import omero.api.RenderingEnginePrx;
+import omero.api.Search;
+import omero.api.SearchPrx;
+import omero.api.ServiceFactoryPrx;
+import omero.api.ThumbnailStorePrx;
+import omero.constants.CLASSIFICATIONME;
+import omero.constants.CLASSIFICATIONNME;
+import omero.constants.DECLASSIFICATION;
+import omero.constants.projection.ProjectionType;
+import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLink;
+import omero.model.BooleanAnnotation;
+import omero.model.Dataset;
+import omero.model.Details;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.FileAnnotation;
+import omero.model.Format;
+import omero.model.IObject;
+import omero.model.Image;
+import omero.model.OriginalFile;
+import omero.model.OriginalFileI;
+import omero.model.Pixels;
+import omero.model.PixelsDimensions;
+import omero.model.PixelsType;
+import omero.model.Plate;
+import omero.model.Project;
+import omero.model.RenderingDef;
+import omero.model.Screen;
+import omero.model.ScreenPlateLink;
+import omero.model.TagAnnotation;
+import omero.model.TextAnnotation;
+import omero.model.UrlAnnotation;
+import omero.model.Well;
+import omero.model.WellSample;
+import omero.sys.EventContext;
+import omero.sys.Parameters;
+import omero.util.ParametersI;
+import omero.util.PojoOptionsI;
 import pojos.ArchivedAnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -121,6 +128,7 @@ import pojos.TextualAnnotationData;
 import pojos.URLAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
+
 
 /** 
 * Unified access point to the various <i>OMERO</i> services.
@@ -183,16 +191,16 @@ class OMEROGateway
 	 * The entry point provided by the connection library to access the various
 	 * <i>OMERO</i> services.
 	 */
-	private ServiceFactory          entry;
+	private ServiceFactoryPrx entry;
 
 	/** The thumbnail service. */
-	private ThumbnailStore          thumbnailService;
+	private ThumbnailStorePrx		thumbnailService;
 
 	/** The raw file store. */
-	private RawFileStore			fileStore;
+	private RawFileStorePrx			fileStore;
 	
 	/** The search stateful service. */
-	private Search					searchService;
+	private SearchPrx				searchService;
 	
 	/** Tells whether we're currently connected and logged into <i>OMERO</i>. */
 	private boolean                 connected;
@@ -203,18 +211,18 @@ class OMEROGateway
 	 */
 	private DataServicesFactory     dsFactory;
 
-	/** Server instance to log in. */
-	private Server                  server;
-	
-	/** The login instance. */
-	private Login 					login;
-
-	/** The port to use in order to connect. */
-	private int                     port;
-
 	/** The compression level. */
 	private float					compression;
 	
+	//Blitz stuff
+	/** Tell us to configure ice. */
+	private Properties 				iceConfig;
+
+	/** The Blitz client object, this is the entry point to the 
+	 * OMERO.Blitz Server. 
+	 */
+	private client 					blitzClient;
+
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -231,17 +239,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Throwable cause = t.getCause();
-		if (cause instanceof SecurityException) {
+		if (cause instanceof ServerError) {
 			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message, t);
-		} else if (cause instanceof EJBAccessException) {
-			String s = "Cannot access data for security reasons \n"; 
-			throw new DSAccessException(s+message, t);
-		} else if (cause instanceof ApiUsageException) {
-			String s = "Cannot access data, specified parameters not valid \n"; 
-			throw new DSAccessException(s+message, t);
-		} else if (cause instanceof ValidationException) {
-			String s = "Cannot access data, specified parameters not valid \n"; 
 			throw new DSAccessException(s+message, t);
 		} else
 			throw new DSOutOfServiceException(message, t);
@@ -271,11 +270,8 @@ class OMEROGateway
 	private String getTableForLink(Class klass)
 	{
 		String table = null;
-		if (klass.equals(Category.class)) table = "CategoryImageLink";
-		else if (klass.equals(Dataset.class)) table = "DatasetImageLink";
+		if (klass.equals(Dataset.class)) table = "DatasetImageLink";
 		else if (klass.equals(Project.class)) table = "ProjectDatasetLink";
-		else if (klass.equals(CategoryGroup.class)) 
-			table = "CategoryGroupCategoryLink";
 		else if (klass.equals(Screen.class)) table = "ScreenPlateLink";
 		return table;
 	}
@@ -286,25 +282,35 @@ class OMEROGateway
 	 * @param klass The class to analyze.
 	 * @return See above.
 	 */
-	private String getTableForAnnotationLink(Class klass)
+	private String getTableForAnnotationLink(String klass)
 	{
 		String table = null;
-		if (klass.equals(Dataset.class)) table = "DatasetAnnotationLink";
-		else if (klass.equals(Project.class)) table = "ProjectAnnotationLink";
-		else if (klass.equals(Image.class)) table = "ImageAnnotationLink";
-		else if (klass.equals(Pixels.class)) table = "PixelAnnotationLink";
-		else if (klass.equals(Annotation.class))
-			table = "AnnotationAnnotationLink";
-		else if (klass.equals(DatasetData.class)) 
+		if (klass.equals(Dataset.class.getName())) 
 			table = "DatasetAnnotationLink";
-		else if (klass.equals(ProjectData.class)) 
+		else if (klass.equals(Project.class.getName())) 
 			table = "ProjectAnnotationLink";
-		else if (klass.equals(ImageData.class)) table = "ImageAnnotationLink";
-		else if (klass.equals(PixelsData.class)) table = "PixelAnnotationLink";
-		else if (klass.equals(Screen.class)) table = "ScreenAnnotationLink";
-		else if (klass.equals(Plate.class)) table = "PlateAnnotationLink";
-		else if (klass.equals(ScreenData.class)) table = "ScreenAnnotationLink";
-		else if (klass.equals(PlateData.class)) table = "PlateAnnotationLink";
+		else if (klass.equals(Image.class.getName())) 
+			table = "ImageAnnotationLink";
+		else if (klass.equals(Pixels.class.getName()))
+			table = "PixelAnnotationLink";
+		else if (klass.equals(Annotation.class.getName()))
+			table = "AnnotationAnnotationLink";
+		else if (klass.equals(DatasetData.class.getName())) 
+			table = "DatasetAnnotationLink";
+		else if (klass.equals(ProjectData.class.getName())) 
+			table = "ProjectAnnotationLink";
+		else if (klass.equals(ImageData.class.getName())) 
+			table = "ImageAnnotationLink";
+		else if (klass.equals(PixelsData.class.getName())) 
+			table = "PixelAnnotationLink";
+		else if (klass.equals(Screen.class.getName())) table = 
+			"ScreenAnnotationLink";
+		else if (klass.equals(Plate.class.getName())) 
+			table = "PlateAnnotationLink";
+		else if (klass.equals(ScreenData.class.getName())) 
+			table = "ScreenAnnotationLink";
+		else if (klass.equals(PlateData.class.getName())) 
+			table = "PlateAnnotationLink";
 		return table;
 	}
 	
@@ -316,34 +322,12 @@ class OMEROGateway
 	 */
 	private String getTableForClass(Class klass)
 	{
-		if (klass.equals(CategoryData.class)) return "Category";
-		else if (klass.equals(DatasetData.class)) return "Dataset";
+		if (klass.equals(DatasetData.class)) return "Dataset";
 		else if (klass.equals(ProjectData.class)) return "Project";
-		else if (klass.equals(CategoryGroupData.class)) return "CategoryGroup";
 		else if (klass.equals(ImageData.class)) return "Image";
 		else if (klass.equals(ScreenData.class)) return "Screen";
 		else if (klass.equals(PlateData.class)) return "Plate";
 		return null;
-	}
-	
-	/**
-	 * Maps the constant defined by {@link OmeroDataService}
-	 * to the corresponding value defined by {@link IPojos}.
-	 * 
-	 * @param algorithm One of the constant defined by {@link OmeroDataService}.
-	 * @return See above.
-	 */
-	private String mapAlgorithmToString(int algorithm)
-	{
-		switch (algorithm) {
-			case OmeroDataService.CLASSIFICATION_ME:
-				return IPojos.CLASSIFICATION_ME;
-			case OmeroDataService.CLASSIFICATION_NME:
-				return IPojos.CLASSIFICATION_NME;
-			case OmeroDataService.DECLASSIFICATION:
-				return IPojos.DECLASSIFICATION;
-		}
-		throw new IllegalArgumentException("Algorithm not valid.");
 	}
 	
 	/**
@@ -360,170 +344,315 @@ class OMEROGateway
 		if (nodeType.equals(DatasetData.class)) {
 			if (property.equals(OmeroDataService.IMAGES_PROPERTY))
 				return DatasetData.IMAGE_LINKS;
-		} else if (nodeType.equals(CategoryData.class)) {
-			if (property.equals(OmeroDataService.IMAGES_PROPERTY))
-				return CategoryData.IMAGES;
-		}
-		else throw new IllegalArgumentException("NodeType or " +
+		}  else throw new IllegalArgumentException("NodeType or " +
 				"property not supported");
 		return null;
 	}
 	
 	/**
-	 * Returns the {@link ISession} service.
+	 * Returns the {@link ISessionPrx} service.
 	 * 
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	public ISession getSessionService()
+	public ISessionPrx getSessionService()
+		throws DSAccessException, DSOutOfServiceException
 	{
-		return entry.getSessionService();
+		try {
+			return entry.getSessionService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Session service.");
+		}
+		return null;
 	}
 	
 	/**
-	 * Returns the {@link IRenderingSettings} service.
+	 * Returns the {@link IRenderingSettingsPrx} service.
 	 * 
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private IRenderingSettings getRenderingSettingsService()
+	private IRenderingSettingsPrx getRenderingSettingsService()
+		throws DSAccessException, DSOutOfServiceException
 	{
-		return entry.getRenderingSettingsService();
+		try {
+			return entry.getRenderingSettingsService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access RenderingSettings service.");
+		}
+		return null;
 	}
 
 	/**
-	 * Returns the {@link IRepositoryInfo} service.
+	 * Returns the {@link IRepositoryInfoPrx} service.
 	 * 
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private IRepositoryInfo getRepositoryService()
+	private IRepositoryInfoPrx getRepositoryService()
+		throws DSAccessException, DSOutOfServiceException
 	{
-		return entry.getRepositoryInfoService();
+		try {
+			return entry.getRepositoryInfoService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access RepositoryInfo service.");
+		}
+		return null;
 	}
 
 	/**
-	 * Returns the {@link IPojos} service.
+	 * Returns the {@link IPojosPrx} service.
 	 * 
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private IPojos getPojosService() { return entry.getPojosService(); }
-
-	/**
-	 * Returns the {@link IQuery} service.
-	 *  
-	 * @return See above.
-	 */
-	private IQuery getQueryService() { return entry.getQueryService(); }
-
-	/**
-	 * Returns the {@link IUpdate} service.
-	 *  
-	 * @return See above.
-	 */
-	private IUpdate getUpdateService() { return entry.getUpdateService(); }
-
-	/**
-	 * Returns the {@link IAdmin} service.
-	 * 
-	 * @return See above.
-	 */
-	private IAdmin getAdminService() { return entry.getAdminService(); }
-	
-	/**
-	 * Returns the {@link IDelete} service.
-	 * 
-	 * @return See above.
-	 */
-	private IDelete getDeleteService() { return entry.getDeleteService(); }
-	
-	/**
-	 * Returns the {@link ThumbnailStore} service.
-	 *  
-	 * @return See above.
-	 */
-	private ThumbnailStore getThumbService()
+	private IPojosPrx getPojosService()
+		throws DSAccessException, DSOutOfServiceException
 	{ 
-		if (thumbRetrieval == MAX_RETRIEVAL) {
-			thumbRetrieval = 0;
-			//to be on the save side
-			if (thumbnailService != null) thumbnailService.close();
-			thumbnailService = null;
+		try {
+			return entry.getPojosService(); 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Pojos service.");
 		}
-		if (thumbnailService == null) {
-			thumbnailService = entry.createThumbnailService();
-		}
-			
-		thumbRetrieval++;
-		return thumbnailService; 
+		return null;
 	}
 
 	/**
-	 * Returns the {@link RawFileStore} service.
+	 * Returns the {@link IQueryPrx} service.
 	 *  
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private RawFileStore getRawFileService()
-	{
-		if (fileStore == null) {
-			fileStore = entry.createRawFileStore();
-			try {
-				fileStore.close();
-			} catch (Exception e) {
-				// Ignore the exception.
-			}
+	private IQueryPrx getQueryService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			return entry.getQueryService(); 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Query service.");
 		}
-		fileStore = entry.createRawFileStore();
-		return fileStore;
+		return null;
 	}
 
 	/**
-	 * Returns the {@link RenderingEngine Rendering service}.
-	 * 
+	 * Returns the {@link IUpdatePrx} service.
+	 *  
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private RenderingEngine getRenderingService()
-	{
-		RenderingEngine engine = entry.createRenderingEngine();
-		engine.setCompressionLevel(compression);
-		return engine;
+	private IUpdatePrx getUpdateService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			return entry.getUpdateService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Update service.");
+		}
+		return null;
 	}
 
 	/**
-	 * Returns the {@link RawPixelsStore} service.
+	 * Returns the {@link IAdminPrx} service.
 	 * 
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private RawPixelsStore getPixelsStore()
-	{
-		return entry.createRawPixelsStore();
+	private IAdminPrx getAdminService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			return entry.getAdminService(); 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Admin service.");
+		}
+		return null;
 	}
-
-	/**
-	 * Returns the {@link IPixels} service.
-	 * 
-	 * @return See above.
-	 */
-	private IPixels getPixelsService() { return entry.getPixelsService(); }
 	
 	/**
-	 * Returns the {@link Search} service.
+	 * Returns the {@link IDeletePrx} service.
 	 * 
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
 	 */
-	private Search getSearchService()
+	private IDeletePrx getDeleteService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			return entry.getDeleteService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Delete service.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the {@link ThumbnailStorePrx} service.
+	 *   
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private ThumbnailStorePrx getThumbService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			if (thumbRetrieval == MAX_RETRIEVAL) {
+				thumbRetrieval = 0;
+				//to be on the save side
+				if (thumbnailService != null) thumbnailService.close();
+				thumbnailService = null;
+			}
+			if (thumbnailService == null) {
+				thumbnailService = entry.createThumbnailStore();
+			}
+			thumbRetrieval++;
+			return thumbnailService; 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Thumbnail service.");
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the {@link RawFileStorePrx} service.
+	 *  
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private RawFileStorePrx getRawFileService()
+		throws DSAccessException, DSOutOfServiceException
 	{
-		//if (searchService == null) 
+		try {
+			if (fileStore == null) {
+				fileStore = entry.createRawFileStore();
+				try {
+					fileStore.close();
+				} catch (Exception e) {
+					// Ignore the exception.
+				}
+			}
+			fileStore = entry.createRawFileStore();
+			return fileStore;
+		} catch (Throwable e) {
+			handleException(e, "Cannot access RawFileStore service.");
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the {@link RenderingEnginePrx Rendering service}.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private RenderingEnginePrx getRenderingService()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			RenderingEnginePrx engine = entry.createRenderingEngine();
+			engine.setCompressionLevel(compression);
+			return engine;
+		} catch (Throwable e) {
+			handleException(e, "Cannot access RawFileStore service.");
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the {@link RawPixelsStorePrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private RawPixelsStorePrx getPixelsStore()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
+			return entry.createRawPixelsStore();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access RawFileStore service.");
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the {@link IPixelsPrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private IPixelsPrx getPixelsService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			return entry.getPixelsService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Pixels service.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the {@link SearchPrx} service.
+	 * 
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	private SearchPrx getSearchService()
+		throws DSAccessException, DSOutOfServiceException
+	{
+		try {
 			searchService = entry.createSearchService();
-		//searchService.resetDefaults();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Search service.");
+		}
 		return searchService;
 	}
 	
 	/**
-	 * Returns the {@link IProjection} service.
+	 * Returns the {@link IProjectionPrx} service.
 	 * 
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.
 	 */
-	private IProjection getProjectionService()
+	private IProjectionPrx getProjectionService()
+		throws DSAccessException, DSOutOfServiceException
 	{
-		return entry.getProjectionService();
+		try {
+			return entry.getProjectionService();
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Pixels service.");
+		}
+		return null;
 	}
 	
 	/**
@@ -532,22 +661,31 @@ class OMEROGateway
 	 * 
 	 * @param pixelsID	The pixels ID.
 	 * @param re		The rendering engine to load.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.
 	 */
-	private synchronized void needDefault(long pixelsID, RenderingEngine re)
+	private synchronized void needDefault(long pixelsID, RenderingEnginePrx re)
+		throws DSAccessException, DSOutOfServiceException
 	{
-		if (re == null) {
-			ThumbnailStore service = getThumbService();
-			if (!(service.setPixelsId(pixelsID))) {
-				service.resetDefaults();
-				service.setPixelsId(pixelsID);
+		try {
+			if (re == null) {
+				ThumbnailStorePrx service = getThumbService();
+				if (!(service.setPixelsId(pixelsID))) {
+					service.resetDefaults();
+					service.setPixelsId(pixelsID);
+				}
+			} else {
+				if (!(re.lookupRenderingDef(pixelsID))) {
+					//re.resetDefaultsNoSave();
+					re.resetDefaults();
+					re.lookupRenderingDef(pixelsID);
+				}
 			}
-		} else {
-			if (!(re.lookupRenderingDef(pixelsID))) {
-				//re.resetDefaultsNoSave();
-				re.resetDefaults();
-				re.lookupRenderingDef(pixelsID);
-			}
+		} catch (Throwable e) {
+			handleException(e, "Cannot set RE defaults.");
 		}
+		
 	}
 
 	/**
@@ -559,7 +697,7 @@ class OMEROGateway
 	 */
 	private boolean isSystemGroup(ExperimenterGroup group)
 	{
-		String n = group.getName();
+		String n = group.getName() == null ? null : group.getName().val;
 		return ("system".equals(n) || "user".equals(n) || "default".equals(n) ||
 				"guest".equals(n));
 	}
@@ -569,14 +707,31 @@ class OMEROGateway
 	 * 
 	 * @param groupID	The id of the group.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.
 	 */
 	private List<Experimenter> containedExperimenters(long groupID)
+		throws DSAccessException, DSOutOfServiceException
 	{
-		IQuery service = getQueryService();
-		return service.findAllByQuery("select e from Experimenter e "
-	                + "left outer join fetch e.groupExperimenterMap m "
-	                + "left outer join fetch m.parent g where g.id = :id", 
-	                new Parameters().addId(groupID));
+		IQueryPrx service = getQueryService();
+		List<Experimenter> exps = new ArrayList<Experimenter>();
+		Parameters p = new ParametersI();
+		p.map = new HashMap<String, RType>();
+		p.map.put("id", new RLong(groupID));
+		try {
+			List<IObject> rv = service.findAllByQuery(
+					"select e from Experimenter e "
+			        + "left outer join fetch e.groupExperimenterMap m "
+			         + "left outer join fetch m.parent g where g.id = :id",
+			                p);
+			
+			for (IObject obj : rv) 
+				exps.add((Experimenter) obj);
+		} catch (Throwable e) {
+			handleException(e, "Cannot retrieve experimenters.");
+		}
+		return exps;
 	}
 	
 	/**
@@ -589,10 +744,12 @@ class OMEROGateway
 	private void resetFactory(String userName, String password)
 	{
 		//First close the previous session
+		/*
 		logout();
 		login = new Login(userName, password);
 		entry = new ServiceFactory(server, new Login(userName, password));
 		thumbRetrieval = 0;
+		*/
 	}
 	
 	/**
@@ -601,32 +758,42 @@ class OMEROGateway
 	 * @param terms		The terms to search for.
 	 * @param service	The search service.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.
 	 */
-	private String[] prepareTextSearch(String[] terms, Search service) 
+	private List<String> prepareTextSearch(String[] terms, SearchPrx service) 
+		throws DSAccessException, DSOutOfServiceException
 	{
 		if (terms == null || terms.length == 0) return null;
 		String value;
 		int n;
 		char[] arr;
 		String v;
-		String[] formattedTerms = new String[terms.length];
-		for (int j = 0; j < terms.length; j++) {
-			value = terms[j];
-			if (startWithWildCard(value)) 
-				service.setAllowLeadingWildcard(true);
-			//format string
-			n = value.length();
-			arr = new char[n];
-			v = "";
-			value.getChars(0, n, arr, 0);  
-			for (int i = 0; i < arr.length; i++) {
-				if (SUPPORTED_SPECIAL_CHAR.contains(arr[i])) 
-					v += "\\"+arr[i];
-				else v += arr[i];
+		List<String> formattedTerms = new ArrayList<String>(terms.length);
+		String formatted;
+		try {
+			for (int j = 0; j < terms.length; j++) {
+				value = terms[j];
+				if (startWithWildCard(value)) 
+					service.setAllowLeadingWildcard(true);
+				//format string
+				n = value.length();
+				arr = new char[n];
+				v = "";
+				value.getChars(0, n, arr, 0);  
+				for (int i = 0; i < arr.length; i++) {
+					if (SUPPORTED_SPECIAL_CHAR.contains(arr[i])) 
+						v += "\\"+arr[i];
+					else v += arr[i];
+				}
+				if (value.contains(" ")) 
+					formatted = "\""+v.toLowerCase()+"\"";
+				else formatted = v.toLowerCase();
+				formattedTerms.add(formatted);
 			}
-			if (value.contains(" ")) 
-				formattedTerms[j] = "\""+v.toLowerCase()+"\"";
-			else formattedTerms[j] = v.toLowerCase();
+		} catch (Throwable e) {
+			handleException(e, "Cannot format text for search.");
 		}
 		return formattedTerms;
 	}
@@ -637,35 +804,24 @@ class OMEROGateway
 	 * @param terms		The terms to search for.
 	 * @param service	The search service.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service.
 	 */
-	private String[] prepareTextSearch(Collection<String> terms, Search service) 
+	private List<String> prepareTextSearch(Collection<String> terms, 
+			SearchPrx service) 
+		throws DSAccessException, DSOutOfServiceException
 	{
 		if (terms == null || terms.size() == 0) return null;
-		String value;
-		int n;
-		char[] arr;
-		String v;
-		String[] formattedTerms = new String[terms.size()];
-		Iterator<String> j = terms.iterator();
-		int k = 0;
-		while (j.hasNext()) {
-			value = j.next();
-			if (startWithWildCard(value)) 
-				service.setAllowLeadingWildcard(true);
-			//format string
-			n = value.length();
-			arr = new char[n];
-			v = "";
-			value.getChars(0, n, arr, 0);  
-			for (int i = 0; i < arr.length; i++) {
-				if (SUPPORTED_SPECIAL_CHAR.contains(arr[i])) 
-					v += "\\"+arr[i];
-				else v += arr[i];
-			}
-			formattedTerms[k] = v.toLowerCase() ;
+		if (terms == null || terms.size() == 0) return null;
+		String[] values = new String[terms.size()];
+		Iterator<String> i = terms.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			values[index] = i.next();
+			index++;
 		}
-
-		return formattedTerms;
+		return prepareTextSearch(values, service);
 	}
 
 	/**
@@ -679,27 +835,27 @@ class OMEROGateway
 	{
 		if (value == null) return false;
 		Iterator<String> i = WILD_CARDS.iterator();
-		while (i.hasNext()) {
+		while (i.hasNext()) 
 			if (value.startsWith(i.next())) return true;
-		}
+		
 		return false;
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param port      The value of the port.
-	 * @param dsFactory A reference to the factory. Used whenever a broken link
-	 *                  is detected to get the Login Service and try 
-	 *                  reestabishing a valid link to <i>OMEDS</i>.
-	 *                  Mustn't be <code>null</code>.
+	 * @param iceConfig 	The Ice configuration.
+	 * @param dsFactory 	A reference to the factory. Used whenever a broken 
+	 * 						link is detected to get the Login Service and try 
+	 *                  	reestablishing a valid link to <i>OMEDS</i>.
+	 *                  	Mustn't be <code>null</code>.
 	 */
-	OMEROGateway(int port, DataServicesFactory dsFactory)
+	OMEROGateway(Properties iceConfig, DataServicesFactory dsFactory)
 	{
 		if (dsFactory == null) 
 			throw new IllegalArgumentException("No Data service factory.");
 		this.dsFactory = dsFactory;
-		this.port = port;
+		this.iceConfig = iceConfig;
 		thumbRetrieval = 0;
 	}
 
@@ -709,27 +865,31 @@ class OMEROGateway
 	 * @param nodeType The POJO class.
 	 * @return The corresponding class.
 	 */
-	Class convertPojos(Class nodeType)
+	String convertPojos(Class nodeType)
 	{
-		if (nodeType.equals(ProjectData.class)) return Project.class;
-		else if (nodeType.equals(DatasetData.class)) return Dataset.class;
-		else if (nodeType.equals(ImageData.class)) return Image.class;
-		else if (nodeType.equals(CategoryData.class)) return Category.class;
-		else if (nodeType.equals(CategoryGroupData.class))
-			return CategoryGroup.class;
+		if (nodeType.equals(ProjectData.class)) 
+			return Project.class.getName();
+		else if (nodeType.equals(DatasetData.class)) 
+			return Dataset.class.getName();
+		else if (nodeType.equals(ImageData.class)) 
+			return Image.class.getName();
 		else if (nodeType.equals(TagAnnotationData.class)) 
-			return TagAnnotation.class;
+			return TagAnnotation.class.getName();
 		else if (nodeType.equals(TextualAnnotationData.class)) 
-			return TextAnnotation.class;
+			return TextAnnotation.class.getName();
 		else if (nodeType.equals(FileAnnotationData.class))
-			return FileAnnotation.class;
+			return FileAnnotation.class.getName();
 		else if (nodeType.equals(URLAnnotationData.class))
-			return UrlAnnotation.class;
-		else if (nodeType.equals(ScreenData.class)) return Screen.class;
-		else if (nodeType.equals(PlateData.class)) return Plate.class;
-		else if (nodeType.equals(WellData.class)) return Well.class;
-		else if (nodeType.equals(WellSampleData.class)) return WellSample.class;
-		else throw new IllegalArgumentException("NodeType not supported");
+			return UrlAnnotation.class.getName();
+		else if (nodeType.equals(ScreenData.class)) 
+			return Screen.class.getName();
+		else if (nodeType.equals(PlateData.class)) 
+			return Plate.class.getName();
+		else if (nodeType.equals(WellData.class)) 
+			return Well.class.getName();
+		else if (nodeType.equals(WellSampleData.class)) 
+			return WellSample.class.getName();
+		throw new IllegalArgumentException("NodeType not supported");
 	}
 	
 	/**
@@ -750,14 +910,27 @@ class OMEROGateway
 	 * @return The {@link ExperimenterData} of the current user.
 	 * @throws DSOutOfServiceException If the connection is broken, or
 	 * logged in.
-	 * @see IPojos#getUserDetails(Set, Map)
+	 * @see IPojosPrx#getUserDetails(Set, Map)
 	 */
 	ExperimenterData getUserDetails(String name)
 		throws DSOutOfServiceException
 	{
-		//isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
+			List<String> list = new ArrayList<String>(1);
+			list.add(name);
+			Map<String, RType> options = new HashMap<String, RType>();
+			// FIXME
+			Map m = PojoMapper.asDataObjects(service.getUserDetails(list,
+			options));
+			ExperimenterData data = (ExperimenterData) m.get(name);
+			if (data == null) {
+				throw new DSOutOfServiceException("Cannot retrieve user's "
+			                        + "data");
+			}
+			return data;
+
+			/*
 			Set<String> set = new HashSet<String>(1);
 			set.add(name);
 			Map m = PojoMapper.asDataObjects(service.getUserDetails(set, 
@@ -768,6 +941,7 @@ class OMEROGateway
 						"data");
 			}
 			return data;
+			*/
 		} catch (Exception e) {
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
 					printErrorText(e), e);
@@ -810,9 +984,23 @@ class OMEROGateway
 	{
 		try {
 			compression = compressionLevel;
-			server = new Server(hostName, port);
-			login = new Login(userName, password);
-			entry = new ServiceFactory(server, login); 
+			
+			//Put value of hostname
+			Set keys = iceConfig.keySet();
+			Iterator i = keys.iterator();
+			String key, value;
+			//String[] config = new String[keys.size()];
+			//int index = 0;
+			while (i.hasNext()) {
+				key = (String) i.next();
+				value = iceConfig.getProperty(key);
+				value = value.replaceAll(LookupNames.ICE_HOSTNAME, hostName);
+				iceConfig.put(key, value);
+				//config[index] = key+"="+value;
+				//index++;
+			}
+			blitzClient = new client(iceConfig);
+			entry = blitzClient.createSession(userName, password);
 			connected = true;
 			return getUserDetails(userName);
 		} catch (Throwable e) {
@@ -828,7 +1016,7 @@ class OMEROGateway
 	 * 
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 */
-	void reconnect()
+	void reconnect(String userName, String password)
 		throws DSOutOfServiceException
 	{
 		try {
@@ -836,7 +1024,8 @@ class OMEROGateway
 			thumbnailService = null;
 			thumbRetrieval = 0;
 			fileStore = null;
-			entry = new ServiceFactory(server, login); 
+			blitzClient = new client(iceConfig);
+			entry = blitzClient.createSession(userName, password);
 			connected = true;
 		} catch (Throwable e) {
 			connected = false;
@@ -855,7 +1044,7 @@ class OMEROGateway
 			if (fileStore != null) fileStore.close();
 			thumbnailService = null;
 			fileStore = null;
-			entry.closeSession();
+			blitzClient.closeSession();
 		} catch (Exception e) {
 			//session already dead.
 		}
@@ -868,33 +1057,32 @@ class OMEROGateway
 	 * The annotation for the current user is also linked to the object.
 	 * Annotations are currently possible only for Image and Dataset.
 	 * Wraps the call to the 
-	 * {@link IPojos#loadContainerHierarchy(Class, Set, Map)}
+	 * {@link IPojos#loadContainerHierarchy(Class, List, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
-	 * @param rootNodeType  The top-most type which will be searched for 
-	 *                      Can be <code>Project</code> or 
-	 *                      <code>CategoryGroup</code>. 
-	 *                      Mustn't be <code>null</code>.
-	 * @param rootNodeIDs   A set of the IDs of top-most containers. 
-	 *                      Passed <code>null</code> to retrieve all container
-	 *                      of the type specified by the rootNodetype parameter.
-	 * @param options       The Options to retrieve the data.
+	 * @param rootType  The top-most type which will be searched for 
+	 *                  Can be <code>Project</code>. 
+	 *                  Mustn't be <code>null</code>.
+	 * @param rootIDs   A set of the IDs of top-most containers. 
+	 *                  Passed <code>null</code> to retrieve all container
+	 *                  of the type specified by the rootNodetype parameter.
+	 * @param options   The Options to retrieve the data.
 	 * @return  A set of hierarchy trees.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
-	 * @see IPojos#loadContainerHierarchy(Class, Set, Map)
+	 * @see IPojos#loadContainerHierarchy(Class, List, Map)
 	 */
-	Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs, Map options)
+	Set loadContainerHierarchy(Class rootType, List rootIDs, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.loadContainerHierarchy(
-					convertPojos(rootNodeType), rootNodeIDs, options));
+				convertPojos(rootType), rootIDs, options));
 		} catch (Throwable t) {
-			handleException(t, "Cannot load hierarchy for "+rootNodeType+".");
+			handleException(t, "Cannot load hierarchy for " + rootType+".");
 		}
 		return new HashSet();
 	}
@@ -905,7 +1093,7 @@ class OMEROGateway
 	 * The annotation for the current user is also linked to the object.
 	 * Annotations are currently possible only for Image and Dataset.
 	 * Wraps the call to the 
-	 * {@link IPojos#findContainerHierarchies(Class, Set, Map)}
+	 * {@link IPojos#findContainerHierarchies(Class, List, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
 	 * @param rootNodeType  top-most type which will be searched for 
@@ -919,14 +1107,14 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
-	 * @see IPojos#findContainerHierarchies(Class, Set, Map)
+	 * @see IPojos#findContainerHierarchies(Class, List, Map)
 	 */
-	Set findContainerHierarchy(Class rootNodeType, Set leavesIDs, Map options)
+	Set findContainerHierarchy(Class rootNodeType, List leavesIDs, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.findContainerHierarchies(
 					convertPojos(rootNodeType), leavesIDs, options));
 		} catch (Throwable t) {
@@ -944,7 +1132,7 @@ class OMEROGateway
 	 * node, then the entry will be <code>null</code>. Otherwise it will be a
 	 * <code>Set</code> containing <code>Annotation</code> objects.
 	 * Wraps the call to the 
-	 * {@link IPojos#findAnnotations(Class, Set, Set, Map)}
+	 * {@link IPojos#findAnnotations(Class, List, List, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Map)}.
 	 * 
 	 * @param nodeType      The type of the rootNodes.
@@ -961,15 +1149,15 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
-	 * @see IPojos#findAnnotations(Class, Set, Set, Map)
+	 * @see IPojos#findAnnotations(Class, List, List, Map)
 	 */
-	Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
+	Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs, 
 			Map options)
 	throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(
 					service.findAnnotations(convertPojos(nodeType), nodeIDs, 
 							annotatorIDs, options));
@@ -980,58 +1168,9 @@ class OMEROGateway
 	}
 
 	/**
-	 * Retrieves paths in the Category Group/Category/Image (CG/C/I) hierarchy.
-	 * <p>
-	 * Because of the mutually exclusive rule of CG/C hierarchy, this method
-	 * is quite tricky.
-	 * We want to retrieve all Category Group/Category paths that end with
-	 * the specified leaves.
-	 * </p>
-	 * <p> 
-	 * We also want to retrieve the all Category Group/Category paths that
-	 * don't end with the specified leaves, note that in that case because of 
-	 * the mutually exclusive constraint the categories which don't contain a
-	 * specified leaf but which is itself contained in a group which already
-	 * has a category ending with the specified leaf is excluded.
-	 * </p>
-	 * <p>  
-	 * This is <u>more</u> restrictive than may be imagined. The goal is to 
-	 * find CGC paths to which an Image <B>MAY</b> be attached.
-	 * </p>
-	 * Wraps the call to the {@link IPojos#findCGCPaths(Set, String, Map)}
-	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
-	 * 
-	 * @param imgIDs    Set of ids of the images that sit at the bottom of the
-	 *                  CGC trees. Mustn't be <code>null</code>.
-	 * @param algorithm The search algorithm for finding paths. One of the 
-	 *                  following constants: 
-	 * @param options   Options to retrieve the data.
-	 * @return A <code>Set</code> of hierarchy trees with all root nodes 
-	 * that were found.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 * @see IPojos#findCGCPaths(Set, String, Map)
-	 */
-	Set findCGCPaths(Set imgIDs, int algorithm, Map options)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		isSessionAlive();
-		try {
-			IPojos service = getPojosService();
-			return PojoMapper.asDataObjects(service.findCGCPaths(imgIDs, 
-					mapAlgorithmToString(algorithm),
-					options));
-		} catch (Throwable t) {
-			handleException(t, "Cannot find CGC paths.");
-		}
-		return new HashSet();
-	}
-
-	/**
 	 * Retrieves the images contained in containers specified by the 
 	 * node type.
-	 * Wraps the call to the {@link IPojos#getImages(Class, Set, Map)}
+	 * Wraps the call to the {@link IPojos#getImages(Class, List, Map)}
 	 * and maps the result calling {@link PojoMapper#asDataObjects(Set)}.
 	 * 
 	 * @param nodeType  The type of container. Can be either Project, Dataset,
@@ -1042,14 +1181,14 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
-	 * @see IPojos#getImages(Class, Set, Map)
+	 * @see IPojos#getImages(Class, List, Map)
 	 */
-	Set getContainerImages(Class nodeType, Set nodeIDs, Map options)
+	Set getContainerImages(Class nodeType, List nodeIDs, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImages(
 					convertPojos(nodeType), nodeIDs, options));
 		} catch (Throwable t) {
@@ -1075,7 +1214,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.getUserImages(options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot find user images.");
@@ -1098,20 +1237,19 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
-	 * @see IPojos#getCollectionCount(String, String, Set, Map)
+	 * @see IPojos#getCollectionCount(String, String, List, Map)
 	 */
-	Map getCollectionCount(Class rootNodeType, String property, Set rootNodeIDs,
+	Map getCollectionCount(Class rootNodeType, String property, List ids,
 			Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			String p = convertProperty(rootNodeType, property);
 			if (p == null) return null;
 			return PojoMapper.asDataObjects(service.getCollectionCount(
-					convertPojos(rootNodeType).getName(), p, rootNodeIDs, 
-					options));
+					convertPojos(rootNodeType), p, ids, options));
 		} catch (Throwable t) {
 			handleException(t, "Cannot count the collection.");
 		}
@@ -1134,7 +1272,7 @@ class OMEROGateway
 	{
 		try {
 			isSessionAlive();
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return service.createDataObject(object, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
@@ -1145,7 +1283,7 @@ class OMEROGateway
 	/**
 	 * Creates the speficied objects.
 	 * 
-	 * @param objects   The object to create.
+	 * @param objects   The objects to create.
 	 * @param options   Options to create the data.  
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -1153,16 +1291,16 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#createDataObjects(IObject[], Map)
 	 */
-	IObject[] createObjects(IObject[] objects, Map options)
+	List<IObject> createObjects(List<IObject> objects, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
-			IObject[] results = service.createDataObjects(objects, options);
+			IPojosPrx service = getPojosService();
+			List<IObject> results = service.createDataObjects(objects, options);
 			return results;
 		} catch (Throwable t) {
-			handleException(t, "Cannot update the object.");
+			handleException(t, "Cannot create the objects.");
 		}
 		return null;
 	}
@@ -1181,7 +1319,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IUpdate service = getUpdateService();
+			IUpdatePrx service = getUpdateService();
 			service.deleteObject(object);
 		} catch (Throwable t) {
 			handleException(t, "Cannot delete the object.");
@@ -1197,15 +1335,17 @@ class OMEROGateway
 	 *                                 retrieve data from OMERO service. 
 	 * @see IUpdate#deleteObject(IObject) 
 	 */
-	void deleteObjects(IObject[] objects)
+	void deleteObjects(List<IObject> objects)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IUpdate service = getUpdateService();
-			for (int i = 0; i < objects.length; i++) {
-				service.deleteObject(objects[i]);
-			}
+			IUpdatePrx service = getUpdateService();
+			Iterator<IObject> i = objects.iterator();
+			//TODO: need method
+			while (i.hasNext()) 
+				service.deleteObject(i.next());
+			
 		} catch (Throwable t) {
 			handleException(t, "Cannot delete the object.");
 		}
@@ -1227,7 +1367,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return service.updateDataObject(object, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
@@ -1247,12 +1387,12 @@ class OMEROGateway
 	 * retrieve data from OMERO service.
 	 * @see IPojos#updateDataObjects(IObject[], Map) 
 	 */
-	IObject[] updateObjects(IObject[] objects, Map options)
+	List<IObject> updateObjects(List<IObject> objects, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return service.updateDataObjects(objects, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
@@ -1298,13 +1438,18 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
+			
+			//TODO: need to push down
+			IQueryPrx service = getQueryService();
+			Parameters p = new ParametersI();
+			p.map = new HashMap<String, RType>();
+			p.map.put("id", new RLong(pixelsID));
+
 			Pixels pixs = (Pixels) service.findByQuery(
 					"select p from Pixels as p " +
 					"left outer join fetch p.pixelsType as pt " +
 					"left outer join fetch p.pixelsDimensions " +
-					"where p.id = :id",
-					new Parameters().addId(new Long(pixelsID)));
+					"where p.id = :id", p);
 
 			return pixs;
 		} catch (Throwable t) {
@@ -1313,6 +1458,7 @@ class OMEROGateway
 		}
 		return null;
 	}
+	
 	/**
 	 * Retrieves the channel information related to the given pixels set.
 	 * 
@@ -1327,16 +1473,19 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
+			//TODO: need to push down
+			IQueryPrx service = getQueryService();
+			Parameters p = new ParametersI();
+			p.map = new HashMap<String, RType>();
+			p.map.put("id", new RLong(pixelsID));
 			Pixels pixs = (Pixels) service.findByQuery(
 					"select p from Pixels as p " +
 					"left outer join fetch p.pixelsType as pt " +
 					"left outer join fetch p.channels as c " +
 					"left outer join fetch p.pixelsDimensions " +
 					"left outer join fetch c.logicalChannel as lc " +
-					"left outer join fetch c.statsInfo where p.id = :id",
-					new Parameters().addId(new Long(pixelsID)));
-			return pixs.unmodifiableChannels();//pixs.getChannels();
+					"left outer join fetch c.statsInfo where p.id = :id", p);
+			return pixs.copyChannels();//pixs.getChannels();
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the channelsData for "+
 					"the pixels set "+pixelsID);
@@ -1362,23 +1511,25 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			ThumbnailStore service = getThumbService();
+			ThumbnailStorePrx service = getThumbService();
 			
 			needDefault(pixelsID, null);
 			//getRendering Def for a given pixels set.
 			if (userID >= 0) {
 				RenderingDef def = getRenderingDef(pixelsID, userID);
-				if (def != null) service.setRenderingDefId(def.getId());
+				if (def != null) service.setRenderingDefId(def.getId().val);
 			}
-			return service.getThumbnail(new Integer(sizeX), 
-					                         new Integer(sizeY));
-			//return service.getThumbnailDirect(new Integer(sizeX), 
-			//		new Integer(sizeY));
+			return service.getThumbnail(new RInt(sizeX), new RInt(sizeY));
 		} catch (Throwable t) {
-			if (thumbnailService != null) thumbnailService.close();
+			if (thumbnailService != null) {
+				try {
+					thumbnailService.close();
+				} catch (Exception e) {
+					//nothing we can do
+				}
+			}
 			thumbnailService = null;
-			if (t instanceof EJBException || 
-					t.getCause() instanceof IllegalStateException) {
+			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
@@ -1402,14 +1553,19 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			ThumbnailStore service = getThumbService();
+			ThumbnailStorePrx service = getThumbService();
 			needDefault(pixelsID, null);
-			return service.getThumbnailByLongestSide(maxLength);
+			return service.getThumbnailByLongestSide(new RInt(maxLength));
 		} catch (Throwable t) {
-			if (thumbnailService != null) thumbnailService.close();
+			if (thumbnailService != null) {
+				try {
+					thumbnailService.close();
+				} catch (Exception e) {
+					//nothing we can do
+				}
+			}
 			thumbnailService = null;
-			if (t instanceof EJBException || 
-					t.getCause() instanceof IllegalStateException) {
+			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
@@ -1433,21 +1589,19 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			ThumbnailStore service = getThumbService();
-			Set<Long> ids = new HashSet<Long>();
-			Iterator<Long> i = pixelsID.iterator();
-			while (i.hasNext())  {
-				long id = i.next();
-				
-				ids.add(id);
-			}
-				
-			return service.getThumbnailByLongestSideSet(maxLength, ids);
+			ThumbnailStorePrx service = getThumbService();
+			return service.getThumbnailByLongestSideSet(
+					new RInt(maxLength), pixelsID);
 		} catch (Throwable t) {
-			if (thumbnailService != null) thumbnailService.close();
+			if (thumbnailService != null) {
+				try {
+					thumbnailService.close();
+				} catch (Exception e) {
+					//nothing we can do
+				}
+			}
 			thumbnailService = null;
-			if (t instanceof EJBException || 
-					t.getCause() instanceof IllegalStateException) {
+			if (t instanceof ServerError) {
 				throw new DSOutOfServiceException(
 						"Thumbnail service null for pixelsID: "+pixelsID, t);
 			}
@@ -1464,12 +1618,12 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	synchronized RenderingEngine createRenderingEngine(long pixelsID)
+	synchronized RenderingEnginePrx createRenderingEngine(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			RenderingEngine service = getRenderingService();
+			RenderingEnginePrx service = getRenderingService();
 			service.lookupPixels(pixelsID);
 			needDefault(pixelsID, service);
 			service.load();
@@ -1497,20 +1651,20 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			String table = getTableForAnnotationLink(type);
+			IQueryPrx service = getQueryService();
+			String table = getTableForAnnotationLink(type.getName());
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
 			"link.parent.id = :parentID"; 
-			
-			Parameters param = new Parameters();
-			param.addLong("parentID", parentID);
+			Parameters p = new ParametersI();
+			p.map = new HashMap<String, RType>();
+			p.map.put("parentID", new RLong(parentID));
 			if (childID >= 0) {
 				sql += " and link.child.id = :childID";
-				param.addLong("childID", childID);
+				p.map.put("childID", new RLong(childID));
 			}
-			
-			return service.findByQuery(sql, param);
+
+			return service.findByQuery(sql, p);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parentID+" and child " +
@@ -1530,31 +1684,31 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	List findAnnotationLinks(Class parentType, long parentID, 
+	List findAnnotationLinks(String parentType, long parentID, 
 								List<Long> children)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
+			IQueryPrx service = getQueryService();
 			String table = getTableForAnnotationLink(parentType);
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link";
-			Parameters param = new Parameters();
+			ParametersI p = new ParametersI();
 			if (parentID > 0) {
 				sql += " where link.parent.id = :parentID";
 				if (children != null && children.size() > 0) {
 					sql += " and link.child.id in (:childIDs)";
-					param.addList("childIDs", children);
+					p.addLongs("childIDs", children);
 				}
-				param.addLong("parentID", parentID);
+				p.map.put("parentID", new RLong(parentID));
 			} else {
 				if (children != null && children.size() > 0) {
 					sql += " where link.child.id in (:childIDs)";
-					param.addList("childIDs", children);
+					p.addLongs("childIDs", children);
 				}
 			}
-			return service.findAllByQuery(sql, param);
+			return service.findAllByQuery(sql, p);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the annotation links for "+
 					"parent ID: "+parentID);
@@ -1578,11 +1732,12 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			if (ids == null) return null;
-			IQuery service = getQueryService();
-			String table = getTableForAnnotationLink(Annotation.class);
+			IQueryPrx service = getQueryService();
+			String table = getTableForAnnotationLink(
+					Annotation.class.getName());
 			if (table == null) return null;
-			Parameters param = new Parameters();
-			param.addList("ids", ids);
+			ParametersI param = new ParametersI();
+			param.addLongs("ids", ids);
 			List r = null;
 			String sql = "select link from "+table+" as link";
 			if (union) {
@@ -1592,7 +1747,6 @@ class OMEROGateway
 				sql += " where link.parent.id in (:ids)";
 				r.addAll(service.findAllByQuery(sql, param));
 			} else {
-				//param.addList("parentIds", ids);
 				sql += " where link.child.id in (:ids) and";
 				sql += " link.parent.id in (:ids)";
 				r = service.findAllByQuery(sql, param);
@@ -1600,7 +1754,6 @@ class OMEROGateway
 			
 			return r;
 		} catch (Throwable t) {
-			t.printStackTrace();
 			handleException(t, "Cannot retrieve the annotation links");
 		}
 		return null;
@@ -1625,11 +1778,13 @@ class OMEROGateway
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
 			"link.parent.id = :parentID and link.child.id = :childID";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("parentID", parent.getId());
-			param.addLong("childID", child.getId());
-			return service.findByQuery(sql, param);
+
+			ParametersI param = new ParametersI();
+			param.map = new HashMap<String, RType>();
+			param.map.put("parentID", parent.getId());
+			param.map.put("childID", child.getId());
+
+			return getQueryService().findByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parent.getId()+" and child " +
@@ -1655,18 +1810,19 @@ class OMEROGateway
 		try {
 			String table = getTableForLink(parent.getClass());
 			if (table == null) return null;
-			Parameters param = new Parameters();
-			param.addLong("parentID", parent.getId());
+
+			ParametersI param = new ParametersI();
+			param.map.put("parentID", parent.getId());
+
 			String sql = "select link from "+table+" as link where " +
 			"link.parent.id = :parentID"; 
 			if (children != null && children.size() > 0) {
 				sql += " and link.child.id in (:childIDs)";
-				param.addList("childIDs", children);
+				param.addLongs("childIDs", children);
+
 			}
-			IQuery service = getQueryService();
-			
-			
-			return service.findAllByQuery(sql, param);
+
+			return getQueryService().findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"parent ID: "+parent.getId());
@@ -1685,7 +1841,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	List findLinks(Class parentClass, Set children, long userID)
+	List findLinks(Class parentClass, List children, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -1694,15 +1850,15 @@ class OMEROGateway
 			if (table == null) return null;
 			String sql = "select link from "+table+" as link where " +
 			"link.child.id in (:childIDs)";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addSet("childIDs", children);
+			ParametersI param = new ParametersI();
+			param.addLongs("childIDs", children);
+
 			if (userID >= 0) {
 				sql += " and link.details.owner.id = :userID";
-				param.addLong("userID", userID);
+				param.map.put("userID", new RLong(userID));
 			}
 			
-			return service.findAllByQuery(sql, param);
+			return getQueryService().findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 			"the specified children");
@@ -1726,18 +1882,18 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			Parameters param = new Parameters();
-			param.addLong("childID", childID);
 			String table = getTableForLink(parentClass);
 			if (table == null) return null;
+			ParametersI param = new ParametersI();
+			param.map.put("childID", new RLong(childID));
+
 			String sql = "select link from "+table+" as link where " +
 			"link.child.id = :childID";
 			if (userID >= 0) {
 				sql += " and link.details.owner.id = :userID";
-				param.addLong("userID", userID);
+				param.map.put("userID", new RLong(userID));
 			}
-			IQuery service = getQueryService();
-			return service.findAllByQuery(sql, param);
+			return getQueryService().findAllByQuery(sql, param);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested link for "+
 					"child ID: "+childID);
@@ -1759,8 +1915,8 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			return service.find(o.getClass(), o.getId().longValue());
+			return getQueryService().find(o.getClass().getName(), 
+									o.getId().val);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested object with "+
 					"object ID: "+o.getId());
@@ -1771,20 +1927,19 @@ class OMEROGateway
 	/**
 	 * Retrieves an updated version of the specified object.
 	 * 
-	 * @param klass	The type of object to retrieve.
-	 * @param id 	The object's id.
+	 * @param klassName	The type of object to retrieve.
+	 * @param id 		The object's id.
 	 * @return The last version of the object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	IObject findIObject(Class klass, long id)
+	IObject findIObject(String klassName, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			return service.find(klass, id);
+			return getQueryService().find(klassName, id);
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the requested object with "+
 					"object ID: "+id);
@@ -1806,7 +1961,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IAdmin service = getAdminService();
+			IAdminPrx service = getAdminService();
 			//Need method server side.
 			List<ExperimenterGroup> groups = service.lookupGroups();
 			Iterator i = groups.iterator();
@@ -1822,12 +1977,13 @@ class OMEROGateway
 			while (k.hasNext()) {
 				groupIds.add(k.next().getId());
 			}
-			
+			long gpId;
 			while (i.hasNext()) {
 				group = (ExperimenterGroup) i.next();
-				if (!isSystemGroup(group) && groupIds.contains(group.getId())) {
+				gpId = group.getId().val;
+				if (!isSystemGroup(group) && groupIds.contains(gpId)) {
 					pojoGroup = PojoMapper.asDataObject(group);
-					experimenters = containedExperimenters(group.getId());
+					experimenters = containedExperimenters(gpId);
 					pojos.put((GroupData) pojoGroup, 
 							PojoMapper.asDataObjects(experimenters));
 				}
@@ -1852,13 +2008,13 @@ class OMEROGateway
 	boolean hasArchivedFiles(long pixelsID)
 		throws DSAccessException, DSOutOfServiceException
 	{
-		Set<Long> ids = new HashSet<Long>();
+		List<Long> ids = new ArrayList<Long>();
 		ids.add(pixelsID);
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
-			Map m = service.findAnnotations(Pixels.class, ids, null, 
-									(new PojoOptions().map()));
+			IPojosPrx service = getPojosService();
+			Map m = service.findAnnotations(Pixels.class.getName(), ids, null, 
+									(new PojoOptionsI().map()));
 			Collection c = (Collection) m.get(pixelsID);
 			if (c == null || c.size() == 0) return false;
 			Iterator i = c.iterator();
@@ -1869,7 +2025,7 @@ class OMEROGateway
 					BooleanAnnotation ann = (BooleanAnnotation) data;
 					if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
 						ann.getNs()))
-						return ann.getBoolValue();
+						return ann.getBoolValue().val;
 				}
 			}
 		} catch (Exception e) {
@@ -1881,50 +2037,58 @@ class OMEROGateway
 	}
 	
 	/**
+	 * 
 	 * Retrieves the archived files if any for the specified set of pixels.
 	 * 
 	 * @param path		The location where to save the files.
 	 * @param pixelsID 	The ID of the pixels set.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
+	 * retrieve data from OMERO service.  
 	 */
 	Map<Integer, List> getArchivedFiles(String path, long pixelsID) 
-		throws DSAccessException
+		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
-		IQuery service = getQueryService();
+		IQueryPrx service = getQueryService();
 		List files = null;
 		try {
+			ParametersI param = new ParametersI();
+			param.map.put("childID", new RLong(pixelsID));
 			files = service.findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
-					"child where child.id = :id",
-					new Parameters().addId(new Long(pixelsID)));
+					"child where child.id = :id", param);
 		} catch (Exception e) {
 			throw new DSAccessException("Cannot retrieve original file", e);
 		}
 
 		Map<Integer, List> result = new HashMap<Integer, List>();
 		if (files == null || files.size() == 0) return result;
-		RawFileStore store = getRawFileService();
+		RawFileStorePrx store = getRawFileService();
 		Iterator i = files.iterator();
 		OriginalFile of;
 
-		int size;	
+		long size;	
 		FileOutputStream stream = null;
-		int offset = 0;
+		long offset = 0;
 		File f;
 		List<String> notDownloaded = new ArrayList<String>();
 		String fullPath;
 		while (i.hasNext()) {
 			of = (OriginalFile) i.next();
-			store.setFileId(of.getId()); 
+			try {
+				store.setFileId(of.getId().val); 
+			} catch (Exception e) {
+				handleException(e, "Cannot set the file's id.");
+			}
+			
 			fullPath = path+of.getName();
 			f = new File(fullPath);
 			try {
 				stream = new FileOutputStream(f);
-				size = of.getSize().intValue(); 
+				size = of.getSize().val; 
 				try {
 					try {
 						for (offset = 0; (offset+INC) < size;) {
@@ -1932,17 +2096,17 @@ class OMEROGateway
 							offset += INC;
 						}	
 					} finally {
-						stream.write(store.read(offset, size-offset)); 
+						stream.write(store.read(offset, (int) (size-offset))); 
 						stream.close();
 					}
 				} catch (Exception e) {
 					if (stream != null) stream.close();
 					if (f != null) f.delete();
-					notDownloaded.add(of.getName());
+					notDownloaded.add(of.getName().val);
 				}
 			} catch (IOException e) {
 				if (f != null) f.delete();
-				notDownloaded.add(of.getName());
+				notDownloaded.add(of.getName().val);
 				throw new DSAccessException("Cannot create file with path " +
 											fullPath, e);
 			}
@@ -1958,15 +2122,21 @@ class OMEROGateway
 	 * @param fileID	The id of the file to download.
 	 * @param size		The size of the file.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
+	 * retrieve data from OMERO service.  
 	 */
 	File downloadFile(File file, long fileID, long size)
-		throws DSAccessException
+		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
-		RawFileStore store = getRawFileService();
-		store.setFileId(fileID);
+		RawFileStorePrx store = getRawFileService();
+		try {
+			store.setFileId(fileID);
+		} catch (Throwable e) {
+			handleException(e, "Cannot set the file's id.");
+		}
+		
 		String path = file.getAbsolutePath();
 		int offset = 0;
 		int length = (int) size;
@@ -1999,23 +2169,24 @@ class OMEROGateway
 	 * 
 	 * @param id	The id identifying the file.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	OriginalFile getOriginalFile(long id)
-		throws DSAccessException
+		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
-		IQuery service = getQueryService();
-		OriginalFile of;
+		OriginalFile of = null;
 		try {
-			of = (OriginalFile) service.findByQuery(
+			ParametersI param = new ParametersI();
+			param.map.put("childID", new RLong(id));
+			of = (OriginalFile) getQueryService().findByQuery(
 					"select p from OriginalFile as p " +
 					"left outer join fetch p.format " +
-					"where p.id = :id", 
-					new Parameters().addId(new Long(id)));
+					"where p.id = :id", param);
 		} catch (Exception e) {
-			throw new DSAccessException("Cannot retrieve original file", e);
+			handleException(e, "Cannot retrieve original file");
 		}
 		return of;
 	}
@@ -2026,23 +2197,24 @@ class OMEROGateway
 	 * 
 	 * @param pixelsID The ID of the pixels set.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
+	 * retrieve data from OMERO service.  
 	 */
 	List getOriginalFiles(long pixelsID)
-		throws DSAccessException
+		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
-		IQuery service = getQueryService();
 		List files = null;
 		try {
-			files = service.findAllByQuery(
+			ParametersI param = new ParametersI();
+			param.map.put("childID", new RLong(pixelsID));
+			files = getQueryService().findAllByQuery(
 					"select ofile from OriginalFile as ofile left join " +
 					"ofile.pixelsFileMaps as pfm left join pfm.child as " +
-					"child where child.id = :id",
-					new Parameters().addId(new Long(pixelsID)));
+					"child where child.id = :id", param);
 		} catch (Exception e) {
-			throw new DSAccessException("Cannot retrieve original file", e);
+			handleException(e, "Cannot retrieve original file");
 		}
 		return files;
 	}
@@ -2054,27 +2226,34 @@ class OMEROGateway
 	 * @param file		The file to upload.
 	 * @param format	The format of the file.
 	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service.
+	 * retrieve data from OMERO service.  
 	 */
 	OriginalFile uploadFile(File file, String format)
-		throws DSAccessException
+		throws DSAccessException, DSOutOfServiceException
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file to upload");
 		isSessionAlive();
-		Format f = getQueryService().findByString(Format.class, "value", 
-												format);
-		OriginalFile oFile = new OriginalFile();
-		oFile.setName(file.getName());
-		oFile.setPath(file.getAbsolutePath());
-		oFile.setSize(file.length());
-		oFile.setSha1("pending");
-		oFile.setFormat(f);
-		IUpdate service = getUpdateService();
-		OriginalFile save = service.saveAndReturnObject(oFile);
-		RawFileStore store = getRawFileService();
-		store.setFileId(save.getId());
+		RawFileStorePrx store = getRawFileService();
+		OriginalFile save = null;
+		try {
+			Format f = (Format) getQueryService().findByString(
+					Format.class.getName(), "value", format);
+			OriginalFile oFile = new OriginalFileI();
+			oFile.setName(new RString(file.getName()));
+			oFile.setPath(new RString(file.getAbsolutePath()));
+			oFile.setSize(new RLong(file.length()));
+			oFile.setSha1(new RString("pending"));
+			oFile.setFormat(f);
+			IUpdatePrx service = getUpdateService();
+			save = (OriginalFile) service.saveAndReturnObject(oFile);
+			store.setFileId(save.getId().val);
+		} catch (Exception e) {
+			handleException(e, "Cannot set the file's id.");
+		}
+		
 		byte[] buf = new byte[INC]; 
 		try {
 			FileInputStream stream = new FileInputStream(file);
@@ -2105,9 +2284,9 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		IAdmin service = getAdminService();
+		
 		try {
-			service.changePassword(password);
+			getAdminService().changePassword(new RString(password));
 			resetFactory(userName, password);
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify password. ");
@@ -2126,9 +2305,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		IAdmin service = getAdminService();
 		try {
-			service.updateSelf(exp);
+			getAdminService().updateSelf(exp);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the user. ");
 		}
@@ -2152,7 +2330,7 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		RawPixelsStore service = getPixelsStore();
+		RawPixelsStorePrx service = getPixelsStore();
 		try {
 			service.setPixelsId(pixelsID);
 			return service.getPlane(z, c, t);
@@ -2177,9 +2355,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		IRepositoryInfo service = getRepositoryService();
 		try {
-			return service.getFreeSpaceInKilobytes();
+			return getRepositoryService().getFreeSpaceInKilobytes();
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the free space");
 		}
@@ -2200,9 +2377,8 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		IRepositoryInfo service = getRepositoryService();
 		try {
-			return service.getUsedSpaceInKilobytes();
+			return getRepositoryService().getUsedSpaceInKilobytes();
 		} catch (Throwable e) {
 			handleException(e, "Cannot retrieve the free space");
 		}
@@ -2230,23 +2406,19 @@ class OMEROGateway
 			String  sql = "select i from Image as i left outer join fetch " +
 			"i.details.creationEvent as c where " +
 			"i.details.owner.id = :userID and ";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("userID", userID);
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
+			param.map.put("userID", new RLong(userID));
 			if (startTime != null && endTime != null) {
 				sql += "c.time < :endTime and c.time > :startTime";
-				param.add(new QueryParameter("startTime", Timestamp.class, 
-						startTime));
-				param.add(new QueryParameter("endTime", Timestamp.class, 
-						endTime));
+				param.add("startTime", new RTime(startTime.getTime()));
+				param.add("endTime", new RTime(endTime.getTime()));
 			} else if (startTime == null && endTime != null) {
 				sql += "c.time < :endTime";
-				param.add(new QueryParameter("endTime", Timestamp.class, 
-					endTime));
+				param.add("endTime", new RTime(endTime.getTime()));
 			} else if (startTime != null && endTime == null) {
 				sql += "c.time  > :startTime";
-				param.add(new QueryParameter("startTime", Timestamp.class, 
-						startTime));
+				param.add("startTime", new RTime(startTime.getTime()));
 			} 
 			
 			return service.findAllByQuery(sql, param);
@@ -2273,7 +2445,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojos service = getPojosService();
+			IPojosPrx service = getPojosService();
 			return PojoMapper.asDataObjects(service.getImagesByOptions(map));
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the images imported " +
@@ -2299,22 +2471,22 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map resetRenderingSettings(Class rootNodeType, Set nodes) 
+	Map resetRenderingSettings(Class rootNodeType, List nodes) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Set<Long> success = new HashSet<Long>();
-		Set<Long> failure = new HashSet<Long>();
+		List<Long> success = new ArrayList<Long>();
+		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive();
 		try {
-			IRenderingSettings service = getRenderingSettingsService();
-			Class klass = convertPojos(rootNodeType);
-			if (klass.equals(Image.class) || klass.equals(Dataset.class) ||
-					klass.equals(Category.class))
+			IRenderingSettingsPrx service = getRenderingSettingsService();
+			String klass = convertPojos(rootNodeType);
+			if (klass.equals(Image.class.getName()) 
+					|| klass.equals(Dataset.class.getName()))
 				success = service.resetDefaultsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
-		Map<Boolean, Set> result = new HashMap<Boolean, Set>(2);
+		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
 		result.put(Boolean.TRUE, success);
 		result.put(Boolean.FALSE, failure);
 		return result;
@@ -2337,21 +2509,22 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map setOriginalRenderingSettings(Class rootNodeType, Set nodes) 
+	Map setOriginalRenderingSettings(Class rootNodeType, List nodes) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Set<Long> success = new HashSet<Long>();
-		Set<Long> failure = new HashSet<Long>();
+		List<Long> success = new ArrayList<Long>();
+		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive();
 		try {
-			IRenderingSettings service = getRenderingSettingsService();
-			Class klass = convertPojos(rootNodeType);
-			if (klass.equals(Image.class) || klass.equals(Dataset.class))
+			IRenderingSettingsPrx service = getRenderingSettingsService();
+			String klass = convertPojos(rootNodeType);
+			if (klass.equals(Image.class.getName()) 
+				|| klass.equals(Dataset.class.getName()))
 				success = service.setOriginalSettingsInSet(klass, nodes);
 		} catch (Exception e) {
 			handleException(e, "Cannot reset the rendering settings.");
 		}
-		Map<Boolean, Set> result = new HashMap<Boolean, Set>(2);
+		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
 		result.put(Boolean.TRUE, success);
 		result.put(Boolean.FALSE, failure);
 		return result;
@@ -2375,15 +2548,15 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	Map pasteRenderingSettings(long pixelsID, Class rootNodeType, Set nodes) 
+	Map pasteRenderingSettings(long pixelsID, Class rootNodeType, List nodes) 
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Set<Long> success = new HashSet<Long>();
-		Set<Long> failure = new HashSet<Long>();
+		List<Long> success = new ArrayList<Long>();
+		List<Long> failure = new ArrayList<Long>();
 		isSessionAlive();
 		try {
-			IRenderingSettings service = getRenderingSettingsService();
-			Class klass = convertPojos(rootNodeType);
+			IRenderingSettingsPrx service = getRenderingSettingsService();
+			String klass = convertPojos(rootNodeType);
 			Iterator i = nodes.iterator();
 			long id;
 			boolean b = false;
@@ -2416,33 +2589,11 @@ class OMEROGateway
 						}
 					}
 				}
-			} else if (klass.equals(Category.class)) {
-				Map m;
-				List l;
-				Iterator k;
-				while (i.hasNext()) {
-					id = (Long) i.next();
-					m = service.applySettingsToCategory(pixelsID, id);
-					l = (List) m.get(Boolean.TRUE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							success.add((Long) k.next());
-						}
-					}
-					l = (List) m.get(Boolean.FALSE);
-					if (l != null && l.size() > 0) {
-						k = l.iterator();
-						while (k.hasNext()) {
-							failure.add((Long) k.next());
-						}
-					}
-				}
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot paste the rendering settings.");
 		}
-		Map<Boolean, Set> result = new HashMap<Boolean, Set>(2);
+		Map<Boolean, List> result = new HashMap<Boolean, List>(2);
 		result.put(Boolean.TRUE, success);
 		result.put(Boolean.FALSE, failure);
 		return result;
@@ -2475,9 +2626,9 @@ class OMEROGateway
                 + "left outer join fetch rdef.spatialDomainEnhancement " 
                 + "left outer join fetch rdef.details.owner "
                 + "where rdef.pixels.id = :pixid";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("pixid", pixelsID);
+			IQueryPrx service = getQueryService();
+			Parameters param = new ParametersI();
+			param.map.put("pixid", new RLong(pixelsID));
 			List results = service.findAllByQuery(sql, param);
 			if (results == null || results.size() == 0) return map;
 			Iterator i = results.iterator();
@@ -2485,7 +2636,7 @@ class OMEROGateway
 			Experimenter exp;
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
-				exp = rndDef.getDetails().getOwner();
+				exp = rndDef.getDetails().owner;
 				//if (exp.getId() != userID) {
 				map.put(PojoMapper.asDataObject(exp), rndDef);
 				//}
@@ -2525,11 +2676,11 @@ class OMEROGateway
                 + "left outer join fetch rdef.details.owner "
                 + "where rdef.pixels.id = :pixid and " +
                 	"rdef.details.owner.id = :userid";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("pixid", pixelsID);
-			param.addLong("userid", userID);
-			return service.findByQuery(sql, param);
+
+			Parameters param = new ParametersI();
+			param.map.put("pixid", new RLong(pixelsID));
+			param.map.put("userid", new RLong(userID));
+			return (RenderingDef) getQueryService().findByQuery(sql, param);
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the rendering settings");
 		}
@@ -2555,21 +2706,22 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
+			IQueryPrx service = getQueryService();
+			Parameters param = new ParametersI();
+			
 			String sql =  "select ann from Annotation as ann "
                 + "left outer join fetch ann.details.creationEvent "
                 + "left outer join fetch ann.details.owner";
 			if (id >= 0 && userID >= 0) {
 				sql += " where ann.id = :id and ann.details.owner.id = :uid";
-				param.addLong("id", id);
-				param.addLong("uid", userID);
+				param.map.put("id", new RLong(id));
+				param.map.put("uid", new RLong(userID));
 			} else if (id < 0 && userID >= 0) {
 				sql += " where ann.details.owner.id = :uid";
-				param.addLong("uid", userID);
+				param.map.put("uid", new RLong(userID));
 			} else if (id >= 0 && userID < 0) {
 				sql += " where ann.id = :id";
-				param.addLong("id", id);
+				param.map.put("id", new RLong(id));
 			}
 			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
 		} catch (Exception e) {
@@ -2584,7 +2736,7 @@ class OMEROGateway
 	 * @param ids
 	 * @param userID
 	 * @param asChild
-	 * @return
+	 * @return See above
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
@@ -2594,9 +2746,9 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			if (ids == null || ids.size() == 0) return null;
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addList("ids", ids);
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
+			param.addLongs("ids", ids);
 			String sql =  "select ann from Annotation as ann "
 				+ "left outer join ann.annotationLinks link "
                 + "left outer join fetch ann.details.creationEvent "
@@ -2607,11 +2759,10 @@ class OMEROGateway
 
 			if (userID >= 0) {
 				sql += "and link.details.owner.id = :uid";
-				param.addLong("uid", userID);
+				param.map.put("uid", new RLong(userID));
 			}
 			return PojoMapper.asDataObjects(service.findAllByQuery(sql, param));
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;
@@ -2622,30 +2773,31 @@ class OMEROGateway
 	 * 
 	 * @param type
 	 * @param r
-	 * @param service
+	 * @param svc
 	 * @return See above.
 	 */
-	private Object handleSearchResult(Class type, Collection r, Search service)
+	private Object handleSearchResult(String type, Collection r, SearchPrx svc)
+		throws ServerError
 	{
 		//First get object of a given type.
 		boolean hasNext = false;
 		try {
-			hasNext = service.hasNext();
+			hasNext = svc.hasNext();
 		} catch (Exception e) {
 			int size = 0;
 			if (e instanceof InternalException) size = -1;
-			else service.getBatchSize();
+			else svc.getBatchSize();
 			return new Integer(size);
 		}
 		if (!hasNext) return r;
-		List l = service.results();
+		List l = svc.results();
 		Iterator k = l.iterator();
 		IObject object;
 		long id;
 		while (k.hasNext()) {
 			object = (IObject) k.next();
-			if (type.equals(object.getClass())) {
-				id = object.getId();
+			if (type.equals(object.getClass().getName())) {
+				id = object.getId().val;
 				if (!r.contains(id)) 
 					r.add(id); //Retrieve the object of a given type.
 			}
@@ -2661,12 +2813,14 @@ class OMEROGateway
 	 * @param field	The string to add in front of the terms.
 	 * @return See above.
 	 */
-	private String[] formatText(String[] terms, String field)
+	private List<String> formatText(List<String> terms, String field)
 	{
-		if (terms == null || terms.length == 0) return null;
-		String[] formatted = new String[terms.length];
-		for (int i = 0; i < terms.length; i++) 
-			formatted[i] = field+":"+terms[i];
+		if (terms == null || terms.size() == 0) return null;
+		List<String> formatted = new ArrayList<String>(terms.size());
+		Iterator<String> j = terms.iterator();
+		while (j.hasNext()) 
+			formatted.add(field+":"+j.next());
+		
 		return formatted;
 	}
 	
@@ -2679,14 +2833,19 @@ class OMEROGateway
 	 * @param secondField	The string to add in front of the terms.
 	 * @return See above.
 	 */
-	private String[] formatText(String[] terms, String firstField, String sep,
-			String secondField)
+	private List<String> formatText(List<String> terms, String firstField, 
+								String sep, String secondField)
 	{
-		if (terms == null || terms.length == 0) return null;
-		String[] formatted = new String[terms.length];
-		for (int i = 0; i < terms.length; i++) {
-			formatted[i] = firstField+":"+terms[i]+" "+sep+" ";
-			formatted[i] += secondField+":"+terms[i];
+		if (terms == null || terms.size() == 0) return null;
+		List<String> formatted = new ArrayList<String>(terms.size());
+		String value;
+		Iterator<String> j = terms.iterator();
+		String v;
+		while (j.hasNext()) {
+			v = j.next();
+			value = firstField+":"+v+" "+sep+" ";
+			value += secondField+":"+v;
+			formatted.add(value);
 		}
 		return formatted;
 	}
@@ -2702,134 +2861,145 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	Object performSearch(SearchDataContext context)
+		throws DSOutOfServiceException, DSAccessException
 	{
 		List<Class> types = context.getTypes();
 		List<Integer> scopes = context.getScope();
 		if (types == null || types.size() == 0) return new HashMap();
 		if (scopes == null || scopes.size() == 0) return new HashMap();
 		isSessionAlive();
-		Search service = getSearchService();
-		//service.clearQueries();
-		//service.resetDefaults();
-		service.setAllowLeadingWildcard(false);
-		service.setCaseSentivice(context.isCaseSensitive());
-		
-		Timestamp start = context.getStart();
-		Timestamp end = context.getEnd();
-		//Sets the time
-		if (start != null || end != null) {
-			switch (context.getTimeIndex()) {
-				case SearchDataContext.CREATION_TIME:
-					service.onlyCreatedBetween(start, end);
-					break;
-				case SearchDataContext.MODIFICATION_TIME:
-					service.onlyModifiedBetween(start, end);
-					break;
-				case SearchDataContext.ANNOTATION_TIME:
-					service.onlyAnnotatedBetween(start, end);	
-			}
-		}
-		List<ExperimenterData> users = context.getOwners();
-		Iterator i;
-		ExperimenterData exp;
-		Details d;
-		//owner
-		List<Details> owners = new ArrayList<Details>();
-		//if (users != null && users.size() > 0) {
-			i = users.iterator();
-			while (i.hasNext()) {
-				exp = (ExperimenterData) i.next();
-				d = Details.create();
-		        d.setOwner(exp.asExperimenter());
-		        owners.add(d);
-			}
-		//}
-		
-		
-		String[] some = prepareTextSearch(context.getSome(), service);
-		String[] must = prepareTextSearch(context.getMust(), service);
-		String[] none = prepareTextSearch(context.getNone(), service);
-		
-		List<Class> supportedTypes = new ArrayList<Class>();
-		i = types.iterator();
-		int index = 0;
-		Class k;
-		while (i.hasNext()) {
-			k = (Class) i.next();
-			supportedTypes.add(convertPojos(k));
-			index++;
-		}
-
-		Set rType;
-		Map<Integer, Object> results = new HashMap<Integer, Object>();
-		Object size;
-		Integer key;
-		i = scopes.iterator();
-		while (i.hasNext()) 
-			results.put((Integer) i.next(), new HashSet());
-		
-		Iterator<Details> owner;
-		i = scopes.iterator();
-		String[] fSome = null, fMust = null, fNone = null;
-		String[] fSomeSec = null, fMustSec = null, fNoneSec = null;
-		service.onlyType(Image.class);
-		while (i.hasNext()) {
-			key = (Integer) i.next();
-			rType = (HashSet) results.get(key);
-			size = null;
-			if (key == SearchDataContext.TAGS) {
-				fSome = formatText(some, "tag");
-				fMust = formatText(must, "tag");
-				fNone = formatText(none, "tag");
-			} else if (key == SearchDataContext.NAME) {
-				fSome = formatText(some, "name");
-				fMust = formatText(must, "name");
-				fNone = formatText(none, "name");
-			} else if (key == SearchDataContext.DESCRIPTION) {
-				fSome = formatText(some, "description");
-				fMust = formatText(must, "description");
-				fNone = formatText(none, "description");
-			} else if (key == SearchDataContext.FILE_ANNOTATION) {
-				fSome = formatText(some, "file.name");
-				fMust = formatText(must, "file.name");
-				fNone = formatText(none, "file.name");
-				fSomeSec = formatText(some, "file.contents");
-				fMustSec = formatText(must, "file.contents");
-				fNoneSec = formatText(none, "file.contents");
-			} else if (key == SearchDataContext.TEXT_ANNOTATION) {
-				fSome = formatText(some, "annotation", "NOT", "tag");
-				fMust = formatText(must, "annotation", "NOT", "tag");
-				fNone = formatText(none, "annotation", "NOT", "tag");
-			} else if (key == SearchDataContext.URL_ANNOTATION) {
-				fSome = formatText(some, "url");
-				fMust = formatText(must, "url");
-				fNone = formatText(none, "url");
-			}
+		try {
+			SearchPrx service = getSearchService();
+			//service.clearQueries();
+			//service.resetDefaults();
+			service.setAllowLeadingWildcard(false);
 			
-			owner = owners.iterator();
-			if (fSome != null) {
-				while (owner.hasNext()) {
-					d = owner.next();
-					service.onlyOwnedBy(d);
-					service.bySomeMustNone(fSome, fMust, fNone);
-					size = handleSearchResult(Image.class, rType, service);
-					if (size instanceof Integer)
-						results.put(key, size);
-					service.clearQueries();
-					if (!(size instanceof Integer) && fSomeSec != null) {
-						service.bySomeMustNone(fSomeSec, fMustSec, 
-								fNoneSec);
-						size = handleSearchResult(Image.class, rType, 
+			service.setCaseSentivice(context.isCaseSensitive());
+			
+			Timestamp start = context.getStart();
+			Timestamp end = context.getEnd();
+			//Sets the time
+			if (start != null || end != null) {
+				switch (context.getTimeIndex()) {
+					case SearchDataContext.CREATION_TIME:
+						service.onlyCreatedBetween(new RTime(start.getTime()), 
+									new RTime(end.getTime()));
+						break;
+					case SearchDataContext.MODIFICATION_TIME:
+						service.onlyModifiedBetween(new RTime(start.getTime()), 
+								new RTime(end.getTime()));
+						break;
+					case SearchDataContext.ANNOTATION_TIME:
+						service.onlyAnnotatedBetween(new RTime(start.getTime()), 
+								new RTime(end.getTime()));	
+				}
+			}
+			List<ExperimenterData> users = context.getOwners();
+			Iterator i;
+			ExperimenterData exp;
+			Details d;
+			//owner
+			List<Details> owners = new ArrayList<Details>();
+			//if (users != null && users.size() > 0) {
+				i = users.iterator();
+				while (i.hasNext()) {
+					exp = (ExperimenterData) i.next();
+					d = new Details();
+			        d.owner = exp.asExperimenter();
+			        owners.add(d);
+				}
+			//}
+			
+			
+			List<String> some = prepareTextSearch(context.getSome(), service);
+			List<String> must = prepareTextSearch(context.getMust(), service);
+			List<String> none = prepareTextSearch(context.getNone(), service);
+			
+			List<String> supportedTypes = new ArrayList<String>();
+			i = types.iterator();
+			int index = 0;
+			Class k;
+			while (i.hasNext()) {
+				k = (Class) i.next();
+				supportedTypes.add(convertPojos(k));
+				index++;
+			}
+
+			Set rType;
+			Map<Integer, Object> results = new HashMap<Integer, Object>();
+			Object size;
+			Integer key;
+			i = scopes.iterator();
+			while (i.hasNext()) 
+				results.put((Integer) i.next(), new HashSet());
+			
+			Iterator<Details> owner;
+			i = scopes.iterator();
+			List<String> fSome = null, fMust = null, fNone = null;
+			List<String> fSomeSec = null, fMustSec = null, fNoneSec = null;
+			service.onlyType(Image.class.getName());
+			while (i.hasNext()) {
+				key = (Integer) i.next();
+				rType = (HashSet) results.get(key);
+				size = null;
+				if (key == SearchDataContext.TAGS) {
+					fSome = formatText(some, "tag");
+					fMust = formatText(must, "tag");
+					fNone = formatText(none, "tag");
+				} else if (key == SearchDataContext.NAME) {
+					fSome = formatText(some, "name");
+					fMust = formatText(must, "name");
+					fNone = formatText(none, "name");
+				} else if (key == SearchDataContext.DESCRIPTION) {
+					fSome = formatText(some, "description");
+					fMust = formatText(must, "description");
+					fNone = formatText(none, "description");
+				} else if (key == SearchDataContext.FILE_ANNOTATION) {
+					fSome = formatText(some, "file.name");
+					fMust = formatText(must, "file.name");
+					fNone = formatText(none, "file.name");
+					fSomeSec = formatText(some, "file.contents");
+					fMustSec = formatText(must, "file.contents");
+					fNoneSec = formatText(none, "file.contents");
+				} else if (key == SearchDataContext.TEXT_ANNOTATION) {
+					fSome = formatText(some, "annotation", "NOT", "tag");
+					fMust = formatText(must, "annotation", "NOT", "tag");
+					fNone = formatText(none, "annotation", "NOT", "tag");
+				} else if (key == SearchDataContext.URL_ANNOTATION) {
+					fSome = formatText(some, "url");
+					fMust = formatText(must, "url");
+					fNone = formatText(none, "url");
+				}
+				
+				owner = owners.iterator();
+				if (fSome != null) {
+					while (owner.hasNext()) {
+						d = owner.next();
+						service.onlyOwnedBy(d);
+						service.bySomeMustNone(fSome, fMust, fNone);
+						size = handleSearchResult(Image.class.getName(), rType, 
 								service);
-						if (size instanceof Integer) 
+						if (size instanceof Integer)
 							results.put(key, size);
 						service.clearQueries();
+						if (!(size instanceof Integer) && fSomeSec != null) {
+							service.bySomeMustNone(fSomeSec, fMustSec, 
+									fNoneSec);
+							size = handleSearchResult(Image.class.getName(), 
+									rType, service);
+							if (size instanceof Integer) 
+								results.put(key, size);
+							service.clearQueries();
+						}
 					}
 				}
 			}
+			service.close();
+			return results;
+		} catch (Throwable e) {
+			handleException(e, "Cannot perform the search.");
 		}
-		service.close();
-		return results;
+		return null;
 	}
 	
 	/**
@@ -2854,18 +3024,19 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			Search service = getSearchService();
+			SearchPrx service = getSearchService();
 			if (start != null || end != null)
-				service.onlyAnnotatedBetween(start, end);
+				service.onlyAnnotatedBetween(new RTime(start.getTime()), 
+						new RTime(end.getTime()));
 			if (exp != null) {
-				Details d = Details.create();
-		        d.setOwner(exp.asExperimenter());
-				//service.onlyAnnotatedBy(d);
+				
+				Details d = new Details();
+				d.owner = exp.asExperimenter();
 			}
-			String[] t = prepareTextSearch(terms, service);
+			List<String> t = prepareTextSearch(terms, service);
 			
 			
-			Class k = convertPojos(annotationType);
+			String k = convertPojos(annotationType);
 			service.onlyType(k);
 			Set rType = new HashSet();
 			service.bySomeMustNone(t, null, null);
@@ -2895,11 +3066,13 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
+			IQueryPrx service = getQueryService();
+			Parameters p = new ParametersI();
+			p.map = new HashMap<String, RType>();
+			p.map.put("id", new RLong(userID));
 			String table = getTableForClass(type);
 			return PojoMapper.asDataObjects(service.findAllByQuery(
-	                "from "+table+" as p where p.details.owner.id = :id", 
-	                new Parameters().addId(userID)));
+	                "from "+table+" as p where p.details.owner.id = :id", p));
 		} catch (Throwable t) {
 			handleException(t, "Cannot retrieve the containers.");
 		}
@@ -2926,9 +3099,10 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addLong("tagID", tagID);
+			IQueryPrx service = getQueryService();
+			Parameters p = new ParametersI();
+			p.map = new HashMap<String, RType>();
+			p.map.put("tagID", new RLong(tagID));
 			StringBuilder sb = new StringBuilder();
 			
 			sb.append("select ann from Annotation as ann ");
@@ -2936,7 +3110,7 @@ class OMEROGateway
 			sb.append("left outer join fetch ann.details.owner ");
 
 			sb.append("where ann.id = :tagID");
-			IObject object = service.findByQuery(sb.toString(), param);
+			IObject object = service.findByQuery(sb.toString(), p);
 			TagAnnotationData tag = 
 						(TagAnnotationData) PojoMapper.asDataObject(object);
 			//Condition
@@ -2951,7 +3125,7 @@ class OMEROGateway
 	            sb.append("left outer join fetch pix.pixelsDimensions as pd ");
 	            sb.append("where ail.child.id = :tagID");
 	            Set imgs = PojoMapper.asDataObjects(
-	            			service.findAllByQuery(sb.toString(), param));
+	            			service.findAllByQuery(sb.toString(), p));
 	            //Retrieve the projects.
 	            
 	            
@@ -2969,7 +3143,6 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve the annotations");
 		}
 		return null;
-		//return service.results();
 	}
 	
 	/**
@@ -2987,9 +3160,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addSet("ids", annotationIds);
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
+			param.addLongs("ids", annotationIds);
 			StringBuilder sb = new StringBuilder();
 			sb = new StringBuilder();
 			if (type.equals(ImageData.class)) {
@@ -3003,7 +3176,7 @@ class OMEROGateway
 	            sb.append("where ail.child.id in (:ids)");
 	            if (ownerIds != null && ownerIds.size() > 0) {
 	            	sb.append(" and img.details.owner.id in (:ownerIds)");
-	            	param.addSet("ownerIds", ownerIds);
+	            	param.addLongs("ownerIds", ownerIds);
 	            }
 	            return PojoMapper.asDataObjects(
 	         			service.findAllByQuery(sb.toString(), param));
@@ -3035,8 +3208,8 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			String type = "ome.model.annotations.TagAnnotation";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
 			param.addLong("tagID", tagID);
 			StringBuilder sb = new StringBuilder();
 			
@@ -3054,17 +3227,18 @@ class OMEROGateway
 			sb.append("left outer join link.child ann ");
 			sb.append(" where ann member of "+type);
 			sb.append(" and link.parent.id = :id");
-			param = new Parameters();
+			param = new ParametersI();
 			param.addLong("id", tag.getId());
+
 			List r = service.findAllByQuery(sb.toString(), param);
 			if (r != null) {
 				Iterator j = r.iterator();
-				ILink link;
+				AnnotationAnnotationLink link;
 				Set<TagAnnotationData> 
 				    children = new HashSet<TagAnnotationData>();
 				TagAnnotationData child;
 				while (j.hasNext()) {
-					link = (ILink) j.next();
+					link = (AnnotationAnnotationLink) j.next();
 					child = (TagAnnotationData) 
 							PojoMapper.asDataObject(link.getChild());
 					children.add(child);
@@ -3081,8 +3255,9 @@ class OMEROGateway
 			            sb.append("left outer join fetch pix.pixelsDimensions " +
 			            		"as pd ");
 			            sb.append("where ail.child.id = :id");
-			            param = new Parameters();
-						param.addLong("id", child.getId());
+			            param = new ParametersI();
+			            param.addLong("id", child.getId());
+
 			            Set imgs = PojoMapper.asDataObjects(
 			            		service.findAllByQuery(sb.toString(), param));
 			            child.setImages(imgs);
@@ -3107,13 +3282,14 @@ class OMEROGateway
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */
-	Map getImagesTaggedCount(Set rootNodeIDs)
+	Map getImagesTaggedCount(List rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
+
 			
 			StringBuilder sb = new StringBuilder();
 			
@@ -3150,8 +3326,8 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			String type = "ome.model.annotations.TagAnnotation";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
 			param.addLong("uid", userID);
 			String sql =  "select ann from Annotation as ann "
 				+ "left outer join ann.annotationLinks link "
@@ -3167,7 +3343,7 @@ class OMEROGateway
 				TagAnnotationData tag;
 				List<Long> ids = new ArrayList<Long>();
 				while (i.hasNext()) {
-					param = new Parameters();
+					param = new ParametersI();
 					tag = (TagAnnotationData) PojoMapper.asDataObject(i.next());
 					if (!ids.contains(tag.getId())) {
 						param.addLong("id", tag.getId());
@@ -3178,9 +3354,9 @@ class OMEROGateway
 						Set children = new HashSet();
 						List r = service.findAllByQuery(sql, param);
 						Iterator j = r.iterator();
-						ILink link;
+						AnnotationAnnotationLink link;
 						while (j.hasNext()) {
-							link = (ILink) j.next();
+							link = (AnnotationAnnotationLink) j.next();
 							children.add(
 									PojoMapper.asDataObject(link.getChild()));
 						}
@@ -3214,8 +3390,8 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			String type = "ome.model.annotations.TextAnnotation";
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
 			param.addLong("uid", userID);
 			param.addLong("id", tagID);
 
@@ -3228,10 +3404,10 @@ class OMEROGateway
 			//remove all the links if any
 			if (l != null) {
 				Iterator i = l.iterator();
-				ILink link;
+				AnnotationAnnotationLink link;
 				IObject child;
 				while (i.hasNext()) {
-					link = (ILink) i.next();
+					link = (AnnotationAnnotationLink) i.next();
 					child = link.getChild();
 					if (!((child instanceof TagAnnotation) || 
 						(child instanceof UrlAnnotation)))  {
@@ -3250,7 +3426,7 @@ class OMEROGateway
 	{
 		try {
 			EventContext ctx = getAdminService().getEventContext();
-			getSessionService().getSession(ctx.getCurrentSessionUuid());
+			getSessionService().getSession(ctx.sessionUuid);
 		} catch (Exception e) {
 			dsFactory.sessionExpiredExit();
 		}
@@ -3262,9 +3438,9 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IQuery service = getQueryService();
-			Parameters param = new Parameters();
-			param.addSet("ids", originalFiles);
+			IQueryPrx service = getQueryService();
+			ParametersI param = new ParametersI();
+			param.addLongs("ids", originalFiles);
 			String sql =  "select link from Annotation as link ";
 			sql += "where link.file.id in (:ids)";
 			return service.findAllByQuery(sql, param);
@@ -3291,10 +3467,9 @@ class OMEROGateway
 	List<IObject> removeObject(Class objectType, Long objectID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-
 		isSessionAlive();
 		try {
-			IDelete service = getDeleteService();
+			IDeletePrx service = getDeleteService();
 			if (ImageData.class.equals(objectType)) {
 				List r = service.checkImageDelete(objectID, false);
 				if (r == null || r.size() == 0) {
@@ -3303,9 +3478,6 @@ class OMEROGateway
 				}
 				return r;
 			}
-			
-			
-			
 		} catch (Exception e) {
 			handleException(e, "Cannot delete: "+objectType+" "+objectID);
 		}
@@ -3336,20 +3508,21 @@ class OMEROGateway
 	 *                                  retrieve data from OMEDS service.
 	 */
 	ImageData projectImage(long pixelsID, int startT, int endT, int startZ, 
-						int endZ, int stepping, int algorithm, 
+						int endZ, int stepping, ProjectionType algorithm, 
 						List<Integer> channels, String name, String pixType)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
-			IProjection service = getProjectionService();
+			IProjectionPrx service = getProjectionService();
 			PixelsType type = null;
 			if (pixType != null) {
-				IQuery svc = getQueryService();
-				List<PixelsType> l = svc.findAll(PixelsType.class, null);
-				Iterator<PixelsType> i = l.iterator();
+				IQueryPrx svc = getQueryService();
+				List<IObject> l = svc.findAll(PixelsType.class.getName(), 
+										null);
+				Iterator<IObject> i = l.iterator();
 				PixelsType pt;
 				while (i.hasNext()) {
-					pt = i.next();
+					pt = (PixelsType) i.next();
 					if (pt.getValue().equals(type)) {
 						type = pt;
 						break;
@@ -3369,7 +3542,7 @@ class OMEROGateway
 	        sb.append("left outer join fetch pix.pixelsType as pt ");
 	        sb.append("left outer join fetch pix.pixelsDimensions as pd ");
 	        sb.append("where img.id = :id");
-	        Parameters param = new Parameters();
+	        ParametersI param = new ParametersI();
 			param.addLong("id", imageID);
 	        ImageData image = (ImageData) PojoMapper.asDataObject(
 	        		getQueryService().findByQuery(sb.toString(), param));
@@ -3395,10 +3568,10 @@ class OMEROGateway
 	{
 		//TODO: add method to server so that we don't have to make 2 calls.
 		try {
-			IPixels svc = getPixelsService();
+			IPixelsPrx svc = getPixelsService();
 			Pixels pixels = svc.retrievePixDescription(pixelsID);
 			if (pixels == null) return null;
-			IRenderingSettings service = getRenderingSettingsService();
+			IRenderingSettingsPrx service = getRenderingSettingsService();
 			return service.createNewRenderingDef(pixels);
 		} catch (Exception e) {
 			handleException(e, "Cannot create settings for: "+pixelsID);
@@ -3415,9 +3588,9 @@ class OMEROGateway
 		try {
 			System.err.println(plateID);
 			List results = null;
-			IQuery service = getQueryService();
+			IQueryPrx service = getQueryService();
 			StringBuilder sb = new StringBuilder();
-			Parameters param = new Parameters();
+			ParametersI param = new ParametersI();
 			param.addLong("plateID", plateID);
 			
 			sb.append("select well from Well as well ");
@@ -3520,10 +3693,10 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			List results;
-			IQuery service = getQueryService();
+			List<IObject> results;
+			IQueryPrx service = getQueryService();
 			StringBuilder sb = new StringBuilder();
-			Parameters param = new Parameters();
+			ParametersI param = new ParametersI();
 			if (ScreenData.class.equals(rootType)) {
 				sb.append("select screen from Screen screen ");
 				sb.append("left outer join fetch "
@@ -3535,17 +3708,20 @@ class OMEROGateway
 	            	param.addLong("uid", userID);
 	            }
 				results = service.findAllByQuery(sb.toString(), param);
-				Set<Plate> plates = new HashSet<Plate>();
+				Set<Long> plates = new HashSet<Long>();
 				Screen s;
-				for (IObject o : plates) {
-	                s = (Screen) o;
-	                plates.addAll(s.linkedPlateList());
-	            }
+				for (IObject o : results) {
+					s = (Screen) o;
+					for (ScreenPlateLink link : s.copyPlateLinks()) {
+						plates.add(link.getChild().getId().val);
+					}
+				}
+
 	            if (plates.size() > 0) {
 	            	String sql = "select p from Plate p "
 	                + "left outer join fetch p.annotationLinksCountPerOwner " +
 	                "where p in (:list)";
-	            	param.addSet("list", plates);
+	            	param.addLongs("list", plates);
 	            	service.findAllByQuery(sql, param);
 	            }
 	            return PojoMapper.asDataObjects(results);

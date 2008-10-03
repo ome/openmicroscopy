@@ -65,7 +65,7 @@ public class ProjectionRef
 	private int               stepping;
 	
 	/** The type of projection. */
-	private int               type;
+	private int				  type;
 	
 	/** The type of projection. */
 	private String            pixelsType;
@@ -77,10 +77,10 @@ public class ProjectionRef
 	private String            name;
 	
 	/** The description of the projected image. */
-	private String			  	description;
+	private String			  description;
 	
 	/** The collection of channels to project.*/
-	private List<Integer>		channels;
+	private List<Integer>	  channels;
 	
 	/** Creates a new instance.  */
 	ProjectionRef()
@@ -92,9 +92,9 @@ public class ProjectionRef
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param startZ 		The first z-section to project.
-	 * @param endZ   		The last z-section to project.
-	 * @param type 			The type of projection.
+	 * @param startZ The first z-section to project.
+	 * @param endZ   The last z-section to project.
+	 * @param type   The type of projection.
 	 */
 	ProjectionRef(int startZ, int endZ, int type)
 	{

@@ -88,8 +88,8 @@ public class ClassificationsLoader
     {
         Set<Long> ids = new HashSet<Long>(1);
         ids.add(new Long(imageID));
-        handle = hiBrwView.loadClassificationPaths(ids,
-                        HierarchyBrowsingView.DECLASSIFICATION, rootID, this);
+        //handle = hiBrwView.loadClassificationPaths(ids,
+        //                HierarchyBrowsingView.DECLASSIFICATION, rootID, this);
     }
 
     /** 

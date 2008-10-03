@@ -24,7 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.Set;
+import java.util.List;
 
 //Third-party libraries
 
@@ -34,7 +34,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * 
+ * Loads the Screen-Plate hierarchy.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -66,7 +66,7 @@ public class ScreenPlatesLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall loadScreenPlates(final Class rootType,
-            final Set rootIDs, final long userID)
+            final List rootIDs, final long userID)
     {
         return new BatchCall("Loading Screen-Plate") {
             public void doCall() throws Exception
@@ -99,7 +99,7 @@ public class ScreenPlatesLoader
      *                  container specified by the rootNodeType.
      * @param userID The id of the user.
      */
-    public ScreenPlatesLoader(Class rootType, Set rootIDs, long userID)
+    public ScreenPlatesLoader(Class rootType, List rootIDs, long userID)
     {
     	loadCall = loadScreenPlates(rootType, rootIDs, userID);
     }

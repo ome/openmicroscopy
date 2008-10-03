@@ -24,17 +24,15 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
 import pojos.ExperimenterData;
 
 /** 

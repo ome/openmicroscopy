@@ -34,13 +34,16 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.OriginalFile;
+import omero.model.FileAnnotation;
+import omero.model.OriginalFile;
 
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.FileAnnotationData;
 
 /** 
  * Implements the {@link UserNotifier} interface. 
@@ -276,11 +279,13 @@ public class UserNotifierImpl
 
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyDownload(OriginalFile, File)
+	 * @see UserNotifier#notifyDownload(FileAnnotationData, File)
 	 */ 
-	public void notifyDownload(OriginalFile data, File directory)
+	public void notifyDownload(FileAnnotationData data, File directory)
 	{
-		manager.saveFileToDisk(data, directory);
+		if (data == null) return;
+		OriginalFile f = ((FileAnnotation) data.asAnnotation()).getFile();
+		manager.saveFileToDisk(f, directory);
 	}
 	
 	/** 
@@ -294,11 +299,11 @@ public class UserNotifierImpl
 	
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
-	 * @see UserNotifier#notifyDownload(OriginalFile)
+	 * @see UserNotifier#notifyDownload(FileAnnotationData)
 	 */ 
-	public void notifyDownload(OriginalFile data)
+	public void notifyDownload(FileAnnotationData data)
 	{
-		manager.saveFileToDisk(data, null);
+		notifyDownload(data, null);
 	}
 
 	/** 

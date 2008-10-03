@@ -43,7 +43,6 @@ import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
@@ -61,6 +60,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+
+import pojos.PixelsData;
 
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
@@ -296,9 +297,9 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setPixels(Pixels)
+     * @see MeasurementViewer#setPixels(PixelsData)
      */
-	public void setPixels(Pixels pixels)
+	public void setPixels(PixelsData pixels)
 	{
 		if (model.getState() != LOADING_DATA) return;
 		model.setPixels(pixels);

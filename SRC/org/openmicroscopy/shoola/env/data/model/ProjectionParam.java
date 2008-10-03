@@ -30,8 +30,9 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.constants.projection.ProjectionType;
+
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import ome.api.IProjection;
 import pojos.DatasetData;
 
 
@@ -51,15 +52,16 @@ import pojos.DatasetData;
 public class ProjectionParam
 {
 
-	/** The Maximum intensity projection (MIP) */
+	/** The <code>Maximum</code> intensity projection (MIP) */
     public static final int 	MAXIMUM_INTENSITY = 
-    								IProjection.MAXIMUM_INTENSITY;
+    								OmeroImageService.MAX_INTENSITY;
     
-    /** The Mean intensity projection */
-    public static final int 	MEAN_INTENSITY = IProjection.MEAN_INTENSITY;
+    /** The <code>Mean</code> intensity projection */
+    public static final int 	MEAN_INTENSITY = 
+    								OmeroImageService.MEAN_INTENSITY;
     
-    /** The Sum intensity projection */
-    public static final int 	SUM_INTENSITY = IProjection.SUM_INTENSITY;
+    /** The <code>Sum</code> intensity projection */
+    public static final int 	SUM_INTENSITY = OmeroImageService.SUM_INTENSITY;
     
     /** Identifies the type used to store pixel values. */
 	public static final String 	INT_8 = OmeroImageService.INT_8;
@@ -101,7 +103,7 @@ public class ProjectionParam
 	private int               	stepping;
 	
 	/** The projection's algorithm. */
-	private int               	algorithm;
+	private int              	algorithm;
 	
 	/** The collection of datasets where to store the projected image. */
 	private List<DatasetData>	datasets;
@@ -128,14 +130,11 @@ public class ProjectionParam
 	 */
 	private void checkAlgorithm(int value)
 	{
-		switch (value) {
-			case MAXIMUM_INTENSITY:
-			case MEAN_INTENSITY:
-			case SUM_INTENSITY:
-				break;
-			default:
-				throw new IllegalArgumentException("Algorithm not supported.");
-		}
+		//for some strange reasons, cannot use a switch
+		if (value == MAXIMUM_INTENSITY) return;
+		if (value == MEAN_INTENSITY) return;
+		if (value == SUM_INTENSITY) return;
+		throw new IllegalArgumentException("Algorithm not valid");
 	}
 	
 	/**
@@ -305,6 +304,34 @@ public class ProjectionParam
 	public void setChannels(List<Integer> channels)
 	{ 
 		this.channels = channels;
+	}
+	
+	/**
+	 * Returns the type of projection.
+	 * 
+	 * @return See above.
+	 */
+	public ProjectionType getProjectionType()
+	{
+		return convertType(getAlgorithm());
+	}
+	
+	/**
+	 * Returns the {@link ProjectionType} constants corresponding to the passed
+	 * value.
+	 * 
+	 * @param type Identifier to the @link ProjectionType}.
+	 * @return See above.
+	 */
+	public static ProjectionType convertType(int type)
+	{
+		if (ProjectionType.MAXIMUMINTENSITY.value() == type)
+			return ProjectionType.MAXIMUMINTENSITY;
+		if (ProjectionType.MEANINTENSITY.value() == type)
+			return ProjectionType.MEANINTENSITY;
+		if (ProjectionType.SUMINTENSITY.value() == type)
+			return ProjectionType.SUMINTENSITY;
+		return null;
 	}
 	
 }

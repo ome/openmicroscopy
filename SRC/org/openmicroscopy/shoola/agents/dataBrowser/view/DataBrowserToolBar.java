@@ -322,21 +322,21 @@ class DataBrowserToolBar
 		int index = view.getSelectedView();
 		thumbView = new JToggleButton(
 					icons.getIcon(IconManager.THUMBNAIL_VIEW));
-		thumbView.setToolTipText("Thumbnails View.");
+		thumbView.setToolTipText("View as Thumbnails.");
 		thumbView.addActionListener(this);
 		thumbView.setActionCommand(""+DataBrowserUI.THUMB_VIEW);
 		thumbView.setSelected(index == DataBrowserUI.THUMB_VIEW);
 		group.add(thumbView);
 		columnsView = new JToggleButton(
 				icons.getIcon(IconManager.COLUMN_VIEW));
-		columnsView.setToolTipText("Table View.");
+		columnsView.setToolTipText("View as Table.");
 		columnsView.addActionListener(this);
 		columnsView.setActionCommand(""+DataBrowserUI.COLUMNS_VIEW);
 		columnsView.setSelected(index == DataBrowserUI.COLUMNS_VIEW);
 		group.add(columnsView);
 		slideShowView = new JButton(
 				icons.getIcon(IconManager.SLIDE_SHOW_VIEW));
-		slideShowView.setToolTipText("Slideshow");
+		slideShowView.setToolTipText("Show slideshow");
 		UIUtilities.unifiedButtonLookAndFeel(slideShowView);
 		slideShowView.addMouseListener(new MouseAdapter() {
 			

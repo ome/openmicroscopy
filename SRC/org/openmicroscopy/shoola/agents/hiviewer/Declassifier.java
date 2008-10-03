@@ -95,7 +95,7 @@ public class Declassifier
     {
         Set objects = new HashSet(1);
         objects.add(image);
-        handle = hiBrwView.declassify(objects, categories, this);
+        //handle = hiBrwView.declassify(objects, categories, this);
     }
 
     /** 

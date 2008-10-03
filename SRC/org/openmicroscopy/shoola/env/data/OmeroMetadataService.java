@@ -408,7 +408,7 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map<Long, Collection> loadRatings(Class nodeType, 
-			Set<Long> nodeIds, long userID) 
+			List<Long> nodeIds, long userID) 
 			throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -426,7 +426,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
+	public Collection filterByAnnotation(Class nodeType, List<Long> nodeIds, 
 		Class annotationType, List<String> terms, long userID) 
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -445,7 +445,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection filterByAnnotated(Class nodeType, Set<Long> nodeIds, 
+	public Collection filterByAnnotated(Class nodeType, List<Long> nodeIds, 
 		Class annotationType, boolean annotated, long userID) 
 		throws DSOutOfServiceException, DSAccessException;
 	
@@ -461,7 +461,7 @@ public interface OmeroMetadataService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Collection filterByAnnotation(Class nodeType, Set<Long> ids, 
+	public Collection filterByAnnotation(Class nodeType, List<Long> ids, 
 										FilterContext filter, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 

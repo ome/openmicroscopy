@@ -29,10 +29,11 @@ import java.io.File;
 import java.util.Collection;
 import javax.swing.Icon;
 
+import pojos.FileAnnotationData;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.OriginalFile;
 
 /** 
  * Implements the {@link UserNotifier} interface to be a Null Object, that is
@@ -100,14 +101,14 @@ public class NullUserNotifier
 	public void submitMessage(String emailAddress) {}
 
 	/**
-	 * @see UserNotifier#notifyDownload(OriginalFile)
+	 * @see UserNotifier#notifyDownload(FileAnnotationData)
 	 */
-	public void notifyDownload(OriginalFile data) {}
+	public void notifyDownload(FileAnnotationData data) {}
 	
 	/**
-	 * @see UserNotifier#notifyDownload(OriginalFile, File)
+	 * @see UserNotifier#notifyDownload(FileAnnotationData, File)
 	 */
-	public void notifyDownload(OriginalFile data, File directory) {}
+	public void notifyDownload(FileAnnotationData data, File directory) {}
 	
 	/**
 	 * @see UserNotifier#notifyDownload(Collection)

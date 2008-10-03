@@ -176,7 +176,7 @@ public interface MetadataHandlerView
 	 * @param observer  Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle loadRatings(Class nodeType, Set<Long> nodeIDs, 
+	public CallHandle loadRatings(Class nodeType, List<Long> nodeIDs, 
 								long userID, AgentEventListener observer);
 	
 	/**
@@ -302,7 +302,7 @@ public interface MetadataHandlerView
 	 * @param observer			Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
+	public CallHandle filterByAnnotation(Class nodeType, List<Long> nodeIds, 
 			Class annotationType, List<String> terms, long userID,
 			AgentEventListener observer);
 
@@ -318,7 +318,7 @@ public interface MetadataHandlerView
 	 * @param observer			Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle filterByAnnotated(Class nodeType, Set<Long> nodeIds, 
+	public CallHandle filterByAnnotated(Class nodeType, List<Long> nodeIds, 
 			Class annotationType, boolean annotated, long userID,
 			AgentEventListener observer);
 	
@@ -332,7 +332,7 @@ public interface MetadataHandlerView
 	 * @param observer	Callback handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle filterData(Class nodeType, Set<Long> nodeIds,
+	public CallHandle filterData(Class nodeType, List<Long> nodeIds,
 			FilterContext context, long userID, AgentEventListener observer);
 
 	/** 

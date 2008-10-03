@@ -24,10 +24,10 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 //Third-party libraries
 
@@ -48,10 +48,6 @@ import pojos.TagAnnotationData;
  * if the {@link #containerType} is {@link #PROJECT}.
  * Loads a Dataset/(Image) hierarchy rooted by a given Dataset
  * if the {@link #containerType} is {@link #DATASET}.
- * Loads a CategoryGroup/Category/(Image) hierarchy rooted by a given 
- * CategoryGroup if the {@link #containerType} is {@link #CATEGORY_GROUP}.
- * Loads a Category/(Image) hierarchy rooted by a given 
- * Category if the {@link #containerType} is {@link #CATEGORY}.
  * Note that Images are retrieved if the {@link #images} flag is set to
  * <code>true</code>.
  * This class calls the <code>loadContainerHierarchy</code> method in the
@@ -211,7 +207,7 @@ public class ExperimenterDataLoader
         		handle = dmView.loadContainerHierarchy(rootNodeType, null, 
         											images, exp.getId(), this);	
         	} else {
-        		Set<Long> ids = new HashSet<Long>(1);
+        		List<Long> ids = new ArrayList<Long>(1);
         		ids.add(new Long(parent.getUserObjectId()));
         		handle = dmView.loadContainerHierarchy(rootNodeType, ids,
         										images, exp.getId(), this);

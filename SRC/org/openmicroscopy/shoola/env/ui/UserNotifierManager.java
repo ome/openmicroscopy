@@ -38,7 +38,8 @@ import javax.swing.JOptionPane;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.OriginalFile;
+import omero.model.OriginalFile;
+
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -185,7 +186,8 @@ class UserNotifierManager
 			}
 		}
         if (!exist) return original;
-        String name = f.getName();
+        if (f == null) return original;
+        String name = f.getName().val;
     	int lastDot = name.lastIndexOf(".");
     	if (lastDot != -1) {
     		String extension = name.substring(lastDot, name.length());
@@ -251,7 +253,7 @@ class UserNotifierManager
         File[] files = directory.listFiles();
         String dirPath = directory+File.separator;
         log.debug(this, "dirPath: "+dirPath);
-        String name = getFileName(files, file, file.getName(), dirPath, 1);
+        String name = getFileName(files, file, file.getName().val, dirPath, 1);
         
         log.debug(this, "name: "+name);
         
@@ -260,9 +262,10 @@ class UserNotifierManager
         log.debug(this, "name and path: "+path);
 		FileLoader loader = new FileLoader(component, 
 									container.getRegistry(), 
-										path, file.getId(), file.getSize());
+										path, file.getId().val, 
+										file.getSize().val);
 		loader.load();
-		download.addDowloadEntry(path, name, file.getId());
+		download.addDowloadEntry(path, name, file.getId().val);
 		loaders.put(path, loader);
 		
 		if (!download.isVisible())
@@ -303,12 +306,12 @@ class UserNotifierManager
         FileLoader loader;
         while (i.hasNext()) {
         	file = (OriginalFile) i.next();
-        	name = getFileName(files, file, file.getName(), dirPath, 1);
+        	name = getFileName(files, file, file.getName().val, dirPath, 1);
         	path = dirPath+name;
         	loader = new FileLoader(component, container.getRegistry(), 
-						path, file.getId(), file.getSize());
+						path, file.getId().val, file.getSize().val);
         	loader.load();
-        	download.addDowloadEntry(path, name, file.getId());
+        	download.addDowloadEntry(path, name, file.getId().val);
         	loaders.put(path, loader);
 		}
 		

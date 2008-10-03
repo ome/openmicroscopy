@@ -26,13 +26,13 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -55,24 +55,6 @@ public interface HierarchyBrowsingView
     extends DataServicesView
 {
 
-    /** Identifies the <code>Declassification</code> algorithm. */
-    public static final int DECLASSIFICATION = 
-    						ClassificationLoader.DECLASSIFICATION;
-    
-    /**
-     * Identifies the <code>Classification</code> algorithm with
-     * mutually exclusive rule.
-     */
-    public static final int CLASSIFICATION_ME = 
-    						ClassificationLoader.CLASSIFICATION_ME;
-    
-    /**
-     * Identifies the <code>Classification</code> algorithm without
-     * mutually exclusive rule.
-     */
-    public static final int CLASSIFICATION_NME = 
-    						ClassificationLoader.CLASSIFICATION_NME;
-    
     /**
      * Loads a data hierarchy rooted by a given node.
      * <p>The root node can be one out of: Project, Dataset, Category Group, or
@@ -91,14 +73,13 @@ public interface HierarchyBrowsingView
      * Dataset, Category Group, or Category tree.</p>
      * 
      * @param rootNodeType  The type of the root node. Can only be one out of:
-     *                      <code>ProjectData, DatasetData, 
-     *                      CategoryGroupData, CategoryData</code>.
+     *                      <code>ProjectData, DatasetData</code>.
      * @param nodesID       The id of the root nodes.
      * @param userID   		The Id of the user.  
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadHierarchy(Class rootNodeType, Set nodesID,
+    public CallHandle loadHierarchy(Class rootNodeType, List nodesID,
     								long userID, AgentEventListener observer);
     
     /**
@@ -143,26 +124,7 @@ public interface HierarchyBrowsingView
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle findPDIHierarchies(Set ids, long userID, 
-    									AgentEventListener observer);
-    
-    /**
-     * Finds the data trees in the Category Group/Category/Image (CG/C/I) 
-     * hierarchy that contain the specified images.
-     * This method is the analogous of the 
-     * {@link #findPDIHierarchies(Set, Class, int, AgentEventListener)} 
-     * method for the Category Group/Category/Image hierarchy. The semantics
-     * is exaclty the same, so refer to that method's documentation for the
-     * gory details.  (Obviously, a Category Group will be represented by a
-     * <code>CategoryGroupData</code> object and a Category by a <code> 
-     * CategoryData</code> object.)
-     * 
-     * @param ids           Contains ids, one for each leaf image node.
-     * @param userID   		The Id of the user.  
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle findCGCIHierarchies(Set ids, long userID, 
+    public CallHandle findPDIHierarchies(List ids, long userID, 
     									AgentEventListener observer);
     
     /**
@@ -209,68 +171,6 @@ public interface HierarchyBrowsingView
     								AgentEventListener observer);
     
     /**
-     * Loads all Category Group/Category paths that end or don't end with the 
-     * specified Image, depending on the value of the <code>classified</code>
-     * argument.
-     * <p>If the <code>classified</code> argument is <code>true</code>, this 
-     * method loads all the Category nodes under which was classified the Image
-     * whose id is <code>imageID</code>, and then all the Category Group nodes
-     * that contain those Categories.  If <code>false</code>, then it does the
-     * opposite: it loads all the Categories the given Image doesn't belong in,
-     * and then all the Category Groups that contain those Categories.
-     * This method returns all the matching Category Groups (as <code>
-     * CategoryGroupData</code> objects) in a <code>Set</code>, which is the
-     * result object of the <code>DSCallOutcomeEvent</code>.
-     * Those objects will also be linked to the matching Categories (represented
-     * by <code>CategoryData</code> objects).  For example, assume the CG/C/I 
-     * hierarchy in the DB looks like this:</p>
-     * <pre>        
-     *           cg1       cg2
-     *             \      /   \    
-     *             c1    c2    c3      
-     *               \  /  \    \
-     *                i1    i2   i3    
-     * </pre>
-     * <p>Then if you specify the id of Image <code>i1</code> and pass 
-     * <code>true</code> for <code>classified</code> to this method, the 
-     * returned set will contain <code>cg1, cg2</code>.  Moreover, <code>cg1
-     * </code> will be linked to <code>c1</code> and <code>cg2</code> to <code>
-     * c2</code>.  If you specify <code>false</code> for <code>classified</code>
-     * (and again the id of Image <code>i1</code>), then you will get <code>
-     * cg2</code> and it will be linked to <code>c3</code>.</p> 
-     * 
-     * @param imageIDs      The id of the images.
-     * @param algorithm     One of the constants defined by this class.
-     * @param userID   		The Id of the user.                 
-     * @param observer  Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle loadClassificationPaths(Set imageIDs, int algorithm,
-    							long userID, AgentEventListener observer);
-    
-    /**
-     * Adds the images to the specified categories.
-     * 
-     * @param images        The images to classify.        
-     * @param categories    Collection of <code>CategoryData</code>.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle classify(Set images, Set categories, 
-                                AgentEventListener observer);
-    
-    /**
-     * Removes the images from the categories.
-     * 
-     * @param images        The images to declassify.     
-     * @param categories    Collection of <code>CategoryData</code>.
-     * @param observer      Callback handler.
-     * @return A handle that can be used to cancel the call.
-     */
-    public CallHandle declassify(Set images, Set categories, 
-                                AgentEventListener observer);
-    
-    /**
      * Loads the images corresponding to the given collection of ids.
      * <p>Image items are retrieved with annotations.
      * The final <code>DSCallOutcomeEvent</code> will contain the requested node
@@ -282,7 +182,7 @@ public interface HierarchyBrowsingView
      * @param observer      Callback handler.
      * @return A handle that can be used to cancel the call.
      */
-    public CallHandle loadImages(Set imagesID, long userID, 
+    public CallHandle loadImages(List imagesID, long userID, 
     							AgentEventListener observer);
     
     /**

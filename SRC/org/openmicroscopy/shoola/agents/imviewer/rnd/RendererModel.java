@@ -28,16 +28,11 @@ package org.openmicroscopy.shoola.agents.imviewer.rnd;
 //Java imports
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.display.CodomainMapContext;
-import ome.model.display.ContrastStretchingContext;
-import ome.model.display.PlaneSlicingContext;
-import ome.model.display.ReverseIntensityContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
@@ -307,11 +302,13 @@ class RendererModel
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
+	/*
 	void updateCodomainMap(CodomainMapContext ctx)
 	throws RenderingServiceException, DSOutOfServiceException
 	{
 		rndControl.updateCodomainMap(ctx);
 	}
+	*/
 
 	/**
 	 * Returns the codomain map context corresponding to the specified 
@@ -321,6 +318,7 @@ class RendererModel
 	 * @param mapType The class corresponding to the context to retrieve.
 	 * @return See above.
 	 */
+	/*
 	CodomainMapContext getCodomainMap(Class mapType)
 	{
 		List maps = getCodomainMaps();
@@ -332,6 +330,7 @@ class RendererModel
 		}
 		return null;
 	}
+	*/
 
 	/**
 	 * Returns a read-only list of {@link CodomainMapContext}s using during
@@ -357,12 +356,14 @@ class RendererModel
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
+	/*
 	void removeCodomainMap(Class mapType)
 	throws RenderingServiceException, DSOutOfServiceException
 	{
 		CodomainMapContext ctx = getCodomainMap(mapType);
 		if (ctx != null) rndControl.removeCodomainMap(ctx);
 	}
+	*/
 
 	/**
 	 * Adds the codomain map identified by the class to the chain of 
@@ -373,8 +374,9 @@ class RendererModel
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
+	/*
 	void addCodomainMap(Class mapType)
-	throws RenderingServiceException, DSOutOfServiceException
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (mapType.equals(ReverseIntensityContext.class)) {
 			ReverseIntensityContext riCtx = new ReverseIntensityContext();
@@ -386,6 +388,7 @@ class RendererModel
 
 		}
 	}
+	*/
 
 	/** 
 	 * Returns the index of the currently selected channel. 

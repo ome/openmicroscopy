@@ -24,8 +24,8 @@ package org.openmicroscopy.shoola.agents.hiviewer;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -74,7 +74,7 @@ public class RndSettingsSaver
 	private Class		rootType;
 	
 	/** Collection of data objects id. */
-	private Set<Long>	ids;
+	private List<Long>	ids;
 	
 	/** Handle to the async call so that we can cancel it. */
     private CallHandle  handle;
@@ -109,7 +109,7 @@ public class RndSettingsSaver
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
 	 */
-	public RndSettingsSaver(HiViewer viewer, Class rootType, Set<Long> ids, 
+	public RndSettingsSaver(HiViewer viewer, Class rootType, List<Long> ids, 
 							long pixelsID)
 	{
 		super(viewer);
@@ -137,7 +137,7 @@ public class RndSettingsSaver
 	 * 					<code>CategoryData</code>, the settings will be applied
 	 * 					to the images contained in the specified containers.
 	 */
-	public RndSettingsSaver(HiViewer viewer, Class rootType, Set<Long> ids)
+	public RndSettingsSaver(HiViewer viewer, Class rootType, List<Long> ids)
 	{
 		super(viewer);
 		checkRootType(rootType);

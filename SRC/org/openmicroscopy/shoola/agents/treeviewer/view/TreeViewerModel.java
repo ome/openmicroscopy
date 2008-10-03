@@ -178,9 +178,9 @@ class TreeViewerModel
 			map = new HashMap(parents.length);
 			for (int i = 0; i < parents.length; i++) {
 				children = new HashSet(nodesToCopy.length);
-				for (int j = 0; j < nodesToCopy.length; j++) {
+				for (int j = 0; j < nodesToCopy.length; j++) 
 					children.add(nodesToCopy[j].getUserObject());
-				}
+				
 				map.put(parents[i].getUserObject(), children);
 			}
 			return map;
@@ -717,7 +717,7 @@ class TreeViewerModel
 	 * @param ids 	Collection of nodes ids.
 	 * @param klass Either dataset, catgory or image.
 	 */
-	void firePasteRenderingSettings(Set<Long> ids, Class klass)
+	void firePasteRenderingSettings(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
@@ -743,7 +743,7 @@ class TreeViewerModel
 	 * @param ids 	Collection of nodes ids.
 	 * @param klass Either dataset, catgory or image.
 	 */
-	void fireResetRenderingSettings(Set<Long> ids, Class klass)
+	void fireResetRenderingSettings(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 
@@ -770,7 +770,7 @@ class TreeViewerModel
 	 * @param ids 	Collection of nodes ids.
 	 * @param klass Either dataset, catgory or image.
 	 */
-	void fireSetOriginalRenderingSettings(Set<Long> ids, Class klass)
+	void fireSetOriginalRenderingSettings(List<Long> ids, Class klass)
 	{
 		state = TreeViewer.SETTINGS_RND;
 		currentLoader = new RndSettingsSaver(component, klass, ids, 

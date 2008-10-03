@@ -64,23 +64,24 @@ public class ProjectionSaver
     /**
      * Creates a {@link BatchCall} to render the projected image
      * 
-     * @param startZ   The first optical section.
-     * @param endZ     The last optical section.
-     * @param stepping Stepping used while projecting. 
-     *                 Default is <code>1</code>
-     * @param type     The type of projection.
-     * @param channels The collection of channels to project.
+     * @param startZ   	The first optical section.
+     * @param endZ     	The last optical section.
+     * @param stepping 	Stepping used while projecting. 
+     *                 	Default is <code>1</code>
+     * @param algorithm	The type of projection.
+     * @param channels  The collection of channels to project.
      * @return See above.
      */
     private BatchCall makeRenderProjectedCall(final int startZ, final int endZ, 
-    		  final int stepping, final int type, final List<Integer> channels)
+    		  final int stepping, final int algorithm, 
+    		  final List<Integer> channels)
     {
     	return new BatchCall("Preview the projected image.") {
             public void doCall() throws Exception
             {
                 OmeroImageService rds = context.getImageService();
                 result = rds.renderProjected(pixelsID, startZ, endZ, stepping, 
-                		                    type, channels);
+                		algorithm, channels);
             }
         };
     }

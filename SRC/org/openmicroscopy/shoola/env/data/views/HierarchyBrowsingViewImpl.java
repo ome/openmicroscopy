@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -33,8 +34,6 @@ import java.util.Set;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.views.calls.ChannelMetadataLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.DataObjectSaver;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.HierarchyLoader;
@@ -42,7 +41,6 @@ import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailSetLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -70,10 +68,10 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadHierarchy(Class, Set, long, 
+     * @see HierarchyBrowsingView#loadHierarchy(Class, List, long, 
      *                                      AgentEventListener)
      */
-    public CallHandle loadHierarchy(Class rootNodeType, Set nodesID, 
+    public CallHandle loadHierarchy(Class rootNodeType, List nodesID, 
                                     long userID, AgentEventListener observer)
     {
         BatchCallTree cmd = new HierarchyLoader(rootNodeType, nodesID, userID);
@@ -109,69 +107,21 @@ class HierarchyBrowsingViewImpl
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#findPDIHierarchies(Set, long, 
+     * @see HierarchyBrowsingView#findPDIHierarchies(List, long, 
      *                                              AgentEventListener)
      */
-    public CallHandle findPDIHierarchies(Set ids, long userID,
+    public CallHandle findPDIHierarchies(List ids, long userID,
                                         AgentEventListener observer)
     {
         BatchCallTree cmd = new HierarchyFinder(ProjectData.class, ids, userID);
         return cmd.exec(observer);
     }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#findCGCIHierarchies(Set, long,
-     *                                              AgentEventListener)
-     */
-    public CallHandle findCGCIHierarchies(Set ids, long userID, 
-                                        AgentEventListener observer)
-    {
-        BatchCallTree cmd = new HierarchyFinder(CategoryGroupData.class, ids, 
-        										userID);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadClassificationPaths(Set, int, long,
-     *                                  AgentEventListener)
-     */
-    public CallHandle loadClassificationPaths(Set imageIDs, int algorithm, 
-    		long userID, AgentEventListener observer)
-    {
-        BatchCallTree cmd = new ClassificationLoader(imageIDs, algorithm, 
-        											userID);
-        return cmd.exec(observer);
-    }
     
     /**
      * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#classify(Set, Set, AgentEventListener)
+     * @see HierarchyBrowsingView#loadImages(List, long, AgentEventListener)
      */
-    public CallHandle classify(Set images, Set categories, 
-                                AgentEventListener observer)
-    {
-        BatchCallTree cmd = new ClassificationSaver(images, categories, true);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#declassify(Set, Set, AgentEventListener)
-     */
-    public CallHandle declassify(Set images, Set categories, 
-                                AgentEventListener observer)
-    {
-        BatchCallTree cmd = new ClassificationSaver(images, categories, false);
-        return cmd.exec(observer);
-    }
-
-    /**
-     * Implemented as specified by the view interface.
-     * @see HierarchyBrowsingView#loadImages(Set, long, AgentEventListener)
-     */
-    public CallHandle loadImages(Set imageIDs, long userID, 
+    public CallHandle loadImages(List imageIDs, long userID, 
     							AgentEventListener observer)
     {
         BatchCallTree cmd = new ImagesLoader(ImageData.class, imageIDs, userID);

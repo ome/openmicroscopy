@@ -78,7 +78,7 @@ public interface ImViewer
 	
 	/** Identifies the <code>Mean intensity</code> projection. */
 	public static final int 	MEAN_INTENSITY = 
-											OmeroImageService.MEAN_INTENSITY;
+								OmeroImageService.MEAN_INTENSITY;
 	
 	/** Identifies the <code>Sum intensity</code> projection. */
 	public static final int 	SUM_INTENSITY = OmeroImageService.SUM_INTENSITY;

@@ -38,8 +38,6 @@ import javax.swing.JFrame;
 
 
 //Application-internal dependencies
-import ome.model.display.CodomainMapContext;
-import ome.model.display.ContrastStretchingContext;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 
@@ -264,8 +262,10 @@ public class ContrastStretchingDialog
     /** Initializes the components. */
     private void initialize()
     {
+    	/*
         int xStart, xEnd, yStart, yEnd;
         int diff = cdEnd-cdStart;
+        
         ContrastStretchingContext csCtx = (ContrastStretchingContext) ctx;
         xStart = ContrastStretchingUI.leftBorder+convertRealIntoGraphics(
                 csCtx.getXstart().intValue(), diff, cdStart);
@@ -281,6 +281,7 @@ public class ContrastStretchingDialog
         setInputStartBox(xStart);
         setInputEndBox(xEnd);
         attachListeners();
+        */
     }
     
     /** 
@@ -305,6 +306,7 @@ public class ContrastStretchingDialog
      */
     protected void updateContext()
     {
+    	/*
         ContrastStretchingContext csCtx = (ContrastStretchingContext) ctx;
         //set values depending on the knob index.
         switch (knobIndex) {
@@ -320,6 +322,7 @@ public class ContrastStretchingDialog
             case OUTPUT_END:
                 csCtx.setYend(new Integer(curValue));
         }
+        */
     }
 
     /** Sets the window's title. */
@@ -333,6 +336,7 @@ public class ContrastStretchingDialog
      * @param cdEnd     The upper bound of the codomain interval.
      * @param cdStart   The lower bound of the codomain interval.
      */
+    /*
     public ContrastStretchingDialog(JFrame owner, CodomainMapContext ctx,
             int cdEnd, int cdStart)
     {
@@ -340,6 +344,7 @@ public class ContrastStretchingDialog
         initialize();
         buildGUI();
     }
+    */
 
     /**
      * Handles events fired the cursors. 

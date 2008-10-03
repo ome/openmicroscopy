@@ -35,7 +35,6 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ContrastStretchingAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.HistogramAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.NoiseReductionAction;
@@ -219,10 +218,12 @@ class RendererControl
         if (name.equals(ImViewer.Z_SELECTED_PROPERTY) || 
             name.equals(ImViewer.T_SELECTED_PROPERTY)) {
             //retrieve plane statistics for specific channel.
+        /*
         } else if (name.equals(
             CodomainMapContextDialog.UPDATE_MAP_CONTEXT_PROPERTY)) {
             CodomainMapContext ctx = (CodomainMapContext)  evt.getNewValue();
             model.updateCodomainMap(ctx);
+        */
         } else if (name.equals(ControlPane.FAMILY_PROPERTY)) {
             String oldValue = (String) evt.getOldValue();
             String newValue = (String) evt.getNewValue();

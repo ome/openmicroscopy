@@ -33,7 +33,8 @@ import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.util.mem.ReadOnlyByteArray;
-import ome.model.core.Pixels;
+
+import pojos.PixelsData;
 
 /** 
 * Encapsulates access to the image raw data. 
@@ -87,7 +88,7 @@ public class DataSink
 	 * @param size		The size of the cache.
 	 * @return See above.
 	 */
-	public static DataSink makeNew(Pixels source, Registry context)
+	public static DataSink makeNew(PixelsData source, Registry context)
 	{
 		if (source == null)
 			throw new NullPointerException("No pixels.");
@@ -97,7 +98,7 @@ public class DataSink
 	}
 	
 	/** The data source. */
-	private Pixels			source;
+	private PixelsData		source;
 
 	/** The container's registry. */
 	private Registry		context;
@@ -120,11 +121,11 @@ public class DataSink
 	 * @param source	The pixels set.
 	 * @param context	The container's registry.
 	 */
-	private DataSink(Pixels source, Registry context)
+	private DataSink(PixelsData source, Registry context)
 	{
 		this.source = source;
 		this.context = context;
-		String type = source.getPixelsType().getValue();
+		String type = source.getPixelType();
 		bytesPerPixels = getBytesPerPixels(type);
 		cacheID = context.getCacheService().createCache();
 		/*
@@ -204,9 +205,8 @@ public class DataSink
 			throw new DataSourceException("Cannot retrieve the plane "+p, e);
 		}
 		ReadOnlyByteArray array = new ReadOnlyByteArray(data, 0, data.length);
-		plane = new Plane2D(array, source.getSizeX().intValue(), 
-							source.getSizeY().intValue(), bytesPerPixels, 
-							strategy);
+		plane = new Plane2D(array, source.getSizeX(), source.getSizeY(), 
+				bytesPerPixels, strategy);
 		//cache.add(planeIndex, plane);
 		cache.addElement(cacheID, planeIndex, plane);
 		return plane;
@@ -236,8 +236,8 @@ public class DataSink
 	 * @return See above.
 	 */
 	public boolean isSame(long pixelsID)
-	{
-		return (pixelsID == source.getId().longValue());
+	{ 
+		return (pixelsID == source.getId());
 	}
 	
 	/** Erases the cache. */

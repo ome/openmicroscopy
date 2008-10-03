@@ -29,7 +29,6 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -89,7 +88,7 @@ public interface Renderer
      * 
      * @param ctx The codomain map context.
      */
-    void updateCodomainMap(CodomainMapContext ctx);
+    //void updateCodomainMap(CodomainMapContext ctx);
     
     /**
      * Removes the codomain map identified by the class from the list of 
@@ -97,7 +96,7 @@ public interface Renderer
      * 
      * @param mapType The codomain map context type.
      */
-    void removeCodomainMap(Class mapType);
+    //void removeCodomainMap(Class mapType);
     
     /**
      * Adds the codomain map identified by the class to the list of 
@@ -105,7 +104,7 @@ public interface Renderer
      * 
      * @param mapType The codomain map context type.
      */
-    void addCodomainMap(Class mapType);
+    //void addCodomainMap(Class mapType);
     
     /** 
      * Sets the pixels intensity interval for the
@@ -182,7 +181,7 @@ public interface Renderer
      * @param mapType       The class identifying the context.
      * @return See above.
      */
-    CodomainMapContext getCodomainMapContext(Class mapType);
+    //CodomainMapContext getCodomainMapContext(Class mapType);
 
     /**
      * Set the colour of the channel button in the renderer.

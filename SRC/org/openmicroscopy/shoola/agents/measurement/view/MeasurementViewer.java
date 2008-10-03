@@ -36,11 +36,12 @@ import javax.swing.JFrame;
 import org.jhotdraw.draw.AttributeKey;
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import pojos.PixelsData;
 
 /** 
  * Defines the interface provided by the measurement component. 
@@ -140,7 +141,7 @@ public interface MeasurementViewer
 	 * 
 	 * @param pixels The value to set.
 	 */
-	public void setPixels(Pixels pixels);
+	public void setPixels(PixelsData pixels);
 	
 	/** 
 	 * Closes the window, before closing, ask the user if he/she wants

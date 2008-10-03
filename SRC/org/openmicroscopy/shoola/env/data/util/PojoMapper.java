@@ -31,33 +31,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.IObject;
-import ome.model.annotations.BooleanAnnotation;
-import ome.model.annotations.FileAnnotation;
-import ome.model.annotations.LongAnnotation;
-import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.TimestampAnnotation;
-import ome.model.annotations.UrlAnnotation;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.Dataset;
-import ome.model.containers.Project;
-import ome.model.core.Image;
-import ome.model.core.Pixels;
-import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
-import ome.model.screen.Plate;
-import ome.model.screen.Screen;
-import ome.model.screen.Well;
-import ome.model.screen.WellSample;
+import omero.model.BooleanAnnotation;
+import omero.model.Dataset;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
+import omero.model.FileAnnotation;
+import omero.model.IObject;
+import omero.model.Image;
+import omero.model.LongAnnotation;
+import omero.model.Pixels;
+import omero.model.Plate;
+import omero.model.Project;
+import omero.model.Screen;
+import omero.model.TagAnnotation;
+import omero.model.TextAnnotation;
+import omero.model.TimestampAnnotation;
+import omero.model.UrlAnnotation;
+import omero.model.Well;
+import omero.model.WellSample;
 import pojos.ArchivedAnnotationData;
 import pojos.BooleanAnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -124,10 +121,6 @@ public class PojoMapper
             return new ProjectData((Project) object);
         else if (object instanceof Dataset) 
             return new DatasetData((Dataset) object);
-        else if (object instanceof CategoryGroup) 
-            return new CategoryGroupData((CategoryGroup) object);
-        else if (object instanceof Category) 
-            return new CategoryData((Category) object);
         else if (object instanceof Image) 
         	return new ImageData((Image) object);
         else if (object instanceof UrlAnnotation)

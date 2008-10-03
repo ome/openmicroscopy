@@ -24,8 +24,9 @@
 package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +36,6 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.TagAnnotationData;
@@ -76,15 +76,12 @@ public class ContainerCounterLoader
         DataObject root;
         Long id = null;
         Class rootType = null;
-        Set<Long> ids = new HashSet<Long>();
+        List<Long> ids = new ArrayList<Long>();
         while (i.hasNext()) {
             root = (DataObject) i.next();
             if (root instanceof DatasetData) {
                 rootType = DatasetData.class;
                 id = new Long(((DatasetData) root).getId());
-            } else if (root instanceof CategoryData) {
-                rootType = CategoryData.class;
-                id = new Long(((CategoryData) root).getId());
             } else if (root instanceof TagAnnotationData) {
             	rootType = TagAnnotationData.class;
                 id = new Long(((TagAnnotationData) root).getId());
@@ -92,7 +89,7 @@ public class ContainerCounterLoader
             if (id != null) ids.add(id);
         }
         final Class rootTypeFinal = rootType;
-        final Set<Long> idFinal = ids;
+        final List<Long> idFinal = ids;
         return new BatchCall(description) {
 		    public void doCall() throws Exception
 		    { 
@@ -110,42 +107,6 @@ public class ContainerCounterLoader
     protected void buildTree()
     {
     	add(makeBatchCall());
-    	/*
-        Iterator i = rootIDs.iterator();
-        String description;
-        DataObject root;
-        Long id = null;
-        Class rootType = null;
-        while (i.hasNext()) {
-            root = (DataObject) i.next();
-            if (root instanceof DatasetData) {
-                rootType = DatasetData.class;
-                id = new Long(((DatasetData) root).getId());
-            } else if (root instanceof CategoryData) {
-                rootType = CategoryData.class;
-                id = new Long(((CategoryData) root).getId());
-            } else if (root instanceof TagAnnotationData) {
-            	rootType = TagAnnotationData.class;
-                id = new Long(((TagAnnotationData) root).getId());
-            }
-            if (id != null) {
-                description = "Loading number of items for container: " +
-							id.intValue();
-                final Long idFinal = id;
-                final Class rootTypeFinal = rootType;
-				add(new BatchCall(description) {
-				    public void doCall() throws Exception
-				    { 
-				        Set<Long> ids = new HashSet<Long>(1);
-				        ids.add(idFinal);
-				        OmeroDataService os = context.getDataService();
-				        currentMap = os.getCollectionCount(rootTypeFinal, 
-				                		OmeroDataService.IMAGES_PROPERTY, ids);
-				    }
-				});
-            }
-        }
-        */
     }
     
     /**
@@ -172,15 +133,9 @@ public class ContainerCounterLoader
      * 
      * @param rootIDs	Collection of root ids. Mustn't be <code>null</code>.
      */
-    public ContainerCounterLoader(Set rootIDs)
+    public ContainerCounterLoader(Set<DataObject> rootIDs)
     {
         if (rootIDs == null) throw new NullPointerException("No root nodes.");
-        try {
-            rootIDs.toArray(new DataObject[] {});
-        } catch (ArrayStoreException ase) {
-            throw new IllegalArgumentException("rootIDs only contains " +
-                                                "DataObject.");
-        }
         this.rootIDs = rootIDs;
     }
     

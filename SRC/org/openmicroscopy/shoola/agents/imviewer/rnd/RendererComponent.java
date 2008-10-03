@@ -31,7 +31,6 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.display.CodomainMapContext;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -132,6 +131,7 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#updateCodomainMap(CodomainMapContext)
      */
+    /*
     public void updateCodomainMap(CodomainMapContext ctx)
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
@@ -145,6 +145,7 @@ class RendererComponent
 			model.getParentModel().reload(ex);
 		}
     }
+    */
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
@@ -327,15 +328,18 @@ class RendererComponent
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getCodomainMapContext(Class)
      */
+    /*
     public CodomainMapContext getCodomainMapContext(Class mapType)
     {
         return model.getCodomainMap(mapType);
     }
-
+*/
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#removeCodomainMap(Class mapType)
      */
+    /*
     public void removeCodomainMap(Class mapType)
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
@@ -350,11 +354,13 @@ class RendererComponent
 			model.getParentModel().reload(ex);
 		}
     }
+    */
 
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#addCodomainMap(Class mapType)
      */
+    /*
     public void addCodomainMap(Class mapType)
     {
         if (model.getParentModel().getHistoryState() == ImViewer.CHANNEL_MOVIE)
@@ -370,7 +376,8 @@ class RendererComponent
 			model.getParentModel().reload(ex);
 		}
     }
-
+*/
+    
     /** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#getWindowStart()

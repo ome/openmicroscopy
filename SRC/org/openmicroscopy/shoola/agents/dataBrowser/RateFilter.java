@@ -27,11 +27,9 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -79,7 +77,7 @@ public class RateFilter
 	public static final int			UNRATED = 0;
 	
 	/** The collection of nodes to filter. */
-    private Set<Long>				nodeIds;
+    private List<Long>				nodeIds;
     
     /** Store the nodes for later reused. */
     private Map<Long, DataObject> 	nodes;
@@ -131,7 +129,7 @@ public class RateFilter
 		checkRate(rate);
 		ratingLevel = rate;
 		this.nodes = new HashMap<Long, DataObject>();
-		nodeIds  = new HashSet<Long>();
+		nodeIds  = new ArrayList<Long>();
 		Iterator<DataObject> i = nodes.iterator();
 		DataObject data;
 		while (i.hasNext()) {

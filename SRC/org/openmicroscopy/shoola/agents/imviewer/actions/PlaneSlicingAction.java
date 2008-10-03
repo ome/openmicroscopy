@@ -32,7 +32,6 @@ import javax.swing.JCheckBox;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.display.PlaneSlicingContext;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -86,8 +85,8 @@ public class PlaneSlicingAction
         Object source = e.getSource();
         if (source instanceof JCheckBox)  {
             boolean b = ((JCheckBox) source).isSelected();
-            if (b) model.addCodomainMap(PlaneSlicingContext.class);
-            else  model.removeCodomainMap(PlaneSlicingContext.class);
+            //if (b) model.addCodomainMap(PlaneSlicingContext.class);
+            //else  model.removeCodomainMap(PlaneSlicingContext.class);
         }
     }
     

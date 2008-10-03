@@ -25,13 +25,14 @@ package org.openmicroscopy.shoola.env.ui;
 // Java Imports
 import java.io.File;
 import java.util.Collection;
-
 import javax.swing.Icon;
+
+import omero.model.OriginalFile;
+import pojos.FileAnnotationData;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.OriginalFile;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 
@@ -143,7 +144,7 @@ public interface UserNotifier
      * 
      * @param data	The data to handle.
      */
-    public void notifyDownload(OriginalFile data);
+    public void notifyDownload(FileAnnotationData data);
     
     /**
      * Brings up a dialog displaying the downloading process.
@@ -158,7 +159,7 @@ public interface UserNotifier
      * @param data		The data to handle.
      * @param directory The directory where to save locally the file.
      */
-    public void notifyDownload(OriginalFile data, File directory);
+    public void notifyDownload(FileAnnotationData data, File directory);
     
     /**
      * Brings up a dialog displaying the downloading process.

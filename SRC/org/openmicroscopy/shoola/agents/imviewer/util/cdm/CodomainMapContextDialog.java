@@ -40,7 +40,6 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 
 //Third-party libraries
-import ome.model.display.CodomainMapContext;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
@@ -80,7 +79,7 @@ public abstract class CodomainMapContextDialog
     protected IconManager           icons;
     
     /** The codomain map context this dialog is for. */
-    protected CodomainMapContext    ctx;
+    //protected CodomainMapContext    ctx;
     
     /** The lower of the codomain interval. */
     protected int                   cdStart;
@@ -129,7 +128,7 @@ public abstract class CodomainMapContextDialog
     protected void apply()
     {
         updateContext();
-        firePropertyChange(UPDATE_MAP_CONTEXT_PROPERTY, null, ctx);
+        //firePropertyChange(UPDATE_MAP_CONTEXT_PROPERTY, null, ctx);
     }
 
     /** Builds and lays out the GUI. */
@@ -148,6 +147,7 @@ public abstract class CodomainMapContextDialog
      * @param cdEnd     The upper bound of the codomain interval.
      * @param cdStart   The lower bound of the codomain interval.
      */
+    /*
     CodomainMapContextDialog(JFrame owner, CodomainMapContext ctx, 
                 int cdEnd, int cdStart)
     {
@@ -160,6 +160,7 @@ public abstract class CodomainMapContextDialog
         icons = IconManager.getInstance();
         initialize();
     }
+    */
 
     /** 
      * Subclasses should build the pane describing the window. 

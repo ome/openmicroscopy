@@ -22,22 +22,22 @@
  */
 package org.openmicroscopy.shoola.env.data.views.calls;
 
-import java.util.List;
-import java.util.Set;
 
+
+//Java imports
+import java.util.List;
+
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
-//Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
-
 /** 
- * 
+ * Filters the nodes by annotation.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,7 +73,7 @@ public class DataFilter
      * @return The {@link BatchCall}.
      */
     private BatchCall filterBy(final Class annotationType, final Class nodeType, 
-    						final Set<Long> ids, final boolean annotated, 
+    						final List<Long> ids, final boolean annotated, 
     						final long userID)
     {
         return new BatchCall("Filtering annotated data") {
@@ -99,7 +99,7 @@ public class DataFilter
      * @return The {@link BatchCall}.
      */
     private BatchCall filterBy(final Class annotationType, final Class nodeType, 
-    						final Set<Long> ids, final List<String> terms, 
+    						final List<Long> ids, final List<String> terms, 
     						final long userID)
     {
         return new BatchCall("Filtering annotated data") {
@@ -123,7 +123,7 @@ public class DataFilter
      * 					is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall filterBy(final Class nodeType, final Set<Long> ids, 
+    private BatchCall filterBy(final Class nodeType, final List<Long> ids, 
     						final FilterContext filter, final long userID)
     {
         return new BatchCall("Filtering annotated data") {
@@ -160,7 +160,7 @@ public class DataFilter
      * @param userID			The id of the user or <code>-1</code> if the id 
      * 							is not specified.
      */
-    public DataFilter(Class annotationType, Class nodeType, Set<Long> nodeIds,
+    public DataFilter(Class annotationType, Class nodeType, List<Long> nodeIds,
     				boolean annotated, long userID)
     {
     	loadCall = filterBy(annotationType, nodeType, nodeIds, annotated, 
@@ -179,7 +179,7 @@ public class DataFilter
      * @param userID			The id of the user or <code>-1</code> if the id 
      * 							is not specified.
      */
-    public DataFilter(Class annotationType, Class nodeType, Set<Long> nodeIds,
+    public DataFilter(Class annotationType, Class nodeType, List<Long> nodeIds,
     				List<String> terms, long userID)
     {
     	loadCall = filterBy(annotationType, nodeType, nodeIds, terms, userID);
@@ -196,7 +196,7 @@ public class DataFilter
      * @param userID	The id of the user or <code>-1</code> if the id 
      * 					is not specified.
      */
-    public DataFilter(Class nodeType, Set<Long> nodeIds, FilterContext context, 
+    public DataFilter(Class nodeType, List<Long> nodeIds, FilterContext context, 
     					long userID)
     {
     	loadCall = filterBy(nodeType, nodeIds, context, userID);

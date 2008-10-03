@@ -27,11 +27,10 @@ package org.openmicroscopy.shoola.env.rnd;
 //Java imports
 import java.awt.image.DataBuffer;
 
-
 //Third-party libraries
 
 //Application-internal dependencies
-import omeis.providers.re.RGBBuffer;
+import omero.romio.RGBBuffer;
 
 /** 
  * Creates a data buffer with three banks of type byte.
@@ -60,11 +59,11 @@ class RGBByteBuffer
      */
     RGBByteBuffer(RGBBuffer buf)
     {
-        super(TYPE_BYTE, buf.getSizeX1(), buf.getSizeX2(), 3);
+        super(TYPE_BYTE, buf.sizeX1, buf.sizeX2, 3);
         banks = new byte[3][];
-        banks[0] = buf.getRedBand();
-        banks[1] = buf.getGreenBand();
-        banks[2] = buf.getBlueBand();
+        banks[0] = buf.bands[omero.romio.RedBand.value];//buf.getRedBand();
+        banks[1] = buf.bands[omero.romio.GreenBand.value];//buf.getGreenBand();
+        banks[2] = buf.bands[omero.romio.BlueBand.value];//buf.getBlueBand();
     }
     
     /** 

@@ -29,9 +29,10 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.PixelsData;
 
 /** 
  * Analyses the collection of ROI shapes.
@@ -59,7 +60,7 @@ public class Analyser
 	public static final int	ROI = 1;
 	
 	/** The pixels set to analyse. */
-	private Pixels 		pixels;
+	private PixelsData 	pixels;
 	
 	/** One of the constants defined by this class. */
 	private int			index;
@@ -84,7 +85,7 @@ public class Analyser
      * @param shapes	Collection of shapes to analyse. 
      * 					Mustn't be <code>null</code>.
      */
-	public Analyser(MeasurementViewer viewer, Pixels pixels,
+	public Analyser(MeasurementViewer viewer, PixelsData pixels,
 					List channels, List shapes)
 	{
 		super(viewer);

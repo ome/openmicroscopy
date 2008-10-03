@@ -72,6 +72,8 @@ import javax.swing.filechooser.FileFilter;
 //import layout.TableLayout;
 
 //Application-internal dependencies
+import omero.model.FileAnnotation;
+
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -89,7 +91,6 @@ import org.openmicroscopy.shoola.util.filter.file.XMLFilter;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-import ome.model.annotations.FileAnnotation;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -496,8 +497,7 @@ class AttachmentsUI
 			File dir = chooser.getFolderPath();
 			logger.info(this, dir.getPath());
 			UserNotifier un = reg.getUserNotifier();
-			un.notifyDownload(((FileAnnotation) data.asAnnotation()).getFile(),
-								dir);
+			un.notifyDownload(data, dir);
 		}
 	}
 	

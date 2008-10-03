@@ -90,7 +90,7 @@ public class PDILoader
      */
     public void load()
     {
-        handle = hiBrwView.findPDIHierarchies(images, viewer.getExperimenterID(), this);
+        //handle = hiBrwView.findPDIHierarchies(images, viewer.getExperimenterID(), this);
     }
     
     /** 

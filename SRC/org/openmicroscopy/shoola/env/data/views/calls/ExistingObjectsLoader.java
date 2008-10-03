@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -70,7 +71,7 @@ public class ExistingObjectsLoader
      * @param userID    The id of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeBatchCall(final Class nodeType, final Set nodeIDs, 
+    private BatchCall makeBatchCall(final Class nodeType, final List nodeIDs, 
     								final long userID)
     {
         return new BatchCall("Loading container tree: ") {
@@ -108,7 +109,7 @@ public class ExistingObjectsLoader
      * @param nodeIDs 	The set of node ids.
      * @param userID   	The id of the root's level.
      */
-    public ExistingObjectsLoader(Class nodeType, Set nodeIDs, long userID)
+    public ExistingObjectsLoader(Class nodeType, List nodeIDs, long userID)
     {
         if (!(nodeType.equals(ProjectData.class) || 
             nodeType.equals(DatasetData.class) || 

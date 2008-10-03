@@ -32,18 +32,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
+
+import pojos.AnnotationData;
+import pojos.DataObject;
+import pojos.ExperimenterData;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.util.SearchResult;
-import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.DataObject;
-import pojos.ExperimenterData;
-import pojos.GroupData;
-import pojos.ImageData;
+
 
 /** 
  * 
@@ -63,176 +62,128 @@ public class NullOmeroPojoService
     implements OmeroDataService
 {
 
-    /**
-     * No-op implementation
-     * @see OmeroDataService#findCGCPaths(Set, int, long)
-     */
-    public Set findCGCPaths(Set imgIDs, int algorithm, long levelID) 
-    	throws DSOutOfServiceException, DSAccessException 
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#getCollectionCount(Class, String, Set)
-     */
-    public Map getCollectionCount(Class rootNodeType, String property,
-            						Set rootNodeIDs)
-    	throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#loadContainerHierarchy(Class, Set, boolean, long)
-     */
-    public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
-            boolean withLeaves, long rootLevelID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#findContainerHierarchy(Class, Set, long)
-     */
-    public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
-                						long rootLevelID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#findAnnotations(Class, Set, Set)
-     */
-    public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
-    							boolean forUser)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#getImages(Class, Set, long)
-     */
-    public Set getImages(Class nodeType, Set nodeIDs, long rootLevelID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#updateDataObject(DataObject)
-     */
-    public DataObject updateDataObject(DataObject object)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#createAnnotationFor(DataObject, AnnotationData)
-     */
-    public DataObject createAnnotationFor(DataObject annotatedObject,
-                                            AnnotationData data)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#loadExistingObjects(Class, Set, long)
-     */
-    public Set loadExistingObjects(Class nodeType, Set nodeIDs, long rootID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
-
-    /**
+	/**
      * No-op implementation
      * @see OmeroDataService#addExistingObjects(DataObject, Set)
      */
-    public void addExistingObjects(DataObject parent, Set children)
-            throws DSOutOfServiceException, DSAccessException {}
+	public void addExistingObjects(DataObject parent, Set children) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+	}
 
-    /**
+	/**
      * No-op implementation
-     * @see OmeroDataService#cutAndPaste(Map, Map)
+     * @see OmeroDataService#advancedSearchFor(SearchDataContext)
      */
-    public void cutAndPaste(Map toPaste, Map toCut)
-            throws DSOutOfServiceException, DSAccessException {}
+	public Object advancedSearchFor(SearchDataContext context) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
 
-    /**
+	/**
      * No-op implementation
-     * @see OmeroDataService#removeDataObjects(Set, DataObject)
+     * @see OmeroDataService#annotateChildren(Set, AnnotationData)
      */
-    public Set removeDataObjects(Set children, DataObject parent)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
+	public List annotateChildren(Set folders, AnnotationData data) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
 
-    /**
+	/**
      * No-op implementation
-     * @see OmeroDataService#getChannelsMetadata(long)
+     * @see OmeroDataService#changePassword(String, String)
      */
-    public List getChannelsMetadata(long pixelsID)
-            throws DSOutOfServiceException, DSAccessException
-    {
-        return null;
-    }
+	public Boolean changePassword(String oldPassword, String newPassword)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
 
-    /**
+	/**
+     * No-op implementation
+     * @see OmeroDataService#createAnnotationFor(DataObject, AnnotationData)
+     */
+	public DataObject createAnnotationFor(DataObject annotatedObject, 
+			AnnotationData data)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
      * No-op implementation
      * @see OmeroDataService#createAnnotationFor(Set, AnnotationData)
      */
 	public List createAnnotationFor(Set toAnnotate, AnnotationData data) 
-			throws DSOutOfServiceException, DSAccessException 
-    {
-		return null;
-	}
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#updateAnnotationFor(Map)
-     */
-	public List updateAnnotationFor(Map toUpdate) 
 		throws DSOutOfServiceException, DSAccessException
-    {
-		return null;
-	}
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#getAvailableGroups()
-     */
-	public Map<GroupData, Set> getAvailableGroups() 
-		throws DSOutOfServiceException, DSAccessException 
 	{
 		return null;
 	}
 
-    /**
+	/**
      * No-op implementation
-     * @see OmeroDataService#getExperimenterImages(long)
+     * @see OmeroDataService#createDataObject(DataObject, DataObject, Collection)
      */
-	public Set getExperimenterImages(long userID) 
-		throws DSOutOfServiceException, DSAccessException 
+	public DataObject createDataObject(DataObject newObject, DataObject parent, 
+			Collection children) 
+		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
-    /**
+	/**
+     * No-op implementation
+     * @see OmeroDataService#cutAndPaste(Map, Map)
+     */
+	public void cutAndPaste(Map toPaste, Map toCut)
+		throws DSOutOfServiceException, DSAccessException
+	{
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#deleteContainer(DataObject, boolean)
+     */
+	public void deleteContainer(DataObject object, boolean content) 
+		throws DSOutOfServiceException, DSAccessException
+	{	
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#findAnnotations(Class, List, List, boolean)
+     */
+	public Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs,
+			boolean forUser) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#findContainerHierarchy(Class, List, long)
+     */
+	public Set findContainerHierarchy(Class rootNodeType, List leavesIDs, 
+				long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#findContainerPaths(Class, long, long)
+     */
+	public Collection findContainerPaths(Class type, long id, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
      * No-op implementation
      * @see OmeroDataService#getArchivedFiles(String, long)
      */
@@ -242,67 +193,96 @@ public class NullOmeroPojoService
 		return null;
 	}
 
-    /**
+	/**
      * No-op implementation
-     * @see OmeroDataService#annotateChildren(Set, AnnotationData)
+     * @see OmeroDataService#getChannelsMetadata(long)
      */
-	public List annotateChildren(Set objects, AnnotationData data) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		return null;
-	}
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#classifyChildren(Set, Set)
-     */
-	public Set classifyChildren(Set containers, Set categories) 
+	public List getChannelsMetadata(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
-    /**
+	/**
      * No-op implementation
-     * @see OmeroDataService#changePassword(String, String)
+     * @see OmeroDataService#getCollectionCount(Class, String, List)
      */
-	public Boolean changePassword(String oldPassword, String newPassword) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		return null;
-	}
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#classify(Set, Set)
-     */
-	public Set classify(Set<ImageData> images, Set<CategoryData> categories) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		return null;
-	}
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#declassify(Set, Set)
-     */
-	public Set declassify(Set<ImageData> images, Set<CategoryData> categories) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		return null;
-	}
-
-    /**
-     * No-op implementation
-     * @see OmeroDataService#updateExperimenter(ExperimenterData)
-     */
-	public ExperimenterData updateExperimenter(ExperimenterData exp) 
+	public Map getCollectionCount(Class rootNodeType, String property, 
+			List rootNodeIDs) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
-    /**
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getExperimenterImages(long)
+     */
+	public Set getExperimenterImages(long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getImages(Class, List, long)
+     */
+	public Set getImages(Class nodeType, List nodeIDs, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
+     */
+	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
+			long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
+     */
+	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getImagesPeriodIObject(Timestamp, Timestamp, long)
+     */
+	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
+			long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getLoggingName()
+     */
+	public String getLoggingName() { return null; }
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#getOriginalFiles(long)
+     */
+	public Collection getOriginalFiles(long pixelsID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
      * No-op implementation
      * @see OmeroDataService#getServerName()
      */
@@ -312,27 +292,48 @@ public class NullOmeroPojoService
      * No-op implementation
      * @see OmeroDataService#getSpace(int)
      */
-	public long getSpace(int index) 
+	public long getSpace(int index)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return 0;
 	}
 
 	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long)
-	 */
-	public Set getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID)
+     * No-op implementation
+     * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long)
+     */
+	public Set loadContainerHierarchy(Class rootNodeType, List rootNodeIDs, 
+			boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
 	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
-	 */
-	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
+     * No-op implementation
+     * @see OmeroDataService#loadExistingObjects(Class, List, long)
+     */
+	public Set loadExistingObjects(Class nodeType, List nodeIDs, long userID) 
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#loadPlateWells(long, long)
+     */
+	public Collection loadPlateWells(long plateID, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		return null;
+	}
+
+	/**
+     * No-op implementation
+     * @see OmeroDataService#loadScreenPlates(Class, List, long)
+     */
+	public Set loadScreenPlates(Class rootNodeType, List rootNodeIDs, 
 			long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -340,9 +341,9 @@ public class NullOmeroPojoService
 	}
 
 	/**
-	 * No-op implementation
-	 * @see OmeroDataService#loadTopContainerHierarchy(Class, long)
-	 */
+     * No-op implementation
+     * @see OmeroDataService#loadTopContainerHierarchy(Class, long)
+     */
 	public Set loadTopContainerHierarchy(Class rootNodeType, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -350,115 +351,43 @@ public class NullOmeroPojoService
 	}
 
 	/**
-	 * No-op implementation
-	 * @see OmeroDataService#findCategoryPaths(long, boolean, long)
-	 */
-	public Set findCategoryPaths(long imageID, boolean leaves, long userID) 
+     * No-op implementation
+     * @see OmeroDataService#removeDataObjects(Set, DataObject)
+     */
+	public Set removeDataObjects(Set children, DataObject parent)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
 	/**
-	 * No-op implementation
-	 * @see OmeroDataService#findCategoryPaths(Set, boolean, long)
-	 */
-	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
-								long userID)
+     * No-op implementation
+     * @see OmeroDataService#updateAnnotationFor(Map)
+     */
+	public List updateAnnotationFor(Map toUpdate) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
 	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getImagesPeriodIObject(Timestamp, Timestamp, long)
-	 */
-	public List getImagesPeriodIObject(Timestamp lowerTime, Timestamp time, 
-								long userID)
+     * No-op implementation
+     * @see OmeroDataService#updateDataObject(DataObject)
+     */
+	public DataObject updateDataObject(DataObject object)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
 	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getLoggingName()
-	 */
-	public String getLoggingName() { return null; }
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#tagImagesIncontainers(Set, Class, Set)
-	 */
-	public Set tagImagesIncontainers(Set<Long> ids, Class rootType, 
-			Set<CategoryData> tags) 
+     * No-op implementation
+     * @see OmeroDataService#updateExperimenter(ExperimenterData)
+     */
+	public ExperimenterData updateExperimenter(ExperimenterData exp) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#advancedSearchFor(SearchDataContext)
-	 */
-	public SearchResult advancedSearchFor(SearchDataContext context) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-	
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#findContainerPaths(Class, long, long)
-	 */
-	public Collection findContainerPaths(Class type, long id, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#getOriginalFiles(long)
-	 */
-	public Collection getOriginalFiles(long pixelsID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#createDataObject(DataObject, DataObject, 
-	 * 											Collection)
-	 */
-	public DataObject createDataObject(DataObject newObject, DataObject parent, 
-				Collection children) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		return null;
-	}
-
-	/**
-	 * No-op implementation
-	 * @see OmeroDataService#deleteContainer(DataObject, boolean)
-	 */
-	public void deleteContainer(DataObject object, boolean content) 
-		throws DSOutOfServiceException, DSAccessException
-		{}
-
-	public Set loadScreenPlates(Class root, Set rootIDs, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		return null;
-	}
-
-	public Collection loadPlateWells(long plateID, long userID) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 }

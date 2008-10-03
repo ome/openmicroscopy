@@ -38,8 +38,8 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-import omeis.providers.re.data.PlaneDef;
+import omero.model.Pixels;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
 import org.openmicroscopy.shoola.agents.imviewer.DataLoader;
@@ -520,8 +520,10 @@ class ImViewerModel
 	/** Fires an asynchronous retrieval of the rendered image. */
 	void fireImageRetrieval()
 	{
-		PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
-		pDef.setZ(getDefaultZ());
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
 		//OmeroImageService os = ImViewerAgent.getRegistry().getImageService();
 		try {
@@ -540,8 +542,10 @@ class ImViewerModel
 	 */
 	BufferedImage getSplitComponentImage()
 	{
-		PlaneDef pDef = new PlaneDef(PlaneDef.XY, getDefaultT());
-		pDef.setZ(getDefaultZ());
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
 		//state = ImViewer.LOADING_IMAGE;
 		try {
 			return currentRndControl.renderPlane(pDef);

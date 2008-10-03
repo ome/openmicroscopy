@@ -88,6 +88,20 @@ class MetadataViewerComponent
 	
 	/** The View sub-component. */
 	private MetadataViewerUI 		view;
+
+	/**
+	 * Initialises a message dialog.
+	 * 
+	 * @return See above.
+	 */
+	private MessageBox initMessageDialog()
+	{
+		MessageBox dialog = new MessageBox(view, "Save Annotations", 
+        "Do you want to attach the annotations to: ");
+		dialog.setNoText("Cancel");
+		dialog.setYesText("OK");
+		return dialog;
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -274,7 +288,7 @@ class MetadataViewerComponent
 		} else
 			browser.setParents((TreeBrowserSet) node, (Collection) result);
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#saveData(List, List, DataObject)
@@ -313,8 +327,7 @@ class MetadataViewerComponent
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
 			}
-			dialog = new MessageBox(view, "Save Annotations", 
-						         "Do you want to attach the annotations to: ");
+			dialog = initMessageDialog();
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();
@@ -342,8 +355,7 @@ class MetadataViewerComponent
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
 			}
-			dialog = new MessageBox(view, "Save Annotations", 
-						         "Do you want to attach the annotations to: ");
+			dialog = initMessageDialog();
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();
@@ -387,8 +399,7 @@ class MetadataViewerComponent
 				model.fireSaving(toAdd, toRemove, toSave);
 				return;
 			}
-			dialog = new MessageBox(view, "Save Annotations", 
-	         		     "Do you want to attach the annotations to: ");
+			dialog = initMessageDialog();
 			JPanel p = new JPanel();
 			p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 			ButtonGroup group = new ButtonGroup();

@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.awt.Component;
 import java.awt.Point;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -614,7 +613,7 @@ public interface TreeViewer
 	 * @param ids Collection of node ids.
 	 * @param klass Either dataset, image or category.
 	 */
-	public void pasteRndSettings(Set<Long> ids, Class klass);
+	public void pasteRndSettings(List<Long> ids, Class klass);
 
 	/** 
 	 * Pastes the stored rendering settings across the selected images. 
@@ -629,7 +628,7 @@ public interface TreeViewer
 	 * @param ids Collection of node ids.
 	 * @param klass Either dataset, image or category.
 	 */
-	public void resetRndSettings(Set<Long> ids, Class klass);
+	public void resetRndSettings(List<Long> ids, Class klass);
 
 	/** 
 	 * Resets the rendering settings across the selected images. 
@@ -720,7 +719,7 @@ public interface TreeViewer
 	 * @param ids		The collection of objects id.
 	 * @param klass		The class identifying the object.
 	 */
-	public void setOriginalRndSettings(Set<Long> ids, Class klass);
+	public void setOriginalRndSettings(List<Long> ids, Class klass);
 
 	/**
 	 * Sets the original rendering settings for images 

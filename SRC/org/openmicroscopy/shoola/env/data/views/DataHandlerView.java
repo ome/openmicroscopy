@@ -35,7 +35,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
-import org.openmicroscopy.shoola.env.data.views.calls.ClassificationLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -57,25 +56,6 @@ import pojos.ExperimenterData;
 public interface DataHandlerView
 	extends DataServicesView
 {
-
-	
-	/** Identifies the <code>Declassification</code> algorithm. */
-	public static final int DECLASSIFICATION = 
-		ClassificationLoader.DECLASSIFICATION;
-
-	/**
-	 * Identifies the <code>Classification</code> algorithm with
-	 * mutually exclusive rule.
-	 */
-	public static final int CLASSIFICATION_ME = 
-		ClassificationLoader.CLASSIFICATION_ME;
-
-	/**
-	 * Identifies the <code>Classification</code> algorithm without
-	 * mutually exclusive rule.
-	 */
-	public static final int CLASSIFICATION_NME = 
-		ClassificationLoader.CLASSIFICATION_NME;
 
 	/** 
 	 * Creates an annotation of the specified type for the specified node.
@@ -178,40 +158,6 @@ public interface DataHandlerView
 			AnnotationData data, AgentEventListener observer);
 
 	/**
-	 * Loads all Category Group/Category paths.
-	 * 
-	 * @param imageIDs      The id of the images.
-	 * @param userID   		The Id of the user.   
-	 * @param algorithm     One of the constants defined by this class.              
-	 * @param observer  Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadClassificationPaths(Set imageIDs, long userID, 
-			int algorithm, AgentEventListener observer);
-
-	/**
-	 * Adds the images to the specified categories.
-	 * 
-	 * @param images        The images to classify.        
-	 * @param categories    Collection of <code>CategoryData</code>.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle classify(Set images, Set categories, 
-			AgentEventListener observer);
-
-	/**
-	 * Removes the images from the specified categories.
-	 * 
-	 * @param images        The images to classify.        
-	 * @param categories    Collection of <code>CategoryData</code>.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle declassify(Set images, Set categories, 
-			AgentEventListener observer);
-
-	/**
 	 * Loads the original archived files if any linked to the set of pixels.
 	 * 
 	 * @param location	The location where to save the file.
@@ -220,17 +166,6 @@ public interface DataHandlerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadArchivedFiles(String location, long pixelsID, 
-			AgentEventListener observer);
-
-	/**
-	 * Classifies the images contained in the specified folders.
-	 * 
-	 * @param containers	The folders containing the images to classify.
-	 * @param categories	Collection of <code>CategoryData</code>.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle classifyChildren(Set containers, Set categories, 
 			AgentEventListener observer);
 
 	/**
@@ -244,47 +179,6 @@ public interface DataHandlerView
 	 */
 	public CallHandle annotateChildren(Set folders, 
 			AnnotationData annotation, AgentEventListener observer);
-	
-	/**
-	 * Loads the tags available and not linked to a given collection of images.
-	 * 
-	 * @param imageIDs	The id of the images to handle.
-	 * @param userID	The user's id.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle loadUnlinkedTags(Set<Long> imageIDs, long userID, 
-			AgentEventListener observer);
-
-	/**
-	 * Loads all classifications for a given image i.e. the categories
-	 * containing the image.
-	 * 
-	 * @param imageID	The id of the image to handle.
-	 * @param leaves	Passed <code>true</code> to retrieve the images
-	 * 					<code>false</code> otherwise.
-	 * @param userID	The user's id.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle findCategoryPaths(long imageID, boolean leaves, 
-			long userID, 
-			AgentEventListener observer);
-
-	/**
-	 * Loads all classifications for a given image i.e. the categories
-	 * containing the image.
-	 * 
-	 * @param imagesID	The id of the images to handle.
-	 * @param leaves	Passed <code>true</code> to retrieve the images
-	 * 					<code>false</code> otherwise.
-	 * @param userID	The user's id.
-	 * @param observer	Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle findCategoryPaths(Set<Long> imagesID, boolean leaves, 
-			long userID, 
-			AgentEventListener observer);
 	
 	/**
 	 * Loads the images imported during the passed period.
@@ -317,7 +211,7 @@ public interface DataHandlerView
 	 * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle pasteRndSettings(long pixelsID, Class rootNodeType,
-			Set<Long> ids, AgentEventListener observer);
+			List<Long> ids, AgentEventListener observer);
 
 	/**
 	 * Applies the rendering settings associated to the passed pixels set 
@@ -349,7 +243,7 @@ public interface DataHandlerView
 	 * @param observer		Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle resetRndSettings(Class rootNodeType, Set<Long> ids, 
+	public CallHandle resetRndSettings(Class rootNodeType, List<Long> ids, 
 									AgentEventListener observer);
 
 	/**
@@ -378,7 +272,7 @@ public interface DataHandlerView
 	 * @param observer		Callback handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle setRndSettings(Class rootNodeType, Set<Long> ids, 
+	public CallHandle setRndSettings(Class rootNodeType, List<Long> ids, 
 									AgentEventListener observer);
 
 	/**
@@ -391,17 +285,6 @@ public interface DataHandlerView
 	 */
 	public CallHandle setRndSettings(TimeRefObject ref, 
 										AgentEventListener observer);
-	
-	/**
-	 * Classifies the images imported during the given period of time.
-	 * 
-	 * @param timeRef		The time reference.
-	 * @param categories	Collection of <code>CategoryData</code>.
-	 * @param observer      Callback handler.
-	 * @return A handle that can be used to cancel the call.
-	 */
-	public CallHandle classifyChildren(TimeRefObject timeRef, Set categories, 
-			AgentEventListener observer);
 
 	/**
 	 * Annotates the images imported during the given period of time.

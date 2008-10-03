@@ -24,21 +24,19 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -129,7 +127,7 @@ public class PasteRndSettingsCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-    	Set<Long> ids = new HashSet<Long>();
+    	List<Long> ids = new ArrayList<Long>();
     	if (selection != null) {
     		Iterator<DataObject> o = selection.iterator();
     		DataObject ho;

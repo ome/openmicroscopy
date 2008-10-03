@@ -28,14 +28,16 @@ package org.openmicroscopy.shoola.env.rnd.roi;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
-
 
 
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
+import omero.model.Pixels;
+
+import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
+
+
 
 /** 
  * 
@@ -78,15 +80,15 @@ public class ROIStats
      */
     private Integer linearize(int z, int w, int t)
     {
-    	int sizeZ = dims.getSizeZ();
-    	int sizeC = dims.getSizeC();
+    	int sizeZ = dims.getSizeZ().val;
+    	int sizeC = dims.getSizeC().val;
         if (z < 0 || sizeZ <= z) 
             throw new IllegalArgumentException(
                     "z out of range [0, "+sizeZ+"): "+z+".");
         if (w < 0 || sizeC <= w) 
             throw new IllegalArgumentException(
                     "w out of range [0, "+sizeC+"): "+w+".");
-        if (t < 0 || dims.getSizeT() <= t) 
+        if (t < 0 || dims.getSizeT().val <= t) 
             throw new IllegalArgumentException(
                     "t out of range [0, "+dims.getSizeT()+"): "+t+".");
         return new Integer(sizeZ*sizeC*t + sizeZ*w + z);

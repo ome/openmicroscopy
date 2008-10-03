@@ -32,9 +32,8 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-import ome.model.display.CodomainMapContext;
-import omeis.providers.re.data.PlaneDef;
+import omero.model.Pixels;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
@@ -414,8 +413,8 @@ public interface RenderingControl
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    public void addCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException;
+    //public void addCodomainMap(CodomainMapContext mapCtx)
+    //	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Updates the specified <code>CodomainMapContext</code>.
@@ -426,8 +425,8 @@ public interface RenderingControl
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    public void updateCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException;
+    //public void updateCodomainMap(CodomainMapContext mapCtx)
+    //	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Removed the <code>CodomainMapContext</code> from the list of
@@ -438,8 +437,8 @@ public interface RenderingControl
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
      */
-    public void removeCodomainMap(CodomainMapContext mapCtx)
-    	throws RenderingServiceException, DSOutOfServiceException;
+   // public void removeCodomainMap(CodomainMapContext mapCtx)
+    //	throws RenderingServiceException, DSOutOfServiceException;
     
     /**
      * Returns a read-only list of {@link CodomainMapContext}s using during

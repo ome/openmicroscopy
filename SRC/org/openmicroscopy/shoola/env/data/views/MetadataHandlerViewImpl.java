@@ -261,10 +261,10 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#loadRatings(Class, Set, long, 
+	 * @see MetadataHandlerView#loadRatings(Class, List, long, 
 	 * 										AgentEventListener)
 	 */
-	public CallHandle loadRatings(Class nodeType, Set<Long> nodeIDs, 
+	public CallHandle loadRatings(Class nodeType, List<Long> nodeIDs, 
 						long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationLoader(
@@ -275,10 +275,10 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#filterByAnnotation(Class, Set, Class, List, 
+	 * @see MetadataHandlerView#filterByAnnotation(Class, List, Class, List, 
 	 * 									long, AgentEventListener)
 	 */
-	public CallHandle filterByAnnotation(Class nodeType, Set<Long> nodeIds, 
+	public CallHandle filterByAnnotation(Class nodeType, List<Long> nodeIds, 
 			Class annotationType, List<String> terms, long userID, 
 			AgentEventListener observer) 
 	{
@@ -289,10 +289,10 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#filterByAnnotated(Class, Set, Class, boolean, 
+	 * @see MetadataHandlerView#filterByAnnotated(Class, List, Class, boolean, 
 	 * 									long, AgentEventListener)
 	 */
-	public CallHandle filterByAnnotated(Class nodeType, Set<Long> nodeIds, 
+	public CallHandle filterByAnnotated(Class nodeType, List<Long> nodeIds, 
 			Class annotationType, boolean annotated, long userID, 
 			AgentEventListener observer) 
 	{
@@ -303,10 +303,10 @@ class MetadataHandlerViewImpl
 	
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#filterData(Class, Set, FilterContext, long, 
+	 * @see MetadataHandlerView#filterData(Class, List, FilterContext, long, 
 	 * 										AgentEventListener)
 	 */
-	public CallHandle filterData(Class nodeType, Set<Long> nodeIds, 
+	public CallHandle filterData(Class nodeType, List<Long> nodeIds, 
 			FilterContext context, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new DataFilter(nodeType, nodeIds, context, userID);

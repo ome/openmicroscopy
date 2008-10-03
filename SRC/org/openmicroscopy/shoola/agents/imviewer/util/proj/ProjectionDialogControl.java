@@ -30,7 +30,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -38,7 +37,6 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.util.ChannelButton;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * The projection controller.
@@ -76,17 +74,6 @@ class ProjectionDialogControl
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
-	}
-
-	/** 
-	 * Sets the datasets containing the image to project.
-	 * 
-	 * @param datasets The datasets containing the image.
-	 */
-	public void setContainers(Collection datasets)
-	{
-		ProjectionSavingDialog d = new ProjectionSavingDialog(model, datasets);
-		UIUtilities.centerAndShow(d);
 	}
 	
 	/**

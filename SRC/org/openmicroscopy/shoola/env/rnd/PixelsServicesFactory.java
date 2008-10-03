@@ -35,18 +35,19 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
-import ome.model.display.ChannelBinding;
-import ome.model.display.Color;
-import ome.model.display.QuantumDef;
-import ome.model.display.RenderingDef;
-import omeis.providers.re.RenderingEngine;
-import omeis.providers.re.data.PlaneDef;
+import omero.api.RenderingEnginePrx;
+import omero.model.ChannelBinding;
+import omero.model.Color;
+import omero.model.Pixels;
+import omero.model.QuantumDef;
+import omero.model.RenderingDef;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
+import pojos.PixelsData;
 
 
 /** 
@@ -85,16 +86,16 @@ public class PixelsServicesFactory
 	{
 		if (rndDef == null) return null;
 		RndProxyDef proxy = new RndProxyDef();
-		proxy.setDefaultZ(rndDef.getDefaultZ());
-		proxy.setDefaultT(rndDef.getDefaultT());
-		proxy.setColorModel(rndDef.getModel().getValue());
+		proxy.setDefaultZ(rndDef.getDefaultZ().val);
+		proxy.setDefaultT(rndDef.getDefaultT().val);
+		proxy.setColorModel(rndDef.getModel().getValue().val);
 		
 		QuantumDef def = rndDef.getQuantization();
-		proxy.setCodomain(def.getCdStart(), def.getCdEnd());
-		proxy.setBitResolution(def.getBitResolution());
+		proxy.setCodomain(def.getCdStart().val, def.getCdEnd().val);
+		proxy.setBitResolution(def.getBitResolution().val);
 		
 		ChannelBinding c;
-		Collection bindings = rndDef.unmodifiableWaveRendering();
+		Collection bindings = rndDef.copyWaveRendering();
 		
 		Color color;
 		Iterator k = bindings.iterator();
@@ -111,18 +112,17 @@ public class PixelsServicesFactory
 			if (c != null) {
 				rgba = new int[4];
 				color = c.getColor();
-				rgba[0] = color.getRed();
-				rgba[1] = color.getGreen();
-				rgba[2] = color.getBlue();
-				rgba[3] = color.getAlpha();
+				rgba[0] = color.getRed().val;
+				rgba[1] = color.getGreen().val;
+				rgba[2] = color.getBlue().val;
+				rgba[3] = color.getAlpha().val;
 				
 				
-				cb.setActive(c.getActive());
-				cb.setInterval(c.getInputStart(), c.getInputEnd());
+				cb.setActive(c.getActive().val);
+				cb.setInterval(c.getInputStart().val, c.getInputEnd().val);
 				cb.setRGBA(rgba);
-				cb.setQuantization(c.getFamily().getValue(), 
-						c.getCoefficient().doubleValue(), 
-						c.getNoiseReduction().booleanValue());
+				cb.setQuantization(c.getFamily().getValue().val, 
+						c.getCoefficient().val, c.getNoiseReduction().val);
 			}		
 			i++;
 		}
@@ -170,8 +170,8 @@ public class PixelsServicesFactory
 	 * @throws IllegalArgumentException If an Agent try to access the method.
 	 */
 	public static RenderingControl createRenderingControl(Registry context, 
-			RenderingEngine re, Pixels pixels, List metadata, int compression, 
-			RenderingDef def)
+			RenderingEnginePrx re, Pixels pixels, List metadata, 
+			int compression, RenderingDef def)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
@@ -187,9 +187,13 @@ public class PixelsServicesFactory
 	 * @param pixelsID	The ID of the pixels set.
 	 * @param re		The {@link RenderingEngine rendering service}.
 	 * @return See above.
+	 * @throws RenderingServiceException	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static RenderingControlProxy reloadRenderingControl(Registry context, 
-			long pixelsID, RenderingEngine re)
+			long pixelsID, RenderingEnginePrx re)
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
@@ -214,9 +218,13 @@ public class PixelsServicesFactory
 	 * 					This is passed to speed up the initialization 
 	 * 					sequence.
 	 * @return See above.
+	 * @throws RenderingServiceException	If an error occured while setting 
+     * 										the value.
+     * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
 	public static RenderingControlProxy resetRenderingControl(Registry context, 
-			long pixelsID, RenderingEngine re, RenderingDef def)
+			long pixelsID, RenderingEnginePrx re, RenderingDef def)
+		throws RenderingServiceException, DSOutOfServiceException
 	{
 		if (!(registry.equals(context)))
 			throw new IllegalArgumentException("Not allow to access method.");
@@ -294,12 +302,12 @@ public class PixelsServicesFactory
 	 * @param pixels The pixels set the data sink is for.
 	 * @return See above.
 	 */
-	public static DataSink createDataSink(Pixels pixels)
+	public static DataSink createDataSink(PixelsData pixels)
 	{
 		if (pixels == null)
 			throw new IllegalArgumentException("Pixels cannot be null.");
 		if (singleton.pixelsSource != null && 
-				singleton.pixelsSource.isSame(pixels.getId().longValue()))
+				singleton.pixelsSource.isSame(pixels.getId()))
 			return singleton.pixelsSource;
 		singleton.pixelsSource = DataSink.makeNew(pixels, registry);
 		return singleton.pixelsSource;
@@ -379,6 +387,7 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
+		
 		return proxy.renderProjected(startZ, endZ, stepping, type, channels);
 	}
 	
@@ -430,11 +439,11 @@ public class PixelsServicesFactory
 	 * 						sequence.
 	 * @return See above.
 	 */
-	private RenderingControl makeNew(RenderingEngine re, Pixels pixels, 
+	private RenderingControl makeNew(RenderingEnginePrx re, Pixels pixels, 
 							List metadata, int compression, RenderingDef def)
 	{
 		if (singleton == null) throw new NullPointerException();
-		Long id = pixels.getId();//re.getPixels().getId();
+		Long id = pixels.getId().val;//re.getPixels().getId();
 		RenderingControl rnd = getRenderingControl(registry, id);
 		if (rnd != null) return rnd;
 		RndProxyDef proxyDef = convert(def);

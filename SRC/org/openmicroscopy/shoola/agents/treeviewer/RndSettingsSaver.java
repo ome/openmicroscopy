@@ -25,8 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -78,7 +78,7 @@ public class RndSettingsSaver
 	private Class			rootType;
 
 	/** Collection of data objects id. */
-	private Set<Long>		ids;
+	private List<Long>		ids;
 
 	/** Time reference object. */
 	private TimeRefObject 	ref;
@@ -117,7 +117,7 @@ public class RndSettingsSaver
 	 * @param pixelsID	The id of the pixels of reference.
 	 * @param index 	One of the constants defined by this class.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids,
+	public RndSettingsSaver(TreeViewer viewer, Class rootType, List<Long> ids,
 							int index)
 	{
 		super(viewer);
@@ -161,7 +161,7 @@ public class RndSettingsSaver
 	 * 					to the images contained in the specified containers.
 	 * @param pixelsID	The id of the pixels of reference.
 	 */
-	public RndSettingsSaver(TreeViewer viewer, Class rootType, Set<Long> ids, 
+	public RndSettingsSaver(TreeViewer viewer, Class rootType, List<Long> ids, 
 							long pixelsID)
 	{
 		super(viewer);

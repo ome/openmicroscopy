@@ -31,13 +31,13 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.data.DataSink;
 import org.openmicroscopy.shoola.env.rnd.roi.ROIAnalyser;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import pojos.PixelsData;
 
 /** 
  * Retrieves the raw pixels data and creates an analyser.
@@ -57,7 +57,7 @@ public class Analyser
 {
 
 	/** The pixels set to analyse. */
-	private final Pixels		pixels;
+	private final PixelsData	pixels;
 	
 	/** Collection of active channels. */
 	private final List			channels; 
@@ -82,11 +82,9 @@ public class Analyser
             	DataSink sink = PixelsServicesFactory.createDataSink(pixels);
             	//ROI analyser
             	ROIAnalyser analyser = new ROIAnalyser(sink, 
-            					pixels.getSizeZ().intValue(), 
-            					pixels.getSizeT().intValue(),
-            					pixels.getSizeC().intValue(),
-            					pixels.getSizeX().intValue(),
-            					pixels.getSizeY().intValue());
+            					pixels.getSizeZ(), pixels.getSizeT(),
+            					pixels.getSizeC(), pixels.getSizeX(),
+            					pixels.getSizeY());
             	try {
             		result = analyser.analyze(shapes, channels);
 				} catch (Exception e) {
@@ -121,7 +119,7 @@ public class Analyser
      * @param shapes	Collection of shapes to analyse. 
      * 					Mustn't be <code>null</code>.
      */
-    public Analyser(Pixels pixels, List channels, List shapes)
+    public Analyser(PixelsData pixels, List channels, List shapes)
     {
     	if (pixels == null) 
     		throw new IllegalArgumentException("No Pixels specified."); 

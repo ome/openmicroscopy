@@ -89,8 +89,8 @@ public class ImageToCategoriesLoader
      */
     public void load()
     {
-    	handle = dhView.findCategoryPaths(imagesID, true, 
-        							viewer.getExperimenterID(), this);
+    	//handle = dhView.findCategoryPaths(imagesID, true, 
+        //							viewer.getExperimenterID(), this);
     }
     
     /** 

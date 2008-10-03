@@ -41,10 +41,6 @@ import javax.swing.JPanel;
 import layout.TableLayout;
 
 //Application-internal dependencies
-import ome.model.display.CodomainMapContext;
-import ome.model.display.ContrastStretchingContext;
-import ome.model.display.PlaneSlicingContext;
-import ome.model.display.ReverseIntensityContext;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 
 /** 
@@ -140,6 +136,7 @@ class CodomainPane
     {
         List cdMaps = model.getCodomainMaps();
         Iterator i = cdMaps.iterator();
+        /*
         CodomainMapContext ctx;
         while (i.hasNext()) {
             ctx = (CodomainMapContext) i.next();
@@ -153,6 +150,7 @@ class CodomainPane
                 planeSlicingButton.setEnabled(true);
             } 
         }
+        */
     }
     
     /**
@@ -264,10 +262,12 @@ class CodomainPane
      */
     void addCodomainMap(Class mapType)
     {
+    	/*
         if (mapType.equals(PlaneSlicingContext.class))
             planeSlicingButton.setEnabled(true);
         else if (mapType.equals(ContrastStretchingContext.class))
             contrastStretchingButton.setEnabled(true);
+            */
     }
     
     /**
@@ -278,10 +278,12 @@ class CodomainPane
      */
     void removeCodomainMap(Class mapType)
     {
+    	/*
         if (mapType.equals(PlaneSlicingContext.class))
             planeSlicingButton.setEnabled(false);
         else if (mapType.equals(ContrastStretchingContext.class))
             contrastStretchingButton.setEnabled(false);
+            */
     }
 
 }

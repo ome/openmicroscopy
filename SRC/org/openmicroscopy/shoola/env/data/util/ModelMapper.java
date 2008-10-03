@@ -31,39 +31,57 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
+
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.ILink;
-import ome.model.IObject;
-import ome.model.annotations.Annotation;
-import ome.model.annotations.AnnotationAnnotationLink;
-import ome.model.annotations.DatasetAnnotationLink;
-import ome.model.annotations.ImageAnnotationLink;
-import ome.model.annotations.LongAnnotation;
-import ome.model.annotations.PlateAnnotationLink;
-import ome.model.annotations.ProjectAnnotationLink;
-import ome.model.annotations.ScreenAnnotationLink;
-import ome.model.annotations.TagAnnotation;
-import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.UrlAnnotation;
-import ome.model.annotations.WellAnnotationLink;
-import ome.model.containers.Category;
-import ome.model.containers.CategoryGroup;
-import ome.model.containers.CategoryGroupCategoryLink;
-import ome.model.containers.CategoryImageLink;
-import ome.model.containers.Dataset;
-import ome.model.containers.DatasetImageLink;
-import ome.model.containers.Project;
-import ome.model.containers.ProjectDatasetLink;
-import ome.model.core.Image;
-import ome.model.meta.Experimenter;
-import ome.model.screen.Plate;
-import ome.model.screen.Screen;
-import ome.model.screen.ScreenPlateLink;
-import ome.model.screen.Well;
 import ome.util.Filter;
 import ome.util.Filterable;
+import omero.RLong;
+import omero.RString;
+import omero.model.Annotation;
+import omero.model.AnnotationAnnotationLink;
+import omero.model.AnnotationAnnotationLinkI;
+import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
+import omero.model.DatasetAnnotationLinkI;
+import omero.model.DatasetI;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
+import omero.model.Experimenter;
+import omero.model.IObject;
+import omero.model.Image;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
+import omero.model.ImageI;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
+import omero.model.Plate;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
+import omero.model.PlateI;
+import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
+import omero.model.ProjectAnnotationLinkI;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
+import omero.model.ProjectI;
+import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
+import omero.model.ScreenI;
+import omero.model.ScreenPlateLink;
+import omero.model.ScreenPlateLinkI;
+import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
+import omero.model.TextAnnotation;
+import omero.model.TextAnnotationI;
+import omero.model.UrlAnnotation;
+import omero.model.UrlAnnotationI;
+import omero.model.Well;
+import omero.model.WellAnnotationLink;
+import omero.model.WellAnnotationLinkI;
 import pojos.AnnotationData;
 import pojos.CategoryData;
 import pojos.CategoryGroupData;
@@ -142,7 +160,8 @@ public class ModelMapper
     {
         if (object == null)
             throw new IllegalArgumentException("The object mustn't be null.");
-        object.acceptFilter(unloader);
+        //TODO: check what to do
+        //object.acceptFilter(unloader);
     }
 
     /**
@@ -158,54 +177,32 @@ public class ModelMapper
         if (parent instanceof Dataset) {
             if (!(child instanceof Image))
                 throw new IllegalArgumentException("Child not valid.");
-            List links = ((Image) child).collectDatasetLinks(null);
+            List links = ((Image) child).copyDatasetLinks();
             Iterator i = links.iterator();
             DatasetImageLink link = null;
+            long parentID = parent.getId().val;
             while (i.hasNext()) {
                 link = (DatasetImageLink) i.next();
-                if (link.getParent().getId().longValue() == 
-                    parent.getId().longValue()) break;  
-            }
-            return link;
-        } else if (parent instanceof Category) {
-            if (!(child instanceof Image))
-                throw new IllegalArgumentException("Child not valid.");
-            List links = ((Image) child).collectCategoryLinks(null);
-            Iterator i = links.iterator();
-            CategoryImageLink link = null;
-            while (i.hasNext()) {
-                link = (CategoryImageLink) i.next();
-                if (link.getParent().getId().longValue() == 
-                    parent.getId().longValue()) break;  
+                if (link.getParent().getId().val == parentID) 
+                	break;  
             }
             return link;
         } else if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
-            List links = ((Project) parent).collectDatasetLinks(null);
+            List links = ((Project) parent).copyDatasetLinks();
             Iterator i = links.iterator();
             ProjectDatasetLink link = null;
-            long childID = child.getId().longValue();
+            long childID = child.getId().val;
             while (i.hasNext()) {
                 link = (ProjectDatasetLink) i.next();
-                if (link.getChild().getId().longValue() == childID) {
+                if (link.getChild().getId().val == childID) {
                     return link;  
                 }
             }
             //return link;
-        } else if (parent instanceof CategoryGroup) {
-            if (!(child instanceof Category))
-                throw new IllegalArgumentException("Child not valid.");
-            List links = ((CategoryGroup) parent).collectCategoryLinks(null);
-            Iterator i = links.iterator();
-            CategoryGroupCategoryLink link = null;
-            while (i.hasNext()) {
-                link = (CategoryGroupCategoryLink) i.next();
-                if (link.getParent().getId().longValue() == 
-                    parent.getId().longValue()) break;  
-            }
-            return link;
-        } throw new IllegalArgumentException("Parent not supported.");
+        } 
+        throw new IllegalArgumentException("Parent not supported.");
     }
 
     /**
@@ -215,7 +212,7 @@ public class ModelMapper
      * @param parent    The parent.
      * @return The link.
      */
-    public static ILink linkParentToChild(IObject child, IObject parent)
+    public static IObject linkParentToChild(IObject child, IObject parent)
     {
         if (parent == null) return null;
         if (child == null) throw new IllegalArgumentException("Child cannot" +
@@ -223,46 +220,27 @@ public class ModelMapper
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
-            Project unloadedProject = new Project(parent.getId(), false);
-            Dataset unloadedDataset = new Dataset(child.getId(), false);
-            ProjectDatasetLink l = new ProjectDatasetLink();
+            Project unloadedProject = new ProjectI(parent.getId().val, false);
+            Dataset unloadedDataset = new DatasetI(child.getId().val, false);
+            ProjectDatasetLink l = new ProjectDatasetLinkI();
             l.link(unloadedProject, unloadedDataset);
-            return l;
-        } else if (parent instanceof CategoryGroup) {
-            if (!(child instanceof Category))
-                throw new IllegalArgumentException("Child not valid.");
-            CategoryGroup unloadedGroup = new CategoryGroup(parent.getId(), 
-                                                            false);
-            Category unloadedCategory = new Category(child.getId(), false);
-            
-            CategoryGroupCategoryLink l = new CategoryGroupCategoryLink();
-            l.link(unloadedGroup, unloadedCategory);
             return l;
         } else if (parent instanceof Dataset) {
             if (!(child instanceof Image))
                 throw new IllegalArgumentException("Child not valid.");
-            Dataset unloadedDataset = new Dataset(parent.getId(), false);
-            Image unloadedImage = new Image(child.getId(), false);
+            Dataset unloadedDataset = new DatasetI(parent.getId().val, false);
+            Image unloadedImage = new ImageI(child.getId().val, false);
             
-            DatasetImageLink l = new DatasetImageLink();
+            DatasetImageLink l = new DatasetImageLinkI();
             l.link(unloadedDataset, unloadedImage);
-            return l;
-        } else if (parent instanceof Category) {
-            if (!(child instanceof Image))
-                throw new IllegalArgumentException("Child not valid.");
-            Category unloadedCategory = new Category(parent.getId(), false);
-            Image unloadedImage = new Image(child.getId(), false);
-            
-            CategoryImageLink l = new CategoryImageLink();
-            l.link(unloadedCategory, unloadedImage);
             return l;
         } else if (parent instanceof Screen) {
             if (!(child instanceof Plate))
                 throw new IllegalArgumentException("Child not valid.");
-            Screen unloadedScreen = new Screen(parent.getId(), false);
-            Plate unloadedPlate = new Plate(child.getId(), false);
+            Screen unloadedScreen = new ScreenI(parent.getId().val, false);
+            Plate unloadedPlate = new PlateI(child.getId().val, false);
             
-            ScreenPlateLink l = new ScreenPlateLink();
+            ScreenPlateLink l = new ScreenPlateLinkI();
             l.link(unloadedScreen, unloadedPlate);
             return l;
         }
@@ -282,53 +260,37 @@ public class ModelMapper
         if (parent == null) return;
         if (child == null) throw new IllegalArgumentException("Child cannot" +
                                 "be null.");
+        List l;
         if (parent instanceof Project) {
             if (!(child instanceof Dataset))
                 throw new IllegalArgumentException("Child not valid.");
             Project p = (Project) parent;
             Dataset d = (Dataset) child;
+            
+            l = d.copyProjectLinks();
+            if (l == null) return;
             ProjectDatasetLink link;
-            Iterator it = d.iterateProjectLinks();
+            Iterator it = l.iterator();
+            long id = p.getId().val;
             while (it.hasNext()) {
                 link = (ProjectDatasetLink) it.next();
-                if (p.getId().equals(link.parent().getId()))
-                    p.addProjectDatasetLink(link, false);
-            }
-        } else if (parent instanceof CategoryGroup) {
-            if (!(child instanceof Category))
-                throw new IllegalArgumentException("Child not valid.");
-            CategoryGroup p = (CategoryGroup) parent;
-            Category d = (Category) child;
-            CategoryGroupCategoryLink link;
-            Iterator it = d.iterateCategoryGroupLinks();
-            while (it.hasNext()) {
-                link = (CategoryGroupCategoryLink) it.next();
-                if (p.getId().equals(link.parent().getId()))
-                    p.addCategoryGroupCategoryLink(link, false);
+                if (id == link.getParent().getId().val)
+                	p.addProjectDatasetLink2(link, false);
             }
         } else if (parent instanceof Dataset) {
             if (!(child instanceof Image))
                 throw new IllegalArgumentException("Child not valid.");
             Dataset p = (Dataset) parent;
             Image d = (Image) child;
+            l = d.copyDatasetLinks();
+            if (l == null) return;
             DatasetImageLink link;
-            Iterator it = d.iterateDatasetLinks();
+            Iterator it = l.iterator();
+            long id = p.getId().val;
             while (it.hasNext()) {
                 link = (DatasetImageLink) it.next();
-                if (p.getId().equals(link.parent().getId()))
-                    p.addDatasetImageLink(link, false);
-            }
-        } else if (parent instanceof Category) {
-            if (!(child instanceof Image))
-                throw new IllegalArgumentException("Child not valid.");
-            Category p = (Category) parent;
-            Image d = (Image) child;
-            CategoryImageLink link;
-            Iterator it = d.iterateCategoryLinks();
-            while (it.hasNext()) {
-                link = (CategoryImageLink) it.next();
-                if (p.getId().equals(link.parent().getId()))
-                    p.addCategoryImageLink(link, false);
+                if (id == link.getParent().getId().val)
+                	p.addDatasetImageLink2(link, false);
             }
         } else
             throw new IllegalArgumentException("DataObject not supported.");
@@ -346,56 +308,34 @@ public class ModelMapper
     {
         if (child instanceof ProjectData) {
             ProjectData data = (ProjectData) child;
-            Project model = new Project();
-            model.setName(data.getName());
-            model.setDescription(data.getDescription());
-            return model;
-        } else if (child instanceof CategoryGroupData) {
-            CategoryGroupData data = (CategoryGroupData) child;
-            CategoryGroup model = new CategoryGroup();
-            model.setName(data.getName());
-            model.setDescription(data.getDescription());
+            Project model = new ProjectI();
+            model.setName(new RString(data.getName()));
+            model.setDescription(new RString(data.getDescription()));
             return model;
         } else if (child instanceof DatasetData) {
-            //if (!(parent instanceof ProjectData)) 
-            //    throw new IllegalArgumentException("Parent not valid.");
             DatasetData data = (DatasetData) child;
-            Dataset model = new Dataset();
-            model.setName(data.getName());
-            model.setDescription(data.getDescription());
+            Dataset model = new DatasetI();
+            model.setName(new RString(data.getName()));
+            model.setDescription(new RString(data.getDescription()));
             if (parent != null)
-            	model.linkProject(new Project(new Long(parent.getId()), false));
-            return model;
-        } else if (child instanceof CategoryData) {
-            CategoryData data = (CategoryData) child;
-            Category model = new Category();
-            model.setName(data.getName());
-            model.setDescription(data.getDescription());
-            if (parent instanceof CategoryGroupData)
-            	model.linkCategoryGroup(new CategoryGroup(
-            								new Long(parent.getId()), 
-                                                    false));
+            	model.linkProject(new ProjectI(new Long(parent.getId()), false));
             return model;
         } else if (child instanceof ImageData) {
-            if (!(parent instanceof CategoryData) && 
-                !(parent instanceof DatasetData))
+            if (!(parent instanceof DatasetData))
                 throw new IllegalArgumentException("Parent not valid.");
             ImageData data = (ImageData) child;
-            Image model = new Image();
-            model.setName(data.getName());
-            model.setDescription(data.getDescription());
-            if (parent instanceof CategoryData) 
-                model.linkCategory(new Category(new Long(parent.getId()), 
-                                                false));
-            else if (parent instanceof DatasetData) 
-                model.linkDataset(new Dataset(new Long(parent.getId()), 
+            Image model = new ImageI();
+            model.setName(new RString(data.getName()));
+            model.setDescription(new RString(data.getDescription()));
+            if (parent instanceof DatasetData) 
+                model.linkDataset(new DatasetI(new Long(parent.getId()), 
                                             false));
             return model; 
         } else if (child instanceof ScreenData) {
         	ScreenData data = (ScreenData) child;
-        	Screen model = new Screen();
-            model.setName(data.getName());
-            model.setDescription(data.getDescription());
+        	Screen model = new ScreenI();
+        	model.setName(new RString(data.getName()));
+        	model.setDescription(new RString(data.getDescription()));
             return model;
         }
         throw new IllegalArgumentException("Child and parent are not " +
@@ -413,27 +353,15 @@ public class ModelMapper
     public static IObject removeIObject(IObject child, IObject parent)
     {
         if ((child instanceof Dataset) && (parent instanceof Project)) {
-            Dataset mChild = (Dataset) child;
             Project mParent = (Project) parent;
-            Set s = mParent.findProjectDatasetLink(mChild);
+            List s = mParent.copyDatasetLinks();
             Iterator i = s.iterator();
             while (i.hasNext()) { 
-                mParent.removeProjectDatasetLink( 
-                        (ProjectDatasetLink) i.next(), false);
+                mParent.removeProjectDatasetLink2((ProjectDatasetLink) i.next(),
+                		false);
             }
             return mParent;
-        } else if ((child instanceof Category) && 
-                (parent instanceof CategoryGroup)) {
-            Category mChild = (Category) child;
-            CategoryGroup mParent = (CategoryGroup) parent;
-            Set s = mParent.findCategoryGroupCategoryLink(mChild);
-            Iterator i = s.iterator();
-            while (i.hasNext()) { 
-                mParent.removeCategoryGroupCategoryLink( 
-                        (CategoryGroupCategoryLink) i.next(), false);
-            }
-            return mParent;
-        }
+        } 
         throw new IllegalArgumentException("DataObject not supported.");
     }
    
@@ -447,7 +375,7 @@ public class ModelMapper
      * @param data              The annotation to create.
      * @return See above.
      */
-    public static ILink createAnnotationAndLink(IObject annotatedObject,
+    public static IObject createAnnotationAndLink(IObject annotatedObject,
                                     AnnotationData data)
     {
     	Annotation annotation = createAnnotation(data);
@@ -469,29 +397,30 @@ public class ModelMapper
     {
     	Annotation annotation = null;
     	if (data instanceof TextualAnnotationData) {
-    		annotation = new TextAnnotation();
-    		((TextAnnotation) annotation).setTextValue(
-    										data.getContentAsString());
+    		annotation = new TextAnnotationI();
+    		((TextAnnotation) annotation).setTextValue(new RString(
+    										data.getContentAsString()));
     	} else if (data instanceof RatingAnnotationData) {
     		int rate = ((RatingAnnotationData) data).getRating();
 			if (rate == RatingAnnotationData.LEVEL_ZERO) return null;
-    		annotation = new LongAnnotation();
-    		annotation.setNs(RatingAnnotationData.INSIGHT_RATING_NS);
-    		((LongAnnotation) annotation).setLongValue(
-    										(Long) data.getContent());
+    		annotation = new LongAnnotationI();
+    		annotation.setNs(new RString(
+    				RatingAnnotationData.INSIGHT_RATING_NS));
+    		((LongAnnotation) annotation).setLongValue(new RLong(
+    										(Long) data.getContent()));
     	} else if (data instanceof URLAnnotationData) {
-    		annotation = new UrlAnnotation();
+    		annotation = new UrlAnnotationI();
     		try {
     			((UrlAnnotation) annotation).setTextValue(
-						data.getContentAsString());
+    					new RString(data.getContentAsString()));
 			} catch (Exception e) { //Need to propagate that.
 				return null;
 			}
     		
     	} else if (data instanceof TagAnnotationData) {
-    		annotation = new TagAnnotation();
+    		annotation = new TagAnnotationI();
     		((TagAnnotation) annotation).setTextValue(
-										data.getContentAsString());
+    				new RString(data.getContentAsString()));
     	}
     	return annotation;
     }
@@ -503,51 +432,49 @@ public class ModelMapper
      * @param annotation		The annotation to link.
      * @return See above.
      */
-    public static ILink linkAnnotation(IObject annotatedObject,
-    									IObject annotation) 
+    public static IObject linkAnnotation(IObject annotatedObject,
+    									Annotation annotation) 
     {
-    	
     	if (annotation == null) return null;
     	if (annotatedObject instanceof Dataset) {
     		Dataset m = (Dataset) annotatedObject;
-    		DatasetAnnotationLink l = new DatasetAnnotationLink();
+    		DatasetAnnotationLink l = new DatasetAnnotationLinkI();
     		l.setParent(m);
     		l.setChild(annotation);
-    		
     		return l;
     	} else if (annotatedObject instanceof Image) {
     		Image m = (Image) annotatedObject;
-    		ImageAnnotationLink l = new ImageAnnotationLink();
+    		ImageAnnotationLink l = new ImageAnnotationLinkI();
     		l.setParent(m);
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Project) {
     		Project m = (Project) annotatedObject;
-    		ProjectAnnotationLink l = new ProjectAnnotationLink();
+    		ProjectAnnotationLink l = new ProjectAnnotationLinkI();
     		l.setParent(m);
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Annotation) {
     		Annotation ann = (Annotation) annotatedObject;
-    		AnnotationAnnotationLink l = new AnnotationAnnotationLink();
+    		AnnotationAnnotationLink l = new AnnotationAnnotationLinkI();
     		l.setParent(ann);
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Screen) {
     		Screen m = (Screen) annotatedObject;
-    		ScreenAnnotationLink l = new ScreenAnnotationLink();
+    		ScreenAnnotationLink l = new ScreenAnnotationLinkI();
     		l.setParent(m);
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Plate) {
     		Plate m = (Plate) annotatedObject;
-    		PlateAnnotationLink l = new PlateAnnotationLink();
+    		PlateAnnotationLink l = new PlateAnnotationLinkI();
     		l.setParent(m);
     		l.setChild(annotation);
     		return l;
     	} else if (annotatedObject instanceof Well) {
     		Well m = (Well) annotatedObject;
-    		WellAnnotationLink l = new WellAnnotationLink();
+    		WellAnnotationLink l = new WellAnnotationLinkI();
     		l.setParent(m);
     		l.setChild(annotation);
     		return l;
@@ -646,16 +573,6 @@ public class ModelMapper
     	} else if (oldObject instanceof Image) {
     		Image n = (Image) newObject;
     		Image o = (Image) oldObject;
-    		n.setName(o.getName());
-    		n.setDescription(o.getDescription());
-    	} else if (oldObject instanceof CategoryGroup) {
-    		CategoryGroup n = (CategoryGroup) newObject;
-    		CategoryGroup o = (CategoryGroup) oldObject;
-    		n.setName(o.getName());
-    		n.setDescription(o.getDescription());
-    	} else if (oldObject instanceof Category) {
-    		Category n = (Category) newObject;
-    		Category o = (Category) oldObject;
     		n.setName(o.getName());
     		n.setDescription(o.getDescription());
     	} else if (oldObject instanceof Experimenter) {

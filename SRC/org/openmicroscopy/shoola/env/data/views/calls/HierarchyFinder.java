@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -76,7 +77,7 @@ public class HierarchyFinder
     private BatchCall   findCall;
     
     /**
-     * Creates a {@link BatchCall} to search the P/D/I, CG/C/I hierarchy.
+     * Creates a {@link BatchCall} to search the P/D/I hierarchy.
      * 
      * @param hierarchyRootNodeType The type of the root node.
      * @param ids				    Collections of image ids.
@@ -84,7 +85,7 @@ public class HierarchyFinder
      * @return The {@link BatchCall}.
      */
     private BatchCall makeBatchCall(final Class hierarchyRootNodeType, 
-            						final Set ids, final long userID)
+            						final List ids, final long userID)
     {
         return new BatchCall("Searching Container hierarchy") {
             public void doCall() throws Exception
@@ -120,7 +121,7 @@ public class HierarchyFinder
      * @param ids           Contains ids, one for each leaf image node.
      * @param userID   The Id of the root.
      */
-    public HierarchyFinder(Class hierarchyRootNodeType, Set ids, long userID)
+    public HierarchyFinder(Class hierarchyRootNodeType, List ids, long userID)
     {
         if (ids == null) throw new IllegalArgumentException("No images.");
         if (hierarchyRootNodeType == null) 

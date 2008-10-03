@@ -28,15 +28,11 @@ package org.openmicroscopy.shoola.agents.imviewer.util.cdm;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-
-
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
-import ome.model.display.CodomainMapContext;
-import ome.model.display.PlaneSlicingContext;
 
 
 /** 
@@ -129,7 +125,7 @@ public class PlaneSlicingDialog
      */
     protected void updateContext()
     {
-        PlaneSlicingContext psCtx = (PlaneSlicingContext) ctx;
+       // PlaneSlicingContext psCtx = (PlaneSlicingContext) ctx;
         
     }
 
@@ -144,11 +140,13 @@ public class PlaneSlicingDialog
      * @param cdEnd     The upper bound of the codomain interval.
      * @param cdStart   The lower bound of the codomain interval.
      */
+    /*
     public PlaneSlicingDialog(JFrame owner, CodomainMapContext ctx,
                             int cdEnd, int cdStart)
     {
         super(owner, ctx, cdEnd, cdStart);
     }
+    */
     
     /**
      * Sets the index of the selected pane.
@@ -169,7 +167,7 @@ public class PlaneSlicingDialog
     
     boolean isContextConstant()
     { 
-        return ((PlaneSlicingContext) ctx).getConstant().booleanValue();
+        return false;//((PlaneSlicingContext) ctx).getConstant().booleanValue();
     }
     
     /** 
@@ -194,12 +192,12 @@ public class PlaneSlicingDialog
     
     int getLowerLimit()
     { 
-        return ((PlaneSlicingContext) ctx).getLowerLimit().intValue(); 
+        return 0;//((PlaneSlicingContext) ctx).getLowerLimit().intValue(); 
     }
     
     int getUpperLimit()
     { 
-        return ((PlaneSlicingContext) ctx).getUpperLimit().intValue(); 
+        return 1;//((PlaneSlicingContext) ctx).getUpperLimit().intValue(); 
     }
 }
 

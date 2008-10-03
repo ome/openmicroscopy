@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -35,15 +36,13 @@ import java.util.Set;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 
 /** 
  * Command to retrieve the images contained in the specified containers.
- * The containers can either be <code>Dataset</code> or <code>Category</code>.
+ * The containers can either be <code>Dataset</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -90,7 +89,7 @@ public class ImagesLoader
      * @return The {@link BatchCall}.
      */
     private BatchCall makeImagesInContainerBatchCall(final Class nodeType,
-                                        			final Set nodeIDs,
+                                        			final List nodeIDs,
                                         			final long userID)
     {
         return new BatchCall("Loading container tree: ") {
@@ -152,11 +151,11 @@ public class ImagesLoader
 	 * exception so to fail early and in the call.
      * 
      * @param nodeType	The type of the root node. Can only be one out of:
-     * 					{@link DatasetData} or {@link CategoryGroupData}.
+     * 					{@link DatasetData}.
      * @param nodeIDs	A set of the IDs of top-most containers.
      * @param userID	The Id of the user.
      */
-    public ImagesLoader(Class nodeType, Set nodeIDs, long userID)
+    public ImagesLoader(Class nodeType, List nodeIDs, long userID)
     {
         if (nodeType == null) 
             throw new IllegalArgumentException("No node type.");
@@ -165,7 +164,6 @@ public class ImagesLoader
                                                 " not valid.");
         
         if (nodeType.equals(DatasetData.class) || 
-            nodeType.equals(CategoryData.class) ||
             nodeType.equals(ImageData.class))
             loadCall = makeImagesInContainerBatchCall(nodeType, nodeIDs, 
                     									userID);

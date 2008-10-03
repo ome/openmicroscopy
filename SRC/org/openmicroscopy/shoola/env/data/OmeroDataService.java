@@ -37,10 +37,8 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.AnnotationData;
-import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
-import pojos.ImageData;
 
 /** 
  * List of methods to retrieve data using OMERO.
@@ -61,22 +59,7 @@ public interface OmeroDataService
 
 	/** Identifies the free space on the file system. */
 	public static final int FREE = 101;
-
-	/** Identifies the <code>Declassification</code> algorithm. */
-	public static final int DECLASSIFICATION = 0;
-
-	/**
-	 * Identifies the <code>Classification</code> algorithm with
-	 * mutually exclusive rule.
-	 */
-	public static final int CLASSIFICATION_ME = 1;
-
-	/**
-	 * Identifies the <code>Classification</code> algorithm without
-	 * mutually exclusive rule.
-	 */
-	public static final int CLASSIFICATION_NME = 2;
-
+	
 	/** 
 	 * Identifies the count property.
 	 */
@@ -88,7 +71,6 @@ public interface OmeroDataService
 	 * 
 	 * @param rootNodeType  The top-most type which will be searched for 
 	 *                      Can be <code>Project</code>,
-	 *                      <code>CategoryGroup</code>, <code>Category</code>
 	 *                      <code>Dataset</code>. 
 	 *                      Mustn't be <code>null</code>.
 	 * @param rootNodeIDs   A set of the IDs of top-most containers. 
@@ -102,7 +84,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Set loadContainerHierarchy(Class rootNodeType, Set rootNodeIDs,
+	public Set loadContainerHierarchy(Class rootNodeType, List rootNodeIDs,
 			boolean withLeaves, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -111,8 +93,7 @@ public interface OmeroDataService
 	 * i.e. the requested node as root and all of its descendants.
 	 * 
 	 * @param rootNodeType  The top-most type which will be searched for 
-	 *                      Can be <code>Project</code> or
-	 *                      <code>CategoryGroup</code>. 
+	 *                      Can be <code>Project</code>. 
 	 *                      Mustn't be <code>null</code>.
 	 * @param userID		The Id of the selected user.
 	 * @return  A set of hierarchy trees.
@@ -172,8 +153,7 @@ public interface OmeroDataService
 	 * </p>
 	 * 
 	 * @param rootNodeType  Top-most type which will be searched for 
-	 *                      Can be <code>Project</code> or
-	 *                      <code>CategoryGroup</code>. 
+	 *                      Can be <code>Project</code>. 
 	 *                      Mustn't be <code>null</code>.
 	 * @param leavesIDs     Set of ids of the Images that sit at the bottom of
 	 *                      the trees. Mustn't be <code>null</code>.
@@ -183,7 +163,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Set findContainerHierarchy(Class rootNodeType, Set leavesIDs,
+	public Set findContainerHierarchy(Class rootNodeType, List leavesIDs,
 			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
@@ -214,44 +194,8 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Map findAnnotations(Class nodeType, Set nodeIDs, Set annotatorIDs, 
+	public Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs, 
 			boolean forUser)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Retrieves paths in the Category Group/Category/Image (CG/C/I) hierarchy.
-	 * <p>
-	 * Because of the mutually exclusive rule of CG/C hierarchy, this method
-	 * is quite tricky.
-	 * We want to retrieve all Category Group/Category paths that end with
-	 * the specified leaves.
-	 * </p>
-	 * <p> 
-	 * We also want to retrieve the all Category Group/Category paths that
-	 * don't end with the specified leaves, note that in that case because of 
-	 * the mutually exclusive constraint the categories which don't contain a
-	 * specified leaf but which is itself contained in a group which already
-	 * has a category ending with the specified leaf is excluded.
-	 * </p>
-	 * <p>  
-	 * This is <u>more</u> restrictive than may be imagined. The goal is to 
-	 * find CGC paths to which an Image <B>MAY</b> be attached.
-	 * </p>
-	 * 
-	 * @param imgIDs        Set of ids of the images that sit at the bottom of 
-	 *                      the CGC trees. Mustn't be <code>null</code>.
-	 * @param algorithm     The search algorithm for finding paths. One of the 
-	 *                      following constants: {@link #DECLASSIFICATION},
-	 *                      {@link #CLASSIFICATION_ME},
-	 *                      {@link #CLASSIFICATION_NME}.
-	 * @param userID   		The Id of the user.                  
-	 * @return A <code>Set</code> of hierarchy trees with all root nodes 
-	 * that were found.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Set findCGCPaths(Set imgIDs, int algorithm, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -259,7 +203,7 @@ public interface OmeroDataService
 	 * node type.
 	 * 
 	 * @param nodeType	The type of container. Can either be Project, 
-	 * 					Dataset, CategoryGroup, Category or Image.
+	 * 					Dataset,  or Image.
 	 * @param nodeIDs   Set of node ids..
 	 * @param userID	The Id of the root.
 	 * @return A <code>Set</code> of retrieved images.
@@ -267,7 +211,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Set getImages(Class nodeType, Set nodeIDs, long userID)
+	public Set getImages(Class nodeType, List nodeIDs, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -297,7 +241,7 @@ public interface OmeroDataService
 	 * retrieve data from OMERO service. 
 	 */
 	public Map getCollectionCount(Class rootNodeType, String property,
-			Set rootNodeIDs)
+			List rootNodeIDs)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -367,32 +311,6 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
-	 * Adds the images to the specified categories.
-	 * 
-	 * @param images        The images to classify.
-	 * @param categories    The categories to add the images to.
-	 * @return The classified images.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMEDS service. 
-	 */
-	public Set classify(Set<ImageData> images, Set<CategoryData> categories)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * Removes the images from the specified categories.
-	 * 
-	 * @param images        The images to declassify
-	 * @param categories    The categories to remove the images from.
-	 * @return The declassified images.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Set declassify(Set<ImageData> images, Set<CategoryData> categories)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
 	 * Loads the objects that be added to the node.
 	 * 
 	 * @param nodeType  The top-most type which will be searched for.
@@ -407,7 +325,7 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Set loadExistingObjects(Class nodeType, Set nodeIDs, long userID)
+	public Set loadExistingObjects(Class nodeType, List nodeIDs, long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -492,32 +410,6 @@ public interface OmeroDataService
 	public Map getArchivedFiles(String location, long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 
-	/**
-	 * Classifies the images contained in the specified folders.
-	 * 
-	 * @param containers	The folders containing the images to classify.
-	 * 						Mustn't be <code>null</code>.
-	 * @param categories	Collection of <code>CategoryData</code>.
-	 * @return The classified images.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	public Set classifyChildren(Set containers, Set categories)
-		throws DSOutOfServiceException, DSAccessException;
-
-	/**
-	 * 
-	 * @param ids
-	 * @param rootType
-	 * @param tags
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
-	 */
-	public Set tagImagesIncontainers(Set<Long> ids, Class rootType, 
-			Set<CategoryData> tags)
-		throws DSOutOfServiceException, DSAccessException;
-	
 	/**
 	 * Annotates the images contained in the passed folders i.e. 
 	 * datasets categories.
@@ -638,39 +530,6 @@ public interface OmeroDataService
 			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 
-	/** 
-	 * Finds the categories containing the image.
-	 * 
-	 * @param imageID	The id of the image.
-	 * @param leaves	Passed <code>true</code> to retrieve the images
-	 * 					<code>false</code> otherwise.	
-	 * @param userID	The Id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Set findCategoryPaths(long imageID, boolean leaves, long userID)
-		throws DSOutOfServiceException, DSAccessException; 
-
-	/** 
-	 * Finds the categories containing the images.
-	 * 
-	 * @param imagesID	The id of the images.
-	 * @param leaves	Passed <code>true</code> to retrieve the images
-	 * 					<code>false</code> otherwise.	
-	 * @param userID	The Id of the user.
-	 * @return See above.
-	 * @throws DSOutOfServiceException  If the connection is broken, or logged
-	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
-	 *                                  retrieve data from OMEDS service.
-	 */
-	public Set findCategoryPaths(Set<Long> imagesID, boolean leaves, 
-			long userID)
-		throws DSOutOfServiceException, DSAccessException; 
-	
 	/**
 	 * Retrieves the objects specified by the context of the search
 	 * and returns an object hosting various elements used for the display.
@@ -739,15 +598,15 @@ public interface OmeroDataService
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	public Set loadScreenPlates(Class rootNodeType, Set rootNodeIDs, 
-										long userID)
+	public Set loadScreenPlates(Class rootNodeType, List rootNodeIDs, 
+								long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
 	 * 
 	 * @param plateID
 	 * @param userID
-	 * @return
+	 * @return See above
 	 * @throws DSOutOfServiceException
 	 * @throws DSAccessException
 	 */

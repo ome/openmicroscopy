@@ -101,6 +101,7 @@ public class ClassificationsSaver
      */
 	public void load()
 	{
+		/*
 		switch (mode) {
 			case Classifier.CLASSIFY_MODE:
 				handle = dhView.classify(toClassify, categories, this);
@@ -109,6 +110,7 @@ public class ClassificationsSaver
 			case Classifier.BULK_CLASSIFY_MODE:
 				handle = dhView.classifyChildren(toClassify, categories, this);
 		}
+		*/
 	}
 	
 	/** 

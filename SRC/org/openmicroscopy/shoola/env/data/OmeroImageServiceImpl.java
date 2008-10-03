@@ -38,14 +38,17 @@ import javax.imageio.ImageIO;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.ILink;
-import ome.model.core.Image;
-import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import ome.model.display.RenderingDef;
-import ome.util.builders.PojoOptions;
-import omeis.providers.re.RenderingEngine;
-import omeis.providers.re.data.PlaneDef;
+import omero.RString;
+import omero.api.RenderingEngine;
+import omero.api.RenderingEnginePrx;
+import omero.model.IObject;
+import omero.model.Image;
+import omero.model.Pixels;
+import omero.model.PixelsDimensions;
+import omero.model.RenderingDef;
+import omero.romio.PlaneDef;
+import omero.util.PojoOptionsI;
+
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -56,7 +59,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -153,7 +155,7 @@ class OmeroImageServiceImpl
 			}
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
-			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
+			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
 			Pixels pix = gateway.getPixels(pixelsID);
 			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
 			List l = context.getDataService().getChannelsMetadata(pixelsID);
@@ -269,7 +271,7 @@ class OmeroImageServiceImpl
 					new Long(pixelsID));
 		if (proxy == null) return null;
 		try {
-			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
+			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
 			return PixelsServicesFactory.reloadRenderingControl(context, 
 					pixelsID, re);
 		} catch (Exception e) {
@@ -290,7 +292,7 @@ class OmeroImageServiceImpl
 					new Long(pixelsID));
 		if (proxy == null) return null;
 		try {
-			RenderingEngine re = gateway.createRenderingEngine(pixelsID);
+			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
 			ExperimenterData exp = (ExperimenterData) context.lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
@@ -337,7 +339,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#pasteRenderingSettings(long, Class, List)
 	 */
 	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType, 
-			Set nodesID) 
+			List nodesID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (nodesID == null || nodesID.size() == 0)
@@ -349,7 +351,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#resetRenderingSettings(Class, List)
 	 */
-	public Map resetRenderingSettings(Class rootNodeType, Set nodesID) 
+	public Map resetRenderingSettings(Class rootNodeType, List nodesID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (nodesID == null || nodesID.size() == 0)
@@ -361,7 +363,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#setOriginalRenderingSettings(Class, List)
 	 */
-	public Map setOriginalRenderingSettings(Class rootNodeType, Set nodesID) 
+	public Map setOriginalRenderingSettings(Class rootNodeType, List nodesID) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
 		if (nodesID == null || nodesID.size() == 0)
@@ -411,17 +413,17 @@ class OmeroImageServiceImpl
 		if (ref == null) return null;
 		ImageData image = gateway.projectImage(ref.getPixelsID(), 
 				ref.getStartT(), ref.getEndT(), ref.getStartZ(), 
-				ref.getEndZ(), ref.getStepping(), ref.getAlgorithm(), 
+				ref.getEndZ(), ref.getStepping(), ref.getProjectionType(), 
 				ref.getChannels(), ref.getName(), ref.getPixelsType());
 		if (image == null) return null;
 		Image img = image.asImage();
-		img.setDescription(ref.getDescription());
+		img.setDescription(new RString(ref.getDescription()));
 		image = (ImageData) 
 			PojoMapper.asDataObject(
-					gateway.updateObject(img, new PojoOptions().map()));
+					gateway.updateObject(img, new PojoOptionsI().map()));
 		List<DatasetData> datasets =  ref.getDatasets();
 		if (datasets != null && datasets.size() > 0) {
-			Map map = (new PojoOptions()).map();
+			Map map = (new PojoOptionsI()).map();
 			Iterator<DatasetData> i = datasets.iterator();
 			//Check if we need to create a dataset.
 			List<DatasetData> existing = new ArrayList<DatasetData>();
@@ -440,15 +442,13 @@ class OmeroImageServiceImpl
 										null, null));
 				} 
 			}
-			ILink[] links = new ILink[datasets.size()];
+			List<IObject> links = new ArrayList<IObject>(datasets.size());
 			img = image.asImage();
-			ILink l;
-			int k = 0;
+			IObject l;
 			i = existing.iterator();
 			while (i.hasNext()) {
 				l = ModelMapper.linkParentToChild(img, i.next().asIObject());
-				links[k] = l;
-				k++;
+				links.add(l);
 			}
 			gateway.createObjects(links, map);
 		}

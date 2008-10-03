@@ -25,7 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -59,7 +60,7 @@ public class ProjectsLoader
     private CallHandle  		handle;
     
     /** Reference to the node hosting the project to browse. */
-    private TreeImageDisplay 		node;
+    private TreeImageDisplay	node;
     
     /**
      * Creates a new instance.
@@ -85,7 +86,7 @@ public class ProjectsLoader
     {
     	long userID = TreeViewerAgent.getUserDetails().getId();
     	long id = node.getUserObjectId();
-    	Set<Long> ids = new HashSet<Long>();
+    	List<Long> ids = new ArrayList<Long>();
     	ids.add(id);
     	handle = hiBrwView.loadHierarchy(ProjectData.class, ids, userID, this);
     }

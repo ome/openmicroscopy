@@ -24,7 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 
 //Java imports
-import java.util.Set;
+import java.util.List;
 
 //Third-party libraries
 
@@ -263,7 +263,7 @@ public class StructuredAnnotationLoader
      * 					<code>-1</code> if the user is not specified.
      * @return The {@link BatchCall}.
      */
-    private BatchCall loadRatings(final Class type, final Set<Long> ids, 
+    private BatchCall loadRatings(final Class type, final List<Long> ids, 
     							final long userID)
     {
         return new BatchCall("Loading Ratings") {
@@ -299,7 +299,7 @@ public class StructuredAnnotationLoader
      * @param userID	The id of the user or <code>-1</code> if the id 
      * 					is not specified.
      */
-    public StructuredAnnotationLoader(int index, Class type, Set<Long> ids, 
+    public StructuredAnnotationLoader(int index, Class type, List<Long> ids, 
     									long userID)
     {
     	switch (index) {

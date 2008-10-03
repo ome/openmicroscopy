@@ -33,15 +33,14 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.api.IProjection;
-import ome.model.core.Pixels;
-import ome.model.core.PixelsDimensions;
-import omeis.providers.re.data.PlaneDef;
+import omero.constants.projection.ProjectionType;
+import omero.model.Pixels;
+import omero.model.PixelsDimensions;
+import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
 import pojos.ImageData;
 
 /** 
@@ -61,13 +60,15 @@ public interface OmeroImageService
 {
   
 	/** Identifies the <code>Maximum intensity</code> projection. */
-	public static final int	   MAX_INTENSITY = IProjection.MAXIMUM_INTENSITY;
+	public static final int	MAX_INTENSITY = 
+									ProjectionType.MAXIMUMINTENSITY.value();
 	
 	/** Identifies the <code>Mean intensity</code> projection. */
-	public static final int    MEAN_INTENSITY = IProjection.MEAN_INTENSITY;
+	public static final int	MEAN_INTENSITY = 
+								ProjectionType.MEANINTENSITY.value();
 	
 	/** Identifies the <code>Sum intensity</code> projection. */
-	public static final int    SUM_INTENSITY = IProjection.SUM_INTENSITY;
+	public static final int	SUM_INTENSITY = ProjectionType.SUMINTENSITY.value();
 	
 	/** Identifies the type used to store pixel values. */
 	public static final String INT_8 = "int8";
@@ -254,7 +255,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map pasteRenderingSettings(long pixelsID, Class rootNodeType,
-			Set<Long> nodeIDs)
+			List<Long> nodeIDs)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -278,7 +279,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Map resetRenderingSettings(Class rootNodeType, Set<Long> nodeIDs)
+	public Map resetRenderingSettings(Class rootNodeType, List<Long> nodeIDs)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -303,7 +304,7 @@ public interface OmeroImageService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map setOriginalRenderingSettings(Class rootNodeType, 
-											Set<Long> nodeIDs)
+											List<Long> nodeIDs)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**

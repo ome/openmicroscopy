@@ -28,9 +28,10 @@ package org.openmicroscopy.shoola.agents.measurement;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.core.Pixels;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.PixelsData;
 
 /** 
  * Loads the pixels set.
@@ -92,7 +93,7 @@ public class PixelsLoader
     public void handleResult(Object result)
     {
     	if (viewer.getState() == MeasurementViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setPixels((Pixels) result);
+    	viewer.setPixels((PixelsData) result);
     }
 
 }

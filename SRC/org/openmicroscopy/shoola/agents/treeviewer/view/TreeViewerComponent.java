@@ -1345,9 +1345,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#pasteRndSettings(Set, Class)
+	 * @see TreeViewer#pasteRndSettings(List, Class)
 	 */
-	public void pasteRndSettings(Set<Long> ids, Class klass)
+	public void pasteRndSettings(List<Long> ids, Class klass)
 	{
 		int state = model.getState();
 		if (!hasRndSettings()) {
@@ -1461,9 +1461,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#resetRndSettings(Set, Class)
+	 * @see TreeViewer#resetRndSettings(List, Class)
 	 */
-	public void resetRndSettings(Set<Long> ids, Class klass)
+	public void resetRndSettings(List<Long> ids, Class klass)
 	{
 		if (ids == null || ids.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
@@ -1707,9 +1707,9 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setOriginalRndSettings(Set, Class)
+	 * @see TreeViewer#setOriginalRndSettings(List, Class)
 	 */
-	public void setOriginalRndSettings(Set<Long> ids, Class klass)
+	public void setOriginalRndSettings(List<Long> ids, Class klass)
 	{
 		if (ids == null || ids.size() == 0) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();

@@ -31,7 +31,8 @@ import java.awt.image.BufferedImage;
 //Third-party libraries
 
 //Application-internal dependencies
-import omeis.providers.re.data.PlaneDef;
+import omero.romio.PlaneDef;
+
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;

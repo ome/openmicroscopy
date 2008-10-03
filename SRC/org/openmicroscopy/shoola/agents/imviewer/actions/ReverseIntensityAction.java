@@ -32,7 +32,6 @@ import javax.swing.JCheckBox;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.model.display.ReverseIntensityContext;
 import org.openmicroscopy.shoola.agents.imviewer.rnd.Renderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -84,8 +83,8 @@ public class ReverseIntensityAction
         Object source = e.getSource();
         if (source instanceof JCheckBox) {
             boolean b = ((JCheckBox) source).isSelected();
-            if (b) model.addCodomainMap(ReverseIntensityContext.class);
-            else  model.removeCodomainMap(ReverseIntensityContext.class);
+            //if (b) model.addCodomainMap(ReverseIntensityContext.class);
+            //else  model.removeCodomainMap(ReverseIntensityContext.class);
         }
     }
     

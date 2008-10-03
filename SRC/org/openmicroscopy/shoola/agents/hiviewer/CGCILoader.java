@@ -90,8 +90,8 @@ public class CGCILoader
      */
     public void load()
     {
-        handle = hiBrwView.findCGCIHierarchies(images, viewer.getExperimenterID(), 
-        										this);
+        //handle = hiBrwView.findCGCIHierarchies(images, viewer.getExperimenterID(), 
+        //										this);
     }
     
     /** 
