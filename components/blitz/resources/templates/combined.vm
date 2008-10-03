@@ -1534,6 +1534,19 @@ MISCELLANEOUS METHODS BLOCK:
 [$jav]     @SuppressWarnings("unchecked") public static List<${PojoI}> cast(List list) { return list; }
 
 [$pyc]
+[$pyc]       def ice_postUnmarshal(self):
+[$pyc]           """
+[$pyc]           Provides additional initialization once all data loaded
+[$pyc]           """
+[$pyc]           pass # Currently unused
+[$pyc]
+[$pyc]
+[$pyc]       def ice_preMarshal(self):
+[$pyc]           """
+[$pyc]           Provides additional validation before data is sent
+[$pyc]           """
+[$pyc]           pass # Currently unused
+[$pyc]
 [$pyc]       def __getattr__(self, name):
 [$pyc]           """
 [$pyc]           Reroutes all access to object.field through object.getField()
