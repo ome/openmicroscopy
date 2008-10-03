@@ -94,7 +94,12 @@ class TestModel(unittest.TestCase):
         self.assert_( img.getName() )
 
         img.unload()
-        self.assert_( not img.getName() )
+        try:
+            self.assert_( not img.getName() )
+            self.fail("should fail")
+        except:
+            # Is true, but cannot test
+            pass
 
     def testUnloadedAccessThrows(self):
         unloaded = ImageI(omero.RLong(1),False)
@@ -103,7 +108,6 @@ class TestModel(unittest.TestCase):
     def testIterators(self):
         d = DatasetI()
         image = ImageI()
-        image.loaded = True
         image.linkDataset(d)
         it = image.iterateDatasetLinks()
         count = 0
@@ -126,7 +130,7 @@ class TestModel(unittest.TestCase):
         img.addPixels( PixelsI() )
         self.assert_( 1==img.sizeOfPixels() )
         img.unloadPixels()
-        self.assert_( not img.sizeOfPixels() < 0 )
+        self.assert_( img.sizeOfPixels() < 0 )
         # Can't check size self.assert_( 0==img.sizeOfPixels() )
 
 
@@ -199,6 +203,37 @@ class TestModel(unittest.TestCase):
     def testScriptJobHasLoadedCollections(self):
         s = ScriptJobI()
         self.assert_( s.sizeOfOriginalFileLinks() >= 0 )
+
+    #
+    # Python specific
+    #
+
+    def testGetAttrGood(self):
+       i = ImageI()
+       self.assert_( i.loaded )
+       self.assert_( i.isLoaded() )
+       self.assert_( not i.name )
+       i.name = omero.RString("name")
+       self.assert_( i.name )
+       i.setName( None )
+       self.assert_( not i.getName() )
+       i.copyAnnotationLinks()
+       i.linkAnnotation( omero.model.BooleanAnnotationI() )
+
+    def testGetAttrBad(self):
+       i = ImageI()
+       def assign_loaded():
+            i.loaded = False
+       self.assertRaises( AttributeError, assign_loaded )
+       self.assertRaises( AttributeError, lambda: i.foo )
+       def assign_foo():
+            i.foo = 1
+       self.assertRaises( AttributeError, assign_foo )
+       self.assertRaises( AttributeError, lambda: i.annotationLinks )
+       self.assertRaises( AttributeError, lambda: i.getAnnotationLinks() )
+       def assign_links():
+            i.annotationLinks = []
+       self.assertRaises( AttributeError, assign_links)
 
 if __name__ == '__main__':
     unittest.main()

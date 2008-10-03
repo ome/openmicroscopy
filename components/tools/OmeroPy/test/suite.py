@@ -19,6 +19,7 @@ def additional_tests():
     suite = unittest.TestSuite()
     suite.addTest(load("test.cli.suite"))
     suite.addTest(load("test.t_model"))
+    suite.addTest(load("test.t_parameters"))
     suite.addTest(load("test.t_permissions"))
     suite.addTest(load("test.scripts.harness"))
     suite.addTest(load("test.processor"))

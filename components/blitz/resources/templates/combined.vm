@@ -791,11 +791,19 @@ ticket:684 This is necessary to map back and forth from sets.
 [$cpp]           $unloadedCpp
 [$cpp]       }
 
-[$pyc]       def get${property.nameCapped}(self, $PYC_CURRENT):
+#set($pyaccess = "")
+#if($property.one2Many)
+#set($pyaccess = "_")
+#end
+
+It's unclear if these methods are useful at all, but for the moment lowering their
+"visibility" to make __getattr__ logic work properly.
+
+[$pyc]       def ${pyaccess}get${property.nameCapped}(self, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           return self._${fieldName}
 [$pyc]
-[$pyc]       def set${PropertyName}(self, _${property.name}, $PYC_CURRENT):
+[$pyc]       def ${pyaccess}set${PropertyName}(self, _${property.name}, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           self._${fieldName} = _${property.name}
 [$pyc]           $unloadedPython
@@ -1543,8 +1551,7 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]               elif hasattr(self, questn):
 [$pyc]                   method = getattr(self, questn)
 [$pyc]                   return method()
-[$pyc]           else:
-[$pyc]               raise AttributeError("'%s' object has no attribute '%s' or '%s'" % (self.__class__.__name__, getter, questn))
+[$pyc]           raise AttributeError("'%s' object has no attribute '%s' or '%s'" % (self.__class__.__name__, getter, questn))
 [$pyc]
 [$pyc]       def __setattr__(self, name, value):
 [$pyc]           """
@@ -1553,14 +1560,14 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]           """
 [$pyc]           if name.startswith("_"):
 [$pyc]               self.__dict__[name] = value
+[$pyc]               return
 [$pyc]           else:
 [$pyc]               field  = "_" + name
 [$pyc]               setter = "set" + name[0].capitalize() + name[1:]
 [$pyc]               if hasattr(self, field) and hasattr(self, setter):
 [$pyc]                   method = getattr(self, setter)
-[$pyc]                   method(value)
-[$pyc]               else:
-[$pyc]                   raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, setter))
+[$pyc]                   return method(value)
+[$pyc]           raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, setter))
 [$pyc]
 
 END DECLARATION BLOCK:
