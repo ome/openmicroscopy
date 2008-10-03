@@ -36,13 +36,10 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import omero.model.FileAnnotation;
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.env.Container;
-import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import org.openmicroscopy.shoola.util.ui.NotificationDialog;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.FileAnnotationData;
 
 /** 

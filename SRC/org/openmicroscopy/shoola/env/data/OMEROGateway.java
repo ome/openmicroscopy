@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
-
 import ome.system.UpgradeCheck;
 import omero.InternalException;
 import omero.RInt;
@@ -74,13 +73,9 @@ import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
-import omero.api.Search;
 import omero.api.SearchPrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ThumbnailStorePrx;
-import omero.constants.CLASSIFICATIONME;
-import omero.constants.CLASSIFICATIONNME;
-import omero.constants.DECLASSIFICATION;
 import omero.constants.projection.ProjectionType;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
@@ -110,8 +105,8 @@ import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.Parameters;
-import omero.util.ParametersI;
-import omero.util.PojoOptionsI;
+import omero.sys.ParametersI;
+import omero.sys.PojoOptions;
 import pojos.ArchivedAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -240,10 +235,13 @@ class OMEROGateway
 	{
 		Throwable cause = t.getCause();
 		if (cause instanceof ServerError) {
+			
+			
 			String s = "Cannot access data for security reasons \n"; 
 			throw new DSAccessException(s+message, t);
 		} else
-			throw new DSOutOfServiceException(message, t);
+			
+;
 	}
 	
 	/**
@@ -732,24 +730,6 @@ class OMEROGateway
 			handleException(e, "Cannot retrieve experimenters.");
 		}
 		return exps;
-	}
-	
-	/**
-	 * Reconnects to server. This method should be invoked when the password
-	 * is reset.
-	 * 
-	 * @param userName	The name of the user who modifies his/her password.
-	 * @param password 	The new password.
-	 */
-	private void resetFactory(String userName, String password)
-	{
-		//First close the previous session
-		/*
-		logout();
-		login = new Login(userName, password);
-		entry = new ServiceFactory(server, new Login(userName, password));
-		thumbRetrieval = 0;
-		*/
 	}
 	
 	/**
@@ -2014,7 +1994,7 @@ class OMEROGateway
 		try {
 			IPojosPrx service = getPojosService();
 			Map m = service.findAnnotations(Pixels.class.getName(), ids, null, 
-									(new PojoOptionsI().map()));
+									(new PojoOptions().map()));
 			Collection c = (Collection) m.get(pixelsID);
 			if (c == null || c.size() == 0) return false;
 			Iterator i = c.iterator();
@@ -2274,20 +2254,17 @@ class OMEROGateway
 	/**
 	 * Modifies the password of the currently logged in user.
 	 * 
-	 * @param userName	The name of the user whose password has not be changed.
 	 * @param password	The new password.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occured while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	void changePassword(String userName, String password)
+	void changePassword(String password)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		
 		try {
 			getAdminService().changePassword(new RString(password));
-			resetFactory(userName, password);
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify password. ");
 		}
