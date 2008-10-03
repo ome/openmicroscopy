@@ -1429,42 +1429,17 @@ CLASS-LEVEL EXTRA METHODS BLOCK:
 [$jav]           setParent( _parent );
 [$jav]           setChild( _child );
 [$jav]       }
-[$jav]       public ${parent} parent() throws omero.UnloadedEntityException {
-[$jav]           errorIfUnloaded();
-[$jav]           return (${parent}) parent;
-[$jav]       }
-[$jav]       public ${child} child() throws omero.UnloadedEntityException{
-[$jav]           errorIfUnloaded();
-[$jav]           return (${child}) child;
-[$jav]       }
+[$pyc]
 [$pyc]       def link(self, _parent, _child, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
 [$pyc]           self.setParent( _parent )
 [$pyc]           self.setChild( _child )
 [$pyc]
-[$pyc]       def parent(self):
-[$pyc]           self.errorIfUnloaded()
-[$pyc]           return self.parent
-[$pyc]
-[$pyc]       def child(self):
-[$pyc]           self.errorIfUnloaded()
-[$pyc]           return self.child
-[$pyc]
 [$hdr]       virtual void link(const ${parent}Ptr& parent, const ${child}Ptr& child, $HDR_CURRENT);
-[$hdr]       virtual ${parent}Ptr castParent();
-[$hdr]       virtual ${child}Ptr castChild();
 [$cpp]       void ${PojoI}::link(const ${parent}Ptr& _parent, const ${child}Ptr& _child, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           setParent( _parent );
 [$cpp]           setChild(  _child  );
-[$cpp]       }
-[$cpp]       ${parent}Ptr ${PojoI}::castParent() {
-[$cpp]           errorIfUnloaded();
-[$cpp]           return ${parent}Ptr::dynamicCast( parent );
-[$cpp]       }
-[$cpp]       ${child}Ptr ${PojoI}::castChild() {
-[$cpp]           errorIfUnloaded();
-[$cpp]           return ${child}Ptr::dynamicCast( child );
 [$cpp]       }
 #end
 
