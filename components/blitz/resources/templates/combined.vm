@@ -1524,15 +1524,21 @@ MISCELLANEOUS METHODS BLOCK:
 [$pyc]
 [$pyc]       def __getattr__(self, name):
 [$pyc]           """
-[$pyc]           Reroutes all access to object.field through object.getField()
+[$pyc]           Reroutes all access to object.field through object.getField() or object.isField()
 [$pyc]           """
 [$pyc]           field  = "_" + name
-[$pyc]           getter = "get" + name[0].capitalize() + name[1:]
-[$pyc]           if hasattr(self, field) and hasattr(self, getter):
-[$pyc]               method = getattr(self, getter)
-[$pyc]               return method()
+[$pyc]           capitalized = name[0].capitalize() + name[1:]
+[$pyc]           getter = "get" + capitalized
+[$pyc]           questn = "is" + capitalized
+[$pyc]           if hasattr(self, field):
+[$pyc]               if hasattr(self, getter):
+[$pyc]                   method = getattr(self, getter)
+[$pyc]                   return method()
+[$pyc]               elif hasattr(self, questn):
+[$pyc]                   method = getattr(self, questn)
+[$pyc]                   return method()
 [$pyc]           else:
-[$pyc]               raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, getter))
+[$pyc]               raise AttributeError("'%s' object has no attribute '%s' or '%s'" % (self.__class__.__name__, getter, questn))
 [$pyc]
 [$pyc]       def __setattr__(self, name, value):
 [$pyc]           """
