@@ -7,10 +7,17 @@
 package ome.icy.model.utests;
 
 import junit.framework.TestCase;
+import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import omero.RFloat;
+import omero.RString;
 import omero.model.ArcI;
+import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
+import omero.model.ImageI;
+import omero.model.PixelsI;
 import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
@@ -28,6 +35,28 @@ public class ModelTest extends TestCase {
     public void testCopyObject() throws Exception {
         Experimenter e = new Experimenter();
         e.setOmeName("hi");
+        e.linkExperimenterGroup(new ExperimenterGroup("foo"));
         new ExperimenterI().copyObject(e, new IceMapper());
+        
+        Pixels p = new Pixels();
+        Image i = new Image();
+        p.setImage(i);
+        p.getDetails().setOwner(e);
+        new PixelsI().copyObject(p, new IceMapper());
+        
+    }
+    
+    @Test
+    public void testFillObject() throws Exception {
+        ExperimenterI e = new ExperimenterI();
+        e.setOmeName(new RString("name"));
+        e.linkExperimenterGroup(new ExperimenterGroupI());
+        e.fillObject(new IceMapper());
+        
+        PixelsI p = new PixelsI();
+        ImageI i = new ImageI();
+        p.setImage(i);
+        p.getDetails().owner = e;
+        p.fillObject(new IceMapper());
     }
 }

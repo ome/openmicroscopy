@@ -750,11 +750,17 @@ ticket:684 This is necessary to map back and forth from sets.
 [$jav]               target.putAt( $STATICFIELDNAME, null );
 [$jav]             }
 
+#elseif( $javaType.startsWith("omero.R") )
+[$jav]             try {
+[$jav]                 target.set${PropertyName}( (${property.type}) mapper.fromRType( this.get${PropertyName}() ));
+[$jav]             } catch (omero.ApiUsageException aue) {
+[$jav]                 throw new omero.ClientError(aue.message);
+[$jav]             }
 #elseif( $javaType.startsWith("ome") )
-[$jav]             target.putAt($STATICFIELDNAME, ($javaType) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+[$jav]             target.putAt($STATICFIELDNAME, mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
 
 #elseif( $javaType.startsWith("IObject") )
-[$jav]             target.set${PropertyName}( (ome.model.IObject) mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
+[$jav]             target.set${PropertyName}( mapper.reverse( (ome.model.ModelBased) this.get${PropertyName}() ) );
 
 #elseif( $javaType.startsWith("long"))
  ----------------> ERROR
