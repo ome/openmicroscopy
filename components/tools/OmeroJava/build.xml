@@ -41,6 +41,9 @@
     <target name="package" depends="generate" unless="skip.ice">
         <unjar src="${target.dir}/libs/ice.jar" dest="${target.dir}/ice-classes"/>
         <jar destfile="${target.dir}/${ivy.module}.jar">
+	    <fileset dir="${resrc.dest}">
+	        <include name="omero.properties"/>
+	    </fileset>
             <fileset dir="${target.dir}/ice-classes">
                 <exclude name="META-INF/**/*"/>
             </fileset>
