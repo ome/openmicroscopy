@@ -24,5 +24,6 @@
     <dependency org="loci" name="netcdf" rev="4.0"/>
     <dependency org="loci" name="poi" rev="${versions.poi}"/>
     <dependency org="loci" name="slf4j-jdk14" rev="1.0"/>
+	<dependency org="loci" name="poi-loci" rev="build777"/>
   </dependencies>
 </ivy-module>

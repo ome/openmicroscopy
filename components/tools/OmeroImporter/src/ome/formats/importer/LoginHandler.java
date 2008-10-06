@@ -35,6 +35,7 @@ import javax.swing.JOptionPane;
 import ome.formats.OMEROMetadataStore;
 import ome.formats.importer.util.Actions;
 import ome.formats.importer.util.GuiCommonElements;
+import ome.formats.importer.util.IniFileLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -93,6 +94,8 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
     private HistoryTable historyTable = null;
     
     private GuiCommonElements   gui;
+        
+    IniFileLoader ini = IniFileLoader.getIniFileLoader();
 
     LoginHandler(Main viewer, boolean modal, boolean center)
     {
@@ -199,7 +202,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         username = lc.getUserName();
                         password = lc.getPassword();
                         server = lc.getHostName();
-                        port = "1099";
+                        port = ini.getServerPort();
                 }
             
                 viewer.statusBar.setStatusIcon("gfx/server_trying16.png",
