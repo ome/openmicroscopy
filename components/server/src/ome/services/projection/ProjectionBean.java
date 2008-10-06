@@ -179,6 +179,19 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             log.error(error, e);
             throw new ValidationException(error);
         }
+        finally
+        {
+            try
+            {
+                pixelBuffer.close();
+            }
+            catch (IOException e)
+            {
+                log.error("Buffer did not close successfully.", e);
+                throw new ResourceError(
+                        e.getMessage() + " Please check server log.");
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -211,7 +224,6 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         }
         newPixels.setPixelsType(pixelsType);
         
-        
         // Project each stack for each channel and each timepoint in the
         // entire image, copying into the pixel buffer the projected pixels.
         OriginalFileMetadataProvider metadataProvider =
@@ -225,69 +237,85 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
             ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
         byte[] buf = new byte[planeSize];
         ctx.to = new PixelData(pixelsType, ByteBuffer.wrap(buf));
-	int newC = 0;
-        for (Integer c : channels)
+        int newC = 0;
+        try
         {
-            ctx.minimum = Double.MAX_VALUE;
-            ctx.maximum = Double.MIN_VALUE;
-            for (int t = tStart; t <= tEnd; t++)
+            for (Integer c : channels)
             {
-                try
+                ctx.minimum = Double.MAX_VALUE;
+                ctx.maximum = Double.MIN_VALUE;
+                for (int t = tStart; t <= tEnd; t++)
                 {
-                    ctx.from = sourceBuffer.getStack(c, t);
-                    switch (algorithm)
+                    try
                     {
-                        case IProjection.MAXIMUM_INTENSITY:
+                        ctx.from = sourceBuffer.getStack(c, t);
+                        switch (algorithm)
                         {
-                            projectStackMax(ctx, stepping, zStart, zEnd, true);
-                            break;
+                            case IProjection.MAXIMUM_INTENSITY:
+                            {
+                                projectStackMax(ctx, stepping, zStart, zEnd, true);
+                                break;
+                            }
+                            case IProjection.MEAN_INTENSITY:
+                            {
+                                projectStackMean(ctx, stepping, zStart, zEnd, true);
+                                break;
+                            }
+                            case IProjection.SUM_INTENSITY:
+                            {
+                                projectStackSum(ctx, stepping, zStart, zEnd, true);
+                                break;
+                            }
+                            default:
+                            {
+                                throw new IllegalArgumentException(
+                                        "Unknown algorithm: " + algorithm);
+                            }
                         }
-                        case IProjection.MEAN_INTENSITY:
-                        {
-                            projectStackMean(ctx, stepping, zStart, zEnd, true);
-                            break;
-                        }
-                        case IProjection.SUM_INTENSITY:
-                        {
-                            projectStackSum(ctx, stepping, zStart, zEnd, true);
-                            break;
-                        }
-                        default:
-                        {
-                            throw new IllegalArgumentException(
-                                    "Unknown algorithm: " + algorithm);
-                        }
+                        destinationBuffer.setPlane(buf, 0, newC, t);
                     }
-                    destinationBuffer.setPlane(buf, 0, newC, t);
+                    catch (IOException e)
+                    {
+                        String error = String.format(
+                                "I/O error retrieving stack C=%d T=%d: %s",
+                                c, t, e.getMessage());
+                        log.error(error, e);
+                        throw new ResourceError(error);
+                    }
+                    catch (DimensionsOutOfBoundsException e)
+                    {
+                        String error = String.format(
+                                "C=%d or T=%d out of range for Pixels Id %d: %s",
+                                c, t, ctx.pixels.getId(), e.getMessage());
+                        log.error(error, e);
+                        throw new ValidationException(error);
+                    }
                 }
-                catch (IOException e)
-                {
-                    String error = String.format(
-                            "I/O error retrieving stack C=%d T=%d: %s",
-                            c, t, e.getMessage());
-                    log.error(error, e);
-                    throw new ResourceError(error);
-                }
-                catch (DimensionsOutOfBoundsException e)
-                {
-                    String error = String.format(
-                            "C=%d or T=%d out of range for Pixels Id %d: %s",
-                            c, t, ctx.pixels.getId(), e.getMessage());
-                    log.error(error, e);
-                    throw new ValidationException(error);
-                }
+                // Handle the change of minimum and maximum for this channel.
+                Channel channel = newPixels.getChannel(newC);
+                StatsInfo si = new StatsInfo();
+                si.setGlobalMin(ctx.minimum);
+                si.setGlobalMax(ctx.maximum);
+                channel.setStatsInfo(si);
+                // Set our methodology
+                newPixels.setMethodology(
+                        IProjection.METHODOLOGY_STRINGS[algorithm]);
+                newC++;
             }
-            
-            // Handle the change of minimum and maximum for this channel.
-            Channel channel = newPixels.getChannel(newC);
-            StatsInfo si = new StatsInfo();
-            si.setGlobalMin(ctx.minimum);
-            si.setGlobalMax(ctx.maximum);
-            channel.setStatsInfo(si);
-	    // Set our methodology
-	    newPixels.setMethodology(
-                IProjection.METHODOLOGY_STRINGS[algorithm]);
-            newC++;
+        }
+        finally
+        {
+            try
+            {
+                sourceBuffer.close();
+                destinationBuffer.close();
+            }
+            catch (IOException e)
+            {
+                log.error("Buffer did not close successfully.", e);
+                throw new ResourceError(
+                        e.getMessage() + " Please check server log.");
+            }
         }
         newImage = iUpdate.saveAndReturnObject(newImage);
         return newImage.getId();
