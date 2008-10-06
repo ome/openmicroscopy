@@ -10,6 +10,7 @@ package ome.services.blitz.impl;
 import java.util.List;
 
 import ome.formats.OMEROMetadataStore;
+import ome.model.IObject;
 import ome.model.acquisition.Filament;
 import ome.model.screen.Plate;
 import ome.model.screen.Screen;
@@ -21,6 +22,7 @@ import omero.RDouble;
 import omero.RFloat;
 import omero.RInt;
 import omero.RLong;
+import omero.RObject;
 import omero.RString;
 import omero.RType;
 import omero.ServerError;
@@ -34,26 +36,21 @@ import omero.model.Pixels;
 import omero.model.Project;
 import omero.sys.EventContext;
 import omero.util.IceMapper;
-
-import org.springframework.beans.BeansException;
-import org.springframework.beans.FatalBeanException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
 import Ice.Current;
 
 /**
  */
 public class MetadataStoreI extends AbstractAmdServant implements
         _MetadataStoreOperations, BlitzOnly {
-    
+
     protected OMEROMetadataStore store;
 
     public MetadataStoreI(final BlitzExecutor be) throws Exception {
         super(null, be);
     }
 
-    public void setOmeroContext(OmeroContext ctx) throws Exception {
+    @Override
+    public void setOmeroContext(final OmeroContext ctx) throws Exception {
         ome.system.ServiceFactory sf = new ome.system.ServiceFactory(ctx);
         this.store = new OMEROMetadataStore(sf);
     }
@@ -176,7 +173,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
             public void run() {
                 try {
                     // Code here
-                    IceMapper mapper = new IceMapper();
                     store.createRoot();
                     // Code here
                     __cb.ice_response();
@@ -261,7 +257,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
             public void run() {
                 try {
                     // Code here
-                    IceMapper mapper = new IceMapper();
                     long id = store.getExperimenterID();
                     // Code here
                     __cb.ice_response(id);
@@ -304,9 +299,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    store.getImage(imageIndex);
+                    ome.model.core.Image image = store.getImage(imageIndex);
+                    Image _image = (Image) mapper.map(image);
                     // Code here
-                    __cb.ice_response(null /* FIXME */);
+                    __cb.ice_response(_image);
                 } catch (Exception e) {
                     __cb.ice_exception(e);
                 }
@@ -323,9 +319,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    store.getInstrument(instrumentIndex);
+                    ome.model.acquisition.Instrument i = store.getInstrument(instrumentIndex);
+                    Instrument _i = (Instrument) mapper.map(i);
                     // Code here
-                    __cb.ice_response(null /* FIXME */);
+                    __cb.ice_response(_i);
                 } catch (Exception e) {
                     __cb.ice_exception(e);
                 }
@@ -362,7 +359,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
             public void run() {
                 try {
                     // Code here
-                    IceMapper mapper = new IceMapper();
                     store.getPixels(imageIndex, pixelsIndex);
                     // Code here
                     __cb.ice_response(null /* FIXME */);
@@ -381,9 +377,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    store.getPixels(series);
+                    ome.model.core.Pixels p = store.getPixels(series);
+                    Pixels _p = (Pixels) mapper.map(p);
                     // Code here
-                    __cb.ice_response(null /* FIXME */);
+                    __cb.ice_response(_p);
                 } catch (Exception e) {
                     __cb.ice_exception(e);
                 }
@@ -399,7 +396,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
             public void run() {
                 try {
                     // Code here
-                    IceMapper mapper = new IceMapper();
                     store.getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
                     // Code here
                     __cb.ice_response(null /* FIXME */);
@@ -417,7 +413,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
             public void run() {
                 try {
                     // Code here
-                    IceMapper mapper = new IceMapper();
                     store.getPlate(plateIndex);
                     // Code here
                     __cb.ice_response(null /* FIXME */);
@@ -435,7 +430,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
             public void run() {
                 try {
                     // Code here
-                    IceMapper mapper = new IceMapper();
                     store.getProject(projectID);
                     // Code here
                     __cb.ice_response(null /* FIXME */);
@@ -454,9 +448,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    store.getProjects();
+                    List<ome.model.containers.Project> ps = store.getProjects();
+                    List _ps = (List) mapper.map(ps); 
                     // Code here
-                    __cb.ice_response(null /* FIXME */);
+                    __cb.ice_response((List<Project>) _ps);
                 } catch (Exception e) {
                     __cb.ice_exception(e);
                 }
@@ -491,9 +486,11 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    store.getRoot();
+                    IObject iobject = (IObject) store.getRoot();
+                    omero.model.IObject _object = (omero.model.IObject) mapper.map(iobject);
+                    RObject robject = iobject == null ? null : new RObject(_object);
                     // Code here
-                    __cb.ice_response(null /* FIXME */);
+                    __cb.ice_response(robject);
                 } catch (Exception e) {
                     __cb.ice_exception(e);
                 }
@@ -565,9 +562,10 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    store.saveToDB();
+                    List<ome.model.core.Pixels> pixs = store.saveToDB();
+                    List _pixs = (List) mapper.map(pixs);
                     // Code here
-                    __cb.ice_response(null /* FIXME */);
+                    __cb.ice_response((List<Pixels>)_pixs);
                 } catch (Exception e) {
                     __cb.ice_exception(e);
                 }
@@ -1862,8 +1860,6 @@ public class MetadataStoreI extends AbstractAmdServant implements
         runnableCall(__current, new BlitzExecutor.Task() {
             public void run() {
                 try {
-                    // Code here
-                    IceMapper mapper = new IceMapper();
                     store.setLightSourceModel(model.val, instrumentIndex,
                             lightSourceIndex);
                     // Code here
@@ -3418,7 +3414,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    store.setRoot(null /* FIXME */);
+                    Object object = mapper.fromRType(root);
+                    store.setRoot(object);
                     // Code here
                     __cb.ice_response();
                 } catch (Exception e) {
@@ -4182,7 +4179,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
             public void run() {
                 try {
                     // Code here
-                    // FIXME What to do here?
+                    // Nulling should be sufficient.
                     store = null;
                     // Code here
                     __cb.ice_response();
@@ -4202,7 +4199,8 @@ public class MetadataStoreI extends AbstractAmdServant implements
                 try {
                     // Code here
                     IceMapper mapper = new IceMapper();
-                    ome.system.EventContext ec = store.getSF().getAdminService().getEventContext();
+                    ome.system.EventContext ec = store.getSF()
+                            .getAdminService().getEventContext();
                     EventContext _ec = mapper.convert(ec);
                     // Code here
                     __cb.ice_response(_ec);
