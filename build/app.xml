@@ -108,7 +108,7 @@
   <target name="compile" 
           depends="app-init" 
           description="Compile the whole app.">
-    <javac srcdir="${base.src.dir}"
+    <javac srcdir="${base.src.dir}" target="1.5"
            destdir="${app.compiled.dir}"
            includeantruntime="no"  
            deprecation="yes"
@@ -117,7 +117,7 @@
       <classpath refid="app.compile.classpath"/>
       <patternset refid="app.sources"/>
     </javac> 
-  	<javac srcdir="${base.src.util.dir}"
+  	<javac srcdir="${base.src.util.dir}" target="1.5"
   	           destdir="${app.compiled.util.dir}"
   	           includeantruntime="no"  
   	           deprecation="yes"
@@ -126,7 +126,7 @@
   	      <classpath refid="app.compile.classpath"/>
   	      <patternset refid="app.sources"/>
   	    </javac> 
-  	<javac srcdir="${base.src.svc.dir}"
+  	<javac srcdir="${base.src.svc.dir}" target="1.5"
   	  	           destdir="${app.compiled.util.dir}"
   	  	           includeantruntime="no"  
   	  	           deprecation="yes"
