@@ -24,6 +24,7 @@
 package org.openmicroscopy.shoola.env.data.util;
 
 //Java imports
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -99,7 +100,9 @@ public class PojoMapper
     private static Object convert(Object value)
     {
         if (value instanceof IObject) return asDataObject((IObject) value);
-        else if (value instanceof Set) return asDataObjects((Set) value);
+        else if (value instanceof Collection) 
+        	return asDataObjects((Collection) value);
+        //else if (value instanceof Set) return asDataObjects((Set) value);
         else if (value instanceof Map) return asDataObjects((Map) value);
         else return null;
     }
@@ -170,7 +173,7 @@ public class PojoMapper
      * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
      * contain {@link IObject} or if the type {@link IObject} is unknown.
      */
-    public static Set asDataObjects(Set objects)
+    public static Set asDataObjects(Collection objects)
     {
         if (objects == null) 
             throw new IllegalArgumentException("The set cannot be null.");

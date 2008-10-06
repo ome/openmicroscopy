@@ -169,6 +169,7 @@ class BrowserControl
      */
     void onNodeNavigation(TreeImageDisplay display, boolean expanded)
     {
+    	
     	if (!expanded) {
     		model.cancel();
     		return;
@@ -186,8 +187,8 @@ class BrowserControl
         	model.countExperimenterImages(display);
         	return;
         }
-        
-        if (display.isChildrenLoaded()) {
+        // if (display.isChildrenLoaded()); //tmp 06/10
+        if (display.isChildrenLoaded() && ho instanceof ProjectData) {
         	List l = display.getChildrenDisplay();
 			//if (display.getChildCount() != l.size()) {
 	
@@ -208,8 +209,8 @@ class BrowserControl
         	model.loadExperimenterData(getDataOwner(display), node);
         	return;
         }
-        if ((ho instanceof DatasetData) || (ho instanceof CategoryData) ||
-            (ho instanceof TagAnnotationData) || (ho instanceof PlateData)) {
+        if ((ho instanceof DatasetData) || (ho instanceof TagAnnotationData) 
+        		|| (ho instanceof PlateData)) {
         	model.loadExperimenterData(getDataOwner(display), display);
         } else if (ho instanceof ExperimenterData) {
         	model.loadExperimenterData(display, null);

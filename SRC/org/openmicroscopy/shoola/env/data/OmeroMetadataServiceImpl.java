@@ -328,13 +328,15 @@ class OmeroMetadataServiceImpl
 		AnnotationData data;
 		FileAnnotation fa;
 		long fileID;
+		OriginalFile of;
 		while (i.hasNext()) {
 			data = (AnnotationData) i.next();
 			if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
 					fileID = fa.getFile().getId().val;
-					((FileAnnotationData) data).setContent(
-							gateway.getOriginalFile(fileID));
+					of = gateway.getOriginalFile(fileID);
+					if (of != null) 
+						((FileAnnotationData) data).setContent(of);
 					result.add(data);
 			}
 		}
@@ -429,7 +431,9 @@ class OmeroMetadataServiceImpl
 			TagAnnotationData tag;
 			FileAnnotation fa;
 			boolean isChild = true;
+			OriginalFile of;
 			while (i.hasNext()) {
+				
 				data = (AnnotationData) i.next();
 				if (data instanceof URLAnnotationData)
 					urls.add(data);
@@ -448,8 +452,9 @@ class OmeroMetadataServiceImpl
 				else if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
 					id = fa.getFile().getId().val;
-					((FileAnnotationData) data).setContent(
-							gateway.getOriginalFile(id));
+					of = gateway.getOriginalFile(id);
+					if (of != null) 
+						((FileAnnotationData) data).setContent(of);
 					attachments.add(data);
 				}
 			}
@@ -742,8 +747,14 @@ class OmeroMetadataServiceImpl
 		}
 		List<Long> objects = new ArrayList<Long>(1);
 		objects.add(id);
-		Map map = gateway.findAnnotations(type, objects, ids, 
-										new PojoOptionsI().map());
+		Map map;
+		if (type.equals(ImageData.class)) {
+			map = gateway.findAnnotations(type, objects, ids, 
+					new PojoOptionsI().map());
+		} else 
+			map = gateway.findAnnotations(type, objects, ids, 
+					new PojoOptionsI().map());
+		
 		return (Collection) map.get(id);
 	}
 
@@ -787,14 +798,16 @@ class OmeroMetadataServiceImpl
 		AnnotationData data;
 		long id;
 		FileAnnotation fa;
+		OriginalFile of;
 		while (i.hasNext()) {
 			data = (AnnotationData) i.next();
 			if (annotationType.equals(data.getClass())) {
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotation) data.asAnnotation();
 					id = fa.getFile().getId().val;
-					((FileAnnotationData) data).setContent(
-							gateway.getOriginalFile(id));
+					of = gateway.getOriginalFile(id);
+					if (of != null) 
+						((FileAnnotationData) data).setContent(of);
 				}
 				annotations.add(data);
 			}

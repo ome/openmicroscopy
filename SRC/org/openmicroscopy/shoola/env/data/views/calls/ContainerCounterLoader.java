@@ -58,44 +58,25 @@ public class ContainerCounterLoader
 {
 
     /** The lastly retrieved map. */
-    private Map		currentMap;
-    
-    /** The containers for which we need the value. */ 
-    private Set		rootIDs;
+    private Map			currentMap;
 
+    private BatchCall	loadCall;
+    
     /** 
      * Creates a {@link BatchCall} to retrieve the number of items per 
      * container.
      * 
      * @return See above
      */
-    private BatchCall makeBatchCall()
+    private BatchCall makeBatchCall(final List<Long> ids, final Class type)
     {
-        Iterator i = rootIDs.iterator();
-        String description = "Counting items.";
-        DataObject root;
-        Long id = null;
-        Class rootType = null;
-        List<Long> ids = new ArrayList<Long>();
-        while (i.hasNext()) {
-            root = (DataObject) i.next();
-            if (root instanceof DatasetData) {
-                rootType = DatasetData.class;
-                id = new Long(((DatasetData) root).getId());
-            } else if (root instanceof TagAnnotationData) {
-            	rootType = TagAnnotationData.class;
-                id = new Long(((TagAnnotationData) root).getId());
-            }
-            if (id != null) ids.add(id);
-        }
-        final Class rootTypeFinal = rootType;
-        final List<Long> idFinal = ids;
-        return new BatchCall(description) {
+        
+        return new BatchCall("Counting items.") {
 		    public void doCall() throws Exception
 		    { 
 		        OmeroDataService os = context.getDataService();
-		        currentMap = os.getCollectionCount(rootTypeFinal, 
-		                		OmeroDataService.IMAGES_PROPERTY, idFinal);
+		        currentMap = os.getCollectionCount(type, 
+		                		OmeroDataService.IMAGES_PROPERTY, ids);
 		    }
 		};
     }
@@ -106,7 +87,7 @@ public class ContainerCounterLoader
      */
     protected void buildTree()
     {
-    	add(makeBatchCall());
+    	add(loadCall);
     }
     
     /**
@@ -136,7 +117,23 @@ public class ContainerCounterLoader
     public ContainerCounterLoader(Set<DataObject> rootIDs)
     {
         if (rootIDs == null) throw new NullPointerException("No root nodes.");
-        this.rootIDs = rootIDs;
+    	Iterator i = rootIDs.iterator();
+        DataObject root;
+        Long id = null;
+        Class rootType = null;
+        List<Long> ids = new ArrayList<Long>();
+        while (i.hasNext()) {
+            root = (DataObject) i.next();
+            if (root instanceof DatasetData) {
+                rootType = DatasetData.class;
+                id = new Long(((DatasetData) root).getId());
+            } else if (root instanceof TagAnnotationData) {
+            	rootType = TagAnnotationData.class;
+                id = new Long(((TagAnnotationData) root).getId());
+            }
+            if (id != null) ids.add(id);
+        }
+        loadCall = makeBatchCall(ids, rootType);
     }
     
 }

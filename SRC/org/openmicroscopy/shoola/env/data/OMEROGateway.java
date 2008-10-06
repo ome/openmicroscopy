@@ -23,7 +23,7 @@
 
 package org.openmicroscopy.shoola.env.data;
 
-//http://users.openmicroscopy.org.uk/~jmoore/shoola.patch
+
 //Java imports
 import java.io.File;
 import java.io.FileInputStream;
@@ -88,6 +88,7 @@ import omero.model.FileAnnotation;
 import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
+import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
@@ -900,7 +901,7 @@ class OMEROGateway
 			List<String> list = new ArrayList<String>(1);
 			list.add(name);
 			Map<String, RType> options = new HashMap<String, RType>();
-			// FIXME
+
 			Map m = PojoMapper.asDataObjects(service.getUserDetails(list,
 			options));
 			ExperimenterData data = (ExperimenterData) m.get(name);
@@ -909,19 +910,6 @@ class OMEROGateway
 			                        + "data");
 			}
 			return data;
-
-			/*
-			Set<String> set = new HashSet<String>(1);
-			set.add(name);
-			Map m = PojoMapper.asDataObjects(service.getUserDetails(set, 
-					(new PojoOptions()).map()));
-			ExperimenterData data = (ExperimenterData) m.get(name);
-			if (data == null) {
-				throw new DSOutOfServiceException("Cannot retrieve user's " +
-						"data");
-			}
-			return data;
-			*/
 		} catch (Exception e) {
 			throw new DSOutOfServiceException("Cannot retrieve user's data " +
 					printErrorText(e), e);
@@ -936,12 +924,15 @@ class OMEROGateway
 	 */
 	boolean isUpgradeRequired()
 	{
+		/*
 		ResourceBundle bundle = ResourceBundle.getBundle("omero");
 	    String version = bundle.getString("omero.version");
 	    String url = bundle.getString("omero.upgrades.url");
 	    UpgradeCheck check = new UpgradeCheck(url, version, "insight"); 
 	    check.run();
 	    return check.isUpgradeNeeded();
+	    */
+		return false;
 	}
 	
 	/**
@@ -969,15 +960,11 @@ class OMEROGateway
 			Set keys = iceConfig.keySet();
 			Iterator i = keys.iterator();
 			String key, value;
-			//String[] config = new String[keys.size()];
-			//int index = 0;
 			while (i.hasNext()) {
 				key = (String) i.next();
 				value = iceConfig.getProperty(key);
 				value = value.replaceAll(LookupNames.ICE_HOSTNAME, hostName);
 				iceConfig.put(key, value);
-				//config[index] = key+"="+value;
-				//index++;
 			}
 			blitzClient = new client(iceConfig);
 			entry = blitzClient.createSession(userName, password);
@@ -994,6 +981,8 @@ class OMEROGateway
 	/** 
 	 * Tries to reconnect to the server.
 	 * 
+	 * @param userName	The user name to be used for login.
+	 * @param password	The password to be used for login.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 */
 	void reconnect(String userName, String password)
@@ -1211,6 +1200,7 @@ class OMEROGateway
 	 * @param rootNodeType 	The type of container. Can either be Dataset 
 	 * 						and Category.
 	 * @param property		One of the properties defined by this class.
+	 * @param ids           The ids of the objects.
 	 * @param options		Options to retrieve the data.		
 	 * @param rootNodeIDs	Set of root node IDs.
 	 * @return See above.
@@ -2160,7 +2150,7 @@ class OMEROGateway
 		OriginalFile of = null;
 		try {
 			ParametersI param = new ParametersI();
-			param.map.put("childID", new RLong(id));
+			param.map.put("id", new RLong(id));
 			of = (OriginalFile) getQueryService().findByQuery(
 					"select p from OriginalFile as p " +
 					"left outer join fetch p.format " +
@@ -2748,10 +2738,11 @@ class OMEROGateway
 	/**
 	 * Handles the result of the search.
 	 * 
-	 * @param type
-	 * @param r
-	 * @param svc
+	 * @param type 	The supported type.
+	 * @param r		The collection to fill.
+	 * @param svc	Helper reference to the service.
 	 * @return See above.
+	 * @throws ServerError If an error occurs while reading the results.
 	 */
 	private Object handleSearchResult(String type, Collection r, SearchPrx svc)
 		throws ServerError
@@ -2894,21 +2885,16 @@ class OMEROGateway
 			
 			List<String> supportedTypes = new ArrayList<String>();
 			i = types.iterator();
-			int index = 0;
-			Class k;
-			while (i.hasNext()) {
-				k = (Class) i.next();
-				supportedTypes.add(convertPojos(k));
-				index++;
-			}
+			while (i.hasNext()) 
+				supportedTypes.add(convertPojos((Class) i.next()));
 
-			Set rType;
+			List rType;
 			Map<Integer, Object> results = new HashMap<Integer, Object>();
 			Object size;
 			Integer key;
 			i = scopes.iterator();
 			while (i.hasNext()) 
-				results.put((Integer) i.next(), new HashSet());
+				results.put((Integer) i.next(), new ArrayList());
 			
 			Iterator<Details> owner;
 			i = scopes.iterator();
@@ -2917,7 +2903,7 @@ class OMEROGateway
 			service.onlyType(Image.class.getName());
 			while (i.hasNext()) {
 				key = (Integer) i.next();
-				rType = (HashSet) results.get(key);
+				rType = (List) results.get(key);
 				size = null;
 				if (key == SearchDataContext.TAGS) {
 					fSome = formatText(some, "tag");
@@ -2954,7 +2940,7 @@ class OMEROGateway
 						d = owner.next();
 						service.onlyOwnedBy(d);
 						service.bySomeMustNone(fSome, fMust, fNone);
-						size = handleSearchResult(Image.class.getName(), rType, 
+						size = handleSearchResult(ImageI.class.getName(), rType, 
 								service);
 						if (size instanceof Integer)
 							results.put(key, size);
@@ -3665,6 +3651,7 @@ class OMEROGateway
 		return new HashSet();
 	}
 	
+	//Should move to server
 	Set loadScreenPlate(Class rootType, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
