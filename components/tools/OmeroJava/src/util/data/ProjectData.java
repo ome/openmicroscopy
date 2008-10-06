@@ -77,7 +77,7 @@ public class ProjectData
 	 */
 	public void setName(String name)
 	{
-		project.name = new RString(name);
+		project.setName( new RString(name) );
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class ProjectData
 	 */
 	public String getName()
 	{
-		return project.name.val;
+		return project.getName().val;
 	}
 	
 	/**
@@ -95,7 +95,7 @@ public class ProjectData
 	 */
 	public List<ProjectAnnotationLink> getAnnotationLinks()
 	{
-		return project.annotationLinks;
+		return project.copyAnnotationLinks(); // FIXME
 	}
 	
 	/**
@@ -104,7 +104,7 @@ public class ProjectData
 	 */
 	public int getAnnotationLinksCount()
 	{
-		return project.annotationLinks.size();
+		return project.sizeOfAnnotationLinks();
 	}
 	
 	/**
@@ -114,7 +114,7 @@ public class ProjectData
 	 */
 	public long getAnnotationLinksCount(long owner)
 	{
-		return project.annotationLinksCountPerOwner.get(new Long(owner));
+		return project.getAnnotationLinksCountPerOwner().get(new Long(owner));
 	}
 	
 	/** 
@@ -123,7 +123,7 @@ public class ProjectData
 	 */
 	public boolean annotationLinksLoaded()
 	{
-		return project.annotationLinksLoaded;
+		return project.sizeOfAnnotationLinks() >= 0;
 	}
 	
 }

@@ -101,7 +101,7 @@ extends DefaultTreeCellRenderer
         if (usrObject instanceof Project)
             icon = icons.getIcon(IconManager.PROJECT);
         else if (usrObject instanceof Dataset) {
-            int i = ((Dataset) usrObject).annotationLinks.size();
+            int i = ((Dataset) usrObject).sizeOfAnnotationLinks();
             if (i == 0)
                 icon = icons.getIcon(IconManager.DATASET);
             else icon = icons.getIcon(IconManager.ANNOTATED_DATASET);
@@ -127,27 +127,27 @@ extends DefaultTreeCellRenderer
         if (usrObject instanceof Project)
         {
         	Project project = (Project)usrObject;
-            setText(project.name.val);
+            setText(project.getName().val);
         }
         else if (usrObject instanceof Dataset) 
         {
         	Dataset dataset = (Dataset)usrObject;
-        	setText(dataset.name.val);
+        	setText(dataset.getName().val);
         } 
         else if (usrObject instanceof Image) 
         {
             Image img = (Image) usrObject;
-            setText(img.name.val);
+            setText(img.getName().val);
         } 
         else if (usrObject instanceof CategoryGroup)
         {
         	CategoryGroup group = (CategoryGroup)usrObject;
-            setText(group.name.val);
+            setText(group.getName().val);
         }
         else if (usrObject instanceof Category)
         {
         	Category category = (Category)usrObject;
-            setText(category.name.val);
+            setText(category.getName().val);
         }
         else if (usrObject instanceof String)
         {

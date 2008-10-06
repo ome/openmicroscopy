@@ -67,7 +67,7 @@ public class IDetails
 	 */
 	public Experimenter getOwner()
 	{
-		return object.details.owner;
+		return object.getDetails().owner;
 	}	
 	
 	/**
@@ -76,7 +76,7 @@ public class IDetails
 	 */
 	public ExperimenterGroup getGroup()
 	{
-		return object.details.group;
+		return object.getDetails().group;
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public class IDetails
 	 */
 	public Permissions getPermissions()
 	{
-		return object.details.permissions;
+		return object.getDetails().permissions;
 	}
 	
 	/**
@@ -94,7 +94,7 @@ public class IDetails
 	 */
 	public Event getCreationEvent()
 	{
-		return object.details.creationEvent;
+		return object.getDetails().creationEvent;
 	}
 	
 	/**
@@ -103,7 +103,7 @@ public class IDetails
 	 */
 	public Event getUpdateEvent()
 	{
-		return object.details.updateEvent;
+		return object.getDetails().updateEvent;
 	}
 	
 	

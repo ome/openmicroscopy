@@ -68,7 +68,7 @@ public class DatasetModel
 		for(Project p : projects)
 		{
 			List<Long> ids = new ArrayList<Long>();
-			ids.add(p.id.val);
+			ids.add(p.getId().val);
 			List<Dataset> datasets = service.getDatasets(ids, false);
 			ProjectNode projectNode = new ProjectNode(p);
 			for(Dataset d : datasets)

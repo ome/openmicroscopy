@@ -115,7 +115,7 @@ public class DatasetBrowser
 			if(o instanceof Dataset)
 			{
 				Dataset d = (Dataset)o;
-				value = d.id.val;
+				value = d.getId().val;
 				this.setVisible(false);
 			}
 		}

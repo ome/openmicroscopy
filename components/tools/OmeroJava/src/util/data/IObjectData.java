@@ -74,7 +74,7 @@ public class IObjectData
 	 */
 	public long getID()
 	{
-		return iObject.id.val;
+		return iObject.getId().val;
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class IObjectData
 	 */
 	public boolean loaded()
 	{
-		return iObject.loaded;
+		return iObject.isLoaded();
 	}
 	
 	/**

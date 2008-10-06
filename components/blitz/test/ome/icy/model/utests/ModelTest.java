@@ -6,6 +6,9 @@
  */
 package ome.icy.model.utests;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import junit.framework.TestCase;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
@@ -37,26 +40,44 @@ public class ModelTest extends TestCase {
         e.setOmeName("hi");
         e.linkExperimenterGroup(new ExperimenterGroup("foo"));
         new ExperimenterI().copyObject(e, new IceMapper());
-        
+
         Pixels p = new Pixels();
         Image i = new Image();
         p.setImage(i);
         p.getDetails().setOwner(e);
         new PixelsI().copyObject(p, new IceMapper());
-        
+
     }
-    
+
     @Test
     public void testFillObject() throws Exception {
         ExperimenterI e = new ExperimenterI();
         e.setOmeName(new RString("name"));
         e.linkExperimenterGroup(new ExperimenterGroupI());
         e.fillObject(new IceMapper());
-        
+
         PixelsI p = new PixelsI();
         ImageI i = new ImageI();
         p.setImage(i);
         p.getDetails().owner = e;
         p.fillObject(new IceMapper());
+    }
+
+    @Test
+    public void testCounts() throws Exception {
+        Map<Long, Long> counts = new HashMap<Long, Long>();
+        counts.put(1L, 1L);
+        class CExperimenter extends Experimenter {
+            CExperimenter(Map<Long, Long> counts) {
+                setAnnotationLinksCountPerOwner(counts);
+            }
+        }
+
+        Experimenter e = new CExperimenter(counts);
+        ExperimenterI ei = new ExperimenterI();
+        ei.copyObject(e, new IceMapper());
+        Map<Long, Long> countsi = ei.getAnnotationLinksCountPerOwner();
+        assertEquals(new Long(1L), countsi.get(1L));
+
     }
 }

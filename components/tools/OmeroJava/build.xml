@@ -36,17 +36,18 @@
     </target>
 
     <target name="compile" depends="generate" unless="skip.ice">
-    </target>
-
-    <target name="package" depends="generate" unless="skip.ice">
-        <unjar src="${target.dir}/libs/ice.jar" dest="${target.dir}/ice-classes"/>
-        <jar destfile="${target.dir}/${ivy.module}.jar">
+        <!-- These first tasks are "pseudo-compiles" copying in
+        resources from other builds and jars to be packaged into
+        the super jar -->
+        <unjar src="${target.dir}/libs/ice.jar" dest="${classes.dir}">
+            <patternset>
+                <exclude name="META-INF/**/*"/>
+            </patternset>
+        </unjar>
+        <copy todir="${classes.dir}">
 	    <fileset dir="${resrc.dest}">
 	        <include name="omero.properties"/>
 	    </fileset>
-            <fileset dir="${target.dir}/ice-classes">
-                <exclude name="META-INF/**/*"/>
-            </fileset>
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="omero/**/*.class"/>
             </fileset>
@@ -64,9 +65,20 @@
                 <include name="ome/util/Filter.class"/>
                 <include name="ome/util/ModelMapper.class"/>
                 <include name="ome/util/ReverseModelMapper.class"/>
+                <!-- Possible only need the following, but adding util
+                classes for now
+                 <include name="ome/util/Filterable.class"/>
+                 <include name="ome/util/Filter.class"/>
+                 <include name="ome/util/ModelMapper.class"/>
+                 <include name="ome/util/ReverseModelMapper.class"/>
+                 <include name="ome/util/Utils.class"/>
+                -->
+                <include name="ome/util/*.class"/>
                 <include name="ome/conditions/**/*.class"/>
             </fileset>
-        </jar>
+        </copy>
+        <!-- REAL compile -->
+        <antcall target="lifecycle.compile" inheritAll="true" inheritRefs="true"/>
     </target>
 
     <target name="tools-init" unless="skip.ice"/>

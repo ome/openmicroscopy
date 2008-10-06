@@ -78,7 +78,7 @@ public class DatasetData
 	 */
 	public void setName(String name)
 	{
-		dataset.name = new RString(name);
+		dataset.setName( new RString(name) );
 	}
 	
 	/**
@@ -87,7 +87,7 @@ public class DatasetData
 	 */
 	public String getName()
 	{
-		return dataset.name.val;
+		return dataset.getName().val;
 	}
 	
 	/**
@@ -96,7 +96,7 @@ public class DatasetData
 	 */
 	public List<DatasetAnnotationLink> getAnnotationLinks()
 	{
-		return dataset.annotationLinks;
+		return dataset.copyAnnotationLinks(); // FIXME
 	}
 	
 	/**
@@ -105,7 +105,7 @@ public class DatasetData
 	 */
 	public int getAnnotationLinksCount()
 	{
-		return dataset.annotationLinks.size();
+		return dataset.sizeOfAnnotationLinks();
 	}
 	
 	/**
@@ -115,7 +115,7 @@ public class DatasetData
 	 */
 	public long getAnnotationLinksCount(long owner)
 	{
-		return dataset.annotationLinksCountPerOwner.get(new Long(owner));
+		return dataset.getAnnotationLinksCountPerOwner().get(new Long(owner));
 	}
 	
 	/** 
@@ -124,7 +124,7 @@ public class DatasetData
 	 */
 	public boolean annotationLinksLoaded()
 	{
-		return dataset.annotationLinksLoaded;
+		return dataset.sizeOfAnnotationLinks() >= 0;
 	}
 	
 }

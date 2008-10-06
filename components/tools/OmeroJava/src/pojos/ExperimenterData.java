@@ -1,0 +1,232 @@
+/*
+ * pojos.Experimenter
+ *
+ *   Copyright 2006 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
+package pojos;
+
+// Java imports
+import java.util.ArrayList;
+import java.util.List;
+
+import omero.model.Experimenter;
+import omero.model.ExperimenterI;
+import omero.model.GroupExperimenterMap;
+
+/**
+ * The data that makes up an <i>OME</i> Experimenter along with information
+ * about the Group the Experimenter belongs in.
+ * 
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author <br>
+ *         Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp; <a
+ *         href="mailto:a.falconi@dundee.ac.uk"> a.falconi@dundee.ac.uk</a>
+ * @version 2.2 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
+ * @since OME2.2
+ */
+public class ExperimenterData extends DataObject {
+
+    /** Identifies the {@link Experimenter#FIRSTNAME} field. */
+    public final static String FIRSTENAME = ExperimenterI.FIRSTNAME;
+
+    /** Identifies the {@link Experimenter#MIDDLENAME} field. */
+    public final static String MIDDLENAME = ExperimenterI.MIDDLENAME;
+
+    /** Identifies the {@link Experimenter#LASTNAME} field. */
+    public final static String LASTNAME = ExperimenterI.LASTNAME;
+
+    /** Identifies the {@link Experimenter#EMAIL} field. */
+    public final static String EMAIL = ExperimenterI.EMAIL;
+
+    /** Identifies the {@link Experimenter#OMENAME} field. */
+    public final static String OMENAME = ExperimenterI.OMENAME;
+
+    /** Identifies the {@link Experimenter#INSTITUTION} field. */
+    public final static String INSTITUTION = ExperimenterI.INSTITUTION;
+
+    /** Identifies the {@link Experimenter#GROUPEXPERIMENTERMAP} field. */
+    public final static String GROUP_EXPERIMENTER_MAP = ExperimenterI.GROUPEXPERIMENTERMAP;
+
+    /** The other Groups this Experimenter belongs in. */
+    private List<GroupData> groups;
+
+    /** Creates a new instance. */
+    public ExperimenterData() {
+        setDirty(true);
+        setValue(new ExperimenterI());
+    }
+
+    /**
+     * Creates a new instance.
+     * 
+     * @param experimenter
+     *            Back pointer to the {@link Experimenter} model object. Mustn't
+     *            be <code>null</code>.
+     * @throws IllegalArgumentException
+     *             If the object is <code>null</code>.
+     */
+    public ExperimenterData(Experimenter experimenter) {
+        if (experimenter == null) {
+            throw new IllegalArgumentException("Object cannot null.");
+        }
+        setValue(experimenter);
+    }
+
+    // Immutables
+
+    /**
+     * Sets the first name of the experimenter.
+     * 
+     * @param firstName
+     *            The value to set.
+     */
+    public void setFirstName(String firstName) {
+        setDirty(true);
+        asExperimenter().setFirstName(new omero.RString(firstName));
+    }
+
+    /**
+     * Returns the first name of the experimenter.
+     * 
+     * @return see above.
+     */
+    public String getFirstName() {
+        omero.RString n = asExperimenter().getFirstName();
+        if (n == null || n.val == null) {
+            throw new IllegalStateException(
+                    "The name should never have been null");
+        }
+        return n.val;
+    }
+
+    /**
+     * Sets the last name of the experimenter.
+     * 
+     * @param lastName
+     *            The value to set.
+     */
+    public void setLastName(String lastName) {
+        setDirty(true);
+        asExperimenter().setLastName(new omero.RString(lastName));
+    }
+
+    /**
+     * Returns the last name of the experimenter.
+     * 
+     * @return see above.
+     */
+    public String getLastName() {
+        omero.RString n = asExperimenter().getLastName();
+        if (n == null || n.val == null) {
+            throw new IllegalStateException(
+                    "The name should never have been null");
+        }
+        return n.val;
+    }
+
+    /**
+     * Sets the e-mail of the experimenter.
+     * 
+     * @param email
+     *            The value to set.
+     */
+    public void setEmail(String email) {
+        setDirty(true);
+        asExperimenter().setEmail(new omero.RString(email));
+    }
+
+    /**
+     * Returns the e-mail of the experimenter.
+     * 
+     * @return see above.
+     */
+    public String getEmail() {
+        omero.RString e = asExperimenter().getEmail();
+        return e == null ? null : e.val;
+
+    }
+
+    /**
+     * Sets the institution where the experimenter works.
+     * 
+     * @param institution
+     *            The value to set.
+     */
+    public void setInstitution(String institution) {
+        setDirty(true);
+        asExperimenter().setInstitution(
+                institution == null ? null : new omero.RString(institution));
+    }
+
+    /**
+     * Returns the institution where the experimenter works.
+     * 
+     * @return see above.
+     */
+    public String getInstitution() {
+        omero.RString i = asExperimenter().getInstitution();
+        return i == null ? null : i.val;
+    }
+
+    // Lazy loaded links
+
+    /**
+     * Returns the groups the experimenter is a member of.
+     * 
+     * @return See above.
+     */
+    public List<GroupData> getGroups() {
+
+        if (groups == null
+                && asExperimenter().sizeOfGroupExperimenterMap() >= 0) {
+            groups = new ArrayList<GroupData>();
+            List<GroupExperimenterMap> links = asExperimenter()
+                    .copyGroupExperimenterMap();
+            for (GroupExperimenterMap link : links) {
+                groups.add(new GroupData(link.getParent()));
+            }
+        }
+
+        return groups == null ? null : new ArrayList<GroupData>(groups);
+    }
+
+    // Link mutations
+
+    /**
+     * Sets the groups the experimenter is a member of.
+     * 
+     * @param newValue
+     *            The set of groups.
+     */
+    public void setGroups(List<GroupData> newValue) {
+        List<GroupData> currentValue = new ArrayList<GroupData>(getGroups());
+        SetMutator<GroupData> m = new SetMutator<GroupData>(currentValue,
+                newValue);
+
+        while (m.moreDeletions()) {
+            setDirty(true);
+            asExperimenter()
+                    .unlinkExperimenterGroup(m.nextDeletion().asGroup());
+        }
+
+        while (m.moreAdditions()) {
+            setDirty(true);
+            asExperimenter().linkExperimenterGroup(m.nextAddition().asGroup());
+        }
+
+        groups = m.result();
+    }
+
+    /**
+     * Returns the default Group for this Experimenter
+     * 
+     * @return See above.
+     */
+    public GroupData getDefaultGroup() {
+        return getGroups().get(0);
+    }
+
+}
