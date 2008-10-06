@@ -24,8 +24,8 @@ package org.openmicroscopy.shoola.util.ui.treetable.model;
 
 
 //Java imports
+import java.util.List;
 import java.util.Stack;
-import java.util.Vector;
 
 import javax.swing.tree.TreePath;
 
@@ -135,7 +135,7 @@ public class OMETreeNode
 	 * 
 	 * @return See above.
 	 */
-	public Vector<MutableTreeTableNode> getChildList() { return children; }
+	public List<MutableTreeTableNode> getChildList() { return children; }
 	
 	/**
 	 * Overridden so that the node is not editable.

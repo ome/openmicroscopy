@@ -30,7 +30,6 @@ import java.util.Vector;
 //Third-party libraries
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.jdesktop.swingx.treetable.TreeModelSupport;
 
 //Application-internal dependencies
 
@@ -106,13 +105,6 @@ public class OMETreeTableModel
 		
 		return null;
 	}
-	
-	/**
-	 * Returns the {@link TreeModelSupport}.
-	 * 
-	 * @return See above.
-	 */
-	public TreeModelSupport getModelSupport() { return modelSupport; }
 	
 	/**
 	 * Sets the map indicating how to render each column.

@@ -475,7 +475,7 @@ public class ROITreeTable
 		if(parent == null)
 			return;
 		expandROIRow(parent);
-		Vector<MutableTreeTableNode> childList = parent.getChildList();
+		List<MutableTreeTableNode> childList = parent.getChildList();
 		for(MutableTreeTableNode child : childList)
 			selectROIShape((ROIShape)((ROITreeNode)child).getUserObject());
 	}	
