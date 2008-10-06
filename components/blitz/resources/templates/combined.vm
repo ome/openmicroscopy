@@ -562,7 +562,6 @@ Properties used throughout the accessor generation
 #set( $unloadedPython = "self.checkUnloadedProperty(_${property.name},'${propLoaded}')" )
 #set( $fieldName = "${property.name}Seq")
 #set( $getter = "this.${fieldName}" )
-#set( $setter = "${fieldName}" )
 ## See ticket:684
 ## If this is the case, we can't use the accessor and have to use a generated method
 #set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findCollection( (Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()}));" );

@@ -34,12 +34,29 @@ public class ModelTest extends TestCase {
         arcI.setPower(new RFloat(1.0f));
     }
 
+    
+    @Test
+    public void testMapper() throws Exception {
+        
+        Experimenter e = new Experimenter();
+        e.setOmeName("hi");
+        e.linkExperimenterGroup(new ExperimenterGroup("foo"));
+        
+        IceMapper mapper = new IceMapper();
+        ExperimenterI ei = (ExperimenterI) mapper.map(e);
+        assertEquals(new Integer(1), new Integer(ei.sizeOfGroupExperimenterMap()));
+
+    }
+    
     @Test
     public void testCopyObject() throws Exception {
         Experimenter e = new Experimenter();
         e.setOmeName("hi");
         e.linkExperimenterGroup(new ExperimenterGroup("foo"));
-        new ExperimenterI().copyObject(e, new IceMapper());
+        ExperimenterI ei = new ExperimenterI();
+        ei.copyObject(e, new IceMapper());
+        // This may not hold without being called from the top level mapper method
+        // assertEquals(new Integer(1), new Integer(ei.sizeOfGroupExperimenterMap()));
 
         Pixels p = new Pixels();
         Image i = new Image();
@@ -51,15 +68,16 @@ public class ModelTest extends TestCase {
 
     @Test
     public void testFillObject() throws Exception {
-        ExperimenterI e = new ExperimenterI();
-        e.setOmeName(new RString("name"));
-        e.linkExperimenterGroup(new ExperimenterGroupI());
-        e.fillObject(new IceMapper());
+        ExperimenterI ei = new ExperimenterI();
+        ei.setOmeName(new RString("name"));
+        ei.linkExperimenterGroup(new ExperimenterGroupI());
+        Experimenter e = (Experimenter) ei.fillObject(new IceMapper());
+        assertEquals(new Integer(1), new Integer(e.sizeOfGroupExperimenterMap()));
 
         PixelsI p = new PixelsI();
         ImageI i = new ImageI();
         p.setImage(i);
-        p.getDetails().owner = e;
+        p.getDetails().owner = ei;
         p.fillObject(new IceMapper());
     }
 
@@ -78,6 +96,5 @@ public class ModelTest extends TestCase {
         ei.copyObject(e, new IceMapper());
         Map<Long, Long> countsi = ei.getAnnotationLinksCountPerOwner();
         assertEquals(new Long(1L), countsi.get(1L));
-
     }
 }
