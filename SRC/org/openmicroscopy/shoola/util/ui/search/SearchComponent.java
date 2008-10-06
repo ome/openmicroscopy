@@ -136,6 +136,12 @@ public class SearchComponent
 	 */
 	static final int 				ANNOTATOR = 6;
 	
+	/** Action command ID indicating to display the adavanced search. */
+	static final int 				ADVANCED_SEARCH = 7;
+	
+	/** Action command ID indicating to display the adavanced search. */
+	static final int 				BASIC_SEARCH = 8;
+	
 	/** 
 	 * The size of the invisible components used to separate buttons
 	 * horizontally.
@@ -474,6 +480,12 @@ public class SearchComponent
 				break;
 			case HELP:
 				help();
+				break;
+			case ADVANCED_SEARCH:
+				uiDelegate.advancedSearch(true);
+				break;
+			case BASIC_SEARCH: 
+				uiDelegate.advancedSearch(false);
 		}
 	}
 

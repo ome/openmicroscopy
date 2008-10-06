@@ -346,11 +346,17 @@ public class IconManager
     /** ID of the <code>RightArrowDisabled</code> icon for the slider. */
     public static final int RIGHT_ARROW_BLACK = 97;
     
+    /** ID of the <code>Forward</code> icon. */
+    public static final int FORWARD = 98;
+    
+    /** ID of the <code>Backward</code> icon. */
+    public static final int BACKWARD = 99;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static int      MAX_ID = 97;
+    private static int      MAX_ID = 99;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -456,6 +462,8 @@ public class IconManager
         relPaths[START_UNSELECTED_8] = "mozilla_grey8.png";
         relPaths[FILE] = "nuvola_fileexport16.png";
         relPaths[BROWSER] = "nuvola_browser16.png";
+        relPaths[FORWARD] = "eclipse_forward_nav16.png";
+        relPaths[BACKWARD] = "eclipse_backward_nav16.png";
     }
     
     /** 

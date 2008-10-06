@@ -42,7 +42,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -54,6 +53,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
@@ -89,7 +89,8 @@ class SearchPanel
 {
 
 	/** The title of the Advanced search UI component. */
-	private static final String		ADVANCED_SEARCH_TITLE = "Advanced Search";
+	private static final String		ADVANCED_SEARCH_TITLE = 
+		"Advanced Search For Images";
 	
 	/** The title of the search UI component. */
 	private static final String		SEARCH_TITLE = "Search For Images";
@@ -134,8 +135,8 @@ class SearchPanel
 										"the words</html>";
 	
 	/** Description of the {@link #exactPhraseArea}. */
-	private static final String		EXACT_WORDS = 
-										"<html><b>Exact</b> phrase</html>";
+	//private static final String		EXACT_WORDS = 
+	//									"<html><b>Exact</b> phrase</html>";
 	
 	/** Description of the {@link #atLeastTermsArea}. */
 	private static final String		AT_LEAST_WORDS = 
@@ -144,12 +145,6 @@ class SearchPanel
 	/** Description of the {@link #withoutTermsArea}. */
 	private static final String		WITHOUT_WORDS = 
 										"<html><b>Without</b> the words</html>";
-	
-	/** 
-	 * Bound property indicating that the date has changed.
-	 * JCalendar should have a static field.
-	 */
-	private static final String		DATE_CALENDAR_PROPERTY = "date";
 	
 	/** Possible time options. */
 	private static String[]		dateOptions;
@@ -215,7 +210,7 @@ class SearchPanel
 	private JTextField				allTermsArea;
 	
 	/** The terms to search for. */
-	private JTextField				exactPhraseArea;
+	//private JTextField				exactPhraseArea;
 	
 	/** The terms to search for. */
 	private JTextField				atLeastTermsArea;
@@ -254,7 +249,16 @@ class SearchPanel
 	private Map<JTextField, JLabel>	areas;
 	
 	/** Button to bring up the tooltips for help. */
-	private JButton					helpButton;
+	private JButton					helpBasicButton;
+	
+	/** Button to bring up the tooltips for help. */
+	private JButton					helpAdvancedButton;
+	
+	/** Button to bring up the tooltips for help. */
+	private JButton					searchAdvancedButton;
+	
+	/** Button to bring up the tooltips for help. */
+	private JButton					searchBasicButton;
 	
 	/** Button indicating that the time entered is the creation time. */
 	private JRadioButton			creationTime;
@@ -266,7 +270,7 @@ class SearchPanel
 	private JComboBox				formats;
 	
 	/** The tree hosting the advanced search component. */
-	private TreeComponent			searchTree;
+	//private TreeComponent			searchTree;
 	
 	/** Flag indicating that the search is in the advanced mode. */
 	private boolean					advancedSearch;
@@ -277,14 +281,23 @@ class SearchPanel
 	/** The panel hosting the selected users. */
 	private JPanel					otherOwnersPanel;
 	
+	/** The component used to perform a basic search. */
+	private JPanel					basicSearchComp;
+	
+	/** The component used to perform an advanced search. */
+	private JPanel					advancedSearchComp;
+	
+	/** The component hosting either the advanced or basic search component. */
+	private JPanel 					searchFor;
+	
 	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
 		otherOwners = new LinkedHashMap<Long, String>();
 		otherOwnersPanel = new JPanel();
 		advancedSearch = false;
-		searchTree = new TreeComponent();
-		searchTree.addPropertyChangeListener(this);
+		//searchTree = new TreeComponent();
+		//searchTree.addPropertyChangeListener(this);
 		scopes = new HashMap<Integer, JCheckBox>(model.getNodes().size());
 		types = new HashMap<Integer, JCheckBox>(model.getTypes().size());
 		IconManager icons = IconManager.getInstance();
@@ -308,7 +321,7 @@ class SearchPanel
 		
 		
 		allTermsArea = new JTextField(AREA_COLUMNS);
-		exactPhraseArea = new JTextField(AREA_COLUMNS);
+		//exactPhraseArea = new JTextField(AREA_COLUMNS);
 		atLeastTermsArea = new JTextField(AREA_COLUMNS);
 		withoutTermsArea = new JTextField(AREA_COLUMNS);
 	
@@ -364,11 +377,30 @@ class SearchPanel
 		areas.put(allTermsArea, new JLabel(ALL_WORDS));
 		//areas.put(exactPhraseArea, new JLabel(EXACT_WORDS));
 		areas.put(withoutTermsArea, new JLabel(WITHOUT_WORDS));
-		helpButton = new JButton(icons.getIcon(IconManager.HELP));
-		helpButton.setToolTipText("Advanced search Tips.");
-		UIUtilities.unifiedButtonLookAndFeel(helpButton);
-		helpButton.addActionListener(model);
-		helpButton.setActionCommand(""+SearchComponent.HELP);
+		helpBasicButton = new JButton(icons.getIcon(IconManager.HELP));
+		helpBasicButton.setToolTipText("Advanced search Tips.");
+		UIUtilities.unifiedButtonLookAndFeel(helpBasicButton);
+		helpBasicButton.addActionListener(model);
+		helpBasicButton.setActionCommand(""+SearchComponent.HELP);
+		helpAdvancedButton = new JButton(icons.getIcon(IconManager.HELP));
+		helpAdvancedButton.setToolTipText("Advanced search Tips.");
+		UIUtilities.unifiedButtonLookAndFeel(helpAdvancedButton);
+		helpAdvancedButton.addActionListener(model);
+		helpAdvancedButton.setActionCommand(""+SearchComponent.HELP);
+		
+		//
+		searchBasicButton = new JButton(icons.getIcon(IconManager.FORWARD));
+		searchBasicButton.setToolTipText("Advanced search.");
+		UIUtilities.unifiedButtonLookAndFeel(searchBasicButton);
+		searchBasicButton.addActionListener(model);
+		searchBasicButton.setActionCommand(""+SearchComponent.ADVANCED_SEARCH);
+		searchAdvancedButton = new JButton(icons.getIcon(IconManager.BACKWARD));
+		searchAdvancedButton.setToolTipText("Standard Search.");
+		UIUtilities.unifiedButtonLookAndFeel(searchAdvancedButton);
+		searchAdvancedButton.addActionListener(model);
+		searchAdvancedButton.setActionCommand(""+SearchComponent.BASIC_SEARCH);
+		
+
 		formats = new JComboBox(fileFormats);
 		formats.setEnabled(false);
 		ButtonGroup group = new ButtonGroup();
@@ -672,6 +704,82 @@ class SearchPanel
 		UIUtilities.setBoldTitledBorder(TYPE_TITLE, p);
 		return p;
 	}
+
+	/**
+	 * Builds and lays out the Basic search component.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildBasicSearchComp()
+	{
+		basicSearchComp = new JPanel();
+		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, basicSearchComp);
+		basicSearchComp.setLayout(new BoxLayout(basicSearchComp, 
+				BoxLayout.Y_AXIS));
+		basicSearchComp.add(fullTextArea);
+		JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setRollover(true);
+		bar.setBorder(null);
+		bar.add(helpBasicButton);
+		bar.add(searchBasicButton);
+		basicSearchComp.add(UIUtilities.buildComponentPanel(bar));
+		return basicSearchComp;
+	}
+	
+	/**
+	 * Builds and lays out the Advanced search component.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildAdvancedSearchComp()
+	{
+		advancedSearchComp = new JPanel();
+		JPanel p = new JPanel();
+		UIUtilities.setBoldTitledBorder(ADVANCED_SEARCH_TITLE, 
+				advancedSearchComp);
+		p.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(3, 3, 3, 3);
+        Iterator i = areas.keySet().iterator();
+        JLabel label;
+        JTextField area;
+        while (i.hasNext()) {
+            ++c.gridy;
+            c.gridx = 0;
+            area = (JTextField) i.next();
+            label = areas.get(area);
+            c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+            c.weightx = 0.0;  
+            p.add(label, c);
+            label.setLabelFor(area);
+            ++c.gridy;
+            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.weightx = 1.0;
+            p.add(area, c);  
+        }
+        ++c.gridy;
+        c.gridx = 0;
+        c.weightx = 0.0; 
+        p.add(UIUtilities.setTextFont(SEARCH_TIP, TIP_FONT_TYPE, 
+        							TIP_FONT_SIZE), c); 
+        advancedSearchComp.setLayout(new BoxLayout(advancedSearchComp, 
+				BoxLayout.Y_AXIS));
+        advancedSearchComp.add(p);
+        
+		//Tool Bar
+        JToolBar bar = new JToolBar();
+		bar.setFloatable(false);
+		bar.setRollover(true);
+		bar.setBorder(null);
+		bar.add(helpAdvancedButton);
+		bar.add(searchAdvancedButton);
+		advancedSearchComp.add(UIUtilities.buildComponentPanel(bar));
+		return advancedSearchComp;
+	}
 	
 	/**
 	 * Builds the UI component hosting the terms to search for.
@@ -680,8 +788,16 @@ class SearchPanel
 	 */
 	private JPanel buildSearchFor()
 	{
-		JPanel searchFor = new JPanel();
-		searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
+		if (searchFor == null) {
+			searchFor = new JPanel();
+			searchFor.setLayout(new BoxLayout(searchFor, BoxLayout.Y_AXIS));
+		}
+		searchFor.removeAll();
+		if (advancedSearch) searchFor.add(buildAdvancedSearchComp());
+		else searchFor.add(buildBasicSearchComp());
+			
+		//searchFor.add(basicPanel);
+		/*
 		UIUtilities.setBoldTitledBorder(SEARCH_TITLE, searchFor);
 		JPanel basicPanel = new JPanel();
 		basicPanel.setLayout(new BoxLayout(basicPanel, BoxLayout.X_AXIS));
@@ -728,6 +844,7 @@ class SearchPanel
         					ADVANCED_SEARCH_TITLE), false);
         searchFor.add(UIUtilities.buildComponentPanel(basicPanel));
         searchFor.add(searchTree);
+        */
 		return searchFor;
 	}
 	
@@ -855,11 +972,9 @@ class SearchPanel
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		//JPanel content = new JPanel();
-		//content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		TreeComponent tree = new TreeComponent();
-		tree.insertNode(buildSearchFor(), 
-							UIUtilities.buildCollapsePanel(SEARCH_TITLE));
+		//tree.insertNode(buildSearchFor(), 
+		//					UIUtilities.buildCollapsePanel(SEARCH_TITLE));
 		buildType();
 		//tree.insertNode(buildType(), 
 		//		UIUtilities.buildCollapsePanel(TYPE_TITLE));
@@ -874,10 +989,11 @@ class SearchPanel
 		setBorder(null);
 		//setLayout(new FlowLayout(FlowLayout.LEFT));
 		double[][] size = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED}}; //rows
+				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; //rows
 		setLayout(new TableLayout(size));
-		add(tree, "0, 0");
-		//add(tree);
+		add(buildSearchFor(), "0, 0");
+		add(new JSeparator(JSeparator.HORIZONTAL), "0, 1");
+		add(tree, "0, 2");
 		setDateIndex();
 	}
 	
@@ -1188,6 +1304,29 @@ class SearchPanel
 	}
 
 	/**
+	 * Displays the Advanced Search component if the passed value is 
+	 * <code>true</code>, the Basic component is false.
+	 * 
+	 * @param advancedSearch 	Pass <code>true</code> to display the 
+	 * 							Advanced search, <code>false</code> to display
+	 * 							the Basic search.
+	 */
+	void advancedSearch(boolean advancedSearch)
+	{
+		this.advancedSearch = advancedSearch;
+		if (advancedSearch) {
+			fullTextArea.setEnabled(false);
+			atLeastTermsArea.requestFocus();
+		} else {
+			fullTextArea.setEnabled(true);
+			fullTextArea.requestFocus();
+		}
+		buildSearchFor();
+		revalidate();
+		repaint();
+	}
+	
+	/**
 	 * Reacts to property fired by a {@link TreeComponentNode}.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -1196,11 +1335,7 @@ class SearchPanel
 		String name = evt.getPropertyName();
 		if (TreeComponent.EXPANDED_PROPERTY.equals(name)) {
 			model.notifyNodeExpanded();
-			if (evt.getSource() == searchTree) handleAdvancedSearch();
-		} else if (DATE_CALENDAR_PROPERTY.equals(name)) {
-			//if (evt.getNewValue() != null) 
-				//toDate.setDate(new Date());
-		}
+		} 
 	}
 
 	/**
