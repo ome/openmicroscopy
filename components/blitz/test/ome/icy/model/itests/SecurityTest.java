@@ -37,8 +37,8 @@ public class SecurityTest extends IceTest {
         e.setLastName(new JString("645"));
         root.getServiceFactory().getAdminService().createUser(e, "default");
 
-        omero.client user = new omero.client(e.getOmeName().val, "");
-        user.createSession(null, null); // FIXME weird two times?
+        omero.client user = new omero.client();
+        user.createSession(e.getOmeName().val, "");
         return user;
     }
 

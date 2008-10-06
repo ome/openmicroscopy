@@ -172,6 +172,19 @@ public class client {
     }
 
     /**
+     * Creates an {@link Ice.Communicator} from multiple files.
+     */
+    public client(File...files) {
+        synchronized (lock) {
+            Ice.InitializationData id = new Ice.InitializationData();
+            id.properties = Ice.Util.createProperties();
+            for (File file : files) {
+                id.properties.load(file.getAbsolutePath());
+            }
+            init(id);
+        }
+    }
+    /**
      * Creates an {@link Ice.Communicator} from a {@link Map} instance. The
      * {@link String} representation of each member is added to the
      * {@link Ice.Properties} under the {@link String} representation of the
