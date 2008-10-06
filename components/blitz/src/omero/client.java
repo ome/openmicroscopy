@@ -15,7 +15,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 
-import ome.util.Utils;
 import omero.api.IAdminPrx;
 import omero.api.ISessionPrx;
 import omero.api.ServiceFactoryPrx;
@@ -461,7 +460,8 @@ public class client {
      * Calculates the local sha1 for a file.
      */
     public String sha1(File file) {
-        return Utils.fileToSha1(file);
+    	throw new RuntimeException("NYI");
+        //return Utils.fileToSha1(file);
     }
 
     /**
