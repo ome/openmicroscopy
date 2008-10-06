@@ -64,6 +64,7 @@
                 <include name="ome/util/Filter.class"/>
                 <include name="ome/util/ModelMapper.class"/>
                 <include name="ome/util/ReverseModelMapper.class"/>
+                <include name="ome/conditions/**/*.class"/>
             </fileset>
         </jar>
     </target>
