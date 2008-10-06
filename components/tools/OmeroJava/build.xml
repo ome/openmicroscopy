@@ -51,9 +51,6 @@
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="omero/**/*.class"/>
             </fileset>
-            <fileset dir="${client.comp}/target/classes">
-                <include name="pojos/*.class"/>
-            </fileset>
             <fileset dir="${common.comp}/target/classes">
                 <include name="ome/system/UpgradeCheck.class"/>
             </fileset>
@@ -61,10 +58,6 @@
                 <include name="ome/model/IObject.class"/>
                 <include name="ome/model/ModelBased.class"/>
                 <include name="ome/model/internal/*.class"/>
-                <include name="ome/util/Filterable.class"/>
-                <include name="ome/util/Filter.class"/>
-                <include name="ome/util/ModelMapper.class"/>
-                <include name="ome/util/ReverseModelMapper.class"/>
                 <!-- Possible only need the following, but adding util
                 classes for now
                  <include name="ome/util/Filterable.class"/>
@@ -79,6 +72,15 @@
         </copy>
         <!-- REAL compile -->
         <antcall target="lifecycle.compile" inheritAll="true" inheritRefs="true"/>
+    </target>
+
+
+    <target name="package" depends="lifecycle.package">
+        <jar update="true" destfile="${target.dir}/${ivy.module}.jar">
+            <fileset dir="${classes.dir}">
+                <include name="omero.properties"/>
+            </fileset>
+        </jar>
     </target>
 
     <target name="tools-init" unless="skip.ice"/>

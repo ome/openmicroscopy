@@ -123,7 +123,8 @@ public class RatingAnnotationData extends AnnotationData {
      * @return See above.
      */
     public int getRating() {
-        return ((Long) getContent()).intValue();
+        Long i = ((Long) getContent());
+        return i == null ? -1 : i.intValue();
     }
 
     /**
@@ -146,7 +147,8 @@ public class RatingAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        return ((LongAnnotation) asAnnotation()).getLongValue();
+        omero.RLong l = ((LongAnnotation) asAnnotation()).getLongValue();
+        return l == null ? null : l.val;
     }
 
     /**

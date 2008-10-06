@@ -223,7 +223,8 @@ public class TagAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        return ((TagAnnotation) asAnnotation()).getTextValue();
+        omero.RString s = ((TagAnnotation) asAnnotation()).getTextValue();
+        return s == null ? null : s.val;
     }
 
     /**

@@ -93,7 +93,8 @@ public class LongAnnotationData extends AnnotationData {
      * @return See above.
      */
     public long getDataValue() {
-        return ((Long) getContent()).longValue();
+        Long l = (Long) getContent();
+        return l == null ? -1 : l.longValue();
     }
 
     /**
@@ -103,7 +104,8 @@ public class LongAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        return ((LongAnnotation) asAnnotation()).getLongValue();
+        omero.RLong l = ((LongAnnotation) asAnnotation()).getLongValue();
+        return l == null ? null : l.val;
     }
 
     /**

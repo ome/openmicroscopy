@@ -22,6 +22,7 @@
  */
 package pojos;
 
+import omero.model.TagAnnotation;
 import omero.model.TextAnnotation;
 
 // Java imports
@@ -95,7 +96,8 @@ public class TextualAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        return ((TextAnnotation) asAnnotation()).getTextValue();
+        omero.RString s = ((TextAnnotation) asAnnotation()).getTextValue();
+        return s == null ? null : s.val;
     }
 
     /**

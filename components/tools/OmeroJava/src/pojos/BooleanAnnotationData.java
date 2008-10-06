@@ -86,7 +86,7 @@ public class BooleanAnnotationData extends AnnotationData {
      * 
      * @return See above.
      */
-    public boolean getValue() {
+    public Boolean getValue() {
         return (Boolean) getContent();
     }
 
@@ -97,7 +97,8 @@ public class BooleanAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        return ((BooleanAnnotation) asAnnotation()).getBoolValue();
+        omero.RBool b = ((BooleanAnnotation) asAnnotation()).getBoolValue();
+        return b == null ? null : b.val;
     }
 
     /**
@@ -107,7 +108,8 @@ public class BooleanAnnotationData extends AnnotationData {
      */
     @Override
     public String getContentAsString() {
-        return (String) getContent();
+        Object o = getContent();
+        return o == null ? "null" : o.toString();
     }
 
     /**

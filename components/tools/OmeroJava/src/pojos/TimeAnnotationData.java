@@ -75,7 +75,8 @@ public class TimeAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        return ((TimestampAnnotation) asAnnotation()).getTimeValue();
+        omero.RTime t = ((TimestampAnnotation) asAnnotation()).getTimeValue();
+        return t == null ? null : new Timestamp(t.val);
     }
 
     /**
@@ -85,7 +86,8 @@ public class TimeAnnotationData extends AnnotationData {
      */
     @Override
     public String getContentAsString() {
-        return getTime().toString();
+        Timestamp t = getTime();
+        return t == null ? "" : t.toString();
     }
 
     /**

@@ -25,10 +25,10 @@ package pojos;
 // Java imports
 
 // Third-party libraries
+import omero.model.TagAnnotation;
 import omero.model.UrlAnnotation;
 
 // Application-internal dependencies
-import org.apache.commons.validator.UrlValidator;
 
 /**
  * Define a URL Annotation. Note that a URL annotation is a specific text
@@ -69,10 +69,7 @@ public class URLAnnotationData extends AnnotationData {
         if (value == null) {
             throw new IllegalArgumentException("URL not valid.");
         }
-        UrlValidator validator = new UrlValidator(URLS);
-        if (!validator.isValid(value)) {
-            throw new IllegalArgumentException("URL not valid");
-        }
+        // FIXME - No longer using commons-validator
     }
 
     /**
@@ -123,7 +120,8 @@ public class URLAnnotationData extends AnnotationData {
      */
     @Override
     public Object getContent() {
-        return ((UrlAnnotation) asAnnotation()).getTextValue();
+        omero.RString s = ((UrlAnnotation) asAnnotation()).getTextValue();
+        return s == null ? null : s.val;
     }
 
     /**
