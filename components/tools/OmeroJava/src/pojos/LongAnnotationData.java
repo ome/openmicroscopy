@@ -23,6 +23,7 @@
 package pojos;
 
 import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
 
 // Java imports
 
@@ -50,7 +51,7 @@ public class LongAnnotationData extends AnnotationData {
      *            The rating value. One of the contants defined by this class.
      */
     public LongAnnotationData(long value) {
-        super(LongAnnotation.class);
+        super(LongAnnotationI.class);
         setDataValue(value);
     }
 
@@ -61,7 +62,7 @@ public class LongAnnotationData extends AnnotationData {
      *            The rating value. One of the contants defined by this class.
      */
     public LongAnnotationData() {
-        super(LongAnnotation.class);
+        super(LongAnnotationI.class);
     }
 
     /**

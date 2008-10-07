@@ -23,6 +23,7 @@
 package pojos;
 
 import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 
 // Java imports
 
@@ -45,7 +46,7 @@ public class BooleanAnnotationData extends AnnotationData {
 
     /** Creates a new instance. */
     public BooleanAnnotationData() {
-        super(BooleanAnnotation.class);
+        super(BooleanAnnotationI.class);
         setContent(null);
     }
 
@@ -56,7 +57,7 @@ public class BooleanAnnotationData extends AnnotationData {
      *            The value to set.
      */
     public BooleanAnnotationData(boolean value) {
-        super(BooleanAnnotation.class);
+        super(BooleanAnnotationI.class);
         setContent(value);
     }
 

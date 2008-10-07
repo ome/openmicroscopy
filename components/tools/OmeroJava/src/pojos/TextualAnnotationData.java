@@ -24,6 +24,7 @@ package pojos;
 
 import omero.model.TagAnnotation;
 import omero.model.TextAnnotation;
+import omero.model.TextAnnotationI;
 
 // Java imports
 
@@ -44,7 +45,7 @@ public class TextualAnnotationData extends AnnotationData {
 
     /** Creates a new instance. */
     public TextualAnnotationData() {
-        super(TextAnnotation.class);
+        super(TextAnnotationI.class);
         setContent(null);
     }
 
@@ -55,7 +56,7 @@ public class TextualAnnotationData extends AnnotationData {
      *            The text to set.
      */
     public TextualAnnotationData(String text) {
-        super(TextAnnotation.class);
+        super(TextAnnotationI.class);
         setContent(text);
     }
 

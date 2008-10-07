@@ -27,6 +27,7 @@ package pojos;
 // Third-party libraries
 import omero.model.TagAnnotation;
 import omero.model.UrlAnnotation;
+import omero.model.UrlAnnotationI;
 
 // Application-internal dependencies
 
@@ -79,7 +80,7 @@ public class URLAnnotationData extends AnnotationData {
      *            The value to set.
      */
     public URLAnnotationData(String url) {
-        super(UrlAnnotation.class);
+        super(UrlAnnotationI.class);
         setURL(url);
     }
 

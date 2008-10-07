@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Set;
 
 import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
 
 /**
@@ -74,7 +75,7 @@ public class TagAnnotationData extends AnnotationData {
      *            The description of the tag.
      */
     public TagAnnotationData(String tag, String description) {
-        super(TagAnnotation.class);
+        super(TagAnnotationI.class);
         setTagValue(tag);
         setTagDescription(description);
     }

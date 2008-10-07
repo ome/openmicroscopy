@@ -26,6 +26,7 @@ package pojos;
 import java.io.File;
 
 import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.OriginalFile;
 
 // Third-party libraries
@@ -179,7 +180,7 @@ public class FileAnnotationData extends AnnotationData {
      *            The file to attach.
      */
     public FileAnnotationData(File file) {
-        super(FileAnnotation.class);
+        super(FileAnnotationI.class);
         if (file == null) {
             throw new IllegalArgumentException("File cannot be null.");
         }
