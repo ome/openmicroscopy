@@ -50,9 +50,11 @@
 	    </fileset>
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="omero/**/*.class"/>
+		<!-- This needs more refinement. Should only be in model, e.g.
                 <exclude name="omero/**/_*DelD.class"/>
                 <exclude name="omero/**/_*DelD$*.class"/>
                 <exclude name="omero/**/_*Tie.class"/>
+		-->
             </fileset>
             <fileset dir="${common.comp}/target/classes">
                 <include name="ome/system/UpgradeCheck.class"/>
