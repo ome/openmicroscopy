@@ -25,17 +25,11 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
-
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.util.Filter;
-import ome.util.Filterable;
 import omero.RLong;
 import omero.RString;
 import omero.model.Annotation;
@@ -81,8 +75,6 @@ import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
 import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -109,47 +101,6 @@ public class ModelMapper
 {
    
     /**
-     * Helper field used to unlink an <code>IObject</code> and its related
-     * collections.
-     */
-    private static Filter unloader = new CollectionUnloader();
-    
-    /**
-     *  Utility inner class to unload all collections linked to a given 
-     *  <code>IObject</code> e.g. a {@link Project} linked to its
-     *  {@link Dataset}s.
-     */
-    private static class CollectionUnloader
-        implements Filter
-    {
-    	
-        /** 
-         * Implemented as specified by the {@link Filter} I/F.
-         * @see Filter#filter(String, Filterable)
-         */
-        public Filterable filter(String arg0, Filterable arg1) { return arg1; }
-        
-        /** 
-         * Implemented as specified by the {@link Filter} I/F.
-         * @see Filter#filter(String, Collection)
-         */
-        public Collection filter(String arg0, Collection arg1) { return null; }
-        
-        /** 
-         * Implemented as specified by the {@link Filter} I/F.
-         * @see Filter#filter(String, Map)
-         */
-        public Map filter(String arg0, Map arg1) { return arg1; }
-        
-        /** 
-         * Implemented as specified by the {@link Filter} I/F.
-         * @see Filter#filter(String, Object)
-         */
-        public Object filter(String arg0, Object arg1) { return arg1; }
-        
-    }
-    
-    /**
      * Unlinks the collections linked to the specified {@link IObject}.
      * 
      * @param object The object.
@@ -158,8 +109,28 @@ public class ModelMapper
     {
         if (object == null)
             throw new IllegalArgumentException("The object mustn't be null.");
-        //TODO: check what to do
-        //object.acceptFilter(unloader);
+        object.unloadCollections();
+        /*
+        if (object instanceof Project) {
+        	ProjectI p = (ProjectI) object;
+        	p.toggleCollectionsLoaded(false);
+        } else if (object instanceof Dataset) {
+        	DatasetI p = (DatasetI) object;
+        	p.toggleCollectionsLoaded(false);
+        } else if (object instanceof LongAnnotation) {
+        	LongAnnotationI p = (LongAnnotationI) object;
+        	p.toggleCollectionsLoaded(false);
+        } else if (object instanceof TagAnnotation) {
+        	TagAnnotationI p = (TagAnnotationI) object;
+        	p.toggleCollectionsLoaded(false);
+        } else if (object instanceof UrlAnnotation) {
+        	UrlAnnotationI p = (UrlAnnotationI) object;
+        	p.toggleCollectionsLoaded(false);
+        } else if (object instanceof TextAnnotation) {
+        	TextAnnotationI p = (TextAnnotationI) object;
+        	p.toggleCollectionsLoaded(false);
+        } 
+        */
     }
 
     /**

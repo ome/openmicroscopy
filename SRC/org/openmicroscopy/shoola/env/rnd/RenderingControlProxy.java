@@ -38,11 +38,11 @@ import javax.imageio.ImageIO;
 //Third-party libraries
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 //Application-internal dependencies
 import omero.ServerError;
 import omero.api.RenderingEnginePrx;
-import omero.constants.projection.ProjectionType;
 import omero.model.Family;
 import omero.model.Pixels;
 import omero.model.PixelsDimensions;
@@ -165,13 +165,9 @@ class RenderingControlProxy
     private Object getFromCache(PlaneDef pd)
     {
         // We only cache XY images.
-    	/*
-        if (pd.getSlice() == PlaneDef.XY && xyCache != null) {  
-        	return xyCache.extract(pd);
-        }
-        */
     	if (pd.slice == omero.romio.XY.value && cacheID >= 0) {
-    		return context.getCacheService().getElement(cacheID, pd);
+    		int index = pd.z+getPixelsDimensionsZ()*pd.t;
+    		return context.getCacheService().getElement(cacheID, index);
     	}
         return null;
     }
@@ -188,9 +184,9 @@ class RenderingControlProxy
             //We only cache XY images.
             //if (xyCache != null) xyCache.add(pd, object);
         	if (cacheID >= 0) {
-        		context.getCacheService().addElement(cacheID, pd, object);
+        		int index = pd.z+getPixelsDimensionsZ()*pd.t;
+        		context.getCacheService().addElement(cacheID, index, object);
         	}
-        	
         }
     }
     
@@ -198,7 +194,9 @@ class RenderingControlProxy
     private void invalidateCache()
     {
         //if (xyCache != null) xyCache.clear();
-    	if (cacheID >= 0) context.getCacheService().clearCache(cacheID);
+    	if (cacheID >= 0){
+    		 context.getCacheService().clearCache(cacheID);
+    	}
     }
     
     /** Clears the cache and releases memory. */
@@ -206,7 +204,6 @@ class RenderingControlProxy
     {
     	invalidateCache();
     	context.getCacheService().removeCache(cacheID);
-    	
     }
     
     /**

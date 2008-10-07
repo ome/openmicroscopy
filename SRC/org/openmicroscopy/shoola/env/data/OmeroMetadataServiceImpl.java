@@ -45,6 +45,8 @@ import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.ImageAnnotationLink;
 import omero.model.OriginalFile;
+import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.util.PojoOptionsI;
@@ -156,8 +158,16 @@ class OmeroMetadataServiceImpl
 					fileAnn = (FileAnnotationData) ann;
 					of = gateway.uploadFile(fileAnn.getAttachedFile(), 
 							fileAnn.getServerFileFormat());
+					//tmp
 					fa = new FileAnnotationI();
+					//tmp
 					fa.setFile(of);
+					/*
+					fa.setFile(
+							(OriginalFile)
+							gateway.findIObject(OriginalFile.class.getName(), 
+									of.getId().val));
+									*/
 					iobject = fa;
 				} else {
 					if (ann instanceof TagAnnotationData) {
@@ -226,24 +236,23 @@ class OmeroMetadataServiceImpl
 		IObject link = null;
 		boolean exist = false;
 		
-		IObject an;
+		//Annotation an = (Annotation) gateway.findIObject(gateway.convertPojos(
+		//		annotation.getClass()), annotation.getId());
+		//ModelMapper.unloadCollections(an);
+		Annotation an = annotation.asAnnotation();
 		if (annotation instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) annotation;
 			//tag a tag.
 			if (TagAnnotationData.class.equals(data.getClass())) {
-				an = tag.asIObject();
-				ModelMapper.unloadCollections(an);
 				link = gateway.findAnnotationLink(
 						AnnotationData.class, tag.getId(), ho.getId().val);
 				if (link == null) 
 					link = ModelMapper.linkAnnotation(an, (Annotation) ho);
 			} else {
-				an = tag.asIObject();
-				ModelMapper.unloadCollections(an);
 				link = gateway.findAnnotationLink(ho.getClass(), 
 						ho.getId().val, tag.getId());
 				if (link == null)
-					link = ModelMapper.linkAnnotation(ho, (Annotation) an);
+					link = ModelMapper.linkAnnotation(ho, an);
 				else {
 					updateAnnotationData(tag);
 					exist = true;
@@ -252,12 +261,9 @@ class OmeroMetadataServiceImpl
 		} else if (annotation instanceof RatingAnnotationData) {
 			clearAnnotation(data.getClass(), data.getId(), 
 					RatingAnnotationData.class);
-			link = ModelMapper.linkAnnotation(ho, 
-					(Annotation) annotation.asIObject());
+			link = ModelMapper.linkAnnotation(ho, an);
 		} else {
-			an = annotation.asIObject();
-			ModelMapper.unloadCollections(an);
-			link = ModelMapper.linkAnnotation(ho, (Annotation) an);
+			link = ModelMapper.linkAnnotation(ho, an);
 		}
 		if (link != null) 
 			gateway.createObject(link, (new PojoOptionsI()).map());
@@ -289,6 +295,7 @@ class OmeroMetadataServiceImpl
 				}	
 				ioType = gateway.convertPojos(TagAnnotationData.class);
 				ho = gateway.findIObject(ioType, id);
+				ModelMapper.unloadCollections(ho);
 				link = ModelMapper.createAnnotationAndLink(ho, description);
 				if (link != null) 
 					gateway.createObject(link, (new PojoOptionsI()).map());
@@ -836,7 +843,9 @@ class OmeroMetadataServiceImpl
 			object = j.next();
 			if (object instanceof AnnotationData) {
 				updateAnnotationData(object);
-			} else service.updateDataObject(object);
+			} else {
+				service.updateDataObject(object);
+			}
 			if (annotations.size() > 0) {
 				i = annotations.iterator();
 				while (i.hasNext())

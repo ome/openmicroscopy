@@ -89,6 +89,7 @@ import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.LongAnnotation;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
@@ -109,15 +110,18 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import omero.sys.PojoOptions;
 import pojos.ArchivedAnnotationData;
+import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.LongAnnotationData;
 import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
+import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -854,6 +858,12 @@ class OMEROGateway
 			return Dataset.class.getName();
 		else if (nodeType.equals(ImageData.class)) 
 			return Image.class.getName();
+		else if (nodeType.equals(BooleanAnnotationData.class) ||
+				nodeType.equals(ArchivedAnnotationData.class))
+			return BooleanAnnotation.class.getName();
+		else if (nodeType.equals(RatingAnnotationData.class) ||
+				nodeType.equals(LongAnnotationData.class)) 
+			return LongAnnotation.class.getName();
 		else if (nodeType.equals(TagAnnotationData.class)) 
 			return TagAnnotation.class.getName();
 		else if (nodeType.equals(TextualAnnotationData.class)) 
@@ -1242,8 +1252,9 @@ class OMEROGateway
 	{
 		try {
 			isSessionAlive();
-			IPojosPrx service = getPojosService();
-			return service.createDataObject(object, options);
+			//IPojosPrx service = getPojosService();
+			//return service.createDataObject(object, options);
+			return saveAndReturnObject(object, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
@@ -1267,8 +1278,9 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IPojosPrx service = getPojosService();
-			List<IObject> results = service.createDataObjects(objects, options);
-			return results;
+			//List<IObject> results = service.createDataObjects(objects, options);
+			//return results;
+			return saveAndReturnObject(objects, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot create the objects.");
 		}
@@ -1332,19 +1344,82 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
+	IObject saveAndReturnObject(IObject object, Map options)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IUpdatePrx service = getUpdateService();
+			IObject r;
+			if (options == null) r = service.saveAndReturnObject(object);
+			r = service.saveAndReturnObject(object, options);
+			return findIObject(r);
+		} catch (Throwable t) {
+			handleException(t, "Cannot update the object.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Updates the specified object.
+	 * 
+	 * @param object    The objet to update.
+	 * @param options   Options to update the data.   
+	 * @return          The updated object.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#updateDataObject(IObject, Map)
+	 */
+	List<IObject> saveAndReturnObject(List<IObject> object, Map options)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IUpdatePrx service = getUpdateService();
+			List<IObject> r = service.saveAndReturnArray(object);
+			if (r == null) return r;
+			Iterator<IObject> i = r.iterator();
+			List<IObject> results = new ArrayList<IObject>(r.size());
+			while (i.hasNext()) {
+				results.add(findIObject(i.next()));
+			}
+			return results;
+		} catch (Throwable t) {
+			handleException(t, "Cannot update the object.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Updates the specified object.
+	 * 
+	 * @param object    The objet to update.
+	 * @param options   Options to update the data.   
+	 * @return          The updated object.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occured while trying to 
+	 * retrieve data from OMERO service. 
+	 * @see IPojos#updateDataObject(IObject, Map)
+	 */
 	IObject updateObject(IObject object, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			IPojosPrx service = getPojosService();
-			return service.updateDataObject(object, options);
+			
+			//return service.updateDataObject(object, options);
+			//tmp
+			IObject r = service.updateDataObject(object, options);
+			return findIObject(r);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
 		return null;
 	}
 
+	
 	/**
 	 * Updates the specified <code>IObject</code>s and returned the 
 	 * updated <code>IObject</code>s.
@@ -1363,7 +1438,15 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IPojosPrx service = getPojosService();
-			return service.updateDataObjects(objects, options);
+			List<IObject> l = service.updateDataObjects(objects, options);
+			if (l == null) return l;
+			Iterator<IObject> i = l.iterator();
+			List<IObject> r = new ArrayList<IObject>(l.size());
+			while (i.hasNext()) 
+				r.add(findIObject(i.next()));
+
+			return r;
+			//return service.updateDataObjects(objects, options);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
@@ -2217,8 +2300,9 @@ class OMEROGateway
 			oFile.setSize(new RLong(file.length()));
 			oFile.setSha1(new RString("pending"));
 			oFile.setFormat(f);
-			IUpdatePrx service = getUpdateService();
-			save = (OriginalFile) service.saveAndReturnObject(oFile);
+			
+			save = (OriginalFile) saveAndReturnObject(oFile, null);
+			//service.saveAndReturnObject(oFile);
 			store.setFileId(save.getId().val);
 		} catch (Exception e) {
 			handleException(e, "Cannot set the file's id.");

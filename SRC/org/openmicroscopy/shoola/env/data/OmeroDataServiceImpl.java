@@ -311,7 +311,7 @@ class OmeroDataServiceImpl
 
 		IObject obj = ModelMapper.createIObject(child, parent);
 		if (obj == null) 
-			throw new NullPointerException("Cannot convert object.");
+			throw new NullPointerException("Cannot convert the object.");
 		Map options = (new PojoOptions()).map();
 
 		IObject created = gateway.createObject(obj, options);
@@ -323,16 +323,12 @@ class OmeroDataServiceImpl
 			List<IObject> links = new ArrayList<IObject>();
 			while (i.hasNext()) {
 				node = i.next();
-				if (node instanceof DataObject) {
+				if (node instanceof DataObject)
 					links.add(ModelMapper.linkParentToChild(
 							((DataObject) node).asIObject(), created));
-				}
 			}
-			if (links.size() > 0) {
+			if (links.size() > 0)
 				gateway.createObjects(links, options);
-			}
-			
-			
 		}
 		return  PojoMapper.asDataObject(created);
 	}
