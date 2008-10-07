@@ -41,7 +41,7 @@
             <arg value="build"/>
         </setup_py>
         <delete>
-            <fileset dir="${basedir}/dist" includes="**/*"/>
+            <fileset dir="${basedir}" includes="dist/**/*"/>
         </delete>
         <setup_py>
             <arg value="bdist_egg"/>
