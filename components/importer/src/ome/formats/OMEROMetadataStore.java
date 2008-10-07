@@ -164,7 +164,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
      */
     private Map<Pixels, List<PlaneInfo>> planeInfoCache = null;
 
-    private Experimenter    exp;
+    private Experimenter    _exp;
 
     private RawFileStore    rawFileStore;
 
@@ -209,8 +209,6 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
                 sf = new ServiceFactory(server, login);
     
                 InitializeServices(sf);
-    
-                exp = iQuery.findByString(Experimenter.class, "omeName", username);
             } catch (Throwable t)
             {
                 throw new Exception(t);
@@ -222,22 +220,11 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     {
         try {
             // first try to automatically reconnect to the server
-            iQuery.findByString(Experimenter.class, "omeName", login.getName());
+            sf.getAdminService().getEventContext();
         } 
         catch (SessionException e)
         {
-            log.debug(String.format("Session error, attempting a reconnect...."));
-            sf = new ServiceFactory(server, login);
-            InitializeServices(sf);
-            try {
-                // test again
-                iQuery.findByString(Experimenter.class, "omeName", login.getName());
-                log.debug(String.format(" Reconnect successful."));
-            }
-            catch (SessionException e2)
-            {
-                log.debug(String.format(" Reconnect failed!"));                
-            }
+                log.debug(String.format(" Connection failed!"));                
         }
     }
 
@@ -283,6 +270,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         pservice = sf.createRawPixelsStore();
         rawFileStore = sf.createRawFileStore();
         iInfo = sf.getRepositoryInfoService();
+
     }
 
 
@@ -324,7 +312,9 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
     @SuppressWarnings("unchecked")
     public void setRoot(Object root) throws IllegalArgumentException
     {
-        if (!(root instanceof List))
+        if (root == null) {
+            imageList = new ArrayList<Image>();
+        } else if (!(root instanceof List))
             throw new IllegalArgumentException("'root' object of type '"
                     + root.getClass()
                     + "' must be of type 'List<ome.model.core.Image>'");
@@ -369,7 +359,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
 
     public long getExperimenterID()
     {
-        return exp.getId();
+        return sf.getAdminService().getEventContext().getCurrentUserId();
     }
 
 
@@ -595,7 +585,7 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         List<Project> l = iQuery.findAllByQuery(
                 "from Project as p left join fetch p.datasetLinks " +
                 "where p.details.owner.id = :id order by name", 
-                new Parameters().addId(exp.getId()));
+                new Parameters().addId(getExperimenterID()));
         return (List<Project>) l;
     }
 
