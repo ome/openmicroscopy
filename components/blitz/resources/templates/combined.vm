@@ -469,6 +469,45 @@ Doing unloadedPython as a method because of the multi-line restriction. See belo
 [$pyc]               self.__dict__[loadedField] = True
 [$pyc]
 
+
+MUTABLE
+=====================================================================================================
+The "version" property is not a part of the model but is calculated from mutability.
+
+#if( ! $type.immutable )
+#if( ! $type.superclass )
+[$ice]       omero::RInt version;
+#end ! superclass
+
+[$jav]       public omero.RInt getVersion($JAV_CURRENT) {
+[$jav]           return this.version;
+[$jav]       }
+[$jav]
+[$jav]       public void setVersion( omero.RInt version, $JAV_CURRENT ) {
+[$jav]           this.version = version;
+[$jav]       }
+[$jav]
+
+[$hdr]       virtual omero::RIntPtr getVersion($HDR_CURRENT);
+[$hdr]       virtual void setVersion( const omero::RIntPtr& version, $HDR_CURRENT );
+
+[$cpp]       omero::RIntPtr ${PojoI}::getVersion($CPP_CURRENT) {
+[$cpp]           return version;
+[$cpp]       }
+[$cpp]
+[$cpp]       void ${PojoI}::setVersion(const omero::RIntPtr& _version, $CPP_CURRENT) {
+[$cpp]           version = _version;
+[$cpp]       }
+
+[$pyc]       def getVersion(self, $PYC_CURRENT):
+[$pyc]           return self._version
+[$pyc]
+[$pyc]       def setVersion(self, version, $PYC_CURRENT):
+[$pyc]           self._version = version
+[$pyc]
+#end### ! immutable 
+
+
 ###########################################################################
 #foreach($property in $type.propertyClosure)#############
 ###########################################################################
@@ -489,12 +528,6 @@ in the [Ice] sections below, but not for all others.
 #if( $property.name.equals("id") || $property.name.equals("details"))## SPECIAL EXCEPTIONS
 
 Skip. These are defined in omero.IObject.ice
-
-#elseif($property.name.equals("version"))
-#if($extendsDeclaration.equals($base))
-             // Version in superclass
-[$Ice]       omero::RInt version;
-#end
 
 #else## All other properties are treated normally
 
@@ -1475,6 +1508,9 @@ COPYOBJECT BLOCK:
 [$jav]                if (!source.isLoaded()) {
 [$jav]                    this.unload();
 [$jav]                } else {
+#if( ! $type.immutable )
+[$jav]             this.version = source.getVersion() == null ? null : new omero.RInt( source.getVersion() );
+#end
 #foreach($property in $type.propertyClosure)
 [$jav]                    this.copy${property.nameCapped}( source, mapper );
 #end##FOREACH
@@ -1503,9 +1539,13 @@ FILLOBJECT BLOCK:
 [$jav]           } else {
 [$jav]             omero.RLong id = this.getId();
 [$jav]             target.setId( id == null ? null : Long.valueOf(id.val) ); // special property
-[$jav]                // Following also copy counts, etc. if necessary
+#if( ! $type.immutable )
+[$jav]             target.setVersion(  this.version == null ? null : this.version.val );
+#end
+[$jav]             
+[$jav]             // Following also copy counts, etc. if necessary
 #foreach($property in $type.propertyClosure)
-[$jav]                this.fill${property.nameCapped}( target, mapper );
+[$jav]             this.fill${property.nameCapped}( target, mapper );
 #end##FOREACH
 [$jav]           }
 [$jav]           return target;
