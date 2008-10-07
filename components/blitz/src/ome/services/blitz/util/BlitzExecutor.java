@@ -9,6 +9,8 @@
 package ome.services.blitz.util;
 
 import ome.api.ServiceInterface;
+import ome.services.util.Executor;
+import ome.system.Principal;
 import omero.util.IceMapper;
 
 /**
@@ -21,6 +23,25 @@ public interface BlitzExecutor {
 
     public interface Task {
         void run();
+    }
+    
+    /**
+     * Simple adapter which takes a {@link Executor.Work} instance and
+     * executes it as a {@link BlitzExecutor} task.
+     */
+    public class Adapter implements Task {
+        Executor ex;
+        Executor.Work work;
+        Principal p;
+        public Adapter(Executor ex, Principal p, Executor.Work work) {
+            this.ex = ex;
+            this.work = work;
+            this.p = p;
+        }
+        public void run() {
+            this.ex.execute(this.p, this.work);            
+        }
+        
     }
 
     /**
