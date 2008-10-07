@@ -24,9 +24,20 @@
 from ez_setup import use_setuptools
 use_setuptools()
 from setuptools import setup
+import fileinput
+
+map = {"omero.version" : "unknown" }
+try:
+    finput = fileinput.input("../../../etc/omero.properties")
+    for line in finput:
+        parts = line.split("=", 1)
+        if len(parts) == 2:
+            map[parts[0]] = parts[1].rstrip()
+finally:
+    finput.close()
 
 setup(name="OmeroPy",
-      version="3.0-Beta3.1",
+      version=map["omero.version"],
       description="Python bindings to the OMERO.blitz server",
       long_description="""\
 Python bindings to the OMERO.blitz server.

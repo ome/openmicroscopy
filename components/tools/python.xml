@@ -40,6 +40,12 @@
         <setup_py>
             <arg value="build"/>
         </setup_py>
+        <delete>
+            <fileset dir="${basedir}/dist" includes="**/*"/>
+        </delete>
+        <setup_py>
+            <arg value="bdist_egg"/>
+        </setup_py>
     </target>
 
     <target name="python-test" unless="env.NOPYTHON">
@@ -59,7 +65,10 @@
 
     <target name="python-install" unless="env.NOPYTHON">
         <copy todir="../target">
-            <fileset dir="build" includes="**/*"/>
+            <fileset dir="${basedir}/build" includes="**/*"/>
+        </copy>
+        <copy todir="../target/client">
+            <fileset dir="${basedir}/dist" includes="**/*"/>
         </copy>
     </target>
 
