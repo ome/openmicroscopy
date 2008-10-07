@@ -64,6 +64,21 @@ module omero {
       void unload();
 
       /*
+       * Each collection can also be unloaded, independently
+       * of the object itself. To unload all collections, use:
+       *
+       *    object.unloadCollections();
+       *
+       * This is useful when it is possible that a collection no
+       * longer represents the state in the database, and passing the
+       * collections back to the server might delete some entities.
+       *
+       * Sending back empty collections can also save a significant
+       * amount of bandwidth, when working with large data graphs.
+       */
+      void unloadCollections();
+
+      /*
        * Tests for unloadedness. If this value is false, then
        * any method call on this instance other than getId
        * or setId will result in an exception.
