@@ -72,8 +72,6 @@ import javax.swing.filechooser.FileFilter;
 //import layout.TableLayout;
 
 //Application-internal dependencies
-import omero.model.FileAnnotation;
-
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
