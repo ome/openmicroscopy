@@ -51,7 +51,7 @@
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="omero/**/*.class"/>
                 <exclude name="omero/**/_*.class"/>
-                <include name="omero/**/_*Operations.class"/>
+                <include name="omero/**/_*Operations*.class"/>
             </fileset>
             <fileset dir="${common.comp}/target/classes">
                 <include name="ome/system/UpgradeCheck.class"/>
