@@ -32,14 +32,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.imageio.ImageIO;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.RString;
-import omero.api.RenderingEngine;
 import omero.api.RenderingEnginePrx;
 import omero.model.IObject;
 import omero.model.Image;
@@ -48,7 +46,6 @@ import omero.model.PixelsDimensions;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
 import omero.util.PojoOptionsI;
-
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -62,6 +59,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
+import pojos.PixelsData;
 
 
 /** 
@@ -311,6 +309,8 @@ class OmeroImageServiceImpl
 	public PixelsDimensions loadPixelsDimensions(long pixelsID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (pixelsID < 0) 
+			throw new IllegalArgumentException("Pixels' ID not valid.");
 		return gateway.getPixelsDimensions(pixelsID);
 	}
 
@@ -318,10 +318,13 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#loadPixels(long)
 	 */
-	public Pixels loadPixels(long pixelsID)
+	public PixelsData loadPixels(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		return gateway.getPixels(pixelsID);
+		if (pixelsID < 0) 
+			throw new IllegalArgumentException("Pixels' ID not valid.");
+		return (PixelsData) PojoMapper.asDataObject(
+				gateway.getPixels(pixelsID));
 	}
 
 	/** 
@@ -331,6 +334,8 @@ class OmeroImageServiceImpl
 	public byte[] getPlane(long pixelsID, int z, int t, int c)
 		throws DSOutOfServiceException, DSAccessException
 	{
+		if (pixelsID < 0) 
+			throw new IllegalArgumentException("Pixels' ID not valid.");
 		return gateway.getPlane(pixelsID, z, t, c);
 	}
 
@@ -421,6 +426,7 @@ class OmeroImageServiceImpl
 		image = (ImageData) 
 			PojoMapper.asDataObject(
 					gateway.updateObject(img, new PojoOptionsI().map()));
+		image = gateway.getImage(image.getId());
 		List<DatasetData> datasets =  ref.getDatasets();
 		if (datasets != null && datasets.size() > 0) {
 			Map map = (new PojoOptionsI()).map();

@@ -3343,12 +3343,12 @@ class OMEROGateway
 			String query = sb.toString();
             Iterator i = rootNodeIDs.iterator();
             Long id;
-            Map<Long, Integer> m = new HashMap<Long, Integer>();
+            Map<Long, Long> m = new HashMap<Long, Long>();
             
             while (i.hasNext()) {
 				id = (Long) i.next();
 				param.addLong("tagID", id);
-				m.put(id, service.findAllByQuery(query, param).size());
+				m.put(id, new Long(service.findAllByQuery(query, param).size()));
 			}
 			return m;
 		} catch (Throwable t) {
@@ -3575,6 +3575,27 @@ class OMEROGateway
 			}
 			long imageID = service.projectPixels(pixelsID, type, algorithm, 
 					startT, endT, channels, stepping, startZ, endZ, name);
+			return getImage(imageID);
+		} catch (Exception e) {
+			handleException(e, "Cannot project the image.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the image and loaded pixels.
+	 * 
+	 * @param imageID The id of the image to load.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	ImageData getImage(long imageID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append("select img from Image as img ");
 			/*
@@ -3588,9 +3609,9 @@ class OMEROGateway
 	        sb.append("where img.id = :id");
 	        ParametersI param = new ParametersI();
 			param.addLong("id", imageID);
-	        ImageData image = (ImageData) PojoMapper.asDataObject(
-	        		getQueryService().findByQuery(sb.toString(), param));
-			return image;
+	        return (ImageData) PojoMapper.asDataObject(
+	        		getQueryService().findByQuery(sb.toString(), param)
+	        		);
 		} catch (Exception e) {
 			handleException(e, "Cannot project the image.");
 		}

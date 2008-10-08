@@ -51,8 +51,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.TimeIntervalsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.LookupNames;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -559,9 +557,6 @@ class BrowserModel
         switch (browserType) {
 			case Browser.PROJECT_EXPLORER:
 				klass = ProjectData.class;
-				break;
-			case Browser.CATEGORY_EXPLORER:
-				klass = CategoryGroupData.class;
 				break;
 			case Browser.IMAGES_EXPLORER:
 				klass =  ImageData.class;

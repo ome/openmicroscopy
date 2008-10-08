@@ -141,7 +141,8 @@ public class PojoMapper
         	return new FileAnnotationData((FileAnnotation) object);
         else if (object instanceof BooleanAnnotation) {
         	BooleanAnnotation ann = (BooleanAnnotation) object;
-        	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(ann.getNs().val))
+        	if (ArchivedAnnotationData.IMPORTER_ARCHIVED_NS.equals(
+        			ann.getNs().val))
         		return new ArchivedAnnotationData(ann);
         	return new BooleanAnnotationData(ann);
         }  else if (object instanceof TimestampAnnotation) 

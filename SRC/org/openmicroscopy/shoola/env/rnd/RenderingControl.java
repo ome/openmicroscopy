@@ -37,6 +37,8 @@ import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 
+import pojos.PixelsData;
+
 
 /** 
  * A facade to a given rendering environment for the UI benefit.
@@ -609,7 +611,7 @@ public interface RenderingControl
 	 * @param pixels The pixels to controls.
 	 * @return See above.
 	 */
-	public boolean validatePixels(Pixels pixels);
+	public boolean validatePixels(PixelsData pixels);
 	
 	/**
 	 * Sets the compression level.

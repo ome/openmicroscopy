@@ -28,13 +28,11 @@ package org.openmicroscopy.shoola.env.data;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
-import omero.model.Pixels;
 import omero.model.PixelsDimensions;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -42,6 +40,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import pojos.ImageData;
+import pojos.PixelsData;
 
 /** 
 * List of methods to view images or thumbnails.
@@ -212,7 +211,7 @@ public interface OmeroImageService
 	 * @throws DSAccessException        If an error occured while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public Pixels loadPixels(long pixelsID)
+	public PixelsData loadPixels(long pixelsID)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**

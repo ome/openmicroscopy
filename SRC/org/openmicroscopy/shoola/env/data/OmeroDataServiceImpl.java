@@ -739,8 +739,8 @@ class OmeroDataServiceImpl
 		PojoOptions po = new PojoOptions();
 		po.leaves();
 		po.exp(new RLong(userID));
-		po.startTime(new RTime(startTime.getTime()));
-		po.endTime(new RTime(endTime.getTime()));
+		if (startTime != null) po.startTime(new RTime(startTime.getTime()));
+		if (endTime != null) po.endTime(new RTime(endTime.getTime()));
 		return gateway.getImages(po.map());
 	}
 
@@ -775,7 +775,8 @@ class OmeroDataServiceImpl
 		while (i.hasNext()) {
 			object = (Image) i.next();
 			evt = object.getDetails().creationEvent;
-			times.add(new Timestamp(evt.getTime().val));
+			if (evt != null)
+				times.add(new Timestamp(evt.getTime().val));
 		}
 		return times;
 	}

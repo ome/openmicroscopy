@@ -38,7 +38,6 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.Pixels;
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.imviewer.ContainerLoader;
@@ -193,7 +192,7 @@ class ImViewerModel
 	private boolean						historyItemReplacement;
 
 	/** The pixels set to copy the rendering settings from. */
-	private Pixels 						pixels;
+	private PixelsData 				    pixels;
 
 	/** 
 	 * The index of the movie, not that we set to <code>-1</code>

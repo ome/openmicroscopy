@@ -56,6 +56,8 @@ import org.openmicroscopy.shoola.env.data.model.ChannelMetadata;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 
+import pojos.PixelsData;
+
 
 
 /** 
@@ -1263,19 +1265,19 @@ class RenderingControlProxy
 	
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#validatePixels(Pixels)
+	 * @see RenderingControl#validatePixels(PixelsData)
 	 */
-	public boolean validatePixels(Pixels pixels)
+	public boolean validatePixels(PixelsData pixels)
 	{
 		if (pixels == null) return false;
 		DataServicesFactory.isSessionAlive(context);
-		if (getPixelsDimensionsC() != pixels.getSizeC().val)
+		if (getPixelsDimensionsC() != pixels.getSizeC())
 			return false;
-		if (getPixelsDimensionsY() != pixels.getSizeY().val)
+		if (getPixelsDimensionsY() != pixels.getSizeY())
 			return false;
-		if (getPixelsDimensionsX() != pixels.getSizeX().val)
+		if (getPixelsDimensionsX() != pixels.getSizeX())
 			return false;
-		String s = pixels.getPixelsType().getValue().val;
+		String s = pixels.getPixelType();
 		String value = pixs.getPixelsType().getValue().val;
 		if (!value.equals(s)) return false;
 		return true;
