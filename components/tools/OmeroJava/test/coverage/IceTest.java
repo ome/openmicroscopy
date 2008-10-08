@@ -9,8 +9,6 @@ package coverage;
 import java.io.File;
 
 import junit.framework.TestCase;
-import ome.system.Login;
-import ome.system.OmeroContext;
 import omero.api.IUpdatePrx;
 import omero.api.IUpdatePrxHelper;
 import omero.constants.UPDATESERVICE;
@@ -26,20 +24,17 @@ import Ice.RouterPrx;
 @Test(groups = { "integration", "blitz", "client" })
 public abstract class IceTest extends TestCase {
 
-    protected OmeroContext context;
-    protected Login rootLogin;
     protected omero.client ice = null, root = null;
     protected Ice.Communicator ic = null;
 
     @Override
     @BeforeMethod
     public void setUp() throws Exception {
-        context = OmeroContext.getInstance("ome.client.test");
-        rootLogin = (Login) context.getBean("rootLogin");
-        ice = new omero.client();
+        File local = ResourceUtils.getFile("classpath:local.properties");
+        ice = new omero.client(local);
         ice.createSession();
-        root = new omero.client();
-        root.createSession(rootLogin.getName(), rootLogin.getPassword());
+        root = new omero.client(local);
+        root.createSession("root", ice.getProperty("omero.rootpass"));
         ic = ice.getCommunicator();
     }
 

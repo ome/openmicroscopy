@@ -117,7 +117,6 @@ module omero {
         // Dictionaries
 
         dictionary<bool, omero::sys::LongList> BooleanIdListMap;
-        dictionary<int, int> CountMap;
         dictionary<long, string> LongStringMap;
         dictionary<long, ByteArray> LongByteArrayMap;
         dictionary<long, omero::model::Pixels> LongPixelsMap;

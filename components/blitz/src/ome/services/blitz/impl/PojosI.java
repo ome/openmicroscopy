@@ -8,8 +8,11 @@
 package ome.services.blitz.impl;
 
 // Java imports
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import ome.api.IPojos;
 import ome.services.blitz.util.BlitzExecutor;
@@ -37,6 +40,7 @@ import omero.api._IPojosOperations;
 import omero.model.IObject;
 import omero.util.IceMapper;
 import Ice.Current;
+import Ice.UserException;
 
 /**
  * Implementation of the IPojos service.
@@ -108,7 +112,29 @@ public class PojosI extends AbstractAmdServant implements _IPojosOperations {
     public void getCollectionCount_async(AMD_IPojos_getCollectionCount __cb,
             String type, String property, List<Long> ids,
             Map<String, RType> options, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, type, property, ids, options);
+
+        // This is a bit weird. The CountMap type in omero/Collections.ice
+        // specifies <Long, Long> which makes sense, but PojosImpl is returning,
+        // Long, Integer. So we're working around that here with the hope that
+        // it'll eventually get fixed. :)
+        
+        IceMapper mapper = new IceMapper(new IceMapper.ReturnMapping(){
+
+            public Object mapReturnValue(IceMapper mapper, Object value)
+                    throws UserException {
+                Map<Long, Integer> map = (Map<Long, Integer>) value;
+                Map<Long, Long> rv = new HashMap<Long, Long>();
+                for (Long k : map.keySet()) {
+                    Integer v = map.get(k);
+                    rv.put(k, Long.valueOf(v.longValue()));
+                }
+                return rv;
+            }});
+        
+        Class omeroType = mapper.omeroClass(type, false);
+        String omeroStr = omeroType == null ? null : omeroType.getName();
+        Set<Long> _ids = new HashSet<Long>(ids);
+        callInvokerOnMappedArgs(mapper, __cb, __current, omeroStr, property, _ids, null);
 
     }
 

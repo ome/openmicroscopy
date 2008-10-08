@@ -200,7 +200,7 @@ module omero {
 	    idempotent ImageList getUserImages(omero::sys::ParamMap options) throws ServerError;
 	    idempotent ImageList getImagesByOptions(omero::sys::ParamMap options) throws ServerError;
 	    idempotent UserMap getUserDetails(StringSet names, omero::sys::ParamMap options) throws ServerError;
-	    idempotent CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
+	    idempotent omero::sys::CountMap getCollectionCount(string type, string property, omero::sys::LongList ids, omero::sys::ParamMap options) throws ServerError;
 	    idempotent IObjectList retrieveCollection(omero::model::IObject obj, string collectionName, omero::sys::ParamMap options) throws ServerError;
 	    omero::model::IObject createDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
 	    IObjectList createDataObjects(IObjectList dataObjects, omero::sys::ParamMap options) throws ServerError;
@@ -211,7 +211,7 @@ module omero {
 	    void deleteDataObject(omero::model::IObject obj, omero::sys::ParamMap options) throws ServerError;
 	    void deleteDataObjects(IObjectList objs, omero::sys::ParamMap options) throws ServerError;
 	};
-	
+
 	["ami", "amd"] interface IProjection extends ServiceInterface
 	{
 	    Ice::ByteSeq projectStack(long pixelsId,
@@ -226,7 +226,7 @@ module omero {
                            int zStart, int zEnd, string name)
                            throws ServerError;
 	};
-	
+
 
 	["ami", "amd"] interface IQuery extends ServiceInterface
 	{
