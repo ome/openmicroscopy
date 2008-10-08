@@ -4,11 +4,10 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.icy.model.itests.coverage;
+package coverage;
 
 import java.io.File;
 
-import ome.icy.model.itests.IceTest;
 import omero.api.RenderingEnginePrx;
 
 import org.springframework.util.ResourceUtils;

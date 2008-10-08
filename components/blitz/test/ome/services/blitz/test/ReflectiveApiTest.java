@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.ehcache.Cache;
-import ome.icy.service.utests.TestCache;
+import ome.services.blitz.test.utests.TestCache;
 import ome.model.meta.Session;
 import ome.security.SecuritySystem;
 import ome.services.blitz.fire.SessionManagerI;

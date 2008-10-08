@@ -4,7 +4,7 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.icy.model.itests;
+package ome.services.blitz.test.old;
 
 import java.io.File;
 

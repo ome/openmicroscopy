@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.icy.service.utests;
+package ome.services.blitz.test.utests;
 
 import java.util.HashMap;
 

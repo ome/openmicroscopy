@@ -4,7 +4,7 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.icy.service.utests;
+package ome.services.blitz.test.utests;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -208,7 +208,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     }
 
     // 
-    // Copying ome.icy.model.utests.IceMethodInvokerTest
+    // Copying ome.services.blitz.test.utests.IceMethodInvokerTest
     //
 
     Class<? extends ServiceInterface> c = null;

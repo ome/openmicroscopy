@@ -3,7 +3,7 @@
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.icy.fixtures;
+package ome.services.blitz.test.fixtures;
 
 import java.io.File;
 import java.util.Collections;

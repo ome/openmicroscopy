@@ -4,7 +4,7 @@
  *   Copyright 2006 University of Dundee. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.icy.model.utests;
+package ome.services.blitz.test.utests;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.Map;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import ome.icy.service.utests.Ref;
+import ome.services.blitz.test.utests.Ref;
 import ome.logic.HardWiredInterceptor;
 import ome.services.blitz.impl.ServiceFactoryI;
 import ome.services.sessions.SessionManager;
@@ -59,7 +59,7 @@ public class ServiceFactoryServiceCreationDestructionTest extends
 
     // FIXME OmeroContext should be an interface!
     // OmeroContext context = new OmeroContext(new String[]{
-    // "classpath:ome/icy/model/utests/ServiceFactoryTest.xml",
+    // "classpath:ome.services.blitz.test.utests/ServiceFactoryTest.xml",
     // "classpath:ome/services/blitz-servantDefinitions.xml"});
     //    
     OmeroContext context;
