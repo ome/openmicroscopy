@@ -24,10 +24,15 @@ package pojos;
 
 // Java imports
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import ome.util.CBlock;
+import omero.model.IObject;
+import omero.model.Image;
+import omero.model.ImageAnnotationLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
@@ -149,13 +154,22 @@ public class TagAnnotationData extends AnnotationData {
 
     /**
      * Returns the collection of images related to this tag.
-     * 
+     * FIXME 
      * @return See above.
      */
-    public Set<ImageData> getImages() {
-        // FIXME : this can't work!
-        return null;
-    }
+    public Set<ImageData> getImages()
+    { 
+            if (images == null && asAnnotation().sizeOfAnnotationLinks() >= 0) {
+                List l = asAnnotation().copyAnnotationLinks();
+                images = new HashSet<ImageData>();
+                for (Object object : l) {
+                    ImageAnnotationLink link = (ImageAnnotationLink) object;
+                    Image i = link.getParent();
+                    images.add( new ImageData( i ));
+                }
+            }
+    return images == null ? null : new HashSet<ImageData>(images);
+    }  
 
     /**
      * Sets the tag's descriptions.
