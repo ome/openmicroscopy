@@ -652,6 +652,8 @@ class ControlPane
         	button = i.next();
         	buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
+            button.addPropertyChangeListener(controller);
+            
 		}
         JPanel controls = new JPanel();
         double size[][] = {{TableLayout.PREFERRED}, 
