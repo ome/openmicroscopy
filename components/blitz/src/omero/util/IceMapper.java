@@ -127,7 +127,7 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         public Object mapReturnValue(IceMapper mapper, Object value)
                 throws UserException {
-            return mapper.filter("FILTERABLE", (Filterable) value);
+            return mapper.map((Filterable)value);
         }
 
     };
@@ -142,7 +142,25 @@ public class IceMapper extends ome.util.ModelMapper implements
             } else {
                 Object[] rv = new Object[array.length];
                 for (int i = 0; i < rv.length; i++) {
-                    rv[i] = mapper.filter("FILTERABLE", (Filterable) value);
+                    rv[i] = mapper.map(array[i]);
+                }
+                return rv;
+            }
+        }
+
+    };
+
+    public final static ReturnMapping FILTERABLE_COLLECTION = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws UserException {
+            Collection<Filterable> coll = (Collection<Filterable>) value;
+            if (coll == null) {
+                return null;
+            } else {
+                List rv = new ArrayList();
+                for (Filterable f : coll) {
+                    rv.add(mapper.map(f));
                 }
                 return rv;
             }
@@ -166,10 +184,41 @@ public class IceMapper extends ome.util.ModelMapper implements
         }
     };
 
+    public final static ReturnMapping PRIMITIVE = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
+            if (value == null) {
+                return null;
+            } else {
+                if (IceMapper.isNullablePrimitive(value.getClass())) {
+                    throw new RuntimeException(
+                            "Object not nullable primitive: " + value);
+                }
+                Object rv = mapper.findTarget(value);
+                return rv;
+            }
+        }
+    };
+
+    /**
+     * Returns true only if the current mapping is the {@link #VOID} mapping.
+     */
+    public boolean isVoid() {
+        return canMapReturnValue() && mapping == VOID;
+    }
+
+    /**
+     * True if this instance has a {@link ReturnMapping}
+     */
     public boolean canMapReturnValue() {
         return mapping != null;
     }
 
+    /**
+     * Convert the given Object via the set {@link ReturnMapping}. Throws a
+     * {@link NullPointException} if no mapping is set.
+     */
     public Object mapReturnValue(Object value) throws Ice.UserException {
         return mapping.mapReturnValue(this, value);
     }
@@ -803,7 +852,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         return false;
     }
 
-    protected boolean isNullablePrimitive(Class<?> p) {
+    protected static boolean isNullablePrimitive(Class<?> p) {
         if (p.equals(Integer.class) || p.equals(Integer[].class)
                 || p.equals(Long.class) || p.equals(Long[].class)
                 || p.equals(Float.class) || p.equals(Float[].class)
@@ -814,7 +863,7 @@ public class IceMapper extends ome.util.ModelMapper implements
         return false;
     }
 
-    protected boolean isWrapperArray(Class<?> p) {
+    protected static boolean isWrapperArray(Class<?> p) {
         if (p.equals(Integer[].class) || p.equals(Long[].class)
                 || p.equals(Double[].class) || p.equals(Float[].class)
                 || p.equals(String[].class)) {

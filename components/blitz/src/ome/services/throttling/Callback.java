@@ -7,11 +7,8 @@
 
 package ome.services.throttling;
 
-import java.lang.reflect.Method;
-
 import ome.api.ServiceInterface;
 import ome.services.blitz.util.IceMethodInvoker;
-import omero.InternalException;
 import omero.util.IceMapper;
 
 import org.springframework.util.Assert;
@@ -20,41 +17,31 @@ import org.springframework.util.Assert;
  * Manages AMD-based method dispatches from blitz.
  * 
  */
-public class Callback {
+public class Callback extends Task {
 
     private final Boolean io;
     private final Boolean db;
     private final IceMethodInvoker invoker;
     private final ServiceInterface service;
-    private final Object cb;
     private final Object[] args;
-    private final Ice.Current current;
     private final IceMapper mapper;
-
-    private final Method response;
-    private final Method exception;
 
     public Callback(Boolean io, Boolean db, ServiceInterface service,
             IceMethodInvoker invoker, Object cb, IceMapper mapper,
             Ice.Current current, Object... args) {
+        
+        super(cb, current, invoker.isVoid(current));
 
         Assert.notNull(invoker, "Null invoker");
         Assert.notNull(service, "Null service");
-        Assert.notNull(current, "Null current");
-        Assert.notNull(cb, "Null callback");
         Assert.notNull(args, "Null argument array");
 
         this.io = io;
         this.db = db;
-        this.cb = cb;
         this.service = service;
         this.invoker = invoker;
-        this.current = current;
         this.args = args;
         this.mapper = mapper;
-
-        response = getMethod(cb, "ice_response");
-        exception = getMethod(cb, "ice_exception");
 
     }
 
@@ -69,35 +56,6 @@ public class Callback {
             response(retVal);
         } catch (Exception e) {
             exception(e);
-        }
-    }
-
-    void response(Object rv) {
-        try {
-            if (invoker.isVoid(current)) {
-                response.invoke(cb);
-            } else {
-                response.invoke(cb, rv);
-            }
-        } catch (Exception e) {
-            try {
-                InternalException ie = new InternalException();
-                IceMapper.fillServerError(ie, e);
-                ie.message = "Failed to invoke: " + this.toString();
-                exception(ie);
-            } catch (Exception e2) {
-                throw new RuntimeException(
-                        "Failed to invoke exception() after failed response()",
-                        e2);
-            }
-        }
-    }
-
-    void exception(Exception ex) {
-        try {
-            exception.invoke(cb, ex);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to invoke exception()", e);
         }
     }
 
@@ -127,45 +85,4 @@ public class Callback {
         return sb.toString();
     }
 
-    // Helpers
-    // =========================================================================
-
-    Method getMethod(Object o, String methodName) {
-        Class c = getPublicInterface(o.getClass());
-        Method[] methods = c.getMethods();
-        Method rv = null;
-        for (int i = 0; i < methods.length; i++) {
-            Method m = methods[i];
-            if (methodName.equals(m.getName())) {
-                if (rv != null) {
-                    throw new RuntimeException(methodName + " exists twice!");
-                } else {
-                    rv = m;
-                }
-            }
-        }
-        return rv;
-    }
-
-    /**
-     * The Ice AMD-implementations are package-private and so cannot be executed
-     * on. Instead, we have to find the public interface and use its methods.
-     */
-    private Class getPublicInterface(Class c) {
-        if (!c.getName().startsWith("AMD_")) {
-            while (!c.equals(Object.class)) {
-                Class[] ifaces = c.getInterfaces();
-                for (Class c2 : ifaces) {
-                    if (c2.getSimpleName().startsWith("AMD_")) {
-                        return c2;
-                    }
-                }
-                // Ok. We didn't find anything so recurse into the superclass
-                c = c.getSuperclass();
-            }
-            throw new RuntimeException("No public AMD_ interface found.");
-        } else {
-            return c;
-        }
-    }
 }

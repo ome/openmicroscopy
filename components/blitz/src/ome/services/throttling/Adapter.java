@@ -1,0 +1,55 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ *
+ */
+
+package ome.services.throttling;
+
+import org.springframework.util.Assert;
+
+import ome.services.blitz.util.BlitzExecutor;
+import ome.services.util.Executor;
+import ome.system.Principal;
+import omero.util.IceMapper;
+
+/**
+ * Simple adapter which takes a {@link Executor.Work} instance and executes it
+ * as a {@link BlitzExecutor} task. All exceptions are caught and routed to
+ * via the {@link #exception(Exception)} method to the provided callback.
+ */
+public class Adapter extends Task {
+    
+    private final Executor ex;
+    private final Executor.Work work;
+    private final Principal p;
+    private final IceMapper mapper;
+
+    public Adapter(Object callback, Ice.Current current, IceMapper mapper, Executor ex,
+            Principal p, Executor.Work work) {
+        super(callback, current, mapper.isVoid());
+        this.p = p;
+        this.ex = ex;
+        this.work = work;
+        this.mapper = mapper;
+        Assert.notNull(callback, "Callback null");
+        Assert.notNull(work, "Work null");
+        Assert.notNull(ex, "Executor null");
+        Assert.notNull(p, "Principal null");
+    }
+
+    public void run() {
+        try {
+            Object retVal = this.ex.execute(this.p, this.work);
+            if (mapper != null && mapper.canMapReturnValue()) {
+                retVal = mapper.mapReturnValue(retVal);
+            }
+            response(retVal);
+        } catch (Exception e) {
+            exception(e);
+        }
+    }
+
+}

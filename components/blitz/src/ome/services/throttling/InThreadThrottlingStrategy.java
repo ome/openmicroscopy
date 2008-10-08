@@ -46,9 +46,9 @@ public class InThreadThrottlingStrategy implements ThrottlingStrategy {
         cb.run();
     }
 
-    public void runnableCall(Current __current, Task task) {
+    public void runnableCall(Current __current, Runnable runnable) {
         try {
-            task.run();
+            runnable.run();
         } catch (Exception e) {
             log.error("Exception during runnableCall", e);
         }

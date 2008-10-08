@@ -91,7 +91,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void getScriptID_async(final AMD_IScript_getScriptID cb,
             final String scriptName, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
             public void run() {
 
                 final OriginalFile file = getOriginalFileOrNull(scriptName);
@@ -116,7 +116,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     public void uploadScript_async(final AMD_IScript_uploadScript cb,
             final String script, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
             public void run() {
 
                 try {
@@ -174,7 +174,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final AMD_IScript_getScriptWithDetails cb, final long id,
             Current __current) throws ServerError {
 
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
 
             public void run() {
 
@@ -237,7 +237,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void getScript_async(final AMD_IScript_getScript cb, final long id,
             Current __current) throws ServerError {
 
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
             public void run() {
 
                 final OriginalFile file = getOriginalFileOrNull(id);
@@ -295,7 +295,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     public void getParams_async(final AMD_IScript_getParams cb, final long id,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
 
             public void run() {
                 try {
@@ -327,7 +327,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
             final Map<String, RType> map, final Current __current)
             throws ServerError {
 
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
 
             public void run() {
                 try {
@@ -390,7 +390,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
     public void getScripts_async(final AMD_IScript_getScripts cb,
             Current __current) throws ServerError {
 
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
             public void run() {
                 try {
                     final Map<Long, String> scriptMap = new HashMap<Long, String>();
@@ -429,7 +429,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
      */
     public void deleteScript_async(final AMD_IScript_deleteScript cb,
             final long id, Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Task() {
+        runnableCall(__current, new Runnable() {
             public void run() {
 
                 OriginalFile file = getOriginalFileOrNull(id);

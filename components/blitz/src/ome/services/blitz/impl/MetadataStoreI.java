@@ -7,22 +7,16 @@
 
 package ome.services.blitz.impl;
 
-import java.util.List;
-
-import org.hibernate.Session;
-import org.springframework.transaction.TransactionStatus;
-
 import ome.formats.OMEROMetadataStore;
 import ome.model.IObject;
-import ome.model.acquisition.Filament;
-import ome.model.screen.Plate;
-import ome.model.screen.Screen;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.throttling.Adapter;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
+import ome.tools.spring.InternalServiceFactory;
 import omero.RBool;
 import omero.RDouble;
 import omero.RFloat;
@@ -33,16 +27,19 @@ import omero.RString;
 import omero.RType;
 import omero.ServerError;
 import omero.api.*;
-import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.Instrument;
 import omero.model.Pixels;
 import omero.model.Project;
-import omero.sys.EventContext;
 import omero.util.IceMapper;
+
+import org.hibernate.Session;
+import org.springframework.transaction.TransactionStatus;
+
 import Ice.Current;
+import Ice.UserException;
 
 /**
  */
@@ -63,8 +60,17 @@ public class MetadataStoreI extends AbstractAmdServant implements
 
     @Override
     public void setOmeroContext(final OmeroContext ctx) throws Exception {
-        ome.system.ServiceFactory sf = new ome.system.ServiceFactory(ctx);
+        ServiceFactory sf = new InternalServiceFactory(ctx);
         this.store = new OMEROMetadataStore(sf);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends IObject> T safeReverse(Object o, IceMapper mapper) {
+        try {
+            return (T) mapper.reverse(o);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to safely reverse: " + o);
+        }
     }
 
     // ~ Service methods
@@ -74,648 +80,446 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final AMD_MetadataStore_addBooleanAnnotationToPixels __cb,
             final BooleanAnnotation ba, final Pixels p,
             final Ice.Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.annotations.BooleanAnnotation _ba = (ome.model.annotations.BooleanAnnotation) mapper
-                                    .reverse(ba);
-                            ome.model.core.Pixels _p = (ome.model.core.Pixels) mapper
-                                    .reverse(p);
-                            store.addBooleanAnnotationToPixels(_ba, _p);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+                        ome.model.annotations.BooleanAnnotation _ba = safeReverse(
+                                ba, mapper);
+                        ome.model.core.Pixels _p = safeReverse(p, mapper);
+                        store.addBooleanAnnotationToPixels(_ba, _p);
                         return null;
                     }
                 }));
+
     }
 
     public void addDataset_async(final AMD_MetadataStore_addDataset __cb,
             final RString name, final RString description,
             final Project project, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.containers.Project _p = (ome.model.containers.Project) mapper
-                                    .reverse(project);
-                            ome.model.containers.Dataset d = store.addDataset(
-                                    name.val, description.val, _p);
-                            Dataset _d = (Dataset) mapper.map(d);
-                            // Code here
-                            __cb.ice_response(_d);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+                        IceMapper mapper = new IceMapper();
+                        ome.model.containers.Project _p = safeReverse(project,
+                                mapper);
+                        return store.addDataset(name.val, description.val, _p);
                     }
                 }));
-
     }
 
     public void addImageToDataset_async(
             final AMD_MetadataStore_addImageToDataset __cb, final Image image,
             final Dataset dataset, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.core.Image _image = (ome.model.core.Image) mapper
-                                    .reverse(image);
-                            ome.model.containers.Dataset _dataset = (ome.model.containers.Dataset) mapper
-                                    .reverse(dataset);
-                            store.addImageToDataset(_image, _dataset);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        ome.model.core.Image _image = safeReverse(image, mapper);
+                        ome.model.containers.Dataset _dataset = safeReverse(
+                                dataset, mapper);
+                        store.addImageToDataset(_image, _dataset);
                         return null;
                     }
                 }));
-
     }
 
     public void addPlate_async(final AMD_MetadataStore_addPlate __cb,
             final int plateIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            Plate plate = store.addPlate(plateIndex);
-                            omero.model.Plate _plate = (omero.model.Plate) mapper
-                                    .map(plate);
-                            // Code here
-                            __cb.ice_response(_plate);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.addPlate(plateIndex);
                     }
                 }));
-
     }
 
     public void addScreen_async(final AMD_MetadataStore_addScreen __cb,
             final int screenIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            Screen screen = store.addScreen(screenIndex);
-                            omero.model.Screen _screen = (omero.model.Screen) mapper
-                                    .map(screen);
-                            // Code here
-                            __cb.ice_response(_screen);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.addScreen(screenIndex);
                     }
                 }));
-
     }
 
     public void createRoot_async(final AMD_MetadataStore_createRoot __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            store.createRoot();
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.createRoot();
                         return null;
                     }
                 }));
-
     }
 
     public void getArc_async(final AMD_MetadataStore_getArc __cb,
             final Instrument instrument, final int lightSourceIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.acquisition.Instrument _i = (ome.model.acquisition.Instrument) mapper
-                                    .reverse(instrument);
-                            ome.model.acquisition.Arc arc = store.getArc(_i,
-                                    lightSourceIndex);
-                            Arc _arc = (Arc) mapper.map(arc);
-                            // Code here
-                            __cb.ice_response(_arc);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        ome.model.acquisition.Instrument _i = safeReverse(
+                                instrument, mapper);
+                        return store.getArc(_i, lightSourceIndex);
                     }
                 }));
-
     }
 
     public void getDataset_async(final AMD_MetadataStore_getDataset __cb,
             final long datasetID, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.containers.Dataset d = store
-                                    .getDataset(datasetID);
-                            Dataset _d = (Dataset) mapper.map(d);
-                            // Code here
-                            __cb.ice_response(_d);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getDataset(datasetID);
                     }
                 }));
-
     }
 
     public void getDatasets_async(final AMD_MetadataStore_getDatasets __cb,
             final Project project, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.containers.Project _project = (ome.model.containers.Project) mapper
-                                    .reverse(project);
-                            List<ome.model.containers.Dataset> datasets = store
-                                    .getDatasets(_project);
-                            List<Dataset> _datasets = (List<Dataset>) mapper
-                                    .map(datasets);
-                            // Code here
-                            __cb.ice_response(_datasets);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        ome.model.containers.Project _project = safeReverse(
+                                project, mapper);
+                        return store.getDatasets(_project);
                     }
                 }));
-
     }
 
     public void getExperimenterID_async(
             final AMD_MetadataStore_getExperimenterID __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            long id = store.getExperimenterID();
-                            // Code here
-                            __cb.ice_response(id);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getExperimenterID();
                     }
                 }));
-
     }
 
     public void getFilament_async(final AMD_MetadataStore_getFilament __cb,
             final Instrument instrument, final int lightSourceIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.acquisition.Instrument _instrument = (ome.model.acquisition.Instrument) mapper
-                                    .reverse(instrument);
-                            Filament f = store.getFilament(_instrument,
-                                    lightSourceIndex);
-                            omero.model.Filament _f = (omero.model.Filament) mapper
-                                    .map(f);
-                            // Code here
-                            __cb.ice_response(_f);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        ome.model.acquisition.Instrument _instrument = safeReverse(
+                                instrument, mapper);
+                        return store.getFilament(_instrument, lightSourceIndex);
                     }
                 }));
-
     }
 
     public void getImage_async(final AMD_MetadataStore_getImage __cb,
             final int imageIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.core.Image image = store
-                                    .getImage(imageIndex);
-                            Image _image = (Image) mapper.map(image);
-                            // Code here
-                            __cb.ice_response(_image);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getImage(imageIndex);
                     }
                 }));
-
     }
 
     public void getInstrument_async(final AMD_MetadataStore_getInstrument __cb,
             final int instrumentIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.acquisition.Instrument i = store
-                                    .getInstrument(instrumentIndex);
-                            Instrument _i = (Instrument) mapper.map(i);
-                            // Code here
-                            __cb.ice_response(_i);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getInstrument(instrumentIndex);
                     }
                 }));
-
     }
 
     public void getLaser_async(final AMD_MetadataStore_getLaser __cb,
             final Instrument instrument, final int lightSourceIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.acquisition.Instrument _instrument = (ome.model.acquisition.Instrument) mapper
-                                    .reverse(instrument);
-                            store.getLaser(_instrument, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response(null /* FIXME */);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        ome.model.acquisition.Instrument _instrument = safeReverse(
+                                instrument, mapper);
+                        store.getLaser(_instrument, lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void getPixels2_async(final AMD_MetadataStore_getPixels2 __cb,
             final int imageIndex, final int pixelsIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            store.getPixels(imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response(null /* FIXME */);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.getPixels(imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void getPixels_async(final AMD_MetadataStore_getPixels __cb,
             final int series, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.model.core.Pixels p = store.getPixels(series);
-                            Pixels _p = (Pixels) mapper.map(p);
-                            // Code here
-                            __cb.ice_response(_p);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getPixels(series);
                     }
                 }));
-
     }
 
     public void getPlaneInfo_async(final AMD_MetadataStore_getPlaneInfo __cb,
             final int imageIndex, final int pixelsIndex, final int planeIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            store.getPlaneInfo(imageIndex, pixelsIndex,
-                                    planeIndex);
-                            // Code here
-                            __cb.ice_response(null /* FIXME */);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.getPlaneInfo(imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void getPlate_async(final AMD_MetadataStore_getPlate __cb,
             final int plateIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            store.getPlate(plateIndex);
-                            // Code here
-                            __cb.ice_response(null /* FIXME */);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.getPlate(plateIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void getProject_async(final AMD_MetadataStore_getProject __cb,
             final long projectID, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            store.getProject(projectID);
-                            // Code here
-                            __cb.ice_response(null /* FIXME */);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.getProject(projectID);
                         return null;
                     }
                 }));
-
     }
 
     public void getProjects_async(final AMD_MetadataStore_getProjects __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            List<ome.model.containers.Project> ps = store
-                                    .getProjects();
-                            List _ps = (List) mapper.map(ps);
-                            // Code here
-                            __cb.ice_response((List<Project>) _ps);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getProjects();
                     }
                 }));
-
     }
 
     public void getRepositorySpace_async(
             final AMD_MetadataStore_getRepositorySpace __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.PRIMITIVE);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            long space = store.getRepositorySpace();
-                            // Code here
-                            __cb.ice_response(space);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getRepositorySpace();
                     }
                 }));
-
     }
 
     public void getRoot_async(final AMD_MetadataStore_getRoot __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            IObject iobject = (IObject) store.getRoot();
-                            omero.model.IObject _object = (omero.model.IObject) mapper
-                                    .map(iobject);
-                            RObject robject = iobject == null ? null
-                                    : new RObject(_object);
-                            // Code here
-                            __cb.ice_response(robject);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        IObject iobject = (IObject) store.getRoot();
+                        omero.model.IObject _object = (omero.model.IObject) mapper
+                                .map(iobject);
+                        RObject robject = iobject == null ? null : new RObject(
+                                _object);
                         return null;
                     }
                 }));
-
     }
 
     public void getScreen_async(final AMD_MetadataStore_getScreen __cb,
             final int screenIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.getScreen(screenIndex);
-                            // Code here
-                            __cb.ice_response(null /* FIXME */);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.getScreen(screenIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void getWell_async(final AMD_MetadataStore_getWell __cb,
             final int plateIndex, final int wellIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.getWell(plateIndex, wellIndex);
-                            // Code here
-                            __cb.ice_response(null /* FIXME */);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.getWell(plateIndex, wellIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void populateMinMax_async(
             final AMD_MetadataStore_populateMinMax __cb, final RLong id,
             final RInt i, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.populateMinMax(id.val, i.val);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.populateMinMax(id.val, i.val);
                         return null;
                     }
                 }));
-
     }
 
     public void saveToDB_async(final AMD_MetadataStore_saveToDB __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            List<ome.model.core.Pixels> pixs = store.saveToDB();
-                            List _pixs = (List) mapper.map(pixs);
-                            // Code here
-                            __cb.ice_response((List<Pixels>) _pixs);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.saveToDB();
                     }
                 }));
-
     }
 
     public void setArcPower_async(final AMD_MetadataStore_setArcPower __cb,
             final RFloat power, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setArcPower(power.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setArcPower(power.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setArcType_async(final AMD_MetadataStore_setArcType __cb,
             final RString type, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setArcType(type.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setArcType(type.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setChannelComponentColorDomain_async(
@@ -723,25 +527,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString colorDomain, final int imageIndex,
             final int logicalChannelIndex, final int channelComponentIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setChannelComponentColorDomain(
-                                    colorDomain.val, imageIndex,
-                                    logicalChannelIndex, channelComponentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setChannelComponentColorDomain(colorDomain.val,
+                                imageIndex, logicalChannelIndex,
+                                channelComponentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setChannelComponentIndex_async(
@@ -749,25 +547,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt index, final int imageIndex,
             final int logicalChannelIndex, final int channelComponentIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setChannelComponentIndex(index.val,
-                                    imageIndex, logicalChannelIndex,
-                                    channelComponentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setChannelComponentIndex(index.val, imageIndex,
+                                logicalChannelIndex, channelComponentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setChannelGlobalMinMax_async(
@@ -775,73 +566,54 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int channelIdx, final RDouble globalMin,
             final RDouble globalMax, final RInt pixelsIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setChannelGlobalMinMax(channelIdx,
-                                    globalMin.val, globalMax.val,
-                                    pixelsIndex.val);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setChannelGlobalMinMax(channelIdx, globalMin.val,
+                                globalMax.val, pixelsIndex.val);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorGain_async(
             final AMD_MetadataStore_setDetectorGain __cb, final RFloat gain,
             final int instrumentIndex, final int detectorIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorGain(gain.val, instrumentIndex,
-                                    detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorGain(gain.val, instrumentIndex,
+                                detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorID_async(final AMD_MetadataStore_setDetectorID __cb,
             final RString id, final int instrumentIndex,
             final int detectorIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorID(id.val, instrumentIndex,
-                                    detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorID(id.val, instrumentIndex,
+                                detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorManufacturer_async(
@@ -849,48 +621,36 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString manufacturer, final int instrumentIndex,
             final int detectorIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorManufacturer(manufacturer.val,
-                                    instrumentIndex, detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorManufacturer(manufacturer.val,
+                                instrumentIndex, detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorModel_async(
             final AMD_MetadataStore_setDetectorModel __cb, final RString model,
             final int instrumentIndex, final int detectorIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorModel(model.val, instrumentIndex,
-                                    detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorModel(model.val, instrumentIndex,
+                                detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorNodeID_async(
@@ -898,24 +658,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString nodeID, final int instrumentIndex,
             final int detectorIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorNodeID(nodeID.val,
-                                    instrumentIndex, detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorNodeID(nodeID.val, instrumentIndex,
+                                detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorOffset_async(
@@ -923,24 +677,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat offset, final int instrumentIndex,
             final int detectorIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorOffset(offset.val,
-                                    instrumentIndex, detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorOffset(offset.val, instrumentIndex,
+                                detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorSerialNumber_async(
@@ -948,24 +696,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString serialNumber, final int instrumentIndex,
             final int detectorIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorSerialNumber(serialNumber.val,
-                                    instrumentIndex, detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorSerialNumber(serialNumber.val,
+                                instrumentIndex, detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorSettingsDetector_async(
@@ -973,24 +715,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString detector, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorSettingsDetector(detector.val,
-                                    imageIndex, logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorSettingsDetector(detector.val,
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorSettingsGain_async(
@@ -998,24 +734,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat gain, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorSettingsGain(gain.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorSettingsGain(gain.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorSettingsOffset_async(
@@ -1023,48 +753,36 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat offset, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorSettingsOffset(offset.val,
-                                    imageIndex, logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorSettingsOffset(offset.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorType_async(
             final AMD_MetadataStore_setDetectorType __cb, final RString type,
             final int instrumentIndex, final int detectorIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorType(type.val, instrumentIndex,
-                                    detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorType(type.val, instrumentIndex,
+                                detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDetectorVoltage_async(
@@ -1072,853 +790,636 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat voltage, final int instrumentIndex,
             final int detectorIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDetectorVoltage(voltage.val,
-                                    instrumentIndex, detectorIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDetectorVoltage(voltage.val, instrumentIndex,
+                                detectorIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDimensionsPhysicalSizeX_async(
             final AMD_MetadataStore_setDimensionsPhysicalSizeX __cb,
             final RFloat physicalSizeX, final int imageIndex,
             final int pixelsIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDimensionsPhysicalSizeX(physicalSizeX.val,
-                                    imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDimensionsPhysicalSizeX(physicalSizeX.val,
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDimensionsPhysicalSizeY_async(
             final AMD_MetadataStore_setDimensionsPhysicalSizeY __cb,
             final RFloat physicalSizeY, final int imageIndex,
             final int pixelsIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDimensionsPhysicalSizeY(physicalSizeY.val,
-                                    imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDimensionsPhysicalSizeY(physicalSizeY.val,
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDimensionsPhysicalSizeZ_async(
             final AMD_MetadataStore_setDimensionsPhysicalSizeZ __cb,
             final RFloat physicalSizeZ, final int imageIndex,
             final int pixelsIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDimensionsPhysicalSizeZ(physicalSizeZ.val,
-                                    imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDimensionsPhysicalSizeZ(physicalSizeZ.val,
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDimensionsTimeIncrement_async(
             final AMD_MetadataStore_setDimensionsTimeIncrement __cb,
             final RFloat timeIncrement, final int imageIndex,
             final int pixelsIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDimensionsTimeIncrement(timeIncrement.val,
-                                    imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDimensionsTimeIncrement(timeIncrement.val,
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDimensionsWaveIncrement_async(
             final AMD_MetadataStore_setDimensionsWaveIncrement __cb,
             final RInt waveIncrement, final int imageIndex,
             final int pixelsIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDimensionsWaveIncrement(waveIncrement.val,
-                                    imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDimensionsWaveIncrement(waveIncrement.val,
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDimensionsWaveStart_async(
             final AMD_MetadataStore_setDimensionsWaveStart __cb,
             final RInt waveStart, final int imageIndex, final int pixelsIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDimensionsWaveStart(waveStart.val,
-                                    imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDimensionsWaveStart(waveStart.val, imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDisplayOptionsID_async(
             final AMD_MetadataStore_setDisplayOptionsID __cb, final RString id,
             final int imageIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDisplayOptionsID(id.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDisplayOptionsID(id.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDisplayOptionsNodeID_async(
             final AMD_MetadataStore_setDisplayOptionsNodeID __cb,
             final RString nodeID, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDisplayOptionsNodeID(nodeID.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDisplayOptionsNodeID(nodeID.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDisplayOptionsProjectionZStart_async(
             final AMD_MetadataStore_setDisplayOptionsProjectionZStart __cb,
             final RInt start, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDisplayOptionsProjectionZStart(start.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDisplayOptionsProjectionZStart(start.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDisplayOptionsProjectionZStop_async(
             final AMD_MetadataStore_setDisplayOptionsProjectionZStop __cb,
             final RInt stop, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDisplayOptionsProjectionZStop(stop.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDisplayOptionsProjectionZStop(stop.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDisplayOptionsTimeTStart_async(
             final AMD_MetadataStore_setDisplayOptionsTimeTStart __cb,
             final RInt start, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDisplayOptionsTimeTStart(start.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setDisplayOptionsTimeTStart(start.val,
+                                        imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDisplayOptionsTimeTStop_async(
             final AMD_MetadataStore_setDisplayOptionsTimeTStop __cb,
             final RInt stop, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDisplayOptionsTimeTStop(stop.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDisplayOptionsTimeTStop(stop.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setDisplayOptionsZoom_async(
             final AMD_MetadataStore_setDisplayOptionsZoom __cb,
             final RFloat zoom, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setDisplayOptionsZoom(zoom.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setDisplayOptionsZoom(zoom.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setExperimenterDataDirectory_async(
             final AMD_MetadataStore_setExperimenterDataDirectory __cb,
             final RString dataDirectory, final int experimenterIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setExperimenterDataDirectory(
-                                    dataDirectory.val, experimenterIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setExperimenterDataDirectory(dataDirectory.val,
+                                experimenterIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setExperimenterEmail_async(
             final AMD_MetadataStore_setExperimenterEmail __cb,
             final RString email, final int experimenterIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setExperimenterEmail(email.val,
-                                    experimenterIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setExperimenterEmail(email.val,
+                                        experimenterIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setExperimenterFirstName_async(
             final AMD_MetadataStore_setExperimenterFirstName __cb,
             final RString firstName, final int experimenterIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setExperimenterFirstName(firstName.val,
-                                    experimenterIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setExperimenterFirstName(firstName.val,
+                                experimenterIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setExperimenterID_async(
             final AMD_MetadataStore_setExperimenterID __cb, final RString id,
             final int experimenterIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setExperimenterID(id.val, experimenterIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setExperimenterID(id.val, experimenterIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setExperimenterInstitution_async(
             final AMD_MetadataStore_setExperimenterInstitution __cb,
             final RString institution, final int experimenterIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setExperimenterInstitution(institution.val,
-                                    experimenterIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setExperimenterInstitution(institution.val,
+                                experimenterIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setExperimenterLastName_async(
             final AMD_MetadataStore_setExperimenterLastName __cb,
             final RString lastName, final int experimenterIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setExperimenterLastName(lastName.val,
-                                    experimenterIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setExperimenterLastName(lastName.val,
+                                experimenterIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setExperimenterNodeID_async(
             final AMD_MetadataStore_setExperimenterNodeID __cb,
             final RString nodeID, final int experimenterIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setExperimenterNodeID(nodeID.val,
-                                    experimenterIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setExperimenterNodeID(nodeID.val,
+                                experimenterIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setFilamentPower_async(
             final AMD_MetadataStore_setFilamentPower __cb, final RFloat power,
             final int instrumentIndex, final int lightSourceIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setFilamentPower(power.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setFilamentPower(power.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setFilamentType_async(
             final AMD_MetadataStore_setFilamentType __cb, final RString type,
             final int instrumentIndex, final int lightSourceIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setFilamentType(type.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setFilamentType(type.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImageCreationDate_async(
             final AMD_MetadataStore_setImageCreationDate __cb,
             final RString creationDate, final int imageIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImageCreationDate(creationDate.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setImageCreationDate(creationDate.val,
+                                        imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImageDescription_async(
             final AMD_MetadataStore_setImageDescription __cb,
             final RString description, final int imageIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImageDescription(description.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImageDescription(description.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImageID_async(final AMD_MetadataStore_setImageID __cb,
             final RString id, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImageID(id.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImageID(id.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImageInstrumentRef2_async(
             final AMD_MetadataStore_setImageInstrumentRef2 __cb,
             final RString instrumentRef, final int imageIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImageInstrumentRef(instrumentRef.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImageInstrumentRef(instrumentRef.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImageInstrumentRef_async(
             final AMD_MetadataStore_setImageInstrumentRef __cb,
             final RInt instrumentRef, final int imageIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImageInstrumentRef(instrumentRef.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImageInstrumentRef(instrumentRef.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImageName_async(final AMD_MetadataStore_setImageName __cb,
             final RString name, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImageName(name.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImageName(name.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImageNodeID_async(
             final AMD_MetadataStore_setImageNodeID __cb, final RString nodeID,
             final int imageIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImageNodeID(nodeID.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImageNodeID(nodeID.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImagingEnvironmentAirPressure_async(
             final AMD_MetadataStore_setImagingEnvironmentAirPressure __cb,
             final RFloat airPressure, final int imageIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImagingEnvironmentAirPressure(
-                                    airPressure.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImagingEnvironmentAirPressure(airPressure.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImagingEnvironmentCO2Percent_async(
             final AMD_MetadataStore_setImagingEnvironmentCO2Percent __cb,
             final RFloat percent, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImagingEnvironmentCO2Percent(percent.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImagingEnvironmentCO2Percent(percent.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImagingEnvironmentHumidity_async(
             final AMD_MetadataStore_setImagingEnvironmentHumidity __cb,
             final RFloat humidity, final int imageIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImagingEnvironmentHumidity(humidity.val,
-                                    imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImagingEnvironmentHumidity(humidity.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setImagingEnvironmentTemperature_async(
             final AMD_MetadataStore_setImagingEnvironmentTemperature __cb,
             final RFloat temperature, final int imageIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setImagingEnvironmentTemperature(
-                                    temperature.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setImagingEnvironmentTemperature(temperature.val,
+                                imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setInstrumentID_async(
             final AMD_MetadataStore_setInstrumentID __cb, final RString id,
             final int instrumentIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setInstrumentID(id.val, instrumentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setInstrumentID(id.val, instrumentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setInstrumentNodeID_async(
             final AMD_MetadataStore_setInstrumentNodeID __cb,
             final RString nodeID, final int instrumentIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setInstrumentNodeID(nodeID.val,
-                                    instrumentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setInstrumentNodeID(nodeID.val, instrumentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLaserFrequencyMultiplication_async(
@@ -1926,25 +1427,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt frequencyMultiplication, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLaserFrequencyMultiplication(
-                                    frequencyMultiplication.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLaserFrequencyMultiplication(
+                                frequencyMultiplication.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLaserLaserMedium_async(
@@ -1952,72 +1447,54 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString laserMedium, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLaserLaserMedium(laserMedium.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLaserLaserMedium(laserMedium.val,
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLaserPower_async(final AMD_MetadataStore_setLaserPower __cb,
             final RFloat power, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLaserPower(power.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLaserPower(power.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLaserPulse_async(final AMD_MetadataStore_setLaserPulse __cb,
             final RString pulse, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLaserPulse(pulse.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLaserPulse(pulse.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLaserTuneable_async(
@@ -2025,48 +1502,36 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RBool tuneable, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLaserTuneable(tuneable.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLaserTuneable(tuneable.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLaserType_async(final AMD_MetadataStore_setLaserType __cb,
             final RString type, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLaserType(type.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLaserType(type.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLaserWavelength_async(
@@ -2074,48 +1539,36 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt wavelength, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLaserWavelength(wavelength.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLaserWavelength(wavelength.val,
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourceID_async(
             final AMD_MetadataStore_setLightSourceID __cb, final RString id,
             final int instrumentIndex, final int lightSourceIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourceID(id.val, instrumentIndex,
-                                    lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourceID(id.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourceManufacturer_async(
@@ -2123,24 +1576,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString manufacturer, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourceManufacturer(manufacturer.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourceManufacturer(manufacturer.val,
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourceModel_async(
@@ -2148,18 +1595,14 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString model, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            store.setLightSourceModel(model.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+                        store.setLightSourceModel(model.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
@@ -2171,24 +1614,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString nodeID, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourceNodeID(nodeID.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourceID(nodeID.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourcePower_async(
@@ -2196,24 +1633,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat power, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourcePower(power.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourcePower(power.val, instrumentIndex,
+                                lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourceSerialNumber_async(
@@ -2221,24 +1652,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString serialNumber, final int instrumentIndex,
             final int lightSourceIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourceSerialNumber(serialNumber.val,
-                                    instrumentIndex, lightSourceIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourceSerialNumber(serialNumber.val,
+                                instrumentIndex, lightSourceIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourceSettingsAttenuation_async(
@@ -2246,25 +1671,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat attenuation, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourceSettingsAttenuation(
-                                    attenuation.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourceSettingsAttenuation(
+                                attenuation.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourceSettingsLightSource_async(
@@ -2272,25 +1691,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString lightSource, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourceSettingsLightSource(
-                                    lightSource.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourceSettingsLightSource(
+                                lightSource.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLightSourceSettingsWavelength_async(
@@ -2298,25 +1711,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt wavelength, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLightSourceSettingsWavelength(
-                                    wavelength.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLightSourceSettingsWavelength(wavelength.val,
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelContrastMethod_async(
@@ -2324,25 +1730,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString contrastMethod, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelContrastMethod(
-                                    contrastMethod.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelContrastMethod(
+                                contrastMethod.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelEmWave_async(
@@ -2350,24 +1750,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt emWave, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelEmWave(emWave.val,
-                                    imageIndex, logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelEmWave(emWave.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelExWave_async(
@@ -2375,24 +1769,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt exWave, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelExWave(exWave.val,
-                                    imageIndex, logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelExWave(exWave.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelFluor_async(
@@ -2400,48 +1788,36 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString fluor, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelFluor(fluor.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelFluor(fluor.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelID_async(
             final AMD_MetadataStore_setLogicalChannelID __cb, final RString id,
             final int imageIndex, final int logicalChannelIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelID(id.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelID(id.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelIlluminationType_async(
@@ -2449,25 +1825,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString illuminationType, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelIlluminationType(
-                                    illuminationType.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelIlluminationType(
+                                illuminationType.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelMode_async(
@@ -2475,24 +1845,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString mode, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelMode(mode.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelMode(mode.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelName_async(
@@ -2500,24 +1864,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString name, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelName(name.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelName(name.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelNdFilter_async(
@@ -2525,24 +1883,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat ndFilter, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelNdFilter(ndFilter.val,
-                                    imageIndex, logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelNdFilter(ndFilter.val,
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelNodeID_async(
@@ -2550,24 +1902,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString nodeID, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelNodeID(nodeID.val,
-                                    imageIndex, logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelNodeID(nodeID.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelPhotometricInterpretation_async(
@@ -2575,25 +1921,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString photometricInterpretation, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelPhotometricInterpretation(
-                                    photometricInterpretation.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelPhotometricInterpretation(
+                                photometricInterpretation.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelPinholeSize_async(
@@ -2601,24 +1941,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt pinholeSize, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelPinholeSize(pinholeSize.val,
-                                    imageIndex, logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelPinholeSize(pinholeSize.val,
+                                imageIndex, logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelPockelCellSetting_async(
@@ -2626,25 +1960,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt pockelCellSetting, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelPockelCellSetting(
-                                    pockelCellSetting.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelPockelCellSetting(
+                                pockelCellSetting.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setLogicalChannelSamplesPerPixel_async(
@@ -2652,188 +1980,137 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt samplesPerPixel, final int imageIndex,
             final int logicalChannelIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setLogicalChannelSamplesPerPixel(
-                                    samplesPerPixel.val, imageIndex,
-                                    logicalChannelIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setLogicalChannelSamplesPerPixel(
+                                samplesPerPixel.val, imageIndex,
+                                logicalChannelIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setOTFID_async(final AMD_MetadataStore_setOTFID __cb,
             final RString id, final int instrumentIndex, final int otfIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setOTFID(id.val, instrumentIndex, otfIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setOTFID(id.val, instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setOTFNodeID_async(final AMD_MetadataStore_setOTFNodeID __cb,
             final RString nodeID, final int instrumentIndex,
             final int otfIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setOTFNodeID(nodeID.val, instrumentIndex,
-                                    otfIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setOTFNodeID(nodeID.val, instrumentIndex,
+                                otfIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setOTFOpticalAxisAveraged_async(
             final AMD_MetadataStore_setOTFOpticalAxisAveraged __cb,
             final RBool opticalAxisAveraged, final int instrumentIndex,
             final int otfIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setOTFOpticalAxisAveraged(
-                                    opticalAxisAveraged.val, instrumentIndex,
-                                    otfIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setOTFOpticalAxisAveraged(
+                                opticalAxisAveraged.val, instrumentIndex,
+                                otfIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setOTFPath_async(final AMD_MetadataStore_setOTFPath __cb,
             final RString path, final int instrumentIndex, final int otfIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setOTFPath(path.val, instrumentIndex,
-                                    otfIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setOTFPath(path.val, instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setOTFPixelType_async(
             final AMD_MetadataStore_setOTFPixelType __cb,
             final RString pixelType, final int instrumentIndex,
             final int otfIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setOTFPixelType(pixelType.val,
-                                    instrumentIndex, otfIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setOTFPixelType(pixelType.val, instrumentIndex,
+                                otfIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setOTFSizeX_async(final AMD_MetadataStore_setOTFSizeX __cb,
             final RInt sizeX, final int instrumentIndex, final int otfIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setOTFSizeX(sizeX.val, instrumentIndex,
-                                    otfIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setOTFSizeX(sizeX.val, instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setOTFSizeY_async(final AMD_MetadataStore_setOTFSizeY __cb,
             final RInt sizeY, final int instrumentIndex, final int otfIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setOTFSizeY(sizeY.val, instrumentIndex,
-                                    otfIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setOTFSizeY(sizeY.val, instrumentIndex, otfIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveCalibratedMagnification_async(
@@ -2841,25 +2118,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat calibratedMagnification, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveCalibratedMagnification(
-                                    calibratedMagnification.val,
-                                    instrumentIndex, objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveCalibratedMagnification(
+                                calibratedMagnification.val, instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveCorrection_async(
@@ -2867,48 +2138,36 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString correction, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveCorrection(correction.val,
-                                    instrumentIndex, objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveCorrection(correction.val,
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveID_async(
             final AMD_MetadataStore_setObjectiveID __cb, final RString id,
             final int instrumentIndex, final int objectiveIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveID(id.val, instrumentIndex,
-                                    objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveID(id.val, instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveImmersion_async(
@@ -2916,24 +2175,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString immersion, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveImmersion(immersion.val,
-                                    instrumentIndex, objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveImmersion(immersion.val,
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveLensNA_async(
@@ -2941,24 +2194,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat lensNA, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveLensNA(lensNA.val,
-                                    instrumentIndex, objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveLensNA(lensNA.val, instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveManufacturer_async(
@@ -2966,24 +2213,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString manufacturer, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveManufacturer(manufacturer.val,
-                                    instrumentIndex, objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveManufacturer(manufacturer.val,
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveModel_async(
@@ -2991,24 +2232,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString model, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveModel(model.val, instrumentIndex,
-                                    objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveModel(model.val, instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveNodeID_async(
@@ -3016,24 +2251,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString nodeID, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveNodeID(nodeID.val,
-                                    instrumentIndex, objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveNodeID(nodeID.val, instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveNominalMagnification_async(
@@ -3041,25 +2270,19 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt nominalMagnification, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveNominalMagnification(
-                                    nominalMagnification.val, instrumentIndex,
-                                    objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveNominalMagnification(
+                                nominalMagnification.val, instrumentIndex,
+                                objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveSerialNumber_async(
@@ -3067,24 +2290,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString serialNumber, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveSerialNumber(serialNumber.val,
-                                    instrumentIndex, objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveSerialNumber(serialNumber.val,
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setObjectiveWorkingDistance_async(
@@ -3092,356 +2309,270 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat workingDistance, final int instrumentIndex,
             final int objectiveIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setObjectiveWorkingDistance(
-                                    workingDistance.val, instrumentIndex,
-                                    objectiveIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setObjectiveWorkingDistance(workingDistance.val,
+                                instrumentIndex, objectiveIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsBigEndian_async(
             final AMD_MetadataStore_setPixelsBigEndian __cb,
             final RBool bigEndian, final int imageIndex, final int pixelsIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsBigEndian(bigEndian.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPixelsBigEndian(bigEndian.val, imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsDimensionOrder_async(
             final AMD_MetadataStore_setPixelsDimensionOrder __cb,
             final RString dimensionOrder, final int imageIndex,
             final int pixelsIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsDimensionOrder(dimensionOrder.val,
-                                    imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPixelsDimensionOrder(dimensionOrder.val,
+                                imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsID_async(final AMD_MetadataStore_setPixelsID __cb,
             final RString id, final int imageIndex, final int pixelsIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsID(id.val, imageIndex, pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPixelsID(id.val, imageIndex, pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsNodeID_async(
             final AMD_MetadataStore_setPixelsNodeID __cb, final RString nodeID,
             final int imageIndex, final int pixelsIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsNodeID(nodeID.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPixelsNodeID(nodeID.val, imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsPixelType_async(
             final AMD_MetadataStore_setPixelsPixelType __cb,
             final RString pixelType, final int imageIndex,
             final int pixelsIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsPixelType(pixelType.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPixelsPixelType(pixelType.val, imageIndex,
+                                pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsSizeC_async(
             final AMD_MetadataStore_setPixelsSizeC __cb, final RInt sizeC,
             final int imageIndex, final int pixelsIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsSizeC(sizeC.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setPixelsSizeC(sizeC.val, imageIndex,
+                                        pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsSizeT_async(
             final AMD_MetadataStore_setPixelsSizeT __cb, final RInt sizeT,
             final int imageIndex, final int pixelsIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsSizeT(sizeT.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setPixelsSizeT(sizeT.val, imageIndex,
+                                        pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsSizeX_async(
             final AMD_MetadataStore_setPixelsSizeX __cb, final RInt sizeX,
             final int imageIndex, final int pixelsIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsSizeX(sizeX.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setPixelsSizeX(sizeX.val, imageIndex,
+                                        pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsSizeY_async(
             final AMD_MetadataStore_setPixelsSizeY __cb, final RInt sizeY,
             final int imageIndex, final int pixelsIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsSizeY(sizeY.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setPixelsSizeY(sizeY.val, imageIndex,
+                                        pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPixelsSizeZ_async(
             final AMD_MetadataStore_setPixelsSizeZ __cb, final RInt sizeZ,
             final int imageIndex, final int pixelsIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsSizeZ(sizeZ.val, imageIndex,
-                                    pixelsIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store
+                                .setPixelsSizeZ(sizeZ.val, imageIndex,
+                                        pixelsIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlaneTheC_async(final AMD_MetadataStore_setPlaneTheC __cb,
             final RInt theC, final int imageIndex, final int pixelsIndex,
             final int planeIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlaneTheC(theC.val, imageIndex,
-                                    pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlaneTheC(theC.val, imageIndex, pixelsIndex,
+                                planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlaneTheT_async(final AMD_MetadataStore_setPlaneTheT __cb,
             final RInt theT, final int imageIndex, final int pixelsIndex,
             final int planeIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlaneTheT(theT.val, imageIndex,
-                                    pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlaneTheT(theT.val, imageIndex, pixelsIndex,
+                                planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlaneTheZ_async(final AMD_MetadataStore_setPlaneTheZ __cb,
             final RInt theZ, final int imageIndex, final int pixelsIndex,
             final int planeIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlaneTheZ(theZ.val, imageIndex,
-                                    pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlaneTheZ(theZ.val, imageIndex, pixelsIndex,
+                                planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlaneTimingDeltaT_async(
             final AMD_MetadataStore_setPlaneTimingDeltaT __cb,
             final RFloat deltaT, final int imageIndex, final int pixelsIndex,
             final int planeIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlaneTimingDeltaT(deltaT.val, imageIndex,
-                                    pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlaneTimingDeltaT(deltaT.val, imageIndex,
+                                pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlaneTimingExposureTime_async(
@@ -3449,524 +2580,387 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat exposureTime, final int imageIndex,
             final int pixelsIndex, final int planeIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlaneTimingExposureTime(exposureTime.val,
-                                    imageIndex, pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlaneTimingExposureTime(exposureTime.val,
+                                imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlane_async(final AMD_MetadataStore_setPlane __cb,
             final RLong id, final byte[] pixels, final int theZ,
             final int theC, final int theT, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlane(id.val, pixels, theZ, theC, theT);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlane(id.val, pixels, theZ, theC, theT);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlateDescription_async(
             final AMD_MetadataStore_setPlateDescription __cb,
             final RString description, final int plateIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlateDescription(description.val,
-                                    plateIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlateDescription(description.val, plateIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlateExternalIdentifier_async(
             final AMD_MetadataStore_setPlateExternalIdentifier __cb,
             final RString externalIdentifier, final int plateIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlateExternalIdentifier(
-                                    externalIdentifier.val, plateIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlateExternalIdentifier(
+                                externalIdentifier.val, plateIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlateID_async(final AMD_MetadataStore_setPlateID __cb,
             final RString id, final int plateIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlateID(id.val, plateIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlateID(id.val, plateIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlateName_async(final AMD_MetadataStore_setPlateName __cb,
             final RString name, final int plateIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlateName(name.val, plateIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlateName(name.val, plateIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlateRefID_async(final AMD_MetadataStore_setPlateRefID __cb,
             final RString id, final int screenIndex, final int plateRefIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlateRefID(id.val, screenIndex,
-                                    plateRefIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlateRefID(id.val, screenIndex, plateRefIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setPlateStatus_async(
             final AMD_MetadataStore_setPlateStatus __cb, final RString status,
             final int plateIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus _status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPlateStatus(status.val, plateIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPlateStatus(status.val, plateIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIID_async(final AMD_MetadataStore_setROIID __cb,
             final RString id, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIID(id.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIID(id.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROINodeID_async(final AMD_MetadataStore_setROINodeID __cb,
             final RString nodeID, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store
-                                    .setROINodeID(nodeID.val, imageIndex,
-                                            roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROINodeID(nodeID.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIT0_async(final AMD_MetadataStore_setROIT0 __cb,
             final RInt t0, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIT0(t0.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIT0(t0.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIT1_async(final AMD_MetadataStore_setROIT1 __cb,
             final RInt t1, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIT1(t1.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIT1(t1.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIX0_async(final AMD_MetadataStore_setROIX0 __cb,
             final RInt x0, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIX0(x0.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIX0(x0.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIX1_async(final AMD_MetadataStore_setROIX1 __cb,
             final RInt x1, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIX1(x1.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIX1(x1.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIY0_async(final AMD_MetadataStore_setROIY0 __cb,
             final RInt y0, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIY0(y0.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIY0(y0.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIY1_async(final AMD_MetadataStore_setROIY1 __cb,
             final RInt y1, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIY1(y1.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIY1(y1.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIZ0_async(final AMD_MetadataStore_setROIZ0 __cb,
             final RInt z0, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIZ0(z0.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIZ0(z0.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setROIZ1_async(final AMD_MetadataStore_setROIZ1 __cb,
             final RInt z1, final int imageIndex, final int roiIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setROIZ1(z1.val, imageIndex, roiIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setROIZ1(z1.val, imageIndex, roiIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setReagentDescription_async(
             final AMD_MetadataStore_setReagentDescription __cb,
             final RString description, final int screenIndex,
             final int reagentIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setReagentDescription(description.val,
-                                    screenIndex, reagentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setReagentDescription(description.val,
+                                screenIndex, reagentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setReagentID_async(final AMD_MetadataStore_setReagentID __cb,
             final RString id, final int screenIndex, final int reagentIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setReagentID(id.val, screenIndex,
-                                    reagentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setReagentID(id.val, screenIndex, reagentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setReagentName_async(
             final AMD_MetadataStore_setReagentName __cb, final RString name,
             final int screenIndex, final int reagentIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setReagentName(name.val, screenIndex,
-                                    reagentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setReagentName(name.val, screenIndex,
+                                reagentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setReagentReagentIdentifier_async(
             final AMD_MetadataStore_setReagentReagentIdentifier __cb,
             final RString reagentIdentifier, final int screenIndex,
             final int reagentIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setReagentReagentIdentifier(
-                                    reagentIdentifier.val, screenIndex,
-                                    reagentIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setReagentReagentIdentifier(
+                                reagentIdentifier.val, screenIndex,
+                                reagentIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setRoot_async(final AMD_MetadataStore_setRoot __cb,
             final RType root, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
+
+                        Object object = null;
                         try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            Object object = mapper.fromRType(root);
-                            store.setRoot(object);
-                            // Code here
-                            __cb.ice_response();
+                            object = mapper.fromRType(root);
                         } catch (Exception e) {
-                            __cb.ice_exception(e);
+                            throw new RuntimeException(
+                                    "Failure to map from rtype: " + root);
                         }
+                        store.setRoot(object);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenAcquisitionEndTime_async(
@@ -3974,24 +2968,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString endTime, final int screenIndex,
             final int screenAcquisitionIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenAcquisitionEndTime(endTime.val,
-                                    screenIndex, screenAcquisitionIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenAcquisitionEndTime(endTime.val,
+                                screenIndex, screenAcquisitionIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenAcquisitionID_async(
@@ -3999,24 +2987,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString id, final int screenIndex,
             final int screenAcquisitionIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenAcquisitionID(id.val, screenIndex,
-                                    screenAcquisitionIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenAcquisitionID(id.val, screenIndex,
+                                screenAcquisitionIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenAcquisitionStartTime_async(
@@ -4024,250 +3006,184 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString startTime, final int screenIndex,
             final int screenAcquisitionIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenAcquisitionStartTime(startTime.val,
-                                    screenIndex, screenAcquisitionIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenAcquisitionStartTime(startTime.val,
+                                screenIndex, screenAcquisitionIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenID_async(final AMD_MetadataStore_setScreenID __cb,
             final RString id, final int screenIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenID(id.val, screenIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenID(id.val, screenIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenName_async(final AMD_MetadataStore_setScreenName __cb,
             final RString name, final int screenIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenName(name.val, screenIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenName(name.val, screenIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenProtocolDescription_async(
             final AMD_MetadataStore_setScreenProtocolDescription __cb,
             final RString protocolDescription, final int screenIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenProtocolDescription(
-                                    protocolDescription.val, screenIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenProtocolDescription(
+                                protocolDescription.val, screenIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenProtocolIdentifier_async(
             final AMD_MetadataStore_setScreenProtocolIdentifier __cb,
             final RString protocolIdentifier, final int screenIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenProtocolIdentifier(
-                                    protocolIdentifier.val, screenIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenProtocolIdentifier(
+                                protocolIdentifier.val, screenIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setScreenReagentSetDescription_async(
             final AMD_MetadataStore_setScreenReagentSetDescription __cb,
             final RString reagentSetDescription, final int screenIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setScreenReagentSetDescription(
-                                    reagentSetDescription.val, screenIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setScreenReagentSetDescription(
+                                reagentSetDescription.val, screenIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setStack_async(final AMD_MetadataStore_setStack __cb,
             final RLong id, final byte[] pixels, final int theC,
             final int theT, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStack(id.val, pixels, theC, theT);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStack(id.val, pixels, theC, theT);
                         return null;
                     }
                 }));
-
     }
 
     public void setStageLabelName_async(
             final AMD_MetadataStore_setStageLabelName __cb, final RString name,
             final int imageIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStageLabelName(name.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStageLabelName(name.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setStageLabelX_async(
             final AMD_MetadataStore_setStageLabelX __cb, final RFloat x,
             final int imageIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStageLabelX(x.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStageLabelX(x.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setStageLabelY_async(
             final AMD_MetadataStore_setStageLabelY __cb, final RFloat y,
             final int imageIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStageLabelY(y.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStageLabelY(y.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setStageLabelZ_async(
             final AMD_MetadataStore_setStageLabelZ __cb, final RFloat z,
             final int imageIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStageLabelZ(z.val, imageIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStageLabelZ(z.val, imageIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setStagePositionPositionX_async(
@@ -4275,24 +3191,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat positionX, final int imageIndex,
             final int pixelsIndex, final int planeIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStagePositionPositionX(positionX.val,
-                                    imageIndex, pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStagePositionPositionX(positionX.val,
+                                imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setStagePositionPositionY_async(
@@ -4300,24 +3210,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat positionY, final int imageIndex,
             final int pixelsIndex, final int planeIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStagePositionPositionY(positionY.val,
-                                    imageIndex, pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStagePositionPositionY(positionY.val,
+                                imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setStagePositionPositionZ_async(
@@ -4325,46 +3229,34 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RFloat positionZ, final int imageIndex,
             final int pixelsIndex, final int planeIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setStagePositionPositionZ(positionZ.val,
-                                    imageIndex, pixelsIndex, planeIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setStagePositionPositionZ(positionZ.val,
+                                imageIndex, pixelsIndex, planeIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setThePixelsId_async(
             final AMD_MetadataStore_setThePixelsId __cb, final RLong id,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setPixelsId(id.val);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setPixelsId(id.val);
                         return null;
                     }
                 }));
-
     }
 
     public void setTiffDataFileName_async(
@@ -4372,24 +3264,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RString fileName, final int imageIndex,
             final int pixelsIndex, final int tiffDataIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setTiffDataFileName(fileName.val, imageIndex,
-                                    pixelsIndex, tiffDataIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setTiffDataFileName(fileName.val, imageIndex,
+                                pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setTiffDataFirstC_async(
@@ -4397,24 +3283,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int imageIndex, final int pixelsIndex,
             final int tiffDataIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setTiffDataFirstC(firstC.val, imageIndex,
-                                    pixelsIndex, tiffDataIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setTiffDataFirstC(firstC.val, imageIndex,
+                                pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setTiffDataFirstT_async(
@@ -4422,24 +3302,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int imageIndex, final int pixelsIndex,
             final int tiffDataIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setTiffDataFirstT(firstT.val, imageIndex,
-                                    pixelsIndex, tiffDataIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setTiffDataFirstT(firstT.val, imageIndex,
+                                pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setTiffDataFirstZ_async(
@@ -4447,24 +3321,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int imageIndex, final int pixelsIndex,
             final int tiffDataIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setTiffDataFirstZ(firstZ.val, imageIndex,
-                                    pixelsIndex, tiffDataIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setTiffDataFirstZ(firstZ.val, imageIndex,
+                                pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setTiffDataIFD_async(
@@ -4472,24 +3340,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int imageIndex, final int pixelsIndex,
             final int tiffDataIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setTiffDataIFD(ifd.val, imageIndex,
-                                    pixelsIndex, tiffDataIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setTiffDataIFD(ifd.val, imageIndex, pixelsIndex,
+                                tiffDataIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setTiffDataNumPlanes_async(
@@ -4497,24 +3359,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt numPlanes, final int imageIndex, final int pixelsIndex,
             final int tiffDataIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setTiffDataNumPlanes(numPlanes.val,
-                                    imageIndex, pixelsIndex, tiffDataIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setTiffDataNumPlanes(numPlanes.val, imageIndex,
+                                pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setTiffDataUUID_async(
@@ -4522,162 +3378,117 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int imageIndex, final int pixelsIndex,
             final int tiffDataIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setTiffDataUUID(uuid.val, imageIndex,
-                                    pixelsIndex, tiffDataIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setTiffDataUUID(uuid.val, imageIndex,
+                                pixelsIndex, tiffDataIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setUUID_async(final AMD_MetadataStore_setUUID __cb,
             final RString uuid, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setUUID(uuid.val);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setUUID(uuid.val);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellColumn_async(final AMD_MetadataStore_setWellColumn __cb,
             final RInt column, final int plateIndex, final int wellIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellColumn(column.val, plateIndex,
-                                    wellIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellColumn(column.val, plateIndex, wellIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellExternalDescription_async(
             final AMD_MetadataStore_setWellExternalDescription __cb,
             final RString externalDescription, final int plateIndex,
             final int wellIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellExternalDescription(
-                                    externalDescription.val, plateIndex,
-                                    wellIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellExternalDescription(
+                                externalDescription.val, plateIndex, wellIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellExternalIdentifier_async(
             final AMD_MetadataStore_setWellExternalIdentifier __cb,
             final RString externalIdentifier, final int plateIndex,
             final int wellIndex, final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellExternalIdentifier(
-                                    externalIdentifier.val, plateIndex,
-                                    wellIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellExternalIdentifier(externalIdentifier.val,
+                                plateIndex, wellIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellID_async(final AMD_MetadataStore_setWellID __cb,
             final RString id, final int plateIndex, final int wellIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellID(id.val, plateIndex, wellIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellID(id.val, plateIndex, wellIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellRow_async(final AMD_MetadataStore_setWellRow __cb,
             final RInt row, final int plateIndex, final int wellIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellRow(row.val, plateIndex, wellIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellRow(row.val, plateIndex, wellIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellSampleID_async(
@@ -4685,24 +3496,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int plateIndex, final int wellIndex,
             final int wellSampleIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellSampleID(id.val, plateIndex,
-                                    wellIndex, wellSampleIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellSampleID(id.val, plateIndex, wellIndex,
+                                wellSampleIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellSampleIndex_async(
@@ -4710,24 +3515,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int plateIndex, final int wellIndex,
             final int wellSampleIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellSampleIndex(index.val, plateIndex,
-                                    wellIndex, wellSampleIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellSampleIndex(index.val, plateIndex,
+                                wellIndex, wellSampleIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellSamplePosX_async(
@@ -4735,24 +3534,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int plateIndex, final int wellIndex,
             final int wellSampleIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellSamplePosX(posX.val, plateIndex,
-                                    wellIndex, wellSampleIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellSamplePosX(posX.val, plateIndex,
+                                wellIndex, wellSampleIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellSamplePosY_async(
@@ -4760,24 +3553,18 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final int plateIndex, final int wellIndex,
             final int wellSampleIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellSamplePosY(posY.val, plateIndex,
-                                    wellIndex, wellSampleIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellSamplePosY(posY.val, plateIndex,
+                                wellIndex, wellSampleIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellSampleTimepoint_async(
@@ -4785,91 +3572,73 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final RInt timepoint, final int plateIndex, final int wellIndex,
             final int wellSampleIndex, final Current __current)
             throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellSampleTimepoint(timepoint.val,
-                                    plateIndex, wellIndex, wellSampleIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellSampleTimepoint(timepoint.val, plateIndex,
+                                wellIndex, wellSampleIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void setWellType_async(final AMD_MetadataStore_setWellType __cb,
             final RString type, final int plateIndex, final int wellIndex,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            store.setWellType(type.val, plateIndex, wellIndex);
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        store.setWellType(type.val, plateIndex, wellIndex);
                         return null;
                     }
                 }));
-
     }
 
     public void close_async(final AMD_StatefulServiceInterface_close __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            // Nulling should be sufficient.
-                            store = null;
-                            // Code here
-                            __cb.ice_response();
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
+
+                        // Nulling should be sufficient.
+                        store = null;
                         return null;
                     }
                 }));
-
     }
 
     public void getCurrentEventContext_async(
             final AMD_StatefulServiceInterface_getCurrentEventContext __cb,
             final Current __current) throws ServerError {
-        runnableCall(__current, new BlitzExecutor.Adapter(this.sf.executor,
-                this.sf.principal, new Executor.Work() {
+
+        final IceMapper mapper = new IceMapper(new IceMapper.ReturnMapping() {
+
+            public Object mapReturnValue(IceMapper mapper, Object value)
+                    throws UserException {
+                return mapper.convert((ome.system.EventContext) value);
+            }
+        });
+
+        runnableCall(__current, new Adapter(__cb, __current, mapper,
+                this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-                        try {
-                            // Code here
-                            IceMapper mapper = new IceMapper();
-                            ome.system.EventContext ec = store.getSF()
-                                    .getAdminService().getEventContext();
-                            EventContext _ec = mapper.convert(ec);
-                            // Code here
-                            __cb.ice_response(_ec);
-                        } catch (Exception e) {
-                            __cb.ice_exception(e);
-                        }
-                        return null;
+
+                        return store.getSF().getAdminService()
+                                .getEventContext();
                     }
                 }));
-
     }
 
 }

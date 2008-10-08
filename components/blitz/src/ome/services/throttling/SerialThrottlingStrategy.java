@@ -45,7 +45,7 @@ public class SerialThrottlingStrategy implements ThrottlingStrategy {
         queue.put(cb);
     }
 
-    public void runnableCall(Current __current, Task task) {
+    public void runnableCall(Current __current, Runnable runnable) {
         throw new UnsupportedOperationException();
     }
 
