@@ -4,12 +4,14 @@
  *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.icy.model.utests;
+package ome.services.blitz.test.utests;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import ome.model.containers.Dataset;
+import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.core.Pixels;
 import ome.model.meta.Experimenter;
@@ -21,6 +23,7 @@ import omero.model.ExperimenterGroupI;
 import omero.model.ExperimenterI;
 import omero.model.ImageI;
 import omero.model.PixelsI;
+import omero.model.ProjectI;
 import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
@@ -96,5 +99,66 @@ public class ModelTest extends TestCase {
         ei.copyObject(e, new IceMapper());
         Map<Long, Long> countsi = ei.getAnnotationLinksCountPerOwner();
         assertEquals(new Long(1L), countsi.get(1L));
+    }
+    
+    @Test
+    public void testLoadedness1() throws Exception {
+        ExperimenterGroup g = new ExperimenterGroup();
+        Experimenter e = new Experimenter();
+        Project p = new Project();
+        p.getDetails().setOwner(e);
+        e.linkExperimenterGroup(g);
+        assertEquals( 1, e.sizeOfGroupExperimenterMap() );
+        
+        IceMapper mapper = new IceMapper();
+        ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
+        ExperimenterI ei = (ExperimenterI) pi.getDetails().owner;
+        assertEquals( 1, e.sizeOfGroupExperimenterMap() );
+        
+    }
+    
+    @Test
+    public void testLoadedness2() throws Exception {
+        ExperimenterGroup g = new ExperimenterGroup();
+        Experimenter e = new Experimenter();
+        e.linkExperimenterGroup(g);
+        
+        Project p = new Project();
+        p.getDetails().setOwner(e);
+        p.getDetails().setGroup(g);
+        
+        Dataset d = new Dataset();
+        d.getDetails().setOwner(e);
+        d.getDetails().setGroup(g);
+        
+        
+        p.linkDataset( d ); // Adding an extra object
+        
+        assertEquals( 1, e.sizeOfGroupExperimenterMap() );
+        
+        IceMapper mapper = new IceMapper();
+        ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
+        ExperimenterI ei = (ExperimenterI) pi.getDetails().owner;
+        ExperimenterGroupI gi = (ExperimenterGroupI) pi.getDetails().group;
+        assertEquals( 1, ei.sizeOfGroupExperimenterMap() );
+        assertEquals( 1, gi.sizeOfGroupExperimenterMap() );
+        
+    }
+    
+    @Test
+    public void testLoadedness3() throws Exception {
+        Experimenter e = new Experimenter();
+        e.putAt(Experimenter.GROUPEXPERIMENTERMAP, null);
+        
+        Project p = new Project();
+        p.getDetails().setOwner(e);
+        
+        assertEquals( -1, e.sizeOfGroupExperimenterMap() );
+        
+        IceMapper mapper = new IceMapper();
+        ProjectI pi = (ProjectI) mapper.handleOutput(Project.class, p);
+        ExperimenterI ei = (ExperimenterI) pi.getDetails().owner;
+        assertEquals( -1, ei.sizeOfGroupExperimenterMap() );
+        
     }
 }

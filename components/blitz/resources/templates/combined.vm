@@ -408,6 +408,15 @@ since id and details (like the loadedness methods above) are defined in IObject.
 and cannot appear in every concrete <>I class. Therefore, we define them here
 and protect later FOREACH blocks with "if (name == 'id' || name == 'details') skip;"
 
+#if( ! $type.superclass)
+[$ice]       $Pojo proxy();
+#end ! superclass
+
+[$jav]       public $Pojo proxy($JAV_CURRENT) {
+[$jav]           if (this.id == null) throw new omero.ClientError("Proxies require an id");
+[$jav]           return new $PojoI( this.id.val, false );
+[$jav]       }
+[$jav]
 [$jav]       public omero.RLong getId($JAV_CURRENT) {
 [$jav]           return id;
 [$jav]       }
@@ -444,11 +453,17 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]       }
 [$jav]
 
+[$hdr]       virtual ${Pojo}Ptr proxy($HDR_CURRENT) {
 [$hdr]       virtual omero::model::DetailsPtr getDetails($HDR_CURRENT);
 [$hdr]       virtual void unloadDetails($HD_CURRENT);
 [$hdr]       virtual omero::RLongPtr getId($HDR_CURRENT);
 [$hdr]       virtual void setId( const omero::RLongPtr& id, $HDR_CURRENT );
 
+[$cpp]       ${Pojo}Ptr ${PojoI}::proxy($CPP_CURRENT) {
+[$cpp]           if ( ! id )  throw new omero::ClientError(__FILE__, __LINE__, "Proxies require an id");
+[$cpp]           return new ${PojoI}( id.val, false );
+[$cpp]       }
+[$cpp]
 [$cpp]       omero::model::DetailsPtr ${PojoI}::getDetails($CPP_CURRENT) {
 [$cpp]           return details;
 [$cpp]       }
@@ -465,6 +480,10 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$cpp]           id = _id;
 [$cpp]       }
 
+[$pyc]       def proxy(self, $PYC_CURRENT):
+[$pyc]           if not id: raise omero.ClientError("Proxies require an id")
+[$pyc]           return ${PojoI}( _id.val, false )
+[$pyc]
 [$pyc]       def getDetails(self, $PYC_CURRENT):
 [$pyc]           return self._details
 [$pyc]
@@ -615,7 +634,7 @@ Properties used throughout the accessor generation
 #set( $getter = "this.${fieldName}" )
 ## See ticket:684
 ## If this is the case, we can't use the accessor and have to use a generated method
-#set( $copyMethod = "this.${fieldName} = ($javaType) mapper.findCollection( (Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()}));" );
+#set( $copyMethod = "this.set${PropertyName}( ($javaType) mapper.findCollection( (Collection) source.retrieve(${type.id}.${PropertyName.toUpperCase()})), null /* FIXME - argument unneeded */);" )
 
 [$Ice]       $seqName ${fieldName};
 [$Ice]       bool ${property.name}Loaded;
