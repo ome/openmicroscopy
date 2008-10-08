@@ -79,6 +79,13 @@ module omero {
       void unloadCollections();
 
       /*
+       * As with collections, the objects under details can link
+       * to many other objects. Unloading the details can same
+       * bandwidth and simplify the server logic.
+       */
+      void unloadDetails();
+
+      /*
        * Tests for unloadedness. If this value is false, then
        * any method call on this instance other than getId
        * or setId will result in an exception.

@@ -420,7 +420,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]           return this.details;
 [$jav]       }
 [$jav]
-[$jav]       public void unloadDetails() {
+[$jav]       public void unloadDetails($JAV_CURRENT) {
 [$jav]           this.details = null;
 [$jav]       }
 [$jav]
@@ -445,7 +445,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]
 
 [$hdr]       virtual omero::model::DetailsPtr getDetails($HDR_CURRENT);
-[$hdr]       virtual void unloadDetails();
+[$hdr]       virtual void unloadDetails($HD_CURRENT);
 [$hdr]       virtual omero::RLongPtr getId($HDR_CURRENT);
 [$hdr]       virtual void setId( const omero::RLongPtr& id, $HDR_CURRENT );
 
@@ -453,7 +453,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$cpp]           return details;
 [$cpp]       }
 [$cpp]
-[$cpp]       void ${PojoI}::unloadDetails() {
+[$cpp]       void ${PojoI}::unloadDetails($CPP_CURRENT) {
 [$cpp]           details = new omero::model::Details();
 [$cpp]       }
 [$cpp]
@@ -468,7 +468,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$pyc]       def getDetails(self, $PYC_CURRENT):
 [$pyc]           return self._details
 [$pyc]
-[$pyc]       def unloadDetails(self):
+[$pyc]       def unloadDetails(self, $PYC_CURRENT):
 [$pyc]           self._details = None
 [$pyc]
 [$pyc]       def getId(self, $PYC_CURRENT):
