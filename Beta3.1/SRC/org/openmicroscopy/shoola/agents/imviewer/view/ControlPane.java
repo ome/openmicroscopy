@@ -650,6 +650,7 @@ class ControlPane
         Iterator<ChannelButton> i = channelButtonsGrid.iterator();
         while (i.hasNext()) {
         	button = i.next();
+        	button.addPropertyChangeListener(controller);
         	buttons.add(button);
             buttons.add(Box.createRigidArea(VBOX));
 		}

@@ -51,12 +51,16 @@ public class EditorFileFilter
 	/** Possible file extensions. */
 	public static final String 	PRO_XML = "pro.xml";
 	
+	/** Possible file extensions. */
+	private static final String	XML = "xml";
+	
 	/** The possible extensions. */
 	private static final String[] extensions;
 	
 	static {
-		extensions = new String[1];
+		extensions = new String[2];
 		extensions[0] = PRO_XML;
+		extensions[1] = XML;
 	}
 	
 	/**
