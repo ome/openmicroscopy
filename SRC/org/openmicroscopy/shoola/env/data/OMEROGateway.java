@@ -244,9 +244,7 @@ class OMEROGateway
 			
 			String s = "Cannot access data for security reasons \n"; 
 			throw new DSAccessException(s+message, t);
-		} else
-			
-;
+		}
 	}
 	
 	/**
@@ -934,15 +932,14 @@ class OMEROGateway
 	 */
 	boolean isUpgradeRequired()
 	{
-		/*
 		ResourceBundle bundle = ResourceBundle.getBundle("omero");
 	    String version = bundle.getString("omero.version");
 	    String url = bundle.getString("omero.upgrades.url");
 	    UpgradeCheck check = new UpgradeCheck(url, version, "insight"); 
 	    check.run();
 	    return check.isUpgradeNeeded();
-	    */
-		return false;
+	    
+		//return false;
 	}
 	
 	/**
@@ -1277,7 +1274,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			IPojosPrx service = getPojosService();
+			//IPojosPrx service = getPojosService();
 			//List<IObject> results = service.createDataObjects(objects, options);
 			//return results;
 			return saveAndReturnObject(objects, options);
@@ -1353,7 +1350,7 @@ class OMEROGateway
 			IObject r;
 			if (options == null) r = service.saveAndReturnObject(object);
 			r = service.saveAndReturnObject(object, options);
-			return findIObject(r);
+			return r;//findIObject(r);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
@@ -1363,7 +1360,7 @@ class OMEROGateway
 	/**
 	 * Updates the specified object.
 	 * 
-	 * @param object    The objet to update.
+	 * @param objects   The objets to update.
 	 * @param options   Options to update the data.   
 	 * @return          The updated object.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
@@ -1371,13 +1368,15 @@ class OMEROGateway
 	 * retrieve data from OMERO service. 
 	 * @see IPojos#updateDataObject(IObject, Map)
 	 */
-	List<IObject> saveAndReturnObject(List<IObject> object, Map options)
+	List<IObject> saveAndReturnObject(List<IObject> objects, Map options)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
 			IUpdatePrx service = getUpdateService();
-			List<IObject> r = service.saveAndReturnArray(object);
+			List<IObject> r = service.saveAndReturnArray(objects);
+			return r;
+			/*
 			if (r == null) return r;
 			Iterator<IObject> i = r.iterator();
 			List<IObject> results = new ArrayList<IObject>(r.size());
@@ -1385,6 +1384,7 @@ class OMEROGateway
 				results.add(findIObject(i.next()));
 			}
 			return results;
+			*/
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the object.");
 		}
@@ -3174,10 +3174,6 @@ class OMEROGateway
 	            Set imgs = PojoMapper.asDataObjects(
 	            			service.findAllByQuery(sb.toString(), p));
 	            //Retrieve the projects.
-	            
-	            
-	            
-	            
 	            tag.setImages(imgs);
 			}
 			//sb.append("where ann.id = :tagID");
@@ -3314,6 +3310,7 @@ class OMEROGateway
 			}
 			Set result = new HashSet();
 			result.add(tag);
+			
 			return result;
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the tags");

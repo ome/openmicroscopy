@@ -1008,6 +1008,10 @@ class OmeroDataServiceImpl
 		return all;
 	}
 
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroDataService#loadPlateWells(long, long)
+	 */
 	public Collection loadPlateWells(long plateID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{

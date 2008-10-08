@@ -109,6 +109,12 @@ public class RegExFactory
         return Pattern.compile(regEx);
     }
 
+    /**
+     * Formats the passed collection of terms.
+     * 
+     * @param terms The collection to handle.
+     * @return See above.
+     */
     public static String[] formatSearchText(List<String> terms)
     {
     	if (terms == null) return new String[0];
@@ -121,6 +127,7 @@ public class RegExFactory
     	String v;
     	while (i.hasNext()) {
 			value = i.next();
+			if (value == null) value = "";
 			n = value.length();
 			arr = new char[n];
 			v = "";
@@ -136,6 +143,12 @@ public class RegExFactory
     	return formattedTerms;
     }
     
+    /**
+     * Formats the passed collection of terms.
+     * 
+     * @param terms The collection to handle.
+     * @return See above.
+     */
     public static String formatSearchTextAsString(List<String> terms)
     {
     	if (terms == null) return "";

@@ -331,8 +331,6 @@ class BrowserModel
             } else {
             	if (ho instanceof DatasetData) 
                 	type = ExperimenterDataLoader.DATASET;
-                else if (ho instanceof CategoryData) 
-                	type = ExperimenterDataLoader.CATEGORY;
                 else if (ho instanceof TagAnnotationData) {
                 	type = ExperimenterDataLoader.TAGS;
                 	level = ExperimenterDataLoader.TAG_LEVEL;
@@ -538,9 +536,6 @@ class BrowserModel
 		switch (browserType) {
 			case Browser.PROJECT_EXPLORER:
 				index = ExperimenterDataLoader.PROJECT;
-				break;
-			case Browser.CATEGORY_EXPLORER:
-				index = ExperimenterDataLoader.CATEGORY_GROUP;
 				break;
 			case Browser.IMAGES_EXPLORER:
 				index = ExperimenterDataLoader.IMAGE;

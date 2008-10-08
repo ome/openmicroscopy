@@ -35,8 +35,6 @@ import java.util.List;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -76,20 +74,14 @@ public class ExperimenterDataLoader
 	/** Indicates that the root node is of type <code>Project</code>. */
     public static final int PROJECT = 0;
     
-    /** Indicates that the root node is of type <code>CategoryGroup</code>. */
-    public static final int CATEGORY_GROUP = 1;
-    
     /** Indicates that the root node is of type <code>Dataset</code>. */
-    public static final int DATASET = 2;
-    
-    /** Indicates that the root node is of type <code>Category</code>. */
-    public static final int CATEGORY = 3;
+    public static final int DATASET = 1;
     
     /** Indicates that the root node is of type <code>Image</code>. */
-    public static final int IMAGE = 4;
+    public static final int IMAGE = 2;
     
     /** Indicates that the root node is of type <code>Image</code>. */
-    public static final int TAGS = 5;
+    public static final int TAGS = 3;
     
     /** 
      * Flag to indicate if the images are also retrieved.
@@ -125,8 +117,6 @@ public class ExperimenterDataLoader
     {
         switch (type) {
             case PROJECT: return ProjectData.class;
-            case CATEGORY_GROUP: return CategoryGroupData.class;
-            case CATEGORY: return CategoryData.class;
             case DATASET: return DatasetData.class; 
             case TAGS: return TagAnnotationData.class;
         }
@@ -242,9 +232,6 @@ public class ExperimenterDataLoader
 						&& object.getId() == id) {
 					if (object instanceof DatasetData) {
 						viewer.setLeaves(((DatasetData) object).getImages(), 
-								parent, expNode);
-					} else if (object instanceof CategoryData) {
-						viewer.setLeaves(((CategoryData) object).getImages(), 
 								parent, expNode);
 					} else if (object instanceof TagAnnotationData) {
 						viewer.setLeaves(

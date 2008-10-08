@@ -42,7 +42,6 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
-import org.openmicroscopy.shoola.agents.metadata.ContainersLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;

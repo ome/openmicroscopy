@@ -54,7 +54,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
-import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -62,7 +61,6 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.text.BadLocationException;
@@ -1051,6 +1049,7 @@ public class UIUtilities
     public static String[] splitString(String originalName)
     {
     	String[] l = null;
+    	if (originalName == null) return l;
         if (Pattern.compile("/").matcher(originalName).find()) {
             l = originalName.split("/", 0);
         } else if (Pattern.compile("\\\\").matcher(originalName).find()) {
