@@ -191,11 +191,39 @@ public class IceMapper extends ome.util.ModelMapper implements
             if (value == null) {
                 return null;
             } else {
-                if (IceMapper.isNullablePrimitive(value.getClass())) {
+                if ( ! IceMapper.isNullablePrimitive(value.getClass())) {
                     throw new RuntimeException(
                             "Object not nullable primitive: " + value);
                 }
                 Object rv = mapper.findTarget(value);
+                return rv;
+            }
+        }
+    };
+    
+    public final static ReturnMapping PRIMITIVE_MAP = new ReturnMapping() {
+
+        public Object mapReturnValue(IceMapper mapper, Object value)
+                throws Ice.UserException {
+            if (value == null) {
+                return null;
+            } else {
+                Map map = (Map) value;
+                Map rv = new HashMap();
+                for (Object k : map.keySet()) {
+                    Object v = map.get(k);
+                    if (k != null && ! IceMapper.isNullablePrimitive(k.getClass())) {
+                        throw new RuntimeException(
+                                "Key not nullable primitive: " + k);
+                    }
+                    if (v != null && ! IceMapper.isNullablePrimitive(v.getClass())) {
+                        throw new RuntimeException(
+                                "Object not nullable primitive: " + v);
+                    }
+                    Object kr = mapper.findTarget(k);
+                    Object vr = mapper.findTarget(v);
+                    rv.put(kr, vr);
+                }
                 return rv;
             }
         }

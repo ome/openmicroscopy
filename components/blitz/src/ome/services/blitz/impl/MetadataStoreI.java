@@ -226,7 +226,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
             final AMD_MetadataStore_getExperimenterID __cb,
             final Current __current) throws ServerError {
 
-        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE);
+        final IceMapper mapper = new IceMapper(IceMapper.PRIMITIVE);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
