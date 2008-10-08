@@ -84,6 +84,7 @@ class AnnotatorCanvas
         	g2D.setColor(getBackground());
         	g2D.drawString(paintedString, 2, height);
         }	
+        g2D.dispose();
     }
     
 }

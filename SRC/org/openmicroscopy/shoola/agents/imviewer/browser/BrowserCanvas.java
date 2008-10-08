@@ -114,6 +114,7 @@ class BrowserCanvas
         	ImagePaintingFactory.paintScaleBar(g2D, width-size-10, 
         							height-10, size, value, 
         							model.getUnitBarColor());
+        g2D.dispose();
     }
     
 }

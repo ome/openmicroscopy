@@ -192,6 +192,7 @@ class LensModel
         Graphics2D graphics2D = thumbImage.createGraphics();
    
         graphics2D.drawImage(image, 0, 0, thumbWidth, thumbHeight, null);
+        graphics2D.dispose();
         return thumbImage;
     }
     
