@@ -105,7 +105,7 @@ public class ViewAction
             	setEnabled(false);
             } else {
             	TreeImageTimeSet timeNode = (TreeImageTimeSet) selectedDisplay;
-            	int number = timeNode.getNumberItems();
+            	long number = timeNode.getNumberItems();
             	if (number == 0) setEnabled(false);
             	else {
             		List l = timeNode.getChildrenDisplay();

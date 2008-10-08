@@ -556,9 +556,9 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setContainerCountValue(int, int)
+     * @see Browser#setContainerCountValue(int, long)
      */
-    public void setContainerCountValue(long containerID, int value)
+    public void setContainerCountValue(long containerID, long value)
     {
         //int state = model.getState();
         boolean b = model.setContainerCountValue(view.getTreeDisplay(), 

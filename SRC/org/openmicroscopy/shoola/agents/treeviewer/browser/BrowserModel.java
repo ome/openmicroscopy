@@ -402,7 +402,7 @@ class BrowserModel
      * @param value	The number of items.
      * @return See above.
      */
-    boolean setContainerCountValue(JTree tree, long containerID, int value)
+    boolean setContainerCountValue(JTree tree, long containerID, long value)
     {
         if (containersManager == null)
             containersManager = new ContainersManager(tree, 

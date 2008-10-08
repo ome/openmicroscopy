@@ -149,7 +149,7 @@ public abstract class TreeImageDisplay
     private boolean						partialName;
     
     /** The number of items. */
-    protected int						numberItems;
+    protected long						numberItems;
 
     /**
      * Checks if the algorithm to visit the tree is one of the constants
@@ -508,7 +508,7 @@ public abstract class TreeImageDisplay
      * 
      * @return See above.
      */
-    public int getNumberOfItems() { return numberItems; }
+    public long getNumberOfItems() { return numberItems; }
     
     /** 
      * Overridden to return the name of the hierarchy object. 

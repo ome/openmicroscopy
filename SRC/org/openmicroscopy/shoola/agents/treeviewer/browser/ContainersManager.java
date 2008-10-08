@@ -141,7 +141,7 @@ public class ContainersManager
      * @param containerID 	The ID of the container.
      * @param value			The number of items in the container.	
      */
-    public void setNumberItems(long containerID, int value)
+    public void setNumberItems(long containerID, long value)
     {
         if (value < 0) throw new IllegalArgumentException("Value not valid.");
         Long id = new Long(containerID);

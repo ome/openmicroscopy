@@ -145,7 +145,7 @@ public class TreeImageSet
      * @param value The number of items.
      * @see #getNumberItems()
      */
-    public void setNumberItems(int value) { numberItems = value; }
+    public void setNumberItems(long value) { numberItems = value; }
     
     /**
      * Returns the number of items. Should only be called when children aren't
@@ -154,7 +154,7 @@ public class TreeImageSet
      * @return See above.
      * @see #setNumberItems(int)
      */
-    public int getNumberItems() { return numberItems; }
+    public long getNumberItems() { return numberItems; }
     
     /** 
      * Tells if the children of this node have been loaded. 

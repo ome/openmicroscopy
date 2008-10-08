@@ -355,7 +355,7 @@ public interface Browser
      * @param containerID 	The id of the container.
      * @param value			The number of items contained in the container.
      */
-    public void setContainerCountValue(long containerID, int value);
+    public void setContainerCountValue(long containerID, long value);
     
     /**
      * Returns a collection of containers which contain <code>Image</code>s

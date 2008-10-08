@@ -38,7 +38,6 @@ import javax.imageio.ImageIO;
 //Third-party libraries
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageDecoder;
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
 
 //Application-internal dependencies
 import omero.ServerError;

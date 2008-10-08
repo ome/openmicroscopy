@@ -126,12 +126,12 @@ public class ContainerCounterLoader
         if (map == null) return;
         Iterator i = map.keySet().iterator();
         Long containerID;
-        Integer value;
+        Long value;
         while (i.hasNext()) {
             containerID = (Long) i.next();
-            value = (Integer) map.get(containerID);
+            value = (Long) map.get(containerID);
             viewer.setContainerCountValue(containerID.longValue(),
-                    						value.intValue());
+                    						value.longValue());
         }
     }
     
