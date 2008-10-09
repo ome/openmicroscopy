@@ -65,6 +65,8 @@ class client(object):
         if id.properties == None:
             id.properties = Ice.createProperties()
 
+        # Copying args since we don't really want them edited
+        args = not args and [] or list(args)
         id.properties.parseIceCommandLineOptions(args);
         id.properties.parseCommandLineOptions("omero", args);
         if host:
@@ -428,9 +430,11 @@ class client(object):
                     # we are disconnecting
 
         finally:
-            ic = self.__ic
+            copy = self.__ic
             self.__ic = None
-            ic.destroy()
+            self.__previous = Ice.InitializationData()
+            self.__previous.properties = copy.getProperties().clone()
+            copy.destroy()
 
 
     # Environment Methods

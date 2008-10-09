@@ -298,6 +298,8 @@ namespace omero {
     void client::exit() {
 	Ice::CommunicatorPtr copy(ic);
 	ic = Ice::CommunicatorPtr();
+	previous = new Ice::InitializationData();
+	(*previous).properties = copy->getProperties()->clone();
 	copy->destroy();
     }
 
