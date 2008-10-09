@@ -212,6 +212,7 @@ public class DataServicesFactory
         		((OmeroImageServiceImpl) is).shutDown();
         		omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
 			} catch (Exception e) {
+				e.printStackTrace();
 				UserNotifier un = registry.getUserNotifier();
 				un.notifyInfo("Reconnect", "An error while trying to " +
 						"reconnect.\n The application will now exit. ");

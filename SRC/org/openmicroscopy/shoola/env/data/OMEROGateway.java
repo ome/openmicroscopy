@@ -229,6 +229,9 @@ class OMEROGateway
 	/** The port to connect. */
 	private int						port;
 	
+	/** The port to connect. */
+	private String					hostName;
+	
 	/** 
 	 * The Blitz client object, this is the entry point to the 
 	 * OMERO.Blitz Server. 
@@ -1037,6 +1040,7 @@ class OMEROGateway
 			}
 			blitzClient = new client(iceConfig);
 			*/
+			this.hostName = hostName;
 			if (port > 0) blitzClient = new client(hostName, port);
 			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
@@ -1049,7 +1053,7 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s, e);  
 		} 
 	}
-
+	
 	/** 
 	 * Tries to reconnect to the server.
 	 * 
@@ -1065,7 +1069,8 @@ class OMEROGateway
 			thumbnailService = null;
 			thumbRetrieval = 0;
 			fileStore = null;
-			blitzClient = new client(iceConfig);
+			if (port > 0) blitzClient = new client(hostName, port);
+			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
 			connected = true;
 		} catch (Throwable e) {
