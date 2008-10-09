@@ -412,7 +412,7 @@ public class CreatePojosFixture2 {
         dann.setNs( new RString(name) );
         dann.getDetails().owner = user;
         DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-        link.link(d.proxy(), dann);
+        link.link( (Dataset) d.proxy(), dann);
         link = push(link);
         return link;
     }
@@ -423,7 +423,7 @@ public class CreatePojosFixture2 {
         iann.setNs( new RString(name) );
         iann.getDetails().owner = user;
         ImageAnnotationLink link = new ImageAnnotationLinkI();
-        link.link(i.proxy(), iann);
+        link.link((Image) i.proxy(), iann);
         link = push(link);
         return link;
     }
