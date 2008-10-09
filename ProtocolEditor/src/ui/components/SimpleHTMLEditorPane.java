@@ -187,6 +187,11 @@ public class SimpleHTMLEditorPane extends JEditorPane {
 		
 		htmlText = htmlText.replaceAll("</p>", "");
 		htmlText = htmlText.replaceAll("<p style=\"margin-top: 0\">", "<br>");
+		htmlText = htmlText.replaceAll("      ", "");
+		
+		
+		System.out.println("SimpleHTMLEditorPane getTextNoTags: ");
+		System.out.println(htmlText);
 		
 		return htmlText;
 	}

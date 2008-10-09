@@ -55,4 +55,15 @@ public interface IExport {
 	public void export(File file, List<DataFieldNode> rootNodes, Map<String, Boolean> exportPreferences);
 	
 	
+	/**
+	 * Exports the given dataField nodes as a String. 
+	 * This method works by creating a temporary file, delegating the
+	 * export to that file, using {@link #export(File, List)} and then 
+	 * converting the file to a String. The temp file is deleted before 
+	 * returning the String.
+	 * 
+	 * @param rootNodes		A list of the nodes to export
+	 * @return String		A string representation of the export. 
+	 */
+	public String exportToString(List<DataFieldNode> rootNodes);
 }

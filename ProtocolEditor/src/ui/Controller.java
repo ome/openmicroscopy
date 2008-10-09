@@ -44,6 +44,7 @@ import actions.DeleteFieldAction;
 import actions.DemoteFieldAction;
 import actions.DuplicateFieldsAction;
 import actions.ExportAllTextAction;
+import actions.ExportAllWikiAction;
 import actions.ExportCalendarAction;
 import actions.ExportHighltdTextAction;
 import actions.HelpOnlineUserGuideAction;
@@ -200,6 +201,9 @@ public class Controller
     /** Identifies the <code>HelpOnlineUserGuide</code>. */
     static final Integer     HELP_USER_GUIDE = new Integer(38);
     
+    /** Identifies the <code>ExportAllWikiAction</code>. */
+    static final Integer     EXPORT_ALL_WIKI = new Integer(39);
+   
     
     
     /** Maps actions ids onto actual <code>Action</code> object. */
@@ -261,6 +265,7 @@ public class Controller
         actionsMap.put(EXPORT_CALENDAR, new ExportCalendarAction(model));
         actionsMap.put(VALIDATE_XML, new ValidateXMLAction(model));
         actionsMap.put(HELP_USER_GUIDE, new HelpOnlineUserGuideAction(model));
+        actionsMap.put(EXPORT_ALL_WIKI, new ExportAllWikiAction(model));
     }
     
     /**
