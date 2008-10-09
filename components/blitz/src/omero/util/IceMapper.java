@@ -140,9 +140,9 @@ public class IceMapper extends ome.util.ModelMapper implements
             if (array == null) {
                 return null;
             } else {
-                Object[] rv = new Object[array.length];
-                for (int i = 0; i < rv.length; i++) {
-                    rv[i] = mapper.map(array[i]);
+                List rv = new ArrayList(array.length);
+                for (int i = 0; i < array.length; i++) {
+                    rv.add( mapper.map(array[i]) );
                 }
                 return rv;
             }

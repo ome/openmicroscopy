@@ -68,6 +68,8 @@ import org.springframework.util.ResourceUtils;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import Ice.ObjectFactory;
+
 import pojos.AnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -111,6 +113,10 @@ public class PojosServiceTest extends TestCase {
     Dataset ds;
 
     DatasetData dsData;
+    
+    PojoOptions GROUP_FILTER;
+
+    PojoOptions OWNER_FILTER;
 
     @Override
     @BeforeTest
@@ -187,7 +193,7 @@ public class PojosServiceTest extends TestCase {
         assertTrue("It better have a dataset link too", img2
                 .sizeOfDatasetLinks() > 0);
         Dataset ds2 = img2.linkedDatasetList().get(0);
-        assertTrue("And the ids have to be the same", id.equals(ds2.getId()));
+        assertEquals("And the ids have to be the same", id.longValue(), ds2.getId().val);
     }
 
     @Test(groups = { "versions", "broken" })
@@ -202,7 +208,7 @@ public class PojosServiceTest extends TestCase {
         // Version incremented
         Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
         RInt version2 = sent2.getVersion();
-        assertTrue(!version.equals(version2));
+        assertTrue(version.val != version2.val);
 
         // Resetting; should get error
         sent2.setVersion(version);
@@ -344,8 +350,8 @@ public class PojosServiceTest extends TestCase {
     @Test
     public void test_loadContainerHierarchy() throws Exception {
 
-        ids = Arrays.asList(fixture.pu9990.getId(), fixture.pu9991
-                .getId());
+        ids = Arrays.asList(fixture.pu9990.getId().val, fixture.pu9991
+                .getId().val);
         results = iPojos.loadContainerHierarchy(Project.class.getName(), ids, null);
 
         PojoOptions po = new PojoOptions().exp(new RLong(0L));
@@ -587,14 +593,14 @@ public class PojosServiceTest extends TestCase {
         Long id = fixture.iu5551.getId().val;
         Map m = iPojos.getCollectionCount(Image.class.getName(),
                 ImageI.ANNOTATIONLINKS, Collections.singletonList(id), null);
-        Integer count = (Integer) m.get(id);
-        assertTrue(count.intValue() > 0);
+        Long count = (Long) m.get(id);
+        assertTrue(count.longValue() > 0);
 
         id = fixture.du7771.getId().val;
         m = iPojos.getCollectionCount(Dataset.class.getName(),
                 DatasetI.IMAGELINKS, Collections.singletonList(id), null);
-        count = (Integer) m.get(id);
-        assertTrue(count.intValue() > 0);
+        count = (Long) m.get(id);
+        assertTrue(count.longValue() > 0);
 
     }
 
@@ -760,7 +766,7 @@ public class PojosServiceTest extends TestCase {
         List list = iQuery.findAllByString(Project.class.getName(), "name", name, true,
                 null);
         assertTrue(list.size() == 1);
-        assertTrue(((Project) list.get(0)).getId().equals(p.getId()));
+        assertEquals(((Project) list.get(0)).getId().val,p.getId().val);
 
         // Update it.
         ProjectData pd = new ProjectData(p);
@@ -777,8 +783,8 @@ public class PojosServiceTest extends TestCase {
         List list2 = iQuery.findAllByString(Project.class.getName(), "name", name, true,
                 null);
         assertTrue(list2.size() == 1);
-        assertTrue(((Project) list.get(0)).getId().equals(
-                ((Project) list2.get(0)).getId()));
+        assertEquals(((Project) list.get(0)).getId().val,
+                ((Project) list2.get(0)).getId().val);
 
     }
 
@@ -938,10 +944,10 @@ public class PojosServiceTest extends TestCase {
         Iterator it = p.copyDatasetLinks().iterator();
         while (it.hasNext()) {
             ProjectDatasetLink link = (ProjectDatasetLink) it.next();
-            if (link.getChild().getId().equals(d1.getId())) {
+            if (link.getChild().getId().val == d1.getId().val) {
                 l1 = link;
                 d1 = link.getChild();
-            } else if (link.getChild().getId().equals(d2.getId())) {
+            } else if (link.getChild().getId().val == d2.getId().val) {
                 l2 = link;
                 d2 = link.getChild();
             } else {
@@ -958,15 +964,15 @@ public class PojosServiceTest extends TestCase {
                 .getId().val);
 
         assertNotNull(link1);
-        assertTrue(link1.getParent().getId().equals(p.getId()));
-        assertTrue(link1.getChild().getId().equals(d1.getId()));
+        assertEquals(link1.getParent().getId().val, p.getId().val); 
+        assertEquals(link1.getChild().getId().val, d1.getId().val);
 
         ProjectDatasetLink link2 = (ProjectDatasetLink) iQuery.get(ProjectDatasetLink.class.getName(), l2
                 .getId().val);
 
         assertNotNull(link2);
-        assertTrue(link2.getParent().getId().equals(p.getId()));
-        assertTrue(link2.getChild().getId().equals(d2.getId()));
+        assertEquals(link2.getParent().getId().val, p.getId().val);
+        assertEquals(link2.getChild().getId().val, d2.getId().val);
 
     }
 
@@ -1091,11 +1097,8 @@ public class PojosServiceTest extends TestCase {
 
     // TODO move to another class
     // now let's test all methods that use the filtering functionality
-
-    PojoOptions GROUP_FILTER;
-
-    PojoOptions OWNER_FILTER;
-
+    // ===========================================================
+  
     private void assertFilterWorked(List<?> _results,
             Integer min, Integer max, Experimenter e, ExperimenterGroup g) {
         if (min != null) {
@@ -1107,14 +1110,14 @@ public class PojosServiceTest extends TestCase {
         List<IObject> __results = (List<IObject>) _results;
         if (e != null) {
             for (IObject iobj : __results) {
-                assertTrue(e.getId().equals(
-                        iobj.getDetails().owner.getId()));
+                assertEquals(e.getId().val,
+                        iobj.getDetails().owner.getId().val);
             }
         }
         if (g != null) {
             for (IObject iobj : __results) {
-                assertTrue(g.getId().equals(
-                        iobj.getDetails().group.getId()));
+                assertEquals(g.getId().val,
+                        iobj.getDetails().group.getId().val);
             }
         }
     }

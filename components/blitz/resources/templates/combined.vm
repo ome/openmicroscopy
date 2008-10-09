@@ -409,13 +409,50 @@ and cannot appear in every concrete <>I class. Therefore, we define them here
 and protect later FOREACH blocks with "if (name == 'id' || name == 'details') skip;"
 
 #if( ! $type.superclass)
+[$ice]       $Pojo shallowCopy();
 [$ice]       $Pojo proxy();
 #end ! superclass
+
+[$jav]       public $Pojo shallowCopy($JAV_CURRENT) {
+[$hdr]       virtual $Pojo shallowCopy($HDR_CURRENT) {
+[$cpp]       $Pojo ${PojoI}::shallowCopy($CPP_CURRENT) {
+[$pyc]       def shallowCopy(self, $PYC_CURRENT):
+[$pyc]           pass # Temporary
+[$jav]             if ( ! loaded ) return (${Pojo}) proxy();
+[$jav]             ${Pojo} copy = new ${PojoI}();
+[$jav]             copy.id = id;
+#if( ! $type.immutable )
+[$jav]             copy.version = version;
+#end## ! immutable
+#foreach($property in $type.propertyClosure)
+#if($property.name  == "details")
+[$jav]             copy.details = null; // Unloading for the moment.
+#elseif($property.one2Many)
+[$jav]             if (${property.name}Loaded == false) {
+[$jav]                 copy.${property.name}Loaded = false;
+[$jav]                 copy.${property.name}Seq = null;
+[$jav]             } else {
+[$jav]                 copy.${property.name}Loaded = true;
+[$jav]                 copy.${property.name}Seq = new ArrayList();
+[$jav]                 for (${property.shortType} item : ${property.name}Seq) {
+[$jav]     		       copy.${property.name}Seq.add( item == null ? null : (${property.shortType}) item.proxy() );
+[$jav]                 }
+[$jav]             }
+#elseif($property.type.startsWith("ome") || $property.type.startsWith("IObject"))
+[$jav]             copy.${property.name} = ${property.name} == null ? null : (${property.shortType}) ${property.name}.proxy();
+#else
+[$jav]             copy.${property.name} = ${property.name}; // Assumes immutable
+#end
+#end##FOREACH
+[$jav]             return copy;
+[$jav]       }
+
 
 [$jav]       public $Pojo proxy($JAV_CURRENT) {
 [$jav]           if (this.id == null) throw new omero.ClientError("Proxies require an id");
 [$jav]           return new $PojoI( this.id.val, false );
 [$jav]       }
+[$jav]
 [$jav]
 [$jav]       public omero.RLong getId($JAV_CURRENT) {
 [$jav]           return id;
@@ -1291,13 +1328,14 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #set( $ADD2METHOD = "add${property.shortType}2")
 
-[$Ice]       void link${property.shortTarget}(${property.shortTarget} addition);
-[$jav]       public void link${property.shortTarget}(${property.shortTarget} addition, $JAV_CURRENT) throws omero.UnloadedEntityException {
+[$Ice]       ${property.shortType} link${property.shortTarget}(${property.shortTarget} addition);
+[$jav]       public ${property.shortType} link${property.shortTarget}(${property.shortTarget} addition, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$jav]           ${property.shortType}I link = new ${property.shortType}I();
 [$jav]           link.link( ${order} );
 [$jav]           $ADD2METHOD( link, true );
+[$jav]           return link;
 [$jav]       }
 [$pyc]       def link${property.shortTarget}(self, addition, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()
@@ -1305,14 +1343,16 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$pyc]           link = _omero_model.${property.shortType}I()
 [$pyc]           link.link( ${pyorder} );
 [$pyc]           self.$ADD2METHOD( link, True )
+[$pyc]           return link
 [$pyc]
-[$hdr]       virtual void link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
-[$cpp]       void ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
+[$hdr]       virtual ${property.shortType} link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
+[$cpp]       ${property.shortType} ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${property.shortType}IPtr link = new ${property.shortType}I();
 [$cpp]           link->link( ${order} );
 [$cpp]           $ADD2METHOD( link, true );
+[$cpp]           return link;
 [$cpp]       }
 
 TODO: do we need to do link.parent = ...;
@@ -1472,8 +1512,8 @@ REMOVE
 [$cpp]           ${fieldName}.erase(it,${fieldName}.end());
 [$cpp]       } 
 
-[TODO]      <some return> linked${property.shortTarget}List();
-This will probably require a new sequence type.
+Linked Lists
+==============================
 
 [$Ice]       ${Pojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List();
 [$jav]    public List<${property.shortTarget}> linked${property.shortTarget}List($JAV_CURRENT) throws omero.UnloadedEntityException {
@@ -1485,16 +1525,34 @@ This will probably require a new sequence type.
 [$jav]        }
 [$jav]        return linked;
 [$jav]    }
-Language-specific
-[$jav]    public Iterator<${property.shortTarget}> linked${property.shortTarget}Iterator() throws omero.UnloadedEntityException {
-[$jav]        errorIfUnloaded();
-[$jav]        if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
-[$jav]        List<${property.shortTarget}> linked = new ArrayList<${property.shortTarget}>();
-[$jav]        for (${property.shortType} link : ${fieldName}) {
-[$jav]            linked.add( link.$other );
-[$jav]        }
-[$jav]        return linked.iterator();
-[$jav]    }
+
+[$hdr]    virtual ${Pojo}Linked${property.shortTarget}Seq linked${property.shortTarget}List($HDR_CURRENT);
+[$cpp]    virtual ${Pojo}Linked${property.shortTarget}Seq ${PojoI}::linked${property.shortTarget}List($CPP_CURRENT) {
+[$cpp]        errorIfUnloaded();
+[$cpp]        if (!${propLoaded}) throwNullCollectionException("${PropertyName}");
+[$cpp]        ${Pojo}Linked${property.shortTargeT}Seq linked();
+[$cpp]        ${seqName}::iterator beg = ${fieldName}.begin();
+[$cpp]        while (beg != ${fieldName}.end()) {
+[$cpp]            ${property.shortType} link = *beg;
+[$cpp]            linked.add( link.$other );
+[$cpp]            beg++;
+[$cpp]        }
+[$cpp]        return linked;
+[$cpp]    }
+
+[$pyc]       def linked${property.shortTarget}List(self, $PYC_CURRENT):
+[$pyc]           self.errorIfUnloaded()
+[$pyc]           if not self.${propLoaded}: throwNullCollectionException("${PropertyName}")
+[$pyc]           linked = []
+[$pyc]           for link in self._${fieldName}:
+[$pyc]               linked.append( link.$other )
+[$pyc]           return linked
+[$pyc]
+
+
+FIND
+=======================================
+
 
 [$pyc]       def find${property.shortType}(self, removal, $PYC_CURRENT):
 [$pyc]           self.errorIfUnloaded()

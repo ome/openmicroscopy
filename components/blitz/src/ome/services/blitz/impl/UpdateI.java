@@ -21,6 +21,7 @@ import omero.api.AMD_IUpdate_saveCollection;
 import omero.api.AMD_IUpdate_saveObject;
 import omero.api._IUpdateOperations;
 import omero.model.IObject;
+import omero.util.IceMapper;
 import Ice.Current;
 
 /**
@@ -71,7 +72,10 @@ public class UpdateI extends AbstractAmdServant implements _IUpdateOperations {
 
     public void saveCollection_async(AMD_IUpdate_saveCollection __cb,
             List<IObject> objs, Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, objs);
+        
+        IceMapper mapper = new IceMapper();
+        Object o = mapper.map(objs);
+        callInvokerOnMappedArgs(mapper, __cb, __current, o);
 
     }
 
