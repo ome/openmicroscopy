@@ -408,25 +408,41 @@ since id and details (like the loadedness methods above) are defined in IObject.
 and cannot appear in every concrete <>I class. Therefore, we define them here
 and protect later FOREACH blocks with "if (name == 'id' || name == 'details') skip;"
 
-#if( ! $type.superclass)
-[$ice]       $Pojo shallowCopy();
-[$ice]       $Pojo proxy();
-#end ! superclass
-
-[$jav]       public $Pojo shallowCopy($JAV_CURRENT) {
-[$hdr]       virtual $Pojo shallowCopy($HDR_CURRENT) {
-[$cpp]       $Pojo ${PojoI}::shallowCopy($CPP_CURRENT) {
+[$jav]       public omero.model.IObject shallowCopy($JAV_CURRENT) {
+[$hdr]       virtual omero::model::IObjectPtr shallowCopy($HDR_CURRENT);
+[$cpp]       omero::model::IObjectPtr ${PojoI}::shallowCopy($CPP_CURRENT) {
 [$pyc]       def shallowCopy(self, $PYC_CURRENT):
-[$pyc]           pass # Temporary
-[$jav]             if ( ! loaded ) return (${Pojo}) proxy();
+
+[$jav]             if ( ! loaded ) return proxy();
+[$cpp]             if ( ! loaded ) return proxy();
+[$pyc]             if not self._loaded: return self.proxy()
+
 [$jav]             ${Pojo} copy = new ${PojoI}();
+[$cpp]             ${Pojo}Ptr copy = new ${PojoI}();
+[$pyc]             copy = ${PojoI}()
+
 [$jav]             copy.id = id;
+[$cpp]             copy->id = id;
+[$pyc]             copy._id = self._id;
+
 #if( ! $type.immutable )
+
 [$jav]             copy.version = version;
+[$cpp]             copy->version = version;
+[$pyc]             copy._version = self._version;
+
 #end## ! immutable
 #foreach($property in $type.propertyClosure)
 #if($property.name  == "details")
+
 [$jav]             copy.details = null; // Unloading for the moment.
+[$cpp]             copy->details = omero::model::DetailsPtr(); // Unloading for the moment.
+[$pyc]             copy._details = None  # Unloading for the moment.
+
+[$cpp]             throw omero::ClientError(__FILE__, __LINE__, "NYI")
+[$cpp]         }
+[$pyc]             raise omero.ClientError("NYI")
+
 #elseif($property.one2Many)
 [$jav]             if (${property.name}Loaded == false) {
 [$jav]                 copy.${property.name}Loaded = false;
@@ -448,7 +464,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]       }
 
 
-[$jav]       public $Pojo proxy($JAV_CURRENT) {
+[$jav]       public IObject proxy($JAV_CURRENT) {
 [$jav]           if (this.id == null) throw new omero.ClientError("Proxies require an id");
 [$jav]           return new $PojoI( this.id.val, false );
 [$jav]       }
@@ -490,13 +506,13 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 [$jav]       }
 [$jav]
 
-[$hdr]       virtual ${Pojo}Ptr proxy($HDR_CURRENT) {
+[$hdr]       virtual omero::model::IObjectPtr proxy($HDR_CURRENT);
 [$hdr]       virtual omero::model::DetailsPtr getDetails($HDR_CURRENT);
-[$hdr]       virtual void unloadDetails($HD_CURRENT);
+[$hdr]       virtual void unloadDetails($HDR_CURRENT);
 [$hdr]       virtual omero::RLongPtr getId($HDR_CURRENT);
 [$hdr]       virtual void setId( const omero::RLongPtr& id, $HDR_CURRENT );
 
-[$cpp]       ${Pojo}Ptr ${PojoI}::proxy($CPP_CURRENT) {
+[$cpp]       omero::model::IObjectPtr ${PojoI}::proxy($CPP_CURRENT) {
 [$cpp]           if ( ! id )  throw new omero::ClientError(__FILE__, __LINE__, "Proxies require an id");
 [$cpp]           return new ${PojoI}( id.val, false );
 [$cpp]       }
@@ -1345,8 +1361,8 @@ ADD ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 [$pyc]           self.$ADD2METHOD( link, True )
 [$pyc]           return link
 [$pyc]
-[$hdr]       virtual ${property.shortType} link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
-[$cpp]       ${property.shortType} ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
+[$hdr]       virtual ${property.shortType}Ptr link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $HDR_CURRENT);
+[$cpp]       ${property.shortType}Ptr ${PojoI}::link${property.shortTarget}(const ${property.shortTarget}Ptr& addition, $CPP_CURRENT) {
 [$cpp]           errorIfUnloaded();
 [$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
 [$cpp]           ${property.shortType}IPtr link = new ${property.shortType}I();
@@ -1548,41 +1564,6 @@ Linked Lists
 [$pyc]               linked.append( link.$other )
 [$pyc]           return linked
 [$pyc]
-
-
-FIND
-=======================================
-
-
-[$pyc]       def find${property.shortType}(self, removal, $PYC_CURRENT):
-[$pyc]           self.errorIfUnloaded()
-[$pyc]           if not self._${propLoaded}: self.throwNullCollectionException("${fieldName}")
-[$pyc]           result = list()
-[$pyc]           for link in self._${fieldName}:
-[$pyc]               if link.${other} == removal: result.append(link)
-[$pyc]           return result
-[$pyc]
-[$hdr]       virtual $cppType find${property.shortType}(const ${property.shortTarget}Ptr& removal, $HDR_CURRENT);
-[$cpp]       $cppType ${PojoI}::find${property.shortType}(const ${property.shortTarget}Ptr& removal, $CPP_CURRENT) {
-[$cpp]           errorIfUnloaded();
-[$cpp]           if (!${propLoaded}) throwNullCollectionException("${fieldName}");
-[$cpp]           std::vector<${property.shortType}Ptr> result;
-[$cpp]           $cppType::iterator beg = begin${PropertyName}();
-[$cpp]           $cppType::iterator end = end${PropertyName}();
-[$cpp]           while (beg != end) {
-[$cpp]               if ((*beg)->${other} == removal) result.push_back( *beg );
-[$cpp]               ++beg;
-[$cpp]           }
-[$cpp]           return result;
-[$cpp]       }  
-
-##[$hdr]    virtual std::vector<${property.shortTarget}Ptr>::iterator linked${property.shortTarget}Iterator();
-##[$cpp]    std::vector<${property.shortTarget}Ptr>::iterator ${PojoI}::linked${property.shortTarget}Iterator() {
-##[$cpp]        errorIfUnloaded();
-##[$cpp]        std::vector<${property.shortTarget}Ptr>::iterator result;
-##[$cpp]        return result;
-##[$cpp]    }
-
 
 
 #end##End hasLink

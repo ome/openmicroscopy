@@ -57,6 +57,19 @@ module omero {
       omero::model::Details getDetails();
 
       /*
+       * Return another instance of the same type as this instance
+       * constructed as if by: new InstanceI( this.id.val, false );
+       */
+      IObject proxy();
+
+      /*
+       * Return another instance of the same type as this instance
+       * with all single-value entities unloaded and all members of
+       * collections also unloaded.
+       */
+      IObject shallowCopy();
+
+      /*
        * Sets the loaded boolean to false and empties all state
        * from this entity to make sending it over the network
        * less costly.
