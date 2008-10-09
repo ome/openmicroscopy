@@ -28,13 +28,11 @@ class TestModel(unittest.TestCase):
         img.unload()
         imgI.unload()
 
-    def testToggle(self):
+    def testUnloadCollections(self):
         pix = PixelsI()
         self.assert_( pix.sizeOfSettings() >= 0 )
-        pix.toggleCollectionsLoaded( False )
+        pix.unloadCollections()
         self.assert_( pix.sizeOfSettings() < 0 )
-        pix.toggleCollectionsLoaded( True )
-        self.assert_( pix.sizeOfSettings() >= 0 )
 
     def testSimpleCtor(self):
         img = ImageI()

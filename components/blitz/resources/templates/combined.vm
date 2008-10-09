@@ -233,7 +233,7 @@ TOGGLE AND CREATE COLLECTIONS:
 [$cpp]           toggleCollectionsLoaded(false);
 [$cpp]       }
 [$pyc]       def unloadCollections(self, $PYC_CURRENT):
-[$pyc]           self._toggleCollectionsLoaded(false)
+[$pyc]           self._toggleCollectionsLoaded( False )
 
 [$jav]       protected void toggleCollectionsLoaded(boolean load) {
 [$hdr]    protected:
@@ -535,7 +535,7 @@ and protect later FOREACH blocks with "if (name == 'id' || name == 'details') sk
 
 [$pyc]       def proxy(self, $PYC_CURRENT):
 [$pyc]           if not id: raise omero.ClientError("Proxies require an id")
-[$pyc]           return ${PojoI}( _id.val, false )
+[$pyc]           return ${PojoI}( _id.val, False )
 [$pyc]
 [$pyc]       def getDetails(self, $PYC_CURRENT):
 [$pyc]           return self._details
@@ -1586,7 +1586,9 @@ CLASS-LEVEL EXTRA METHODS BLOCK:
 #end
 #end##FOREACH
 
-[$Ice]       void link(${parent} theParent, ${child} theChild);
+#if( ! $type.superclass )
+[$ice]       void link(${parent} theParent, ${child} theChild);
+#end
 [$jav]       public void link(${parent} _parent, ${child} _child, $JAV_CURRENT) throws omero.UnloadedEntityException {
 [$jav]           errorIfUnloaded();
 [$jav]           setParent( _parent );
