@@ -19,6 +19,24 @@ module omero {
     const string CLIENTUUID = "omero.client.uuid";
 
     /*
+     * Default Glacier2 port. Used to define '@omero.port@' if not set.
+     */
+    const int GLACIER2PORT = 4063;
+
+    /*
+     * Default Ice.MessageSizeMax (4096kb). Not strictly necessary, but helps to
+     * curb memory issues.
+     */
+    const int MESSAGESIZEMAX = 4096;
+
+    /*
+     * Default connection string for connecting to Glacier2
+     * (Ice.Default.Router). The '@omero.port@' and '@omero.host@' values will
+     * be replaced by the properties with those names from the context.
+     */
+    const string DEFAULTROUTER = "OMERO.Glacier2/router:tcp -p @omero.port@ -h @omero.host@";
+
+    /*
      * Server-side names used for each of the services
      * defined in API.ice
      */
@@ -90,7 +108,7 @@ module omero {
       const string CANCELLED = "Cancelled";
 
     };
-    
+
     module projection {
       /*
        * Methodology strings

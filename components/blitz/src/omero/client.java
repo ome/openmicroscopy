@@ -42,33 +42,14 @@ import Ice.Current;
  *   omero.client client = new omero.client(host, port); // Defines "omero.host" and "omero.port"
  *</code>
  * 
+ * More more information, see <a
+ * href="https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign">
+ * https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign </a>
+ * 
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
 public class client {
-
-    /**
-     * Default Glacier2 port. Used to define
-     * 
-     * @omero.port@ if not set.
-     */
-    public final static int DEFAULT_PORT = 4063;
-
-    /**
-     * Default Ice.MessageSizeMax (4096kb). Not strictly necessary, but helps to
-     * curb memory issues.
-     */
-    public final static int DEFAULT_MESSAGE_SIZE = 4096;
-
-    /**
-     * Default connection string for connecting to Glacier2
-     * (Ice.Default.Router). The
-     * 
-     * @omero.port@ and
-     * @omero.host@ values will be replaced by the properties with those names
-     *              from the context.
-     */
-    public final static String DEFAULT_ROUTER = "OMERO.Glacier2/router:tcp -p @omero.port@ -h @omero.host@";
 
     /**
      * A {@link java.util.Collection} of all the {@link omero.client} instances
@@ -131,11 +112,18 @@ public class client {
     }
 
     /**
-     * Creates an {@link Ice.Communicator} using the default values.
+     * Calls {@link #client(Ice.InitializationData)} with a new
+     * {@link Ice.InitializationData}
      */
     public client() {
-        Ice.InitializationData id = new Ice.InitializationData();
-        id.properties = Ice.Util.createProperties();
+        this(new Ice.InitializationData());
+    }
+
+    /**
+     * Creates an {@link Ice.Communicator} from a {@link Ice.InitializationData}
+     * instance. Cannot be null.
+     */
+    public client(Ice.InitializationData id) {
         init(id);
     }
 
@@ -144,7 +132,7 @@ public class client {
      * the {@link #DEFAULT_PORT}.
      */
     public client(String host) {
-        this(defaultRouter(host, DEFAULT_PORT));
+        this(defaultRouter(host, omero.constants.GLACIER2PORT.value));
     }
 
     /**
@@ -156,34 +144,39 @@ public class client {
     }
 
     /**
-     * Creates an {@link Ice.Communicator} from command-line arguments. These
-     * are parsed via {@link Ice.Util#createProperties(String[])}
-     * 
-     * @param args
+     * Calls {@link #client(String[], Ice.InitializationData)} with a new
+     * {@link Ice.InitializationData}
      */
     public client(String[] args) {
-        synchronized (lock) {
-            Ice.InitializationData id = new Ice.InitializationData();
+        this(args, new Ice.InitializationData());
+    }
+
+    /**
+     * Creates an {@link Ice.Communicator} from command-line arguments. These
+     * are parsed via Ice.Properties.parseIceCommandLineOptions(args) and
+     * Ice.Properties.parseCommandLineOptions("omero", args)
+     */
+    public client(String[] args, Ice.InitializationData id) {
+        if (id.properties == null) {
             id.properties = Ice.Util.createProperties();
-            args = id.properties.parseIceCommandLineOptions(args);
-            args = id.properties.parseCommandLineOptions("omero", args);
-            init(id);
         }
+        args = id.properties.parseIceCommandLineOptions(args);
+        args = id.properties.parseCommandLineOptions("omero", args);
+        init(id);
     }
 
     /**
      * Creates an {@link Ice.Communicator} from multiple files.
      */
-    public client(File...files) {
-        synchronized (lock) {
-            Ice.InitializationData id = new Ice.InitializationData();
-            id.properties = Ice.Util.createProperties();
-            for (File file : files) {
-                id.properties.load(file.getAbsolutePath());
-            }
-            init(id);
+    public client(File... files) {
+        Ice.InitializationData id = new Ice.InitializationData();
+        id.properties = Ice.Util.createProperties();
+        for (File file : files) {
+            id.properties.load(file.getAbsolutePath());
         }
+        init(id);
     }
+
     /**
      * Creates an {@link Ice.Communicator} from a {@link Map} instance. The
      * {@link String} representation of each member is added to the
@@ -203,14 +196,6 @@ public class client {
     }
 
     /**
-     * Creates an {@link Ice.Communicator} from a {@link Ice.InitializationData}
-     * instance. Cannot be null.
-     */
-    public client(Ice.InitializationData id) {
-        init(id);
-    }
-
-    /**
      * Initializes the current client via an {@link Ice.InitializationData}
      * instance. This is called by all of the constructors, but may also be
      * called on {@link #createSession(String, String)} if a previous call to
@@ -222,6 +207,10 @@ public class client {
             throw new ClientError("No initialization data provided.");
         }
 
+        if (id.properties == null) {
+            id.properties = Ice.Util.createProperties();
+        }
+
         // Strictly necessary for this class to work
         id.properties.setProperty("Ice.ImplicitContext", "Shared");
 
@@ -229,7 +218,7 @@ public class client {
         String messageSize = id.properties.getProperty("Ice.MessageSizeMax");
         if (messageSize == null || messageSize.length() == 0) {
             id.properties.setProperty("Ice.MessageSizeMax", Integer
-                    .toString(DEFAULT_MESSAGE_SIZE));
+                    .toString(omero.constants.MESSAGESIZEMAX.value));
         }
 
         // Endpoints set to tcp if not present
@@ -241,14 +230,15 @@ public class client {
         // Port, setting to default if not present
         String port = id.properties.getProperty("omero.port");
         if (port == null || port.length() == 0) {
-            String portStr = Integer.toString(DEFAULT_PORT);
+            String portStr = Integer
+                    .toString(omero.constants.GLACIER2PORT.value);
             id.properties.setProperty("omero.port", portStr);
             port = portStr;
         }
         // Default Router, set a default and then replace
         String router = id.properties.getProperty("Ice.Default.Router");
         if (router == null || router.length() == 0) {
-            router = DEFAULT_ROUTER;
+            router = omero.constants.DEFAULTROUTER.value;
         }
         String host = id.properties.getPropertyWithDefault("omero.host",
                 "<\"omero.host\" not set>");
@@ -346,6 +336,14 @@ public class client {
     }
 
     /**
+     * Returns the {@link Ice.ImplicitContext} which defines what properties
+     * will be sent on every method invocation.
+     */
+    public Ice.ImplicitContext getImplicitContext() {
+        return getCommunicator().getImplicitContext();
+    }
+
+    /**
      * Returns the {@link Ice.Properties active properties} for this instance.
      */
     public Ice.Properties getProperties() {
@@ -360,6 +358,9 @@ public class client {
     public String getProperty(String key) {
         return getProperties().getProperty(key);
     }
+
+    // Session management
+    // =========================================================================
 
     /**
      * Uses the given session uuid as name and password to rejoin a running
@@ -408,7 +409,7 @@ public class client {
             if (__ic == null) {
                 if (__previous == null) {
                     throw new ClientError(
-                            "No previous data to recreate client.");
+                            "No previous data to recreate communicator.");
                 }
                 init(__previous);
                 __previous = null;
@@ -470,25 +471,6 @@ public class client {
     }
 
     /**
-     * Calculates the local sha1 for a file.
-     */
-    public String sha1(File file) {
-    	throw new RuntimeException("NYI");
-        //return Utils.fileToSha1(file);
-    }
-
-    /**
-     * Utility method to upload a file to the server
-     * 
-     * @param file Cannot be null.
-     * @param fileObject Can be null.
-     * @param blockSize  Can be null.
-     */
-    public void upload(File file, OriginalFile fileObject, Integer blockSize) {
-        
-    }
-    
-    /**
      * Closes the session and nulls out the communicator. This is required by an
      * Ice bug.
      * 
@@ -531,29 +513,79 @@ public class client {
         }
     }
 
+    
+    // File handling
+    // =========================================================================
+
+
+    /**
+     * Calculates the local sha1 for a file.
+     */
+    public String sha1(File file) {
+        throw new RuntimeException("NYI");
+        // return Utils.fileToSha1(file);
+    }
+
+    /**
+     * Utility method to upload a file to the server
+     * 
+     * @param file
+     *            Cannot be null.
+     * @param fileObject
+     *            Can be null.
+     * @param blockSize
+     *            Can be null.
+     */
+    public void upload(File file, OriginalFile fileObject, Integer blockSize) {
+
+    }
+
+    
     // Environment methods
     // =========================================================================
 
+    
+    /**
+     * Retrieves an item from the "input" shared (session) memory.
+     */
     public RType getInput(String key) throws ServerError {
         return env().getInput(sess(), key);
     }
 
+    /**
+     * Retrieves an item from the "output" shared (session) memory.
+     */
     public RType getOutput(String key) throws ServerError {
         return env().getOutput(sess(), key);
     }
 
+    /**
+     * Sets an item in the "input" shared (session) memory under the given name.
+     */
     public void setInput(String key, RType value) throws ServerError {
         env().setInput(sess(), key, value);
     }
 
+    /**
+     * Sets an item in the "output" shared (session) memory under the given
+     * name.
+     */
     public void setOutput(String key, RType value) throws ServerError {
         env().setOutput(sess(), key, value);
     }
 
+    /**
+     * Returns a list of keys for all items in the "input" shared (session)
+     * memory
+     */
     public List<String> getInputKeys() throws ServerError {
         return env().getInputKeys(sess());
     }
 
+    /**
+     * Returns a list of keys for all items in the "output" shared (session)
+     * memory
+     */
     public List<String> getOutputKeys() throws ServerError {
         return env().getOutputKeys(sess());
     }
@@ -589,6 +621,10 @@ public class client {
         return u;
     }
 
+    /**
+     * Simple initial implementation for a client callback. More functionality
+     * is planned in upcoming versions.
+     */
     private static class CallbackI extends _ClientCallbackDisp {
 
         public boolean ping(Current __current) {

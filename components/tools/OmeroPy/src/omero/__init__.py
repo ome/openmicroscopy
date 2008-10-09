@@ -5,12 +5,12 @@
    Classes:
     omero.client    -- Main OmeroPy connector object
 
-   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+   Copyright 2007, 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
 
 """
 
-import exceptions, traceback
+import exceptions, traceback, threading
 import Ice, Glacier2
 import api
 import model
@@ -22,27 +22,135 @@ import omero.constants
 
 class client(object):
     """
-    Central blitz entry point. Currently useful for a single session, after closing the
-    connection, create another instance.
+    Central client-side blitz entry point, and should be in sync with OmeroJava's omero.client
+    and OmeroCpp's omero::client.
 
     Typical usage includes:
-    client = omero.client()    # Uses --Ice.Config argument or ICE_CONFIG variable
+    client = omero.client()            # Uses --Ice.Config argument or ICE_CONFIG variable
+    client = omero.client(host)        # Defines "omero.host"
+    client = omero.client(host, port)  # Defines "omero.host" and "omero.port"
+
+    For more information, see:
+
+        https://trac.openmicroscopy.org.uk/omero/wiki/ClientDesign
+
     """
 
-    def __init__(self, args = pysys.argv, id = Ice.InitializationData()):
-        self.ic = None
-        self.sf = None
-        self.ic = Ice.initialize(args,id)
-        self._ic_args = (args, id)
-        if not self.ic:
-            raise ClientError("Improper initialization")
-        # Register Object Factory
-        self.of = ObjectFactory()
-        self.of.registerObjectFactory(self.ic)
-        # Define our unique identifier (used during close/detach)
-        self.ic.getImplicitContext().put(omero.constants.CLIENTUUID, str(uuid.uuid4()))
+    def __init__(self, args = pysys.argv, id = Ice.InitializationData(), \
+                     host = None, port = None, map = {}):
+        """
+        Both "Ice" and "omero" prefixed properties will be parsed.
+
+        Defines the state variables:
+          __previous - InitializationData from any previous communicator, if any
+                       Used to re-initialization the client post-closeSession()
+          __ic       - communicator. Nullness => init() needed on createSession()
+          __sf       - current session. Nullness => createSession() needed.
+
+          Modifying these variables outside of the accessors can lead to
+          undefined behavior.
+
+          Equivalent to all OmeroJava and OmeroCpp constructors
+        """
+
+        self.__previous = None
+        self.__ic = None
+        self.__sf = None
+        self.__lock = threading.RLock()
+
+        # Equiv to multiple constructors. #######################
+        if id == None:
+            id = Ice.InitializationData()
+
+        if id.properties == None:
+            id.properties = Ice.createProperties()
+
+        id.properties.parseIceCommandLineOptions(args);
+        id.properties.parseCommandLineOptions("omero", args);
+        if host:
+            id.properties.setProperty("omero.host", str(host))
+        if not port:
+            port = omero.constants.GLACIER2PORT
+        id.properties.setProperty("omero.port", str(port))
+        if map:
+            for k,v in map.items():
+                id.properties.setProperty(str(k), str(v))
+
+        self._initData(id)
+
+    def _initData(self, id):
+        """
+        Initializes the current client via an Ice.InitializationData
+        instance. This is called by all of the constructors, but may
+        also be called on createSession(name, pass) if a previous
+        call to closeSession() has nulled the Ice.Communicator.
+        """
+
+        if not id:
+            raise ClientError("No initialization data provided.");
+
+        # Strictly necessary for this class to work
+        id.properties.setProperty("Ice.ImplicitContext", "Shared")
+
+        # Setting MessageSizeMax
+        messageSize = id.properties.getProperty("Ice.MessageSizeMax")
+        if not messageSize or len(messageSize) == 0:
+            id.properties.setProperty("Ice.MessageSizeMax", str(omero.constants.MESSAGESIZEMAX))
+
+        # Endpoints set to tcp if not present
+        endpoints = id.properties.getProperty("omero.client.Endpoints")
+        if not endpoints or len(endpoints) == 0:
+            id.properties.setProperty("omero.client.Endpoints", "tcp")
+
+        # Port, setting to default if not present
+        port = id.properties.getProperty("omero.port")
+        if not port or len(port) == 0:
+            port = str(omero.constants.GLACIER2ROUTER)
+            id.properties.setProperty("omero.port", port)
+
+        # Default Router, set a default and then replace
+        router = id.properties.getProperty("Ice.Default.Router")
+        if not router or len(router) == 0:
+            router = omero.constants.DEFAULTROUTER
+        host = id.properties.getPropertyWithDefault("omero.host", """<"omero.host" not set>""")
+        router = router.replace("@omero.port@", str(port))
+        router = router.replace("@omero.host@", str(host))
+        id.properties.setProperty("Ice.Default.Router", router)
+
+        self.__lock.acquire()
+        try:
+            if self.__ic:
+                raise ClientError("Client already initialized")
+
+            self.__ic = Ice.initialize(id)
+
+            if not self.__ic:
+                raise ClientError("Improper initialization")
+
+            # Register Object Factory
+            self.of = ObjectFactory()
+            self.of.registerObjectFactory(self.__ic)
+
+            # Define our unique identifier (used during close/detach)
+            ctx = self.__ic.getImplicitContext()
+            if not ctx:
+                raise ClientError("Ice.ImplicitContext not set to Shared")
+            ctx.put(omero.constants.CLIENTUUID, str(uuid.uuid4()))
+
+            # Register the default client callback
+            cb = CallbackI()
+            oa = self.__ic.createObjectAdapter("omero.client")
+            oa.add(cb, self.__ic.stringToIdentity("ClientCallback"))
+            oa.activate()
+        finally:
+            self.__lock.release()
 
     def __del__(self):
+        """
+        Calls closeSession() and ignores any exceptions.
+
+        Equivalent to close() in OmeroJava or omero::client::~client()
+        """
         try:
             self.closeSession()
         except exceptions.Exception, e:
@@ -50,60 +158,130 @@ class client(object):
             traceback.print_exc()
 
     def getCommunicator(self):
-        if not self.ic:
-            raise ClientError("No Ice.Communicator active; reinitialize or create a new client instance")
-        return self.ic
+        """
+        Returns the Ice.Communicator for this instance or throws
+        an exception if None.
+        """
+        self.__lock.acquire()
+        try:
+            if not self.__ic:
+                raise ClientError("No Ice.Communicator active; call createSession() or create a new client instance")
+            return self.__ic
+        finally:
+            self.__lock.release()
 
     def getSession(self):
-        return self.sf
+        """
+        Returns the current active session or throws an exception if none has been
+        created since the last closeSession()
+        """
+        self.__lock.acquire()
+        try:
+            return self.__sf
+        finally:
+            self.__lock.release()
+
+    def getImplicitContext(self):
+        """
+        Returns the Ice.ImplicitContext which defines what properties
+        will be sent on every method invocation.
+        """
+        return self.getCommunicator().getImplicitContext()
 
     def getProperties(self):
-        return self.ic.getProperties()
+        """
+        Returns the active properties for this instance
+        """
+        self.__lock.acquire()
+        try:
+            return self.__ic.getProperties()
+        finally:
+            self.__lock.release()
 
-    def getProperty(self,key):
+    def getProperty(self, key):
+        """
+        Returns the property for the given key or "" if none present
+        """
         return self.getProperties().getProperty(key)
 
     def joinSession(self, session):
-        """Uses the given session uuid as name
-        and password to rejoin a running session"""
+        """
+        Uses the given session uuid as name
+        and password to rejoin a running session
+        """
         return self.createSession(session, session)
 
     def createSession(self, username=None, password=None):
+        """
+        Performs the actual logic of logging in, which is done via the
+        getRouter(). Disallows an extant ServiceFactoryPrx, and
+        tries to re-create a null Ice.Communicator. A null or empty
+        username will throw an exception, but an empty password is allowed.
+        """
         import omero
 
-        # Check the required properties
-        if not username:
-            username = self.getProperty("omero.user")
-        elif isinstance(username,omero.RString):
-            username = username.val
-        if not username or len(username) == 0:
-            raise ClientError("No username specified")
-        if not password:
-            password = self.getProperty("omero.pass")
-        elif isinstance(password,omero.RString):
-            password = password.val
-        if not password or len(password) == 0:
-            raise ClientError("No password specified")
+        self.__lock.acquire()
+        try:
 
-        # Acquire router and get the proxy
-        # For whatever reason, we have to set the context
-        # on the router context here as well.
+            # Checking state
+
+            if self.__sf:
+                raise ClientError("Session already active. Create a new omero.client or closeSession()")
+
+            if not self.__ic:
+                if not self.__previous:
+                    raise ClientError("No previous data to recreate communicator.")
+                self._initData(self.__previous)
+                self.__previous = None
+
+            # Check the required properties
+
+            if not username:
+                username = self.getProperty("omero.user")
+            elif isinstance(username,omero.RString):
+                username = username.val
+
+            if not username or len(username) == 0:
+                raise ClientError("No username specified")
+
+            if not password:
+                password = self.getProperty("omero.pass")
+            elif isinstance(password,omero.RString):
+                password = password.val
+
+            if not password:
+                raise ClientError("No password specified")
+
+            # Acquire router and get the proxy
+            prx = self.getRouter().createSession(username, password)
+            if not prx:
+                raise ClientError("Obtained null object prox")
+
+            # Check type
+            self.__sf = api.ServiceFactoryPrx.uncheckedCast(prx)
+            if not self.__sf:
+                raise ClientError("Obtained object proxy is not a ServiceFactory")
+            return self.__sf
+        finally:
+            self.__lock.release()
+
+    def getRouter(self):
+        """
+        Acquires the default router, and throws an exception
+        if it is not of type Glacier2.Router. Also sets the
+        Ice.ImplicitContext on the router proxy.
+        """
         prx = self.getCommunicator().getDefaultRouter()
         if not prx:
             raise ClientError("No default router found.")
-        prx = prx.ice_context(self.getCommunicator().getImplicitContext().getContext())
-        router = Glacier2.RouterPrx.checkedCast(prx)
+        router = Glacier2.RouterPrx.uncheckedCast(prx)
         if not router:
-            raise ClientError("Error obtaining Glacier2 router.")
-        session = router.createSession(username, password)
-        if not session:
-            raise ClientError("Obtained null object proxy")
+            raise ClientError("Error obtaining Glacier2 router")
 
-        # Check type
-        self.sf = api.ServiceFactoryPrx.checkedCast(session)
-        if not self.sf:
-            raise ClientError("Obtained object proxy is not a ServiceFactory")
-        return self.sf
+        # For whatever reason, we have to set the context
+        # on the router context here as well
+        router = router.ice_context(self.__ic.getImplicitContext().getContext())
+        return router
 
     def sha1(self, filename):
         """
@@ -127,7 +305,7 @@ class client(object):
         """
         Utility method to upload a file to the server.
         """
-        if not self.sf:
+        if not self.__sf:
             raise ClientError("No session. Use createSession first.")
 
         import os, types
@@ -172,10 +350,10 @@ class client(object):
                     ofile.format = FormatI()
                     ofile.format.value = omero.RString(type)
 
-            up = self.sf.getUpdateService()
+            up = self.__sf.getUpdateService()
             ofile = up.saveAndReturnObject(ofile)
 
-            prx = self.sf.createRawFileStore()
+            prx = self.__sf.createRawFileStore()
             prx.setFileId(ofile.id.val)
             offset = 0
             while True:
@@ -193,11 +371,11 @@ class client(object):
     def download(self, ofile, filename, block_size = 1024):
         file = open(filename, 'wb')
         try:
-            prx = self.sf.createRawFileStore()
+            prx = self.__sf.createRawFileStore()
             try:
                 if not ofile or not ofile.id:
                     raise ClientError("No file to download")
-                ofile = self.sf.getQueryService().get("OriginalFile", ofile.id.val)
+                ofile = self.__sf.getQueryService().get("OriginalFile", ofile.id.val)
 
                 if block_size > ofile.size.val:
                     block_size = ofile.size.val
@@ -222,15 +400,14 @@ class client(object):
         """
 
         # If 'sf' exists we remove it, but save it for the weird chance that ic is None
-        sf = None
-        if hasattr(self, 'sf'):
-            sf = self.sf
-            self.sf = None
+        old = None
+        old = self.__sf
+        self.__sf = None
 
-        # If 'ic' does not exist we don't have anything to do
-        if not hasattr(self, 'ic') or not self.ic:
-            if sf:
-                self.ic = sf.ice_getCommunicator()
+        # If don't have a communicator there's nothing we can do
+        if not hasattr(self, '__ic') or not self.__ic:
+            if old:
+                self.__ic = old.ice_getCommunicator()
             else:
                 return
 
@@ -251,9 +428,14 @@ class client(object):
                     # we are disconnecting
 
         finally:
-            ic = self.ic
-            self.ic = None
+            ic = self.__ic
+            self.__ic = None
             ic.destroy()
+
+
+    # Environment Methods
+    # ===========================================================
+
 
     def _env(self, method, *args):
         """ Helper method to access session environment"""
@@ -267,22 +449,67 @@ class client(object):
         return apply(m, (u,)+args)
 
     def getInput(self, key):
+        """
+        Retrieves an item from the "input" shared (session) memory.
+        """
         return self._env("getInput", key)
 
-    def setInput(self, key, value):
-        self._env("setInput", key, value)
-
     def getOutput(self, key):
+        """
+        Retrieves an item from the "output" shared (session) memory.
+        """
         return self._env("getOutput", key)
 
+
+    def setInput(self, key, value):
+        """
+        Sets an item in the "input" shared (session) memory under the given name.
+        """
+        self._env("setInput", key, value)
+
     def setOutput(self, key, value):
+        """
+        Sets an item in the "output" shared (session) memory under the given name.
+        """
         self._env("setOutput", key, value)
 
     def getInputKeys(self):
+        """
+        Returns a list of keys for all items in the "input" shared (session) memory
+        """
         return self._env("getInputKeys")
 
     def getOutputKeys(self):
+        """
+        Returns a list of keys for all items in the "output" shared (session) memory
+        """
         return self._env("getOutputKeys")
+
+    #
+    # Misc.
+    #
+
+    def __getattr__(self, name):
+        """
+        Compatibility layer, which allows calls to getCommunicator() and getSession()
+        to be called via self.ic and self.sf
+        """
+        if name == "ic":
+            return self.getCommunicator()
+        elif name == "sf":
+            return self.getSession()
+        else:
+            raise AttributeError("Unknown property: " + name)
+
+class CallbackI(api.ClientCallback):
+    """
+    Simple initial implementation for a client callback. More functionality
+    is planned in upcoming versions.
+    """
+    def ping(self, current = Ice.Current()):
+        return True
+    def shutdownIn(self, milliSeconds, current = Ice.Current()):
+        pass
 
 
 import util.FactoryMap
@@ -308,6 +535,8 @@ class ObjectFactory(Ice.ObjectFactory):
     def destroy(self):
         # Nothing to do
         pass
+
+
 
 class ClientError(exceptions.Exception):
     """

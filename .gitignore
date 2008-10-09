@@ -5,6 +5,7 @@
 /components/*/target
 /lib/cache
 /lib/repository/omero/*
+/lib/repository/omero-tools/*
 !/lib/repository/omero/ice
 !/lib/repository/omero/jboss-annotations-ejb3
 !/lib/repository/omero/jboss-aop-jdk50-client
