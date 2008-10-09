@@ -163,6 +163,10 @@ public class DataFilter
     public DataFilter(Class annotationType, Class nodeType, List<Long> nodeIds,
     				boolean annotated, long userID)
     {
+    	if (annotationType == null)
+    		throw new IllegalArgumentException("Annotation type not valid.");
+    	if (nodeType == null)
+    		throw new IllegalArgumentException("Node type not valid.");
     	loadCall = filterBy(annotationType, nodeType, nodeIds, annotated, 
     			          userID);
     }
@@ -182,6 +186,10 @@ public class DataFilter
     public DataFilter(Class annotationType, Class nodeType, List<Long> nodeIds,
     				List<String> terms, long userID)
     {
+    	if (annotationType == null)
+    		throw new IllegalArgumentException("Annotation type not valid.");
+    	if (nodeType == null)
+    		throw new IllegalArgumentException("Node type not valid.");
     	loadCall = filterBy(annotationType, nodeType, nodeIds, terms, userID);
     }
     
@@ -199,6 +207,8 @@ public class DataFilter
     public DataFilter(Class nodeType, List<Long> nodeIds, FilterContext context, 
     					long userID)
     {
+    	if (nodeType == null)
+    		throw new IllegalArgumentException("Node type not valid.");
     	loadCall = filterBy(nodeType, nodeIds, context, userID);
     }
     

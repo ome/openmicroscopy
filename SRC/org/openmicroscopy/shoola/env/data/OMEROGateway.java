@@ -80,11 +80,13 @@ import omero.constants.projection.ProjectionType;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.Dataset;
 import omero.model.Details;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
 import omero.model.Format;
 import omero.model.IObject;
 import omero.model.Image;
@@ -101,8 +103,13 @@ import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
+import omero.model.TagAnnotationI;
 import omero.model.TextAnnotation;
+import omero.model.TextAnnotationI;
+import omero.model.TimestampAnnotation;
+import omero.model.TimestampAnnotationI;
 import omero.model.UrlAnnotation;
+import omero.model.UrlAnnotationI;
 import omero.model.Well;
 import omero.model.WellSample;
 import omero.sys.EventContext;
@@ -125,6 +132,7 @@ import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.TimeAnnotationData;
 import pojos.URLAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -879,6 +887,37 @@ class OMEROGateway
 		else if (nodeType.equals(WellSampleData.class)) 
 			return WellSample.class.getName();
 		throw new IllegalArgumentException("NodeType not supported");
+	}
+	
+	/**
+	 * Converts the specified type to its corresponding type for search.
+	 * 
+	 * @param nodeType The type to convert.
+	 * @return See above.
+	 */
+	private String convertTypeForSearch(Class nodeType)
+	{
+		if (nodeType.equals(Image.class))
+			return ImageI.class.getName();
+		else if (nodeType.equals(TagAnnotation.class) ||
+				nodeType.equals(TagAnnotationData.class))
+			return TagAnnotationI.class.getName();
+		else if (nodeType.equals(BooleanAnnotation.class) ||
+				nodeType.equals(BooleanAnnotationData.class))
+			return BooleanAnnotationI.class.getName();
+		else if (nodeType.equals(UrlAnnotation.class) ||
+				nodeType.equals(URLAnnotationData.class))
+			return UrlAnnotationI.class.getName();
+		else if (nodeType.equals(FileAnnotation.class) ||
+				nodeType.equals(FileAnnotationData.class))
+			return FileAnnotationI.class.getName();
+		else if (nodeType.equals(TextAnnotation.class) ||
+				nodeType.equals(TextualAnnotationData.class))
+			return TextAnnotationI.class.getName();
+		else if (nodeType.equals(TimestampAnnotation.class) ||
+				nodeType.equals(TimeAnnotationData.class))
+			return TimestampAnnotationI.class.getName();
+		throw new IllegalArgumentException("type not supported");
 	}
 	
 	/**
@@ -3024,7 +3063,8 @@ class OMEROGateway
 						d = owner.next();
 						service.onlyOwnedBy(d);
 						service.bySomeMustNone(fSome, fMust, fNone);
-						size = handleSearchResult(ImageI.class.getName(), rType, 
+						size = handleSearchResult(
+								convertTypeForSearch(Image.class), rType, 
 								service);
 						if (size instanceof Integer)
 							results.put(key, size);
@@ -3081,13 +3121,12 @@ class OMEROGateway
 				d.owner = exp.asExperimenter();
 			}
 			List<String> t = prepareTextSearch(terms, service);
-			
-			
-			String k = convertPojos(annotationType);
-			service.onlyType(k);
+
+			service.onlyType(convertPojos(annotationType));
 			Set rType = new HashSet();
 			service.bySomeMustNone(t, null, null);
-			Object size = handleSearchResult(k, rType, service);
+			Object size = handleSearchResult(
+					convertTypeForSearch(annotationType), rType, service);
 			if (size instanceof Integer) new HashSet();
 			return rType;
 		} catch (Exception e) {

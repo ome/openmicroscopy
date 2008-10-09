@@ -37,6 +37,9 @@ import java.util.Map;
 import java.util.Set;
 
 //Third-party libraries
+import org.apache.commons.collections.ListUtils;
+
+//Application-internal dependencies
 import omero.RString;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
@@ -45,15 +48,9 @@ import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.ImageAnnotationLink;
 import omero.model.OriginalFile;
-import omero.model.Project;
-import omero.model.ProjectAnnotationLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.util.PojoOptionsI;
-
-import org.apache.commons.collections.ListUtils;
-
-//Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -100,6 +97,17 @@ class OmeroMetadataServiceImpl
 	private OMEROGateway            gateway;
 
 
+	/**
+	 * Loads the description of the passed tag for the specified user.
+	 * 
+	 * @param tag	 The tag to handle.
+	 * @param userID The id of the user.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	private TagAnnotationData loadTagDescription(TagAnnotationData tag, 
 			                                    long userID)
 	    throws DSOutOfServiceException, DSAccessException 
@@ -158,16 +166,8 @@ class OmeroMetadataServiceImpl
 					fileAnn = (FileAnnotationData) ann;
 					of = gateway.uploadFile(fileAnn.getAttachedFile(), 
 							fileAnn.getServerFileFormat());
-					//tmp
 					fa = new FileAnnotationI();
-					//tmp
 					fa.setFile(of);
-					/*
-					fa.setFile(
-							(OriginalFile)
-							gateway.findIObject(OriginalFile.class.getName(), 
-									of.getId().val));
-									*/
 					iobject = fa;
 				} else {
 					if (ann instanceof TagAnnotationData) {

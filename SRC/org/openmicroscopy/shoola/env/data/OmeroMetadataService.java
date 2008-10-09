@@ -73,8 +73,10 @@ public interface OmeroMetadataService
 	 * @param userID	The id of the user, or <code>-1</code> if no user
 	 * 					specified. 
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occured while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadTextualAnnotations(Class type, long id, long userID)
 		throws DSOutOfServiceException, DSAccessException;

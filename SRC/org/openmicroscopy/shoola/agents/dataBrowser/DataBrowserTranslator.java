@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -191,15 +189,7 @@ public class DataBrowserTranslator
             node = new ImageSet(ds.getName(), note, ds);
             formatToolTipFor(node);
             linkImagesTo(images, node, userID, groupID);
-        } else if (uo instanceof CategoryData) {
-            CategoryData data = (CategoryData) uo;
-            String note = "";
-            images = data.getImages();
-            if (images != null) note = LEFT+images.size()+RIGHT;
-            node = new ImageSet(data.getName(), note, data);
-            formatToolTipFor(node);
-            linkImagesTo(images, node, userID, groupID);
-        } 
+        }
         return node;
     }
 
@@ -220,24 +210,8 @@ public class DataBrowserTranslator
     	Set images = null;
     	Set children;
     	Iterator i, j;
-    	CategoryData c;
     	DatasetData d;
-    	if (uo instanceof CategoryData) {
-    		c = (CategoryData) uo;
-    		images = transformImages(c.getImages(), userID, groupID);
-    	} else if (uo instanceof CategoryGroupData) {
-    		CategoryGroupData cg = (CategoryGroupData) uo;
-    		children = cg.getCategories();
-    		if (children != null) {
-    			i = children.iterator();
-    			images = new HashSet();
-    			while (i.hasNext()) {
-					c = (CategoryData) i.next();
-					images.addAll(transformImages(c.getImages(), 
-								userID, groupID));
-				}
-    		}
-    	} else if (uo instanceof DatasetData) {
+    	if (uo instanceof DatasetData) {
     		d = (DatasetData) uo;
     		images = transformImages(d.getImages(), userID, groupID);
     	} else if (uo instanceof ProjectData) {
@@ -484,121 +458,6 @@ public class DataBrowserTranslator
         return transformDatasets(set, userID, groupID);
     }
     
-    /**
-     * Transforms a CategoryGroup/Category/Images hierarchy into a visualisation
-     * tree. 
-     * 
-     * @param groups    Collection of {@link CategoryGroupData}s to transform.
-     *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data.                
-     * @return Collection of corresponding {@link ImageDisplay}s.
-     */
-    private static Set transformCategoryGroups(Set groups, long userID,
-                                            long groupID)
-    {
-        if (groups == null) throw new IllegalArgumentException("No groups.");
-        Set results = new HashSet();
-        Iterator i = groups.iterator(), j;
-        //DataObject
-        CategoryGroupData  cgData;
-        DataObject child;
-        //Visualisation object.
-        ImageSet group;  
-        Set categories;
-        String note = "";
-        while (i.hasNext()) {
-            cgData = (CategoryGroupData) i.next();
-            categories = cgData.getCategories();
-            if (categories != null) note = LEFT+categories.size()+RIGHT;
-            group = new ImageSet(cgData.getName(), note, cgData);
-            formatToolTipFor(group);
-            
-            if (categories != null) {
-                j = categories.iterator();
-                while (j.hasNext()) {
-                    child = (DataObject) j.next();
-                    if (isReadable(child, userID, groupID))
-                        group.addChildDisplay(linkImages(child, userID, 
-                                                groupID));
-                }     
-            }
-            results.add(group); //add the group ImageSet 
-        }
-        return results;
-    }
-    
-    /** 
-     * Transforms the specified {@link CategoryGroupData} into its corresponding 
-     * visualisation element.
-     * 
-     * @param data      The {@link CategoryGroupData} to transform.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                  retrieving the data. 
-     * @return See below.
-     */
-    private static Set transformCategoryGroup(CategoryGroupData data, 
-                                        long userID, long groupID)
-    {
-        Set set = new HashSet(1);
-        set.add(data);
-        return transformCategoryGroups(set, userID, groupID);
-    }
-    
-    /**
-     * Transforms a Category/Images hierarchy into a visualisation tree. 
-     * 
-     * @param categories    Collection of {@link CategoryData}s to transform.
-     * @param userID        The id of the current user.
-     * @param groupID       The id of the group the current user selects when 
-     *                      retrieving the data. 
-     * @return Set of corresponding {@link ImageDisplay}s.
-     */
-    private static Set transformCategories(Set categories, long userID, 
-                                            long groupID)
-    {
-        if (categories == null) 
-            throw new IllegalArgumentException("No categories.");
-        Set results = new HashSet();
-        Iterator i = categories.iterator();
-        CategoryData data;
-        ImageSet parent;
-        Set images;
-        String note = "";
-        while (i.hasNext()) {
-            data = (CategoryData) i.next();
-            if (isReadable(data, userID, groupID)) {
-                images = data.getImages();
-                if (images != null) note = LEFT+images.size()+RIGHT;
-                parent = new ImageSet(data.getName(), note, data);
-                formatToolTipFor(parent);
-                linkImagesTo(images, parent, userID, groupID);
-                results.add(parent);
-            } 
-        }
-        return results;
-    }
-    
-    /** 
-     * Transforms the specified {@link CategoryData} into its corresponding 
-     * visualisation element.
-     * 
-     * @param data      The {@link CategoryData} to transform.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data. 
-     * @return See below.
-     */
-    private static Set transformCategory(CategoryData data, long userID, 
-                                        long groupID)
-    {
-        Set set = new HashSet(1);
-        set.add(data);
-        return transformCategories(set, userID, groupID);
-    }
-    
     /** 
      * Transforms a set of {@link DataObject}s into their corresponding 
      * visualization objects. The elements of the set can either be
@@ -630,14 +489,6 @@ public class DataBrowserTranslator
                                         groupID)));
             else if (ho instanceof DatasetData)
                 results.add(getFirstElement(transformDataset(ho, userID, 
-                                            groupID)));
-            else if (ho instanceof CategoryGroupData)
-                results.add(getFirstElement(
-                        transformCategoryGroup((CategoryGroupData) ho, userID, 
-                                                groupID)));
-            else if (ho instanceof CategoryData)
-                results.add(getFirstElement(
-                        transformCategory((CategoryData) ho, userID, 
                                             groupID)));
             else if (ho instanceof ImageData) {
                 if (isReadable(ho, userID, groupID)) {
