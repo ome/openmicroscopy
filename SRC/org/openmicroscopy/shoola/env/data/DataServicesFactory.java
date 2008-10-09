@@ -146,11 +146,12 @@ public class DataServicesFactory
         OMEROInfo omeroInfo = (OMEROInfo) registry.lookup(LookupNames.OMERODS);
         
 		//Try and read the Ice config file.
-		Properties config = loadConfig(c.resolveConfigFile(ICE_CONFIG_FILE));
+		//Properties config = loadConfig(c.resolveConfigFile(ICE_CONFIG_FILE));
 		
 		//Check what to do if null.
-		omeroGateway = new OMEROGateway(config, this);
-		
+		//omeroGateway = new OMEROGateway(config, this);
+        omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
+        
         //omeroGateway = new OMEROGateway(omeroInfo.getPort(), this);
 		//Create the adapters.
         ds = new OmeroDataServiceImpl(omeroGateway, registry);

@@ -226,7 +226,11 @@ class OMEROGateway
 	/** Tell us to configure ice. */
 	private Properties 				iceConfig;
 
-	/** The Blitz client object, this is the entry point to the 
+	/** The port to connect. */
+	private int						port;
+	
+	/** 
+	 * The Blitz client object, this is the entry point to the 
 	 * OMERO.Blitz Server. 
 	 */
 	private client 					blitzClient;
@@ -851,6 +855,24 @@ class OMEROGateway
 	}
 
 	/**
+	 * Creates a new instance.
+	 * 
+	 * @param iceConfig 	The Ice configuration.
+	 * @param dsFactory 	A reference to the factory. Used whenever a broken 
+	 * 						link is detected to get the Login Service and try 
+	 *                  	reestablishing a valid link to <i>OMEDS</i>.
+	 *                  	Mustn't be <code>null</code>.
+	 */
+	OMEROGateway(int port, DataServicesFactory dsFactory)
+	{
+		if (dsFactory == null) 
+			throw new IllegalArgumentException("No Data service factory.");
+		this.dsFactory = dsFactory;
+		this.port = port;
+		thumbRetrieval = 0;
+	}
+	
+	/**
 	 * Converts the specified POJO into the corresponding model.
 	 *  
 	 * @param nodeType The POJO class.
@@ -1003,6 +1025,7 @@ class OMEROGateway
 			compression = compressionLevel;
 			
 			//Put value of hostname
+			/*
 			Set keys = iceConfig.keySet();
 			Iterator i = keys.iterator();
 			String key, value;
@@ -1013,6 +1036,9 @@ class OMEROGateway
 				iceConfig.put(key, value);
 			}
 			blitzClient = new client(iceConfig);
+			*/
+			if (port > 0) blitzClient = new client(hostName, port);
+			else blitzClient = new client(hostName);
 			entry = blitzClient.createSession(userName, password);
 			connected = true;
 			return getUserDetails(userName);
@@ -1059,7 +1085,7 @@ class OMEROGateway
 			if (fileStore != null) fileStore.close();
 			thumbnailService = null;
 			fileStore = null;
-			entry.closeOnDestroy();
+			entry.destroy();
 			blitzClient.closeSession();
 			entry = null;
 			blitzClient = null;

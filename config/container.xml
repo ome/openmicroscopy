@@ -33,10 +33,11 @@
   <services>
    <!-- OMERO Data Server (OMERO) configuration.
          This entry specifies the hostname and the port to use to connect to 
-         OMERO.
+         OMERO using blitz
+         port using JBoss 1099
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
-      <port>1099</port>
+      <port>4063</port>
     </structuredEntry>
     
     <!-- The maximum number of times that the Login Service should attempt

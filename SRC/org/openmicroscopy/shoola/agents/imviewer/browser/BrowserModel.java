@@ -39,6 +39,7 @@ import javax.swing.Icon;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.UnitBarSizeAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomCmd;
@@ -46,6 +47,7 @@ import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomGridAction;
 import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ViewerPreferences;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -525,10 +527,17 @@ class BrowserModel
     void createDisplayedImage()
     {
         if (renderedImage == null) return;
-        if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) 
-            displayedImage = Factory.magnifyImage(renderedImage, zoomFactor, 0);//Factory.magnifyImage(zoomFactor, renderedImage);
-        //Factory.magnifyImage(renderedImage, zoomFactor, 0);
-        else displayedImage = renderedImage;
+        if (zoomFactor != ZoomAction.DEFAULT_ZOOM_FACTOR) {
+        	BufferedImage img = null;
+        	try {
+				img = Factory.magnifyImage(renderedImage, zoomFactor, 0);
+			} catch (Exception e) {
+				UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+				un.notifyInfo("Magnification", 
+						"An error occurs while magnifying the image.");
+			}
+			if (img != null) displayedImage = img;
+        } else displayedImage = renderedImage;
     }
    
     /** 
