@@ -208,6 +208,7 @@ public class DataServicesFactory
         	try {
         		UserCredentials uc = (UserCredentials) 
         			container.getRegistry().lookup(LookupNames.USER_CREDENTIALS);
+        		((OmeroImageServiceImpl) is).shutDown();
         		omeroGateway.reconnect(uc.getUserName(), uc.getPassword());
 			} catch (Exception e) {
 				UserNotifier un = registry.getUserNotifier();

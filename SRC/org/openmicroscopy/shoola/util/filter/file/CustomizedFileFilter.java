@@ -59,6 +59,12 @@ public abstract class CustomizedFileFilter
 	protected boolean isSupported(String name, String[] extensions)
 	{
 		if (name == null || extensions == null) return false;
+		for (int i = 0; i < extensions.length; i++) {
+			if (name.endsWith("."+extensions[i])) return true;
+		}
+		return false;
+		/*
+		if (name == null || extensions == null) return false;
 		String extension = null;
 		int i = name.lastIndexOf('.');
 		if (i > 0 && i < name.length()-1)
@@ -67,6 +73,7 @@ public abstract class CustomizedFileFilter
 		for (int j = 0; j < extensions.length; j++)
 			if (extension.equals(extensions[j])) return true;
 		return false;
+		*/
 	}
 	
 	/**
