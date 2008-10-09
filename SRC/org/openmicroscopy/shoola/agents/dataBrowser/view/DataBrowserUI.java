@@ -293,21 +293,22 @@ class DataBrowserUI
 				
 				ImageTableView existed = model.getTableView();
 				ImageTableView v = model.createImageTableView();
+				if (existed != null && v != null) v.refreshTable();
 				//if (existed == null) {
-					Collection nodes = model.getBrowser().getSelectedDisplays();
-					if (nodes != null) {
-						Iterator i = nodes.iterator();
-						List<DataObject> objects = new ArrayList<DataObject>();
-						ImageDisplay display;
-						Object ho;
-						while (i.hasNext()) {
-							display = (ImageDisplay) i.next();
-							ho = display.getHierarchyObject();
-							if (ho instanceof DataObject)
-								objects.add((DataObject) ho);
-						}
-						v.setSelectedNodes(objects);
+				Collection nodes = model.getBrowser().getSelectedDisplays();
+				if (nodes != null) {
+					Iterator i = nodes.iterator();
+					List<DataObject> objects = new ArrayList<DataObject>();
+					ImageDisplay display;
+					Object ho;
+					while (i.hasNext()) {
+						display = (ImageDisplay) i.next();
+						ho = display.getHierarchyObject();
+						if (ho instanceof DataObject)
+							objects.add((DataObject) ho);
 					}
+					v.setSelectedNodes(objects);
+				}
 				//}
 				if (existed == null) v.addPropertyChangeListener(controller);
 				add(v, BorderLayout.CENTER);
