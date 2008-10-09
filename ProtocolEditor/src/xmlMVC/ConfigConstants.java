@@ -62,7 +62,7 @@ public class ConfigConstants {
 	 * "splash-screen" is displayed, to check that this is the "current" version.
 	 * 
 	 */
-	public static final String EDITOR_VERSION_NUMBER = "3.0-3.1";
+	public static final String EDITOR_VERSION_NUMBER = "3.0-3.1.2";
 	/**
 	 * This is an identifier, eg. for Exception handler's bug reporter.
 	 * It consists of the EDITOR_VERSION_NUMBER, as well as any release candidate id,

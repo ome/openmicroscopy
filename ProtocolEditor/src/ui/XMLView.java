@@ -228,7 +228,8 @@ public class XMLView
 				controller.getAction(Controller.EXPORT_HIGHLT_HTML),
 				controller.getAction(Controller.EXPORT_ALL_TEXT),
 				controller.getAction(Controller.EXPORT_HIGHLTD_TEXT),
-				controller.getAction(Controller.EXPORT_ALL_WIKI)};
+				//controller.getAction(Controller.EXPORT_ALL_WIKI)
+				};
 		JButton printButton = new PopupMenuButton("Export the current file for printing", 
 				printIcon, printExportActions);
 		addButton(printButton, fileManagerToolBarBorder, fileManagerWestToolBar);
