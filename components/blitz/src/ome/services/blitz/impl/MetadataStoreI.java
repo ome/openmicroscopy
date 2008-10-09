@@ -409,18 +409,12 @@ public class MetadataStoreI extends AbstractAmdServant implements
     public void getRoot_async(final AMD_MetadataStore_getRoot __cb,
             final Current __current) throws ServerError {
 
-        final IceMapper mapper = new IceMapper(IceMapper.VOID);
+        final IceMapper mapper = new IceMapper(IceMapper.FILTERABLE_COLLECTION);
         runnableCall(__current, new Adapter(__cb, __current, mapper,
                 this.sf.executor, this.sf.principal, new Executor.Work() {
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
-
-                        IObject iobject = (IObject) store.getRoot();
-                        omero.model.IObject _object = (omero.model.IObject) mapper
-                                .map(iobject);
-                        RObject robject = iobject == null ? null : new RObject(
-                                _object);
-                        return null;
+                        return store.getRoot();
                     }
                 }));
     }
