@@ -2599,6 +2599,7 @@ public class MetadataStoreI extends AbstractAmdServant implements
                     public Object doWork(TransactionStatus status,
                             Session session, ServiceFactory sf) {
 
+			store.setPixelsId(id.val);
                         store.setPlane(id.val, pixels, theZ, theC, theT);
                         return null;
                     }
