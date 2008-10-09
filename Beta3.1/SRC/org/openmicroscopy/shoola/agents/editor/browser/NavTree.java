@@ -114,7 +114,7 @@ public class NavTree
 			if (e.getClickCount() == 2) 
 			{
 				TreePath path = navTree.getSelectionPath();
-				
+				if (path == null) return;
 				mainTree.expandPath(path.getParentPath());
 				mainTree.setSelectionPath(path);
 				mainTree.scrollPathToVisible(path);
