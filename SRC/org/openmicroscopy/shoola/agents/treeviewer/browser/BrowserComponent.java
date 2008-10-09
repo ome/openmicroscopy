@@ -362,6 +362,7 @@ class BrowserComponent
         ExperimenterData exp = (ExperimenterData) ho;
         long userID = exp.getId();
         long groupID = -1;//exp.getDefaultGroup().getId();
+        
         Set visLeaves = TreeViewerTranslator.transformHierarchy(leaves, userID, 
                                                                 groupID);
         view.setLeavesViews(visLeaves, parent);

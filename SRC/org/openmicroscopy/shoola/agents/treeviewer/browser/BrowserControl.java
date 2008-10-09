@@ -45,9 +45,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.ShowNameAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SortByDateAction;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -187,8 +184,7 @@ class BrowserControl
         	model.countExperimenterImages(display);
         	return;
         }
-        // if (display.isChildrenLoaded()); //tmp 06/10
-        if (display.isChildrenLoaded() && ho instanceof ProjectData) {
+        if (display.isChildrenLoaded()) {
         	List l = display.getChildrenDisplay();
 			//if (display.getChildCount() != l.size()) {
 	

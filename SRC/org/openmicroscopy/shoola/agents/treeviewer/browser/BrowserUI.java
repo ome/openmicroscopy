@@ -1130,6 +1130,7 @@ class BrowserUI
         DefaultTreeModel dtm = (DefaultTreeModel) treeDisplay.getModel();
         parent.removeAllChildren();
         parent.setChildrenLoaded(Boolean.TRUE);
+        System.err.println(parent.getNodeText());
         if (nodes.size() != 0) {
             Iterator i = nodes.iterator();
             while (i.hasNext())

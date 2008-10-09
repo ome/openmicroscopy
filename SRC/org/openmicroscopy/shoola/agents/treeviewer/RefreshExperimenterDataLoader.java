@@ -40,8 +40,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
@@ -85,7 +83,6 @@ public class RefreshExperimenterDataLoader
     private void checkClass(Class klass)
     {
         if (ProjectData.class.equals(klass) || ImageData.class.equals(klass) ||
-        	CategoryGroupData.class.equals(klass) ||
         	TagAnnotationData.class.equals(klass) ||
         	ScreenData.class.equals(klass))
             return;
@@ -114,12 +111,7 @@ public class RefreshExperimenterDataLoader
                 parent = (DataObject) j.next();
                 if (parent instanceof ProjectData) {
                     children = ((ProjectData) parent).getDatasets();
-                } else if (parent instanceof CategoryGroupData) {
-                    children = ((CategoryGroupData) parent).getCategories();
                 } else if (parent instanceof DatasetData) {
-                	children = new HashSet(1);
-                	children.add(parent);
-                } else if (parent instanceof CategoryData) {
                 	children = new HashSet(1);
                 	children.add(parent);
                 } else if (parent instanceof TagAnnotationData) {
