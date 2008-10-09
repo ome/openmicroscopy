@@ -289,4 +289,40 @@ public class TreeModelMethods {
 		grandParentNode.insert(node, indexOfParent + 1);
 	}
 	
+	/**
+	 * This method progressively checks the ancestors of the given node,
+	 * looking for the closest ancestor that has a non-null value for
+	 * the named attribute. 
+	 * The value of this attribute is returned for the closest ancestor.
+	 * If the root node is reached (parent == null) then null is returned. 
+	 * 
+	 * @param attributeName		The name of the attribute to query
+	 * @param node				The node to start at.
+	 * 
+	 * @return	String			The value of the attribute from closest 
+	 * 						ancestor where this is not null.
+	 */
+	public static String getAttributeFromAncestor(String attributeName,
+			TreeNode node)
+	{
+		DefaultMutableTreeNode parent;
+		Object userObject;
+		IAttributes field;
+		String value;
+		
+		parent = (DefaultMutableTreeNode)node.getParent();
+		while(parent != null) {
+			userObject = parent.getUserObject();
+			if (userObject instanceof IAttributes) {
+				field = (IAttributes)userObject;
+				value = field.getAttribute(attributeName);
+				if (value != null) {
+					return value;
+				}
+			}
+			parent = (DefaultMutableTreeNode)parent.getParent();
+		}
+		
+		return null;
+	}
 }

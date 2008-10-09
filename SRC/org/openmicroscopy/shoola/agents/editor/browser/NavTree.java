@@ -69,7 +69,7 @@ public class NavTree
 	
 	/**
 	 * Creates an instance of the Navigation tree, based on the model 
-	 * from mainTree. Also calls initialise() to add treeSelectionListeners and
+	 * from mainTree. Also calls #initialise() to add treeSelectionListeners and
 	 * mouseListeners. 
 	 * 
 	 * @param mainTree
@@ -114,6 +114,8 @@ public class NavTree
 			if (e.getClickCount() == 2) 
 			{
 				TreePath path = navTree.getSelectionPath();
+				// path could be null if user double-clicks on expand-collapse
+				if (path == null) 	return;
 				
 				mainTree.expandPath(path.getParentPath());
 				mainTree.setSelectionPath(path);

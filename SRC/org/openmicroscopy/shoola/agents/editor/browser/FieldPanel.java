@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.editor.model.FieldNode;
 import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.model.IField;
 import org.openmicroscopy.shoola.agents.editor.model.Lock;
+import org.openmicroscopy.shoola.agents.editor.model.TreeModelMethods;
 import org.openmicroscopy.shoola.agents.editor.model.params.IParam;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomLabel;
@@ -505,6 +506,12 @@ public class FieldPanel
 	{
 		paintedColour = getColorFromString(field.getAttribute(
 				Field.BACKGROUND_COLOUR));
+	
+		if (paintedColour == null) {
+			String ancestorColour = TreeModelMethods.getAttributeFromAncestor
+					(Field.BACKGROUND_COLOUR, treeNode);
+			paintedColour = getColorFromString(ancestorColour);
+		}
 		
 		refreshHighlighted();
 	}
