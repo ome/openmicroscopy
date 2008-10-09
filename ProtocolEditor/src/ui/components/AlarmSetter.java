@@ -188,36 +188,113 @@ public class AlarmSetter
 			setBeforeAfterChooserIndex(AFTER);
 		}
 		
+		int timeUnit = getTimeUnits(secs);
+		int timeValue = getTimeValue(secs);
+		
+		setTimeUnitChooserIndex(timeUnit);
+		setTimeSpinnerValue(timeValue);
+	}
+	
+	/**
+	 * Returns the value needed to describe the alarm seconds in the 
+	 * units returned by {@link #getTimeUnits(int)};
+	 * eg If alarmSecs = 3600, this method will return 1, and 
+	 * {@link #getTimeUnits(int)} will return {@link HOURS};
+	 * 
+	 * @param alarmSecs		time in seconds
+	 * @return int 			see above. 
+	 */
+	public static int getTimeValue(int alarmSecs) {
 		int timeUnit;
 		int timeValue;
 		
+		if (alarmSecs == 0) return 0;
+		
 		// need to work out what the units are
 		for (timeUnit = 0; timeUnit<timeUnits.length; timeUnit++) {
-			timeValue = secs/secondsInTimeUnit[timeUnit];
+			timeValue = alarmSecs/secondsInTimeUnit[timeUnit];
 			// if timeValue > 0 then this is the units you want
 			if (timeValue > 0) {
 				
 				// if it is an exact match 
-				if (secs == timeValue * secondsInTimeUnit[timeUnit]) {
-					setTimeUnitChooserIndex(timeUnit);
-					setTimeSpinnerValue(timeValue);
-					return;
+				if (alarmSecs == timeValue * secondsInTimeUnit[timeUnit]) {
+					return timeValue;
 				} else {
 				
 				// if any seconds are left over (eg user sets 90 minutes or 36 hours)
 					// try smaller units
 					if (timeUnit < timeUnits.length -1) {
 						timeUnit++;
-						timeValue = secs/secondsInTimeUnit[timeUnit];
-						setTimeUnitChooserIndex(timeUnit);
-						setTimeSpinnerValue(timeValue);
-						return;
+						timeValue = alarmSecs/secondsInTimeUnit[timeUnit];
+						return timeValue;
 					}
-				
 				}
-				
 			}
 		}
+		return 0;
+	}
+	
+	
+	public static String alarmSecsToString(String alarmSecs) {
+		
+		try {
+			int secs = Integer.parseInt(alarmSecs);
+			
+			boolean alarmBefore = false;
+			if (secs < 0) {		// alarm before event
+				alarmBefore = true;
+				secs = secs * -1;
+			}
+			
+			if (secs == 0) return "No alarm";
+			
+			int value = getTimeValue(secs);
+			String units = "No alarm";
+			if (getTimeUnits(secs) < timeUnits.length) {
+				units = timeUnits[getTimeUnits(secs)];
+			}
+			
+			return value + " " + units + (alarmBefore ? " Before" : " After");
+			                 
+		} catch (NumberFormatException ex) {
+			ex.printStackTrace();
+			return "";
+		}
+	}
+	
+	
+	/**
+	 * Returns the units needed to describe the alarm seconds
+	 * {@link DAYS}, {@link HOURS}, or {@link MINS} 
+	 * 
+	 * @param alarmSecs
+	 * @return int  the units index {@link DAYS}, {@link HOURS}, or {@link MINS} 
+	 */
+	public static int getTimeUnits(int alarmSecs) {
+		
+		int timeUnit;
+		int timeValue;
+		
+		// need to work out what the units are
+		for (timeUnit = 0; timeUnit<timeUnits.length; timeUnit++) {
+			timeValue = alarmSecs/secondsInTimeUnit[timeUnit];
+			// if timeValue > 0 then this is the units you want
+			if (timeValue > 0) {
+				
+				// if it is an exact match 
+				if (alarmSecs == timeValue * secondsInTimeUnit[timeUnit]) {
+					return timeUnit;
+				} else {
+				
+				// if any seconds are left over (eg user sets 90 minutes or 36 hours)
+					// try smaller units
+					if (timeUnit < timeUnits.length -1) {
+						return timeUnit + 1;
+					}
+				}
+			}
+		}
+		return NO_ALARM;
 	}
 	
 	public void setTimeUnitChooserIndex(int index) {

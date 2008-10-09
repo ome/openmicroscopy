@@ -1,21 +1,3 @@
-package util;
-
-import java.awt.Color;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import tree.DataField;
-import tree.DataFieldConstants;
-import tree.DataFieldNode;
-import tree.IAttributeSaver;
-import ui.formFields.FormField;
 
 /*
  *------------------------------------------------------------------------------
@@ -38,6 +20,30 @@ import ui.formFields.FormField;
  *------------------------------------------------------------------------------
  *	author Will Moore will@lifesci.dundee.ac.uk
  */
+
+package util;
+
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import tree.DataField;
+import tree.DataFieldConstants;
+import tree.DataFieldNode;
+import tree.IAttributeSaver;
+import ui.components.AlarmSetter;
+import ui.formFields.FormField;
 
 public class DefaultExport 
 	implements IExport {
@@ -80,7 +86,48 @@ public class DefaultExport
 	public String TABLE_DATA = "     ";
 	public String TABLE_DATA_END = "";
 	
-	
+	/**
+	 * Exports the given dataField nodes as a String. 
+	 * This method works by creating a temporary file, delegating the
+	 * export to that file, using {@link #export(File, List)} and then 
+	 * converting the file to a String. The temp file is deleted before 
+	 * returning the String.
+	 * 
+	 * @param rootNodes		A list of the nodes to export
+	 * @return String		A string representation of the export. 
+	 */
+	public String exportToString(List<DataFieldNode> rootNodes) 
+	{
+		File tempFile = new File("temp");
+		
+		export(tempFile, rootNodes);
+		
+		StringBuffer fileData = new StringBuffer(1000);
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(tempFile));
+			char[] buf = new char[1024];
+			int numRead=0;
+			while((numRead=reader.read(buf)) != -1){
+				String readData = String.valueOf(buf, 0, numRead);
+				fileData.append(readData);
+				buf = new char[1024];
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		String exportString = fileData.toString();
+		
+		//tempFile.delete();
+		
+		return exportString;
+	}
 	
 	/**
 	 * Simplest export. Export the given nodes to the file.
@@ -97,7 +144,7 @@ public class DefaultExport
 		exportPreferences.put(SHOW_DEFAULT_VALUES, true);
 		exportPreferences.put(SHOW_URL, true);
 		exportPreferences.put(SHOW_TABLE_DATA, true);
-		exportPreferences.put(SHOW_OTHER_ATTRIBUTES, true);
+		exportPreferences.put(SHOW_OTHER_ATTRIBUTES, false);
 		
 		export(file, rootNodes, exportPreferences);
 	}
@@ -213,8 +260,8 @@ public class DefaultExport
         	divHeader = DIV_CLASS_PROTOCOL;
         else divHeader = DIV;
         
-        if (true) {
-        	String colour = dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR);
+        String colour = dataField.getAttribute(DataFieldConstants.BACKGROUND_COLOUR);
+        if (colour != null) {
         	Color bgColour = FormField.getColorFromString(colour);
         	if (bgColour != null) {
         		int r = bgColour.getRed();
@@ -249,6 +296,31 @@ public class DefaultExport
         if (units != null) outputStream.print(" " + units);
         outputStream.println(SPAN_END);
         	
+        if (DataFieldConstants.DATE_TIME_FIELD.equals(inputType)) {
+        	String date = "Date: ";
+        	String UTCmillisecs = dataField.getAttribute(DataFieldConstants.UTC_MILLISECS);
+			if (UTCmillisecs != null) {
+				SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+				date = date + sdf.format(new Long(UTCmillisecs));
+			} else {
+				date = date + "none set.";
+			}
+			
+			String time = dataField.getAttribute(DataFieldConstants.SECONDS);
+			if (time != null) {
+				SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+				date = date + " at " + sdf.format(new Long(time + "000")) + ".";
+			}
+			
+			String alarmSecs = dataField.getAttribute(DataFieldConstants.ALARM_SECONDS);
+			if (alarmSecs != null) {
+				date = date + " Alarm: " + AlarmSetter.alarmSecsToString(alarmSecs);
+			}
+			date = DIV_CLASS_ATTRIBUTE + date + DIV_END;
+			
+			outputStream.print(date);
+        }
+        
         if ((showDefaultValues) && (allAttributes.get(DataFieldConstants.DEFAULT) != null)) {
         	outputStream.print(DIV_CLASS_ATTRIBUTE + "Default Value = " +
         			allAttributes.get(DataFieldConstants.DEFAULT) + DIV_END);
