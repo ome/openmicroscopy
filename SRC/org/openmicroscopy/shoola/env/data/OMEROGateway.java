@@ -1059,7 +1059,10 @@ class OMEROGateway
 			if (fileStore != null) fileStore.close();
 			thumbnailService = null;
 			fileStore = null;
+			entry.closeOnDestroy();
 			blitzClient.closeSession();
+			entry = null;
+			blitzClient = null;
 		} catch (Exception e) {
 			//session already dead.
 		}
