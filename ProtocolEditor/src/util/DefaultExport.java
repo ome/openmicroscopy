@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -300,8 +302,15 @@ public class DefaultExport
         	String date = "Date: ";
         	String UTCmillisecs = dataField.getAttribute(DataFieldConstants.UTC_MILLISECS);
 			if (UTCmillisecs != null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
-				date = date + sdf.format(new Long(UTCmillisecs));
+				Calendar cal = new GregorianCalendar();
+				cal.setTimeInMillis(new Long(UTCmillisecs));
+				if (cal.get(Calendar.YEAR) == 1970) {
+					int days = cal.get(Calendar.DAY_OF_MONTH) - 1; // 1st of month is 0 days
+					date = date + days + " Days.";
+				} else {
+					SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy");
+					date = date + sdf.format(cal.getTimeInMillis());
+				}
 			} else {
 				date = date + "none set.";
 			}
