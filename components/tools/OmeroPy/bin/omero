@@ -27,6 +27,8 @@ def readlink(file=sys.argv[0]):
 
 if os.environ.has_key("OMERO_HOME"):
     top = os.environ["OMERO_HOME"]
+    if not os.path.exists(top):
+        print "OMERO_HOME=%s cannot be found" % top
 else:
     exe = readlink()
     top = os.path.join(exe, os.pardir, os.pardir)
