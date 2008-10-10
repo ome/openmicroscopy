@@ -18,6 +18,12 @@ module omero {
      */
     const string CLIENTUUID = "omero.client.uuid";
 
+
+    /*
+     * Default Ice.GC.Interval for OmeroCpp (60 seconds)
+     */
+    const int GCINTERVAL = 60;
+
     /*
      * Default Glacier2 port. Used to define '@omero.port@' if not set.
      */

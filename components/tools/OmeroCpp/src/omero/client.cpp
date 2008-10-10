@@ -27,6 +27,14 @@ namespace omero {
 	// Strictly necessary for this class to work
 	id.properties->setProperty("Ice.ImplicitContext", "Shared");
 
+	// C++ only
+	std::string gcInterval = id.properties->getProperty("Ice.GC.Interval");
+	if ( gcInterval.length() == 0 ) {
+	    stringstream ssgcInt;
+	    ssgcInt << omero::constsnts::GCINTERVAL;
+	    id.properties->setProperty("Ice.GC.Interval", ssgcInt.str());
+	}
+
 	// Setting MessageSizeMax
 	std::string messageSize = id.properties->getProperty("Ice.MessageSizeMax");
 	if ( messageSize.length() == 0 ) {
