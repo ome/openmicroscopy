@@ -26,6 +26,7 @@ package ome.formats;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Constructor;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -337,7 +338,8 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
         if (!enumCache.containsKey(klass))
         {
             checkSF();
-            List<IObject> enumerations = (List<IObject>) iQuery.findAll(klass, null);
+            List<IObject> enumerations = 
+                (List<IObject>) iQuery.findAll(klass, null);
             if (enumerations == null)
                 throw new EnumerationException("Problem finding enumeration: ",
                                                klass, value);
@@ -350,7 +352,22 @@ public class OMEROMetadataStore implements MetadataStore, IMinMaxStore
             IEnum enumeration = (IEnum) object;
             if (value.equals(enumeration.getValue()))
             {
-                return object;
+                // We're going to return an unloaded enumeration because
+                // of the potential unloading done by the update service.
+                try
+                {
+                    Constructor<? extends IObject> constructor = 
+                        klass.getDeclaredConstructor(
+                            new Class[] { Long.class, boolean.class });
+                return (IObject) constructor.newInstance(
+                        new Object[] { enumeration.getId(), false });
+                }
+                catch (Exception e)
+                {
+                    String m = "Unable to instantiate class: " + klass; 
+                    log.error(m, e);
+                    throw new EnumerationException(m, klass, value);
+                }
             }
         }
         throw new EnumerationException("Problem finding enumeration: ",
