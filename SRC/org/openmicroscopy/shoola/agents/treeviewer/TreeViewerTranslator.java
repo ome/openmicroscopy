@@ -45,8 +45,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.clsf.TreeCheckNode;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -110,25 +108,6 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms a {@link CategoryData} into a visualisation object i.e.
-     * a {@link TreeCheckNode}.
-     * 
-     * @param data  The {@link CategoryData} to transform.
-     *              Mustn't be <code>null</code>.
-     * @return See above.
-     */
-    private static TreeCheckNode transformCategoryCheckNode(CategoryData data)
-    {
-        if (data == null)
-            throw new IllegalArgumentException("Cannot be null");
-        IconManager im = IconManager.getInstance();      
-        TreeCheckNode category =  new TreeCheckNode(data, 
-                                    im.getIcon(IconManager.CATEGORY),
-                                    data.getName(), true);
-        return category;
-    }
-    
-    /**
      * Transforms a {@link DatasetData} into a visualisation object i.e.
      * a {@link TreeCheckNode}.
      * 
@@ -165,40 +144,6 @@ public class TreeViewerTranslator
                                     data.getName(), true);
         return node;
     }
-    
-    /**
-     * Transforms a {@link CategoryGroupData} into a visualisation object i.e.
-     * a {@link TreeCheckNode}. The {@link CategoryData categories} are also
-     * transformed and linked to the newly created {@link TreeCheckNode}.
-     * 
-     * @param data      The {@link CategoryGroupData} to transform.
-     *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.             
-     * @return See above.
-     */
-    private static TreeCheckNode transformCategoryGroupCheckNode(
-                                CategoryGroupData data, long userID, 
-                                long groupID)
-    {
-        if (data == null)
-            throw new IllegalArgumentException("Cannot be null");
-        IconManager im = IconManager.getInstance();
-        TreeCheckNode group = new TreeCheckNode(data, 
-                                im.getIcon(IconManager.CATEGORY_GROUP), 
-                                data.getName(), false);
-        Set categories = data.getCategories();
-        Iterator i = categories.iterator();
-        CategoryData child;
-        while (i.hasNext()) {
-            child = (CategoryData) i.next();
-            if (EditorUtil.isWritable(child, userID, groupID))
-                group.addChildDisplay(transformCategoryCheckNode(child));
-        }
-            
-        return group;
-    }  
     
     /**
      * Transforms a {@link DatasetData} into a visualisation object i.e.
@@ -450,77 +395,6 @@ public class TreeViewerTranslator
     }
     
     /**
-     * Transforms a {@link CategoryData} into a visualisation object i.e.
-     * a {@link TreeImageSet}.
-     * 
-     * @param data      The {@link CategoryData} to transform.
-     *                  Mustn't be <code>null</code>.
-     * @param userID    The id of the current user.
-     * @param groupID   The id of the group the current user selects when 
-     *                      retrieving the data.                
-     * @return See above.
-     */
-    private static TreeImageDisplay transformCategory(CategoryData data, 
-                                                long userID, long groupID)
-    {
-        if (data == null)
-            throw new IllegalArgumentException("Cannot be null");
-        TreeImageSet category =  new TreeImageSet(data);
-        Set images = data.getImages();
-        if (images == null) category.setNumberItems(-1);
-        else {
-            category.setChildrenLoaded(Boolean.TRUE);
-            category.setNumberItems(images.size());
-            Iterator i = images.iterator();
-            ImageData child;
-            while (i.hasNext()) {
-                child = (ImageData) i.next();
-                if (EditorUtil.isReadable(child, userID, groupID))
-                    category.addChildDisplay(transformImage(child));
-            }
-        }
-        return category;
-    } 
-    
-    /**
-     * Transforms a {@link CategoryGroupData} into a visualisation object i.e.
-     * a {@link TreeImageSet}. The {@link CategoryData categories} are also
-     * transformed and linked to the newly created {@link TreeImageSet}.
-     * 
-     * @param data          The {@link CategoryGroupData} to transform.
-     *                      Mustn't be <code>null</code>.
-     * @param categories    The categories to add.
-     * @param userID        The id of the current user.
-     * @param groupID       The id of the group the current user selects when 
-     *                      retrieving the data.                    
-     * @return See above.
-     */
-    private static TreeImageDisplay transformCategoryGroup(
-            CategoryGroupData data, Set categories, long userID, long groupID)
-    {
-        if (data == null)
-            throw new IllegalArgumentException("Cannot be null");
-        TreeImageSet group = new TreeImageSet(data);
-        if (categories != null) {
-            group.setChildrenLoaded(Boolean.TRUE);
-            Iterator i = categories.iterator();
-            CategoryData child;
-            while (i.hasNext())  {
-                child = (CategoryData) i.next();
-                if (EditorUtil.isReadable(child, userID, groupID))
-                    group.addChildDisplay(transformCategory(child, userID, 
-                                                            groupID));
-            }   
-            group.setNumberItems(categories.size());
-        } else {
-            //categories not loaded.
-            group.setChildrenLoaded(Boolean.TRUE);
-            group.setNumberItems(0);
-        }
-        return group;
-    }
-    
-    /**
      * Transforms a {@link ImageData} into a visualisation object i.e.
      * a {@link TreeImageNode}.
      * 
@@ -566,10 +440,6 @@ public class TreeViewerTranslator
                   results.add(transformProject((ProjectData) ho, 
                             ((ProjectData) ho).getDatasets(), userID, 
                                                 groupID));
-                else if (ho instanceof CategoryGroupData)
-                    results.add(transformCategoryGroup((CategoryGroupData) ho, 
-                            ((CategoryGroupData) ho).getCategories(),
-                            userID, groupID));
                 else if (ho instanceof ImageData) 
                     results.add(transformImage((ImageData) ho));	
                 else if (ho instanceof DatasetData) {
@@ -584,15 +454,6 @@ public class TreeViewerTranslator
                 	*/
                 	child = transformDataset((DatasetData) ho, userID, groupID);
                 	results.add(child);
-                } else if (ho instanceof CategoryData) {
-                	if (orphan == null) {
-                		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
-                		orphan.setChildrenLoaded(Boolean.TRUE);
-                		results.add(orphan);
-                	}
-                	child = transformCategory((CategoryData) ho, userID, 
-                								groupID);
-                	orphan.addChildDisplay(child);
                 } else if (ho instanceof TagAnnotationData) {
                 	child = transformTag((TagAnnotationData) ho, userID, 
                 			            groupID);
@@ -650,17 +511,6 @@ public class TreeViewerTranslator
 	                    display.setExpanded(
 	                    		expanded.contains(new Long(ho.getId())));
                     results.add(display);
-                } else if (ho instanceof CategoryGroupData) {
-                	if (expandedTopNodes != null)
-	                	expanded = (List) 
-	                			expandedTopNodes.get(CategoryGroupData.class);
-                    display = transformCategoryGroup((CategoryGroupData) ho, 
-                                                    (Set) nodes.get(ho), 
-                                                    userID, groupID);
-                    if (expanded != null)
-	                    display.setExpanded(
-	                    		expanded.contains(new Long(ho.getId())));
-                    results.add(display); 
                 } else if (ho instanceof DatasetData) {
                 	/*
                 	if (orphan == null) {
@@ -699,28 +549,6 @@ public class TreeViewerTranslator
                 					expanded.contains(new Long(ho.getId())));
                 		//orphan.addChildDisplay(display);
                 		results.add(display); 
-                	}
-                } else if (ho instanceof CategoryData) {
-                	if (orphan == null) {
-                		orphan = new TreeImageSet(ORPHANED_CATEGORIES);
-                		orphan.setChildrenLoaded(true);
-                		results.add(orphan); 
-                	}
-                	if (expandedTopNodes != null)
-                		expanded = 
-                				(List) expandedTopNodes.get(CategoryData.class);
-                	Set r = (Set) nodes.get(ho); //should only have one element
-                	if (r != null) {  //shouldn't happen
-                		Iterator k = r.iterator();
-                    	while (k.hasNext()) {
-                    		CategoryData element = (CategoryData) k.next();
-    						display = transformCategory(element, userID, 
-    													groupID);
-    						if (expanded != null)
-    		                    display.setExpanded(
-    		                    	expanded.contains(new Long(ho.getId())));
-    						orphan.addChildDisplay(display);
-    					}
                 	}
                 } else if (ho instanceof ScreenData) {
                 	if (expandedTopNodes != null)
@@ -769,12 +597,6 @@ public class TreeViewerTranslator
                     ((ProjectData) object).getDatasets(), userID, groupID);
         else if (object instanceof DatasetData)
             return transformDataset((DatasetData) object, userID, groupID);
-        else if (object instanceof CategoryData)
-            return transformCategory((CategoryData) object, userID, groupID);
-        else if (object instanceof CategoryGroupData)
-            return transformCategoryGroup((CategoryGroupData) object, 
-                    ((CategoryGroupData) object).getCategories(),
-                                        userID, groupID);
         else if (object instanceof ImageData)
             return transformImage((ImageData) object);
         else if (object instanceof ScreenData)
@@ -810,14 +632,7 @@ public class TreeViewerTranslator
         while (i.hasNext()) {
             ho = (DataObject) i.next();
             if (EditorUtil.isWritable(ho, userID, groupID)) {
-                if (ho instanceof CategoryGroupData) {
-                    Set categories = ((CategoryGroupData) ho).getCategories();
-                    if (categories != null && categories.size() != 0)
-                        results.add(transformCategoryGroupCheckNode(
-                                (CategoryGroupData) ho, userID, groupID));
-                } else if (ho instanceof CategoryData)
-                    results.add(transformCategoryCheckNode((CategoryData) ho));
-                else if (ho instanceof DatasetData) 
+                if (ho instanceof DatasetData) 
                     results.add(transformDatasetCheckNode((DatasetData) ho));
             }  
         }
@@ -848,8 +663,6 @@ public class TreeViewerTranslator
             if (EditorUtil.isWritable(ho, userID, groupID)) {
                 if (ho instanceof DatasetData)
                     results.add(transformDatasetCheckNode((DatasetData) ho));
-                else if (ho instanceof CategoryData)
-                    results.add(transformCategoryCheckNode((CategoryData) ho));
                 else if (ho instanceof ImageData)
                     results.add(transformImageCheckNode((ImageData) ho));
             }

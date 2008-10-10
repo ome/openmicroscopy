@@ -34,26 +34,25 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ImageData;
 
 /** 
-* Pastes the rendering settings associated to the passed set of pixels
-* across a collection of images.
-* This class calls the <code>pasteRndSettings</code> method in the
-* <code>DataManagerView</code>.
-*
-* @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
-* @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
-* <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
-* @version 3.0
-* <small>
-* (<b>Internal version:</b> $Revision: $Date: $)
-* </small>
-* @since OME3.0
-*/
+ * Pastes the rendering settings associated to the passed set of pixels
+ * across a collection of images.
+ * This class calls the <code>pasteRndSettings</code> method in the
+ * <code>DataManagerView</code>.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
 public class RndSettingsSaver 
 	extends DataTreeViewerLoader
 {
@@ -96,8 +95,7 @@ public class RndSettingsSaver
 	 */
 	private void checkRootType(Class type)
 	{
-		if (ImageData.class.equals(type) || DatasetData.class.equals(type) ||
-				CategoryData.class.equals(type))
+		if (ImageData.class.equals(type) || DatasetData.class.equals(type))
 			return;
 		throw new IllegalArgumentException("Type not supported.");
 	}

@@ -37,7 +37,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -94,8 +93,8 @@ public class ResetRndSettingsAction
 			}
 			return;
 		}
-		if (!(ho instanceof ImageData || ho instanceof DatasetData ||
-				ho instanceof CategoryData)) setEnabled(false);
+		if (!(ho instanceof ImageData || ho instanceof DatasetData))
+			setEnabled(false);
 		else {
 			if (n > 1) setEnabled(ho instanceof ImageData);
 			else setEnabled(true);

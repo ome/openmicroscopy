@@ -35,8 +35,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-
-import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -92,10 +90,7 @@ public class AnnotateChildrenCmd
     		if (ho instanceof DatasetData) {
     			klass = DatasetData.class;
     			s.add((DatasetData) ho);
-    		} else if (ho instanceof CategoryData) {
-    			klass = CategoryData.class;
-    			s.add((CategoryData) ho);
-    		}
+    		} 
     		if (klass != null)
     			model.annotateChildren(klass, s);
     	}

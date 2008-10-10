@@ -75,7 +75,6 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -1221,8 +1220,7 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No specified container.");
-		if (DatasetData.class.equals(klass) ||
-				CategoryData.class.equals(klass)) {
+		if (DatasetData.class.equals(klass)) {
 			DataHandler dh = model.annotateChildren(view, klass, nodes);
 			dh.addPropertyChangeListener(controller);
 			dh.activate();
@@ -1240,8 +1238,7 @@ class TreeViewerComponent
 					"This method cannot be invoked in the DISCARDED state.");
 		if (nodes == null || nodes.size() == 0)
 			throw new IllegalArgumentException("No specified container.");
-		if (DatasetData.class.equals(klass) ||
-				CategoryData.class.equals(klass)) {
+		if (DatasetData.class.equals(klass)) {
 			Iterator i = nodes.iterator();
 			Set<Long> ids = new HashSet<Long>(nodes.size());
 			while (i.hasNext()) 
@@ -1349,7 +1346,6 @@ class TreeViewerComponent
 	 */
 	public void pasteRndSettings(List<Long> ids, Class klass)
 	{
-		int state = model.getState();
 		if (!hasRndSettings()) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Paste settings", "No rendering settings to" +

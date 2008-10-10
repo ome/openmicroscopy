@@ -23,17 +23,14 @@
 
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-
-import pojos.ExperimenterData;
-
-
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
+import pojos.ExperimenterData;
 
 /** 
  * Factory to create {@link Browser} objects.

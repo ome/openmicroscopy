@@ -33,14 +33,14 @@ import java.util.Set;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
 
 /** 
- * 
+ * Loads existing objects of a given type.
+ * This class calls one of the <code>loadExistingObjects</code> method in the
+ * <code>DataManagerView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,8 +69,7 @@ public class ExistingObjectsLoader
      */
     private void checkObject(DataObject o)
     {
-        if ((o instanceof DatasetData) || (o instanceof ProjectData) ||
-            (o instanceof CategoryData) || (o instanceof CategoryGroupData))
+        if ((o instanceof DatasetData) || (o instanceof ProjectData))
             return;
         throw new IllegalArgumentException("Data type not supported.");
     }

@@ -39,8 +39,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageNode;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
 import org.openmicroscopy.shoola.util.ui.RegExFactory;
 import pojos.AnnotationData;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.ProjectData;
@@ -86,10 +84,6 @@ public class RegExVisitor
             return ((DatasetData) userObject).getName();
         else if (userObject instanceof ImageData) 
             return ((ImageData) userObject).getName();
-        else if (userObject instanceof CategoryGroupData) 
-            return ((CategoryGroupData) userObject).getName();
-        else if (userObject instanceof CategoryData) 
-            return ((CategoryData) userObject).getName();
         return null;
     }
     
@@ -107,10 +101,6 @@ public class RegExVisitor
             return ((DatasetData) userObject).getDescription();
         else if (userObject instanceof ImageData) 
             return ((ImageData) userObject).getDescription();
-        else if (userObject instanceof CategoryGroupData) 
-            return ((CategoryGroupData) userObject).getDescription();
-        else if (userObject instanceof CategoryData) 
-            return ((CategoryData) userObject).getDescription();
         return null;
     }
     

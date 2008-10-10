@@ -32,7 +32,6 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -43,10 +42,8 @@ import javax.swing.JRadioButton;
 
 
 //Third-party libraries
-import layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -74,10 +71,6 @@ public class DeleteDialog
     
 	/** The title of the dialog. */
 	private static final String		TITLE = "Confirm delete";
-	
-	/** The question asked. */
-	private static final String		TEXT = "Are you sure you want to delete " +
-			"the selected objects.";
 	
 	/** User have selected the yes option. */
 	public final static int			YES_OPTION = 1;
@@ -162,30 +155,6 @@ public class DeleteDialog
 		controlPanel.add(noButton);
 		controlPanel.add(Box.createRigidArea(H_SPACER_SIZE));
 		return UIUtilities.buildComponentPanelRight(controlPanel);
-	}
-	
-	/** 
-	 * Returns the component hosting the various choices.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildMainPane()
-	{
-		JPanel p = new JPanel();
-		IconManager icons = IconManager.getInstance();
-		Icon icon = icons.getIcon(IconManager.QUESTION);
-		double size[][] =  {{icon.getIconWidth(), 10, TableLayout.FILL}, // columns
-              {TableLayout.PREFERRED, 10, TableLayout.PREFERRED}}; // rows
-		p.setLayout(new TableLayout(size));
-		p.add(new JLabel(icon), "0, 0");
-		p.add(new JLabel(TEXT), "2, 0");
-		JPanel choice = new JPanel();
-		choice.setLayout(new BoxLayout(choice, BoxLayout.Y_AXIS));
-		choice.add(withContent);
-		choice.add(withoutContent);
-		
-		p.add(choice, "0, 2, 2, 2");
-		return p;
 	}
 	
 	/** Builds and lays out the UI. */

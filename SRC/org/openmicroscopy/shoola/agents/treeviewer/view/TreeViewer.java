@@ -758,6 +758,12 @@ public interface TreeViewer
 	 */
 	public void browseTimeInterval(TreeImageTimeSet node, Set set);
 
+	/**
+	 * Sets the wells linked to the parent.
+	 * 
+	 * @param parent The parent to handle.
+	 * @param wells  The wells to add.
+	 */
 	public void setWells(TreeImageSet parent, Set wells);
 
 }

@@ -38,8 +38,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
@@ -65,10 +63,7 @@ public class CreateAction
     /** The name of the action for the creation of a <code>Dataset</code>. */
     private static final String NAME_DATASET = "New Dataset...";
     
-    /** The name of the action for the creation of a <code>Category</code>. */
-    private static final String NAME_CATEGORY = "New Tag...";
-    
-    /** The name of the action for the creation of a <code>Image</code>. */
+   /** The name of the action for the creation of a <code>Image</code>. */
     private static final String NAME_IMAGE = "Import Image...";
     
     /** 
@@ -76,14 +71,7 @@ public class CreateAction
      */
     private static final String DESCRIPTION_DATASET = "Create a new dataset " +
     		"and add it to the selected project.";
-    
-    /** 
-     * Description of the action if the selected node is a 
-     * <code>Category</code>.
-     */
-    private static final String DESCRIPTION_CATEGORY = "Create a new Tag" +
-    							" and add it to the selected Tag Set.";
-    
+ 
     /** 
      * Description of the action if the selected node is a <code>Image</code>.
      */
@@ -142,18 +130,6 @@ public class CreateAction
            
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
-        } else if (ho instanceof CategoryGroupData) {
-            setEnabled(model.isObjectWritable(ho));
-            name = NAME_CATEGORY;
-            putValue(Action.SHORT_DESCRIPTION, 
-                    UIUtilities.formatToolTipText(DESCRIPTION_CATEGORY));
-            nodeType = CreateCmd.CATEGORY;
-        } else if (ho instanceof CategoryData) {
-            setEnabled(model.isObjectWritable(ho));
-            setEnabled(false); //TODO: remove when import
-            name = NAME_IMAGE;
-            putValue(Action.SHORT_DESCRIPTION, 
-                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
         } else if (ho instanceof DatasetData) {
             setEnabled(model.isObjectWritable(ho));
             setEnabled(false);

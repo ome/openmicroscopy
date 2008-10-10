@@ -39,7 +39,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CutCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -98,7 +97,7 @@ public class CutAction
         }
         Object ho = selectedDisplay.getUserObject(); 
         if ((ho instanceof DatasetData) ||(ho instanceof ImageData) || 
-             (ho instanceof CategoryData) || (ho instanceof PlateData))
+             (ho instanceof PlateData))
             setEnabled(model.isObjectWritable(ho));
         else setEnabled(false);
     }

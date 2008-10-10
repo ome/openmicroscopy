@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 
-
-
 //Java imports
 
 //Third-party libraries
@@ -39,7 +37,6 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
-
 import pojos.ExperimenterData;
 
 /** 

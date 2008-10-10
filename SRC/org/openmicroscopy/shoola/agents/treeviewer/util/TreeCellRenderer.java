@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.util.Set;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -45,8 +44,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
@@ -104,11 +101,7 @@ public class TreeCellRenderer
             if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.IMAGE_ANNOTATED);
             else icon = icons.getIcon(IconManager.IMAGE);
-        } else if (usrObject instanceof CategoryGroupData)
-            icon = icons.getIcon(IconManager.CATEGORY_GROUP);
-        else if (usrObject instanceof CategoryData)
-            icon = icons.getIcon(IconManager.CATEGORY);
-        else if (usrObject instanceof TagAnnotationData) {
+        } else if (usrObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) usrObject;
         	Set tags = tag.getTags();
         	if (tags != null && tags.size() > 0)
@@ -193,9 +186,6 @@ public class TreeCellRenderer
         if (numberChildrenVisible) setText(node.getNodeText());
         else setText(node.getNodeName());
         setToolTipText(node.getToolTip());
-        //if (node instanceof TreeImageTimeSet)
-        //	setIcon(icons.getIcon(IconManager.DATE));
-        //else 
         setIcon(node);
         Color c = node.getHighLight();
         if (c == null) c = tree.getForeground();

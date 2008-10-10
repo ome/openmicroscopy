@@ -50,7 +50,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.EditVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.RefreshVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -710,7 +709,6 @@ class BrowserComponent
         if (op == TreeViewer.CREATE_OBJECT) {
             TreeImageDisplay node = getLastSelectedDisplay();
             if ((object instanceof ProjectData) ||
-                (object instanceof CategoryGroupData) ||
                 (object instanceof ScreenData) ||
                 ((object instanceof DatasetData) && parent == null)) {
                 nodes = new ArrayList(1);

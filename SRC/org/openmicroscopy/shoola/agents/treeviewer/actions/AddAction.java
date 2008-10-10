@@ -34,11 +34,8 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.ClassifyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -67,9 +64,6 @@ public class AddAction
     /** The name of the action to add existing <code>Datasets</code>. */
     private static final String NAME_DATASET = "Add existing Dataset...";
     
-    /** The name of the action to add existing <code>Categories</code>. */
-    private static final String NAME_CATEGORY = "Add existing Tag...";
-    
     /** The name of the action to add existing <code>Images</code>. */
     private static final String NAME_IMAGE = "Add existing Image...";
     
@@ -96,12 +90,6 @@ public class AddAction
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_DATASET); 
-        } else if (ho instanceof CategoryGroupData) {
-            setEnabled(model.isObjectWritable(ho));
-            putValue(Action.NAME, NAME_CATEGORY);
-        } else if (ho instanceof CategoryData) {
-            setEnabled(model.isObjectWritable(ho));
-            putValue(Action.NAME, NAME_IMAGE);
         } else if (ho instanceof DatasetData) {
             setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_IMAGE);
@@ -139,13 +127,8 @@ public class AddAction
         TreeImageDisplay d = b.getLastSelectedDisplay();
         if (d == null) return;
         Object ho = d.getUserObject();
-        if ((ho instanceof ProjectData) || (ho instanceof CategoryGroupData) ||
-            (ho instanceof DatasetData))
+        if ((ho instanceof ProjectData) || (ho instanceof DatasetData))
             model.addExistingObjects((DataObject) ho);
-        else if (ho instanceof CategoryData) {
-            ClassifyCmd cmd = new ClassifyCmd(model, ClassifyCmd.CLASSIFY);
-            cmd.execute();
-        }
     }
     
 }

@@ -39,8 +39,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ProjectData;
@@ -101,19 +99,14 @@ public class ManagerAction
             return;
         }
         Object ho = selectedDisplay.getUserObject();
-        if (ho instanceof String || ho instanceof ExperimenterData) { // root
+        if (ho instanceof String || ho instanceof ExperimenterData) // root
             setEnabled(false);
-        } else if (ho instanceof ProjectData) {
+        else if (ho instanceof ProjectData) 
             setEnabled(model.isObjectWritable(ho));
-        } else if (ho instanceof CategoryGroupData) {
+        else if (ho instanceof DatasetData) 
             setEnabled(model.isObjectWritable(ho));
-        } else if (ho instanceof CategoryData) {
-            setEnabled(model.isObjectWritable(ho));
-        } else if (ho instanceof DatasetData) {
-            setEnabled(model.isObjectWritable(ho));
-        } else {
+        else 
             setEnabled(false);
-        }
     }
     
     /**

@@ -25,14 +25,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -54,10 +52,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 public class ActivationAction
     extends TreeViewerAction
 {
-
-    /** The name of the action. */
-    //private static final String NAME = "DataManager";
-    
+	
     /** The description of the action. */
     private static final String DESCRIPTION = "Bring up the DataManager for" +
     		" the selected user.";

@@ -38,7 +38,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.AnnotateChildrenCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.ImageData;
 
@@ -97,8 +96,7 @@ public class AddMetadataAction
 				setEnabled(timeNode.getNumberItems() > 0);
 				return;
 			}
-			setEnabled(((ho instanceof DatasetData) || 
-					(ho instanceof CategoryData)));
+			setEnabled(ho instanceof DatasetData);
 			return;
 		}
 		setEnabled(false);
@@ -123,11 +121,6 @@ public class AddMetadataAction
 	 * Creates a  {@link AnnotateChildrenCmd} command to execute the action. 
 	 * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e)
-	{
-		//AnnotateChildrenCmd cmd = new AnnotateChildrenCmd(model);
-		//cmd.execute();
-		model.addMetadata();
-	}
+	public void actionPerformed(ActionEvent e) { model.addMetadata(); }
   
 }

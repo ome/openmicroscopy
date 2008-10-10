@@ -31,7 +31,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -40,7 +39,6 @@ import javax.swing.tree.DefaultTreeModel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageSet;
-import pojos.CategoryData;
 import pojos.DatasetData;
 import pojos.TagAnnotationData;
 
@@ -119,9 +117,7 @@ public class ContainersManager
             userObject = node.getUserObject();
             if (userObject instanceof DatasetData) 
                 id = new Long(((DatasetData) userObject).getId());
-            else if (userObject instanceof CategoryData) 
-                id = new Long(((CategoryData) userObject).getId());
-            else if (userObject instanceof TagAnnotationData) 
+           else if (userObject instanceof TagAnnotationData) 
                 id = new Long(((TagAnnotationData) userObject).getId());
             if (id != null) {
                 p = (Set) providers.get(id);

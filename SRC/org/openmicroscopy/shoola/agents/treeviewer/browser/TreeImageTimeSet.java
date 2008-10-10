@@ -32,13 +32,12 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Node used for smart folders.

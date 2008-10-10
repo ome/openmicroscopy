@@ -57,8 +57,6 @@ import org.openmicroscopy.shoola.agents.util.finder.AdvancedFinder;
 import org.openmicroscopy.shoola.agents.util.finder.FinderFactory;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -142,6 +140,7 @@ class TreeViewerModel
 	/** The viewer displaying the metadata. */
 	private MetadataViewer 			metadataViewer;
 	
+	/** Reference to the advanced finder. */
 	private AdvancedFinder			advancedFinder;
 	
 	/** Reference to the component that embeds this model. */
@@ -163,11 +162,7 @@ class TreeViewerModel
 		DataObject objParent = (DataObject) uoParent;
 
 		if (((objParent instanceof ProjectData) &&
-			(obj instanceof DatasetData)) ||  
-			((objParent instanceof CategoryGroupData) &&
-			(obj instanceof CategoryData)) || 
-			((objParent instanceof CategoryData) && 
-			(obj instanceof ImageData)) || 
+			(obj instanceof DatasetData)) || 
 			((objParent instanceof DatasetData)
 			&& (obj instanceof ImageData)) ||
 			((objParent instanceof ScreenData) &&
@@ -393,8 +388,7 @@ class TreeViewerModel
 		DataObject object = (DataObject) node.getUserObject();
 		Object po = parent.getUserObject();
 		DataObject data = null;
-		if (!((object instanceof ProjectData) || 
-				(object instanceof CategoryGroupData)))//root.
+		if (!(object instanceof ProjectData))//root.
 			data = ((DataObject) po);
 		Set l = new HashSet(1);
 		l.add(object);
@@ -505,8 +499,7 @@ class TreeViewerModel
 		TreeImageDisplay parent = selectedBrowser.getLastSelectedDisplay();
 		if (parent == null) return;
 		Object po = parent.getUserObject();
-		if ((po instanceof ProjectData) || ((po instanceof DatasetData)) ||
-				(po instanceof CategoryGroupData)) {
+		if ((po instanceof ProjectData) || ((po instanceof DatasetData))) {
 			currentLoader = new ExistingObjectsSaver(component, 
 					(DataObject) po, children);
 			currentLoader.load();
@@ -807,9 +800,8 @@ class TreeViewerModel
 	        
 	        if (node != null) {
 	            Object p =  node.getUserObject();
-	            if (!((object instanceof ProjectData) || 
-	                (object instanceof CategoryGroupData)))//root.
-	             data = ((DataObject) p);
+	            if (!(object instanceof ProjectData))//root.
+	            	data = ((DataObject) p);
 	        }
 		}
 		

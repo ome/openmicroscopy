@@ -39,8 +39,8 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 /** 
  * Selects the type of <code>Browser</code>. Three types are actually 
  * implemented and defined by the following contants:
- * {@link Browser#CATEGORY_EXPLORER}, {@link Browser#PROJECT_EXPLORER} and
- * {@link Browser#IMAGES_EXPLORER}.
+ * {@link Browser#PROJECT_EXPLORER}, {@link Browser#IMAGES_EXPLORER},
+ * {@link Browser#TAGS_EXPLORER} and {@link Browser#SCREENS_EXPLORER}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -71,11 +71,6 @@ public class BrowserSelectionAction
                 putValue(Action.SMALL_ICON,
                         im.getIcon(IconManager.HIERARCHY_EXPLORER));
                 break;
-            case Browser.CATEGORY_EXPLORER:
-                putValue(Action.NAME, Browser.CATEGORY_TITLE);
-                putValue(Action.SMALL_ICON,
-                    im.getIcon(IconManager.CATEGORY_EXPLORER));
-                break;
             case Browser.IMAGES_EXPLORER:
                 putValue(Action.NAME, Browser.IMAGES_TITLE);
                 putValue(Action.SMALL_ICON,
@@ -102,9 +97,10 @@ public class BrowserSelectionAction
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
      * @param browserType 	The Browser's type. One of the following constants:
-     * 						{@link Browser#CATEGORY_EXPLORER},
-     * 						{@link Browser#PROJECT_EXPLORER} and 
-     * 						{@link Browser#IMAGES_EXPLORER}.
+     * 						{@link Browser#PROJECT_EXPLORER}, 
+     * 						{@link Browser#IMAGES_EXPLORER},
+     * 						{@link Browser#TAGS_EXPLORER} and 
+     * 						{@link Browser#SCREENS_EXPLORER}.
      * 						 
      */
     public BrowserSelectionAction(TreeViewer model, int browserType)

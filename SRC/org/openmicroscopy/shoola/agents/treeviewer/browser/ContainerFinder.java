@@ -33,7 +33,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.CategoryData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.TagAnnotationData;
@@ -95,12 +94,10 @@ public class ContainerFinder
     public void visit(TreeImageSet node)
     {
         Object userObject = node.getUserObject();
-        if ((userObject instanceof DatasetData) || 
-        	(userObject instanceof CategoryData)) {
+        if (userObject instanceof DatasetData) {
             containerNodes.add(node); 
             containers.add((DataObject) userObject);
-        }
-        if (userObject instanceof TagAnnotationData) {
+        } else if (userObject instanceof TagAnnotationData) {
         	if (!node.isChildrenLoaded()) {
         		containerNodes.add(node); 
                 containers.add((DataObject) userObject);

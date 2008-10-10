@@ -37,8 +37,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
@@ -102,14 +100,6 @@ public class CopyAction
 			else {
 				Object parent = parentDisplay.getUserObject();
 				if (parent instanceof ProjectData)
-					setEnabled(model.isObjectWritable(ho));
-				else setEnabled(false);
-			}
-		} else if (ho instanceof CategoryData) {
-			TreeImageDisplay parentDisplay = selectedDisplay.getParentDisplay();
-			if (parentDisplay == null) setEnabled(false);
-			else {
-				if (parentDisplay.getUserObject() instanceof CategoryGroupData)
 					setEnabled(model.isObjectWritable(ho));
 				else setEnabled(false);
 			}

@@ -98,7 +98,6 @@ import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;

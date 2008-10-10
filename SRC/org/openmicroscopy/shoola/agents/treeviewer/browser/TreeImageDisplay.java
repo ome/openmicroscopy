@@ -41,8 +41,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import pojos.CategoryData;
-import pojos.CategoryGroupData;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -62,10 +60,10 @@ import pojos.TagAnnotationData;
  * {@link TreeImageNode} objects and internal nodes are {@link TreeImageSet} 
  * objects.</p>
  * <p>So we have a general purpose, set-based structure we can use to visualize 
- * any image hierarchy: Project/Dataset/Image, Category Group/Category/Image, 
- * or Screen/Plate/Well/Image. The original data hierarchy translates into
+ * any image hierarchy: Project/Dataset/Image, Screen/Plate/Well/Image. 
+ * The original data hierarchy translates into
  * a visualization tree as follows. Each image object corresponds to an
- * {@link TreeImageNode} and an image container, such as Dataset or Category, 
+ * {@link TreeImageNode} and an image container, such as Dataset or Plate, 
  * corresponds to an {@link TreeImageSet}. All {@link TreeImageNode} objects
  * that are created for the images in a given image container are added to the 
  * {@link TreeImageSet} object created for that image container. Nested
@@ -410,10 +408,6 @@ public abstract class TreeImageDisplay
             return ((DatasetData) obj).getName();
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
-        else if (obj instanceof CategoryGroupData) 
-            return ((CategoryGroupData) obj).getName();
-        else if (obj instanceof CategoryData) 
-            return ((CategoryData) obj).getName();
         else if (obj instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) obj;
         	return exp.getFirstName()+" "+exp.getLastName();

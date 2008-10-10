@@ -60,81 +60,11 @@ public class DeleteAction
     /** Name of the action. */
     private static final String NAME = "Delete";//"Remove";
     
-    /** Name of the action if the selected items are <code>Project</code>s. */
-    private static final String NAME_ROOT_P = "Remove projects";
-    
-    /** 
-     * Name of the action if the selected items are 
-     * <code>CategoryGroup</code>s. 
-     */
-    private static final String NAME_ROOT_CG = "Remove Tag sets";
-    
-    /** Name of the action if the selected items are <code>Dataset</code>s. */
-    private static final String NAME_PROJECT = "Remove from current project";
-    
-    /** Name of the action if the selected items are <code>Categorie</code>s.*/
-    private static final String NAME_CATEGORYGROUP = "Remove from current " +
-    												"Tag set";
-    
-    /** 
-     * Name of the action if the selected items are <code>Image</code>s and 
-     * the parent is a <code>Dataset</code>.
-     */
-    private static final String NAME_DATASET = "Remove from current dataset";
-    
-    /** 
-     * Name of the action if the selected items are <code>Image</code>s and 
-     * the parent is a <code>Category</code>.
-     */
-    private static final String NAME_CATEGORY = "Remove current Tag";
-    
-    
+
     /** 
      * Description of the action if the selected item is <code>null</code>. 
      */
     private static final String DESCRIPTION = "Delete.";
-    
-    /** 
-     * Description of the action if the selected items are 
-     * <code>Project</code>s. 
-     */
-    private static final String DESCRIPTION_ROOT_P = "Remove the selected " +
-    													"project.";
-    
-    /** 
-     * Description of the action if the selected items are 
-     * <code>CategoryGroup</code>s. 
-     */
-    private static final String DESCRIPTION_ROOT_CG = "Remove the selected " +
-    													"Tag Set.";
-    
-    /** 
-     * Description of the action if the selected items are 
-     * <code>Dataset</code>s. 
-     */
-    private static final String DESCRIPTION_PROJECT = "Remove the selected " +
-    		"datasets from the project.";
-    
-    /** 
-     * Description of the action if the selected items are 
-     * <code>Categorie</code>s. 
-     */
-    private static final String DESCRIPTION_CATEGORYGROUP = "Remove the " +
-    		"selected tags from the Tag set.";
-    
-    /** 
-     * Description of the action if the selected items are <code>Image</code>s 
-     * and the parent is a <code>Dataset</code>.
-     */
-    private static final String DESCRIPTION_DATASET = "Remove the selected " +
-    		"images from the dataset.";
-    
-    /** 
-     * Description of the action if the selected items are <code>Image</code>s 
-     * and  the parent is a <code>Category</code>.
-     */
-    private static final String DESCRIPTION_CATEGORY = "Remove the Tag " +
-    		"from the selected images.";
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
